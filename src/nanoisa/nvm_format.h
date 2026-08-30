@@ -20,7 +20,7 @@
 #define NVM_MAGIC_2 'M'
 #define NVM_MAGIC_3 0x01
 
-#define NVM_FORMAT_VERSION 1
+#define NVM_FORMAT_VERSION 2
 
 /* Header flags */
 #define NVM_FLAG_HAS_MAIN    (1 << 0)
@@ -89,9 +89,11 @@ typedef struct {
     uint32_t code_length;    /* Byte length of function's bytecode */
     uint16_t local_count;    /* Number of local variables (including params) */
     uint16_t upvalue_count;  /* Number of upvalue captures */
+    uint8_t result_tag;      /* NanoValueTag when result_count is nonzero */
+    uint8_t result_count;    /* Number of homogeneous results */
 } NvmFunctionEntry;
 
-#define NVM_FUNCTION_ENTRY_SIZE 18
+#define NVM_FUNCTION_ENTRY_SIZE 20
 
 /* ========================================================================
  * String Pool Entry (serialized in STRINGS section)

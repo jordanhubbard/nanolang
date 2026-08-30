@@ -261,6 +261,14 @@ static inline FILE *vm_out(VmState *vm) {
     return vm->output ? vm->output : stdout;
 }
 
+static bool result_tag_matches(uint8_t declared, uint8_t actual) {
+    /* TAG_VOID with results is reserved for untyped in-memory embedders. */
+    if (declared == TAG_VOID) return true;
+    if (declared == TAG_FUNCTION)
+        return actual == TAG_FUNCTION || actual == TAG_CLOSURE;
+    return declared == actual;
+}
+
 /* ========================================================================
  * Execution Engine
  * ======================================================================== */
@@ -1272,6 +1280,11 @@ dynamic_div:
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
+            if (vm->stack_size < callee->arity) {
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "Function %u needs %u arguments",
+                                  callee_idx, callee->arity);
+            }
 
             /* Arguments are already on the stack, pop them into the new frame */
             uint32_t new_base = vm->stack_size - callee->arity;
@@ -1322,6 +1335,11 @@ dynamic_div:
                 if (vm->frame_count >= VM_MAX_FRAMES) {
                     return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
                 }
+                if (vm->stack_size < callee->arity) {
+                    return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                      "Function %u needs %u arguments",
+                                      callee_idx, callee->arity);
+                }
 
                 uint32_t new_base = vm->stack_size - callee->arity;
                 for (uint16_t i = callee->arity; i < callee->local_count; i++) {
@@ -1349,11 +1367,27 @@ dynamic_div:
         }
 
         case OP_RET: {
-            /* Pop the return value (if stack has values above frame locals) */
-            NanoValue result = val_void();
-            if (vm->stack_size > frame->stack_base + frame->local_count) {
-                result = stack_pop(vm);
+            const NvmFunctionEntry *returning =
+                &vm->module->functions[frame->fn_idx];
+            uint32_t actual_results = vm->stack_size
+                - frame->stack_base - frame->local_count;
+            if (actual_results != returning->result_count) {
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "Function %u returned %u values, expected %u",
+                                  frame->fn_idx, actual_results,
+                                  returning->result_count);
             }
+            NanoValue results[UINT8_MAX];
+            for (uint8_t i = 0; i < returning->result_count; i++) {
+                results[i] = vm->stack[vm->stack_size - returning->result_count + i];
+                if (!result_tag_matches(returning->result_tag, results[i].tag)) {
+                    return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                      "Function %u returned %s, expected %s",
+                                      frame->fn_idx, isa_tag_name(results[i].tag),
+                                      isa_tag_name(returning->result_tag));
+                }
+            }
+            vm->stack_size -= returning->result_count;
 
             /* Clean up locals */
             while (vm->stack_size > frame->stack_base) {
@@ -1368,8 +1402,8 @@ dynamic_div:
             vm->frame_count--;
 
             if (vm->frame_count == 0) {
-                /* Return from top-level function - push result and exit */
-                stack_push(vm, result);
+                for (uint8_t i = 0; i < returning->result_count; i++)
+                    stack_push(vm, results[i]);
                 return trap_none();
             }
 
@@ -1382,8 +1416,8 @@ dynamic_div:
             const NvmFunctionEntry *caller_fn = &vm->module->functions[frame->fn_idx];
             code_end = caller_fn->code_offset + caller_fn->code_length;
 
-            /* Push return value for caller */
-            stack_push(vm, result);
+            for (uint8_t i = 0; i < returning->result_count; i++)
+                stack_push(vm, results[i]);
             break;
         }
 
@@ -1433,6 +1467,11 @@ dynamic_div:
 
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
+            }
+            if (vm->stack_size < callee->arity) {
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "Function %u needs %u arguments",
+                                  fn_idx_m, callee->arity);
             }
 
             uint32_t new_base = vm->stack_size - callee->arity;
@@ -2404,6 +2443,11 @@ dynamic_div:
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
+            if (vm->stack_size < callee->arity) {
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "Function %u needs %u arguments",
+                                  callee_idx, callee->arity);
+            }
 
             uint32_t new_base = vm->stack_size - callee->arity;
             for (uint16_t i = callee->arity; i < callee->local_count; i++) {
@@ -2559,23 +2603,41 @@ dynamic_div:
     /* Fell off the end of function code without RET or HALT */
     /* Treat as implicit RET with void */
     if (vm->frame_count > 0) {
-        NanoValue result = val_void();
-        if (vm->stack_size > frame->stack_base + frame->local_count) {
-            result = stack_pop(vm);
+        const NvmFunctionEntry *returning =
+            &vm->module->functions[frame->fn_idx];
+        uint32_t actual_results = vm->stack_size
+            - frame->stack_base - frame->local_count;
+        if (actual_results != returning->result_count)
+            return trap_error(vm, VM_ERR_TYPE_ERROR,
+                              "Function %u returned %u values, expected %u",
+                              frame->fn_idx, actual_results,
+                              returning->result_count);
+        NanoValue results[UINT8_MAX];
+        for (uint8_t i = 0; i < returning->result_count; i++) {
+            results[i] = vm->stack[vm->stack_size - returning->result_count + i];
+            if (!result_tag_matches(returning->result_tag, results[i].tag)) {
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "Function %u returned %s, expected %s",
+                                  frame->fn_idx, isa_tag_name(results[i].tag),
+                                  isa_tag_name(returning->result_tag));
+            }
         }
+        vm->stack_size -= returning->result_count;
         while (vm->stack_size > frame->stack_base) {
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, v);
         }
         vm->frame_count--;
         if (vm->frame_count == 0) {
-            stack_push(vm, result);
+            for (uint8_t i = 0; i < returning->result_count; i++)
+                stack_push(vm, results[i]);
             return trap_none();
         }
         frame = &vm->frames[vm->frame_count - 1];
         vm->current_fn = frame->fn_idx;
         vm->ip = frame->return_ip;
-        stack_push(vm, result);
+        for (uint8_t i = 0; i < returning->result_count; i++)
+            stack_push(vm, results[i]);
     }
 
     return trap_none();
@@ -2673,6 +2735,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     }
 
     const NvmFunctionEntry *fn = &vm->module->functions[fn_idx];
+    if (arg_count != fn->arity) {
+        return vm_error(vm, VM_ERR_TYPE_ERROR,
+                        "Function %u expects %u arguments, got %u",
+                        fn_idx, fn->arity, arg_count);
+    }
 
     /* Push a call frame */
     if (vm->frame_count >= VM_MAX_FRAMES) {

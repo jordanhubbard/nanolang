@@ -60,6 +60,11 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (fn->name_idx >= mod->string_count)
             return fail("function[%u] name_idx %u >= string_count %u",
                         i, fn->name_idx, mod->string_count);
+        if (fn->result_tag >= TAG_COUNT)
+            return fail("function[%u] result_tag %u is invalid",
+                        i, fn->result_tag);
+        if ((fn->result_count == 0) != (fn->result_tag == TAG_VOID))
+            return fail("function[%u] result signature must be void/0 or non-void/nonzero", i);
     }
 
     /* Import string indices */

@@ -264,6 +264,7 @@ uint32_t isa_decode(const uint8_t *buf, size_t buf_size, DecodedInstruction *out
 /* ---- Lookup by name ---- */
 
 int isa_opcode_by_name(const char *name) {
+    init_instruction_table();
     for (int i = 0; i < 256; i++) {
         if (instruction_table[i].name != NULL &&
             strcmp(instruction_table[i].name, name) == 0) {

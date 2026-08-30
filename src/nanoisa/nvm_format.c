@@ -348,6 +348,8 @@ static uint32_t serialize_functions(const NvmModule *mod, uint8_t *buf) {
         le_write_u32(buf + pos, fn->code_length);     pos += 4;
         le_write_u16(buf + pos, fn->local_count);     pos += 2;
         le_write_u16(buf + pos, fn->upvalue_count);   pos += 2;
+        buf[pos++] = fn->result_tag;
+        buf[pos++] = fn->result_count;
     }
     return pos;
 }
@@ -582,6 +584,8 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     fn.code_length   = le_read_u32(sec_data + pos);     pos += 4;
                     fn.local_count   = le_read_u16(sec_data + pos);     pos += 2;
                     fn.upvalue_count = le_read_u16(sec_data + pos);     pos += 2;
+                    fn.result_tag    = sec_data[pos++];
+                    fn.result_count  = sec_data[pos++];
                     nvm_add_function(mod, &fn);
                 }
                 break;

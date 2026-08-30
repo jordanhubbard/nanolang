@@ -145,13 +145,14 @@ static NvmModule *make_module(const uint8_t *code, uint32_t code_size,
     uint32_t code_off = nvm_append_code(mod, code, code_size);
 
     /* Add function entry */
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_count = 1 };
     fn.name_idx = name_idx;
     fn.arity = arity;
     fn.code_offset = code_off;
     fn.code_length = code_size;
     fn.local_count = local_count;
     fn.upvalue_count = 0;
+    fn.result_count = 1;
     uint32_t fn_idx = nvm_add_function(mod, &fn);
 
     /* Set entry point */
@@ -172,13 +173,14 @@ static uint32_t add_fn(NvmModule *mod, const char *name,
                         uint16_t arity, uint16_t local_count) {
     uint32_t name_idx = nvm_add_string(mod, name, (uint32_t)strlen(name));
     uint32_t code_off = nvm_append_code(mod, code, code_size);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_count = 1 };
     fn.name_idx = name_idx;
     fn.arity = arity;
     fn.code_offset = code_off;
     fn.code_length = code_size;
     fn.local_count = local_count;
     fn.upvalue_count = 0;
+    fn.result_count = 1;
     return nvm_add_function(mod, &fn);
 }
 
@@ -248,6 +250,43 @@ static void test_persistent_invoke(void) {
     ASSERT_EQ_INT(recovered, VM_OK, "persistent VM recovers after failed invocation");
     ASSERT_EQ_INT(value.as.i64, 42, "recovered invocation returns correct result");
 
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_result_signature_enforcement(void) {
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_BOOL, 1);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_TYPE_ERROR,
+                  "RET rejects a result with the wrong tag");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+
+    off = emit(code, OP_RET);
+    mod = make_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_TYPE_ERROR,
+                  "RET rejects a missing result");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+
+    off = emit(code, OP_RET);
+    mod = make_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_VOID;
+    mod->functions[0].result_count = 0;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "void RET returns no value");
+    ASSERT_EQ_INT(vm.stack_size, 0, "void RET leaves no stack result");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -1204,7 +1243,6 @@ static void test_union_construct_tag(void) {
     uint32_t off = 0;
     off += emit(code + off, OP_PUSH_I64, (int64_t)42);
     off += emit(code + off, OP_UNION_CONSTRUCT, (uint32_t)0, 2, 1);  /* variant 2, 1 field */
-    off += emit(code + off, OP_DUP);
     off += emit(code + off, OP_UNION_TAG);
     off += emit(code + off, OP_RET);
 
@@ -1853,7 +1891,7 @@ static void test_assemble_and_run(void) {
     /* Assemble a simple program, execute it */
     const char *src =
         ".string \"unused\"\n"
-        ".function main 0 0 0\n"
+        ".function main 0 0 0 int 1\n"
         "  PUSH_I64 21\n"
         "  PUSH_I64 21\n"
         "  ADD\n"
@@ -1875,13 +1913,13 @@ static void test_assemble_and_run(void) {
 
 static void test_assemble_function_call(void) {
     const char *src =
-        ".function double 1 1 0\n"
+        ".function double 1 1 0 int 1\n"
         "  LOAD_LOCAL 0\n"
         "  DUP\n"
         "  ADD\n"
         "  RET\n"
         ".end\n"
-        ".function main 0 0 0\n"
+        ".function main 0 0 0 int 1\n"
         "  PUSH_I64 21\n"
         "  CALL 0\n"
         "  RET\n"
@@ -1902,7 +1940,7 @@ static void test_assemble_function_call(void) {
 static void test_assemble_loop(void) {
     /* Sum 1..5 using a loop */
     const char *src =
-        ".function main 0 2 0\n"
+        ".function main 0 2 0 int 1\n"
         "  PUSH_I64 0\n"
         "  STORE_LOCAL 0\n"     /* sum = 0 */
         "  PUSH_I64 5\n"
@@ -2088,7 +2126,7 @@ static void test_str_substr(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2117,7 +2155,7 @@ static void test_str_contains(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_BOOL, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2146,7 +2184,7 @@ static void test_str_eq(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_BOOL, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2174,7 +2212,7 @@ static void test_str_char_at(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2222,7 +2260,7 @@ static void test_hm_has(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_BOOL, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2255,7 +2293,7 @@ static void test_hm_delete(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2292,7 +2330,7 @@ static void test_hm_keys(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2324,7 +2362,7 @@ static void test_hm_values(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2354,7 +2392,7 @@ static void test_add_strings(void) {
     off += emit(code + off, OP_RET);
 
     uint32_t code_off = nvm_append_code(mod, code, off);
-    NvmFunctionEntry fn = {0};
+    NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
@@ -2436,7 +2474,7 @@ static void test_call_module(void) {
 
         uint32_t name_idx = nvm_add_string(mod_b, "add_10", 6);
         uint32_t code_off = nvm_append_code(mod_b, code, n);
-        NvmFunctionEntry fn = {0};
+        NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
         fn.name_idx = name_idx;
         fn.arity = 1;
         fn.code_offset = code_off;
@@ -2457,7 +2495,7 @@ static void test_call_module(void) {
 
         uint32_t name_idx = nvm_add_string(mod_a, "main", 4);
         uint32_t code_off = nvm_append_code(mod_a, code, n);
-        NvmFunctionEntry fn = {0};
+        NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
         fn.name_idx = name_idx;
         fn.arity = 0;
         fn.code_offset = code_off;
@@ -2497,7 +2535,7 @@ static void test_call_module_bad_idx(void) {
 
         uint32_t name_idx = nvm_add_string(mod, "main", 4);
         uint32_t code_off = nvm_append_code(mod, code, n);
-        NvmFunctionEntry fn = {0};
+        NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
         fn.name_idx = name_idx;
         fn.arity = 0;
         fn.code_offset = code_off;
@@ -2542,7 +2580,7 @@ static void test_call_module_chain(void) {
 
         uint32_t name1 = nvm_add_string(mod_b, "add3", 4);
         uint32_t off1 = nvm_append_code(mod_b, code1, n1);
-        NvmFunctionEntry fn1 = {0};
+        NvmFunctionEntry fn1 = { .result_tag = TAG_INT, .result_count = 1 };
         fn1.name_idx = name1;
         fn1.arity = 1;
         fn1.code_offset = off1;
@@ -2561,7 +2599,7 @@ static void test_call_module_chain(void) {
 
         uint32_t name2 = nvm_add_string(mod_b, "calc", 4);
         uint32_t off2 = nvm_append_code(mod_b, code2, n2);
-        NvmFunctionEntry fn2 = {0};
+        NvmFunctionEntry fn2 = { .result_tag = TAG_INT, .result_count = 1 };
         fn2.name_idx = name2;
         fn2.arity = 1;
         fn2.code_offset = off2;
@@ -2581,7 +2619,7 @@ static void test_call_module_chain(void) {
 
         uint32_t name = nvm_add_string(mod_a, "main", 4);
         uint32_t off = nvm_append_code(mod_a, code, n);
-        NvmFunctionEntry fn = {0};
+        NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
         fn.name_idx = name;
         fn.arity = 0;
         fn.code_offset = off;
@@ -2888,6 +2926,7 @@ static void test_typed_scalar_operations(void) {
     off += emit(code + off, OP_F64_EQ);
     off += emit(code + off, OP_RET);
     mod = make_module(code, off, 0, 0);
+    mod->functions[0].result_count = 1;
     result = run_module(mod, &r);
     ASSERT_EQ_INT(r, VM_OK, "typed float operations execute");
     ASSERT(result.as.boolean, "typed float comparison succeeds");
@@ -2943,6 +2982,7 @@ static void test_integer_machine_primitives(void) {
     off += emit(code + off, OP_I64_ADD_CARRY);
     off += emit(code + off, OP_RET);
     mod = make_module(code, off, 0, 0);
+    mod->functions[0].result_count = 2;
     result = run_module(mod, &r);
     ASSERT_EQ_INT(r, VM_OK, "add with carry executes");
     ASSERT_EQ_INT(result.as.i64, 1, "add with carry returns carry above low cell");
@@ -2954,6 +2994,7 @@ static void test_integer_machine_primitives(void) {
     off += emit(code + off, OP_I64_MUL_WIDE_U);
     off += emit(code + off, OP_RET);
     mod = make_module(code, off, 0, 0);
+    mod->functions[0].result_count = 2;
     result = run_module(mod, &r);
     ASSERT_EQ_INT(r, VM_OK, "wide unsigned multiplication executes");
     ASSERT_EQ_INT(result.as.i64, 1, "wide multiplication returns high cell on top");
@@ -3108,6 +3149,7 @@ int main(void) {
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
     RUN_TEST(test_persistent_invoke);
+    RUN_TEST(test_result_signature_enforcement);
     RUN_TEST(test_instruction_profile);
     RUN_TEST(test_heap_profile);
 

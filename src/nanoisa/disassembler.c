@@ -311,9 +311,10 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         const NvmFunctionEntry *fn = &mod->functions[i];
         const char *name = nvm_get_string(mod, fn->name_idx);
 
-        fprintf(out, ".function %s %u %u %u\n",
+        fprintf(out, ".function %s %u %u %u %s %u\n",
                 name ? name : "???",
-                fn->arity, fn->local_count, fn->upvalue_count);
+                fn->arity, fn->local_count, fn->upvalue_count,
+                isa_tag_name(fn->result_tag), fn->result_count);
 
         if (fn->code_length > 0 && fn->code_offset + fn->code_length <= mod->code_size) {
             disasm_function_styled(mod->code + fn->code_offset, fn->code_length,

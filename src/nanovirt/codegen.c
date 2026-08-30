@@ -444,13 +444,22 @@ static int32_t extern_find_qualified(CG *cg, const char *module_alias, const cha
 static uint8_t type_to_tag(Type t) {
     switch (t) {
         case TYPE_INT:     return TAG_INT;
+        case TYPE_U8:      return TAG_U8;
         case TYPE_FLOAT:   return TAG_FLOAT;
         case TYPE_BOOL:    return TAG_BOOL;
         case TYPE_STRING:  return TAG_STRING;
+        case TYPE_BSTRING: return TAG_BSTRING;
         case TYPE_VOID:    return TAG_VOID;
         case TYPE_ARRAY:   return TAG_ARRAY;
+        case TYPE_LIST_INT:
+        case TYPE_LIST_STRING:
+        case TYPE_LIST_TOKEN:
+        case TYPE_LIST_GENERIC: return TAG_ARRAY;
         case TYPE_STRUCT:  return TAG_STRUCT;
+        case TYPE_OPEN_RECORD: return TAG_STRUCT;
         case TYPE_ENUM:    return TAG_ENUM;
+        case TYPE_UNION:   return TAG_UNION;
+        case TYPE_FUNCTION: return TAG_FUNCTION;
         case TYPE_TUPLE:   return TAG_TUPLE;
         case TYPE_HASHMAP: return TAG_HASHMAP;
         case TYPE_OPAQUE:  return TAG_OPAQUE;
@@ -2199,6 +2208,8 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         NvmFunctionEntry fn = {0};
         fn.name_idx = name_idx;
         fn.arity = (uint16_t)node->as.function.param_count;
+        fn.result_tag = type_to_tag(node->as.function.return_type);
+        fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
         fn_idx = (int32_t)nvm_add_function(cg->module, &fn);
         if (cg->fn_count < MAX_FUNCTIONS) {
             cg->functions[cg->fn_count].name = (char *)name;
@@ -2265,7 +2276,6 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         }
     }
     if (cg->code_size == 0 || cg->code[cg->code_size - 1] != OP_RET) {
-        emit_op(cg, OP_PUSH_VOID);
         emit_op(cg, OP_RET);
     }
 
@@ -2506,8 +2516,6 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_RETURN: {
         if (node->as.return_stmt.value) {
             compile_expr(cg, node->as.return_stmt.value);
-        } else {
-            emit_op(cg, OP_PUSH_VOID);
         }
         emit_op(cg, OP_RET);
         break;
@@ -2577,11 +2585,21 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     case AST_CALL:
     case AST_MODULE_QUALIFIED_CALL: {
-        /* Function call as statement: compile and discard result */
+        /* Function call as statement: discard only a declared result. */
         compile_expr(cg, node);
-        /* Check if function returns void - if so, no POP needed
-         * For now, always POP since we don't track return types in codegen */
-        emit_op(cg, OP_POP);
+        int32_t called = -1;
+        if (node->type == AST_CALL && node->as.call.name)
+            called = fn_find(cg, node->as.call.name);
+        if (node->type == AST_MODULE_QUALIFIED_CALL) {
+            char qualified[512];
+            snprintf(qualified, sizeof(qualified), "%s.%s",
+                     node->as.module_qualified_call.module_alias,
+                     node->as.module_qualified_call.function_name);
+            called = fn_find(cg, qualified);
+            if (called < 0) called = fn_find(cg, node->as.module_qualified_call.function_name);
+        }
+        if (called < 0 || cg->module->functions[called].result_count != 0)
+            emit_op(cg, OP_POP);
         break;
     }
 
@@ -2682,7 +2700,6 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     if (cg->code_size == 0 || cg->code[cg->code_size - 1] != OP_RET) {
         /* Check last instruction - a rough check on the opcode byte.
          * If the last emitted instruction wasn't RET, add implicit return. */
-        emit_op(cg, OP_PUSH_VOID);
         emit_op(cg, OP_RET);
     }
 
@@ -2738,6 +2755,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             NvmFunctionEntry fn = {0};
             fn.name_idx = name_idx;
             fn.arity = (uint16_t)item->as.function.param_count;
+            fn.result_tag = type_to_tag(item->as.function.return_type);
+            fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
 
             uint32_t idx = nvm_add_function(cg.module, &fn);
 
@@ -2872,6 +2891,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                             NvmFunctionEntry fn = {0};
                             fn.name_idx = name_idx;
                             fn.arity = (uint16_t)mitem->as.function.param_count;
+                            fn.result_tag = type_to_tag(mitem->as.function.return_type);
+                            fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                             idx = nvm_add_function(cg.module, &fn);
                             if (cg.fn_count < MAX_FUNCTIONS) {
                                 cg.functions[cg.fn_count].name = (char *)use_name;
@@ -3069,6 +3090,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                         NvmFunctionEntry fn = {0};
                         fn.name_idx = ni;
                         fn.arity = (uint16_t)mitem->as.function.param_count;
+                        fn.result_tag = type_to_tag(mitem->as.function.return_type);
+                        fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                         uint32_t idx = nvm_add_function(cg.module, &fn);
                         cg.functions[cg.fn_count].name = (char *)fname;
                         cg.functions[cg.fn_count].fn_idx = idx;
@@ -3197,6 +3220,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
         uint32_t init_name = nvm_add_string(cg.module, "__init__", 8);
         init_fn.name_idx = init_name;
         init_fn.arity = 0;
+        init_fn.result_tag = TAG_VOID;
+        init_fn.result_count = 0;
         uint32_t init_idx = nvm_add_function(cg.module, &init_fn);
 
         cg.code_size = 0;
@@ -3231,7 +3256,6 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                 }
             }
         }
-        emit_op(&cg, OP_PUSH_VOID);
         emit_op(&cg, OP_RET);
 
         if (!cg.had_error) {
@@ -3276,6 +3300,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
         uint32_t syn_name = nvm_add_string(cg.module, "main", 4);
         syn_fn.name_idx = syn_name;
         syn_fn.arity = 0;
+        syn_fn.result_tag = TAG_INT;
+        syn_fn.result_count = 1;
         uint32_t syn_idx = nvm_add_function(cg.module, &syn_fn);
 
         cg.code_size = 0;

@@ -190,6 +190,34 @@ static void test_scalar_codegen_uses_typed_opcodes(void) {
     nvm_module_free(tr.module);
 }
 
+static void test_function_result_signatures(void) {
+    const char *source =
+        "fn side_effect() -> void { return }\n"
+        "fn answer() -> int { return 42 }\n"
+        "fn main() -> int { (side_effect) return (answer) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, "result signature codegen succeeds");
+    ASSERT(tr.vm_result == VM_OK, "void call leaves no phantom result");
+    ASSERT_INT(tr.result.as.i64, 42);
+    for (uint32_t i = 0; i < tr.module->function_count; i++) {
+        const char *name = nvm_get_string(tr.module,
+                                          tr.module->functions[i].name_idx);
+        if (name && strcmp(name, "side_effect") == 0) {
+            ASSERT(tr.module->functions[i].result_tag == TAG_VOID,
+                   "void function has void result tag");
+            ASSERT(tr.module->functions[i].result_count == 0,
+                   "void function has zero results");
+        }
+        if (name && strcmp(name, "answer") == 0) {
+            ASSERT(tr.module->functions[i].result_tag == TAG_INT,
+                   "int function has int result tag");
+            ASSERT(tr.module->functions[i].result_count == 1,
+                   "int function has one result");
+        }
+    }
+    nvm_module_free(tr.module);
+}
+
 /* Helper: compile and call a specific function by name */
 static TestResult compile_and_call(const char *source, const char *fn_name,
                                     NanoValue *args, uint16_t argc) {
@@ -1419,6 +1447,7 @@ int main(void) {
     fprintf(stderr, "Debug Metadata:\n");
     test_debug_metadata_is_not_executable();
     test_scalar_codegen_uses_typed_opcodes();
+    test_function_result_signatures();
 
     fprintf(stderr, "\nInteger Arithmetic:\n");
     test_return_int();

@@ -403,9 +403,11 @@ static void test_function_table(void) {
     NvmModule *mod = nvm_module_new();
 
     NvmFunctionEntry fn1 = { .name_idx = 0, .arity = 2, .code_offset = 0,
-                             .code_length = 10, .local_count = 3, .upvalue_count = 0 };
+                             .code_length = 10, .local_count = 3, .upvalue_count = 0,
+                             .result_tag = TAG_INT, .result_count = 1 };
     NvmFunctionEntry fn2 = { .name_idx = 1, .arity = 0, .code_offset = 10,
-                             .code_length = 20, .local_count = 5, .upvalue_count = 1 };
+                             .code_length = 20, .local_count = 5, .upvalue_count = 1,
+                             .result_tag = TAG_VOID, .result_count = 0 };
 
     uint32_t i0 = nvm_add_function(mod, &fn1);
     uint32_t i1 = nvm_add_function(mod, &fn2);
@@ -415,6 +417,8 @@ static void test_function_table(void) {
     ASSERT_EQ_INT(mod->function_count, 2, "Two functions");
     ASSERT_EQ_INT(mod->functions[0].arity, 2, "Function 0 arity");
     ASSERT_EQ_INT(mod->functions[1].local_count, 5, "Function 1 locals");
+    ASSERT_EQ_INT(mod->functions[0].result_tag, TAG_INT, "Function 0 result tag");
+    ASSERT_EQ_INT(mod->functions[0].result_count, 1, "Function 0 result count");
 
     nvm_module_free(mod);
 }
@@ -446,7 +450,8 @@ static void test_serialize_deserialize(void) {
     nvm_add_string(mod, "hello", 5);
 
     NvmFunctionEntry fn = { .name_idx = 0, .arity = 0, .code_offset = 0,
-                            .code_length = 0, .local_count = 1, .upvalue_count = 0 };
+                            .code_length = 0, .local_count = 1, .upvalue_count = 0,
+                            .result_tag = TAG_STRING, .result_count = 1 };
     nvm_add_function(mod, &fn);
 
     /* Some bytecode */
@@ -484,6 +489,8 @@ static void test_serialize_deserialize(void) {
     ASSERT_EQ_INT(mod2->functions[0].arity, 0, "Function arity");
     ASSERT_EQ_INT(mod2->functions[0].local_count, 1, "Function locals");
     ASSERT_EQ_INT(mod2->functions[0].code_length, sizeof(code), "Function code length");
+    ASSERT_EQ_INT(mod2->functions[0].result_tag, TAG_STRING, "Function result tag");
+    ASSERT_EQ_INT(mod2->functions[0].result_count, 1, "Function result count");
 
     /* Verify code */
     ASSERT_EQ_INT(mod2->code_size, sizeof(code), "Code size");
@@ -601,7 +608,7 @@ static void test_asm_simple_program(void) {
     const char *src =
         ".string \"hello\"\n"
         ".entry 0\n"
-        ".function main 0 1 0\n"
+        ".function main 0 1 0 string 1\n"
         "  PUSH_STR 0\n"
         "  PRINT\n"
         "  HALT\n"
@@ -617,6 +624,8 @@ static void test_asm_simple_program(void) {
     ASSERT_EQ_STR(nvm_get_string(mod, 1), "main", "String 1 (function name)");
     ASSERT_EQ_INT(mod->function_count, 1, "1 function");
     ASSERT_EQ_INT(mod->functions[0].arity, 0, "main arity 0");
+    ASSERT_EQ_INT(mod->functions[0].result_tag, TAG_STRING, "main result tag");
+    ASSERT_EQ_INT(mod->functions[0].result_count, 1, "main result count");
     ASSERT_EQ_INT(mod->header.flags & NVM_FLAG_HAS_MAIN, NVM_FLAG_HAS_MAIN, "has_main flag");
 
     /* Check bytecode */
@@ -629,7 +638,7 @@ static void test_asm_simple_program(void) {
 
 static void test_asm_labels_and_jumps(void) {
     const char *src =
-        ".function test_loop 0 2 0\n"
+        ".function test_loop 0 2 0 void 0\n"
         "  PUSH_I64 0\n"
         "  STORE_LOCAL 0\n"
         "loop_top:\n"
@@ -688,7 +697,7 @@ static void test_asm_labels_and_jumps(void) {
 static void test_asm_all_operand_types(void) {
     const char *src =
         ".string \"test string\"\n"
-        ".function test_ops 0 5 0\n"
+        ".function test_ops 0 5 0 void 0\n"
         "  PUSH_I64 -9999\n"
         "  PUSH_F64 2.718281828\n"
         "  PUSH_BOOL 1\n"
@@ -731,7 +740,7 @@ static void test_asm_all_operand_types(void) {
 
 static void test_asm_error_unknown_opcode(void) {
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  NONEXISTENT_OP\n"
         ".end\n";
 
@@ -744,7 +753,7 @@ static void test_asm_error_unknown_opcode(void) {
 
 static void test_asm_error_undefined_label(void) {
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  JMP nonexistent\n"
         ".end\n";
 
@@ -756,7 +765,7 @@ static void test_asm_error_undefined_label(void) {
 
 static void test_asm_error_missing_end(void) {
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  HALT\n";
 
     AsmResult result;
@@ -778,7 +787,7 @@ static void test_asm_error_instruction_outside_function(void) {
 static void test_asm_error_bad_u8_operand(void) {
     /* PUSH_U8 expects a u8; provide a non-numeric → ASM_ERR_BAD_OPERAND */
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  PUSH_U8 notanumber\n"
         ".end\n";
     AsmResult result;
@@ -790,7 +799,7 @@ static void test_asm_error_bad_u8_operand(void) {
 static void test_asm_error_bad_u32_operand(void) {
     /* PUSH_STR expects a u32; provide garbage → ASM_ERR_BAD_OPERAND */
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  PUSH_STR @#$\n"
         ".end\n";
     AsmResult result;
@@ -802,7 +811,7 @@ static void test_asm_error_bad_u32_operand(void) {
 static void test_asm_error_bad_i64_operand(void) {
     /* PUSH_I64 expects an i64; provide garbage → ASM_ERR_BAD_OPERAND */
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  PUSH_I64 notanumber\n"
         ".end\n";
     AsmResult result;
@@ -814,7 +823,7 @@ static void test_asm_error_bad_i64_operand(void) {
 static void test_asm_error_bad_f64_operand(void) {
     /* PUSH_F64 expects an f64; provide garbage → ASM_ERR_BAD_OPERAND */
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  PUSH_F64 notanumber\n"
         ".end\n";
     AsmResult result;
@@ -826,7 +835,7 @@ static void test_asm_error_bad_f64_operand(void) {
 static void test_asm_error_bad_u16_operand(void) {
     /* ARR_LITERAL expects u8 then u16; provide bad u16 → ASM_ERR_BAD_OPERAND */
     const char *src =
-        ".function test 0 0 0\n"
+        ".function test 0 0 0 void 0\n"
         "  ARR_LITERAL 1 notanumber\n"
         ".end\n";
     AsmResult result;
@@ -841,7 +850,7 @@ static void test_asm_comments_and_whitespace(void) {
         "# This is also a comment\n"
         "\n"
         "  \n"
-        ".function main 0 0 0\n"
+        ".function main 0 0 0 void 0\n"
         "  NOP ; inline comment\n"
         "  HALT\n"
         ".end\n";
@@ -859,7 +868,7 @@ static void test_asm_string_escapes(void) {
         ".string \"tab\\there\"\n"
         ".string \"quote\\\"inside\"\n"
         ".string \"backslash\\\\\"\n"
-        ".function main 0 0 0\n"
+        ".function main 0 0 0 void 0\n"
         "  HALT\n"
         ".end\n";
 
@@ -879,13 +888,13 @@ static void test_asm_string_escapes(void) {
 
 static void test_asm_multiple_functions(void) {
     const char *src =
-        ".function add 2 2 0\n"
+        ".function add 2 2 0 int 1\n"
         "  LOAD_LOCAL 0\n"
         "  LOAD_LOCAL 1\n"
         "  ADD\n"
         "  RET\n"
         ".end\n"
-        ".function main 0 1 0\n"
+        ".function main 0 1 0 void 0\n"
         "  PUSH_I64 3\n"
         "  PUSH_I64 4\n"
         "  CALL 0\n"
@@ -942,7 +951,7 @@ static void test_disasm_basic(void) {
 static void test_disasm_labels(void) {
     /* Assemble a program with jumps, then disassemble and check for labels */
     const char *src =
-        ".function test 0 1 0\n"
+        ".function test 0 1 0 void 0\n"
         "  PUSH_I64 0\n"
         "  STORE_LOCAL 0\n"
         "loop:\n"
@@ -978,7 +987,7 @@ static void test_disasm_labels(void) {
 static void test_disasm_source_annotations_and_cfg(void) {
     const char *src =
         ".string \"tests/disasm_sample.nano\"\n"
-        ".function main 0 1 0\n"
+        ".function main 0 1 0 void 0\n"
         "  DEBUG_LINE 42\n"
         "  PUSH_I64 1\n"
         "  JMP done\n"
@@ -1087,7 +1096,7 @@ static void test_roundtrip_assemble_serialize_deserialize_disassemble(void) {
     const char *src =
         ".string \"Hello, NanoISA!\"\n"
         ".entry 0\n"
-        ".function main 0 2 0\n"
+        ".function main 0 2 0 void 0\n"
         "  PUSH_I64 42\n"
         "  STORE_LOCAL 0\n"
         "  PUSH_STR 0\n"
@@ -1146,7 +1155,7 @@ static void test_roundtrip_assemble_serialize_deserialize_disassemble(void) {
 static void test_nanoisa_facade_roundtrip(void) {
     const char *src =
         ".entry 0\n"
-        ".function main 0 1 0\n"
+        ".function main 0 1 0 void 0\n"
         "  PUSH_I64 42\n"
         "  PRINT\n"
         "  HALT\n"
@@ -1200,7 +1209,7 @@ static void test_nanoisa_print_is_assemblable(void) {
         ".flag needs_extern\n"
         ".flag debug_info\n"
         ".entry 0\n"
-        ".function main 0 1 0\n"
+        ".function main 0 1 0 void 0\n"
         "  PUSH_I64 1\n"
         "  JMP done\n"
         "  PUSH_I64 0\n"
@@ -1239,7 +1248,7 @@ static void test_nanoisa_print_is_assemblable(void) {
 static void test_nanoisa_facade_file_roundtrip(void) {
     const char *path = "/tmp/nanolang_nanoisa_facade_test.nvm";
     const char *src =
-        ".function helper 0 0 0\n"
+        ".function helper 0 0 0 void 0\n"
         "  RET\n"
         ".end\n";
     NanoisaErr err;
@@ -1274,7 +1283,7 @@ static void test_nanoisa_facade_reports_invalid_bytes(void) {
            "Facade identifies invalid magic");
 
     const char *src =
-        ".function checksum 0 0 0\n"
+        ".function checksum 0 0 0 void 0\n"
         "  RET\n"
         ".end\n";
     NvmModule *assembled = nanoisa_assemble_text(src, &err);

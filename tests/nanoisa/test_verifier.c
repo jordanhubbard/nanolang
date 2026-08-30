@@ -139,6 +139,48 @@ static void test_function_name_idx_overflow(void) {
     PASS(test_name);
 }
 
+static void test_invalid_function_result_signature(void) {
+    const char *test_name = "nvm_verify: invalid function result signature fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 0;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "non-void tag with zero results should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_multiple_function_results(void) {
+    const char *test_name = "nvm_verify: multiple homogeneous results pass";
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 2;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "two integer results should verify");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_invalid_function_result_tag(void) {
+    const char *test_name = "nvm_verify: invalid function result tag fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_COUNT;
+    mod->functions[0].result_count = 1;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "out-of-range result tag should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_invalid_instruction_byte(void) {
     const char *test_name = "nvm_verify: unknown opcode byte fails";
     /* 0xFF is not a valid opcode */
@@ -618,6 +660,9 @@ int main(void) {
     test_bad_entry_point();
     test_function_code_offset_overflow();
     test_function_name_idx_overflow();
+    test_invalid_function_result_signature();
+    test_multiple_function_results();
+    test_invalid_function_result_tag();
     test_invalid_instruction_byte();
     test_valid_jump_forward();
     test_jump_out_of_bounds();
