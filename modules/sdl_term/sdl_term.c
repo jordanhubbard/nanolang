@@ -22,25 +22,31 @@
 
 typedef struct { uint8_t r, g, b; } RGB;
 
-static const RGB COLORS[9] = {
-    {  12,  12,  12 }, /* TMT_COLOR_BLACK   */
-    { 197,  15,  31 }, /* TMT_COLOR_RED     */
-    {  19, 161,  14 }, /* TMT_COLOR_GREEN   */
-    { 193, 156,   0 }, /* TMT_COLOR_YELLOW  */
-    {   0,  55, 218 }, /* TMT_COLOR_BLUE    */
-    { 136,  23, 152 }, /* TMT_COLOR_MAGENTA */
-    {  58, 150, 221 }, /* TMT_COLOR_CYAN    */
-    { 204, 204, 204 }, /* TMT_COLOR_WHITE   */
-    { 204, 204, 204 }, /* TMT_COLOR_DEFAULT → light grey */
+static const RGB COLORS[TMT_COLOR_MAX] = {
+    [TMT_COLOR_BLACK]   = {  12,  12,  12 },
+    [TMT_COLOR_RED]     = { 197,  15,  31 },
+    [TMT_COLOR_GREEN]   = {  19, 161,  14 },
+    [TMT_COLOR_YELLOW]  = { 193, 156,   0 },
+    [TMT_COLOR_BLUE]    = {   0,  55, 218 },
+    [TMT_COLOR_MAGENTA] = { 136,  23, 152 },
+    [TMT_COLOR_CYAN]    = {  58, 150, 221 },
+    [TMT_COLOR_WHITE]   = { 204, 204, 204 },
 };
 
 static RGB color_fg(tmt_color_t c, const TMTATTRS *a) {
-    if (a->bold && c == TMT_COLOR_DEFAULT) return (RGB){255,255,255};
-    return COLORS[(int)c];
+    if (c == TMT_COLOR_DEFAULT) {
+        return a->bold ? (RGB){255, 255, 255} : COLORS[TMT_COLOR_WHITE];
+    }
+    if (c <= TMT_COLOR_DEFAULT || c >= TMT_COLOR_MAX) {
+        return COLORS[TMT_COLOR_WHITE];
+    }
+    return COLORS[c];
 }
 static RGB color_bg(tmt_color_t c) {
-    if (c == TMT_COLOR_DEFAULT) return COLORS[0];
-    return COLORS[(int)c];
+    if (c <= TMT_COLOR_DEFAULT || c >= TMT_COLOR_MAX) {
+        return COLORS[TMT_COLOR_BLACK];
+    }
+    return COLORS[c];
 }
 
 /* ── NLTerm struct ─────────────────────────────────────────────────────── */
