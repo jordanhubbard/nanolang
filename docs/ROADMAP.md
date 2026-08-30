@@ -21,8 +21,8 @@ Workflow and evidence:
 - [x] I added persistent `vm_invoke`, latest-function lookup, and incremental function verification on PR #115.
 - [x] I measured static NanoVirt opcode and instruction-sequence frequencies across the repository.
 - [x] I added a reproducible NanoISA benchmark and profiling harness before changing execution architecture.
-- [ ] I record opcode, pair, and triple frequencies, retired instructions, branches, call kinds, stack depths, and traps; I still need retain/release, allocation, and FFI byte/latency counters.
-- [ ] I will benchmark NanoLang and Forth interpretation, compilation, execution, memory, calls, exceptions, and FFI separately.
+- [x] I record opcode, pair, and triple frequencies, retired instructions, branches, call kinds, stack depths, traps, retain/release traffic, allocations, and FFI byte/latency counters.
+- [ ] I benchmark NanoLang execution, allocation, direct and indirect calls, FFI, and the current Forth interpreter; compiled Forth, its compiler, and Forth exceptions remain blocked on the Phase 13 runtime.
 - [ ] I will publish baseline results with hardware, OS, compiler, flags, commit, distributions, and normalized costs.
 - [ ] I will require semantic equivalence and full quality gates for every accepted optimization.
 

@@ -6,10 +6,12 @@
 
 #include "vm.h"
 #include "vm_ffi.h"
+#include "cop_protocol.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
 
 /* ========================================================================
  * Error Handling
@@ -179,6 +181,23 @@ bool vm_profile_write_json(const VmState *vm, FILE *out) {
             (unsigned long long)p->extern_calls,
             (unsigned long long)p->module_calls);
     fprintf(out, "  \"traps\": %llu,\n", (unsigned long long)p->traps);
+    fprintf(out, "  \"heap\": {\"allocation_calls\": %llu, "
+                 "\"allocated_bytes\": %llu, \"freed_bytes\": %llu, "
+                 "\"live_objects\": %llu, \"retain_calls\": %llu, "
+                 "\"release_calls\": %llu},\n",
+            (unsigned long long)vm->heap.stats.allocation_calls,
+            (unsigned long long)vm->heap.stats.allocated,
+            (unsigned long long)vm->heap.stats.freed,
+            (unsigned long long)vm->heap.stats.num_objects,
+            (unsigned long long)vm->heap.stats.retain_calls,
+            (unsigned long long)vm->heap.stats.release_calls);
+    fprintf(out, "  \"ffi\": {\"request_bytes\": %llu, "
+                 "\"response_bytes\": %llu, \"elapsed_ns\": %llu, "
+                 "\"failures\": %llu},\n",
+            (unsigned long long)p->ffi_request_bytes,
+            (unsigned long long)p->ffi_response_bytes,
+            (unsigned long long)p->ffi_elapsed_ns,
+            (unsigned long long)p->ffi_failures);
 
     fprintf(out, "  \"opcodes\": {");
     bool first = true;
@@ -329,7 +348,7 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_DUP: {
             NanoValue top = stack_peek(vm, 0);
-            vm_retain(top);
+            vm_retain(&vm->heap, top);
             stack_push(vm, top);
             break;
         }
@@ -370,7 +389,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Local %u out of range", idx);
             }
             NanoValue v = vm->stack[abs_idx];
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             stack_push(vm, v);
             break;
         }
@@ -393,7 +412,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
             NanoValue v = vm->globals[idx];
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             stack_push(vm, v);
             break;
         }
@@ -416,7 +435,7 @@ VmTrap vm_core_execute(VmState *vm) {
              * every captured variable lives in the immediate closure's capture array. */
             if (frame->closure && idx < frame->closure->capture_count) {
                 NanoValue v = frame->closure->captures[idx];
-                vm_retain(v);
+                vm_retain(&vm->heap, v);
                 stack_push(vm, v);
             } else {
                 stack_push(vm, val_void());
@@ -484,7 +503,7 @@ VmTrap vm_core_execute(VmState *vm) {
                         ev = val_float((double)ea.as.i64 + eb.as.f64);
                     else
                         ev = val_int(ea.as.i64 + eb.as.i64);
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -521,7 +540,7 @@ VmTrap vm_core_execute(VmState *vm) {
                         ev = val_float(da + ds);
                     } else
                         ev = val_int(ea.as.i64 + scalar.as.i64);
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -569,7 +588,7 @@ VmTrap vm_core_execute(VmState *vm) {
                         ev = val_float(da - db);
                     } else
                         ev = val_int(ea.as.i64 - eb.as.i64);
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -594,7 +613,7 @@ VmTrap vm_core_execute(VmState *vm) {
                         ev = val_int(arr_is_left ? ea.as.i64 - scalar.as.i64 : scalar.as.i64 - ea.as.i64);
                     else
                         ev = val_float(dr);
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -639,7 +658,7 @@ VmTrap vm_core_execute(VmState *vm) {
                         ev = val_float(da * db);
                     } else
                         ev = val_int(ea.as.i64 * eb.as.i64);
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -663,7 +682,7 @@ VmTrap vm_core_execute(VmState *vm) {
                         double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
                         ev = val_float(da * ds);
                     }
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -714,7 +733,7 @@ VmTrap vm_core_execute(VmState *vm) {
                         double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
                         ev = val_float(db == 0.0 ? 0.0 : da / db);
                     }
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -744,7 +763,7 @@ VmTrap vm_core_execute(VmState *vm) {
                                                 : (da == 0.0 ? 0.0 : ds / da);
                         ev = val_float(dr);
                     }
-                    vm_array_push(result, ev);
+                    vm_array_push(&vm->heap, result, ev);
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1339,7 +1358,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 size_t slen = str ? strlen(str) : 0;
                 for (size_t i = 0; i < slen; i++) {
                     VmString *ch = vm_string_new(&vm->heap, str + i, 1);
-                    vm_array_push(arr, val_string(ch));
+                    vm_array_push(&vm->heap, arr, val_string(ch));
                     vm_release(&vm->heap, val_string(ch));
                 }
             } else {
@@ -1348,13 +1367,13 @@ VmTrap vm_core_execute(VmState *vm) {
                 while ((found = strstr(start, delim)) != NULL) {
                     VmString *seg = vm_string_new(&vm->heap, start,
                                                   (uint32_t)(found - start));
-                    vm_array_push(arr, val_string(seg));
+                    vm_array_push(&vm->heap, arr, val_string(seg));
                     vm_release(&vm->heap, val_string(seg));
                     start = found + dlen;
                 }
                 VmString *rest = vm_string_new(&vm->heap, start,
                                                (uint32_t)strlen(start));
-                vm_array_push(arr, val_string(rest));
+                vm_array_push(&vm->heap, arr, val_string(rest));
                 vm_release(&vm->heap, val_string(rest));
             }
             vm_release(&vm->heap, delim_v);
@@ -1446,7 +1465,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 vm_release(&vm->heap, v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_PUSH: not an array");
             }
-            vm_array_push(arr.as.array, v);
+            vm_array_push(&vm->heap, arr.as.array, v);
             vm_release(&vm->heap, v); /* push retains */
             stack_push(vm, arr);
             break;
@@ -1473,7 +1492,7 @@ VmTrap vm_core_execute(VmState *vm) {
             }
             uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             NanoValue v = vm_array_get(arr.as.array, idx);
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             vm_release(&vm->heap, arr);
             stack_push(vm, v);
             break;
@@ -1572,7 +1591,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "STRUCT_GET: field %u out of range", field_idx);
             }
             NanoValue v = sv.as.sval->fields[field_idx];
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             vm_release(&vm->heap, sv);
             stack_push(vm, v);
             break;
@@ -1650,7 +1669,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "UNION_FIELD: field %u out of range", field_idx);
             }
             NanoValue v = uv.as.uval->fields[field_idx];
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             vm_release(&vm->heap, uv);
             stack_push(vm, v);
             break;
@@ -1702,7 +1721,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "TUPLE_GET: index %u out of range", index);
             }
             NanoValue v = tv.as.tuple->elements[index];
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             vm_release(&vm->heap, tv);
             stack_push(vm, v);
             break;
@@ -1729,7 +1748,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "HM_GET: not a hashmap");
             }
             NanoValue v = vm_hashmap_get(map.as.hashmap, key);
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             vm_release(&vm->heap, map);
             vm_release(&vm->heap, key);
             stack_push(vm, v);
@@ -1824,7 +1843,7 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_GC_RETAIN: {
             NanoValue v = stack_peek(vm, 0);
-            vm_retain(v);
+            vm_retain(&vm->heap, v);
             break;
         }
 
@@ -2244,6 +2263,15 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             NanoValue ext_result;
             char ext_err[256];
             bool ffi_ok;
+            struct timespec ffi_start = {0}, ffi_stop = {0};
+            if (vm->profile.enabled) {
+                clock_gettime(CLOCK_MONOTONIC, &ffi_start);
+                uint8_t scratch[COP_MAILBOX_SLOT_SIZE];
+                for (int i = 0; i < trap.data.extern_call.argc; i++) {
+                    vm->profile.ffi_request_bytes += cop_serialize_value(
+                        &trap.data.extern_call.args[i], scratch, sizeof(scratch));
+                }
+            }
             if (vm->isolate_ffi) {
                 ffi_ok = vm_ffi_call_cop(vm, vm->module, trap.data.extern_call.import_idx,
                                          trap.data.extern_call.args, trap.data.extern_call.argc,
@@ -2254,6 +2282,20 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                                      trap.data.extern_call.args, trap.data.extern_call.argc,
                                      &ext_result, &vm->heap,
                                      ext_err, sizeof(ext_err));
+            }
+            if (vm->profile.enabled) {
+                clock_gettime(CLOCK_MONOTONIC, &ffi_stop);
+                int64_t seconds = ffi_stop.tv_sec - ffi_start.tv_sec;
+                int64_t nanoseconds = ffi_stop.tv_nsec - ffi_start.tv_nsec;
+                vm->profile.ffi_elapsed_ns +=
+                    (uint64_t)(seconds * 1000000000LL + nanoseconds);
+                if (!ffi_ok) {
+                    vm->profile.ffi_failures++;
+                } else {
+                    uint8_t scratch[COP_MAILBOX_SLOT_SIZE];
+                    vm->profile.ffi_response_bytes += cop_serialize_value(
+                        &ext_result, scratch, sizeof(scratch));
+                }
             }
             if (!ffi_ok) {
                 return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
@@ -2325,7 +2367,7 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     }
 
     /* vm_call_function consumes argument ownership through its frame cleanup. */
-    for (uint16_t i = 0; i < arg_count; i++) vm_retain(args[i]);
+    for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, args[i]);
 
     VmResult result = vm_call_function(vm, fn_idx, (NanoValue *)args, arg_count);
     NanoValue returned = val_void();

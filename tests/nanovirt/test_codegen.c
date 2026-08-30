@@ -128,7 +128,7 @@ static TestResult compile_and_run(const char *source) {
     tr.vm_result = vm_execute(&vm);
     tr.result = vm_get_result(&vm);
     if (tr.result.tag == TAG_STRING || tr.result.tag == TAG_ARRAY) {
-        vm_retain(tr.result);
+        vm_retain(&vm.heap, tr.result);
     }
     vm_destroy(&vm);
 
@@ -197,7 +197,7 @@ static TestResult compile_and_call(const char *source, const char *fn_name,
     tr.vm_result = vm_call_function(&vm, (uint32_t)fn_idx, args, argc);
     tr.result = vm_get_result(&vm);
     if (tr.result.tag == TAG_STRING || tr.result.tag == TAG_ARRAY) {
-        vm_retain(tr.result);
+        vm_retain(&vm.heap, tr.result);
     }
     vm_destroy(&vm);
 

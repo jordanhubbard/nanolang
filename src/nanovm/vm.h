@@ -44,6 +44,10 @@ typedef struct {
     uint64_t extern_calls;
     uint64_t module_calls;
     uint64_t traps;
+    uint64_t ffi_request_bytes;
+    uint64_t ffi_response_bytes;
+    uint64_t ffi_elapsed_ns;
+    uint64_t ffi_failures;
     uint32_t max_stack_depth;
     uint32_t max_frame_depth;
 } VmProfile;

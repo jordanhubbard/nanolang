@@ -13,6 +13,9 @@ workloads=(
   examples/language/nl_forth_interpreter.nano
   examples/language/nl_hashmap_word_count.nano
   examples/language/nl_string_operations.nano
+  examples/language/nl_array_complete.nano
+  examples/language/nl_function_variables.nano
+  examples/language/nl_extern_math.nano
 )
 
 manifest="$OUT/manifest.tsv"

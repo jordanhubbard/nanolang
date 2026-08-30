@@ -190,7 +190,7 @@ static NanoValue run_module(NvmModule *mod, VmResult *out_result) {
     if (out_result) *out_result = r;
     NanoValue result = vm_get_result(&vm);
     /* Retain result before destroy releases stack */
-    vm_retain(result);
+    vm_retain(&vm.heap, result);
     vm_destroy(&vm);
     return result;
 }
@@ -271,6 +271,38 @@ static void test_instruction_profile(void) {
                   "profile counts opcode pairs");
     ASSERT_EQ_INT(vm.profile.pair_counts[(OP_PUSH_I64 << 8) | OP_ADD], 1,
                   "profile counts second opcode pair");
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, 0,
+                  "profile exposes allocation count");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_heap_profile(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, (uint32_t)0);
+    off += emit(code + off, OP_DUP);
+    off += emit(code + off, OP_POP);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = nvm_module_new();
+    nvm_add_string(mod, "profiled", 8);
+    uint32_t main_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = main_idx;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    vm_profile_enable(&vm, true);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "heap-profile execution succeeds");
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, 1,
+                  "heap profile counts object allocations");
+    ASSERT(vm.heap.stats.allocated > 0,
+           "heap profile counts allocated bytes");
+    ASSERT_EQ_INT(vm.heap.stats.retain_calls, 1,
+                  "heap profile counts retains");
+    ASSERT(vm.heap.stats.release_calls >= 1,
+           "heap profile counts releases");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -2901,6 +2933,7 @@ int main(void) {
     RUN_TEST(test_no_entry_point);
     RUN_TEST(test_persistent_invoke);
     RUN_TEST(test_instruction_profile);
+    RUN_TEST(test_heap_profile);
 
     printf("\n[Stack Trace / Debug Mode]\n");
     RUN_TEST(test_stack_trace_debug_mode);
