@@ -80,7 +80,25 @@ void vm_destroy(VmState *vm) {
     }
     free(vm->stack);
     free(vm->linked_modules);
+    free(vm->memory);
     vm_heap_destroy(&vm->heap);
+}
+
+bool vm_memory_resize(VmState *vm, uint64_t size) {
+    if (!vm || size > SIZE_MAX) return false;
+    if (size == 0) {
+        free(vm->memory);
+        vm->memory = NULL;
+        vm->memory_size = 0;
+        return true;
+    }
+    uint8_t *memory = realloc(vm->memory, (size_t)size);
+    if (!memory) return false;
+    if (size > vm->memory_size)
+        memset(memory + vm->memory_size, 0, (size_t)(size - vm->memory_size));
+    vm->memory = memory;
+    vm->memory_size = size;
+    return true;
 }
 
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
@@ -375,6 +393,32 @@ VmTrap vm_core_execute(VmState *vm) {
             vm->stack[top] = vm->stack[top - 1];
             vm->stack[top - 1] = vm->stack[top - 2];
             vm->stack[top - 2] = a;
+            break;
+        }
+
+        case OP_PICK: {
+            uint16_t depth = instr.operands[0].u16;
+            if (depth >= vm->stack_size)
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "PICK depth %u exceeds stack depth %u",
+                                  depth, vm->stack_size);
+            NanoValue value = vm->stack[vm->stack_size - 1 - depth];
+            vm_retain(&vm->heap, value);
+            stack_push(vm, value);
+            break;
+        }
+
+        case OP_ROLL: {
+            uint16_t depth = instr.operands[0].u16;
+            if (depth >= vm->stack_size)
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "ROLL depth %u exceeds stack depth %u",
+                                  depth, vm->stack_size);
+            uint32_t index = vm->stack_size - 1 - depth;
+            NanoValue value = vm->stack[index];
+            memmove(&vm->stack[index], &vm->stack[index + 1],
+                    depth * sizeof(NanoValue));
+            vm->stack[vm->stack_size - 1] = value;
             break;
         }
 
@@ -2319,6 +2363,56 @@ VmTrap vm_core_execute(VmState *vm) {
         case OP_OPAQUE_VALID: {
             NanoValue v = stack_pop(vm);
             stack_push(vm, val_bool(v.tag == TAG_OPAQUE && v.as.proxy_id != 0));
+            break;
+        }
+
+        case OP_MEM_LOAD8:
+        case OP_MEM_LOAD16:
+        case OP_MEM_LOAD32:
+        case OP_MEM_LOAD64: {
+            NanoValue address = stack_pop(vm);
+            if (address.tag != TAG_INT || address.as.i64 < 0)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires a non-negative integer address",
+                                  isa_get_info(instr.opcode)->name);
+            uint64_t width = instr.opcode == OP_MEM_LOAD8 ? 1
+                : instr.opcode == OP_MEM_LOAD16 ? 2
+                : instr.opcode == OP_MEM_LOAD32 ? 4 : 8;
+            uint64_t start = (uint64_t)address.as.i64;
+            if (start > vm->memory_size || width > vm->memory_size - start)
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                  "Memory load at %llu exceeds %llu bytes",
+                                  (unsigned long long)start,
+                                  (unsigned long long)vm->memory_size);
+            uint64_t value = 0;
+            for (uint64_t i = 0; i < width; i++)
+                value |= (uint64_t)vm->memory[start + i] << (i * 8);
+            stack_push(vm, val_int((int64_t)value));
+            break;
+        }
+
+        case OP_MEM_STORE8:
+        case OP_MEM_STORE16:
+        case OP_MEM_STORE32:
+        case OP_MEM_STORE64: {
+            NanoValue value = stack_pop(vm);
+            NanoValue address = stack_pop(vm);
+            if (address.tag != TAG_INT || value.tag != TAG_INT || address.as.i64 < 0)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "%s requires integer address and value",
+                                  isa_get_info(instr.opcode)->name);
+            uint64_t width = instr.opcode == OP_MEM_STORE8 ? 1
+                : instr.opcode == OP_MEM_STORE16 ? 2
+                : instr.opcode == OP_MEM_STORE32 ? 4 : 8;
+            uint64_t start = (uint64_t)address.as.i64;
+            if (start > vm->memory_size || width > vm->memory_size - start)
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                  "Memory store at %llu exceeds %llu bytes",
+                                  (unsigned long long)start,
+                                  (unsigned long long)vm->memory_size);
+            uint64_t bits = (uint64_t)value.as.i64;
+            for (uint64_t i = 0; i < width; i++)
+                vm->memory[start + i] = (uint8_t)(bits >> (i * 8));
             break;
         }
 

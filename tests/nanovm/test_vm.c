@@ -2933,6 +2933,54 @@ static void test_integer_machine_primitives(void) {
     nvm_module_free(mod);
 }
 
+static void test_indexed_stack_and_memory(void) {
+    uint8_t code[128];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_PICK, 1);
+    off += emit(code + off, OP_I64_ADD);
+    off += emit(code + off, OP_I64_ADD);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "PICK executes");
+    ASSERT_EQ_INT(result.as.i64, 40, "PICK copies indexed stack value");
+    nvm_module_free(mod);
+
+    off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_ROLL, 2);
+    off += emit(code + off, OP_I64_SUB);
+    off += emit(code + off, OP_I64_ADD);
+    off += emit(code + off, OP_RET);
+    mod = make_module(code, off, 0, 0);
+    result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "ROLL executes");
+    ASSERT_EQ_INT(result.as.i64, 4, "ROLL moves indexed value to top");
+    nvm_module_free(mod);
+
+    off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)0x0102030405060708LL);
+    off += emit(code + off, OP_MEM_STORE64);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_MEM_LOAD64);
+    off += emit(code + off, OP_RET);
+    mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm_memory_resize(&vm, 16), "linear memory allocation succeeds");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "unaligned 64-bit memory access executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 0x0102030405060708LL,
+                  "memory load preserves little-endian cell");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("=== NanoVM Test Suite ===\n");
@@ -2954,6 +3002,7 @@ int main(void) {
     RUN_TEST(test_typed_scalar_operations);
     RUN_TEST(test_typed_scalar_type_error);
     RUN_TEST(test_integer_machine_primitives);
+    RUN_TEST(test_indexed_stack_and_memory);
 
     printf("\n[Boolean & Comparison]\n");
     RUN_TEST(test_bool_push);

@@ -127,6 +127,14 @@ legacy_opcodes:
   - {name: PRINTLN, code: 0xa4, operands: []}
   - {name: OPAQUE_NULL, code: 0xb0, operands: []}
   - {name: OPAQUE_VALID, code: 0xb1, operands: []}
+  - {name: MEM_LOAD8, code: 0xb2, operands: []}
+  - {name: MEM_LOAD16, code: 0xb3, operands: []}
+  - {name: MEM_LOAD32, code: 0xb4, operands: []}
+  - {name: MEM_LOAD64, code: 0xb5, operands: []}
+  - {name: MEM_STORE8, code: 0xb6, operands: []}
+  - {name: MEM_STORE16, code: 0xb7, operands: []}
+  - {name: MEM_STORE32, code: 0xb8, operands: []}
+  - {name: MEM_STORE64, code: 0xb9, operands: []}
   - {name: I64_ADD, code: 0xc0, operands: []}
   - {name: I64_SUB, code: 0xc1, operands: []}
   - {name: I64_MUL, code: 0xc2, operands: []}
@@ -170,6 +178,8 @@ legacy_opcodes:
   - {name: I64_SUB_BORROW, code: 0xf1, operands: []}
   - {name: I64_MUL_WIDE_S, code: 0xf2, operands: []}
   - {name: I64_MUL_WIDE_U, code: 0xf3, operands: []}
+  - {name: PICK, code: 0xf4, operands: [U16]}
+  - {name: ROLL, code: 0xf5, operands: [U16]}
 
 operand_kinds:
   - {name: value-tag, encoding: u8}

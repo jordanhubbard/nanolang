@@ -179,6 +179,14 @@ typedef enum {
     /* Opaque Proxy (0xB0-0xBF) */
     OP_OPAQUE_NULL  = 0xB0,  /* push null opaque proxy */
     OP_OPAQUE_VALID = 0xB1,  /* pop opaque -> push bool (is non-null) */
+    OP_MEM_LOAD8    = 0xB2,  /* pop address -> push unsigned byte */
+    OP_MEM_LOAD16   = 0xB3,  /* pop address -> push unsigned little-endian word */
+    OP_MEM_LOAD32   = 0xB4,  /* pop address -> push unsigned little-endian dword */
+    OP_MEM_LOAD64   = 0xB5,  /* pop address -> push little-endian cell */
+    OP_MEM_STORE8   = 0xB6,  /* pop value, address */
+    OP_MEM_STORE16  = 0xB7,
+    OP_MEM_STORE32  = 0xB8,
+    OP_MEM_STORE64  = 0xB9,
 
     /* Typed scalar operations (v2 migration) */
     OP_I64_ADD      = 0xC0,
@@ -225,8 +233,10 @@ typedef enum {
     OP_I64_SUB_BORROW = 0xF1, /* a b borrow -> low borrow */
     OP_I64_MUL_WIDE_S = 0xF2, /* a b -> low high */
     OP_I64_MUL_WIDE_U = 0xF3, /* a b -> low high */
+    OP_PICK         = 0xF4,  /* operand: u16 depth */
+    OP_ROLL         = 0xF5,  /* operand: u16 depth */
 
-    OP_COUNT        = 0xF4   /* Exclusive upper bound, not an opcode count */
+    OP_COUNT        = 0xF6   /* Exclusive upper bound, not an opcode count */
 } NanoOpcode;
 
 /* ========================================================================

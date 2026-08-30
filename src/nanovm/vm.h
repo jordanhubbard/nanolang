@@ -113,6 +113,10 @@ typedef struct VmState {
     NanoValue globals[VM_MAX_GLOBALS];
     uint32_t global_count;
 
+    /* Byte-addressed linear memory for portable loads, stores, and Forth. */
+    uint8_t *memory;
+    uint64_t memory_size;
+
     /* GC Heap */
     VmHeap heap;
 
@@ -228,6 +232,9 @@ const char *vm_error_string(VmResult result);
 /* Link a module for cross-module calls (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* Resize linear memory, preserving existing bytes and zeroing new storage. */
+bool vm_memory_resize(VmState *vm, uint64_t size);
 
 /* ========================================================================
  * Debug / Stack Trace
