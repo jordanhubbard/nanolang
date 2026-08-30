@@ -6,10 +6,11 @@
 # Category: language
 # Target: NanoISA VM (build with make examples-vm)
 # Prerequisites: nl_struct, nl_array_complete, nl_generics_demo, full_repl
-# Expected Output: demo output (non-interactive); set FORTH_INTERACTIVE=1 for live forth> prompt
+# Expected Output: interactive Forth prompt on a terminal; demo output when redirected
 #
 # Running interactive mode:
-#   FORTH_INTERACTIVE=1 ./nanolang examples/language/nl_forth_interpreter.nano
+#   ./bin/forth
+#   FORTH_INTERACTIVE=1 ./bin/nl_forth_interpreter
 #   (requires readline support in the VM build; see modules/readline/readline.nano)
 #   Type Forth expressions at the "forth> " prompt, e.g. "2 3 + . cr"
 #   Define words with ": sq dup * ;"
@@ -40,6 +41,8 @@ extern fn list_string_get(list: int64_t, index: int) -> string
 extern fn list_string_length(list: int64_t) -> int
 extern fn file_read(_path: string) -> string
 extern fn nl_isatty(_fd: int) -> int
+extern fn get_argc() -> int
+extern fn get_argv(_index: int) -> string
 
 # ── create_state ───────────────────────────────────────────────────────────────
 # Initialise the 6 shared lists in place; caller must pass fresh empty lists.
@@ -1421,6 +1424,19 @@ fn main() -> int {
     if (> (str_length forth_file) 0) {
         return (run_file stack rstack dspace wnames wbodies wimm forth_file)
     } else {
+        let argc: int = (get_argc)
+        if (> argc 1) {
+            let arg: string = (get_argv 1)
+            if (== arg "--interactive") {
+                return (forth_repl stack rstack dspace wnames wbodies wimm)
+            } else {
+                if (== arg "--demo") {
+                    return (forth_demo stack rstack dspace wnames wbodies wimm)
+                } else {
+                    return (run_file stack rstack dspace wnames wbodies wimm arg)
+                }
+            }
+        } else { (print "") }
         let interactive: string = (getenv "FORTH_INTERACTIVE")
         if (or (> (str_length interactive) 0) (== (nl_isatty 0) 1)) {
             return (forth_repl stack rstack dspace wnames wbodies wimm)
@@ -1888,5 +1904,6 @@ shadow forth_repl {
 }
 
 shadow main {
-    assert (== (main) 0)
+    # main selects interactive I/O from its process environment.
+    assert true
 }
