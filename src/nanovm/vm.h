@@ -35,6 +35,8 @@ typedef struct {
     uint32_t current_col;     /* Column from most recent debug entry (0 = unknown) */
 } VmCallFrame;
 
+typedef struct VmDecodedModule VmDecodedModule;
+
 /* ========================================================================
  * VM Execution Result
  * ======================================================================== */
@@ -88,6 +90,11 @@ typedef struct VmState {
     const NvmModule **linked_modules;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
+
+    /* Per-VM instruction caches. Modules remain owned by the caller. */
+    VmDecodedModule *decoded_modules;
+    uint32_t decoded_module_count;
+    uint32_t decoded_module_capacity;
 
     /* Output capture (NULL = stdout) */
     FILE *output;
@@ -180,6 +187,11 @@ const char *vm_error_string(VmResult result);
 /* Link a module for cross-module calls (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* Invalidate or eagerly rebuild a module after its bytecode is mutated.
+ * Execution also rebuilds an invalid cache on demand. */
+void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module);
+VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module);
 
 /* ========================================================================
  * Debug / Stack Trace
