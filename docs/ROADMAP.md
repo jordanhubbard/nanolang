@@ -24,6 +24,7 @@ Patch releases may ship completed fixes without changing this dependency order.
 | **4.3** | Service interfaces and module migration | I turn module manifests into versioned service contracts and generate clients, servers, wire schemas, policy declarations, compatibility tests, and documentation. |
 | **4.4** | Capability service fabric | I run modules as supervised least-privilege services with typed capabilities, asynchronous IPC, shared-memory bulk transfer, quotas, cancellation, and restart-safe handles. |
 | **4.5** | Effects, policy, and replay | I derive deployment policy from effects, record nondeterministic traps, replay executions deterministically, inject failures, and audit service interactions. |
+| **4.6** | Multi-language laboratory | I validate NanoISA with bounded Scheme, ML, actor, dataflow, object, shell, and logic frontends, each chosen to test a distinct semantic pressure. |
 | **5.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
 
 Release dependencies:
@@ -46,6 +47,9 @@ Release dependencies:
               |
               v
 4.5 effects, policy, record/replay
+              |
+              v
+4.6 multi-language laboratory
               |
               v
 5.0 operating environment and kernel adapters
@@ -461,6 +465,76 @@ Release acceptance:
 - [ ] I will run unchanged NanoLang and Nano Forth applications across those substrates.
 - [ ] I will demonstrate least-privilege filesystem, network, graphics, audio, GPU, and Python services.
 - [ ] I will demonstrate crash containment, restart-safe handle invalidation, upgrade rollback, deterministic replay, and auditable provenance.
+
+### Phase 21 - Multi-Language NanoISA Laboratory (4.6)
+
+Goal: I will test whether NanoISA is genuinely language-neutral by compiling a
+small set of deliberately different languages to the same verified IR. I will
+not collect syntax for its own sake. Each frontend must expose a distinct
+architectural weakness or prove a distinct capability.
+
+Shared frontend contract:
+- [ ] I will define a frontend interface for source locations, typed functions, layouts, constants, imports, effects, capabilities, and diagnostics.
+- [ ] I will require every frontend to emit the same versioned NanoISA module format and pass the same verifier.
+- [ ] I will give every frontend access to the same service contracts, capability model, FFI isolation, debugger metadata, profiler, and target translators.
+- [ ] I will separate language-specific desugaring and type analysis from language-neutral NanoISA optimization.
+- [ ] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
+- [ ] I will define bounded implementation and test goals before starting each frontend.
+- [ ] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
+- [ ] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
+
+Nano Scheme:
+- [ ] I will implement a small Scheme frontend as the first post-Forth language experiment.
+- [ ] I will support lexical scope, closures, first-class procedures, recursive data, and interactive evaluation.
+- [ ] I will implement proper tail calls and verify constant frame depth under deep recursion.
+- [ ] I will evaluate continuations only after ordinary closure and exception semantics are stable.
+- [ ] I will use Scheme to stress allocation, callable representation, tail calls, dynamic values, and live code publication.
+- [ ] I will run a pinned subset of a recognized Scheme test suite and document intentional exclusions.
+
+Nano ML:
+- [ ] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
+- [ ] I will use ML to test generic instantiation, aggregate layouts, exhaustive matching, closures, and module signatures.
+- [ ] I will preserve inferred type and exhaustiveness facts in NanoISA metadata where target-independent optimization can use them.
+- [ ] I will run shared aggregate and service-interface programs under both NanoLang and Nano ML.
+
+Nano Actor:
+- [ ] I will implement an Erlang, Elixir, and Gleam-inspired actor frontend.
+- [ ] I will support isolated actors, typed mailboxes, pattern-matched messages, monitors, links, supervision trees, deadlines, and cancellation.
+- [ ] I will first execute actors as isolated NanoVM contexts in one host process.
+- [ ] I will then move unchanged actors across service-process boundaries through the Phase 18 transport.
+- [ ] I will test crash containment, mailbox ordering, supervision, hot code replacement, and restart-safe capabilities.
+
+Nano Dataflow:
+- [ ] I will implement a deterministic dataflow and workflow frontend with typed nodes, streams, backpressure, and explicit effects.
+- [ ] I will map graph dependencies to local, service-process, and remote scheduling without changing program semantics.
+- [ ] I will use dataflow programs to test shared-memory bulk transfer, provenance, replay, cancellation, retries, and parallel determinism.
+- [ ] I will record every external input required to reproduce a completed workflow.
+
+Nano Object:
+- [ ] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
+- [ ] I will use it to test dynamic dispatch, inline caches, layout evolution, callable handles, image persistence, and debugger reflection.
+- [ ] I will measure specialization and quickening without exposing cache-specific operations in portable NanoISA.
+
+Nano Shell:
+- [ ] I will implement a capability-safe orchestration shell using structured values rather than text-only pipelines.
+- [ ] I will expose processes, files, networks, services, streams, cancellation, and remote execution only through explicit capabilities.
+- [ ] I will preserve typed values across pipelines and make text parsing an explicit adapter.
+- [ ] I will use Nano Shell as the administrative language for service graphs only after capability and policy enforcement are complete.
+
+Nano Logic:
+- [ ] I will implement a bounded Datalog or logic frontend for declarative authorization, dependency, and policy rules.
+- [ ] I will support facts, rules, unification appropriate to the selected subset, queries, and deterministic fixed-point evaluation.
+- [ ] I will use it to test choice points or tabling only when those mechanisms are justified by the selected language subset.
+- [ ] I will compile deployment and capability policy queries to verified NanoISA or a documented restricted profile.
+
+Frontend matrix and demonstrations:
+- [ ] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
+- [ ] I will implement one shared service interface consumed from NanoLang, Nano Forth, Nano Scheme, and Nano ML.
+- [ ] I will implement one supervised service in Nano Actor and orchestrate it from Nano Shell.
+- [ ] I will apply Nano Logic policy to that service without embedding policy semantics in the application.
+- [ ] I will run equivalent computation fixtures across applicable frontends and compare their NanoISA behavior and results.
+- [ ] I will publish measured compile time, module size, instruction mix, allocation, call behavior, and execution time for each frontend.
+- [ ] I will keep NanoLang as my native language and describe the others as bounded architecture probes until their own conformance goals are met.
 
 ## Project Vision
 
