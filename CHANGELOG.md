@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.13] - 2026-08-30
+
+### Fixed
+- keep Forth IDE interpreter alive (#111)
+
 ## [3.4.12] - 2026-08-28
 
 ### Added
