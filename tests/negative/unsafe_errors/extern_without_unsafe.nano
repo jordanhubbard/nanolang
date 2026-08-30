@@ -1,0 +1,21 @@
+/* Negative Test: calling an extern (FFI) function outside an unsafe block
+ * or unsafe module must be rejected at type-check time.
+ *
+ * Regression: extern calls nested in expression/argument position (here the
+ * argument to println) previously bypassed the unsafe check, type-checked,
+ * and only failed later at link time with an undefined symbol. The type
+ * checker must reject the call before any C compilation or linking.
+ *
+ * Expected Error: requires unsafe block or unsafe module
+ */
+
+extern fn nl_test_extern_probe(name: string) -> string
+
+fn main() -> int {
+    (println (nl_test_extern_probe "HOME"))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

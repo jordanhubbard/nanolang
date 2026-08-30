@@ -16,42 +16,45 @@ fn main() -> int {
     (print "Math.add(10, 5) = ")
     (println (int_to_string sum))
 
-    # Test module safety flags
-    let is_unsafe = (___module_is_unsafe_simple_math)
-    let has_ffi = (___module_has_ffi_simple_math)
+    # Introspection functions are generated externs; calls must be unsafe.
+    unsafe {
+        # Test module safety flags
+        let is_unsafe = (___module_is_unsafe_simple_math)
+        let has_ffi = (___module_has_ffi_simple_math)
 
-    (print "Module is unsafe: ")
-    (println (cond (is_unsafe "true") (else "false")))
+        (print "Module is unsafe: ")
+        (println (cond (is_unsafe "true") (else "false")))
 
-    (print "Module has FFI: ")
-    (println (cond (has_ffi "true") (else "false")))
+        (print "Module has FFI: ")
+        (println (cond (has_ffi "true") (else "false")))
 
-    # Test exported functions count
-    let func_count = (___module_function_count_simple_math)
+        # Test exported functions count
+        let func_count = (___module_function_count_simple_math)
 
-    (print "Exported function count: ")
-    (println (int_to_string func_count))
-    (println "(Expected: 4 - add, subtract, multiply, double)")
+        (print "Exported function count: ")
+        (println (int_to_string func_count))
+        (println "(Expected: 4 - add, subtract, multiply, double)")
 
-    # Test exported structs count
-    let struct_count = (___module_struct_count_simple_math)
+        # Test exported structs count
+        let struct_count = (___module_struct_count_simple_math)
 
-    (print "Exported struct count: ")
-    (println (int_to_string struct_count))
-    (println "(Expected: 2 - Point, Rectangle)")
+        (print "Exported struct count: ")
+        (println (int_to_string struct_count))
+        (println "(Expected: 2 - Point, Rectangle)")
 
-    if func_count == 4 {
-        (println "✓ Function count correct!")
-    } else {
-        (println "✗ Function count incorrect")
-        return 1
-    }
+        if func_count == 4 {
+            (println "✓ Function count correct!")
+        } else {
+            (println "✗ Function count incorrect")
+            return 1
+        }
 
-    if struct_count == 2 {
-        (println "✓ Struct count correct!")
-    } else {
-        (println "✗ Struct count incorrect")
-        return 1
+        if struct_count == 2 {
+            (println "✓ Struct count correct!")
+        } else {
+            (println "✗ Struct count incorrect")
+            return 1
+        }
     }
 
     (println "✓ All module introspection tests passed!")

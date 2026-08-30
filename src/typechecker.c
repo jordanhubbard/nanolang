@@ -1416,6 +1416,37 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
                 return TYPE_UNKNOWN;
             }
+
+            /* Enforce unsafe context for extern (FFI) calls.
+             * This lives in the expression path so calls nested in argument /
+             * expression position (e.g. (println (some_extern arg))) are covered,
+             * not just top-level statement calls. */
+            if (func && func->is_extern) {
+                if (env->warn_ffi) {
+                    fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s'\n",
+                            expr->line, expr->column, expr->as.call.name);
+                    fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
+                }
+                /* Only enforce the unsafe requirement for extern (FFI) functions
+                 * declared directly in the user program (module_name == NULL).
+                 * Module-provided externs (stdlib FFI implementations) manage
+                 * their own safety and are exercised through their module API. */
+                if (!func->module_name &&
+                    !env->in_unsafe_block && !env->current_module_is_unsafe) {
+                    char unsafe_msg[256];
+                    snprintf(unsafe_msg, sizeof(unsafe_msg),
+                             "Call to extern function '%s' requires unsafe block or unsafe module. "
+                             "Extern functions can perform arbitrary operations.",
+                             expr->as.call.name);
+                    /* emit_context_error increments g_typecheck_error_count, which fails
+                     * the compile before C code generation / linking. */
+                    emit_context_error(
+                        "E-UNSAFE EXTERN CALL",
+                        expr->line, expr->column, 1,
+                        unsafe_msg,
+                        "Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'.");
+                }
+            }
             
             /* If not a function, check if it's a function-typed variable (parameter) */
             /* ALSO: prefer built-in HashMap<K,V> generics when there's a generic type context,
@@ -4282,7 +4313,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         case AST_UNSAFE_BLOCK: {
             /* Mark that we're entering an unsafe block */
             bool prev_unsafe = tc->in_unsafe_block;
+            bool prev_env_unsafe = tc->env->in_unsafe_block;
             tc->in_unsafe_block = true;
+            /* Mirror on the environment so extern calls checked via check_expression()
+             * (e.g. FFI calls nested in argument/expression position) also see the
+             * unsafe context and are not incorrectly rejected. */
+            tc->env->in_unsafe_block = true;
 
             /* Type check all statements in the unsafe block */
             for (int i = 0; i < stmt->as.unsafe_block.count; i++) {
@@ -4291,6 +4327,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             /* Restore previous unsafe state */
             tc->in_unsafe_block = prev_unsafe;
+            tc->env->in_unsafe_block = prev_env_unsafe;
             return TYPE_VOID;
         }
 
@@ -4526,41 +4563,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             return TYPE_VOID;
             
         case AST_CALL: {
-            /* Check if this is a call to an extern function outside unsafe context */
-            if (stmt->as.call.name) {
-                Function *func = env_get_function(tc->env, stmt->as.call.name);
-                if (func) {
-                    /* Phase 3: Warn on calls to functions from unsafe modules if --warn-unsafe-calls is set */
-                    if (tc->env->warn_unsafe_calls && func->module_name) {
-                        /* Check if the function's module is unsafe */
-                        ModuleInfo *mod = env_get_module(tc->env, func->module_name);
-                        if (mod && mod->is_unsafe) {
-                            fprintf(stderr, "Warning at line %d, column %d: Calling function '%s' from unsafe module '%s'\n",
-                                    stmt->line, stmt->column, stmt->as.call.name, func->module_name);
-                            fprintf(stderr, "  Note: Functions from unsafe modules may have safety implications\n");
-                        }
-                    }
-                    
-                    if (func->is_extern) {
-                        /* Phase 3: Warn on FFI calls if --warn-ffi is set */
-                        if (tc->env->warn_ffi) {
-                            fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s'\n",
-                                    stmt->line, stmt->column, stmt->as.call.name);
-                            fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
-                        }
-                        
-                        /* Check if unsafe context is required */
-                        if (!tc->in_unsafe_block && !tc->env->current_module_is_unsafe) {
-                            fprintf(stderr, "Error at line %d, column %d: Call to extern function '%s' requires unsafe block or unsafe module\n",
-                                    stmt->line, stmt->column, stmt->as.call.name);
-                            fprintf(stderr, "  Note: Extern functions can perform arbitrary operations.\n");
-                            fprintf(stderr, "  Hint: Either wrap the call in 'unsafe { ... }' or declare the module as 'unsafe module name { ... }'\n");
-                            tc->has_error = true;
-                        }
-                    }
-                }
-            }
-            /* Type check the call expression */
+            /* Extern (FFI) call safety is enforced in the expression path
+             * (check_expression -> AST_CALL) so that calls nested in argument
+             * or other expression positions are covered too. */
             check_expression(stmt, tc->env);
             return TYPE_VOID;
         }

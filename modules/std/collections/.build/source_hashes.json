@@ -1,1 +1,1 @@
-{"collections.c":"5377253680439189181","module.json":"8845318006002417992"}
+{"collections.c":"5377253680439189181","module.json":"8845318006002417992","sysheader:collections.h":"7406887718269210640","dep:modules/std/collections/collections.c":"5377253680439189181","dep:modules/std/collections/collections.h":"7406887718269210640","dep:src/nanolang.h":"4440997943900523660","dep:src/generated/compiler_schema.h":"566359260605891954","dep:src/runtime/dyn_array.h":"6666162437514762353","dep:src/runtime/gc.h":"862420516539548747","dep:src/runtime/gc_struct.h":"627577722602830677"}

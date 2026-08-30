@@ -37,13 +37,16 @@ module "modules/filesystem/filesystem.nano"
 # audio players scan (.mod/.mp3/.ogg/.wav), using the same case-insensitive
 # filesystem listing idiom as the players themselves.
 fn count_playable_audio(dir: string) -> int {
-    let mods: array<string> = (nl_fs_list_files_ci dir ".mod")
-    let mp3s: array<string> = (nl_fs_list_files_ci dir ".mp3")
-    let oggs: array<string> = (nl_fs_list_files_ci dir ".ogg")
-    let wavs: array<string> = (nl_fs_list_files_ci dir ".wav")
-    return (+ (array_length mods)
-             (+ (array_length mp3s)
-                (+ (array_length oggs) (array_length wavs))))
+    # nl_fs_list_files_ci is an extern (FFI) call, so it must run inside unsafe.
+    unsafe {
+        let mods: array<string> = (nl_fs_list_files_ci dir ".mod")
+        let mp3s: array<string> = (nl_fs_list_files_ci dir ".mp3")
+        let oggs: array<string> = (nl_fs_list_files_ci dir ".ogg")
+        let wavs: array<string> = (nl_fs_list_files_ci dir ".wav")
+        return (+ (array_length mods)
+                 (+ (array_length mp3s)
+                    (+ (array_length oggs) (array_length wavs))))
+    }
 }
 
 shadow count_playable_audio {
@@ -57,10 +60,18 @@ shadow count_playable_audio {
 # A single path counts as a playable default if it is a directory whose scan
 # surfaces at least one audio file, or a file with a playable audio extension.
 fn is_playable_default(path: string) -> bool {
-    if (== (nl_fs_is_directory path) 1) {
+    # nl_fs_is_directory / nl_fs_file_exists are extern (FFI) calls; hoist them
+    # into an unsafe block and reuse the results below.
+    let mut is_dir: int = 0
+    let mut file_exists: int = 0
+    unsafe {
+        set is_dir (nl_fs_is_directory path)
+        set file_exists (nl_fs_file_exists path)
+    }
+    if (== is_dir 1) {
         return (> (count_playable_audio path) 0)
     }
-    if (== (nl_fs_file_exists path) 1) {
+    if (== file_exists 1) {
         if (str_ends_with path ".mod") { return true }
         if (str_ends_with path ".mp3") { return true }
         if (str_ends_with path ".ogg") { return true }
