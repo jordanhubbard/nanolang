@@ -36,4 +36,7 @@ typedef struct {
  */
 NvmVerifyResult nvm_verify(const NvmModule *mod);
 
+/* Validate one function after an incremental compiler appends it. */
+NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx);
+
 #endif /* NANOISA_VERIFIER_H */

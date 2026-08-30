@@ -192,6 +192,15 @@ uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry) {
     return idx;
 }
 
+uint32_t nvm_find_function(const NvmModule *mod, const char *name) {
+    if (!mod || !name) return UINT32_MAX;
+    for (uint32_t i = mod->function_count; i > 0; i--) {
+        const char *candidate = nvm_get_string(mod, mod->functions[i - 1].name_idx);
+        if (candidate && strcmp(candidate, name) == 0) return i - 1;
+    }
+    return UINT32_MAX;
+}
+
 /* ========================================================================
  * Code Section
  * ======================================================================== */

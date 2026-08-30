@@ -166,6 +166,13 @@ VmResult vm_execute(VmState *vm);
 /* Execute a specific function by index. Returns VM_OK on success. */
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count);
 
+/* Invoke one function as an isolated host call on a persistent VM.
+ * Exact arity is required. On success, ownership of the returned value moves
+ * to out_result; pass NULL to discard it. On failure, temporary operand-stack
+ * values and call frames are removed while globals and heap state remain. */
+VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
+                   uint16_t arg_count, NanoValue *out_result);
+
 /* Run pure NanoISA instructions until a trap occurs.
  * This is the "processor" — no I/O, no dlopen, no stdout.
  * On an FPGA, this would be implemented in RTL. */

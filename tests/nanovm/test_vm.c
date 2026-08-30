@@ -195,6 +195,63 @@ static NanoValue run_module(NvmModule *mod, VmResult *out_result) {
     return result;
 }
 
+static void test_persistent_invoke(void) {
+    uint8_t add_code[32];
+    uint32_t add_off = 0;
+    add_off += emit(add_code + add_off, OP_LOAD_LOCAL, 0);
+    add_off += emit(add_code + add_off, OP_LOAD_LOCAL, 1);
+    add_off += emit(add_code + add_off, OP_ADD);
+    add_off += emit(add_code + add_off, OP_RET);
+
+    NvmModule *mod = nvm_module_new();
+    uint32_t add_idx = add_fn(mod, "add", add_code, add_off, 2, 2);
+    ASSERT_EQ_INT(nvm_find_function(mod, "add"), add_idx,
+                  "function lookup finds latest definition");
+    ASSERT_EQ_INT(nvm_find_function(mod, "missing"), UINT32_MAX,
+                  "function lookup reports missing definition");
+
+    VmState vm;
+    vm_init(&vm, mod);
+    NanoValue args[] = {val_int(20), val_int(22)};
+    NanoValue value = val_void();
+    VmResult first = vm_invoke(&vm, add_idx, args, 2, &value);
+    ASSERT_EQ_INT(first, VM_OK, "first persistent invocation succeeds");
+    ASSERT_EQ_INT(value.as.i64, 42, "first persistent result is returned");
+    ASSERT_EQ_INT(vm.stack_size, 0, "persistent invocation cleans operand stack");
+
+    args[0] = val_int(40);
+    args[1] = val_int(2);
+    VmResult second = vm_invoke(&vm, add_idx, args, 2, &value);
+    ASSERT_EQ_INT(second, VM_OK, "second persistent invocation succeeds");
+    ASSERT_EQ_INT(value.as.i64, 42, "second persistent result is returned");
+    ASSERT_EQ_INT(vm.frame_count, 0, "persistent invocation cleans call frames");
+
+    VmResult bad_arity = vm_invoke(&vm, add_idx, args, 1, &value);
+    ASSERT_EQ_INT(bad_arity, VM_ERR_TYPE_ERROR, "persistent invocation checks arity");
+    ASSERT_EQ_INT(vm.stack_size, 0, "arity failure leaves operand stack clean");
+
+    uint8_t fail_code[32];
+    uint32_t fail_off = 0;
+    fail_off += emit(fail_code + fail_off, OP_PUSH_I64, (int64_t)1);
+    fail_off += emit(fail_code + fail_off, OP_PUSH_STR,
+                     nvm_add_string(mod, "not an integer", 14));
+    fail_off += emit(fail_code + fail_off, OP_ADD);
+    fail_off += emit(fail_code + fail_off, OP_RET);
+    uint32_t fail_idx = add_fn(mod, "fail", fail_code, fail_off, 0, 0);
+    VmResult failed = vm_invoke(&vm, fail_idx, NULL, 0, &value);
+    ASSERT_EQ_INT(failed, VM_ERR_TYPE_ERROR,
+                  "failed persistent invocation reports VM error");
+    ASSERT_EQ_INT(vm.stack_size, 0, "failed invocation restores operand stack");
+    ASSERT_EQ_INT(vm.frame_count, 0, "failed invocation restores call frames");
+
+    VmResult recovered = vm_invoke(&vm, add_idx, args, 2, &value);
+    ASSERT_EQ_INT(recovered, VM_OK, "persistent VM recovers after failed invocation");
+    ASSERT_EQ_INT(value.as.i64, 42, "recovered invocation returns correct result");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 /* ========================================================================
  * Tests: Basic Integer Arithmetic
  * ======================================================================== */
@@ -2819,6 +2876,7 @@ int main(void) {
     printf("\n[Error Handling]\n");
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
+    RUN_TEST(test_persistent_invoke);
 
     printf("\n[Stack Trace / Debug Mode]\n");
     RUN_TEST(test_stack_trace_debug_mode);

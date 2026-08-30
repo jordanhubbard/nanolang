@@ -524,6 +524,21 @@ static void test_arithmetic_instructions(void) {
     PASS(test_name);
 }
 
+static void test_verify_one_function(void) {
+    const char *test_name = "nvm_verify_function: validates incremental function";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult valid = nvm_verify_function(mod, 0);
+    ASSERT(valid.ok, "valid incremental function should pass");
+    NvmVerifyResult missing = nvm_verify_function(mod, 1);
+    ASSERT(!missing.ok, "missing incremental function should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -561,6 +576,7 @@ int main(void) {
     test_null_code_nonzero_size();
     test_call_extern_invalid();
     test_arithmetic_instructions();
+    test_verify_one_function();
 
     printf("\n");
     if (g_fail == 0) {

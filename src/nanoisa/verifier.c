@@ -79,7 +79,12 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
  * Bytecode instruction validation (per-function)
  * ======================================================================== */
 
-static NvmVerifyResult verify_function(const NvmModule *mod, uint32_t fn_idx) {
+NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
+    NvmVerifyResult structure = verify_structure(mod);
+    if (!structure.ok) return structure;
+    if (fn_idx >= mod->function_count)
+        return fail("function index %u >= function_count %u",
+                    fn_idx, mod->function_count);
     const NvmFunctionEntry *fn = &mod->functions[fn_idx];
     const uint8_t *code = mod->code + fn->code_offset;
     uint32_t code_end = fn->code_length;
@@ -242,7 +247,7 @@ NvmVerifyResult nvm_verify(const NvmModule *mod) {
 
     /* Phase 2: per-function bytecode validation */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function(mod, i);
+        r = nvm_verify_function(mod, i);
         if (!r.ok) return r;
     }
 

@@ -2162,6 +2162,77 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     }
 }
 
+VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
+                   uint16_t arg_count, NanoValue *out_result) {
+    if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
+    if (out_result) *out_result = val_void();
+    if (vm->frame_count != 0) {
+        return vm_error(vm, VM_ERR_CALL_DEPTH,
+                        "Cannot invoke a function while the VM is executing");
+    }
+    if (fn_idx >= vm->module->function_count) {
+        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION,
+                        "Function %u out of range", fn_idx);
+    }
+
+    const NvmFunctionEntry *fn = &vm->module->functions[fn_idx];
+    if (arg_count != fn->arity) {
+        return vm_error(vm, VM_ERR_TYPE_ERROR,
+                        "Function %u expects %u arguments, got %u",
+                        fn_idx, fn->arity, arg_count);
+    }
+    if (arg_count > 0 && !args) {
+        return vm_error(vm, VM_ERR_TYPE_ERROR,
+                        "Function %u arguments are NULL", fn_idx);
+    }
+
+    uint32_t stack_base = vm->stack_size;
+    uint32_t saved_ip = vm->ip;
+    uint32_t saved_fn = vm->current_fn;
+    const NvmModule *saved_module = vm->module;
+
+    uint32_t required = stack_base + fn->local_count;
+    if (required > vm->stack_capacity) {
+        uint32_t new_capacity = vm->stack_capacity;
+        while (new_capacity < required) new_capacity *= 2;
+        NanoValue *new_stack = realloc(vm->stack,
+                                       new_capacity * sizeof(NanoValue));
+        if (!new_stack) {
+            return vm_error(vm, VM_ERR_MEMORY, "Stack grow failed");
+        }
+        vm->stack = new_stack;
+        vm->stack_capacity = new_capacity;
+    }
+
+    /* vm_call_function consumes argument ownership through its frame cleanup. */
+    for (uint16_t i = 0; i < arg_count; i++) vm_retain(args[i]);
+
+    VmResult result = vm_call_function(vm, fn_idx, (NanoValue *)args, arg_count);
+    NanoValue returned = val_void();
+    if (result == VM_OK && vm->stack_size > stack_base) {
+        returned = stack_pop(vm);
+    }
+
+    while (vm->stack_size > stack_base) {
+        vm_release(&vm->heap, stack_pop(vm));
+    }
+    vm->frame_count = 0;
+    vm->ip = saved_ip;
+    vm->current_fn = saved_fn;
+    vm->module = saved_module;
+
+    if (result == VM_OK) {
+        vm->last_error = VM_OK;
+        vm->error_msg[0] = '\0';
+        if (out_result) {
+            *out_result = returned;
+        } else {
+            vm_release(&vm->heap, returned);
+        }
+    }
+    return result;
+}
+
 VmResult vm_execute(VmState *vm) {
     if (!(vm->module->header.flags & NVM_FLAG_HAS_MAIN)) {
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "No entry point defined");
