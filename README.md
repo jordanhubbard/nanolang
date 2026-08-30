@@ -233,6 +233,13 @@ make examples       # Build my examples
 cd examples && make launcher
 ```
 
+**Forth CLI:**
+```bash
+make forth
+# or, after `make examples`:
+./bin/forth
+```
+
 **Individual examples:**
 ```bash
 ./bin/nanoc examples/language/nl_fibonacci.nano -o fib && ./fib
@@ -301,4 +308,3 @@ The formal proofs passed.  The VM ran.  The compiler compiled itself.  The progr
 Sir Reginald knocked the coffee off the desk.  Not out of malice.  Out of a principled refusal to allow the programmer an uncontested moment.
 
 As of this writing, NanoLang has been used in production by exactly one person, who also wrote it.  Sir Reginald continues to withhold his endorsement across all four projects, citing "procedural concerns," "insufficient tuna," "a general atmosphere of hubris," and, most recently, "aviation."
-

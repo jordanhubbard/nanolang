@@ -49,6 +49,12 @@ make -C examples
 # Inspect parsed metadata for one example.
 ./bin/nanoc examples/run_examples.nano -o /tmp/run_examples
 /tmp/run_examples --meta examples/language/nl_hello.nano
+
+# Build and run my standalone Forth CLI.
+make forth
+
+# Build and run my SDL Forth IDE.
+make forth-ide
 ```
 
 Some examples need SDL, OpenGL, Bullet, MuJoCo, ncurses, curl, GPU drivers, local servers, or API keys. I do not hide that. The catalog marks those boundaries.

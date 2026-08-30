@@ -106,6 +106,16 @@ endif
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
 NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
+# The native Forth interpreter also has a short, user-facing CLI name.
+FORTH_CLI :=
+ifeq ($(EXAMPLES_BACKEND_NORMALIZED),c)
+ifeq ($(READLINE_AVAILABLE),yes)
+ifeq ($(IS_SELFHOSTED),)
+FORTH_CLI := $(BIN_DIR)/forth
+endif
+endif
+endif
+
 # === REPL Example ===
 
 # The full REPL requires the readline module (READLINE_AVAILABLE probed above).
@@ -351,6 +361,7 @@ endif
 
 ALL_EXAMPLES = \
 	$(NL_EXAMPLES) \
+	$(FORTH_CLI) \
 	$(REPL_EXAMPLES) \
 	$(ADVANCED_EXAMPLES) \
 	$(DATA_EXAMPLES) \
@@ -419,7 +430,7 @@ ALL_VM_SOURCES := $(filter-out $(VM_EXCLUDED_SOURCES),$(ALL_NANO_SOURCES))
 
 # === Targets ===
 
-.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth-ide
+.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth forth-ide
 
 # Default: build all examples
 all: build
@@ -659,7 +670,14 @@ test-forth: test-forth-see
 run-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@cd .. && FORTH_INTERACTIVE=1 bin/nano_vm bin/nl_forth_interpreter_vm
 
-forth-ide: $(COMPILER) $(BIN_DIR)/nl_forth_interpreter $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
+$(BIN_DIR)/forth: $(BIN_DIR)/nl_forth_interpreter
+	@echo "Linking $@..."
+	cp $< $@
+
+forth: $(BIN_DIR)/forth
+	@cd .. && ./bin/forth --interactive
+
+forth-ide: $(COMPILER) $(BIN_DIR)/forth $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Launching Forth IDE..."
 	@cd .. && ./bin/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 
@@ -866,6 +884,8 @@ help:
 	@echo "  make ncurses      - Build NCurses examples"
 	@echo "  make opengl       - Build OpenGL examples"
 	@echo "  make mujoco       - Build MuJoCo examples"
+	@echo "  make forth        - Launch the standalone Forth CLI"
+	@echo "  make forth-ide    - Launch the SDL Forth IDE"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Naming Convention:"

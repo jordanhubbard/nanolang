@@ -1238,7 +1238,7 @@ $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 # Defaults: C reference compiler, C/native backend, one pass.
 examples: examples-core
 
-.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-launcher
+.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-backend-llvm examples-backend-wasm examples-nanoisa examples-vm examples-launcher forth forth-ide
 
 examples-core: modules-index check-deps-sdl
 	@echo ""
@@ -1329,6 +1329,12 @@ launcher: examples-c check-deps-sdl
 	@echo "=========================================="
 	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
+
+forth: $(COMPILER_C)
+	@$(MAKE) -C examples forth COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+
+forth-ide: $(COMPILER_C) check-deps-sdl
+	@$(MAKE) -C examples forth-ide COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
 # bin/nano_vm. Every eligible source must lower successfully.

@@ -212,16 +212,16 @@ fn main() -> int {
     let term: int = (nl_sdl_term_create "" FONT_PT term_rows term_cols)
     if (== term 0) { (println "nl_sdl_term_create failed") return 1 } else { (print "") }
 
-    # Start PTY with FORTH_INTERACTIVE=1
+    # Start the standalone Forth CLI in explicit interactive mode.
     let pty_fd: int = (nl_pty_open term_rows term_cols)
     if (== pty_fd -1) { (println "nl_pty_open failed") return 1 } else { (print "") }
 
     let pty_pid: int = (nl_pty_fork_exec pty_fd
-        "bin/nl_forth_interpreter" ""
-        "FORTH_INTERACTIVE" "1")
+        "bin/forth" "--interactive"
+        "" "")
     if (== pty_pid -1) {
         (nl_pty_close pty_fd)
-        (println "nl_pty_fork_exec failed — is bin/nl_forth_interpreter built?")
+        (println "nl_pty_fork_exec failed — is bin/forth built?")
         return 1
     } else { (print "") }
 
