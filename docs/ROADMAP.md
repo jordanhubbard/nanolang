@@ -93,7 +93,7 @@ Portable ISA design:
 
 Execution architecture:
 - [ ] I will separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR.
-- [ ] I will decode and resolve each function once rather than call the generic decoder for every retired instruction.
+- [x] I decode and resolve each function once rather than call the generic decoder for every retired instruction.
 - [ ] I will build instruction-boundary maps and resolve branches, calls, layouts, constants, globals, and imports during instantiation.
 - [ ] I will provide computed-goto dispatch where supported and retain a portable switch fallback.
 - [x] I moved generated source locations entirely to side tables and removed executable `DEBUG_LINE` instructions from NanoVirt output.

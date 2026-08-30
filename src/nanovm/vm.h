@@ -9,6 +9,7 @@
 
 #include "value.h"
 #include "heap.h"
+#include "vm_decode.h"
 #include "../nanoisa/isa.h"
 #include "../nanoisa/nvm_format.h"
 
@@ -95,6 +96,9 @@ typedef enum {
 typedef struct VmState {
     /* Module being executed */
     const NvmModule *module;
+    const NvmModule *root_module;
+    VmDecodedModule decoded_module;
+    bool decoded_module_valid;
 
     /* Operand stack */
     NanoValue *stack;
@@ -122,6 +126,8 @@ typedef struct VmState {
 
     /* Linked modules for cross-module calls */
     const NvmModule **linked_modules;
+    VmDecodedModule *decoded_linked_modules;
+    bool *decoded_linked_modules_valid;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
 
@@ -232,6 +238,12 @@ const char *vm_error_string(VmResult result);
 /* Link a module for cross-module calls (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* Mark one mutable module's cached instructions stale before changing it. */
+void vm_invalidate_module(VmState *vm, const NvmModule *module);
+
+/* Atomically decode a module again after mutation. Returns false on malformed code. */
+bool vm_rebuild_module(VmState *vm, const NvmModule *module);
 
 /* Resize linear memory, preserving existing bytes and zeroing new storage. */
 bool vm_memory_resize(VmState *vm, uint64_t size);

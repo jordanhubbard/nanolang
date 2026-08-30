@@ -11,6 +11,8 @@
 
 typedef struct {
     uint32_t byte_offset;
+    uint32_t next_byte_offset;
+    uint32_t resolved_target;
     DecodedInstruction instruction;
 } VmDecodedInstruction;
 
@@ -19,6 +21,7 @@ typedef struct {
     uint32_t instruction_count;
     uint32_t code_size;
     uint8_t *boundaries;
+    uint32_t *instruction_indices;
 } VmDecodedFunction;
 
 typedef struct {
@@ -32,6 +35,8 @@ bool vm_decode_module(const NvmModule *module, VmDecodedModule *out,
                       char error[VM_DECODE_ERROR_SIZE]);
 bool vm_decoded_function_has_boundary(const VmDecodedFunction *function,
                                       uint32_t byte_offset);
+const VmDecodedInstruction *vm_decoded_function_at(
+    const VmDecodedFunction *function, uint32_t byte_offset);
 void vm_decoded_function_free(VmDecodedFunction *function);
 void vm_decoded_module_free(VmDecodedModule *module);
 

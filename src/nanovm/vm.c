@@ -53,6 +53,7 @@ const char *vm_error_string(VmResult result) {
 void vm_init(VmState *vm, const NvmModule *module) {
     memset(vm, 0, sizeof(*vm));
     vm->module = module;
+    vm->root_module = module;
     vm->stack_capacity = VM_STACK_INITIAL;
     vm->stack = calloc(vm->stack_capacity, sizeof(NanoValue));
     vm->output = NULL; /* default stdout */
@@ -67,6 +68,12 @@ void vm_init(VmState *vm, const NvmModule *module) {
     const char *tenv = getenv("COP_TIMEOUT_MS");
     vm->cop_timeout_ms = tenv ? atoi(tenv) : 5000;
     vm_heap_init(&vm->heap);
+    char decode_error[VM_DECODE_ERROR_SIZE];
+    if (vm_decode_module(module, &vm->decoded_module, decode_error)) {
+        vm->decoded_module_valid = true;
+    } else {
+        vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
+    }
 }
 
 void vm_destroy(VmState *vm) {
@@ -79,9 +86,22 @@ void vm_destroy(VmState *vm) {
         vm_release(&vm->heap, vm->stack[i]);
     }
     free(vm->stack);
+    vm_decoded_module_free(&vm->decoded_module);
+    for (uint32_t i = 0; i < vm->linked_module_count; i++)
+        vm_decoded_module_free(&vm->decoded_linked_modules[i]);
+    free(vm->decoded_linked_modules);
+    free(vm->decoded_linked_modules_valid);
     free(vm->linked_modules);
     free(vm->memory);
     vm_heap_destroy(&vm->heap);
+    vm->stack = NULL;
+    vm->decoded_linked_modules = NULL;
+    vm->decoded_linked_modules_valid = NULL;
+    vm->linked_modules = NULL;
+    vm->memory = NULL;
+    vm->decoded_module_valid = false;
+    vm->linked_module_count = 0;
+    vm->linked_module_capacity = 0;
 }
 
 bool vm_memory_resize(VmState *vm, uint64_t size) {
@@ -102,18 +122,86 @@ bool vm_memory_resize(VmState *vm, uint64_t size) {
 }
 
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
-    if (!mod) return (uint32_t)-1;
+    if (!vm || !mod || vm->frame_count != 0) return (uint32_t)-1;
+    VmDecodedModule decoded;
+    char decode_error[VM_DECODE_ERROR_SIZE];
+    if (!vm_decode_module(mod, &decoded, decode_error)) {
+        vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
+        return (uint32_t)-1;
+    }
     if (vm->linked_module_count >= vm->linked_module_capacity) {
         uint32_t new_cap = vm->linked_module_capacity ? vm->linked_module_capacity * 2 : 8;
         const NvmModule **new_arr = realloc(vm->linked_modules,
-                                            new_cap * sizeof(const NvmModule *));
-        if (!new_arr) return (uint32_t)-1;
+                                             new_cap * sizeof(const NvmModule *));
+        if (!new_arr) {
+            vm_decoded_module_free(&decoded);
+            return (uint32_t)-1;
+        }
         vm->linked_modules = new_arr;
+        VmDecodedModule *new_decoded = realloc(vm->decoded_linked_modules,
+                                               new_cap * sizeof(VmDecodedModule));
+        if (!new_decoded) {
+            vm_decoded_module_free(&decoded);
+            return (uint32_t)-1;
+        }
+        vm->decoded_linked_modules = new_decoded;
+        bool *new_valid = realloc(vm->decoded_linked_modules_valid,
+                                  new_cap * sizeof(bool));
+        if (!new_valid) {
+            vm_decoded_module_free(&decoded);
+            return (uint32_t)-1;
+        }
+        vm->decoded_linked_modules_valid = new_valid;
         vm->linked_module_capacity = new_cap;
     }
     uint32_t idx = vm->linked_module_count++;
     vm->linked_modules[idx] = mod;
+    vm->decoded_linked_modules[idx] = decoded;
+    vm->decoded_linked_modules_valid[idx] = true;
     return idx;
+}
+
+static VmDecodedModule *decoded_module_for(VmState *vm, const NvmModule *module,
+                                            bool **valid) {
+    if (module == vm->root_module) {
+        if (valid) *valid = &vm->decoded_module_valid;
+        return &vm->decoded_module;
+    }
+    for (uint32_t i = 0; i < vm->linked_module_count; i++) {
+        if (vm->linked_modules[i] == module) {
+            if (valid) *valid = &vm->decoded_linked_modules_valid[i];
+            return &vm->decoded_linked_modules[i];
+        }
+    }
+    return NULL;
+}
+
+void vm_invalidate_module(VmState *vm, const NvmModule *module) {
+    if (!vm || !module || vm->frame_count != 0) return;
+    bool *valid = NULL;
+    VmDecodedModule *decoded = decoded_module_for(vm, module, &valid);
+    if (!decoded) return;
+    vm_decoded_module_free(decoded);
+    *valid = false;
+}
+
+bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
+    if (!vm || !module || vm->frame_count != 0) return false;
+    bool *valid = NULL;
+    VmDecodedModule *slot = decoded_module_for(vm, module, &valid);
+    if (!slot) return false;
+    VmDecodedModule replacement;
+    char decode_error[VM_DECODE_ERROR_SIZE];
+    if (!vm_decode_module(module, &replacement, decode_error)) {
+        vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
+        return false;
+    }
+    vm_decoded_module_free(slot);
+    *slot = replacement;
+    *valid = true;
+    vm->last_error = VM_OK;
+    vm->error_msg[0] = '\0';
+    return true;
 }
 
 /* ========================================================================
@@ -314,8 +402,6 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * ======================================================================== */
 
 VmTrap vm_core_execute(VmState *vm) {
-    const uint8_t *code = vm->module->code;
-
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
@@ -324,14 +410,26 @@ VmTrap vm_core_execute(VmState *vm) {
 
     /* Main dispatch loop */
     while (vm->ip < code_end) {
-        DecodedInstruction instr;
-        uint32_t consumed = isa_decode(code + vm->ip, code_end - vm->ip, &instr);
-        if (consumed == 0) {
-            return trap_error(vm, VM_ERR_DECODE, "Bad instruction at offset %u", vm->ip);
+        bool *decoded_valid = NULL;
+        VmDecodedModule *decoded_module = decoded_module_for(
+            vm, vm->module, &decoded_valid);
+        if (!decoded_module || !decoded_valid || !*decoded_valid
+                || vm->current_fn >= decoded_module->function_count) {
+            return trap_error(vm, VM_ERR_DECODE,
+                              "Decoded module is stale at offset %u", vm->ip);
         }
-
+        const VmDecodedFunction *decoded_function =
+            &decoded_module->functions[vm->current_fn];
+        uint32_t function_offset = vm->ip - cur_fn->code_offset;
+        const VmDecodedInstruction *decoded =
+            vm_decoded_function_at(decoded_function, function_offset);
+        if (!decoded) {
+            return trap_error(vm, VM_ERR_DECODE,
+                              "No decoded instruction at offset %u", vm->ip);
+        }
+        DecodedInstruction instr = decoded->instruction;
         uint32_t instr_start = vm->ip;
-        vm->ip += consumed;
+        vm->ip = cur_fn->code_offset + decoded->next_byte_offset;
         profile_instruction(vm, instr.opcode);
 
         switch (instr.opcode) {
@@ -1235,8 +1333,7 @@ dynamic_div:
                 vm->profile.branches++;
                 vm->profile.branches_taken++;
             }
-            int32_t offset = instr.operands[0].i32;
-            vm->ip = (uint32_t)((int32_t)instr_start + offset);
+            vm->ip = decoded->resolved_target;
             break;
         }
 
@@ -1248,7 +1345,7 @@ dynamic_div:
                 if (taken) vm->profile.branches_taken++;
             }
             if (taken) {
-                vm->ip = (uint32_t)((int32_t)instr_start + instr.operands[0].i32);
+                vm->ip = decoded->resolved_target;
             }
             vm_release(&vm->heap, cond);
             break;
@@ -1262,7 +1359,7 @@ dynamic_div:
                 if (taken) vm->profile.branches_taken++;
             }
             if (taken) {
-                vm->ip = (uint32_t)((int32_t)instr_start + instr.operands[0].i32);
+                vm->ip = decoded->resolved_target;
             }
             vm_release(&vm->heap, cond);
             break;
@@ -1270,7 +1367,7 @@ dynamic_div:
 
         case OP_CALL: {
             if (vm->profile.enabled) vm->profile.direct_calls++;
-            uint32_t callee_idx = instr.operands[0].u32;
+            uint32_t callee_idx = decoded->resolved_target;
             if (callee_idx >= vm->module->function_count) {
                 return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u not found", callee_idx);
             }
@@ -1308,6 +1405,7 @@ dynamic_div:
             frame = new_frame;
             vm->current_fn = callee_idx;
             vm->ip = callee->code_offset;
+            cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
             break;
         }
@@ -1359,6 +1457,7 @@ dynamic_div:
                 frame = new_frame;
                 vm->current_fn = callee_idx;
                 vm->ip = callee->code_offset;
+                cur_fn = callee;
                 code_end = callee->code_offset + callee->code_length;
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "CALL_INDIRECT: not a function");
@@ -1394,7 +1493,6 @@ dynamic_div:
                 NanoValue v = stack_pop(vm);
                 vm_release(&vm->heap, v);
             }
-
             /* Save the returning function's return_ip (points to instruction
              * after the CALL in the caller) before we pop the frame */
             uint32_t ret_ip = frame->return_ip;
@@ -1412,8 +1510,8 @@ dynamic_div:
             vm->current_fn = frame->fn_idx;
             vm->ip = ret_ip;
             vm->module = frame->module;  /* Restore caller's module */
-            code = vm->module->code;     /* Re-derive code pointer */
             const NvmFunctionEntry *caller_fn = &vm->module->functions[frame->fn_idx];
+            cur_fn = caller_fn;
             code_end = caller_fn->code_offset + caller_fn->code_length;
 
             for (uint8_t i = 0; i < returning->result_count; i++)
@@ -1494,10 +1592,10 @@ dynamic_div:
 
             /* Switch to target module */
             vm->module = target;
-            code = target->code;
             frame = new_frame;
             vm->current_fn = fn_idx_m;
             vm->ip = callee->code_offset;
+            cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
             break;
         }
@@ -2038,11 +2136,10 @@ dynamic_div:
 
         case OP_MATCH_TAG: {
             uint16_t variant = instr.operands[0].u16;
-            int32_t offset = instr.operands[1].i32;
             NanoValue top = stack_peek(vm, 0);
             if (top.tag == TAG_UNION && top.as.uval && top.as.uval->variant == variant) {
                 /* Match - jump to arm */
-                vm->ip = (uint32_t)((int32_t)instr_start + offset);
+                vm->ip = decoded->resolved_target;
             }
             /* No match - fall through to next MATCH_TAG */
             break;
@@ -2467,6 +2564,7 @@ dynamic_div:
             frame = new_frame;
             vm->current_fn = callee_idx;
             vm->ip = callee->code_offset;
+            cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
             break;
         }

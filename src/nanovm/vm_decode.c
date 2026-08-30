@@ -16,6 +16,7 @@ void vm_decoded_function_free(VmDecodedFunction *function) {
     if (!function) return;
     free(function->instructions);
     free(function->boundaries);
+    free(function->instruction_indices);
     memset(function, 0, sizeof(*function));
 }
 
@@ -53,7 +54,10 @@ bool vm_decode_function(const NvmModule *module, uint32_t function_index,
 
     out->code_size = entry->code_length;
     out->boundaries = calloc((size_t)entry->code_length + 1, 1);
-    if (!out->boundaries) {
+    out->instruction_indices = calloc((size_t)entry->code_length + 1,
+                                      sizeof(*out->instruction_indices));
+    if (!out->boundaries || !out->instruction_indices) {
+        vm_decoded_function_free(out);
         return decode_fail(error, "function[%u] allocation failed at offset %u",
                            function_index, entry->code_offset);
     }
@@ -88,13 +92,56 @@ bool vm_decode_function(const NvmModule *module, uint32_t function_index,
                                function_index, entry->code_offset + position);
         }
         decoded->byte_offset = position;
+        decoded->next_byte_offset = position + size;
+        decoded->resolved_target = UINT32_MAX;
         out->boundaries[position] = 1;
+        out->instruction_indices[position] = out->instruction_count + 1;
         out->instruction_count++;
         position += size;
     }
     out->boundaries[entry->code_length] = 1;
+
+    for (uint32_t i = 0; i < out->instruction_count; i++) {
+        VmDecodedInstruction *decoded = &out->instructions[i];
+        uint8_t opcode = decoded->instruction.opcode;
+        if (opcode == OP_JMP || opcode == OP_JMP_TRUE
+                || opcode == OP_JMP_FALSE || opcode == OP_MATCH_TAG) {
+            int32_t relative = opcode == OP_MATCH_TAG
+                ? decoded->instruction.operands[1].i32
+                : decoded->instruction.operands[0].i32;
+            int64_t target = (int64_t)decoded->byte_offset + relative;
+            if (target < 0 || target > UINT32_MAX
+                    || !vm_decoded_function_has_boundary(out, (uint32_t)target)) {
+                uint32_t bad_offset = entry->code_offset + decoded->byte_offset;
+                vm_decoded_function_free(out);
+                return decode_fail(error,
+                    "function[%u] branch targets a non-instruction boundary at offset %u",
+                    function_index, bad_offset);
+            }
+            decoded->resolved_target = entry->code_offset + (uint32_t)target;
+        } else if (opcode == OP_CALL) {
+            uint32_t target = decoded->instruction.operands[0].u32;
+            if (target >= module->function_count) {
+                uint32_t bad_offset = entry->code_offset + decoded->byte_offset;
+                vm_decoded_function_free(out);
+                return decode_fail(error,
+                    "function[%u] direct call has an invalid target at offset %u",
+                    function_index, bad_offset);
+            }
+            decoded->resolved_target = target;
+        }
+    }
     if (error) error[0] = '\0';
     return true;
+}
+
+const VmDecodedInstruction *vm_decoded_function_at(
+        const VmDecodedFunction *function, uint32_t byte_offset) {
+    if (!function || byte_offset >= function->code_size
+            || !function->instruction_indices) return NULL;
+    uint32_t encoded_index = function->instruction_indices[byte_offset];
+    if (encoded_index == 0) return NULL;
+    return &function->instructions[encoded_index - 1];
 }
 
 bool vm_decode_module(const NvmModule *module, VmDecodedModule *out,

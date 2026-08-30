@@ -240,6 +240,8 @@ static void test_persistent_invoke(void) {
     fail_off += emit(fail_code + fail_off, OP_ADD);
     fail_off += emit(fail_code + fail_off, OP_RET);
     uint32_t fail_idx = add_fn(mod, "fail", fail_code, fail_off, 0, 0);
+    ASSERT(vm_rebuild_module(&vm, mod),
+           "persistent mutation rebuilds decoded instructions");
     VmResult failed = vm_invoke(&vm, fail_idx, NULL, 0, &value);
     ASSERT_EQ_INT(failed, VM_ERR_TYPE_ERROR,
                   "failed persistent invocation reports VM error");
@@ -250,6 +252,106 @@ static void test_persistent_invoke(void) {
     ASSERT_EQ_INT(recovered, VM_OK, "persistent VM recovers after failed invocation");
     ASSERT_EQ_INT(value.as.i64, 42, "recovered invocation returns correct result");
 
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_predecode_mutation_lifecycle(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid, "initial module is decoded");
+
+    NanoValue result = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "initial decoded function executes");
+    ASSERT_EQ_INT(result.as.i64, 1, "initial decoded operand is retained");
+
+    emit(mod->code, OP_PUSH_I64, (int64_t)2);
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "raw mutation does not silently replace decoded code");
+    ASSERT_EQ_INT(result.as.i64, 1, "execution still uses the decoded operand");
+
+    vm_invalidate_module(&vm, mod);
+    ASSERT(!vm.decoded_module_valid, "invalidation marks decoded code stale");
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_ERR_DECODE,
+                  "stale decoded code cannot execute");
+    ASSERT(vm_rebuild_module(&vm, mod), "mutated module rebuild succeeds");
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "rebuilt function executes");
+    ASSERT_EQ_INT(result.as.i64, 2, "rebuilt operand is visible");
+
+    vm_destroy(&vm);
+    ASSERT(vm.stack == NULL, "destroy clears the operand stack allocation");
+    ASSERT(vm.decoded_module.functions == NULL,
+           "destroy clears root decoded instructions");
+    nvm_module_free(mod);
+}
+
+static void test_predecode_rejects_malformed_code(void) {
+    uint8_t truncated[] = { OP_PUSH_I64, 1 };
+    NvmModule *mod = make_module(truncated, sizeof(truncated), 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(!vm.decoded_module_valid, "truncated bytecode is not published");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_DECODE,
+                  "truncated bytecode fails before dispatch");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+
+    uint8_t branch[16];
+    uint32_t off = 0;
+    off += emit(branch + off, OP_JMP, (int32_t)2);
+    off += emit(branch + off, OP_RET);
+    mod = make_module(branch, off, 0, 0);
+    vm_init(&vm, mod);
+    ASSERT(!vm.decoded_module_valid,
+           "branch into an operand is rejected during decode");
+    ASSERT(strstr(vm.error_msg, "instruction boundary") != NULL,
+           "malformed branch identifies its boundary error");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+
+    uint8_t call[16];
+    off = 0;
+    off += emit(call + off, OP_CALL, (uint32_t)99);
+    off += emit(call + off, OP_RET);
+    mod = make_module(call, off, 0, 0);
+    vm_init(&vm, mod);
+    ASSERT(!vm.decoded_module_valid,
+           "invalid direct call is rejected during decode");
+    ASSERT(strstr(vm.error_msg, "direct call") != NULL,
+           "malformed direct call identifies its target error");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_predecode_trap_resume_offset(void) {
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_BOOL, 1);
+    uint32_t trap_offset = off;
+    off += emit(code + off, OP_ASSERT);
+    uint32_t resume_offset = off;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+
+    const VmDecodedInstruction *trap = vm_decoded_function_at(
+        &vm.decoded_module.functions[0], trap_offset);
+    ASSERT(trap != NULL, "trap instruction has a decoded offset entry");
+    ASSERT_EQ_INT(trap->next_byte_offset, resume_offset,
+                  "trap stores its byte-accurate resume offset");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK,
+                  "host trap resumes at the next decoded instruction");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 42,
+                  "trap resume preserves execution result");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -3149,6 +3251,9 @@ int main(void) {
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
     RUN_TEST(test_persistent_invoke);
+    RUN_TEST(test_predecode_mutation_lifecycle);
+    RUN_TEST(test_predecode_rejects_malformed_code);
+    RUN_TEST(test_predecode_trap_resume_offset);
     RUN_TEST(test_result_signature_enforcement);
     RUN_TEST(test_instruction_profile);
     RUN_TEST(test_heap_profile);
