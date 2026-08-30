@@ -711,7 +711,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_LT);
         uint32_t jf_instr = cg->code_size;
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
-        emit_op(cg, OP_NEG);
+        emit_op(cg, OP_I64_NEG);
         patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
         return true;
     }
@@ -800,7 +800,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             emit_op(cg, OP_STORE_LOCAL, (int)arr_slot);
             emit_op(cg, OP_LOAD_LOCAL, (int)i_slot);
             emit_op(cg, OP_PUSH_I64, (int64_t)1);
-            emit_op(cg, OP_ADD);
+            emit_op(cg, OP_I64_ADD);
             emit_op(cg, OP_STORE_LOCAL, (int)i_slot);
             uint32_t jmp_instr = cg->code_size;
             emit_op(cg, OP_JMP, (int32_t)0);
@@ -897,7 +897,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* i = i + 1 */
         emit_op(cg, OP_LOAD_LOCAL, (int)i_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)i_slot);
 
         /* Jump back to top */
@@ -970,7 +970,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* i++ */
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
 
         uint32_t jmp_instr = cg->code_size;
@@ -1027,7 +1027,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
 
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
 
         uint32_t jmp_instr = cg->code_size;
@@ -1080,7 +1080,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
 
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
 
         uint32_t jmp_instr = cg->code_size;
@@ -1169,7 +1169,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_STORE_LOCAL, (int)arr1);
         emit_op(cg, OP_LOAD_LOCAL, (int)idx);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx);
         uint32_t jmp_instr = cg->code_size;
         emit_op(cg, OP_JMP, (int32_t)0);
@@ -2474,7 +2474,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         /* Increment counter */
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
 
         /* Jump back to top */
