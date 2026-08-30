@@ -2491,6 +2491,63 @@ static void test_vm_error_string(void) {
     ASSERT(vm_error_string((VmResult)9999) != NULL, "unknown error string");
 }
 
+static void test_predecode_malformed_bytecode(void) {
+    uint8_t code[] = { OP_PUSH_I64, 1, 2 };
+    NvmModule *mod = make_module(code, sizeof(code), 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+
+    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_DECODE,
+                  "truncated instruction is rejected during cached decode");
+    ASSERT_EQ_INT(vm.ip, 0, "decode failure preserves the byte offset");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_predecode_invalid_branch_target(void) {
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_JMP, (int32_t)2);
+    n += emit(code + n, OP_HALT);
+    NvmModule *mod = make_module(code, n, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+
+    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_DECODE,
+                  "branch into an operand is rejected before dispatch");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_predecode_invalidate_rebuild(void) {
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_HALT);
+    NvmModule *mod = make_module(code, n, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "initial cached program executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 1, "initial cached operand is used");
+
+    DecodedInstruction replacement = {0};
+    replacement.opcode = OP_PUSH_I64;
+    replacement.operands[0].i64 = 2;
+    ASSERT_EQ_INT(isa_encode(&replacement, mod->code, mod->code_size), 9,
+                  "replacement instruction encodes");
+    vm.stack_size = 0;
+    vm_invalidate_decoded_module(&vm, mod);
+    ASSERT_EQ_INT(vm_rebuild_decoded_module(&vm, mod), VM_OK,
+                  "mutated module cache rebuilds");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "rebuilt program executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 2, "rebuilt cache sees mutation");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 /* OP_ADD float+int (a=float first on stack, b=int): hits line 355 in vm.c */
 static void test_add_float_int(void) {
     uint8_t code[64];
@@ -2878,6 +2935,11 @@ int main(void) {
 
     printf("\n[vm_error_string]\n");
     RUN_TEST(test_vm_error_string);
+
+    printf("\n[Predecoded Dispatch]\n");
+    RUN_TEST(test_predecode_malformed_bytecode);
+    RUN_TEST(test_predecode_invalid_branch_target);
+    RUN_TEST(test_predecode_invalidate_rebuild);
 
     printf("\n[Float/mixed arithmetic]\n");
     RUN_TEST(test_add_float_int);

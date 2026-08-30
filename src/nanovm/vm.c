@@ -11,6 +11,23 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+typedef struct {
+    DecodedInstruction instruction;
+    uint32_t byte_offset;
+    uint32_t next_offset;
+    uint32_t branch_target;
+    const NvmFunctionEntry *direct_callee;
+} VmDecodedInstruction;
+
+struct VmDecodedModule {
+    const NvmModule *module;
+    VmDecodedInstruction *instructions;
+    uint32_t instruction_count;
+    int32_t *offset_to_instruction;
+    uint32_t offset_map_size;
+    bool valid;
+};
+
 /* ========================================================================
  * Error Handling
  * ======================================================================== */
@@ -44,6 +61,109 @@ const char *vm_error_string(VmResult result) {
     return "Unknown error";
 }
 
+static VmDecodedModule *decoded_cache(VmState *vm, const NvmModule *module,
+                                      bool create) {
+    for (uint32_t i = 0; i < vm->decoded_module_count; i++) {
+        if (vm->decoded_modules[i].module == module) return &vm->decoded_modules[i];
+    }
+    if (!create) return NULL;
+    if (vm->decoded_module_count == vm->decoded_module_capacity) {
+        uint32_t cap = vm->decoded_module_capacity ? vm->decoded_module_capacity * 2 : 4;
+        VmDecodedModule *p = realloc(vm->decoded_modules, cap * sizeof(*p));
+        if (!p) return NULL;
+        vm->decoded_modules = p;
+        vm->decoded_module_capacity = cap;
+    }
+    VmDecodedModule *cache = &vm->decoded_modules[vm->decoded_module_count++];
+    memset(cache, 0, sizeof(*cache));
+    cache->module = module;
+    return cache;
+}
+
+void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module) {
+    VmDecodedModule *cache = decoded_cache(vm, module, false);
+    if (cache) cache->valid = false;
+}
+
+VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module) {
+    if (!module) return vm_error(vm, VM_ERR_DECODE, "Cannot decode a null module");
+    VmDecodedModule *cache = decoded_cache(vm, module, true);
+    if (!cache) return vm_error(vm, VM_ERR_MEMORY, "Instruction cache allocation failed");
+
+    free(cache->instructions);
+    free(cache->offset_to_instruction);
+    cache->instructions = NULL;
+    cache->offset_to_instruction = NULL;
+    cache->instruction_count = 0;
+    cache->offset_map_size = module->code_size + 1;
+    cache->valid = false;
+    cache->offset_to_instruction = malloc(cache->offset_map_size * sizeof(int32_t));
+    if (!cache->offset_to_instruction)
+        return vm_error(vm, VM_ERR_MEMORY, "Instruction offset map allocation failed");
+    for (uint32_t i = 0; i < cache->offset_map_size; i++) cache->offset_to_instruction[i] = -1;
+
+    uint32_t capacity = 0;
+    for (uint32_t f = 0; f < module->function_count; f++) {
+        const NvmFunctionEntry *fn = &module->functions[f];
+        if (fn->code_offset > module->code_size ||
+            fn->code_length > module->code_size - fn->code_offset)
+            return vm_error(vm, VM_ERR_DECODE, "Function %u code range is invalid", f);
+        uint32_t offset = fn->code_offset;
+        uint32_t end = offset + fn->code_length;
+        while (offset < end) {
+            DecodedInstruction instruction;
+            uint32_t consumed = isa_decode(module->code + offset, end - offset, &instruction);
+            if (!consumed)
+                return vm_error(vm, VM_ERR_DECODE, "Bad instruction at offset %u", offset);
+            if (cache->instruction_count == capacity) {
+                uint32_t cap = capacity ? capacity * 2 : 64;
+                VmDecodedInstruction *p = realloc(cache->instructions, cap * sizeof(*p));
+                if (!p) return vm_error(vm, VM_ERR_MEMORY, "Instruction cache allocation failed");
+                cache->instructions = p;
+                capacity = cap;
+            }
+            VmDecodedInstruction *decoded = &cache->instructions[cache->instruction_count];
+            memset(decoded, 0, sizeof(*decoded));
+            decoded->instruction = instruction;
+            decoded->byte_offset = offset;
+            decoded->next_offset = offset + consumed;
+            decoded->branch_target = UINT32_MAX;
+            cache->offset_to_instruction[offset] = (int32_t)cache->instruction_count++;
+            offset += consumed;
+        }
+    }
+
+    for (uint32_t i = 0; i < cache->instruction_count; i++) {
+        VmDecodedInstruction *decoded = &cache->instructions[i];
+        uint8_t opcode = decoded->instruction.opcode;
+        if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE) {
+            int64_t target = (int64_t)decoded->byte_offset + decoded->instruction.operands[0].i32;
+            if (target < 0 || target >= cache->offset_map_size ||
+                cache->offset_to_instruction[target] < 0)
+                return vm_error(vm, VM_ERR_DECODE,
+                                "Branch at offset %u has invalid target %lld",
+                                decoded->byte_offset, (long long)target);
+            decoded->branch_target = (uint32_t)target;
+        } else if (opcode == OP_MATCH_TAG) {
+            int64_t target = (int64_t)decoded->byte_offset + decoded->instruction.operands[1].i32;
+            if (target < 0 || target >= cache->offset_map_size ||
+                cache->offset_to_instruction[target] < 0)
+                return vm_error(vm, VM_ERR_DECODE,
+                                "Branch at offset %u has invalid target %lld",
+                                decoded->byte_offset, (long long)target);
+            decoded->branch_target = (uint32_t)target;
+        } else if (opcode == OP_CALL) {
+            uint32_t callee = decoded->instruction.operands[0].u32;
+            if (callee >= module->function_count)
+                return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION,
+                                "Function %u not found", callee);
+            decoded->direct_callee = &module->functions[callee];
+        }
+    }
+    cache->valid = true;
+    return VM_OK;
+}
+
 /* ========================================================================
  * Init / Destroy
  * ======================================================================== */
@@ -65,6 +185,7 @@ void vm_init(VmState *vm, const NvmModule *module) {
     const char *tenv = getenv("COP_TIMEOUT_MS");
     vm->cop_timeout_ms = tenv ? atoi(tenv) : 5000;
     vm_heap_init(&vm->heap);
+    vm_rebuild_decoded_module(vm, module);
 }
 
 void vm_destroy(VmState *vm) {
@@ -78,11 +199,19 @@ void vm_destroy(VmState *vm) {
     }
     free(vm->stack);
     free(vm->linked_modules);
+    for (uint32_t i = 0; i < vm->decoded_module_count; i++) {
+        free(vm->decoded_modules[i].instructions);
+        free(vm->decoded_modules[i].offset_to_instruction);
+    }
+    free(vm->decoded_modules);
     vm_heap_destroy(&vm->heap);
 }
 
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
     if (!mod) return (uint32_t)-1;
+    VmDecodedModule *cache = decoded_cache(vm, mod, false);
+    if ((!cache || !cache->valid) && vm_rebuild_decoded_module(vm, mod) != VM_OK)
+        return (uint32_t)-1;
     if (vm->linked_module_count >= vm->linked_module_capacity) {
         uint32_t new_cap = vm->linked_module_capacity ? vm->linked_module_capacity * 2 : 8;
         const NvmModule **new_arr = realloc(vm->linked_modules,
@@ -175,7 +304,12 @@ static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...)
  * ======================================================================== */
 
 VmTrap vm_core_execute(VmState *vm) {
-    const uint8_t *code = vm->module->code;
+    VmDecodedModule *cache = decoded_cache(vm, vm->module, false);
+    if (!cache || !cache->valid) {
+        VmResult result = vm_rebuild_decoded_module(vm, vm->module);
+        if (result != VM_OK) return trap_error(vm, result, "%s", vm->error_msg);
+        cache = decoded_cache(vm, vm->module, false);
+    }
 
     /* Derive code_end from current function */
     const NvmFunctionEntry *cur_fn = &vm->module->functions[vm->current_fn];
@@ -185,14 +319,13 @@ VmTrap vm_core_execute(VmState *vm) {
 
     /* Main dispatch loop */
     while (vm->ip < code_end) {
-        DecodedInstruction instr;
-        uint32_t consumed = isa_decode(code + vm->ip, code_end - vm->ip, &instr);
-        if (consumed == 0) {
+        if (vm->ip >= cache->offset_map_size || cache->offset_to_instruction[vm->ip] < 0) {
             return trap_error(vm, VM_ERR_DECODE, "Bad instruction at offset %u", vm->ip);
         }
-
-        uint32_t instr_start = vm->ip;
-        vm->ip += consumed;
+        VmDecodedInstruction *cached = &cache->instructions[cache->offset_to_instruction[vm->ip]];
+        DecodedInstruction instr = cached->instruction;
+        uint32_t instr_start = cached->byte_offset;
+        vm->ip = cached->next_offset;
 
         switch (instr.opcode) {
 
@@ -785,15 +918,14 @@ VmTrap vm_core_execute(VmState *vm) {
          * ============================================================ */
 
         case OP_JMP: {
-            int32_t offset = instr.operands[0].i32;
-            vm->ip = (uint32_t)((int32_t)instr_start + offset);
+            vm->ip = cached->branch_target;
             break;
         }
 
         case OP_JMP_TRUE: {
             NanoValue cond = stack_pop(vm);
             if (val_truthy(cond)) {
-                vm->ip = (uint32_t)((int32_t)instr_start + instr.operands[0].i32);
+                vm->ip = cached->branch_target;
             }
             vm_release(&vm->heap, cond);
             break;
@@ -802,7 +934,7 @@ VmTrap vm_core_execute(VmState *vm) {
         case OP_JMP_FALSE: {
             NanoValue cond = stack_pop(vm);
             if (!val_truthy(cond)) {
-                vm->ip = (uint32_t)((int32_t)instr_start + instr.operands[0].i32);
+                vm->ip = cached->branch_target;
             }
             vm_release(&vm->heap, cond);
             break;
@@ -814,7 +946,7 @@ VmTrap vm_core_execute(VmState *vm) {
                 return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u not found", callee_idx);
             }
 
-            const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
+            const NvmFunctionEntry *callee = cached->direct_callee;
 
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
@@ -926,7 +1058,7 @@ VmTrap vm_core_execute(VmState *vm) {
             vm->current_fn = frame->fn_idx;
             vm->ip = ret_ip;
             vm->module = frame->module;  /* Restore caller's module */
-            code = vm->module->code;     /* Re-derive code pointer */
+            cache = decoded_cache(vm, vm->module, false);
             const NvmFunctionEntry *caller_fn = &vm->module->functions[frame->fn_idx];
             code_end = caller_fn->code_offset + caller_fn->code_length;
 
@@ -998,7 +1130,7 @@ VmTrap vm_core_execute(VmState *vm) {
 
             /* Switch to target module */
             vm->module = target;
-            code = target->code;
+            cache = decoded_cache(vm, target, false);
             frame = new_frame;
             vm->current_fn = fn_idx_m;
             vm->ip = callee->code_offset;
@@ -1542,11 +1674,10 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_MATCH_TAG: {
             uint16_t variant = instr.operands[0].u16;
-            int32_t offset = instr.operands[1].i32;
             NanoValue top = stack_peek(vm, 0);
             if (top.tag == TAG_UNION && top.as.uval && top.as.uval->variant == variant) {
                 /* Match - jump to arm */
-                vm->ip = (uint32_t)((int32_t)instr_start + offset);
+                vm->ip = cached->branch_target;
             }
             /* No match - fall through to next MATCH_TAG */
             break;
