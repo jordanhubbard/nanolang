@@ -1,0 +1,107 @@
+version: 2
+architecture: local-stack-hybrid
+encoding:
+  opcode: u8
+  extension_prefix: 0xff
+  byte_order: little
+
+value_tags:
+  - {name: void, code: 0x00}
+  - {name: i64, code: 0x01}
+  - {name: u8, code: 0x02}
+  - {name: f64, code: 0x03}
+  - {name: bool, code: 0x04}
+  - {name: string, code: 0x05}
+  - {name: bstring, code: 0x06}
+  - {name: array, code: 0x07}
+  - {name: record, code: 0x08}
+  - {name: enum, code: 0x09}
+  - {name: variant, code: 0x0a}
+  - {name: funcref, code: 0x0b}
+  - {name: tuple, code: 0x0c}
+  - {name: hashmap, code: 0x0d}
+  - {name: opaque, code: 0x0e}
+  - {name: closure, code: 0x0f}
+
+operand_kinds:
+  - {name: value-tag, encoding: u8}
+  - {name: local, encoding: uleb}
+  - {name: global, encoding: uleb}
+  - {name: upvalue, encoding: uleb}
+  - {name: constant, encoding: uleb}
+  - {name: function, encoding: uleb}
+  - {name: signature, encoding: uleb}
+  - {name: import, encoding: uleb}
+  - {name: layout, encoding: uleb}
+  - {name: field, encoding: uleb}
+  - {name: count, encoding: uleb}
+  - {name: branch, encoding: sleb}
+
+# This schema is normative for v2 design work. Generators will consume it as
+# instruction families replace the v1 hand-maintained enum and metadata table.
+instruction_families:
+  constants:
+    - {name: const.i64, operands: [sleb], pops: [], pushes: [i64], ownership: none}
+    - {name: const.f64, operands: [f64], pops: [], pushes: [f64], ownership: none}
+    - {name: const.pool, operands: [constant], pops: [], pushes: [any], ownership: retain}
+  stack:
+    - {name: drop, operands: [], pops: [any], pushes: [], ownership: release}
+    - {name: dup, operands: [], pops: [any], pushes: [any, any], ownership: retain}
+    - {name: swap, operands: [], pops: [any, any], pushes: [any, any], ownership: move}
+    - {name: pick, operands: [count], pops: [], pushes: [any], ownership: retain}
+    - {name: roll, operands: [count], pops: [], pushes: [], ownership: move}
+  variables:
+    - {name: local.get, operands: [local], pops: [], pushes: [any], ownership: retain}
+    - {name: local.set, operands: [local], pops: [any], pushes: [], ownership: move}
+    - {name: global.get, operands: [global], pops: [], pushes: [any], ownership: retain}
+    - {name: global.set, operands: [global], pops: [any], pushes: [], ownership: move}
+    - {name: upvalue.get, operands: [upvalue], pops: [], pushes: [any], ownership: retain}
+    - {name: upvalue.set, operands: [upvalue], pops: [any], pushes: [], ownership: move}
+  integer:
+    - {name: i64.add, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.sub, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.mul, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.div-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.div-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.rem-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.rem-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.and, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.or, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.xor, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shl, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shr-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shr-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.add-carry, operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.sub-borrow, operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.mul-wide-s, operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.mul-wide-u, operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
+  float:
+    - {name: f64.add, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.sub, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.mul, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.div, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+  memory:
+    - {name: mem.load8, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load16, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load32, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load64, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.store8, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store16, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store32, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store64, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
+  aggregate:
+    - {name: aggregate.pack, operands: [layout, count], pops: [many], pushes: [aggregate], ownership: move}
+    - {name: aggregate.get, operands: [field], pops: [aggregate], pushes: [any], ownership: retain}
+    - {name: aggregate.set, operands: [field], pops: [aggregate, any], pushes: [aggregate], ownership: move}
+    - {name: aggregate.tag, operands: [], pops: [aggregate], pushes: [i64], ownership: none}
+  control:
+    - {name: branch, operands: [branch], pops: [], pushes: [], ownership: none}
+    - {name: branch.zero, operands: [branch], pops: [i64], pushes: [], ownership: none}
+    - {name: branch.nonzero, operands: [branch], pops: [i64], pushes: [], ownership: none}
+    - {name: call, operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
+    - {name: call.indirect, operands: [signature], pops: [signature-args, callable], pushes: [signature-result], ownership: call}
+    - {name: tail.call, operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
+    - {name: call.import, operands: [import], pops: [signature-args], pushes: [signature-result], ownership: trap}
+    - {name: return, operands: [], pops: [signature-result], pushes: [], ownership: return}
+  trap:
+    - {name: trap, operands: [uleb, count], pops: [many], pushes: [any], ownership: trap}

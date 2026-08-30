@@ -23,13 +23,13 @@ Workflow and evidence:
 - [x] I added a reproducible NanoISA benchmark and profiling harness before changing execution architecture.
 - [x] I record opcode, pair, and triple frequencies, retired instructions, branches, call kinds, stack depths, traps, retain/release traffic, allocations, and FFI byte/latency counters.
 - [ ] I benchmark NanoLang execution, allocation, direct and indirect calls, FFI, and the current Forth interpreter; compiled Forth, its compiler, and Forth exceptions remain blocked on the Phase 13 runtime.
-- [ ] I will publish baseline results with hardware, OS, compiler, flags, commit, distributions, and normalized costs.
-- [ ] I will require semantic equivalence and full quality gates for every accepted optimization.
+- [x] I publish benchmark summaries with hardware, OS, compiler, commit, distributions, retired instructions, and normalized costs.
+- [x] I require semantic equivalence and full quality gates for every accepted optimization in `docs/NANOISA_OPTIMIZATION_POLICY.md`.
 
 Portable ISA design:
-- [ ] I will define one generated NanoISA v2 schema as the source of truth for opcodes, operands, stack effects, types, ownership effects, assembler syntax, disassembly, and verification.
-- [ ] I will use a regular local/stack hybrid: indexed locals for named state and an operand stack for expression evaluation.
-- [ ] I will remove fictional architectural registers from the documentation unless I implement them.
+- [ ] I defined the normative NanoISA v2 schema in `spec/nanoisa.yaml`; generators still need to replace the v1 hand-maintained tables.
+- [x] I use a regular local/stack hybrid: indexed locals for named state and an operand stack for expression evaluation.
+- [x] I removed fictional architectural registers from the active NanoISA documentation and v2 schema.
 - [ ] I will give each portable instruction one comprehensible meaning and keep operand forms symmetric.
 - [ ] I will split polymorphic arithmetic into explicit integer, unsigned, floating, boolean, bitwise, and dynamic-value operations.
 - [ ] I will add signed and unsigned division, remainder, comparison, shifts, carry, borrow, and wide arithmetic required by Forth double cells.

@@ -20,7 +20,7 @@ workloads=(
 
 manifest="$OUT/manifest.tsv"
 : > "$manifest"
-printf 'workload\trun\telapsed_ns\tprofile\n' >> "$manifest"
+printf 'workload\trun\telapsed_ns\texit_code\tprofile\n' >> "$manifest"
 
 for source in "${workloads[@]}"; do
     name=$(basename "$source" .nano)
@@ -30,10 +30,15 @@ for source in "${workloads[@]}"; do
     for ((run = 1; run <= RUNS; run++)); do
         profile="$OUT/${name}.${run}.json"
         start=$(python3 -c 'import time; print(time.monotonic_ns())')
+        set +e
         "$ROOT/bin/nano_vm" --profile-isa "$profile" "$nvm" >/dev/null
+        exit_code=$?
+        set -e
         stop=$(python3 -c 'import time; print(time.monotonic_ns())')
-        printf '%s\t%d\t%d\t%s\n' "$name" "$run" "$((stop - start))" "$profile" >> "$manifest"
+        printf '%s\t%d\t%d\t%d\t%s\n' "$name" "$run" "$((stop - start))" "$exit_code" "$profile" >> "$manifest"
     done
 done
 
+python3 "$ROOT/scripts/summarize_nanoisa_bench.py" "$OUT" >/dev/null
 printf 'NanoISA benchmark results: %s\n' "$manifest"
+printf 'NanoISA benchmark summary: %s\n' "$OUT/summary.json"
