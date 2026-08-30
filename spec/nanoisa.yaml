@@ -185,6 +185,10 @@ legacy_opcodes:
   - {name: ARRAY_MUL, code: 0xf8, operands: []}
   - {name: ARRAY_DIV, code: 0xf9, operands: []}
   - {name: FUNCREF, code: 0xfa, operands: [U32]}
+  - {name: AGG_PACK, code: 0xfb, operands: [U8, U32, U16, U16]}
+  - {name: AGG_GET, code: 0xfc, operands: [U16]}
+  - {name: AGG_SET, code: 0xfd, operands: [U16]}
+  - {name: AGG_TAG, code: 0xfe, operands: []}
 
 operand_kinds:
   - {name: value-tag, encoding: u8}

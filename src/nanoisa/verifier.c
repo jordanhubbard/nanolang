@@ -233,6 +233,23 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
+        case OP_AGG_PACK: {
+            uint8_t kind = instr.operands[0].u8;
+            uint32_t layout = instr.operands[1].u32;
+            if (kind > AGG_TUPLE)
+                return fail("function[%u] AGG_PACK at offset %u: invalid kind %u",
+                            fn_idx, fn->code_offset + pos, kind);
+            if (kind == AGG_RECORD && mod->struct_count > 0
+                    && layout >= mod->struct_count)
+                return fail("function[%u] AGG_PACK record layout %u >= struct_count %u",
+                            fn_idx, layout, mod->struct_count);
+            if (kind == AGG_VARIANT && mod->union_count > 0
+                    && layout >= mod->union_count)
+                return fail("function[%u] AGG_PACK variant layout %u >= union_count %u",
+                            fn_idx, layout, mod->union_count);
+            break;
+        }
+
         default:
             /* All other opcodes: valid by decode success */
             break;

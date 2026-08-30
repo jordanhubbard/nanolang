@@ -35,7 +35,7 @@ Portable ISA design:
 - [x] I added signed and unsigned division, remainder, comparison, shifts, carry, borrow, and wide multiplication primitives required by Forth double cells.
 - [x] I added coherent indexed `PICK` and `ROLL` operations alongside the basic stack operations.
 - [x] I added byte-addressed little-endian memory loads and stores at 8, 16, 32, and 64 bits; unaligned access is explicitly supported.
-- [ ] I will replace language-specific aggregate opcodes with regular layout-driven construct, get, set, and tag operations.
+- [x] I replaced NanoVirt's language-specific struct, tuple, and union lowering with regular layout-driven `AGG_PACK`, `AGG_GET`, `AGG_SET`, and `AGG_TAG` operations.
 - [x] I separated direct function references and heap closures into unambiguous value tags and constructors.
 - [ ] I will regularize direct, indirect, tail, imported, and linked calls around verified signatures.
 - [ ] I will resolve separate-module calls to callable handles during linking rather than carry module/function pairs through dispatch.

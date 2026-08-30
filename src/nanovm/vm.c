@@ -2049,6 +2049,106 @@ dynamic_div:
             break;
         }
 
+        case OP_AGG_PACK: {
+            uint8_t kind = instr.operands[0].u8;
+            uint32_t layout = instr.operands[1].u32;
+            uint16_t variant = instr.operands[2].u16;
+            uint16_t count = instr.operands[3].u16;
+            if (count > vm->stack_size - frame->stack_base - frame->local_count)
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "AGG_PACK needs %u values", count);
+            if (kind == AGG_RECORD) {
+                VmStruct *record = vm_struct_new(&vm->heap, layout, count);
+                if (!record) return trap_error(vm, VM_ERR_MEMORY,
+                                               "AGG_PACK record allocation failed");
+                for (uint16_t i = 0; i < count; i++)
+                    record->fields[count - 1 - i] = stack_pop(vm);
+                stack_push(vm, val_struct(record));
+            } else if (kind == AGG_VARIANT) {
+                VmUnion *value = vm_union_new(&vm->heap, layout, variant, count);
+                if (!value) return trap_error(vm, VM_ERR_MEMORY,
+                                              "AGG_PACK variant allocation failed");
+                for (uint16_t i = 0; i < count; i++)
+                    value->fields[count - 1 - i] = stack_pop(vm);
+                stack_push(vm, val_union(value));
+            } else if (kind == AGG_TUPLE) {
+                VmTuple *tuple = vm_tuple_new(&vm->heap, count);
+                if (!tuple) return trap_error(vm, VM_ERR_MEMORY,
+                                              "AGG_PACK tuple allocation failed");
+                for (uint16_t i = 0; i < count; i++)
+                    tuple->elements[count - 1 - i] = stack_pop(vm);
+                stack_push(vm, val_tuple(tuple));
+            } else {
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "AGG_PACK unknown kind %u", kind);
+            }
+            break;
+        }
+
+        case OP_AGG_GET: {
+            uint16_t index = instr.operands[0].u16;
+            NanoValue aggregate = stack_pop(vm);
+            NanoValue value = val_void();
+            if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
+                    && index < aggregate.as.sval->field_count) {
+                value = aggregate.as.sval->fields[index];
+            } else if (aggregate.tag == TAG_UNION && aggregate.as.uval
+                       && index < aggregate.as.uval->field_count) {
+                value = aggregate.as.uval->fields[index];
+            } else if (aggregate.tag == TAG_TUPLE && aggregate.as.tuple
+                       && index < aggregate.as.tuple->count) {
+                value = aggregate.as.tuple->elements[index];
+            } else {
+                vm_release(&vm->heap, aggregate);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                  "AGG_GET field %u is unavailable", index);
+            }
+            vm_retain(&vm->heap, value);
+            vm_release(&vm->heap, aggregate);
+            stack_push(vm, value);
+            break;
+        }
+
+        case OP_AGG_SET: {
+            uint16_t index = instr.operands[0].u16;
+            NanoValue value = stack_pop(vm);
+            NanoValue aggregate = stack_pop(vm);
+            NanoValue *field = NULL;
+            if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
+                    && index < aggregate.as.sval->field_count) {
+                field = &aggregate.as.sval->fields[index];
+            } else if (aggregate.tag == TAG_UNION && aggregate.as.uval
+                       && index < aggregate.as.uval->field_count) {
+                field = &aggregate.as.uval->fields[index];
+            } else if (aggregate.tag == TAG_TUPLE && aggregate.as.tuple
+                       && index < aggregate.as.tuple->count) {
+                field = &aggregate.as.tuple->elements[index];
+            }
+            if (!field) {
+                vm_release(&vm->heap, aggregate);
+                vm_release(&vm->heap, value);
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                  "AGG_SET field %u is unavailable", index);
+            }
+            vm_release(&vm->heap, *field);
+            *field = value;
+            stack_push(vm, aggregate);
+            break;
+        }
+
+        case OP_AGG_TAG: {
+            NanoValue aggregate = stack_pop(vm);
+            if (aggregate.tag != TAG_UNION || !aggregate.as.uval) {
+                vm_release(&vm->heap, aggregate);
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "AGG_TAG requires a variant");
+            }
+            int64_t tag = aggregate.as.uval->variant;
+            vm_release(&vm->heap, aggregate);
+            stack_push(vm, val_int(tag));
+            break;
+        }
+
         /* ============================================================
          * Hashmap Ops
          * ============================================================ */

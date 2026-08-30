@@ -1475,26 +1475,26 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     /* Result type helpers */
     if (strcmp(name, "result_is_ok") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_TAG);
+        emit_op(cg, OP_AGG_TAG);
         emit_op(cg, OP_PUSH_I64, (int64_t)0);
         emit_op(cg, OP_EQ);
         return true;
     }
     if (strcmp(name, "result_is_err") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_TAG);
+        emit_op(cg, OP_AGG_TAG);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
         emit_op(cg, OP_EQ);
         return true;
     }
     if (strcmp(name, "result_unwrap") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_FIELD, 0);
+        emit_op(cg, OP_AGG_GET, 0);
         return true;
     }
     if (strcmp(name, "result_unwrap_err") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_FIELD, 0);
+        emit_op(cg, OP_AGG_GET, 0);
         return true;
     }
 
@@ -1894,7 +1894,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
                     for (int i = 0; i < fc; i++) {
                         compile_expr(cg, node->as.struct_literal.field_values[i]);
                     }
-                    emit_op(cg, OP_UNION_CONSTRUCT, ud->def_idx, (int)vi, fc);
+                    emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx,
+                            (int)vi, fc);
                     break;
                 }
             }
@@ -1922,7 +1923,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 emit_op(cg, OP_PUSH_VOID);
             }
         }
-        emit_op(cg, OP_STRUCT_LITERAL, sd->def_idx, sd->field_count);
+        emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0,
+                sd->field_count);
         break;
     }
 
@@ -1957,7 +1959,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             if (sd) {
                 int16_t fi = struct_field_index(sd, field);
                 if (fi >= 0) {
-                    emit_op(cg, OP_STRUCT_GET, (int)fi);
+                    emit_op(cg, OP_AGG_GET, (int)fi);
                     break;
                 }
             }
@@ -1966,7 +1968,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < cg->struct_count; i++) {
             int16_t fi = struct_field_index(&cg->structs[i], field);
             if (fi >= 0) {
-                emit_op(cg, OP_STRUCT_GET, (int)fi);
+                emit_op(cg, OP_AGG_GET, (int)fi);
                 goto field_done;
             }
         }
@@ -1976,7 +1978,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             for (int vi = 0; vi < ud->variant_count; vi++) {
                 for (int fi = 0; fi < ud->variant_field_counts[vi]; fi++) {
                     if (strcmp(ud->variant_field_names[vi][fi], field) == 0) {
-                        emit_op(cg, OP_UNION_FIELD, fi);
+                        emit_op(cg, OP_AGG_GET, fi);
                         goto field_done;
                     }
                 }
@@ -1992,13 +1994,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < count; i++) {
             compile_expr(cg, node->as.tuple_literal.elements[i]);
         }
-        emit_op(cg, OP_TUPLE_NEW, count);
+        emit_op(cg, OP_AGG_PACK, AGG_TUPLE, 0, 0, count);
         break;
     }
 
     case AST_TUPLE_INDEX: {
         compile_expr(cg, node->as.tuple_index.tuple);
-        emit_op(cg, OP_TUPLE_GET, node->as.tuple_index.index);
+        emit_op(cg, OP_AGG_GET, node->as.tuple_index.index);
         break;
     }
 
@@ -2023,7 +2025,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < fc; i++) {
             compile_expr(cg, node->as.union_construct.field_values[i]);
         }
-        emit_op(cg, OP_UNION_CONSTRUCT, ud->def_idx, (int)vi, fc);
+        emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx, (int)vi, fc);
         break;
     }
 
@@ -2073,7 +2075,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 int n_body_patches = 0;
                 for (int ai = 0; ai < n_alts - 1; ai++) {
                     int16_t vi_alt = ud ? union_variant_index(ud, alts[ai]) : (int16_t)ai;
-                    emit_op(cg, OP_DUP); emit_op(cg, OP_UNION_TAG);
+                    emit_op(cg, OP_DUP); emit_op(cg, OP_AGG_TAG);
                     emit_op(cg, OP_PUSH_I64, (int64_t)vi_alt); emit_op(cg, OP_EQ);
                     uint32_t jt_instr = cg->code_size;
                     uint32_t jt_off = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
@@ -2085,7 +2087,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 }
                 /* Last alt: DUP UNION_TAG PUSH vi EQ JMP_FALSE to next */
                 int16_t vi_last = ud ? union_variant_index(ud, alts[n_alts-1]) : (int16_t)(n_alts-1);
-                emit_op(cg, OP_DUP); emit_op(cg, OP_UNION_TAG);
+                emit_op(cg, OP_DUP); emit_op(cg, OP_AGG_TAG);
                 emit_op(cg, OP_PUSH_I64, (int64_t)vi_last); emit_op(cg, OP_EQ);
                 jf_instr = cg->code_size;
                 jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
@@ -2097,7 +2099,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             } else {
                 /* DUP the union value for tag check */
                 emit_op(cg, OP_DUP);
-                emit_op(cg, OP_UNION_TAG);
+                emit_op(cg, OP_AGG_TAG);
 
                 /* Push variant index */
                 int16_t vi = 0;

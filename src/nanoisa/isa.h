@@ -241,9 +241,19 @@ typedef enum {
     OP_ARRAY_MUL    = 0xF8,
     OP_ARRAY_DIV    = 0xF9,
     OP_FUNCREF      = 0xFA,  /* operand: u32 function table index */
+    OP_AGG_PACK     = 0xFB,  /* kind:u8 layout:u32 variant:u16 count:u16 */
+    OP_AGG_GET      = 0xFC,  /* operand: u16 field/index */
+    OP_AGG_SET      = 0xFD,  /* operand: u16 field/index */
+    OP_AGG_TAG      = 0xFE,  /* pop aggregate -> push integer tag */
 
-    OP_COUNT        = 0xFB   /* Exclusive upper bound, not an opcode count */
+    OP_COUNT        = 0xFF   /* Exclusive upper bound, not an opcode count */
 } NanoOpcode;
+
+typedef enum {
+    AGG_RECORD = 0,
+    AGG_VARIANT = 1,
+    AGG_TUPLE = 2
+} NanoAggregateKind;
 
 /* ========================================================================
  * Operand Types
