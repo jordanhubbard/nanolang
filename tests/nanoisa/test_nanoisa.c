@@ -788,6 +788,66 @@ static void test_module_reject_section_into_directory(void) {
     free(buf);
 }
 
+/* Out-of-range section: an offset beyond the end of the input is rejected. */
+static void test_module_reject_section_out_of_range(void) {
+    uint32_t dir = NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 1;
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0, NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4, total + 1);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8, 1);
+
+    t_finalize(buf, total, 1);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Section offset beyond input rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Wrapped section range: offset + size must be checked without uint32
+ * arithmetic wrapping back into the input. */
+static void test_module_reject_wrapped_section_range(void) {
+    uint32_t dir = NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 1;
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0, NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4, UINT32_MAX - 3);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8, 8);
+
+    t_finalize(buf, total, 1);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Wrapped section range rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Partial fixed-width record: DEBUG entries use the same structural rule as
+ * function entries and must not silently discard a short tail. */
+static void test_module_reject_partial_debug_record(void) {
+    uint32_t dir = NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t bad_size = NVM_DEBUG_ENTRY_SIZE - 1;
+    uint32_t total = data_start + bad_size;
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0, NVM_SECTION_DEBUG);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4, data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8, bad_size);
+
+    t_finalize(buf, total, 1);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Partial debug record rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
 /* A well-formed multi-section module (contiguous, ordered, distinct types)
  * built via the serializer still round-trips after hardening. */
 static void test_module_valid_multisection_roundtrip(void) {
@@ -1559,6 +1619,9 @@ int main(void) {
     RUN_TEST(test_module_reject_trailing_data);
     RUN_TEST(test_module_reject_interior_gap);
     RUN_TEST(test_module_reject_section_into_directory);
+    RUN_TEST(test_module_reject_section_out_of_range);
+    RUN_TEST(test_module_reject_wrapped_section_range);
+    RUN_TEST(test_module_reject_partial_debug_record);
     RUN_TEST(test_module_valid_multisection_roundtrip);
 
     printf("\n[Assembler]\n");
