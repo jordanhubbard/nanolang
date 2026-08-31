@@ -35,15 +35,15 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
     switch (val->tag) {
     case TAG_INT: {
         if (pos + 8 > buf_size) return 0;
-        int64_t v = val->as.i64;
-        memcpy(buf + pos, &v, 8);
+        cop_put_u64(buf + pos, (uint64_t)val->as.i64);
         pos += 8;
         break;
     }
     case TAG_FLOAT: {
         if (pos + 8 > buf_size) return 0;
-        double v = val->as.f64;
-        memcpy(buf + pos, &v, 8);
+        uint64_t bits;
+        memcpy(&bits, &val->as.f64, sizeof(bits));
+        cop_put_u64(buf + pos, bits);
         pos += 8;
         break;
     }
@@ -60,7 +60,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
             len = val->as.string->length;
         }
         if (pos + 4 + len > buf_size) return 0;
-        memcpy(buf + pos, &len, 4);
+        cop_put_u32(buf + pos, len);
         pos += 4;
         if (len > 0) {
             memcpy(buf + pos, s, len);
@@ -70,8 +70,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
     }
     case TAG_OPAQUE: {
         if (pos + 8 > buf_size) return 0;
-        int64_t v = val->as.i64;
-        memcpy(buf + pos, &v, 8);
+        cop_put_u64(buf + pos, (uint64_t)val->as.i64);
         pos += 8;
         break;
     }
@@ -81,7 +80,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
         uint8_t etype = arr ? arr->elem_type : 0;
         if (pos + 5 > buf_size) return 0;
         buf[pos++] = etype;
-        memcpy(buf + pos, &count, 4);
+        cop_put_u32(buf + pos, count);
         pos += 4;
         for (uint32_t i = 0; i < count; i++) {
             uint32_t n = cop_serialize_value(&arr->elements[i],
@@ -109,16 +108,16 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     switch (tag) {
     case TAG_INT: {
         if (pos + 8 > buf_size) return 0;
-        int64_t v;
-        memcpy(&v, buf + pos, 8);
+        int64_t v = (int64_t)cop_get_u64(buf + pos);
         pos += 8;
         *out = val_int(v);
         break;
     }
     case TAG_FLOAT: {
         if (pos + 8 > buf_size) return 0;
+        uint64_t bits = cop_get_u64(buf + pos);
         double v;
-        memcpy(&v, buf + pos, 8);
+        memcpy(&v, &bits, sizeof(v));
         pos += 8;
         *out = val_float(v);
         break;
@@ -131,8 +130,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     }
     case TAG_STRING: {
         if (pos + 4 > buf_size) return 0;
-        uint32_t len;
-        memcpy(&len, buf + pos, 4);
+        uint32_t len = cop_get_u32(buf + pos);
         pos += 4;
         /* Subtraction form: pos + len can overflow uint32 and slip past a
          * naive check, letting vm_string_new read out of bounds. */
@@ -144,8 +142,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     }
     case TAG_OPAQUE: {
         if (pos + 8 > buf_size) return 0;
-        int64_t v;
-        memcpy(&v, buf + pos, 8);
+        int64_t v = (int64_t)cop_get_u64(buf + pos);
         pos += 8;
         NanoValue ov = {0};
         ov.tag = TAG_OPAQUE;
@@ -156,8 +153,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     case TAG_ARRAY: {
         if (pos + 5 > buf_size) return 0;
         uint8_t etype = buf[pos++];
-        uint32_t count;
-        memcpy(&count, buf + pos, 4);
+        uint32_t count = cop_get_u32(buf + pos);
         pos += 4;
         /* Each element is at least 1 byte (its tag), so a legitimate array
          * cannot claim more elements than the remaining buffer. Reject before
@@ -236,21 +232,27 @@ static bool read_all(int fd, void *buf, size_t len) {
 }
 
 bool cop_send(int fd, CopMsgType type, const void *payload, uint32_t payload_len) {
-    CopMsgHeader hdr = {0};
-    hdr.version = COP_PROTO_VERSION;
-    hdr.msg_type = (uint8_t)type;
-    hdr.payload_len = payload_len;
+    if (payload_len > COP_MAX_PAYLOAD || (payload_len > 0 && !payload)) return false;
+    uint8_t wire_hdr[COP_HEADER_SIZE] = {
+        COP_PROTO_VERSION, (uint8_t)type, 0, 0, 0, 0, 0, 0
+    };
+    cop_put_u32(wire_hdr + 4, payload_len);
 
-    if (!write_all(fd, &hdr, COP_HEADER_SIZE)) return false;
-    if (payload_len > 0 && payload) {
+    if (!write_all(fd, wire_hdr, sizeof(wire_hdr))) return false;
+    if (payload_len > 0) {
         if (!write_all(fd, payload, payload_len)) return false;
     }
     return true;
 }
 
 bool cop_recv_header(int fd, CopMsgHeader *hdr) {
-    if (!read_all(fd, hdr, COP_HEADER_SIZE)) return false;
-    if (hdr->version != COP_PROTO_VERSION) return false;
+    uint8_t wire_hdr[COP_HEADER_SIZE];
+    if (!hdr || !read_all(fd, wire_hdr, sizeof(wire_hdr))) return false;
+    hdr->version = wire_hdr[0];
+    hdr->msg_type = wire_hdr[1];
+    hdr->reserved = cop_get_u16(wire_hdr + 2);
+    hdr->payload_len = cop_get_u32(wire_hdr + 4);
+    if (hdr->version != COP_PROTO_VERSION || hdr->reserved != 0) return false;
     if (hdr->payload_len > COP_MAX_PAYLOAD) return false;
     return true;
 }
@@ -322,9 +324,9 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             uint8_t trigger;
             if (read(sig_in_fd, &trigger, 1) != 1) break;
 
-            uint32_t import_idx = mailbox->req_import_idx;
-            uint16_t argc       = mailbox->req_argc;
-            uint16_t data_size  = mailbox->req_data_size;
+            uint32_t import_idx = cop_get_u32(mailbox->req_import_idx);
+            uint16_t argc       = cop_get_u16(mailbox->req_argc);
+            uint16_t data_size  = cop_get_u16(mailbox->req_data_size);
 
             NanoValue args[16] = {0};
             int actual_argc = 0;
@@ -343,7 +345,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             if (!vm_ffi_call(module, import_idx, args, actual_argc, &result, &heap,
                              errmsg, sizeof(errmsg))) {
                 mailbox->resp_is_error  = 1;
-                mailbox->resp_data_size = 0;
+                cop_put_u32(mailbox->resp_data_size, 0);
                 strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
                 mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             } else {
@@ -351,7 +353,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                                                     mailbox->resp_data,
                                                     COP_MAILBOX_SLOT_SIZE);
                 mailbox->resp_is_error  = 0;
-                mailbox->resp_data_size = rlen;
+                cop_put_u32(mailbox->resp_data_size, rlen);
                 vm_release(&heap, result);
             }
 

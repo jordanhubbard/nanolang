@@ -625,9 +625,9 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
         }
 
         if (fits) {
-            mbox->req_import_idx = import_idx;
-            mbox->req_argc       = (uint16_t)arg_count;
-            mbox->req_data_size  = (uint16_t)pos;
+            cop_put_u32(mbox->req_import_idx, import_idx);
+            cop_put_u16(mbox->req_argc, (uint16_t)arg_count);
+            cop_put_u16(mbox->req_data_size, (uint16_t)pos);
 
             /* Wake the child — pipe write is a full memory barrier on POSIX */
             uint8_t sig = 1;
@@ -659,11 +659,12 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                 snprintf(error_msg, error_msg_size, "%s", mbox->resp_error);
                 return false;
             }
-            if (mbox->resp_data_size > 0) {
+            uint32_t resp_wire_size = cop_get_u32(mbox->resp_data_size);
+            if (resp_wire_size > 0) {
                 /* resp_data_size is written by the (untrusted) child; clamp to
                  * the actual slot size so a corrupt/hostile child can't make us
                  * read past the 4 KB mailbox slot / the shared mapping. */
-                uint32_t resp_size = mbox->resp_data_size;
+                uint32_t resp_size = resp_wire_size;
                 if (resp_size > COP_MAILBOX_SLOT_SIZE) resp_size = COP_MAILBOX_SLOT_SIZE;
                 uint32_t consumed = cop_deserialize_value(
                     mbox->resp_data, resp_size, result, heap);
