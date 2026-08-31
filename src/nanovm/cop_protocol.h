@@ -85,18 +85,42 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
 
 typedef struct CopMailbox {
     /* Request slot — written by parent, read by child */
-    uint32_t req_import_idx;
-    uint16_t req_argc;
-    uint16_t req_data_size;
+    uint8_t  req_import_idx[4];
+    uint8_t  req_argc[2];
+    uint8_t  req_data_size[2];
     uint8_t  req_data[COP_MAILBOX_SLOT_SIZE];
 
     /* Response slot — written by child, read by parent */
     uint8_t  resp_is_error;          /* 0=result, 1=error string */
     uint8_t  _pad[3];
-    uint32_t resp_data_size;
+    uint8_t  resp_data_size[4];
     uint8_t  resp_data[COP_MAILBOX_SLOT_SIZE];
     char     resp_error[256];
 } CopMailbox;
+
+/* Wire integers are always little-endian, independent of the host ABI. */
+static inline void cop_put_u16(uint8_t *p, uint16_t v) {
+    p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8);
+}
+static inline uint16_t cop_get_u16(const uint8_t *p) {
+    return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
+}
+static inline void cop_put_u32(uint8_t *p, uint32_t v) {
+    p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8);
+    p[2] = (uint8_t)(v >> 16); p[3] = (uint8_t)(v >> 24);
+}
+static inline uint32_t cop_get_u32(const uint8_t *p) {
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
+           ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+static inline void cop_put_u64(uint8_t *p, uint64_t v) {
+    for (int i = 0; i < 8; i++) p[i] = (uint8_t)(v >> (i * 8));
+}
+static inline uint64_t cop_get_u64(const uint8_t *p) {
+    uint64_t v = 0;
+    for (int i = 0; i < 8; i++) v |= (uint64_t)p[i] << (i * 8);
+    return v;
+}
 
 /* Run the cop logic in a forked child (no exec).  Never returns.
  * mailbox, sig_in_fd, sig_out_fd are inherited from the parent's

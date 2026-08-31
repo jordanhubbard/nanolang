@@ -110,8 +110,8 @@ static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
 
     uint32_t import_idx;
     uint16_t argc;
-    memcpy(&import_idx, payload, 4);
-    memcpy(&argc, payload + 4, 2);
+    import_idx = cop_get_u32(payload);
+    argc = cop_get_u16(payload + 4);
 
     NanoValue args[16] = {0};
     uint32_t pos = 6;

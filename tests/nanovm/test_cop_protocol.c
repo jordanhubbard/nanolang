@@ -63,6 +63,25 @@ TEST(serialize_negative_int) {
     ASSERT(out.as.i64 == -1000);
 }
 
+TEST(serialize_int_little_endian) {
+    uint8_t buf[32];
+    NanoValue v = val_int((int64_t)0x0102030405060708LL);
+    uint32_t n = cop_serialize_value(&v, buf, sizeof(buf));
+    ASSERT(n == 9);
+    ASSERT(buf[1] == 0x08 && buf[2] == 0x07 && buf[3] == 0x06);
+    ASSERT(buf[4] == 0x05 && buf[5] == 0x04 && buf[6] == 0x03);
+    ASSERT(buf[7] == 0x02 && buf[8] == 0x01);
+}
+
+TEST(deserialize_int_little_endian) {
+    const uint8_t wire[] = {TAG_INT, 0x08, 0x07, 0x06, 0x05,
+                            0x04, 0x03, 0x02, 0x01};
+    VmHeap heap = {0};
+    NanoValue out;
+    ASSERT(cop_deserialize_value(wire, sizeof(wire), &out, &heap) == sizeof(wire));
+    ASSERT(out.as.i64 == (int64_t)0x0102030405060708LL);
+}
+
 TEST(serialize_float) {
     uint8_t buf[32];
     NanoValue v = val_float(3.14);
@@ -74,6 +93,15 @@ TEST(serialize_float) {
     cop_deserialize_value(buf, n, &out, &heap);
     ASSERT(out.tag == TAG_FLOAT);
     ASSERT(out.as.f64 > 3.13 && out.as.f64 < 3.15);
+}
+
+TEST(serialize_float_little_endian) {
+    uint8_t buf[32];
+    NanoValue v = val_float(1.0);
+    ASSERT(cop_serialize_value(&v, buf, sizeof(buf)) == 9);
+    ASSERT(buf[1] == 0x00 && buf[2] == 0x00 && buf[3] == 0x00);
+    ASSERT(buf[4] == 0x00 && buf[5] == 0x00 && buf[6] == 0x00);
+    ASSERT(buf[7] == 0xf0 && buf[8] == 0x3f);
 }
 
 TEST(serialize_bool_true) {
@@ -194,6 +222,42 @@ TEST(send_recv_with_payload) {
     close(fds[1]);
 }
 
+TEST(recv_header_fixed_little_endian) {
+    int fds[2];
+    ASSERT(pipe(fds) == 0);
+    const uint8_t wire[] = {COP_PROTO_VERSION, COP_MSG_FFI_REQ, 0, 0,
+                            0x04, 0x00, 0x00, 0x00};
+    ASSERT(write(fds[1], wire, sizeof(wire)) == (ssize_t)sizeof(wire));
+    CopMsgHeader hdr;
+    ASSERT(cop_recv_header(fds[0], &hdr));
+    ASSERT(hdr.payload_len == 4);
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(recv_header_rejects_reserved_bits) {
+    int fds[2];
+    ASSERT(pipe(fds) == 0);
+    const uint8_t wire[] = {COP_PROTO_VERSION, COP_MSG_READY, 1, 0, 0, 0, 0, 0};
+    ASSERT(write(fds[1], wire, sizeof(wire)) == (ssize_t)sizeof(wire));
+    CopMsgHeader hdr;
+    ASSERT(!cop_recv_header(fds[0], &hdr));
+    close(fds[0]);
+    close(fds[1]);
+}
+
+TEST(recv_header_rejects_oversized_payload) {
+    int fds[2];
+    ASSERT(pipe(fds) == 0);
+    const uint8_t wire[] = {COP_PROTO_VERSION, COP_MSG_FFI_REQ, 0, 0,
+                            0x01, 0x00, 0x00, 0x01};
+    ASSERT(write(fds[1], wire, sizeof(wire)) == (ssize_t)sizeof(wire));
+    CopMsgHeader hdr;
+    ASSERT(!cop_recv_header(fds[0], &hdr));
+    close(fds[0]);
+    close(fds[1]);
+}
+
 TEST(recv_header_closed_pipe) {
     int fds[2];
     ASSERT(pipe(fds) == 0);
@@ -271,6 +335,28 @@ TEST(serialize_string_null) {
     vm_heap_destroy(&heap);
 }
 
+TEST(serialize_string_length_little_endian) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmString *s = vm_string_new(&heap, "x", 1);
+    NanoValue v = val_string(s);
+    uint8_t buf[32];
+    ASSERT(cop_serialize_value(&v, buf, sizeof(buf)) == 6);
+    ASSERT(buf[1] == 0x01 && buf[2] == 0x00 && buf[3] == 0x00 && buf[4] == 0x00);
+    vm_heap_destroy(&heap);
+}
+
+TEST(deserialize_hostile_lengths) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    NanoValue out;
+    const uint8_t huge_string[] = {TAG_STRING, 0xff, 0xff, 0xff, 0xff};
+    const uint8_t huge_array[] = {TAG_ARRAY, TAG_INT, 0xff, 0xff, 0xff, 0xff};
+    ASSERT(cop_deserialize_value(huge_string, sizeof(huge_string), &out, &heap) == 0);
+    ASSERT(cop_deserialize_value(huge_array, sizeof(huge_array), &out, &heap) == 0);
+    vm_heap_destroy(&heap);
+}
+
 TEST(serialize_array_roundtrip) {
     VmHeap heap = {0};
     vm_heap_init(&heap);
@@ -308,7 +394,10 @@ int main(void) {
     printf("\n[cop_protocol] Co-process protocol tests...\n\n");
     RUN(serialize_int);
     RUN(serialize_negative_int);
+    RUN(serialize_int_little_endian);
+    RUN(deserialize_int_little_endian);
     RUN(serialize_float);
+    RUN(serialize_float_little_endian);
     RUN(serialize_bool_true);
     RUN(serialize_bool_false);
     RUN(serialize_void);
@@ -317,10 +406,15 @@ int main(void) {
     RUN(serialize_opaque);
     RUN(send_recv_simple);
     RUN(send_recv_with_payload);
+    RUN(recv_header_fixed_little_endian);
+    RUN(recv_header_rejects_reserved_bits);
+    RUN(recv_header_rejects_oversized_payload);
     RUN(recv_header_closed_pipe);
     RUN(send_recv_shutdown_msg);
     RUN(serialize_string_roundtrip);
     RUN(serialize_string_null);
+    RUN(serialize_string_length_little_endian);
+    RUN(deserialize_hostile_lengths);
     RUN(serialize_array_roundtrip);
 
     printf("\n");
