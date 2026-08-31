@@ -54,9 +54,9 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (fn->code_offset > mod->code_size)
             return fail("function[%u] code_offset %u > code_size %u",
                         i, fn->code_offset, mod->code_size);
-        if (fn->code_offset + fn->code_length > mod->code_size)
-            return fail("function[%u] code_offset+length %u > code_size %u",
-                        i, fn->code_offset + fn->code_length, mod->code_size);
+        if (fn->code_length > mod->code_size - fn->code_offset)
+            return fail("function[%u] code range exceeds code_size %u",
+                        i, mod->code_size);
         if (fn->name_idx >= mod->string_count)
             return fail("function[%u] name_idx %u >= string_count %u",
                         i, fn->name_idx, mod->string_count);
@@ -114,6 +114,19 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         if (!info)
             FAIL_DECODED("function[%u] unknown opcode 0x%02x at offset %u",
                          fn_idx, instr.opcode, fn->code_offset + pos);
+
+        /* A terminating instruction may not silently fall through to the
+         * next encoded instruction. Branches may still target the function
+         * end, which is the existing empty continuation policy. */
+        bool terminates = instr.opcode == OP_RET || instr.opcode == OP_HALT
+            || instr.opcode == OP_TAIL_CALL;
+        if (terminates && decoded.instructions[i].next_byte_offset
+                < decoded.code_size) {
+            FAIL_DECODED("function[%u] terminating %s at offset %u "
+                         "falls through to offset %u",
+                         fn_idx, info->name, fn->code_offset + pos,
+                         fn->code_offset + decoded.instructions[i].next_byte_offset);
+        }
 
         /* Validate operands based on opcode */
         switch (instr.opcode) {

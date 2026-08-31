@@ -126,6 +126,20 @@ static void test_function_code_offset_overflow(void) {
     PASS(test_name);
 }
 
+static void test_function_code_range_overflow(void) {
+    const char *test_name = "nvm_verify: overflowing function code range fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->code_size = UINT32_MAX;
+    mod->functions[0].code_offset = UINT32_MAX - 1;
+    mod->functions[0].code_length = 2;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "overflowing code range should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_function_name_idx_overflow(void) {
     const char *test_name = "nvm_verify: function name_idx >= string_count fails";
     uint8_t code[4];
@@ -311,6 +325,21 @@ static void test_jump_to_function_end_passes(void) {
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "existing jump-to-end behavior should remain valid");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_terminator_fallthrough_fails(void) {
+    const char *test_name = "nvm_verify: terminator with fallthrough fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_RET);
+    off += emit(code + off, OP_NOP);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "instruction after RET should fail verification");
+    ASSERT(strstr(r.error_msg, "falls through") != NULL,
+           "failure should identify terminating fallthrough");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -674,6 +703,7 @@ int main(void) {
     test_valid_simple_function();
     test_bad_entry_point();
     test_function_code_offset_overflow();
+    test_function_code_range_overflow();
     test_function_name_idx_overflow();
     test_invalid_function_result_signature();
     test_multiple_function_results();
@@ -687,6 +717,7 @@ int main(void) {
     test_jump_into_operand_fails();
     test_match_tag_into_operand_fails();
     test_jump_to_function_end_passes();
+    test_terminator_fallthrough_fails();
     test_predecoded_module_boundaries();
     test_op_call_valid();
     test_op_call_invalid_fn_idx();
