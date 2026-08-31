@@ -843,6 +843,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         compile_expr(cg, args[1]); /* index */
         compile_expr(cg, args[2]); /* value */
         emit_op(cg, OP_ARR_SET);
+        emit_op(cg, OP_POP); /* array_set is declared void */
         return true;
     }
     if (strcmp(name, "array_remove_at") == 0 && argc == 2) {
@@ -1358,6 +1359,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
                 compile_expr(cg, args[1]);
                 compile_expr(cg, args[2]);
                 emit_op(cg, OP_ARR_SET);
+                emit_op(cg, OP_POP); /* list_T_set is declared void */
                 return true;
             }
         }
