@@ -7,6 +7,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [3.5.0] - 2026-08-30
 
+Release presentation: [NanoLang 3.5](docs/RELEASE_3.5.md)
+Current project README: [README.md](README.md)
+GitHub release: [v3.5.0](https://github.com/jordanhubbard/nanolang/releases/tag/v3.5.0)
+
 ### Added
 - add runtime-selectable diagnostics (#120)
 

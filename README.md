@@ -19,6 +19,7 @@ I transpile to C when you need native performance. I also provide my own virtual
 - [NanoISA VM Architecture](docs/NANOISA.md) - How my virtual machine is structured.
 - [Formal Verification](formal/README.md) - My Coq proof suite.
 - [Performance Monitoring and LLM Optimization](docs/PERFORMANCE_MONITORING.md) - `-pg` JSON, OS collectors, and a measured optimization loop.
+- [NanoLang 3.5 release presentation](docs/RELEASE_3.5.md) - What I shipped, what I measured, and where 4.0 begins.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
 
 ## Quick Start
