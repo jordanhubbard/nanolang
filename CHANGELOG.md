@@ -5,6 +5,41 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.4.14] - 2026-08-30
+
+### Added
+- add tail-call support
+- make function results explicit
+- predecode verifier boundaries
+- separate function references and closures
+- add integer and memory primitives
+- introduce typed scalar operations
+- add typed scalar instructions
+- complete baseline profiling counters
+- establish measured v2 roadmap
+- add integer pi example
+- support persistent language sessions
+
+### Changed
+- require AI-scoped release workflows
+- Integrate predecoded NanoVM dispatch (task_133994191eff4025969f236aca8cb6c5) (#117)
+- dispatch predecoded instructions
+- add multi-language NanoISA laboratory
+- map Nano platform releases
+- retire direct LLVM and Wasm paths
+- regularize aggregate operations
+- finish typed arithmetic lowering
+- isolate array arithmetic
+- generate metadata from schema
+- define v2 measurement contract
+- remove executable debug metadata
+
+### Fixed
+- expose cache rebuild helpers
+- rebuild caches after idle mutation
+- render default colors safely
+- discard array set result
+
 ## [3.4.13] - 2026-08-30
 
 ### Fixed
