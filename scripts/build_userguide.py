@@ -187,7 +187,6 @@ def generate_sources() -> None:
     (GENERATED / "builtins.md").write_text((ROOT / "docs/STDLIB.md").read_text())
     (GENERATED / "modules.md").write_text(generate_modules())
     (GENERATED / "cli.md").write_text(generate_cli())
-    (GENERATED / "wasm.md").write_text((ROOT / "docs/WASM_MODULE_AUDIT.md").read_text())
 
 
 def source_text(page: Page) -> str:

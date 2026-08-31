@@ -85,6 +85,7 @@ static bool is_control_flow_opcode(NanoOpcode opcode) {
            opcode == OP_JMP_FALSE ||
            opcode == OP_JMP_TRUE ||
            opcode == OP_CALL ||
+           opcode == OP_TAIL_CALL ||
            opcode == OP_CALL_EXTERN ||
            opcode == OP_RET ||
            opcode == OP_HALT;
@@ -96,6 +97,7 @@ static const char *control_flow_note(NanoOpcode opcode) {
         case OP_JMP_FALSE: return "branch-if-false";
         case OP_JMP_TRUE: return "branch-if-true";
         case OP_CALL: return "call";
+        case OP_TAIL_CALL: return "tail-call";
         case OP_CALL_EXTERN: return "extern-call";
         case OP_RET: return "return";
         case OP_HALT: return "halt";
@@ -131,7 +133,7 @@ static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
             }
             /* For CALL, show function name */
             if (style == DISASM_STYLE_DETAILED &&
-                (instr->opcode == OP_CALL || instr->opcode == OP_CALL_EXTERN) &&
+                (instr->opcode == OP_CALL || instr->opcode == OP_TAIL_CALL) &&
                 idx == 0 && mod) {
                 uint32_t fn_idx = instr->operands[idx].u32;
                 if (fn_idx < mod->function_count) {
@@ -311,9 +313,10 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         const NvmFunctionEntry *fn = &mod->functions[i];
         const char *name = nvm_get_string(mod, fn->name_idx);
 
-        fprintf(out, ".function %s %u %u %u\n",
+        fprintf(out, ".function %s %u %u %u %s %u\n",
                 name ? name : "???",
-                fn->arity, fn->local_count, fn->upvalue_count);
+                fn->arity, fn->local_count, fn->upvalue_count,
+                isa_tag_name(fn->result_tag), fn->result_count);
 
         if (fn->code_length > 0 && fn->code_offset + fn->code_length <= mod->code_size) {
             disasm_function_styled(mod->code + fn->code_offset, fn->code_length,

@@ -25,8 +25,8 @@ typedef struct {
 /* Validate a deserialized NVM module for safe execution.
  * Checks:
  *   - Function code_offset/code_length within code section bounds
- *   - All jump targets land within the originating function's code range
- *   - All OP_CALL function indices < function_count
+ *   - All jump targets land on instruction boundaries in the originating function
+ *   - All OP_CALL/OP_TAIL_CALL indices and tail-call results are valid
  *   - All OP_PUSH_STR string indices < string_count
  *   - All OP_CALL_EXTERN import indices < import_count
  *   - All OP_CLOSURE_NEW function indices < function_count
@@ -35,5 +35,8 @@ typedef struct {
  *   - Entry point is a valid function index
  */
 NvmVerifyResult nvm_verify(const NvmModule *mod);
+
+/* Validate one function after an incremental compiler appends it. */
+NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx);
 
 #endif /* NANOISA_VERIFIER_H */

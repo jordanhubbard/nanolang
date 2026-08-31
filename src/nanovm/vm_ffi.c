@@ -199,7 +199,7 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
                         elem = val_int(dyn_array_get_int(darr, ai));
                         break;
                 }
-                vm_array_push(varr, elem);
+                vm_array_push(heap, varr, elem);
             }
             NanoValue v = {0};
             v.tag = TAG_ARRAY;

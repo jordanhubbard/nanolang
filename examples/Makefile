@@ -21,8 +21,6 @@ BIN_DIR = ../bin
 export NANO_BUILD_CACHE ?= $(abspath ../obj/module_cache)
 # Backends:
 #   c       - native executable through my C code generator
-#   llvm    - LLVM IR (.ll)
-#   wasm    - WebAssembly binary (.wasm)
 #   nanoisa - NanoISA bytecode for nano_vm (.nvm)
 # Compatibility aliases: native -> c, vm -> nanoisa
 EXAMPLES_BACKEND ?= c
@@ -41,20 +39,12 @@ INTERPRETER ?= $(BIN_DIR)/nano
 ifeq ($(EXAMPLES_BACKEND_NORMALIZED),c)
 COMPILER ?= $(BIN_DIR)/nanoc_c
 BIN_EXT =
-else ifeq ($(EXAMPLES_BACKEND_NORMALIZED),llvm)
-COMPILER ?= $(BIN_DIR)/nanoc_c
-COMPILER_FLAGS += --llvm
-BIN_EXT = .ll
-else ifeq ($(EXAMPLES_BACKEND_NORMALIZED),wasm)
-COMPILER ?= $(BIN_DIR)/nanoc_c
-COMPILER_FLAGS += --target wasm
-BIN_EXT = .wasm
 else ifeq ($(EXAMPLES_BACKEND_NORMALIZED),nanoisa)
 COMPILER ?= $(BIN_DIR)/nano_virt
 COMPILER_FLAGS += --emit-nvm
 BIN_EXT = .nvm
 else
-$(error Unsupported EXAMPLES_BACKEND '$(EXAMPLES_BACKEND)'. Use c, llvm, wasm, or nanoisa)
+$(error Unsupported EXAMPLES_BACKEND '$(EXAMPLES_BACKEND)'. Use c or nanoisa)
 endif
 
 # Module path for import resolution and module building.
@@ -871,7 +861,7 @@ help:
 	@echo "Nanolang Examples Makefile"
 	@echo ""
 	@echo "Configuration:"
-	@echo "  EXAMPLES_BACKEND=c|llvm|wasm|nanoisa   (default: c)"
+	@echo "  EXAMPLES_BACKEND=c|nanoisa              (default: c)"
 	@echo "  COMPILER=../bin/nanoc_stage1           (override compiler explicitly)"
 	@echo "  BIN_SUFFIX=_stage2                     (avoid output collisions)"
 	@echo ""

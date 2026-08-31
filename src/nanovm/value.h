@@ -149,7 +149,7 @@ static inline NanoValue val_hashmap(VmHashMap *h) {
 
 static inline NanoValue val_closure(VmClosure *c) {
     NanoValue v = {0};
-    v.tag = TAG_FUNCTION;
+    v.tag = TAG_CLOSURE;
     v.as.closure = c;
     return v;
 }
@@ -167,11 +167,14 @@ static inline bool val_is_struct(NanoValue v)   { return v.tag == TAG_STRUCT; }
 static inline bool val_is_union(NanoValue v)    { return v.tag == TAG_UNION; }
 static inline bool val_is_tuple(NanoValue v)    { return v.tag == TAG_TUPLE; }
 static inline bool val_is_hashmap(NanoValue v)  { return v.tag == TAG_HASHMAP; }
-static inline bool val_is_function(NanoValue v) { return v.tag == TAG_FUNCTION; }
+static inline bool val_is_function(NanoValue v) {
+    return v.tag == TAG_FUNCTION || v.tag == TAG_CLOSURE;
+}
 static inline bool val_is_void(NanoValue v)     { return v.tag == TAG_VOID; }
 static inline bool val_is_heap_obj(NanoValue v) {
     return v.tag == TAG_STRING || v.tag == TAG_ARRAY || v.tag == TAG_STRUCT ||
-           v.tag == TAG_UNION || v.tag == TAG_TUPLE || v.tag == TAG_HASHMAP;
+           v.tag == TAG_UNION || v.tag == TAG_TUPLE || v.tag == TAG_HASHMAP ||
+           v.tag == TAG_CLOSURE;
 }
 
 /* ========================================================================

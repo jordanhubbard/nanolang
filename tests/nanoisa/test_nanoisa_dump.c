@@ -65,13 +65,13 @@ static char *quote_path(const char *path) {
 
 static void test_dump_canonical(const char *cli) {
     const char *src =
-        ".function main 0 0 0\n"
+        ".function main 0 0 0 int 1\n"
         "  PUSH_I64 7\n"
-        "  HALT\n"
+        "  RET\n"
         ".end\n";
     NanoisaErr err;
     NvmModule *mod = nanoisa_assemble_text(src, &err);
-    ASSERT(mod != NULL, "fixture assembles");
+    ASSERT(mod != NULL, err.message);
 
     const char *nvm_path = "/tmp/nanolang_nanoisa_dump_canonical.nvm";
     ASSERT(nanoisa_save_file(mod, nvm_path, &err) == NANOISA_OK,
@@ -90,7 +90,7 @@ static void test_dump_canonical(const char *cli) {
            "canonical dump ran");
     ASSERT(status == 0, "canonical dump exits 0");
     ASSERT(strstr(output, "PUSH_I64 7") != NULL, "canonical listing has PUSH_I64");
-    ASSERT(strstr(output, "HALT") != NULL, "canonical listing has HALT");
+    ASSERT(strstr(output, "RET") != NULL, "canonical listing has RET");
     ASSERT(strstr(output, "NVM module") == NULL,
            "canonical listing has no pretty preamble");
 
@@ -103,16 +103,16 @@ static void test_dump_roundtrip(const char *cli) {
     const char *src =
         ".flag needs_extern\n"
         ".entry 0\n"
-        ".function main 0 1 0\n"
+        ".function main 0 1 0 int 1\n"
         "  PUSH_I64 9\n"
         "  JMP done\n"
         "  PUSH_I64 0\n"
         "done:\n"
-        "  HALT\n"
+        "  RET\n"
         ".end\n";
     NanoisaErr err;
     NvmModule *mod = nanoisa_assemble_text(src, &err);
-    ASSERT(mod != NULL, "round-trip fixture assembles");
+    ASSERT(mod != NULL, err.message);
 
     const char *nvm_path = "/tmp/nanolang_nanoisa_dump_roundtrip.nvm";
     ASSERT(nanoisa_save_file(mod, nvm_path, &err) == NANOISA_OK,
@@ -156,12 +156,12 @@ static void test_dump_roundtrip(const char *cli) {
 
 static void test_dump_pretty(const char *cli) {
     const char *src =
-        ".function helper 0 0 0\n"
+        ".function helper 0 0 0 void 0\n"
         "  RET\n"
         ".end\n";
     NanoisaErr err;
     NvmModule *mod = nanoisa_assemble_text(src, &err);
-    ASSERT(mod != NULL, "pretty fixture assembles");
+    ASSERT(mod != NULL, err.message);
 
     const char *nvm_path = "/tmp/nanolang_nanoisa_dump_pretty.nvm";
     ASSERT(nanoisa_save_file(mod, nvm_path, &err) == NANOISA_OK,

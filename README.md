@@ -59,8 +59,8 @@ EOF
 - **Formally Proved Semantics** - I have proved type soundness, progress, and determinism in Coq with no `Axiom` declarations. The big-step ↔ small-step equivalence proof is complete and `Admitted`-free (including tuple value reconstruction in `formal/Equivalence.v`).
 - **NanoISA Virtual Machine** - I include a stack-based VM with ~94 defined opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon.
 - **Automatic Memory Management** - I use reference counting so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic. Note: reference *cycles* are not automatically reclaimed (there is no tracing cycle collector yet) — break cycles manually to avoid leaks.
-- **Machine-Led Optimization** - I run constant folding and dead-code elimination on the AST before code generation. I also support profile-guided inlining: build with `--profile-runtime`, run a representative workload to produce a `.nano.prof`, then recompile with `--pgo <path>` to apply hot-path inlining. Runtime profiling instruments the C the transpiler emits, so `--profile-runtime` is native-only — it errors out under `--target` or `--llvm` rather than emitting an unprofiled artifact.
-- **Multi-Target Compilation** - I transpile to C for native performance and also emit WebAssembly (`--target wasm`), LLVM IR (`--target llvm`), PTX/CUDA (`--target ptx`), or RISC-V assembly (`--target riscv`). Each WASM output gets a source-map sidecar and can be signed with Ed25519. The C backend is the production path; the experimental WASM and LLVM backends reject the constructs they cannot yet lower with an explicit compile error rather than emitting a broken binary. The WASM backend rejects string literals, struct literals, union constructs, field access, match expressions, array literals, tuple literals, and the I/O and string-conversion builtins (these need linear memory plus a WASI host). The LLVM backend lowers string literals but rejects struct literals, union constructs, field access, match expressions, array literals, tuple literals, closures with captured variables, effects, and `par` blocks. `print`/`println` select the printf format specifier from each argument's static type (`%s` for strings, `%f` for floats, `%lld` for ints and bools), so `(println "hello")` prints the text rather than the string's pointer value; an argument whose printable type cannot be determined is rejected with a compile error instead of being silently misprinted.
+- **Machine-Led Optimization** - I run constant folding and dead-code elimination before code generation. I also support profile-guided inlining on my native C path.
+- **Shared IR** - I lower NanoLang and Nano Forth to NanoISA. C remains my production native path. Future LLVM, WebAssembly, JVM, and other general targets translate from NanoISA so every frontend shares one typed and verified boundary. PTX, OpenCL, and RISC-V remain direct experimental targets during that migration.
 - **Algebraic Effects** - I support typed, resumable effects with `effect`, `perform`, and `handle`. Side effects are explicit and composable.
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
@@ -146,7 +146,7 @@ I provide a virtual machine as an alternative to C transpilation.
 ```
 
 **Architecture:**
-- **~94 opcodes** - I use a stack machine with a hybrid instruction set in an 8-bit opcode space (sentinel `OP_COUNT = 0xB3`).
+- **Generated instruction schema** - I use a local/stack hybrid whose active metadata comes from `spec/nanoisa.yaml`.
 - **Co-process FFI** (`nano_cop`) - I run external calls in a separate process. If they crash, I continue running.
 - **VM daemon** (`nano_vmd`) - I can run as a persistent process to start faster.
 - **Trap model** - I separate computation from I/O. This allows for future hardware acceleration.
@@ -183,17 +183,9 @@ A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP s
 # Compile to native C (default)
 ./bin/nanoc program.nano -o program
 
-# Compile to WebAssembly (emits program.wasm + program.wasm.map source map)
-./bin/nanoc program.nano --target wasm -o program.wasm
-
-# Other backends
-./bin/nanoc program.nano --target llvm  -o program.ll   # LLVM IR
+# Experimental direct targets during the NanoISA translator migration
 ./bin/nanoc program.nano --target ptx   -o program.ptx  # CUDA PTX
 ./bin/nanoc program.nano --target riscv -o program.s    # RISC-V assembly
-
-# Sign and verify WASM modules
-./bin/nanoc sign   program.wasm   # Signs with ~/.nanoc/signing.key
-./bin/nanoc verify program.wasm   # Verifies embedded Ed25519 signature
 
 # Export documentation from triple-slash comments
 ./bin/nanoc program.nano --doc-md -o program.md

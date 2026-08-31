@@ -10,7 +10,6 @@
 #include "toon_output.h"
 #include "nanocore_subset.h"
 #include "nanocore_export.h"
-#include "wasm_backend.h"
 #include "ptx_backend.h"
 #include "opencl_backend.h"
 #include "c_backend.h"
@@ -19,8 +18,6 @@
 #include "tco_pass.h"
 #include "cps_pass.h"
 #include "pgo_pass.h"
-#include "llvm_backend.h"
-#include "sign.h"
 #include "stdlib_runtime.h"  /* profile_runtime_backend_* support policy */
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
@@ -77,12 +74,10 @@ typedef struct {
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
     bool trust_report;         /* --trust-report: print formal verification trust levels */
     bool reference_eval;       /* --reference-eval: cross-check with Coq-extracted interpreter */
-    const char *target;        /* --target <name>: compile target (default: native, wasm) */
-    bool no_sourcemap;         /* --no-sourcemap: suppress .wasm.map generation for wasm target */
+    const char *target;        /* --target <name>: compile target */
     bool tco;                  /* --tco: enable tail-call optimization pass */
     const char *pgo_profile;   /* --pgo <path>: apply profile-guided inlining from .nano.prof */
-    bool llvm;                 /* --llvm: emit LLVM IR (.ll) instead of transpiled C */
-    bool debug;                /* --debug / -g: emit DWARF v4 debug information */
+    bool debug;                /* --debug / -g: emit debug information where supported */
     bool bench;                /* --bench: run @bench-annotated functions */
     uint64_t bench_n;          /* --bench-n <N>: fixed iteration count (0 = auto) */
     const char *bench_json;    /* --bench-json <path>: write JSON results to file */
@@ -491,42 +486,6 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             printf("✓ CPS pass: %d async function(s) transformed\n", async_count);
     }
 
-    /* ── WASM target: emit .wasm binary and exit ─────────────────────── */
-    if (opts->target && strcmp(opts->target, "wasm") == 0) {
-        /* Determine output path: use -o flag or derive from input */
-        const char *wasm_out = output_file;
-        char wasm_out_buf[PATH_MAX];
-        if (!wasm_out) {
-            /* Replace .nano with .wasm */
-            strncpy(wasm_out_buf, input_file, PATH_MAX - 6);
-            wasm_out_buf[PATH_MAX - 6] = '\0';
-            char *dot = strrchr(wasm_out_buf, '.');
-            if (dot) *dot = '\0';
-            strcat(wasm_out_buf, ".wasm");
-            wasm_out = wasm_out_buf;
-        }
-        if (opts->verbose) printf("Emitting WASM → %s\n", wasm_out);
-        /* Build source map path: <wasm_out>.map unless suppressed */
-        char srcmap_buf[PATH_MAX + 8];
-        const char *srcmap_path = NULL;
-        if (!opts->no_sourcemap) {
-            snprintf(srcmap_buf, sizeof(srcmap_buf), "%s.map", wasm_out);
-            srcmap_path = srcmap_buf;
-        }
-        int wasm_rc = wasm_backend_emit(program, wasm_out, input_file, srcmap_path, opts->verbose);
-        if (wasm_rc == 0 && opts->verbose) {
-            printf("✓ WASM binary emitted to %s\n", wasm_out);
-        }
-        free_ast(program);
-        free_tokens(tokens, token_count);
-        free_environment(env);
-        free_module_list(modules);
-        clear_module_cache();
-        free(source);
-        nl_list_CompilerDiagnostic_free(diags);
-        return wasm_rc;
-    }
-
     /* ── PTX target: emit .ptx text and exit ────────────────────────── */
     if (opts->target && strcmp(opts->target, "ptx") == 0) {
         const char *ptx_out = output_file;
@@ -612,37 +571,6 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(source);
         nl_list_CompilerDiagnostic_free(diags);
         return c_rc;
-    }
-
-    /* ── LLVM IR: emit .ll and exit ──────────────────────────────────────── */
-    if (opts->llvm) {
-        const char *ll_out = output_file;
-        char ll_out_buf[PATH_MAX];
-        if (!ll_out) {
-            strncpy(ll_out_buf, input_file, PATH_MAX - 4);
-            ll_out_buf[PATH_MAX - 4] = '\0';
-            char *dot = strrchr(ll_out_buf, '.');
-            if (dot) *dot = '\0';
-            strcat(ll_out_buf, ".ll");
-            ll_out = ll_out_buf;
-        }
-        if (opts->verbose) printf("Emitting LLVM IR → %s\n", ll_out);
-        int ll_rc = llvm_backend_emit(program, ll_out, input_file,
-                                      opts->verbose, opts->debug);
-        if (ll_rc == 0) {
-            printf("✓ LLVM IR emitted to %s\n", ll_out);
-            printf("  Compile: clang -O2 %s -o %s.out\n", ll_out, ll_out);
-        } else {
-            fprintf(stderr, "LLVM backend failed\n");
-        }
-        free_ast(program);
-        free_tokens(tokens, token_count);
-        free_environment(env);
-        free_module_list(modules);
-        clear_module_cache();
-        free(source);
-        nl_list_CompilerDiagnostic_free(diags);
-        return ll_rc;
     }
 
     /* ── RISC-V target: emit .s assembly and exit ─────────────────────── */
@@ -1577,17 +1505,15 @@ int main(int argc, char *argv[]) {
         printf("  --profile-runtime     Implies --profile; also write flamegraph collapsed-stack\n");
         printf("                 .nano.prof (default: <output_binary>.nano.prof). Compatible with\n");
         printf("                 flamegraph.pl: flamegraph.pl <bin>.nano.prof > flame.svg\n");
-        printf("                 Native target only — errors out under --target/--llvm, which\n");
+        printf("                 Native target only — errors out under --target, which\n");
         printf("                 emit artifacts nanoc never runs and so cannot profile.\n");
         printf("  --profile-runtime-output <p>  Set explicit path for flamegraph .nano.prof output\n");
-        printf("  --target <t>   Compile target: native (default), wasm, ptx, opencl, c, riscv\n");
+        printf("  --target <t>   Compile target: native (default), ptx, opencl, c, riscv\n");
         printf("                 ptx:    emit NVIDIA PTX assembly for `gpu fn` functions\n");
         printf("                 opencl: emit OpenCL C kernel source (.cl) for `gpu fn` functions\n");
         printf("                         CPU fallback via POCL when no GPU present\n");
         printf("  --tco          Enable tail-call optimization (rewrite tail recursion to loops)\n");
-        printf("  --llvm         Emit LLVM IR (.ll) instead of transpiled C\n");
-        printf("  --debug / -g   Emit DWARF v4 debug info (with --llvm or --target riscv)\n");
-        printf("                 Compile: llc -march=aarch64 prog.ll -o prog.s\n");
+        printf("  --debug / -g   Emit debug info where the selected target supports it\n");
         printf("  --bench        Run @bench-annotated functions (micro-benchmark mode)\n");
         printf("  --bench-n <N>  Fixed iteration count (default: auto-calibrate to ~1s)\n");
         printf("  --bench-json <f> Write JSON benchmark results to file\n");
@@ -1598,7 +1524,6 @@ int main(int argc, char *argv[]) {
         printf("                 Example: nanoc --profile-runtime prog.nano -o prog\n");
         printf("                          ./prog                    # generates prog.nano.prof\n");
         printf("                          nanoc --pgo prog.nano.prof prog.nano -o prog_opt\n");
-        printf("  publish <file> Compile to WASM and publish to AgentFS (nanoc-publish.sh)\n");
         printf("  install [pkg@range ...]\n");
         printf("                 Install nano packages from the registry (nanoc-install.sh)\n");
         printf("                 Reads nano.packages.json + writes nano.lock\n");
@@ -1626,54 +1551,6 @@ int main(int argc, char *argv[]) {
         printf("  %s example.nano -o example --verbose\n", argv[0]);
         printf("  %s sdl_app.nano -o app -I/opt/homebrew/include/SDL2 -L/opt/homebrew/lib -lSDL2\n\n", argv[0]);
         return 0;
-    }
-
-    /* Handle 'publish' subcommand — delegates to scripts/nanoc-publish.sh */
-    if (argc >= 2 && strcmp(argv[1], "publish") == 0) {
-        /* Find the publish script relative to the binary.
-         * Use dynamic allocation to avoid -Werror=format-truncation issues. */
-        const char *suffix = "/scripts/nanoc-publish.sh";
-        char *publish_script = NULL;
-        const char *nano_root = getenv("NANOLANG_ROOT");
-        if (nano_root) {
-            size_t len = strlen(nano_root) + strlen(suffix) + 1;
-            publish_script = malloc(len);
-            if (!publish_script) { perror("malloc"); return 1; }
-            strcpy(publish_script, nano_root);
-            strcat(publish_script, suffix);
-        } else {
-            /* Derive from argv[0]: strip last path component to get bin dir */
-            char *argv0_copy = strdup(argv[0]);
-            if (!argv0_copy) { perror("strdup"); return 1; }
-            char *last_slash = strrchr(argv0_copy, '/');
-            if (last_slash) {
-                *last_slash = '\0';
-                size_t len = strlen(argv0_copy) + strlen(suffix) + 1;
-                publish_script = malloc(len);
-                if (!publish_script) { perror("malloc"); free(argv0_copy); return 1; }
-                strcpy(publish_script, argv0_copy);
-                strcat(publish_script, suffix);
-            } else {
-                publish_script = strdup("./scripts/nanoc-publish.sh");
-                if (!publish_script) { perror("strdup"); return 1; }
-            }
-            free(argv0_copy);
-        }
-        /* Build argv for execv: [publish_script, argv[2], argv[3], ..., NULL] */
-        const char **script_argv = malloc(((size_t)argc + 1) * sizeof(char *));
-        if (!script_argv) { perror("malloc"); free(publish_script); return 1; }
-        script_argv[0] = publish_script;
-        for (int i = 2; i < argc; i++) {
-            script_argv[i - 1] = argv[i];
-        }
-        script_argv[argc - 1] = NULL;
-        execv(publish_script, (char *const *)script_argv);
-        /* execv only returns on error */
-        fprintf(stderr, "nanoc publish: could not exec %s: %s\n", publish_script, strerror(errno));
-        fprintf(stderr, "Ensure nanoc-publish.sh is in scripts/ relative to NANOLANG_ROOT.\n");
-        free(script_argv);
-        free(publish_script);
-        return 1;
     }
 
     /* Handle 'install' and 'add' subcommands — delegates to scripts/nanoc-install.sh */
@@ -1721,16 +1598,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* Handle 'sign' subcommand — Ed25519 WASM module signing */
-    if (argc >= 2 && strcmp(argv[1], "sign") == 0) {
-        return nanoc_sign_cmd(argc - 2, (char **)(argv + 2));
-    }
-
-    /* Handle 'verify' subcommand — Ed25519 WASM signature verification */
-    if (argc >= 2 && strcmp(argv[1], "verify") == 0) {
-        return nanoc_verify_cmd(argc - 2, (char **)(argv + 2));
-    }
-
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <input.nano> [OPTIONS]\n", argv[0]);
         fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
@@ -1772,9 +1639,7 @@ int main(int argc, char *argv[]) {
         .trust_report = false,
         .reference_eval = false,
         .target = NULL,
-        .no_sourcemap = false,
         .pgo_profile = NULL,
-        .llvm = false,
         .debug = false,
         .doc_md = false
     };
@@ -1882,14 +1747,10 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--target") == 0 && i + 1 < argc) {
             opts.target = argv[i + 1];
             i++;
-        } else if (strcmp(argv[i], "--no-sourcemap") == 0) {
-            opts.no_sourcemap = true;
         } else if (strcmp(argv[i], "--tco") == 0) {
             opts.tco = true;
         } else if (strcmp(argv[i], "--pgo") == 0 && i + 1 < argc) {
             opts.pgo_profile = argv[++i];
-        } else if (strcmp(argv[i], "--llvm") == 0) {
-            opts.llvm = true;
         } else if (strcmp(argv[i], "--debug") == 0 || strcmp(argv[i], "-g") == 0) {
             opts.debug = true;
         } else if (strcmp(argv[i], "--bench") == 0) {
@@ -1928,7 +1789,7 @@ int main(int argc, char *argv[]) {
      * meaning on the native path. Fail loudly instead of accepting the flag and
      * emitting an artifact with no profiling in it. */
     if (opts.profile_runtime) {
-        const char *backend = profile_runtime_backend_name(opts.target, opts.llvm);
+        const char *backend = profile_runtime_backend_name(opts.target, false);
         if (!profile_runtime_backend_supported(backend)) {
             fprintf(stderr,
                     "error: --profile-runtime is not supported for the '%s' backend\n",
@@ -1939,7 +1800,7 @@ int main(int argc, char *argv[]) {
                     "  The '%s' backend emits an artifact that nanoc never runs, so no\n"
                     "  profile can be collected.\n", backend);
             fprintf(stderr,
-                    "  Drop --target/--llvm to profile natively, then feed the resulting\n"
+                    "  Drop --target to profile natively, then feed the resulting\n"
                     "  .nano.prof back in with --pgo.\n");
             free(include_paths);
             free(library_paths);

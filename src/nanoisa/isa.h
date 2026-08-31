@@ -31,12 +31,13 @@ typedef enum {
     TAG_STRUCT   = 0x08,  /* Named struct with fields */
     TAG_ENUM     = 0x09,  /* Integer variant index */
     TAG_UNION    = 0x0A,  /* Tagged union */
-    TAG_FUNCTION = 0x0B,  /* Function table index + optional closure env */
+    TAG_FUNCTION = 0x0B,  /* Direct function table reference */
     TAG_TUPLE    = 0x0C,  /* Fixed-size heterogeneous */
     TAG_HASHMAP  = 0x0D,  /* Key-value map */
     TAG_OPAQUE   = 0x0E,  /* RPC proxy ID to co-process handle */
+    TAG_CLOSURE  = 0x0F,  /* Heap closure with captured values */
 
-    TAG_COUNT    = 0x0F   /* Number of valid tags (sentinel) */
+    TAG_COUNT    = 0x10   /* Number of valid tags (sentinel) */
 } NanoValueTag;
 
 /* ========================================================================
@@ -86,6 +87,7 @@ typedef enum {
     OP_AND          = 0x30,
     OP_OR           = 0x31,
     OP_NOT          = 0x32,
+    OP_TAIL_CALL    = 0x33,  /* operand: u32 function table index */
 
     /* Control Flow (0x38-0x3F) */
     OP_JMP          = 0x38,  /* operand: i32 relative offset */
@@ -179,9 +181,80 @@ typedef enum {
     /* Opaque Proxy (0xB0-0xBF) */
     OP_OPAQUE_NULL  = 0xB0,  /* push null opaque proxy */
     OP_OPAQUE_VALID = 0xB1,  /* pop opaque -> push bool (is non-null) */
+    OP_MEM_LOAD8    = 0xB2,  /* pop address -> push unsigned byte */
+    OP_MEM_LOAD16   = 0xB3,  /* pop address -> push unsigned little-endian word */
+    OP_MEM_LOAD32   = 0xB4,  /* pop address -> push unsigned little-endian dword */
+    OP_MEM_LOAD64   = 0xB5,  /* pop address -> push little-endian cell */
+    OP_MEM_STORE8   = 0xB6,  /* pop value, address */
+    OP_MEM_STORE16  = 0xB7,
+    OP_MEM_STORE32  = 0xB8,
+    OP_MEM_STORE64  = 0xB9,
 
-    OP_COUNT        = 0xB3   /* Sentinel: number of defined opcodes */
+    /* Typed scalar operations (v2 migration) */
+    OP_I64_ADD      = 0xC0,
+    OP_I64_SUB      = 0xC1,
+    OP_I64_MUL      = 0xC2,
+    OP_I64_DIV_S    = 0xC3,
+    OP_I64_REM_S    = 0xC4,
+    OP_I64_NEG      = 0xC5,
+    OP_F64_ADD      = 0xC8,
+    OP_F64_SUB      = 0xC9,
+    OP_F64_MUL      = 0xCA,
+    OP_F64_DIV      = 0xCB,
+    OP_F64_NEG      = 0xCC,
+
+    OP_I64_EQ       = 0xD0,
+    OP_I64_NE       = 0xD1,
+    OP_I64_LT_S     = 0xD2,
+    OP_I64_LE_S     = 0xD3,
+    OP_I64_GT_S     = 0xD4,
+    OP_I64_GE_S     = 0xD5,
+    OP_F64_EQ       = 0xD8,
+    OP_F64_NE       = 0xD9,
+    OP_F64_LT       = 0xDA,
+    OP_F64_LE       = 0xDB,
+    OP_F64_GT       = 0xDC,
+    OP_F64_GE       = 0xDD,
+    OP_BOOL_AND     = 0xE0,
+    OP_BOOL_OR      = 0xE1,
+    OP_BOOL_NOT     = 0xE2,
+    OP_I64_DIV_U    = 0xE3,
+    OP_I64_REM_U    = 0xE4,
+    OP_I64_LT_U     = 0xE5,
+    OP_I64_LE_U     = 0xE6,
+    OP_I64_GT_U     = 0xE7,
+    OP_I64_GE_U     = 0xE8,
+    OP_I64_AND      = 0xE9,
+    OP_I64_OR       = 0xEA,
+    OP_I64_XOR      = 0xEB,
+    OP_I64_INVERT   = 0xEC,
+    OP_I64_SHL      = 0xED,
+    OP_I64_SHR_S    = 0xEE,
+    OP_I64_SHR_U    = 0xEF,
+    OP_I64_ADD_CARRY = 0xF0, /* a b carry -> low carry */
+    OP_I64_SUB_BORROW = 0xF1, /* a b borrow -> low borrow */
+    OP_I64_MUL_WIDE_S = 0xF2, /* a b -> low high */
+    OP_I64_MUL_WIDE_U = 0xF3, /* a b -> low high */
+    OP_PICK         = 0xF4,  /* operand: u16 depth */
+    OP_ROLL         = 0xF5,  /* operand: u16 depth */
+    OP_ARRAY_ADD    = 0xF6,
+    OP_ARRAY_SUB    = 0xF7,
+    OP_ARRAY_MUL    = 0xF8,
+    OP_ARRAY_DIV    = 0xF9,
+    OP_FUNCREF      = 0xFA,  /* operand: u32 function table index */
+    OP_AGG_PACK     = 0xFB,  /* kind:u8 layout:u32 variant:u16 count:u16 */
+    OP_AGG_GET      = 0xFC,  /* operand: u16 field/index */
+    OP_AGG_SET      = 0xFD,  /* operand: u16 field/index */
+    OP_AGG_TAG      = 0xFE,  /* pop aggregate -> push integer tag */
+
+    OP_COUNT        = 0xFF   /* Exclusive upper bound, not an opcode count */
 } NanoOpcode;
+
+typedef enum {
+    AGG_RECORD = 0,
+    AGG_VARIANT = 1,
+    AGG_TUPLE = 2
+} NanoAggregateKind;
 
 /* ========================================================================
  * Operand Types
@@ -210,6 +283,28 @@ typedef struct {
     uint8_t operand_count;     /* Number of operands (0-4) */
     OperandType operands[MAX_OPERANDS]; /* Operand types */
 } InstructionInfo;
+
+typedef struct {
+    const char *name;
+    uint8_t code;
+} NanoisaSchemaTag;
+
+typedef struct {
+    const char *name;
+    uint8_t opcode;
+    uint8_t operand_count;
+    OperandType operands[MAX_OPERANDS];
+} NanoisaSchemaOpcode;
+
+typedef struct {
+    const char *name;
+    const char *ownership;
+    uint8_t operand_count;
+    uint8_t pop_count;
+    uint8_t push_count;
+} NanoisaV2Family;
+
+#include "generated_schema.h"
 
 /* ========================================================================
  * Decoded Instruction (for disassembly / VM execution)

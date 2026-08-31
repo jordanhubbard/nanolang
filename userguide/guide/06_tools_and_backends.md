@@ -26,14 +26,13 @@ Run each tool with `--help` where provided. The generated [Compiler CLI](../gene
 | --- | --- | --- |
 | Native executable | `nanoc source.nano -o program` | Production path through generated C |
 | C source | `nanoc source.nano --target c -o program.c` | Standalone generated C |
-| WebAssembly | `nanoc source.nano --target wasm -o program.wasm` | Standalone scalar subset; no WASI entry point |
-| LLVM IR | `nanoc source.nano --llvm -o program.ll` | Experimental subset |
+| NanoISA | `nano_virt source.nano --emit-nvm -o program.nvm` | Shared typed VM representation |
 | PTX | `nanoc source.nano --target ptx -o program.ptx` | GPU kernel subset |
 | OpenCL C | `nanoc source.nano --target opencl -o program.cl` | GPU kernel subset |
 | RISC-V assembly | `nanoc source.nano --target riscv -o program.s` | Experimental subset |
 | NanoISA | `nano_virt source.nano -o program.nvm` | Virtual-machine path with isolated FFI support |
 
-Unsupported constructs should fail explicitly rather than produce an artifact that only appears correct. Read [WebAssembly](../generated/wasm.md) for the audited WASM boundary.
+Future LLVM and WebAssembly targets translate from NanoISA rather than branching from my source AST.
 
 ## Diagnostics
 

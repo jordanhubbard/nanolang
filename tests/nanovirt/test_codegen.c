@@ -128,13 +128,94 @@ static TestResult compile_and_run(const char *source) {
     tr.vm_result = vm_execute(&vm);
     tr.result = vm_get_result(&vm);
     if (tr.result.tag == TAG_STRING || tr.result.tag == TAG_ARRAY) {
-        vm_retain(tr.result);
+        vm_retain(&vm.heap, tr.result);
     }
     vm_destroy(&vm);
 
     tr.ok = true;
     tr.module = cg.module;
     return tr;
+}
+
+static void test_debug_metadata_is_not_executable(void) {
+    const char *source =
+        "fn main() -> int {\n"
+        "    let x: int = 40\n"
+        "    return (+ x 2)\n"
+        "}\n"
+        "shadow main { assert true }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, "debug metadata compile succeeds");
+    ASSERT(tr.module->debug_count > 0, "source map side table is populated");
+    for (uint32_t i = 0; i < tr.module->code_size; i++) {
+        ASSERT(tr.module->code[i] != OP_DEBUG_LINE,
+               "NanoVirt emits no executable DEBUG_LINE instructions");
+    }
+    nvm_module_free(tr.module);
+}
+
+static void test_scalar_codegen_uses_typed_opcodes(void) {
+    const char *source =
+        "fn main() -> int {\n"
+        "    let i: int = (+ 20 22)\n"
+        "    let f: float = (+ 1.0 2.0)\n"
+        "    let b: bool = (and true false)\n"
+        "    if (and (== i 42) (> f 2.0)) { return i }\n"
+        "    return 0\n"
+        "}\n"
+        "shadow main { assert true }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, "typed scalar codegen succeeds");
+    bool saw_i64 = false;
+    bool saw_f64 = false;
+    bool saw_bool = false;
+    for (uint32_t i = 0; i < tr.module->code_size;) {
+        DecodedInstruction instruction;
+        uint32_t width = isa_decode(tr.module->code + i,
+                                    tr.module->code_size - i, &instruction);
+        ASSERT(width > 0, "typed scalar bytecode decodes");
+        ASSERT(instruction.opcode != OP_ADD && instruction.opcode != OP_SUB
+               && instruction.opcode != OP_MUL && instruction.opcode != OP_DIV
+               && instruction.opcode != OP_MOD && instruction.opcode != OP_NEG
+               && instruction.opcode != OP_AND && instruction.opcode != OP_OR
+               && instruction.opcode != OP_NOT,
+               "scalar codegen emits no legacy polymorphic operations");
+        if (instruction.opcode == OP_I64_ADD) saw_i64 = true;
+        if (instruction.opcode == OP_F64_ADD) saw_f64 = true;
+        if (instruction.opcode == OP_BOOL_AND) saw_bool = true;
+        i += width;
+    }
+    ASSERT(saw_i64 && saw_f64 && saw_bool,
+           "typed integer, float, and boolean operations are present");
+    nvm_module_free(tr.module);
+}
+
+static void test_function_result_signatures(void) {
+    const char *source =
+        "fn side_effect() -> void { return }\n"
+        "fn answer() -> int { return 42 }\n"
+        "fn main() -> int { (side_effect) return (answer) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, "result signature codegen succeeds");
+    ASSERT(tr.vm_result == VM_OK, "void call leaves no phantom result");
+    ASSERT_INT(tr.result.as.i64, 42);
+    for (uint32_t i = 0; i < tr.module->function_count; i++) {
+        const char *name = nvm_get_string(tr.module,
+                                          tr.module->functions[i].name_idx);
+        if (name && strcmp(name, "side_effect") == 0) {
+            ASSERT(tr.module->functions[i].result_tag == TAG_VOID,
+                   "void function has void result tag");
+            ASSERT(tr.module->functions[i].result_count == 0,
+                   "void function has zero results");
+        }
+        if (name && strcmp(name, "answer") == 0) {
+            ASSERT(tr.module->functions[i].result_tag == TAG_INT,
+                   "int function has int result tag");
+            ASSERT(tr.module->functions[i].result_count == 1,
+                   "int function has one result");
+        }
+    }
+    nvm_module_free(tr.module);
 }
 
 /* Helper: compile and call a specific function by name */
@@ -197,7 +278,7 @@ static TestResult compile_and_call(const char *source, const char *fn_name,
     tr.vm_result = vm_call_function(&vm, (uint32_t)fn_idx, args, argc);
     tr.result = vm_get_result(&vm);
     if (tr.result.tag == TAG_STRING || tr.result.tag == TAG_ARRAY) {
-        vm_retain(tr.result);
+        vm_retain(&vm.heap, tr.result);
     }
     vm_destroy(&vm);
 
@@ -1363,7 +1444,12 @@ int main(void) {
 
     fprintf(stderr, "\n=== NanoVirt Codegen Tests ===\n\n");
 
-    fprintf(stderr, "Integer Arithmetic:\n");
+    fprintf(stderr, "Debug Metadata:\n");
+    test_debug_metadata_is_not_executable();
+    test_scalar_codegen_uses_typed_opcodes();
+    test_function_result_signatures();
+
+    fprintf(stderr, "\nInteger Arithmetic:\n");
     test_return_int();
     test_addition();
     test_subtraction();

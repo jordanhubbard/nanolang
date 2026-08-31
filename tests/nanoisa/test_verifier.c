@@ -8,6 +8,7 @@
 #include "nanoisa/verifier.h"
 #include "nanoisa/nvm_format.h"
 #include "nanoisa/isa.h"
+#include "nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -138,6 +139,48 @@ static void test_function_name_idx_overflow(void) {
     PASS(test_name);
 }
 
+static void test_invalid_function_result_signature(void) {
+    const char *test_name = "nvm_verify: invalid function result signature fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 0;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "non-void tag with zero results should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_multiple_function_results(void) {
+    const char *test_name = "nvm_verify: multiple homogeneous results pass";
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 2;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "two integer results should verify");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_invalid_function_result_tag(void) {
+    const char *test_name = "nvm_verify: invalid function result tag fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_COUNT;
+    mod->functions[0].result_count = 1;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "out-of-range result tag should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_invalid_instruction_byte(void) {
     const char *test_name = "nvm_verify: unknown opcode byte fails";
     /* 0xFF is not a valid opcode */
@@ -233,6 +276,73 @@ static void test_jmp_false_out_of_bounds(void) {
     PASS(test_name);
 }
 
+static void test_jump_into_operand_fails(void) {
+    const char *test_name = "nvm_verify: JMP target inside operand fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_JMP, (int32_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "jump into its encoded operand should fail");
+    ASSERT(strstr(r.error_msg, "instruction boundary") != NULL,
+           "failure should identify the instruction-boundary violation");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_match_tag_into_operand_fails(void) {
+    const char *test_name = "nvm_verify: MATCH_TAG target inside operand fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_MATCH_TAG, (uint16_t)0, (int32_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "MATCH_TAG into its encoded operand should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_jump_to_function_end_passes(void) {
+    const char *test_name = "nvm_verify: JMP target at function end passes";
+    uint8_t code[16];
+    uint32_t off = emit(code, OP_JMP, (int32_t)5);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "existing jump-to-end behavior should remain valid");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_predecoded_module_boundaries(void) {
+    const char *test_name = "vm_decode: module records instructions and boundaries";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    VmDecodedModule decoded;
+    char error[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, error), error);
+    ASSERT(decoded.function_count == 1, "one function should be decoded");
+    ASSERT(decoded.functions[0].instruction_count == 2,
+           "two instructions should be decoded");
+    ASSERT(decoded.functions[0].instructions[0].byte_offset == 0,
+           "first instruction should begin at zero");
+    ASSERT(decoded.functions[0].instructions[1].byte_offset == 9,
+           "RET should follow the encoded i64 instruction");
+    ASSERT(vm_decoded_function_has_boundary(&decoded.functions[0], 0),
+           "zero should be an instruction boundary");
+    ASSERT(!vm_decoded_function_has_boundary(&decoded.functions[0], 1),
+           "operand bytes should not be instruction boundaries");
+    ASSERT(vm_decoded_function_has_boundary(&decoded.functions[0], off),
+           "function end should be a boundary sentinel");
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_op_call_valid(void) {
     const char *test_name = "nvm_verify: OP_CALL to valid function index passes";
     uint8_t code[16];
@@ -256,6 +366,21 @@ static void test_op_call_invalid_fn_idx(void) {
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(!r.ok, "OP_CALL with bad fn_idx should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_tail_call_signatures(void) {
+    const char *test_name = "nvm_verify: OP_TAIL_CALL validates target and result signature";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_TAIL_CALL, (uint32_t)0);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
+    ASSERT(nvm_verify(mod).ok, "compatible recursive tail call should pass");
+    mod->code[1] = 1;
+    ASSERT(!nvm_verify(mod).ok, "tail call with bad function index should fail");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -524,6 +649,21 @@ static void test_arithmetic_instructions(void) {
     PASS(test_name);
 }
 
+static void test_verify_one_function(void) {
+    const char *test_name = "nvm_verify_function: validates incremental function";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult valid = nvm_verify_function(mod, 0);
+    ASSERT(valid.ok, "valid incremental function should pass");
+    NvmVerifyResult missing = nvm_verify_function(mod, 1);
+    ASSERT(!missing.ok, "missing incremental function should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -535,14 +675,22 @@ int main(void) {
     test_bad_entry_point();
     test_function_code_offset_overflow();
     test_function_name_idx_overflow();
+    test_invalid_function_result_signature();
+    test_multiple_function_results();
+    test_invalid_function_result_tag();
     test_invalid_instruction_byte();
     test_valid_jump_forward();
     test_jump_out_of_bounds();
     test_jump_negative_out_of_bounds();
     test_jmp_true_valid();
     test_jmp_false_out_of_bounds();
+    test_jump_into_operand_fails();
+    test_match_tag_into_operand_fails();
+    test_jump_to_function_end_passes();
+    test_predecoded_module_boundaries();
     test_op_call_valid();
     test_op_call_invalid_fn_idx();
+    test_tail_call_signatures();
     test_op_push_str_valid();
     test_op_push_str_invalid();
     test_op_load_local_valid();
@@ -561,6 +709,7 @@ int main(void) {
     test_null_code_nonzero_size();
     test_call_extern_invalid();
     test_arithmetic_instructions();
+    test_verify_one_function();
 
     printf("\n");
     if (g_fail == 0) {
