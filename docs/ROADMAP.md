@@ -143,6 +143,7 @@ Runtime representation:
 - [ ] I will choose and document tracing collection or enforceable cycle restrictions for heap graphs.
 
 Verifier and safety:
+- [x] I reject wrapped function code ranges and require every tested branch target to be an instruction boundary or the function-end sentinel; `test-verifier` verifies the malformed cases.
 - [ ] I will implement a control-flow verifier with instruction-boundary validation.
 - [ ] I will infer stack height and types through every basic block and require compatible merge states.
 - [ ] I will verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures.

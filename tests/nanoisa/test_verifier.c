@@ -126,6 +126,20 @@ static void test_function_code_offset_overflow(void) {
     PASS(test_name);
 }
 
+static void test_function_code_length_overflow(void) {
+    const char *test_name = "nvm_verify: wrapped function code range fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    /* The old offset+length check wrapped back below code_size. */
+    mod->functions[0].code_offset = UINT32_MAX - 1;
+    mod->functions[0].code_length = 2;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "wrapped code range should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_function_name_idx_overflow(void) {
     const char *test_name = "nvm_verify: function name_idx >= string_count fails";
     uint8_t code[4];
@@ -300,6 +314,19 @@ static void test_match_tag_into_operand_fails(void) {
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(!r.ok, "MATCH_TAG into its encoded operand should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_branch_target_past_function_end_fails(void) {
+    const char *test_name = "nvm_verify: branch past function end fails";
+    uint8_t code[16];
+    uint32_t off = emit(code, OP_JMP, (int32_t)6);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "branch past the function end should fail");
+    ASSERT(strstr(r.error_msg, "instruction boundary") != NULL,
+           "failure should identify the invalid control-flow target");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -674,6 +701,7 @@ int main(void) {
     test_valid_simple_function();
     test_bad_entry_point();
     test_function_code_offset_overflow();
+    test_function_code_length_overflow();
     test_function_name_idx_overflow();
     test_invalid_function_result_signature();
     test_multiple_function_results();
@@ -686,6 +714,7 @@ int main(void) {
     test_jmp_false_out_of_bounds();
     test_jump_into_operand_fails();
     test_match_tag_into_operand_fails();
+    test_branch_target_past_function_end_fails();
     test_jump_to_function_end_passes();
     test_predecoded_module_boundaries();
     test_op_call_valid();
