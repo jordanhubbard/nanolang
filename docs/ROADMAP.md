@@ -12,6 +12,9 @@ execution; this document records product direction and order.
 - [ ] I will make the 3.5 benchmark workloads execute successfully on NanoVM,
   then record repeatable profiles for NanoLang execution, allocation, direct and
   indirect calls, FFI, and the current Forth interpreter.
+- [ ] I will add optional NanoVM opcode instrumentation with one-time process
+  configuration, a single hot-path boolean guard, value and FFI diagnostics,
+  regression tests, and an LLM troubleshooting skill.
 
 ## Release Map
 
