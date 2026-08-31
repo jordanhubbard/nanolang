@@ -119,7 +119,7 @@ bool vm_decode_function(const NvmModule *module, uint32_t function_index,
                     function_index, bad_offset);
             }
             decoded->resolved_target = entry->code_offset + (uint32_t)target;
-        } else if (opcode == OP_CALL) {
+        } else if (opcode == OP_CALL || opcode == OP_TAIL_CALL) {
             uint32_t target = decoded->instruction.operands[0].u32;
             if (target >= module->function_count) {
                 uint32_t bad_offset = entry->code_offset + decoded->byte_offset;

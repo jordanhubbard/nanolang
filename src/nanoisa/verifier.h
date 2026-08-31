@@ -26,7 +26,7 @@ typedef struct {
  * Checks:
  *   - Function code_offset/code_length within code section bounds
  *   - All jump targets land on instruction boundaries in the originating function
- *   - All OP_CALL function indices < function_count
+ *   - All OP_CALL/OP_TAIL_CALL indices and tail-call results are valid
  *   - All OP_PUSH_STR string indices < string_count
  *   - All OP_CALL_EXTERN import indices < import_count
  *   - All OP_CLOSURE_NEW function indices < function_count

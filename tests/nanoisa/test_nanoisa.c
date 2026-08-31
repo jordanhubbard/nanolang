@@ -319,7 +319,7 @@ static void test_encode_all_categories(void) {
         OP_LOAD_UPVALUE, OP_STORE_UPVALUE,
         OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_NEG,
         OP_EQ, OP_NE, OP_LT, OP_LE, OP_GT, OP_GE,
-        OP_AND, OP_OR, OP_NOT,
+        OP_AND, OP_OR, OP_NOT, OP_TAIL_CALL,
         OP_JMP, OP_JMP_TRUE, OP_JMP_FALSE, OP_CALL, OP_CALL_INDIRECT, OP_RET,
         OP_CALL_EXTERN, OP_CALL_MODULE,
         OP_STR_LEN, OP_STR_CONCAT, OP_STR_SUBSTR, OP_STR_CONTAINS,
@@ -722,6 +722,7 @@ static void test_asm_all_operand_types(void) {
         "  TYPE_CHECK 4\n"
         "  DEBUG_LINE 100\n"
         "  CALL 0\n"
+        "  TAIL_CALL 0\n"
         "  CALL_EXTERN 1\n"
         "  CALL_MODULE 0 1\n"
         "  HALT\n"

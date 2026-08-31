@@ -962,7 +962,7 @@ test-c-backend: $(COMPILER_C)
 # Cross-backend compile suite: compile canonical test programs across all 5 backends
 .PHONY: test-cross-backend
 test-cross-backend: $(COMPILER)
-	@echo "🔀 Running cross-backend compile suite (wasm, llvm, riscv, c, ptx)..."
+	@echo "🔀 Running direct cross-backend compile suite (riscv, c, ptx)..."
 	@chmod +x tests/cross-backend/run-all.sh
 	@bash tests/cross-backend/run-all.sh $(COMPILER)
 	@echo "✅ Cross-backend tests PASSED"

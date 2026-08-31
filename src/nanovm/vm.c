@@ -1410,6 +1410,56 @@ dynamic_div:
             break;
         }
 
+        case OP_TAIL_CALL: {
+            if (vm->profile.enabled) vm->profile.direct_calls++;
+            uint32_t callee_idx = decoded->resolved_target;
+            if (callee_idx >= vm->module->function_count)
+                return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION,
+                                  "Tail-call function %u not found", callee_idx);
+            const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
+            if (callee->result_count != cur_fn->result_count
+                    || callee->result_tag != cur_fn->result_tag)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "Tail-call result signature mismatch");
+            if (vm->stack_size < callee->arity)
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "Tail-call function %u needs %u arguments",
+                                  callee_idx, callee->arity);
+
+            NanoValue inline_args[16];
+            NanoValue *args = callee->arity <= 16 ? inline_args
+                : malloc((size_t)callee->arity * sizeof(*args));
+            if (!args)
+                return trap_error(vm, VM_ERR_MEMORY,
+                                  "Tail-call argument allocation failed");
+            uint32_t args_start = vm->stack_size - callee->arity;
+            for (uint16_t i = 0; i < callee->arity; i++) {
+                args[i] = vm->stack[args_start + i];
+                vm_retain(&vm->heap, args[i]);
+            }
+
+            while (vm->stack_size > frame->stack_base) {
+                NanoValue value = stack_pop(vm);
+                vm_release(&vm->heap, value);
+            }
+            for (uint16_t i = 0; i < callee->arity; i++)
+                stack_push(vm, args[i]);
+            if (args != inline_args) free(args);
+            for (uint16_t i = callee->arity; i < callee->local_count; i++)
+                stack_push(vm, val_void());
+
+            frame->fn_idx = callee_idx;
+            frame->local_count = callee->local_count;
+            frame->closure = NULL;
+            frame->current_line = 0;
+            frame->current_col = 0;
+            vm->current_fn = callee_idx;
+            vm->ip = callee->code_offset;
+            cur_fn = callee;
+            code_end = callee->code_offset + callee->code_length;
+            break;
+        }
+
         case OP_CALL_INDIRECT: {
             if (vm->profile.enabled) vm->profile.indirect_calls++;
             NanoValue fn_val = stack_pop(vm);

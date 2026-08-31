@@ -58,6 +58,7 @@ legacy_opcodes:
   - {name: AND, code: 0x30, operands: []}
   - {name: OR, code: 0x31, operands: []}
   - {name: NOT, code: 0x32, operands: []}
+  - {name: TAIL_CALL, code: 0x33, operands: [U32]}
   - {name: JMP, code: 0x38, operands: [I32]}
   - {name: JMP_TRUE, code: 0x39, operands: [I32]}
   - {name: JMP_FALSE, code: 0x3a, operands: [I32]}

@@ -370,6 +370,21 @@ static void test_op_call_invalid_fn_idx(void) {
     PASS(test_name);
 }
 
+static void test_tail_call_signatures(void) {
+    const char *test_name = "nvm_verify: OP_TAIL_CALL validates target and result signature";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_TAIL_CALL, (uint32_t)0);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
+    ASSERT(nvm_verify(mod).ok, "compatible recursive tail call should pass");
+    mod->code[1] = 1;
+    ASSERT(!nvm_verify(mod).ok, "tail call with bad function index should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_op_push_str_valid(void) {
     const char *test_name = "nvm_verify: OP_PUSH_STR to valid string index passes";
     NvmModule *mod = nvm_module_new();
@@ -675,6 +690,7 @@ int main(void) {
     test_predecoded_module_boundaries();
     test_op_call_valid();
     test_op_call_invalid_fn_idx();
+    test_tail_call_signatures();
     test_op_push_str_valid();
     test_op_push_str_invalid();
     test_op_load_local_valid();

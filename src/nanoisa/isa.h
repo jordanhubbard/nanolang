@@ -87,6 +87,7 @@ typedef enum {
     OP_AND          = 0x30,
     OP_OR           = 0x31,
     OP_NOT          = 0x32,
+    OP_TAIL_CALL    = 0x33,  /* operand: u32 function table index */
 
     /* Control Flow (0x38-0x3F) */
     OP_JMP          = 0x38,  /* operand: i32 relative offset */

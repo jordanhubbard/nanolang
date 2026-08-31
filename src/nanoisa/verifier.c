@@ -65,6 +65,9 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
                         i, fn->result_tag);
         if ((fn->result_count == 0) != (fn->result_tag == TAG_VOID))
             return fail("function[%u] result signature must be void/0 or non-void/nonzero", i);
+        if (fn->local_count < fn->arity)
+            return fail("function[%u] local_count %u is smaller than arity %u",
+                        i, fn->local_count, fn->arity);
     }
 
     /* Import string indices */
@@ -148,11 +151,20 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
         }
 
         /* --- Function table indices --- */
-        case OP_CALL: {
+        case OP_CALL:
+        case OP_TAIL_CALL: {
             uint32_t fn_target = instr.operands[0].u32;
             if (fn_target >= mod->function_count)
-                FAIL_DECODED("function[%u] OP_CALL at offset %u: fn_idx %u >= function_count %u",
-                             fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
+                FAIL_DECODED("function[%u] %s at offset %u: fn_idx %u >= function_count %u",
+                             fn_idx, info->name, fn->code_offset + pos,
+                             fn_target, mod->function_count);
+            if (instr.opcode == OP_TAIL_CALL) {
+                const NvmFunctionEntry *callee = &mod->functions[fn_target];
+                if (callee->result_count != fn->result_count
+                        || callee->result_tag != fn->result_tag)
+                    FAIL_DECODED("function[%u] OP_TAIL_CALL at offset %u has incompatible result signature",
+                                 fn_idx, fn->code_offset + pos);
+            }
             break;
         }
 

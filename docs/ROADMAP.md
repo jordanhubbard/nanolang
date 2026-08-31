@@ -93,13 +93,13 @@ Portable ISA design:
 
 Execution architecture:
 - [ ] I will separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR.
-- [x] I decode and resolve each function once rather than call the generic decoder for every retired instruction.
-- [ ] I will build instruction-boundary maps and resolve branches, calls, layouts, constants, globals, and imports during instantiation.
+- [x] I decode each function once and dispatch predecoded instructions rather than call the generic decoder for every retired instruction.
+- [ ] I build instruction-boundary maps and resolve branches plus direct and tail calls during instantiation; layouts, constants, globals, imports, and linked callable handles remain.
 - [ ] I will provide computed-goto dispatch where supported and retain a portable switch fallback.
 - [x] I moved generated source locations entirely to side tables and removed executable `DEBUG_LINE` instructions from NanoVirt output.
 - [x] I made `--strip-debug` remove all generated runtime debug cost by stripping the side table from code that contains no debug opcodes.
-- [ ] I will remove generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and other administrative sequences in lowering before adding fusions.
-- [ ] I will add tail-call lowering and execution.
+- [x] I removed generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and statements after terminating control flow from NanoVirt lowering.
+- [x] I added direct tail-call lowering and frame-replacement execution with verifier and runtime signature checks.
 - [ ] I will add profile-selected private superinstructions without exposing frontend bookkeeping as portable opcodes.
 - [ ] I will initially evaluate local-field load, local increment, compare-branch, union-tag branch, and tail-call fusions.
 - [ ] I will accept a fusion only when maintained NanoLang or Forth workloads justify it.
@@ -148,7 +148,7 @@ FFI and traps:
 - [ ] I will batch high-frequency host work rather than cross the process boundary for each element.
 
 Documentation and acceptance:
-- [ ] I will replace stale NanoISA opcode counts and architecture claims in `docs/NANOISA.md` and `docs/ROADMAP.md`.
+- [x] I replaced stale NanoISA opcode counts and architecture claims in the active documentation; historical changelog entries remain historical.
 - [ ] I will document the portable ISA separately from verified and optimized runtime representations.
 - [ ] I will provide readable symbolic assembly examples for NanoLang and Forth.
 - [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
