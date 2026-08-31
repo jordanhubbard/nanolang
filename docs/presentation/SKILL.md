@@ -99,13 +99,12 @@ record together. Do not claim publication until Google read-back succeeds.
    `https://docs.google.com/presentation/d/{id}/export/pptx` URL.
    [`publish_google_workspace.py`](publish_google_workspace.py) in this package performs
    the authorized update, create, access mapping, and read-back.
-6. Both members share one publication-authorization gate (see
-   publication authorization is separate from regeneration. Asking for this overview to
-   be regenerated and published for a named edition authorizes that revision only.
+6. Both members share one publication-authorization gate. Regenerating one member does
+   not authorize publishing either. Asking for this overview to be regenerated and
+   published for a named edition authorizes that revision only.
 
-The Codex `presentations`/`documents` plugins remain blocked by an organizational spend
-cap in this environment; a spend-cap rejection is an external constraint, not a defect
-in this package. Do not treat that path as required.
+No proprietary presentation or document plugin is required. The local Python toolchain
+is the portable authoring path; Google publication uses the authorized `gcloud` token.
 
 ## Guardrails
 
