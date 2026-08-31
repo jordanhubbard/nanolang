@@ -27,6 +27,39 @@
  * NanoValue Serialization
  * ======================================================================== */
 
+static void cop_put_u16le(uint8_t *buf, uint16_t value) {
+    buf[0] = (uint8_t)value;
+    buf[1] = (uint8_t)(value >> 8);
+}
+
+static void cop_put_u32le(uint8_t *buf, uint32_t value) {
+    buf[0] = (uint8_t)value;
+    buf[1] = (uint8_t)(value >> 8);
+    buf[2] = (uint8_t)(value >> 16);
+    buf[3] = (uint8_t)(value >> 24);
+}
+
+static uint16_t cop_get_u16le(const uint8_t *buf) {
+    return (uint16_t)buf[0] | ((uint16_t)buf[1] << 8);
+}
+
+static uint32_t cop_get_u32le(const uint8_t *buf) {
+    return (uint32_t)buf[0] |
+           ((uint32_t)buf[1] << 8) |
+           ((uint32_t)buf[2] << 16) |
+           ((uint32_t)buf[3] << 24);
+}
+
+static void cop_put_u64le(uint8_t *buf, uint64_t value) {
+    cop_put_u32le(buf, (uint32_t)value);
+    cop_put_u32le(buf + 4, (uint32_t)(value >> 32));
+}
+
+static uint64_t cop_get_u64le(const uint8_t *buf) {
+    return (uint64_t)cop_get_u32le(buf) |
+           ((uint64_t)cop_get_u32le(buf + 4) << 32);
+}
+
 uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_size) {
     if (buf_size < 1) return 0;
     buf[0] = val->tag;
@@ -36,14 +69,16 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
     case TAG_INT: {
         if (pos + 8 > buf_size) return 0;
         int64_t v = val->as.i64;
-        memcpy(buf + pos, &v, 8);
+        cop_put_u64le(buf + pos, (uint64_t)v);
         pos += 8;
         break;
     }
     case TAG_FLOAT: {
         if (pos + 8 > buf_size) return 0;
         double v = val->as.f64;
-        memcpy(buf + pos, &v, 8);
+        uint64_t bits;
+        memcpy(&bits, &v, sizeof(bits));
+        cop_put_u64le(buf + pos, bits);
         pos += 8;
         break;
     }
@@ -60,7 +95,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
             len = val->as.string->length;
         }
         if (pos + 4 + len > buf_size) return 0;
-        memcpy(buf + pos, &len, 4);
+        cop_put_u32le(buf + pos, len);
         pos += 4;
         if (len > 0) {
             memcpy(buf + pos, s, len);
@@ -71,7 +106,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
     case TAG_OPAQUE: {
         if (pos + 8 > buf_size) return 0;
         int64_t v = val->as.i64;
-        memcpy(buf + pos, &v, 8);
+        cop_put_u64le(buf + pos, (uint64_t)v);
         pos += 8;
         break;
     }
@@ -81,7 +116,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
         uint8_t etype = arr ? arr->elem_type : 0;
         if (pos + 5 > buf_size) return 0;
         buf[pos++] = etype;
-        memcpy(buf + pos, &count, 4);
+        cop_put_u32le(buf + pos, count);
         pos += 4;
         for (uint32_t i = 0; i < count; i++) {
             uint32_t n = cop_serialize_value(&arr->elements[i],
@@ -109,16 +144,16 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     switch (tag) {
     case TAG_INT: {
         if (pos + 8 > buf_size) return 0;
-        int64_t v;
-        memcpy(&v, buf + pos, 8);
+        int64_t v = (int64_t)cop_get_u64le(buf + pos);
         pos += 8;
         *out = val_int(v);
         break;
     }
     case TAG_FLOAT: {
         if (pos + 8 > buf_size) return 0;
+        uint64_t bits = cop_get_u64le(buf + pos);
         double v;
-        memcpy(&v, buf + pos, 8);
+        memcpy(&v, &bits, sizeof(v));
         pos += 8;
         *out = val_float(v);
         break;
@@ -131,8 +166,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     }
     case TAG_STRING: {
         if (pos + 4 > buf_size) return 0;
-        uint32_t len;
-        memcpy(&len, buf + pos, 4);
+        uint32_t len = cop_get_u32le(buf + pos);
         pos += 4;
         /* Subtraction form: pos + len can overflow uint32 and slip past a
          * naive check, letting vm_string_new read out of bounds. */
@@ -144,8 +178,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     }
     case TAG_OPAQUE: {
         if (pos + 8 > buf_size) return 0;
-        int64_t v;
-        memcpy(&v, buf + pos, 8);
+        int64_t v = (int64_t)cop_get_u64le(buf + pos);
         pos += 8;
         NanoValue ov = {0};
         ov.tag = TAG_OPAQUE;
@@ -156,8 +189,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
     case TAG_ARRAY: {
         if (pos + 5 > buf_size) return 0;
         uint8_t etype = buf[pos++];
-        uint32_t count;
-        memcpy(&count, buf + pos, 4);
+        uint32_t count = cop_get_u32le(buf + pos);
         pos += 4;
         /* Each element is at least 1 byte (its tag), so a legitimate array
          * cannot claim more elements than the remaining buffer. Reject before
@@ -236,12 +268,13 @@ static bool read_all(int fd, void *buf, size_t len) {
 }
 
 bool cop_send(int fd, CopMsgType type, const void *payload, uint32_t payload_len) {
-    CopMsgHeader hdr = {0};
-    hdr.version = COP_PROTO_VERSION;
-    hdr.msg_type = (uint8_t)type;
-    hdr.payload_len = payload_len;
+    uint8_t header[COP_HEADER_SIZE] = {0};
+    header[0] = COP_PROTO_VERSION;
+    header[1] = (uint8_t)type;
+    cop_put_u16le(header + 2, 0);
+    cop_put_u32le(header + 4, payload_len);
 
-    if (!write_all(fd, &hdr, COP_HEADER_SIZE)) return false;
+    if (!write_all(fd, header, sizeof(header))) return false;
     if (payload_len > 0 && payload) {
         if (!write_all(fd, payload, payload_len)) return false;
     }
@@ -249,8 +282,13 @@ bool cop_send(int fd, CopMsgType type, const void *payload, uint32_t payload_len
 }
 
 bool cop_recv_header(int fd, CopMsgHeader *hdr) {
-    if (!read_all(fd, hdr, COP_HEADER_SIZE)) return false;
-    if (hdr->version != COP_PROTO_VERSION) return false;
+    uint8_t header[COP_HEADER_SIZE];
+    if (!read_all(fd, header, sizeof(header))) return false;
+    hdr->version = header[0];
+    hdr->msg_type = header[1];
+    hdr->reserved = cop_get_u16le(header + 2);
+    hdr->payload_len = cop_get_u32le(header + 4);
+    if (hdr->version != COP_PROTO_VERSION || hdr->reserved != 0) return false;
     if (hdr->payload_len > COP_MAX_PAYLOAD) return false;
     return true;
 }

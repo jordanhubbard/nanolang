@@ -356,6 +356,34 @@ static void test_predecode_trap_resume_offset(void) {
     nvm_module_free(mod);
 }
 
+static void test_dispatch_cursor_representation(void) {
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)5);
+    off += emit(code + off, OP_SUB);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    VmDecodedFunction *function = &vm.decoded_module.functions[0];
+    ASSERT_EQ_INT(function->instruction_count, 4,
+                  "dispatch representation counts decoded instructions");
+    for (uint32_t i = 0; i < function->instruction_count; i++) {
+        uint32_t byte_offset = function->instructions[i].byte_offset;
+        ASSERT_EQ_INT(function->instruction_indices[byte_offset], i + 1,
+                      "dispatch representation maps boundary to index");
+        ASSERT(vm_decoded_function_at(function, byte_offset)
+                   == &function->instructions[i],
+               "byte lookup and dispatch index select the same instruction");
+    }
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, NULL), VM_OK,
+                  "cursor dispatch preserves decoded execution semantics");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_result_signature_enforcement(void) {
     uint8_t code[32];
     uint32_t off = 0;
@@ -3378,6 +3406,7 @@ int main(void) {
     RUN_TEST(test_predecode_malformed_bytecode);
     RUN_TEST(test_predecode_invalid_branch_target);
     RUN_TEST(test_predecode_invalidate_rebuild);
+    RUN_TEST(test_dispatch_cursor_representation);
 
     printf("\n[Float/mixed arithmetic]\n");
     RUN_TEST(test_add_float_int);

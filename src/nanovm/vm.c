@@ -185,6 +185,18 @@ static VmDecodedModule *decoded_module_for(VmState *vm, const NvmModule *module,
     return NULL;
 }
 
+/* The byte IP remains the observable execution position. The cursor is the
+ * private dispatch representation layered over the decoded instruction array. */
+static bool dispatch_index_for_ip(const VmDecodedFunction *function,
+                                  uint32_t ip, uint32_t *index) {
+    if (!function || !index || ip >= function->code_size
+            || !function->instruction_indices) return false;
+    uint32_t encoded = function->instruction_indices[ip];
+    if (encoded == 0 || encoded > function->instruction_count) return false;
+    *index = encoded - 1;
+    return true;
+}
+
 void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     if (!vm || !module) return;
     bool *valid = NULL;
@@ -476,12 +488,15 @@ VmTrap vm_core_execute(VmState *vm) {
         const VmDecodedFunction *decoded_function =
             &decoded_module->functions[vm->current_fn];
         uint32_t function_offset = vm->ip - cur_fn->code_offset;
-        const VmDecodedInstruction *decoded =
-            vm_decoded_function_at(decoded_function, function_offset);
-        if (!decoded) {
+        if (frame->dispatch_index >= decoded_function->instruction_count
+                || decoded_function->instructions[frame->dispatch_index].byte_offset
+                    != function_offset) {
             return trap_error(vm, VM_ERR_DECODE,
                               "No decoded instruction at offset %u", vm->ip);
         }
+        const VmDecodedInstruction *decoded =
+            &decoded_function->instructions[frame->dispatch_index];
+        frame->dispatch_index++;
         DecodedInstruction instr = decoded->instruction;
         uint32_t instr_start = vm->ip;
         uint32_t stack_before = vm->stack_size;
@@ -1392,6 +1407,10 @@ dynamic_div:
                 vm->profile.branches_taken++;
             }
             vm->ip = decoded->resolved_target;
+            if (!dispatch_index_for_ip(decoded_function,
+                                       vm->ip - cur_fn->code_offset,
+                                       &frame->dispatch_index))
+                return trap_error(vm, VM_ERR_DECODE, "Invalid branch target at offset %u", vm->ip);
             break;
         }
 
@@ -1404,6 +1423,10 @@ dynamic_div:
             }
             if (taken) {
                 vm->ip = decoded->resolved_target;
+                if (!dispatch_index_for_ip(decoded_function,
+                                           vm->ip - cur_fn->code_offset,
+                                           &frame->dispatch_index))
+                    return trap_error(vm, VM_ERR_DECODE, "Invalid branch target at offset %u", vm->ip);
             }
             vm_release(&vm->heap, cond);
             break;
@@ -1418,6 +1441,10 @@ dynamic_div:
             }
             if (taken) {
                 vm->ip = decoded->resolved_target;
+                if (!dispatch_index_for_ip(decoded_function,
+                                           vm->ip - cur_fn->code_offset,
+                                           &frame->dispatch_index))
+                    return trap_error(vm, VM_ERR_DECODE, "Invalid branch target at offset %u", vm->ip);
             }
             vm_release(&vm->heap, cond);
             break;
@@ -1452,6 +1479,7 @@ dynamic_div:
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
+            new_frame->dispatch_index = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
@@ -1511,6 +1539,7 @@ dynamic_div:
             frame->closure = NULL;
             frame->current_line = 0;
             frame->current_col = 0;
+            frame->dispatch_index = 0;
             vm->current_fn = callee_idx;
             vm->ip = callee->code_offset;
             cur_fn = callee;
@@ -1555,6 +1584,7 @@ dynamic_div:
                 VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
                 new_frame->fn_idx = callee_idx;
                 new_frame->return_ip = vm->ip;
+                new_frame->dispatch_index = 0;
                 new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
                 new_frame->closure = closure;
@@ -1621,6 +1651,18 @@ dynamic_div:
             const NvmFunctionEntry *caller_fn = &vm->module->functions[frame->fn_idx];
             cur_fn = caller_fn;
             code_end = caller_fn->code_offset + caller_fn->code_length;
+            bool *caller_decoded_valid = NULL;
+            VmDecodedModule *caller_decoded_module = decoded_module_for(
+                vm, vm->module, &caller_decoded_valid);
+            if (!caller_decoded_module || !caller_decoded_valid
+                    || !*caller_decoded_valid
+                    || frame->fn_idx >= caller_decoded_module->function_count
+                    || !dispatch_index_for_ip(
+                        &caller_decoded_module->functions[frame->fn_idx],
+                        ret_ip - caller_fn->code_offset,
+                        &frame->dispatch_index))
+                return trap_error(vm, VM_ERR_DECODE,
+                                  "No decoded return instruction at offset %u", ret_ip);
 
             for (uint8_t i = 0; i < returning->result_count; i++)
                 stack_push(vm, results[i]);
@@ -1691,6 +1733,7 @@ dynamic_div:
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = fn_idx_m;
             new_frame->return_ip = vm->ip;
+            new_frame->dispatch_index = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
@@ -2662,6 +2705,7 @@ dynamic_div:
             VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
             new_frame->fn_idx = callee_idx;
             new_frame->return_ip = vm->ip;
+            new_frame->dispatch_index = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = closure;
@@ -2969,6 +3013,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     VmCallFrame *frame = &vm->frames[vm->frame_count++];
     frame->fn_idx = fn_idx;
     frame->return_ip = vm->ip;
+    frame->dispatch_index = 0;
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
     frame->closure = NULL;

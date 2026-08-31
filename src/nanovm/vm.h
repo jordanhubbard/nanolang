@@ -60,6 +60,7 @@ typedef struct {
 typedef struct {
     uint32_t fn_idx;          /* Function table index */
     uint32_t return_ip;       /* Instruction pointer to return to */
+    uint32_t dispatch_index;  /* Private cursor into the decoded function */
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
     uint16_t local_count;     /* Number of locals (including params) */
     VmClosure *closure;       /* Non-NULL if this is a closure call */

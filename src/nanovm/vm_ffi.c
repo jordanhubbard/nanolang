@@ -695,9 +695,13 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
 
     uint8_t payload[8192];
     uint32_t pos = 0;
-    memcpy(payload + pos, &import_idx, 4); pos += 4;
+    payload[pos++] = (uint8_t)import_idx;
+    payload[pos++] = (uint8_t)(import_idx >> 8);
+    payload[pos++] = (uint8_t)(import_idx >> 16);
+    payload[pos++] = (uint8_t)(import_idx >> 24);
     uint16_t argc = (uint16_t)arg_count;
-    memcpy(payload + pos, &argc, 2); pos += 2;
+    payload[pos++] = (uint8_t)argc;
+    payload[pos++] = (uint8_t)(argc >> 8);
     for (int i = 0; i < arg_count && i < 16; i++) {
         uint32_t n = cop_serialize_value(&args[i], payload + pos,
                                          sizeof(payload) - pos);
