@@ -35,6 +35,12 @@ class NanoisaSchemaTests(unittest.TestCase):
                 self.assertIn("pushes", instruction)
                 self.assertIn("ownership", instruction)
 
+    def test_fixed_legacy_stack_effects_are_paired(self):
+        for instruction in self.schema["legacy_opcodes"]:
+            self.assertEqual("pops" in instruction, "pushes" in instruction)
+        add = next(op for op in self.schema["legacy_opcodes"] if op["name"] == "ADD")
+        self.assertEqual((add["pops"], add["pushes"]), (2, 1))
+
 
 if __name__ == "__main__":
     unittest.main()

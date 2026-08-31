@@ -282,6 +282,8 @@ typedef struct {
     uint8_t opcode;            /* Opcode byte */
     uint8_t operand_count;     /* Number of operands (0-4) */
     OperandType operands[MAX_OPERANDS]; /* Operand types */
+    int8_t pop_count;          /* Fixed stack effect, or -1 if operand-dependent */
+    int8_t push_count;
 } InstructionInfo;
 
 typedef struct {
@@ -294,6 +296,8 @@ typedef struct {
     uint8_t opcode;
     uint8_t operand_count;
     OperandType operands[MAX_OPERANDS];
+    int8_t pop_count;
+    int8_t push_count;
 } NanoisaSchemaOpcode;
 
 typedef struct {

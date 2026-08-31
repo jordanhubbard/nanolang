@@ -54,6 +54,8 @@ static void init_instruction_table(void) {
         target->opcode = source->opcode;
         target->operand_count = source->operand_count;
         memcpy(target->operands, source->operands, sizeof(target->operands));
+        target->pop_count = source->pop_count;
+        target->push_count = source->push_count;
     }
     instruction_table_ready = true;
 }

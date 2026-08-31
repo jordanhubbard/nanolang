@@ -26,42 +26,42 @@ value_tags:
 # v1 remains executable while v2 families are introduced. This inventory is
 # generated into the active C metadata and prevents enum/table drift now.
 legacy_opcodes:
-  - {name: NOP, code: 0x00, operands: []}
-  - {name: PUSH_I64, code: 0x01, operands: [I64]}
-  - {name: PUSH_F64, code: 0x02, operands: [F64]}
-  - {name: PUSH_BOOL, code: 0x03, operands: [U8]}
-  - {name: PUSH_STR, code: 0x04, operands: [U32]}
-  - {name: PUSH_VOID, code: 0x05, operands: []}
-  - {name: PUSH_U8, code: 0x06, operands: [U8]}
-  - {name: DUP, code: 0x07, operands: []}
-  - {name: POP, code: 0x08, operands: []}
-  - {name: SWAP, code: 0x09, operands: []}
-  - {name: ROT3, code: 0x0a, operands: []}
-  - {name: LOAD_LOCAL, code: 0x10, operands: [U16]}
-  - {name: STORE_LOCAL, code: 0x11, operands: [U16]}
+  - {name: NOP, code: 0x00, operands: [], pops: 0, pushes: 0}
+  - {name: PUSH_I64, code: 0x01, operands: [I64], pops: 0, pushes: 1}
+  - {name: PUSH_F64, code: 0x02, operands: [F64], pops: 0, pushes: 1}
+  - {name: PUSH_BOOL, code: 0x03, operands: [U8], pops: 0, pushes: 1}
+  - {name: PUSH_STR, code: 0x04, operands: [U32], pops: 0, pushes: 1}
+  - {name: PUSH_VOID, code: 0x05, operands: [], pops: 0, pushes: 1}
+  - {name: PUSH_U8, code: 0x06, operands: [U8], pops: 0, pushes: 1}
+  - {name: DUP, code: 0x07, operands: [], pops: 1, pushes: 2}
+  - {name: POP, code: 0x08, operands: [], pops: 1, pushes: 0}
+  - {name: SWAP, code: 0x09, operands: [], pops: 2, pushes: 2}
+  - {name: ROT3, code: 0x0a, operands: [], pops: 3, pushes: 3}
+  - {name: LOAD_LOCAL, code: 0x10, operands: [U16], pops: 0, pushes: 1}
+  - {name: STORE_LOCAL, code: 0x11, operands: [U16], pops: 1, pushes: 0}
   - {name: LOAD_GLOBAL, code: 0x12, operands: [U32]}
   - {name: STORE_GLOBAL, code: 0x13, operands: [U32]}
   - {name: LOAD_UPVALUE, code: 0x14, operands: [U16, U16]}
   - {name: STORE_UPVALUE, code: 0x15, operands: [U16, U16]}
-  - {name: ADD, code: 0x20, operands: []}
-  - {name: SUB, code: 0x21, operands: []}
-  - {name: MUL, code: 0x22, operands: []}
-  - {name: DIV, code: 0x23, operands: []}
-  - {name: MOD, code: 0x24, operands: []}
-  - {name: NEG, code: 0x25, operands: []}
-  - {name: EQ, code: 0x28, operands: []}
-  - {name: NE, code: 0x29, operands: []}
-  - {name: LT, code: 0x2a, operands: []}
-  - {name: LE, code: 0x2b, operands: []}
-  - {name: GT, code: 0x2c, operands: []}
-  - {name: GE, code: 0x2d, operands: []}
-  - {name: AND, code: 0x30, operands: []}
-  - {name: OR, code: 0x31, operands: []}
-  - {name: NOT, code: 0x32, operands: []}
+  - {name: ADD, code: 0x20, operands: [], pops: 2, pushes: 1}
+  - {name: SUB, code: 0x21, operands: [], pops: 2, pushes: 1}
+  - {name: MUL, code: 0x22, operands: [], pops: 2, pushes: 1}
+  - {name: DIV, code: 0x23, operands: [], pops: 2, pushes: 1}
+  - {name: MOD, code: 0x24, operands: [], pops: 2, pushes: 1}
+  - {name: NEG, code: 0x25, operands: [], pops: 1, pushes: 1}
+  - {name: EQ, code: 0x28, operands: [], pops: 2, pushes: 1}
+  - {name: NE, code: 0x29, operands: [], pops: 2, pushes: 1}
+  - {name: LT, code: 0x2a, operands: [], pops: 2, pushes: 1}
+  - {name: LE, code: 0x2b, operands: [], pops: 2, pushes: 1}
+  - {name: GT, code: 0x2c, operands: [], pops: 2, pushes: 1}
+  - {name: GE, code: 0x2d, operands: [], pops: 2, pushes: 1}
+  - {name: AND, code: 0x30, operands: [], pops: 2, pushes: 1}
+  - {name: OR, code: 0x31, operands: [], pops: 2, pushes: 1}
+  - {name: NOT, code: 0x32, operands: [], pops: 1, pushes: 1}
   - {name: TAIL_CALL, code: 0x33, operands: [U32]}
-  - {name: JMP, code: 0x38, operands: [I32]}
-  - {name: JMP_TRUE, code: 0x39, operands: [I32]}
-  - {name: JMP_FALSE, code: 0x3a, operands: [I32]}
+  - {name: JMP, code: 0x38, operands: [I32], pops: 0, pushes: 0}
+  - {name: JMP_TRUE, code: 0x39, operands: [I32], pops: 1, pushes: 0}
+  - {name: JMP_FALSE, code: 0x3a, operands: [I32], pops: 1, pushes: 0}
   - {name: CALL, code: 0x3b, operands: [U32]}
   - {name: CALL_INDIRECT, code: 0x3c, operands: []}
   - {name: RET, code: 0x3d, operands: []}
@@ -98,7 +98,7 @@ legacy_opcodes:
   - {name: UNION_CONSTRUCT, code: 0x68, operands: [U32, U16, U16]}
   - {name: UNION_TAG, code: 0x69, operands: []}
   - {name: UNION_FIELD, code: 0x6a, operands: [U16]}
-  - {name: MATCH_TAG, code: 0x6b, operands: [U16, I32]}
+  - {name: MATCH_TAG, code: 0x6b, operands: [U16, I32], pops: 0, pushes: 0}
   - {name: ENUM_VAL, code: 0x6c, operands: [U32, U16]}
   - {name: TUPLE_NEW, code: 0x70, operands: [U16]}
   - {name: TUPLE_GET, code: 0x71, operands: [U16]}

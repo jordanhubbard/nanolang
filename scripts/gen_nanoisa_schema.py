@@ -43,7 +43,8 @@ def generate(schema: dict) -> str:
         rendered = ", ".join(f"OPERAND_{operand}" for operand in padded)
         lines.append(
             f'    {{"{opcode["name"]}", 0x{opcode["code"]:02x}, '
-            f'{len(operands)}, {{{rendered}}}}},'
+            f'{len(operands)}, {{{rendered}}}, '
+            f'{opcode.get("pops", -1)}, {opcode.get("pushes", -1)}}},'
         )
     lines.extend(["};", "", "static const NanoisaV2Family nanoisa_v2_families[] = {"])
     for item in families:
