@@ -62,5 +62,6 @@ need_grep docs/PERFORMANCE_MONITORING.md 'excl_pct \* 10|exclusive percent times
 need_grep docs/PERFORMANCE_MONITORING.md 'Command Line Tools'
 need_grep docs/PERFORMANCE_MONITORING.md 'libgp-collector'
 need_grep docs/PERFORMANCE_MONITORING.md 'not a PGO input'
+need_grep docs/PERFORMANCE_MONITORING.md 'NANO_PROFILE'
 
 echo "performance monitoring docs assertions passed"

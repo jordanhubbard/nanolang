@@ -2269,7 +2269,17 @@ void generate_instrumented_profiling_system(StringBuilder *sb) {
     sb_append(sb, "} _NlProfEntry;\n\n");
     sb_append(sb, "static _NlProfEntry _nl_prof_table[_NL_PROF_MAX_FUNCS];\n");
     sb_append(sb, "static int _nl_prof_count = 0;\n\n");
+    sb_append(sb, "/* Read once per process; hot hooks never query the environment. */\n");
+    sb_append(sb, "static int _nl_diag_profile_enabled = -1;\n");
+    sb_append(sb, "static int _nl_diag_profile_is_enabled(void) {\n");
+    sb_append(sb, "    if (_nl_diag_profile_enabled < 0) {\n");
+    sb_append(sb, "        const char *value = getenv(\"NANO_PROFILE\");\n");
+    sb_append(sb, "        _nl_diag_profile_enabled = !value || (value[0] && strcmp(value, \"0\") != 0);\n");
+    sb_append(sb, "    }\n");
+    sb_append(sb, "    return _nl_diag_profile_enabled;\n");
+    sb_append(sb, "}\n\n");
     sb_append(sb, "static _NlProfEntry *_nl_prof_get_entry(const char *name) {\n");
+    sb_append(sb, "    if (!_nl_diag_profile_is_enabled()) return (void*)0;\n");
     sb_append(sb, "    for (int i = 0; i < _nl_prof_count; i++) {\n");
     sb_append(sb, "        if (strcmp(_nl_prof_table[i].name, name) == 0) return &_nl_prof_table[i];\n");
     sb_append(sb, "    }\n");
@@ -2289,6 +2299,7 @@ void generate_instrumented_profiling_system(StringBuilder *sb) {
     sb_append(sb, "    return 0;\n");
     sb_append(sb, "}\n\n");
     sb_append(sb, "static void _nl_prof_report(void) {\n");
+    sb_append(sb, "    if (!_nl_diag_profile_is_enabled()) return;\n");
     sb_append(sb, "    if (_nl_prof_count == 0) return;\n");
     sb_append(sb, "    qsort(_nl_prof_table, (size_t)_nl_prof_count, sizeof(_NlProfEntry), _nl_prof_cmp);\n");
     sb_append(sb, "    fprintf(stderr, \"\\n\");\n");
@@ -2498,4 +2509,3 @@ void generate_coroutine_builtins(StringBuilder *sb) {
         "/* ========== End Coroutine Runtime Builtins ========== */\n\n"
     );
 }
-

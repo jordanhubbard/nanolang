@@ -3142,7 +3142,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_formatted(list,
                     "    __attribute__((cleanup(_nl_prof_guard_exit))) _NlProfGuard _nl_prof_g ="
                     " {_nl_prof_get_entry(\"%s\"), {0, 0}};\n"
-                    "    clock_gettime(CLOCK_MONOTONIC, &_nl_prof_g.start);\n",
+                    "    if (_nl_prof_g.entry) clock_gettime(CLOCK_MONOTONIC, &_nl_prof_g.start);\n",
                     g_profile_func_name);
                 g_profile_mode = false;  /* consumed -- don't inject into nested blocks */
                 g_profile_mode = false;  /* consumed â don't inject into nested blocks */

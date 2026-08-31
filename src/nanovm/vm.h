@@ -157,6 +157,9 @@ typedef struct VmState {
      * Enabled via --debug flag or DEBUG env var. */
     bool debug_mode;
 
+    /* Optional per-instruction diagnostics. Configured once in vm_init(). */
+    bool opcode_trace;
+
     /* Optional low-overhead instruction and control-flow counters. */
     VmProfile profile;
 } VmState;

@@ -482,8 +482,8 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
 
     /* Add to codegen extern table */
     ExternFn *ef = &cg->externs[cg->extern_count];
-    ef->name = (char *)name;
-    ef->module_name = (char *)module_name;
+    ef->name = strdup(name);
+    ef->module_name = strdup(module_name);
     ef->import_idx = imp_idx;
     ef->param_count = param_count;
     ef->return_tag = return_tag;
@@ -1118,6 +1118,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         compile_expr(cg, args[1]);
         compile_expr(cg, args[2]);
         emit_op(cg, OP_HM_SET);
+        emit_op(cg, OP_POP); /* hashmap_set is declared void */
         return true;
     }
     if (strcmp(name, "hashmap_has") == 0 && argc == 2) {
@@ -1211,6 +1212,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         compile_expr(cg, args[1]);
         compile_expr(cg, args[2]);
         emit_op(cg, OP_HM_SET);
+        emit_op(cg, OP_POP); /* map_put/map_set are declared void */
         return true;
     }
     if (strcmp(name, "map_has") == 0 && argc == 2) {
@@ -1338,6 +1340,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
                 compile_expr(cg, args[0]);
                 compile_expr(cg, args[1]);
                 emit_op(cg, OP_ARR_PUSH);
+                emit_op(cg, OP_POP); /* list_T_push is declared void */
                 return true;
             }
             if (strcmp(suffix, "_get") == 0 && argc == 2) {

@@ -13,6 +13,12 @@
 #include <stdarg.h>
 #include <time.h>
 
+#ifdef NANO_VM_TRACE_COMPILED
+#define NANO_VM_TRACE_BUILD 1
+#else
+#define NANO_VM_TRACE_BUILD 0
+#endif
+
 /* ========================================================================
  * Error Handling
  * ======================================================================== */
@@ -67,6 +73,9 @@ void vm_init(VmState *vm, const NvmModule *module) {
     /* Read per-call timeout from env (default 5 s); -1 = unlimited */
     const char *tenv = getenv("COP_TIMEOUT_MS");
     vm->cop_timeout_ms = tenv ? atoi(tenv) : 5000;
+    const char *trace_env = getenv("NANO_VM_TRACE");
+    vm->opcode_trace = NANO_VM_TRACE_BUILD
+        || (trace_env && trace_env[0] != '\0' && strcmp(trace_env, "0") != 0);
     vm_heap_init(&vm->heap);
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (vm_decode_module(module, &vm->decoded_module, decode_error)) {
@@ -357,6 +366,44 @@ static inline FILE *vm_out(VmState *vm) {
     return vm->output ? vm->output : stdout;
 }
 
+static void vm_trace_value(const char *label, NanoValue value) {
+    const char *tag = isa_tag_name(value.tag);
+    if (value.tag == TAG_STRING && value.as.string) {
+        fprintf(stderr, " %s={tag=%s ptr=%p len=%u text=\"%s\"}",
+                label, tag ? tag : "?", (void *)value.as.string,
+                value.as.string->length, vmstring_cstr(value.as.string));
+    } else {
+        fprintf(stderr, " %s={tag=%s raw=%lld ptr=%p}", label,
+                tag ? tag : "?", (long long)value.as.i64, value.as.obj);
+    }
+}
+
+static void vm_trace_instruction(const VmState *vm, uint32_t offset,
+                                 const DecodedInstruction *instr,
+                                 uint32_t stack_before) {
+    const NvmFunctionEntry *fn = &vm->module->functions[vm->current_fn];
+    const char *name = nvm_get_string(vm->module, fn->name_idx);
+    const InstructionInfo *info = isa_get_info(instr->opcode);
+    fprintf(stderr, "[nanovm] fn=%u(%s) off=%u op=%s stack=%u",
+            vm->current_fn, name ? name : "?", offset,
+            info && info->name ? info->name : "UNKNOWN", stack_before);
+    for (uint32_t i = 0; i < stack_before && i < 4; i++) {
+        vm_trace_value("top", vm->stack[stack_before - 1 - i]);
+    }
+    fputc('\n', stderr);
+}
+
+static void vm_trace_ffi_result(const VmState *vm, uint32_t import_idx,
+                                NanoValue result) {
+    if (import_idx >= vm->module->import_count) return;
+    const NvmImportEntry *imp = &vm->module->imports[import_idx];
+    const char *name = nvm_get_string(vm->module, imp->function_name_idx);
+    fprintf(stderr, "[nanovm] ffi import=%u name=%s return=%s",
+            import_idx, name ? name : "?", isa_tag_name(result.tag));
+    vm_trace_value("result", result);
+    fputc('\n', stderr);
+}
+
 static bool result_tag_matches(uint8_t declared, uint8_t actual) {
     /* TAG_VOID with results is reserved for untyped in-memory embedders. */
     if (declared == TAG_VOID) return true;
@@ -437,8 +484,11 @@ VmTrap vm_core_execute(VmState *vm) {
         }
         DecodedInstruction instr = decoded->instruction;
         uint32_t instr_start = vm->ip;
+        uint32_t stack_before = vm->stack_size;
         vm->ip = cur_fn->code_offset + decoded->next_byte_offset;
         profile_instruction(vm, instr.opcode);
+        if (vm->opcode_trace)
+            vm_trace_instruction(vm, instr_start, &instr, stack_before);
 
         switch (instr.opcode) {
 
@@ -2996,8 +3046,14 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
                                 "FFI call failed: %s", ext_err);
             }
-            /* Push result back onto the VM stack for the core to consume */
-            stack_push(vm, ext_result);
+            /* Void imports have no stack result. Non-void imports return one
+             * value for the suspended instruction to consume. */
+            if (vm->module->imports[trap.data.extern_call.import_idx].return_type
+                    != TAG_VOID) {
+                stack_push(vm, ext_result);
+            }
+            if (vm->opcode_trace)
+                vm_trace_ffi_result(vm, trap.data.extern_call.import_idx, ext_result);
             break;
         }
 
