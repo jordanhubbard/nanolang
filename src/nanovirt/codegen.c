@@ -1118,6 +1118,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         compile_expr(cg, args[1]);
         compile_expr(cg, args[2]);
         emit_op(cg, OP_HM_SET);
+        emit_op(cg, OP_POP); /* hashmap_set is declared void */
         return true;
     }
     if (strcmp(name, "hashmap_has") == 0 && argc == 2) {
@@ -1211,6 +1212,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         compile_expr(cg, args[1]);
         compile_expr(cg, args[2]);
         emit_op(cg, OP_HM_SET);
+        emit_op(cg, OP_POP); /* map_put/map_set are declared void */
         return true;
     }
     if (strcmp(name, "map_has") == 0 && argc == 2) {

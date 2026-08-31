@@ -9,6 +9,10 @@ execution; this document records product direction and order.
 
 ## Active Execution Queue
 
+- [ ] I will make the 3.5 benchmark workloads execute successfully on NanoVM,
+  then record repeatable profiles for NanoLang execution, allocation, direct and
+  indirect calls, FFI, and the current Forth interpreter.
+
 ## Release Map
 
 I use releases as integration boundaries, not date promises. A release closes

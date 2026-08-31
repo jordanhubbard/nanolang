@@ -2996,8 +2996,12 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
                                 "FFI call failed: %s", ext_err);
             }
-            /* Push result back onto the VM stack for the core to consume */
-            stack_push(vm, ext_result);
+            /* Void imports have no stack result. Non-void imports return one
+             * value for the suspended instruction to consume. */
+            if (vm->module->imports[trap.data.extern_call.import_idx].return_type
+                    != TAG_VOID) {
+                stack_push(vm, ext_result);
+            }
             break;
         }
 
