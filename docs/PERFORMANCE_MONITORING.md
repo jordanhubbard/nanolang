@@ -19,12 +19,21 @@ Characteristics of generated C (allocation, loops) live in [PERFORMANCE.md](PERF
 | Flag | What I do | Output | Use it for |
 | --- | --- | --- | --- |
 | `-pg` plus optional `--profile-output <path>` | Wrap native `main` with `_nl_run_with_profiling`. Compile the C with `-pg -g -fno-omit-frame-pointer -fno-optimize-sibling-calls`. | JSON (`profile_type` is always `"sampling"`) on **stdout**, and the same JSON body in `<path>` when `--profile-output` is set | Agent-readable hotspots from the OS sampler |
-| `--profile` | Instrument generated C with timing hooks | Text table on **stderr** at exit | Call counts and time in the native backend |
+| `--profile` | Instrument generated C with timing hooks | Text table on **stderr** at exit; `NANO_PROFILE=0` disables collection without rebuilding | Call counts and time in the native backend |
 | `--profile-runtime` / `--profile-runtime-output <p>` | Implies `--profile`. Native backend only | Collapsed stacks in `.nano.prof` (default `<binary>.nano.prof`) | Flame graphs; this file is what `--pgo` reads |
 | `--pgo <file>` | Profile-guided **inlining** from a `.nano.prof` | A faster native binary if the profile matches the call sites | Not driven by `-pg` JSON |
 
 `--profile-runtime` is rejected on non-native backends. I emit that error in
 `src/main.c`; I do not silently drop the flag.
+
+## Runtime Toggle for Generated-C Profiling
+
+I read `NANO_PROFILE` once when a generated executable starts. A binary built
+with `--profile` collects timing data by default. Set `NANO_PROFILE=0` to
+disable the timing and flamegraph hooks without recompiling; set
+`NANO_PROFILE=1` to enable them explicitly. The generated function hook checks
+only its cached boolean, so disabled profiling does not perform environment
+lookups or timing calls.
 
 `-pg` JSON is not a PGO input. `--pgo` reads `.nano.prof`.
 

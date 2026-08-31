@@ -54,3 +54,8 @@ Generated-C timing instrumentation is controlled once at process startup by
 `NANO_PROFILE=1` to collect timing data or `NANO_PROFILE=0` to turn the hooks
 off without rebuilding. The generated hook checks only its cached boolean on
 the hot path.
+
+The generated-C toggle is separate from `NANO_VM_TRACE`. `NANO_PROFILE` only
+controls timing and flamegraph data emitted by a `--profile` build; it does not
+turn on opcode tracing in NanoVM. Run both variables when a failure crosses the
+compiler and VM boundary.

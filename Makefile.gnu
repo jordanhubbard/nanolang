@@ -1004,6 +1004,11 @@ test-performance-monitoring-docs:
 	@chmod +x tests/test_performance_monitoring_docs.sh
 	@bash tests/test_performance_monitoring_docs.sh
 
+.PHONY: test-dynamic-profile
+test-dynamic-profile: $(INTERPRETER) $(COMPILER)
+	@chmod +x tests/test_dynamic_profile.sh
+	@bash tests/test_dynamic_profile.sh
+
 # Export user guide snippets into tests/user_guide
 userguide-export: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide

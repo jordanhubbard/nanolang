@@ -482,8 +482,8 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
 
     /* Add to codegen extern table */
     ExternFn *ef = &cg->externs[cg->extern_count];
-    ef->name = (char *)name;
-    ef->module_name = (char *)module_name;
+    ef->name = strdup(name);
+    ef->module_name = strdup(module_name);
     ef->import_idx = imp_idx;
     ef->param_count = param_count;
     ef->return_tag = return_tag;
