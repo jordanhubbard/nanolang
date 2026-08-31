@@ -177,7 +177,7 @@ static VmDecodedModule *decoded_module_for(VmState *vm, const NvmModule *module,
 }
 
 void vm_invalidate_module(VmState *vm, const NvmModule *module) {
-    if (!vm || !module || vm->frame_count != 0) return;
+    if (!vm || !module) return;
     bool *valid = NULL;
     VmDecodedModule *decoded = decoded_module_for(vm, module, &valid);
     if (!decoded) return;
@@ -186,7 +186,7 @@ void vm_invalidate_module(VmState *vm, const NvmModule *module) {
 }
 
 bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
-    if (!vm || !module || vm->frame_count != 0) return false;
+    if (!vm || !module) return false;
     bool *valid = NULL;
     VmDecodedModule *slot = decoded_module_for(vm, module, &valid);
     if (!slot) return false;
@@ -202,6 +202,14 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
     vm->last_error = VM_OK;
     vm->error_msg[0] = '\0';
     return true;
+}
+
+void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module) {
+    vm_invalidate_module(vm, module);
+}
+
+VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module) {
+    return vm_rebuild_module(vm, module) ? VM_OK : vm->last_error;
 }
 
 /* ========================================================================
