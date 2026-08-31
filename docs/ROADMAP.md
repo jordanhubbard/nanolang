@@ -151,7 +151,7 @@ Verifier and safety:
 Module format and tools:
 - [ ] I will design a NanoISA v2 module header with format version, ISA version, feature bits, total size, and bounded section directory.
 - [ ] I will serialize required code, constants, signatures, globals, imports, layouts, links, metadata, and optional debug sections.
-- [ ] I will reject duplicate singleton sections, overlaps, partial records, trailing data, and arithmetic overflow.
+- [x] I reject duplicate singleton sections, overlaps, partial fixed-width records, trailing data, interior gaps, and arithmetic overflow in `nvm_deserialize` via a structural section-directory validation pass, covered by `tests/nanoisa/test_nanoisa.c` module-format tests.
 - [ ] I will make symbolic functions, imports, fields, types, constants, and labels first-class assembler operands.
 - [ ] I will make canonical disassembly lossless and byte-length aware.
 - [ ] I will validate complete operand consumption and verify every assembled module.

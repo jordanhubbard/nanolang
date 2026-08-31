@@ -600,6 +600,221 @@ static void test_corrupt_checksum(void) {
     nvm_module_free(mod);
 }
 
+
+/* ========================================================================
+ * Module Format Structural Validation Tests
+ *
+ * These exercise nvm_deserialize's rejection of malformed section directories:
+ * duplicate singleton sections, overlapping sections, partial fixed-width
+ * records, and trailing/uncovered data. Each test builds a raw buffer with a
+ * valid header and CRC so the failure is attributable to the directory alone.
+ * ======================================================================== */
+
+/* Little-endian writers local to the test (mirror the format module). */
+static void t_put_u32(uint8_t *b, uint32_t v) {
+    b[0] = (uint8_t)(v & 0xFF);
+    b[1] = (uint8_t)((v >> 8) & 0xFF);
+    b[2] = (uint8_t)((v >> 16) & 0xFF);
+    b[3] = (uint8_t)((v >> 24) & 0xFF);
+}
+
+/* Write a valid NVM header into buf for the given section count, then compute
+ * and store the CRC32 over everything after the header. buf must be exactly
+ * total_size bytes and already contain the directory + section data. */
+static void t_finalize(uint8_t *buf, uint32_t total_size, uint32_t section_count) {
+    buf[0] = 'N'; buf[1] = 'V'; buf[2] = 'M'; buf[3] = 0x01;
+    t_put_u32(buf + 4,  NVM_FORMAT_VERSION);
+    t_put_u32(buf + 8,  0);              /* flags */
+    t_put_u32(buf + 12, 0);              /* entry_point */
+    t_put_u32(buf + 16, section_count);
+    t_put_u32(buf + 20, 0);              /* string_pool_offset */
+    t_put_u32(buf + 24, 0);              /* string_pool_length */
+    uint32_t crc = nvm_crc32(buf + NVM_HEADER_SIZE, total_size - NVM_HEADER_SIZE);
+    t_put_u32(buf + 28, crc);
+}
+
+/* Baseline: a hand-built single-CODE-section module must deserialize. This
+ * proves the raw-buffer builder produces something valid, so the negative
+ * tests below isolate the malformation they inject. */
+static void test_module_raw_valid_baseline(void) {
+    uint32_t dir = NVM_SECTION_ENTRY_SIZE; /* one section */
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint8_t payload[3] = { OP_HALT, OP_HALT, OP_HALT };
+    uint32_t total = data_start + sizeof(payload);
+    uint8_t *buf = calloc(1, total);
+
+    /* directory entry 0: CODE at data_start, size 3 */
+    t_put_u32(buf + NVM_HEADER_SIZE + 0, NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4, data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8, sizeof(payload));
+    memcpy(buf + data_start, payload, sizeof(payload));
+
+    t_finalize(buf, total, 1);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod != NULL, "Hand-built valid module deserializes");
+    ASSERT_EQ_INT(mod->code_size, 3, "Baseline code size");
+    nvm_module_free(mod);
+    free(buf);
+}
+
+/* Duplicate singleton section: two CODE sections must be rejected. */
+static void test_module_reject_duplicate_singleton(void) {
+    uint32_t dir = 2 * NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 4; /* 2 bytes each */
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0,  NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4,  data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8,  2);
+    t_put_u32(buf + NVM_HEADER_SIZE + 12, NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 16, data_start + 2);
+    t_put_u32(buf + NVM_HEADER_SIZE + 20, 2);
+
+    t_finalize(buf, total, 2);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Duplicate singleton section rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Overlapping sections: two sections whose byte ranges overlap are rejected. */
+static void test_module_reject_overlap(void) {
+    uint32_t dir = 2 * NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 8;
+    uint8_t *buf = calloc(1, total);
+
+    /* CODE covers [data_start, data_start+8); STRINGS overlaps it at +4. */
+    t_put_u32(buf + NVM_HEADER_SIZE + 0,  NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4,  data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8,  8);
+    t_put_u32(buf + NVM_HEADER_SIZE + 12, NVM_SECTION_STRINGS);
+    t_put_u32(buf + NVM_HEADER_SIZE + 16, data_start + 4);
+    t_put_u32(buf + NVM_HEADER_SIZE + 20, 4);
+
+    t_finalize(buf, total, 2);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Overlapping sections rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Partial fixed-width record: a FUNCTIONS section whose size is not a whole
+ * multiple of NVM_FUNCTION_ENTRY_SIZE is rejected. */
+static void test_module_reject_partial_record(void) {
+    uint32_t dir = NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t bad_size = NVM_FUNCTION_ENTRY_SIZE + 3; /* not a multiple */
+    uint32_t total = data_start + bad_size;
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0, NVM_SECTION_FUNCTIONS);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4, data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8, bad_size);
+
+    t_finalize(buf, total, 1);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Partial fixed-width record rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Trailing data: bytes after the last section, not covered by any section,
+ * are rejected. */
+static void test_module_reject_trailing_data(void) {
+    uint32_t dir = NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t sec_size = 2;
+    uint32_t total = data_start + sec_size + 4; /* 4 uncovered trailing bytes */
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0, NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4, data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8, sec_size);
+
+    t_finalize(buf, total, 1);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Trailing uncovered data rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Interior gap: a hole between two sections (uncovered bytes) is rejected. */
+static void test_module_reject_interior_gap(void) {
+    uint32_t dir = 2 * NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 10; /* [0,2) CODE, [2,6) GAP, [6,10) STRINGS */
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0,  NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4,  data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8,  2);
+    t_put_u32(buf + NVM_HEADER_SIZE + 12, NVM_SECTION_STRINGS);
+    t_put_u32(buf + NVM_HEADER_SIZE + 16, data_start + 6);
+    t_put_u32(buf + NVM_HEADER_SIZE + 20, 4);
+
+    t_finalize(buf, total, 2);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Interior gap between sections rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Section overlapping the directory: an offset pointing inside the header or
+ * directory region is rejected. */
+static void test_module_reject_section_into_directory(void) {
+    uint32_t dir = NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 4;
+    uint8_t *buf = calloc(1, total);
+
+    /* Offset points at the header (0), overlapping header + directory. */
+    t_put_u32(buf + NVM_HEADER_SIZE + 0, NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4, 0);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8, total);
+
+    t_finalize(buf, total, 1);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Section overlapping the directory rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* A well-formed multi-section module (contiguous, ordered, distinct types)
+ * built via the serializer still round-trips after hardening. */
+static void test_module_valid_multisection_roundtrip(void) {
+    NvmModule *mod = nvm_module_new();
+    nvm_add_string(mod, "main", 4);
+    NvmFunctionEntry fn = { .name_idx = 0, .arity = 0, .code_offset = 0,
+                            .code_length = 0, .local_count = 0, .upvalue_count = 0,
+                            .result_tag = 0, .result_count = 0 };
+    nvm_add_function(mod, &fn);
+    uint8_t code[] = { OP_HALT };
+    nvm_append_code(mod, code, sizeof(code));
+    nvm_add_debug_entry(mod, 0, 1, 1);
+    uint8_t ptypes[1] = { TAG_INT };
+    uint32_t m = nvm_add_string(mod, "std", 3);
+    uint32_t fnn = nvm_add_string(mod, "print", 5);
+    nvm_add_import(mod, m, fnn, 1, TAG_INT, ptypes);
+
+    uint32_t out_size = 0;
+    uint8_t *data = nvm_serialize(mod, &out_size);
+    ASSERT(data != NULL, "Multi-section serialize");
+    NvmModule *mod2 = nvm_deserialize(data, out_size);
+    ASSERT(mod2 != NULL, "Multi-section (strings+code+functions+debug+imports) round-trips");
+    nvm_module_free(mod2);
+    free(data);
+    nvm_module_free(mod);
+}
+
 /* ========================================================================
  * Assembler Tests
  * ======================================================================== */
@@ -1337,6 +1552,14 @@ int main(void) {
     RUN_TEST(test_strip_debug_info);
     RUN_TEST(test_validate_header);
     RUN_TEST(test_corrupt_checksum);
+    RUN_TEST(test_module_raw_valid_baseline);
+    RUN_TEST(test_module_reject_duplicate_singleton);
+    RUN_TEST(test_module_reject_overlap);
+    RUN_TEST(test_module_reject_partial_record);
+    RUN_TEST(test_module_reject_trailing_data);
+    RUN_TEST(test_module_reject_interior_gap);
+    RUN_TEST(test_module_reject_section_into_directory);
+    RUN_TEST(test_module_valid_multisection_roundtrip);
 
     printf("\n[Assembler]\n");
     RUN_TEST(test_asm_simple_program);

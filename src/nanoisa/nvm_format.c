@@ -500,6 +500,123 @@ uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
  * Deserialization
  * ======================================================================== */
 
+/* Return the fixed record size for section types whose payload is an array of
+ * fixed-width records, or 0 for variable-length / opaque sections. A section
+ * whose declared size is not a whole multiple of a fixed record size contains
+ * a partial record and is rejected. */
+static uint32_t nvm_section_record_size(uint32_t sec_type) {
+    switch (sec_type) {
+        case NVM_SECTION_FUNCTIONS: return NVM_FUNCTION_ENTRY_SIZE;
+        case NVM_SECTION_DEBUG:     return NVM_DEBUG_ENTRY_SIZE;
+        default:                    return 0;
+    }
+}
+
+/* Return true if a section type may appear at most once in the directory. */
+static bool nvm_section_is_singleton(uint32_t sec_type) {
+    switch (sec_type) {
+        case NVM_SECTION_CODE:
+        case NVM_SECTION_STRINGS:
+        case NVM_SECTION_FUNCTIONS:
+        case NVM_SECTION_STRUCTS:
+        case NVM_SECTION_ENUMS:
+        case NVM_SECTION_UNIONS:
+        case NVM_SECTION_GLOBALS:
+        case NVM_SECTION_IMPORTS:
+        case NVM_SECTION_DEBUG:
+        case NVM_SECTION_METADATA:
+        case NVM_SECTION_MODULE_REFS:
+            return true;
+        default:
+            return false; /* unknown section types are not constrained */
+    }
+}
+
+/* Structurally validate the section directory before any payload is parsed.
+ * Rejects duplicate singleton sections, sections that overlap each other or the
+ * header/directory, partial fixed-width records, and any trailing or interior
+ * bytes not covered by a section. All arithmetic is overflow-safe: bounds are
+ * compared with subtraction so no addition can wrap uint32.
+ *
+ * data_start is the first byte after the section directory; size is the total
+ * buffer length. Returns true when the directory describes a gap-free,
+ * non-overlapping, fully covering partition of [data_start, size). */
+static bool nvm_validate_section_directory(const uint8_t *data, uint32_t size,
+                                           uint32_t section_count,
+                                           uint32_t data_start) {
+    /* Track seen singleton section types to reject duplicates. */
+    uint32_t seen_types[NVM_MAX_SECTIONS];
+    uint32_t seen_count = 0;
+
+    /* Collect (offset, size) pairs so we can verify a gap-free partition. */
+    uint32_t offsets[NVM_MAX_SECTIONS];
+    uint32_t sizes[NVM_MAX_SECTIONS];
+
+    if (section_count > NVM_MAX_SECTIONS) return false;
+
+    for (uint32_t i = 0; i < section_count; i++) {
+        uint32_t dir_off = NVM_HEADER_SIZE + i * NVM_SECTION_ENTRY_SIZE;
+        uint32_t sec_type   = le_read_u32(data + dir_off);
+        uint32_t sec_offset = le_read_u32(data + dir_off + 4);
+        uint32_t sec_size   = le_read_u32(data + dir_off + 8);
+
+        /* Overflow-safe bounds: sec_offset + sec_size must stay within size. */
+        if (sec_offset > size || sec_size > size - sec_offset) return false;
+
+        /* A section must not overlap the header or the directory itself. */
+        if (sec_offset < data_start) return false;
+
+        /* Partial fixed-width record: size must be a whole record multiple. */
+        uint32_t rec = nvm_section_record_size(sec_type);
+        if (rec != 0 && (sec_size % rec) != 0) return false;
+
+        /* Duplicate singleton section. */
+        if (nvm_section_is_singleton(sec_type)) {
+            for (uint32_t j = 0; j < seen_count; j++) {
+                if (seen_types[j] == sec_type) return false;
+            }
+            seen_types[seen_count++] = sec_type;
+        }
+
+        offsets[i] = sec_offset;
+        sizes[i]   = sec_size;
+    }
+
+    /* Verify the sections form a gap-free, non-overlapping cover of the data
+     * region. Walk the region from data_start; at each step find the section
+     * that begins exactly where the cursor is. Overlaps, gaps, and trailing
+     * data all surface as a cursor that cannot advance or does not reach size.
+     * Zero-length sections are permitted and consume no space. */
+    uint32_t cursor = data_start;
+    uint32_t consumed = 0;
+    while (cursor < size && consumed < section_count) {
+        bool advanced = false;
+        for (uint32_t i = 0; i < section_count; i++) {
+            if (sizes[i] != 0 && offsets[i] == cursor) {
+                cursor += sizes[i]; /* overflow-safe: bounded by size above */
+                consumed++;
+                advanced = true;
+                break;
+            }
+        }
+        if (!advanced) return false; /* gap or overlap: no section starts here */
+    }
+
+    /* Trailing data: the covered region must reach exactly the end of file. */
+    if (cursor != size) return false;
+
+    /* Every non-empty section must have been consumed exactly once. Leftover
+     * non-empty sections indicate two sections sharing a start offset (an
+     * overlap the forward walk skipped). */
+    uint32_t nonempty = 0;
+    for (uint32_t i = 0; i < section_count; i++) {
+        if (sizes[i] != 0) nonempty++;
+    }
+    if (consumed != nonempty) return false;
+
+    return true;
+}
+
 NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
     if (size < NVM_HEADER_SIZE) return NULL;
 
@@ -526,6 +643,13 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
     /* Check section directory fits */
     uint32_t dir_end = NVM_HEADER_SIZE + header.section_count * NVM_SECTION_ENTRY_SIZE;
     if (dir_end > size) return NULL;
+
+    /* Structurally validate the directory before parsing any payload: reject
+     * duplicate singleton sections, overlaps, partial records, and trailing or
+     * interior bytes not covered by a section. */
+    if (!nvm_validate_section_directory(data, size, header.section_count, dir_end)) {
+        return NULL;
+    }
 
     NvmModule *mod = nvm_module_new();
     if (!mod) return NULL;
