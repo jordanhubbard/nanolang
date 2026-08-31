@@ -209,67 +209,67 @@ operand_kinds:
 # instruction families replace the v1 hand-maintained enum and metadata table.
 instruction_families:
   constants:
-    - {name: const.i64, operands: [sleb], pops: [], pushes: [i64], ownership: none}
-    - {name: const.f64, operands: [f64], pops: [], pushes: [f64], ownership: none}
-    - {name: const.pool, operands: [constant], pops: [], pushes: [any], ownership: retain}
+    - {name: const.i64, meaning: push the immediate signed integer, operands: [sleb], operand_roles: [value], pops: [], pushes: [i64], ownership: none}
+    - {name: const.f64, meaning: push the immediate floating-point value, operands: [f64], operand_roles: [value], pops: [], pushes: [f64], ownership: none}
+    - {name: const.pool, meaning: push the indexed constant, operands: [constant], operand_roles: [constant], pops: [], pushes: [any], ownership: retain}
   stack:
-    - {name: drop, operands: [], pops: [any], pushes: [], ownership: release}
-    - {name: dup, operands: [], pops: [any], pushes: [any, any], ownership: retain}
-    - {name: swap, operands: [], pops: [any, any], pushes: [any, any], ownership: move}
-    - {name: pick, operands: [count], pops: [], pushes: [any], ownership: retain}
-    - {name: roll, operands: [count], pops: [], pushes: [], ownership: move}
+    - {name: drop, meaning: discard the top value, operands: [], operand_roles: [], pops: [any], pushes: [], ownership: release}
+    - {name: dup, meaning: copy the top value, operands: [], operand_roles: [], pops: [any], pushes: [any, any], ownership: retain}
+    - {name: swap, meaning: exchange the top two values, operands: [], operand_roles: [], pops: [any, any], pushes: [any, any], ownership: move}
+    - {name: pick, meaning: copy the value at the indexed stack depth, operands: [count], operand_roles: [depth], pops: [], pushes: [any], ownership: retain}
+    - {name: roll, meaning: move the value at the indexed stack depth to the top, operands: [count], operand_roles: [depth], pops: [], pushes: [], ownership: move}
   variables:
-    - {name: local.get, operands: [local], pops: [], pushes: [any], ownership: retain}
-    - {name: local.set, operands: [local], pops: [any], pushes: [], ownership: move}
-    - {name: global.get, operands: [global], pops: [], pushes: [any], ownership: retain}
-    - {name: global.set, operands: [global], pops: [any], pushes: [], ownership: move}
-    - {name: upvalue.get, operands: [upvalue], pops: [], pushes: [any], ownership: retain}
-    - {name: upvalue.set, operands: [upvalue], pops: [any], pushes: [], ownership: move}
+    - {name: local.get, meaning: push the indexed local, operands: [local], operand_roles: [local], pops: [], pushes: [any], ownership: retain}
+    - {name: local.set, meaning: replace the indexed local, operands: [local], operand_roles: [local], pops: [any], pushes: [], ownership: move}
+    - {name: global.get, meaning: push the indexed global, operands: [global], operand_roles: [global], pops: [], pushes: [any], ownership: retain}
+    - {name: global.set, meaning: replace the indexed global, operands: [global], operand_roles: [global], pops: [any], pushes: [], ownership: move}
+    - {name: upvalue.get, meaning: push the indexed upvalue, operands: [upvalue], operand_roles: [upvalue], pops: [], pushes: [any], ownership: retain}
+    - {name: upvalue.set, meaning: replace the indexed upvalue, operands: [upvalue], operand_roles: [upvalue], pops: [any], pushes: [], ownership: move}
   integer:
-    - {name: i64.add, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.sub, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.mul, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.div-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.div-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.rem-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.rem-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.and, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.or, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.xor, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.shl, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.shr-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.shr-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.add-carry, operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
-    - {name: i64.sub-borrow, operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
-    - {name: i64.mul-wide-s, operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
-    - {name: i64.mul-wide-u, operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.add, meaning: add two integers, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.sub, meaning: subtract two integers, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.mul, meaning: multiply two integers, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.div-s, meaning: divide two signed integers, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.div-u, meaning: divide two unsigned integers, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.rem-s, meaning: compute the signed integer remainder, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.rem-u, meaning: compute the unsigned integer remainder, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.and, meaning: compute bitwise and, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.or, meaning: compute bitwise or, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.xor, meaning: compute bitwise exclusive or, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shl, meaning: shift an integer left, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shr-s, meaning: shift a signed integer right, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shr-u, meaning: shift an unsigned integer right, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.add-carry, meaning: add two integers and an input carry, operands: [], operand_roles: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.sub-borrow, meaning: subtract two integers and an input borrow, operands: [], operand_roles: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.mul-wide-s, meaning: multiply signed integers to a double-cell result, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.mul-wide-u, meaning: multiply unsigned integers to a double-cell result, operands: [], operand_roles: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
   float:
-    - {name: f64.add, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
-    - {name: f64.sub, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
-    - {name: f64.mul, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
-    - {name: f64.div, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.add, meaning: add two floating-point values, operands: [], operand_roles: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.sub, meaning: subtract two floating-point values, operands: [], operand_roles: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.mul, meaning: multiply two floating-point values, operands: [], operand_roles: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.div, meaning: divide two floating-point values, operands: [], operand_roles: [], pops: [f64, f64], pushes: [f64], ownership: none}
   memory:
-    - {name: mem.load8, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.load16, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.load32, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.load64, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.store8, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
-    - {name: mem.store16, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
-    - {name: mem.store32, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
-    - {name: mem.store64, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.load8, meaning: load an 8-bit integer from memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load16, meaning: load a 16-bit integer from memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load32, meaning: load a 32-bit integer from memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load64, meaning: load a 64-bit integer from memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.store8, meaning: store an 8-bit integer in memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store16, meaning: store a 16-bit integer in memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store32, meaning: store a 32-bit integer in memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store64, meaning: store a 64-bit integer in memory, operands: [count, count], operand_roles: [alignment, offset], pops: [i64, i64], pushes: [], ownership: none}
   aggregate:
-    - {name: aggregate.pack, operands: [layout, count], pops: [many], pushes: [aggregate], ownership: move}
-    - {name: aggregate.get, operands: [field], pops: [aggregate], pushes: [any], ownership: retain}
-    - {name: aggregate.set, operands: [field], pops: [aggregate, any], pushes: [aggregate], ownership: move}
-    - {name: aggregate.tag, operands: [], pops: [aggregate], pushes: [i64], ownership: none}
+    - {name: aggregate.pack, meaning: pack values into an aggregate with the indexed layout, operands: [layout, count], operand_roles: [layout, value-count], pops: [many], pushes: [aggregate], ownership: move}
+    - {name: aggregate.get, meaning: push the indexed aggregate field, operands: [field], operand_roles: [field], pops: [aggregate], pushes: [any], ownership: retain}
+    - {name: aggregate.set, meaning: replace the indexed aggregate field, operands: [field], operand_roles: [field], pops: [aggregate, any], pushes: [aggregate], ownership: move}
+    - {name: aggregate.tag, meaning: push the aggregate variant tag, operands: [], operand_roles: [], pops: [aggregate], pushes: [i64], ownership: none}
   control:
-    - {name: branch, operands: [branch], pops: [], pushes: [], ownership: none}
-    - {name: branch.zero, operands: [branch], pops: [i64], pushes: [], ownership: none}
-    - {name: branch.nonzero, operands: [branch], pops: [i64], pushes: [], ownership: none}
-    - {name: call, operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
-    - {name: call.indirect, operands: [signature], pops: [signature-args, callable], pushes: [signature-result], ownership: call}
-    - {name: tail.call, operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
-    - {name: call.import, operands: [import], pops: [signature-args], pushes: [signature-result], ownership: trap}
-    - {name: return, operands: [], pops: [signature-result], pushes: [], ownership: return}
+    - {name: branch, meaning: continue at the relative target, operands: [branch], operand_roles: [target], pops: [], pushes: [], ownership: none}
+    - {name: branch.zero, meaning: continue at the relative target when the condition is zero, operands: [branch], operand_roles: [target], pops: [i64], pushes: [], ownership: none}
+    - {name: branch.nonzero, meaning: continue at the relative target when the condition is nonzero, operands: [branch], operand_roles: [target], pops: [i64], pushes: [], ownership: none}
+    - {name: call, meaning: call the indexed function, operands: [function], operand_roles: [callee], pops: [signature-args], pushes: [signature-result], ownership: call}
+    - {name: call.indirect, meaning: call a stack callable with the indexed signature, operands: [signature], operand_roles: [signature], pops: [signature-args, callable], pushes: [signature-result], ownership: call}
+    - {name: tail.call, meaning: replace the current frame with the indexed function, operands: [function], operand_roles: [callee], pops: [signature-args], pushes: [signature-result], ownership: call}
+    - {name: call.import, meaning: call the indexed imported function, operands: [import], operand_roles: [callee], pops: [signature-args], pushes: [signature-result], ownership: trap}
+    - {name: return, meaning: return the current function result, operands: [], operand_roles: [], pops: [signature-result], pushes: [], ownership: return}
   trap:
-    - {name: trap, operands: [uleb, count], pops: [many], pushes: [any], ownership: trap}
+    - {name: trap, meaning: invoke the indexed host trap with stack arguments, operands: [uleb, count], operand_roles: [trap, argument-count], pops: [many], pushes: [any], ownership: trap}

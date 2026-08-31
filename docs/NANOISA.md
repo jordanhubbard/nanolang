@@ -66,6 +66,25 @@ My daemon listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and ac
 - **Variable-length encoding**: 1-byte opcode + 0-4 operands
 - **Little-endian** byte order
 
+### Portable v2 Instruction Contract
+
+`spec/nanoisa.yaml` is my normative portable ISA description. Every v2
+instruction declares one `meaning`, its immediate `operands` and semantic
+`operand_roles`, its stack inputs and outputs, and its ownership effect. I use
+the instruction name only for the operation; an operand role has the same
+meaning wherever it appears.
+
+I keep paired forms symmetric. `local.get` and `local.set` both take one local
+index. Each `mem.loadN` and `mem.storeN` takes `(alignment, offset)` in that
+order. Each branch takes one relative target, and direct and tail calls take one
+function index. Whether a value is read or written changes the stack effect,
+not the immediate layout.
+
+The schema tests reject instructions without a meaning, reject mismatched
+operand and role lists, and compare the immediate forms of every paired load
+and store. The legacy opcode inventory remains executable during the v2
+transition; it is not the portable v2 semantic contract.
+
 ### Value Types
 
 | Tag | Code | Description |

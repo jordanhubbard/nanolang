@@ -31,9 +31,40 @@ class NanoisaSchemaTests(unittest.TestCase):
     def test_v2_families_declare_stack_and_ownership(self):
         for family in self.schema["instruction_families"].values():
             for instruction in family:
+                self.assertTrue(instruction["meaning"])
                 self.assertIn("pops", instruction)
                 self.assertIn("pushes", instruction)
                 self.assertIn("ownership", instruction)
+                self.assertEqual(
+                    len(instruction["operands"]), len(instruction["operand_roles"])
+                )
+
+    def test_symmetric_v2_forms_use_the_same_immediates(self):
+        instructions = {
+            instruction["name"]: instruction
+            for family in self.schema["instruction_families"].values()
+            for instruction in family
+        }
+        pairs = (
+            ("local.get", "local.set"),
+            ("global.get", "global.set"),
+            ("upvalue.get", "upvalue.set"),
+            ("mem.load8", "mem.store8"),
+            ("mem.load16", "mem.store16"),
+            ("mem.load32", "mem.store32"),
+            ("mem.load64", "mem.store64"),
+            ("aggregate.get", "aggregate.set"),
+            ("branch", "branch.zero"),
+            ("branch", "branch.nonzero"),
+            ("call", "tail.call"),
+        )
+        for left, right in pairs:
+            self.assertEqual(
+                instructions[left]["operands"], instructions[right]["operands"]
+            )
+            self.assertEqual(
+                instructions[left]["operand_roles"], instructions[right]["operand_roles"]
+            )
 
 
 if __name__ == "__main__":
