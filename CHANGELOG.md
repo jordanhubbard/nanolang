@@ -5,6 +5,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-08-30
+
+### Added
+- add runtime-selectable diagnostics (#120)
+
+### Changed
+- scope remaining Phase 12 work to 4.0 (#123)
+- scope NanoISA v2 completion to 4.0 (#122)
+- record verified 3.5 diagnostics work (#121)
+
 ## [3.4.14] - 2026-08-30
 
 ### Added
