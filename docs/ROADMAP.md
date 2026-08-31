@@ -39,6 +39,10 @@ Patch releases may ship completed fixes without changing this dependency order.
 | **4.6** | Multi-language laboratory | I validate NanoISA with bounded Scheme, ML, actor, dataflow, object, shell, and logic frontends, each chosen to test a distinct semantic pressure. |
 | **5.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
 
+My 3.5 release presentation is [NanoLang 3.5](RELEASE_3.5.md). It records my
+shipped foundation, verification evidence, and the boundary where my 4.0 work
+begins.
+
 Release dependencies:
 
 ```text
