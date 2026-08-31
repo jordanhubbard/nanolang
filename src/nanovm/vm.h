@@ -241,9 +241,11 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
 
 /* Mark one mutable module's cached instructions stale before changing it. */
 void vm_invalidate_module(VmState *vm, const NvmModule *module);
+void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module);
 
 /* Atomically decode a module again after mutation. Returns false on malformed code. */
 bool vm_rebuild_module(VmState *vm, const NvmModule *module);
+VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module);
 
 /* Resize linear memory, preserving existing bytes and zeroing new storage. */
 bool vm_memory_resize(VmState *vm, uint64_t size);
