@@ -600,6 +600,78 @@ static void test_corrupt_checksum(void) {
     nvm_module_free(mod);
 }
 
+static void write_u32_le_for_test(uint8_t *data, uint32_t value) {
+    data[0] = (uint8_t)value;
+    data[1] = (uint8_t)(value >> 8);
+    data[2] = (uint8_t)(value >> 16);
+    data[3] = (uint8_t)(value >> 24);
+}
+
+static void refresh_test_checksum(uint8_t *data, uint32_t size) {
+    write_u32_le_for_test(data + 28,
+                          nvm_crc32(data + NVM_HEADER_SIZE,
+                                    size - NVM_HEADER_SIZE));
+}
+
+static uint8_t *make_container_fixture(uint32_t *size_out) {
+    NvmModule *mod = nvm_module_new();
+    nvm_add_string(mod, "fixture", 7);
+    NvmFunctionEntry fn = { .name_idx = 0, .arity = 0, .code_offset = 0,
+                            .code_length = 0, .local_count = 0,
+                            .upvalue_count = 0, .result_tag = TAG_VOID,
+                            .result_count = 0 };
+    nvm_add_function(mod, &fn);
+    uint8_t *data = nvm_serialize(mod, size_out);
+    nvm_module_free(mod);
+    return data;
+}
+
+static void test_rejects_malformed_section_directory(void) {
+    uint32_t size = 0;
+    uint8_t *data = make_container_fixture(&size);
+    ASSERT(data != NULL, "Malformed-container fixture serialized");
+
+    /* The fixture has strings at directory entry 0 and functions at entry 1. */
+    uint32_t first_dir = NVM_HEADER_SIZE;
+    uint32_t second_dir = first_dir + NVM_SECTION_ENTRY_SIZE;
+    uint32_t first_offset = data[first_dir + 4]
+        | ((uint32_t)data[first_dir + 5] << 8)
+        | ((uint32_t)data[first_dir + 6] << 16)
+        | ((uint32_t)data[first_dir + 7] << 24);
+    uint32_t first_size = data[first_dir + 8]
+        | ((uint32_t)data[first_dir + 9] << 8)
+        | ((uint32_t)data[first_dir + 10] << 16)
+        | ((uint32_t)data[first_dir + 11] << 24);
+
+    write_u32_le_for_test(data + second_dir, 0x0002); /* duplicate strings */
+    refresh_test_checksum(data, size);
+    ASSERT(nvm_deserialize(data, size) == NULL, "Duplicate section rejected");
+    free(data);
+
+    data = make_container_fixture(&size);
+    ASSERT(data != NULL, "Overlap fixture serialized");
+    write_u32_le_for_test(data + second_dir + 4, first_offset);
+    write_u32_le_for_test(data + second_dir + 8, first_size);
+    refresh_test_checksum(data, size);
+    ASSERT(nvm_deserialize(data, size) == NULL, "Overlapping sections rejected");
+    free(data);
+
+    data = make_container_fixture(&size);
+    ASSERT(data != NULL, "Range fixture serialized");
+    write_u32_le_for_test(data + first_dir + 4, UINT32_MAX);
+    refresh_test_checksum(data, size);
+    ASSERT(nvm_deserialize(data, size) == NULL, "Out-of-range section rejected");
+    free(data);
+
+    data = make_container_fixture(&size);
+    ASSERT(data != NULL, "Partial-record fixture serialized");
+    write_u32_le_for_test(data + second_dir + 8, NVM_FUNCTION_ENTRY_SIZE - 1);
+    refresh_test_checksum(data, size);
+    ASSERT(nvm_deserialize(data, size) == NULL, "Partial function record rejected");
+
+    free(data);
+}
+
 /* ========================================================================
  * Assembler Tests
  * ======================================================================== */
@@ -1337,6 +1409,7 @@ int main(void) {
     RUN_TEST(test_strip_debug_info);
     RUN_TEST(test_validate_header);
     RUN_TEST(test_corrupt_checksum);
+    RUN_TEST(test_rejects_malformed_section_directory);
 
     printf("\n[Assembler]\n");
     RUN_TEST(test_asm_simple_program);

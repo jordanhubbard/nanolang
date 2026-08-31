@@ -288,6 +288,7 @@ uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
  * ======================================================================== */
 
 bool nvm_validate_header(const NvmHeader *header) {
+    if (!header) return false;
     if (header->magic[0] != NVM_MAGIC_0 ||
         header->magic[1] != NVM_MAGIC_1 ||
         header->magic[2] != NVM_MAGIC_2 ||
@@ -527,6 +528,31 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
     uint32_t dir_end = NVM_HEADER_SIZE + header.section_count * NVM_SECTION_ENTRY_SIZE;
     if (dir_end > size) return NULL;
 
+    /* Validate the complete directory before interpreting any section.  A
+     * section must live after the directory, each type may appear once, and
+     * section spans may not overlap. */
+    NvmSectionEntry directory[NVM_MAX_SECTIONS];
+    for (uint32_t i = 0; i < header.section_count; i++) {
+        uint32_t dir_off = NVM_HEADER_SIZE + i * NVM_SECTION_ENTRY_SIZE;
+        directory[i].type = le_read_u32(data + dir_off);
+        directory[i].offset = le_read_u32(data + dir_off + 4);
+        directory[i].size = le_read_u32(data + dir_off + 8);
+
+        if (directory[i].offset < dir_end ||
+            directory[i].offset > size ||
+            directory[i].size > size - directory[i].offset) {
+            return NULL;
+        }
+        for (uint32_t j = 0; j < i; j++) {
+            if (directory[j].type == directory[i].type) return NULL;
+            if (directory[i].size > 0 && directory[j].size > 0 &&
+                directory[i].offset < directory[j].offset + directory[j].size &&
+                directory[j].offset < directory[i].offset + directory[i].size) {
+                return NULL;
+            }
+        }
+    }
+
     NvmModule *mod = nvm_module_new();
     if (!mod) return NULL;
 
@@ -535,19 +561,9 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
 
     /* Parse section directory */
     for (uint32_t i = 0; i < header.section_count; i++) {
-        uint32_t dir_off = NVM_HEADER_SIZE + i * NVM_SECTION_ENTRY_SIZE;
-        uint32_t sec_type   = le_read_u32(data + dir_off);
-        uint32_t sec_offset = le_read_u32(data + dir_off + 4);
-        uint32_t sec_size   = le_read_u32(data + dir_off + 8);
-
-        /* Overflow-safe bounds check: sec_offset + sec_size can wrap around
-         * uint32, letting a crafted offset (e.g. 0xFFFFFF00) slip past a naive
-         * `sec_offset + sec_size > size` test and point sec_data far outside
-         * the buffer. Compare via subtraction so no addition can overflow. */
-        if (sec_offset > size || sec_size > size - sec_offset) {
-            nvm_module_free(mod);
-            return NULL;
-        }
+        uint32_t sec_type = directory[i].type;
+        uint32_t sec_offset = directory[i].offset;
+        uint32_t sec_size = directory[i].size;
 
         mod->sections[i].type   = sec_type;
         mod->sections[i].offset = sec_offset;
@@ -558,12 +574,17 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
         switch (sec_type) {
             case NVM_SECTION_STRINGS: {
                 uint32_t pos = 0;
-                while (pos + 4 <= sec_size) {
+                while (pos < sec_size) {
+                    if (sec_size - pos < 4) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
                     uint32_t slen = le_read_u32(sec_data + pos);
                     pos += 4;
-                    /* Subtraction form: pos <= sec_size here, so no overflow. */
-                    if (slen > sec_size - pos) break;
-                    nvm_add_string(mod, (const char *)(sec_data + pos), slen);
+                    if (slen > sec_size - pos) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
                     pos += slen;
                 }
                 break;
@@ -576,7 +597,11 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
 
             case NVM_SECTION_FUNCTIONS: {
                 uint32_t pos = 0;
-                while (pos + NVM_FUNCTION_ENTRY_SIZE <= sec_size) {
+                if (sec_size % NVM_FUNCTION_ENTRY_SIZE != 0) {
+                    nvm_module_free(mod);
+                    return NULL;
+                }
+                while (pos < sec_size) {
                     NvmFunctionEntry fn;
                     fn.name_idx      = le_read_u32(sec_data + pos);     pos += 4;
                     fn.arity         = le_read_u16(sec_data + pos);     pos += 2;
@@ -593,7 +618,11 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
 
             case NVM_SECTION_DEBUG: {
                 uint32_t pos = 0;
-                while (pos + NVM_DEBUG_ENTRY_SIZE <= sec_size) {
+                if (sec_size % NVM_DEBUG_ENTRY_SIZE != 0) {
+                    nvm_module_free(mod);
+                    return NULL;
+                }
+                while (pos < sec_size) {
                     uint32_t bc_off = le_read_u32(sec_data + pos); pos += 4;
                     uint32_t line   = le_read_u32(sec_data + pos); pos += 4;
                     uint32_t col    = le_read_u32(sec_data + pos); pos += 4;
@@ -604,12 +633,23 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
 
             case NVM_SECTION_IMPORTS: {
                 uint32_t pos = 0;
-                while (pos + NVM_IMPORT_ENTRY_BASE_SIZE <= sec_size) {
+                while (pos < sec_size) {
+                    if (sec_size - pos < NVM_IMPORT_ENTRY_BASE_SIZE) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
                     if (mod->import_count >= mod->import_capacity) {
                         uint32_t new_cap = mod->import_capacity * 2;
                         NvmImportEntry *new_imp = realloc(mod->imports, new_cap * sizeof(NvmImportEntry));
                         uint8_t **new_pt = realloc(mod->import_param_types, new_cap * sizeof(uint8_t *));
-                        if (!new_imp || !new_pt) break;
+                        if (!new_imp || !new_pt) {
+                            /* Keep any successful realloc result owned by the
+                             * module so cleanup remains valid. */
+                            if (new_imp) mod->imports = new_imp;
+                            if (new_pt) mod->import_param_types = new_pt;
+                            nvm_module_free(mod);
+                            return NULL;
+                        }
                         mod->imports = new_imp;
                         mod->import_param_types = new_pt;
                         mod->import_capacity = new_cap;
@@ -621,14 +661,19 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     mod->imports[idx].param_count        = le_read_u16(sec_data + pos); pos += 2;
                     mod->imports[idx].return_type        = sec_data[pos++];
 
-                    if (pos + mod->imports[idx].param_count > sec_size) break;
+                    if (mod->imports[idx].param_count > sec_size - pos) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
 
                     if (mod->imports[idx].param_count > 0) {
                         mod->import_param_types[idx] = malloc(mod->imports[idx].param_count);
-                        if (mod->import_param_types[idx]) {
-                            memcpy(mod->import_param_types[idx], sec_data + pos,
-                                   mod->imports[idx].param_count);
+                        if (!mod->import_param_types[idx]) {
+                            nvm_module_free(mod);
+                            return NULL;
                         }
+                        memcpy(mod->import_param_types[idx], sec_data + pos,
+                               mod->imports[idx].param_count);
                     } else {
                         mod->import_param_types[idx] = NULL;
                     }

@@ -89,6 +89,7 @@ documentation and acceptance evidence. I will not count them against the 3.5
 measurement-and-cleanup release.
 
 Workflow and evidence:
+- [x] I reject malformed NVM containers with duplicate or overlapping sections, out-of-range section spans, and partial records, without changing the serialized format.
 - [x] I wrote the initial Forth-on-NanoISA architecture contract in `docs/superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md`.
 - [x] I added persistent `vm_invoke`, latest-function lookup, and incremental function verification on PR #115.
 - [x] I measured static NanoVirt opcode and instruction-sequence frequencies across the repository.
