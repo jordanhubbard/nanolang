@@ -1340,6 +1340,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
                 compile_expr(cg, args[0]);
                 compile_expr(cg, args[1]);
                 emit_op(cg, OP_ARR_PUSH);
+                emit_op(cg, OP_POP); /* list_T_push is declared void */
                 return true;
             }
             if (strcmp(suffix, "_get") == 0 && argc == 2) {
