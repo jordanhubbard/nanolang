@@ -61,7 +61,7 @@ My daemon listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and ac
 
 ### Architecture Model
 
-- **Stack machine** with 5 virtual registers: SP (stack pointer), FP (frame pointer), IP (instruction pointer), R0 (accumulator), R1 (scratch)
+- **Local/stack hybrid** with an operand stack, indexed frame locals, and an instruction pointer
 - **Runtime-typed values**: 16 bytes per value (1-byte tag + 15-byte payload)
 - **Variable-length encoding**: 1-byte opcode + 0-4 operands
 - **Little-endian** byte order
@@ -130,8 +130,10 @@ My daemon listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and ac
 **Closures (0x90-0x97):**
 `CLOSURE_NEW` (fn_idx + capture_count), `CLOSURE_CALL`
 
-**I/O & Debug (0xA0-0xAF):**
-`PRINT`, `ASSERT`, `DEBUG_LINE`, `HALT`
+**I/O & legacy debug (0xA0-0xAF):**
+`PRINT`, `ASSERT`, `DEBUG_LINE`, `HALT`. NanoVirt records source locations in
+the debug side table and does not emit `DEBUG_LINE`; the opcode remains only
+for old hand-written assembly until NanoISA v2 removes it.
 
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`

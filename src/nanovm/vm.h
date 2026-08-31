@@ -9,6 +9,7 @@
 
 #include "value.h"
 #include "heap.h"
+#include "vm_decode.h"
 #include "../nanoisa/isa.h"
 #include "../nanoisa/nvm_format.h"
 
@@ -19,6 +20,38 @@
 #define VM_STACK_INITIAL    4096
 #define VM_MAX_FRAMES       1024
 #define VM_MAX_GLOBALS      4096
+#define VM_PROFILE_TRIPLES  4096
+
+typedef struct {
+    uint32_t key;
+    uint64_t count;
+    bool used;
+} VmProfileTriple;
+
+typedef struct {
+    bool enabled;
+    bool has_previous;
+    bool has_previous_pair;
+    uint8_t previous;
+    uint16_t previous_pair;
+    uint64_t retired;
+    uint64_t opcode_counts[256];
+    uint64_t pair_counts[256 * 256];
+    VmProfileTriple triples[VM_PROFILE_TRIPLES];
+    uint64_t branches;
+    uint64_t branches_taken;
+    uint64_t direct_calls;
+    uint64_t indirect_calls;
+    uint64_t extern_calls;
+    uint64_t module_calls;
+    uint64_t traps;
+    uint64_t ffi_request_bytes;
+    uint64_t ffi_response_bytes;
+    uint64_t ffi_elapsed_ns;
+    uint64_t ffi_failures;
+    uint32_t max_stack_depth;
+    uint32_t max_frame_depth;
+} VmProfile;
 
 /* ========================================================================
  * Call Frame
@@ -34,8 +67,6 @@ typedef struct {
     uint32_t current_line;    /* Most recently seen OP_DEBUG_LINE value (0 = unknown) */
     uint32_t current_col;     /* Column from most recent debug entry (0 = unknown) */
 } VmCallFrame;
-
-typedef struct VmDecodedModule VmDecodedModule;
 
 /* ========================================================================
  * VM Execution Result
@@ -65,6 +96,9 @@ typedef enum {
 typedef struct VmState {
     /* Module being executed */
     const NvmModule *module;
+    const NvmModule *root_module;
+    VmDecodedModule decoded_module;
+    bool decoded_module_valid;
 
     /* Operand stack */
     NanoValue *stack;
@@ -83,18 +117,19 @@ typedef struct VmState {
     NanoValue globals[VM_MAX_GLOBALS];
     uint32_t global_count;
 
+    /* Byte-addressed linear memory for portable loads, stores, and Forth. */
+    uint8_t *memory;
+    uint64_t memory_size;
+
     /* GC Heap */
     VmHeap heap;
 
     /* Linked modules for cross-module calls */
     const NvmModule **linked_modules;
+    VmDecodedModule *decoded_linked_modules;
+    bool *decoded_linked_modules_valid;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
-
-    /* Per-VM instruction caches. Modules remain owned by the caller. */
-    VmDecodedModule *decoded_modules;
-    uint32_t decoded_module_count;
-    uint32_t decoded_module_capacity;
 
     /* Output capture (NULL = stdout) */
     FILE *output;
@@ -121,6 +156,9 @@ typedef struct VmState {
     /* Debug mode: emit stack trace on any runtime error.
      * Enabled via --debug flag or DEBUG env var. */
     bool debug_mode;
+
+    /* Optional low-overhead instruction and control-flow counters. */
+    VmProfile profile;
 } VmState;
 
 /* ========================================================================
@@ -173,6 +211,13 @@ VmResult vm_execute(VmState *vm);
 /* Execute a specific function by index. Returns VM_OK on success. */
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count);
 
+/* Invoke one function as an isolated host call on a persistent VM.
+ * Exact arity is required. On success, ownership of the returned value moves
+ * to out_result; pass NULL to discard it. On failure, temporary operand-stack
+ * values and call frames are removed while globals and heap state remain. */
+VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
+                   uint16_t arg_count, NanoValue *out_result);
+
 /* Run pure NanoISA instructions until a trap occurs.
  * This is the "processor" — no I/O, no dlopen, no stdout.
  * On an FPGA, this would be implemented in RTL. */
@@ -181,6 +226,12 @@ VmTrap vm_core_execute(VmState *vm);
 /* Get the return value (top of stack after execution) */
 NanoValue vm_get_result(VmState *vm);
 
+/* Reset and enable or disable execution profiling. */
+void vm_profile_enable(VmState *vm, bool enabled);
+
+/* Write deterministic JSON containing execution counters. */
+bool vm_profile_write_json(const VmState *vm, FILE *out);
+
 /* Get error message string */
 const char *vm_error_string(VmResult result);
 
@@ -188,10 +239,16 @@ const char *vm_error_string(VmResult result);
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
 
-/* Invalidate or eagerly rebuild a module after its bytecode is mutated.
- * Execution also rebuilds an invalid cache on demand. */
+/* Mark one mutable module's cached instructions stale before changing it. */
+void vm_invalidate_module(VmState *vm, const NvmModule *module);
 void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module);
+
+/* Atomically decode a module again after mutation. Returns false on malformed code. */
+bool vm_rebuild_module(VmState *vm, const NvmModule *module);
 VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module);
+
+/* Resize linear memory, preserving existing bytes and zeroing new storage. */
+bool vm_memory_resize(VmState *vm, uint64_t size);
 
 /* ========================================================================
  * Debug / Stack Trace

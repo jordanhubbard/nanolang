@@ -29,6 +29,7 @@ static bool g_isolate_ffi = false;
 
 /* Global flag for debug mode (--debug or DEBUG env var) */
 static bool g_debug_mode = false;
+static const char *g_profile_path = NULL;
 
 static uint8_t *read_file(const char *path, uint32_t *out_size) {
     FILE *f = fopen(path, "rb");
@@ -131,6 +132,7 @@ static int run_standalone(const char *path) {
 
     VmState vm;
     vm_init(&vm, module);
+    vm_profile_enable(&vm, g_profile_path != NULL);
 
     /* Enable co-process FFI isolation if requested.
      * The cop is launched lazily on first extern call, not here. */
@@ -143,6 +145,22 @@ static int run_standalone(const char *path) {
     }
 
     VmResult result = vm_execute(&vm);
+
+    if (g_profile_path) {
+        FILE *profile = strcmp(g_profile_path, "-") == 0
+            ? stdout : fopen(g_profile_path, "w");
+        if (!profile) {
+            fprintf(stderr, "Error: Cannot write NanoISA profile '%s'\n",
+                    g_profile_path);
+            result = VM_ERR_MEMORY;
+        } else {
+            if (!vm_profile_write_json(&vm, profile)) {
+                fprintf(stderr, "Error: Failed to write NanoISA profile\n");
+                result = VM_ERR_MEMORY;
+            }
+            if (profile != stdout) fclose(profile);
+        }
+    }
 
     int exit_code = 0;
     if (result != VM_OK) {
@@ -200,7 +218,7 @@ int main(int argc, char *argv[]) {
     g_argv = argv;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [--daemon] [--debug] <file.nvm>\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--daemon] [--debug] [--profile-isa FILE] <file.nvm>\n", argv[0]);
         return 1;
     }
 
@@ -217,6 +235,8 @@ int main(int argc, char *argv[]) {
             g_isolate_ffi = true;
         } else if (strcmp(argv[i], "--debug") == 0) {
             g_debug_mode = true;
+        } else if (strcmp(argv[i], "--profile-isa") == 0 && i + 1 < argc) {
+            g_profile_path = argv[++i];
         } else if (argv[i][0] == '-') {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             return 1;
@@ -227,6 +247,11 @@ int main(int argc, char *argv[]) {
 
     if (!nvm_path) {
         fprintf(stderr, "Error: No .nvm file specified\n");
+        return 1;
+    }
+
+    if (daemon_mode && g_profile_path) {
+        fprintf(stderr, "Error: --profile-isa requires in-process execution\n");
         return 1;
     }
 

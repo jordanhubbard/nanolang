@@ -47,11 +47,12 @@ static uint32_t fnv1a(const char *data, uint32_t len) {
  * Reference Counting
  * ======================================================================== */
 
-void vm_retain(NanoValue v) {
-    if (!val_is_heap_obj(v) && v.tag != TAG_FUNCTION) return;
+void vm_retain(VmHeap *heap, NanoValue v) {
+    if (!val_is_heap_obj(v)) return;
     void *ptr = v.as.obj;
     if (!ptr) return;
     VmHeapHeader *hdr = (VmHeapHeader *)ptr;
+    if (heap) heap->stats.retain_calls++;
     hdr->ref_count++;
 }
 
@@ -63,9 +64,10 @@ static void release_closure(VmHeap *heap, VmClosure *c);
 static void release_hashmap(VmHeap *heap, VmHashMap *m);
 
 void vm_release(VmHeap *heap, NanoValue v) {
-    if (!val_is_heap_obj(v) && v.tag != TAG_FUNCTION) return;
+    if (!val_is_heap_obj(v)) return;
     void *ptr = v.as.obj;
     if (!ptr) return;
+    if (heap) heap->stats.release_calls++;
     VmHeapHeader *hdr = (VmHeapHeader *)ptr;
     if (hdr->ref_count == 0) return; /* already freed or static */
     hdr->ref_count--;
@@ -102,11 +104,8 @@ void vm_release(VmHeap *heap, NanoValue v) {
         case TAG_HASHMAP:
             release_hashmap(heap, v.as.hashmap);
             break;
-        case TAG_FUNCTION:
-            /* Could be a closure */
-            if (v.as.closure && v.as.closure->header.obj_type == TAG_FUNCTION) {
-                release_closure(heap, v.as.closure);
-            }
+        case TAG_CLOSURE:
+            release_closure(heap, v.as.closure);
             break;
         default:
             break;
@@ -218,6 +217,7 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     s->data[length] = '\0';
 
     heap->stats.allocated += sz;
+    heap->stats.allocation_calls++;
     heap->stats.num_objects++;
 
     /* Add to intern table */
@@ -321,6 +321,7 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
     a->capacity = initial_capacity;
     a->elements = calloc(initial_capacity, sizeof(NanoValue));
     heap->stats.allocated += sizeof(VmArray) + initial_capacity * sizeof(NanoValue);
+    heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return a;
 }
@@ -341,14 +342,14 @@ static bool array_grow(VmArray *a) {
     return true;
 }
 
-void vm_array_push(VmArray *a, NanoValue v) {
+void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
     if (a->length >= a->capacity) {
         /* On grow failure keep the array intact and drop the push rather than
          * writing past the buffer (heap overflow). */
         if (!array_grow(a)) return;
     }
     a->elements[a->length++] = v;
-    vm_retain(v);
+    vm_retain(heap, v);
 }
 
 NanoValue vm_array_pop(VmArray *a) {
@@ -378,7 +379,7 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
     VmArray *result = vm_array_new(heap, a->elem_type, new_len);
     for (uint32_t i = 0; i < new_len; i++) {
         result->elements[i] = a->elements[start + i];
-        vm_retain(result->elements[i]);
+        vm_retain(heap, result->elements[i]);
     }
     result->length = new_len;
     return result;
@@ -407,6 +408,7 @@ VmStruct *vm_struct_new(VmHeap *heap, uint32_t def_idx, uint32_t field_count) {
     s->field_names = NULL;
     s->fields = calloc(field_count, sizeof(NanoValue));
     heap->stats.allocated += sizeof(VmStruct) + field_count * sizeof(NanoValue);
+    heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return s;
 }
@@ -425,6 +427,7 @@ VmUnion *vm_union_new(VmHeap *heap, uint32_t def_idx, uint16_t variant, uint16_t
     u->field_count = field_count;
     u->fields = calloc(field_count, sizeof(NanoValue));
     heap->stats.allocated += sizeof(VmUnion) + field_count * sizeof(NanoValue);
+    heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return u;
 }
@@ -441,6 +444,7 @@ VmTuple *vm_tuple_new(VmHeap *heap, uint32_t count) {
     t->header.obj_type = TAG_TUPLE;
     t->count = count;
     heap->stats.allocated += sz;
+    heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return t;
 }
@@ -454,10 +458,11 @@ VmClosure *vm_closure_new(VmHeap *heap, uint32_t fn_idx, uint16_t capture_count)
     VmClosure *c = calloc(1, sz);
     if (!c) return NULL;
     c->header.ref_count = 1;
-    c->header.obj_type = TAG_FUNCTION;
+    c->header.obj_type = TAG_CLOSURE;
     c->fn_idx = fn_idx;
     c->capture_count = capture_count;
     heap->stats.allocated += sz;
+    heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return c;
 }
@@ -490,6 +495,7 @@ VmHashMap *vm_hashmap_new(VmHeap *heap, uint8_t key_type, uint8_t val_type) {
     m->bucket_count = HM_INITIAL_BUCKETS;
     m->buckets = calloc(HM_INITIAL_BUCKETS, sizeof(VmHMEntry *));
     heap->stats.allocated += sizeof(VmHashMap) + HM_INITIAL_BUCKETS * sizeof(VmHMEntry *);
+    heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return m;
 }
@@ -532,7 +538,7 @@ void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) 
         if (val_equal(entry->key, key)) {
             vm_release(heap, entry->value);
             entry->value = value;
-            vm_retain(value);
+            vm_retain(heap, value);
             return;
         }
         entry = entry->next;
@@ -543,8 +549,8 @@ void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) 
     if (!new_entry) return;
     new_entry->key = key;
     new_entry->value = value;
-    vm_retain(key);
-    vm_retain(value);
+    vm_retain(heap, key);
+    vm_retain(heap, value);
     new_entry->next = m->buckets[idx];
     m->buckets[idx] = new_entry;
     m->count++;
@@ -587,7 +593,7 @@ VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {
     for (uint32_t i = 0; i < m->bucket_count; i++) {
         VmHMEntry *entry = m->buckets[i];
         while (entry) {
-            vm_array_push(result, entry->key);
+            vm_array_push(heap, result, entry->key);
             entry = entry->next;
         }
     }
@@ -599,7 +605,7 @@ VmArray *vm_hashmap_values(VmHeap *heap, VmHashMap *m) {
     for (uint32_t i = 0; i < m->bucket_count; i++) {
         VmHMEntry *entry = m->buckets[i];
         while (entry) {
-            vm_array_push(result, entry->value);
+            vm_array_push(heap, result, entry->value);
             entry = entry->next;
         }
     }

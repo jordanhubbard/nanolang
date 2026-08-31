@@ -170,7 +170,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
                                                 &elem, heap);
             if (n == 0) { *out = val_void(); return 0; }
             pos += n;
-            vm_array_push(arr, elem);
+            vm_array_push(heap, arr, elem);
         }
         *out = val_array(arr);
         break;

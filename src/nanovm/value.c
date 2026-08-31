@@ -105,6 +105,9 @@ void val_print(NanoValue v, FILE *out) {
         case TAG_FUNCTION:
             fprintf(out, "fn(%u)", v.as.fn_idx);
             break;
+        case TAG_CLOSURE:
+            fprintf(out, "closure(%u)", v.as.closure ? v.as.closure->fn_idx : 0);
+            break;
         case TAG_OPAQUE:
             fprintf(out, "opaque(%u)", v.as.proxy_id);
             break;

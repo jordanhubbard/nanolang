@@ -5,7 +5,7 @@
  *
  * Assembly format:
  *   .string "hello"          ; add to string pool
- *   .function main 0 2 0     ; name arity locals upvalues
+ *   .function main 0 2 0 int 1 ; name arity locals upvalues result-tag result-count
  *   label:
  *     PUSH_I64 42
  *     PUSH_I64 10

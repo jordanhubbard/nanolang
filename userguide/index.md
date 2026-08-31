@@ -32,7 +32,7 @@ shadow factorial {
 - [Builtins](generated/builtins.md) come from the mechanically checked standard-library reference.
 - [Modules](generated/modules.md) are generated from the module tree and manifests.
 - [Compiler CLI](generated/cli.md) comes from the compiler used to build this guide.
-- [WebAssembly](generated/wasm.md) states the direct backend's tested boundary.
+- [NanoISA](https://github.com/jordanhubbard/nanolang/blob/main/docs/NANOISA.md) is my shared typed VM boundary.
 
 ## What I Promise
 

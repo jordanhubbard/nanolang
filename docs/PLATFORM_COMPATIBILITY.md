@@ -32,7 +32,7 @@ I distinguish between what I have verified and what I assume to work.
 | Platform | Status | Reason |
 |----------|--------|--------|
 | Windows | Not Supported | I rely on Unix-specific build systems and POSIX assumptions |
-| WebAssembly | Partial Support | `--target wasm` emits standalone scalar modules for int/float/bool arithmetic, local functions, recursion, mutable locals, `if`, and `while`. It has no WASI start function, host I/O, imports, or linear-memory data model. See [my WASM module audit](WASM_MODULE_AUDIT.md). |
+| WebAssembly | Planned | I will translate verified NanoISA to WebAssembly after NanoISA v2 is complete. I retired the incomplete direct AST backend. |
 
 ---
 

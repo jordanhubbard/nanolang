@@ -486,8 +486,7 @@ shadow fetch { assert true }
 nanoc program.nano -o program
 
 # Additional compilation backends
-nanoc program.nano --target wasm  -o program.wasm   # WebAssembly
-nanoc program.nano --target llvm  -o program.ll     # LLVM IR
+nano_virt program.nano --emit-nvm -o program.nvm    # NanoISA
 nanoc program.nano --target ptx   -o program.ptx    # CUDA PTX
 nanoc program.nano --target riscv -o program.s      # RISC-V assembly
 

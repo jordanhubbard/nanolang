@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        backend: [wasm, llvm, riscv, c, ptx]
+        backend: [riscv, c, ptx]
       fail-fast: false
 
     steps:
@@ -43,14 +43,6 @@ jobs:
         timeout-minutes: 10
         run: |
           case "${{ matrix.backend }}" in
-            wasm)
-              # wabt provides wasm-validate for binary validation
-              ./scripts/ci-apt-install.sh wabt
-              ;;
-            llvm)
-              # llvm provides llvm-as for IR validation
-              ./scripts/ci-apt-install.sh llvm
-              ;;
             c)
               # gcc is already installed via build-essential
               gcc --version
@@ -122,34 +114,6 @@ jobs:
             printf "  %-30s " "$name"
 
             case "$BACKEND" in
-              # ── WASM ──────────────────────────────────────────────────────
-              wasm)
-                out="$TMPDIR_TESTS/${name}.wasm"
-                if ! compile_nano "$nano_file" --target wasm -o "$out"; then
-                  record fail "$nano_file" "compile error"
-                  continue
-                fi
-                if wasm-validate "$out" 2>/dev/null; then
-                  record pass "$nano_file" "wasm-validate ok"
-                else
-                  record fail "$nano_file" "wasm-validate rejected output"
-                fi
-                ;;
-
-              # ── LLVM IR ───────────────────────────────────────────────────
-              llvm)
-                out="$TMPDIR_TESTS/${name}.ll"
-                if ! compile_nano "$nano_file" --llvm -o "$out"; then
-                  record fail "$nano_file" "compile error"
-                  continue
-                fi
-                if llvm-as "$out" -o /dev/null 2>/dev/null; then
-                  record pass "$nano_file" "llvm-as ok"
-                else
-                  record fail "$nano_file" "llvm-as rejected IR"
-                fi
-                ;;
-
               # ── RISC-V ────────────────────────────────────────────────────
               riscv)
                 out="$TMPDIR_TESTS/${name}.s"

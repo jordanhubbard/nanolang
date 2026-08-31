@@ -25,6 +25,7 @@ static const char *tag_names[] = {
     [TAG_TUPLE]    = "tuple",
     [TAG_HASHMAP]  = "hashmap",
     [TAG_OPAQUE]   = "opaque",
+    [TAG_CLOSURE]  = "closure",
 };
 
 const char *isa_tag_name(uint8_t tag) {
@@ -41,164 +42,28 @@ const char *isa_tag_name(uint8_t tag) {
  * We use a flat array up to OP_COUNT for O(1) lookup.
  * ======================================================================== */
 
-/* Helper macros for concise table entries */
-#define INSTR0(op, nm) \
-    [op] = { .name = nm, .opcode = op, .operand_count = 0, .operands = {0} }
+static InstructionInfo instruction_table[256];
+static bool instruction_table_ready;
 
-#define INSTR1(op, nm, t1) \
-    [op] = { .name = nm, .opcode = op, .operand_count = 1, \
-             .operands = { t1 } }
-
-#define INSTR2(op, nm, t1, t2) \
-    [op] = { .name = nm, .opcode = op, .operand_count = 2, \
-             .operands = { t1, t2 } }
-
-#define INSTR3(op, nm, t1, t2, t3) \
-    [op] = { .name = nm, .opcode = op, .operand_count = 3, \
-             .operands = { t1, t2, t3 } }
-
-static const InstructionInfo instruction_table[256] = {
-    /* Stack & Constants */
-    INSTR0(OP_NOP,       "NOP"),
-    INSTR1(OP_PUSH_I64,  "PUSH_I64",  OPERAND_I64),
-    INSTR1(OP_PUSH_F64,  "PUSH_F64",  OPERAND_F64),
-    INSTR1(OP_PUSH_BOOL, "PUSH_BOOL", OPERAND_U8),
-    INSTR1(OP_PUSH_STR,  "PUSH_STR",  OPERAND_U32),
-    INSTR0(OP_PUSH_VOID, "PUSH_VOID"),
-    INSTR1(OP_PUSH_U8,   "PUSH_U8",   OPERAND_U8),
-    INSTR0(OP_DUP,       "DUP"),
-    INSTR0(OP_POP,       "POP"),
-    INSTR0(OP_SWAP,      "SWAP"),
-    INSTR0(OP_ROT3,      "ROT3"),
-
-    /* Variable Access */
-    INSTR1(OP_LOAD_LOCAL,    "LOAD_LOCAL",    OPERAND_U16),
-    INSTR1(OP_STORE_LOCAL,   "STORE_LOCAL",   OPERAND_U16),
-    INSTR1(OP_LOAD_GLOBAL,   "LOAD_GLOBAL",   OPERAND_U32),
-    INSTR1(OP_STORE_GLOBAL,  "STORE_GLOBAL",  OPERAND_U32),
-    INSTR2(OP_LOAD_UPVALUE,  "LOAD_UPVALUE",  OPERAND_U16, OPERAND_U16),
-    INSTR2(OP_STORE_UPVALUE, "STORE_UPVALUE", OPERAND_U16, OPERAND_U16),
-
-    /* Arithmetic */
-    INSTR0(OP_ADD, "ADD"),
-    INSTR0(OP_SUB, "SUB"),
-    INSTR0(OP_MUL, "MUL"),
-    INSTR0(OP_DIV, "DIV"),
-    INSTR0(OP_MOD, "MOD"),
-    INSTR0(OP_NEG, "NEG"),
-
-    /* Comparison */
-    INSTR0(OP_EQ, "EQ"),
-    INSTR0(OP_NE, "NE"),
-    INSTR0(OP_LT, "LT"),
-    INSTR0(OP_LE, "LE"),
-    INSTR0(OP_GT, "GT"),
-    INSTR0(OP_GE, "GE"),
-
-    /* Logic */
-    INSTR0(OP_AND, "AND"),
-    INSTR0(OP_OR,  "OR"),
-    INSTR0(OP_NOT, "NOT"),
-
-    /* Control Flow */
-    INSTR1(OP_JMP,           "JMP",           OPERAND_I32),
-    INSTR1(OP_JMP_TRUE,      "JMP_TRUE",      OPERAND_I32),
-    INSTR1(OP_JMP_FALSE,     "JMP_FALSE",     OPERAND_I32),
-    INSTR1(OP_CALL,          "CALL",          OPERAND_U32),
-    INSTR0(OP_CALL_INDIRECT, "CALL_INDIRECT"),
-    INSTR0(OP_RET,           "RET"),
-    INSTR1(OP_CALL_EXTERN,   "CALL_EXTERN",   OPERAND_U32),
-    INSTR2(OP_CALL_MODULE,   "CALL_MODULE",   OPERAND_U32, OPERAND_U32),
-
-    /* String Ops */
-    INSTR0(OP_STR_LEN,        "STR_LEN"),
-    INSTR0(OP_STR_CONCAT,     "STR_CONCAT"),
-    INSTR0(OP_STR_SUBSTR,     "STR_SUBSTR"),
-    INSTR0(OP_STR_CONTAINS,   "STR_CONTAINS"),
-    INSTR0(OP_STR_EQ,         "STR_EQ"),
-    INSTR0(OP_STR_CHAR_AT,    "STR_CHAR_AT"),
-    INSTR0(OP_STR_FROM_INT,   "STR_FROM_INT"),
-    INSTR0(OP_STR_FROM_FLOAT, "STR_FROM_FLOAT"),
-    INSTR0(OP_STR_TRIM,       "STR_TRIM"),
-    INSTR0(OP_STR_TO_LOWER,   "STR_TO_LOWER"),
-    INSTR0(OP_STR_TO_UPPER,   "STR_TO_UPPER"),
-    INSTR0(OP_STR_STARTS_WITH,"STR_STARTS_WITH"),
-    INSTR0(OP_STR_ENDS_WITH,  "STR_ENDS_WITH"),
-    INSTR0(OP_STR_SPLIT,      "STR_SPLIT"),
-    INSTR0(OP_STR_REPLACE,    "STR_REPLACE"),
-
-    /* Array Ops */
-    INSTR1(OP_ARR_NEW,     "ARR_NEW",     OPERAND_U8),
-    INSTR0(OP_ARR_PUSH,    "ARR_PUSH"),
-    INSTR0(OP_ARR_POP,     "ARR_POP"),
-    INSTR0(OP_ARR_GET,     "ARR_GET"),
-    INSTR0(OP_ARR_SET,     "ARR_SET"),
-    INSTR0(OP_ARR_LEN,     "ARR_LEN"),
-    INSTR0(OP_ARR_SLICE,   "ARR_SLICE"),
-    INSTR0(OP_ARR_REMOVE,  "ARR_REMOVE"),
-    INSTR2(OP_ARR_LITERAL, "ARR_LITERAL", OPERAND_U8, OPERAND_U16),
-
-    /* Struct Ops */
-    INSTR1(OP_STRUCT_NEW,     "STRUCT_NEW",     OPERAND_U32),
-    INSTR1(OP_STRUCT_GET,     "STRUCT_GET",     OPERAND_U16),
-    INSTR1(OP_STRUCT_SET,     "STRUCT_SET",     OPERAND_U16),
-    INSTR2(OP_STRUCT_LITERAL, "STRUCT_LITERAL", OPERAND_U32, OPERAND_U16),
-
-    /* Union/Enum Ops */
-    INSTR3(OP_UNION_CONSTRUCT, "UNION_CONSTRUCT", OPERAND_U32, OPERAND_U16, OPERAND_U16),
-    INSTR0(OP_UNION_TAG,       "UNION_TAG"),
-    INSTR1(OP_UNION_FIELD,     "UNION_FIELD",     OPERAND_U16),
-    INSTR2(OP_MATCH_TAG,       "MATCH_TAG",       OPERAND_U16, OPERAND_I32),
-    INSTR2(OP_ENUM_VAL,        "ENUM_VAL",        OPERAND_U32, OPERAND_U16),
-
-    /* Tuple Ops */
-    INSTR1(OP_TUPLE_NEW, "TUPLE_NEW", OPERAND_U16),
-    INSTR1(OP_TUPLE_GET, "TUPLE_GET", OPERAND_U16),
-
-    /* Hashmap Ops */
-    INSTR2(OP_HM_NEW,    "HM_NEW",    OPERAND_U8, OPERAND_U8),
-    INSTR0(OP_HM_GET,    "HM_GET"),
-    INSTR0(OP_HM_SET,    "HM_SET"),
-    INSTR0(OP_HM_HAS,    "HM_HAS"),
-    INSTR0(OP_HM_DELETE, "HM_DELETE"),
-    INSTR0(OP_HM_KEYS,   "HM_KEYS"),
-    INSTR0(OP_HM_VALUES, "HM_VALUES"),
-    INSTR0(OP_HM_LEN,    "HM_LEN"),
-
-    /* GC/Memory */
-    INSTR0(OP_GC_RETAIN,      "GC_RETAIN"),
-    INSTR0(OP_GC_RELEASE,     "GC_RELEASE"),
-    INSTR0(OP_GC_SCOPE_ENTER, "GC_SCOPE_ENTER"),
-    INSTR0(OP_GC_SCOPE_EXIT,  "GC_SCOPE_EXIT"),
-
-    /* Type Casts */
-    INSTR0(OP_CAST_INT,    "CAST_INT"),
-    INSTR0(OP_CAST_FLOAT,  "CAST_FLOAT"),
-    INSTR0(OP_CAST_BOOL,   "CAST_BOOL"),
-    INSTR0(OP_CAST_STRING, "CAST_STRING"),
-    INSTR1(OP_TYPE_CHECK,  "TYPE_CHECK", OPERAND_U8),
-
-    /* Closures */
-    INSTR2(OP_CLOSURE_NEW,  "CLOSURE_NEW",  OPERAND_U32, OPERAND_U16),
-    INSTR0(OP_CLOSURE_CALL, "CLOSURE_CALL"),
-
-    /* I/O & Debug */
-    INSTR0(OP_PRINT,      "PRINT"),
-    INSTR0(OP_ASSERT,     "ASSERT"),
-    INSTR1(OP_DEBUG_LINE, "DEBUG_LINE", OPERAND_U32),
-    INSTR0(OP_HALT,       "HALT"),
-    INSTR0(OP_PRINTLN,    "PRINTLN"),
-
-    /* Opaque Proxy */
-    INSTR0(OP_OPAQUE_NULL,  "OPAQUE_NULL"),
-    INSTR0(OP_OPAQUE_VALID, "OPAQUE_VALID"),
-};
+static void init_instruction_table(void) {
+    if (instruction_table_ready) return;
+    for (size_t i = 0; i < NANOISA_LEGACY_OPCODE_COUNT; i++) {
+        const NanoisaSchemaOpcode *source = &nanoisa_schema_opcodes[i];
+        InstructionInfo *target = &instruction_table[source->opcode];
+        target->name = source->name;
+        target->opcode = source->opcode;
+        target->operand_count = source->operand_count;
+        memcpy(target->operands, source->operands, sizeof(target->operands));
+    }
+    instruction_table_ready = true;
+}
 
 /* ========================================================================
  * API Implementation
  * ======================================================================== */
 
 const InstructionInfo *isa_get_info(uint8_t opcode) {
+    init_instruction_table();
     const InstructionInfo *info = &instruction_table[opcode];
     if (info->name == NULL) {
         return NULL;
@@ -399,6 +264,7 @@ uint32_t isa_decode(const uint8_t *buf, size_t buf_size, DecodedInstruction *out
 /* ---- Lookup by name ---- */
 
 int isa_opcode_by_name(const char *name) {
+    init_instruction_table();
     for (int i = 0; i < 256; i++) {
         if (instruction_table[i].name != NULL &&
             strcmp(instruction_table[i].name, name) == 0) {

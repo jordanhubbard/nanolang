@@ -4,6 +4,7 @@
 
 #include "../../src/nanoisa/assembler.h"
 #include "../../src/nanoisa/disassembler.h"
+#include "../../src/nanoisa/isa.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -303,10 +304,11 @@ char *nanoisa_pretty_print(const NvmModule *mod) {
         const NvmFunctionEntry *function = &mod->functions[i];
         const char *name = nvm_get_string(mod, function->name_idx);
         fprintf(stream,
-                "  [%u] %s arity=%u locals=%u upvalues=%u "
+                "  [%u] %s arity=%u locals=%u upvalues=%u result=%s/%u "
                 "code=0x%08x+%u\n",
                 i, name ? name : "???", function->arity,
                 function->local_count, function->upvalue_count,
+                isa_tag_name(function->result_tag), function->result_count,
                 function->code_offset, function->code_length);
     }
 

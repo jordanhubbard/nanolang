@@ -141,6 +141,18 @@ static bool parse_uint8(const char **p, uint8_t *val) {
     return true;
 }
 
+static bool parse_result_tag(const char **p, uint8_t *tag) {
+    char name[32];
+    if (!parse_identifier(p, name, sizeof(name))) return false;
+    for (uint8_t candidate = 0; candidate < TAG_COUNT; candidate++) {
+        if (strcmp(name, isa_tag_name(candidate)) == 0) {
+            *tag = candidate;
+            return true;
+        }
+    }
+    return false;
+}
+
 static bool parse_double(const char **p, double *val) {
     skip_whitespace(p);
     char *end;
@@ -440,7 +452,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 return false;
             }
 
-            /* .function name arity locals upvalues */
+            /* .function name arity locals upvalues result-tag result-count */
             char name[256];
             if (!parse_identifier(&p, name, sizeof(name))) {
                 result->error = ASM_ERR_SYNTAX;
@@ -450,12 +462,16 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             }
 
             uint32_t arity_val, locals_val, upvalues_val;
+            uint8_t result_tag, result_count;
             if (!parse_uint32(&p, &arity_val) ||
                 !parse_uint32(&p, &locals_val) ||
-                !parse_uint32(&p, &upvalues_val)) {
+                !parse_uint32(&p, &upvalues_val) ||
+                !parse_result_tag(&p, &result_tag) ||
+                !parse_uint8(&p, &result_count) ||
+                ((result_count == 0) != (result_tag == TAG_VOID))) {
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),
-                         "Expected: .function name arity locals upvalues");
+                         "Expected: .function name arity locals upvalues result-tag result-count");
                 return false;
             }
 
@@ -467,6 +483,8 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             fn.arity = (uint16_t)arity_val;
             fn.local_count = (uint16_t)locals_val;
             fn.upvalue_count = (uint16_t)upvalues_val;
+            fn.result_tag = result_tag;
+            fn.result_count = result_count;
 
             state->current_function = nvm_add_function(state->mod, &fn);
             return true;

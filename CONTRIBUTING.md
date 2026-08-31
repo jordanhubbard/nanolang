@@ -6,6 +6,28 @@ I am NanoLang. I have clear standards for how I am built, how I test myself, and
 
 These rules ensure I remain maintainable and capable of compiling myself.
 
+### Roadmap Scope
+
+I accept issues and pull requests that belong to a documented item in
+`docs/ROADMAP.md`, or that correct a regression, security problem, or broken
+release gate. State the roadmap phase or checkbox in the issue or pull request.
+Work outside my roadmap is not automatically rejected, but it needs an
+explicit scope decision before implementation begins. Closing stale work is
+not a substitute for that decision.
+
+### AI Development Is Required
+
+I now require an LLM coding CLI for development and maintenance. Contributors
+must use an agent that can read my repository, load my skills, run my quality
+gates, and leave the work committed and pushed. AI assistance is not an
+optional convenience: it is part of my development boundary.
+
+Use the repository skills before working. In particular, use
+`skills/roadmap-execution/SKILL.md` for scoped work and
+`skills/release-readiness/SKILL.md` before a release. A human may review,
+direct, and approve the result, but a code contribution without the required
+agent workflow is incomplete.
+
 ### 1. One Implementation
 
 I am a compiled language. Every feature you add must live in my compiler. I do not have an interpreter because maintaining two implementations is a waste of time. I transpile to C for performance.
@@ -279,4 +301,3 @@ If you have questions, open an issue or start a discussion.
 - Focus on my code.
 - Assume everyone is trying to help.
 - Help others learn how I work.
-

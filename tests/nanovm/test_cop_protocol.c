@@ -278,9 +278,9 @@ TEST(serialize_array_roundtrip) {
     /* Build an int array [1, 2, 3] */
     VmArray *arr = vm_array_new(&heap, TAG_INT, 4);
     ASSERT(arr != NULL);
-    vm_array_push(arr, val_int(1));
-    vm_array_push(arr, val_int(2));
-    vm_array_push(arr, val_int(3));
+    vm_array_push(&heap, arr, val_int(1));
+    vm_array_push(&heap, arr, val_int(2));
+    vm_array_push(&heap, arr, val_int(3));
 
     NanoValue v = val_array(arr);
     uint8_t buf[256];

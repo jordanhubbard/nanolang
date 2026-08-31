@@ -168,5 +168,6 @@ int64_t nl_pty_is_alive(int64_t pid) {
     int status = 0;
     pid_t result = waitpid((pid_t)pid, &status, WNOHANG);
     if (result == 0) return 1;   /* still running */
-    return 0;                    /* exited or error */
+    if (result < 0 && errno == EINTR) return 1;
+    return 0;                    /* exited or no longer our child */
 }

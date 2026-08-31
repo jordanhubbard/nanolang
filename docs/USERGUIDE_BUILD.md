@@ -27,7 +27,6 @@ every local link and fragment.
 | Examples | Every `.nano` file under `examples/` and its metadata header |
 | Modules | `modules/`, `module.json`, `module.manifest.json`, and declarations |
 | Compiler CLI | `bin/nanoc_c --help` |
-| WebAssembly | `docs/WASM_MODULE_AUDIT.md` |
 
 Generated Markdown lives under `build/userguide/generated/`; it is a build
 artifact, not a second hand-maintained reference.

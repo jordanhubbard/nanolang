@@ -120,6 +120,7 @@ struct CG {
     Local locals[MAX_LOCALS];
     uint16_t local_count;
     uint16_t param_count;
+    uint32_t current_fn_idx;
 
     /* Function table (populated in pass 1) */
     FnEntry functions[MAX_FUNCTIONS];
@@ -444,13 +445,22 @@ static int32_t extern_find_qualified(CG *cg, const char *module_alias, const cha
 static uint8_t type_to_tag(Type t) {
     switch (t) {
         case TYPE_INT:     return TAG_INT;
+        case TYPE_U8:      return TAG_U8;
         case TYPE_FLOAT:   return TAG_FLOAT;
         case TYPE_BOOL:    return TAG_BOOL;
         case TYPE_STRING:  return TAG_STRING;
+        case TYPE_BSTRING: return TAG_BSTRING;
         case TYPE_VOID:    return TAG_VOID;
         case TYPE_ARRAY:   return TAG_ARRAY;
+        case TYPE_LIST_INT:
+        case TYPE_LIST_STRING:
+        case TYPE_LIST_TOKEN:
+        case TYPE_LIST_GENERIC: return TAG_ARRAY;
         case TYPE_STRUCT:  return TAG_STRUCT;
+        case TYPE_OPEN_RECORD: return TAG_STRUCT;
         case TYPE_ENUM:    return TAG_ENUM;
+        case TYPE_UNION:   return TAG_UNION;
+        case TYPE_FUNCTION: return TAG_FUNCTION;
         case TYPE_TUPLE:   return TAG_TUPLE;
         case TYPE_HASHMAP: return TAG_HASHMAP;
         case TYPE_OPAQUE:  return TAG_OPAQUE;
@@ -541,6 +551,13 @@ static bool compile_module_introspection(CG *cg, const char *name) {
 
 static void compile_expr(CG *cg, ASTNode *node);
 static void compile_stmt(CG *cg, ASTNode *node);
+static bool stmt_falls_through(ASTNode *node);
+
+static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
+                                 bool want_float) {
+    compile_expr(cg, node);
+    if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
+}
 
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
@@ -554,8 +571,6 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         else emit_op(cg, OP_PUSH_VOID);
         /* println adds a newline; print does not */
         emit_op(cg, strcmp(name, "println") == 0 ? OP_PRINTLN : OP_PRINT);
-        /* println/print return void - push void so caller has a value */
-        emit_op(cg, OP_PUSH_VOID);
         return true;
     }
 
@@ -705,7 +720,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_LT);
         uint32_t jf_instr = cg->code_size;
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
-        emit_op(cg, OP_NEG);
+        emit_op(cg, OP_I64_NEG);
         patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
         return true;
     }
@@ -794,7 +809,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             emit_op(cg, OP_STORE_LOCAL, (int)arr_slot);
             emit_op(cg, OP_LOAD_LOCAL, (int)i_slot);
             emit_op(cg, OP_PUSH_I64, (int64_t)1);
-            emit_op(cg, OP_ADD);
+            emit_op(cg, OP_I64_ADD);
             emit_op(cg, OP_STORE_LOCAL, (int)i_slot);
             uint32_t jmp_instr = cg->code_size;
             emit_op(cg, OP_JMP, (int32_t)0);
@@ -828,6 +843,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         compile_expr(cg, args[1]); /* index */
         compile_expr(cg, args[2]); /* value */
         emit_op(cg, OP_ARR_SET);
+        emit_op(cg, OP_POP); /* array_set is declared void */
         return true;
     }
     if (strcmp(name, "array_remove_at") == 0 && argc == 2) {
@@ -891,7 +907,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* i = i + 1 */
         emit_op(cg, OP_LOAD_LOCAL, (int)i_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)i_slot);
 
         /* Jump back to top */
@@ -964,7 +980,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* i++ */
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
 
         uint32_t jmp_instr = cg->code_size;
@@ -1021,7 +1037,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
 
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
 
         uint32_t jmp_instr = cg->code_size;
@@ -1074,7 +1090,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
 
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
 
         uint32_t jmp_instr = cg->code_size;
@@ -1163,7 +1179,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_STORE_LOCAL, (int)arr1);
         emit_op(cg, OP_LOAD_LOCAL, (int)idx);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_STORE_LOCAL, (int)idx);
         uint32_t jmp_instr = cg->code_size;
         emit_op(cg, OP_JMP, (int32_t)0);
@@ -1343,6 +1359,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
                 compile_expr(cg, args[1]);
                 compile_expr(cg, args[2]);
                 emit_op(cg, OP_ARR_SET);
+                emit_op(cg, OP_POP); /* list_T_set is declared void */
                 return true;
             }
         }
@@ -1401,11 +1418,9 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
     if (strcmp(name, "bstr_free") == 0 && argc == 1) {
-        /* No-op in VM - GC handles memory.
-         * Evaluate arg, discard it, push void so caller can POP. */
+        /* No-op in VM - GC handles memory. Evaluate and discard the argument. */
         compile_expr(cg, args[0]);
         emit_op(cg, OP_POP);
-        emit_op(cg, OP_PUSH_VOID);
         return true;
     }
     if (strcmp(name, "bstr_utf8_length") == 0 && argc == 1) {
@@ -1469,26 +1484,26 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     /* Result type helpers */
     if (strcmp(name, "result_is_ok") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_TAG);
+        emit_op(cg, OP_AGG_TAG);
         emit_op(cg, OP_PUSH_I64, (int64_t)0);
         emit_op(cg, OP_EQ);
         return true;
     }
     if (strcmp(name, "result_is_err") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_TAG);
+        emit_op(cg, OP_AGG_TAG);
         emit_op(cg, OP_PUSH_I64, (int64_t)1);
         emit_op(cg, OP_EQ);
         return true;
     }
     if (strcmp(name, "result_unwrap") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_FIELD, 0);
+        emit_op(cg, OP_AGG_GET, 0);
         return true;
     }
     if (strcmp(name, "result_unwrap_err") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
-        emit_op(cg, OP_UNION_FIELD, 0);
+        emit_op(cg, OP_AGG_GET, 0);
         return true;
     }
 
@@ -1521,7 +1536,6 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             /* A barrier synchronises threads within a block; with one thread
              * there is nothing to wait for. */
             if (strcmp(name, "gpu_barrier") == 0) {
-                emit_op(cg, OP_PUSH_VOID);
                 return true;
             }
         }
@@ -1605,8 +1619,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 /* Check if it's a function name (function-as-value) */
                 int32_t fn_idx = fn_find(cg, id);
                 if (fn_idx >= 0) {
-                    /* Push function reference as a TAG_FUNCTION value */
-                    emit_op(cg, OP_CLOSURE_NEW, (uint32_t)fn_idx, 0);
+                    emit_op(cg, OP_FUNCREF, (uint32_t)fn_idx);
                 } else {
                     /* Check if it's a captured variable from parent scope */
                     int16_t uv = upvalue_resolve(cg, id);
@@ -1646,31 +1659,53 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
         if (argc == 1) {
             /* Unary operators */
+            Type arg_type = check_expression(args[0], cg->env);
             compile_expr(cg, args[0]);
             switch (op) {
-                case TOKEN_MINUS: emit_op(cg, OP_NEG); break;
-                case TOKEN_NOT:   emit_op(cg, OP_NOT); break;
+                case TOKEN_MINUS:
+                    emit_op(cg, arg_type == TYPE_FLOAT ? OP_F64_NEG : OP_I64_NEG);
+                    break;
+                case TOKEN_NOT: emit_op(cg, OP_BOOL_NOT); break;
                 default:
                     cg_error(cg, node->line, "unsupported unary operator %d", op);
             }
         } else if (argc == 2) {
             /* Binary operators */
-            compile_expr(cg, args[0]);
-            compile_expr(cg, args[1]);
+            Type left = check_expression(args[0], cg->env);
+            Type right = check_expression(args[1], cg->env);
+            bool array_op = left == TYPE_ARRAY || right == TYPE_ARRAY;
+            bool float_op = left == TYPE_FLOAT || right == TYPE_FLOAT;
+            bool string_concat = op == TOKEN_PLUS
+                && left == TYPE_STRING && right == TYPE_STRING;
+            compile_numeric_expr(cg, args[0], left, float_op && !array_op);
+            compile_numeric_expr(cg, args[1], right, float_op && !array_op);
             switch (op) {
-                case TOKEN_PLUS:    emit_op(cg, OP_ADD); break;
-                case TOKEN_MINUS:   emit_op(cg, OP_SUB); break;
-                case TOKEN_STAR:    emit_op(cg, OP_MUL); break;
-                case TOKEN_SLASH:   emit_op(cg, OP_DIV); break;
-                case TOKEN_PERCENT: emit_op(cg, OP_MOD); break;
-                case TOKEN_EQ:      emit_op(cg, OP_EQ);  break;
-                case TOKEN_NE:      emit_op(cg, OP_NE);  break;
-                case TOKEN_LT:      emit_op(cg, OP_LT);  break;
-                case TOKEN_LE:      emit_op(cg, OP_LE);  break;
-                case TOKEN_GT:      emit_op(cg, OP_GT);  break;
-                case TOKEN_GE:      emit_op(cg, OP_GE);  break;
-                case TOKEN_AND:     emit_op(cg, OP_AND); break;
-                case TOKEN_OR:      emit_op(cg, OP_OR);  break;
+                case TOKEN_PLUS:
+                    emit_op(cg, string_concat ? OP_STR_CONCAT
+                        : array_op ? OP_ARRAY_ADD
+                        : float_op ? OP_F64_ADD : OP_I64_ADD); break;
+                case TOKEN_MINUS:
+                    emit_op(cg, array_op ? OP_ARRAY_SUB
+                        : float_op ? OP_F64_SUB : OP_I64_SUB); break;
+                case TOKEN_STAR:
+                    emit_op(cg, array_op ? OP_ARRAY_MUL
+                        : float_op ? OP_F64_MUL : OP_I64_MUL); break;
+                case TOKEN_SLASH:
+                    emit_op(cg, array_op ? OP_ARRAY_DIV
+                        : float_op ? OP_F64_DIV : OP_I64_DIV_S); break;
+                case TOKEN_PERCENT: emit_op(cg, OP_I64_REM_S); break;
+                case TOKEN_EQ:
+                    emit_op(cg, array_op || (left != TYPE_INT && left != TYPE_ENUM && !float_op)
+                        ? OP_EQ : (float_op ? OP_F64_EQ : OP_I64_EQ)); break;
+                case TOKEN_NE:
+                    emit_op(cg, array_op || (left != TYPE_INT && left != TYPE_ENUM && !float_op)
+                        ? OP_NE : (float_op ? OP_F64_NE : OP_I64_NE)); break;
+                case TOKEN_LT: emit_op(cg, float_op ? OP_F64_LT : OP_I64_LT_S); break;
+                case TOKEN_LE: emit_op(cg, float_op ? OP_F64_LE : OP_I64_LE_S); break;
+                case TOKEN_GT: emit_op(cg, float_op ? OP_F64_GT : OP_I64_GT_S); break;
+                case TOKEN_GE: emit_op(cg, float_op ? OP_F64_GE : OP_I64_GE_S); break;
+                case TOKEN_AND: emit_op(cg, OP_BOOL_AND); break;
+                case TOKEN_OR: emit_op(cg, OP_BOOL_OR); break;
                 default:
                     cg_error(cg, node->line, "unsupported binary operator %d", op);
             }
@@ -1867,7 +1902,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
                     for (int i = 0; i < fc; i++) {
                         compile_expr(cg, node->as.struct_literal.field_values[i]);
                     }
-                    emit_op(cg, OP_UNION_CONSTRUCT, ud->def_idx, (int)vi, fc);
+                    emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx,
+                            (int)vi, fc);
                     break;
                 }
             }
@@ -1895,7 +1931,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 emit_op(cg, OP_PUSH_VOID);
             }
         }
-        emit_op(cg, OP_STRUCT_LITERAL, sd->def_idx, sd->field_count);
+        emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0,
+                sd->field_count);
         break;
     }
 
@@ -1930,7 +1967,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             if (sd) {
                 int16_t fi = struct_field_index(sd, field);
                 if (fi >= 0) {
-                    emit_op(cg, OP_STRUCT_GET, (int)fi);
+                    emit_op(cg, OP_AGG_GET, (int)fi);
                     break;
                 }
             }
@@ -1939,7 +1976,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < cg->struct_count; i++) {
             int16_t fi = struct_field_index(&cg->structs[i], field);
             if (fi >= 0) {
-                emit_op(cg, OP_STRUCT_GET, (int)fi);
+                emit_op(cg, OP_AGG_GET, (int)fi);
                 goto field_done;
             }
         }
@@ -1949,7 +1986,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             for (int vi = 0; vi < ud->variant_count; vi++) {
                 for (int fi = 0; fi < ud->variant_field_counts[vi]; fi++) {
                     if (strcmp(ud->variant_field_names[vi][fi], field) == 0) {
-                        emit_op(cg, OP_UNION_FIELD, fi);
+                        emit_op(cg, OP_AGG_GET, fi);
                         goto field_done;
                     }
                 }
@@ -1965,13 +2002,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < count; i++) {
             compile_expr(cg, node->as.tuple_literal.elements[i]);
         }
-        emit_op(cg, OP_TUPLE_NEW, count);
+        emit_op(cg, OP_AGG_PACK, AGG_TUPLE, 0, 0, count);
         break;
     }
 
     case AST_TUPLE_INDEX: {
         compile_expr(cg, node->as.tuple_index.tuple);
-        emit_op(cg, OP_TUPLE_GET, node->as.tuple_index.index);
+        emit_op(cg, OP_AGG_GET, node->as.tuple_index.index);
         break;
     }
 
@@ -1996,7 +2033,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         for (int i = 0; i < fc; i++) {
             compile_expr(cg, node->as.union_construct.field_values[i]);
         }
-        emit_op(cg, OP_UNION_CONSTRUCT, ud->def_idx, (int)vi, fc);
+        emit_op(cg, OP_AGG_PACK, AGG_VARIANT, ud->def_idx, (int)vi, fc);
         break;
     }
 
@@ -2046,7 +2083,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 int n_body_patches = 0;
                 for (int ai = 0; ai < n_alts - 1; ai++) {
                     int16_t vi_alt = ud ? union_variant_index(ud, alts[ai]) : (int16_t)ai;
-                    emit_op(cg, OP_DUP); emit_op(cg, OP_UNION_TAG);
+                    emit_op(cg, OP_DUP); emit_op(cg, OP_AGG_TAG);
                     emit_op(cg, OP_PUSH_I64, (int64_t)vi_alt); emit_op(cg, OP_EQ);
                     uint32_t jt_instr = cg->code_size;
                     uint32_t jt_off = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
@@ -2058,7 +2095,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 }
                 /* Last alt: DUP UNION_TAG PUSH vi EQ JMP_FALSE to next */
                 int16_t vi_last = ud ? union_variant_index(ud, alts[n_alts-1]) : (int16_t)(n_alts-1);
-                emit_op(cg, OP_DUP); emit_op(cg, OP_UNION_TAG);
+                emit_op(cg, OP_DUP); emit_op(cg, OP_AGG_TAG);
                 emit_op(cg, OP_PUSH_I64, (int64_t)vi_last); emit_op(cg, OP_EQ);
                 jf_instr = cg->code_size;
                 jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
@@ -2070,7 +2107,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
             } else {
                 /* DUP the union value for tag check */
                 emit_op(cg, OP_DUP);
-                emit_op(cg, OP_UNION_TAG);
+                emit_op(cg, OP_AGG_TAG);
 
                 /* Push variant index */
                 int16_t vi = 0;
@@ -2170,6 +2207,8 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         NvmFunctionEntry fn = {0};
         fn.name_idx = name_idx;
         fn.arity = (uint16_t)node->as.function.param_count;
+        fn.result_tag = type_to_tag(node->as.function.return_type);
+        fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
         fn_idx = (int32_t)nvm_add_function(cg->module, &fn);
         if (cg->fn_count < MAX_FUNCTIONS) {
             cg->functions[cg->fn_count].name = (char *)name;
@@ -2191,6 +2230,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     memcpy(st->locals, cg->locals, sizeof(cg->locals));
     uint16_t saved_local_count = cg->local_count;
     uint16_t saved_param_count = cg->param_count;
+    uint32_t saved_current_fn_idx = cg->current_fn_idx;
     memcpy(st->loops, cg->loops, sizeof(cg->loops));
     int saved_loop_depth = cg->loop_depth;
     memcpy(st->upvalues, cg->upvalues, sizeof(cg->upvalues));
@@ -2214,6 +2254,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->param_count = (uint16_t)node->as.function.param_count;
     cg->loop_depth = 0;
     cg->upvalue_count = 0;
+    cg->current_fn_idx = (uint32_t)fn_idx;
 
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -2229,14 +2270,14 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         if (body->type == AST_BLOCK) {
             for (int i = 0; i < body->as.block.count; i++) {
                 compile_stmt(cg, body->as.block.statements[i]);
+                if (!stmt_falls_through(body->as.block.statements[i])) break;
             }
         } else {
             compile_expr(cg, body);
             emit_op(cg, OP_RET);
         }
     }
-    if (cg->code_size == 0 || cg->code[cg->code_size - 1] != OP_RET) {
-        emit_op(cg, OP_PUSH_VOID);
+    if (!body || stmt_falls_through(body)) {
         emit_op(cg, OP_RET);
     }
 
@@ -2262,6 +2303,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     memcpy(cg->locals, st->locals, sizeof(cg->locals));
     cg->local_count = saved_local_count;
     cg->param_count = saved_param_count;
+    cg->current_fn_idx = saved_current_fn_idx;
     memcpy(cg->loops, st->loops, sizeof(cg->loops));
     cg->loop_depth = saved_loop_depth;
     memcpy(cg->upvalues, st->upvalues, sizeof(cg->upvalues));
@@ -2287,12 +2329,68 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
 
 /* ── Statement compilation ──────────────────────────────────────── */
 
+static bool stmt_falls_through(ASTNode *node) {
+    if (!node) return true;
+    switch (node->type) {
+        case AST_RETURN:
+        case AST_BREAK:
+        case AST_CONTINUE:
+            return false;
+        case AST_BLOCK:
+            for (int i = 0; i < node->as.block.count; i++) {
+                if (!stmt_falls_through(node->as.block.statements[i])) return false;
+            }
+            return true;
+        case AST_IF:
+            return !node->as.if_stmt.else_branch
+                || stmt_falls_through(node->as.if_stmt.then_branch)
+                || stmt_falls_through(node->as.if_stmt.else_branch);
+        default:
+            return true;
+    }
+}
+
+static int32_t direct_call_target(CG *cg, ASTNode *node) {
+    if (!node) return -1;
+    if (node->type == AST_CALL)
+        return node->as.call.name ? fn_find(cg, node->as.call.name) : -1;
+    if (node->type == AST_MODULE_QUALIFIED_CALL) {
+        char qualified[512];
+        snprintf(qualified, sizeof(qualified), "%s.%s",
+                 node->as.module_qualified_call.module_alias,
+                 node->as.module_qualified_call.function_name);
+        int32_t target = fn_find(cg, qualified);
+        return target >= 0 ? target
+            : fn_find(cg, node->as.module_qualified_call.function_name);
+    }
+    return -1;
+}
+
+static bool compile_tail_call(CG *cg, ASTNode *node) {
+    int32_t target = direct_call_target(cg, node);
+    if (target < 0) return false;
+    const NvmFunctionEntry *caller = &cg->module->functions[cg->current_fn_idx];
+    const NvmFunctionEntry *callee = &cg->module->functions[target];
+    if (caller->result_count != callee->result_count
+            || caller->result_tag != callee->result_tag)
+        return false;
+
+    ASTNode **args = node->type == AST_CALL ? node->as.call.args
+        : node->as.module_qualified_call.args;
+    int argc = node->type == AST_CALL ? node->as.call.arg_count
+        : node->as.module_qualified_call.arg_count;
+    if ((uint16_t)argc != callee->arity) return false;
+    for (int i = 0; i < argc; i++) compile_expr(cg, args[i]);
+    emit_op(cg, OP_TAIL_CALL, (uint32_t)target);
+    return true;
+}
+
 static void compile_stmt(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
-    /* Emit source location hint before each statement */
+    /* Source locations live in the side table, never in executable code. */
     if (node->line > 0) {
-        uint32_t off = emit_op(cg, OP_DEBUG_LINE, (uint32_t)node->line);
+        uint32_t off = cg->module->code_size + cg->code_size;
         nvm_add_debug_entry(cg->module, off, (uint32_t)node->line,
                             (uint32_t)(node->column > 0 ? node->column : 0));
     }
@@ -2339,16 +2437,22 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
         uint32_t jf_patch = jf_off + 1;
 
+        bool then_falls_through = stmt_falls_through(node->as.if_stmt.then_branch);
         compile_stmt(cg, node->as.if_stmt.then_branch);
 
         if (node->as.if_stmt.else_branch) {
-            uint32_t je_instr = cg->code_size;
-            uint32_t je_off = emit_op(cg, OP_JMP, (int32_t)0);
-            uint32_t je_patch = je_off + 1;
+            uint32_t je_instr = 0;
+            uint32_t je_patch = 0;
+            if (then_falls_through) {
+                je_instr = cg->code_size;
+                uint32_t je_off = emit_op(cg, OP_JMP, (int32_t)0);
+                je_patch = je_off + 1;
+            }
 
             patch_jump(cg, jf_patch, jf_instr, cg->code_size);
             compile_stmt(cg, node->as.if_stmt.else_branch);
-            patch_jump(cg, je_patch, je_instr, cg->code_size);
+            if (then_falls_through)
+                patch_jump(cg, je_patch, je_instr, cg->code_size);
         } else {
             patch_jump(cg, jf_patch, jf_instr, cg->code_size);
         }
@@ -2372,13 +2476,11 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
         compile_stmt(cg, node->as.while_stmt.body);
 
-        /* Jump back to top */
-        uint32_t jmp_instr = cg->code_size;
-        emit_op(cg, OP_JMP, (int32_t)(loop->top_offset - cg->code_size));
-        /* Actually: the offset is computed from the instruction start, but
-         * we already advanced code_size past the emit. Let me fix this. */
-        /* Re-patch: the jump was emitted at jmp_instr, targeting loop->top_offset */
-        patch_jump(cg, jmp_instr + 1, jmp_instr, loop->top_offset);
+        if (stmt_falls_through(node->as.while_stmt.body)) {
+            uint32_t jmp_instr = cg->code_size;
+            emit_op(cg, OP_JMP, (int32_t)0);
+            patch_jump(cg, jmp_instr + 1, jmp_instr, loop->top_offset);
+        }
 
         uint32_t loop_end = cg->code_size;
         /* Patch the conditional jump to after loop */
@@ -2443,16 +2545,15 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         /* Compile body */
         compile_stmt(cg, node->as.for_stmt.body);
 
-        /* Increment counter */
-        emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
-        emit_op(cg, OP_PUSH_I64, (int64_t)1);
-        emit_op(cg, OP_ADD);
-        emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
-
-        /* Jump back to top */
-        uint32_t jmp_instr = cg->code_size;
-        emit_op(cg, OP_JMP, (int32_t)0);
-        patch_jump(cg, jmp_instr + 1, jmp_instr, loop->top_offset);
+        if (stmt_falls_through(node->as.for_stmt.body)) {
+            emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_ADD);
+            emit_op(cg, OP_STORE_LOCAL, (int)idx_slot);
+            uint32_t jmp_instr = cg->code_size;
+            emit_op(cg, OP_JMP, (int32_t)0);
+            patch_jump(cg, jmp_instr + 1, jmp_instr, loop->top_offset);
+        }
 
         uint32_t loop_end = cg->code_size;
         patch_jump(cg, jf_patch, jf_instr, loop_end);
@@ -2470,15 +2571,18 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_BLOCK: {
         for (int i = 0; i < node->as.block.count; i++) {
             compile_stmt(cg, node->as.block.statements[i]);
+            if (!stmt_falls_through(node->as.block.statements[i])) break;
         }
         break;
     }
 
     case AST_RETURN: {
+        if (node->as.return_stmt.value
+                && compile_tail_call(cg, node->as.return_stmt.value)) {
+            break;
+        }
         if (node->as.return_stmt.value) {
             compile_expr(cg, node->as.return_stmt.value);
-        } else {
-            emit_op(cg, OP_PUSH_VOID);
         }
         emit_op(cg, OP_RET);
         break;
@@ -2548,11 +2652,23 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     case AST_CALL:
     case AST_MODULE_QUALIFIED_CALL: {
-        /* Function call as statement: compile and discard result */
+        /* Function call as statement: discard only a declared result. */
         compile_expr(cg, node);
-        /* Check if function returns void - if so, no POP needed
-         * For now, always POP since we don't track return types in codegen */
-        emit_op(cg, OP_POP);
+        int32_t called = -1;
+        if (node->type == AST_CALL && node->as.call.name)
+            called = fn_find(cg, node->as.call.name);
+        if (node->type == AST_MODULE_QUALIFIED_CALL) {
+            char qualified[512];
+            snprintf(qualified, sizeof(qualified), "%s.%s",
+                     node->as.module_qualified_call.module_alias,
+                     node->as.module_qualified_call.function_name);
+            called = fn_find(cg, qualified);
+            if (called < 0) called = fn_find(cg, node->as.module_qualified_call.function_name);
+        }
+        Type result_type = check_expression(node, cg->env);
+        if ((called >= 0 && cg->module->functions[called].result_count != 0)
+                || (called < 0 && result_type != TYPE_VOID))
+            emit_op(cg, OP_POP);
         break;
     }
 
@@ -2575,6 +2691,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_UNSAFE_BLOCK: {
         for (int i = 0; i < node->as.unsafe_block.count; i++) {
             compile_stmt(cg, node->as.unsafe_block.statements[i]);
+            if (!stmt_falls_through(node->as.unsafe_block.statements[i])) break;
         }
         break;
     }
@@ -2583,6 +2700,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         /* par blocks execute sequentially in the VM */
         for (int i = 0; i < node->as.par_block.count; i++) {
             compile_stmt(cg, node->as.par_block.bindings[i]);
+            if (!stmt_falls_through(node->as.par_block.bindings[i])) break;
         }
         break;
     }
@@ -2625,6 +2743,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     cg->param_count = (uint16_t)fn_node->as.function.param_count;
     cg->loop_depth = 0;
     cg->upvalue_count = 0;
+    cg->current_fn_idx = (uint32_t)fn_idx;
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {
@@ -2641,6 +2760,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
         if (body->type == AST_BLOCK) {
             for (int i = 0; i < body->as.block.count; i++) {
                 compile_stmt(cg, body->as.block.statements[i]);
+                if (!stmt_falls_through(body->as.block.statements[i])) break;
             }
         } else {
             /* Single expression body - treat as return expr */
@@ -2650,10 +2770,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     }
 
     /* Ensure function always returns (implicit return void) */
-    if (cg->code_size == 0 || cg->code[cg->code_size - 1] != OP_RET) {
-        /* Check last instruction - a rough check on the opcode byte.
-         * If the last emitted instruction wasn't RET, add implicit return. */
-        emit_op(cg, OP_PUSH_VOID);
+    if (!body || stmt_falls_through(body)) {
         emit_op(cg, OP_RET);
     }
 
@@ -2709,6 +2826,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             NvmFunctionEntry fn = {0};
             fn.name_idx = name_idx;
             fn.arity = (uint16_t)item->as.function.param_count;
+            fn.result_tag = type_to_tag(item->as.function.return_type);
+            fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
 
             uint32_t idx = nvm_add_function(cg.module, &fn);
 
@@ -2843,6 +2962,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                             NvmFunctionEntry fn = {0};
                             fn.name_idx = name_idx;
                             fn.arity = (uint16_t)mitem->as.function.param_count;
+                            fn.result_tag = type_to_tag(mitem->as.function.return_type);
+                            fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                             idx = nvm_add_function(cg.module, &fn);
                             if (cg.fn_count < MAX_FUNCTIONS) {
                                 cg.functions[cg.fn_count].name = (char *)use_name;
@@ -3040,6 +3161,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                         NvmFunctionEntry fn = {0};
                         fn.name_idx = ni;
                         fn.arity = (uint16_t)mitem->as.function.param_count;
+                        fn.result_tag = type_to_tag(mitem->as.function.return_type);
+                        fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                         uint32_t idx = nvm_add_function(cg.module, &fn);
                         cg.functions[cg.fn_count].name = (char *)fname;
                         cg.functions[cg.fn_count].fn_idx = idx;
@@ -3168,6 +3291,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
         uint32_t init_name = nvm_add_string(cg.module, "__init__", 8);
         init_fn.name_idx = init_name;
         init_fn.arity = 0;
+        init_fn.result_tag = TAG_VOID;
+        init_fn.result_count = 0;
         uint32_t init_idx = nvm_add_function(cg.module, &init_fn);
 
         cg.code_size = 0;
@@ -3202,7 +3327,6 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                 }
             }
         }
-        emit_op(&cg, OP_PUSH_VOID);
         emit_op(&cg, OP_RET);
 
         if (!cg.had_error) {
@@ -3247,6 +3371,8 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
         uint32_t syn_name = nvm_add_string(cg.module, "main", 4);
         syn_fn.name_idx = syn_name;
         syn_fn.arity = 0;
+        syn_fn.result_tag = TAG_INT;
+        syn_fn.result_count = 1;
         uint32_t syn_idx = nvm_add_function(cg.module, &syn_fn);
 
         cg.code_size = 0;
