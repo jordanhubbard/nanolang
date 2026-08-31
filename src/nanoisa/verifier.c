@@ -54,9 +54,10 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (fn->code_offset > mod->code_size)
             return fail("function[%u] code_offset %u > code_size %u",
                         i, fn->code_offset, mod->code_size);
-        if (fn->code_offset + fn->code_length > mod->code_size)
-            return fail("function[%u] code_offset+length %u > code_size %u",
-                        i, fn->code_offset + fn->code_length, mod->code_size);
+        /* Subtract only after checking the start so the range cannot wrap. */
+        if (fn->code_length > mod->code_size - fn->code_offset)
+            return fail("function[%u] code range exceeds code_size: offset %u, length %u, code_size %u",
+                        i, fn->code_offset, fn->code_length, mod->code_size);
         if (fn->name_idx >= mod->string_count)
             return fail("function[%u] name_idx %u >= string_count %u",
                         i, fn->name_idx, mod->string_count);
