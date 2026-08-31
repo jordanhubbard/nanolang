@@ -46,3 +46,11 @@ whose declared effect differs from the observed effect.
 Tracing is diagnostic evidence, not a correctness proof. Reproduce the failure
 with tracing disabled after the fix and run the relevant NanoVM, NanoVirt, and
 benchmark quality gates.
+
+## Generated C diagnostics
+
+Generated-C timing instrumentation is controlled once at process startup by
+`NANO_PROFILE`. When an executable was built with `--profile`, use
+`NANO_PROFILE=1` to collect timing data or `NANO_PROFILE=0` to turn the hooks
+off without rebuilding. The generated hook checks only its cached boolean on
+the hot path.

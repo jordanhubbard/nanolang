@@ -15,6 +15,11 @@ execution; this document records product direction and order.
 - [ ] I will add optional NanoVM opcode instrumentation with one-time process
   configuration, a single hot-path boolean guard, value and FFI diagnostics,
   regression tests, and an LLM troubleshooting skill.
+- [ ] I will unify generated-C tracing and profiling behind one optional runtime
+  diagnostics hook: read environment configuration once during process startup,
+  cache independent boolean flags, keep disabled call sites to a single guard,
+  preserve function, variable, timing, JSON, flamegraph, and PGO evidence, and
+  test enabled and disabled generated executables without requiring a rebuild.
 
 ## Release Map
 
@@ -160,6 +165,9 @@ Documentation and acceptance:
 - [ ] I will provide readable symbolic assembly examples for NanoLang and Forth.
 - [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
 - [ ] I will demonstrate performance changes with distributions, not single timing claims.
+- [ ] I will make generated-C tracing and profiling dynamically selectable at
+  process startup, with one shared hook mechanism and no per-event environment
+  lookups or expensive work when each hook is disabled.
 
 ### Phase 13 - Forth 2012 on NanoISA (4.1)
 
