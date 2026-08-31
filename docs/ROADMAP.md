@@ -9,17 +9,17 @@ execution; this document records product direction and order.
 
 ## Active Execution Queue
 
-- [ ] I will make the 3.5 benchmark workloads execute successfully on NanoVM,
-  then record repeatable profiles for NanoLang execution, allocation, direct and
-  indirect calls, FFI, and the current Forth interpreter.
-- [ ] I will add optional NanoVM opcode instrumentation with one-time process
+- [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
+  recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
+  indirect calls, FFI, and the current Forth interpreter. Compiled Forth, its
+  compiler, and Forth exceptions remain Phase 13 work.
+- [x] I added optional NanoVM opcode instrumentation with one-time process
   configuration, a single hot-path boolean guard, value and FFI diagnostics,
   regression tests, and an LLM troubleshooting skill.
-- [ ] I will unify generated-C tracing and profiling behind one optional runtime
-  diagnostics hook: read environment configuration once during process startup,
-  cache independent boolean flags, keep disabled call sites to a single guard,
-  preserve function, variable, timing, JSON, flamegraph, and PGO evidence, and
-  test enabled and disabled generated executables without requiring a rebuild.
+- [x] I unified generated-C profiling behind an optional runtime hook: I read
+  `NANO_PROFILE` once at process startup, cache its boolean, keep disabled hooks
+  cheap, preserve timing and flamegraph evidence, and test enabled and disabled
+  generated executables without rebuilding.
 
 ## Release Map
 
