@@ -237,6 +237,36 @@ static inline VmResult stack_push(VmState *vm, NanoValue v) {
     return VM_OK;
 }
 
+/* The decoded representation owns byte-to-instruction indexes.  Keep the
+ * hot path on an instruction index, and use the byte map only after a jump
+ * or a call returns into a different instruction stream. */
+typedef struct {
+    const VmDecodedFunction *function;
+    uint32_t index;
+} VmInstructionCursor;
+
+static bool vm_cursor_seek(VmInstructionCursor *cursor,
+                           const VmDecodedFunction *function,
+                           uint32_t byte_offset) {
+    if (!cursor || !function || byte_offset >= function->code_size
+            || !function->instruction_indices) return false;
+    uint32_t encoded = function->instruction_indices[byte_offset];
+    if (encoded == 0 || encoded > function->instruction_count) return false;
+    cursor->function = function;
+    cursor->index = encoded - 1;
+    return true;
+}
+
+static const VmDecodedInstruction *vm_cursor_next(
+        VmInstructionCursor *cursor, uint32_t byte_offset) {
+    if (!cursor || !cursor->function
+            || cursor->index >= cursor->function->instruction_count) return NULL;
+    const VmDecodedInstruction *decoded = &cursor->function->instructions[cursor->index];
+    if (decoded->byte_offset != byte_offset) return NULL;
+    cursor->index++;
+    return decoded;
+}
+
 static inline NanoValue stack_pop(VmState *vm) {
     if (vm->stack_size == 0) return val_void();
     return vm->stack[--vm->stack_size];
@@ -462,6 +492,8 @@ VmTrap vm_core_execute(VmState *vm) {
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
 
     VmCallFrame *frame = &vm->frames[vm->frame_count - 1];
+    VmInstructionCursor cursor = {0};
+    uint32_t cursor_offset = UINT32_MAX;
 
     /* Main dispatch loop */
     while (vm->ip < code_end) {
@@ -476,8 +508,13 @@ VmTrap vm_core_execute(VmState *vm) {
         const VmDecodedFunction *decoded_function =
             &decoded_module->functions[vm->current_fn];
         uint32_t function_offset = vm->ip - cur_fn->code_offset;
-        const VmDecodedInstruction *decoded =
-            vm_decoded_function_at(decoded_function, function_offset);
+        const VmDecodedInstruction *decoded;
+        if (vm->ip == cursor_offset && cursor.function == decoded_function) {
+            decoded = vm_cursor_next(&cursor, function_offset);
+        } else {
+            decoded = vm_cursor_seek(&cursor, decoded_function, function_offset)
+                ? vm_cursor_next(&cursor, function_offset) : NULL;
+        }
         if (!decoded) {
             return trap_error(vm, VM_ERR_DECODE,
                               "No decoded instruction at offset %u", vm->ip);
@@ -486,6 +523,7 @@ VmTrap vm_core_execute(VmState *vm) {
         uint32_t instr_start = vm->ip;
         uint32_t stack_before = vm->stack_size;
         vm->ip = cur_fn->code_offset + decoded->next_byte_offset;
+        cursor_offset = vm->ip;
         profile_instruction(vm, instr.opcode);
         if (vm->opcode_trace)
             vm_trace_instruction(vm, instr_start, &instr, stack_before);
