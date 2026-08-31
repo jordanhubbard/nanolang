@@ -67,12 +67,16 @@ Release dependencies:
 5.0 operating environment and kernel adapters
 ```
 
-### Phase 12 - NanoISA v2 (3.5 foundation, 4.0 completion)
+### Phase 12 - NanoISA v2 (3.5 foundation complete, 4.0 completion)
 
 Goal: I will make NanoISA a regular, compositional, verified instruction set
 for NanoLang, Forth, and future frontends. My portable bytecode will remain
 readable. Verification and instantiation may translate it into a faster private
 form, including measured superinstructions.
+
+I completed the 3.5 measurement and cleanup foundation. The unchecked items in
+this phase are now explicitly scoped to 4.0 NanoISA/NanoVM v2 and remain open
+until their implementation and evidence exist.
 
 Workflow and evidence:
 - [x] I wrote the initial Forth-on-NanoISA architecture contract in `docs/superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md`.
@@ -80,7 +84,7 @@ Workflow and evidence:
 - [x] I measured static NanoVirt opcode and instruction-sequence frequencies across the repository.
 - [x] I added a reproducible NanoISA benchmark and profiling harness before changing execution architecture.
 - [x] I record opcode, pair, and triple frequencies, retired instructions, branches, call kinds, stack depths, traps, retain/release traffic, allocations, and FFI byte/latency counters.
-- [ ] I benchmark NanoLang execution, allocation, direct and indirect calls, FFI, and the current Forth interpreter; compiled Forth, its compiler, and Forth exceptions remain blocked on the Phase 13 runtime.
+- [x] I benchmarked NanoLang execution, allocation, direct and indirect calls, FFI, and the current Forth interpreter with 20 samples per workload; compiled Forth, its compiler, and Forth exceptions remain blocked on the Phase 13 runtime.
 - [x] I publish benchmark summaries with hardware, OS, compiler, commit, distributions, retired instructions, and normalized costs.
 - [x] I require semantic equivalence and full quality gates for every accepted optimization in `docs/NANOISA_OPTIMIZATION_POLICY.md`.
 
