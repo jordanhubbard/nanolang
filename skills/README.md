@@ -15,6 +15,7 @@ directly before working:
 | [`roadmap-execution`](roadmap-execution/SKILL.md) | Planning or executing multi-deliverable product work through the ordered checklist in `docs/ROADMAP.md`. |
 | [`mac-task-tracking`](mac-task-tracking/SKILL.md) | Finding work, filing follow-ups, claiming or closing issues. We use `mac task`, not bd/beads. |
 | [`session-completion`](session-completion/SKILL.md) | Wrapping up a session: quality gates, task status, and pushing so no work is stranded. |
+| [`release-readiness`](release-readiness/SKILL.md) | Reviewing GitHub issues and PRs in release scope and annotating stale work before release. |
 
 These skills are the portable source of truth. Per-tool config files
 (`.claude/`, `.codex/`, `.cursor/`, `.factory/`) should point at them rather

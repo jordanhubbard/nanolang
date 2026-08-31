@@ -57,6 +57,37 @@ check_prerequisites() {
     success "Prerequisites check passed"
 }
 
+# Check release-scoped GitHub work before changing release metadata. The full
+# triage procedure lives in skills/release-readiness/SKILL.md.
+check_release_github_work() {
+    local version=$1
+    local repo
+    repo=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+    local scope="release/v$version"
+    local milestone="v$version"
+
+    info "Checking open GitHub work scoped to v$version..."
+    local open_items=""
+    while IFS= read -r item; do
+        open_items+="$item\n"
+    done < <(gh issue list --repo "$repo" --state open --limit 1000 \
+        --json number,title,body,url,labels,milestone \
+        | jq -r --arg scope "$scope" --arg milestone "$milestone" \
+        '.[] | select((([.labels[].name] | index($scope)) or (.milestone.title == $milestone) or ((.title + " " + (.body // "")) | test($milestone)))) | "issue #\(.number): \(.title)\n\(.url)"')
+    while IFS= read -r item; do
+        open_items+="$item\n"
+    done < <(gh pr list --repo "$repo" --state open --limit 1000 \
+        --json number,title,body,url,labels,milestone \
+        | jq -r --arg scope "$scope" --arg milestone "$milestone" \
+        '.[] | select((([.labels[].name] | index($scope)) or (.milestone.title == $milestone) or ((.title + " " + (.body // "")) | test($milestone)))) | "PR #\(.number): \(.title)\n\(.url)"')
+
+    if [[ -n "$open_items" ]]; then
+        printf '%b' "$open_items" >&2
+        error "Release-scoped GitHub issues or pull requests remain open. Triage them with skills/release-readiness/SKILL.md."
+    fi
+    success "No release-scoped GitHub work remains open"
+}
+
 # Get current version from git tags
 get_current_version() {
     git tag -l 'v*' | sort -V | tail -1 | sed 's/^v//'
@@ -324,6 +355,7 @@ main() {
     
     # Calculate next version
     NEXT_VERSION=$(calculate_next_version "$CURRENT_VERSION" "$BUMP_TYPE")
+    check_release_github_work "$NEXT_VERSION"
     
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
