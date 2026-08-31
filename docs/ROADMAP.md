@@ -78,6 +78,12 @@ I completed the 3.5 measurement and cleanup foundation. The unchecked items in
 this phase are now explicitly scoped to 4.0 NanoISA/NanoVM v2 and remain open
 until their implementation and evidence exist.
 
+The following unchecked groups are 4.0 completion work: portable ISA
+regularization, verified and optimized dispatch IR, runtime representation,
+verifier and safety, module format and tools, FFI and traps, and their related
+documentation and acceptance evidence. I will not count them against the 3.5
+measurement-and-cleanup release.
+
 Workflow and evidence:
 - [x] I wrote the initial Forth-on-NanoISA architecture contract in `docs/superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md`.
 - [x] I added persistent `vm_invoke`, latest-function lookup, and incremental function verification on PR #115.
