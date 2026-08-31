@@ -297,6 +297,11 @@ typedef struct {
 } NanoisaSchemaOpcode;
 
 typedef struct {
+    int8_t pops;
+    int8_t pushes;
+} NanoisaStackEffect;
+
+typedef struct {
     const char *name;
     const char *ownership;
     uint8_t operand_count;

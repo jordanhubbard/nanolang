@@ -89,6 +89,8 @@ documentation and acceptance evidence. I will not count them against the 3.5
 measurement-and-cleanup release.
 
 Workflow and evidence:
+- [x] I generated explicit fixed stack effects for unambiguous legacy opcodes and propagate verified stack heights through straight-line and branch control flow, rejecting underflow and incompatible merges while documenting dynamic effects outside this slice.
+- [ ] I will generate explicit fixed stack effects for unambiguous legacy opcodes and propagate verified stack heights through straight-line and branch control flow, rejecting underflow and incompatible merges while documenting dynamic effects outside this slice.
 - [x] I wrote the initial Forth-on-NanoISA architecture contract in `docs/superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md`.
 - [x] I added persistent `vm_invoke`, latest-function lookup, and incremental function verification on PR #115.
 - [x] I measured static NanoVirt opcode and instruction-sequence frequencies across the repository.

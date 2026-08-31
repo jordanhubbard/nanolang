@@ -168,7 +168,7 @@ static void test_invalid_function_result_signature(void) {
 
 static void test_multiple_function_results(void) {
     const char *test_name = "nvm_verify: multiple homogeneous results pass";
-    uint8_t code[32];
+    uint8_t code[64];
     uint32_t off = 0;
     off += emit(code + off, OP_PUSH_I64, (int64_t)1);
     off += emit(code + off, OP_PUSH_I64, (int64_t)2);
@@ -268,11 +268,12 @@ static void test_jmp_true_valid(void) {
     uint8_t code[16];
     uint32_t off = 0;
     off += emit(code + off, OP_NOP);
+    off += emit(code + off, OP_PUSH_BOOL, 1);
     off += emit(code + off, OP_JMP_TRUE, (int32_t)5);  /* jump to RET */
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
-    ASSERT(r.ok, "valid JMP_TRUE should verify OK");
+    ASSERT(r.ok, r.error_msg);
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -676,6 +677,38 @@ static void test_arithmetic_instructions(void) {
     PASS(test_name);
 }
 
+static void test_stack_underflow(void) {
+    const char *test_name = "nvm_verify: fixed stack effect detects underflow";
+    uint8_t code[8];
+    uint32_t off = emit(code, OP_POP);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "POP on an empty stack should fail");
+    ASSERT(strstr(r.error_msg, "stack underflow") != NULL,
+           "failure should identify stack underflow");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_incompatible_branch_merge(void) {
+    const char *test_name = "nvm_verify: branch merge heights must agree";
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_BOOL, 1);
+    off += emit(code + off, OP_JMP_TRUE, (int32_t)19);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_JMP, (int32_t)23);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)3);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "incompatible branch heights should fail");
+    ASSERT(strstr(r.error_msg, "incompatible stack heights") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_verify_one_function(void) {
     const char *test_name = "nvm_verify_function: validates incremental function";
     uint8_t code[16];
@@ -738,6 +771,8 @@ int main(void) {
     test_null_code_nonzero_size();
     test_call_extern_invalid();
     test_arithmetic_instructions();
+    test_stack_underflow();
+    test_incompatible_branch_merge();
     test_verify_one_function();
 
     printf("\n");

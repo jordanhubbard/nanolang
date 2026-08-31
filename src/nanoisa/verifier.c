@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* ========================================================================
  * Helpers
@@ -30,6 +31,77 @@ static NvmVerifyResult fail(const char *fmt, ...) {
     vsnprintf(r.error_msg, NVM_VERIFY_ERROR_SIZE, fmt, ap);
     va_end(ap);
     return r;
+}
+
+/* Unknown effects intentionally stop propagation on that path. Calls and
+ * polymorphic legacy operations need signatures or type metadata; guessing
+ * here would make the verifier claim more than the module proves. */
+static NvmVerifyResult verify_stack_heights(uint32_t fn_idx,
+                                            const VmDecodedFunction *decoded) {
+    uint32_t count = decoded->instruction_count;
+    int32_t *heights = malloc(count * sizeof(*heights));
+    uint32_t *queue = malloc(count * sizeof(*queue));
+    if ((count > 0) && (!heights || !queue)) {
+        free(heights);
+        free(queue);
+        return fail("function[%u] stack verifier out of memory", fn_idx);
+    }
+    for (uint32_t i = 0; i < count; i++) heights[i] = -1;
+    uint32_t queued = 0;
+    uint32_t next = 0;
+    if (count > 0) {
+        heights[0] = 0;
+        queue[queued++] = 0;
+    }
+
+    while (next < queued) {
+        uint32_t index = queue[next++];
+        const VmDecodedInstruction *item = &decoded->instructions[index];
+        NanoisaStackEffect effect =
+            nanoisa_legacy_stack_effects[item->instruction.opcode];
+        if (effect.pops < 0) continue;
+        int32_t height = heights[index];
+        if (height < effect.pops) {
+            free(heights);
+            free(queue);
+            return fail("function[%u] stack underflow at offset %u: height %d, needs %d",
+                        fn_idx, item->byte_offset, height, effect.pops);
+        }
+        int32_t successor_height = height - effect.pops + effect.pushes;
+        uint32_t successors[2];
+        uint32_t successor_count = 0;
+        uint8_t opcode = item->instruction.opcode;
+        if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE) {
+            int32_t offset = item->instruction.operands[0].i32;
+            uint32_t target = (uint32_t)((int64_t)item->byte_offset + offset);
+            if (target < decoded->code_size) {
+                /* The decoder stores instruction indices as one-based values. */
+                successors[successor_count++] =
+                    decoded->instruction_indices[target] - 1;
+            }
+            if (opcode != OP_JMP && index + 1 < count)
+                successors[successor_count++] = index + 1;
+        } else if (opcode != OP_RET && opcode != OP_TAIL_CALL && opcode != OP_HALT
+                   && index + 1 < count) {
+            successors[successor_count++] = index + 1;
+        }
+        for (uint32_t s = 0; s < successor_count; s++) {
+            uint32_t target = successors[s];
+            if (heights[target] < 0) {
+                heights[target] = successor_height;
+                queue[queued++] = target;
+            } else if (heights[target] != successor_height) {
+                free(heights);
+                free(queue);
+                return fail("function[%u] incompatible stack heights at offset %u: %d and %d",
+                            fn_idx, decoded->instructions[target].byte_offset,
+                            heights[target], successor_height);
+            }
+        }
+    }
+    free(heights);
+    free(queue);
+    return ok_result();
 }
 
 /* ========================================================================
@@ -286,6 +358,12 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
+    }
+
+    NvmVerifyResult stack_result = verify_stack_heights(fn_idx, &decoded);
+    if (!stack_result.ok) {
+        vm_decoded_function_free(&decoded);
+        return stack_result;
     }
 
 #undef FAIL_DECODED
