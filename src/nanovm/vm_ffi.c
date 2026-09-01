@@ -252,6 +252,184 @@ static bool is_all_float_signature(const NvmImportEntry *imp,
     return true;
 }
 
+
+/* ========================================================================
+ * Resolve-once typed call descriptors
+ *
+ * The first FFI call for a given import resolves the module, looks up the
+ * native symbol through the shared loader, and precomputes the typed
+ * signature (declared param types, return type, all-float classification).
+ * The result is cached on the module keyed by import index so subsequent
+ * calls skip module loading, string-pool lookups, and symbol resolution.
+ * ======================================================================== */
+
+/* Handle the ___module_* introspection pseudo-imports. Returns true when the
+ * call was an introspection request (and *result was filled), false otherwise.
+ * These are resolved on every call because their result depends on runtime
+ * arguments and environment state, so they are intentionally never cached. */
+static bool vm_ffi_try_module_introspection(const char *func_name,
+                                            NanoValue *args, int arg_count,
+                                            NanoValue *result, VmHeap *heap) {
+    if (!func_name || strncmp(func_name, "___module_", 10) != 0 || !ffi_env) {
+        return false;
+    }
+    const char *rest = func_name + 10;
+
+    if (strncmp(rest, "is_unsafe_", 10) == 0) {
+        const char *mname = rest + 10;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_bool(mi ? mi->is_unsafe : false);
+        return true;
+    }
+    if (strncmp(rest, "has_ffi_", 8) == 0) {
+        const char *mname = rest + 8;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_bool(mi ? mi->has_ffi : false);
+        return true;
+    }
+    if (strncmp(rest, "name_", 5) == 0) {
+        const char *mname = rest + 5;
+        VmString *vs = vm_string_new(heap, mname, (uint32_t)strlen(mname));
+        *result = val_string(vs);
+        return true;
+    }
+    if (strncmp(rest, "path_", 5) == 0) {
+        const char *mname = rest + 5;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        const char *path = (mi && mi->path) ? mi->path : "";
+        VmString *vs = vm_string_new(heap, path, (uint32_t)strlen(path));
+        *result = val_string(vs);
+        return true;
+    }
+    if (strncmp(rest, "function_count_", 15) == 0) {
+        const char *mname = rest + 15;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_int(mi ? mi->function_count : 0);
+        return true;
+    }
+    if (strncmp(rest, "function_name_", 14) == 0) {
+        const char *mname = rest + 14;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
+        const char *fn = "";
+        if (mi && mi->exported_functions && idx >= 0 && idx < mi->function_count) {
+            fn = mi->exported_functions[idx] ? mi->exported_functions[idx] : "";
+        }
+        VmString *vs = vm_string_new(heap, fn, (uint32_t)strlen(fn));
+        *result = val_string(vs);
+        return true;
+    }
+    if (strncmp(rest, "struct_count_", 13) == 0) {
+        const char *mname = rest + 13;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_int(mi ? mi->struct_count : 0);
+        return true;
+    }
+    if (strncmp(rest, "struct_name_", 12) == 0) {
+        const char *mname = rest + 12;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
+        const char *sn = "";
+        if (mi && mi->exported_structs && idx >= 0 && idx < mi->struct_count) {
+            sn = mi->exported_structs[idx] ? mi->exported_structs[idx] : "";
+        }
+        VmString *vs = vm_string_new(heap, sn, (uint32_t)strlen(sn));
+        *result = val_string(vs);
+        return true;
+    }
+    return false;
+}
+
+/* Compute the all-float classification for a fully declared signature. */
+static bool descriptor_all_float(const NvmCallDescriptor *desc) {
+    if (desc->return_type != TAG_FLOAT) return false;
+    for (uint16_t i = 0; i < desc->param_count; i++) {
+        uint8_t tag = desc->param_types ? desc->param_types[i] : TAG_FLOAT;
+        if (tag != TAG_FLOAT) return false;
+    }
+    return true;
+}
+
+/* Resolve (once) and return the typed call descriptor for import_idx. On the
+ * first call the module is loaded and the symbol looked up; the result is
+ * cached and reused thereafter. Returns NULL and fills error_msg on failure. */
+static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
+        const NvmModule *module, uint32_t import_idx,
+        char *error_msg, size_t error_msg_size) {
+    /* The descriptor cache is a runtime-only memoization side table, so we
+     * mutate it through a non-const view even for a const module. */
+    NvmModule *m = (NvmModule *)module;
+
+    if (import_idx >= m->import_count) {
+        snprintf(error_msg, error_msg_size, "Import index %u out of range", import_idx);
+        return NULL;
+    }
+
+    if (!m->call_descriptors || m->call_descriptor_count != m->import_count) {
+        NvmCallDescriptor *table = calloc(m->import_count,
+                                          sizeof(NvmCallDescriptor));
+        if (!table) {
+            snprintf(error_msg, error_msg_size,
+                     "Out of memory allocating call descriptors");
+            return NULL;
+        }
+        free(m->call_descriptors);
+        m->call_descriptors = table;
+        m->call_descriptor_count = m->import_count;
+    }
+
+    NvmCallDescriptor *desc = &m->call_descriptors[import_idx];
+
+    if (desc->state == NVM_CALL_RESOLVED) {
+        return desc;
+    }
+    if (desc->state == NVM_CALL_FAILED) {
+        const char *fn = desc->func_name ? desc->func_name : "?";
+        const char *mn = desc->module_name ? desc->module_name : "";
+        snprintf(error_msg, error_msg_size,
+                 "FFI: function '%s' not found (module '%s')", fn, mn);
+        return NULL;
+    }
+
+    const NvmImportEntry *imp = &m->imports[import_idx];
+    const char *func_name = nvm_get_string(m, imp->function_name_idx);
+    const char *mod_name = nvm_get_string(m, imp->module_name_idx);
+
+    desc->func_name = func_name;
+    desc->module_name = mod_name;
+    desc->param_count = imp->param_count;
+    desc->return_type = imp->return_type;
+    desc->param_types = m->import_param_types
+                        ? m->import_param_types[import_idx] : NULL;
+    desc->all_float = descriptor_all_float(desc);
+
+    if (!func_name) {
+        desc->state = NVM_CALL_FAILED;
+        snprintf(error_msg, error_msg_size,
+                 "NULL function name for import %u", import_idx);
+        return NULL;
+    }
+
+    /* Load the backing module once (best-effort; the symbol may live in the
+     * main executable or an already-loaded library). */
+    if (mod_name && mod_name[0] != '\0') {
+        vm_ffi_load_module(mod_name);
+    }
+
+    void *func_ptr = ffi_loader_resolve(func_name);
+    if (!func_ptr) {
+        desc->state = NVM_CALL_FAILED;
+        snprintf(error_msg, error_msg_size,
+                 "FFI: function '%s' not found (module '%s')",
+                 func_name, mod_name ? mod_name : "");
+        return NULL;
+    }
+
+    desc->func_ptr = func_ptr;
+    desc->state = NVM_CALL_RESOLVED;
+    return desc;
+}
+
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
@@ -265,94 +443,23 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     const NvmImportEntry *imp = &module->imports[import_idx];
     const char *func_name = nvm_get_string(module, imp->function_name_idx);
-    const char *mod_name = nvm_get_string(module, imp->module_name_idx);
 
-    if (!func_name) {
-        snprintf(error_msg, error_msg_size, "NULL function name for import %u", import_idx);
+    /* Module introspection functions (___module_*) are environment- and
+     * argument-dependent, so they are dispatched directly and never cached. */
+    if (vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
+        return true;
+    }
+
+    /* Resolve the import once into a typed call descriptor; every later call
+     * for this import reuses the cached symbol and signature. */
+    const NvmCallDescriptor *desc =
+        vm_ffi_resolve_descriptor(module, import_idx, error_msg, error_msg_size);
+    if (!desc) {
         return false;
     }
 
-    /* Handle module introspection functions (___module_*) */
-    if (func_name && strncmp(func_name, "___module_", 10) == 0 && ffi_env) {
-        const char *rest = func_name + 10;
-
-        if (strncmp(rest, "is_unsafe_", 10) == 0) {
-            const char *mname = rest + 10;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_bool(mi ? mi->is_unsafe : false);
-            return true;
-        }
-        if (strncmp(rest, "has_ffi_", 8) == 0) {
-            const char *mname = rest + 8;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_bool(mi ? mi->has_ffi : false);
-            return true;
-        }
-        if (strncmp(rest, "name_", 5) == 0) {
-            const char *mname = rest + 5;
-            VmString *vs = vm_string_new(heap, mname, (uint32_t)strlen(mname));
-            *result = val_string(vs);
-            return true;
-        }
-        if (strncmp(rest, "path_", 5) == 0) {
-            const char *mname = rest + 5;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            const char *path = (mi && mi->path) ? mi->path : "";
-            VmString *vs = vm_string_new(heap, path, (uint32_t)strlen(path));
-            *result = val_string(vs);
-            return true;
-        }
-        if (strncmp(rest, "function_count_", 15) == 0) {
-            const char *mname = rest + 15;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_int(mi ? mi->function_count : 0);
-            return true;
-        }
-        if (strncmp(rest, "function_name_", 14) == 0) {
-            const char *mname = rest + 14;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
-            const char *fn = "";
-            if (mi && mi->exported_functions && idx >= 0 && idx < mi->function_count) {
-                fn = mi->exported_functions[idx] ? mi->exported_functions[idx] : "";
-            }
-            VmString *vs = vm_string_new(heap, fn, (uint32_t)strlen(fn));
-            *result = val_string(vs);
-            return true;
-        }
-        if (strncmp(rest, "struct_count_", 13) == 0) {
-            const char *mname = rest + 13;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_int(mi ? mi->struct_count : 0);
-            return true;
-        }
-        if (strncmp(rest, "struct_name_", 12) == 0) {
-            const char *mname = rest + 12;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
-            const char *sn = "";
-            if (mi && mi->exported_structs && idx >= 0 && idx < mi->struct_count) {
-                sn = mi->exported_structs[idx] ? mi->exported_structs[idx] : "";
-            }
-            VmString *vs = vm_string_new(heap, sn, (uint32_t)strlen(sn));
-            *result = val_string(vs);
-            return true;
-        }
-    }
-
-    /* Try to load the module if we have a module name */
-    if (mod_name && mod_name[0] != '\0') {
-        vm_ffi_load_module(mod_name);
-    }
-
-    /* Resolve the function through the shared loader */
-    void *func_ptr = ffi_loader_resolve(func_name);
-    if (!func_ptr) {
-        snprintf(error_msg, error_msg_size,
-                 "FFI: function '%s' not found (module '%s')",
-                 func_name, mod_name ? mod_name : "");
-        return false;
-    }
+    void *func_ptr = desc->func_ptr;
+    const uint8_t *param_types = desc->param_types;
 
     /* Marshal arguments */
     void *arg_ptrs[16] = {0};
@@ -361,12 +468,14 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         return false;
     }
 
-    const uint8_t *param_types = module->import_param_types
-                                 ? module->import_param_types[import_idx] : NULL;
-
     /* Fast path: all-float signatures use properly typed dispatch so
-     * doubles go through FP registers (critical on arm64). */
-    if (is_all_float_signature(imp, param_types, arg_count)) {
+     * doubles go through FP registers (critical on arm64). The classification
+     * is precomputed in the descriptor for the declared arity; fall back to a
+     * runtime check when the call arity differs from the declaration. */
+    bool all_float = (arg_count == (int)desc->param_count)
+                     ? desc->all_float
+                     : is_all_float_signature(imp, param_types, arg_count);
+    if (all_float) {
         double dargs[16];
         for (int i = 0; i < arg_count; i++) {
             dargs[i] = (args[i].tag == TAG_FLOAT) ? args[i].as.f64

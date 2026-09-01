@@ -166,7 +166,7 @@ Module format and tools:
 - [ ] I will choose one coherent flattened or separately linked module model and test it end to end.
 
 FFI and traps:
-- [ ] I will resolve imports once into typed call descriptors.
+- [x] I will resolve imports once into typed call descriptors.
 - [ ] I will use generated typed stubs or a general ABI layer for mixed integer and floating signatures.
 - [ ] I will make argument limits consistent across imports, traps, direct FFI, and co-process calls.
 - [ ] I will pass trap stack ranges instead of copying a fixed array of tagged values where measurement supports it.
