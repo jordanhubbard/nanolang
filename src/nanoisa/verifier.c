@@ -46,7 +46,104 @@ static bool instruction_index_at(const VmDecodedFunction *decoded,
     return true;
 }
 
+/* True for instructions that end a control path: they transfer control out
+ * of the current frame instead of falling through to the next instruction. */
+static bool opcode_is_terminator(uint8_t opcode) {
+    return opcode == OP_RET || opcode == OP_TAIL_CALL || opcode == OP_HALT;
+}
+
+/* Collect the successor instruction indices of a decoded instruction.
+ *
+ * Branch instructions add their resolved target; every non-terminating,
+ * non-unconditional-jump instruction also falls through to index + 1.
+ * The function-end sentinel (instruction_count) can appear as a jump target;
+ * callers treat reaching it as falling off the end. Returns the number of
+ * successors written into `out` (at most 2). */
+static uint32_t instruction_successors(const VmDecodedFunction *decoded,
+                                       uint32_t index, uint32_t out[2]) {
+    uint32_t count = 0;
+    uint8_t opcode = decoded->instructions[index].instruction.opcode;
+    if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE
+            || opcode == OP_MATCH_TAG) {
+        instruction_index_at(decoded, decoded->instructions[index].resolved_target,
+                             &out[count++]);
+    }
+    if (opcode != OP_JMP && !opcode_is_terminator(opcode)) {
+        out[count++] = index + 1;
+    }
+    return count;
+}
+
+/* Explicit-termination and frame-depth verification.
+ *
+ * Walks the reachable control-flow graph from the entry and requires that:
+ *   - no reachable path falls off the end of the function (reaching the
+ *     function-end sentinel via fall-through), i.e. every path ends in an
+ *     explicit RET, TAIL_CALL, or HALT terminator; and
+ *   - the function's per-frame local footprint fits the VM frame model.
+ *
+ * Frame *count* (recursion depth) is dynamic and checked by the VM at call
+ * time; here we bound the static per-frame contribution so a verified frame
+ * can always be materialised. */
+static NvmVerifyResult verify_termination(const VmDecodedFunction *decoded,
+                                          const NvmFunctionEntry *fn,
+                                          uint32_t fn_idx) {
+    if (fn->local_count > NVM_MAX_FRAME_LOCALS)
+        return fail("function[%u] local_count %u exceeds frame limit %u",
+                    fn_idx, fn->local_count, NVM_MAX_FRAME_LOCALS);
+
+    if (decoded->instruction_count == 0)
+        return ok_result();
+
+    bool *seen = calloc(decoded->instruction_count + 1, sizeof(*seen));
+    uint32_t *work = malloc((decoded->instruction_count + 1) * sizeof(*work));
+    if (!seen || !work) {
+        free(seen);
+        free(work);
+        return fail("function[%u] could not allocate termination verifier state", fn_idx);
+    }
+    uint32_t head = 0, tail = 0;
+    seen[0] = true;
+    work[tail++] = 0;
+
+    NvmVerifyResult result = ok_result();
+    while (head < tail) {
+        uint32_t index = work[head++];
+        if (index == decoded->instruction_count) {
+            /* A path reached the function-end sentinel by falling through
+             * rather than through an explicit terminator. */
+            result = fail("function[%u] reachable path falls off the end "
+                          "without an explicit RET/TAIL_CALL/HALT", fn_idx);
+            break;
+        }
+        uint32_t successors[2];
+        uint32_t successor_count = instruction_successors(decoded, index, successors);
+        for (uint32_t i = 0; i < successor_count; i++) {
+            uint32_t successor = successors[i];
+            if (!seen[successor]) {
+                seen[successor] = true;
+                work[tail++] = successor;
+            }
+        }
+    }
+    free(seen);
+    free(work);
+    return result;
+}
+
+/* Stack-height inference plus return-shape and operand-depth verification.
+ *
+ * Infers the operand-stack height at every reachable instruction, requiring
+ * consistent heights where control-flow paths merge, and additionally proves:
+ *   - Return shape: each reachable OP_RET leaves exactly result_count values,
+ *     so ownership of results is balanced against the declared signature.
+ *   - Maximum operand depth: no reachable state exceeds NVM_MAX_OPERAND_DEPTH,
+ *     so the bounded VM operand stack can never overflow.
+ * Operand-dependent instructions (pop/push -1) do not have a fixed effect and
+ * are conservatively skipped for height inference; explicit termination and
+ * boundary checks are handled separately. */
 static NvmVerifyResult verify_stack_heights(const VmDecodedFunction *decoded,
+                                            const NvmFunctionEntry *fn,
                                             uint32_t fn_idx) {
     int32_t *heights = malloc((decoded->instruction_count + 1) * sizeof(*heights));
     uint32_t *work = malloc((decoded->instruction_count + 1) * sizeof(*work));
@@ -65,8 +162,21 @@ static NvmVerifyResult verify_stack_heights(const VmDecodedFunction *decoded,
         if (index == decoded->instruction_count) continue;
         const VmDecodedInstruction *decoded_instruction = &decoded->instructions[index];
         const InstructionInfo *info = isa_get_info(decoded_instruction->instruction.opcode);
-        if (info->pop_count < 0 || info->push_count < 0) continue;
         int32_t before = heights[index];
+        uint8_t opcode = decoded_instruction->instruction.opcode;
+
+        /* Return shape: an explicit RET must leave exactly the declared
+         * number of results on the stack. */
+        if (opcode == OP_RET && before >= 0 && before != (int32_t)fn->result_count) {
+            free(heights);
+            free(work);
+            return fail("function[%u] OP_RET at offset %u leaves %d values "
+                        "but result_count is %u",
+                        fn_idx, decoded_instruction->byte_offset,
+                        before, fn->result_count);
+        }
+
+        if (info->pop_count < 0 || info->push_count < 0) continue;
         if (before < info->pop_count) {
             free(heights);
             free(work);
@@ -75,18 +185,19 @@ static NvmVerifyResult verify_stack_heights(const VmDecodedFunction *decoded,
                         info->pop_count, before);
         }
         int32_t after = before - info->pop_count + info->push_count;
+
+        /* Maximum operand depth: the pushed state must fit the bounded VM
+         * operand stack so execution can never overflow it. */
+        if (after > (int32_t)NVM_MAX_OPERAND_DEPTH) {
+            free(heights);
+            free(work);
+            return fail("function[%u] operand depth %d at offset %u exceeds limit %u",
+                        fn_idx, after, decoded_instruction->byte_offset,
+                        NVM_MAX_OPERAND_DEPTH);
+        }
+
         uint32_t successors[2];
-        uint32_t successor_count = 0;
-        uint8_t opcode = decoded_instruction->instruction.opcode;
-        if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE
-                || opcode == OP_MATCH_TAG) {
-            instruction_index_at(decoded, decoded_instruction->resolved_target,
-                                 &successors[successor_count++]);
-        }
-        if (opcode != OP_JMP && opcode != OP_RET && opcode != OP_TAIL_CALL
-                && opcode != OP_HALT) {
-            successors[successor_count++] = index + 1;
-        }
+        uint32_t successor_count = instruction_successors(decoded, index, successors);
         for (uint32_t i = 0; i < successor_count; i++) {
             uint32_t successor = successors[i];
             if (heights[successor] < 0) {
@@ -398,9 +509,14 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
     }
 
 #undef FAIL_DECODED
-    NvmVerifyResult stack_result = verify_stack_heights(&decoded, fn_idx);
+    NvmVerifyResult stack_result = verify_stack_heights(&decoded, fn, fn_idx);
+    if (!stack_result.ok) {
+        vm_decoded_function_free(&decoded);
+        return stack_result;
+    }
+    NvmVerifyResult termination_result = verify_termination(&decoded, fn, fn_idx);
     vm_decoded_function_free(&decoded);
-    return stack_result;
+    return termination_result;
 }
 
 /* ========================================================================

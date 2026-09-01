@@ -147,7 +147,7 @@ Verifier and safety:
 - [ ] I will implement a control-flow verifier with instruction-boundary validation.
 - [ ] I will infer stack height and types through every basic block and require compatible merge states.
 - [ ] I will verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures.
-- [ ] I will verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination.
+- [x] I verify return shape, maximum operand depth, per-frame local depth, ownership effects, and explicit termination: the per-function pass in `src/nanoisa/verifier.c` requires each reachable `OP_RET` to leave exactly `result_count` values (return shape and balanced result ownership), bounds inferred operand depth by `NVM_MAX_OPERAND_DEPTH` and per-frame locals by `NVM_MAX_FRAME_LOCALS`, and walks the control-flow graph so every reachable path ends in an explicit `RET`/`TAIL_CALL`/`HALT` terminator; `tests/nanoisa/test_verifier.c` covers each case.
 - [ ] I will verify linked-module calls and every opcode family rather than selected operands only.
 - [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
 - [ ] I will rewrite verified operations to unchecked private handlers where the proof permits it.

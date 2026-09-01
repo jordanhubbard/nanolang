@@ -91,6 +91,7 @@ static void test_valid_simple_function(void) {
     uint32_t off = 0;
     off += emit(code + off, OP_NOP);
     off += emit(code + off, OP_PUSH_VOID);
+    off += emit(code + off, OP_POP);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
@@ -331,13 +332,18 @@ static void test_branch_target_past_function_end_fails(void) {
     PASS(test_name);
 }
 
-static void test_jump_to_function_end_passes(void) {
-    const char *test_name = "nvm_verify: JMP target at function end passes";
+static void test_jump_to_function_end_terminates(void) {
+    const char *test_name = "nvm_verify: JMP off the end without a terminator fails";
+    /* Jumping to the function-end sentinel lands on a valid boundary, but the
+     * path falls off the end without an explicit RET/TAIL_CALL/HALT, so the
+     * explicit-termination check rejects it. */
     uint8_t code[16];
     uint32_t off = emit(code, OP_JMP, (int32_t)5);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
-    ASSERT(r.ok, "existing jump-to-end behavior should remain valid");
+    ASSERT(!r.ok, "falling off the end should fail termination check");
+    ASSERT(strstr(r.error_msg, "falls off the end") != NULL,
+           "failure should identify the missing terminator");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -421,6 +427,7 @@ static void test_op_push_str_valid(void) {
     uint8_t code[16];
     uint32_t off = 0;
     off += emit(code + off, OP_PUSH_STR, str_idx);
+    off += emit(code + off, OP_POP);
     off += emit(code + off, OP_RET);
     uint32_t code_off = nvm_append_code(mod, code, off);
 
@@ -456,6 +463,7 @@ static void test_op_load_local_valid(void) {
     uint8_t code[16];
     uint32_t off = 0;
     off += emit(code + off, OP_LOAD_LOCAL, (uint16_t)0);
+    off += emit(code + off, OP_POP);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 1 /* local_count */, 0);
     NvmVerifyResult r = nvm_verify(mod);
@@ -725,6 +733,9 @@ static void test_arithmetic_instructions(void) {
     off += emit(code + off, OP_DIV);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
+    /* The chain leaves a single integer, so declare a matching return shape. */
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "arithmetic opcodes should verify OK");
     nvm_module_free(mod);
@@ -785,10 +796,129 @@ static void test_verify_one_function(void) {
     off += emit(code + off, OP_PUSH_I64, (int64_t)42);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
     NvmVerifyResult valid = nvm_verify_function(mod, 0);
     ASSERT(valid.ok, "valid incremental function should pass");
     NvmVerifyResult missing = nvm_verify_function(mod, 1);
     ASSERT(!missing.ok, "missing incremental function should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+/* ── Roadmap 4.0 Phase 12: return shape, operand depth, frame depth,
+ *    ownership effects, explicit termination ──────────────────────────────── */
+
+static void test_return_shape_mismatch_fails(void) {
+    const char *test_name = "nvm_verify: OP_RET leaving wrong result count fails";
+    /* Declares one result but leaves two values on the operand stack. */
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "return shape mismatch should fail");
+    ASSERT(strstr(r.error_msg, "result_count") != NULL,
+           "failure should mention the declared result_count");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_return_shape_void_leftover_fails(void) {
+    const char *test_name = "nvm_verify: void function leaving a value fails";
+    /* Declares zero results (void) but leaves one value at RET. */
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "void function leaving a value should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_return_shape_multi_result_passes(void) {
+    const char *test_name = "nvm_verify: RET matching declared result count passes";
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 2;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "matching return shape should pass");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_missing_terminator_fails(void) {
+    const char *test_name = "nvm_verify: function without a terminator fails";
+    /* A lone PUSH that falls through past the last instruction. */
+    uint8_t code[16];
+    uint32_t off = emit(code, OP_NOP);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "missing terminator should fail");
+    ASSERT(strstr(r.error_msg, "falls off the end") != NULL,
+           "failure should identify the missing terminator");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_halt_terminates_path(void) {
+    const char *test_name = "nvm_verify: HALT is an explicit terminator";
+    uint8_t code[16];
+    uint32_t off = emit(code, OP_HALT);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "HALT should satisfy explicit termination");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_conditional_both_paths_terminate(void) {
+    const char *test_name = "nvm_verify: both branch arms must terminate explicitly";
+    /* JMP_FALSE over a RET, but the fall-through target is the function end,
+     * so one path falls off without a terminator. */
+    uint8_t code[32];
+    uint32_t off = 0;
+    uint32_t jf = off;
+    off += emit(code + off, OP_PUSH_BOOL, 1);
+    /* JMP_FALSE target computed to land on the RET below. */
+    uint32_t jmp_pos = off;
+    uint32_t after_jmp = jmp_pos + emit(code + off, OP_JMP_FALSE, (int32_t)0);
+    off = after_jmp;
+    uint32_t ret_pos = off;
+    off += emit(code + off, OP_RET);
+    /* Patch JMP_FALSE to target the RET so the taken arm terminates; the
+     * not-taken arm falls through to the same RET too. Both terminate. */
+    (void)jf;
+    /* Re-emit with a real offset now that we know ret_pos. */
+    emit(code + jmp_pos, OP_JMP_FALSE, (int32_t)(ret_pos - jmp_pos));
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "both arms reaching a RET should verify");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_frame_locals_over_limit_fails(void) {
+    const char *test_name = "nvm_verify: local_count over frame limit fails";
+    uint8_t code[16];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].local_count = NVM_MAX_FRAME_LOCALS + 1;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "local_count beyond frame limit should fail");
+    ASSERT(strstr(r.error_msg, "frame limit") != NULL,
+           "failure should mention the frame limit");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -817,7 +947,7 @@ int main(void) {
     test_jump_into_operand_fails();
     test_match_tag_into_operand_fails();
     test_branch_target_past_function_end_fails();
-    test_jump_to_function_end_passes();
+    test_jump_to_function_end_terminates();
     test_predecoded_module_boundaries();
     test_op_call_valid();
     test_op_call_invalid_fn_idx();
@@ -848,6 +978,13 @@ int main(void) {
     test_incompatible_branch_stack_heights();
     test_compatible_branch_stack_heights();
     test_verify_one_function();
+    test_return_shape_mismatch_fails();
+    test_return_shape_void_leftover_fails();
+    test_return_shape_multi_result_passes();
+    test_missing_terminator_fails();
+    test_halt_terminates_path();
+    test_conditional_both_paths_terminate();
+    test_frame_locals_over_limit_fails();
 
     printf("\n");
     if (g_fail == 0) {
