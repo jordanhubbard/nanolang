@@ -356,6 +356,99 @@ static void test_predecode_trap_resume_offset(void) {
     nvm_module_free(mod);
 }
 
+static void test_predecode_resolves_branch_targets(void) {
+    /* Positive path: a forward conditional branch has its relative operand
+     * resolved to an absolute code offset that lands on an instruction
+     * boundary during instantiation (decode), not during dispatch. */
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_BOOL, 1);
+    uint32_t branch_offset = off;
+    /* Placeholder relative operand; recomputed once the target is known. */
+    off += emit(code + off, OP_JMP_TRUE, (int32_t)0);
+    uint32_t after_branch = off;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    uint32_t target_offset = off;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)9);
+    off += emit(code + off, OP_RET);
+
+    /* Rewrite the branch with a real relative offset now that layout is known. */
+    int32_t relative = (int32_t)target_offset - (int32_t)branch_offset;
+    emit(code + branch_offset, OP_JMP_TRUE, relative);
+    (void)after_branch;
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid,
+           "well-formed branch module publishes decoded instructions");
+
+    const VmDecodedInstruction *branch = vm_decoded_function_at(
+        &vm.decoded_module.functions[0], branch_offset);
+    ASSERT(branch != NULL, "branch instruction has a decoded boundary entry");
+    ASSERT_EQ_INT(branch->instruction.opcode, OP_JMP_TRUE,
+                  "decoded branch retains its opcode");
+    ASSERT_EQ_INT(branch->resolved_target,
+                  mod->functions[0].code_offset + target_offset,
+                  "branch target is resolved to an absolute code offset at decode");
+    ASSERT(vm_decoded_function_has_boundary(&vm.decoded_module.functions[0],
+                                            target_offset),
+           "resolved branch target lands on an instruction boundary");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_predecode_resolves_direct_and_tail_calls(void) {
+    /* Positive path: direct (OP_CALL) and tail (OP_TAIL_CALL) calls have their
+     * function-table operand bound to the callee index during instantiation. */
+    NvmModule *mod = make_multi_fn_module();
+
+    uint8_t callee_code[16];
+    uint32_t co = 0;
+    co += emit(callee_code + co, OP_PUSH_I64, (int64_t)5);
+    co += emit(callee_code + co, OP_RET);
+    uint32_t callee = add_fn(mod, "callee", callee_code, co, 0, 0);
+
+    uint8_t caller_code[32];
+    uint32_t ao = 0;
+    uint32_t call_offset = ao;
+    ao += emit(caller_code + ao, OP_CALL, callee);
+    ao += emit(caller_code + ao, OP_RET);
+    uint32_t caller = add_fn(mod, "caller", caller_code, ao, 0, 0);
+
+    uint8_t tail_code[16];
+    uint32_t to = 0;
+    uint32_t tail_offset = to;
+    to += emit(tail_code + to, OP_TAIL_CALL, callee);
+    uint32_t tail_caller = add_fn(mod, "tail", tail_code, to, 0, 0);
+
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = caller;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid,
+           "well-formed call module publishes decoded instructions");
+
+    const VmDecodedInstruction *call = vm_decoded_function_at(
+        &vm.decoded_module.functions[caller], call_offset);
+    ASSERT(call != NULL, "direct call has a decoded boundary entry");
+    ASSERT_EQ_INT(call->instruction.opcode, OP_CALL,
+                  "decoded direct call retains its opcode");
+    ASSERT_EQ_INT(call->resolved_target, callee,
+                  "direct call binds the callee function index at decode");
+
+    const VmDecodedInstruction *tail = vm_decoded_function_at(
+        &vm.decoded_module.functions[tail_caller], tail_offset);
+    ASSERT(tail != NULL, "tail call has a decoded boundary entry");
+    ASSERT_EQ_INT(tail->instruction.opcode, OP_TAIL_CALL,
+                  "decoded tail call retains its opcode");
+    ASSERT_EQ_INT(tail->resolved_target, callee,
+                  "tail call binds the callee function index at decode");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_result_signature_enforcement(void) {
     uint8_t code[32];
     uint32_t off = 0;
@@ -3311,6 +3404,8 @@ int main(void) {
     RUN_TEST(test_predecode_mutation_lifecycle);
     RUN_TEST(test_predecode_rejects_malformed_code);
     RUN_TEST(test_predecode_trap_resume_offset);
+    RUN_TEST(test_predecode_resolves_branch_targets);
+    RUN_TEST(test_predecode_resolves_direct_and_tail_calls);
     RUN_TEST(test_result_signature_enforcement);
     RUN_TEST(test_instruction_profile);
     RUN_TEST(test_heap_profile);
