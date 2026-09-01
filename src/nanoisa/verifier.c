@@ -10,6 +10,7 @@
 
 #include "verifier.h"
 #include "isa.h"
+#include "../nanovm/vm.h"
 #include "../nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -46,7 +47,8 @@ static bool instruction_index_at(const VmDecodedFunction *decoded,
     return true;
 }
 
-static NvmVerifyResult verify_stack_heights(const VmDecodedFunction *decoded,
+static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
+                                            const VmDecodedFunction *decoded,
                                             uint32_t fn_idx) {
     int32_t *heights = malloc((decoded->instruction_count + 1) * sizeof(*heights));
     uint32_t *work = malloc((decoded->instruction_count + 1) * sizeof(*work));
@@ -64,20 +66,62 @@ static NvmVerifyResult verify_stack_heights(const VmDecodedFunction *decoded,
         uint32_t index = work[head++];
         if (index == decoded->instruction_count) continue;
         const VmDecodedInstruction *decoded_instruction = &decoded->instructions[index];
-        const InstructionInfo *info = isa_get_info(decoded_instruction->instruction.opcode);
-        if (info->pop_count < 0 || info->push_count < 0) continue;
+        const DecodedInstruction *instruction = &decoded_instruction->instruction;
+        const InstructionInfo *info = isa_get_info(instruction->opcode);
+        int32_t pop_count = info->pop_count;
+        int32_t push_count = info->push_count;
+        switch (instruction->opcode) {
+        case OP_CALL:
+        case OP_TAIL_CALL: {
+            const NvmFunctionEntry *callee =
+                &mod->functions[instruction->operands[0].u32];
+            pop_count = callee->arity;
+            push_count = callee->result_count;
+            break;
+        }
+        case OP_CALL_EXTERN: {
+            const NvmImportEntry *import =
+                &mod->imports[instruction->operands[0].u32];
+            pop_count = import->param_count;
+            push_count = import->return_type == TAG_VOID ? 0 : 1;
+            break;
+        }
+        case OP_CLOSURE_NEW:
+            pop_count = instruction->operands[1].u16;
+            push_count = 1;
+            break;
+        case OP_STRUCT_LITERAL:
+            pop_count = instruction->operands[1].u16;
+            push_count = 1;
+            break;
+        case OP_UNION_CONSTRUCT:
+            pop_count = instruction->operands[2].u16;
+            push_count = 1;
+            break;
+        case OP_TUPLE_NEW:
+            pop_count = instruction->operands[0].u16;
+            push_count = 1;
+            break;
+        case OP_AGG_PACK:
+            pop_count = instruction->operands[3].u16;
+            push_count = 1;
+            break;
+        default:
+            break;
+        }
+        if (pop_count < 0 || push_count < 0) continue;
         int32_t before = heights[index];
-        if (before < info->pop_count) {
+        if (before < pop_count) {
             free(heights);
             free(work);
             return fail("function[%u] stack underflow at offset %u (%s needs %d, has %d)",
                         fn_idx, decoded_instruction->byte_offset, info->name,
-                        info->pop_count, before);
+                        pop_count, before);
         }
-        int32_t after = before - info->pop_count + info->push_count;
+        int32_t after = before - pop_count + push_count;
         uint32_t successors[2];
         uint32_t successor_count = 0;
-        uint8_t opcode = decoded_instruction->instruction.opcode;
+        uint8_t opcode = instruction->opcode;
         if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE
                 || opcode == OP_MATCH_TAG) {
             instruction_index_at(decoded, decoded_instruction->resolved_target,
@@ -283,6 +327,10 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             if (fn_target >= mod->function_count)
                 FAIL_DECODED("function[%u] OP_CLOSURE_NEW at offset %u: fn_idx %u >= function_count %u",
                              fn_idx, fn->code_offset + pos, fn_target, mod->function_count);
+            if (instr.operands[1].u16 != mod->functions[fn_target].upvalue_count)
+                FAIL_DECODED("function[%u] OP_CLOSURE_NEW at offset %u: capture_count %u does not match upvalue_count %u",
+                             fn_idx, fn->code_offset + pos, instr.operands[1].u16,
+                             mod->functions[fn_target].upvalue_count);
             break;
         }
 
@@ -312,6 +360,17 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
+        /* --- Global indices use the VM's fixed global table --- */
+        case OP_LOAD_GLOBAL:
+        case OP_STORE_GLOBAL: {
+            uint32_t idx = instr.operands[0].u32;
+            if (idx >= VM_MAX_GLOBALS)
+                FAIL_DECODED("function[%u] %s at offset %u: global index %u >= limit %u",
+                             fn_idx, info->name, fn->code_offset + pos,
+                             idx, VM_MAX_GLOBALS);
+            break;
+        }
+
         /* --- Local variable indices --- */
         case OP_LOAD_LOCAL:
         case OP_STORE_LOCAL: {
@@ -329,6 +388,9 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             /* Encoding: operands[0]=depth (always 0, codegen flattens captures),
              * operands[1]=index into this closure's capture array. */
             uint16_t idx = instr.operands[1].u16;
+            if (instr.operands[0].u16 != 0)
+                FAIL_DECODED("function[%u] %s at offset %u: upvalue depth must be zero",
+                             fn_idx, info->name, fn->code_offset + pos);
             if (idx >= fn->upvalue_count)
                 FAIL_DECODED("function[%u] %s at offset %u: upvalue index %u >= upvalue_count %u",
                              fn_idx, info->name, fn->code_offset + pos,
@@ -390,6 +452,14 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
+        case OP_TYPE_CHECK: {
+            uint8_t tag = instr.operands[0].u8;
+            if (tag >= TAG_COUNT)
+                FAIL_DECODED("function[%u] OP_TYPE_CHECK at offset %u: invalid type tag %u",
+                             fn_idx, fn->code_offset + pos, tag);
+            break;
+        }
+
         default:
             /* All other opcodes: valid by decode success */
             break;
@@ -398,7 +468,7 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
     }
 
 #undef FAIL_DECODED
-    NvmVerifyResult stack_result = verify_stack_heights(&decoded, fn_idx);
+    NvmVerifyResult stack_result = verify_stack_heights(mod, &decoded, fn_idx);
     vm_decoded_function_free(&decoded);
     return stack_result;
 }
