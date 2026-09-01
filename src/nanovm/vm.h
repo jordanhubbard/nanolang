@@ -175,6 +175,11 @@ typedef struct VmState {
 
     /* Optional low-overhead instruction and control-flow counters. */
     VmProfile profile;
+
+    /* Profile that selects which private dispatch superinstructions the
+     * optimized IR fuses.  Defaults to none, so an unconfigured VM runs the
+     * plain verified stream; configure it before loading a module. */
+    VmDispatchProfile dispatch_profile;
 } VmState;
 
 /* ========================================================================
@@ -244,6 +249,12 @@ NanoValue vm_get_result(VmState *vm);
 
 /* Reset and enable or disable execution profiling. */
 void vm_profile_enable(VmState *vm, bool enabled);
+
+/* Select which private dispatch superinstructions are fused when the VM
+ * projects a module's optimized dispatch IR.  Rebuilds are required to take
+ * effect, so call this before the module is loaded (or invalidate and rebuild
+ * afterwards). */
+void vm_set_dispatch_profile(VmState *vm, VmDispatchProfile profile);
 
 /* Write deterministic JSON containing execution counters. */
 bool vm_profile_write_json(const VmState *vm, FILE *out);

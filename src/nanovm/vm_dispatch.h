@@ -23,6 +23,17 @@
  *
  * This file owns only representation (3).  It depends on representation (2)
  * and must be rebuilt whenever the verified IR is rebuilt.
+ *
+ * Private superinstructions live only inside representation (3).  A
+ * profile-selected fusion pass may collapse a short run of verified
+ * instructions into a single dispatch step whose `super_op` names a private
+ * handler.  These handlers are an internal execution optimization: they are
+ * never portable opcodes, never appear in the serialized bytecode
+ * (representation 1) or the verified IR (representation 2), and never leak
+ * frontend bookkeeping into the ISA.  The verified IR still owns program
+ * meaning; a superinstruction only fuses steps the verifier already proved
+ * safe, and it preserves the byte-addressed `ip` contract so frames, returns,
+ * and traps observe exactly the same behavior as the unfused stream.
  */
 
 #include "vm_decode.h"
@@ -47,6 +58,40 @@
  *   - call_target is the resolved callee function index for direct and tail
  *     calls (or VM_DISPATCH_NO_INDEX otherwise).
  */
+/*
+ * Private superinstruction opcodes.  These identifiers live in a namespace
+ * that is disjoint from the portable NanoISA opcode plane (0x00..0xFF): they
+ * are 16-bit values that never round-trip through serialization, so a private
+ * fusion can never be confused with a portable instruction.  VM_SUPER_NONE
+ * marks an ordinary (unfused) dispatch instruction that dispatches on its
+ * portable opcode.
+ */
+typedef enum {
+    VM_SUPER_NONE = 0,
+    /* LOAD_LOCAL idx ; AGG_GET field  ->  load a local aggregate field. */
+    VM_SUPER_LOAD_LOCAL_FIELD,
+    VM_SUPER__COUNT
+} VmSuperOp;
+
+/*
+ * A dispatch fusion profile.  It is the only thing that decides whether a
+ * private superinstruction is selected, so fusion stays a measured, opt-in
+ * policy rather than a property of the portable program.  Each flag enables
+ * one candidate fusion; every flag defaults off so an unconfigured build
+ * executes the plain verified stream.  The optimization policy in
+ * docs/NANOISA_OPTIMIZATION_POLICY.md governs when a flag may ship on.
+ */
+typedef struct {
+    bool fuse_load_local_field;
+} VmDispatchProfile;
+
+/* A profile with every fusion disabled (the conservative default). */
+VmDispatchProfile vm_dispatch_profile_none(void);
+
+/* A profile that selects every implemented candidate fusion.  Intended for
+ * measurement and tests, not as a shipping default. */
+VmDispatchProfile vm_dispatch_profile_all(void);
+
 #define VM_DISPATCH_NO_INDEX ((uint32_t)0xFFFFFFFFu)
 
 typedef struct {
@@ -58,6 +103,12 @@ typedef struct {
     uint32_t branch_target;
     uint32_t branch_target_offset;
     uint32_t call_target;
+    /* VM_SUPER_NONE for an ordinary instruction, otherwise the private
+     * superinstruction to run.  `super_operand` carries the fused second
+     * operand (e.g. the AGG_GET field index) so the primary operand still
+     * lives in `instruction.operands`. */
+    uint16_t super_op;
+    uint16_t super_operand;
 } VmDispatchInstruction;
 
 typedef struct {
@@ -83,13 +134,18 @@ typedef struct {
     uint32_t index;
 } VmDispatchCursor;
 
-/* Project the verified IR of one function into the optimized dispatch IR. */
+/* Project the verified IR of one function into the optimized dispatch IR,
+ * applying the profile-selected private fusions.  Pass a
+ * vm_dispatch_profile_none() profile to build the plain (unfused) stream. */
 bool vm_dispatch_build_function(const VmDecodedFunction *decoded,
+                                VmDispatchProfile profile,
                                 VmDispatchFunction *out,
                                 char error[VM_DISPATCH_ERROR_SIZE]);
 
-/* Project every function of a verified module into optimized dispatch IR. */
+/* Project every function of a verified module into optimized dispatch IR,
+ * applying `profile` to every function. */
 bool vm_dispatch_build_module(const VmDecodedModule *decoded,
+                              VmDispatchProfile profile,
                               VmDispatchModule *out,
                               char error[VM_DISPATCH_ERROR_SIZE]);
 
