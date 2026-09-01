@@ -1571,6 +1571,34 @@ static void test_hashmap_len(void) {
     nvm_module_free(mod);
 }
 
+static void test_hashmap_contiguous_collisions(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+    VmHashMap *map = vm_hashmap_new(&heap, TAG_INT, TAG_INT);
+    ASSERT(map != NULL, "hashmap allocation succeeds");
+    ASSERT(map->entries != NULL, "hashmap entries use one contiguous allocation");
+
+    for (int64_t i = 0; i < 40; i++) {
+        vm_hashmap_set(&heap, map, val_int(i * 16), val_int(i + 100));
+    }
+    ASSERT_EQ_INT(map->count, 40, "colliding inserts survive growth");
+    ASSERT(map->bucket_count >= 64, "contiguous table grows at its load limit");
+    for (int64_t i = 0; i < 40; i++) {
+        ASSERT_EQ_INT(vm_hashmap_get(map, val_int(i * 16)).as.i64, i + 100,
+                      "colliding key remains reachable");
+    }
+
+    vm_hashmap_delete(&heap, map, val_int(16 * 10));
+    ASSERT(!vm_hashmap_has(map, val_int(16 * 10)), "deleted colliding key is absent");
+    ASSERT(vm_hashmap_has(map, val_int(16 * 11)), "probe continues past tombstone");
+    vm_hashmap_set(&heap, map, val_int(16 * 50), val_int(150));
+    ASSERT_EQ_INT(vm_hashmap_get(map, val_int(16 * 50)).as.i64, 150,
+                  "tombstone remains reusable");
+
+    vm_release(&heap, val_hashmap(map));
+    vm_heap_destroy(&heap);
+}
+
 /* ========================================================================
  * Tests: Type Casts
  * ======================================================================== */
@@ -3630,6 +3658,7 @@ int main(void) {
     printf("\n[Hashmaps]\n");
     RUN_TEST(test_hashmap_basic);
     RUN_TEST(test_hashmap_len);
+    RUN_TEST(test_hashmap_contiguous_collisions);
 
     printf("\n[Type Casts]\n");
     RUN_TEST(test_cast_int_from_float);

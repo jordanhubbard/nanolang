@@ -79,9 +79,9 @@ struct VmClosure {
 
 /* HashMap entry */
 typedef struct VmHMEntry {
+    uint8_t state;  /* 0=empty, 1=filled, 2=tombstone */
     NanoValue key;
     NanoValue value;
-    struct VmHMEntry *next;  /* Chaining for collisions */
 } VmHMEntry;
 
 /* HashMap: key-value map */
@@ -90,8 +90,9 @@ struct VmHashMap {
     uint8_t key_type;
     uint8_t val_type;
     uint32_t count;
+    uint32_t tombstone_count;
     uint32_t bucket_count;
-    VmHMEntry **buckets;
+    VmHMEntry *entries;
 };
 
 /* ========================================================================
