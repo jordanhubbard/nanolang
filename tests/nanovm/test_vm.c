@@ -197,6 +197,48 @@ static NanoValue run_module(NvmModule *mod, VmResult *out_result) {
     return result;
 }
 
+/* The verifier rejects an import declaring more parameters than the foreign-call
+ * limit, but the VM must not rely on having been verified. This covers the
+ * execution path: an unverified module reaching OP_CALL_EXTERN with an
+ * over-long declared arity has to trap. Clamping instead would drop the extra
+ * arguments AND leave them on the operand stack, desynchronizing it for every
+ * instruction that follows -- a silent corruption arbitrarily far from its
+ * cause. */
+static void test_call_extern_arg_limit_is_error_not_truncation(void) {
+    const uint16_t declared = NANO_MAX_FFI_ARGS + 4;
+
+    NvmModule *mod = nvm_module_new();
+    uint32_t mname = nvm_add_string(mod, "", 0);
+    uint32_t fname = nvm_add_string(mod, "strlen", 6);
+    uint8_t params[NANO_MAX_FFI_ARGS + 4];
+    for (uint16_t i = 0; i < declared; i++) params[i] = TAG_INT;
+    nvm_add_import(mod, mname, fname, declared, TAG_INT, params);
+
+    uint8_t code[512];
+    uint32_t off = 0;
+    for (uint16_t i = 0; i < declared; i++)
+        off += emit(code + off, OP_PUSH_I64, (int64_t)i);
+    off += emit(code + off, OP_CALL_EXTERN, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = { .result_count = 1 };
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    fn.result_count = 1;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_OUT_OF_BOUNDS,
+                  "over-limit extern call is refused, not truncated");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_persistent_invoke(void) {
     uint8_t add_code[32];
     uint32_t add_off = 0;
@@ -3811,6 +3853,7 @@ int main(void) {
     RUN_TEST(test_globals_dynamic_size);
     RUN_TEST(test_globals_none_unallocated);
     RUN_TEST(test_globals_ensure_bounds);
+    RUN_TEST(test_call_extern_arg_limit_is_error_not_truncation);
     RUN_TEST(test_persistent_invoke);
     RUN_TEST(test_predecode_mutation_lifecycle);
     RUN_TEST(test_predecode_rejects_malformed_code);
