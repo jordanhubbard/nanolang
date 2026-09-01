@@ -26,7 +26,68 @@ def _as_int(value) -> int:
     return int(value)
 
 
+def c_string(text: str) -> str:
+    """Escape a Python string so it is a safe C string literal."""
+    out = []
+    for ch in text:
+        code = ord(ch)
+        if ch == "\\":
+            out.append("\\\\")
+        elif ch == '"':
+            out.append('\\"')
+        elif ch == "\n":
+            out.append("\\n")
+        elif ch == "\t":
+            out.append("\\t")
+        elif ch == "\r":
+            out.append("\\r")
+        elif 0x20 <= code < 0x7F:
+            out.append(ch)
+        else:
+            for byte in ch.encode("utf-8"):
+                out.append(f"\\x{byte:02x}")
+    return '"' + "".join(out) + '"'
+
+
+def validate(schema: dict) -> None:
+    """Enforce the portable-instruction design contract.
+
+    Every v2 family instruction must carry one comprehensible ``meaning`` and
+    reference only declared operand kinds so operand forms stay symmetric.
+    """
+    declared_kinds = {kind["name"] for kind in schema["operand_kinds"]}
+    families = [
+        item
+        for group in schema["instruction_families"].values()
+        for item in group
+    ]
+
+    names = [item["name"] for item in families]
+    if len(set(names)) != len(names):
+        raise ValueError("v2 family names are not unique")
+
+    meanings: dict[str, str] = {}
+    for item in families:
+        name = item["name"]
+        meaning = item.get("meaning")
+        if not isinstance(meaning, str) or not meaning.strip():
+            raise ValueError(f"{name} is missing a comprehensible meaning")
+        if meaning in meanings:
+            raise ValueError(
+                f"{name} shares its meaning with {meanings[meaning]}; "
+                "each instruction needs one distinct meaning"
+            )
+        meanings[meaning] = name
+
+        for operand in item.get("operands", []):
+            if operand not in declared_kinds:
+                raise ValueError(
+                    f"{name} operand '{operand}' is not a declared operand kind"
+                )
+
+
 def generate(schema: dict) -> str:
+    validate(schema)
     tags = schema["value_tags"]
     opcodes = schema["legacy_opcodes"]
     extended = schema.get("extended_opcodes", []) or []
@@ -87,7 +148,8 @@ def generate(schema: dict) -> str:
     lines.extend(["", "static const NanoisaV2Family nanoisa_v2_families[] = {"])
     for item in families:
         lines.append(
-            f'    {{"{item["name"]}", "{item["ownership"]}", '
+            f'    {{"{item["name"]}", {c_string(item["meaning"])}, '
+            f'"{item["ownership"]}", '
             f'{len(item.get("operands", []))}, {len(item.get("pops", []))}, '
             f'{len(item.get("pushes", []))}}},'
         )
