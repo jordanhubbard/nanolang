@@ -135,7 +135,7 @@ Runtime representation:
 - [x] I dynamically size globals from serialized declarations instead of embedding 4,096 values in every VM.
 - [ ] I will preinstantiate module constants so string literals do not allocate and search the intern table on every execution.
 - [ ] I will replace linear transient-string interning or stop interning transient values.
-- [ ] I will consistently use stored string lengths and preserve embedded zero bytes.
+- [x] I consistently use stored string lengths and preserve embedded zero bytes: NanoVM string constants load with their serialized byte length via `nvm_get_string_len` instead of `strlen`, and `STR_CONTAINS`, `STR_SPLIT`, and `STR_REPLACE` search by stored length through `vmstring_find`/`vm_mem_find`; `tests/nanovm/test_vm.c` covers embedded `\0` bytes across find, substr, char_at, split, replace, and contains.
 - [ ] I will add unboxed homogeneous arrays for integer, float, boolean, and byte elements.
 - [ ] I will simplify array mutator stack effects and remove the two-result `ARR_POP` convention.
 - [ ] I will replace chained hash-map entries with a measured contiguous implementation.

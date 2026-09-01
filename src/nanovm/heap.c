@@ -279,10 +279,25 @@ int vmstring_compare(VmString *a, VmString *b) {
     return 0;
 }
 
+/* Length-aware substring search. Unlike strstr(), this honors the stored
+ * lengths of both strings and therefore matches correctly across embedded
+ * zero bytes in the haystack or needle. */
+int64_t vmstring_find(VmString *haystack, VmString *needle) {
+    uint32_t nlen = needle->length;
+    if (nlen == 0) return 0;
+    uint32_t hlen = haystack->length;
+    if (nlen > hlen) return -1;
+    const char *hay = haystack->data;
+    const char *nee = needle->data;
+    uint32_t last = hlen - nlen;
+    for (uint32_t i = 0; i <= last; i++) {
+        if (memcmp(hay + i, nee, nlen) == 0) return (int64_t)i;
+    }
+    return -1;
+}
+
 bool vmstring_contains(VmString *haystack, VmString *needle) {
-    if (needle->length == 0) return true;
-    if (needle->length > haystack->length) return false;
-    return strstr(haystack->data, needle->data) != NULL;
+    return vmstring_find(haystack, needle) >= 0;
 }
 
 VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index) {
