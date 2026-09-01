@@ -163,7 +163,7 @@ Module format and tools:
 - [ ] I will correct disassembler import annotations, branch operand roles, label construction, and binary-string handling.
 - [x] I tie every legacy opcode to its schema and enum value, VM dispatch behavior, an explicit or decode-backed verifier route, and tested encode, decode, assembly, and disassembly paths; `schema-check` and `test-nanoisa` fail when these layers drift.
 - [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
-- [ ] I will choose one coherent flattened or separately linked module model and test it end to end.
+- [x] I use separately linked `.nvm` modules: serialized `MODULE_REFS` define the checked dependency names and `CALL_MODULE` indices, `vm_link_named_module` enforces their order, and `test-nanovm` serializes, loads, links, and executes a two-file module graph end to end.
 
 FFI and traps:
 - [ ] I will resolve imports once into typed call descriptors.

@@ -251,9 +251,14 @@ bool vm_profile_write_json(const VmState *vm, FILE *out);
 /* Get error message string */
 const char *vm_error_string(VmResult result);
 
-/* Link a module for cross-module calls (OP_CALL_MODULE).
+/* Link a module for legacy roots without MODULE_REFS (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* Link the next dependency declared by the root module's MODULE_REFS section.
+ * The name and declaration order define the OP_CALL_MODULE index. */
+uint32_t vm_link_named_module(VmState *vm, const char *name,
+                              const NvmModule *mod);
 
 /* Ensure the dynamically-sized globals array can hold at least `count` slots.
  * Grows (and zero-initializes new slots) up to VM_MAX_GLOBALS. Returns true on

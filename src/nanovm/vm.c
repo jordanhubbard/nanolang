@@ -188,7 +188,7 @@ bool vm_memory_resize(VmState *vm, uint64_t size) {
     return true;
 }
 
-uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
+static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) {
     if (!vm || !mod || vm->frame_count != 0) return (uint32_t)-1;
     VmDecodedModule decoded;
     char decode_error[VM_DECODE_ERROR_SIZE];
@@ -266,6 +266,35 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
     vm->dispatch_linked_modules[idx] = dispatch;
     vm->dispatch_linked_modules_valid[idx] = true;
     return idx;
+}
+
+uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
+    if (vm && vm->root_module && vm->root_module->module_ref_count != 0) {
+        vm_error(vm, VM_ERR_DECODE,
+                 "Named module dependencies require vm_link_named_module");
+        return (uint32_t)-1;
+    }
+    return vm_link_module_at_next_index(vm, mod);
+}
+
+uint32_t vm_link_named_module(VmState *vm, const char *name,
+                              const NvmModule *mod) {
+    if (!vm || !vm->root_module || !name) return (uint32_t)-1;
+    uint32_t idx = vm->linked_module_count;
+    if (idx >= vm->root_module->module_ref_count) {
+        vm_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                 "No module dependency declared at index %u", idx);
+        return (uint32_t)-1;
+    }
+    const char *expected = nvm_get_string(
+        vm->root_module, vm->root_module->module_refs[idx].module_name_idx);
+    if (!expected || strcmp(expected, name) != 0) {
+        vm_error(vm, VM_ERR_DECODE,
+                 "Module dependency %u is '%s', not '%s'", idx,
+                 expected ? expected : "<invalid>", name);
+        return (uint32_t)-1;
+    }
+    return vm_link_module_at_next_index(vm, mod);
 }
 
 static VmDecodedModule *decoded_module_for(VmState *vm, const NvmModule *module,
