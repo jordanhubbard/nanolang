@@ -150,7 +150,7 @@ Verifier and safety:
 - [ ] I will verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination.
 - [ ] I will verify linked-module calls and every opcode family rather than selected operands only.
 - [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
-- [ ] I will rewrite verified operations to unchecked private handlers where the proof permits it.
+- [x] The VM re-runs `nvm_verify` over the root and every linked module (`vm_recompute_verified`) and records the result in `VmState.verified`; where that proof holds, the operand-stack accessors dispatch to unchecked private handlers (`stack_pop_unchecked`/`stack_peek_unchecked`) instead of re-checking depth the verifier already proved, falling back to the guarded path for any unverified module. `tests/nanovm/test_vm.c` (Verified Fast Path) pins the flag to the verifier verdict and checks both paths.
 - [ ] I will add malformed-bytecode tests and fuzz the decoder, loader, verifier, assembler, disassembler, and co-process protocol.
 
 Module format and tools:

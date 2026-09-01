@@ -3706,6 +3706,110 @@ static void test_globals_ensure_bounds(void) {
     nvm_module_free(mod);
 }
 
+/* Build a module whose single "main" returns an int, with a well-formed
+ * result signature (result_count/result_tag agree) so nvm_verify() accepts it
+ * and the VM enables the verified fast path. */
+static NvmModule *make_verifiable_int_module(const uint8_t *code,
+                                             uint32_t code_size,
+                                             uint16_t local_count) {
+    NvmModule *mod = nvm_module_new();
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+    uint32_t code_off = nvm_append_code(mod, code, code_size);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.arity = 0;
+    fn.code_offset = code_off;
+    fn.code_length = code_size;
+    fn.local_count = local_count;
+    fn.upvalue_count = 0;
+    fn.result_count = 1;
+    fn.result_tag = TAG_INT;
+    uint32_t fn_idx = nvm_add_function(mod, &fn);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+    return mod;
+}
+
+/* ========================================================================
+ * Verified fast path: unchecked private stack handlers
+ *
+ * nvm_verify() proves the operand-stack depth of every reachable
+ * instruction, so a verified module lets the VM use the unchecked private
+ * handlers (stack_pop_unchecked/stack_peek_unchecked). These tests pin the
+ * proof flag (vm.verified) to the verifier's verdict and confirm the
+ * unchecked path still computes correct results, while an unverifiable
+ * module stays on the guarded path.
+ * ======================================================================== */
+
+/* A well-formed module is verified, so the VM runs the unchecked handlers
+ * and still returns the right answer. */
+static void test_verified_fastpath_enabled(void) {
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)40);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_ADD);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.verified, "well-formed module enables the verified fast path");
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "verified module executes cleanly");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 42,
+                  "unchecked stack handlers compute the correct result");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* A module the verifier rejects (stack underflow: OP_ADD with an empty
+ * stack) must leave the proof flag clear so the guarded handlers stay in
+ * force rather than reading below the operand stack. */
+static void test_unverifiable_stays_checked(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_ADD); /* pops two with nothing pushed */
+    off += emit(code + off, OP_RET);
+    /* Signature is well-formed, so the only reason verification fails is the
+     * proven stack underflow at OP_ADD. */
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(!vm.verified,
+           "verifier rejects the underflowing module, proof flag stays clear");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* Invalidating a module drops the proof; rebuilding a well-formed module
+ * re-establishes it. */
+static void test_verified_flag_tracks_module_lifecycle(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.verified, "initial well-formed module is verified");
+
+    vm_invalidate_module(&vm, mod);
+    ASSERT(!vm.verified, "invalidating a module clears the proof flag");
+
+    ASSERT(vm_rebuild_module(&vm, mod), "rebuild of well-formed module succeeds");
+    ASSERT(vm.verified, "rebuild re-establishes the proof flag");
+
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "rebuilt verified module executes cleanly");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 7,
+                  "rebuilt verified module returns the correct result");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("=== NanoVM Test Suite ===\n");
@@ -3909,6 +4013,11 @@ int main(void) {
     RUN_TEST(test_arr_push_type_error);
     RUN_TEST(test_str_len_type_error);
     RUN_TEST(test_struct_get_type_error);
+
+    printf("\n[Verified Fast Path]\n");
+    RUN_TEST(test_verified_fastpath_enabled);
+    RUN_TEST(test_unverifiable_stays_checked);
+    RUN_TEST(test_verified_flag_tracks_module_lifecycle);
 
     printf("\n=== Results: %d passed, %d failed, %d total ===\n",
            tests_passed, tests_failed, tests_run);
