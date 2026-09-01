@@ -14,6 +14,9 @@
 #include "../nanolang.h"
 #include <stdbool.h>
 
+/* Forward declaration; full definition in cop_protocol.h. */
+struct CopBatchCall;
+
 /* Initialize the VM FFI subsystem */
 void vm_ffi_init(void);
 
@@ -64,5 +67,15 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size);
+
+/* Batch many extern calls through the co-process in as few boundary crossings
+ * as possible (one signal/ack pair per mailbox-sized chunk) instead of paying
+ * the round-trip cost per element.  results must have room for `count` values;
+ * caller owns the returned values.  Returns false on the first failed call,
+ * with error_msg set and completed results still valid. */
+bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
+                           const struct CopBatchCall *calls, int count,
+                           NanoValue *results, VmHeap *heap,
+                           char *error_msg, size_t error_msg_size);
 
 #endif /* NANOVM_FFI_H */

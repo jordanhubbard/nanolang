@@ -871,3 +871,147 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     snprintf(error_msg, error_msg_size, "COP: unexpected response 0x%02x", hdr.msg_type);
     return false;
 }
+
+/* ========================================================================
+ * vm_ffi_call_cop_batch — coalesce many host calls into one crossing
+ *
+ * High-frequency host work (e.g. per-pixel or per-element transforms) would
+ * otherwise pay a signal+ack round-trip through the co-process boundary for
+ * every element.  This packs as many calls as fit in the mailbox request
+ * slot into a single COP batch, dispatched with one signal and collected
+ * with one ack, then repeats until the whole batch is drained.
+ *
+ * Results are written into results[0..count-1] (caller-owned array).  On the
+ * first failing call, returns false with error_msg set; results before the
+ * failure are valid and owned by the caller, later slots are set to void.
+ * ======================================================================== */
+bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
+                           const CopBatchCall *calls, int count,
+                           NanoValue *results, VmHeap *heap,
+                           char *error_msg, size_t error_msg_size) {
+    if (count < 0) {
+        snprintf(error_msg, error_msg_size, "COP: negative batch count");
+        return false;
+    }
+    for (int i = 0; i < count; i++) results[i] = val_void();
+    if (count == 0) return true;
+
+    if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
+        snprintf(error_msg, error_msg_size,
+                 "COP: FFI isolation requested but co-process unavailable; "
+                 "refusing to run extern batch in-process");
+        return false;
+    }
+
+    CopMailbox *mbox = vm->cop_mailbox;
+    if (!mbox) {
+        /* No shared-memory mailbox: fall back to per-call dispatch so batching
+         * still works functionally over the pipe channel (just without the
+         * single-crossing win). */
+        for (int i = 0; i < count; i++) {
+            if (!vm_ffi_call_cop(vm, module, calls[i].import_idx,
+                                 (NanoValue *)calls[i].args, calls[i].arg_count,
+                                 &results[i], heap, error_msg, error_msg_size)) {
+                for (int j = i; j < count; j++) results[j] = val_void();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    int next = 0;              /* index of next call to pack */
+    while (next < count) {
+        /* Pack as many calls as fit into the request slot for one crossing. */
+        uint32_t wpos = 0;
+        int batch_start = next;
+        int batched = 0;
+        while (next < count && batched < COP_MAX_BATCH) {
+            const CopBatchCall *call = &calls[next];
+            int argc = call->arg_count;
+            if (argc > 16) argc = 16;
+
+            /* Header (8 bytes) + serialized args must fit remaining slot. */
+            if (wpos + 8 > COP_MAILBOX_SLOT_SIZE) break;
+            uint32_t hdr = wpos;
+            uint32_t apos = wpos + 8;
+            bool fits = true;
+            for (int a = 0; a < argc; a++) {
+                uint32_t n = cop_serialize_value(&call->args[a],
+                                                 mbox->req_data + apos,
+                                                 COP_MAILBOX_SLOT_SIZE - apos);
+                if (n == 0) { fits = false; break; }
+                apos += n;
+            }
+            if (!fits) {
+                if (batched == 0) {
+                    snprintf(error_msg, error_msg_size,
+                             "COP: batch call %d args exceed mailbox slot", next);
+                    return false;
+                }
+                break;  /* flush what we have, retry this call next crossing */
+            }
+            uint32_t arg_bytes = apos - (hdr + 8);
+            cop_put_u32(mbox->req_data + hdr,     call->import_idx);
+            cop_put_u16(mbox->req_data + hdr + 4, (uint16_t)argc);
+            cop_put_u16(mbox->req_data + hdr + 6, (uint16_t)arg_bytes);
+            wpos = apos;
+            next++;
+            batched++;
+        }
+
+        cop_put_u32(mbox->req_batch_count, (uint32_t)batched);
+        cop_put_u16(mbox->req_data_size, (uint16_t)wpos);
+        cop_put_u16(mbox->req_argc, 0);
+        cop_put_u32(mbox->req_import_idx, 0);
+
+        uint8_t sig = 1;
+        if (write(vm->cop_sig_send_fd, &sig, 1) != 1) {
+            vm_ffi_cop_stop(vm);
+            snprintf(error_msg, error_msg_size, "COP: signal pipe broken (child crash?)");
+            return false;
+        }
+
+        struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };
+        int pn = poll(&pfd, 1, vm->cop_timeout_ms);
+        if (pn == 0) {
+            vm_ffi_cop_stop(vm);
+            snprintf(error_msg, error_msg_size, "COP: timeout after %d ms", vm->cop_timeout_ms);
+            return false;
+        }
+        if (pn < 0 || read(vm->cop_sig_recv_fd, &sig, 1) != 1) {
+            vm_ffi_cop_stop(vm);
+            snprintf(error_msg, error_msg_size, "COP: ack pipe broken");
+            return false;
+        }
+
+        uint32_t produced = cop_get_u32(mbox->resp_batch_count);
+        uint32_t resp_wire = cop_get_u32(mbox->resp_data_size);
+        if (resp_wire > COP_MAILBOX_SLOT_SIZE) resp_wire = COP_MAILBOX_SLOT_SIZE;
+
+        /* Unpack the results that did complete, whether or not the batch errored. */
+        uint32_t rpos = 0;
+        uint32_t unpacked = 0;
+        for (uint32_t k = 0; k < produced && k < (uint32_t)batched; k++) {
+            NanoValue out;
+            uint32_t consumed = cop_deserialize_value(mbox->resp_data + rpos,
+                                                      resp_wire - rpos, &out, heap);
+            if (consumed == 0) break;
+            results[batch_start + (int)k] = out;
+            rpos += consumed;
+            unpacked++;
+        }
+
+        if (mbox->resp_is_error) {
+            snprintf(error_msg, error_msg_size, "%s",
+                     mbox->resp_error[0] ? mbox->resp_error : "COP: batch call failed");
+            return false;
+        }
+        if (unpacked != (uint32_t)batched) {
+            snprintf(error_msg, error_msg_size,
+                     "COP: batch produced %u/%d results", unpacked, batched);
+            return false;
+        }
+    }
+
+    return true;
+}

@@ -172,7 +172,7 @@ FFI and traps:
 - [ ] I will pass trap stack ranges instead of copying a fixed array of tagged values where measurement supports it.
 - [ ] I will make co-process serialization explicitly little-endian and restore a tested large-payload path.
 - [ ] I will measure cold startup, warm calls, scalar calls, strings, arrays, crashes, restarts, and batching.
-- [ ] I will batch high-frequency host work rather than cross the process boundary for each element.
+- [x] I batch high-frequency host work through a coalesced co-process path: `vm_ffi_call_cop_batch` packs many extern calls (`COP_MSG_FFI_BATCH`) into each shared-memory mailbox crossing so a signal/ack pair covers the whole batch instead of every element, with `tests/nanovm/test_cop_protocol.c` covering the forked round-trip, empty batches, and mid-batch error reporting.
 
 Documentation and acceptance:
 - [x] I replaced stale NanoISA opcode counts and architecture claims in the active documentation; historical changelog entries remain historical.
