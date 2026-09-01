@@ -114,7 +114,7 @@ Portable ISA design:
 - [ ] I will replace special print, assert, and host operations with typed traps where that improves composition.
 - [ ] I will move trimming, case conversion, splitting, replacement, formatting, parsing, and collection algorithms from the ISA into runtime libraries.
 - [ ] I will retain only primitive string and aggregate operations justified by representation or measured cost.
-- [ ] I will add compact constants, short local forms, and compact general operands without making assembly irregular.
+- [x] I added compact constants, short local forms, and compact general operands to the v2 schema as encoding-only aliases of canonical instructions, so assembly stays regular.
 - [ ] I will define a clean extended-opcode space without treating an opcode value as an instruction count.
 
 Execution architecture:
