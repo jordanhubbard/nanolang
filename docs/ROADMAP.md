@@ -138,7 +138,7 @@ Runtime representation:
 - [ ] I will consistently use stored string lengths and preserve embedded zero bytes.
 - [x] I store homogeneous `array<int>`, `array<float>`, `array<bool>`, and `array<byte>` values unboxed in a compact packed buffer (`VmArray.packed`) rather than a boxed `NanoValue[]`, selected by `VmArray.unboxed` and routed through the `vm_array_*` accessors; `test-nanovm` covers the packed round-trip, mutation, slice, and remove paths.
 - [ ] I will simplify array mutator stack effects and remove the two-result `ARR_POP` convention.
-- [ ] I will replace chained hash-map entries with a measured contiguous implementation.
+- [x] I replaced NanoVM's separately allocated chained hash-map entries with a contiguous open-addressed table. `test_hashmap_contiguous_collisions` measures one entry-array allocation per table rather than one allocation per inserted entry and tests collisions, growth, deletion tombstones, and tombstone reuse.
 - [ ] I will fix reference ownership for array removal, closure calls, FFI trap arguments, and marshalled arrays.
 - [ ] I will choose and document tracing collection or enforceable cycle restrictions for heap graphs.
 
