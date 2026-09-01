@@ -46,6 +46,7 @@ jobs:
             build-essential \
             valgrind \
             pkg-config \
+            libffi-dev \
             libssl-dev \
             libsdl2-dev \
             libsdl2-mixer-dev \
@@ -59,6 +60,7 @@ jobs:
           ./scripts/ci-brew-install.sh \
             gcc \
             pkg-config \
+            libffi \
             openssl \
             sdl2 \
             sdl2_mixer \
@@ -159,6 +161,7 @@ jobs:
           ./scripts/ci-apt-install.sh \
             build-essential \
             pkg-config \
+            libffi-dev \
             libssl-dev \
             libsdl2-dev \
             libsdl2-image-dev \
@@ -177,6 +180,7 @@ jobs:
           ./scripts/ci-brew-install.sh \
             gcc \
             pkg-config \
+            libffi \
             openssl \
             sdl2 \
             sdl2_image \

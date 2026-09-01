@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <dlfcn.h>
+#include <ffi.h>
 #include <unistd.h>
 
 /* ========================================================================
@@ -53,44 +54,60 @@ bool vm_ffi_load_module(const char *module_name) {
  * NanoValue ↔ C Marshaling
  * ======================================================================== */
 
-/* Marshal NanoValue args to C void* array for polymorphic dispatch */
-static int marshal_args(NanoValue *args, int arg_count,
-                        const NvmImportEntry *imp, const uint8_t *param_types,
-                        void **arg_ptrs) {
+typedef union {
+    int64_t integer;
+    double floating;
+    void *pointer;
+    uint8_t boolean;
+} FfiArgument;
+
+static bool marshal_args(NanoValue *args, int arg_count,
+                         const NvmImportEntry *imp, const uint8_t *param_types,
+                         ffi_type **arg_types, void **arg_values,
+                         FfiArgument *arg_storage, char *error_msg,
+                         size_t error_msg_size) {
     for (int i = 0; i < arg_count; i++) {
         uint8_t expected_tag = (i < imp->param_count && param_types)
                                ? param_types[i] : args[i].tag;
 
         switch (expected_tag) {
             case TAG_INT:
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
+                arg_types[i] = &ffi_type_sint64;
+                arg_storage[i].integer = args[i].as.i64;
+                arg_values[i] = &arg_storage[i].integer;
                 break;
             case TAG_FLOAT:
-                /* Float args: store in stack buffer and pass pointer.
-                 * NOTE: This is a known limitation - proper float passing
-                 * requires libffi. For now, cast to intptr_t which works
-                 * on arm64 for many C functions that take double. */
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
+                arg_types[i] = &ffi_type_double;
+                arg_storage[i].floating = args[i].tag == TAG_FLOAT
+                                          ? args[i].as.f64
+                                          : (double)args[i].as.i64;
+                arg_values[i] = &arg_storage[i].floating;
                 break;
             case TAG_BOOL:
-                arg_ptrs[i] = (void *)(intptr_t)(args[i].as.boolean ? 1 : 0);
+                arg_types[i] = &ffi_type_uint8;
+                arg_storage[i].boolean = args[i].as.boolean ? 1 : 0;
+                arg_values[i] = &arg_storage[i].boolean;
                 break;
             case TAG_STRING:
+                arg_types[i] = &ffi_type_pointer;
                 if (args[i].tag == TAG_STRING && args[i].as.string) {
-                    arg_ptrs[i] = (void *)vmstring_cstr(args[i].as.string);
+                    arg_storage[i].pointer = (void *)vmstring_cstr(args[i].as.string);
                 } else {
-                    arg_ptrs[i] = (void *)"";
+                    arg_storage[i].pointer = (void *)"";
                 }
+                arg_values[i] = &arg_storage[i].pointer;
                 break;
             case TAG_OPAQUE:
-                /* Opaque values stored as raw pointer in i64 */
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
+                arg_types[i] = &ffi_type_pointer;
+                arg_storage[i].pointer = (void *)(intptr_t)args[i].as.i64;
+                arg_values[i] = &arg_storage[i].pointer;
                 break;
             case TAG_ARRAY: {
+                arg_types[i] = &ffi_type_pointer;
                 /* Convert VmArray to DynArray for C functions */
                 VmArray *va = args[i].as.array;
                 if (!va) {
-                    arg_ptrs[i] = (void *)dyn_array_new(ELEM_INT);
+                    arg_storage[i].pointer = (void *)dyn_array_new(ELEM_INT);
                 } else {
                     ElementType et = ELEM_INT;
                     if (va->elem_type == TAG_STRING) et = ELEM_STRING;
@@ -114,17 +131,18 @@ static int marshal_args(NanoValue *args, int arg_count,
                                 break;
                         }
                     }
-                    arg_ptrs[i] = (void *)da;
+                    arg_storage[i].pointer = (void *)da;
                 }
+                arg_values[i] = &arg_storage[i].pointer;
                 break;
             }
             default:
-                /* Pass as raw int64 (best effort) */
-                arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
-                break;
+                snprintf(error_msg, error_msg_size,
+                         "FFI: unsupported argument type tag %u", expected_tag);
+                return false;
         }
     }
-    return arg_count;
+    return true;
 }
 
 /* Convert C int64_t result to NanoValue based on return type tag */
@@ -215,41 +233,17 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
  * FFI Call Dispatch
  * ======================================================================== */
 
-typedef int64_t (*FFI_Fn0)(void);
-typedef int64_t (*FFI_Fn1)(void *);
-typedef int64_t (*FFI_Fn2)(void *, void *);
-typedef int64_t (*FFI_Fn3)(void *, void *, void *);
-typedef int64_t (*FFI_Fn4)(void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn5)(void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn6)(void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn7)(void *, void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn8)(void *, void *, void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn9)(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-typedef int64_t (*FFI_Fn10)(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-
-/* Float-specific dispatch: on arm64, doubles use FP registers, not GP.
- * Using void-ptr and int64_t types puts args in wrong registers for C math fns. */
-typedef double (*FFI_DFn0)(void);
-typedef double (*FFI_DFn1)(double);
-typedef double (*FFI_DFn2)(double, double);
-typedef double (*FFI_DFn3)(double, double, double);
-typedef double (*FFI_DFn4)(double, double, double, double);
-typedef double (*FFI_DFn5)(double, double, double, double, double);
-typedef double (*FFI_DFn6)(double, double, double, double, double, double);
-typedef double (*FFI_DFn7)(double, double, double, double, double, double, double);
-typedef double (*FFI_DFn8)(double, double, double, double, double, double, double, double);
-typedef double (*FFI_DFn9)(double, double, double, double, double, double, double, double, double);
-typedef double (*FFI_DFn10)(double, double, double, double, double, double, double, double, double, double);
-
-/* Check if all params and return are float */
-static bool is_all_float_signature(const NvmImportEntry *imp,
-                                   const uint8_t *param_types, int arg_count) {
-    if (imp->return_type != TAG_FLOAT) return false;
-    for (int i = 0; i < arg_count; i++) {
-        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i] : TAG_FLOAT;
-        if (tag != TAG_FLOAT) return false;
+static ffi_type *ffi_return_type(uint8_t tag) {
+    switch (tag) {
+        case TAG_VOID:   return &ffi_type_void;
+        case TAG_FLOAT:  return &ffi_type_double;
+        case TAG_BOOL:   return &ffi_type_uint8;
+        case TAG_STRING:
+        case TAG_ARRAY:
+        case TAG_OPAQUE: return &ffi_type_pointer;
+        case TAG_INT:    return &ffi_type_sint64;
+        default:         return NULL;
     }
-    return true;
 }
 
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
@@ -355,7 +349,6 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     }
 
     /* Marshal arguments */
-    void *arg_ptrs[16] = {0};
     if (arg_count > 16) {
         snprintf(error_msg, error_msg_size, "Too many FFI arguments (%d > 16)", arg_count);
         return false;
@@ -364,67 +357,36 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     const uint8_t *param_types = module->import_param_types
                                  ? module->import_param_types[import_idx] : NULL;
 
-    /* Fast path: all-float signatures use properly typed dispatch so
-     * doubles go through FP registers (critical on arm64). */
-    if (is_all_float_signature(imp, param_types, arg_count)) {
-        double dargs[16];
-        for (int i = 0; i < arg_count; i++) {
-            dargs[i] = (args[i].tag == TAG_FLOAT) ? args[i].as.f64
-                      : (args[i].tag == TAG_INT)   ? (double)args[i].as.i64
-                      : 0.0;
-        }
-        double dresult = 0.0;
-        switch (arg_count) {
-            case 0: dresult = ((FFI_DFn0)func_ptr)(); break;
-            case 1: dresult = ((FFI_DFn1)func_ptr)(dargs[0]); break;
-            case 2: dresult = ((FFI_DFn2)func_ptr)(dargs[0], dargs[1]); break;
-            case 3: dresult = ((FFI_DFn3)func_ptr)(dargs[0], dargs[1], dargs[2]); break;
-            case 4: dresult = ((FFI_DFn4)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3]); break;
-            case 5: dresult = ((FFI_DFn5)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4]); break;
-            case 6: dresult = ((FFI_DFn6)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5]); break;
-            case 7: dresult = ((FFI_DFn7)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6]); break;
-            case 8: dresult = ((FFI_DFn8)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7]); break;
-            case 9: dresult = ((FFI_DFn9)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8]); break;
-            case 10: dresult = ((FFI_DFn10)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8], dargs[9]); break;
-            default:
-                snprintf(error_msg, error_msg_size,
-                         "FFI: unsupported float arg count %d (max 10)", arg_count);
-                return false;
-        }
-        *result = val_float(dresult);
-        return true;
+    ffi_type *arg_types[16] = {0};
+    void *arg_values[16] = {0};
+    FfiArgument arg_storage[16] = {0};
+    if (!marshal_args(args, arg_count, imp, param_types, arg_types, arg_values,
+                      arg_storage, error_msg, error_msg_size)) {
+        return false;
     }
 
-    marshal_args(args, arg_count, imp, param_types, arg_ptrs);
-
-    /* Call the function */
-    int64_t raw_result = 0;
-    switch (arg_count) {
-        case 0: raw_result = ((FFI_Fn0)func_ptr)(); break;
-        case 1: raw_result = ((FFI_Fn1)func_ptr)(arg_ptrs[0]); break;
-        case 2: raw_result = ((FFI_Fn2)func_ptr)(arg_ptrs[0], arg_ptrs[1]); break;
-        case 3: raw_result = ((FFI_Fn3)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2]); break;
-        case 4: raw_result = ((FFI_Fn4)func_ptr)(arg_ptrs[0], arg_ptrs[1],
-                                                  arg_ptrs[2], arg_ptrs[3]); break;
-        case 5: raw_result = ((FFI_Fn5)func_ptr)(arg_ptrs[0], arg_ptrs[1],
-                                                  arg_ptrs[2], arg_ptrs[3], arg_ptrs[4]); break;
-        case 6: raw_result = ((FFI_Fn6)func_ptr)(arg_ptrs[0], arg_ptrs[1],
-                                                  arg_ptrs[2], arg_ptrs[3], arg_ptrs[4], arg_ptrs[5]); break;
-        case 7: raw_result = ((FFI_Fn7)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6]); break;
-        case 8: raw_result = ((FFI_Fn8)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7]); break;
-        case 9: raw_result = ((FFI_Fn9)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                  arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8]); break;
-        case 10: raw_result = ((FFI_Fn10)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                   arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8], arg_ptrs[9]); break;
-        default:
-            snprintf(error_msg, error_msg_size,
-                     "FFI: unsupported arg count %d (max 10)", arg_count);
-            return false;
+    ffi_type *return_type = ffi_return_type(imp->return_type);
+    if (!return_type) {
+        snprintf(error_msg, error_msg_size,
+                 "FFI: unsupported return type tag %u", imp->return_type);
+        return false;
     }
 
-    /* Marshal result */
+    ffi_cif cif;
+    if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned int)arg_count,
+                     return_type, arg_types) != FFI_OK) {
+        snprintf(error_msg, error_msg_size, "FFI: could not prepare call ABI");
+        return false;
+    }
+
+    FfiArgument raw = {0};
+    ffi_call(&cif, FFI_FN(func_ptr), return_type == &ffi_type_void ? NULL : &raw,
+             arg_values);
+    int64_t raw_result = raw.integer;
+    if (imp->return_type == TAG_FLOAT) memcpy(&raw_result, &raw.floating, sizeof(double));
+    else if (imp->return_type == TAG_BOOL) raw_result = raw.boolean;
+    else if (imp->return_type == TAG_STRING || imp->return_type == TAG_ARRAY ||
+             imp->return_type == TAG_OPAQUE) raw_result = (int64_t)(intptr_t)raw.pointer;
     *result = marshal_result(raw_result, imp->return_type, heap);
     return true;
 }

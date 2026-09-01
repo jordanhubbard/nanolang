@@ -36,6 +36,7 @@ jobs:
           ./scripts/ci-apt-install.sh \
             build-essential \
             pkg-config \
+            libffi-dev \
             libncurses-dev \
             libssl-dev
 

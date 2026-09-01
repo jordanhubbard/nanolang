@@ -24,6 +24,8 @@ I transpile to C when you need native performance. I also provide my own virtual
 
 ## Quick Start
 
+I require a C compiler, OpenSSL, libffi, and `pkg-config` to build. On Debian or Ubuntu, install `build-essential libssl-dev libffi-dev pkg-config`; on macOS with Homebrew, install `openssl libffi pkg-config`.
+
 ```bash
 # Clone and build
 git clone https://github.com/jordanhubbard/nanolang.git

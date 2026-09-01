@@ -52,6 +52,13 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -Isrc -D_GNU_SOU
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
 
+# NanoVM's native-call bridge uses libffi so integer and floating arguments
+# follow the platform ABI even when they are mixed in one signature.
+LIBFFI_CFLAGS := $(shell pkg-config --cflags libffi 2>/dev/null)
+LIBFFI_LIBS := $(shell pkg-config --libs libffi 2>/dev/null || printf '%s' '-lffi')
+CFLAGS += $(LIBFFI_CFLAGS)
+LDFLAGS += $(LIBFFI_LIBS)
+
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
 UNAME_S := $(shell uname -s)
@@ -1982,7 +1989,9 @@ check-deps:
 	@echo "Checking build dependencies..."
 	@command -v $(CC) >/dev/null 2>&1 || { echo "❌ Error: $(CC) not found. Please install a C compiler."; exit 1; }
 	@command -v make >/dev/null 2>&1 || { echo "❌ Error: make not found. Please install make."; exit 1; }
-	@echo "✓ Core dependencies satisfied ($(CC), make)"
+	@command -v pkg-config >/dev/null 2>&1 || { echo "❌ Error: pkg-config not found. Please install pkg-config and libffi."; exit 1; }
+	@pkg-config --exists libffi || { echo "❌ Error: libffi not found. Please install libffi-dev (Debian/Ubuntu) or libffi (Homebrew)."; exit 1; }
+	@echo "✓ Core dependencies satisfied ($(CC), make, pkg-config, libffi)"
 
 check-deps-sdl:
 	@echo "Checking SDL2 dependencies for graphics examples..."

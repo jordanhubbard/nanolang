@@ -33,6 +33,10 @@ static int g_pass = 0, g_fail = 0;
     printf("  FAIL: %s == %s  (%s:%d)\n", #a, #b, __FILE__, __LINE__); \
     g_fail++; return; } } while(0)
 
+double nano_test_mixed_ffi(int64_t integer, double floating, uint8_t flag) {
+    return (double)integer + floating + (flag ? 0.5 : 0.0);
+}
+
 /* ── Lifecycle tests ───────────────────────────────────────────────────── */
 
 TEST(init_shutdown_set_env) {
@@ -218,6 +222,32 @@ TEST(call_abs_int_arg) {
     vm_ffi_shutdown();
 }
 
+TEST(call_mixed_integer_float_signature) {
+    vm_ffi_init();
+
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx = nvm_add_string(mod, "nano_test_mixed_ffi", 19);
+    uint8_t ptypes[3] = {TAG_INT, TAG_FLOAT, TAG_BOOL};
+    nvm_add_import(mod, mod_idx, fn_idx, 3, TAG_FLOAT, ptypes);
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue args[3] = {val_int(7), val_float(2.25), val_bool(true)};
+    NanoValue result;
+    char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 3, &result, &heap, err, sizeof(err));
+
+    ASSERT(ok);
+    ASSERT_EQ(result.tag, TAG_FLOAT);
+    ASSERT(result.as.f64 == 9.75);
+
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
 TEST(call_bool_arg_path) {
     /*
      * Exercise TAG_BOOL arg marshaling path.
@@ -354,6 +384,7 @@ int main(void) {
     RUN(call_unresolved_function);
     RUN(call_strlen_null_string);
     RUN(call_abs_int_arg);
+    RUN(call_mixed_integer_float_signature);
     RUN(call_bool_arg_path);
     RUN(call_opaque_arg_path);
     RUN(call_void_return_type);
