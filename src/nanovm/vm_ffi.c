@@ -241,6 +241,11 @@ typedef double (*FFI_DFn8)(double, double, double, double, double, double, doubl
 typedef double (*FFI_DFn9)(double, double, double, double, double, double, double, double, double);
 typedef double (*FFI_DFn10)(double, double, double, double, double, double, double, double, double, double);
 
+/* Maximum arguments either dispatch ladder below can express. Both the
+ * all-float ladder and the integer/pointer ladder stop at 10, so this is the
+ * real ceiling regardless of how many slots arg_ptrs has. */
+#define FFI_MAX_ARGS 10
+
 /* Check if all params and return are float */
 static bool is_all_float_signature(const NvmImportEntry *imp,
                                    const uint8_t *param_types, int arg_count) {
@@ -250,6 +255,29 @@ static bool is_all_float_signature(const NvmImportEntry *imp,
         if (tag != TAG_FLOAT) return false;
     }
     return true;
+}
+
+/* Does this signature mention a float anywhere, in a parameter or the result?
+ *
+ * Only fully-float signatures have a correct dispatch path (the FFI_DFn ladder
+ * below). Everything else goes through marshal_args, which widens each argument
+ * to void * and therefore hands a double's bit pattern to the callee in a
+ * general-purpose register. Under AAPCS (arm64) a double parameter is passed in
+ * v0-v7, so the callee reads an unrelated register and the caller reads the
+ * result from x0 rather than d0 -- silently wrong values in both directions.
+ *
+ * Rather than return garbage we refuse the call. The real fix is a general ABI
+ * layer (libffi or generated typed stubs), tracked as the Phase 12 roadmap item
+ * "I will use generated typed stubs or a general ABI layer for mixed integer and
+ * floating signatures". */
+static bool signature_mentions_float(const NvmImportEntry *imp,
+                                     const uint8_t *param_types, int arg_count) {
+    if (imp->return_type == TAG_FLOAT) return true;
+    for (int i = 0; i < arg_count; i++) {
+        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i] : TAG_FLOAT;
+        if (tag == TAG_FLOAT) return true;
+    }
+    return false;
 }
 
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
@@ -355,9 +383,11 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     }
 
     /* Marshal arguments */
-    void *arg_ptrs[16] = {0};
-    if (arg_count > 16) {
-        snprintf(error_msg, error_msg_size, "Too many FFI arguments (%d > 16)", arg_count);
+    void *arg_ptrs[FFI_MAX_ARGS] = {0};
+    if (arg_count > FFI_MAX_ARGS) {
+        snprintf(error_msg, error_msg_size,
+                 "FFI: too many arguments for '%s' (%d > %d)",
+                 func_name, arg_count, FFI_MAX_ARGS);
         return false;
     }
 
@@ -367,7 +397,7 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     /* Fast path: all-float signatures use properly typed dispatch so
      * doubles go through FP registers (critical on arm64). */
     if (is_all_float_signature(imp, param_types, arg_count)) {
-        double dargs[16];
+        double dargs[FFI_MAX_ARGS];
         for (int i = 0; i < arg_count; i++) {
             dargs[i] = (args[i].tag == TAG_FLOAT) ? args[i].as.f64
                       : (args[i].tag == TAG_INT)   ? (double)args[i].as.i64
@@ -388,11 +418,23 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
             case 10: dresult = ((FFI_DFn10)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8], dargs[9]); break;
             default:
                 snprintf(error_msg, error_msg_size,
-                         "FFI: unsupported float arg count %d (max 10)", arg_count);
+                         "FFI: unsupported float arg count %d (max %d)", arg_count, FFI_MAX_ARGS);
                 return false;
         }
         *result = val_float(dresult);
         return true;
+    }
+
+    /* Any other appearance of a float in the signature has no correct path
+     * here: marshal_args would pass the double's bits in an integer register.
+     * Refuse rather than compute a wrong answer. See signature_mentions_float. */
+    if (signature_mentions_float(imp, param_types, arg_count)) {
+        snprintf(error_msg, error_msg_size,
+                 "FFI: '%s' mixes float and non-float in its signature, which "
+                 "the current ABI layer cannot pass correctly; only fully-float "
+                 "signatures are supported until typed stubs land",
+                 func_name);
+        return false;
     }
 
     marshal_args(args, arg_count, imp, param_types, arg_ptrs);
@@ -420,7 +462,7 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                                                    arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8], arg_ptrs[9]); break;
         default:
             snprintf(error_msg, error_msg_size,
-                     "FFI: unsupported arg count %d (max 10)", arg_count);
+                     "FFI: unsupported arg count %d (max %d)", arg_count, FFI_MAX_ARGS);
             return false;
     }
 

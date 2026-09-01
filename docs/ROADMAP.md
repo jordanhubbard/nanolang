@@ -165,6 +165,26 @@ Module format and tools:
 - [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
 - [ ] I will choose one coherent flattened or separately linked module model and test it end to end.
 
+Verified 4.0 progress toward the items above (each item stays open until its
+full scope and evidence exist):
+
+- The successor format is specified in
+  `docs/superpowers/specs/2026-09-01-nanoisa-v2-module-format.md`, tracked as
+  #151. It records two decisions that the remaining items depend on. The module
+  model is **separately linked** rather than flattened, which keeps separate
+  compilation and the `CALL_MODULE` path from #137 and makes `SIGNATURES` and
+  `LINKS` core sections. Migration is a **clean break** to magic `NVM\x02` with
+  no dual-path loader, which is what makes retiring the opcodes no frontend
+  emits possible rather than freezing them into a major release.
+- The specification is written; none of it is implemented. The header, the
+  section encodings, the serializer, the linker, and the loader-side validation
+  all remain to be built, so every item above stays open. The spec's value for
+  now is that the decisions are recorded and the dependent work can be
+  sequenced against them: several verifier obligations (global bounds, call
+  arity, aggregate counts, operand depth, linked-call signatures) and several
+  runtime-representation items (dynamic globals, preinstantiated constants) are
+  blocked on the serialized bounds this format introduces.
+
 FFI and traps:
 - [ ] I will resolve imports once into typed call descriptors.
 - [ ] I will use generated typed stubs or a general ABI layer for mixed integer and floating signatures.
@@ -173,6 +193,38 @@ FFI and traps:
 - [ ] I will make co-process serialization explicitly little-endian and restore a tested large-payload path.
 - [ ] I will measure cold startup, warm calls, scalar calls, strings, arrays, crashes, restarts, and batching.
 - [ ] I will batch high-frequency host work rather than cross the process boundary for each element.
+
+Verified 4.0 progress toward the items above (each item stays open until its
+full scope and evidence exist):
+
+- Every argument-limit path now fails loudly instead of silently truncating.
+  `OP_CALL_EXTERN` refused to be the exception: it clamped a declared parameter
+  count to 16 and popped only that many, dropping the remaining arguments *and*
+  leaving them on the operand stack, so the corruption surfaced arbitrarily far
+  from its cause. It now traps (`VM_ERR_OUT_OF_BOUNDS`) against the named
+  `VM_TRAP_MAX_ARGS`, and the co-process receivers in `cop_main.c` and
+  `cop_protocol.c` reject an over-long request against `COP_MAX_ARGS` rather
+  than deserializing a prefix of it. The direct-FFI ceiling is now the single
+  `FFI_MAX_ARGS`, which matches what the dispatch ladders can actually express;
+  previously the bounds check said 16 while the ladder stopped at 10 and its
+  error message said so. Tracked as #150. The remaining scope of the
+  consistency item is unifying the ceilings themselves — imports may still
+  declare up to 65535 parameters that no path can carry — which needs the
+  signatures section from the v2 module format.
+- Mixed integer and floating FFI signatures are refused rather than
+  miscompiled. Only a fully-float signature had a correct dispatch path; every
+  other appearance of a float went through `marshal_args`, which widens each
+  argument to `void *` and therefore handed a double's bit pattern to the
+  callee in a general-purpose register. Under AAPCS the callee reads `v0`-`v7`,
+  so both the argument and the returned result were silently wrong on arm64.
+  Tracked as #149. This is a guard, not the fix: the item stays open until a
+  general ABI layer or generated typed stubs exist, which is what will let
+  these signatures work rather than merely fail honestly.
+- Added regression coverage for both: `tests/nanovm/test_vm.c` asserts an
+  over-limit extern call is refused rather than truncated, and
+  `tests/nanovm/test_vm_ffi.c` covers mixed and float-parameter/non-float-return
+  signatures alongside a positive control proving the all-float path still
+  dispatches correctly.
 
 Documentation and acceptance:
 - [x] I replaced stale NanoISA opcode counts and architecture claims in the active documentation; historical changelog entries remain historical.

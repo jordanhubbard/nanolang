@@ -6,6 +6,7 @@
  */
 
 #include "cop_protocol.h"
+#include <stdio.h>
 #include "vm_ffi.h"
 #include "heap.h"
 #include "../nanoisa/nvm_format.h"
@@ -328,22 +329,38 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             uint16_t argc       = cop_get_u16(mailbox->req_argc);
             uint16_t data_size  = cop_get_u16(mailbox->req_data_size);
 
-            NanoValue args[16] = {0};
+            /* Reject an over-long request rather than deserializing a prefix of
+             * it: a truncated argument list would be handed to the callee as if
+             * it were complete. */
+            bool too_many_args = argc > COP_MAX_ARGS;
+
+            NanoValue args[COP_MAX_ARGS] = {0};
             int actual_argc = 0;
             uint32_t pos = 0;
-            for (int i = 0; i < argc && i < 16 && pos < data_size; i++) {
-                uint32_t consumed = cop_deserialize_value(mailbox->req_data + pos,
-                                                          data_size - pos,
-                                                          &args[i], &heap);
-                if (consumed == 0) break;
-                pos += consumed;
-                actual_argc++;
+            if (!too_many_args) {
+                for (int i = 0; i < argc && pos < data_size; i++) {
+                    uint32_t consumed = cop_deserialize_value(mailbox->req_data + pos,
+                                                              data_size - pos,
+                                                              &args[i], &heap);
+                    if (consumed == 0) break;
+                    pos += consumed;
+                    actual_argc++;
+                }
             }
 
             NanoValue result;
             char errmsg[256] = {0};
-            if (!vm_ffi_call(module, import_idx, args, actual_argc, &result, &heap,
-                             errmsg, sizeof(errmsg))) {
+            bool call_ok;
+            if (too_many_args) {
+                snprintf(errmsg, sizeof(errmsg),
+                         "co-process request declares %u arguments, exceeding "
+                         "the %d supported", (unsigned)argc, COP_MAX_ARGS);
+                call_ok = false;
+            } else {
+                call_ok = vm_ffi_call(module, import_idx, args, actual_argc,
+                                      &result, &heap, errmsg, sizeof(errmsg));
+            }
+            if (!call_ok) {
                 mailbox->resp_is_error  = 1;
                 cop_put_u32(mailbox->resp_data_size, 0);
                 strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);

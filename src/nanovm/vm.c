@@ -1796,11 +1796,22 @@ dynamic_div:
             }
             int ext_argc = vm->module->imports[import_idx].param_count;
 
+            /* Refuse rather than truncate. Clamping here would both drop the
+             * arguments past the limit and leave them on the operand stack,
+             * desynchronizing it for every instruction that follows -- an
+             * unbounded, silent corruption far from its cause. */
+            if (ext_argc > VM_TRAP_MAX_ARGS) {
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                "Import %u declares %d parameters, exceeding the "
+                                "%d carried by the extern-call trap",
+                                import_idx, ext_argc, VM_TRAP_MAX_ARGS);
+            }
+
             /* Pop arguments from stack (they were pushed left-to-right,
              * so pop in reverse to get them in order) */
             VmTrap t = { .type = TRAP_EXTERN_CALL };
             t.data.extern_call.import_idx = import_idx;
-            t.data.extern_call.argc = ext_argc > 16 ? 16 : ext_argc;
+            t.data.extern_call.argc = ext_argc;
             for (int i = t.data.extern_call.argc - 1; i >= 0; i--) {
                 t.data.extern_call.args[i] = stack_pop(vm);
             }

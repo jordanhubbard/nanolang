@@ -194,10 +194,16 @@ typedef enum {
     TRAP_ERROR              /* Runtime error */
 } VmTrapType;
 
+/* Arguments an extern-call trap can carry. This is the trap ABI's own limit,
+ * independent of what a module may declare: NvmImportEntry.param_count is a
+ * uint16_t, so a module can name far more parameters than a trap can hold.
+ * Exceeding it is an error, never a truncation -- see OP_CALL_EXTERN. */
+#define VM_TRAP_MAX_ARGS 16
+
 typedef struct {
     VmTrapType type;
     union {
-        struct { uint32_t import_idx; NanoValue args[16]; int argc; } extern_call;
+        struct { uint32_t import_idx; NanoValue args[VM_TRAP_MAX_ARGS]; int argc; } extern_call;
         struct { NanoValue value; bool newline; } print;
         struct { NanoValue condition; } assert_check;
         struct { VmResult code; } error;

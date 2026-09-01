@@ -103,7 +103,7 @@ TEST(call_too_many_args) {
     VmHeap heap;
     vm_heap_init(&heap);
 
-    /* Pass 17 args (> 16 max) — should return false with error */
+    /* Pass 17 args (> FFI_MAX_ARGS) — should return false with error */
     NanoValue args[17];
     for (int i = 0; i < 17; i++) args[i] = val_int(0);
     NanoValue result;
@@ -111,6 +111,90 @@ TEST(call_too_many_args) {
     bool ok = vm_ffi_call(mod, 0, args, 17, &result, &heap, err, sizeof(err));
     ASSERT(!ok);
     ASSERT(err[0] != '\0');
+
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
+/* A signature that mentions a float anywhere but is not entirely float has no
+ * correct dispatch path: marshal_args would widen the double to void * and pass
+ * its bit pattern in a general-purpose register, which under AAPCS the callee
+ * never reads. Such a call must be refused, not answered with a wrong value. */
+TEST(call_mixed_int_float_signature_rejected) {
+    vm_ffi_init();
+
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "ldexp", 5);
+    uint8_t ptypes[2] = {TAG_FLOAT, TAG_INT};
+    nvm_add_import(mod, mod_idx, fn_idx, 2, TAG_FLOAT, ptypes);
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    NanoValue args[2] = { val_float(3.0), val_int(2) };
+    NanoValue result;
+    char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 2, &result, &heap, err, sizeof(err));
+    ASSERT(!ok);
+    ASSERT(strstr(err, "mixes float and non-float") != NULL);
+
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
+/* All-float parameters are still not enough: the fast path also requires a
+ * float return, because the result comes back in d0 rather than x0. */
+TEST(call_float_params_nonfloat_return_rejected) {
+    vm_ffi_init();
+
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "isnan", 5);
+    uint8_t ptypes[1] = {TAG_FLOAT};
+    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_INT, ptypes);
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    NanoValue args[1] = { val_float(1.0) };
+    NanoValue result;
+    char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 1, &result, &heap, err, sizeof(err));
+    ASSERT(!ok);
+    ASSERT(strstr(err, "mixes float and non-float") != NULL);
+
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
+/* The fully-float path is the one signature shape that is dispatched correctly,
+ * and must keep working: sqrt(4.0) is 2.0, not a reinterpreted bit pattern. */
+TEST(call_all_float_signature_still_works) {
+    vm_ffi_init();
+
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "sqrt", 4);
+    uint8_t ptypes[1] = {TAG_FLOAT};
+    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_FLOAT, ptypes);
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    NanoValue args[1] = { val_float(4.0) };
+    NanoValue result;
+    char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 1, &result, &heap, err, sizeof(err));
+    ASSERT(ok);
+    ASSERT(result.tag == TAG_FLOAT);
+    ASSERT(result.as.f64 > 1.999 && result.as.f64 < 2.001);
 
     vm_heap_destroy(&heap);
     nvm_module_free(mod);
@@ -351,6 +435,9 @@ int main(void) {
     RUN(load_module_nonexistent);
     RUN(call_empty_module_oob);
     RUN(call_too_many_args);
+    RUN(call_mixed_int_float_signature_rejected);
+    RUN(call_float_params_nonfloat_return_rejected);
+    RUN(call_all_float_signature_still_works);
     RUN(call_unresolved_function);
     RUN(call_strlen_null_string);
     RUN(call_abs_int_arg);

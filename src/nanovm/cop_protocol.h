@@ -44,6 +44,12 @@ typedef struct {
 #define COP_PROTO_VERSION 1
 #define COP_MAX_PAYLOAD (16 * 1024 * 1024)  /* 16 MB max for FFI payloads */
 
+/* Arguments a co-process FFI request can carry. Must match VM_TRAP_MAX_ARGS in
+ * vm.h: both sides marshal the same extern-call trap. Kept separate so the
+ * co-process host does not have to include the whole VM header. A request
+ * naming more than this is rejected, never truncated. */
+#define COP_MAX_ARGS 16
+
 /* ========================================================================
  * NanoValue Serialization
  *

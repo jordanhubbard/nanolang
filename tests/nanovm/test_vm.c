@@ -197,6 +197,45 @@ static NanoValue run_module(NvmModule *mod, VmResult *out_result) {
     return result;
 }
 
+/* An import may declare more parameters than the extern-call trap can carry
+ * (param_count is a uint16_t). Clamping the count would drop the extra
+ * arguments AND leave them on the operand stack, desynchronizing it for
+ * everything that follows. The VM must refuse the call instead. */
+static void test_call_extern_arg_limit_is_error_not_truncation(void) {
+    const uint16_t declared = VM_TRAP_MAX_ARGS + 4;
+
+    NvmModule *mod = nvm_module_new();
+    uint32_t mname = nvm_add_string(mod, "", 0);
+    uint32_t fname = nvm_add_string(mod, "strlen", 6);
+    uint8_t params[VM_TRAP_MAX_ARGS + 4];
+    for (uint16_t i = 0; i < declared; i++) params[i] = TAG_INT;
+    nvm_add_import(mod, mname, fname, declared, TAG_INT, params);
+
+    uint8_t code[512];
+    uint32_t off = 0;
+    for (uint16_t i = 0; i < declared; i++)
+        off += emit(code + off, OP_PUSH_I64, (int64_t)i);
+    off += emit(code + off, OP_CALL_EXTERN, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+    uint32_t code_off = nvm_append_code(mod, code, off);
+    NvmFunctionEntry fn = { .result_count = 1 };
+    fn.name_idx = name_idx;
+    fn.code_offset = code_off;
+    fn.code_length = off;
+    fn.result_count = 1;
+    mod->header.entry_point = nvm_add_function(mod, &fn);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_OUT_OF_BOUNDS,
+                  "over-limit extern call is refused, not truncated");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_persistent_invoke(void) {
     uint8_t add_code[32];
     uint32_t add_off = 0;
@@ -3649,6 +3688,7 @@ int main(void) {
     printf("\n[Error Handling]\n");
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
+    RUN_TEST(test_call_extern_arg_limit_is_error_not_truncation);
     RUN_TEST(test_persistent_invoke);
     RUN_TEST(test_predecode_mutation_lifecycle);
     RUN_TEST(test_predecode_rejects_malformed_code);

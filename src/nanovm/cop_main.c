@@ -113,9 +113,15 @@ static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
     import_idx = cop_get_u32(payload);
     argc = cop_get_u16(payload + 4);
 
-    NanoValue args[16] = {0};
+    if (argc > COP_MAX_ARGS) {
+        free(payload);
+        cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR, "too many args", 13);
+        return true;
+    }
+
+    NanoValue args[COP_MAX_ARGS] = {0};
     uint32_t pos = 6;
-    for (int i = 0; i < argc && i < 16; i++) {
+    for (int i = 0; i < argc; i++) {
         uint32_t consumed = cop_deserialize_value(payload + pos, payload_len - pos,
                                                    &args[i], &g_heap);
         if (consumed == 0) {
