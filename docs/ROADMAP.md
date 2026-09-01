@@ -149,7 +149,7 @@ Verifier and safety:
 - [ ] I will verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures.
 - [ ] I will verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination.
 - [ ] I will verify linked-module calls and every opcode family rather than selected operands only.
-- [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
+- [x] I reject wrapped and overlapping function code ranges and validate section ranges as an overflow-safe, non-overlapping partition; focused verifier and module-format tests cover containment, adjacency, and directory order.
 - [ ] I will rewrite verified operations to unchecked private handlers where the proof permits it.
 - [ ] I will add malformed-bytecode tests and fuzz the decoder, loader, verifier, assembler, disassembler, and co-process protocol.
 

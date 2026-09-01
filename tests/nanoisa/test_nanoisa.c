@@ -740,6 +740,52 @@ static void test_module_reject_overlap(void) {
     free(buf);
 }
 
+/* Containment is overlap even when both section endpoints are otherwise in
+ * range and the directory lists the inner section first. */
+static void test_module_reject_contained_overlap(void) {
+    uint32_t dir = 2 * NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 8;
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0,  99);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4,  data_start + 2);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8,  2);
+    t_put_u32(buf + NVM_HEADER_SIZE + 12, 100);
+    t_put_u32(buf + NVM_HEADER_SIZE + 16, data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 20, 8);
+
+    t_finalize(buf, total, 2);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod == NULL, "Contained section overlap rejected");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
+/* Directory order does not define data order. Adjacent sections in reverse
+ * directory order still form a valid partition. */
+static void test_module_accept_reverse_order_adjacent_sections(void) {
+    uint32_t dir = 2 * NVM_SECTION_ENTRY_SIZE;
+    uint32_t data_start = NVM_HEADER_SIZE + dir;
+    uint32_t total = data_start + 4;
+    uint8_t *buf = calloc(1, total);
+
+    t_put_u32(buf + NVM_HEADER_SIZE + 0,  99);
+    t_put_u32(buf + NVM_HEADER_SIZE + 4,  data_start + 2);
+    t_put_u32(buf + NVM_HEADER_SIZE + 8,  2);
+    t_put_u32(buf + NVM_HEADER_SIZE + 12, NVM_SECTION_CODE);
+    t_put_u32(buf + NVM_HEADER_SIZE + 16, data_start);
+    t_put_u32(buf + NVM_HEADER_SIZE + 20, 2);
+
+    t_finalize(buf, total, 2);
+
+    NvmModule *mod = nvm_deserialize(buf, total);
+    ASSERT(mod != NULL, "Reverse-order adjacent sections accepted");
+    if (mod) nvm_module_free(mod);
+    free(buf);
+}
+
 /* Partial fixed-width record: a FUNCTIONS section whose size is not a whole
  * multiple of NVM_FUNCTION_ENTRY_SIZE is rejected. */
 static void test_module_reject_partial_record(void) {
@@ -1349,6 +1395,27 @@ static void test_disasm_malformed_bytecode(void) {
     free(output);
 }
 
+static void test_disasm_rejects_wrapped_function_range(void) {
+    NvmModule *mod = nvm_module_new();
+    uint32_t name_idx = nvm_add_string(mod, "wrapped", 7);
+    uint8_t code[] = { OP_HALT };
+    nvm_append_code(mod, code, sizeof(code));
+    NvmFunctionEntry fn = { .name_idx = name_idx,
+                            .code_offset = UINT32_MAX,
+                            .code_length = 2 };
+    nvm_add_function(mod, &fn);
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "Wrapped-range disassembly produced output");
+    ASSERT(strstr(output, ".function wrapped") != NULL,
+           "Wrapped-range function declaration is preserved");
+    ASSERT(strstr(output, "HALT") == NULL,
+           "Wrapped-range function body is not read");
+
+    free(output);
+    nvm_module_free(mod);
+}
+
 static void test_disasm_label_deduplication(void) {
     DecodedInstruction jump = {0};
     uint8_t code[11] = {0};
@@ -1653,6 +1720,8 @@ int main(void) {
     RUN_TEST(test_module_raw_valid_baseline);
     RUN_TEST(test_module_reject_duplicate_singleton);
     RUN_TEST(test_module_reject_overlap);
+    RUN_TEST(test_module_reject_contained_overlap);
+    RUN_TEST(test_module_accept_reverse_order_adjacent_sections);
     RUN_TEST(test_module_reject_partial_record);
     RUN_TEST(test_module_reject_trailing_data);
     RUN_TEST(test_module_reject_interior_gap);
@@ -1684,6 +1753,7 @@ int main(void) {
     RUN_TEST(test_disasm_labels);
     RUN_TEST(test_disasm_source_annotations_and_cfg);
     RUN_TEST(test_disasm_malformed_bytecode);
+    RUN_TEST(test_disasm_rejects_wrapped_function_range);
     RUN_TEST(test_disasm_label_deduplication);
     RUN_TEST(test_disasm_label_limit_degrades_gracefully);
 
