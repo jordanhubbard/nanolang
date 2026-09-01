@@ -1361,9 +1361,10 @@ static void test_array_literal(void) {
     NanoValue result = vm_get_result(&vm);
     ASSERT_EQ_INT(result.tag, TAG_ARRAY, "array_literal: tag is array");
     ASSERT_EQ_INT(result.as.array->length, 3, "array_literal: length == 3");
-    ASSERT_EQ_INT(result.as.array->elements[0].as.i64, 10, "array_literal: [0] == 10");
-    ASSERT_EQ_INT(result.as.array->elements[1].as.i64, 20, "array_literal: [1] == 20");
-    ASSERT_EQ_INT(result.as.array->elements[2].as.i64, 30, "array_literal: [2] == 30");
+    ASSERT_EQ_INT(result.as.array->unboxed, 1, "array_literal: int array is unboxed");
+    ASSERT_EQ_INT(vm_array_get(result.as.array, 0).as.i64, 10, "array_literal: [0] == 10");
+    ASSERT_EQ_INT(vm_array_get(result.as.array, 1).as.i64, 20, "array_literal: [1] == 20");
+    ASSERT_EQ_INT(vm_array_get(result.as.array, 2).as.i64, 30, "array_literal: [2] == 30");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -1405,6 +1406,93 @@ static void test_array_len(void) {
     ASSERT_EQ_INT(r, VM_OK, "array_len: VM_OK");
     ASSERT_EQ_INT(result.as.i64, 5, "array_len: length == 5");
     nvm_module_free(mod);
+}
+
+/* Unboxed homogeneous arrays: int/float/bool/byte element types are stored in
+ * a compact packed buffer rather than a boxed NanoValue[]. Exercise the heap
+ * array API directly to prove the accessors round-trip payloads correctly and
+ * that mutation ops (set/pop/slice/remove/grow) preserve values. */
+static void test_array_unboxed_representation(void) {
+    /* Classification: only the four non-reference primitives are unboxable. */
+    ASSERT(vm_array_type_unboxable(TAG_INT),   "unboxable: int");
+    ASSERT(vm_array_type_unboxable(TAG_FLOAT), "unboxable: float");
+    ASSERT(vm_array_type_unboxable(TAG_BOOL),  "unboxable: bool");
+    ASSERT(vm_array_type_unboxable(TAG_U8),    "unboxable: byte");
+    ASSERT(!vm_array_type_unboxable(TAG_STRING), "boxed: string");
+    ASSERT(!vm_array_type_unboxable(TAG_ARRAY),  "boxed: array");
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    /* --- int array (unboxed), forcing a grow past initial capacity --- */
+    VmArray *ints = vm_array_new(&heap, TAG_INT, 2);
+    ASSERT_EQ_INT(ints->unboxed, 1, "int array is unboxed");
+    for (int i = 0; i < 100; i++) {
+        vm_array_push(&heap, ints, val_int((int64_t)i * 3 - 7));
+    }
+    ASSERT_EQ_INT(ints->length, 100, "int array length after 100 pushes");
+    ASSERT_EQ_INT(vm_array_get(ints, 0).tag, TAG_INT, "int get preserves tag");
+    ASSERT_EQ_INT(vm_array_get(ints, 0).as.i64, -7, "int get [0]");
+    ASSERT_EQ_INT(vm_array_get(ints, 42).as.i64, 42 * 3 - 7, "int get [42]");
+    vm_array_set(ints, 42, val_int(999));
+    ASSERT_EQ_INT(vm_array_get(ints, 42).as.i64, 999, "int set/get [42]");
+    NanoValue popped = vm_array_pop(ints);
+    ASSERT_EQ_INT(popped.as.i64, 99 * 3 - 7, "int pop returns last");
+    ASSERT_EQ_INT(ints->length, 99, "int length after pop");
+
+    /* remove shifts the packed buffer down */
+    vm_array_remove(ints, 0);
+    ASSERT_EQ_INT(ints->length, 98, "int length after remove");
+    ASSERT_EQ_INT(vm_array_get(ints, 0).as.i64, 3 - 7, "int remove shifted [0]");
+
+    /* slice copies the packed buffer */
+    VmArray *sl = vm_array_slice(&heap, ints, 0, 3);
+    ASSERT_EQ_INT(sl->unboxed, 1, "slice stays unboxed");
+    ASSERT_EQ_INT(sl->length, 3, "slice length");
+    ASSERT_EQ_INT(vm_array_get(sl, 2).as.i64, 3 * 3 - 7, "slice value [2]");
+    vm_release(&heap, val_array(sl));
+    vm_release(&heap, val_array(ints));
+
+    /* --- float array (unboxed) --- */
+    VmArray *flts = vm_array_new(&heap, TAG_FLOAT, 8);
+    ASSERT_EQ_INT(flts->unboxed, 1, "float array is unboxed");
+    vm_array_push(&heap, flts, val_float(1.5));
+    vm_array_push(&heap, flts, val_float(-2.25));
+    ASSERT_EQ_INT(vm_array_get(flts, 0).tag, TAG_FLOAT, "float get tag");
+    ASSERT_EQ_F64(vm_array_get(flts, 0).as.f64, 1.5, "float get [0]");
+    ASSERT_EQ_F64(vm_array_get(flts, 1).as.f64, -2.25, "float get [1]");
+    vm_release(&heap, val_array(flts));
+
+    /* --- bool array (unboxed, 1 byte per element) --- */
+    VmArray *bools = vm_array_new(&heap, TAG_BOOL, 4);
+    ASSERT_EQ_INT(bools->unboxed, 1, "bool array is unboxed");
+    vm_array_push(&heap, bools, val_bool(true));
+    vm_array_push(&heap, bools, val_bool(false));
+    ASSERT_EQ_INT(vm_array_get(bools, 0).tag, TAG_BOOL, "bool get tag");
+    ASSERT(vm_array_get(bools, 0).as.boolean, "bool get [0] true");
+    ASSERT(!vm_array_get(bools, 1).as.boolean, "bool get [1] false");
+    vm_release(&heap, val_array(bools));
+
+    /* --- byte array (unboxed) --- */
+    VmArray *bytes = vm_array_new(&heap, TAG_U8, 4);
+    ASSERT_EQ_INT(bytes->unboxed, 1, "byte array is unboxed");
+    vm_array_push(&heap, bytes, val_u8(0));
+    vm_array_push(&heap, bytes, val_u8(255));
+    ASSERT_EQ_INT(vm_array_get(bytes, 0).tag, TAG_U8, "byte get tag");
+    ASSERT_EQ_INT(vm_array_get(bytes, 0).as.u8, 0, "byte get [0]");
+    ASSERT_EQ_INT(vm_array_get(bytes, 1).as.u8, 255, "byte get [1]");
+    vm_release(&heap, val_array(bytes));
+
+    /* --- reference element type stays boxed --- */
+    VmArray *strs = vm_array_new(&heap, TAG_STRING, 4);
+    ASSERT_EQ_INT(strs->unboxed, 0, "string array stays boxed");
+    VmString *hello = vm_string_new(&heap, "hi", 2);
+    vm_array_push(&heap, strs, val_string(hello));
+    vm_release(&heap, val_string(hello)); /* array holds its own ref */
+    ASSERT_EQ_INT(vm_array_get(strs, 0).tag, TAG_STRING, "boxed string get tag");
+    vm_release(&heap, val_array(strs));
+
+    vm_heap_destroy(&heap);
 }
 
 /* ========================================================================
@@ -3614,6 +3702,7 @@ int main(void) {
     RUN_TEST(test_array_literal);
     RUN_TEST(test_array_push_get);
     RUN_TEST(test_array_len);
+    RUN_TEST(test_array_unboxed_representation);
 
     printf("\n[Structs]\n");
     RUN_TEST(test_struct_literal);

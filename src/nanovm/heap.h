@@ -35,14 +35,33 @@ struct VmString {
     char data[];         /* Flexible array member */
 };
 
-/* Array: dynamic, growable */
+/* Array: dynamic, growable.
+ *
+ * Homogeneous arrays of the non-reference primitive element types
+ * (TAG_INT, TAG_FLOAT, TAG_BOOL, TAG_U8) are stored *unboxed*: a compact
+ * typed buffer holding just the payloads (8/8/1/1 bytes per element) rather
+ * than a NanoValue[] (16 bytes each, plus a per-element type tag). This
+ * halves-or-better the memory footprint and removes per-element reference
+ * counting for these element types. All other arrays (references, void,
+ * mixed) keep the boxed NanoValue[] representation. The `unboxed` flag
+ * selects between the two; callers must go through the vm_array_* accessors,
+ * never touch `packed`/`elements` directly for reads or writes. */
 struct VmArray {
     VmHeapHeader header;
     uint8_t  elem_type;  /* Expected element type tag */
+    uint8_t  unboxed;    /* 1 => `packed` holds raw payloads, `elements` unused */
     uint32_t length;
     uint32_t capacity;
-    NanoValue *elements;
+    NanoValue *elements; /* Boxed storage (unboxed == 0) */
+    void     *packed;    /* Unboxed storage (unboxed == 1): int64_t/double/uint8_t buffer */
 };
+
+/* True when `elem_type` is one of the non-reference primitive types that
+ * qualify for unboxed storage. */
+bool vm_array_type_unboxable(uint8_t elem_type);
+
+/* Size in bytes of one unboxed element for `elem_type`, or 0 for boxed types. */
+size_t vm_array_elem_size(uint8_t elem_type);
 
 /* Struct: named fields */
 struct VmStruct {

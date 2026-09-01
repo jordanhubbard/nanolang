@@ -136,7 +136,7 @@ Runtime representation:
 - [ ] I will preinstantiate module constants so string literals do not allocate and search the intern table on every execution.
 - [ ] I will replace linear transient-string interning or stop interning transient values.
 - [ ] I will consistently use stored string lengths and preserve embedded zero bytes.
-- [ ] I will add unboxed homogeneous arrays for integer, float, boolean, and byte elements.
+- [x] I store homogeneous `array<int>`, `array<float>`, `array<bool>`, and `array<byte>` values unboxed in a compact packed buffer (`VmArray.packed`) rather than a boxed `NanoValue[]`, selected by `VmArray.unboxed` and routed through the `vm_array_*` accessors; `test-nanovm` covers the packed round-trip, mutation, slice, and remove paths.
 - [ ] I will simplify array mutator stack effects and remove the two-result `ARR_POP` convention.
 - [ ] I will replace chained hash-map entries with a measured contiguous implementation.
 - [ ] I will fix reference ownership for array removal, closure calls, FFI trap arguments, and marshalled arrays.

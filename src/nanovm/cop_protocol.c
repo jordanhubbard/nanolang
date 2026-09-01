@@ -83,7 +83,8 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
         cop_put_u32(buf + pos, count);
         pos += 4;
         for (uint32_t i = 0; i < count; i++) {
-            uint32_t n = cop_serialize_value(&arr->elements[i],
+            NanoValue elem = vm_array_get(arr, i);
+            uint32_t n = cop_serialize_value(&elem,
                                               buf + pos, buf_size - pos);
             if (n == 0) return 0;
             pos += n;
