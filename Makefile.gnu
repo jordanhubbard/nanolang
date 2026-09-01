@@ -1041,6 +1041,11 @@ test-dynamic-profile: $(INTERPRETER) $(COMPILER)
 	@chmod +x tests/test_dynamic_profile.sh
 	@bash tests/test_dynamic_profile.sh
 
+.PHONY: test-dynamic-trace
+test-dynamic-trace: $(INTERPRETER) $(COMPILER)
+	@chmod +x tests/test_dynamic_trace.sh
+	@bash tests/test_dynamic_trace.sh
+
 # Export user guide snippets into tests/user_guide
 userguide-export: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide

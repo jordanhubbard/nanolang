@@ -51,6 +51,7 @@ typedef struct {
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
     bool profile;             /* --profile: inject timing hooks into generated C */
+    bool trace;               /* --trace: inject generated-C function-call tracing hooks */
     bool coverage;            /* --coverage: instrument compiled output for gcov/lcov line+branch coverage */
     bool profile_runtime;     /* --profile-runtime: also emit flamegraph collapsed-stack .nano.prof */
 
@@ -377,6 +378,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->forbid_unsafe = opts->forbid_unsafe;
     env->profile_gprof = opts->profile_gprof;
     env->profile = opts->profile;
+    env->trace = opts->trace;
     env->profile_runtime = opts->profile_runtime;
     env->profile_flamegraph_path = opts->profile_flamegraph_path;
     env->gpu_target = (opts->target &&
@@ -1499,6 +1501,9 @@ int main(int argc, char *argv[]) {
         printf("  -l <lib>       Link against library (e.g., -lSDL2)\n");
         printf("  -pg            Enable gprof profiling (adds -g -fno-omit-frame-pointer)\n");
         printf("  --profile      Inject timing hooks; print hotspot report (sorted by total time)\n");
+        printf("  --trace        Inject generated-C function-call tracing hooks (stderr).\n");
+        printf("                 Shares one startup hook with --profile; NANO_TRACE=0 disables\n");
+        printf("                 collection at runtime without recompiling.\n");
         printf("  --profile-output <p>  Write structured profiling JSON to file <p> (use with -pg)\n");
         printf("  --coverage     Instrument compiled output for gcov/lcov line+branch coverage\n");
         printf("                 Run: gcov <source.c>, or use 'make coverage-report' for HTML\n");
@@ -1617,6 +1622,7 @@ int main(int argc, char *argv[]) {
         .json_errors = false,
         .profile_gprof = false,
         .profile = false,
+        .trace = false,
         .coverage = false,
         .profile_runtime = false,
 
@@ -1671,6 +1677,9 @@ int main(int argc, char *argv[]) {
             opts.profile_gprof = true;
         } else if (strcmp(argv[i], "--profile") == 0) {
             opts.profile = true;
+
+        } else if (strcmp(argv[i], "--trace") == 0) {
+            opts.trace = true;
 
         } else if (strcmp(argv[i], "--coverage") == 0) {
             opts.coverage = true;
