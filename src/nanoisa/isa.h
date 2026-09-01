@@ -247,8 +247,20 @@ typedef enum {
     OP_AGG_SET      = 0xFD,  /* operand: u16 field/index */
     OP_AGG_TAG      = 0xFE,  /* pop aggregate -> push integer tag */
 
-    OP_COUNT        = 0xFF   /* Exclusive upper bound, not an opcode count */
+    /* 0xFF is deliberately NOT a primary opcode. It is the extension prefix:
+     * when the decoder reads OP_EXTENSION_PREFIX, the next byte selects an
+     * opcode from the extended plane. This keeps opcode values as pure
+     * identifiers rather than an "instruction count". */
+    OP_EXTENSION_PREFIX = 0xFF
 } NanoOpcode;
+
+/* Bounds and escape byte for the one-byte opcode space.
+ *
+ * The exclusive upper bound of the primary plane (identifiers 0x00..0xFE) and
+ * the extension-prefix escape byte are defined in the generated schema header
+ * as NANOISA_PRIMARY_OPCODE_LIMIT and NANOISA_EXTENSION_PREFIX. Both are range
+ * / escape constants, not a running count of how many opcodes exist. A static
+ * assertion below (after that header is included) keeps this enum in step. */
 
 typedef enum {
     AGG_RECORD = 0,
@@ -310,6 +322,16 @@ typedef struct {
 
 #include "generated_schema.h"
 
+/* The extension prefix is exactly the byte reserved by the enum, and it sits
+ * one past the last usable primary opcode. Opcode values are identifiers, so
+ * the "limit" is an exclusive bound, never an instruction count. */
+_Static_assert(NANOISA_EXTENSION_PREFIX == OP_EXTENSION_PREFIX,
+               "extension prefix must match the reserved opcode byte");
+_Static_assert(NANOISA_PRIMARY_OPCODE_LIMIT == NANOISA_EXTENSION_PREFIX,
+               "primary opcode plane ends exactly at the extension prefix");
+_Static_assert(OP_AGG_TAG < NANOISA_PRIMARY_OPCODE_LIMIT,
+               "the last primary opcode must stay below the plane limit");
+
 /* ========================================================================
  * Decoded Instruction (for disassembly / VM execution)
  * ======================================================================== */
@@ -356,5 +378,14 @@ uint32_t isa_operand_size(OperandType type);
 
 /* Lookup opcode by mnemonic name. Returns -1 if not found. */
 int isa_opcode_by_name(const char *name);
+
+/* True when a code byte is the extension prefix rather than a primary opcode.
+ * A decoder that sees this must read one more byte and resolve it through the
+ * extended plane; it must not treat the prefix itself as an instruction. */
+bool isa_is_extension_prefix(uint8_t opcode);
+
+/* Metadata for an extended opcode (the byte that follows the prefix).
+ * Returns NULL when no extended opcode with that code is defined. */
+const InstructionInfo *isa_get_extended_info(uint8_t ext_opcode);
 
 #endif /* NANOISA_ISA_H */

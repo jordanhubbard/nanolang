@@ -1,8 +1,18 @@
 version: 2
 architecture: local-stack-hybrid
 encoding:
+  # Opcodes are one-byte identifiers, not a running instruction count. The
+  # primary plane holds identifiers 0x00..0xfe (primary_opcode_limit is the
+  # exclusive upper bound of that range, not "the number of opcodes"). The
+  # value 0xff is reserved as the extension prefix: it never names an
+  # instruction on its own and instead escapes into the extended plane, where
+  # the following byte selects an extended opcode 0x00..0xff. This keeps a
+  # clean, non-overlapping way to grow the instruction set without renumbering
+  # existing opcodes or conflating an opcode value with a count.
   opcode: u8
-  extension_prefix: 0xff
+  primary_opcode_limit: 0xff   # exclusive upper bound of the primary plane
+  extension_prefix: 0xff       # escape byte; not an opcode, not a count
+  extended_opcode: u8          # second byte after the prefix
   byte_order: little
 
 value_tags:
@@ -190,6 +200,15 @@ legacy_opcodes:
   - {name: AGG_GET, code: 0xfc, operands: [U16]}
   - {name: AGG_SET, code: 0xfd, operands: [U16]}
   - {name: AGG_TAG, code: 0xfe, operands: []}
+
+# Extended opcode plane. When a code byte equals the extension_prefix (0xff)
+# the decoder does not treat it as an instruction; it reads one more byte and
+# looks the pair up here. `ext_code` is the second byte (0x00..0xff), so the
+# extended plane is fully independent of the primary plane and adds up to 256
+# further opcodes without disturbing existing numbering. The plane is defined
+# now (empty) so encoders, decoders, and generators share one clean escape
+# convention; families migrate into it as v2 lands.
+extended_opcodes: []
 
 operand_kinds:
   - {name: value-tag, encoding: u8}

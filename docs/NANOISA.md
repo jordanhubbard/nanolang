@@ -65,6 +65,7 @@ My daemon listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and ac
 - **Runtime-typed values**: 16 bytes per value (1-byte tag + 15-byte payload)
 - **Variable-length encoding**: 1-byte opcode + 0-4 operands
 - **Little-endian** byte order
+- **Two-plane opcode space**: primary identifiers occupy `0x00..0xFE`; the byte `0xFF` is a reserved *extension prefix*, never an instruction by itself
 
 ### Value Types
 
@@ -162,6 +163,22 @@ its bounded range; disassemblers always render the canonical operand.
 Compact operand kinds (`small-constant`, `local-short`, `compact`) declare the
 canonical variable-length encoding they decode to and their permitted value
 range, so a compact form never changes what an instruction means.
+
+### Extended Opcode Space
+
+Opcode bytes are identifiers, not a running instruction count. The primary
+plane uses one byte per opcode across `0x00..0xFE`
+(`NANOISA_PRIMARY_OPCODE_LIMIT` is the exclusive upper bound of that range).
+
+The byte `0xFF` is the **extension prefix** (`OP_EXTENSION_PREFIX` /
+`NANOISA_EXTENSION_PREFIX`). A decoder that reads it must not treat it as an
+instruction: it reads one more byte and resolves the pair through the extended
+plane (`nanoisa_extended_opcodes[]`, `isa_get_extended_info`). This gives a
+clean, non-overlapping way to grow the instruction set — up to 256 additional
+opcodes — without renumbering existing opcodes or conflating an opcode value
+with a count. The extended plane is defined in `spec/nanoisa.yaml`
+(`extended_opcodes`) and is currently empty; families migrate into it as
+NanoISA v2 lands.
 
 ## .nvm Binary Format
 

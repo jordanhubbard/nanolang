@@ -101,6 +101,34 @@ class NanoisaSchemaTests(unittest.TestCase):
                 f"{compact['name']} must carry a compact operand",
             )
 
+    def test_extension_prefix_is_not_a_primary_opcode(self):
+        encoding = self.schema["encoding"]
+        prefix = generator._as_int(encoding["extension_prefix"])
+        limit = generator._as_int(encoding["primary_opcode_limit"])
+        # The prefix is the exclusive upper bound of the primary plane: no
+        # legacy opcode may use it, and it must equal the plane limit.
+        self.assertEqual(prefix, limit)
+        codes = {generator._as_int(entry["code"]) for entry in self.schema["legacy_opcodes"]}
+        self.assertNotIn(prefix, codes)
+        self.assertTrue(all(code < limit for code in codes))
+
+    def test_extended_plane_is_defined_and_disjoint(self):
+        self.assertIn("extended_opcodes", self.schema)
+        extended = self.schema["extended_opcodes"] or []
+        ext_codes = [generator._as_int(entry["code"]) for entry in extended]
+        # Extended codes are a separate one-byte plane; they may reuse values
+        # from the primary plane because the prefix disambiguates them.
+        self.assertEqual(len(ext_codes), len(set(ext_codes)))
+        for code in ext_codes:
+            self.assertTrue(0 <= code <= 0xFF)
+
+    def test_generated_header_exposes_encoding_constants(self):
+        rendered = generator.generate(self.schema)
+        self.assertIn("#define NANOISA_PRIMARY_OPCODE_LIMIT", rendered)
+        self.assertIn("#define NANOISA_EXTENSION_PREFIX", rendered)
+        self.assertIn("#define NANOISA_EXTENDED_OPCODE_COUNT", rendered)
+        self.assertIn("nanoisa_extended_opcodes", rendered)
+
 
 if __name__ == "__main__":
     unittest.main()

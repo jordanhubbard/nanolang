@@ -6,6 +6,16 @@
 #define NANOISA_LEGACY_OPCODE_COUNT 164
 #define NANOISA_V2_FAMILY_COUNT 65
 
+/* Encoding of the opcode space. The primary plane holds one-byte
+ * opcode identifiers below NANOISA_PRIMARY_OPCODE_LIMIT; that limit is
+ * the exclusive upper bound of the range, not a count of opcodes. The
+ * value NANOISA_EXTENSION_PREFIX is reserved as an escape byte and is
+ * never an instruction on its own: it introduces a second byte that
+ * selects an extended opcode from nanoisa_extended_opcodes[]. */
+#define NANOISA_PRIMARY_OPCODE_LIMIT 0xff
+#define NANOISA_EXTENSION_PREFIX 0xff
+#define NANOISA_EXTENDED_OPCODE_COUNT 0
+
 static const NanoisaSchemaTag nanoisa_schema_tags[] = {
     {"void", 0x00},
     {"i64", 0x01},
@@ -191,6 +201,9 @@ static const NanoisaSchemaOpcode nanoisa_schema_opcodes[] = {
     {"AGG_SET", 0xfd, 1, {OPERAND_U16, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, -1, -1},
     {"AGG_TAG", 0xfe, 0, {OPERAND_NONE, OPERAND_NONE, OPERAND_NONE, OPERAND_NONE}, -1, -1},
 };
+
+/* Extended opcode plane, reached through NANOISA_EXTENSION_PREFIX. */
+static const NanoisaSchemaOpcode nanoisa_extended_opcodes[1] = { {0} };
 
 static const NanoisaV2Family nanoisa_v2_families[] = {
     {"const.i64", "none", 1, 0, 1},

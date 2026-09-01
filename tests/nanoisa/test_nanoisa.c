@@ -144,6 +144,43 @@ static void test_opcode_by_name(void) {
     ASSERT_EQ_INT(isa_opcode_by_name("NONEXISTENT"), -1, "Unknown opcode");
 }
 
+static void test_extended_opcode_space(void) {
+    /* 0xFF is the extension prefix: it is never a primary opcode, so
+     * isa_get_info() must reject it and isa_is_extension_prefix() accept it. */
+    ASSERT(isa_get_info(OP_EXTENSION_PREFIX) == NULL,
+           "Extension prefix is not a primary opcode");
+    ASSERT(isa_is_extension_prefix(OP_EXTENSION_PREFIX),
+           "0xFF recognized as extension prefix");
+    ASSERT(!isa_is_extension_prefix(OP_NOP),
+           "0x00 is not the extension prefix");
+    ASSERT(!isa_is_extension_prefix(OP_AGG_TAG),
+           "Last primary opcode is not the extension prefix");
+
+    /* The prefix must sit exactly at the exclusive plane bound, and that bound
+     * is a range, not an opcode count. */
+    ASSERT_EQ_INT(NANOISA_EXTENSION_PREFIX, NANOISA_PRIMARY_OPCODE_LIMIT,
+                  "Prefix equals the primary plane limit");
+    ASSERT(NANOISA_LEGACY_OPCODE_COUNT < NANOISA_PRIMARY_OPCODE_LIMIT,
+           "Opcode count is distinct from the plane limit");
+
+    /* No primary opcode may occupy the prefix byte. */
+    ASSERT(isa_opcode_by_name("__none__") == -1, "Guard name is unmapped");
+    for (int code = 0; code < 256; code++) {
+        const InstructionInfo *info = isa_get_info((uint8_t)code);
+        if (info != NULL) {
+            ASSERT(code != NANOISA_EXTENSION_PREFIX,
+                   "No primary opcode uses the extension prefix byte");
+        }
+    }
+
+    /* The extended plane exists and is queryable; undefined extended opcodes
+     * return NULL rather than aliasing a primary opcode. */
+    ASSERT(isa_get_extended_info(0x00) == NULL,
+           "Undefined extended opcode returns NULL");
+    ASSERT_EQ_INT(NANOISA_EXTENDED_OPCODE_COUNT, 0,
+                  "Extended plane starts empty");
+}
+
 static void test_encode_decode_no_operands(void) {
     uint8_t buf[ISA_MAX_INSTRUCTION_SIZE];
     DecodedInstruction instr = {0};
@@ -1589,6 +1626,7 @@ int main(void) {
     RUN_TEST(test_tag_names);
     RUN_TEST(test_instruction_info);
     RUN_TEST(test_opcode_by_name);
+    RUN_TEST(test_extended_opcode_space);
     RUN_TEST(test_encode_decode_no_operands);
     RUN_TEST(test_encode_decode_i64);
     RUN_TEST(test_encode_decode_i64_large);
