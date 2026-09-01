@@ -1229,6 +1229,70 @@ static void test_asm_multiple_functions(void) {
     nvm_module_free(mod);
 }
 
+static void test_asm_symbolic_operands(void) {
+    const char *src =
+        ".string greeting \"hello\"\n"
+        ".symbol import write 7\n"
+        ".symbol type Point 3\n"
+        ".symbol field x 1\n"
+        ".function helper 0 0 0 void 0\n"
+        "  CALL main\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 void 0\n"
+        "again:\n"
+        "  PUSH_STR greeting\n"
+        "  CALL helper\n"
+        "  CALL_EXTERN write\n"
+        "  STRUCT_NEW Point\n"
+        "  STRUCT_GET x\n"
+        "  JMP again\n"
+        "  RET\n"
+        ".end\n"
+        ".entry main\n";
+
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod != NULL, "Symbolic operands assemble");
+    ASSERT_EQ_INT(result.error, ASM_OK, "Symbolic operands have no error");
+    ASSERT_EQ_INT(mod->header.entry_point, 1, "Symbolic entry resolves function");
+
+    DecodedInstruction forward_call;
+    ASSERT(isa_decode(mod->code + mod->functions[0].code_offset,
+                      mod->functions[0].code_length, &forward_call) > 0,
+           "Forward function call decodes");
+    ASSERT_EQ_INT(forward_call.operands[0].u32, 1,
+                  "Forward function symbol resolves function index");
+
+    const uint8_t *code = mod->code + mod->functions[1].code_offset;
+    uint32_t pos = 0;
+    DecodedInstruction instr;
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 0, "Constant symbol resolves string index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 0, "Function symbol resolves function index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 7, "Import symbol resolves import index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 3, "Type symbol resolves layout index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u16, 1, "Field symbol resolves field index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT(instr.operands[0].i32 < 0, "Label symbol resolves relative branch");
+    nvm_module_free(mod);
+}
+
+static void test_asm_error_undefined_symbol(void) {
+    const char *src =
+        ".function main 0 0 0 void 0\n"
+        "  CALL missing\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Undefined symbolic operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_UNDEFINED_SYMBOL, "Undefined symbol error type");
+}
+
 /* ========================================================================
  * Disassembler Tests
  * ======================================================================== */
@@ -1678,6 +1742,8 @@ int main(void) {
     RUN_TEST(test_asm_comments_and_whitespace);
     RUN_TEST(test_asm_string_escapes);
     RUN_TEST(test_asm_multiple_functions);
+    RUN_TEST(test_asm_symbolic_operands);
+    RUN_TEST(test_asm_error_undefined_symbol);
 
     printf("\n[Disassembler]\n");
     RUN_TEST(test_disasm_basic);
