@@ -297,11 +297,12 @@ typedef struct {
 } NanoisaSchemaOpcode;
 
 typedef struct {
-    const char *name;
-    const char *ownership;
-    uint8_t operand_count;
-    uint8_t pop_count;
-    uint8_t push_count;
+    const char *name;      /* Family mnemonic (e.g., "mem.load64") */
+    const char *meaning;   /* One comprehensible meaning for the instruction */
+    const char *ownership; /* Ownership effect (none/retain/move/...) */
+    uint8_t operand_count; /* Number of immediate operands */
+    uint8_t pop_count;     /* Values consumed from the operand stack */
+    uint8_t push_count;    /* Values produced on the operand stack */
 } NanoisaV2Family;
 
 #include "generated_schema.h"

@@ -138,6 +138,34 @@ for old hand-written assembly until NanoISA v2 removes it.
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`
 
+### Portable ISA v2: meanings and symmetric operands
+
+The v1 opcode table above stays executable, but v2 design lives in
+`spec/nanoisa.yaml` as `instruction_families`. I give every portable v2
+instruction **one comprehensible meaning** and keep its **operand forms
+symmetric** so the ISA reads the same way everywhere:
+
+- **One meaning per instruction.** Each family carries a unique `meaning`
+  string describing exactly what it does (for example, `mem.load16` means
+  "load a little-endian halfword and zero-extend it to i64"). No two families
+  share a meaning, so a reader never has to guess between overlapping
+  instructions.
+- **Named operand kinds only.** An instruction's `operands` list may only name
+  a kind declared in `operand_kinds`; it never embeds a raw wire encoding.
+  Each kind pins exactly one encoding, so an operand that plays the same role
+  always decodes identically. For example `local`, `global`, and `upvalue`
+  slots are all `uleb`, and literals use `immediate-i64`/`immediate-f64`.
+- **Symmetric pairs.** Matching operations share operand forms. Every `.get`
+  names the same operands as its `.set`, and every `mem.load*` names the same
+  `[mem-offset, mem-align]` pair as its `mem.store*`. Memory addressing is
+  therefore uniform across all widths.
+
+`scripts/gen_nanoisa_schema.py` enforces this contract while generating
+`src/nanoisa/generated_schema.h`: it rejects a missing or duplicated meaning,
+an operand that is not a declared kind, or an asymmetric get/set or load/store
+pair. `tests/test_nanoisa_schema.py` checks the same rules, and the generated
+`NanoisaV2Family` table exposes each instruction's `meaning` to C.
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)
