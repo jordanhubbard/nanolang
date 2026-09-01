@@ -347,43 +347,24 @@ static void test_decode_invalid_opcode(void) {
     ASSERT_EQ_INT(consumed, 0, "Invalid opcode returns 0");
 }
 
-static void test_encode_all_categories(void) {
-    /* Verify every opcode category encodes without error */
-    uint8_t opcodes[] = {
-        OP_NOP, OP_PUSH_I64, OP_PUSH_F64, OP_PUSH_BOOL, OP_PUSH_STR,
-        OP_PUSH_VOID, OP_PUSH_U8, OP_DUP, OP_POP, OP_SWAP, OP_ROT3,
-        OP_LOAD_LOCAL, OP_STORE_LOCAL, OP_LOAD_GLOBAL, OP_STORE_GLOBAL,
-        OP_LOAD_UPVALUE, OP_STORE_UPVALUE,
-        OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_NEG,
-        OP_EQ, OP_NE, OP_LT, OP_LE, OP_GT, OP_GE,
-        OP_AND, OP_OR, OP_NOT, OP_TAIL_CALL,
-        OP_JMP, OP_JMP_TRUE, OP_JMP_FALSE, OP_CALL, OP_CALL_INDIRECT, OP_RET,
-        OP_CALL_EXTERN, OP_CALL_MODULE,
-        OP_STR_LEN, OP_STR_CONCAT, OP_STR_SUBSTR, OP_STR_CONTAINS,
-        OP_STR_EQ, OP_STR_CHAR_AT, OP_STR_FROM_INT, OP_STR_FROM_FLOAT,
-        OP_ARR_NEW, OP_ARR_PUSH, OP_ARR_POP, OP_ARR_GET, OP_ARR_SET,
-        OP_ARR_LEN, OP_ARR_SLICE, OP_ARR_REMOVE, OP_ARR_LITERAL,
-        OP_STRUCT_NEW, OP_STRUCT_GET, OP_STRUCT_SET, OP_STRUCT_LITERAL,
-        OP_UNION_CONSTRUCT, OP_UNION_TAG, OP_UNION_FIELD, OP_MATCH_TAG, OP_ENUM_VAL,
-        OP_TUPLE_NEW, OP_TUPLE_GET,
-        OP_HM_NEW, OP_HM_GET, OP_HM_SET, OP_HM_HAS, OP_HM_DELETE,
-        OP_HM_KEYS, OP_HM_VALUES, OP_HM_LEN,
-        OP_GC_RETAIN, OP_GC_RELEASE, OP_GC_SCOPE_ENTER, OP_GC_SCOPE_EXIT,
-        OP_CAST_INT, OP_CAST_FLOAT, OP_CAST_BOOL, OP_CAST_STRING, OP_TYPE_CHECK,
-        OP_CLOSURE_NEW, OP_CLOSURE_CALL,
-        OP_PRINT, OP_ASSERT, OP_DEBUG_LINE, OP_HALT,
-        OP_OPAQUE_NULL, OP_OPAQUE_VALID,
-    };
-    int count = sizeof(opcodes) / sizeof(opcodes[0]);
+static void test_every_opcode_tooling_roundtrip(void) {
+    ASSERT_EQ_INT(sizeof(nanoisa_schema_opcodes) / sizeof(nanoisa_schema_opcodes[0]),
+                  NANOISA_LEGACY_OPCODE_COUNT, "Schema opcode count matches table");
 
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < NANOISA_LEGACY_OPCODE_COUNT; i++) {
+        const NanoisaSchemaOpcode *schema = &nanoisa_schema_opcodes[i];
+        const InstructionInfo *info = isa_get_info(schema->opcode);
+        ASSERT(info != NULL, "Schema opcode has active metadata");
+        ASSERT_EQ_STR(info->name, schema->name, "Schema mnemonic matches metadata");
+        ASSERT_EQ_INT(isa_opcode_by_name(schema->name), schema->opcode,
+                      "Assembler lookup covers schema opcode");
+
         uint8_t buf[ISA_MAX_INSTRUCTION_SIZE];
         DecodedInstruction instr = {0};
-        instr.opcode = opcodes[i];
-        /* Set dummy operand values */
-        instr.operands[0].i64 = 1;
-        instr.operands[1].u32 = 2;
-        instr.operands[2].u16 = 3;
+        instr.opcode = schema->opcode;
+        for (int operand = 0; operand < schema->operand_count; operand++) {
+            instr.operands[operand].i64 = operand + 1;
+        }
 
         uint32_t encoded = isa_encode(&instr, buf, sizeof(buf));
         ASSERT(encoded > 0, "Opcode encodes successfully");
@@ -391,7 +372,31 @@ static void test_encode_all_categories(void) {
         DecodedInstruction decoded;
         uint32_t consumed = isa_decode(buf, encoded, &decoded);
         ASSERT_EQ_INT(consumed, encoded, "Decoded same number of bytes");
-        ASSERT_EQ_INT(decoded.opcode, opcodes[i], "Opcode round-trips");
+        ASSERT_EQ_INT(decoded.opcode, schema->opcode, "Opcode round-trips");
+
+        char source[256];
+        int length = snprintf(source, sizeof(source),
+                              ".function coverage 0 0 0 void 0\n  %s",
+                              schema->name);
+        for (int operand = 0; operand < schema->operand_count; operand++) {
+            const char *value = schema->operands[operand] == OPERAND_F64 ? " 1.5" : " 1";
+            length += snprintf(source + length, sizeof(source) - (size_t)length,
+                               "%s", value);
+        }
+        snprintf(source + length, sizeof(source) - (size_t)length, "\n.end\n");
+
+        AsmResult result;
+        NvmModule *mod = asm_assemble(source, &result);
+        ASSERT(mod != NULL, "Every schema opcode assembles");
+        ASSERT_EQ_INT(mod->code[mod->functions[0].code_offset], schema->opcode,
+                      "Assembly emits schema opcode");
+
+        char *listing = disasm_module(mod);
+        ASSERT(listing != NULL, "Every schema opcode disassembles");
+        ASSERT(strstr(listing, schema->name) != NULL,
+               "Disassembly emits schema mnemonic");
+        free(listing);
+        nvm_module_free(mod);
     }
 }
 
@@ -1769,7 +1774,7 @@ int main(void) {
     RUN_TEST(test_encode_decode_multi_operand);
     RUN_TEST(test_decode_truncated);
     RUN_TEST(test_decode_invalid_opcode);
-    RUN_TEST(test_encode_all_categories);
+    RUN_TEST(test_every_opcode_tooling_roundtrip);
 
     printf("\n[NVM Format]\n");
     RUN_TEST(test_crc32);
