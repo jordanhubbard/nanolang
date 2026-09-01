@@ -136,7 +136,8 @@ The retained string primitives are `STR_LEN`, `STR_CONCAT`, `STR_CHAR_AT`, `STR_
 **I/O & legacy debug (0xA0-0xAF):**
 `PRINT`, `ASSERT`, `DEBUG_LINE`, `HALT`. NanoVirt records source locations in
 the debug side table and does not emit `DEBUG_LINE`; the opcode remains only
-for old hand-written assembly until NanoISA v2 removes it.
+for old hand-written assembly until NanoISA v2 removes it. NanoISA v2 folds
+these I/O opcodes into the typed `trap` family (see Typed Traps below).
 
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`
@@ -290,6 +291,27 @@ When my core encounters a side-effecting operation, it returns a **trap descript
 | `TRAP_ERROR` | Runtime error | Report and terminate |
 
 My **harness** (`vm_execute`) dispatches traps and resumes the core. I chose this separation to enable potential FPGA implementation of the pure-compute core.
+
+#### Typed Traps (NanoISA v2)
+
+NanoISA v1 exposed side effects as special opcodes (`PRINT`, `PRINTLN`,
+`ASSERT`, `HALT`, `CALL_EXTERN`). NanoISA v2 replaces them with a regular
+`trap` instruction family so that every side effect is one composable
+instruction carrying explicit stack effects and `trap` ownership. The core
+still suspends on a trap and the harness resumes it, so the FPGA-friendly
+pure/effect split is preserved while the opcode space stays regular.
+
+| Typed trap | v1 opcode | Stack effect | Handler action |
+|------------|-----------|--------------|----------------|
+| `trap.print` | `PRINT` | pops value | Write value to stdout |
+| `trap.println` | `PRINTLN` | pops value | Write value plus newline to stdout |
+| `trap.assert` | `ASSERT` | pops bool | Abort if the condition is false |
+| `trap.halt` | `HALT` | none | Stop execution |
+| `trap.host` | `CALL_EXTERN` | signature args to result | Route to the FFI co-process |
+| `trap.dispatch` | reserved | operand-defined | Generic escape for future host traps |
+
+The normative definitions live in `spec/nanoisa.yaml` under the `trap`
+instruction family and are generated into `src/nanoisa/generated_schema.h`.
 
 ### Memory Management
 

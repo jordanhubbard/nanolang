@@ -4,7 +4,7 @@
 
 #define NANOISA_SCHEMA_VERSION 2
 #define NANOISA_LEGACY_OPCODE_COUNT 164
-#define NANOISA_V2_FAMILY_COUNT 65
+#define NANOISA_V2_FAMILY_COUNT 70
 
 /* Encoding of the opcode space. The primary plane holds one-byte
  * opcode identifiers below NANOISA_PRIMARY_OPCODE_LIMIT; that limit is
@@ -261,7 +261,12 @@ static const NanoisaV2Family nanoisa_v2_families[] = {
     {"tail.call", "Replace the current frame with a call to a function by index.", "call", 1, 1, 1},
     {"call.import", "Call an imported host function by index.", "trap", 1, 1, 1},
     {"return", "Return from the current function with its signature result.", "return", 0, 1, 0},
-    {"trap", "Raise a typed trap identified by a trap code.", "trap", 2, 1, 1},
+    {"trap.print", "Write the top value to standard output through the host trap boundary.", "trap", 0, 1, 0},
+    {"trap.println", "Write the top value and a newline through the host trap boundary.", "trap", 0, 1, 0},
+    {"trap.assert", "Raise an assertion failure unless the top boolean is true.", "trap", 0, 1, 0},
+    {"trap.halt", "Stop execution through the host trap boundary.", "trap", 0, 0, 0},
+    {"trap.host", "Call an imported host function through the typed trap boundary.", "trap", 1, 1, 1},
+    {"trap.dispatch", "Raise a typed extensible trap with an explicit argument count.", "trap", 2, 1, 1},
     {"const.i64.small", "Push a small signed 64-bit integer using its compact encoding.", "none", 1, 0, 1},
     {"local.get.short", "Read a short-indexed frame local onto the stack.", "retain", 1, 0, 1},
     {"local.set.short", "Store the top value into a short-indexed frame local.", "move", 1, 1, 0},

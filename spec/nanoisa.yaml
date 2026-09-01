@@ -306,8 +306,16 @@ instruction_families:
     - {name: tail.call, meaning: "Replace the current frame with a call to a function by index.", operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
     - {name: call.import, meaning: "Call an imported host function by index.", operands: [import], pops: [signature-args], pushes: [signature-result], ownership: trap}
     - {name: return, meaning: "Return from the current function with its signature result.", operands: [], pops: [signature-result], pushes: [], ownership: return}
+  # Typed traps replace the special print, assert, and host opcodes so that
+  # every side effect is one regular instruction with explicit stack effects
+  # and ownership. The core suspends on a trap and the harness resumes it.
   trap:
-    - {name: trap, meaning: "Raise a typed trap identified by a trap code.", operands: [trap-code, count], pops: [many], pushes: [any], ownership: trap}
+    - {name: trap.print, meaning: "Write the top value to standard output through the host trap boundary.", operands: [], pops: [any], pushes: [], ownership: trap}
+    - {name: trap.println, meaning: "Write the top value and a newline through the host trap boundary.", operands: [], pops: [any], pushes: [], ownership: trap}
+    - {name: trap.assert, meaning: "Raise an assertion failure unless the top boolean is true.", operands: [], pops: [bool], pushes: [], ownership: trap}
+    - {name: trap.halt, meaning: "Stop execution through the host trap boundary.", operands: [], pops: [], pushes: [], ownership: trap}
+    - {name: trap.host, meaning: "Call an imported host function through the typed trap boundary.", operands: [import], pops: [signature-args], pushes: [signature-result], ownership: trap}
+    - {name: trap.dispatch, meaning: "Raise a typed extensible trap with an explicit argument count.", operands: [trap-code, count], pops: [many], pushes: [any], ownership: trap}
   compact:
     # Compact constants: small signed integers encoded inline instead of a full
     # sleb/f64 immediate. Decodes to const.i64; the value range is bounded so
