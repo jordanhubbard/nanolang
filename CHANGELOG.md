@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- NanoVM FFI now dispatches mixed integer/floating call signatures through generated typed stubs (`scripts/gen_ffi_dispatch.py` → `src/nanovm/ffi_dispatch_generated.h`), placing integer/pointer arguments in general-purpose registers and floating-point arguments in FP registers per the platform ABI without depending on libffi.
+
 ### Changed
 - Resolve separate-module `CALL_MODULE` calls to callable handles during linking instead of carrying module/function index pairs through dispatch.
 
