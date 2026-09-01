@@ -119,8 +119,13 @@ typedef struct VmState {
     uint32_t ip;              /* Instruction pointer (byte offset in code) */
     uint32_t current_fn;      /* Current function index */
 
-    /* Global variables */
-    NanoValue globals[VM_MAX_GLOBALS];
+    /* Global variables.
+     * Dynamically sized from the declared/used global slots of the root and
+     * linked modules instead of embedding VM_MAX_GLOBALS values in every VM.
+     * global_capacity is the number of allocated slots (0 => unallocated);
+     * global_count is the high-water mark of initialized slots. */
+    NanoValue *globals;
+    uint32_t global_capacity;
     uint32_t global_count;
 
     /* Byte-addressed linear memory for portable loads, stores, and Forth. */
@@ -249,6 +254,11 @@ const char *vm_error_string(VmResult result);
 /* Link a module for cross-module calls (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* Ensure the dynamically-sized globals array can hold at least `count` slots.
+ * Grows (and zero-initializes new slots) up to VM_MAX_GLOBALS. Returns true on
+ * success, false if `count` exceeds VM_MAX_GLOBALS or allocation fails. */
+bool vm_ensure_globals(VmState *vm, uint32_t count);
 
 /* Resolve every cross-module OP_CALL_MODULE operand pair into a direct
  * callable handle against the linked-module table. Runs once after

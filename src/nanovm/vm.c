@@ -56,6 +56,38 @@ const char *vm_error_string(VmResult result) {
  * Init / Destroy
  * ======================================================================== */
 
+/* Return one past the highest global slot referenced by any LOAD_GLOBAL or
+ * STORE_GLOBAL instruction in a decoded module, i.e. the number of global
+ * slots the module declares. Returns 0 when the module uses no globals. */
+static uint32_t vm_decoded_module_global_slots(const VmDecodedModule *decoded) {
+    uint32_t slots = 0;
+    if (!decoded) return 0;
+    for (uint32_t f = 0; f < decoded->function_count; f++) {
+        const VmDecodedFunction *fn = &decoded->functions[f];
+        for (uint32_t i = 0; i < fn->instruction_count; i++) {
+            const DecodedInstruction *ins = &fn->instructions[i].instruction;
+            if (ins->opcode == OP_LOAD_GLOBAL || ins->opcode == OP_STORE_GLOBAL) {
+                uint32_t idx = ins->operands[0].u32;
+                if (idx < VM_MAX_GLOBALS && idx + 1 > slots) slots = idx + 1;
+            }
+        }
+    }
+    return slots;
+}
+
+bool vm_ensure_globals(VmState *vm, uint32_t count) {
+    if (!vm) return false;
+    if (count > VM_MAX_GLOBALS) return false;
+    if (count <= vm->global_capacity) return true;
+    NanoValue *grown = realloc(vm->globals, (size_t)count * sizeof(NanoValue));
+    if (!grown) return false;
+    memset(grown + vm->global_capacity, 0,
+           (size_t)(count - vm->global_capacity) * sizeof(NanoValue));
+    vm->globals = grown;
+    vm->global_capacity = count;
+    return true;
+}
+
 void vm_init(VmState *vm, const NvmModule *module) {
     memset(vm, 0, sizeof(*vm));
     vm->module = module;
@@ -80,6 +112,13 @@ void vm_init(VmState *vm, const NvmModule *module) {
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (vm_decode_module(module, &vm->decoded_module, decode_error)) {
         vm->decoded_module_valid = true;
+        /* Size the globals array from the declarations the module actually
+         * uses instead of embedding VM_MAX_GLOBALS values in every VM. */
+        uint32_t root_globals = vm_decoded_module_global_slots(&vm->decoded_module);
+        if (root_globals > 0 && !vm_ensure_globals(vm, root_globals)) {
+            vm_error(vm, VM_ERR_MEMORY,
+                     "Failed to allocate %u globals", root_globals);
+        }
         char dispatch_error[VM_DISPATCH_ERROR_SIZE];
         if (vm_dispatch_build_module(&vm->decoded_module, &vm->dispatch_module,
                                      dispatch_error)) {
@@ -102,6 +141,10 @@ void vm_destroy(VmState *vm) {
         vm_release(&vm->heap, vm->stack[i]);
     }
     free(vm->stack);
+    free(vm->globals);
+    vm->globals = NULL;
+    vm->global_capacity = 0;
+    vm->global_count = 0;
     vm_decoded_module_free(&vm->decoded_module);
     vm_dispatch_module_free(&vm->dispatch_module);
     for (uint32_t i = 0; i < vm->linked_module_count; i++) {
@@ -158,6 +201,16 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
     if (!vm_dispatch_build_module(&decoded, &dispatch, dispatch_error)) {
         vm_decoded_module_free(&decoded);
         vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
+        return (uint32_t)-1;
+    }
+    /* Grow the globals array to cover the linked module's declarations; the
+     * global namespace is shared across the root and all linked modules. */
+    uint32_t linked_globals = vm_decoded_module_global_slots(&decoded);
+    if (linked_globals > 0 && !vm_ensure_globals(vm, linked_globals)) {
+        vm_decoded_module_free(&decoded);
+        vm_dispatch_module_free(&dispatch);
+        vm_error(vm, VM_ERR_MEMORY,
+                 "Failed to allocate %u globals", linked_globals);
         return (uint32_t)-1;
     }
     if (vm->linked_module_count >= vm->linked_module_capacity) {
@@ -775,7 +828,7 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_LOAD_GLOBAL: {
             uint32_t idx = instr.operands[0].u32;
-            if (idx >= VM_MAX_GLOBALS) {
+            if (idx >= vm->global_capacity) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
             }
             NanoValue v = vm->globals[idx];
@@ -788,6 +841,11 @@ VmTrap vm_core_execute(VmState *vm) {
             uint32_t idx = instr.operands[0].u32;
             if (idx >= VM_MAX_GLOBALS) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
+            }
+            /* Grow the dynamically-sized globals array on demand (bounded by
+             * VM_MAX_GLOBALS) so stores never exceed the allocation. */
+            if (idx >= vm->global_capacity && !vm_ensure_globals(vm, idx + 1)) {
+                return trap_error(vm, VM_ERR_MEMORY, "Failed to allocate global %u", idx);
             }
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, vm->globals[idx]);

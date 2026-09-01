@@ -3550,6 +3550,74 @@ static void test_indexed_stack_and_memory(void) {
     nvm_module_free(mod);
 }
 
+/* ========================================================================
+ * Dynamically-sized globals (Roadmap 4.0 Phase 12, Runtime representation)
+ * ======================================================================== */
+
+/* A module that stores to and loads from a global slot sizes the VM globals
+ * array to the declared slots instead of embedding VM_MAX_GLOBALS values. */
+static void test_globals_dynamic_size(void) {
+    uint8_t code[128];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_STORE_GLOBAL, (uint32_t)5);
+    off += emit(code + off, OP_LOAD_GLOBAL, (uint32_t)5);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    /* Sized to one past the highest referenced slot (index 5 => 6 slots),
+     * never the fixed VM_MAX_GLOBALS embedding. */
+    ASSERT_EQ_INT(vm.global_capacity, 6, "globals sized to declared slots");
+    ASSERT(vm.global_capacity < VM_MAX_GLOBALS, "globals not embedded at max");
+    ASSERT(vm.globals != NULL, "globals array allocated");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "global store/load executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 7, "global round-trips value");
+    vm_destroy(&vm);
+    ASSERT(vm.globals == NULL, "globals freed on destroy");
+    ASSERT_EQ_INT(vm.global_capacity, 0, "global capacity cleared on destroy");
+    nvm_module_free(mod);
+}
+
+/* A module that uses no globals allocates no globals array at all. */
+static void test_globals_none_unallocated(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm.global_capacity, 0, "no globals => zero capacity");
+    ASSERT(vm.globals == NULL, "no globals => no allocation");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "global-free module executes");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* vm_ensure_globals grows the dynamically-sized array on demand and refuses
+ * to exceed VM_MAX_GLOBALS. */
+static void test_globals_ensure_bounds(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm.global_capacity, 0, "no globals declared => zero capacity");
+    ASSERT(vm_ensure_globals(&vm, 8), "grow to 8 slots succeeds");
+    ASSERT_EQ_INT(vm.global_capacity, 8, "capacity grew to 8");
+    ASSERT(vm_ensure_globals(&vm, 3), "shrink request is a no-op success");
+    ASSERT_EQ_INT(vm.global_capacity, 8, "capacity never shrinks");
+    ASSERT(!vm_ensure_globals(&vm, VM_MAX_GLOBALS + 1),
+           "request beyond VM_MAX_GLOBALS is rejected");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("=== NanoVM Test Suite ===\n");
@@ -3649,6 +3717,11 @@ int main(void) {
     printf("\n[Error Handling]\n");
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
+
+    printf("\n[Dynamically-sized globals]\n");
+    RUN_TEST(test_globals_dynamic_size);
+    RUN_TEST(test_globals_none_unallocated);
+    RUN_TEST(test_globals_ensure_bounds);
     RUN_TEST(test_persistent_invoke);
     RUN_TEST(test_predecode_mutation_lifecycle);
     RUN_TEST(test_predecode_rejects_malformed_code);
