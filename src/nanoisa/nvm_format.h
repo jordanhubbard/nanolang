@@ -229,6 +229,11 @@ uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
 /* Get a string from the module by index. Returns NULL if out of range. */
 const char *nvm_get_string(const NvmModule *mod, uint32_t index);
 
+/* Get the byte length of a string by index. Returns 0 if out of range.
+ * Strings may contain embedded NUL bytes, so callers that need lossless
+ * handling of binary strings must use this length rather than strlen(). */
+uint32_t nvm_get_string_length(const NvmModule *mod, uint32_t index);
+
 /* Find the latest function with this name. Returns UINT32_MAX if absent. */
 uint32_t nvm_find_function(const NvmModule *mod, const char *name);
 

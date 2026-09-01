@@ -160,7 +160,7 @@ Module format and tools:
 - [ ] I will make symbolic functions, imports, fields, types, constants, and labels first-class assembler operands.
 - [ ] I will make canonical disassembly lossless and byte-length aware.
 - [ ] I will validate complete operand consumption and verify every assembled module.
-- [ ] I will correct disassembler import annotations, branch operand roles, label construction, and binary-string handling.
+- [x] I correct disassembler import annotations (`CALL_EXTERN` now resolves the imported module and function), branch operand roles (only genuine branch operands become labels; non-branch `i32` immediates print numerically), label construction, and binary-string handling (length-aware `\xHH`/`\r` escaping that round-trips embedded NUL and non-printable bytes), covered by disassembler tests in `tests/nanoisa/test_nanoisa.c`.
 - [ ] I will add an exhaustive coverage check tying every opcode to schema, VM behavior, verifier rules, assembly, disassembly, and tests.
 - [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
 - [ ] I will choose one coherent flattened or separately linked module model and test it end to end.
