@@ -115,7 +115,7 @@ Portable ISA design:
 - [ ] I will move trimming, case conversion, splitting, replacement, formatting, parsing, and collection algorithms from the ISA into runtime libraries.
 - [ ] I will retain only primitive string and aggregate operations justified by representation or measured cost.
 - [x] I added compact constants, short local forms, and compact general operands to the v2 schema as encoding-only aliases of canonical instructions, so assembly stays regular.
-- [ ] I will define a clean extended-opcode space without treating an opcode value as an instruction count.
+- [x] I defined a clean extended-opcode space in `spec/nanoisa.yaml`: the primary plane holds one-byte identifiers `0x00..0xfe`, `0xff` is a reserved extension prefix that escapes into a separate 256-entry extended plane, and `NANOISA_PRIMARY_OPCODE_LIMIT` is an exclusive range bound rather than an opcode count.
 
 Execution architecture:
 - [ ] I will separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR.

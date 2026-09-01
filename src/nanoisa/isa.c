@@ -39,7 +39,7 @@ const char *isa_tag_name(uint8_t tag) {
  * Instruction Metadata Table
  *
  * Indexed by opcode value. Invalid opcodes have name=NULL.
- * We use a flat array up to OP_COUNT for O(1) lookup.
+ * We use a flat 256-entry array for O(1) lookup by opcode byte.
  * ======================================================================== */
 
 static InstructionInfo instruction_table[256];
@@ -274,4 +274,46 @@ int isa_opcode_by_name(const char *name) {
         }
     }
     return -1;
+}
+
+/* ========================================================================
+ * Extended Opcode Plane
+ *
+ * A code byte equal to the extension prefix (0xFF) is never a primary opcode.
+ * The decoder reads one more byte and resolves it here, giving a clean second
+ * plane of up to 256 opcodes. Opcode values remain pure identifiers: the
+ * prefix is an escape, not a count of how many instructions precede it.
+ * ======================================================================== */
+
+static InstructionInfo extended_table[256];
+static bool extended_table_ready;
+
+static void init_extended_table(void) {
+    if (extended_table_ready) return;
+#if NANOISA_EXTENDED_OPCODE_COUNT > 0
+    for (size_t i = 0; i < NANOISA_EXTENDED_OPCODE_COUNT; i++) {
+        const NanoisaSchemaOpcode *source = &nanoisa_extended_opcodes[i];
+        InstructionInfo *target = &extended_table[source->opcode];
+        target->name = source->name;
+        target->opcode = source->opcode;
+        target->operand_count = source->operand_count;
+        memcpy(target->operands, source->operands, sizeof(target->operands));
+    }
+#else
+    (void)nanoisa_extended_opcodes;
+#endif
+    extended_table_ready = true;
+}
+
+bool isa_is_extension_prefix(uint8_t opcode) {
+    return opcode == NANOISA_EXTENSION_PREFIX;
+}
+
+const InstructionInfo *isa_get_extended_info(uint8_t ext_opcode) {
+    init_extended_table();
+    const InstructionInfo *info = &extended_table[ext_opcode];
+    if (info->name == NULL) {
+        return NULL;
+    }
+    return info;
 }
