@@ -1,7 +1,8 @@
 /*
  * NanoVM - Virtual Machine Execution Engine
  *
- * Loads an NvmModule and executes its bytecode via switch dispatch.
+ * Loads an NvmModule and executes its bytecode via computed-goto dispatch
+ * (with a portable switch fallback).
  */
 
 #ifndef NANOVM_VM_H
@@ -237,6 +238,11 @@ bool vm_profile_write_json(const VmState *vm, FILE *out);
 
 /* Get error message string */
 const char *vm_error_string(VmResult result);
+
+/* Name of the instruction dispatch strategy the VM core was compiled with:
+ * "computed-goto" (direct threaded, GCC/Clang) or "switch" (portable fallback).
+ * The two strategies execute identical handler bodies. */
+const char *vm_dispatch_strategy(void);
 
 /* Link a module for cross-module calls (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */

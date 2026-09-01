@@ -452,6 +452,35 @@ static void test_heap_profile(void) {
  * Tests: Basic Integer Arithmetic
  * ======================================================================== */
 
+static void test_dispatch_strategy(void) {
+    /* The VM core selects computed-goto (direct threaded) dispatch on GCC and
+     * Clang, and a portable switch fallback elsewhere. Both must execute the
+     * same handler bodies, so a representative program returns the same value. */
+    const char *strategy = vm_dispatch_strategy();
+    ASSERT(strategy != NULL, "dispatch_strategy: name reported");
+#if defined(__GNUC__) || defined(__clang__)
+    ASSERT(strcmp(strategy, "computed-goto") == 0,
+           "dispatch_strategy: computed-goto active on GCC/Clang");
+#else
+    ASSERT(strcmp(strategy, "switch") == 0,
+           "dispatch_strategy: switch fallback on portable toolchains");
+#endif
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)40);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_ADD);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "dispatch_strategy: VM_OK");
+    ASSERT_EQ_INT(result.as.i64, 42, "dispatch_strategy: 40 + 2 == 42");
+    nvm_module_free(mod);
+}
+
 static void test_push_int_halt(void) {
     uint8_t code[64];
     uint32_t off = 0;
@@ -3213,6 +3242,7 @@ int main(void) {
     printf("=== NanoVM Test Suite ===\n");
 
     printf("\n[Integer Arithmetic]\n");
+    RUN_TEST(test_dispatch_strategy);
     RUN_TEST(test_push_int_halt);
     RUN_TEST(test_add_ints);
     RUN_TEST(test_sub_ints);

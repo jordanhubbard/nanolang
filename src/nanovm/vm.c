@@ -1,7 +1,8 @@
 /*
  * NanoVM - Bytecode execution engine
  *
- * Simple switch dispatch over all NanoISA opcodes.
+ * Direct-threaded (computed-goto) dispatch over all NanoISA opcodes on
+ * GCC/Clang, with a portable switch fallback on other toolchains.
  */
 
 #include "vm.h"
@@ -18,6 +19,50 @@
 #else
 #define NANO_VM_TRACE_BUILD 0
 #endif
+
+/* ========================================================================
+ * Instruction dispatch strategy
+ *
+ * On GCC/Clang we use direct-threaded dispatch via the labels-as-values
+ * ("computed goto") extension: each opcode handler is a first-class label,
+ * a per-opcode jump table selects the handler, and every handler ends by
+ * jumping straight to the fetch/decode of the next instruction. This keeps
+ * the branch predictor warm and avoids the range check of a switch.
+ *
+ * On other toolchains we fall back to a portable switch statement over the
+ * same handler bodies. The VM_DISPATCH_BEGIN / VM_CASE / VM_DEFAULT /
+ * VM_NEXT / VM_DISPATCH_END macros expand to whichever form is supported so
+ * the handler bodies below are written exactly once.
+ * ======================================================================== */
+#if !defined(NANO_VM_COMPUTED_GOTO)
+#  if defined(__GNUC__) || defined(__clang__)
+#    define NANO_VM_COMPUTED_GOTO 1
+#  else
+#    define NANO_VM_COMPUTED_GOTO 0
+#  endif
+#endif
+
+#if NANO_VM_COMPUTED_GOTO
+#  define VM_DISPATCH_BEGIN  goto *nano_vm_dispatch_table[instr.opcode];
+#  define VM_DISPATCH_END    /* handlers jump back via VM_NEXT() */
+#  define VM_CASE(op)        op_##op
+#  define VM_DEFAULT         op_default
+#  define VM_NEXT()          continue
+#else
+#  define VM_DISPATCH_BEGIN  switch (instr.opcode) {
+#  define VM_DISPATCH_END    }
+#  define VM_CASE(op)        case op
+#  define VM_DEFAULT         default
+#  define VM_NEXT()          break
+#endif
+
+const char *vm_dispatch_strategy(void) {
+#if NANO_VM_COMPUTED_GOTO
+    return "computed-goto";
+#else
+    return "switch";
+#endif
+}
 
 /* ========================================================================
  * Error Handling
@@ -495,8 +540,186 @@ VmTrap vm_core_execute(VmState *vm) {
     VmInstructionCursor cursor = {0};
     uint32_t cursor_offset = UINT32_MAX;
 
+
+#if NANO_VM_COMPUTED_GOTO
+    /* Direct-threaded dispatch table: opcode byte -> handler label.
+     * Undefined opcode bytes route to the shared default handler.
+     * Built once and reused; label addresses are stable per function. */
+    static const void *nano_vm_dispatch_table[256];
+    static bool nano_vm_dispatch_ready = false;
+    if (!nano_vm_dispatch_ready) {
+        for (unsigned di = 0; di < 256; di++)
+            nano_vm_dispatch_table[di] = &&op_default;
+        nano_vm_dispatch_table[OP_NOP] = &&op_OP_NOP;
+        nano_vm_dispatch_table[OP_PUSH_I64] = &&op_OP_PUSH_I64;
+        nano_vm_dispatch_table[OP_PUSH_F64] = &&op_OP_PUSH_F64;
+        nano_vm_dispatch_table[OP_PUSH_BOOL] = &&op_OP_PUSH_BOOL;
+        nano_vm_dispatch_table[OP_PUSH_STR] = &&op_OP_PUSH_STR;
+        nano_vm_dispatch_table[OP_PUSH_VOID] = &&op_OP_PUSH_VOID;
+        nano_vm_dispatch_table[OP_PUSH_U8] = &&op_OP_PUSH_U8;
+        nano_vm_dispatch_table[OP_DUP] = &&op_OP_DUP;
+        nano_vm_dispatch_table[OP_POP] = &&op_OP_POP;
+        nano_vm_dispatch_table[OP_SWAP] = &&op_OP_SWAP;
+        nano_vm_dispatch_table[OP_ROT3] = &&op_OP_ROT3;
+        nano_vm_dispatch_table[OP_LOAD_LOCAL] = &&op_OP_LOAD_LOCAL;
+        nano_vm_dispatch_table[OP_STORE_LOCAL] = &&op_OP_STORE_LOCAL;
+        nano_vm_dispatch_table[OP_LOAD_GLOBAL] = &&op_OP_LOAD_GLOBAL;
+        nano_vm_dispatch_table[OP_STORE_GLOBAL] = &&op_OP_STORE_GLOBAL;
+        nano_vm_dispatch_table[OP_LOAD_UPVALUE] = &&op_OP_LOAD_UPVALUE;
+        nano_vm_dispatch_table[OP_STORE_UPVALUE] = &&op_OP_STORE_UPVALUE;
+        nano_vm_dispatch_table[OP_ADD] = &&op_OP_ADD;
+        nano_vm_dispatch_table[OP_SUB] = &&op_OP_SUB;
+        nano_vm_dispatch_table[OP_MUL] = &&op_OP_MUL;
+        nano_vm_dispatch_table[OP_DIV] = &&op_OP_DIV;
+        nano_vm_dispatch_table[OP_MOD] = &&op_OP_MOD;
+        nano_vm_dispatch_table[OP_NEG] = &&op_OP_NEG;
+        nano_vm_dispatch_table[OP_EQ] = &&op_OP_EQ;
+        nano_vm_dispatch_table[OP_NE] = &&op_OP_NE;
+        nano_vm_dispatch_table[OP_LT] = &&op_OP_LT;
+        nano_vm_dispatch_table[OP_LE] = &&op_OP_LE;
+        nano_vm_dispatch_table[OP_GT] = &&op_OP_GT;
+        nano_vm_dispatch_table[OP_GE] = &&op_OP_GE;
+        nano_vm_dispatch_table[OP_AND] = &&op_OP_AND;
+        nano_vm_dispatch_table[OP_OR] = &&op_OP_OR;
+        nano_vm_dispatch_table[OP_NOT] = &&op_OP_NOT;
+        nano_vm_dispatch_table[OP_TAIL_CALL] = &&op_OP_TAIL_CALL;
+        nano_vm_dispatch_table[OP_JMP] = &&op_OP_JMP;
+        nano_vm_dispatch_table[OP_JMP_TRUE] = &&op_OP_JMP_TRUE;
+        nano_vm_dispatch_table[OP_JMP_FALSE] = &&op_OP_JMP_FALSE;
+        nano_vm_dispatch_table[OP_CALL] = &&op_OP_CALL;
+        nano_vm_dispatch_table[OP_CALL_INDIRECT] = &&op_OP_CALL_INDIRECT;
+        nano_vm_dispatch_table[OP_RET] = &&op_OP_RET;
+        nano_vm_dispatch_table[OP_CALL_EXTERN] = &&op_OP_CALL_EXTERN;
+        nano_vm_dispatch_table[OP_CALL_MODULE] = &&op_OP_CALL_MODULE;
+        nano_vm_dispatch_table[OP_STR_LEN] = &&op_OP_STR_LEN;
+        nano_vm_dispatch_table[OP_STR_CONCAT] = &&op_OP_STR_CONCAT;
+        nano_vm_dispatch_table[OP_STR_SUBSTR] = &&op_OP_STR_SUBSTR;
+        nano_vm_dispatch_table[OP_STR_CONTAINS] = &&op_OP_STR_CONTAINS;
+        nano_vm_dispatch_table[OP_STR_EQ] = &&op_OP_STR_EQ;
+        nano_vm_dispatch_table[OP_STR_CHAR_AT] = &&op_OP_STR_CHAR_AT;
+        nano_vm_dispatch_table[OP_STR_FROM_INT] = &&op_OP_STR_FROM_INT;
+        nano_vm_dispatch_table[OP_STR_FROM_FLOAT] = &&op_OP_STR_FROM_FLOAT;
+        nano_vm_dispatch_table[OP_STR_TRIM] = &&op_OP_STR_TRIM;
+        nano_vm_dispatch_table[OP_STR_TO_LOWER] = &&op_OP_STR_TO_LOWER;
+        nano_vm_dispatch_table[OP_STR_TO_UPPER] = &&op_OP_STR_TO_UPPER;
+        nano_vm_dispatch_table[OP_STR_STARTS_WITH] = &&op_OP_STR_STARTS_WITH;
+        nano_vm_dispatch_table[OP_STR_ENDS_WITH] = &&op_OP_STR_ENDS_WITH;
+        nano_vm_dispatch_table[OP_STR_SPLIT] = &&op_OP_STR_SPLIT;
+        nano_vm_dispatch_table[OP_STR_REPLACE] = &&op_OP_STR_REPLACE;
+        nano_vm_dispatch_table[OP_ARR_NEW] = &&op_OP_ARR_NEW;
+        nano_vm_dispatch_table[OP_ARR_PUSH] = &&op_OP_ARR_PUSH;
+        nano_vm_dispatch_table[OP_ARR_POP] = &&op_OP_ARR_POP;
+        nano_vm_dispatch_table[OP_ARR_GET] = &&op_OP_ARR_GET;
+        nano_vm_dispatch_table[OP_ARR_SET] = &&op_OP_ARR_SET;
+        nano_vm_dispatch_table[OP_ARR_LEN] = &&op_OP_ARR_LEN;
+        nano_vm_dispatch_table[OP_ARR_SLICE] = &&op_OP_ARR_SLICE;
+        nano_vm_dispatch_table[OP_ARR_REMOVE] = &&op_OP_ARR_REMOVE;
+        nano_vm_dispatch_table[OP_ARR_LITERAL] = &&op_OP_ARR_LITERAL;
+        nano_vm_dispatch_table[OP_STRUCT_NEW] = &&op_OP_STRUCT_NEW;
+        nano_vm_dispatch_table[OP_STRUCT_GET] = &&op_OP_STRUCT_GET;
+        nano_vm_dispatch_table[OP_STRUCT_SET] = &&op_OP_STRUCT_SET;
+        nano_vm_dispatch_table[OP_STRUCT_LITERAL] = &&op_OP_STRUCT_LITERAL;
+        nano_vm_dispatch_table[OP_UNION_CONSTRUCT] = &&op_OP_UNION_CONSTRUCT;
+        nano_vm_dispatch_table[OP_UNION_TAG] = &&op_OP_UNION_TAG;
+        nano_vm_dispatch_table[OP_UNION_FIELD] = &&op_OP_UNION_FIELD;
+        nano_vm_dispatch_table[OP_MATCH_TAG] = &&op_OP_MATCH_TAG;
+        nano_vm_dispatch_table[OP_ENUM_VAL] = &&op_OP_ENUM_VAL;
+        nano_vm_dispatch_table[OP_TUPLE_NEW] = &&op_OP_TUPLE_NEW;
+        nano_vm_dispatch_table[OP_TUPLE_GET] = &&op_OP_TUPLE_GET;
+        nano_vm_dispatch_table[OP_HM_NEW] = &&op_OP_HM_NEW;
+        nano_vm_dispatch_table[OP_HM_GET] = &&op_OP_HM_GET;
+        nano_vm_dispatch_table[OP_HM_SET] = &&op_OP_HM_SET;
+        nano_vm_dispatch_table[OP_HM_HAS] = &&op_OP_HM_HAS;
+        nano_vm_dispatch_table[OP_HM_DELETE] = &&op_OP_HM_DELETE;
+        nano_vm_dispatch_table[OP_HM_KEYS] = &&op_OP_HM_KEYS;
+        nano_vm_dispatch_table[OP_HM_VALUES] = &&op_OP_HM_VALUES;
+        nano_vm_dispatch_table[OP_HM_LEN] = &&op_OP_HM_LEN;
+        nano_vm_dispatch_table[OP_GC_RETAIN] = &&op_OP_GC_RETAIN;
+        nano_vm_dispatch_table[OP_GC_RELEASE] = &&op_OP_GC_RELEASE;
+        nano_vm_dispatch_table[OP_GC_SCOPE_ENTER] = &&op_OP_GC_SCOPE_ENTER;
+        nano_vm_dispatch_table[OP_GC_SCOPE_EXIT] = &&op_OP_GC_SCOPE_EXIT;
+        nano_vm_dispatch_table[OP_CAST_INT] = &&op_OP_CAST_INT;
+        nano_vm_dispatch_table[OP_CAST_FLOAT] = &&op_OP_CAST_FLOAT;
+        nano_vm_dispatch_table[OP_CAST_BOOL] = &&op_OP_CAST_BOOL;
+        nano_vm_dispatch_table[OP_CAST_STRING] = &&op_OP_CAST_STRING;
+        nano_vm_dispatch_table[OP_TYPE_CHECK] = &&op_OP_TYPE_CHECK;
+        nano_vm_dispatch_table[OP_CLOSURE_NEW] = &&op_OP_CLOSURE_NEW;
+        nano_vm_dispatch_table[OP_CLOSURE_CALL] = &&op_OP_CLOSURE_CALL;
+        nano_vm_dispatch_table[OP_PRINT] = &&op_OP_PRINT;
+        nano_vm_dispatch_table[OP_ASSERT] = &&op_OP_ASSERT;
+        nano_vm_dispatch_table[OP_DEBUG_LINE] = &&op_OP_DEBUG_LINE;
+        nano_vm_dispatch_table[OP_HALT] = &&op_OP_HALT;
+        nano_vm_dispatch_table[OP_PRINTLN] = &&op_OP_PRINTLN;
+        nano_vm_dispatch_table[OP_OPAQUE_NULL] = &&op_OP_OPAQUE_NULL;
+        nano_vm_dispatch_table[OP_OPAQUE_VALID] = &&op_OP_OPAQUE_VALID;
+        nano_vm_dispatch_table[OP_MEM_LOAD8] = &&op_OP_MEM_LOAD8;
+        nano_vm_dispatch_table[OP_MEM_LOAD16] = &&op_OP_MEM_LOAD16;
+        nano_vm_dispatch_table[OP_MEM_LOAD32] = &&op_OP_MEM_LOAD32;
+        nano_vm_dispatch_table[OP_MEM_LOAD64] = &&op_OP_MEM_LOAD64;
+        nano_vm_dispatch_table[OP_MEM_STORE8] = &&op_OP_MEM_STORE8;
+        nano_vm_dispatch_table[OP_MEM_STORE16] = &&op_OP_MEM_STORE16;
+        nano_vm_dispatch_table[OP_MEM_STORE32] = &&op_OP_MEM_STORE32;
+        nano_vm_dispatch_table[OP_MEM_STORE64] = &&op_OP_MEM_STORE64;
+        nano_vm_dispatch_table[OP_I64_ADD] = &&op_OP_I64_ADD;
+        nano_vm_dispatch_table[OP_I64_SUB] = &&op_OP_I64_SUB;
+        nano_vm_dispatch_table[OP_I64_MUL] = &&op_OP_I64_MUL;
+        nano_vm_dispatch_table[OP_I64_DIV_S] = &&op_OP_I64_DIV_S;
+        nano_vm_dispatch_table[OP_I64_REM_S] = &&op_OP_I64_REM_S;
+        nano_vm_dispatch_table[OP_I64_NEG] = &&op_OP_I64_NEG;
+        nano_vm_dispatch_table[OP_F64_ADD] = &&op_OP_F64_ADD;
+        nano_vm_dispatch_table[OP_F64_SUB] = &&op_OP_F64_SUB;
+        nano_vm_dispatch_table[OP_F64_MUL] = &&op_OP_F64_MUL;
+        nano_vm_dispatch_table[OP_F64_DIV] = &&op_OP_F64_DIV;
+        nano_vm_dispatch_table[OP_F64_NEG] = &&op_OP_F64_NEG;
+        nano_vm_dispatch_table[OP_I64_EQ] = &&op_OP_I64_EQ;
+        nano_vm_dispatch_table[OP_I64_NE] = &&op_OP_I64_NE;
+        nano_vm_dispatch_table[OP_I64_LT_S] = &&op_OP_I64_LT_S;
+        nano_vm_dispatch_table[OP_I64_LE_S] = &&op_OP_I64_LE_S;
+        nano_vm_dispatch_table[OP_I64_GT_S] = &&op_OP_I64_GT_S;
+        nano_vm_dispatch_table[OP_I64_GE_S] = &&op_OP_I64_GE_S;
+        nano_vm_dispatch_table[OP_F64_EQ] = &&op_OP_F64_EQ;
+        nano_vm_dispatch_table[OP_F64_NE] = &&op_OP_F64_NE;
+        nano_vm_dispatch_table[OP_F64_LT] = &&op_OP_F64_LT;
+        nano_vm_dispatch_table[OP_F64_LE] = &&op_OP_F64_LE;
+        nano_vm_dispatch_table[OP_F64_GT] = &&op_OP_F64_GT;
+        nano_vm_dispatch_table[OP_F64_GE] = &&op_OP_F64_GE;
+        nano_vm_dispatch_table[OP_BOOL_AND] = &&op_OP_BOOL_AND;
+        nano_vm_dispatch_table[OP_BOOL_OR] = &&op_OP_BOOL_OR;
+        nano_vm_dispatch_table[OP_BOOL_NOT] = &&op_OP_BOOL_NOT;
+        nano_vm_dispatch_table[OP_I64_DIV_U] = &&op_OP_I64_DIV_U;
+        nano_vm_dispatch_table[OP_I64_REM_U] = &&op_OP_I64_REM_U;
+        nano_vm_dispatch_table[OP_I64_LT_U] = &&op_OP_I64_LT_U;
+        nano_vm_dispatch_table[OP_I64_LE_U] = &&op_OP_I64_LE_U;
+        nano_vm_dispatch_table[OP_I64_GT_U] = &&op_OP_I64_GT_U;
+        nano_vm_dispatch_table[OP_I64_GE_U] = &&op_OP_I64_GE_U;
+        nano_vm_dispatch_table[OP_I64_AND] = &&op_OP_I64_AND;
+        nano_vm_dispatch_table[OP_I64_OR] = &&op_OP_I64_OR;
+        nano_vm_dispatch_table[OP_I64_XOR] = &&op_OP_I64_XOR;
+        nano_vm_dispatch_table[OP_I64_INVERT] = &&op_OP_I64_INVERT;
+        nano_vm_dispatch_table[OP_I64_SHL] = &&op_OP_I64_SHL;
+        nano_vm_dispatch_table[OP_I64_SHR_S] = &&op_OP_I64_SHR_S;
+        nano_vm_dispatch_table[OP_I64_SHR_U] = &&op_OP_I64_SHR_U;
+        nano_vm_dispatch_table[OP_I64_ADD_CARRY] = &&op_OP_I64_ADD_CARRY;
+        nano_vm_dispatch_table[OP_I64_SUB_BORROW] = &&op_OP_I64_SUB_BORROW;
+        nano_vm_dispatch_table[OP_I64_MUL_WIDE_S] = &&op_OP_I64_MUL_WIDE_S;
+        nano_vm_dispatch_table[OP_I64_MUL_WIDE_U] = &&op_OP_I64_MUL_WIDE_U;
+        nano_vm_dispatch_table[OP_PICK] = &&op_OP_PICK;
+        nano_vm_dispatch_table[OP_ROLL] = &&op_OP_ROLL;
+        nano_vm_dispatch_table[OP_ARRAY_ADD] = &&op_OP_ARRAY_ADD;
+        nano_vm_dispatch_table[OP_ARRAY_SUB] = &&op_OP_ARRAY_SUB;
+        nano_vm_dispatch_table[OP_ARRAY_MUL] = &&op_OP_ARRAY_MUL;
+        nano_vm_dispatch_table[OP_ARRAY_DIV] = &&op_OP_ARRAY_DIV;
+        nano_vm_dispatch_table[OP_FUNCREF] = &&op_OP_FUNCREF;
+        nano_vm_dispatch_table[OP_AGG_PACK] = &&op_OP_AGG_PACK;
+        nano_vm_dispatch_table[OP_AGG_GET] = &&op_OP_AGG_GET;
+        nano_vm_dispatch_table[OP_AGG_SET] = &&op_OP_AGG_SET;
+        nano_vm_dispatch_table[OP_AGG_TAG] = &&op_OP_AGG_TAG;
+        nano_vm_dispatch_ready = true;
+    }
+#endif
     /* Main dispatch loop */
-    while (vm->ip < code_end) {
+    for (;;) {
+        if (vm->ip >= code_end) break;
         bool *decoded_valid = NULL;
         VmDecodedModule *decoded_module = decoded_module_for(
             vm, vm->module, &decoded_valid);
@@ -528,81 +751,81 @@ VmTrap vm_core_execute(VmState *vm) {
         if (vm->opcode_trace)
             vm_trace_instruction(vm, instr_start, &instr, stack_before);
 
-        switch (instr.opcode) {
+        VM_DISPATCH_BEGIN
 
         /* ============================================================
          * Stack & Constants
          * ============================================================ */
 
-        case OP_NOP:
-            break;
+        VM_CASE(OP_NOP):
+            VM_NEXT();
 
-        case OP_PUSH_I64:
+        VM_CASE(OP_PUSH_I64):
             stack_push(vm, val_int(instr.operands[0].i64));
-            break;
+            VM_NEXT();
 
-        case OP_PUSH_F64:
+        VM_CASE(OP_PUSH_F64):
             stack_push(vm, val_float(instr.operands[0].f64));
-            break;
+            VM_NEXT();
 
-        case OP_PUSH_BOOL:
+        VM_CASE(OP_PUSH_BOOL):
             stack_push(vm, val_bool(instr.operands[0].u8 != 0));
-            break;
+            VM_NEXT();
 
-        case OP_PUSH_STR: {
+        VM_CASE(OP_PUSH_STR): {
             uint32_t idx = instr.operands[0].u32;
             const char *s = str_at(vm, idx);
             if (!s) s = "";
             VmString *vs = vm_string_new(&vm->heap, s, (uint32_t)strlen(s));
             stack_push(vm, val_string(vs));
-            break;
+            VM_NEXT();
         }
 
-        case OP_PUSH_VOID:
+        VM_CASE(OP_PUSH_VOID):
             stack_push(vm, val_void());
-            break;
+            VM_NEXT();
 
-        case OP_PUSH_U8:
+        VM_CASE(OP_PUSH_U8):
             stack_push(vm, val_u8(instr.operands[0].u8));
-            break;
+            VM_NEXT();
 
-        case OP_FUNCREF:
+        VM_CASE(OP_FUNCREF):
             stack_push(vm, val_function(instr.operands[0].u32));
-            break;
+            VM_NEXT();
 
-        case OP_DUP: {
+        VM_CASE(OP_DUP): {
             NanoValue top = stack_peek(vm, 0);
             vm_retain(&vm->heap, top);
             stack_push(vm, top);
-            break;
+            VM_NEXT();
         }
 
-        case OP_POP: {
+        VM_CASE(OP_POP): {
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_SWAP: {
+        VM_CASE(OP_SWAP): {
             if (vm->stack_size < 2) break;
             NanoValue a = vm->stack[vm->stack_size - 1];
             NanoValue b = vm->stack[vm->stack_size - 2];
             vm->stack[vm->stack_size - 1] = b;
             vm->stack[vm->stack_size - 2] = a;
-            break;
+            VM_NEXT();
         }
 
-        case OP_ROT3: {
+        VM_CASE(OP_ROT3): {
             if (vm->stack_size < 3) break;
             uint32_t top = vm->stack_size - 1;
             NanoValue a = vm->stack[top];
             vm->stack[top] = vm->stack[top - 1];
             vm->stack[top - 1] = vm->stack[top - 2];
             vm->stack[top - 2] = a;
-            break;
+            VM_NEXT();
         }
 
-        case OP_PICK: {
+        VM_CASE(OP_PICK): {
             uint16_t depth = instr.operands[0].u16;
             if (depth >= vm->stack_size)
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
@@ -611,10 +834,10 @@ VmTrap vm_core_execute(VmState *vm) {
             NanoValue value = vm->stack[vm->stack_size - 1 - depth];
             vm_retain(&vm->heap, value);
             stack_push(vm, value);
-            break;
+            VM_NEXT();
         }
 
-        case OP_ROLL: {
+        VM_CASE(OP_ROLL): {
             uint16_t depth = instr.operands[0].u16;
             if (depth >= vm->stack_size)
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
@@ -625,14 +848,14 @@ VmTrap vm_core_execute(VmState *vm) {
             memmove(&vm->stack[index], &vm->stack[index + 1],
                     depth * sizeof(NanoValue));
             vm->stack[vm->stack_size - 1] = value;
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Variable Access
          * ============================================================ */
 
-        case OP_LOAD_LOCAL: {
+        VM_CASE(OP_LOAD_LOCAL): {
             uint16_t idx = instr.operands[0].u16;
             uint32_t abs_idx = frame->stack_base + idx;
             if (abs_idx >= vm->stack_size) {
@@ -641,10 +864,10 @@ VmTrap vm_core_execute(VmState *vm) {
             NanoValue v = vm->stack[abs_idx];
             vm_retain(&vm->heap, v);
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_STORE_LOCAL: {
+        VM_CASE(OP_STORE_LOCAL): {
             uint16_t idx = instr.operands[0].u16;
             uint32_t abs_idx = frame->stack_base + idx;
             if (abs_idx >= vm->stack_size) {
@@ -653,10 +876,10 @@ VmTrap vm_core_execute(VmState *vm) {
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, vm->stack[abs_idx]);
             vm->stack[abs_idx] = v;
-            break;
+            VM_NEXT();
         }
 
-        case OP_LOAD_GLOBAL: {
+        VM_CASE(OP_LOAD_GLOBAL): {
             uint32_t idx = instr.operands[0].u32;
             if (idx >= VM_MAX_GLOBALS) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
@@ -664,10 +887,10 @@ VmTrap vm_core_execute(VmState *vm) {
             NanoValue v = vm->globals[idx];
             vm_retain(&vm->heap, v);
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_STORE_GLOBAL: {
+        VM_CASE(OP_STORE_GLOBAL): {
             uint32_t idx = instr.operands[0].u32;
             if (idx >= VM_MAX_GLOBALS) {
                 return trap_error(vm, VM_ERR_OUT_OF_BOUNDS, "Global %u out of range", idx);
@@ -676,10 +899,10 @@ VmTrap vm_core_execute(VmState *vm) {
             vm_release(&vm->heap, vm->globals[idx]);
             vm->globals[idx] = v;
             if (idx >= vm->global_count) vm->global_count = idx + 1;
-            break;
+            VM_NEXT();
         }
 
-        case OP_LOAD_UPVALUE: {
+        VM_CASE(OP_LOAD_UPVALUE): {
             uint16_t idx = instr.operands[1].u16;
             /* depth (operands[0]) is always 0: codegen flattens upvalue chains so
              * every captured variable lives in the immediate closure's capture array. */
@@ -690,10 +913,10 @@ VmTrap vm_core_execute(VmState *vm) {
             } else {
                 stack_push(vm, val_void());
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_STORE_UPVALUE: {
+        VM_CASE(OP_STORE_UPVALUE): {
             uint16_t idx = instr.operands[1].u16;
             /* depth (operands[0]) always 0 — see OP_LOAD_UPVALUE note above */
             NanoValue v = stack_pop(vm);
@@ -703,20 +926,20 @@ VmTrap vm_core_execute(VmState *vm) {
             } else {
                 vm_release(&vm->heap, v);
             }
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Arithmetic
          * ============================================================ */
 
-        case OP_ARRAY_ADD:
+        VM_CASE(OP_ARRAY_ADD):
             if (stack_peek(vm, 0).tag != TAG_ARRAY
                     && stack_peek(vm, 1).tag != TAG_ARRAY)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "ARRAY_ADD requires at least one array");
             goto dynamic_add;
-        case OP_ADD: {
+        VM_CASE(OP_ADD): {
 dynamic_add:
             ;
             NanoValue b = stack_pop(vm);
@@ -812,16 +1035,16 @@ dynamic_add:
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ADD: incompatible types %s + %s",
                                 isa_tag_name(a.tag), isa_tag_name(b.tag));
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARRAY_SUB:
+        VM_CASE(OP_ARRAY_SUB):
             if (stack_peek(vm, 0).tag != TAG_ARRAY
                     && stack_peek(vm, 1).tag != TAG_ARRAY)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "ARRAY_SUB requires at least one array");
             goto dynamic_sub;
-        case OP_SUB: {
+        VM_CASE(OP_SUB): {
 dynamic_sub:
             ;
             NanoValue b = stack_pop(vm);
@@ -890,16 +1113,16 @@ dynamic_sub:
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "SUB: type error");
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARRAY_MUL:
+        VM_CASE(OP_ARRAY_MUL):
             if (stack_peek(vm, 0).tag != TAG_ARRAY
                     && stack_peek(vm, 1).tag != TAG_ARRAY)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "ARRAY_MUL requires at least one array");
             goto dynamic_mul;
-        case OP_MUL: {
+        VM_CASE(OP_MUL): {
 dynamic_mul:
             ;
             NanoValue b = stack_pop(vm);
@@ -967,16 +1190,16 @@ dynamic_mul:
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "MUL: type error");
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARRAY_DIV:
+        VM_CASE(OP_ARRAY_DIV):
             if (stack_peek(vm, 0).tag != TAG_ARRAY
                     && stack_peek(vm, 1).tag != TAG_ARRAY)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "ARRAY_DIV requires at least one array");
             goto dynamic_div;
-        case OP_DIV: {
+        VM_CASE(OP_DIV): {
 dynamic_div:
             ;
             NanoValue b = stack_pop(vm);
@@ -1056,10 +1279,10 @@ dynamic_div:
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "DIV: type error");
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_MOD: {
+        VM_CASE(OP_MOD): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
@@ -1073,10 +1296,10 @@ dynamic_div:
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "MOD: type error");
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_NEG: {
+        VM_CASE(OP_NEG): {
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_INT) {
                 /* -INT64_MIN overflows (UB); wrap to INT64_MIN. */
@@ -1086,14 +1309,14 @@ dynamic_div:
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "NEG: type error");
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_I64_ADD:
-        case OP_I64_SUB:
-        case OP_I64_MUL:
-        case OP_I64_DIV_S:
-        case OP_I64_REM_S: {
+        VM_CASE(OP_I64_ADD):
+        VM_CASE(OP_I64_SUB):
+        VM_CASE(OP_I64_MUL):
+        VM_CASE(OP_I64_DIV_S):
+        VM_CASE(OP_I64_REM_S): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_ENUM) a = val_int((int64_t)a.as.enum_val);
@@ -1116,21 +1339,21 @@ dynamic_div:
                 else result = a.as.i64 % b.as.i64;
             }
             stack_push(vm, val_int(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_I64_NEG: {
+        VM_CASE(OP_I64_NEG): {
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_INT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I64_NEG requires an integer");
             stack_push(vm, val_int(a.as.i64 == INT64_MIN ? INT64_MIN : -a.as.i64));
-            break;
+            VM_NEXT();
         }
 
-        case OP_F64_ADD:
-        case OP_F64_SUB:
-        case OP_F64_MUL:
-        case OP_F64_DIV: {
+        VM_CASE(OP_F64_ADD):
+        VM_CASE(OP_F64_SUB):
+        VM_CASE(OP_F64_MUL):
+        VM_CASE(OP_F64_DIV): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_FLOAT || b.tag != TAG_FLOAT)
@@ -1143,81 +1366,81 @@ dynamic_div:
             else if (instr.opcode == OP_F64_MUL) result = a.as.f64 * b.as.f64;
             else result = b.as.f64 == 0.0 ? 0.0 : a.as.f64 / b.as.f64;
             stack_push(vm, val_float(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_F64_NEG: {
+        VM_CASE(OP_F64_NEG): {
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_FLOAT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "F64_NEG requires a float");
             stack_push(vm, val_float(-a.as.f64));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Comparison
          * ============================================================ */
 
-        case OP_EQ: {
+        VM_CASE(OP_EQ): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(val_equal(a, b)));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_NE: {
+        VM_CASE(OP_NE): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(!val_equal(a, b)));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_LT: {
+        VM_CASE(OP_LT): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(val_compare(a, b) < 0));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_LE: {
+        VM_CASE(OP_LE): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(val_compare(a, b) <= 0));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_GT: {
+        VM_CASE(OP_GT): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(val_compare(a, b) > 0));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_GE: {
+        VM_CASE(OP_GE): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(val_compare(a, b) >= 0));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_I64_EQ:
-        case OP_I64_NE:
-        case OP_I64_LT_S:
-        case OP_I64_LE_S:
-        case OP_I64_GT_S:
-        case OP_I64_GE_S: {
+        VM_CASE(OP_I64_EQ):
+        VM_CASE(OP_I64_NE):
+        VM_CASE(OP_I64_LT_S):
+        VM_CASE(OP_I64_LE_S):
+        VM_CASE(OP_I64_GT_S):
+        VM_CASE(OP_I64_GE_S): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag == TAG_ENUM) a = val_int((int64_t)a.as.enum_val);
@@ -1234,15 +1457,15 @@ dynamic_div:
             else if (instr.opcode == OP_I64_GT_S) result = a.as.i64 > b.as.i64;
             else result = a.as.i64 >= b.as.i64;
             stack_push(vm, val_bool(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_F64_EQ:
-        case OP_F64_NE:
-        case OP_F64_LT:
-        case OP_F64_LE:
-        case OP_F64_GT:
-        case OP_F64_GE: {
+        VM_CASE(OP_F64_EQ):
+        VM_CASE(OP_F64_NE):
+        VM_CASE(OP_F64_LT):
+        VM_CASE(OP_F64_LE):
+        VM_CASE(OP_F64_GT):
+        VM_CASE(OP_F64_GE): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_FLOAT || b.tag != TAG_FLOAT)
@@ -1257,40 +1480,40 @@ dynamic_div:
             else if (instr.opcode == OP_F64_GT) result = a.as.f64 > b.as.f64;
             else result = a.as.f64 >= b.as.f64;
             stack_push(vm, val_bool(result));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Logic
          * ============================================================ */
 
-        case OP_AND: {
+        VM_CASE(OP_AND): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(val_truthy(a) && val_truthy(b)));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_OR: {
+        VM_CASE(OP_OR): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(val_truthy(a) || val_truthy(b)));
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
-            break;
+            VM_NEXT();
         }
 
-        case OP_NOT: {
+        VM_CASE(OP_NOT): {
             NanoValue a = stack_pop(vm);
             stack_push(vm, val_bool(!val_truthy(a)));
             vm_release(&vm->heap, a);
-            break;
+            VM_NEXT();
         }
 
-        case OP_BOOL_AND:
-        case OP_BOOL_OR: {
+        VM_CASE(OP_BOOL_AND):
+        VM_CASE(OP_BOOL_OR): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_BOOL || b.tag != TAG_BOOL)
@@ -1300,29 +1523,29 @@ dynamic_div:
             stack_push(vm, val_bool(instr.opcode == OP_BOOL_AND
                                     ? a.as.boolean && b.as.boolean
                                     : a.as.boolean || b.as.boolean));
-            break;
+            VM_NEXT();
         }
 
-        case OP_BOOL_NOT: {
+        VM_CASE(OP_BOOL_NOT): {
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_BOOL)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "BOOL_NOT requires a boolean");
             stack_push(vm, val_bool(!a.as.boolean));
-            break;
+            VM_NEXT();
         }
 
-        case OP_I64_DIV_U:
-        case OP_I64_REM_U:
-        case OP_I64_LT_U:
-        case OP_I64_LE_U:
-        case OP_I64_GT_U:
-        case OP_I64_GE_U:
-        case OP_I64_AND:
-        case OP_I64_OR:
-        case OP_I64_XOR:
-        case OP_I64_SHL:
-        case OP_I64_SHR_S:
-        case OP_I64_SHR_U: {
+        VM_CASE(OP_I64_DIV_U):
+        VM_CASE(OP_I64_REM_U):
+        VM_CASE(OP_I64_LT_U):
+        VM_CASE(OP_I64_LE_U):
+        VM_CASE(OP_I64_GT_U):
+        VM_CASE(OP_I64_GE_U):
+        VM_CASE(OP_I64_AND):
+        VM_CASE(OP_I64_OR):
+        VM_CASE(OP_I64_XOR):
+        VM_CASE(OP_I64_SHL):
+        VM_CASE(OP_I64_SHR_S):
+        VM_CASE(OP_I64_SHR_U): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_INT || b.tag != TAG_INT)
@@ -1347,19 +1570,19 @@ dynamic_div:
                 case OP_I64_SHR_U: stack_push(vm, val_int((int64_t)(ua >> shift))); break;
                 default: break;
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_I64_INVERT: {
+        VM_CASE(OP_I64_INVERT): {
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_INT)
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I64_INVERT requires an integer");
             stack_push(vm, val_int((int64_t)~(uint64_t)a.as.i64));
-            break;
+            VM_NEXT();
         }
 
-        case OP_I64_ADD_CARRY:
-        case OP_I64_SUB_BORROW: {
+        VM_CASE(OP_I64_ADD_CARRY):
+        VM_CASE(OP_I64_SUB_BORROW): {
             NanoValue carry = stack_pop(vm);
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
@@ -1387,11 +1610,11 @@ dynamic_div:
             }
             stack_push(vm, val_int((int64_t)low));
             stack_push(vm, val_int((int64_t)high));
-            break;
+            VM_NEXT();
         }
 
-        case OP_I64_MUL_WIDE_S:
-        case OP_I64_MUL_WIDE_U: {
+        VM_CASE(OP_I64_MUL_WIDE_S):
+        VM_CASE(OP_I64_MUL_WIDE_U): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_INT || b.tag != TAG_INT)
@@ -1417,23 +1640,23 @@ dynamic_div:
 #endif
             stack_push(vm, val_int((int64_t)low));
             stack_push(vm, val_int((int64_t)high));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Control Flow
          * ============================================================ */
 
-        case OP_JMP: {
+        VM_CASE(OP_JMP): {
             if (vm->profile.enabled) {
                 vm->profile.branches++;
                 vm->profile.branches_taken++;
             }
             vm->ip = decoded->resolved_target;
-            break;
+            VM_NEXT();
         }
 
-        case OP_JMP_TRUE: {
+        VM_CASE(OP_JMP_TRUE): {
             NanoValue cond = stack_pop(vm);
             bool taken = val_truthy(cond);
             if (vm->profile.enabled) {
@@ -1444,10 +1667,10 @@ dynamic_div:
                 vm->ip = decoded->resolved_target;
             }
             vm_release(&vm->heap, cond);
-            break;
+            VM_NEXT();
         }
 
-        case OP_JMP_FALSE: {
+        VM_CASE(OP_JMP_FALSE): {
             NanoValue cond = stack_pop(vm);
             bool taken = !val_truthy(cond);
             if (vm->profile.enabled) {
@@ -1458,10 +1681,10 @@ dynamic_div:
                 vm->ip = decoded->resolved_target;
             }
             vm_release(&vm->heap, cond);
-            break;
+            VM_NEXT();
         }
 
-        case OP_CALL: {
+        VM_CASE(OP_CALL): {
             if (vm->profile.enabled) vm->profile.direct_calls++;
             uint32_t callee_idx = decoded->resolved_target;
             if (callee_idx >= vm->module->function_count) {
@@ -1503,10 +1726,10 @@ dynamic_div:
             vm->ip = callee->code_offset;
             cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
-            break;
+            VM_NEXT();
         }
 
-        case OP_TAIL_CALL: {
+        VM_CASE(OP_TAIL_CALL): {
             if (vm->profile.enabled) vm->profile.direct_calls++;
             uint32_t callee_idx = decoded->resolved_target;
             if (callee_idx >= vm->module->function_count)
@@ -1553,10 +1776,10 @@ dynamic_div:
             vm->ip = callee->code_offset;
             cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
-            break;
+            VM_NEXT();
         }
 
-        case OP_CALL_INDIRECT: {
+        VM_CASE(OP_CALL_INDIRECT): {
             if (vm->profile.enabled) vm->profile.indirect_calls++;
             NanoValue fn_val = stack_pop(vm);
             if (fn_val.tag == TAG_FUNCTION || fn_val.tag == TAG_CLOSURE) {
@@ -1608,10 +1831,10 @@ dynamic_div:
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "CALL_INDIRECT: not a function");
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_RET: {
+        VM_CASE(OP_RET): {
             const NvmFunctionEntry *returning =
                 &vm->module->functions[frame->fn_idx];
             uint32_t actual_results = vm->stack_size
@@ -1662,10 +1885,10 @@ dynamic_div:
 
             for (uint8_t i = 0; i < returning->result_count; i++)
                 stack_push(vm, results[i]);
-            break;
+            VM_NEXT();
         }
 
-        case OP_CALL_EXTERN: {
+        VM_CASE(OP_CALL_EXTERN): {
             if (vm->profile.enabled) {
                 vm->profile.extern_calls++;
                 vm->profile.traps++;
@@ -1690,7 +1913,7 @@ dynamic_div:
             return t;
         }
 
-        case OP_CALL_MODULE: {
+        VM_CASE(OP_CALL_MODULE): {
             if (vm->profile.enabled) vm->profile.module_calls++;
             uint32_t mod_idx = instr.operands[0].u32;
             uint32_t fn_idx_m = instr.operands[1].u32;
@@ -1743,14 +1966,14 @@ dynamic_div:
             vm->ip = callee->code_offset;
             cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * String Ops
          * ============================================================ */
 
-        case OP_STR_LEN: {
+        VM_CASE(OP_STR_LEN): {
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
@@ -1759,10 +1982,10 @@ dynamic_div:
             int64_t len = vmstring_len(s.as.string);
             vm_release(&vm->heap, s);
             stack_push(vm, val_int(len));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_CONCAT: {
+        VM_CASE(OP_STR_CONCAT): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_STRING || b.tag != TAG_STRING) {
@@ -1774,10 +1997,10 @@ dynamic_div:
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
             stack_push(vm, val_string(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_SUBSTR: {
+        VM_CASE(OP_STR_SUBSTR): {
             NanoValue len_v = stack_pop(vm);
             NanoValue start_v = stack_pop(vm);
             NanoValue s = stack_pop(vm);
@@ -1790,10 +2013,10 @@ dynamic_div:
             VmString *result = vm_string_substr(&vm->heap, s.as.string, start, len);
             vm_release(&vm->heap, s);
             stack_push(vm, val_string(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_CONTAINS: {
+        VM_CASE(OP_STR_CONTAINS): {
             NanoValue needle = stack_pop(vm);
             NanoValue haystack = stack_pop(vm);
             if (haystack.tag != TAG_STRING || needle.tag != TAG_STRING) {
@@ -1805,10 +2028,10 @@ dynamic_div:
             vm_release(&vm->heap, haystack);
             vm_release(&vm->heap, needle);
             stack_push(vm, val_bool(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_EQ: {
+        VM_CASE(OP_STR_EQ): {
             NanoValue b = stack_pop(vm);
             NanoValue a = stack_pop(vm);
             if (a.tag != TAG_STRING || b.tag != TAG_STRING) {
@@ -1820,10 +2043,10 @@ dynamic_div:
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
             stack_push(vm, val_bool(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_CHAR_AT: {
+        VM_CASE(OP_STR_CHAR_AT): {
             NanoValue idx_v = stack_pop(vm);
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
@@ -1836,24 +2059,24 @@ dynamic_div:
             int64_t ch = (idx >= 0 && idx < len) ? (unsigned char)str[idx] : -1;
             vm_release(&vm->heap, s);
             stack_push(vm, val_int(ch));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_FROM_INT: {
+        VM_CASE(OP_STR_FROM_INT): {
             NanoValue v = stack_pop(vm);
             VmString *s = vm_string_from_int(&vm->heap, v.tag == TAG_INT ? v.as.i64 : 0);
             stack_push(vm, val_string(s));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_FROM_FLOAT: {
+        VM_CASE(OP_STR_FROM_FLOAT): {
             NanoValue v = stack_pop(vm);
             VmString *s = vm_string_from_float(&vm->heap, v.tag == TAG_FLOAT ? v.as.f64 : 0.0);
             stack_push(vm, val_string(s));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_TRIM: {
+        VM_CASE(OP_STR_TRIM): {
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
                 vm_release(&vm->heap, s);
@@ -1874,11 +2097,11 @@ dynamic_div:
             VmString *out = vm_string_new(&vm->heap, str + start, (uint32_t)(end - start));
             vm_release(&vm->heap, s);
             stack_push(vm, val_string(out));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_TO_LOWER:
-        case OP_STR_TO_UPPER: {
+        VM_CASE(OP_STR_TO_LOWER):
+        VM_CASE(OP_STR_TO_UPPER): {
             bool to_lower = (instr.opcode == OP_STR_TO_LOWER);
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING) {
@@ -1911,11 +2134,11 @@ dynamic_div:
             if (buf != stackbuf) free(buf);
             vm_release(&vm->heap, s);
             stack_push(vm, val_string(out));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_STARTS_WITH:
-        case OP_STR_ENDS_WITH: {
+        VM_CASE(OP_STR_STARTS_WITH):
+        VM_CASE(OP_STR_ENDS_WITH): {
             bool starts = (instr.opcode == OP_STR_STARTS_WITH);
             NanoValue affix_v = stack_pop(vm);
             NanoValue s = stack_pop(vm);
@@ -1943,10 +2166,10 @@ dynamic_div:
             vm_release(&vm->heap, affix_v);
             vm_release(&vm->heap, s);
             stack_push(vm, val_bool(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_SPLIT: {
+        VM_CASE(OP_STR_SPLIT): {
             NanoValue delim_v = stack_pop(vm);
             NanoValue s = stack_pop(vm);
             if (s.tag != TAG_STRING || delim_v.tag != TAG_STRING) {
@@ -1984,10 +2207,10 @@ dynamic_div:
             vm_release(&vm->heap, delim_v);
             vm_release(&vm->heap, s);
             stack_push(vm, val_array(arr));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STR_REPLACE: {
+        VM_CASE(OP_STR_REPLACE): {
             /* Args were pushed s, old, new -> pop in reverse. */
             NanoValue new_v = stack_pop(vm);
             NanoValue old_v = stack_pop(vm);
@@ -2048,21 +2271,21 @@ dynamic_div:
             vm_release(&vm->heap, old_v);
             vm_release(&vm->heap, s);
             stack_push(vm, val_string(out));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Array Ops
          * ============================================================ */
 
-        case OP_ARR_NEW: {
+        VM_CASE(OP_ARR_NEW): {
             uint8_t elem_type = instr.operands[0].u8;
             VmArray *a = vm_array_new(&vm->heap, elem_type, 8);
             stack_push(vm, val_array(a));
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_PUSH: {
+        VM_CASE(OP_ARR_PUSH): {
             NanoValue v = stack_pop(vm);
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
@@ -2073,10 +2296,10 @@ dynamic_div:
             vm_array_push(&vm->heap, arr.as.array, v);
             vm_release(&vm->heap, v); /* push retains */
             stack_push(vm, arr);
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_POP: {
+        VM_CASE(OP_ARR_POP): {
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
@@ -2085,10 +2308,10 @@ dynamic_div:
             NanoValue v = vm_array_pop(arr.as.array);
             stack_push(vm, v);
             stack_push(vm, arr);
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_GET: {
+        VM_CASE(OP_ARR_GET): {
             NanoValue idx_v = stack_pop(vm);
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
@@ -2100,10 +2323,10 @@ dynamic_div:
             vm_retain(&vm->heap, v);
             vm_release(&vm->heap, arr);
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_SET: {
+        VM_CASE(OP_ARR_SET): {
             NanoValue v = stack_pop(vm);
             NanoValue idx_v = stack_pop(vm);
             NanoValue arr = stack_pop(vm);
@@ -2116,10 +2339,10 @@ dynamic_div:
             vm_release(&vm->heap, vm_array_get(arr.as.array, idx));
             vm_array_set(arr.as.array, idx, v);
             stack_push(vm, arr);
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_LEN: {
+        VM_CASE(OP_ARR_LEN): {
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
                 vm_release(&vm->heap, arr);
@@ -2128,10 +2351,10 @@ dynamic_div:
             int64_t len = arr.as.array->length;
             vm_release(&vm->heap, arr);
             stack_push(vm, val_int(len));
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_SLICE: {
+        VM_CASE(OP_ARR_SLICE): {
             NanoValue end_v = stack_pop(vm);
             NanoValue start_v = stack_pop(vm);
             NanoValue arr = stack_pop(vm);
@@ -2144,10 +2367,10 @@ dynamic_div:
             VmArray *result = vm_array_slice(&vm->heap, arr.as.array, start, end);
             vm_release(&vm->heap, arr);
             stack_push(vm, val_array(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_REMOVE: {
+        VM_CASE(OP_ARR_REMOVE): {
             NanoValue idx_v = stack_pop(vm);
             NanoValue arr = stack_pop(vm);
             if (arr.tag != TAG_ARRAY) {
@@ -2157,10 +2380,10 @@ dynamic_div:
             uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             vm_array_remove(arr.as.array, idx);
             stack_push(vm, arr);
-            break;
+            VM_NEXT();
         }
 
-        case OP_ARR_LITERAL: {
+        VM_CASE(OP_ARR_LITERAL): {
             uint8_t elem_type = instr.operands[0].u8;
             uint16_t count = instr.operands[1].u16;
             VmArray *a = vm_array_new(&vm->heap, elem_type, count > 0 ? count : 8);
@@ -2170,21 +2393,21 @@ dynamic_div:
             }
             a->length = count;
             stack_push(vm, val_array(a));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Struct Ops
          * ============================================================ */
 
-        case OP_STRUCT_NEW: {
+        VM_CASE(OP_STRUCT_NEW): {
             uint32_t def_idx = instr.operands[0].u32;
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, 0);
             stack_push(vm, val_struct(s));
-            break;
+            VM_NEXT();
         }
 
-        case OP_STRUCT_GET: {
+        VM_CASE(OP_STRUCT_GET): {
             uint16_t field_idx = instr.operands[0].u16;
             NanoValue sv = stack_pop(vm);
             if (sv.tag != TAG_STRUCT || !sv.as.sval) {
@@ -2199,10 +2422,10 @@ dynamic_div:
             vm_retain(&vm->heap, v);
             vm_release(&vm->heap, sv);
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_STRUCT_SET: {
+        VM_CASE(OP_STRUCT_SET): {
             uint16_t field_idx = instr.operands[0].u16;
             NanoValue v = stack_pop(vm);
             NanoValue sv = stack_pop(vm);
@@ -2219,10 +2442,10 @@ dynamic_div:
             vm_release(&vm->heap, sv.as.sval->fields[field_idx]);
             sv.as.sval->fields[field_idx] = v;
             stack_push(vm, sv);
-            break;
+            VM_NEXT();
         }
 
-        case OP_STRUCT_LITERAL: {
+        VM_CASE(OP_STRUCT_LITERAL): {
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t field_count = instr.operands[1].u16;
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, field_count);
@@ -2231,14 +2454,14 @@ dynamic_div:
                 s->fields[field_count - 1 - i] = stack_pop(vm);
             }
             stack_push(vm, val_struct(s));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Union/Enum Ops
          * ============================================================ */
 
-        case OP_UNION_CONSTRUCT: {
+        VM_CASE(OP_UNION_CONSTRUCT): {
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t variant = instr.operands[1].u16;
             uint16_t fcount = instr.operands[2].u16;
@@ -2247,10 +2470,10 @@ dynamic_div:
                 u->fields[fcount - 1 - i] = stack_pop(vm);
             }
             stack_push(vm, val_union(u));
-            break;
+            VM_NEXT();
         }
 
-        case OP_UNION_TAG: {
+        VM_CASE(OP_UNION_TAG): {
             NanoValue uv = stack_pop(vm);
             if (uv.tag != TAG_UNION || !uv.as.uval) {
                 vm_release(&vm->heap, uv);
@@ -2259,10 +2482,10 @@ dynamic_div:
             int64_t tag = uv.as.uval->variant;
             vm_release(&vm->heap, uv);
             stack_push(vm, val_int(tag));
-            break;
+            VM_NEXT();
         }
 
-        case OP_UNION_FIELD: {
+        VM_CASE(OP_UNION_FIELD): {
             uint16_t field_idx = instr.operands[0].u16;
             NanoValue uv = stack_pop(vm);
             if (uv.tag != TAG_UNION || !uv.as.uval) {
@@ -2277,10 +2500,10 @@ dynamic_div:
             vm_retain(&vm->heap, v);
             vm_release(&vm->heap, uv);
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_MATCH_TAG: {
+        VM_CASE(OP_MATCH_TAG): {
             uint16_t variant = instr.operands[0].u16;
             NanoValue top = stack_peek(vm, 0);
             if (top.tag == TAG_UNION && top.as.uval && top.as.uval->variant == variant) {
@@ -2288,32 +2511,32 @@ dynamic_div:
                 vm->ip = decoded->resolved_target;
             }
             /* No match - fall through to next MATCH_TAG */
-            break;
+            VM_NEXT();
         }
 
-        case OP_ENUM_VAL: {
+        VM_CASE(OP_ENUM_VAL): {
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t variant = instr.operands[1].u16;
             (void)def_idx;
             stack_push(vm, val_enum((int32_t)variant));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Tuple Ops
          * ============================================================ */
 
-        case OP_TUPLE_NEW: {
+        VM_CASE(OP_TUPLE_NEW): {
             uint16_t count = instr.operands[0].u16;
             VmTuple *t = vm_tuple_new(&vm->heap, count);
             for (uint16_t i = 0; i < count; i++) {
                 t->elements[count - 1 - i] = stack_pop(vm);
             }
             stack_push(vm, val_tuple(t));
-            break;
+            VM_NEXT();
         }
 
-        case OP_TUPLE_GET: {
+        VM_CASE(OP_TUPLE_GET): {
             uint16_t index = instr.operands[0].u16;
             NanoValue tv = stack_pop(vm);
             if (tv.tag != TAG_TUPLE || !tv.as.tuple) {
@@ -2328,10 +2551,10 @@ dynamic_div:
             vm_retain(&vm->heap, v);
             vm_release(&vm->heap, tv);
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_AGG_PACK: {
+        VM_CASE(OP_AGG_PACK): {
             uint8_t kind = instr.operands[0].u8;
             uint32_t layout = instr.operands[1].u32;
             uint16_t variant = instr.operands[2].u16;
@@ -2364,10 +2587,10 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "AGG_PACK unknown kind %u", kind);
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_AGG_GET: {
+        VM_CASE(OP_AGG_GET): {
             uint16_t index = instr.operands[0].u16;
             NanoValue aggregate = stack_pop(vm);
             NanoValue value = val_void();
@@ -2388,10 +2611,10 @@ dynamic_div:
             vm_retain(&vm->heap, value);
             vm_release(&vm->heap, aggregate);
             stack_push(vm, value);
-            break;
+            VM_NEXT();
         }
 
-        case OP_AGG_SET: {
+        VM_CASE(OP_AGG_SET): {
             uint16_t index = instr.operands[0].u16;
             NanoValue value = stack_pop(vm);
             NanoValue aggregate = stack_pop(vm);
@@ -2415,10 +2638,10 @@ dynamic_div:
             vm_release(&vm->heap, *field);
             *field = value;
             stack_push(vm, aggregate);
-            break;
+            VM_NEXT();
         }
 
-        case OP_AGG_TAG: {
+        VM_CASE(OP_AGG_TAG): {
             NanoValue aggregate = stack_pop(vm);
             if (aggregate.tag != TAG_UNION || !aggregate.as.uval) {
                 vm_release(&vm->heap, aggregate);
@@ -2428,22 +2651,22 @@ dynamic_div:
             int64_t tag = aggregate.as.uval->variant;
             vm_release(&vm->heap, aggregate);
             stack_push(vm, val_int(tag));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Hashmap Ops
          * ============================================================ */
 
-        case OP_HM_NEW: {
+        VM_CASE(OP_HM_NEW): {
             uint8_t key_type = instr.operands[0].u8;
             uint8_t val_type = instr.operands[1].u8;
             VmHashMap *m = vm_hashmap_new(&vm->heap, key_type, val_type);
             stack_push(vm, val_hashmap(m));
-            break;
+            VM_NEXT();
         }
 
-        case OP_HM_GET: {
+        VM_CASE(OP_HM_GET): {
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
@@ -2456,10 +2679,10 @@ dynamic_div:
             vm_release(&vm->heap, map);
             vm_release(&vm->heap, key);
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_HM_SET: {
+        VM_CASE(OP_HM_SET): {
             NanoValue v = stack_pop(vm);
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
@@ -2473,10 +2696,10 @@ dynamic_div:
             vm_release(&vm->heap, key);
             vm_release(&vm->heap, v);
             stack_push(vm, map);
-            break;
+            VM_NEXT();
         }
 
-        case OP_HM_HAS: {
+        VM_CASE(OP_HM_HAS): {
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
@@ -2488,10 +2711,10 @@ dynamic_div:
             vm_release(&vm->heap, map);
             vm_release(&vm->heap, key);
             stack_push(vm, val_bool(has));
-            break;
+            VM_NEXT();
         }
 
-        case OP_HM_DELETE: {
+        VM_CASE(OP_HM_DELETE): {
             NanoValue key = stack_pop(vm);
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
@@ -2502,10 +2725,10 @@ dynamic_div:
             vm_hashmap_delete(&vm->heap, map.as.hashmap, key);
             vm_release(&vm->heap, key);
             stack_push(vm, map);
-            break;
+            VM_NEXT();
         }
 
-        case OP_HM_KEYS: {
+        VM_CASE(OP_HM_KEYS): {
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
@@ -2514,10 +2737,10 @@ dynamic_div:
             VmArray *keys = vm_hashmap_keys(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
             stack_push(vm, val_array(keys));
-            break;
+            VM_NEXT();
         }
 
-        case OP_HM_VALUES: {
+        VM_CASE(OP_HM_VALUES): {
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
@@ -2526,10 +2749,10 @@ dynamic_div:
             VmArray *vals = vm_hashmap_values(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
             stack_push(vm, val_array(vals));
-            break;
+            VM_NEXT();
         }
 
-        case OP_HM_LEN: {
+        VM_CASE(OP_HM_LEN): {
             NanoValue map = stack_pop(vm);
             if (map.tag != TAG_HASHMAP) {
                 vm_release(&vm->heap, map);
@@ -2538,38 +2761,38 @@ dynamic_div:
             int64_t len = map.as.hashmap->count;
             vm_release(&vm->heap, map);
             stack_push(vm, val_int(len));
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * GC/Memory
          * ============================================================ */
 
-        case OP_GC_RETAIN: {
+        VM_CASE(OP_GC_RETAIN): {
             NanoValue v = stack_peek(vm, 0);
             vm_retain(&vm->heap, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_GC_RELEASE: {
+        VM_CASE(OP_GC_RELEASE): {
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_GC_SCOPE_ENTER:
+        VM_CASE(OP_GC_SCOPE_ENTER):
             /* Scope tracking is implicit in the call stack */
-            break;
+            VM_NEXT();
 
-        case OP_GC_SCOPE_EXIT:
+        VM_CASE(OP_GC_SCOPE_EXIT):
             /* Scope tracking is implicit in the call stack */
-            break;
+            VM_NEXT();
 
         /* ============================================================
          * Type Casts
          * ============================================================ */
 
-        case OP_CAST_INT: {
+        VM_CASE(OP_CAST_INT): {
             NanoValue v = stack_pop(vm);
             switch (v.tag) {
                 case TAG_INT:   stack_push(vm, v); break;
@@ -2589,10 +2812,10 @@ dynamic_div:
                     stack_push(vm, val_int(0));
                     break;
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_CAST_FLOAT: {
+        VM_CASE(OP_CAST_FLOAT): {
             NanoValue v = stack_pop(vm);
             switch (v.tag) {
                 case TAG_FLOAT: stack_push(vm, v); break;
@@ -2610,18 +2833,18 @@ dynamic_div:
                     stack_push(vm, val_float(0.0));
                     break;
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_CAST_BOOL: {
+        VM_CASE(OP_CAST_BOOL): {
             NanoValue v = stack_pop(vm);
             bool result = val_truthy(v);
             vm_release(&vm->heap, v);
             stack_push(vm, val_bool(result));
-            break;
+            VM_NEXT();
         }
 
-        case OP_CAST_STRING: {
+        VM_CASE(OP_CAST_STRING): {
             NanoValue v = stack_pop(vm);
             VmString *s;
             switch (v.tag) {
@@ -2644,22 +2867,22 @@ dynamic_div:
                     stack_push(vm, val_string(s));
                     break;
             }
-            break;
+            VM_NEXT();
         }
 
-        case OP_TYPE_CHECK: {
+        VM_CASE(OP_TYPE_CHECK): {
             uint8_t expected = instr.operands[0].u8;
             NanoValue v = stack_pop(vm);
             stack_push(vm, val_bool(v.tag == expected));
             vm_release(&vm->heap, v);
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * Closures
          * ============================================================ */
 
-        case OP_CLOSURE_NEW: {
+        VM_CASE(OP_CLOSURE_NEW): {
             uint32_t fn_idx_c = instr.operands[0].u32;
             uint16_t capture_count = instr.operands[1].u16;
             VmClosure *c = vm_closure_new(&vm->heap, fn_idx_c, capture_count);
@@ -2668,10 +2891,10 @@ dynamic_div:
                 c->captures[i] = stack_pop(vm);
             }
             stack_push(vm, val_closure(c));
-            break;
+            VM_NEXT();
         }
 
-        case OP_CLOSURE_CALL: {
+        VM_CASE(OP_CLOSURE_CALL): {
             NanoValue fn_val = stack_pop(vm);
             if (fn_val.tag != TAG_CLOSURE || !fn_val.as.closure) {
                 vm_release(&vm->heap, fn_val);
@@ -2712,14 +2935,14 @@ dynamic_div:
             vm->ip = callee->code_offset;
             cur_fn = callee;
             code_end = callee->code_offset + callee->code_length;
-            break;
+            VM_NEXT();
         }
 
         /* ============================================================
          * I/O & Debug
          * ============================================================ */
 
-        case OP_PRINT: {
+        VM_CASE(OP_PRINT): {
             if (vm->profile.enabled) vm->profile.traps++;
             VmTrap t = { .type = TRAP_PRINT };
             t.data.print.value = stack_pop(vm);
@@ -2727,7 +2950,7 @@ dynamic_div:
             return t;
         }
 
-        case OP_PRINTLN: {
+        VM_CASE(OP_PRINTLN): {
             if (vm->profile.enabled) vm->profile.traps++;
             VmTrap t = { .type = TRAP_PRINT };
             t.data.print.value = stack_pop(vm);
@@ -2735,14 +2958,14 @@ dynamic_div:
             return t;
         }
 
-        case OP_ASSERT: {
+        VM_CASE(OP_ASSERT): {
             if (vm->profile.enabled) vm->profile.traps++;
             VmTrap t = { .type = TRAP_ASSERT };
             t.data.assert_check.condition = stack_pop(vm);
             return t;
         }
 
-        case OP_DEBUG_LINE:
+        VM_CASE(OP_DEBUG_LINE):
             /* Track source line in the current frame for stack traces.
              * Column is resolved via debug_entries; reset to 0 here. */
             frame->current_line = instr.operands[0].u32;
@@ -2764,9 +2987,9 @@ dynamic_div:
                     }
                 }
             }
-            break;
+            VM_NEXT();
 
-        case OP_HALT:
+        VM_CASE(OP_HALT):
             if (vm->profile.enabled) vm->profile.traps++;
             return trap_halt();
 
@@ -2774,24 +2997,24 @@ dynamic_div:
          * Opaque Proxy
          * ============================================================ */
 
-        case OP_OPAQUE_NULL: {
+        VM_CASE(OP_OPAQUE_NULL): {
             NanoValue v = {0};
             v.tag = TAG_OPAQUE;
             v.as.proxy_id = 0;
             stack_push(vm, v);
-            break;
+            VM_NEXT();
         }
 
-        case OP_OPAQUE_VALID: {
+        VM_CASE(OP_OPAQUE_VALID): {
             NanoValue v = stack_pop(vm);
             stack_push(vm, val_bool(v.tag == TAG_OPAQUE && v.as.proxy_id != 0));
-            break;
+            VM_NEXT();
         }
 
-        case OP_MEM_LOAD8:
-        case OP_MEM_LOAD16:
-        case OP_MEM_LOAD32:
-        case OP_MEM_LOAD64: {
+        VM_CASE(OP_MEM_LOAD8):
+        VM_CASE(OP_MEM_LOAD16):
+        VM_CASE(OP_MEM_LOAD32):
+        VM_CASE(OP_MEM_LOAD64): {
             NanoValue address = stack_pop(vm);
             if (address.tag != TAG_INT || address.as.i64 < 0)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
@@ -2810,13 +3033,13 @@ dynamic_div:
             for (uint64_t i = 0; i < width; i++)
                 value |= (uint64_t)vm->memory[start + i] << (i * 8);
             stack_push(vm, val_int((int64_t)value));
-            break;
+            VM_NEXT();
         }
 
-        case OP_MEM_STORE8:
-        case OP_MEM_STORE16:
-        case OP_MEM_STORE32:
-        case OP_MEM_STORE64: {
+        VM_CASE(OP_MEM_STORE8):
+        VM_CASE(OP_MEM_STORE16):
+        VM_CASE(OP_MEM_STORE32):
+        VM_CASE(OP_MEM_STORE64): {
             NanoValue value = stack_pop(vm);
             NanoValue address = stack_pop(vm);
             if (address.tag != TAG_INT || value.tag != TAG_INT || address.as.i64 < 0)
@@ -2835,14 +3058,14 @@ dynamic_div:
             uint64_t bits = (uint64_t)value.as.i64;
             for (uint64_t i = 0; i < width; i++)
                 vm->memory[start + i] = (uint8_t)(bits >> (i * 8));
-            break;
+            VM_NEXT();
         }
 
-        default:
+        VM_DEFAULT:
             return trap_error(vm, VM_ERR_INVALID_OPCODE, "Unknown opcode 0x%02x", instr.opcode);
 
-        } /* switch */
-    } /* while */
+        VM_DISPATCH_END
+    } /* dispatch loop */
 
     /* Fell off the end of function code without RET or HALT */
     /* Treat as implicit RET with void */

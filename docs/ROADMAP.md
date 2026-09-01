@@ -121,7 +121,7 @@ Execution architecture:
 - [ ] I will separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR.
 - [x] I decode each function once and dispatch predecoded instructions rather than call the generic decoder for every retired instruction.
 - [ ] I build instruction-boundary maps and resolve branches plus direct and tail calls during instantiation; layouts, constants, globals, imports, and linked callable handles remain.
-- [ ] I will provide computed-goto dispatch where supported and retain a portable switch fallback.
+- [x] I provide computed-goto (direct-threaded) dispatch on GCC/Clang and retain a portable switch fallback, selected at compile time from a single set of handler bodies.
 - [x] I moved generated source locations entirely to side tables and removed executable `DEBUG_LINE` instructions from NanoVirt output.
 - [x] I made `--strip-debug` remove all generated runtime debug cost by stripping the side table from code that contains no debug opcodes.
 - [x] I removed generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and statements after terminating control flow from NanoVirt lowering.
