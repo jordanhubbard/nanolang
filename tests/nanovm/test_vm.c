@@ -285,6 +285,17 @@ static void test_predecode_mutation_lifecycle(void) {
                   "rebuilt function executes");
     ASSERT_EQ_INT(result.as.i64, 2, "rebuilt operand is visible");
 
+    uint32_t literal_idx = nvm_add_string(mod, "rebuilt", 7);
+    emit(mod->code, OP_PUSH_STR, literal_idx);
+    ASSERT(vm_rebuild_module(&vm, mod), "new string constant rebuild succeeds");
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "rebuilt string constant executes");
+    ASSERT_EQ_STR(vmstring_cstr(result.as.string), "rebuilt",
+                  "rebuilt string constant is visible");
+    ASSERT(result.as.string == vm.module_constants.strings[literal_idx],
+           "rebuild replaces the instantiated constant table");
+    vm_release(&vm.heap, result);
+
     vm_destroy(&vm);
     ASSERT(vm.stack == NULL, "destroy clears the operand stack allocation");
     ASSERT(vm.decoded_module.functions == NULL,
@@ -551,6 +562,7 @@ static void test_instruction_profile(void) {
     NvmModule *mod = make_module(code, off, 0, 0);
     VmState vm;
     vm_init(&vm, mod);
+    uint64_t allocations = vm.heap.stats.allocation_calls;
     vm_profile_enable(&vm, true);
     ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "profiled execution succeeds");
     ASSERT_EQ_INT(vm.profile.retired, 4, "profile counts retired instructions");
@@ -560,8 +572,8 @@ static void test_instruction_profile(void) {
                   "profile counts opcode pairs");
     ASSERT_EQ_INT(vm.profile.pair_counts[(OP_PUSH_I64 << 8) | OP_ADD], 1,
                   "profile counts second opcode pair");
-    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, 0,
-                  "profile exposes allocation count");
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "profile shows execution performs no allocations");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -582,14 +594,15 @@ static void test_heap_profile(void) {
 
     VmState vm;
     vm_init(&vm, mod);
+    uint64_t allocations = vm.heap.stats.allocation_calls;
     vm_profile_enable(&vm, true);
     ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "heap-profile execution succeeds");
-    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, 1,
-                  "heap profile counts object allocations");
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "heap profile shows constant execution performs no allocations");
     ASSERT(vm.heap.stats.allocated > 0,
            "heap profile counts allocated bytes");
-    ASSERT_EQ_INT(vm.heap.stats.retain_calls, 1,
-                  "heap profile counts retains");
+    ASSERT_EQ_INT(vm.heap.stats.retain_calls, 2,
+                  "heap profile counts constant push and duplicate retains");
     ASSERT(vm.heap.stats.release_calls >= 1,
            "heap profile counts releases");
     vm_destroy(&vm);
@@ -1265,11 +1278,20 @@ static void test_push_string(void) {
 
     VmState vm;
     vm_init(&vm, mod);
-    VmResult r = vm_execute(&vm);
-    ASSERT_EQ_INT(r, VM_OK, "push_string: VM_OK");
-    NanoValue result = vm_get_result(&vm);
-    ASSERT_EQ_INT(result.tag, TAG_STRING, "push_string: tag is string");
-    ASSERT_EQ_STR(vmstring_cstr(result.as.string), "hello", "push_string: value");
+    uint64_t allocations = vm.heap.stats.allocation_calls;
+    VmString *constant = vm.module_constants.strings[str_idx];
+    for (uint32_t i = 0; i < 3; i++) {
+        NanoValue result = val_void();
+        VmResult r = vm_invoke(&vm, fn_idx, NULL, 0, &result);
+        ASSERT_EQ_INT(r, VM_OK, "push_string: VM_OK");
+        ASSERT_EQ_INT(result.tag, TAG_STRING, "push_string: tag is string");
+        ASSERT_EQ_STR(vmstring_cstr(result.as.string), "hello", "push_string: value");
+        ASSERT(result.as.string == constant,
+               "push_string: execution reuses the instantiated constant");
+        vm_release(&vm.heap, result);
+    }
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "push_string: repeated execution performs no allocations");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -2774,6 +2796,44 @@ static void test_call_module(void) {
     nvm_module_free(mod_b);
 }
 
+static void test_call_module_string_constant(void) {
+    NvmModule *mod_b = nvm_module_new();
+    uint32_t literal_idx = nvm_add_string(mod_b, "linked literal", 14);
+    uint8_t linked_code[16];
+    uint32_t linked_len = 0;
+    linked_len += emit(linked_code + linked_len, OP_PUSH_STR, literal_idx);
+    linked_len += emit(linked_code + linked_len, OP_RET);
+    uint32_t linked_fn = add_fn(mod_b, "literal", linked_code, linked_len, 0, 0);
+
+    NvmModule *mod_a = nvm_module_new();
+    uint8_t root_code[16];
+    uint32_t root_len = 0;
+    root_len += emit(root_code + root_len, OP_CALL_MODULE, (uint32_t)0, linked_fn);
+    root_len += emit(root_code + root_len, OP_RET);
+    uint32_t root_fn = add_fn(mod_a, "main", root_code, root_len, 0, 0);
+
+    VmState vm;
+    vm_init(&vm, mod_a);
+    ASSERT_EQ_INT(vm_link_module(&vm, mod_b), 0,
+                  "linked string module is instantiated");
+    uint64_t allocations = vm.heap.stats.allocation_calls;
+    VmString *constant = vm.linked_module_constants[0].strings[literal_idx];
+    for (uint32_t i = 0; i < 3; i++) {
+        NanoValue result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm, root_fn, NULL, 0, &result), VM_OK,
+                      "linked string function executes");
+        ASSERT(result.as.string == constant,
+               "linked execution selects the linked module constant");
+        vm_release(&vm.heap, result);
+    }
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "linked string execution performs no allocations");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod_a);
+    nvm_module_free(mod_b);
+}
+
 static void test_call_module_bad_idx(void) {
     /* Test error on invalid module index */
     NvmModule *mod = nvm_module_new();
@@ -3679,6 +3739,7 @@ int main(void) {
 
     printf("\n[Cross-Module Linking]\n");
     RUN_TEST(test_call_module);
+    RUN_TEST(test_call_module_string_constant);
     RUN_TEST(test_call_module_bad_idx);
     RUN_TEST(test_call_module_chain);
     RUN_TEST(test_call_module_handle_resolution);

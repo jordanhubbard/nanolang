@@ -54,6 +54,11 @@ typedef struct {
     uint32_t max_frame_depth;
 } VmProfile;
 
+typedef struct {
+    VmString **strings;
+    uint32_t count;
+} VmModuleConstants;
+
 /* ========================================================================
  * Call Frame
  * ======================================================================== */
@@ -105,6 +110,7 @@ typedef struct VmState {
     bool module_calls_resolved;
     VmDispatchModule dispatch_module;
     bool dispatch_module_valid;
+    VmModuleConstants module_constants;
 
     /* Operand stack */
     NanoValue *stack;
@@ -136,6 +142,7 @@ typedef struct VmState {
     bool *decoded_linked_modules_valid;
     VmDispatchModule *dispatch_linked_modules;
     bool *dispatch_linked_modules_valid;
+    VmModuleConstants *linked_module_constants;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
 

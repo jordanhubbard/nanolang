@@ -56,6 +56,36 @@ const char *vm_error_string(VmResult result) {
  * Init / Destroy
  * ======================================================================== */
 
+static void vm_module_constants_free(VmState *vm, VmModuleConstants *constants) {
+    if (!constants) return;
+    for (uint32_t i = 0; i < constants->count; i++) {
+        if (constants->strings[i])
+            vm_release(&vm->heap, val_string(constants->strings[i]));
+    }
+    free(constants->strings);
+    constants->strings = NULL;
+    constants->count = 0;
+}
+
+static bool vm_module_constants_build(VmState *vm, const NvmModule *module,
+                                      VmModuleConstants *constants) {
+    memset(constants, 0, sizeof(*constants));
+    if (module->string_count == 0) return true;
+
+    constants->strings = calloc(module->string_count, sizeof(VmString *));
+    if (!constants->strings) return false;
+    constants->count = module->string_count;
+    for (uint32_t i = 0; i < module->string_count; i++) {
+        constants->strings[i] = vm_string_new(&vm->heap, module->strings[i],
+                                               module->string_lengths[i]);
+        if (!constants->strings[i]) {
+            vm_module_constants_free(vm, constants);
+            return false;
+        }
+    }
+    return true;
+}
+
 void vm_init(VmState *vm, const NvmModule *module) {
     memset(vm, 0, sizeof(*vm));
     vm->module = module;
@@ -77,6 +107,10 @@ void vm_init(VmState *vm, const NvmModule *module) {
     vm->opcode_trace = NANO_VM_TRACE_BUILD
         || (trace_env && trace_env[0] != '\0' && strcmp(trace_env, "0") != 0);
     vm_heap_init(&vm->heap);
+    if (!vm_module_constants_build(vm, module, &vm->module_constants)) {
+        vm_error(vm, VM_ERR_MEMORY, "Module constant instantiation failed");
+        return;
+    }
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (vm_decode_module(module, &vm->decoded_module, decode_error)) {
         vm->decoded_module_valid = true;
@@ -107,11 +141,14 @@ void vm_destroy(VmState *vm) {
     for (uint32_t i = 0; i < vm->linked_module_count; i++) {
         vm_decoded_module_free(&vm->decoded_linked_modules[i]);
         vm_dispatch_module_free(&vm->dispatch_linked_modules[i]);
+        vm_module_constants_free(vm, &vm->linked_module_constants[i]);
     }
+    vm_module_constants_free(vm, &vm->module_constants);
     free(vm->decoded_linked_modules);
     free(vm->decoded_linked_modules_valid);
     free(vm->dispatch_linked_modules);
     free(vm->dispatch_linked_modules_valid);
+    free(vm->linked_module_constants);
     free(vm->linked_modules);
     free(vm->memory);
     vm_heap_destroy(&vm->heap);
@@ -120,6 +157,7 @@ void vm_destroy(VmState *vm) {
     vm->decoded_linked_modules_valid = NULL;
     vm->dispatch_linked_modules = NULL;
     vm->dispatch_linked_modules_valid = NULL;
+    vm->linked_module_constants = NULL;
     vm->linked_modules = NULL;
     vm->memory = NULL;
     vm->decoded_module_valid = false;
@@ -160,6 +198,13 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
         vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
         return (uint32_t)-1;
     }
+    VmModuleConstants constants;
+    if (!vm_module_constants_build(vm, mod, &constants)) {
+        vm_decoded_module_free(&decoded);
+        vm_dispatch_module_free(&dispatch);
+        vm_error(vm, VM_ERR_MEMORY, "Module constant instantiation failed");
+        return (uint32_t)-1;
+    }
     if (vm->linked_module_count >= vm->linked_module_capacity) {
         uint32_t new_cap = vm->linked_module_capacity ? vm->linked_module_capacity * 2 : 8;
         const NvmModule **new_arr = realloc(vm->linked_modules,
@@ -167,6 +212,7 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
         if (!new_arr) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->linked_modules = new_arr;
@@ -175,6 +221,7 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
         if (!new_decoded) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->decoded_linked_modules = new_decoded;
@@ -183,6 +230,7 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
         if (!new_valid) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->decoded_linked_modules_valid = new_valid;
@@ -191,6 +239,7 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
         if (!new_dispatch) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->dispatch_linked_modules = new_dispatch;
@@ -199,9 +248,19 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
         if (!new_dispatch_valid) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->dispatch_linked_modules_valid = new_dispatch_valid;
+        VmModuleConstants *new_constants = realloc(vm->linked_module_constants,
+                                                    new_cap * sizeof(VmModuleConstants));
+        if (!new_constants) {
+            vm_decoded_module_free(&decoded);
+            vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
+            return (uint32_t)-1;
+        }
+        vm->linked_module_constants = new_constants;
         vm->linked_module_capacity = new_cap;
     }
     uint32_t idx = vm->linked_module_count++;
@@ -212,6 +271,7 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
     vm->module_calls_resolved = false;
     vm->dispatch_linked_modules[idx] = dispatch;
     vm->dispatch_linked_modules_valid[idx] = true;
+    vm->linked_module_constants[idx] = constants;
     return idx;
 }
 
@@ -245,6 +305,16 @@ static VmDispatchModule *dispatch_module_for(VmState *vm, const NvmModule *modul
     return NULL;
 }
 
+static VmModuleConstants *module_constants_for(VmState *vm,
+                                                const NvmModule *module) {
+    if (module == vm->root_module) return &vm->module_constants;
+    for (uint32_t i = 0; i < vm->linked_module_count; i++) {
+        if (vm->linked_modules[i] == module)
+            return &vm->linked_module_constants[i];
+    }
+    return NULL;
+}
+
 void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     if (!vm || !module) return;
     bool *valid = NULL;
@@ -273,6 +343,12 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
         return false;
     }
+    VmModuleConstants constants_replacement;
+    if (!vm_module_constants_build(vm, module, &constants_replacement)) {
+        vm_decoded_module_free(&replacement);
+        vm_error(vm, VM_ERR_MEMORY, "Module constant instantiation failed");
+        return false;
+    }
     vm_decoded_module_free(slot);
     *slot = replacement;
     *valid = true;
@@ -285,12 +361,20 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
         VmDispatchModule dispatch_replacement;
         char dispatch_error[VM_DISPATCH_ERROR_SIZE];
         if (!vm_dispatch_build_module(slot, &dispatch_replacement, dispatch_error)) {
+            vm_module_constants_free(vm, &constants_replacement);
             vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
             return false;
         }
         vm_dispatch_module_free(dispatch_slot);
         *dispatch_slot = dispatch_replacement;
         *dispatch_valid = true;
+    }
+    VmModuleConstants *constants_slot = module_constants_for(vm, module);
+    if (constants_slot) {
+        vm_module_constants_free(vm, constants_slot);
+        *constants_slot = constants_replacement;
+    } else {
+        vm_module_constants_free(vm, &constants_replacement);
     }
     vm->last_error = VM_OK;
     vm->error_msg[0] = '\0';
@@ -557,11 +641,6 @@ static bool result_tag_matches(uint8_t declared, uint8_t actual) {
  * Execution Engine
  * ======================================================================== */
 
-/* Resolve the string pool for convenience */
-static inline const char *str_at(const VmState *vm, uint32_t idx) {
-    return nvm_get_string(vm->module, idx);
-}
-
 NanoValue vm_get_result(VmState *vm) {
     if (vm->stack_size == 0) return val_void();
     return vm->stack[vm->stack_size - 1];
@@ -668,10 +747,13 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_PUSH_STR: {
             uint32_t idx = instr.operands[0].u32;
-            const char *s = str_at(vm, idx);
-            if (!s) s = "";
-            VmString *vs = vm_string_new(&vm->heap, s, (uint32_t)strlen(s));
-            stack_push(vm, val_string(vs));
+            VmModuleConstants *constants = module_constants_for(vm, vm->module);
+            if (!constants || idx >= constants->count || !constants->strings[idx])
+                return trap_error(vm, VM_ERR_DECODE,
+                                  "String constant %u is not instantiated", idx);
+            NanoValue value = val_string(constants->strings[idx]);
+            vm_retain(&vm->heap, value);
+            stack_push(vm, value);
             break;
         }
 
