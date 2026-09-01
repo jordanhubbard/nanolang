@@ -41,6 +41,66 @@ class NanoisaSchemaTests(unittest.TestCase):
         add = next(op for op in self.schema["legacy_opcodes"] if op["name"] == "ADD")
         self.assertEqual((add["pops"], add["pushes"]), (2, 1))
 
+    def _all_family_instructions(self):
+        by_name = {}
+        for family in self.schema["instruction_families"].values():
+            for instruction in family:
+                by_name[instruction["name"]] = instruction
+        return by_name
+
+    def test_compact_operand_kinds_alias_canonical_encodings(self):
+        kinds = list(self.schema["operand_kinds"])
+        canonical_encodings = {
+            kind["encoding"] for kind in kinds if "canonical" not in kind
+        }
+        compact_kinds = [k for k in kinds if "canonical" in k]
+        self.assertTrue(compact_kinds, "expected compact operand kinds")
+        for kind in compact_kinds:
+            # Each compact operand decodes to a canonical variable-length
+            # encoding already used by a non-compact operand kind.
+            self.assertIn(kind["canonical"], canonical_encodings)
+            self.assertIn("range", kind)
+            low, high = kind["range"]
+            self.assertLessEqual(low, high)
+
+    def test_compact_forms_alias_canonical_instructions(self):
+        instructions = self._all_family_instructions()
+        compact_family = self.schema["instruction_families"].get("compact", [])
+        self.assertTrue(compact_family, "expected a compact instruction family")
+        for compact in compact_family:
+            self.assertIn(
+                "canonical",
+                compact,
+                f"{compact['name']} must name its canonical instruction",
+            )
+            canonical = instructions.get(compact["canonical"])
+            self.assertIsNotNone(
+                canonical,
+                f"{compact['name']} aliases unknown {compact['canonical']}",
+            )
+            # A compact form is an encoding-only variant: identical stack effect
+            # and ownership keep assembly regular.
+            self.assertEqual(compact["pops"], canonical["pops"])
+            self.assertEqual(compact["pushes"], canonical["pushes"])
+            self.assertEqual(compact["ownership"], canonical["ownership"])
+            self.assertNotIn(
+                "canonical",
+                canonical,
+                "a compact form must alias a canonical (non-compact) instruction",
+            )
+
+    def test_compact_forms_use_compact_operands(self):
+        compact_kinds = {
+            kind["name"]
+            for kind in self.schema["operand_kinds"]
+            if "canonical" in kind
+        }
+        for compact in self.schema["instruction_families"].get("compact", []):
+            self.assertTrue(
+                any(op in compact_kinds for op in compact.get("operands", [])),
+                f"{compact['name']} must carry a compact operand",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
