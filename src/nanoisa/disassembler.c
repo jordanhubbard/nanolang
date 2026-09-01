@@ -318,7 +318,8 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
                 fn->arity, fn->local_count, fn->upvalue_count,
                 isa_tag_name(fn->result_tag), fn->result_count);
 
-        if (fn->code_length > 0 && fn->code_offset + fn->code_length <= mod->code_size) {
+        if (fn->code_length > 0 && fn->code_offset <= mod->code_size &&
+            fn->code_length <= mod->code_size - fn->code_offset) {
             disasm_function_styled(mod->code + fn->code_offset, fn->code_length,
                                    mod, out, style);
         }

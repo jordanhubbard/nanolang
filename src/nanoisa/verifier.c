@@ -189,6 +189,21 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (fn->local_count < fn->arity)
             return fail("function[%u] local_count %u is smaller than arity %u",
                         i, fn->local_count, fn->arity);
+
+        /* Empty functions own no bytes. Non-empty function ranges must be
+         * disjoint, but they may be adjacent or appear out of table order. */
+        if (fn->code_length != 0) {
+            uint32_t fn_end = fn->code_offset + fn->code_length;
+            for (uint32_t j = 0; j < i; j++) {
+                const NvmFunctionEntry *other = &mod->functions[j];
+                if (other->code_length == 0) continue;
+
+                /* The earlier iteration proved this range cannot wrap. */
+                uint32_t other_end = other->code_offset + other->code_length;
+                if (fn->code_offset < other_end && other->code_offset < fn_end)
+                    return fail("function[%u] code range overlaps function[%u]", i, j);
+            }
+        }
     }
 
     /* Import string indices and imported-call signatures.

@@ -141,6 +141,62 @@ static void test_function_code_length_overflow(void) {
     PASS(test_name);
 }
 
+static NvmModule *make_two_function_module(void) {
+    uint8_t code[4];
+    uint32_t code_size = 0;
+    code_size += emit(code + code_size, OP_RET);
+    code_size += emit(code + code_size, OP_RET);
+
+    NvmModule *mod = make_simple_module(code, code_size, 0, 0);
+    mod->functions[0].code_length = code_size / 2;
+    NvmFunctionEntry fn = mod->functions[0];
+    fn.code_offset = code_size / 2;
+    nvm_add_function(mod, &fn);
+    return mod;
+}
+
+static void test_adjacent_function_code_ranges(void) {
+    const char *test_name = "nvm_verify: adjacent function code ranges pass";
+    NvmModule *mod = make_two_function_module();
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "adjacent function ranges should pass");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_overlapping_function_code_ranges(void) {
+    const char *test_name = "nvm_verify: overlapping function code ranges fail";
+    NvmModule *mod = make_two_function_module();
+    mod->functions[1].code_offset = 0;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "identical function ranges should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_contained_function_code_range(void) {
+    const char *test_name = "nvm_verify: contained function code range fails";
+    NvmModule *mod = make_two_function_module();
+    mod->functions[0].code_length = mod->code_size;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "contained function range should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_empty_function_code_ranges(void) {
+    const char *test_name = "nvm_verify: empty function ranges own no bytes";
+    NvmModule *mod = make_two_function_module();
+    mod->functions[0].code_offset = 0;
+    mod->functions[0].code_length = 0;
+    mod->functions[1].code_offset = 0;
+    mod->functions[1].code_length = mod->code_size;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "empty function at non-empty range start should pass");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_function_name_idx_overflow(void) {
     const char *test_name = "nvm_verify: function name_idx >= string_count fails";
     uint8_t code[4];
@@ -911,6 +967,10 @@ int main(void) {
     test_bad_entry_point();
     test_function_code_offset_overflow();
     test_function_code_length_overflow();
+    test_adjacent_function_code_ranges();
+    test_overlapping_function_code_ranges();
+    test_contained_function_code_range();
+    test_empty_function_code_ranges();
     test_function_name_idx_overflow();
     test_invalid_function_result_signature();
     test_multiple_function_results();
