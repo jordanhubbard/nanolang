@@ -180,7 +180,7 @@ Documentation and acceptance:
 - [ ] I will provide readable symbolic assembly examples for NanoLang and Forth.
 - [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
 - [ ] I will demonstrate performance changes with distributions, not single timing claims.
-- [ ] I will make generated-C tracing and profiling dynamically selectable at
+- [x] I made generated-C tracing and profiling dynamically selectable at
   process startup, with one shared hook mechanism and no per-event environment
   lookups or expensive work when each hook is disabled.
 

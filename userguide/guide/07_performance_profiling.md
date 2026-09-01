@@ -29,6 +29,7 @@ lines). Redirecting stderr will not capture it.
 | --- | --- |
 | `-pg` / `--profile-output` | OS collector + JSON. Native `main` becomes `_nl_run_with_profiling`. |
 | `--profile` | Timing hooks in generated C. Table on stderr. |
+| `--trace` | Function-call tracing hooks in generated C. Indented `-> fn` / `<- fn` on stderr. |
 | `--profile-runtime` | Also write `.nano.prof` collapsed stacks. Native backend only. |
 | `--pgo <file>` | Inline using a `.nano.prof`. Not using `-pg` JSON. |
 
@@ -99,6 +100,11 @@ Treat a profile as measurement of one workload on one machine.
 An LLM can suggest an optimization; the profile can test its effect. Neither
 substitutes for the other. Compare wall-clock **without** `-pg` when you report
 speed.
+
+Tracing and profiling share one startup hook. `--profile` binaries honor
+`NANO_PROFILE`, and `--trace` binaries honor `NANO_TRACE`; setting either to `0`
+disables that hook at runtime without recompiling, and a disabled hook does no
+per-event work.
 
 `--pgo` reads `.nano.prof` from `--profile-runtime`. That file is not a PGO
 input from `-pg` JSON.
