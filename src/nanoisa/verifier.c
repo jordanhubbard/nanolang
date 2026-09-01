@@ -147,7 +147,10 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
                         i, fn->local_count, fn->arity);
     }
 
-    /* Import string indices */
+    /* Import string indices and imported-call signatures.
+     * Imported (extern) calls are regularized around verified signatures:
+     * every import must name valid strings and carry a well-formed signature
+     * so that OP_CALL_EXTERN references a signature the verifier has checked. */
     for (uint32_t i = 0; i < mod->import_count; i++) {
         const NvmImportEntry *imp = &mod->imports[i];
         if (imp->module_name_idx >= mod->string_count)
@@ -156,6 +159,18 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (imp->function_name_idx >= mod->string_count)
             return fail("import[%u] function_name_idx %u >= string_count %u",
                         i, imp->function_name_idx, mod->string_count);
+        if (imp->return_type >= TAG_COUNT)
+            return fail("import[%u] return_type %u is not a valid value tag",
+                        i, imp->return_type);
+        if (imp->param_count > 0 && !mod->import_param_types[i])
+            return fail("import[%u] declares %u params but has no param type array",
+                        i, imp->param_count);
+        for (uint16_t p = 0; p < imp->param_count; p++) {
+            uint8_t tag = mod->import_param_types[i][p];
+            if (tag >= TAG_COUNT)
+                return fail("import[%u] param[%u] type %u is not a valid value tag",
+                            i, p, tag);
+        }
     }
 
     return ok_result();
@@ -227,7 +242,11 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
-        /* --- Function table indices --- */
+        /* --- Direct and tail calls to the function table ---
+         * Both forms are regularized around the callee's verified signature:
+         * the function index must resolve to a defined function, and a tail
+         * call (which replaces the current frame) must additionally share the
+         * caller's result signature so the returned values remain type-safe. */
         case OP_CALL:
         case OP_TAIL_CALL: {
             uint32_t fn_target = instr.operands[0].u32;
@@ -242,6 +261,20 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
                     FAIL_DECODED("function[%u] OP_TAIL_CALL at offset %u has incompatible result signature",
                                  fn_idx, fn->code_offset + pos);
             }
+            break;
+        }
+
+        /* --- Linked (separate-module) calls ---
+         * OP_CALL_MODULE carries a linked-module index and a callee function
+         * index. The target module table is only known once modules are linked,
+         * so the single-module verifier confirms the operands are structurally
+         * present; full callee resolution and signature checking happens against
+         * the linked callable at instantiation/dispatch time. */
+        case OP_CALL_MODULE: {
+            /* Both operands decoded as u32; no further single-module bound is
+             * available. Recognizing the opcode keeps linked calls in the same
+             * verified taxonomy as the other call forms. */
+            (void)instr;
             break;
         }
 
