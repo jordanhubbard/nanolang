@@ -108,6 +108,8 @@ My daemon listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and ac
 **String Ops (0x40-0x4F):**
 `STR_LEN`, `STR_CONCAT`, `STR_SUBSTR`, `STR_CONTAINS`, `STR_EQ`, `STR_CHAR_AT`, `STR_FROM_INT`, `STR_FROM_FLOAT`
 
+The retained string primitives are `STR_LEN`, `STR_CONCAT`, `STR_CHAR_AT`, `STR_EQ`, `STR_FROM_INT`, and `STR_FROM_FLOAT`, each justified by string representation or measured cost. Higher-level string algorithms (`STR_SUBSTR`, `STR_CONTAINS`, `STR_TRIM`, `STR_TO_LOWER`, `STR_TO_UPPER`, `STR_STARTS_WITH`, `STR_ENDS_WITH`, `STR_SPLIT`, `STR_REPLACE`) compose from those primitives and move to runtime libraries; the opcode values remain only for assembler compatibility. Aggregate primitives `AGG_PACK`, `AGG_GET`, `AGG_SET`, and `AGG_TAG` are all representation-justified. See [NanoISA Primitive String and Aggregate Operations](superpowers/specs/2026-09-01-nanoisa-primitive-string-aggregate-ops.md).
+
 **Array Ops (0x50-0x5F):**
 `ARR_NEW`, `ARR_PUSH`, `ARR_POP`, `ARR_GET`, `ARR_SET`, `ARR_LEN`, `ARR_SLICE`, `ARR_REMOVE`, `ARR_LITERAL`
 
