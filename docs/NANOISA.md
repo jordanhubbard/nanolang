@@ -67,6 +67,19 @@ My daemon listens on a Unix domain socket (`/tmp/nanolang_vm_<uid>.sock`) and ac
 - **Little-endian** byte order
 - **Two-plane opcode space**: primary identifiers occupy `0x00..0xFE`; the byte `0xFF` is a reserved *extension prefix*, never an instruction by itself
 
+### Module Linking Model
+
+I keep separately linked `.nvm` modules. I do not flatten dependency code,
+functions, strings, or globals into the root file. The root module's
+`MODULE_REFS` section stores dependency names in order; that order is the
+module index used by `CALL_MODULE`. A host loads each file independently and
+links it with `vm_link_named_module`, which rejects a missing, extra, or
+out-of-order name before execution. I then resolve each `(module, function)`
+pair to a callable handle once and preserve the module boundary on call frames.
+
+This keeps serialized files independent while making their link order part of
+the checked module format rather than an agreement hidden in host code.
+
 ### Value Types
 
 | Tag | Code | Description |

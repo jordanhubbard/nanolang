@@ -3074,6 +3074,74 @@ static void test_call_module_handle_resolution(void) {
     nvm_module_free(mod_b);
 }
 
+static void test_separately_linked_module_roundtrip(void) {
+    NvmModule *dependency = nvm_module_new();
+    uint8_t dependency_code[32];
+    uint32_t dependency_size = 0;
+    dependency_size += emit(dependency_code + dependency_size, OP_LOAD_LOCAL, 0);
+    dependency_size += emit(dependency_code + dependency_size, OP_PUSH_I64, (int64_t)7);
+    dependency_size += emit(dependency_code + dependency_size, OP_ADD);
+    dependency_size += emit(dependency_code + dependency_size, OP_RET);
+    NvmFunctionEntry add_seven = { .result_tag = TAG_INT, .result_count = 1 };
+    add_seven.name_idx = nvm_add_string(dependency, "add_seven", 9);
+    add_seven.arity = 1;
+    add_seven.local_count = 1;
+    add_seven.code_offset = nvm_append_code(dependency, dependency_code,
+                                             dependency_size);
+    add_seven.code_length = dependency_size;
+    nvm_add_function(dependency, &add_seven);
+
+    NvmModule *root = nvm_module_new();
+    uint32_t dependency_name = nvm_add_string(root, "math", 4);
+    ASSERT_EQ_INT(nvm_add_module_ref(root, dependency_name), 0,
+                  "separate link: dependency occupies module index 0");
+    uint8_t root_code[32];
+    uint32_t root_size = 0;
+    root_size += emit(root_code + root_size, OP_PUSH_I64, (int64_t)5);
+    root_size += emit(root_code + root_size, OP_CALL_MODULE, (uint32_t)0,
+                      (uint32_t)0);
+    root_size += emit(root_code + root_size, OP_RET);
+    NvmFunctionEntry main_fn = { .result_tag = TAG_INT, .result_count = 1 };
+    main_fn.name_idx = nvm_add_string(root, "main", 4);
+    main_fn.code_offset = nvm_append_code(root, root_code, root_size);
+    main_fn.code_length = root_size;
+    root->header.flags = NVM_FLAG_HAS_MAIN;
+    root->header.entry_point = nvm_add_function(root, &main_fn);
+
+    uint32_t root_blob_size = 0;
+    uint32_t dependency_blob_size = 0;
+    uint8_t *root_blob = nvm_serialize(root, &root_blob_size);
+    uint8_t *dependency_blob = nvm_serialize(dependency, &dependency_blob_size);
+    NvmModule *loaded_root = nvm_deserialize(root_blob, root_blob_size);
+    NvmModule *loaded_dependency = nvm_deserialize(dependency_blob,
+                                                    dependency_blob_size);
+    ASSERT(loaded_root != NULL && loaded_dependency != NULL,
+           "separate link: both module files deserialize");
+    ASSERT_EQ_INT(loaded_root->module_ref_count, 1,
+                  "separate link: dependency directory survives serialization");
+
+    VmState vm;
+    vm_init(&vm, loaded_root);
+    ASSERT_EQ_INT(vm_link_module(&vm, loaded_dependency), (uint32_t)-1,
+                  "separate link: unnamed linking cannot bypass dependencies");
+    ASSERT_EQ_INT(vm_link_named_module(&vm, "wrong", loaded_dependency),
+                  (uint32_t)-1, "separate link: dependency name is enforced");
+    ASSERT_EQ_INT(vm_link_named_module(&vm, "math", loaded_dependency), 0,
+                  "separate link: declared dependency links at index 0");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK,
+                  "separate link: serialized module graph executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 12,
+                  "separate link: cross-file call returns its result");
+
+    vm_destroy(&vm);
+    free(root_blob);
+    free(dependency_blob);
+    nvm_module_free(loaded_root);
+    nvm_module_free(loaded_dependency);
+    nvm_module_free(root);
+    nvm_module_free(dependency);
+}
+
 /* ========================================================================
  * Additional coverage tests: vm_error_string, float/mixed arith,
  * OP_STR_CONCAT, and type-error paths
@@ -3844,6 +3912,7 @@ int main(void) {
     RUN_TEST(test_call_module_bad_idx);
     RUN_TEST(test_call_module_chain);
     RUN_TEST(test_call_module_handle_resolution);
+    RUN_TEST(test_separately_linked_module_roundtrip);
 
     printf("\n[Stack Ops: ROT3]\n");
     RUN_TEST(test_rot3);
