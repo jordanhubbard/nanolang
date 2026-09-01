@@ -2919,6 +2919,108 @@ static void test_predecode_invalidate_rebuild(void) {
     nvm_module_free(mod);
 }
 
+static void test_predecode_resolves_branch_targets(void) {
+    /* Forward JMP over a PUSH_I64, then land on the RET. Decode must resolve
+     * the branch target to an absolute code offset during instantiation so
+     * dispatch never re-derives it from the relative operand. */
+    uint8_t code[64];
+    uint32_t n = 0;
+    uint32_t jmp_offset = n;
+    n += emit(code + n, OP_JMP, (int32_t)0); /* placeholder, patched below */
+    uint32_t skipped_offset = n;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)7);
+    uint32_t target_offset = n;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)42);
+    n += emit(code + n, OP_RET);
+
+    /* Re-emit the JMP now that we know the branch distance. */
+    int32_t rel = (int32_t)target_offset - (int32_t)jmp_offset;
+    emit(code + jmp_offset, OP_JMP, rel);
+
+    NvmModule *mod = make_module(code, n, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid, "branch module decodes cleanly");
+
+    const VmDecodedFunction *fn = &vm.decoded_module.functions[0];
+    const VmDecodedInstruction *branch = vm_decoded_function_at(fn, jmp_offset);
+    ASSERT(branch != NULL, "branch instruction is indexed by offset");
+    ASSERT_EQ_INT(branch->resolved_target, target_offset,
+                  "branch resolves to the absolute target offset at decode time");
+
+    const VmDecodedInstruction *skipped = vm_decoded_function_at(fn, skipped_offset);
+    ASSERT(skipped != NULL, "skipped instruction remains an instruction boundary");
+    ASSERT_EQ_INT(skipped->resolved_target, UINT32_MAX,
+                  "non-branch instructions carry no resolved target");
+
+    NanoValue result = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "resolved branch executes");
+    ASSERT_EQ_INT(result.as.i64, 42,
+                  "resolved branch skips the guarded instruction");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_predecode_resolves_call_targets(void) {
+    /* A caller that direct-calls and tail-calls a callee. Decode must bind both
+     * to the callee's function-table index during instantiation. */
+    uint8_t callee_code[32];
+    uint32_t c = 0;
+    c += emit(callee_code + c, OP_PUSH_I64, (int64_t)5);
+    c += emit(callee_code + c, OP_RET);
+
+    uint8_t direct_code[32];
+    uint32_t d = 0;
+    uint32_t call_offset = d;
+    d += emit(direct_code + d, OP_CALL, (uint32_t)0); /* patched after add */
+    d += emit(direct_code + d, OP_RET);
+
+    uint8_t tail_code[32];
+    uint32_t t = 0;
+    uint32_t tail_offset = t;
+    t += emit(tail_code + t, OP_TAIL_CALL, (uint32_t)0); /* patched after add */
+
+    NvmModule *mod = make_multi_fn_module();
+    uint32_t callee_idx = add_fn(mod, "callee", callee_code, c, 0, 0);
+    /* Patch the encoded call operands now that callee_idx is known. */
+    emit(direct_code, OP_CALL, callee_idx);
+    emit(tail_code, OP_TAIL_CALL, callee_idx);
+    uint32_t direct_idx = add_fn(mod, "direct", direct_code, d, 0, 0);
+    uint32_t tail_idx = add_fn(mod, "tail", tail_code, t, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = direct_idx;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid, "call module decodes cleanly");
+
+    const VmDecodedInstruction *call = vm_decoded_function_at(
+        &vm.decoded_module.functions[direct_idx], call_offset);
+    ASSERT(call != NULL, "direct call is indexed by offset");
+    ASSERT_EQ_INT(call->resolved_target, callee_idx,
+                  "direct call resolves to the callee index at decode time");
+
+    const VmDecodedInstruction *tail = vm_decoded_function_at(
+        &vm.decoded_module.functions[tail_idx], tail_offset);
+    ASSERT(tail != NULL, "tail call is indexed by offset");
+    ASSERT_EQ_INT(tail->resolved_target, callee_idx,
+                  "tail call resolves to the callee index at decode time");
+
+    NanoValue result = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, direct_idx, NULL, 0, &result), VM_OK,
+                  "resolved direct call executes");
+    ASSERT_EQ_INT(result.as.i64, 5, "resolved direct call returns callee result");
+
+    ASSERT_EQ_INT(vm_invoke(&vm, tail_idx, NULL, 0, &result), VM_OK,
+                  "resolved tail call executes");
+    ASSERT_EQ_INT(result.as.i64, 5, "resolved tail call returns callee result");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 /* OP_ADD float+int (a=float first on stack, b=int): hits line 355 in vm.c */
 static void test_add_float_int(void) {
     uint8_t code[64];
@@ -3471,6 +3573,8 @@ int main(void) {
     RUN_TEST(test_predecode_malformed_bytecode);
     RUN_TEST(test_predecode_invalid_branch_target);
     RUN_TEST(test_predecode_invalidate_rebuild);
+    RUN_TEST(test_predecode_resolves_branch_targets);
+    RUN_TEST(test_predecode_resolves_call_targets);
 
     printf("\n[Float/mixed arithmetic]\n");
     RUN_TEST(test_add_float_int);
