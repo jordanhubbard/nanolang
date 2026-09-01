@@ -1,3 +1,4 @@
+import copy
 import importlib.util
 import unittest
 from pathlib import Path
@@ -18,6 +19,13 @@ class NanoisaSchemaTests(unittest.TestCase):
     def setUp(self):
         self.schema = yaml.safe_load((ROOT / "spec/nanoisa.yaml").read_text())
 
+    def families(self):
+        return [
+            instruction
+            for family in self.schema["instruction_families"].values()
+            for instruction in family
+        ]
+
     def test_codes_and_names_are_unique(self):
         entries = self.schema["legacy_opcodes"]
         self.assertEqual(len({entry["code"] for entry in entries}), len(entries))
@@ -29,11 +37,64 @@ class NanoisaSchemaTests(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_v2_families_declare_stack_and_ownership(self):
-        for family in self.schema["instruction_families"].values():
-            for instruction in family:
-                self.assertIn("pops", instruction)
-                self.assertIn("pushes", instruction)
-                self.assertIn("ownership", instruction)
+        for instruction in self.families():
+            self.assertIn("pops", instruction)
+            self.assertIn("pushes", instruction)
+            self.assertIn("ownership", instruction)
+
+    def test_every_instruction_has_a_comprehensible_meaning(self):
+        for instruction in self.families():
+            meaning = instruction.get("meaning")
+            self.assertIsInstance(meaning, str, instruction["name"])
+            self.assertTrue(meaning.strip(), instruction["name"])
+
+    def test_meanings_are_unique(self):
+        meanings = [instruction["meaning"] for instruction in self.families()]
+        self.assertEqual(len(set(meanings)), len(meanings))
+
+    def test_operands_reference_declared_kinds(self):
+        declared = {kind["name"] for kind in self.schema["operand_kinds"]}
+        for instruction in self.families():
+            for operand in instruction.get("operands", []):
+                self.assertIn(operand, declared, instruction["name"])
+
+    def test_get_set_pairs_are_symmetric(self):
+        by_name = {inst["name"]: inst for inst in self.families()}
+        for base in ("local", "global", "upvalue"):
+            getter = by_name[f"{base}.get"]
+            setter = by_name[f"{base}.set"]
+            self.assertEqual(getter["operands"], setter["operands"], base)
+
+    def test_memory_operands_are_uniform(self):
+        mem = [inst for inst in self.families() if inst["name"].startswith("mem.")]
+        self.assertTrue(mem)
+        for instruction in mem:
+            self.assertEqual(instruction["operands"], ["offset", "align"])
+
+    def test_validate_rejects_missing_meaning(self):
+        broken = copy.deepcopy(self.schema)
+        broken["instruction_families"]["stack"][0].pop("meaning")
+        with self.assertRaises(ValueError):
+            generator.validate(broken)
+
+    def test_validate_rejects_duplicate_meaning(self):
+        broken = copy.deepcopy(self.schema)
+        stack = broken["instruction_families"]["stack"]
+        stack[1]["meaning"] = stack[0]["meaning"]
+        with self.assertRaises(ValueError):
+            generator.validate(broken)
+
+    def test_validate_rejects_undeclared_operand(self):
+        broken = copy.deepcopy(self.schema)
+        broken["instruction_families"]["constants"][0]["operands"] = ["sleb"]
+        with self.assertRaises(ValueError):
+            generator.validate(broken)
+
+    def test_c_string_escapes_dangerous_characters(self):
+        self.assertEqual(generator.c_string('a"b'), '"a\\"b"')
+        self.assertEqual(generator.c_string("a\\b"), '"a\\\\b"')
+        self.assertEqual(generator.c_string("a\nb"), '"a\\nb"')
+        self.assertEqual(generator.c_string("café"), '"caf\\xc3\\xa9"')
 
     def test_fixed_legacy_stack_effects_are_paired(self):
         for instruction in self.schema["legacy_opcodes"]:

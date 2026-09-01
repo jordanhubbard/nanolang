@@ -179,6 +179,29 @@ opcodes — without renumbering existing opcodes or conflating an opcode value
 with a count. The extended plane is defined in `spec/nanoisa.yaml`
 (`extended_opcodes`) and is currently empty; families migrate into it as
 NanoISA v2 lands.
+### Portable ISA design (v2)
+
+My next-generation instruction set lives in `spec/nanoisa.yaml`, and I generate
+`src/nanoisa/generated_schema.h` from it so the design and the code never drift.
+That schema follows two rules I hold myself to.
+
+First, every portable instruction has one comprehensible meaning. I do not
+overload an opcode to do two jobs depending on its operands. `i64.add` adds
+integers; `f64.add` adds floats; `const.i64` pushes an integer literal. Each
+family entry carries a one-line `meaning`, and I refuse to generate the schema
+if any meaning is missing or shared with another instruction. If you read the
+mnemonic, you know what it does.
+
+Second, I keep operand forms symmetric. Every operand names a kind declared in
+`operand_kinds`; no instruction hides a raw encoding inline. Matching
+instructions take matching operands: `local.get` and `local.set` both take a
+`local`, `global.get` and `global.set` both take a `global`, and every `mem.*`
+load and store takes the same `[offset, align]` pair. When two instructions are
+mirror images, their operand lists are too.
+
+I enforce both rules in `scripts/gen_nanoisa_schema.py`. The generator validates
+the schema before it emits anything, so a design that breaks either rule fails
+`make schema-check` instead of shipping.
 
 ## .nvm Binary Format
 
