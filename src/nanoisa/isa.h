@@ -298,6 +298,7 @@ typedef struct {
 
 typedef struct {
     const char *name;
+    const char *meaning;       /* One comprehensible meaning per instruction */
     const char *ownership;
     uint8_t operand_count;
     uint8_t pop_count;

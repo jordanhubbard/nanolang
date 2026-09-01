@@ -20,7 +20,35 @@ def c_name(name: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", name).upper().strip("_")
 
 
+def _c_escape(text: str) -> str:
+    return text.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def validate(schema: dict) -> None:
+    """Enforce the portable-ISA invariants: every v2 instruction has one
+    comprehensible meaning and only references declared operand kinds."""
+    operand_kinds = {kind["name"] for kind in schema["operand_kinds"]}
+    families = [item for group in schema["instruction_families"].values() for item in group]
+    meanings: dict[str, str] = {}
+    for item in families:
+        name = item["name"]
+        meaning = item.get("meaning")
+        if not meaning or not meaning.strip():
+            raise ValueError(f"v2 instruction {name!r} is missing a meaning")
+        if meaning in meanings:
+            raise ValueError(
+                f"v2 instructions {meanings[meaning]!r} and {name!r} share the meaning {meaning!r}"
+            )
+        meanings[meaning] = name
+        for operand in item.get("operands", []):
+            if operand not in operand_kinds:
+                raise ValueError(
+                    f"v2 instruction {name!r} uses undeclared operand kind {operand!r}"
+                )
+
+
 def generate(schema: dict) -> str:
+    validate(schema)
     tags = schema["value_tags"]
     opcodes = schema["legacy_opcodes"]
     families = [item for group in schema["instruction_families"].values() for item in group]
@@ -48,7 +76,8 @@ def generate(schema: dict) -> str:
     lines.extend(["};", "", "static const NanoisaV2Family nanoisa_v2_families[] = {"])
     for item in families:
         lines.append(
-            f'    {{"{item["name"]}", "{item["ownership"]}", '
+            f'    {{"{item["name"]}", "{_c_escape(item["meaning"])}", '
+            f'"{item["ownership"]}", '
             f'{len(item.get("operands", []))}, {len(item.get("pops", []))}, '
             f'{len(item.get("pushes", []))}}},'
         )

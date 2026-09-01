@@ -138,6 +138,33 @@ for old hand-written assembly until NanoISA v2 removes it.
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`
 
+### Portable v2 Instruction Families
+
+NanoISA v2 replaces the hand-maintained opcode table with the normative
+instruction families declared in `spec/nanoisa.yaml`. The generator
+(`scripts/gen_nanoisa_schema.py`) emits `src/nanoisa/generated_schema.h` and
+`tests/test_nanoisa_schema.py` enforces the design contract. Two invariants keep
+the portable ISA regular:
+
+- **One comprehensible meaning per instruction.** Every family instruction
+  carries a unique, human-readable `meaning`. No two v2 instructions share the
+  same meaning, so each portable opcode has a single unambiguous behavior. The
+  generator surfaces the meaning in `NanoisaV2Family.meaning` and rejects a
+  missing or duplicated meaning.
+- **Symmetric operand forms.** Every operand references a declared kind in
+  `operand_kinds` rather than an inline encoding. Immediate constants use
+  `immediate-i64`/`immediate-f64`, all `mem.load*`/`mem.store*` instructions use
+  the same `[offset, align]` operand form, and host traps select via
+  `trap-code`. Paired instructions mirror each other: `local.get`/`local.set`,
+  `global.get`/`global.set`, `upvalue.get`/`upvalue.set`, and
+  `aggregate.get`/`aggregate.set` share identical operand lists, as do each
+  `mem.load*`/`mem.store*` width pair.
+
+These invariants are validated by `gen_nanoisa_schema.validate` (also run by
+`make schema-check`), so drift in the schema fails the build rather than silently
+producing an irregular ISA.
+
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)
