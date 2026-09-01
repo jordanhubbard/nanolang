@@ -4,7 +4,7 @@
 
 #define NANOISA_SCHEMA_VERSION 2
 #define NANOISA_LEGACY_OPCODE_COUNT 164
-#define NANOISA_V2_FAMILY_COUNT 56
+#define NANOISA_V2_FAMILY_COUNT 65
 
 static const NanoisaSchemaTag nanoisa_schema_tags[] = {
     {"void", 0x00},
@@ -249,6 +249,15 @@ static const NanoisaV2Family nanoisa_v2_families[] = {
     {"call.import", "trap", 1, 1, 1},
     {"return", "return", 0, 1, 0},
     {"trap", "trap", 2, 1, 1},
+    {"const.i64.small", "none", 1, 0, 1},
+    {"local.get.short", "retain", 1, 0, 1},
+    {"local.set.short", "move", 1, 1, 0},
+    {"pick.compact", "retain", 1, 0, 1},
+    {"roll.compact", "move", 1, 0, 0},
+    {"global.get.compact", "retain", 1, 0, 1},
+    {"global.set.compact", "move", 1, 1, 0},
+    {"aggregate.get.compact", "retain", 1, 1, 1},
+    {"aggregate.set.compact", "move", 1, 2, 1},
 };
 
 #endif

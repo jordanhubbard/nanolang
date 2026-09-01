@@ -204,6 +204,14 @@ operand_kinds:
   - {name: field, encoding: uleb}
   - {name: count, encoding: uleb}
   - {name: branch, encoding: sleb}
+  # Compact operand encodings. Each is an encoding-only variant of a canonical
+  # operand kind: it never changes an instruction's meaning or stack effect, it
+  # only stores small values in fewer bytes. Assemblers pick the compact form
+  # when a value fits; disassemblers always render the canonical operand, so
+  # assembly text stays regular.
+  - {name: small-constant, encoding: simm7, canonical: sleb, range: [-64, 63]}
+  - {name: local-short, encoding: nibble, canonical: uleb, range: [0, 15]}
+  - {name: compact, encoding: uimm8, canonical: uleb, range: [0, 255]}
 
 # This schema is normative for v2 design work. Generators will consume it as
 # instruction families replace the v1 hand-maintained enum and metadata table.
@@ -273,3 +281,21 @@ instruction_families:
     - {name: return, operands: [], pops: [signature-result], pushes: [], ownership: return}
   trap:
     - {name: trap, operands: [uleb, count], pops: [many], pushes: [any], ownership: trap}
+  compact:
+    # Compact constants: small signed integers encoded inline instead of a full
+    # sleb/f64 immediate. Decodes to const.i64; the value range is bounded so
+    # the encoding is unambiguous.
+    - {name: const.i64.small, operands: [small-constant], pops: [], pushes: [i64], ownership: none, canonical: const.i64}
+    # Short local forms: the first 16 frame locals addressed by an inline
+    # nibble rather than a uleb operand. Decodes to local.get / local.set.
+    - {name: local.get.short, operands: [local-short], pops: [], pushes: [any], ownership: retain, canonical: local.get}
+    - {name: local.set.short, operands: [local-short], pops: [any], pushes: [], ownership: move, canonical: local.set}
+    # Compact general operands: a single-byte operand reused by any family
+    # instruction whose sole operand is a small count/index. Decodes to the
+    # canonical uleb-operand instruction with identical effect.
+    - {name: pick.compact, operands: [compact], pops: [], pushes: [any], ownership: retain, canonical: pick}
+    - {name: roll.compact, operands: [compact], pops: [], pushes: [], ownership: move, canonical: roll}
+    - {name: global.get.compact, operands: [compact], pops: [], pushes: [any], ownership: retain, canonical: global.get}
+    - {name: global.set.compact, operands: [compact], pops: [any], pushes: [], ownership: move, canonical: global.set}
+    - {name: aggregate.get.compact, operands: [compact], pops: [aggregate], pushes: [any], ownership: retain, canonical: aggregate.get}
+    - {name: aggregate.set.compact, operands: [compact], pops: [aggregate, any], pushes: [aggregate], ownership: move, canonical: aggregate.set}

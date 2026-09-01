@@ -138,6 +138,31 @@ for old hand-written assembly until NanoISA v2 removes it.
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`
 
+### v2 Compact Encodings (design)
+
+NanoISA v2 (`spec/nanoisa.yaml`, `instruction_families`) adds compact encodings
+that shrink common instructions without adding new instruction meanings. Each
+compact form is an *encoding-only* alias of a canonical family instruction: it
+keeps the same mnemonic family, stack effect, and ownership, so assembly text
+stays regular. Assemblers pick a compact encoding when the operand value fits
+its bounded range; disassemblers always render the canonical operand.
+
+- **Compact constants** — `const.i64.small` stores a small signed integer
+  (range −64..63) inline instead of a full `sleb` immediate; it decodes to
+  `const.i64`.
+- **Short local forms** — `local.get.short` / `local.set.short` address the
+  first 16 frame locals with an inline nibble instead of a `uleb` operand; they
+  decode to `local.get` / `local.set`.
+- **Compact general operands** — a single-byte `compact` operand (range 0..255)
+  reused by any family instruction whose sole operand is a small count or index:
+  `pick.compact`, `roll.compact`, `global.get.compact`, `global.set.compact`,
+  `aggregate.get.compact`, and `aggregate.set.compact`. Each decodes to its
+  canonical `uleb`-operand instruction with an identical stack effect.
+
+Compact operand kinds (`small-constant`, `local-short`, `compact`) declare the
+canonical variable-length encoding they decode to and their permitted value
+range, so a compact form never changes what an instruction means.
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)
