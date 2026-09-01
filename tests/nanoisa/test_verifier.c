@@ -655,6 +655,61 @@ static void test_call_extern_invalid(void) {
     PASS(test_name);
 }
 
+static void test_call_extern_valid_signature(void) {
+    const char *test_name = "nvm_verify: OP_CALL_EXTERN with valid import signature passes";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_EXTERN, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "mathlib", 7);
+    uint32_t fname = nvm_add_string(mod, "add", 3);
+    uint8_t params[2] = { TAG_INT, TAG_INT };
+    nvm_add_import(mod, mname, fname, 2, TAG_INT, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "extern call to a well-formed import signature should verify OK");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_import_bad_return_type(void) {
+    const char *test_name = "nvm_verify: import with invalid return type tag fails";
+    NvmModule *mod = make_simple_module((const uint8_t[]){0x00}, 0, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "lib", 3);
+    uint32_t fname = nvm_add_string(mod, "f", 1);
+    nvm_add_import(mod, mname, fname, 0, (uint8_t)TAG_COUNT, NULL);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "import with out-of-range return type should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_import_bad_param_type(void) {
+    const char *test_name = "nvm_verify: import with invalid param type tag fails";
+    NvmModule *mod = make_simple_module((const uint8_t[]){0x00}, 0, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "lib", 3);
+    uint32_t fname = nvm_add_string(mod, "f", 1);
+    uint8_t params[1] = { (uint8_t)TAG_COUNT };
+    nvm_add_import(mod, mname, fname, 1, TAG_VOID, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "import with out-of-range param type should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_call_module_recognized(void) {
+    const char *test_name = "nvm_verify: OP_CALL_MODULE is a recognized linked call";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "linked module call should verify at single-module stage");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_arithmetic_instructions(void) {
     const char *test_name = "nvm_verify: arithmetic opcodes pass verification";
     uint8_t code[64];
@@ -784,6 +839,10 @@ int main(void) {
     test_match_tag_out_of_bounds();
     test_null_code_nonzero_size();
     test_call_extern_invalid();
+    test_call_extern_valid_signature();
+    test_import_bad_return_type();
+    test_import_bad_param_type();
+    test_call_module_recognized();
     test_arithmetic_instructions();
     test_stack_underflow();
     test_incompatible_branch_stack_heights();
