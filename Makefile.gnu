@@ -431,6 +431,15 @@ test-cop-protocol: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNT
 	@./tests/nanovm/test_cop_protocol
 	@rm -f tests/nanovm/test_cop_protocol
 
+.PHONY: test-cop-fuzz
+test-cop-fuzz: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running cop_protocol malformed-input / fuzz tests..."
+	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_cop_fuzz \
+		tests/nanovm/test_cop_fuzz.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/nanovm/test_cop_fuzz
+	@rm -f tests/nanovm/test_cop_fuzz
+
 .PHONY: test-gc-struct
 test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 	@echo "Running gc_struct unit tests..."
@@ -729,6 +738,14 @@ test-verifier: $(NANOISA_OBJECTS)
 	@./tests/nanoisa/test_verifier
 	@rm -f tests/nanoisa/test_verifier
 
+.PHONY: test-fuzz-malformed
+test-fuzz-malformed: $(NANOISA_OBJECTS)
+	@echo "Running NanoISA malformed-bytecode / fuzz tests..."
+	$(CC) $(CFLAGS) -o tests/nanoisa/test_fuzz_malformed \
+		tests/nanoisa/test_fuzz_malformed.c $(NANOISA_OBJECTS) $(LDFLAGS)
+	@./tests/nanoisa/test_fuzz_malformed
+	@rm -f tests/nanoisa/test_fuzz_malformed
+
 .PHONY: test-value
 test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM value tests..."
@@ -748,7 +765,7 @@ test-intern: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 	@rm -f tests/nanovm/test_intern
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \

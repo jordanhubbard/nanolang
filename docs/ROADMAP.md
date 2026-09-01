@@ -151,7 +151,7 @@ Verifier and safety:
 - [ ] I will verify linked-module calls and every opcode family rather than selected operands only.
 - [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
 - [ ] I will rewrite verified operations to unchecked private handlers where the proof permits it.
-- [ ] I will add malformed-bytecode tests and fuzz the decoder, loader, verifier, assembler, disassembler, and co-process protocol.
+- [x] I fuzz the decoder, loader, verifier, assembler, and disassembler with random, truncated, and bit-flipped bytecode in `tests/nanoisa/test_fuzz_malformed.c` (`make test-fuzz-malformed`), and fuzz the co-process wire protocol's value decode and message framing in `tests/nanovm/test_cop_fuzz.c` (`make test-cop-fuzz`); both run under `test-units`.
 
 Module format and tools:
 - [ ] I will design a NanoISA v2 module header with format version, ISA version, feature bits, total size, and bounded section directory.
