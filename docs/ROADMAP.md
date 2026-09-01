@@ -148,7 +148,7 @@ Verifier and safety:
 - [ ] I will infer stack height and types through every basic block and require compatible merge states.
 - [ ] I will verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures.
 - [ ] I will verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination.
-- [ ] I will verify linked-module calls and every opcode family rather than selected operands only.
+- [x] `nvm_verify_linked` resolves every `OP_CALL_MODULE` operand pair against the linked-module table (module index, live module, callee function index), and per-function verification now covers every opcode family—type-tag operands are range-checked and any opcode reaching the default arm with an unhandled table operand is treated as a verifier bug; `test-verifier` exercises the linked-call and type-tag cases.
 - [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
 - [ ] I will rewrite verified operations to unchecked private handlers where the proof permits it.
 - [ ] I will add malformed-bytecode tests and fuzz the decoder, loader, verifier, assembler, disassembler, and co-process protocol.

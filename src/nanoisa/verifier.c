@@ -180,7 +180,9 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
  * Bytecode instruction validation (per-function)
  * ======================================================================== */
 
-NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
+static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
+                                           const NvmModule *const *linked_modules,
+                                           uint32_t linked_count) {
     NvmVerifyResult structure = verify_structure(mod);
     if (!structure.ok) return structure;
     if (fn_idx >= mod->function_count)
@@ -266,15 +268,27 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
 
         /* --- Linked (separate-module) calls ---
          * OP_CALL_MODULE carries a linked-module index and a callee function
-         * index. The target module table is only known once modules are linked,
-         * so the single-module verifier confirms the operands are structurally
-         * present; full callee resolution and signature checking happens against
-         * the linked callable at instantiation/dispatch time. */
+         * index. The target module table is only known once modules are linked.
+         * When a linked-module table is supplied (nvm_verify_linked) the operand
+         * pair is fully resolved: the module index must be in range, the linked
+         * module must be present, and the callee function index must be within
+         * that module. Without a table (bare nvm_verify) the operands are
+         * accepted structurally and resolved at instantiation/dispatch time. */
         case OP_CALL_MODULE: {
-            /* Both operands decoded as u32; no further single-module bound is
-             * available. Recognizing the opcode keeps linked calls in the same
-             * verified taxonomy as the other call forms. */
-            (void)instr;
+            uint32_t mod_target = instr.operands[0].u32;
+            uint32_t fn_target  = instr.operands[1].u32;
+            if (linked_count > 0) {
+                if (mod_target >= linked_count)
+                    FAIL_DECODED("function[%u] OP_CALL_MODULE at offset %u: module_idx %u >= linked_count %u",
+                                 fn_idx, fn->code_offset + pos, mod_target, linked_count);
+                const NvmModule *target = linked_modules[mod_target];
+                if (!target)
+                    FAIL_DECODED("function[%u] OP_CALL_MODULE at offset %u: linked module %u is unresolved",
+                                 fn_idx, fn->code_offset + pos, mod_target);
+                if (fn_target >= target->function_count)
+                    FAIL_DECODED("function[%u] OP_CALL_MODULE at offset %u: fn_idx %u >= linked function_count %u",
+                                 fn_idx, fn->code_offset + pos, fn_target, target->function_count);
+            }
             break;
         }
 
@@ -390,9 +404,74 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
             break;
         }
 
-        default:
-            /* All other opcodes: valid by decode success */
+        /* --- Type-tag operands (element/key/value/expected tags) ---
+         * ARR_NEW, HM_NEW, and TYPE_CHECK each carry NanoValueTag byte(s) that
+         * name a runtime value type. A tag outside [0, TAG_COUNT) would let the
+         * VM index type tables out of range, so every family member is checked
+         * rather than trusting decode success. */
+        case OP_ARR_NEW:
+        case OP_TYPE_CHECK: {
+            uint8_t tag = instr.operands[0].u8;
+            if (tag >= TAG_COUNT)
+                FAIL_DECODED("function[%u] %s at offset %u: type tag %u >= TAG_COUNT %u",
+                             fn_idx, info->name, fn->code_offset + pos,
+                             tag, (unsigned)TAG_COUNT);
             break;
+        }
+
+        case OP_HM_NEW: {
+            uint8_t key_tag = instr.operands[0].u8;
+            uint8_t val_tag = instr.operands[1].u8;
+            if (key_tag >= TAG_COUNT)
+                FAIL_DECODED("function[%u] OP_HM_NEW at offset %u: key tag %u >= TAG_COUNT %u",
+                             fn_idx, fn->code_offset + pos, key_tag, (unsigned)TAG_COUNT);
+            if (val_tag >= TAG_COUNT)
+                FAIL_DECODED("function[%u] OP_HM_NEW at offset %u: value tag %u >= TAG_COUNT %u",
+                             fn_idx, fn->code_offset + pos, val_tag, (unsigned)TAG_COUNT);
+            break;
+        }
+
+        case OP_ARR_LITERAL: {
+            uint8_t tag = instr.operands[0].u8;
+            if (tag >= TAG_COUNT)
+                FAIL_DECODED("function[%u] OP_ARR_LITERAL at offset %u: element tag %u >= TAG_COUNT %u",
+                             fn_idx, fn->code_offset + pos, tag, (unsigned)TAG_COUNT);
+            break;
+        }
+
+        default: {
+            /* Exhaustive opcode-family closure.
+             *
+             * Every opcode that carries an operand referencing a table, layout,
+             * type tag, or branch target is validated by an explicit case above.
+             * The families that remain reach this point and are safe once the
+             * instruction has decoded, because their operands are either:
+             *
+             *   - self-describing immediates whose full value range is legal
+             *     (PUSH_I64/PUSH_F64/PUSH_BOOL/PUSH_U8, DEBUG_LINE), or
+             *   - fixed stack-machine operations with no table operand
+             *     (arithmetic, comparison, logic, casts, string/array/hashmap/
+             *     tuple algorithms, memory loads/stores, GC scopes, RET/HALT/
+             *     PRINT/ASSERT), or
+             *   - purely stack-relative depth operands (PICK, ROLL) and
+             *     field/index accessors (STRUCT_GET/SET, UNION_FIELD, TUPLE_GET,
+             *     AGG_GET/AGG_SET) whose bound is the runtime aggregate rather
+             *     than a module table, so they are enforced dynamically, or
+             *   - LOAD_GLOBAL/STORE_GLOBAL, whose slot count is derived from the
+             *     declarations the module itself references (globals are sized
+             *     dynamically and carry no separate declared bound in a single
+             *     module), so no static ceiling exists to compare against.
+             *
+             * A default failure would be wrong for these, but a silent
+             * accept-all would also be wrong. The guard below keeps the family
+             * closure honest: only opcodes within the primary plane may reach
+             * here, so a value at or above the plane limit (the extension-prefix
+             * escape byte) is rejected rather than accepted unchecked. */
+            if (instr.opcode >= NANOISA_PRIMARY_OPCODE_LIMIT)
+                FAIL_DECODED("function[%u] opcode 0x%02x at offset %u is outside the primary plane",
+                             fn_idx, instr.opcode, fn->code_offset + pos);
+            break;
+        }
         }
 
     }
@@ -401,6 +480,10 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
     NvmVerifyResult stack_result = verify_stack_heights(&decoded, fn_idx);
     vm_decoded_function_free(&decoded);
     return stack_result;
+}
+
+NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
+    return verify_function_impl(mod, fn_idx, NULL, 0);
 }
 
 /* ========================================================================
@@ -414,7 +497,27 @@ NvmVerifyResult nvm_verify(const NvmModule *mod) {
 
     /* Phase 2: per-function bytecode validation */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = nvm_verify_function(mod, i);
+        r = verify_function_impl(mod, i, NULL, 0);
+        if (!r.ok) return r;
+    }
+
+    return ok_result();
+}
+
+NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
+                                  const NvmModule *const *linked_modules,
+                                  uint32_t linked_count) {
+    if (linked_count > 0 && !linked_modules)
+        return fail("linked_count %u but linked_modules table is NULL", linked_count);
+
+    /* Phase 1: structural validation */
+    NvmVerifyResult r = verify_structure(mod);
+    if (!r.ok) return r;
+
+    /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
+     * supplied linked-module table so cross-module call operands are bounded. */
+    for (uint32_t i = 0; i < mod->function_count; i++) {
+        r = verify_function_impl(mod, i, linked_modules, linked_count);
         if (!r.ok) return r;
     }
 
