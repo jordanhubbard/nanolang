@@ -167,6 +167,8 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
     vm->linked_modules[idx] = mod;
     vm->decoded_linked_modules[idx] = decoded;
     vm->decoded_linked_modules_valid[idx] = true;
+    /* Linking changed: callable handles must be re-resolved. */
+    vm->module_calls_resolved = false;
     return idx;
 }
 
@@ -192,6 +194,8 @@ void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     if (!decoded) return;
     vm_decoded_module_free(decoded);
     *valid = false;
+    /* Freed decoded instructions invalidate resolved handles. */
+    vm->module_calls_resolved = false;
 }
 
 bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
@@ -208,6 +212,8 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
     vm_decoded_module_free(slot);
     *slot = replacement;
     *valid = true;
+    /* Rebuilt decoded instructions must be re-resolved before dispatch. */
+    vm->module_calls_resolved = false;
     vm->last_error = VM_OK;
     vm->error_msg[0] = '\0';
     return true;
@@ -219,6 +225,56 @@ void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module) {
 
 VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module) {
     return vm_rebuild_module(vm, module) ? VM_OK : vm->last_error;
+}
+
+/* Bind one function's cross-module calls to callable handles.
+ * Every OP_CALL_MODULE (module index, function index) operand pair is
+ * resolved once against the linked-module table, so dispatch follows a
+ * direct module/function pointer instead of re-indexing the tables and
+ * repeating bounds checks on every call. An out-of-range pair leaves the
+ * handle unresolved; dispatch then traps, preserving the prior behavior. */
+static void vm_resolve_function_calls(VmState *vm, VmDecodedFunction *function) {
+    for (uint32_t i = 0; i < function->instruction_count; i++) {
+        VmDecodedInstruction *decoded = &function->instructions[i];
+        if (decoded->instruction.opcode != OP_CALL_MODULE) continue;
+
+        VmCallHandle *handle = &decoded->call_handle;
+        handle->module = NULL;
+        handle->function = NULL;
+        handle->function_index = 0;
+        handle->resolved = false;
+
+        uint32_t mod_idx = decoded->instruction.operands[0].u32;
+        uint32_t fn_idx  = decoded->instruction.operands[1].u32;
+        if (mod_idx >= vm->linked_module_count) continue;
+
+        const NvmModule *target = vm->linked_modules[mod_idx];
+        if (!target || fn_idx >= target->function_count) continue;
+
+        handle->module = target;
+        handle->function = &target->functions[fn_idx];
+        handle->function_index = fn_idx;
+        handle->resolved = true;
+    }
+}
+
+bool vm_resolve_module_calls(VmState *vm) {
+    if (!vm) return false;
+    if (vm->module_calls_resolved) return true;
+
+    if (vm->decoded_module_valid) {
+        for (uint32_t f = 0; f < vm->decoded_module.function_count; f++)
+            vm_resolve_function_calls(vm, &vm->decoded_module.functions[f]);
+    }
+    for (uint32_t m = 0; m < vm->linked_module_count; m++) {
+        if (!vm->decoded_linked_modules_valid[m]) continue;
+        VmDecodedModule *dm = &vm->decoded_linked_modules[m];
+        for (uint32_t f = 0; f < dm->function_count; f++)
+            vm_resolve_function_calls(vm, &dm->functions[f]);
+    }
+
+    vm->module_calls_resolved = true;
+    return true;
 }
 
 /* ========================================================================
@@ -1692,22 +1748,26 @@ dynamic_div:
 
         case OP_CALL_MODULE: {
             if (vm->profile.enabled) vm->profile.module_calls++;
-            uint32_t mod_idx = instr.operands[0].u32;
-            uint32_t fn_idx_m = instr.operands[1].u32;
 
-            /* Bounds check module index */
-            if (mod_idx >= vm->linked_module_count) {
-                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
-                    "Module index %u out of range (have %u)", mod_idx, vm->linked_module_count);
-            }
-            const NvmModule *target = vm->linked_modules[mod_idx];
-
-            /* Bounds check function index in target module */
-            if (fn_idx_m >= target->function_count) {
+            /* Follow the callable handle bound during linking rather than
+             * re-index the module/function tables on every call. An
+             * unresolved handle means the operand pair was out of range at
+             * link time; report the same errors the pair would have. */
+            const VmCallHandle *handle = &decoded->call_handle;
+            if (!handle->resolved) {
+                uint32_t mod_idx = instr.operands[0].u32;
+                uint32_t fn_idx_bad = instr.operands[1].u32;
+                if (mod_idx >= vm->linked_module_count) {
+                    return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                        "Module index %u out of range (have %u)", mod_idx,
+                        vm->linked_module_count);
+                }
                 return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION,
-                    "Function %u not found in module %u", fn_idx_m, mod_idx);
+                    "Function %u not found in module %u", fn_idx_bad, mod_idx);
             }
-            const NvmFunctionEntry *callee = &target->functions[fn_idx_m];
+            const NvmModule *target = handle->module;
+            uint32_t fn_idx_m = handle->function_index;
+            const NvmFunctionEntry *callee = handle->function;
 
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
@@ -2974,6 +3034,9 @@ void vm_stack_trace(const VmState *vm, FILE *out) {
  * ======================================================================== */
 
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    /* Bind cross-module callable handles before executing. Guarded so
+     * this only runs once per link configuration. */
+    if (!vm->module_calls_resolved) vm_resolve_module_calls(vm);
     if (fn_idx >= vm->module->function_count) {
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u out of range", fn_idx);
     }

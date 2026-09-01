@@ -347,4 +347,5 @@ My wrapper generator (`wrapper_gen.c`) produces standalone native executables:
 - **Relative jump offsets** - I use signed i32 offsets, relative to the start of the instruction.
 - **String pool deduplication** - I deduplicate strings at compile time to save .nvm file size.
 - **Per-frame module tracking** - Each call frame I create records its module for cross-module resolution.
+- **Link-time callable handles** - I resolve every `CALL_MODULE` (module index, function index) operand pair into a direct callable handle during linking, so dispatch follows a resolved module/function pointer instead of re-indexing the module and function tables and repeating bounds checks on every call. Relinking or rebuilding a module re-resolves the handles.
 - **Opaque proxy values** - I represent FFI objects as integer IDs. I keep the actual handles in my co-process address space.
