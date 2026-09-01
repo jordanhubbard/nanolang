@@ -32,6 +32,7 @@ struct VmString {
     VmHeapHeader header;
     uint32_t length;
     uint32_t hash;       /* Cached hash for interning */
+    struct VmString *intern_next; /* Chaining link within the intern bucket */
     char data[];         /* Flexible array member */
 };
 
@@ -109,10 +110,12 @@ typedef struct {
 
 typedef struct VmHeap {
     VmHeapStats stats;
-    /* String interning table */
-    VmString **intern_table;
-    uint32_t intern_count;
-    uint32_t intern_capacity;
+    /* String interning table: chained hash buckets keyed by content hash.
+     * Lookup, insertion, and removal are all O(1) amortized, replacing the
+     * previous linear scan over every interned string. */
+    VmString **intern_buckets;
+    uint32_t   intern_bucket_count;
+    uint32_t   intern_count;
 } VmHeap;
 
 /* ========================================================================

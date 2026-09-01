@@ -11,22 +11,29 @@
  * Heap Init / Destroy
  * ======================================================================== */
 
+#define VM_INTERN_INITIAL_BUCKETS 256u
+
 void vm_heap_init(VmHeap *heap) {
     memset(heap, 0, sizeof(*heap));
-    heap->intern_capacity = 256;
-    heap->intern_table = calloc(heap->intern_capacity, sizeof(VmString *));
+    heap->intern_bucket_count = VM_INTERN_INITIAL_BUCKETS;
+    heap->intern_count = 0;
+    heap->intern_buckets = calloc(heap->intern_bucket_count, sizeof(VmString *));
 }
 
 void vm_heap_destroy(VmHeap *heap) {
-    /* Release all interned strings */
-    for (uint32_t i = 0; i < heap->intern_count; i++) {
-        if (heap->intern_table[i]) {
+    /* Release all interned strings by walking each bucket chain. */
+    for (uint32_t b = 0; b < heap->intern_bucket_count; b++) {
+        VmString *s = heap->intern_buckets ? heap->intern_buckets[b] : NULL;
+        while (s) {
+            VmString *next = s->intern_next;
             /* Force free regardless of ref_count */
-            free(heap->intern_table[i]);
+            free(s);
+            s = next;
         }
     }
-    free(heap->intern_table);
-    heap->intern_table = NULL;
+    free(heap->intern_buckets);
+    heap->intern_buckets = NULL;
+    heap->intern_bucket_count = 0;
     heap->intern_count = 0;
 }
 
@@ -41,6 +48,78 @@ static uint32_t fnv1a(const char *data, uint32_t len) {
         hash *= 16777619u;
     }
     return hash;
+}
+
+/* ========================================================================
+ * String Interning Table (chained hash buckets)
+ * ======================================================================== */
+
+/* Load factor threshold above which the bucket array is doubled. */
+#define VM_INTERN_MAX_LOAD_NUM 3u
+#define VM_INTERN_MAX_LOAD_DEN 4u
+
+/* Grow the bucket array (doubling) and rehash existing strings. No-op on
+ * allocation failure: the table stays correct, only denser. */
+static void vm_intern_maybe_grow(VmHeap *heap) {
+    if ((uint64_t)heap->intern_count * VM_INTERN_MAX_LOAD_DEN <
+        (uint64_t)heap->intern_bucket_count * VM_INTERN_MAX_LOAD_NUM) {
+        return;
+    }
+    uint32_t new_count = heap->intern_bucket_count ? heap->intern_bucket_count * 2 : 256;
+    VmString **new_buckets = calloc(new_count, sizeof(VmString *));
+    if (!new_buckets) return;
+    for (uint32_t b = 0; b < heap->intern_bucket_count; b++) {
+        VmString *s = heap->intern_buckets[b];
+        while (s) {
+            VmString *next = s->intern_next;
+            uint32_t idx = s->hash & (new_count - 1);
+            s->intern_next = new_buckets[idx];
+            new_buckets[idx] = s;
+            s = next;
+        }
+    }
+    free(heap->intern_buckets);
+    heap->intern_buckets = new_buckets;
+    heap->intern_bucket_count = new_count;
+}
+
+/* Look up an existing interned string with matching hash/length/content. */
+static VmString *vm_intern_lookup(VmHeap *heap, uint32_t hash,
+                                  const char *data, uint32_t length) {
+    if (heap->intern_bucket_count == 0) return NULL;
+    uint32_t idx = hash & (heap->intern_bucket_count - 1);
+    for (VmString *s = heap->intern_buckets[idx]; s; s = s->intern_next) {
+        if (s->hash == hash && s->length == length &&
+            memcmp(s->data, data, length) == 0) {
+            return s;
+        }
+    }
+    return NULL;
+}
+
+/* Insert a freshly allocated string into its bucket chain. */
+static void vm_intern_insert(VmHeap *heap, VmString *s) {
+    vm_intern_maybe_grow(heap);
+    uint32_t idx = s->hash & (heap->intern_bucket_count - 1);
+    s->intern_next = heap->intern_buckets[idx];
+    heap->intern_buckets[idx] = s;
+    heap->intern_count++;
+}
+
+/* Remove a string from its bucket chain in O(1) expected time. */
+static void vm_intern_unlink(VmHeap *heap, VmString *s) {
+    if (heap->intern_bucket_count == 0) return;
+    uint32_t idx = s->hash & (heap->intern_bucket_count - 1);
+    VmString **link = &heap->intern_buckets[idx];
+    while (*link) {
+        if (*link == s) {
+            *link = s->intern_next;
+            s->intern_next = NULL;
+            heap->intern_count--;
+            return;
+        }
+        link = &(*link)->intern_next;
+    }
 }
 
 /* ========================================================================
@@ -79,13 +158,8 @@ void vm_release(VmHeap *heap, NanoValue v) {
             VmString *s = v.as.string;
             heap->stats.freed += sizeof(VmString) + s->length + 1;
             heap->stats.num_objects--;
-            /* Remove from intern table if present */
-            for (uint32_t i = 0; i < heap->intern_count; i++) {
-                if (heap->intern_table[i] == s) {
-                    heap->intern_table[i] = heap->intern_table[--heap->intern_count];
-                    break;
-                }
-            }
+            /* Remove from intern table (O(1): unlink from its bucket chain). */
+            vm_intern_unlink(heap, s);
             free(s);
             break;
         }
@@ -195,14 +269,11 @@ static void release_hashmap(VmHeap *heap, VmHashMap *m) {
 VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     uint32_t hash = fnv1a(data, length);
 
-    /* Check intern table for dedup */
-    for (uint32_t i = 0; i < heap->intern_count; i++) {
-        VmString *s = heap->intern_table[i];
-        if (s && s->hash == hash && s->length == length &&
-            memcmp(s->data, data, length) == 0) {
-            s->header.ref_count++;
-            return s;
-        }
+    /* Check intern table for dedup (O(1) expected via bucket chain). */
+    VmString *existing = vm_intern_lookup(heap, hash, data, length);
+    if (existing) {
+        existing->header.ref_count++;
+        return existing;
     }
 
     /* Allocate new string */
@@ -213,6 +284,7 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     s->header.obj_type = TAG_STRING;
     s->length = length;
     s->hash = hash;
+    s->intern_next = NULL;
     memcpy(s->data, data, length);
     s->data[length] = '\0';
 
@@ -220,18 +292,8 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
 
-    /* Add to intern table */
-    if (heap->intern_count >= heap->intern_capacity) {
-        uint32_t new_cap = heap->intern_capacity * 2;
-        VmString **new_table = realloc(heap->intern_table, new_cap * sizeof(VmString *));
-        if (new_table) {
-            heap->intern_table = new_table;
-            heap->intern_capacity = new_cap;
-        }
-    }
-    if (heap->intern_count < heap->intern_capacity) {
-        heap->intern_table[heap->intern_count++] = s;
-    }
+    /* Add to intern table (O(1) amortized, doubling to bound load factor). */
+    vm_intern_insert(heap, s);
 
     return s;
 }

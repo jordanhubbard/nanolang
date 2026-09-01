@@ -134,7 +134,7 @@ Runtime representation:
 - [ ] I will measure and evaluate split payload/tag operand stacks and globals.
 - [ ] I will dynamically size globals from serialized declarations instead of embedding 4,096 values in every VM.
 - [ ] I will preinstantiate module constants so string literals do not allocate and search the intern table on every execution.
-- [ ] I will replace linear transient-string interning or stop interning transient values.
+- [x] I replaced the linear intern-table scan with a chained hash-bucket table so string interning lookup, insertion, and removal are O(1) amortized instead of O(n); `test-intern` covers dedup, unlink-on-free, bucket growth, and embedded-NUL content.
 - [ ] I will consistently use stored string lengths and preserve embedded zero bytes.
 - [ ] I will add unboxed homogeneous arrays for integer, float, boolean, and byte elements.
 - [ ] I will simplify array mutator stack effects and remove the two-result `ARR_POP` convention.
