@@ -10,6 +10,7 @@
 #include "value.h"
 #include "heap.h"
 #include "vm_decode.h"
+#include "vm_dispatch.h"
 #include "../nanoisa/isa.h"
 #include "../nanoisa/nvm_format.h"
 
@@ -102,6 +103,8 @@ typedef struct VmState {
     /* True once cross-module OP_CALL_MODULE handles have been resolved
      * against the linked-module table. Reset when linking changes. */
     bool module_calls_resolved;
+    VmDispatchModule dispatch_module;
+    bool dispatch_module_valid;
 
     /* Operand stack */
     NanoValue *stack;
@@ -131,6 +134,8 @@ typedef struct VmState {
     const NvmModule **linked_modules;
     VmDecodedModule *decoded_linked_modules;
     bool *decoded_linked_modules_valid;
+    VmDispatchModule *dispatch_linked_modules;
+    bool *dispatch_linked_modules_valid;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
 

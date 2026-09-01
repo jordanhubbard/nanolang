@@ -356,6 +356,154 @@ static void test_predecode_trap_resume_offset(void) {
     nvm_module_free(mod);
 }
 
+/* ========================================================================
+ * Optimized Dispatch IR (representation 3)
+ *
+ * These tests exercise the dispatch IR as a distinct projection of the
+ * verified instruction IR: successor/branch/call target precomputation,
+ * cursor traversal, and lockstep rebuild with the verified IR.
+ * ======================================================================== */
+
+static void test_dispatch_projects_branch_targets(void) {
+    /* if (true) skip one push; join.  Layout:
+     *   0: PUSH_BOOL 1
+     *   .: JMP_FALSE +N   (branch over the "then" push)
+     *   .: PUSH_I64 7     (then arm)
+     *   .: PUSH_I64 9     (join / else arm target)
+     *   .: RET
+     */
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_BOOL, 1);
+    uint32_t jmp_off = off;
+    uint32_t then_off = jmp_off + emit(code + off, OP_JMP_FALSE, (int32_t)0);
+    off = then_off;
+    uint32_t then_push_off = off;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    uint32_t join_off = off;
+    /* Patch JMP_FALSE to land on the join instruction. */
+    emit(code + jmp_off, OP_JMP_FALSE, (int32_t)(join_off - jmp_off));
+    off += emit(code + off, OP_PUSH_I64, (int64_t)9);
+    off += emit(code + off, OP_RET);
+    (void)then_push_off;
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmDecodedModule decoded;
+    char err[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
+
+    VmDispatchModule dispatch;
+    char derr[VM_DISPATCH_ERROR_SIZE];
+    ASSERT(vm_dispatch_build_module(&decoded, &dispatch, derr),
+           "dispatch IR projects from verified IR");
+    ASSERT_EQ_INT(dispatch.function_count, 1, "one dispatch function");
+
+    const VmDispatchFunction *fn = &dispatch.functions[0];
+    ASSERT_EQ_INT(fn->instruction_count, decoded.functions[0].instruction_count,
+                  "dispatch preserves the verified instruction count");
+
+    /* Instruction 1 is the JMP_FALSE. */
+    const VmDispatchInstruction *jmp = &fn->instructions[1];
+    ASSERT_EQ_INT(jmp->instruction.opcode, OP_JMP_FALSE, "second instr is JMP_FALSE");
+    ASSERT(jmp->branch_target != VM_DISPATCH_NO_INDEX,
+           "branch stores a resolved dispatch index");
+    ASSERT_EQ_INT(jmp->branch_target_offset, join_off,
+                  "branch offset points at the join instruction");
+    const VmDispatchInstruction *join = &fn->instructions[jmp->branch_target];
+    ASSERT_EQ_INT(join->byte_offset, join_off,
+                  "branch target index resolves to the join offset");
+    ASSERT_EQ_INT(join->instruction.opcode, OP_PUSH_I64,
+                  "branch target is the join push");
+
+    /* Fall-through of the bool push is the JMP_FALSE. */
+    ASSERT_EQ_INT(fn->instructions[0].next_index, 1,
+                  "linear successor is the next dispatch index");
+    ASSERT(fn->instructions[0].branch_target == VM_DISPATCH_NO_INDEX,
+           "non-branch has no branch target");
+    ASSERT(fn->instructions[0].call_target == VM_DISPATCH_NO_INDEX,
+           "non-call has no call target");
+
+    vm_dispatch_module_free(&dispatch);
+    ASSERT(dispatch.functions == NULL, "dispatch free clears functions");
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+}
+
+static void test_dispatch_cursor_walks_stream(void) {
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    uint32_t second_off = off;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmDecodedModule decoded;
+    char err[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
+    VmDispatchModule dispatch;
+    char derr[VM_DISPATCH_ERROR_SIZE];
+    ASSERT(vm_dispatch_build_module(&decoded, &dispatch, derr),
+           "dispatch IR projects");
+
+    VmDispatchCursor cursor = {0};
+    ASSERT(vm_dispatch_seek(&cursor, &dispatch.functions[0], 0),
+           "seek to entry succeeds");
+    const VmDispatchInstruction *cur = vm_dispatch_current(&cursor);
+    ASSERT(cur != NULL && cur->byte_offset == 0, "cursor starts at offset 0");
+    cur = vm_dispatch_advance(&cursor);
+    ASSERT(cur != NULL, "cursor advances to second instruction");
+    ASSERT_EQ_INT(cur->byte_offset, second_off, "advance lands on second offset");
+
+    /* Re-entry by byte offset (as after a jump). */
+    ASSERT(vm_dispatch_seek(&cursor, &dispatch.functions[0], second_off),
+           "seek to a mid-stream offset succeeds");
+    ASSERT_EQ_INT(vm_dispatch_current(&cursor)->byte_offset, second_off,
+                  "re-entry lands on the requested offset");
+    ASSERT(!vm_dispatch_seek(&cursor, &dispatch.functions[0], 1),
+           "seek to a non-boundary offset fails");
+
+    vm_dispatch_module_free(&dispatch);
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+}
+
+static void test_dispatch_lockstep_with_verified_ir(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid, "verified IR is published");
+    ASSERT(vm.dispatch_module_valid, "dispatch IR is published alongside it");
+
+    NanoValue result = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "execution runs through the dispatch IR");
+    ASSERT_EQ_INT(result.as.i64, 1, "dispatch execution result is correct");
+
+    emit(mod->code, OP_PUSH_I64, (int64_t)2);
+    vm_invalidate_module(&vm, mod);
+    ASSERT(!vm.decoded_module_valid, "invalidation clears verified IR");
+    ASSERT(!vm.dispatch_module_valid,
+           "invalidation clears the dispatch IR in lockstep");
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_ERR_DECODE,
+                  "stale dispatch IR refuses to execute");
+
+    ASSERT(vm_rebuild_module(&vm, mod), "module rebuild succeeds");
+    ASSERT(vm.dispatch_module_valid, "rebuild republishes the dispatch IR");
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "rebuilt dispatch IR executes");
+    ASSERT_EQ_INT(result.as.i64, 2, "rebuilt dispatch operand is visible");
+
+    vm_destroy(&vm);
+    ASSERT(vm.dispatch_module.functions == NULL,
+           "destroy clears the dispatch IR");
+    nvm_module_free(mod);
+}
+
 static void test_result_signature_enforcement(void) {
     uint8_t code[32];
     uint32_t off = 0;
@@ -3575,6 +3723,11 @@ int main(void) {
     RUN_TEST(test_predecode_invalidate_rebuild);
     RUN_TEST(test_predecode_resolves_branch_targets);
     RUN_TEST(test_predecode_resolves_call_targets);
+
+    printf("\n[Optimized Dispatch IR]\n");
+    RUN_TEST(test_dispatch_projects_branch_targets);
+    RUN_TEST(test_dispatch_cursor_walks_stream);
+    RUN_TEST(test_dispatch_lockstep_with_verified_ir);
 
     printf("\n[Float/mixed arithmetic]\n");
     RUN_TEST(test_add_float_int);

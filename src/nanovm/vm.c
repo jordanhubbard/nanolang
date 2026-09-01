@@ -80,6 +80,13 @@ void vm_init(VmState *vm, const NvmModule *module) {
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (vm_decode_module(module, &vm->decoded_module, decode_error)) {
         vm->decoded_module_valid = true;
+        char dispatch_error[VM_DISPATCH_ERROR_SIZE];
+        if (vm_dispatch_build_module(&vm->decoded_module, &vm->dispatch_module,
+                                     dispatch_error)) {
+            vm->dispatch_module_valid = true;
+        } else {
+            vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
+        }
     } else {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
     }
@@ -96,19 +103,27 @@ void vm_destroy(VmState *vm) {
     }
     free(vm->stack);
     vm_decoded_module_free(&vm->decoded_module);
-    for (uint32_t i = 0; i < vm->linked_module_count; i++)
+    vm_dispatch_module_free(&vm->dispatch_module);
+    for (uint32_t i = 0; i < vm->linked_module_count; i++) {
         vm_decoded_module_free(&vm->decoded_linked_modules[i]);
+        vm_dispatch_module_free(&vm->dispatch_linked_modules[i]);
+    }
     free(vm->decoded_linked_modules);
     free(vm->decoded_linked_modules_valid);
+    free(vm->dispatch_linked_modules);
+    free(vm->dispatch_linked_modules_valid);
     free(vm->linked_modules);
     free(vm->memory);
     vm_heap_destroy(&vm->heap);
     vm->stack = NULL;
     vm->decoded_linked_modules = NULL;
     vm->decoded_linked_modules_valid = NULL;
+    vm->dispatch_linked_modules = NULL;
+    vm->dispatch_linked_modules_valid = NULL;
     vm->linked_modules = NULL;
     vm->memory = NULL;
     vm->decoded_module_valid = false;
+    vm->dispatch_module_valid = false;
     vm->linked_module_count = 0;
     vm->linked_module_capacity = 0;
 }
@@ -138,12 +153,20 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
         return (uint32_t)-1;
     }
+    VmDispatchModule dispatch;
+    char dispatch_error[VM_DISPATCH_ERROR_SIZE];
+    if (!vm_dispatch_build_module(&decoded, &dispatch, dispatch_error)) {
+        vm_decoded_module_free(&decoded);
+        vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
+        return (uint32_t)-1;
+    }
     if (vm->linked_module_count >= vm->linked_module_capacity) {
         uint32_t new_cap = vm->linked_module_capacity ? vm->linked_module_capacity * 2 : 8;
         const NvmModule **new_arr = realloc(vm->linked_modules,
                                              new_cap * sizeof(const NvmModule *));
         if (!new_arr) {
             vm_decoded_module_free(&decoded);
+            vm_dispatch_module_free(&dispatch);
             return (uint32_t)-1;
         }
         vm->linked_modules = new_arr;
@@ -151,6 +174,7 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
                                                new_cap * sizeof(VmDecodedModule));
         if (!new_decoded) {
             vm_decoded_module_free(&decoded);
+            vm_dispatch_module_free(&dispatch);
             return (uint32_t)-1;
         }
         vm->decoded_linked_modules = new_decoded;
@@ -158,9 +182,26 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
                                   new_cap * sizeof(bool));
         if (!new_valid) {
             vm_decoded_module_free(&decoded);
+            vm_dispatch_module_free(&dispatch);
             return (uint32_t)-1;
         }
         vm->decoded_linked_modules_valid = new_valid;
+        VmDispatchModule *new_dispatch = realloc(vm->dispatch_linked_modules,
+                                                 new_cap * sizeof(VmDispatchModule));
+        if (!new_dispatch) {
+            vm_decoded_module_free(&decoded);
+            vm_dispatch_module_free(&dispatch);
+            return (uint32_t)-1;
+        }
+        vm->dispatch_linked_modules = new_dispatch;
+        bool *new_dispatch_valid = realloc(vm->dispatch_linked_modules_valid,
+                                           new_cap * sizeof(bool));
+        if (!new_dispatch_valid) {
+            vm_decoded_module_free(&decoded);
+            vm_dispatch_module_free(&dispatch);
+            return (uint32_t)-1;
+        }
+        vm->dispatch_linked_modules_valid = new_dispatch_valid;
         vm->linked_module_capacity = new_cap;
     }
     uint32_t idx = vm->linked_module_count++;
@@ -169,6 +210,8 @@ uint32_t vm_link_module(VmState *vm, const NvmModule *mod) {
     vm->decoded_linked_modules_valid[idx] = true;
     /* Linking changed: callable handles must be re-resolved. */
     vm->module_calls_resolved = false;
+    vm->dispatch_linked_modules[idx] = dispatch;
+    vm->dispatch_linked_modules_valid[idx] = true;
     return idx;
 }
 
@@ -187,6 +230,21 @@ static VmDecodedModule *decoded_module_for(VmState *vm, const NvmModule *module,
     return NULL;
 }
 
+static VmDispatchModule *dispatch_module_for(VmState *vm, const NvmModule *module,
+                                             bool **valid) {
+    if (module == vm->root_module) {
+        if (valid) *valid = &vm->dispatch_module_valid;
+        return &vm->dispatch_module;
+    }
+    for (uint32_t i = 0; i < vm->linked_module_count; i++) {
+        if (vm->linked_modules[i] == module) {
+            if (valid) *valid = &vm->dispatch_linked_modules_valid[i];
+            return &vm->dispatch_linked_modules[i];
+        }
+    }
+    return NULL;
+}
+
 void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     if (!vm || !module) return;
     bool *valid = NULL;
@@ -196,6 +254,12 @@ void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     *valid = false;
     /* Freed decoded instructions invalidate resolved handles. */
     vm->module_calls_resolved = false;
+    bool *dispatch_valid = NULL;
+    VmDispatchModule *dispatch = dispatch_module_for(vm, module, &dispatch_valid);
+    if (dispatch) {
+        vm_dispatch_module_free(dispatch);
+        *dispatch_valid = false;
+    }
 }
 
 bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
@@ -214,6 +278,20 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
     *valid = true;
     /* Rebuilt decoded instructions must be re-resolved before dispatch. */
     vm->module_calls_resolved = false;
+
+    bool *dispatch_valid = NULL;
+    VmDispatchModule *dispatch_slot = dispatch_module_for(vm, module, &dispatch_valid);
+    if (dispatch_slot) {
+        VmDispatchModule dispatch_replacement;
+        char dispatch_error[VM_DISPATCH_ERROR_SIZE];
+        if (!vm_dispatch_build_module(slot, &dispatch_replacement, dispatch_error)) {
+            vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
+            return false;
+        }
+        vm_dispatch_module_free(dispatch_slot);
+        *dispatch_slot = dispatch_replacement;
+        *dispatch_valid = true;
+    }
     vm->last_error = VM_OK;
     vm->error_msg[0] = '\0';
     return true;
@@ -233,7 +311,8 @@ VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module) {
  * direct module/function pointer instead of re-indexing the tables and
  * repeating bounds checks on every call. An out-of-range pair leaves the
  * handle unresolved; dispatch then traps, preserving the prior behavior. */
-static void vm_resolve_function_calls(VmState *vm, VmDecodedFunction *function) {
+static void vm_resolve_function_calls(VmState *vm, VmDecodedFunction *function,
+                                      VmDispatchFunction *dispatch) {
     for (uint32_t i = 0; i < function->instruction_count; i++) {
         VmDecodedInstruction *decoded = &function->instructions[i];
         if (decoded->instruction.opcode != OP_CALL_MODULE) continue;
@@ -255,6 +334,9 @@ static void vm_resolve_function_calls(VmState *vm, VmDecodedFunction *function) 
         handle->function = &target->functions[fn_idx];
         handle->function_index = fn_idx;
         handle->resolved = true;
+
+        if (dispatch && i < dispatch->instruction_count)
+            dispatch->instructions[i].call_handle = *handle;
     }
 }
 
@@ -264,13 +346,16 @@ bool vm_resolve_module_calls(VmState *vm) {
 
     if (vm->decoded_module_valid) {
         for (uint32_t f = 0; f < vm->decoded_module.function_count; f++)
-            vm_resolve_function_calls(vm, &vm->decoded_module.functions[f]);
+            vm_resolve_function_calls(vm, &vm->decoded_module.functions[f],
+                vm->dispatch_module_valid ? &vm->dispatch_module.functions[f] : NULL);
     }
     for (uint32_t m = 0; m < vm->linked_module_count; m++) {
         if (!vm->decoded_linked_modules_valid[m]) continue;
         VmDecodedModule *dm = &vm->decoded_linked_modules[m];
         for (uint32_t f = 0; f < dm->function_count; f++)
-            vm_resolve_function_calls(vm, &dm->functions[f]);
+            vm_resolve_function_calls(vm, &dm->functions[f],
+                vm->dispatch_linked_modules_valid[m]
+                    ? &vm->dispatch_linked_modules[m].functions[f] : NULL);
     }
 
     vm->module_calls_resolved = true;
@@ -291,36 +376,6 @@ static inline VmResult stack_push(VmState *vm, NanoValue v) {
     }
     vm->stack[vm->stack_size++] = v;
     return VM_OK;
-}
-
-/* The decoded representation owns byte-to-instruction indexes.  Keep the
- * hot path on an instruction index, and use the byte map only after a jump
- * or a call returns into a different instruction stream. */
-typedef struct {
-    const VmDecodedFunction *function;
-    uint32_t index;
-} VmInstructionCursor;
-
-static bool vm_cursor_seek(VmInstructionCursor *cursor,
-                           const VmDecodedFunction *function,
-                           uint32_t byte_offset) {
-    if (!cursor || !function || byte_offset >= function->code_size
-            || !function->instruction_indices) return false;
-    uint32_t encoded = function->instruction_indices[byte_offset];
-    if (encoded == 0 || encoded > function->instruction_count) return false;
-    cursor->function = function;
-    cursor->index = encoded - 1;
-    return true;
-}
-
-static const VmDecodedInstruction *vm_cursor_next(
-        VmInstructionCursor *cursor, uint32_t byte_offset) {
-    if (!cursor || !cursor->function
-            || cursor->index >= cursor->function->instruction_count) return NULL;
-    const VmDecodedInstruction *decoded = &cursor->function->instructions[cursor->index];
-    if (decoded->byte_offset != byte_offset) return NULL;
-    cursor->index++;
-    return decoded;
 }
 
 static inline NanoValue stack_pop(VmState *vm) {
@@ -548,32 +603,38 @@ VmTrap vm_core_execute(VmState *vm) {
     uint32_t code_end = cur_fn->code_offset + cur_fn->code_length;
 
     VmCallFrame *frame = &vm->frames[vm->frame_count - 1];
-    VmInstructionCursor cursor = {0};
+
+    /* The VM executes the optimized dispatch IR (representation 3), a
+     * projection of the verified instruction IR (representation 2).  The
+     * linear path advances the cursor by a precomputed instruction index;
+     * the byte-offset map is consulted only to re-enter the stream after a
+     * jump, a call, or a return. */
+    VmDispatchCursor cursor = {0};
     uint32_t cursor_offset = UINT32_MAX;
 
     /* Main dispatch loop */
     while (vm->ip < code_end) {
-        bool *decoded_valid = NULL;
-        VmDecodedModule *decoded_module = decoded_module_for(
-            vm, vm->module, &decoded_valid);
-        if (!decoded_module || !decoded_valid || !*decoded_valid
-                || vm->current_fn >= decoded_module->function_count) {
+        bool *dispatch_valid = NULL;
+        VmDispatchModule *dispatch_module = dispatch_module_for(
+            vm, vm->module, &dispatch_valid);
+        if (!dispatch_module || !dispatch_valid || !*dispatch_valid
+                || vm->current_fn >= dispatch_module->function_count) {
             return trap_error(vm, VM_ERR_DECODE,
-                              "Decoded module is stale at offset %u", vm->ip);
+                              "Dispatch module is stale at offset %u", vm->ip);
         }
-        const VmDecodedFunction *decoded_function =
-            &decoded_module->functions[vm->current_fn];
+        const VmDispatchFunction *dispatch_function =
+            &dispatch_module->functions[vm->current_fn];
         uint32_t function_offset = vm->ip - cur_fn->code_offset;
-        const VmDecodedInstruction *decoded;
-        if (vm->ip == cursor_offset && cursor.function == decoded_function) {
-            decoded = vm_cursor_next(&cursor, function_offset);
+        const VmDispatchInstruction *decoded;
+        if (vm->ip == cursor_offset && cursor.function == dispatch_function) {
+            decoded = vm_dispatch_advance(&cursor);
         } else {
-            decoded = vm_cursor_seek(&cursor, decoded_function, function_offset)
-                ? vm_cursor_next(&cursor, function_offset) : NULL;
+            decoded = vm_dispatch_seek(&cursor, dispatch_function, function_offset)
+                ? vm_dispatch_current(&cursor) : NULL;
         }
-        if (!decoded) {
+        if (!decoded || decoded->byte_offset != function_offset) {
             return trap_error(vm, VM_ERR_DECODE,
-                              "No decoded instruction at offset %u", vm->ip);
+                              "No dispatch instruction at offset %u", vm->ip);
         }
         DecodedInstruction instr = decoded->instruction;
         uint32_t instr_start = vm->ip;
@@ -1485,7 +1546,7 @@ dynamic_div:
                 vm->profile.branches++;
                 vm->profile.branches_taken++;
             }
-            vm->ip = decoded->resolved_target;
+            vm->ip = decoded->branch_target_offset;
             break;
         }
 
@@ -1497,7 +1558,7 @@ dynamic_div:
                 if (taken) vm->profile.branches_taken++;
             }
             if (taken) {
-                vm->ip = decoded->resolved_target;
+                vm->ip = decoded->branch_target_offset;
             }
             vm_release(&vm->heap, cond);
             break;
@@ -1511,7 +1572,7 @@ dynamic_div:
                 if (taken) vm->profile.branches_taken++;
             }
             if (taken) {
-                vm->ip = decoded->resolved_target;
+                vm->ip = decoded->branch_target_offset;
             }
             vm_release(&vm->heap, cond);
             break;
@@ -1519,7 +1580,7 @@ dynamic_div:
 
         case OP_CALL: {
             if (vm->profile.enabled) vm->profile.direct_calls++;
-            uint32_t callee_idx = decoded->resolved_target;
+            uint32_t callee_idx = decoded->call_target;
             if (callee_idx >= vm->module->function_count) {
                 return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Function %u not found", callee_idx);
             }
@@ -1564,7 +1625,7 @@ dynamic_div:
 
         case OP_TAIL_CALL: {
             if (vm->profile.enabled) vm->profile.direct_calls++;
-            uint32_t callee_idx = decoded->resolved_target;
+            uint32_t callee_idx = decoded->call_target;
             if (callee_idx >= vm->module->function_count)
                 return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION,
                                   "Tail-call function %u not found", callee_idx);
@@ -2345,7 +2406,7 @@ dynamic_div:
             NanoValue top = stack_peek(vm, 0);
             if (top.tag == TAG_UNION && top.as.uval && top.as.uval->variant == variant) {
                 /* Match - jump to arm */
-                vm->ip = decoded->resolved_target;
+                vm->ip = decoded->branch_target_offset;
             }
             /* No match - fall through to next MATCH_TAG */
             break;

@@ -219,6 +219,31 @@ Variable-length entries: `[length: u32] [utf8_bytes: length]`. I deduplicate str
 
 ## Execution Model
 
+### Execution Representations
+
+I keep three separate representations of a program so that serialization,
+verification, and dispatch each stay simple and independently testable:
+
+1. **Compact serialized bytecode** (`NvmModule`, `src/nanoisa/nvm_format.*`) is
+   the on-disk and on-wire form: variable-length, byte-addressed instructions
+   plus the string pool, function table, and section layout.
+2. **Verified instruction IR** (`VmDecodedModule`, `src/nanovm/vm_decode.*`) is
+   the result of one decode pass per function. It establishes instruction
+   boundaries and resolves every branch and direct call against a verified
+   boundary map. This is the representation the verifier reasons about; it is
+   byte-offset addressed.
+3. **Optimized dispatch IR** (`VmDispatchModule`, `src/nanovm/vm_dispatch.*`) is
+   a projection of the verified IR shaped for the hot fetch loop. Instructions
+   live in a flat, instruction-indexed array, the linear-path successor is a
+   precomputed instruction index, and branch and call targets are precomputed
+   as dispatch indices. It is derived from — and validated against — the
+   verified IR and is rebuilt in lockstep whenever the verified IR is rebuilt.
+
+`vm_core_execute` executes representation 3. A dispatch cursor advances by
+instruction index on the linear path and consults a byte-offset map only to
+re-enter the stream after a jump, call, or return, which keeps the byte-addressed
+`ip` contract the frames, traps, and returns depend on.
+
 ### Trap Architecture
 
 My VM separates pure computation from side effects.
@@ -352,6 +377,8 @@ My wrapper generator (`wrapper_gen.c`) produces standalone native executables:
 | File | Lines | Purpose |
 |------|-------|---------|
 | `vm.h` / `vm.c` | 1,844 | My core switch-dispatch interpreter |
+| `vm_decode.h` / `vm_decode.c` | ~300 | My verified instruction IR: one-pass decode with boundary and branch/call resolution |
+| `vm_dispatch.h` / `vm_dispatch.c` | ~230 | My optimized dispatch IR projected from the verified IR for the hot fetch loop |
 | `value.h` / `value.c` | 225 | My NanoValue constructors, type checking |
 | `heap.h` / `heap.c` | 595 | My reference-counting GC |
 | `vm_builtins.c` | 297 | My runtime builtins |

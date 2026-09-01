@@ -118,7 +118,7 @@ Portable ISA design:
 - [x] I defined a clean extended-opcode space in `spec/nanoisa.yaml`: the primary plane holds one-byte identifiers `0x00..0xfe`, `0xff` is a reserved extension prefix that escapes into a separate 256-entry extended plane, and `NANOISA_PRIMARY_OPCODE_LIMIT` is an exclusive range bound rather than an opcode count.
 
 Execution architecture:
-- [ ] I will separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR.
+- [x] I separated compact serialized bytecode, verified instruction IR, and optimized dispatch IR.
 - [x] I decode each function once and dispatch predecoded instructions rather than call the generic decoder for every retired instruction.
 - [x] I build instruction-boundary maps and resolve branches plus direct and tail calls during instantiation; layouts, constants, globals, imports, and linked callable handles remain.
 - [ ] I will provide computed-goto dispatch where supported and retain a portable switch fallback.
