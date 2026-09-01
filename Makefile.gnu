@@ -738,8 +738,17 @@ test-value: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJ
 	@./tests/nanovm/test_value
 	@rm -f tests/nanovm/test_value
 
+.PHONY: test-intern
+test-intern: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running NanoVM string interning tests..."
+	$(CC) $(CFLAGS) -o tests/nanovm/test_intern \
+		tests/nanovm/test_intern.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/nanovm/test_intern
+	@rm -f tests/nanovm/test_intern
+
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-dyn-array test-gc-struct test-cop-protocol test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
