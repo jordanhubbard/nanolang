@@ -125,13 +125,13 @@ The retained string primitives are `STR_LEN`, `STR_CONCAT`, `STR_CHAR_AT`, `STR_
 `HM_NEW`, `HM_GET`, `HM_SET`, `HM_HAS`, `HM_DELETE`, `HM_KEYS`, `HM_VALUES`, `HM_LEN`
 
 **GC/Memory (0x80-0x87):**
-`GC_RETAIN`, `GC_RELEASE`, `GC_SCOPE_ENTER`, `GC_SCOPE_EXIT`
+`GC_RETAIN`, `GC_RELEASE`
 
 **Type Casts (0x88-0x8F):**
 `CAST_INT`, `CAST_FLOAT`, `CAST_BOOL`, `CAST_STRING`, `TYPE_CHECK`
 
 **Closures (0x90-0x97):**
-`CLOSURE_NEW` (fn_idx + capture_count), `CLOSURE_CALL`
+`CLOSURE_NEW` (fn_idx + capture_count). Closures are invoked with `CALL_INDIRECT`, which handles both plain function values and closures.
 
 **I/O & legacy debug (0xA0-0xAF):**
 `PRINT`, `ASSERT`, `DEBUG_LINE`, `HALT`. NanoVirt records source locations in
@@ -315,11 +315,11 @@ instruction family and are generated into `src/nanoisa/generated_schema.h`.
 
 ### Memory Management
 
-I use reference-counted GC with scope-based auto-release:
+I use reference-counted GC:
 - `OP_GC_RETAIN` / `OP_GC_RELEASE` - Manual reference counting
-- `OP_GC_SCOPE_ENTER` / `OP_GC_SCOPE_EXIT` - Automatic release on scope exit
 
-I insert scope markers for let-bindings at compile time.
+Scope lifetime is tracked implicitly by the call stack, so no dedicated
+scope-marker opcodes are required.
 
 ### Call Frames
 

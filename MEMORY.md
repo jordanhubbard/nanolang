@@ -652,9 +652,9 @@ Replace `T` with the concrete type: `List_int_new`, `List_string_push`, `List_Po
 | 0x68-0x6F | Union/Enum | `UNION_CONSTRUCT`, `UNION_TAG`, `UNION_FIELD`, `MATCH_TAG`, `ENUM_VAL` |
 | 0x70-0x77 | Tuple Ops | `TUPLE_NEW`, `TUPLE_GET` |
 | 0x78-0x7F | HashMap Ops | `HM_NEW`, `HM_GET`, `HM_SET`, `HM_HAS`, `HM_DELETE`, `HM_KEYS`, `HM_VALUES`, `HM_LEN` |
-| 0x80-0x87 | GC/Memory | `GC_RETAIN`, `GC_RELEASE`, `GC_SCOPE_ENTER`, `GC_SCOPE_EXIT` |
+| 0x80-0x87 | GC/Memory | `GC_RETAIN`, `GC_RELEASE` |
 | 0x88-0x8F | Type Casts | `CAST_INT`, `CAST_FLOAT`, `CAST_BOOL`, `CAST_STRING`, `TYPE_CHECK` |
-| 0x90-0x97 | Closures | `CLOSURE_NEW`, `CLOSURE_CALL` |
+| 0x90-0x97 | Closures | `CLOSURE_NEW` (closures are invoked via `CALL_INDIRECT`) |
 | 0xA0-0xAF | I/O & Debug | `PRINT`, `ASSERT`, `DEBUG_LINE`, `HALT` |
 | 0xB0-0xBF | Opaque Proxy | `OPAQUE_NULL`, `OPAQUE_VALID` |
 
@@ -689,10 +689,10 @@ This enables potential FPGA acceleration of the pure-compute core.
 
 ### 7.6 Memory Management
 
-Reference-counted GC with scope-based auto-release:
+Reference-counted GC:
 - `OP_GC_RETAIN` / `OP_GC_RELEASE` — Manual refcount
-- `OP_GC_SCOPE_ENTER` / `OP_GC_SCOPE_EXIT` — Automatic release on scope exit
-- Compiler inserts scope markers for let-bindings
+- Scope lifetime is tracked implicitly by the call stack (no dedicated
+  scope-marker opcodes)
 
 ---
 

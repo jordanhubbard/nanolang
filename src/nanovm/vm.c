@@ -2739,14 +2739,6 @@ dynamic_div:
             break;
         }
 
-        case OP_GC_SCOPE_ENTER:
-            /* Scope tracking is implicit in the call stack */
-            break;
-
-        case OP_GC_SCOPE_EXIT:
-            /* Scope tracking is implicit in the call stack */
-            break;
-
         /* ============================================================
          * Type Casts
          * ============================================================ */
@@ -2850,50 +2842,6 @@ dynamic_div:
                 c->captures[i] = stack_pop(vm);
             }
             stack_push(vm, val_closure(c));
-            break;
-        }
-
-        case OP_CLOSURE_CALL: {
-            NanoValue fn_val = stack_pop(vm);
-            if (fn_val.tag != TAG_CLOSURE || !fn_val.as.closure) {
-                vm_release(&vm->heap, fn_val);
-                return trap_error(vm, VM_ERR_TYPE_ERROR, "CLOSURE_CALL: not a closure");
-            }
-            VmClosure *closure = fn_val.as.closure;
-            uint32_t callee_idx = closure->fn_idx;
-            if (callee_idx >= vm->module->function_count) {
-                return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Closure fn %u not found", callee_idx);
-            }
-            const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
-            if (vm->frame_count >= VM_MAX_FRAMES) {
-                return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
-            }
-            if (vm->stack_size < callee->arity) {
-                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
-                                  "Function %u needs %u arguments",
-                                  callee_idx, callee->arity);
-            }
-
-            uint32_t new_base = vm->stack_size - callee->arity;
-            for (uint16_t i = callee->arity; i < callee->local_count; i++) {
-                stack_push(vm, val_void());
-            }
-
-            VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
-            new_frame->fn_idx = callee_idx;
-            new_frame->return_ip = vm->ip;
-            new_frame->stack_base = new_base;
-            new_frame->local_count = callee->local_count;
-            new_frame->closure = closure;
-            new_frame->module = vm->module;
-            new_frame->current_line = 0;
-            new_frame->current_col  = 0;
-
-            frame = new_frame;
-            vm->current_fn = callee_idx;
-            vm->ip = callee->code_offset;
-            cur_fn = callee;
-            code_end = callee->code_offset + callee->code_length;
             break;
         }
 
