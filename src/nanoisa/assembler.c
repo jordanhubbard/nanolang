@@ -19,6 +19,21 @@
  * ======================================================================== */
 
 #define MAX_LABELS 1024
+#define MAX_SYMBOLS 2048
+
+typedef enum {
+    SYMBOL_FUNCTION,
+    SYMBOL_IMPORT,
+    SYMBOL_FIELD,
+    SYMBOL_TYPE,
+    SYMBOL_CONSTANT
+} SymbolKind;
+
+typedef struct {
+    char name[128];
+    uint32_t value;
+    SymbolKind kind;
+} Symbol;
 
 typedef struct {
     char name[128];
@@ -49,6 +64,9 @@ typedef struct {
 
     Label labels[MAX_LABELS];
     uint32_t label_count;
+
+    Symbol symbols[MAX_SYMBOLS];
+    uint32_t symbol_count;
 
     Patch patches[MAX_PATCHES];
     uint32_t patch_count;
@@ -104,6 +122,11 @@ static bool parse_identifier(const char **p, char *out, size_t out_size) {
     }
     out[i] = '\0';
     return i > 0;
+}
+
+static bool at_line_end(const char *p) {
+    skip_whitespace(&p);
+    return *p == '\0';
 }
 
 static bool parse_int64(const char **p, int64_t *val) {
@@ -170,6 +193,64 @@ static bool parse_int32(const char **p, int32_t *val) {
     if (v < INT32_MIN || v > INT32_MAX) return false;
     *val = (int32_t)v;
     return true;
+}
+
+static bool parse_symbol_kind(const char **p, SymbolKind *kind) {
+    char name[32];
+    if (!parse_identifier(p, name, sizeof(name))) return false;
+    if (strcmp(name, "function") == 0) *kind = SYMBOL_FUNCTION;
+    else if (strcmp(name, "import") == 0) *kind = SYMBOL_IMPORT;
+    else if (strcmp(name, "field") == 0) *kind = SYMBOL_FIELD;
+    else if (strcmp(name, "type") == 0) *kind = SYMBOL_TYPE;
+    else if (strcmp(name, "constant") == 0) *kind = SYMBOL_CONSTANT;
+    else return false;
+    return true;
+}
+
+static const char *symbol_kind_name(SymbolKind kind) {
+    static const char *names[] = { "function", "import", "field", "type", "constant" };
+    return names[kind];
+}
+
+static int find_symbol(const AsmState *state, SymbolKind kind, const char *name) {
+    for (uint32_t i = 0; i < state->symbol_count; i++) {
+        if (state->symbols[i].kind == kind && strcmp(state->symbols[i].name, name) == 0)
+            return (int)i;
+    }
+    return -1;
+}
+
+static bool add_symbol(AsmState *state, SymbolKind kind, const char *name, uint32_t value) {
+    if (state->symbol_count >= MAX_SYMBOLS || find_symbol(state, kind, name) >= 0) return false;
+    Symbol *symbol = &state->symbols[state->symbol_count++];
+    snprintf(symbol->name, sizeof(symbol->name), "%s", name);
+    symbol->kind = kind;
+    symbol->value = value;
+    return true;
+}
+
+static bool operand_symbol_kind(uint8_t opcode, int operand_index, SymbolKind *kind) {
+    if (operand_index == 0) {
+        switch (opcode) {
+            case OP_CALL: case OP_TAIL_CALL: case OP_FUNCREF: case OP_CLOSURE_NEW:
+                *kind = SYMBOL_FUNCTION; return true;
+            case OP_CALL_EXTERN:
+                *kind = SYMBOL_IMPORT; return true;
+            case OP_PUSH_STR:
+                *kind = SYMBOL_CONSTANT; return true;
+            case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_UNION_CONSTRUCT: case OP_ENUM_VAL:
+                *kind = SYMBOL_TYPE; return true;
+            case OP_STRUCT_GET: case OP_STRUCT_SET: case OP_UNION_FIELD:
+            case OP_AGG_GET: case OP_AGG_SET:
+                *kind = SYMBOL_FIELD; return true;
+            default: break;
+        }
+    }
+    if (opcode == OP_AGG_PACK && operand_index == 1) {
+        *kind = SYMBOL_TYPE;
+        return true;
+    }
+    return false;
 }
 
 /* Parse a quoted string: "hello world" -> hello world
@@ -252,9 +333,44 @@ static void add_patch(AsmState *state, const char *label, uint32_t code_offset, 
  * ======================================================================== */
 
 /* Encode a single operand value based on type, returning bytes written */
-static uint32_t encode_operand(uint8_t *buf, OperandType type,
+static uint32_t encode_operand(uint8_t *buf, OperandType type, uint8_t opcode,
+                               int operand_index,
                                const char **line_ptr, AsmState *state,
                                uint32_t instr_start, AsmResult *result) {
+    SymbolKind symbol_kind;
+    if ((type == OPERAND_U16 || type == OPERAND_U32) &&
+        operand_symbol_kind(opcode, operand_index, &symbol_kind)) {
+        const char *saved = *line_ptr;
+        char name[128];
+        skip_whitespace(line_ptr);
+        if (((**line_ptr >= 'A' && **line_ptr <= 'Z') ||
+             (**line_ptr >= 'a' && **line_ptr <= 'z') || **line_ptr == '_') &&
+            parse_identifier(line_ptr, name, sizeof(name))) {
+            int found = find_symbol(state, symbol_kind, name);
+            if (found < 0) {
+                result->error = ASM_ERR_UNDEFINED_SYMBOL;
+                snprintf(result->message, sizeof(result->message),
+                         "Undefined %s symbol: %s", symbol_kind_name(symbol_kind), name);
+                return 0;
+            }
+            uint32_t value = state->symbols[found].value;
+            if (type == OPERAND_U16 && value > UINT16_MAX) {
+                result->error = ASM_ERR_BAD_OPERAND;
+                snprintf(result->message, sizeof(result->message),
+                         "%s symbol out of u16 range: %s", symbol_kind_name(symbol_kind), name);
+                return 0;
+            }
+            buf[0] = (uint8_t)(value & 0xff);
+            buf[1] = (uint8_t)((value >> 8) & 0xff);
+            if (type == OPERAND_U32) {
+                buf[2] = (uint8_t)((value >> 16) & 0xff);
+                buf[3] = (uint8_t)((value >> 24) & 0xff);
+                return 4;
+            }
+            return 2;
+        }
+        *line_ptr = saved;
+    }
     switch (type) {
         case OPERAND_U8: {
             uint8_t v;
@@ -391,12 +507,13 @@ static bool assemble_instruction(AsmState *state, const char *mnemonic,
         uint8_t operand_buf[8];
         /* For I32 label patches, we need the offset into fn_code where the operand will land */
         uint32_t patch_offset = state->fn_code_size;
-        uint32_t nbytes = encode_operand(operand_buf, info->operands[i],
-                                          rest, state, instr_start, result);
+        uint32_t patches_before = state->patch_count;
+        uint32_t nbytes = encode_operand(operand_buf, info->operands[i], (uint8_t)opcode, i,
+                                           rest, state, instr_start, result);
         if (result->error != ASM_OK) return false;
 
         /* Fix up patch offset: if a patch was added, update its code_offset */
-        if (info->operands[i] == OPERAND_I32 && state->patch_count > 0) {
+        if (info->operands[i] == OPERAND_I32 && state->patch_count > patches_before) {
             Patch *last = &state->patches[state->patch_count - 1];
             if (last->code_offset != patch_offset) {
                 last->code_offset = patch_offset;
@@ -420,7 +537,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
     /* Empty line or comment */
     if (*p == '\0' || *p == ';' || *p == '#') return true;
 
-    /* Directive: .string, .function, .end, .entry, .flag */
+    /* Directive: .string, .symbol, .function, .end, .entry, .flag */
     if (*p == '.') {
         p++;
         char directive[64];
@@ -433,14 +550,45 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
 
         if (strcmp(directive, "string") == 0) {
             char buf[4096];
+            char name[128];
             uint32_t len;
+            const char *before_name = p;
+            bool named = parse_identifier(&p, name, sizeof(name));
+            if (!named) p = before_name;
             if (!parse_quoted_string(&p, buf, sizeof(buf), &len)) {
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),
                          "Expected quoted string after .string");
                 return false;
             }
-            nvm_add_string(state->mod, buf, len);
+            uint32_t index = nvm_add_string(state->mod, buf, len);
+            if (named && !add_symbol(state, SYMBOL_CONSTANT, name, index)) {
+                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+                snprintf(result->message, sizeof(result->message),
+                         "Duplicate constant symbol: %s", name);
+                return false;
+            }
+            return true;
+        }
+
+        if (strcmp(directive, "symbol") == 0) {
+            SymbolKind kind;
+            char name[128];
+            uint32_t value;
+            if (!parse_symbol_kind(&p, &kind) ||
+                !parse_identifier(&p, name, sizeof(name)) ||
+                !parse_uint32(&p, &value) || !at_line_end(p)) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "Expected: .symbol function|import|field|type|constant name index");
+                return false;
+            }
+            if (!add_symbol(state, kind, name, value)) {
+                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+                snprintf(result->message, sizeof(result->message),
+                         "Duplicate %s symbol: %s", symbol_kind_name(kind), name);
+                return false;
+            }
             return true;
         }
 
@@ -487,6 +635,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             fn.result_count = result_count;
 
             state->current_function = nvm_add_function(state->mod, &fn);
+            int symbol = find_symbol(state, SYMBOL_FUNCTION, name);
+            if (symbol < 0 || state->symbols[symbol].value != state->current_function) {
+                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+                snprintf(result->message, sizeof(result->message),
+                         "Duplicate function symbol: %s", name);
+                return false;
+            }
             return true;
         }
 
@@ -541,10 +696,32 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
 
         if (strcmp(directive, "entry") == 0) {
             uint32_t v;
-            if (!parse_uint32(&p, &v)) {
+            const char *before_symbol = p;
+            char name[128];
+            skip_whitespace(&p);
+            if (((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') || *p == '_') &&
+                parse_identifier(&p, name, sizeof(name))) {
+                int found = find_symbol(state, SYMBOL_FUNCTION, name);
+                if (found < 0) {
+                    result->error = ASM_ERR_UNDEFINED_SYMBOL;
+                    snprintf(result->message, sizeof(result->message),
+                             "Undefined function symbol: %s", name);
+                    return false;
+                }
+                v = state->symbols[found].value;
+            } else {
+                p = before_symbol;
+                if (!parse_uint32(&p, &v)) {
+                    result->error = ASM_ERR_SYNTAX;
+                    snprintf(result->message, sizeof(result->message),
+                             "Expected function name or index after .entry");
+                    return false;
+                }
+            }
+            if (!at_line_end(p)) {
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),
-                         "Expected function index after .entry");
+                         "Unexpected text after .entry operand");
                 return false;
             }
             state->mod->header.entry_point = v;
@@ -638,6 +815,47 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
  * Public API
  * ======================================================================== */
 
+static bool collect_function_symbols(AsmState *state, const char *source, AsmResult *result) {
+    const char *p = source;
+    uint32_t line = 0;
+    uint32_t function_index = 0;
+    while (*p) {
+        line++;
+        const char *line_start = p;
+        while (*p && *p != '\n') p++;
+        size_t line_len = (size_t)(p - line_start);
+        char *line_buf = malloc(line_len + 1);
+        if (!line_buf) {
+            result->error = ASM_ERR_MEMORY;
+            result->line = line;
+            snprintf(result->message, sizeof(result->message), "Out of memory");
+            return false;
+        }
+        memcpy(line_buf, line_start, line_len);
+        line_buf[line_len] = '\0';
+
+        const char *cursor = line_buf;
+        skip_whitespace(&cursor);
+        if (strncmp(cursor, ".function", 9) == 0 &&
+            (cursor[9] == ' ' || cursor[9] == '\t')) {
+            cursor += 9;
+            char name[128];
+            if (parse_identifier(&cursor, name, sizeof(name)) &&
+                !add_symbol(state, SYMBOL_FUNCTION, name, function_index++)) {
+                result->error = ASM_ERR_DUPLICATE_SYMBOL;
+                result->line = line;
+                snprintf(result->message, sizeof(result->message),
+                         "Duplicate function symbol: %s", name);
+                free(line_buf);
+                return false;
+            }
+        }
+        free(line_buf);
+        if (*p == '\n') p++;
+    }
+    return true;
+}
+
 NvmModule *asm_assemble(const char *source, AsmResult *result) {
     memset(result, 0, sizeof(*result));
 
@@ -647,6 +865,11 @@ NvmModule *asm_assemble(const char *source, AsmResult *result) {
     if (!state.mod || !state.fn_code) {
         result->error = ASM_ERR_MEMORY;
         snprintf(result->message, sizeof(result->message), "Out of memory");
+        asm_state_cleanup(&state);
+        return NULL;
+    }
+    if (!collect_function_symbols(&state, source, result)) {
+        nvm_module_free(state.mod);
         asm_state_cleanup(&state);
         return NULL;
     }

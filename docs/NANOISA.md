@@ -408,6 +408,32 @@ My wrapper generator (`wrapper_gen.c`) produces standalone native executables:
 1. **Full wrapper** (default): I embed .nvm bytecode and link my full VM runtime. I support all features including closures, cross-module calls, and FFI.
 2. **Daemon wrapper** (`--daemon-wrapper`): I create a thin binary that connects to my `nano_vmd` daemon. This footprint is smaller but requires the daemon to be running.
 
+### Symbolic Assembly Operands
+
+I accept names where an instruction otherwise takes a function, import, field,
+type/layout, string constant, or branch target index. Function declarations and
+named strings declare their own symbols. `.symbol` names indices supplied by
+other module sections:
+
+```text
+.string greeting "hello"
+.symbol import write 0
+.symbol type Point 0
+.symbol field x 0
+.function main 0 0 0 void 0
+start:
+  PUSH_STR greeting
+  CALL_EXTERN write
+  STRUCT_NEW Point
+  STRUCT_GET x
+  JMP start
+.end
+.entry main
+```
+
+Numeric operands remain valid. Symbol kinds are separate, so a function and a
+field may have the same name without ambiguity.
+
 ## Source Files
 
 ### NanoISA (`src/nanoisa/`)

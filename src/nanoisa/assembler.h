@@ -4,7 +4,9 @@
  * Converts text assembly (.nasm) to NVM binary modules.
  *
  * Assembly format:
- *   .string "hello"          ; add to string pool
+ *   .string greeting "hello" ; add a named constant to the string pool
+ *   .symbol type Point 0      ; name an existing type/layout index
+ *   .symbol field x 0         ; name an existing field index
  *   .function main 0 2 0 int 1 ; name arity locals upvalues result-tag result-count
  *   label:
  *     PUSH_I64 42
@@ -30,7 +32,9 @@ typedef enum {
     ASM_ERR_DUPLICATE_LABEL,/* Label defined more than once */
     ASM_ERR_NO_FUNCTION,    /* Instruction outside .function/.end */
     ASM_ERR_MEMORY,         /* Allocation failure */
-    ASM_ERR_IO              /* File I/O error */
+    ASM_ERR_IO,             /* File I/O error */
+    ASM_ERR_UNDEFINED_SYMBOL, /* Symbolic operand has no declaration */
+    ASM_ERR_DUPLICATE_SYMBOL  /* Symbol declared more than once */
 } AsmError;
 
 /* Assembler result */
