@@ -138,6 +138,31 @@ for old hand-written assembly until NanoISA v2 removes it.
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`
 
+### Portable v2 Instruction Families
+
+I keep my portable v2 instruction set in `spec/nanoisa.yaml` instead of a
+hand-maintained opcode table. I generate `src/nanoisa/generated_schema.h` from
+that spec with `scripts/gen_nanoisa_schema.py`, and I hold myself to two rules
+so the portable ISA stays regular:
+
+- **One comprehensible meaning per instruction.** I give every v2 instruction a
+  unique, human-readable `meaning`. I do not let two instructions share the same
+  meaning, so each portable opcode has one unambiguous behavior. I carry the
+  meaning through to `NanoisaV2Family.meaning`, and I refuse to generate the
+  header if a meaning is missing or duplicated.
+- **Symmetric operand forms.** I make every operand name a declared kind in
+  `operand_kinds` rather than an inline encoding. I use `immediate-i64` and
+  `immediate-f64` for constant operands, the same `[offset, align]` pair for
+  every `mem.load*` and `mem.store*`, and `trap-code` to select a host trap. I
+  keep paired instructions mirror images of each other: `local.get`/`local.set`,
+  `global.get`/`global.set`, `upvalue.get`/`upvalue.set`,
+  `aggregate.get`/`aggregate.set`, and each `mem.load*`/`mem.store*` width pair
+  carry identical operand lists.
+
+I enforce both rules in `gen_nanoisa_schema.validate`, which I also run from
+`make schema-check` and `tests/test_nanoisa_schema.py`. If the spec drifts out of
+this shape, I fail the build rather than ship an irregular ISA.
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)

@@ -20,7 +20,97 @@ def c_name(name: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", name).upper().strip("_")
 
 
+def c_string(text: str) -> str:
+    """Escape an arbitrary Python string into a safe C string literal body.
+
+    Handles backslashes, quotes, and any control or non-printable byte so a
+    ``meaning`` with newlines, tabs, or embedded quotes still produces a valid
+    C literal instead of corrupting the generated header.
+    """
+    out = []
+    for ch in text:
+        if ch == "\\":
+            out.append("\\\\")
+        elif ch == '"':
+            out.append('\\"')
+        elif ch == "\n":
+            out.append("\\n")
+        elif ch == "\r":
+            out.append("\\r")
+        elif ch == "\t":
+            out.append("\\t")
+        elif 0x20 <= ord(ch) < 0x7F:
+            out.append(ch)
+        else:
+            for byte in ch.encode("utf-8"):
+                out.append(f"\\x{byte:02x}")
+    return "".join(out)
+
+
+# Paired instruction families whose operand forms must stay symmetric. Each
+# tuple is a (getter, setter) or (load, store) pair that has to share an
+# identical operand list so the portable ISA reads the same way in both
+# directions.
+SYMMETRIC_PAIRS = [
+    ("local.get", "local.set"),
+    ("global.get", "global.set"),
+    ("upvalue.get", "upvalue.set"),
+    ("aggregate.get", "aggregate.set"),
+    ("mem.load8", "mem.store8"),
+    ("mem.load16", "mem.store16"),
+    ("mem.load32", "mem.store32"),
+    ("mem.load64", "mem.store64"),
+]
+
+
+def validate(schema: dict) -> None:
+    """Enforce the portable-ISA invariants.
+
+    Every v2 instruction has one comprehensible meaning, only references
+    declared operand kinds, and paired get/set and load/store instructions
+    share identical operand lists.
+    """
+    operand_kinds = {kind["name"] for kind in schema["operand_kinds"]}
+    families = [
+        item
+        for group in schema["instruction_families"].values()
+        for item in group
+    ]
+    by_name = {item["name"]: item for item in families}
+
+    meanings: dict[str, str] = {}
+    for item in families:
+        name = item["name"]
+        meaning = item.get("meaning")
+        if not meaning or not meaning.strip():
+            raise ValueError(f"v2 instruction {name!r} is missing a meaning")
+        if meaning in meanings:
+            raise ValueError(
+                f"v2 instructions {meanings[meaning]!r} and {name!r} "
+                f"share the meaning {meaning!r}"
+            )
+        meanings[meaning] = name
+        for operand in item.get("operands", []):
+            if operand not in operand_kinds:
+                raise ValueError(
+                    f"v2 instruction {name!r} uses undeclared operand kind "
+                    f"{operand!r}"
+                )
+
+    for left, right in SYMMETRIC_PAIRS:
+        if left not in by_name or right not in by_name:
+            continue
+        left_operands = by_name[left].get("operands", [])
+        right_operands = by_name[right].get("operands", [])
+        if left_operands != right_operands:
+            raise ValueError(
+                f"paired instructions {left!r} and {right!r} have asymmetric "
+                f"operand forms {left_operands!r} != {right_operands!r}"
+            )
+
+
 def generate(schema: dict) -> str:
+    validate(schema)
     tags = schema["value_tags"]
     opcodes = schema["legacy_opcodes"]
     families = [item for group in schema["instruction_families"].values() for item in group]
@@ -48,7 +138,8 @@ def generate(schema: dict) -> str:
     lines.extend(["};", "", "static const NanoisaV2Family nanoisa_v2_families[] = {"])
     for item in families:
         lines.append(
-            f'    {{"{item["name"]}", "{item["ownership"]}", '
+            f'    {{"{item["name"]}", "{c_string(item["meaning"])}", '
+            f'"{item["ownership"]}", '
             f'{len(item.get("operands", []))}, {len(item.get("pops", []))}, '
             f'{len(item.get("pushes", []))}}},'
         )
