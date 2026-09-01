@@ -127,7 +127,7 @@ Execution architecture:
 - [x] I removed generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and statements after terminating control flow from NanoVirt lowering.
 - [x] I added direct tail-call lowering and frame-replacement execution with verifier and runtime signature checks.
 - [ ] I will add profile-selected private superinstructions without exposing frontend bookkeeping as portable opcodes.
-- [ ] I will initially evaluate local-field load, local increment, compare-branch, union-tag branch, and tail-call fusions.
+- [x] I initially evaluated local-field load, local increment, compare-branch, union-tag branch, and tail-call fusions in `docs/superpowers/specs/2026-09-01-nanoisa-fusion-initial-evaluation.md`: each candidate is located in the predecoded dispatch IR (`src/nanovm/vm_dispatch.c`) and the lowering that generates it (`src/nanovirt/codegen.c`), ranked by expected win against correctness cost, and gated on the frequency and measurement floors of `docs/NANOISA_OPTIMIZATION_POLICY.md`; no fusion is accepted yet.
 - [ ] I will accept a fusion only when maintained NanoLang or Forth workloads justify it.
 
 Runtime representation:
