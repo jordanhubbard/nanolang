@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- separate optimized dispatch IR from verified instruction IR
+
 ## [3.5.0] - 2026-08-30
 
 Release presentation: [NanoLang 3.5](docs/RELEASE_3.5.md)

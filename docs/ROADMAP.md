@@ -118,7 +118,7 @@ Portable ISA design:
 - [ ] I will define a clean extended-opcode space without treating an opcode value as an instruction count.
 
 Execution architecture:
-- [ ] I will separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR.
+- [x] I separated compact serialized bytecode (`NvmModule`), verified instruction IR (`VmDecodedModule`), and optimized dispatch IR (`VmDispatchModule`); the dispatch IR flattens each function into instruction-indexed successors and resolved branch/call targets so the runtime advances an index instead of re-deriving one from a byte offset every instruction. `test-verifier` covers the projection.
 - [x] I decode each function once and dispatch predecoded instructions rather than call the generic decoder for every retired instruction.
 - [ ] I build instruction-boundary maps and resolve branches plus direct and tail calls during instantiation; layouts, constants, globals, imports, and linked callable handles remain.
 - [ ] I will provide computed-goto dispatch where supported and retain a portable switch fallback.

@@ -338,8 +338,14 @@ NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
 NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \
 	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT)
 
-$(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
+$(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h $(SRC_DIR)/nanovm/vm_decode.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
+
+# verifier.c #includes ../nanovm/vm_decode.h and embeds VmDecodedFunction by
+# value, so its object must be rebuilt whenever that layout changes.  Stated
+# explicitly so the dependency holds regardless of which pattern rule builds
+# the object.
+$(OBJ_DIR)/nanoisa/verifier.o: $(SRC_DIR)/nanovm/vm_decode.h
 
 $(NANOISA_FACADE_OBJECT): $(NANOISA_MODULE_DIR)/nanoisa.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		$(NANOISA_DIR)/assembler.h $(NANOISA_DIR)/disassembler.h | $(OBJ_DIR)/nanoisa
@@ -397,7 +403,7 @@ NANOVM_DIR = $(SRC_DIR)/nanovm
 NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
 NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES))
 
-$(VM_DECODE_OBJECT): $(NANOVM_DIR)/vm_decode.c $(NANOVM_DIR)/vm_decode.h \
+$(VM_DECODE_OBJECT): $(NANOVM_DIR)/vm_decode.c $(SRC_DIR)/nanovm/vm_decode.h \
 		$(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 

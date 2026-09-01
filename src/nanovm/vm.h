@@ -99,6 +99,8 @@ typedef struct VmState {
     const NvmModule *root_module;
     VmDecodedModule decoded_module;
     bool decoded_module_valid;
+    /* Optimized dispatch IR derived from the verified decoded module. */
+    VmDispatchModule dispatch_module;
 
     /* Operand stack */
     NanoValue *stack;
@@ -128,6 +130,7 @@ typedef struct VmState {
     const NvmModule **linked_modules;
     VmDecodedModule *decoded_linked_modules;
     bool *decoded_linked_modules_valid;
+    VmDispatchModule *dispatch_linked_modules;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
 

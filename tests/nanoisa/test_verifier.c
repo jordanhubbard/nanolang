@@ -370,6 +370,89 @@ static void test_predecoded_module_boundaries(void) {
     PASS(test_name);
 }
 
+static void test_dispatch_ir_flattens_targets(void) {
+    const char *test_name =
+        "vm_dispatch: branch target and successors become instruction indices";
+    /* NOP (1) ; JMP +5 -> RET ; RET (1).  Same shape as the forward-jump
+     * verifier test, exercised through the optimized dispatch IR. */
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_NOP);
+    off += emit(code + off, OP_JMP, (int32_t)5);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+
+    VmDecodedModule decoded;
+    char error[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, error), error);
+
+    VmDispatchModule dispatch;
+    ASSERT(vm_dispatch_module_build(&decoded, &dispatch, error), error);
+    ASSERT(dispatch.function_count == 1, "one function should be projected");
+
+    const VmDispatchFunction *fn = &dispatch.functions[0];
+    ASSERT(fn->instruction_count == 3, "three instructions should be flattened");
+
+    /* NOP falls through to JMP, JMP falls through to RET, RET terminates. */
+    ASSERT(fn->instructions[0].next_index == 1, "NOP successor is index 1");
+    ASSERT(fn->instructions[1].next_index == 2, "JMP successor is index 2");
+    ASSERT(fn->instructions[2].next_index == VM_DISPATCH_NO_INDEX,
+           "final RET has no successor");
+
+    /* The JMP's in-function target is resolved to the RET instruction index. */
+    ASSERT(fn->instructions[1].target_index == 2,
+           "JMP target resolves to the RET instruction index");
+    ASSERT(fn->instructions[1].target_function == VM_DISPATCH_NO_INDEX,
+           "a branch carries no callee function");
+    ASSERT(fn->instructions[0].target_index == VM_DISPATCH_NO_INDEX,
+           "NOP has no in-function target");
+
+    /* offset_to_index maps instruction starts and rejects operand bytes. */
+    ASSERT(vm_dispatch_function_index_at(fn, 0) == 0,
+           "offset 0 maps to instruction 0");
+    ASSERT(vm_dispatch_function_index_at(fn, 1) == 1,
+           "offset 1 maps to the JMP");
+    ASSERT(vm_dispatch_function_index_at(fn, 2) == VM_DISPATCH_NO_INDEX,
+           "an operand byte is not an instruction start");
+    ASSERT(vm_dispatch_function_index_at(fn, 6) == 2,
+           "offset 6 maps to the RET");
+
+    vm_dispatch_module_free(&dispatch);
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_dispatch_ir_resolves_calls(void) {
+    const char *test_name =
+        "vm_dispatch: direct call resolves to a callee function index";
+    /* Function 0 calls function 0 (recursive but valid) then returns. */
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+
+    VmDecodedModule decoded;
+    char error[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, error), error);
+
+    VmDispatchModule dispatch;
+    ASSERT(vm_dispatch_module_build(&decoded, &dispatch, error), error);
+    const VmDispatchFunction *fn = &dispatch.functions[0];
+    ASSERT(fn->instruction_count == 2, "two instructions should be flattened");
+    ASSERT(fn->instructions[0].instruction.opcode == OP_CALL, "first is OP_CALL");
+    ASSERT(fn->instructions[0].target_function == 0,
+           "direct call resolves to callee function 0");
+    ASSERT(fn->instructions[0].target_index == VM_DISPATCH_NO_INDEX,
+           "a call carries no in-function branch index");
+
+    vm_dispatch_module_free(&dispatch);
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_op_call_valid(void) {
     const char *test_name = "nvm_verify: OP_CALL to valid function index passes";
     uint8_t code[16];
@@ -717,6 +800,8 @@ int main(void) {
     test_branch_target_past_function_end_fails();
     test_jump_to_function_end_passes();
     test_predecoded_module_boundaries();
+    test_dispatch_ir_flattens_targets();
+    test_dispatch_ir_resolves_calls();
     test_op_call_valid();
     test_op_call_invalid_fn_idx();
     test_tail_call_signatures();

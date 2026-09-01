@@ -53,6 +53,7 @@ bool vm_decode_function(const NvmModule *module, uint32_t function_index,
     }
 
     out->code_size = entry->code_length;
+    out->code_offset = entry->code_offset;
     out->boundaries = calloc((size_t)entry->code_length + 1, 1);
     out->instruction_indices = calloc((size_t)entry->code_length + 1,
                                       sizeof(*out->instruction_indices));
@@ -166,6 +167,166 @@ bool vm_decode_module(const NvmModule *module, VmDecodedModule *out,
     for (uint32_t i = 0; i < module->function_count; i++) {
         if (!vm_decode_function(module, i, &out->functions[i], error)) {
             vm_decoded_module_free(out);
+            return false;
+        }
+    }
+    if (error) error[0] = '\0';
+    return true;
+}
+
+/* ========================================================================
+ * Optimized dispatch IR
+ *
+ * Projects the verified IR into a flat program whose successors and
+ * in-function targets are already instruction indices.  The verified IR is
+ * authoritative for correctness; this pass only rearranges proven data for
+ * fast execution and never widens what a branch or call may reach.
+ * ======================================================================== */
+
+static bool dispatch_fail(char error[VM_DECODE_ERROR_SIZE], const char *message) {
+    if (error) {
+        snprintf(error, VM_DECODE_ERROR_SIZE, "%s", message);
+    }
+    return false;
+}
+
+void vm_dispatch_function_free(VmDispatchFunction *function) {
+    if (!function) return;
+    free(function->instructions);
+    free(function->offset_to_index);
+    memset(function, 0, sizeof(*function));
+}
+
+void vm_dispatch_module_free(VmDispatchModule *module) {
+    if (!module) return;
+    for (uint32_t i = 0; i < module->function_count; i++) {
+        vm_dispatch_function_free(&module->functions[i]);
+    }
+    free(module->functions);
+    memset(module, 0, sizeof(*module));
+}
+
+uint32_t vm_dispatch_function_index_at(const VmDispatchFunction *function,
+                                       uint32_t byte_offset) {
+    if (!function || !function->offset_to_index
+            || byte_offset > function->code_size) {
+        return VM_DISPATCH_NO_INDEX;
+    }
+    return function->offset_to_index[byte_offset];
+}
+
+bool vm_dispatch_function_build(const VmDecodedFunction *decoded,
+                                VmDispatchFunction *out,
+                                char error[VM_DECODE_ERROR_SIZE]) {
+    if (!out) return false;
+    memset(out, 0, sizeof(*out));
+    if (!decoded) {
+        return dispatch_fail(error, "decoded function is NULL");
+    }
+
+    out->code_size = decoded->code_size;
+    out->instruction_count = decoded->instruction_count;
+    out->offset_to_index = malloc(((size_t)decoded->code_size + 1)
+                                  * sizeof(*out->offset_to_index));
+    if (!out->offset_to_index) {
+        return dispatch_fail(error, "dispatch function allocation failed");
+    }
+    for (uint32_t i = 0; i <= decoded->code_size; i++) {
+        out->offset_to_index[i] = VM_DISPATCH_NO_INDEX;
+    }
+    if (decoded->instruction_count == 0) {
+        if (error) error[0] = '\0';
+        return true;
+    }
+
+    out->instructions = calloc(decoded->instruction_count,
+                               sizeof(*out->instructions));
+    if (!out->instructions) {
+        vm_dispatch_function_free(out);
+        return dispatch_fail(error, "dispatch function allocation failed");
+    }
+
+    for (uint32_t i = 0; i < decoded->instruction_count; i++) {
+        const VmDecodedInstruction *src = &decoded->instructions[i];
+        if (src->byte_offset <= decoded->code_size) {
+            out->offset_to_index[src->byte_offset] = i;
+        }
+    }
+
+    for (uint32_t i = 0; i < decoded->instruction_count; i++) {
+        const VmDecodedInstruction *src = &decoded->instructions[i];
+        VmDispatchInstruction *slot = &out->instructions[i];
+        slot->instruction = src->instruction;
+        slot->start_offset = src->byte_offset;
+        slot->next_offset = src->next_byte_offset;
+        slot->next_index = (i + 1 < decoded->instruction_count)
+            ? i + 1 : VM_DISPATCH_NO_INDEX;
+        slot->target_index = VM_DISPATCH_NO_INDEX;
+        slot->target_function = VM_DISPATCH_NO_INDEX;
+        slot->target_byte_offset = VM_DISPATCH_NO_INDEX;
+
+        if (src->resolved_target == UINT32_MAX) {
+            continue;
+        }
+
+        uint8_t opcode = src->instruction.opcode;
+        if (opcode == OP_CALL || opcode == OP_TAIL_CALL) {
+            /* resolved_target is a callee function index. */
+            slot->target_function = src->resolved_target;
+        } else {
+            /* resolved_target is a module-absolute byte offset of an
+             * in-function branch target.  Convert it to a function-relative
+             * offset; the verified IR has already proven it is an
+             * instruction boundary or the function-end sentinel. */
+            if (src->resolved_target < decoded->code_offset) {
+                vm_dispatch_function_free(out);
+                return dispatch_fail(error,
+                    "dispatch branch target precedes the function");
+            }
+            uint32_t local_offset = src->resolved_target - decoded->code_offset;
+            if (local_offset > decoded->code_size) {
+                vm_dispatch_function_free(out);
+                return dispatch_fail(error,
+                    "dispatch branch target is outside the function");
+            }
+            uint32_t target_index = out->offset_to_index[local_offset];
+            if (target_index == VM_DISPATCH_NO_INDEX
+                    && local_offset != decoded->code_size) {
+                vm_dispatch_function_free(out);
+                return dispatch_fail(error,
+                    "dispatch branch target is not an instruction boundary");
+            }
+            slot->target_index = target_index;
+            slot->target_byte_offset = local_offset;
+        }
+    }
+
+    if (error) error[0] = '\0';
+    return true;
+}
+
+bool vm_dispatch_module_build(const VmDecodedModule *decoded,
+                              VmDispatchModule *out,
+                              char error[VM_DECODE_ERROR_SIZE]) {
+    if (!out) return false;
+    memset(out, 0, sizeof(*out));
+    if (!decoded) {
+        return dispatch_fail(error, "decoded module is NULL");
+    }
+    if (decoded->function_count == 0) {
+        if (error) error[0] = '\0';
+        return true;
+    }
+
+    out->functions = calloc(decoded->function_count, sizeof(*out->functions));
+    if (!out->functions) {
+        return dispatch_fail(error, "dispatch module allocation failed");
+    }
+    out->function_count = decoded->function_count;
+    for (uint32_t i = 0; i < decoded->function_count; i++) {
+        if (!vm_dispatch_function_build(&decoded->functions[i],
+                                        &out->functions[i], error)) {
+            vm_dispatch_module_free(out);
             return false;
         }
     }
