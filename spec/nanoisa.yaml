@@ -334,3 +334,34 @@ instruction_families:
     - {name: global.set.compact, meaning: "Store the top value into a compactly indexed global.", operands: [compact], pops: [any], pushes: [], ownership: move, canonical: global.set}
     - {name: aggregate.get.compact, meaning: "Read a compactly indexed field out of an aggregate.", operands: [compact], pops: [aggregate], pushes: [any], ownership: retain, canonical: aggregate.get}
     - {name: aggregate.set.compact, meaning: "Write a compactly indexed field into an aggregate.", operands: [compact], pops: [aggregate, any], pushes: [aggregate], ownership: move, canonical: aggregate.set}
+
+# Runtime-library boundary for the v2 Portable ISA.
+#
+# Trimming, case conversion, splitting, replacement, formatting, parsing, and
+# collection algorithms are NOT portable instructions. The normative
+# instruction_families above expose only primitive string and aggregate
+# operations (length, concatenation, substring, char access, equality,
+# containment, and layout-driven aggregate pack/get/set/tag); every richer
+# algorithm is provided by runtime libraries reached through call.import / trap.
+#
+# The v1 legacy_opcodes inventory still lists the compound STR_* opcodes
+# (STR_TRIM, STR_TO_LOWER, STR_TO_UPPER, STR_STARTS_WITH, STR_ENDS_WITH,
+# STR_SPLIT, STR_REPLACE) for executable v1 compatibility only; they are absent
+# from the v2 families on purpose. This section records the algorithms that
+# have been moved out of the ISA so schema tests can guard against them
+# re-entering the portable instruction set.
+runtime_library_algorithms:
+  - {name: str_trim, category: trimming, primitives: [str_length, char_at, str_substring]}
+  - {name: str_trim_left, category: trimming, primitives: [str_length, char_at, str_substring]}
+  - {name: str_trim_right, category: trimming, primitives: [str_length, char_at, str_substring]}
+  - {name: str_to_lower, category: case-conversion, primitives: [str_length, char_at, string_from_char, str_concat]}
+  - {name: str_to_upper, category: case-conversion, primitives: [str_length, char_at, string_from_char, str_concat]}
+  - {name: str_split, category: splitting, primitives: [str_length, char_at, str_substring, str_equals]}
+  - {name: str_join, category: collection, primitives: [str_concat]}
+  - {name: str_replace, category: replacement, primitives: [str_length, str_substring, str_contains, str_concat]}
+  - {name: str_starts_with, category: matching, primitives: [str_length, str_substring, str_equals]}
+  - {name: str_ends_with, category: matching, primitives: [str_length, str_substring, str_equals]}
+  - {name: str_index_of, category: matching, primitives: [str_length, str_substring, str_equals]}
+  - {name: format, category: formatting, primitives: [str_concat, int_to_string, float_to_string]}
+  - {name: string_to_int, category: parsing, primitives: [str_length, char_at]}
+  - {name: string_to_float, category: parsing, primitives: [str_length, char_at]}
