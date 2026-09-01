@@ -138,6 +138,45 @@ for old hand-written assembly until NanoISA v2 removes it.
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`
 
+### Portable Instruction Families (v2)
+
+`spec/nanoisa.yaml` is the source of truth for the portable v2 instruction set,
+and `scripts/gen_nanoisa_schema.py` generates `src/nanoisa/generated_schema.h`
+from it. Two design invariants make the portable set predictable and are
+enforced by `tests/test_nanoisa_schema.py`:
+
+- **One comprehensible meaning.** Every portable instruction declares a single
+  non-empty `meaning`, and no two instructions share the same meaning. A
+  mnemonic therefore names exactly one operation.
+- **Symmetric operand forms.** Every operand references a named entry in
+  `operand_kinds`; raw wire encodings (`uleb`, `sleb`, `u8`, `f64`) never appear
+  directly in an instruction's operand list. A given operand form (for example
+  `local`, `offset`, or `branch`) always means the same thing wherever it
+  appears, paired `*.get`/`*.set` forms share identical operands, and every
+  `mem.*` access uses the same `[offset, align]` form.
+
+Each operand kind fixes both its encoding and its meaning:
+
+| Kind | Encoding | Meaning |
+|------|----------|---------|
+| `value-tag` | u8 | runtime value tag selector |
+| `immediate-i64` | sleb | inline signed 64-bit integer literal |
+| `immediate-f64` | f64 | inline 64-bit float literal |
+| `local` / `global` / `upvalue` | uleb | frame-local / module-global / captured slot index |
+| `constant` | uleb | constant-pool entry index |
+| `function` / `signature` / `import` | uleb | defined function / call signature / imported callable index |
+| `layout` / `field` | uleb | aggregate layout / field index |
+| `count` | uleb | element or argument count |
+| `offset` / `align` | uleb | byte offset added to a memory base / log2 alignment hint |
+| `trap-code` | uleb | host trap selector |
+| `branch` | sleb | signed relative branch displacement |
+
+The families cover constants, stack manipulation, variable access, integer and
+float arithmetic, byte-addressed memory, layout-driven aggregates, control
+flow, and host traps. The generated header exposes `nanoisa_operand_kinds` and
+`nanoisa_v2_families` (each family entry carrying its `meaning`) so tools and
+the VM consume the same normative metadata.
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)

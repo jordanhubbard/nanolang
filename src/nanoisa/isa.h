@@ -299,10 +299,17 @@ typedef struct {
 typedef struct {
     const char *name;
     const char *ownership;
+    const char *meaning;        /* One comprehensible meaning for the instruction */
     uint8_t operand_count;
     uint8_t pop_count;
     uint8_t push_count;
 } NanoisaV2Family;
+
+typedef struct {
+    const char *name;           /* Operand-kind mnemonic (e.g., "local") */
+    const char *encoding;       /* Wire encoding (e.g., "uleb", "sleb") */
+    const char *meaning;        /* One comprehensible meaning for the operand */
+} NanoisaOperandKind;
 
 #include "generated_schema.h"
 
