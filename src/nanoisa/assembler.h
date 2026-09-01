@@ -29,6 +29,7 @@ typedef enum {
     ASM_ERR_UNDEFINED_LABEL,/* Jump to undefined label */
     ASM_ERR_DUPLICATE_LABEL,/* Label defined more than once */
     ASM_ERR_NO_FUNCTION,    /* Instruction outside .function/.end */
+    ASM_ERR_VERIFY,         /* Assembled module failed bytecode verification */
     ASM_ERR_MEMORY,         /* Allocation failure */
     ASM_ERR_IO              /* File I/O error */
 } AsmError;

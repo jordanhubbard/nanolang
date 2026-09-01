@@ -8,6 +8,7 @@
 
 #include "assembler.h"
 #include "isa.h"
+#include "verifier.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -92,6 +93,16 @@ static void fn_emit(AsmState *state, const uint8_t *data, uint32_t size) {
 
 static void skip_whitespace(const char **p) {
     while (**p == ' ' || **p == '\t') (*p)++;
+}
+
+static bool require_line_end(const char *p, AsmResult *result) {
+    skip_whitespace(&p);
+    if (*p == '\0') return true;
+
+    result->error = ASM_ERR_SYNTAX;
+    snprintf(result->message, sizeof(result->message),
+             "Unexpected trailing input: %s", p);
+    return false;
 }
 
 static bool parse_identifier(const char **p, char *out, size_t out_size) {
@@ -406,7 +417,7 @@ static bool assemble_instruction(AsmState *state, const char *mnemonic,
         fn_emit(state, operand_buf, nbytes);
     }
 
-    return true;
+    return require_line_end(*rest, result);
 }
 
 /* ========================================================================
@@ -441,7 +452,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 return false;
             }
             nvm_add_string(state->mod, buf, len);
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "function") == 0) {
@@ -487,7 +498,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             fn.result_count = result_count;
 
             state->current_function = nvm_add_function(state->mod, &fn);
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "end") == 0) {
@@ -536,7 +547,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             }
             state->patch_count = new_count;
 
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "entry") == 0) {
@@ -549,7 +560,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             }
             state->mod->header.entry_point = v;
             state->mod->header.flags |= NVM_FLAG_HAS_MAIN;
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "flag") == 0) {
@@ -567,7 +578,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             } else if (strcmp(flag_name, "debug_info") == 0) {
                 state->mod->header.flags |= NVM_FLAG_DEBUG_INFO;
             }
-            return true;
+            return require_line_end(p, result);
         }
 
         result->error = ASM_ERR_SYNTAX;
@@ -711,6 +722,15 @@ NvmModule *asm_assemble(const char *source, AsmResult *result) {
 
     NvmModule *mod = state.mod;
     asm_state_cleanup(&state);
+
+    NvmVerifyResult verify = nvm_verify(mod);
+    if (!verify.ok) {
+        result->error = ASM_ERR_VERIFY;
+        snprintf(result->message, sizeof(result->message),
+                 "Assembled module failed verification: %.210s", verify.error_msg);
+        nvm_module_free(mod);
+        return NULL;
+    }
     return mod;
 }
 

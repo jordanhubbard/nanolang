@@ -159,7 +159,7 @@ Module format and tools:
 - [x] I reject duplicate singleton sections, overlaps, partial fixed-width records, trailing data, interior gaps, and arithmetic overflow in `nvm_deserialize` via a structural section-directory validation pass, covered by `tests/nanoisa/test_nanoisa.c` module-format tests.
 - [ ] I will make symbolic functions, imports, fields, types, constants, and labels first-class assembler operands.
 - [ ] I will make canonical disassembly lossless and byte-length aware.
-- [ ] I will validate complete operand consumption and verify every assembled module.
+- [x] I reject trailing instruction and directive operands, and I run the bytecode verifier before returning any assembled module; `test-nanoisa` covers both rejection paths.
 - [ ] I will correct disassembler import annotations, branch operand roles, label construction, and binary-string handling.
 - [ ] I will add an exhaustive coverage check tying every opcode to schema, VM behavior, verifier rules, assembly, disassembly, and tests.
 - [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
