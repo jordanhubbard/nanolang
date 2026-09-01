@@ -394,7 +394,7 @@ static void test_dispatch_projects_branch_targets(void) {
 
     VmDispatchModule dispatch;
     char derr[VM_DISPATCH_ERROR_SIZE];
-    ASSERT(vm_dispatch_build_module(&decoded, &dispatch, derr),
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_none(), &dispatch, derr),
            "dispatch IR projects from verified IR");
     ASSERT_EQ_INT(dispatch.function_count, 1, "one dispatch function");
 
@@ -443,7 +443,7 @@ static void test_dispatch_cursor_walks_stream(void) {
     ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
     VmDispatchModule dispatch;
     char derr[VM_DISPATCH_ERROR_SIZE];
-    ASSERT(vm_dispatch_build_module(&decoded, &dispatch, derr),
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_none(), &dispatch, derr),
            "dispatch IR projects");
 
     VmDispatchCursor cursor = {0};
@@ -501,6 +501,185 @@ static void test_dispatch_lockstep_with_verified_ir(void) {
     vm_destroy(&vm);
     ASSERT(vm.dispatch_module.functions == NULL,
            "destroy clears the dispatch IR");
+    nvm_module_free(mod);
+}
+
+/* ------------------------------------------------------------------ *
+ * Private superinstructions (profile-selected dispatch fusion).
+ *
+ * These verify that a profile can fold LOAD_LOCAL + AGG_GET into one
+ * private dispatch step (VM_SUPER_LOAD_LOCAL_FIELD) without changing
+ * results, that the default profile leaves the stream unfused, and that
+ * fusion never breaks a branch that lands directly on the folded tail.
+ * ------------------------------------------------------------------ */
+
+/* Emit: pack a 2-field record into local 0, then LOAD_LOCAL 0 / AGG_GET field.
+ * Returns the byte offset of the AGG_GET instruction via *agg_get_off. */
+static uint32_t emit_local_field_program(uint8_t *code, uint16_t field,
+                                         uint32_t *load_local_off,
+                                         uint32_t *agg_get_off) {
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)111);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)222);
+    off += emit(code + off, OP_AGG_PACK, AGG_RECORD, (uint32_t)0, 0, 2);
+    off += emit(code + off, OP_STORE_LOCAL, 0);
+    if (load_local_off) *load_local_off = off;
+    off += emit(code + off, OP_LOAD_LOCAL, 0);
+    if (agg_get_off) *agg_get_off = off;
+    off += emit(code + off, OP_AGG_GET, field);
+    off += emit(code + off, OP_RET);
+    return off;
+}
+
+static void test_super_profile_none_leaves_stream_unfused(void) {
+    uint8_t code[128];
+    uint32_t load_off = 0, agg_off = 0;
+    uint32_t off = emit_local_field_program(code, 1, &load_off, &agg_off);
+    NvmModule *mod = make_module(code, off, 0, 1);
+
+    VmDecodedModule decoded;
+    char err[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
+    VmDispatchModule dispatch;
+    char derr[VM_DISPATCH_ERROR_SIZE];
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_none(),
+                                    &dispatch, derr),
+           "unfused dispatch IR projects");
+
+    const VmDispatchFunction *fn = &dispatch.functions[0];
+    uint32_t load_idx = fn->offset_to_index[load_off] - 1;
+    const VmDispatchInstruction *lead = &fn->instructions[load_idx];
+    ASSERT_EQ_INT(lead->super_op, VM_SUPER_NONE,
+                  "no profile means no superinstruction");
+    ASSERT_EQ_INT(lead->instruction.opcode, OP_LOAD_LOCAL,
+                  "leader stays a plain LOAD_LOCAL");
+    ASSERT_EQ_INT(lead->next_byte_offset, agg_off,
+                  "unfused fall-through still points at AGG_GET");
+
+    vm_dispatch_module_free(&dispatch);
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+}
+
+static void test_super_profile_fuses_local_field_load(void) {
+    uint8_t code[128];
+    uint32_t load_off = 0, agg_off = 0;
+    uint32_t off = emit_local_field_program(code, 1, &load_off, &agg_off);
+    NvmModule *mod = make_module(code, off, 0, 1);
+
+    VmDecodedModule decoded;
+    char err[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
+    VmDispatchModule dispatch;
+    char derr[VM_DISPATCH_ERROR_SIZE];
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_all(),
+                                    &dispatch, derr),
+           "fused dispatch IR projects");
+
+    const VmDispatchFunction *fn = &dispatch.functions[0];
+    uint32_t load_idx = fn->offset_to_index[load_off] - 1;
+    const VmDispatchInstruction *lead = &fn->instructions[load_idx];
+    ASSERT_EQ_INT(lead->super_op, VM_SUPER_LOAD_LOCAL_FIELD,
+                  "profile fuses LOAD_LOCAL + AGG_GET");
+    ASSERT_EQ_INT(lead->super_operand, 1, "fused field index is carried");
+    ASSERT_EQ_INT(lead->instruction.opcode, OP_LOAD_LOCAL,
+                  "the leader still carries the local operand");
+
+    /* The fused leader skips past the AGG_GET; the folded AGG_GET stays in
+     * the array so a direct branch to it still works. */
+    uint32_t agg_idx = fn->offset_to_index[agg_off] - 1;
+    ASSERT_EQ_INT(lead->next_index, agg_idx + 1,
+                  "fused fall-through skips the folded AGG_GET");
+    ASSERT_EQ_INT(fn->instructions[agg_idx].instruction.opcode, OP_AGG_GET,
+                  "the folded AGG_GET remains independently reachable");
+    ASSERT_EQ_INT(fn->instructions[agg_idx].super_op, VM_SUPER_NONE,
+                  "the folded tail is not itself a superinstruction");
+
+    vm_dispatch_module_free(&dispatch);
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+}
+
+static void test_super_fusion_preserves_result(void) {
+    /* Same program run unfused and fused must return the same field value. */
+    for (uint16_t field = 0; field < 2; field++) {
+        uint8_t code[128];
+        uint32_t off = emit_local_field_program(code, field, NULL, NULL);
+
+        NvmModule *plain = make_module(code, off, 0, 1);
+        VmState vm_plain;
+        vm_init(&vm_plain, plain);
+        vm_set_dispatch_profile(&vm_plain, vm_dispatch_profile_none());
+        ASSERT(vm_rebuild_module(&vm_plain, plain),
+               "unfused rebuild succeeds");
+        NanoValue plain_result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm_plain, 0, NULL, 0, &plain_result), VM_OK,
+                      "unfused program executes");
+        int64_t plain_val = plain_result.as.i64;
+        vm_destroy(&vm_plain);
+        nvm_module_free(plain);
+
+        NvmModule *fused = make_module(code, off, 0, 1);
+        VmState vm_fused;
+        vm_init(&vm_fused, fused);
+        vm_set_dispatch_profile(&vm_fused, vm_dispatch_profile_all());
+        ASSERT(vm_rebuild_module(&vm_fused, fused),
+               "fused rebuild succeeds");
+        ASSERT(vm_fused.dispatch_module_valid, "fused dispatch IR is valid");
+        NanoValue fused_result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm_fused, 0, NULL, 0, &fused_result), VM_OK,
+                      "fused program executes");
+        ASSERT_EQ_INT(fused_result.as.i64, plain_val,
+                      "fused superinstruction returns the same field value");
+        int64_t expect = (field == 0) ? 111 : 222;
+        ASSERT_EQ_INT(fused_result.as.i64, expect,
+                      "fused field value matches the packed record");
+        vm_destroy(&vm_fused);
+        nvm_module_free(fused);
+    }
+}
+
+static void test_super_fusion_keeps_branch_target_reachable(void) {
+    /* A JMP_FALSE lands directly on the AGG_GET that a preceding LOAD_LOCAL
+     * would otherwise fuse with.  The folded tail must still execute the
+     * plain AGG_GET when reached by branch, proving fusion never rewrites a
+     * branch target. */
+    uint8_t code[160];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_AGG_PACK, AGG_RECORD, (uint32_t)0, 0, 2);
+    off += emit(code + off, OP_STORE_LOCAL, 0);   /* local 0 = {10, 20} */
+
+    /* Push false, then a LOAD_LOCAL/AGG_GET pair the profile would fuse.
+     * A JMP_FALSE jumps over the LOAD_LOCAL straight onto the AGG_GET. */
+    off += emit(code + off, OP_LOAD_LOCAL, 0);    /* leave the record on top */
+    off += emit(code + off, OP_PUSH_BOOL, 0);     /* condition = false */
+    uint32_t jmp_off = off;
+    /* placeholder; patched once AGG_GET offset is known */
+    off += emit(code + off, OP_JMP_FALSE, (int32_t)0);
+    uint32_t load_off = off;
+    off += emit(code + off, OP_LOAD_LOCAL, 0);    /* skipped when false */
+    off += emit(code + off, OP_POP);              /* would drop the record */
+    uint32_t agg_off = off;
+    off += emit(code + off, OP_AGG_GET, 0);       /* branch target: field 0 */
+    off += emit(code + off, OP_RET);
+
+    /* Patch the JMP_FALSE to target the AGG_GET (relative to the jmp). */
+    (void)load_off;
+    emit(code + jmp_off, OP_JMP_FALSE, (int32_t)(agg_off - jmp_off));
+
+    NvmModule *mod = make_module(code, off, 0, 1);
+    VmState vm;
+    vm_init(&vm, mod);
+    vm_set_dispatch_profile(&vm, vm_dispatch_profile_all());
+    ASSERT(vm_rebuild_module(&vm, mod), "fused rebuild succeeds");
+    NanoValue result = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "branch into folded AGG_GET executes");
+    ASSERT_EQ_INT(result.as.i64, 10,
+                  "branch target AGG_GET reads field 0 of the record");
+    vm_destroy(&vm);
     nvm_module_free(mod);
 }
 
@@ -3728,6 +3907,10 @@ int main(void) {
     RUN_TEST(test_dispatch_projects_branch_targets);
     RUN_TEST(test_dispatch_cursor_walks_stream);
     RUN_TEST(test_dispatch_lockstep_with_verified_ir);
+    RUN_TEST(test_super_profile_none_leaves_stream_unfused);
+    RUN_TEST(test_super_profile_fuses_local_field_load);
+    RUN_TEST(test_super_fusion_preserves_result);
+    RUN_TEST(test_super_fusion_keeps_branch_target_reachable);
 
     printf("\n[Float/mixed arithmetic]\n");
     RUN_TEST(test_add_float_int);

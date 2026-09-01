@@ -126,7 +126,7 @@ Execution architecture:
 - [x] I made `--strip-debug` remove all generated runtime debug cost by stripping the side table from code that contains no debug opcodes.
 - [x] I removed generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and statements after terminating control flow from NanoVirt lowering.
 - [x] I added direct tail-call lowering and frame-replacement execution with verifier and runtime signature checks.
-- [ ] I will add profile-selected private superinstructions without exposing frontend bookkeeping as portable opcodes.
+- [x] I add profile-selected private superinstructions in the optimized dispatch IR (`src/nanovm/vm_dispatch.c` `VmDispatchProfile` and `VmSuperOp`): a fusion runs only when a profile opts it in, the fused step lives entirely in representation 3 with no portable opcode, no serialized-bytecode or verified-IR footprint, and no frontend bookkeeping, and it preserves the byte-addressed `ip` contract; `docs/NANOISA_OPTIMIZATION_POLICY.md` records the acceptance policy and `tests/nanovm/test_vm.c` proves fused and unfused projections return identical results and never rewrite a branch target.
 - [ ] I will initially evaluate local-field load, local increment, compare-branch, union-tag branch, and tail-call fusions.
 - [ ] I will accept a fusion only when maintained NanoLang or Forth workloads justify it.
 
