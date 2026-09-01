@@ -219,6 +219,11 @@ I enforce both rules in `scripts/gen_nanoisa_schema.py`. The generator validates
 the schema before it emits anything, so a design that breaks either rule fails
 `make schema-check` instead of shipping.
 
+The portable ISA defined here is deliberately kept separate from the verified
+and optimized runtime representations my VM builds from a loaded module; see
+[Portable NanoISA vs. Runtime Representations](NANOISA_PORTABLE_ISA.md) for
+which layer is the portable contract and which layers are internal.
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)
@@ -261,7 +266,11 @@ Variable-length entries: `[length: u32] [utf8_bytes: length]`. I deduplicate str
 ### Execution Representations
 
 I keep three separate representations of a program so that serialization,
-verification, and dispatch each stay simple and independently testable:
+verification, and dispatch each stay simple and independently testable. Only the
+first is the **portable NanoISA** contract; the other two are internal runtime
+representations rebuilt on every load and carry no portability promise. See
+[Portable NanoISA vs. Runtime Representations](NANOISA_PORTABLE_ISA.md) for the
+full separation:
 
 1. **Compact serialized bytecode** (`NvmModule`, `src/nanoisa/nvm_format.*`) is
    the on-disk and on-wire form: variable-length, byte-addressed instructions

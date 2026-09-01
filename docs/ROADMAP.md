@@ -176,7 +176,7 @@ FFI and traps:
 
 Documentation and acceptance:
 - [x] I replaced stale NanoISA opcode counts and architecture claims in the active documentation; historical changelog entries remain historical.
-- [ ] I will document the portable ISA separately from verified and optimized runtime representations.
+- [x] I document the portable ISA separately from verified and optimized runtime representations in [docs/NANOISA_PORTABLE_ISA.md](NANOISA_PORTABLE_ISA.md): the portable contract lives in `spec/nanoisa.yaml` and the `.nvm` format, while the verified instruction IR and optimized dispatch IR are documented as internal, non-portable runtime representations.
 - [ ] I will provide readable symbolic assembly examples for NanoLang and Forth.
 - [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
 - [ ] I will demonstrate performance changes with distributions, not single timing claims.
