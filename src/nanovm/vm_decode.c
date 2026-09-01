@@ -94,6 +94,10 @@ bool vm_decode_function(const NvmModule *module, uint32_t function_index,
         decoded->byte_offset = position;
         decoded->next_byte_offset = position + size;
         decoded->resolved_target = UINT32_MAX;
+        decoded->call_handle.module = NULL;
+        decoded->call_handle.function = NULL;
+        decoded->call_handle.function_index = 0;
+        decoded->call_handle.resolved = false;
         out->boundaries[position] = 1;
         out->instruction_indices[position] = out->instruction_count + 1;
         out->instruction_count++;

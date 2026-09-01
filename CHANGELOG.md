@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- Resolve separate-module `CALL_MODULE` calls to callable handles during linking instead of carrying module/function index pairs through dispatch.
+
 ## [3.5.0] - 2026-08-30
 
 Release presentation: [NanoLang 3.5](docs/RELEASE_3.5.md)

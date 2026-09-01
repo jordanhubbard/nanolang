@@ -9,10 +9,21 @@
 
 #define VM_DECODE_ERROR_SIZE 256
 
+/* Callable handle for cross-module (OP_CALL_MODULE) calls.
+ * Resolved once during linking so dispatch never carries a
+ * module/function index pair or repeats per-call bounds checks. */
+typedef struct {
+    const NvmModule *module;                 /* Target module, NULL if unresolved */
+    const NvmFunctionEntry *function; /* Target function entry */
+    uint32_t function_index;                 /* Function index within the target module */
+    bool resolved;                           /* True once linking bound the handle */
+} VmCallHandle;
+
 typedef struct {
     uint32_t byte_offset;
     uint32_t next_byte_offset;
     uint32_t resolved_target;
+    VmCallHandle call_handle;   /* Valid for OP_CALL_MODULE, resolved at link time */
     DecodedInstruction instruction;
 } VmDecodedInstruction;
 

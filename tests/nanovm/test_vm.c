@@ -2746,6 +2746,98 @@ static void test_call_module_chain(void) {
     nvm_module_free(mod_b);
 }
 
+static void test_call_module_handle_resolution(void) {
+    /*
+     * Cross-module calls are resolved to callable handles during linking
+     * rather than carrying a (module index, function index) pair through
+     * dispatch. Verify vm_resolve_module_calls binds the handle to the
+     * target module/function, that re-linking re-resolves, and that an
+     * out-of-range pair leaves the handle unresolved.
+     */
+
+    /* Module B: fn add_10(x) -> x + 10 */
+    NvmModule *mod_b = nvm_module_new();
+    {
+        uint8_t code[64];
+        uint32_t n = 0;
+        n += emit(code + n, OP_LOAD_LOCAL, 0);
+        n += emit(code + n, OP_PUSH_I64, (int64_t)10);
+        n += emit(code + n, OP_ADD);
+        n += emit(code + n, OP_RET);
+
+        uint32_t name_idx = nvm_add_string(mod_b, "add_10", 6);
+        uint32_t code_off = nvm_append_code(mod_b, code, n);
+        NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
+        fn.name_idx = name_idx;
+        fn.arity = 1;
+        fn.code_offset = code_off;
+        fn.code_length = n;
+        fn.local_count = 1;
+        nvm_add_function(mod_b, &fn);
+    }
+
+    /* Module A: fn main() -> call_module(0, 0, arg=5) */
+    NvmModule *mod_a = nvm_module_new();
+    uint32_t call_off = 0;
+    {
+        uint8_t code[64];
+        uint32_t n = 0;
+        n += emit(code + n, OP_PUSH_I64, (int64_t)5);
+        call_off = n;
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+        n += emit(code + n, OP_RET);
+
+        uint32_t name_idx = nvm_add_string(mod_a, "main", 4);
+        uint32_t code_off = nvm_append_code(mod_a, code, n);
+        NvmFunctionEntry fn = { .result_tag = TAG_INT, .result_count = 1 };
+        fn.name_idx = name_idx;
+        fn.arity = 0;
+        fn.code_offset = code_off;
+        fn.code_length = n;
+        fn.local_count = 0;
+        uint32_t fn_idx = nvm_add_function(mod_a, &fn);
+        mod_a->header.flags = NVM_FLAG_HAS_MAIN;
+        mod_a->header.entry_point = fn_idx;
+    }
+
+    VmState vm;
+    vm_init(&vm, mod_a);
+
+    /* Before linking, resolution leaves the handle unbound. */
+    ASSERT(vm_resolve_module_calls(&vm), "handle: resolve before link ok");
+    const VmDecodedInstruction *ins =
+        vm_decoded_function_at(&vm.decoded_module.functions[0], call_off);
+    ASSERT(ins != NULL, "handle: found CALL_MODULE instruction");
+    ASSERT_EQ_INT(ins->instruction.opcode, OP_CALL_MODULE, "handle: opcode is CALL_MODULE");
+    ASSERT(!ins->call_handle.resolved, "handle: unresolved before link");
+
+    /* Linking must invalidate the prior (empty) resolution. */
+    uint32_t link_idx = vm_link_module(&vm, mod_b);
+    ASSERT_EQ_INT(link_idx, 0, "handle: link idx == 0");
+    ASSERT(!vm.module_calls_resolved, "handle: linking clears resolved flag");
+
+    ASSERT(vm_resolve_module_calls(&vm), "handle: resolve after link ok");
+    ASSERT(vm.module_calls_resolved, "handle: resolved flag set");
+
+    ins = vm_decoded_function_at(&vm.decoded_module.functions[0], call_off);
+    ASSERT(ins != NULL, "handle: re-find CALL_MODULE instruction");
+    ASSERT(ins->call_handle.resolved, "handle: resolved after link");
+    ASSERT(ins->call_handle.module == mod_b, "handle: bound to target module B");
+    ASSERT_EQ_INT(ins->call_handle.function_index, 0, "handle: bound to function 0");
+    ASSERT(ins->call_handle.function == &mod_b->functions[0],
+           "handle: bound to function entry");
+
+    /* Executing through the resolved handle still yields 5 + 10 == 15. */
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "handle: VM_OK");
+    NanoValue result = vm_get_result(&vm);
+    ASSERT_EQ_INT(result.as.i64, 15, "handle: 5 + 10 == 15");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod_a);
+    nvm_module_free(mod_b);
+}
+
 /* ========================================================================
  * Additional coverage tests: vm_error_string, float/mixed arith,
  * OP_STR_CONCAT, and type-error paths
@@ -3339,6 +3431,7 @@ int main(void) {
     RUN_TEST(test_call_module);
     RUN_TEST(test_call_module_bad_idx);
     RUN_TEST(test_call_module_chain);
+    RUN_TEST(test_call_module_handle_resolution);
 
     printf("\n[Stack Ops: ROT3]\n");
     RUN_TEST(test_rot3);

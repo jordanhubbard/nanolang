@@ -99,6 +99,9 @@ typedef struct VmState {
     const NvmModule *root_module;
     VmDecodedModule decoded_module;
     bool decoded_module_valid;
+    /* True once cross-module OP_CALL_MODULE handles have been resolved
+     * against the linked-module table. Reset when linking changes. */
+    bool module_calls_resolved;
 
     /* Operand stack */
     NanoValue *stack;
@@ -241,6 +244,12 @@ const char *vm_error_string(VmResult result);
 /* Link a module for cross-module calls (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* Resolve every cross-module OP_CALL_MODULE operand pair into a direct
+ * callable handle against the linked-module table. Runs once after
+ * linking; dispatch then follows the handle instead of re-indexing the
+ * module/function tables on every call. Returns false on a decode error. */
+bool vm_resolve_module_calls(VmState *vm);
 
 /* Mark one mutable module's cached instructions stale before changing it. */
 void vm_invalidate_module(VmState *vm, const NvmModule *module);

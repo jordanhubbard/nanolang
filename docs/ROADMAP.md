@@ -110,7 +110,7 @@ Portable ISA design:
 - [x] I replaced NanoVirt's language-specific struct, tuple, and union lowering with regular layout-driven `AGG_PACK`, `AGG_GET`, `AGG_SET`, and `AGG_TAG` operations.
 - [x] I separated direct function references and heap closures into unambiguous value tags and constructors.
 - [x] I regularize direct, indirect, tail, imported, and linked calls around verified signatures: the NVM verifier checks direct/tail call targets, tail-call result signatures, imported-call signatures (return and parameter type tags), and keeps linked module calls in the same verified taxonomy.
-- [ ] I will resolve separate-module calls to callable handles during linking rather than carry module/function pairs through dispatch.
+- [x] I resolve separate-module calls to callable handles during linking rather than carry module/function pairs through dispatch.
 - [ ] I will replace special print, assert, and host operations with typed traps where that improves composition.
 - [ ] I will move trimming, case conversion, splitting, replacement, formatting, parsing, and collection algorithms from the ISA into runtime libraries.
 - [ ] I will retain only primitive string and aggregate operations justified by representation or measured cost.
