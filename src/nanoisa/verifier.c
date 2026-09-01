@@ -13,6 +13,7 @@
 #include "../nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* ========================================================================
@@ -30,6 +31,81 @@ static NvmVerifyResult fail(const char *fmt, ...) {
     vsnprintf(r.error_msg, NVM_VERIFY_ERROR_SIZE, fmt, ap);
     va_end(ap);
     return r;
+}
+
+static bool instruction_index_at(const VmDecodedFunction *decoded,
+                                 uint32_t byte_offset, uint32_t *index) {
+    if (byte_offset == decoded->code_size) {
+        *index = decoded->instruction_count;
+        return true;
+    }
+    const VmDecodedInstruction *instruction =
+        vm_decoded_function_at(decoded, byte_offset);
+    if (!instruction) return false;
+    *index = (uint32_t)(instruction - decoded->instructions);
+    return true;
+}
+
+static NvmVerifyResult verify_stack_heights(const VmDecodedFunction *decoded,
+                                            uint32_t fn_idx) {
+    int32_t *heights = malloc((decoded->instruction_count + 1) * sizeof(*heights));
+    uint32_t *work = malloc((decoded->instruction_count + 1) * sizeof(*work));
+    if (!heights || !work) {
+        free(heights);
+        free(work);
+        return fail("function[%u] could not allocate stack verifier state", fn_idx);
+    }
+    for (uint32_t i = 0; i <= decoded->instruction_count; i++) heights[i] = -1;
+    uint32_t head = 0, tail = 0;
+    heights[0] = 0;
+    work[tail++] = 0;
+
+    while (head < tail) {
+        uint32_t index = work[head++];
+        if (index == decoded->instruction_count) continue;
+        const VmDecodedInstruction *decoded_instruction = &decoded->instructions[index];
+        const InstructionInfo *info = isa_get_info(decoded_instruction->instruction.opcode);
+        if (info->pop_count < 0 || info->push_count < 0) continue;
+        int32_t before = heights[index];
+        if (before < info->pop_count) {
+            free(heights);
+            free(work);
+            return fail("function[%u] stack underflow at offset %u (%s needs %d, has %d)",
+                        fn_idx, decoded_instruction->byte_offset, info->name,
+                        info->pop_count, before);
+        }
+        int32_t after = before - info->pop_count + info->push_count;
+        uint32_t successors[2];
+        uint32_t successor_count = 0;
+        uint8_t opcode = decoded_instruction->instruction.opcode;
+        if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE
+                || opcode == OP_MATCH_TAG) {
+            instruction_index_at(decoded, decoded_instruction->resolved_target,
+                                 &successors[successor_count++]);
+        }
+        if (opcode != OP_JMP && opcode != OP_RET && opcode != OP_TAIL_CALL
+                && opcode != OP_HALT) {
+            successors[successor_count++] = index + 1;
+        }
+        for (uint32_t i = 0; i < successor_count; i++) {
+            uint32_t successor = successors[i];
+            if (heights[successor] < 0) {
+                heights[successor] = after;
+                work[tail++] = successor;
+            } else if (heights[successor] != after) {
+                uint32_t offset = successor == decoded->instruction_count
+                    ? decoded->code_size : decoded->instructions[successor].byte_offset;
+                int32_t existing = heights[successor];
+                free(heights);
+                free(work);
+                return fail("function[%u] incompatible stack heights at offset %u (%d and %d)",
+                            fn_idx, offset, existing, after);
+            }
+        }
+    }
+    free(heights);
+    free(work);
+    return ok_result();
 }
 
 /* ========================================================================
@@ -289,8 +365,9 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
     }
 
 #undef FAIL_DECODED
+    NvmVerifyResult stack_result = verify_stack_heights(&decoded, fn_idx);
     vm_decoded_function_free(&decoded);
-    return ok_result();
+    return stack_result;
 }
 
 /* ========================================================================
