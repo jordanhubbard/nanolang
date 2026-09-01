@@ -22,6 +22,22 @@ const char *get_project_root(void) { return g_project_root; }
 #include "../../src/nanovm/value.h"
 #include "../../src/nanoisa/nvm_format.h"
 
+/* ── Exported helpers with mixed integer/floating signatures ───────────────
+ * These deterministic functions let the mixed-signature dispatcher be checked
+ * against exact values (unlike libm, whose results vary by platform). They are
+ * resolvable through dlsym because the test binary links with -rdynamic. */
+double nl_ffi_test_mix_fi(double x, long n);   /* FP,GP -> FP */
+double nl_ffi_test_mix_if(long n, double x);   /* GP,FP -> FP */
+long   nl_ffi_test_mix_fi_gp(double x, long n);/* FP,GP -> GP */
+double nl_ffi_test_mix_iffi(long a, double b, double c, long d); /* mixed -> FP */
+
+double nl_ffi_test_mix_fi(double x, long n)    { return x + (double)n; }
+double nl_ffi_test_mix_if(long n, double x)    { return (double)n - x; }
+long   nl_ffi_test_mix_fi_gp(double x, long n) { return (long)(x * 2.0) + n; }
+double nl_ffi_test_mix_iffi(long a, double b, double c, long d) {
+    return (double)a + b * c + (double)d;
+}
+
 static int g_pass = 0, g_fail = 0;
 #define TEST(name) static void test_##name(void)
 #define RUN(name)  do { test_##name(); \
@@ -343,6 +359,93 @@ TEST(call_bool_return_type) {
     vm_ffi_shutdown();
 }
 
+/* ── Mixed integer/floating signature dispatch ─────────────────────────── */
+
+TEST(call_mixed_fp_gp_ret_fp) {
+    /* nl_ffi_test_mix_fi(1.5, 4) == 5.5  (FP arg, GP arg, FP return). */
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "nl_ffi_test_mix_fi", 18);
+    uint8_t ptypes[2] = {TAG_FLOAT, TAG_INT};
+    nvm_add_import(mod, mod_idx, fn_idx, 2, TAG_FLOAT, ptypes);
+
+    VmHeap heap; vm_heap_init(&heap);
+    NanoValue args[2] = { val_float(1.5), val_int(4) };
+    NanoValue result; char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 2, &result, &heap, err, sizeof(err));
+    ASSERT(ok);
+    ASSERT(result.tag == TAG_FLOAT);
+    ASSERT(result.as.f64 == 5.5);
+
+    vm_heap_destroy(&heap); nvm_module_free(mod); vm_ffi_shutdown();
+}
+
+TEST(call_mixed_gp_fp_ret_fp) {
+    /* nl_ffi_test_mix_if(10, 2.25) == 7.75  (GP arg, FP arg, FP return). */
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "nl_ffi_test_mix_if", 18);
+    uint8_t ptypes[2] = {TAG_INT, TAG_FLOAT};
+    nvm_add_import(mod, mod_idx, fn_idx, 2, TAG_FLOAT, ptypes);
+
+    VmHeap heap; vm_heap_init(&heap);
+    NanoValue args[2] = { val_int(10), val_float(2.25) };
+    NanoValue result; char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 2, &result, &heap, err, sizeof(err));
+    ASSERT(ok);
+    ASSERT(result.tag == TAG_FLOAT);
+    ASSERT(result.as.f64 == 7.75);
+
+    vm_heap_destroy(&heap); nvm_module_free(mod); vm_ffi_shutdown();
+}
+
+TEST(call_mixed_fp_gp_ret_gp) {
+    /* nl_ffi_test_mix_fi_gp(3.5, 5) == (long)(7.0) + 5 == 12  (GP return). */
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "nl_ffi_test_mix_fi_gp", 21);
+    uint8_t ptypes[2] = {TAG_FLOAT, TAG_INT};
+    nvm_add_import(mod, mod_idx, fn_idx, 2, TAG_INT, ptypes);
+
+    VmHeap heap; vm_heap_init(&heap);
+    NanoValue args[2] = { val_float(3.5), val_int(5) };
+    NanoValue result; char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 2, &result, &heap, err, sizeof(err));
+    ASSERT(ok);
+    ASSERT(result.tag == TAG_INT);
+    ASSERT(result.as.i64 == 12);
+
+    vm_heap_destroy(&heap); nvm_module_free(mod); vm_ffi_shutdown();
+}
+
+TEST(call_mixed_four_args) {
+    /* nl_ffi_test_mix_iffi(2, 3.0, 4.0, 5) == 2 + 12 + 5 == 19.0
+     * Exercises an interleaved GP/FP/FP/GP pattern at arity 4. */
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "nl_ffi_test_mix_iffi", 20);
+    uint8_t ptypes[4] = {TAG_INT, TAG_FLOAT, TAG_FLOAT, TAG_INT};
+    nvm_add_import(mod, mod_idx, fn_idx, 4, TAG_FLOAT, ptypes);
+
+    VmHeap heap; vm_heap_init(&heap);
+    NanoValue args[4] = { val_int(2), val_float(3.0), val_float(4.0), val_int(5) };
+    NanoValue result; char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, args, 4, &result, &heap, err, sizeof(err));
+    ASSERT(ok);
+    ASSERT(result.tag == TAG_FLOAT);
+    ASSERT(result.as.f64 == 19.0);
+
+    vm_heap_destroy(&heap); nvm_module_free(mod); vm_ffi_shutdown();
+}
+
 /* ── main ──────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -358,6 +461,10 @@ int main(void) {
     RUN(call_opaque_arg_path);
     RUN(call_void_return_type);
     RUN(call_bool_return_type);
+    RUN(call_mixed_fp_gp_ret_fp);
+    RUN(call_mixed_gp_fp_ret_fp);
+    RUN(call_mixed_fp_gp_ret_gp);
+    RUN(call_mixed_four_args);
 
     printf("\n");
     if (g_fail == 0) {

@@ -225,6 +225,13 @@ $(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compi
 src/nanoisa/generated_schema.h: spec/nanoisa.yaml scripts/gen_nanoisa_schema.py
 	@python3 scripts/gen_nanoisa_schema.py
 
+src/nanovm/ffi_dispatch_generated.h: scripts/gen_ffi_dispatch.py
+	@python3 scripts/gen_ffi_dispatch.py
+
+.PHONY: ffi-dispatch-check
+ffi-dispatch-check:
+	@$(TIMEOUT_CMD) python3 scripts/gen_ffi_dispatch.py --check
+
 # Ensure generated schema headers are created before compilation
 $(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)
 	@# Schema stamp ensures this file exists
@@ -407,7 +414,7 @@ $(VM_DISPATCH_OBJECT): $(NANOVM_DIR)/vm_dispatch.c $(NANOVM_DIR)/vm_dispatch.h \
 		$(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h | $(OBJ_DIR)/nanovm
+$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovm:
