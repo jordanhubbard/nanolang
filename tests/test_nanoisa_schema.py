@@ -190,6 +190,58 @@ class NanoisaSchemaTests(unittest.TestCase):
         self.assertIn("#define NANOISA_EXTENDED_OPCODE_COUNT", rendered)
         self.assertIn("nanoisa_extended_opcodes", rendered)
 
+    def test_v2_families_exclude_string_and_collection_algorithms(self):
+        """Trimming, case, splitting, replacement, formatting, parsing, and
+        collection algorithms live in runtime libraries, not the portable ISA."""
+        forbidden = (
+            "trim", "lower", "upper", "split", "join", "replace",
+            "starts_with", "ends_with", "index_of", "format", "parse",
+            "to_int", "to_float",
+        )
+        for family_name, family in self.schema["instruction_families"].items():
+            for instruction in family:
+                name = instruction["name"].lower()
+                for token in forbidden:
+                    self.assertNotIn(
+                        token,
+                        name,
+                        msg=(
+                            f"v2 family '{family_name}' instruction "
+                            f"'{instruction['name']}' looks like a runtime-library "
+                            f"algorithm ('{token}') that must stay out of the ISA"
+                        ),
+                    )
+
+    def test_runtime_library_algorithms_are_documented(self):
+        algorithms = self.schema["runtime_library_algorithms"]
+        self.assertTrue(algorithms)
+        expected_categories = {
+            "trimming",
+            "case-conversion",
+            "splitting",
+            "replacement",
+            "formatting",
+            "parsing",
+            "collection",
+        }
+        seen_categories = set()
+        for entry in algorithms:
+            self.assertIn("name", entry)
+            self.assertIn("category", entry)
+            self.assertIn("primitives", entry)
+            self.assertTrue(entry["primitives"])
+            seen_categories.add(entry["category"])
+        self.assertLessEqual(expected_categories, seen_categories)
+
+    def test_runtime_library_algorithms_are_not_v2_instructions(self):
+        family_names = {
+            instruction["name"]
+            for family in self.schema["instruction_families"].values()
+            for instruction in family
+        }
+        for entry in self.schema["runtime_library_algorithms"]:
+            self.assertNotIn(entry["name"], family_names)
+
 
 if __name__ == "__main__":
     unittest.main()
