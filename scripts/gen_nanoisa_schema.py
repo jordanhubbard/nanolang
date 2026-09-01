@@ -1,11 +1,23 @@
 #!/usr/bin/env python3
-"""Generate active NanoISA metadata from the normative v2 design schema."""
+"""Generate active NanoISA metadata from the normative v2 design schema.
+
+The schema in ``spec/nanoisa.yaml`` is the single source of truth for the
+portable v2 instruction set. Two invariants make the instruction set
+comprehensible and keep operand forms symmetric, so they are enforced here
+before any C metadata is generated:
+
+* Every v2 instruction declares a unique, human-readable ``meaning``.
+* Every operand a v2 instruction takes references a declared ``operand_kind``
+  by name, so paired instructions (``*.get``/``*.set``, ``mem.load*``/
+  ``mem.store*``) share identical operand forms and no instruction spells a raw
+  wire encoding inline.
+"""
 
 from __future__ import annotations
 
 import argparse
-import json
 import re
+from collections import Counter
 from pathlib import Path
 
 import yaml
@@ -20,7 +32,45 @@ def c_name(name: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", name).upper().strip("_")
 
 
+def c_string(text: str) -> str:
+    return text.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def validate(schema: dict) -> None:
+    """Enforce the meaning/symmetry contract for the v2 instruction set."""
+    operand_kinds = {kind["name"] for kind in schema["operand_kinds"]}
+
+    meanings: list[str] = []
+    for family_name, family in schema["instruction_families"].items():
+        for instruction in family:
+            name = instruction.get("name", "<unnamed>")
+            meaning = instruction.get("meaning")
+            if not meaning or not str(meaning).strip():
+                raise ValueError(
+                    f"v2 instruction '{name}' in family '{family_name}' is "
+                    "missing a comprehensible 'meaning'"
+                )
+            meanings.append(str(meaning))
+            for operand in instruction.get("operands", []):
+                if operand not in operand_kinds:
+                    raise ValueError(
+                        f"v2 instruction '{name}' uses operand '{operand}' "
+                        "that is not a declared operand_kind; operand forms "
+                        "must reference declared kinds to stay symmetric"
+                    )
+
+    duplicate_meanings = sorted(
+        meaning for meaning, count in Counter(meanings).items() if count > 1
+    )
+    if duplicate_meanings:
+        raise ValueError(
+            "v2 instruction meanings must be unique; duplicates: "
+            + ", ".join(duplicate_meanings)
+        )
+
+
 def generate(schema: dict) -> str:
+    validate(schema)
     tags = schema["value_tags"]
     opcodes = schema["legacy_opcodes"]
     families = [item for group in schema["instruction_families"].values() for item in group]
@@ -48,7 +98,8 @@ def generate(schema: dict) -> str:
     lines.extend(["};", "", "static const NanoisaV2Family nanoisa_v2_families[] = {"])
     for item in families:
         lines.append(
-            f'    {{"{item["name"]}", "{item["ownership"]}", '
+            f'    {{"{item["name"]}", "{c_string(item["meaning"])}", '
+            f'"{item["ownership"]}", '
             f'{len(item.get("operands", []))}, {len(item.get("pops", []))}, '
             f'{len(item.get("pushes", []))}}},'
         )

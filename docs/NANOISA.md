@@ -138,6 +138,145 @@ for old hand-written assembly until NanoISA v2 removes it.
 **Opaque Proxy (0xB0-0xBF):**
 `OPAQUE_NULL`, `OPAQUE_VALID`
 
+### Portable v2 Instruction Families
+
+NanoISA v2 is defined normatively in `spec/nanoisa.yaml` and the C metadata
+in `src/nanoisa/generated_schema.h` is generated from it by
+`scripts/gen_nanoisa_schema.py`. Two invariants keep the portable instruction
+set comprehensible, and the generator refuses to emit metadata unless both
+hold:
+
+- **One comprehensible meaning per instruction.** Every family instruction
+  carries a unique, human-readable `meaning`.
+- **Symmetric operand forms.** Every operand references a declared
+  `operand_kind` by name, so paired instructions share identical operand
+  forms (`*.get`/`*.set`, `mem.load*`/`mem.store*`) and no instruction spells a
+  raw wire encoding inline.
+
+#### Operand Kinds
+
+| Kind | Encoding | Meaning |
+|------|----------|---------|
+| `value-tag` | `u8` | runtime value tag selector |
+| `immediate-i64` | `sleb` | inline signed 64-bit integer literal |
+| `immediate-f64` | `f64` | inline IEEE 754 double literal |
+| `local` | `uleb` | index into the frame local slots |
+| `global` | `uleb` | index into the module global slots |
+| `upvalue` | `uleb` | index into the closure upvalue slots |
+| `constant` | `uleb` | index into the constant pool |
+| `function` | `uleb` | index of a declared function |
+| `signature` | `uleb` | index of a declared call signature |
+| `import` | `uleb` | index of an imported callable |
+| `layout` | `uleb` | index of an aggregate layout descriptor |
+| `field` | `uleb` | index of a field within an aggregate layout |
+| `count` | `uleb` | element or depth count |
+| `offset` | `uleb` | byte offset added to the memory base address |
+| `align` | `uleb` | expected access alignment in bytes |
+| `trap-code` | `uleb` | identifier of the host trap to invoke |
+| `branch` | `sleb` | signed instruction-relative branch target |
+
+#### Constants
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `const.i64` | `immediate-i64` | push an inline signed 64-bit integer literal |
+| `const.f64` | `immediate-f64` | push an inline IEEE 754 double literal |
+| `const.pool` | `constant` | push a value copied from the constant pool |
+
+#### Stack
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `drop` | — | discard the top stack value |
+| `dup` | — | duplicate the top stack value |
+| `swap` | — | exchange the top two stack values |
+| `pick` | `count` | copy the nth-from-top stack value to the top |
+| `roll` | `count` | rotate the nth-from-top stack value to the top |
+
+#### Variables
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `local.get` | `local` | push the value of a frame local |
+| `local.set` | `local` | store the top value into a frame local |
+| `global.get` | `global` | push the value of a module global |
+| `global.set` | `global` | store the top value into a module global |
+| `upvalue.get` | `upvalue` | push the value of a closure upvalue |
+| `upvalue.set` | `upvalue` | store the top value into a closure upvalue |
+
+#### Integer
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `i64.add` | — | add two signed 64-bit integers |
+| `i64.sub` | — | subtract two signed 64-bit integers |
+| `i64.mul` | — | multiply two signed 64-bit integers |
+| `i64.div-s` | — | signed-divide two 64-bit integers |
+| `i64.div-u` | — | unsigned-divide two 64-bit integers |
+| `i64.rem-s` | — | signed remainder of two 64-bit integers |
+| `i64.rem-u` | — | unsigned remainder of two 64-bit integers |
+| `i64.and` | — | bitwise AND of two 64-bit integers |
+| `i64.or` | — | bitwise OR of two 64-bit integers |
+| `i64.xor` | — | bitwise XOR of two 64-bit integers |
+| `i64.shl` | — | shift a 64-bit integer left |
+| `i64.shr-s` | — | arithmetic (signed) shift a 64-bit integer right |
+| `i64.shr-u` | — | logical (unsigned) shift a 64-bit integer right |
+| `i64.add-carry` | — | add two 64-bit integers with carry-in, producing sum and carry-out |
+| `i64.sub-borrow` | — | subtract two 64-bit integers with borrow-in, producing difference and borrow-out |
+| `i64.mul-wide-s` | — | signed 64x64 multiply producing a 128-bit result as two halves |
+| `i64.mul-wide-u` | — | unsigned 64x64 multiply producing a 128-bit result as two halves |
+
+#### Float
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `f64.add` | — | add two IEEE 754 doubles |
+| `f64.sub` | — | subtract two IEEE 754 doubles |
+| `f64.mul` | — | multiply two IEEE 754 doubles |
+| `f64.div` | — | divide two IEEE 754 doubles |
+
+#### Memory
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `mem.load8` | `offset`, `align` | load a zero-extended byte from memory |
+| `mem.load16` | `offset`, `align` | load a zero-extended 16-bit word from memory |
+| `mem.load32` | `offset`, `align` | load a zero-extended 32-bit word from memory |
+| `mem.load64` | `offset`, `align` | load a 64-bit word from memory |
+| `mem.store8` | `offset`, `align` | store the low byte of a value to memory |
+| `mem.store16` | `offset`, `align` | store the low 16 bits of a value to memory |
+| `mem.store32` | `offset`, `align` | store the low 32 bits of a value to memory |
+| `mem.store64` | `offset`, `align` | store a 64-bit value to memory |
+
+#### Aggregate
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `aggregate.pack` | `layout`, `count` | build an aggregate from stacked field values using a layout |
+| `aggregate.get` | `field` | read a field from an aggregate |
+| `aggregate.set` | `field` | write a field of an aggregate, producing the updated aggregate |
+| `aggregate.tag` | — | read the discriminant tag of an aggregate |
+
+#### Control
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `branch` | `branch` | jump unconditionally to a relative target |
+| `branch.zero` | `branch` | jump to a relative target when the top value is zero |
+| `branch.nonzero` | `branch` | jump to a relative target when the top value is nonzero |
+| `call` | `function` | call a function directly by index against its verified signature |
+| `call.indirect` | `signature` | call a stacked callable against a declared signature |
+| `tail.call` | `function` | tail-call a function directly, replacing the current frame |
+| `call.import` | `import` | call an imported callable resolved during linking |
+| `return` | — | return the signature result to the caller |
+
+#### Trap
+
+| Instruction | Operands | Meaning |
+|-------------|----------|---------|
+| `trap` | `trap-code`, `count` | transfer control to a host trap handler |
+
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)

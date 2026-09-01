@@ -191,85 +191,95 @@ legacy_opcodes:
   - {name: AGG_SET, code: 0xfd, operands: [U16]}
   - {name: AGG_TAG, code: 0xfe, operands: []}
 
+# Every v2 instruction operand references one of these named kinds by name.
+# The kind fixes both the wire encoding and the meaning of the operand, so no
+# instruction ever spells a raw wire encoding (sleb/uleb/f64) inline. This is
+# what keeps operand forms symmetric: paired instructions (get/set, load/store)
+# reference the identical operand kinds.
 operand_kinds:
-  - {name: value-tag, encoding: u8}
-  - {name: local, encoding: uleb}
-  - {name: global, encoding: uleb}
-  - {name: upvalue, encoding: uleb}
-  - {name: constant, encoding: uleb}
-  - {name: function, encoding: uleb}
-  - {name: signature, encoding: uleb}
-  - {name: import, encoding: uleb}
-  - {name: layout, encoding: uleb}
-  - {name: field, encoding: uleb}
-  - {name: count, encoding: uleb}
-  - {name: branch, encoding: sleb}
+  - {name: value-tag, encoding: u8, meaning: "runtime value tag selector"}
+  - {name: immediate-i64, encoding: sleb, meaning: "inline signed 64-bit integer literal"}
+  - {name: immediate-f64, encoding: f64, meaning: "inline IEEE 754 double literal"}
+  - {name: local, encoding: uleb, meaning: "index into the frame local slots"}
+  - {name: global, encoding: uleb, meaning: "index into the module global slots"}
+  - {name: upvalue, encoding: uleb, meaning: "index into the closure upvalue slots"}
+  - {name: constant, encoding: uleb, meaning: "index into the constant pool"}
+  - {name: function, encoding: uleb, meaning: "index of a declared function"}
+  - {name: signature, encoding: uleb, meaning: "index of a declared call signature"}
+  - {name: import, encoding: uleb, meaning: "index of an imported callable"}
+  - {name: layout, encoding: uleb, meaning: "index of an aggregate layout descriptor"}
+  - {name: field, encoding: uleb, meaning: "index of a field within an aggregate layout"}
+  - {name: count, encoding: uleb, meaning: "element or depth count"}
+  - {name: offset, encoding: uleb, meaning: "byte offset added to the memory base address"}
+  - {name: align, encoding: uleb, meaning: "expected access alignment in bytes"}
+  - {name: trap-code, encoding: uleb, meaning: "identifier of the host trap to invoke"}
+  - {name: branch, encoding: sleb, meaning: "signed instruction-relative branch target"}
 
 # This schema is normative for v2 design work. Generators will consume it as
 # instruction families replace the v1 hand-maintained enum and metadata table.
 instruction_families:
   constants:
-    - {name: const.i64, operands: [sleb], pops: [], pushes: [i64], ownership: none}
-    - {name: const.f64, operands: [f64], pops: [], pushes: [f64], ownership: none}
-    - {name: const.pool, operands: [constant], pops: [], pushes: [any], ownership: retain}
+    - {name: const.i64, meaning: "push an inline signed 64-bit integer literal", operands: [immediate-i64], pops: [], pushes: [i64], ownership: none}
+    - {name: const.f64, meaning: "push an inline IEEE 754 double literal", operands: [immediate-f64], pops: [], pushes: [f64], ownership: none}
+    - {name: const.pool, meaning: "push a value copied from the constant pool", operands: [constant], pops: [], pushes: [any], ownership: retain}
   stack:
-    - {name: drop, operands: [], pops: [any], pushes: [], ownership: release}
-    - {name: dup, operands: [], pops: [any], pushes: [any, any], ownership: retain}
-    - {name: swap, operands: [], pops: [any, any], pushes: [any, any], ownership: move}
-    - {name: pick, operands: [count], pops: [], pushes: [any], ownership: retain}
-    - {name: roll, operands: [count], pops: [], pushes: [], ownership: move}
+    - {name: drop, meaning: "discard the top stack value", operands: [], pops: [any], pushes: [], ownership: release}
+    - {name: dup, meaning: "duplicate the top stack value", operands: [], pops: [any], pushes: [any, any], ownership: retain}
+    - {name: swap, meaning: "exchange the top two stack values", operands: [], pops: [any, any], pushes: [any, any], ownership: move}
+    - {name: pick, meaning: "copy the nth-from-top stack value to the top", operands: [count], pops: [], pushes: [any], ownership: retain}
+    - {name: roll, meaning: "rotate the nth-from-top stack value to the top", operands: [count], pops: [], pushes: [], ownership: move}
   variables:
-    - {name: local.get, operands: [local], pops: [], pushes: [any], ownership: retain}
-    - {name: local.set, operands: [local], pops: [any], pushes: [], ownership: move}
-    - {name: global.get, operands: [global], pops: [], pushes: [any], ownership: retain}
-    - {name: global.set, operands: [global], pops: [any], pushes: [], ownership: move}
-    - {name: upvalue.get, operands: [upvalue], pops: [], pushes: [any], ownership: retain}
-    - {name: upvalue.set, operands: [upvalue], pops: [any], pushes: [], ownership: move}
+    - {name: local.get, meaning: "push the value of a frame local", operands: [local], pops: [], pushes: [any], ownership: retain}
+    - {name: local.set, meaning: "store the top value into a frame local", operands: [local], pops: [any], pushes: [], ownership: move}
+    - {name: global.get, meaning: "push the value of a module global", operands: [global], pops: [], pushes: [any], ownership: retain}
+    - {name: global.set, meaning: "store the top value into a module global", operands: [global], pops: [any], pushes: [], ownership: move}
+    - {name: upvalue.get, meaning: "push the value of a closure upvalue", operands: [upvalue], pops: [], pushes: [any], ownership: retain}
+    - {name: upvalue.set, meaning: "store the top value into a closure upvalue", operands: [upvalue], pops: [any], pushes: [], ownership: move}
   integer:
-    - {name: i64.add, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.sub, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.mul, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.div-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.div-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.rem-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.rem-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.and, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.or, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.xor, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.shl, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.shr-s, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.shr-u, operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
-    - {name: i64.add-carry, operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
-    - {name: i64.sub-borrow, operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
-    - {name: i64.mul-wide-s, operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
-    - {name: i64.mul-wide-u, operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.add, meaning: "add two signed 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.sub, meaning: "subtract two signed 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.mul, meaning: "multiply two signed 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.div-s, meaning: "signed-divide two 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.div-u, meaning: "unsigned-divide two 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.rem-s, meaning: "signed remainder of two 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.rem-u, meaning: "unsigned remainder of two 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.and, meaning: "bitwise AND of two 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.or, meaning: "bitwise OR of two 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.xor, meaning: "bitwise XOR of two 64-bit integers", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shl, meaning: "shift a 64-bit integer left", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shr-s, meaning: "arithmetic (signed) shift a 64-bit integer right", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.shr-u, meaning: "logical (unsigned) shift a 64-bit integer right", operands: [], pops: [i64, i64], pushes: [i64], ownership: none}
+    - {name: i64.add-carry, meaning: "add two 64-bit integers with carry-in, producing sum and carry-out", operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.sub-borrow, meaning: "subtract two 64-bit integers with borrow-in, producing difference and borrow-out", operands: [], pops: [i64, i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.mul-wide-s, meaning: "signed 64x64 multiply producing a 128-bit result as two halves", operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
+    - {name: i64.mul-wide-u, meaning: "unsigned 64x64 multiply producing a 128-bit result as two halves", operands: [], pops: [i64, i64], pushes: [i64, i64], ownership: none}
   float:
-    - {name: f64.add, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
-    - {name: f64.sub, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
-    - {name: f64.mul, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
-    - {name: f64.div, operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.add, meaning: "add two IEEE 754 doubles", operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.sub, meaning: "subtract two IEEE 754 doubles", operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.mul, meaning: "multiply two IEEE 754 doubles", operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
+    - {name: f64.div, meaning: "divide two IEEE 754 doubles", operands: [], pops: [f64, f64], pushes: [f64], ownership: none}
   memory:
-    - {name: mem.load8, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.load16, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.load32, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.load64, operands: [count, count], pops: [i64], pushes: [i64], ownership: none}
-    - {name: mem.store8, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
-    - {name: mem.store16, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
-    - {name: mem.store32, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
-    - {name: mem.store64, operands: [count, count], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.load8, meaning: "load a zero-extended byte from memory", operands: [offset, align], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load16, meaning: "load a zero-extended 16-bit word from memory", operands: [offset, align], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load32, meaning: "load a zero-extended 32-bit word from memory", operands: [offset, align], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.load64, meaning: "load a 64-bit word from memory", operands: [offset, align], pops: [i64], pushes: [i64], ownership: none}
+    - {name: mem.store8, meaning: "store the low byte of a value to memory", operands: [offset, align], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store16, meaning: "store the low 16 bits of a value to memory", operands: [offset, align], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store32, meaning: "store the low 32 bits of a value to memory", operands: [offset, align], pops: [i64, i64], pushes: [], ownership: none}
+    - {name: mem.store64, meaning: "store a 64-bit value to memory", operands: [offset, align], pops: [i64, i64], pushes: [], ownership: none}
   aggregate:
-    - {name: aggregate.pack, operands: [layout, count], pops: [many], pushes: [aggregate], ownership: move}
-    - {name: aggregate.get, operands: [field], pops: [aggregate], pushes: [any], ownership: retain}
-    - {name: aggregate.set, operands: [field], pops: [aggregate, any], pushes: [aggregate], ownership: move}
-    - {name: aggregate.tag, operands: [], pops: [aggregate], pushes: [i64], ownership: none}
+    - {name: aggregate.pack, meaning: "build an aggregate from stacked field values using a layout", operands: [layout, count], pops: [many], pushes: [aggregate], ownership: move}
+    - {name: aggregate.get, meaning: "read a field from an aggregate", operands: [field], pops: [aggregate], pushes: [any], ownership: retain}
+    - {name: aggregate.set, meaning: "write a field of an aggregate, producing the updated aggregate", operands: [field], pops: [aggregate, any], pushes: [aggregate], ownership: move}
+    - {name: aggregate.tag, meaning: "read the discriminant tag of an aggregate", operands: [], pops: [aggregate], pushes: [i64], ownership: none}
   control:
-    - {name: branch, operands: [branch], pops: [], pushes: [], ownership: none}
-    - {name: branch.zero, operands: [branch], pops: [i64], pushes: [], ownership: none}
-    - {name: branch.nonzero, operands: [branch], pops: [i64], pushes: [], ownership: none}
-    - {name: call, operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
-    - {name: call.indirect, operands: [signature], pops: [signature-args, callable], pushes: [signature-result], ownership: call}
-    - {name: tail.call, operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
-    - {name: call.import, operands: [import], pops: [signature-args], pushes: [signature-result], ownership: trap}
-    - {name: return, operands: [], pops: [signature-result], pushes: [], ownership: return}
+    - {name: branch, meaning: "jump unconditionally to a relative target", operands: [branch], pops: [], pushes: [], ownership: none}
+    - {name: branch.zero, meaning: "jump to a relative target when the top value is zero", operands: [branch], pops: [i64], pushes: [], ownership: none}
+    - {name: branch.nonzero, meaning: "jump to a relative target when the top value is nonzero", operands: [branch], pops: [i64], pushes: [], ownership: none}
+    - {name: call, meaning: "call a function directly by index against its verified signature", operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
+    - {name: call.indirect, meaning: "call a stacked callable against a declared signature", operands: [signature], pops: [signature-args, callable], pushes: [signature-result], ownership: call}
+    - {name: tail.call, meaning: "tail-call a function directly, replacing the current frame", operands: [function], pops: [signature-args], pushes: [signature-result], ownership: call}
+    - {name: call.import, meaning: "call an imported callable resolved during linking", operands: [import], pops: [signature-args], pushes: [signature-result], ownership: trap}
+    - {name: return, meaning: "return the signature result to the caller", operands: [], pops: [signature-result], pushes: [], ownership: return}
   trap:
-    - {name: trap, operands: [uleb, count], pops: [many], pushes: [any], ownership: trap}
+    - {name: trap, meaning: "transfer control to a host trap handler", operands: [trap-code, count], pops: [many], pushes: [any], ownership: trap}
