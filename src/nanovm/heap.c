@@ -187,6 +187,15 @@ void vm_release(VmHeap *heap, NanoValue v) {
 }
 
 static void release_array(VmHeap *heap, VmArray *a) {
+    if (a->unboxed) {
+        /* Unboxed elements are plain payloads with no owned references. */
+        heap->stats.freed += sizeof(VmArray) +
+            (size_t)a->capacity * vm_array_elem_size(a->elem_type);
+        heap->stats.num_objects--;
+        free(a->packed);
+        free(a);
+        return;
+    }
     for (uint32_t i = 0; i < a->length; i++) {
         vm_release(heap, a->elements[i]);
     }
@@ -372,6 +381,60 @@ VmString *vm_string_from_bool(VmHeap *heap, bool v) {
  * Array Allocation
  * ======================================================================== */
 
+bool vm_array_type_unboxable(uint8_t elem_type) {
+    return elem_type == TAG_INT || elem_type == TAG_FLOAT ||
+           elem_type == TAG_BOOL || elem_type == TAG_U8;
+}
+
+/* Size in bytes of one unboxed element for a given element type. Returns 0
+ * for boxed types (callers must not use packed storage for those). */
+size_t vm_array_elem_size(uint8_t elem_type) {
+    switch (elem_type) {
+        case TAG_INT:   return sizeof(int64_t);
+        case TAG_FLOAT: return sizeof(double);
+        case TAG_BOOL:  return sizeof(uint8_t);
+        case TAG_U8:    return sizeof(uint8_t);
+        default:        return 0;
+    }
+}
+
+/* Read the unboxed element at `index` and materialize it as a NanoValue. */
+static NanoValue packed_load(const VmArray *a, uint32_t index) {
+    switch (a->elem_type) {
+        case TAG_INT:   return val_int(((const int64_t *)a->packed)[index]);
+        case TAG_FLOAT: return val_float(((const double *)a->packed)[index]);
+        case TAG_BOOL:  return val_bool(((const uint8_t *)a->packed)[index] != 0);
+        case TAG_U8:    return val_u8(((const uint8_t *)a->packed)[index]);
+        default:        return val_void();
+    }
+}
+
+/* Store a NanoValue into unboxed slot `index`. Values whose tag does not match
+ * the array element type are coerced where it is lossless (int<->u8) and
+ * otherwise stored as their raw payload; callers are expected to push matching
+ * types. */
+static void packed_store(VmArray *a, uint32_t index, NanoValue v) {
+    switch (a->elem_type) {
+        case TAG_INT:
+            ((int64_t *)a->packed)[index] =
+                (v.tag == TAG_U8) ? (int64_t)v.as.u8 : v.as.i64;
+            break;
+        case TAG_FLOAT:
+            ((double *)a->packed)[index] =
+                (v.tag == TAG_INT) ? (double)v.as.i64 : v.as.f64;
+            break;
+        case TAG_BOOL:
+            ((uint8_t *)a->packed)[index] = v.as.boolean ? 1u : 0u;
+            break;
+        case TAG_U8:
+            ((uint8_t *)a->packed)[index] =
+                (v.tag == TAG_INT) ? (uint8_t)v.as.i64 : v.as.u8;
+            break;
+        default:
+            break;
+    }
+}
+
 VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity) {
     if (initial_capacity < 8) initial_capacity = 8;
     VmArray *a = malloc(sizeof(VmArray));
@@ -379,10 +442,21 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
     a->header.ref_count = 1;
     a->header.obj_type = TAG_ARRAY;
     a->elem_type = elem_type;
+    a->unboxed = vm_array_type_unboxable(elem_type) ? 1u : 0u;
     a->length = 0;
     a->capacity = initial_capacity;
-    a->elements = calloc(initial_capacity, sizeof(NanoValue));
-    heap->stats.allocated += sizeof(VmArray) + initial_capacity * sizeof(NanoValue);
+    a->elements = NULL;
+    a->packed = NULL;
+    if (a->unboxed) {
+        size_t esz = vm_array_elem_size(elem_type);
+        a->packed = calloc(initial_capacity, esz);
+        if (!a->packed) { free(a); return NULL; }
+        heap->stats.allocated += sizeof(VmArray) + (size_t)initial_capacity * esz;
+    } else {
+        a->elements = calloc(initial_capacity, sizeof(NanoValue));
+        if (!a->elements) { free(a); return NULL; }
+        heap->stats.allocated += sizeof(VmArray) + initial_capacity * sizeof(NanoValue);
+    }
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return a;
@@ -392,14 +466,21 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
  * OOM). Callers MUST NOT write past a->length when this returns false. */
 static bool array_grow(VmArray *a) {
     uint32_t new_cap = a->capacity ? a->capacity * 2 : 4;
+    size_t esz = a->unboxed ? vm_array_elem_size(a->elem_type) : sizeof(NanoValue);
     /* capacity*2 wraps to 0 for a 2^31-element array; reject rather than
      * realloc(0) and then write out of bounds. */
-    if (new_cap <= a->capacity || new_cap > (UINT32_MAX / sizeof(NanoValue))) {
+    if (new_cap <= a->capacity || new_cap > (UINT32_MAX / esz)) {
         return false;
     }
-    NanoValue *new_elems = realloc(a->elements, new_cap * sizeof(NanoValue));
-    if (!new_elems) return false;
-    a->elements = new_elems;
+    if (a->unboxed) {
+        void *new_buf = realloc(a->packed, (size_t)new_cap * esz);
+        if (!new_buf) return false;
+        a->packed = new_buf;
+    } else {
+        NanoValue *new_elems = realloc(a->elements, new_cap * sizeof(NanoValue));
+        if (!new_elems) return false;
+        a->elements = new_elems;
+    }
     a->capacity = new_cap;
     return true;
 }
@@ -410,6 +491,12 @@ void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
          * writing past the buffer (heap overflow). */
         if (!array_grow(a)) return;
     }
+    if (a->unboxed) {
+        packed_store(a, a->length, v);
+        a->length++;
+        /* Unboxed payloads own no references; nothing to retain. */
+        return;
+    }
     a->elements[a->length++] = v;
     vm_retain(heap, v);
 }
@@ -417,6 +504,9 @@ void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
 NanoValue vm_array_pop(VmArray *a) {
     if (a->length == 0) return val_void();
     a->length--;
+    if (a->unboxed) {
+        return packed_load(a, a->length);
+    }
     NanoValue v = a->elements[a->length];
     /* Don't release - caller takes ownership */
     return v;
@@ -424,11 +514,16 @@ NanoValue vm_array_pop(VmArray *a) {
 
 NanoValue vm_array_get(VmArray *a, uint32_t index) {
     if (index >= a->length) return val_void();
+    if (a->unboxed) return packed_load(a, index);
     return a->elements[index];
 }
 
 void vm_array_set(VmArray *a, uint32_t index, NanoValue v) {
     if (index >= a->length) return;
+    if (a->unboxed) {
+        packed_store(a, index, v);
+        return;
+    }
     a->elements[index] = v;
 }
 
@@ -439,6 +534,15 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
 
     uint32_t new_len = end - start;
     VmArray *result = vm_array_new(heap, a->elem_type, new_len);
+    if (!result) return NULL;
+    if (a->unboxed) {
+        size_t esz = vm_array_elem_size(a->elem_type);
+        memcpy(result->packed,
+               (const char *)a->packed + (size_t)start * esz,
+               (size_t)new_len * esz);
+        result->length = new_len;
+        return result;
+    }
     for (uint32_t i = 0; i < new_len; i++) {
         result->elements[i] = a->elements[start + i];
         vm_retain(heap, result->elements[i]);
@@ -449,6 +553,15 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
 
 void vm_array_remove(VmArray *a, uint32_t index) {
     if (index >= a->length) return;
+    if (a->unboxed) {
+        size_t esz = vm_array_elem_size(a->elem_type);
+        char *base = (char *)a->packed;
+        memmove(base + (size_t)index * esz,
+                base + (size_t)(index + 1) * esz,
+                (size_t)(a->length - 1 - index) * esz);
+        a->length--;
+        return;
+    }
     /* Shift elements left */
     for (uint32_t i = index; i < a->length - 1; i++) {
         a->elements[i] = a->elements[i + 1];

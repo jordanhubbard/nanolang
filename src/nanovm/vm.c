@@ -920,8 +920,8 @@ dynamic_add:
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr_a->elements[ai];
-                    NanoValue eb = arr_b->elements[ai];
+                    NanoValue ea = vm_array_get(arr_a, ai);
+                    NanoValue eb = vm_array_get(arr_b, ai);
                     NanoValue ev;
                     if (ea.tag == TAG_STRING && eb.tag == TAG_STRING) {
                         VmString *s = vm_string_concat(&vm->heap, ea.as.string, eb.as.string);
@@ -954,7 +954,7 @@ dynamic_add:
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr->elements[ai];
+                    NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
                     if (ea.tag == TAG_STRING && scalar.tag == TAG_STRING) {
                         /* String concat broadcast */
@@ -1018,8 +1018,8 @@ dynamic_sub:
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr_a->elements[ai];
-                    NanoValue eb = arr_b->elements[ai];
+                    NanoValue ea = vm_array_get(arr_a, ai);
+                    NanoValue eb = vm_array_get(arr_b, ai);
                     NanoValue ev;
                     if (ea.tag == TAG_INT && eb.tag == TAG_INT)
                         ev = val_int(ea.as.i64 - eb.as.i64);
@@ -1045,7 +1045,7 @@ dynamic_sub:
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr->elements[ai];
+                    NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
                     double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
                     double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
@@ -1096,8 +1096,8 @@ dynamic_mul:
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr_a->elements[ai];
-                    NanoValue eb = arr_b->elements[ai];
+                    NanoValue ea = vm_array_get(arr_a, ai);
+                    NanoValue eb = vm_array_get(arr_b, ai);
                     NanoValue ev;
                     if (ea.tag == TAG_INT && eb.tag == TAG_INT)
                         ev = val_int(ea.as.i64 * eb.as.i64);
@@ -1122,7 +1122,7 @@ dynamic_mul:
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr->elements[ai];
+                    NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
                     if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
                         ev = val_int(ea.as.i64 * scalar.as.i64);
@@ -1180,8 +1180,8 @@ dynamic_div:
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr_a->elements[ai];
-                    NanoValue eb = arr_b->elements[ai];
+                    NanoValue ea = vm_array_get(arr_a, ai);
+                    NanoValue eb = vm_array_get(arr_b, ai);
                     NanoValue ev;
                     if (ea.tag == TAG_INT && eb.tag == TAG_INT)
                         ev = val_int(eb.as.i64 == 0 ? 0 : ea.as.i64 / eb.as.i64);
@@ -1206,7 +1206,7 @@ dynamic_div:
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
                 for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = arr->elements[ai];
+                    NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
                     double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
                     double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
@@ -2343,11 +2343,14 @@ dynamic_div:
             uint8_t elem_type = instr.operands[0].u8;
             uint16_t count = instr.operands[1].u16;
             VmArray *a = vm_array_new(&vm->heap, elem_type, count > 0 ? count : 8);
-            /* Pop count values in reverse (they were pushed in order) */
-            for (uint16_t i = 0; i < count; i++) {
-                a->elements[count - 1 - i] = stack_pop(vm);
-            }
+            /* Pop count values in reverse (they were pushed in order). The
+             * popped values transfer their ownership into the array, so for
+             * boxed storage we store without an extra retain; for unboxed
+             * storage vm_array_set packs the payload. */
             a->length = count;
+            for (uint16_t i = 0; i < count; i++) {
+                vm_array_set(a, (uint32_t)(count - 1 - i), stack_pop(vm));
+            }
             stack_push(vm, val_array(a));
             break;
         }

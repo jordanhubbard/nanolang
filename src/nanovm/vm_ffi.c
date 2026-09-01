@@ -98,7 +98,7 @@ static int marshal_args(NanoValue *args, int arg_count,
                     else if (va->elem_type == TAG_BOOL) et = ELEM_BOOL;
                     DynArray *da = dyn_array_new(et);
                     for (uint32_t j = 0; j < va->length; j++) {
-                        NanoValue elem = va->elements[j];
+                        NanoValue elem = vm_array_get(va, j);
                         switch (et) {
                             case ELEM_INT:   dyn_array_push_int(da, elem.as.i64); break;
                             case ELEM_FLOAT: dyn_array_push_float(da, elem.as.f64); break;
