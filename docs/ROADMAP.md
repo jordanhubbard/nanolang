@@ -178,7 +178,7 @@ Documentation and acceptance:
 - [x] I replaced stale NanoISA opcode counts and architecture claims in the active documentation; historical changelog entries remain historical.
 - [ ] I will document the portable ISA separately from verified and optimized runtime representations.
 - [ ] I will provide readable symbolic assembly examples for NanoLang and Forth.
-- [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
+- [x] I record why every public instruction belongs in the ISA rather than a runtime library: every `instruction_families` entry in `spec/nanoisa.yaml` carries a `justification` (representation, core-semantics, execution-substrate, control-flow, host-boundary, or encoding), `scripts/gen_nanoisa_schema.py` refuses to emit the schema without one, and the classification and rule live in `docs/superpowers/specs/2026-09-01-nanoisa-public-instruction-rationale.md`; covered by `tests/test_nanoisa_schema.py`.
 - [ ] I will demonstrate performance changes with distributions, not single timing claims.
 - [ ] I will make generated-C tracing and profiling dynamically selectable at
   process startup, with one shared hook mechanism and no per-event environment

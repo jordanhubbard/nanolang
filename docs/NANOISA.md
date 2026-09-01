@@ -206,6 +206,18 @@ I enforce both rules in `scripts/gen_nanoisa_schema.py`. The generator validates
 the schema before it emits anything, so a design that breaks either rule fails
 `make schema-check` instead of shipping.
 
+Third, every public instruction records *why* it belongs in the ISA rather
+than a runtime library. Each family entry carries a `justification` beside its
+`meaning`: `representation`, `core-semantics`, `execution-substrate`,
+`control-flow`, `host-boundary`, or `encoding`. A library written in NanoLang
+and reached through `call.import` or a `trap` could provide anything else by
+composing these, so anything else is a library word, not an instruction. The
+generator refuses to emit the schema unless every instruction claims one of the
+six justifications, and I generate the field into
+`NanoisaV2Family.justification`. The full classification and the rule for future
+instructions live in
+[Why every public instruction belongs in the ISA](superpowers/specs/2026-09-01-nanoisa-public-instruction-rationale.md).
+
 ## .nvm Binary Format
 
 ### Header (32 bytes)

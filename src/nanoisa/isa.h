@@ -316,6 +316,8 @@ typedef struct {
     const char *name;
     const char *meaning;       /* One comprehensible meaning per instruction */
     const char *ownership;
+    const char *justification; /* Why this instruction belongs in the ISA rather
+                                * than a runtime library reached through call.import */
     uint8_t operand_count;
     uint8_t pop_count;
     uint8_t push_count;
