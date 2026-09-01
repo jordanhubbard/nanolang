@@ -8,6 +8,7 @@
  */
 
 #include "interpreter_ffi.h"
+#include "nanoisa/nvm_format.h"
 #include "module_builder.h"
 #include "runtime/gc.h"
 #include "runtime/ffi_loader.h"
@@ -366,11 +367,12 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     
     /* Marshal arguments to C types */
     unsigned char arg_buffer[1024];  /* Stack buffer for marshaled args */
-    size_t arg_offsets[16];           /* Track where each arg starts */
+    size_t arg_offsets[NANO_MAX_FFI_ARGS]; /* Track where each arg starts */
     size_t total_size = 0;
     
-    if (arg_count > 16) {
-        fprintf(stderr, "Error: Too many FFI arguments (%d > 16)\n", arg_count);
+    if (arg_count > NANO_MAX_FFI_ARGS) {
+        fprintf(stderr, "Error: Too many FFI arguments (%d > %d)\n",
+                arg_count, NANO_MAX_FFI_ARGS);
         return create_void();
     }
     
@@ -401,7 +403,7 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     memset(result_buffer, 0, sizeof(result_buffer));
     
     /* Extract argument values based on their types */
-    void *arg_ptrs[16];  /* Actual values to pass */
+    void *arg_ptrs[NANO_MAX_FFI_ARGS];  /* Actual values to pass */
     for (int i = 0; i < arg_count; i++) {
         Type param_type = func_info->params[i].type;
         if (param_type == TYPE_STRUCT && func_info->params[i].struct_type_name) {
@@ -450,6 +452,14 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     typedef int64_t (*FFI_Func_3Args)(void*, void*, void*);
     typedef int64_t (*FFI_Func_4Args)(void*, void*, void*, void*);
     typedef int64_t (*FFI_Func_5Args)(void*, void*, void*, void*, void*);
+    typedef int64_t (*FFI_Func_6Args)(void*, void*, void*, void*, void*, void*);
+    typedef int64_t (*FFI_Func_7Args)(void*, void*, void*, void*, void*, void*, void*);
+    typedef int64_t (*FFI_Func_8Args)(void*, void*, void*, void*, void*, void*, void*,
+                                      void*);
+    typedef int64_t (*FFI_Func_9Args)(void*, void*, void*, void*, void*, void*, void*,
+                                      void*, void*);
+    typedef int64_t (*FFI_Func_10Args)(void*, void*, void*, void*, void*, void*, void*,
+                                       void*, void*, void*);
     
     int64_t result = 0;
     
@@ -474,8 +484,35 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             result = ((FFI_Func_5Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], 
                                                 arg_ptrs[2], arg_ptrs[3], arg_ptrs[4]);
             break;
+        case 6:
+            result = ((FFI_Func_6Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5]);
+            break;
+        case 7:
+            result = ((FFI_Func_7Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
+                                                arg_ptrs[6]);
+            break;
+        case 8:
+            result = ((FFI_Func_8Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
+                                                arg_ptrs[6], arg_ptrs[7]);
+            break;
+        case 9:
+            result = ((FFI_Func_9Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
+                                                arg_ptrs[6], arg_ptrs[7], arg_ptrs[8]);
+            break;
+        case 10:
+            result = ((FFI_Func_10Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
+                                                 arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
+                                                 arg_ptrs[6], arg_ptrs[7], arg_ptrs[8],
+                                                 arg_ptrs[9]);
+            break;
         default:
-            fprintf(stderr, "Error: FFI does not support %d arguments yet (max 5)\n", arg_count);
+            fprintf(stderr,
+                    "Error: FFI does not support %d arguments yet (max %d)\n",
+                    arg_count, NANO_MAX_FFI_ARGS);
             return create_void();
     }
     

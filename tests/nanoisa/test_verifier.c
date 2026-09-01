@@ -860,6 +860,34 @@ static void test_import_bad_param_type(void) {
     PASS(test_name);
 }
 
+static void test_import_at_arg_limit_verifies(void) {
+    const char *test_name = "nvm_verify: import with NANO_MAX_FFI_ARGS params verifies";
+    NvmModule *mod = make_simple_module((const uint8_t[]){0x00}, 0, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "lib", 3);
+    uint32_t fname = nvm_add_string(mod, "f", 1);
+    uint8_t params[NANO_MAX_FFI_ARGS];
+    for (int i = 0; i < NANO_MAX_FFI_ARGS; i++) params[i] = TAG_INT;
+    nvm_add_import(mod, mname, fname, (uint16_t)NANO_MAX_FFI_ARGS, TAG_INT, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "import at the foreign-call argument limit should verify OK");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_import_over_arg_limit_fails(void) {
+    const char *test_name = "nvm_verify: import exceeding NANO_MAX_FFI_ARGS fails";
+    NvmModule *mod = make_simple_module((const uint8_t[]){0x00}, 0, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "lib", 3);
+    uint32_t fname = nvm_add_string(mod, "f", 1);
+    uint8_t params[NANO_MAX_FFI_ARGS + 1];
+    for (int i = 0; i < NANO_MAX_FFI_ARGS + 1; i++) params[i] = TAG_INT;
+    nvm_add_import(mod, mname, fname, (uint16_t)(NANO_MAX_FFI_ARGS + 1), TAG_INT, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "import above the foreign-call argument limit should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_call_module_recognized(void) {
     const char *test_name = "nvm_verify: OP_CALL_MODULE is a recognized linked call";
     uint8_t code[16];
@@ -1016,6 +1044,8 @@ int main(void) {
     test_call_extern_valid_signature();
     test_import_bad_return_type();
     test_import_bad_param_type();
+    test_import_at_arg_limit_verifies();
+    test_import_over_arg_limit_fails();
     test_call_module_recognized();
     test_arithmetic_instructions();
     test_stack_underflow();

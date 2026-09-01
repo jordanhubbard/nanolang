@@ -355,9 +355,10 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     }
 
     /* Marshal arguments */
-    void *arg_ptrs[16] = {0};
-    if (arg_count > 16) {
-        snprintf(error_msg, error_msg_size, "Too many FFI arguments (%d > 16)", arg_count);
+    void *arg_ptrs[NANO_MAX_FFI_ARGS] = {0};
+    if (arg_count > NANO_MAX_FFI_ARGS) {
+        snprintf(error_msg, error_msg_size,
+                 "Too many FFI arguments (%d > %d)", arg_count, NANO_MAX_FFI_ARGS);
         return false;
     }
 
@@ -367,7 +368,7 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     /* Fast path: all-float signatures use properly typed dispatch so
      * doubles go through FP registers (critical on arm64). */
     if (is_all_float_signature(imp, param_types, arg_count)) {
-        double dargs[16];
+        double dargs[NANO_MAX_FFI_ARGS];
         for (int i = 0; i < arg_count; i++) {
             dargs[i] = (args[i].tag == TAG_FLOAT) ? args[i].as.f64
                       : (args[i].tag == TAG_INT)   ? (double)args[i].as.i64
@@ -388,7 +389,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
             case 10: dresult = ((FFI_DFn10)func_ptr)(dargs[0], dargs[1], dargs[2], dargs[3], dargs[4], dargs[5], dargs[6], dargs[7], dargs[8], dargs[9]); break;
             default:
                 snprintf(error_msg, error_msg_size,
-                         "FFI: unsupported float arg count %d (max 10)", arg_count);
+                         "FFI: unsupported float arg count %d (max %d)",
+                         arg_count, NANO_MAX_FFI_ARGS);
                 return false;
         }
         *result = val_float(dresult);
@@ -420,7 +422,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                                                    arg_ptrs[3], arg_ptrs[4], arg_ptrs[5], arg_ptrs[6], arg_ptrs[7], arg_ptrs[8], arg_ptrs[9]); break;
         default:
             snprintf(error_msg, error_msg_size,
-                     "FFI: unsupported arg count %d (max 10)", arg_count);
+                     "FFI: unsupported arg count %d (max %d)",
+                     arg_count, NANO_MAX_FFI_ARGS);
             return false;
     }
 
@@ -616,7 +619,7 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
         /* Serialize args directly into the mailbox request slot */
         uint32_t pos = 0;
         bool fits = true;
-        for (int i = 0; i < arg_count && i < 16 && fits; i++) {
+        for (int i = 0; i < arg_count && i < NANO_MAX_FFI_ARGS && fits; i++) {
             uint32_t n = cop_serialize_value(&args[i],
                                              mbox->req_data + pos,
                                              COP_MAILBOX_SLOT_SIZE - pos);
@@ -699,7 +702,7 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     memcpy(payload + pos, &import_idx, 4); pos += 4;
     uint16_t argc = (uint16_t)arg_count;
     memcpy(payload + pos, &argc, 2); pos += 2;
-    for (int i = 0; i < arg_count && i < 16; i++) {
+    for (int i = 0; i < arg_count && i < NANO_MAX_FFI_ARGS; i++) {
         uint32_t n = cop_serialize_value(&args[i], payload + pos,
                                          sizeof(payload) - pos);
         if (n == 0) {

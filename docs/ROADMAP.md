@@ -168,7 +168,7 @@ Module format and tools:
 FFI and traps:
 - [ ] I will resolve imports once into typed call descriptors.
 - [ ] I will use generated typed stubs or a general ABI layer for mixed integer and floating signatures.
-- [ ] I will make argument limits consistent across imports, traps, direct FFI, and co-process calls.
+- [x] I made argument limits consistent across imports, traps, direct FFI, and co-process calls by sharing a single `NANO_MAX_FFI_ARGS` limit (in `src/nanoisa/nvm_format.h`): the verifier rejects imports past it, the `OP_CALL_EXTERN` trap buffer is sized to it and traps instead of silently truncating, and the direct in-process, co-process, and interpreter FFI dispatch paths all size their argument arrays and bounds to it, covered by `tests/nanoisa/test_verifier.c` import-limit tests.
 - [ ] I will pass trap stack ranges instead of copying a fixed array of tagged values where measurement supports it.
 - [ ] I will make co-process serialization explicitly little-endian and restore a tested large-payload path.
 - [ ] I will measure cold startup, warm calls, scalar calls, strings, arrays, crashes, restarts, and batching.
