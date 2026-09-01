@@ -334,9 +334,10 @@ NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/nvm_format.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c
 VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
+VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
 NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
 NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \
-	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT)
+	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT)
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
@@ -399,6 +400,11 @@ NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOU
 
 $(VM_DECODE_OBJECT): $(NANOVM_DIR)/vm_decode.c $(NANOVM_DIR)/vm_decode.h \
 		$(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(VM_DISPATCH_OBJECT): $(NANOVM_DIR)/vm_dispatch.c $(NANOVM_DIR)/vm_dispatch.h \
+		$(NANOVM_DIR)/vm_decode.h $(NANOISA_DIR)/isa.h \
+		$(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h | $(OBJ_DIR)/nanovm
