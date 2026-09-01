@@ -29,6 +29,9 @@ typedef struct {
  *   - All OP_CALL/OP_TAIL_CALL indices and tail-call results are valid
  *   - All OP_PUSH_STR string indices < string_count
  *   - All OP_CALL_EXTERN import indices < import_count
+ *   - Calls and aggregate constructors have enough stack operands
+ *   - Local, global, and flattened-upvalue operands are in bounds
+ *   - Encoded value tags and import signatures are valid
  *   - All OP_CLOSURE_NEW function indices < function_count
  *   - All struct/enum/union definition indices are valid
  *   - All opcodes are recognized

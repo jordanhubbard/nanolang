@@ -146,7 +146,7 @@ Verifier and safety:
 - [x] I reject wrapped function code ranges and require every tested branch target to be an instruction boundary or the function-end sentinel; `test-verifier` verifies the malformed cases.
 - [ ] I will implement a control-flow verifier with instruction-boundary validation.
 - [ ] I will infer stack height and types through every basic block and require compatible merge states.
-- [ ] I will verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures.
+- [x] I verify call arity and result shape through signature-aware stack effects, dynamic aggregate and closure counts, local/global/flattened-upvalue bounds, encoded type tags, and complete import signatures; `test-verifier` covers each rejected malformed form.
 - [ ] I will verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination.
 - [ ] I will verify linked-module calls and every opcode family rather than selected operands only.
 - [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
