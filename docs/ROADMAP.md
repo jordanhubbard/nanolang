@@ -161,7 +161,7 @@ Module format and tools:
 - [ ] I will make canonical disassembly lossless and byte-length aware.
 - [ ] I will validate complete operand consumption and verify every assembled module.
 - [ ] I will correct disassembler import annotations, branch operand roles, label construction, and binary-string handling.
-- [ ] I will add an exhaustive coverage check tying every opcode to schema, VM behavior, verifier rules, assembly, disassembly, and tests.
+- [x] I tie every legacy opcode to its schema and enum value, VM dispatch behavior, an explicit or decode-backed verifier route, and tested encode, decode, assembly, and disassembly paths; `schema-check` and `test-nanoisa` fail when these layers drift.
 - [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
 - [ ] I will choose one coherent flattened or separately linked module model and test it end to end.
 

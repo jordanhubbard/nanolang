@@ -350,7 +350,7 @@ $(OBJ_DIR)/nanoisa:
 	mkdir -p $(OBJ_DIR)/nanoisa
 
 .PHONY: test-nanoisa
-test-nanoisa: $(NANOISA_OBJECTS)
+test-nanoisa: schema-check $(NANOISA_OBJECTS)
 	@echo "Running NanoISA tests..."
 	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nanoisa \
 		tests/nanoisa/test_nanoisa.c $(NANOISA_OBJECTS) $(LDFLAGS)

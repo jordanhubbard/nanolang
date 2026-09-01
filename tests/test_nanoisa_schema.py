@@ -1,5 +1,6 @@
 import copy
 import importlib.util
+import re
 import unittest
 from pathlib import Path
 
@@ -14,6 +15,29 @@ generator = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(generator)
 
+SPECIALIZED_VERIFIER_OPCODES = {
+    "OP_AGG_PACK",
+    "OP_CALL",
+    "OP_CALL_EXTERN",
+    "OP_CALL_MODULE",
+    "OP_CLOSURE_NEW",
+    "OP_ENUM_VAL",
+    "OP_FUNCREF",
+    "OP_JMP",
+    "OP_JMP_FALSE",
+    "OP_JMP_TRUE",
+    "OP_LOAD_LOCAL",
+    "OP_LOAD_UPVALUE",
+    "OP_MATCH_TAG",
+    "OP_PUSH_STR",
+    "OP_STORE_LOCAL",
+    "OP_STORE_UPVALUE",
+    "OP_STRUCT_LITERAL",
+    "OP_STRUCT_NEW",
+    "OP_TAIL_CALL",
+    "OP_UNION_CONSTRUCT",
+}
+
 
 class NanoisaSchemaTests(unittest.TestCase):
     def setUp(self):
@@ -26,6 +50,26 @@ class NanoisaSchemaTests(unittest.TestCase):
             for instruction in family
         ]
 
+    def legacy_opcodes(self):
+        return {
+            f"OP_{entry['name']}": generator._as_int(entry["code"])
+            for entry in self.schema["legacy_opcodes"]
+        }
+
+    @staticmethod
+    def switch_body(source, marker):
+        start = source.index(marker)
+        brace = source.index("{", start)
+        depth = 0
+        for index in range(brace, len(source)):
+            if source[index] == "{":
+                depth += 1
+            elif source[index] == "}":
+                depth -= 1
+                if depth == 0:
+                    return source[brace + 1:index]
+        raise AssertionError(f"unterminated switch after {marker}")
+
     def test_codes_and_names_are_unique(self):
         entries = self.schema["legacy_opcodes"]
         self.assertEqual(len({entry["code"] for entry in entries}), len(entries))
@@ -35,6 +79,40 @@ class NanoisaSchemaTests(unittest.TestCase):
         expected = generator.generate(self.schema)
         actual = (ROOT / "src/nanoisa/generated_schema.h").read_text()
         self.assertEqual(actual, expected)
+
+    def test_every_schema_opcode_matches_enum_and_vm_dispatch(self):
+        expected = self.legacy_opcodes()
+        isa_header = (ROOT / "src/nanoisa/isa.h").read_text()
+        enum_body = isa_header[
+            isa_header.index("typedef enum {"):isa_header.index("} NanoOpcode;")
+        ]
+        enum_entries = {
+            name: int(value, 0)
+            for name, value in re.findall(
+                r"\b(OP_[A-Z0-9_]+)\s*=\s*(0x[0-9A-Fa-f]+|[0-9]+)",
+                enum_body,
+            )
+            if name != "OP_EXTENSION_PREFIX"
+        }
+        self.assertEqual(enum_entries, expected)
+
+        vm_source = (ROOT / "src/nanovm/vm.c").read_text()
+        dispatch = self.switch_body(vm_source, "switch (instr.opcode)")
+        vm_opcodes = set(re.findall(r"\bcase\s+(OP_[A-Z0-9_]+)\s*:", dispatch))
+        self.assertEqual(vm_opcodes, set(expected))
+
+    def test_every_schema_opcode_has_a_verifier_route(self):
+        expected = set(self.legacy_opcodes())
+        verifier = (ROOT / "src/nanoisa/verifier.c").read_text()
+        rules = self.switch_body(verifier, "switch (instr.opcode)")
+        explicit = set(re.findall(r"\bcase\s+(OP_[A-Z0-9_]+)\s*:", rules))
+        self.assertEqual(explicit, SPECIALIZED_VERIFIER_OPCODES)
+        decode_backed = expected - SPECIALIZED_VERIFIER_OPCODES
+        self.assertEqual(explicit | decode_backed, expected)
+        self.assertRegex(
+            rules,
+            r"default:\s*/\* All other opcodes: valid by decode success \*/\s*break;",
+        )
 
     def test_v2_families_declare_stack_and_ownership(self):
         for instruction in self.families():
