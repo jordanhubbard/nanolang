@@ -2827,6 +2827,125 @@ static void test_predecode_invalidate_rebuild(void) {
     nvm_module_free(mod);
 }
 
+
+/* Instantiation binds branch targets to absolute instruction boundaries. */
+static void test_predecode_resolves_branch_targets(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_BOOL, 0);
+    uint32_t jmp_false_off = off;
+    off += emit(code + off, OP_JMP_FALSE, (int32_t)0); /* patched below */
+    uint32_t jmp_off = off;
+    off += emit(code + off, OP_JMP, (int32_t)0);       /* patched below */
+    uint32_t target_off = off;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_RET);
+
+    /* Patch both branches to land on target_off (an instruction boundary). */
+    DecodedInstruction jf = {0};
+    jf.opcode = OP_JMP_FALSE;
+    jf.operands[0].i32 = (int32_t)target_off - (int32_t)jmp_false_off;
+    ASSERT(isa_encode(&jf, code + jmp_false_off, sizeof(code) - jmp_false_off) > 0,
+           "JMP_FALSE re-encodes with a boundary-aligned target");
+    DecodedInstruction jm = {0};
+    jm.opcode = OP_JMP;
+    jm.operands[0].i32 = (int32_t)target_off - (int32_t)jmp_off;
+    ASSERT(isa_encode(&jm, code + jmp_off, sizeof(code) - jmp_off) > 0,
+           "JMP re-encodes with a boundary-aligned target");
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid,
+           "module with resolvable branches decodes at instantiation");
+
+    uint32_t code_offset = mod->functions[0].code_offset;
+    const VmDecodedInstruction *jf_ins =
+        vm_decoded_function_at(&vm.decoded_module.functions[0], jmp_false_off);
+    const VmDecodedInstruction *jm_ins =
+        vm_decoded_function_at(&vm.decoded_module.functions[0], jmp_off);
+    ASSERT(jf_ins != NULL && jm_ins != NULL,
+           "conditional and unconditional branches have decoded entries");
+    ASSERT_EQ_INT(jf_ins->resolved_target, code_offset + target_off,
+                  "JMP_FALSE resolves to the absolute target boundary at decode time");
+    ASSERT_EQ_INT(jm_ins->resolved_target, code_offset + target_off,
+                  "JMP resolves to the absolute target boundary at decode time");
+
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK,
+                  "program with resolved branches executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 7,
+                  "resolved branch reaches the intended instruction");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* Instantiation binds direct and tail calls to their callee function indices. */
+static void test_predecode_resolves_direct_and_tail_calls(void) {
+    uint8_t leaf_code[16];
+    uint32_t leaf_off = 0;
+    leaf_off += emit(leaf_code + leaf_off, OP_PUSH_I64, (int64_t)11);
+    leaf_off += emit(leaf_code + leaf_off, OP_RET);
+
+    uint8_t direct_code[16];
+    uint32_t direct_off = 0;
+    uint32_t call_at = direct_off;
+    direct_off += emit(direct_code + direct_off, OP_CALL, (uint32_t)0);
+    direct_off += emit(direct_code + direct_off, OP_RET);
+
+    uint8_t tail_code[16];
+    uint32_t tail_off = 0;
+    uint32_t tail_at = tail_off;
+    tail_off += emit(tail_code + tail_off, OP_TAIL_CALL, (uint32_t)0);
+
+    NvmModule *mod = nvm_module_new();
+    uint32_t leaf_idx = add_fn(mod, "leaf", leaf_code, leaf_off, 0, 0);
+    uint32_t direct_idx = add_fn(mod, "direct", direct_code, direct_off, 0, 0);
+    uint32_t tail_idx = add_fn(mod, "tail", tail_code, tail_off, 0, 0);
+
+    /* Point the calls at the leaf function that was appended first. */
+    DecodedInstruction call = {0};
+    call.opcode = OP_CALL;
+    call.operands[0].u32 = leaf_idx;
+    ASSERT(isa_encode(&call, mod->code + mod->functions[direct_idx].code_offset + call_at,
+                      mod->code_size) > 0,
+           "OP_CALL re-encodes with the leaf target");
+    DecodedInstruction tail = {0};
+    tail.opcode = OP_TAIL_CALL;
+    tail.operands[0].u32 = leaf_idx;
+    ASSERT(isa_encode(&tail, mod->code + mod->functions[tail_idx].code_offset + tail_at,
+                      mod->code_size) > 0,
+           "OP_TAIL_CALL re-encodes with the leaf target");
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid,
+           "module with direct and tail calls decodes at instantiation");
+
+    const VmDecodedInstruction *call_ins =
+        vm_decoded_function_at(&vm.decoded_module.functions[direct_idx], call_at);
+    const VmDecodedInstruction *tail_ins =
+        vm_decoded_function_at(&vm.decoded_module.functions[tail_idx], tail_at);
+    ASSERT(call_ins != NULL && tail_ins != NULL,
+           "direct and tail calls have decoded entries");
+    ASSERT_EQ_INT(call_ins->resolved_target, leaf_idx,
+                  "direct call resolves to the callee function index at decode time");
+    ASSERT_EQ_INT(tail_ins->resolved_target, leaf_idx,
+                  "tail call resolves to the callee function index at decode time");
+
+    NanoValue value = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, direct_idx, NULL, 0, &value), VM_OK,
+                  "direct call executes through the resolved target");
+    ASSERT_EQ_INT(value.as.i64, 11, "direct call returns the leaf result");
+    ASSERT_EQ_INT(vm_invoke(&vm, tail_idx, NULL, 0, &value), VM_OK,
+                  "tail call executes through the resolved target");
+    ASSERT_EQ_INT(value.as.i64, 11, "tail call returns the leaf result");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+
 /* OP_ADD float+int (a=float first on stack, b=int): hits line 355 in vm.c */
 static void test_add_float_int(void) {
     uint8_t code[64];
@@ -3378,6 +3497,8 @@ int main(void) {
     RUN_TEST(test_predecode_malformed_bytecode);
     RUN_TEST(test_predecode_invalid_branch_target);
     RUN_TEST(test_predecode_invalidate_rebuild);
+    RUN_TEST(test_predecode_resolves_branch_targets);
+    RUN_TEST(test_predecode_resolves_direct_and_tail_calls);
 
     printf("\n[Float/mixed arithmetic]\n");
     RUN_TEST(test_add_float_int);
