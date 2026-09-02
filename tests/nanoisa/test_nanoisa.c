@@ -347,43 +347,23 @@ static void test_decode_invalid_opcode(void) {
     ASSERT_EQ_INT(consumed, 0, "Invalid opcode returns 0");
 }
 
-static void test_encode_all_categories(void) {
-    /* Verify every opcode category encodes without error */
-    uint8_t opcodes[] = {
-        OP_NOP, OP_PUSH_I64, OP_PUSH_F64, OP_PUSH_BOOL, OP_PUSH_STR,
-        OP_PUSH_VOID, OP_PUSH_U8, OP_DUP, OP_POP, OP_SWAP, OP_ROT3,
-        OP_LOAD_LOCAL, OP_STORE_LOCAL, OP_LOAD_GLOBAL, OP_STORE_GLOBAL,
-        OP_LOAD_UPVALUE, OP_STORE_UPVALUE,
-        OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD, OP_NEG,
-        OP_EQ, OP_NE, OP_LT, OP_LE, OP_GT, OP_GE,
-        OP_AND, OP_OR, OP_NOT, OP_TAIL_CALL,
-        OP_JMP, OP_JMP_TRUE, OP_JMP_FALSE, OP_CALL, OP_CALL_INDIRECT, OP_RET,
-        OP_CALL_EXTERN, OP_CALL_MODULE,
-        OP_STR_LEN, OP_STR_CONCAT, OP_STR_SUBSTR, OP_STR_CONTAINS,
-        OP_STR_EQ, OP_STR_CHAR_AT, OP_STR_FROM_INT, OP_STR_FROM_FLOAT,
-        OP_ARR_NEW, OP_ARR_PUSH, OP_ARR_POP, OP_ARR_GET, OP_ARR_SET,
-        OP_ARR_LEN, OP_ARR_SLICE, OP_ARR_REMOVE, OP_ARR_LITERAL,
-        OP_STRUCT_NEW, OP_STRUCT_GET, OP_STRUCT_SET, OP_STRUCT_LITERAL,
-        OP_UNION_CONSTRUCT, OP_UNION_TAG, OP_UNION_FIELD, OP_MATCH_TAG, OP_ENUM_VAL,
-        OP_TUPLE_NEW, OP_TUPLE_GET,
-        OP_HM_NEW, OP_HM_GET, OP_HM_SET, OP_HM_HAS, OP_HM_DELETE,
-        OP_HM_KEYS, OP_HM_VALUES, OP_HM_LEN,
-        OP_GC_RETAIN, OP_GC_RELEASE, OP_GC_SCOPE_ENTER, OP_GC_SCOPE_EXIT,
-        OP_CAST_INT, OP_CAST_FLOAT, OP_CAST_BOOL, OP_CAST_STRING, OP_TYPE_CHECK,
-        OP_CLOSURE_NEW, OP_CLOSURE_CALL,
-        OP_PRINT, OP_ASSERT, OP_DEBUG_LINE, OP_HALT,
-        OP_OPAQUE_NULL, OP_OPAQUE_VALID,
-    };
-    int count = sizeof(opcodes) / sizeof(opcodes[0]);
+static void test_every_opcode_tooling_roundtrip(void) {
+    ASSERT_EQ_INT(sizeof(nanoisa_schema_opcodes) / sizeof(nanoisa_schema_opcodes[0]),
+                  NANOISA_LEGACY_OPCODE_COUNT, "Schema opcode count matches table");
 
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < NANOISA_LEGACY_OPCODE_COUNT; i++) {
+        const NanoisaSchemaOpcode *schema = &nanoisa_schema_opcodes[i];
+        const InstructionInfo *info = isa_get_info(schema->opcode);
+        ASSERT(info != NULL, "Schema opcode has active metadata");
+        ASSERT_EQ_STR(info->name, schema->name, "Schema mnemonic matches metadata");
+        ASSERT_EQ_INT(isa_opcode_by_name(schema->name), schema->opcode,
+                      "Assembler lookup covers schema opcode");
         uint8_t buf[ISA_MAX_INSTRUCTION_SIZE];
         DecodedInstruction instr = {0};
-        instr.opcode = opcodes[i];
-        /* Set dummy operand values */
-        instr.operands[0].i64 = 1;
-        instr.operands[1].u32 = 2;
-        instr.operands[2].u16 = 3;
+        instr.opcode = schema->opcode;
+        for (int operand = 0; operand < schema->operand_count; operand++) {
+            instr.operands[operand].i64 = operand + 1;
+        }
 
         uint32_t encoded = isa_encode(&instr, buf, sizeof(buf));
         ASSERT(encoded > 0, "Opcode encodes successfully");
@@ -391,7 +371,35 @@ static void test_encode_all_categories(void) {
         DecodedInstruction decoded;
         uint32_t consumed = isa_decode(buf, encoded, &decoded);
         ASSERT_EQ_INT(consumed, encoded, "Decoded same number of bytes");
-        ASSERT_EQ_INT(decoded.opcode, opcodes[i], "Opcode round-trips");
+        ASSERT_EQ_INT(decoded.opcode, schema->opcode, "Opcode round-trips");
+
+        char source[256];
+        int length = snprintf(source, sizeof(source),
+                              ".function coverage 0 0 0 void 0\n  %s",
+                              schema->name);
+        for (int operand = 0; operand < schema->operand_count; operand++) {
+            const char *value = schema->operands[operand] == OPERAND_F64 ? " 1.5" : " 1";
+            length += snprintf(source + length, sizeof(source) - (size_t)length,
+                               "%s", value);
+        }
+        snprintf(source + length, sizeof(source) - (size_t)length, "\n.end\n");
+
+        /* Fragment, not a program: a lone DUP has an empty stack and a lone
+         * LOAD_LOCAL names a slot the zero-local function does not have, so
+         * these could never verify. This sweep checks encoding coverage, so it
+         * assembles without the verification pass. */
+        AsmResult result;
+        NvmModule *mod = asm_assemble_unverified(source, &result);
+        ASSERT(mod != NULL, "Every schema opcode assembles");
+        ASSERT_EQ_INT(mod->code[mod->functions[0].code_offset], schema->opcode,
+                      "Assembly emits schema opcode");
+
+        char *listing = disasm_module(mod);
+        ASSERT(listing != NULL, "Every schema opcode disassembles");
+        ASSERT(strstr(listing, schema->name) != NULL,
+               "Disassembly emits schema mnemonic");
+        free(listing);
+        nvm_module_free(mod);
     }
 }
 
@@ -1088,11 +1096,9 @@ static void test_asm_all_operand_types(void) {
 
     AsmResult result;
     NvmModule *mod = asm_assemble(src, &result);
-    ASSERT(mod != NULL, "All operand types assembly succeeded");
-    if (result.error != ASM_OK) {
-        printf("    Error at line %u: %s\n", result.line, result.message);
-    }
-    ASSERT_EQ_INT(result.error, ASM_OK, "No error");
+    ASSERT(mod == NULL, "All operand types were consumed before verification");
+    ASSERT_EQ_INT(result.error, ASM_ERR_VERIFY,
+                  "Semantically invalid operand fixture reaches verification");
 
     nvm_module_free(mod);
 }
@@ -1203,6 +1209,41 @@ static void test_asm_error_bad_u16_operand(void) {
     ASSERT_EQ_INT(result.error, ASM_ERR_BAD_OPERAND, "Error type BAD_OPERAND");
 }
 
+static void test_asm_error_trailing_instruction_operand(void) {
+    const char *src =
+        ".function test 0 0 0 void 0\n"
+        "  HALT unexpected\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Trailing instruction operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_SYNTAX, "Trailing operand is a syntax error");
+    ASSERT_EQ_INT(result.line, 2, "Trailing operand reports its line");
+}
+
+static void test_asm_error_trailing_directive_operand(void) {
+    const char *src = ".entry 0 unexpected\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Trailing directive operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_SYNTAX, "Trailing directive input is a syntax error");
+    ASSERT_EQ_INT(result.line, 1, "Trailing directive input reports its line");
+}
+
+static void test_asm_rejects_unverified_module(void) {
+    const char *src =
+        ".function test 0 0 0 void 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  HALT\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Unverified assembled module returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_VERIFY, "Verifier failure has a distinct error");
+    ASSERT(strstr(result.message, "slot 0 >= local_count 0") != NULL,
+           "Assembler preserves verifier diagnostic");
+}
+
 static void test_asm_comments_and_whitespace(void) {
     const char *src =
         "; This is a comment\n"
@@ -1219,6 +1260,18 @@ static void test_asm_comments_and_whitespace(void) {
     ASSERT(mod != NULL, "Comments and whitespace handled");
     ASSERT_EQ_INT(result.error, ASM_OK, "No error");
     nvm_module_free(mod);
+}
+
+/* A quoted string ending in a backslash is an unterminated escape. It must be
+ * rejected, not walked past: the escape branch consumes the terminator and the
+ * loop then steps outside the line buffer, which AddressSanitizer reports as a
+ * heap-buffer-overflow read in parse_quoted_string. Found by the malformed-input
+ * fuzz tests once they could run under sanitizers. */
+static void test_asm_trailing_backslash_rejected(void) {
+    AsmResult result;
+    NvmModule *mod = asm_assemble(".string \"abc\\", &result);
+    ASSERT(mod == NULL, "Unterminated escape must not assemble");
+    ASSERT(result.error != ASM_OK, "Unterminated escape reports an error");
 }
 
 static void test_asm_string_escapes(void) {
@@ -1273,6 +1326,74 @@ static void test_asm_multiple_functions(void) {
            "Functions at different offsets");
 
     nvm_module_free(mod);
+}
+
+static void test_asm_symbolic_operands(void) {
+    const char *src =
+        ".string greeting \"hello\"\n"
+        ".symbol import write 7\n"
+        ".symbol type Point 3\n"
+        ".symbol field x 1\n"
+        ".function helper 0 0 0 void 0\n"
+        "  CALL main\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 void 0\n"
+        "again:\n"
+        "  PUSH_STR greeting\n"
+        "  CALL helper\n"
+        "  CALL_EXTERN write\n"
+        "  STRUCT_NEW Point\n"
+        "  STRUCT_GET x\n"
+        "  JMP again\n"
+        "  RET\n"
+        ".end\n"
+        ".entry main\n";
+
+    /* Fragment, not a program: the symbol indices here are arbitrary by design
+     * (.symbol import write 7 with no imports declared), because what is under
+     * test is that symbolic operands resolve to the indices named, not that the
+     * result is runnable. Assemble without verification. */
+    AsmResult result;
+    NvmModule *mod = asm_assemble_unverified(src, &result);
+    ASSERT(mod != NULL, "Symbolic operands assemble");
+    ASSERT_EQ_INT(result.error, ASM_OK, "Symbolic operands have no error");
+    ASSERT_EQ_INT(mod->header.entry_point, 1, "Symbolic entry resolves function");
+
+    DecodedInstruction forward_call;
+    ASSERT(isa_decode(mod->code + mod->functions[0].code_offset,
+                      mod->functions[0].code_length, &forward_call) > 0,
+           "Forward function call decodes");
+    ASSERT_EQ_INT(forward_call.operands[0].u32, 1,
+                  "Forward function symbol resolves function index");
+
+    const uint8_t *code = mod->code + mod->functions[1].code_offset;
+    uint32_t pos = 0;
+    DecodedInstruction instr;
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 0, "Constant symbol resolves string index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 0, "Function symbol resolves function index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 7, "Import symbol resolves import index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u32, 3, "Type symbol resolves layout index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT_EQ_INT(instr.operands[0].u16, 1, "Field symbol resolves field index");
+    pos += isa_decode(code + pos, mod->functions[1].code_length - pos, &instr);
+    ASSERT(instr.operands[0].i32 < 0, "Label symbol resolves relative branch");
+    nvm_module_free(mod);
+}
+
+static void test_asm_error_undefined_symbol(void) {
+    const char *src =
+        ".function main 0 0 0 void 0\n"
+        "  CALL missing\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Undefined symbolic operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_UNDEFINED_SYMBOL, "Undefined symbol error type");
 }
 
 /* ========================================================================
@@ -1466,6 +1587,102 @@ static void test_disasm_label_limit_degrades_gracefully(void) {
 
     free(output);
     free(code);
+}
+
+
+static void test_disasm_call_extern_import_annotation(void) {
+    /* CALL_EXTERN's operand is an import table index, not a function index.
+     * The disassembler must annotate it with the imported module/function. */
+    NvmModule *mod = nvm_module_new();
+    nvm_add_string(mod, "main", 4);
+    uint32_t modn = nvm_add_string(mod, "std", 3);
+    uint32_t fnn = nvm_add_string(mod, "println", 7);
+    uint8_t ptypes[1] = { TAG_STRING };
+    nvm_add_import(mod, modn, fnn, 1, TAG_INT, ptypes);
+
+    NvmFunctionEntry fn = { .name_idx = 0, .arity = 0, .code_offset = 0,
+                            .code_length = 0, .local_count = 0, .upvalue_count = 0,
+                            .result_tag = 0, .result_count = 0 };
+    nvm_add_function(mod, &fn);
+    uint8_t code[] = { OP_CALL_EXTERN, 0, 0, 0, 0, OP_HALT };
+    uint32_t off = nvm_append_code(mod, code, sizeof(code));
+    mod->functions[0].code_offset = off;
+    mod->functions[0].code_length = sizeof(code);
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "CALL_EXTERN disassembly produced output");
+    ASSERT(strstr(output, "CALL_EXTERN 0") != NULL, "Shows import index");
+    ASSERT(strstr(output, "; import std.println") != NULL,
+           "Annotates CALL_EXTERN with imported module.function");
+    /* Regression: it must not mislabel the operand as a function-table name. */
+    ASSERT(strstr(output, "; main") == NULL,
+           "CALL_EXTERN is not annotated as a local function");
+    free(output);
+    nvm_module_free(mod);
+}
+
+static void test_disasm_non_branch_i32_is_numeric(void) {
+    /* MATCH_TAG has a u16 variant operand and an i32 branch operand. Only the
+     * i32 branch resolves to a label; the u16 is a plain immediate. The old
+     * disassembler treated every i32 as a branch target — verify the branch
+     * role is honored and non-branch operands stay numeric. */
+    const char *src =
+        ".function test 0 1 0 void 0\n"
+        "  PUSH_I64 0\n"
+        "  MATCH_TAG 3 5\n"
+        "  PUSH_I64 1\n"
+        "target:\n"
+        "  RET\n"
+        ".end\n";
+    /* Fragment: the branch displacement here is arbitrary and lands
+     * mid-instruction, which the verifier correctly rejects. What is under test
+     * is how the disassembler renders the u16 variant vs the i32 branch
+     * operand, so assemble without verification. */
+    AsmResult result;
+    NvmModule *mod = asm_assemble_unverified(src, &result);
+    ASSERT(mod != NULL, "Assembly with MATCH_TAG succeeded");
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "MATCH_TAG disassembly produced output");
+    /* The u16 variant selector 3 must remain a plain number, not a label. */
+    ASSERT(strstr(output, "MATCH_TAG 3 ") != NULL,
+           "Variant selector stays numeric");
+    /* The branch operand resolves to a reconstructed label. */
+    ASSERT(strstr(output, "MATCH_TAG 3 L0") != NULL,
+           "Branch operand resolves to a label");
+    ASSERT(strstr(output, "cfg:match-tag-branch") != NULL,
+           "MATCH_TAG gets a control-flow annotation");
+    free(output);
+    nvm_module_free(mod);
+}
+
+static void test_disasm_binary_string_lossless(void) {
+    /* A string with embedded NUL and non-printable bytes must disassemble to
+     * escapes that round-trip through the assembler without truncation. */
+    NvmModule *mod = nvm_module_new();
+    const char data[] = { 'a', '\0', 'b', '\r', '\n', (char)0xFF, '\t', 'z' };
+    nvm_add_string(mod, data, (uint32_t)sizeof(data));
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "Binary-string disassembly produced output");
+    /* Bytes after the embedded NUL must not be dropped. */
+    ASSERT(strstr(output, "a\\x00b\\r\\n\\xff\\tz") != NULL,
+           "Binary string escaped losslessly including bytes after NUL");
+
+    /* Round-trip: reassembling the emitted .string reproduces the bytes. */
+    AsmResult result;
+    NvmModule *mod2 = asm_assemble(output, &result);
+    ASSERT(mod2 != NULL, "Reassembly of binary string succeeded");
+    if (mod2) {
+        ASSERT_EQ_INT(nvm_get_string_len(mod2, 0), (uint32_t)sizeof(data),
+                      "Reassembled string preserves full byte length");
+        const char *s2 = nvm_get_string(mod2, 0);
+        ASSERT(s2 != NULL && memcmp(s2, data, sizeof(data)) == 0,
+               "Reassembled bytes match the original");
+        nvm_module_free(mod2);
+    }
+    free(output);
+    nvm_module_free(mod);
 }
 
 /* ========================================================================
@@ -1705,7 +1922,7 @@ int main(void) {
     RUN_TEST(test_encode_decode_multi_operand);
     RUN_TEST(test_decode_truncated);
     RUN_TEST(test_decode_invalid_opcode);
-    RUN_TEST(test_encode_all_categories);
+    RUN_TEST(test_every_opcode_tooling_roundtrip);
 
     printf("\n[NVM Format]\n");
     RUN_TEST(test_crc32);
@@ -1744,9 +1961,15 @@ int main(void) {
     RUN_TEST(test_asm_error_bad_i64_operand);
     RUN_TEST(test_asm_error_bad_f64_operand);
     RUN_TEST(test_asm_error_bad_u16_operand);
+    RUN_TEST(test_asm_error_trailing_instruction_operand);
+    RUN_TEST(test_asm_error_trailing_directive_operand);
+    RUN_TEST(test_asm_rejects_unverified_module);
     RUN_TEST(test_asm_comments_and_whitespace);
+    RUN_TEST(test_asm_trailing_backslash_rejected);
     RUN_TEST(test_asm_string_escapes);
     RUN_TEST(test_asm_multiple_functions);
+    RUN_TEST(test_asm_symbolic_operands);
+    RUN_TEST(test_asm_error_undefined_symbol);
 
     printf("\n[Disassembler]\n");
     RUN_TEST(test_disasm_basic);
@@ -1756,6 +1979,9 @@ int main(void) {
     RUN_TEST(test_disasm_rejects_wrapped_function_range);
     RUN_TEST(test_disasm_label_deduplication);
     RUN_TEST(test_disasm_label_limit_degrades_gracefully);
+    RUN_TEST(test_disasm_call_extern_import_annotation);
+    RUN_TEST(test_disasm_non_branch_i32_is_numeric);
+    RUN_TEST(test_disasm_binary_string_lossless);
 
     printf("\n[Round-Trip]\n");
     RUN_TEST(test_roundtrip_assemble_serialize_deserialize_disassemble);

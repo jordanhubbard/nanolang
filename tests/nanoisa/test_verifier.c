@@ -197,6 +197,23 @@ static void test_empty_function_code_ranges(void) {
     PASS(test_name);
 }
 
+static void test_function_code_length_beyond_end(void) {
+    const char *test_name = "nvm_verify: code_length beyond code_size fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    /* Valid offset that does not wrap: the length simply runs past the end of
+     * the code section. Distinct from the wrapped case above, which the
+     * subtraction-form check catches for a different reason. */
+    mod->functions[0].code_offset = 0;
+    mod->functions[0].code_length = mod->code_size + 100u;
+    mod->header.entry_point = 0;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "over-long code range must fail verification");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_function_name_idx_overflow(void) {
     const char *test_name = "nvm_verify: function name_idx >= string_count fails";
     uint8_t code[4];
@@ -835,6 +852,21 @@ static void test_call_extern_valid_signature(void) {
     PASS(test_name);
 }
 
+static void test_import_signature_valid(void) {
+    const char *test_name = "nvm_verify: import with valid signature tags passes";
+    uint8_t code[8];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "mathlib", 7);
+    uint32_t fname = nvm_add_string(mod, "add", 3);
+    uint8_t params[2] = { TAG_INT, TAG_FLOAT };
+    nvm_add_import(mod, mname, fname, 2, TAG_INT, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_import_bad_return_type(void) {
     const char *test_name = "nvm_verify: import with invalid return type tag fails";
     NvmModule *mod = make_simple_module((const uint8_t[]){0x00}, 0, 0, 0);
@@ -999,6 +1031,7 @@ int main(void) {
     test_overlapping_function_code_ranges();
     test_contained_function_code_range();
     test_empty_function_code_ranges();
+    test_function_code_length_beyond_end();
     test_function_name_idx_overflow();
     test_invalid_function_result_signature();
     test_multiple_function_results();
@@ -1042,6 +1075,7 @@ int main(void) {
     test_null_code_nonzero_size();
     test_call_extern_invalid();
     test_call_extern_valid_signature();
+    test_import_signature_valid();
     test_import_bad_return_type();
     test_import_bad_param_type();
     test_import_at_arg_limit_verifies();

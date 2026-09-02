@@ -16,6 +16,38 @@ SCHEMA = ROOT / "spec/nanoisa.yaml"
 OUTPUT = ROOT / "src/nanoisa/generated_schema.h"
 
 
+# Every portable ("public") v2 instruction records why it belongs in the
+# instruction set rather than a runtime library reached through call.import.
+# A frontend or runtime can compute any richer behavior by composing these; the
+# ISA only exposes what a portable library provably cannot express for itself.
+#
+#   representation       reads or builds a value's internal layout (constant
+#                        pool loads, linear-memory access, aggregate pack/get/
+#                        set/tag). A library cannot reach the physical layout a
+#                        portable ISA exists to hide.
+#   core-semantics       a primitive whose bit-exact result the ISA must fix
+#                        once (typed literals, integer and float arithmetic).
+#   execution-substrate  operates on the VM's own operand stack or call frame
+#                        (stack shuffles, local/global/upvalue access) that no
+#                        library has portable access to.
+#   control-flow         manipulates the instruction pointer, call frames, or
+#                        signatures (branches, calls, tail calls, return).
+#   host-boundary        the effect boundary itself (traps and host imports); a
+#                        library cannot cross it without one of these.
+#   encoding             an encoding-only alias of a canonical instruction; it
+#                        belongs for compact size, not for any new meaning.
+JUSTIFICATIONS = frozenset(
+    {
+        "representation",
+        "core-semantics",
+        "execution-substrate",
+        "control-flow",
+        "host-boundary",
+        "encoding",
+    }
+)
+
+
 def c_name(name: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", name).upper().strip("_")
 
@@ -78,6 +110,18 @@ def validate(schema: dict) -> None:
                 "each instruction needs one distinct meaning"
             )
         meanings[meaning] = name
+
+        justification = item.get("justification")
+        if justification not in JUSTIFICATIONS:
+            raise ValueError(
+                f"{name} needs a justification for belonging in the ISA; "
+                f"'{justification}' is not one of {sorted(JUSTIFICATIONS)}"
+            )
+        if justification == "encoding" and "canonical" not in item:
+            raise ValueError(
+                f"{name} claims an encoding justification but names no "
+                "canonical instruction it aliases"
+            )
 
         for operand in item.get("operands", []):
             if operand not in declared_kinds:
@@ -149,7 +193,7 @@ def generate(schema: dict) -> str:
     for item in families:
         lines.append(
             f'    {{"{item["name"]}", {c_string(item["meaning"])}, '
-            f'"{item["ownership"]}", '
+            f'"{item["ownership"]}", "{item["justification"]}", '
             f'{len(item.get("operands", []))}, {len(item.get("pops", []))}, '
             f'{len(item.get("pushes", []))}}},'
         )

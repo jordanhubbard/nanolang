@@ -11,6 +11,7 @@
 #include "vm_ffi.h"
 #include "runtime/dyn_array.h"
 #include "runtime/ffi_loader.h"
+#include "ffi_dispatch_generated.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -66,10 +67,11 @@ static int marshal_args(NanoValue *args, int arg_count,
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
                 break;
             case TAG_FLOAT:
-                /* Float args: store in stack buffer and pass pointer.
-                 * NOTE: This is a known limitation - proper float passing
-                 * requires libffi. For now, cast to intptr_t which works
-                 * on arm64 for many C functions that take double. */
+                /* Reached only for signatures the generated mixed dispatcher
+                 * does not cover (e.g. a float alongside a string/array arg,
+                 * or arity above FFI_DISPATCH_MAX_ARITY). Correctly-classified
+                 * float/int mixes are handled earlier by ffi_call_mixed(); this
+                 * fallback keeps the bit pattern for such rare aggregate mixes. */
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
                 break;
             case TAG_BOOL:
@@ -252,6 +254,280 @@ static bool is_all_float_signature(const NvmImportEntry *imp,
     return true;
 }
 
+/* ABI class of a single argument tag. Floating-point values travel in the
+ * FP/SIMD register bank; everything else (int, bool, char*, pointers, array
+ * handles) travels in general-purpose registers. Classifying correctly is the
+ * whole point of the generated mixed-signature dispatcher. */
+static bool ffi_tag_is_float(uint8_t tag) {
+    return tag == TAG_FLOAT;
+}
+
+/* True when a signature mixes GP and FP argument classes (or has an FP
+ * argument alongside a GP return, etc.). Homogeneous all-GP and all-FP
+ * signatures are handled by the existing fast paths; this predicate selects
+ * the generated typed-stub dispatcher for everything in between that the
+ * generic void*-cast path would marshal incorrectly. */
+static bool ffi_uses_generated_dispatch(const NvmImportEntry *imp,
+                                        const uint8_t *param_types,
+                                        int arg_count) {
+    if (arg_count > FFI_DISPATCH_MAX_ARITY) return false;
+    /* Only int64/pointer-class and double-class scalars can be routed through
+     * the generated stubs; aggregate/string marshaling stays on the classic
+     * path so its VmString/VmArray conversions still run. */
+    bool has_float = ffi_tag_is_float(imp->return_type);
+    for (int i = 0; i < arg_count; i++) {
+        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i]
+                                                            : TAG_INT;
+        switch (tag) {
+            case TAG_INT:
+            case TAG_BOOL:
+            case TAG_OPAQUE:
+                break;
+            case TAG_FLOAT:
+                has_float = true;
+                break;
+            default:
+                /* string/array/struct/etc. — needs classic marshaling */
+                return false;
+        }
+    }
+    if (imp->return_type != TAG_INT && imp->return_type != TAG_BOOL &&
+        imp->return_type != TAG_FLOAT && imp->return_type != TAG_VOID &&
+        imp->return_type != TAG_OPAQUE) {
+        return false;
+    }
+    /* Use the generated dispatcher whenever any float is involved. Pure
+     * int/bool/opaque signatures also dispatch correctly here, but we let the
+     * legacy void* path own them to minimise behavioural change. */
+    return has_float;
+}
+
+/* Fill one classified argument slot from a NanoValue given its declared tag. */
+static void ffi_fill_slot(FfiArgSlot *slot, const NanoValue *v, uint8_t tag) {
+    if (ffi_tag_is_float(tag)) {
+        slot->is_float = 1;
+        slot->i = 0;
+        slot->f = (v->tag == TAG_FLOAT) ? v->as.f64
+                : (v->tag == TAG_INT)   ? (double)v->as.i64
+                : 0.0;
+    } else {
+        slot->is_float = 0;
+        slot->f = 0.0;
+        switch (tag) {
+            case TAG_BOOL:
+                slot->i = (long)(v->as.boolean ? 1 : 0);
+                break;
+            default: /* TAG_INT, TAG_OPAQUE */
+                slot->i = (long)(intptr_t)v->as.i64;
+                break;
+        }
+    }
+}
+
+/* Dispatch a mixed int/float signature through the generated typed stubs so
+ * each argument lands in the correct ABI register class. Returns true on a
+ * completed call (result populated); false only if the (arity,pattern) is
+ * outside the generated table. */
+static bool ffi_call_mixed(void *func_ptr, NanoValue *args, int arg_count,
+                           const NvmImportEntry *imp, const uint8_t *param_types,
+                           NanoValue *result, VmHeap *heap) {
+    FfiArgSlot slots[FFI_DISPATCH_MAX_ARITY];
+    for (int i = 0; i < arg_count; i++) {
+        uint8_t tag = (i < imp->param_count && param_types) ? param_types[i]
+                                                            : args[i].tag;
+        ffi_fill_slot(&slots[i], &args[i], tag);
+    }
+
+    if (ffi_tag_is_float(imp->return_type)) {
+        double dr = 0.0;
+        if (!ffi_dispatch_fp(func_ptr, slots, arg_count, &dr)) return false;
+        *result = val_float(dr);
+        return true;
+    }
+
+    int64_t r = 0;
+    if (!ffi_dispatch_gp(func_ptr, slots, arg_count, &r)) return false;
+    *result = marshal_result(r, imp->return_type, heap);
+    return true;
+}
+
+/* ========================================================================
+ * Resolve-once typed call descriptors
+ *
+ * The first FFI call for a given import resolves the module, looks up the
+ * native symbol through the shared loader, and precomputes the typed
+ * signature (declared param types, return type, all-float classification).
+ * The result is cached on the module keyed by import index so subsequent
+ * calls skip module loading, string-pool lookups, and symbol resolution.
+ * ======================================================================== */
+
+/* Handle the ___module_* introspection pseudo-imports. Returns true when the
+ * call was an introspection request (and *result was filled), false otherwise.
+ * These are resolved on every call because their result depends on runtime
+ * arguments and environment state, so they are intentionally never cached. */
+static bool vm_ffi_try_module_introspection(const char *func_name,
+                                            NanoValue *args, int arg_count,
+                                            NanoValue *result, VmHeap *heap) {
+    if (!func_name || strncmp(func_name, "___module_", 10) != 0 || !ffi_env) {
+        return false;
+    }
+    const char *rest = func_name + 10;
+
+    if (strncmp(rest, "is_unsafe_", 10) == 0) {
+        const char *mname = rest + 10;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_bool(mi ? mi->is_unsafe : false);
+        return true;
+    }
+    if (strncmp(rest, "has_ffi_", 8) == 0) {
+        const char *mname = rest + 8;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_bool(mi ? mi->has_ffi : false);
+        return true;
+    }
+    if (strncmp(rest, "name_", 5) == 0) {
+        const char *mname = rest + 5;
+        VmString *vs = vm_string_new(heap, mname, (uint32_t)strlen(mname));
+        *result = val_string(vs);
+        return true;
+    }
+    if (strncmp(rest, "path_", 5) == 0) {
+        const char *mname = rest + 5;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        const char *path = (mi && mi->path) ? mi->path : "";
+        VmString *vs = vm_string_new(heap, path, (uint32_t)strlen(path));
+        *result = val_string(vs);
+        return true;
+    }
+    if (strncmp(rest, "function_count_", 15) == 0) {
+        const char *mname = rest + 15;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_int(mi ? mi->function_count : 0);
+        return true;
+    }
+    if (strncmp(rest, "function_name_", 14) == 0) {
+        const char *mname = rest + 14;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
+        const char *fn = "";
+        if (mi && mi->exported_functions && idx >= 0 && idx < mi->function_count) {
+            fn = mi->exported_functions[idx] ? mi->exported_functions[idx] : "";
+        }
+        VmString *vs = vm_string_new(heap, fn, (uint32_t)strlen(fn));
+        *result = val_string(vs);
+        return true;
+    }
+    if (strncmp(rest, "struct_count_", 13) == 0) {
+        const char *mname = rest + 13;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        *result = val_int(mi ? mi->struct_count : 0);
+        return true;
+    }
+    if (strncmp(rest, "struct_name_", 12) == 0) {
+        const char *mname = rest + 12;
+        ModuleInfo *mi = env_get_module(ffi_env, mname);
+        int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
+        const char *sn = "";
+        if (mi && mi->exported_structs && idx >= 0 && idx < mi->struct_count) {
+            sn = mi->exported_structs[idx] ? mi->exported_structs[idx] : "";
+        }
+        VmString *vs = vm_string_new(heap, sn, (uint32_t)strlen(sn));
+        *result = val_string(vs);
+        return true;
+    }
+    return false;
+}
+
+/* Compute the all-float classification for a fully declared signature. */
+static bool descriptor_all_float(const NvmCallDescriptor *desc) {
+    if (desc->return_type != TAG_FLOAT) return false;
+    for (uint16_t i = 0; i < desc->param_count; i++) {
+        uint8_t tag = desc->param_types ? desc->param_types[i] : TAG_FLOAT;
+        if (tag != TAG_FLOAT) return false;
+    }
+    return true;
+}
+
+/* Resolve (once) and return the typed call descriptor for import_idx. On the
+ * first call the module is loaded and the symbol looked up; the result is
+ * cached and reused thereafter. Returns NULL and fills error_msg on failure. */
+static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
+        const NvmModule *module, uint32_t import_idx,
+        char *error_msg, size_t error_msg_size) {
+    /* The descriptor cache is a runtime-only memoization side table, so we
+     * mutate it through a non-const view even for a const module. */
+    NvmModule *m = (NvmModule *)module;
+
+    if (import_idx >= m->import_count) {
+        snprintf(error_msg, error_msg_size, "Import index %u out of range", import_idx);
+        return NULL;
+    }
+
+    if (!m->call_descriptors || m->call_descriptor_count != m->import_count) {
+        NvmCallDescriptor *table = calloc(m->import_count,
+                                          sizeof(NvmCallDescriptor));
+        if (!table) {
+            snprintf(error_msg, error_msg_size,
+                     "Out of memory allocating call descriptors");
+            return NULL;
+        }
+        free(m->call_descriptors);
+        m->call_descriptors = table;
+        m->call_descriptor_count = m->import_count;
+    }
+
+    NvmCallDescriptor *desc = &m->call_descriptors[import_idx];
+
+    if (desc->state == NVM_CALL_RESOLVED) {
+        return desc;
+    }
+    if (desc->state == NVM_CALL_FAILED) {
+        const char *fn = desc->func_name ? desc->func_name : "?";
+        const char *mn = desc->module_name ? desc->module_name : "";
+        snprintf(error_msg, error_msg_size,
+                 "FFI: function '%s' not found (module '%s')", fn, mn);
+        return NULL;
+    }
+
+    const NvmImportEntry *imp = &m->imports[import_idx];
+    const char *func_name = nvm_get_string(m, imp->function_name_idx);
+    const char *mod_name = nvm_get_string(m, imp->module_name_idx);
+
+    desc->func_name = func_name;
+    desc->module_name = mod_name;
+    desc->param_count = imp->param_count;
+    desc->return_type = imp->return_type;
+    desc->param_types = m->import_param_types
+                        ? m->import_param_types[import_idx] : NULL;
+    desc->all_float = descriptor_all_float(desc);
+
+    if (!func_name) {
+        desc->state = NVM_CALL_FAILED;
+        snprintf(error_msg, error_msg_size,
+                 "NULL function name for import %u", import_idx);
+        return NULL;
+    }
+
+    /* Load the backing module once (best-effort; the symbol may live in the
+     * main executable or an already-loaded library). */
+    if (mod_name && mod_name[0] != '\0') {
+        vm_ffi_load_module(mod_name);
+    }
+
+    void *func_ptr = ffi_loader_resolve(func_name);
+    if (!func_ptr) {
+        desc->state = NVM_CALL_FAILED;
+        snprintf(error_msg, error_msg_size,
+                 "FFI: function '%s' not found (module '%s')",
+                 func_name, mod_name ? mod_name : "");
+        return NULL;
+    }
+
+    desc->func_ptr = func_ptr;
+    desc->state = NVM_CALL_RESOLVED;
+    return desc;
+}
+
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
@@ -265,94 +541,23 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     const NvmImportEntry *imp = &module->imports[import_idx];
     const char *func_name = nvm_get_string(module, imp->function_name_idx);
-    const char *mod_name = nvm_get_string(module, imp->module_name_idx);
 
-    if (!func_name) {
-        snprintf(error_msg, error_msg_size, "NULL function name for import %u", import_idx);
+    /* Module introspection functions (___module_*) are environment- and
+     * argument-dependent, so they are dispatched directly and never cached. */
+    if (vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
+        return true;
+    }
+
+    /* Resolve the import once into a typed call descriptor; every later call
+     * for this import reuses the cached symbol and signature. */
+    const NvmCallDescriptor *desc =
+        vm_ffi_resolve_descriptor(module, import_idx, error_msg, error_msg_size);
+    if (!desc) {
         return false;
     }
 
-    /* Handle module introspection functions (___module_*) */
-    if (func_name && strncmp(func_name, "___module_", 10) == 0 && ffi_env) {
-        const char *rest = func_name + 10;
-
-        if (strncmp(rest, "is_unsafe_", 10) == 0) {
-            const char *mname = rest + 10;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_bool(mi ? mi->is_unsafe : false);
-            return true;
-        }
-        if (strncmp(rest, "has_ffi_", 8) == 0) {
-            const char *mname = rest + 8;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_bool(mi ? mi->has_ffi : false);
-            return true;
-        }
-        if (strncmp(rest, "name_", 5) == 0) {
-            const char *mname = rest + 5;
-            VmString *vs = vm_string_new(heap, mname, (uint32_t)strlen(mname));
-            *result = val_string(vs);
-            return true;
-        }
-        if (strncmp(rest, "path_", 5) == 0) {
-            const char *mname = rest + 5;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            const char *path = (mi && mi->path) ? mi->path : "";
-            VmString *vs = vm_string_new(heap, path, (uint32_t)strlen(path));
-            *result = val_string(vs);
-            return true;
-        }
-        if (strncmp(rest, "function_count_", 15) == 0) {
-            const char *mname = rest + 15;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_int(mi ? mi->function_count : 0);
-            return true;
-        }
-        if (strncmp(rest, "function_name_", 14) == 0) {
-            const char *mname = rest + 14;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
-            const char *fn = "";
-            if (mi && mi->exported_functions && idx >= 0 && idx < mi->function_count) {
-                fn = mi->exported_functions[idx] ? mi->exported_functions[idx] : "";
-            }
-            VmString *vs = vm_string_new(heap, fn, (uint32_t)strlen(fn));
-            *result = val_string(vs);
-            return true;
-        }
-        if (strncmp(rest, "struct_count_", 13) == 0) {
-            const char *mname = rest + 13;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            *result = val_int(mi ? mi->struct_count : 0);
-            return true;
-        }
-        if (strncmp(rest, "struct_name_", 12) == 0) {
-            const char *mname = rest + 12;
-            ModuleInfo *mi = env_get_module(ffi_env, mname);
-            int64_t idx = (arg_count >= 1) ? args[0].as.i64 : 0;
-            const char *sn = "";
-            if (mi && mi->exported_structs && idx >= 0 && idx < mi->struct_count) {
-                sn = mi->exported_structs[idx] ? mi->exported_structs[idx] : "";
-            }
-            VmString *vs = vm_string_new(heap, sn, (uint32_t)strlen(sn));
-            *result = val_string(vs);
-            return true;
-        }
-    }
-
-    /* Try to load the module if we have a module name */
-    if (mod_name && mod_name[0] != '\0') {
-        vm_ffi_load_module(mod_name);
-    }
-
-    /* Resolve the function through the shared loader */
-    void *func_ptr = ffi_loader_resolve(func_name);
-    if (!func_ptr) {
-        snprintf(error_msg, error_msg_size,
-                 "FFI: function '%s' not found (module '%s')",
-                 func_name, mod_name ? mod_name : "");
-        return false;
-    }
+    void *func_ptr = desc->func_ptr;
+    const uint8_t *param_types = desc->param_types;
 
     /* Marshal arguments */
     void *arg_ptrs[NANO_MAX_FFI_ARGS] = {0};
@@ -362,12 +567,14 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         return false;
     }
 
-    const uint8_t *param_types = module->import_param_types
-                                 ? module->import_param_types[import_idx] : NULL;
-
     /* Fast path: all-float signatures use properly typed dispatch so
-     * doubles go through FP registers (critical on arm64). */
-    if (is_all_float_signature(imp, param_types, arg_count)) {
+     * doubles go through FP registers (critical on arm64). The classification
+     * is precomputed in the descriptor for the declared arity; fall back to a
+     * runtime check when the call arity differs from the declaration. */
+    bool all_float = (arg_count == (int)desc->param_count)
+                     ? desc->all_float
+                     : is_all_float_signature(imp, param_types, arg_count);
+    if (all_float) {
         double dargs[NANO_MAX_FFI_ARGS];
         for (int i = 0; i < arg_count; i++) {
             dargs[i] = (args[i].tag == TAG_FLOAT) ? args[i].as.f64
@@ -395,6 +602,18 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         }
         *result = val_float(dresult);
         return true;
+    }
+
+    /* Mixed integer/floating signatures: route through the generated typed
+     * stubs so int/pointer args use GP registers and float args use FP
+     * registers per the platform ABI. The generic void*-cast path below would
+     * otherwise place doubles in the wrong register class. */
+    if (ffi_uses_generated_dispatch(imp, param_types, arg_count)) {
+        if (ffi_call_mixed(func_ptr, args, arg_count, imp, param_types,
+                           result, heap)) {
+            return true;
+        }
+        /* Fall through to the generic path if the pattern was unsupported. */
     }
 
     marshal_args(args, arg_count, imp, param_types, arg_ptrs);
@@ -762,4 +981,148 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     }
     snprintf(error_msg, error_msg_size, "COP: unexpected response 0x%02x", hdr.msg_type);
     return false;
+}
+
+/* ========================================================================
+ * vm_ffi_call_cop_batch — coalesce many host calls into one crossing
+ *
+ * High-frequency host work (e.g. per-pixel or per-element transforms) would
+ * otherwise pay a signal+ack round-trip through the co-process boundary for
+ * every element.  This packs as many calls as fit in the mailbox request
+ * slot into a single COP batch, dispatched with one signal and collected
+ * with one ack, then repeats until the whole batch is drained.
+ *
+ * Results are written into results[0..count-1] (caller-owned array).  On the
+ * first failing call, returns false with error_msg set; results before the
+ * failure are valid and owned by the caller, later slots are set to void.
+ * ======================================================================== */
+bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
+                           const CopBatchCall *calls, int count,
+                           NanoValue *results, VmHeap *heap,
+                           char *error_msg, size_t error_msg_size) {
+    if (count < 0) {
+        snprintf(error_msg, error_msg_size, "COP: negative batch count");
+        return false;
+    }
+    for (int i = 0; i < count; i++) results[i] = val_void();
+    if (count == 0) return true;
+
+    if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
+        snprintf(error_msg, error_msg_size,
+                 "COP: FFI isolation requested but co-process unavailable; "
+                 "refusing to run extern batch in-process");
+        return false;
+    }
+
+    CopMailbox *mbox = vm->cop_mailbox;
+    if (!mbox) {
+        /* No shared-memory mailbox: fall back to per-call dispatch so batching
+         * still works functionally over the pipe channel (just without the
+         * single-crossing win). */
+        for (int i = 0; i < count; i++) {
+            if (!vm_ffi_call_cop(vm, module, calls[i].import_idx,
+                                 (NanoValue *)calls[i].args, calls[i].arg_count,
+                                 &results[i], heap, error_msg, error_msg_size)) {
+                for (int j = i; j < count; j++) results[j] = val_void();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    int next = 0;              /* index of next call to pack */
+    while (next < count) {
+        /* Pack as many calls as fit into the request slot for one crossing. */
+        uint32_t wpos = 0;
+        int batch_start = next;
+        int batched = 0;
+        while (next < count && batched < COP_MAX_BATCH) {
+            const CopBatchCall *call = &calls[next];
+            int argc = call->arg_count;
+            if (argc > 16) argc = 16;
+
+            /* Header (8 bytes) + serialized args must fit remaining slot. */
+            if (wpos + 8 > COP_MAILBOX_SLOT_SIZE) break;
+            uint32_t hdr = wpos;
+            uint32_t apos = wpos + 8;
+            bool fits = true;
+            for (int a = 0; a < argc; a++) {
+                uint32_t n = cop_serialize_value(&call->args[a],
+                                                 mbox->req_data + apos,
+                                                 COP_MAILBOX_SLOT_SIZE - apos);
+                if (n == 0) { fits = false; break; }
+                apos += n;
+            }
+            if (!fits) {
+                if (batched == 0) {
+                    snprintf(error_msg, error_msg_size,
+                             "COP: batch call %d args exceed mailbox slot", next);
+                    return false;
+                }
+                break;  /* flush what we have, retry this call next crossing */
+            }
+            uint32_t arg_bytes = apos - (hdr + 8);
+            cop_put_u32(mbox->req_data + hdr,     call->import_idx);
+            cop_put_u16(mbox->req_data + hdr + 4, (uint16_t)argc);
+            cop_put_u16(mbox->req_data + hdr + 6, (uint16_t)arg_bytes);
+            wpos = apos;
+            next++;
+            batched++;
+        }
+
+        cop_put_u32(mbox->req_batch_count, (uint32_t)batched);
+        cop_put_u16(mbox->req_data_size, (uint16_t)wpos);
+        cop_put_u16(mbox->req_argc, 0);
+        cop_put_u32(mbox->req_import_idx, 0);
+
+        uint8_t sig = 1;
+        if (write(vm->cop_sig_send_fd, &sig, 1) != 1) {
+            vm_ffi_cop_stop(vm);
+            snprintf(error_msg, error_msg_size, "COP: signal pipe broken (child crash?)");
+            return false;
+        }
+
+        struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };
+        int pn = poll(&pfd, 1, vm->cop_timeout_ms);
+        if (pn == 0) {
+            vm_ffi_cop_stop(vm);
+            snprintf(error_msg, error_msg_size, "COP: timeout after %d ms", vm->cop_timeout_ms);
+            return false;
+        }
+        if (pn < 0 || read(vm->cop_sig_recv_fd, &sig, 1) != 1) {
+            vm_ffi_cop_stop(vm);
+            snprintf(error_msg, error_msg_size, "COP: ack pipe broken");
+            return false;
+        }
+
+        uint32_t produced = cop_get_u32(mbox->resp_batch_count);
+        uint32_t resp_wire = cop_get_u32(mbox->resp_data_size);
+        if (resp_wire > COP_MAILBOX_SLOT_SIZE) resp_wire = COP_MAILBOX_SLOT_SIZE;
+
+        /* Unpack the results that did complete, whether or not the batch errored. */
+        uint32_t rpos = 0;
+        uint32_t unpacked = 0;
+        for (uint32_t k = 0; k < produced && k < (uint32_t)batched; k++) {
+            NanoValue out;
+            uint32_t consumed = cop_deserialize_value(mbox->resp_data + rpos,
+                                                      resp_wire - rpos, &out, heap);
+            if (consumed == 0) break;
+            results[batch_start + (int)k] = out;
+            rpos += consumed;
+            unpacked++;
+        }
+
+        if (mbox->resp_is_error) {
+            snprintf(error_msg, error_msg_size, "%s",
+                     mbox->resp_error[0] ? mbox->resp_error : "COP: batch call failed");
+            return false;
+        }
+        if (unpacked != (uint32_t)batched) {
+            snprintf(error_msg, error_msg_size,
+                     "COP: batch produced %u/%d results", unpacked, batched);
+            return false;
+        }
+    }
+
+    return true;
 }

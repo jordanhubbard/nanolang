@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Public make contract: `make launcher` compiles before it launches
+# Public make contracts for launcher assets
 # ============================================================================
 #
 # Observable interface: `make -C examples launcher`. When pkg-config has
@@ -51,6 +51,28 @@ else
     fail "make launcher does not plan compile-then-launch when SDL_AVAILABLE=no"
     echo "compile_line=${compile_line:-none} launch_line=${launch_line:-none}"
     echo "$PLAN" | tail -25
+fi
+
+GPU_PLAN="$(make -C examples -n -B gpu-kernels COMPILER="$STUB_COMPILER" 2>&1)" || true
+for artifact in matmul.ptx matmul.cl ocean.ptx ocean.cl; do
+    if printf '%s\n' "$GPU_PLAN" | grep -Fq -- "-o ../bin/gpu/$artifact"; then
+        pass "gpu-kernels writes $artifact under bin/gpu"
+    else
+        fail "gpu-kernels does not write $artifact under bin/gpu"
+    fi
+done
+
+if printf '%s\n' "$GPU_PLAN" | grep -Eq -- '-o gpu/(matmul|ocean)\.(ptx|cl)'; then
+    fail "gpu-kernels still writes generated files into examples/gpu"
+else
+    pass "gpu-kernels leaves examples/gpu source-only"
+fi
+
+if grep -q 'gpu_launch2d "bin/gpu/matmul.ptx"' examples/gpu/matmul.nano &&
+        grep -q 'gpu_launch2d "bin/gpu/ocean.ptx"' examples/gpu/ocean.nano; then
+    pass "GPU examples load kernels from bin/gpu"
+else
+    fail "GPU examples do not load kernels from bin/gpu"
 fi
 
 echo "=========================================="

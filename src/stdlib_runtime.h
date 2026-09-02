@@ -113,6 +113,19 @@ void generate_profiling_system(StringBuilder *sb, const char *profile_output_pat
  * Injects clock_gettime-based timing accumulators into each function.
  * At program exit (via atexit), prints a hotspot table sorted by total time.
  */
+/**
+ * @brief Generate the shared diagnostics hook mechanism (tracing + profiling).
+ * @param sb StringBuilder to append generated code to
+ * @param want_profile Emit the profiling enable flag / accessor
+ * @param want_trace   Emit the tracing enable flag, accessor, and trace hooks
+ *
+ * Both generated-C tracing (--trace) and profiling (--profile) share one
+ * mechanism whose enable flags are resolved exactly once at process startup via
+ * _nl_diag_init(). Disabled hooks read only a cached int, so they perform no
+ * per-event environment lookups and no other work.
+ */
+void generate_diagnostics_runtime(StringBuilder *sb, bool want_profile, bool want_trace);
+
 void generate_instrumented_profiling_system(StringBuilder *sb);
 void generate_flamegraph_profiling_system(StringBuilder *sb, const char *flamegraph_path);
 

@@ -1,18 +1,27 @@
 {
-    "name": "forth_see",
-    "version": "1.0.0",
-    "description": "NanoISA decompiler for the Forth SEE word — disassembles built-in word implementations from .nvm bytecode",
-    "headers": ["forth_see.h"],
-    "cflags": ["-Imodules/forth_see"],
-    "c_sources": [
-        "forth_see.c",
-        "../nanoisa/nanoisa.c",
-        "../../src/nanoisa/isa.c",
-        "../../src/nanoisa/nvm_format.c",
-        "../../src/nanoisa/assembler.c",
-        "../../src/nanoisa/disassembler.c"
-    ],
-    "ldflags": [],
-    "system_packages": [],
-    "dependencies": []
+  "name": "forth_see",
+  "version": "1.0.0",
+  "description": "NanoISA decompiler for the Forth SEE word \u2014 disassembles built-in word implementations from .nvm bytecode",
+  "headers": [
+    "forth_see.h"
+  ],
+  "cflags": [
+    "-Imodules/forth_see"
+  ],
+  "c_sources": [
+    "forth_see.c",
+    "../nanoisa/nanoisa.c",
+    "../../src/nanoisa/isa.c",
+    "../../src/nanoisa/nvm_format.c",
+    "../../src/nanoisa/assembler.c",
+    "../../src/nanoisa/disassembler.c",
+    "../../src/nanoisa/verifier.c",
+    "../../src/nanovm/vm_decode.c",
+    "../../src/nanovm/vm_dispatch.c",
+    "../../src/nanovm/value.c",
+    "../../src/nanovm/heap.c"
+  ],
+  "ldflags": [],
+  "system_packages": [],
+  "dependencies": []
 }

@@ -10,6 +10,11 @@
     "../../src/nanoisa/isa.c",
     "../../src/nanoisa/nvm_format.c",
     "../../src/nanoisa/assembler.c",
-    "../../src/nanoisa/disassembler.c"
+    "../../src/nanoisa/disassembler.c",
+    "../../src/nanoisa/verifier.c",
+    "../../src/nanovm/vm_decode.c",
+    "../../src/nanovm/vm_dispatch.c",
+    "../../src/nanovm/value.c",
+    "../../src/nanovm/heap.c"
   ]
 }
