@@ -1262,6 +1262,18 @@ static void test_asm_comments_and_whitespace(void) {
     nvm_module_free(mod);
 }
 
+/* A quoted string ending in a backslash is an unterminated escape. It must be
+ * rejected, not walked past: the escape branch consumes the terminator and the
+ * loop then steps outside the line buffer, which AddressSanitizer reports as a
+ * heap-buffer-overflow read in parse_quoted_string. Found by the malformed-input
+ * fuzz tests once they could run under sanitizers. */
+static void test_asm_trailing_backslash_rejected(void) {
+    AsmResult result;
+    NvmModule *mod = asm_assemble(".string \"abc\\", &result);
+    ASSERT(mod == NULL, "Unterminated escape must not assemble");
+    ASSERT(result.error != ASM_OK, "Unterminated escape reports an error");
+}
+
 static void test_asm_string_escapes(void) {
     const char *src =
         ".string \"hello\\nworld\"\n"
@@ -1953,6 +1965,7 @@ int main(void) {
     RUN_TEST(test_asm_error_trailing_directive_operand);
     RUN_TEST(test_asm_rejects_unverified_module);
     RUN_TEST(test_asm_comments_and_whitespace);
+    RUN_TEST(test_asm_trailing_backslash_rejected);
     RUN_TEST(test_asm_string_escapes);
     RUN_TEST(test_asm_multiple_functions);
     RUN_TEST(test_asm_symbolic_operands);
