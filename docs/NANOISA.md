@@ -199,7 +199,7 @@ NanoISA v2 lands.
 
 My next-generation instruction set lives in `spec/nanoisa.yaml`, and I generate
 `src/nanoisa/generated_schema.h` from it so the design and the code never drift.
-That schema follows two rules I hold myself to.
+That schema follows three rules I hold myself to.
 
 First, every portable instruction has one comprehensible meaning. I do not
 overload an opcode to do two jobs depending on its operands. `i64.add` adds
@@ -215,7 +215,19 @@ instructions take matching operands: `local.get` and `local.set` both take a
 load and store takes the same `[offset, align]` pair. When two instructions are
 mirror images, their operand lists are too.
 
-I enforce both rules in `scripts/gen_nanoisa_schema.py`. The generator validates
+Third, every public instruction records *why* it belongs in the ISA rather
+than a runtime library. Each family entry carries a `justification` beside its
+`meaning`: `representation`, `core-semantics`, `execution-substrate`,
+`control-flow`, `host-boundary`, or `encoding`. A library written in NanoLang
+and reached through `call.import` or a `trap` could provide anything else by
+composing these, so anything else is a library word, not an instruction. The
+generator refuses to emit the schema unless every instruction claims one of the
+six justifications, and I generate the field into
+`NanoisaV2Family.justification`. The full classification and the rule for future
+instructions live in
+[Why every public instruction belongs in the ISA](superpowers/specs/2026-09-01-nanoisa-public-instruction-rationale.md).
+
+I enforce all three rules in `scripts/gen_nanoisa_schema.py`. The generator validates
 the schema before it emits anything, so a design that breaks either rule fails
 `make schema-check` instead of shipping.
 
@@ -223,7 +235,6 @@ The portable ISA defined here is deliberately kept separate from the verified
 and optimized runtime representations my VM builds from a loaded module; see
 [Portable NanoISA vs. Runtime Representations](NANOISA_PORTABLE_ISA.md) for
 which layer is the portable contract and which layers are internal.
-
 ## .nvm Binary Format
 
 ### Header (32 bytes)
