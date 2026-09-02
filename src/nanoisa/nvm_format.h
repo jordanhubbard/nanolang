@@ -130,6 +130,33 @@ typedef struct {
 #define NVM_IMPORT_ENTRY_BASE_SIZE 11
 
 /* ========================================================================
+ * Typed Call Descriptor (runtime-only, not serialized)
+ *
+ * Imports are resolved once — the module name is loaded, the function symbol
+ * is looked up through the shared FFI loader, and the typed signature is
+ * precomputed — then cached here keyed by import index. Subsequent FFI calls
+ * reuse the cached descriptor instead of re-resolving the symbol and
+ * recomputing the signature classification on every invocation.
+ * ======================================================================== */
+
+typedef enum {
+    NVM_CALL_UNRESOLVED = 0, /* not yet resolved */
+    NVM_CALL_RESOLVED,       /* func_ptr valid, ready to dispatch */
+    NVM_CALL_FAILED          /* resolution attempted and failed */
+} NvmCallResolution;
+
+typedef struct {
+    NvmCallResolution state;  /* resolution status of this import */
+    void *func_ptr;           /* resolved native function pointer */
+    const char *func_name;    /* interned function name (module string pool) */
+    const char *module_name;  /* interned module name (module string pool) */
+    const uint8_t *param_types; /* param type tags, or NULL */
+    uint16_t param_count;     /* declared parameter count */
+    uint8_t return_type;      /* NanoValueTag of the return value */
+    bool all_float;           /* true when return + all params are TAG_FLOAT */
+} NvmCallDescriptor;
+
+/* ========================================================================
  * In-Memory NVM Module
  * Used as the intermediate representation for building and loading.
  * ======================================================================== */
@@ -176,7 +203,10 @@ typedef struct {
     /* Ordered separately linked module dependencies */
     NvmModuleRefEntry *module_refs;
     uint32_t module_ref_count;
-    uint32_t module_ref_capacity;
+    uint32_t module_ref_capacity;    /* Resolved typed call descriptors — runtime-only, lazily populated on the
+     * first FFI call for each import; never serialized. NULL until allocated. */
+    NvmCallDescriptor *call_descriptors;
+    uint32_t call_descriptor_count;
 
     /* Type definition counts — populated by codegen, used by verifier */
     uint32_t struct_count;
@@ -249,5 +279,10 @@ uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index);
 
 /* Find the latest function with this name. Returns UINT32_MAX if absent. */
 uint32_t nvm_find_function(const NvmModule *mod, const char *name);
+
+/* Release any cached typed call descriptors for a module. Safe to call when
+ * no descriptors are allocated. After this returns, the next FFI call will
+ * resolve imports from scratch again. */
+void nvm_call_descriptors_reset(NvmModule *mod);
 
 #endif /* NANOISA_NVM_FORMAT_H */

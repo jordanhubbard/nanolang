@@ -166,7 +166,7 @@ Module format and tools:
 - [x] I use separately linked `.nvm` modules: serialized `MODULE_REFS` define the checked dependency names and `CALL_MODULE` indices, `vm_link_named_module` enforces their order, and `test-nanovm` serializes, loads, links, and executes a two-file module graph end to end.
 
 FFI and traps:
-- [ ] I will resolve imports once into typed call descriptors.
+- [x] I will resolve imports once into typed call descriptors.
 - [x] I dispatch mixed integer and floating FFI signatures through generated typed stubs (`scripts/gen_ffi_dispatch.py` → `src/nanovm/ffi_dispatch_generated.h`) so int/pointer args use general-purpose registers and float args use FP registers per the platform ABI, covered by mixed-signature tests in `tests/nanovm/test_vm_ffi.c`.
 - [ ] I will make argument limits consistent across imports, traps, direct FFI, and co-process calls.
 - [ ] I will pass trap stack ranges instead of copying a fixed array of tagged values where measurement supports it.

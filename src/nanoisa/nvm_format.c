@@ -130,8 +130,15 @@ void nvm_module_free(NvmModule *mod) {
         free(mod->import_param_types);
     }
     free(mod->imports);
-    free(mod->module_refs);
+    free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
+}
+
+void nvm_call_descriptors_reset(NvmModule *mod) {
+    if (!mod) return;
+    free(mod->call_descriptors);
+    mod->call_descriptors = NULL;
+    mod->call_descriptor_count = 0;
 }
 
 /* ========================================================================
