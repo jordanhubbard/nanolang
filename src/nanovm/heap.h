@@ -99,9 +99,9 @@ struct VmClosure {
 
 /* HashMap entry */
 typedef struct VmHMEntry {
+    uint8_t state;  /* 0=empty, 1=filled, 2=tombstone */
     NanoValue key;
     NanoValue value;
-    struct VmHMEntry *next;  /* Chaining for collisions */
 } VmHMEntry;
 
 /* HashMap: key-value map */
@@ -110,8 +110,9 @@ struct VmHashMap {
     uint8_t key_type;
     uint8_t val_type;
     uint32_t count;
+    uint32_t tombstone_count;
     uint32_t bucket_count;
-    VmHMEntry **buckets;
+    VmHMEntry *entries;
 };
 
 /* ========================================================================
@@ -160,6 +161,10 @@ uint32_t vmstring_len(VmString *s);
 bool vmstring_equal(VmString *a, VmString *b);
 int vmstring_compare(VmString *a, VmString *b);
 bool vmstring_contains(VmString *haystack, VmString *needle);
+/* Length-aware substring search that honors stored lengths and embedded
+ * zero bytes. Returns the byte offset of the first match, or -1 when the
+ * needle is not present. An empty needle matches at offset 0. */
+int64_t vmstring_find(VmString *haystack, VmString *needle);
 VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index);
 
 /* Array allocation */

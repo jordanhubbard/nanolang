@@ -97,8 +97,12 @@ NvmModule *nvm_module_new(void) {
     mod->imports = calloc(mod->import_capacity, sizeof(NvmImportEntry));
     mod->import_param_types = calloc(mod->import_capacity, sizeof(uint8_t *));
 
+    mod->module_ref_capacity = 16;
+    mod->module_refs = calloc(mod->module_ref_capacity, sizeof(NvmModuleRefEntry));
+
     if (!mod->strings || !mod->string_lengths || !mod->functions ||
-        !mod->code || !mod->debug_entries || !mod->imports || !mod->import_param_types) {
+        !mod->code || !mod->debug_entries || !mod->imports ||
+        !mod->import_param_types || !mod->module_refs) {
         nvm_module_free(mod);
         return NULL;
     }
@@ -126,7 +130,15 @@ void nvm_module_free(NvmModule *mod) {
         free(mod->import_param_types);
     }
     free(mod->imports);
+    free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
+}
+
+void nvm_call_descriptors_reset(NvmModule *mod) {
+    if (!mod) return;
+    free(mod->call_descriptors);
+    mod->call_descriptors = NULL;
+    mod->call_descriptor_count = 0;
 }
 
 /* ========================================================================
@@ -171,6 +183,10 @@ uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length) {
 const char *nvm_get_string(const NvmModule *mod, uint32_t index) {
     if (index >= mod->string_count) return NULL;
     return mod->strings[index];
+}
+
+uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index) {    if (index >= mod->string_count) return 0;
+    return mod->string_lengths[index];
 }
 
 /* ========================================================================
@@ -393,6 +409,21 @@ static uint32_t import_section_size(const NvmModule *mod) {
     return size;
 }
 
+uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx) {
+    if (!mod || module_name_idx >= mod->string_count) return UINT32_MAX;
+    if (mod->module_ref_count >= mod->module_ref_capacity) {
+        uint32_t new_cap = mod->module_ref_capacity * 2;
+        NvmModuleRefEntry *grown = realloc(
+            mod->module_refs, new_cap * sizeof(NvmModuleRefEntry));
+        if (!grown) return UINT32_MAX;
+        mod->module_refs = grown;
+        mod->module_ref_capacity = new_cap;
+    }
+    uint32_t idx = mod->module_ref_count++;
+    mod->module_refs[idx].module_name_idx = module_name_idx;
+    return idx;
+}
+
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
     /* Count sections we'll write */
     uint32_t nsections = 0;
@@ -401,12 +432,14 @@ uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
     bool has_functions  = (mod->function_count > 0);
     bool has_debug     = (mod->debug_count > 0);
     bool has_imports   = (mod->import_count > 0);
+    bool has_module_refs = (mod->module_ref_count > 0);
 
     if (has_strings)   nsections++;
     if (has_code)      nsections++;
     if (has_functions) nsections++;
     if (has_debug)     nsections++;
     if (has_imports)   nsections++;
+    if (has_module_refs) nsections++;
 
     /* Calculate sizes */
     uint32_t str_size = has_strings ? string_pool_size(mod) : 0;
@@ -414,9 +447,11 @@ uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
     uint32_t fn_size = has_functions ? mod->function_count * NVM_FUNCTION_ENTRY_SIZE : 0;
     uint32_t dbg_size = has_debug ? mod->debug_count * NVM_DEBUG_ENTRY_SIZE : 0;
     uint32_t imp_size = has_imports ? import_section_size(mod) : 0;
+    uint32_t ref_size = has_module_refs
+        ? mod->module_ref_count * NVM_MODULE_REF_ENTRY_SIZE : 0;
 
     uint32_t dir_size = nsections * NVM_SECTION_ENTRY_SIZE;
-    uint32_t data_size = str_size + code_size_bytes + fn_size + dbg_size + imp_size;
+    uint32_t data_size = str_size + code_size_bytes + fn_size + dbg_size + imp_size + ref_size;
     uint32_t total_size = NVM_HEADER_SIZE + dir_size + data_size;
 
     uint8_t *buf = calloc(1, total_size);
@@ -476,6 +511,16 @@ uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
         data_pos += imp_size;
     }
 
+    if (has_module_refs) {
+        le_write_u32(buf + dir_pos, NVM_SECTION_MODULE_REFS); dir_pos += 4;
+        le_write_u32(buf + dir_pos, data_pos);                 dir_pos += 4;
+        le_write_u32(buf + dir_pos, ref_size);                 dir_pos += 4;
+        for (uint32_t i = 0; i < mod->module_ref_count; i++) {
+            le_write_u32(buf + data_pos, mod->module_refs[i].module_name_idx);
+            data_pos += NVM_MODULE_REF_ENTRY_SIZE;
+        }
+    }
+
     /* Write header */
     buf[0] = NVM_MAGIC_0;
     buf[1] = NVM_MAGIC_1;
@@ -508,6 +553,7 @@ static uint32_t nvm_section_record_size(uint32_t sec_type) {
     switch (sec_type) {
         case NVM_SECTION_FUNCTIONS: return NVM_FUNCTION_ENTRY_SIZE;
         case NVM_SECTION_DEBUG:     return NVM_DEBUG_ENTRY_SIZE;
+        case NVM_SECTION_MODULE_REFS: return NVM_MODULE_REF_ENTRY_SIZE;
         default:                    return 0;
     }
 }
@@ -758,6 +804,17 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     }
                     pos += mod->imports[idx].param_count;
                     mod->import_count++;
+                }
+                break;
+            }
+
+            case NVM_SECTION_MODULE_REFS: {
+                for (uint32_t pos = 0; pos < sec_size;
+                     pos += NVM_MODULE_REF_ENTRY_SIZE) {
+                    if (nvm_add_module_ref(mod, le_read_u32(sec_data + pos)) == UINT32_MAX) {
+                        nvm_module_free(mod);
+                        return NULL;
+                    }
                 }
                 break;
             }

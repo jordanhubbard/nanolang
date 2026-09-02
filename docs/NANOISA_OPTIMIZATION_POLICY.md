@@ -44,3 +44,33 @@ measurement after other lowering waste is removed.
 
 These are tested engineering criteria, not proof of performance on every
 machine.
+
+## Private superinstructions
+
+A private superinstruction is a dispatch-only fusion: it collapses a short run
+of already-verified instructions into one step in the optimized dispatch IR
+(representation 3 in `src/nanovm/vm_dispatch.h`). It is never a portable
+opcode. It does not appear in the serialized bytecode or the verified
+instruction IR, it is not assigned an ISA opcode byte, and it never exposes
+frontend bookkeeping to the portable program. The verified IR still owns
+program meaning; a superinstruction only fuses steps the verifier already
+proved safe and preserves the byte-addressed instruction pointer so frames,
+returns, and traps behave exactly as they do on the unfused stream.
+
+Fusion is profile-selected. `VmDispatchProfile` carries one opt-in flag per
+candidate fusion, and every flag defaults off, so an unconfigured VM executes
+the plain verified stream. `vm_dispatch_profile_none()` selects nothing;
+`vm_dispatch_profile_all()` selects every implemented candidate and exists for
+measurement and tests, not as a shipping default. A build enables a fusion by
+default only after it satisfies the acceptance criteria below. Profiles are
+applied when the dispatch IR is projected (`vm_dispatch_build_module`), so the
+same portable module runs fused or unfused depending only on the profile.
+
+I accept a private superinstruction only when it accounts for at least 1% of
+retired baseline instructions in a maintained workload, survives a second
+measurement after other lowering waste is removed, and passes the same
+semantic-equivalence tests as the unfused stream (the fused and unfused
+projections must return identical results). Evaluating and accepting specific
+fusions — local-field load, local increment, compare-branch, union-tag branch,
+and tail-call — remains ongoing roadmap work; the mechanism here keeps each one
+private and opt-in until its workload justifies it.

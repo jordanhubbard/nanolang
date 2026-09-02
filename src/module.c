@@ -830,7 +830,12 @@ ASTNode *load_module_from_package(const char *package_path, Environment *env, ch
             struct dirent *entry;
             while ((entry = readdir(dir)) != NULL) {
                 if (strstr(entry->d_name, ".nano") != NULL) {
-                    snprintf(module_nano_path, sizeof(module_nano_path), "%s/%s", unpacked_dir, entry->d_name);
+                    /* Skip a name that would not fit rather than opening a
+                     * silently truncated path. */
+                    int written = snprintf(module_nano_path, sizeof(module_nano_path),
+                                           "%s/%s", unpacked_dir, entry->d_name);
+                    if (written < 0 || (size_t)written >= sizeof(module_nano_path))
+                        continue;
                     break;
                 }
             }

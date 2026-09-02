@@ -256,18 +256,15 @@ static void release_closure(VmHeap *heap, VmClosure *c) {
 
 static void release_hashmap(VmHeap *heap, VmHashMap *m) {
     for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            VmHMEntry *next = entry->next;
+        VmHMEntry *entry = &m->entries[i];
+        if (entry->state == 1) {
             vm_release(heap, entry->key);
             vm_release(heap, entry->value);
-            free(entry);
-            entry = next;
         }
     }
-    heap->stats.freed += sizeof(VmHashMap) + m->bucket_count * sizeof(VmHMEntry *);
+    heap->stats.freed += sizeof(VmHashMap) + m->bucket_count * sizeof(VmHMEntry);
     heap->stats.num_objects--;
-    free(m->buckets);
+    free(m->entries);
     free(m);
 }
 
@@ -350,10 +347,25 @@ int vmstring_compare(VmString *a, VmString *b) {
     return 0;
 }
 
+/* Length-aware substring search. Unlike strstr(), this honors the stored
+ * lengths of both strings and therefore matches correctly across embedded
+ * zero bytes in the haystack or needle. */
+int64_t vmstring_find(VmString *haystack, VmString *needle) {
+    uint32_t nlen = needle->length;
+    if (nlen == 0) return 0;
+    uint32_t hlen = haystack->length;
+    if (nlen > hlen) return -1;
+    const char *hay = haystack->data;
+    const char *nee = needle->data;
+    uint32_t last = hlen - nlen;
+    for (uint32_t i = 0; i <= last; i++) {
+        if (memcmp(hay + i, nee, nlen) == 0) return (int64_t)i;
+    }
+    return -1;
+}
+
 bool vmstring_contains(VmString *haystack, VmString *needle) {
-    if (needle->length == 0) return true;
-    if (needle->length > haystack->length) return false;
-    return strstr(haystack->data, needle->data) != NULL;
+    return vmstring_find(haystack, needle) >= 0;
 }
 
 VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index) {
@@ -667,110 +679,124 @@ VmHashMap *vm_hashmap_new(VmHeap *heap, uint8_t key_type, uint8_t val_type) {
     m->key_type = key_type;
     m->val_type = val_type;
     m->count = 0;
+    m->tombstone_count = 0;
     m->bucket_count = HM_INITIAL_BUCKETS;
-    m->buckets = calloc(HM_INITIAL_BUCKETS, sizeof(VmHMEntry *));
-    heap->stats.allocated += sizeof(VmHashMap) + HM_INITIAL_BUCKETS * sizeof(VmHMEntry *);
+    m->entries = calloc(HM_INITIAL_BUCKETS, sizeof(VmHMEntry));
+    if (!m->entries) {
+        free(m);
+        return NULL;
+    }
+    heap->stats.allocated += sizeof(VmHashMap) + HM_INITIAL_BUCKETS * sizeof(VmHMEntry);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return m;
 }
 
-static void hm_resize(VmHeap *heap, VmHashMap *m) {
-    uint32_t new_count = m->bucket_count * 2;
-    VmHMEntry **new_buckets = calloc(new_count, sizeof(VmHMEntry *));
-    if (!new_buckets) return;
-
-    for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            VmHMEntry *next = entry->next;
-            uint32_t idx = hash_value(entry->key) % new_count;
-            entry->next = new_buckets[idx];
-            new_buckets[idx] = entry;
-            entry = next;
+static bool hm_find_slot(VmHashMap *m, NanoValue key, uint32_t *slot, bool *found) {
+    uint32_t idx = hash_value(key) % m->bucket_count;
+    uint32_t first_tombstone = UINT32_MAX;
+    for (uint32_t probes = 0; probes < m->bucket_count; probes++) {
+        VmHMEntry *entry = &m->entries[idx];
+        if (entry->state == 0) {
+            *slot = first_tombstone != UINT32_MAX ? first_tombstone : idx;
+            *found = false;
+            return true;
         }
-    }
-    free(m->buckets);
-    m->buckets = new_buckets;
-    m->bucket_count = new_count;
-    (void)heap;
-}
-
-NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry *entry = m->buckets[idx];
-    while (entry) {
-        if (val_equal(entry->key, key)) return entry->value;
-        entry = entry->next;
-    }
-    return val_void();
-}
-
-void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry *entry = m->buckets[idx];
-    while (entry) {
-        if (val_equal(entry->key, key)) {
-            vm_release(heap, entry->value);
-            entry->value = value;
-            vm_retain(heap, value);
-            return;
+        if (entry->state == 2) {
+            if (first_tombstone == UINT32_MAX) first_tombstone = idx;
+        } else if (val_equal(entry->key, key)) {
+            *slot = idx;
+            *found = true;
+            return true;
         }
-        entry = entry->next;
+        idx = (idx + 1) % m->bucket_count;
     }
-
-    /* New entry */
-    VmHMEntry *new_entry = malloc(sizeof(VmHMEntry));
-    if (!new_entry) return;
-    new_entry->key = key;
-    new_entry->value = value;
-    vm_retain(heap, key);
-    vm_retain(heap, value);
-    new_entry->next = m->buckets[idx];
-    m->buckets[idx] = new_entry;
-    m->count++;
-
-    if ((double)m->count / (double)m->bucket_count > HM_LOAD_FACTOR) {
-        hm_resize(heap, m);
-    }
-}
-
-bool vm_hashmap_has(VmHashMap *m, NanoValue key) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry *entry = m->buckets[idx];
-    while (entry) {
-        if (val_equal(entry->key, key)) return true;
-        entry = entry->next;
+    if (first_tombstone != UINT32_MAX) {
+        *slot = first_tombstone;
+        *found = false;
+        return true;
     }
     return false;
 }
 
-void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry **prev = &m->buckets[idx];
-    VmHMEntry *entry = *prev;
-    while (entry) {
-        if (val_equal(entry->key, key)) {
-            *prev = entry->next;
-            vm_release(heap, entry->key);
-            vm_release(heap, entry->value);
-            free(entry);
-            m->count--;
-            return;
+static bool hm_resize(VmHashMap *m, uint32_t new_count) {
+    VmHMEntry *old_entries = m->entries;
+    uint32_t old_count = m->bucket_count;
+    VmHMEntry *new_entries = calloc(new_count, sizeof(VmHMEntry));
+    if (!new_entries) return false;
+
+    m->entries = new_entries;
+    m->bucket_count = new_count;
+    m->count = 0;
+    m->tombstone_count = 0;
+    for (uint32_t i = 0; i < old_count; i++) {
+        if (old_entries[i].state == 1) {
+            uint32_t slot;
+            bool found;
+            (void)hm_find_slot(m, old_entries[i].key, &slot, &found);
+            m->entries[slot] = old_entries[i];
+            m->entries[slot].state = 1;
+            m->count++;
         }
-        prev = &entry->next;
-        entry = entry->next;
     }
+    free(old_entries);
+    return true;
+}
+
+NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key) {
+    uint32_t slot;
+    bool found;
+    if (hm_find_slot(m, key, &slot, &found) && found) return m->entries[slot].value;
+    return val_void();
+}
+
+void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) {
+    if ((double)(m->count + m->tombstone_count + 1) / (double)m->bucket_count > HM_LOAD_FACTOR) {
+        if (m->bucket_count > UINT32_MAX / 2 || !hm_resize(m, m->bucket_count * 2)) return;
+    }
+
+    uint32_t slot;
+    bool found;
+    if (!hm_find_slot(m, key, &slot, &found)) return;
+    VmHMEntry *entry = &m->entries[slot];
+    if (found) {
+        vm_release(heap, entry->value);
+        entry->value = value;
+        vm_retain(heap, value);
+        return;
+    }
+    if (entry->state == 2) m->tombstone_count--;
+    entry->state = 1;
+    entry->key = key;
+    entry->value = value;
+    vm_retain(heap, key);
+    vm_retain(heap, value);
+    m->count++;
+}
+
+bool vm_hashmap_has(VmHashMap *m, NanoValue key) {
+    uint32_t slot;
+    bool found;
+    return hm_find_slot(m, key, &slot, &found) && found;
+}
+
+void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key) {
+    uint32_t slot;
+    bool found;
+    if (!hm_find_slot(m, key, &slot, &found) || !found) return;
+    VmHMEntry *entry = &m->entries[slot];
+    vm_release(heap, entry->key);
+    vm_release(heap, entry->value);
+    entry->state = 2;
+    m->count--;
+    m->tombstone_count++;
 }
 
 VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->key_type, m->count > 0 ? m->count : 8);
     for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            vm_array_push(heap, result, entry->key);
-            entry = entry->next;
-        }
+        VmHMEntry *entry = &m->entries[i];
+        if (entry->state == 1) vm_array_push(heap, result, entry->key);
     }
     return result;
 }
@@ -778,11 +804,8 @@ VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {
 VmArray *vm_hashmap_values(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->val_type, m->count > 0 ? m->count : 8);
     for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            vm_array_push(heap, result, entry->value);
-            entry = entry->next;
-        }
+        VmHMEntry *entry = &m->entries[i];
+        if (entry->state == 1) vm_array_push(heap, result, entry->value);
     }
     return result;
 }

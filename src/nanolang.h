@@ -783,6 +783,7 @@ typedef struct {
     bool forbid_unsafe;        /* Error (not warn) on unsafe modules */
     bool profile_gprof;        /* Enable gprof profiling analysis at exit */
     bool profile;              /* --profile: inject instrumented timing hooks into generated C */
+    bool trace;                /* --trace: inject generated-C function-call tracing hooks */
     bool profile_runtime;      /* --profile-runtime: also emit flamegraph collapsed-stack .nano.prof file */
 
     const char *profile_output_path;     /* --profile-output: write structured JSON to this file (NULL = stdout only) */

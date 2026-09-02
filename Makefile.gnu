@@ -54,14 +54,20 @@ LDFLAGS = -lm -lcrypto
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
+#
+# `override` is deliberate: this is a platform requirement, not a preference. A
+# plain `+=` is silently discarded when LDFLAGS is set on the command line, and
+# that is exactly what the sanitizer and coverage jobs do -- they pass their own
+# LDFLAGS and were losing -rdynamic, so every dlsym of a host symbol failed and
+# the FFI tests broke in those builds only.
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 EXPORT_DYNAMIC_LDFLAGS = -rdynamic
-LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
+override LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
 endif
 ifeq ($(UNAME_S),FreeBSD)
 EXPORT_DYNAMIC_LDFLAGS = -Wl,-E
-LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
+override LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
 endif
 ifeq ($(UNAME_S),Darwin)
 # Homebrew OpenSSL is keg-only on macOS — add include/lib paths
@@ -225,6 +231,13 @@ $(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compi
 src/nanoisa/generated_schema.h: spec/nanoisa.yaml scripts/gen_nanoisa_schema.py
 	@python3 scripts/gen_nanoisa_schema.py
 
+src/nanovm/ffi_dispatch_generated.h: scripts/gen_ffi_dispatch.py
+	@python3 scripts/gen_ffi_dispatch.py
+
+.PHONY: ffi-dispatch-check
+ffi-dispatch-check:
+	@$(TIMEOUT_CMD) python3 scripts/gen_ffi_dispatch.py --check
+
 # Ensure generated schema headers are created before compilation
 $(SRC_DIR)/generated/compiler_schema.h: $(SCHEMA_STAMP)
 	@# Schema stamp ensures this file exists
@@ -350,7 +363,7 @@ $(OBJ_DIR)/nanoisa:
 	mkdir -p $(OBJ_DIR)/nanoisa
 
 .PHONY: test-nanoisa
-test-nanoisa: $(NANOISA_OBJECTS)
+test-nanoisa: schema-check $(NANOISA_OBJECTS)
 	@echo "Running NanoISA tests..."
 	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nanoisa \
 		tests/nanoisa/test_nanoisa.c $(NANOISA_OBJECTS) $(LDFLAGS)
@@ -407,7 +420,7 @@ $(VM_DISPATCH_OBJECT): $(NANOVM_DIR)/vm_dispatch.c $(NANOVM_DIR)/vm_dispatch.h \
 		$(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h | $(OBJ_DIR)/nanovm
+$(OBJ_DIR)/nanovm/%.o: $(NANOVM_DIR)/%.c $(NANOVM_DIR)/vm.h $(NANOVM_DIR)/heap.h $(NANOVM_DIR)/value.h $(NANOVM_DIR)/ffi_dispatch_generated.h | $(OBJ_DIR)/nanovm
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/nanovm:
@@ -1040,6 +1053,11 @@ test-performance-monitoring-docs:
 test-dynamic-profile: $(INTERPRETER) $(COMPILER)
 	@chmod +x tests/test_dynamic_profile.sh
 	@bash tests/test_dynamic_profile.sh
+
+.PHONY: test-dynamic-trace
+test-dynamic-trace: $(INTERPRETER) $(COMPILER)
+	@chmod +x tests/test_dynamic_trace.sh
+	@bash tests/test_dynamic_trace.sh
 
 # Export user guide snippets into tests/user_guide
 userguide-export: build $(USERGUIDE_CHECK_TOOL)

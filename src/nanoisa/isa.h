@@ -157,8 +157,6 @@ typedef enum {
     /* GC/Memory (0x80-0x87) */
     OP_GC_RETAIN      = 0x80,
     OP_GC_RELEASE     = 0x81,
-    OP_GC_SCOPE_ENTER = 0x82,
-    OP_GC_SCOPE_EXIT  = 0x83,
 
     /* Type Casts (0x88-0x8F) */
     OP_CAST_INT    = 0x88,   /* pop value -> push as int */
@@ -169,7 +167,6 @@ typedef enum {
 
     /* Closures (0x90-0x97) */
     OP_CLOSURE_NEW  = 0x90,  /* operands: u32 fn_idx, u16 capture_count */
-    OP_CLOSURE_CALL = 0x91,  /* pop closure, set up env, call */
 
     /* I/O & Debug (0xA0-0xAF) */
     OP_PRINT      = 0xA0,   /* pop value, print to stdout (no newline) */
@@ -316,6 +313,8 @@ typedef struct {
     const char *name;
     const char *meaning;       /* One comprehensible meaning per instruction */
     const char *ownership;
+    const char *justification; /* Why this instruction belongs in the ISA rather
+                                * than a runtime library reached through call.import */
     uint8_t operand_count;
     uint8_t pop_count;
     uint8_t push_count;

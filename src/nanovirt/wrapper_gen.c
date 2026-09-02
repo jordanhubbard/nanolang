@@ -257,12 +257,16 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
      * minus nanovirt/main.o and nanovirt/codegen.o (not needed at runtime) */
     static const char *nanovm_objs[] = {
         "nanovm/value.o", "nanovm/heap.o", "nanovm/vm.o",
-        "nanovm/vm_ffi.o", "nanovm/vm_builtins.o", "nanovm/cop_protocol.o", NULL
+        "nanovm/vm_ffi.o", "nanovm/vm_builtins.o", "nanovm/cop_protocol.o",
+        /* asm_assemble() verifies its output, so anything linking the
+         * assembler also needs the verifier and the decode/dispatch tables it
+         * checks against. */
+        "nanovm/vm_decode.o", "nanovm/vm_dispatch.o", NULL
     };
     static const char *nanoisa_objs[] = {
         "nanoisa/isa.o", "nanoisa/nvm_format.o",
         "nanoisa/assembler.o", "nanoisa/disassembler.o",
-        "nanoisa/nanoisa_facade.o", NULL
+        "nanoisa/verifier.o", "nanoisa/nanoisa_facade.o", NULL
     };
     static const char *common_objs[] = {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",

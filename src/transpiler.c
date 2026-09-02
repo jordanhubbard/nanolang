@@ -1032,6 +1032,8 @@ ASTNode *g_current_function = NULL;
 const char *g_source_file_for_line_directives = NULL;
 bool g_profile_mode = false;          /* --profile: emit timing guard in next function body block */
 const char *g_profile_func_name = NULL; /* name of function being profiled */
+bool g_trace_mode = false;            /* --trace: emit trace guard in next function body block */
+const char *g_trace_func_name = NULL; /* name of function being traced */
 
 #define TRANSPILER_INTERNAL_TYPES_DEFINED
 #include "transpiler_iterative_v3_twopass.c"
@@ -3862,9 +3864,16 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 g_profile_mode = true;
                 g_profile_func_name = c_func_name;
             }
+            if (env && env->trace) {
+                /* Signal the block emitter to inject a trace guard at start of this body */
+                g_trace_mode = true;
+                g_trace_func_name = c_func_name;
+            }
             transpile_statement(sb, item->as.function.body, 0, env, fn_registry);
             g_profile_mode = false;   /* Clear after body is emitted */
             g_profile_func_name = NULL;
+            g_trace_mode = false;
+            g_trace_func_name = NULL;
             g_current_function = NULL;  /* Clear context */
             sb_append(sb, "\n");
 
@@ -4062,6 +4071,10 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
         sb_append(sb, "    g_argv = argv;\n");
         /* Line-buffer stdout so println output appears immediately even when piped */
         sb_append(sb, "    setvbuf(stdout, NULL, _IOLBF, 0);\n");
+        if (env && (env->profile || env->trace)) {
+            /* Resolve every diagnostics hook exactly once, at process startup. */
+            sb_append(sb, "    _nl_diag_init();\n");
+        }
         if (env && env->profile) {
             /* Register hotspot report to print at exit */
             sb_append(sb, "    atexit(_nl_prof_report);\n");
@@ -4802,6 +4815,13 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     /* Cross-platform profiling system (only when -pg flag is used) */
     if (env && env->profile_gprof) {
         generate_profiling_system(sb, env->profile_output_path);
+    }
+
+    /* Shared diagnostics hook mechanism: one mechanism drives generated-C
+     * tracing (--trace) and profiling (--profile). Emit it whenever either
+     * hook is requested so both resolve from the same startup-time state. */
+    if (env && (env->profile || env->trace)) {
+        generate_diagnostics_runtime(sb, env->profile, env->trace);
     }
 
     /* Instrumented profiling system (only when --profile flag is used) */
