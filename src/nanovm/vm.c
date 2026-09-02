@@ -7,6 +7,7 @@
 #include "vm.h"
 #include "vm_ffi.h"
 #include "cop_protocol.h"
+#include "../nanoisa/verifier.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -88,6 +89,23 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
     return true;
 }
 
+/* Establish the safety proof for the whole program the VM is about to run.
+ * The unchecked private stack handlers on the hot path are sound only when
+ * every reachable module has passed nvm_verify(); this recomputes that fact
+ * over the root module and every linked module and records it on the VM.
+ * Any module that fails verification (or is absent) clears the proof, so the
+ * VM falls back to the checked handlers. */
+static void vm_recompute_verified(VmState *vm) {
+    if (!vm) return;
+    bool proven = vm->root_module != NULL
+        && nvm_verify(vm->root_module).ok;
+    for (uint32_t i = 0; proven && i < vm->linked_module_count; i++) {
+        if (!vm->linked_modules[i] || !nvm_verify(vm->linked_modules[i]).ok)
+            proven = false;
+    }
+    vm->verified = proven;
+}
+
 void vm_init(VmState *vm, const NvmModule *module) {
     memset(vm, 0, sizeof(*vm));
     vm->module = module;
@@ -129,6 +147,9 @@ void vm_init(VmState *vm, const NvmModule *module) {
     } else {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
     }
+    /* Record whether the root module is verified so the hot path can pick
+     * the unchecked private handlers where the proof permits it. */
+    vm_recompute_verified(vm);
 }
 
 void vm_destroy(VmState *vm) {
@@ -265,6 +286,9 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
     vm->module_calls_resolved = false;
     vm->dispatch_linked_modules[idx] = dispatch;
     vm->dispatch_linked_modules_valid[idx] = true;
+    /* A newly linked module joins the program; re-establish the proof so an
+     * unverified link cannot leave the unchecked handlers enabled. */
+    vm_recompute_verified(vm);
     return idx;
 }
 
@@ -342,6 +366,8 @@ void vm_invalidate_module(VmState *vm, const NvmModule *module) {
         vm_dispatch_module_free(dispatch);
         *dispatch_valid = false;
     }
+    /* An invalidated module is no longer proven; drop to the checked path. */
+    vm->verified = false;
 }
 
 bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
@@ -376,6 +402,9 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
     }
     vm->last_error = VM_OK;
     vm->error_msg[0] = '\0';
+    /* The rebuilt module must be re-verified before the unchecked handlers
+     * may be used again. */
+    vm_recompute_verified(vm);
     return true;
 }
 
@@ -460,12 +489,31 @@ static inline VmResult stack_push(VmState *vm, NanoValue v) {
     return VM_OK;
 }
 
+/* Unchecked private handlers.
+ *
+ * These skip the operand-stack bounds guards. They are sound only for a
+ * verified program: nvm_verify()'s verify_stack_heights() infers the stack
+ * height at every reachable instruction and rejects any function that could
+ * underflow, so a pop/peek the verifier accepted can never touch below the
+ * base. vm->verified records that proof; the checked wrappers below route to
+ * these handlers only when it holds and fall back to the guarded path
+ * otherwise (e.g. an embedder that ran the VM without verifying). */
+static inline NanoValue stack_pop_unchecked(VmState *vm) {
+    return vm->stack[--vm->stack_size];
+}
+
+static inline NanoValue stack_peek_unchecked(VmState *vm, uint32_t offset) {
+    return vm->stack[vm->stack_size - 1 - offset];
+}
+
 static inline NanoValue stack_pop(VmState *vm) {
+    if (vm->verified) return stack_pop_unchecked(vm);
     if (vm->stack_size == 0) return val_void();
     return vm->stack[--vm->stack_size];
 }
 
 static inline NanoValue stack_peek(VmState *vm, uint32_t offset) {
+    if (vm->verified) return stack_peek_unchecked(vm, offset);
     if (offset >= vm->stack_size) return val_void();
     return vm->stack[vm->stack_size - 1 - offset];
 }

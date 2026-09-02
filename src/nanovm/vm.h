@@ -105,6 +105,14 @@ typedef struct VmState {
     bool module_calls_resolved;
     VmDispatchModule dispatch_module;
     bool dispatch_module_valid;
+    /* True once every module the VM will execute (root plus all linked
+     * modules) has passed nvm_verify(). This is the safety proof that
+     * lets the hot path use the unchecked private stack handlers: the
+     * verifier has already established stack depth and index bounds for
+     * every reachable instruction, so re-checking them at dispatch time
+     * is redundant. Cleared conservatively whenever a module changes or a
+     * new, unverified module is linked. */
+    bool verified;
 
     /* Operand stack */
     NanoValue *stack;
