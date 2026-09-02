@@ -1340,6 +1340,178 @@ static void test_str_from_int(void) {
     nvm_module_free(mod);
 }
 
+/* ------------------------------------------------------------------------
+ * Tests: stored string lengths / embedded zero bytes
+ *
+ * NanoVM strings carry an explicit byte length and may hold embedded '\0'
+ * bytes. These tests exercise the heap-level string operations directly to
+ * confirm they honor the stored length rather than treating the payload as a
+ * C string (which would truncate at the first zero byte).
+ * ------------------------------------------------------------------------ */
+
+static void test_string_embedded_zero_bytes(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    /* "ab\0cd" : length 5, embedded NUL at index 2. */
+    VmString *s = vm_string_new(&heap, "ab\0cd", 5);
+    ASSERT(s != NULL, "embedded_zero: alloc");
+    ASSERT_EQ_INT(vmstring_len(s), 5, "embedded_zero: stored length is 5");
+    ASSERT_EQ_INT((unsigned char)s->data[2], 0, "embedded_zero: byte 2 is NUL");
+    ASSERT_EQ_INT((unsigned char)s->data[4], 'd', "embedded_zero: byte 4 preserved");
+
+    /* Equality must compare full byte ranges, not stop at the NUL. */
+    VmString *same = vm_string_new(&heap, "ab\0cd", 5);
+    VmString *prefix = vm_string_new(&heap, "ab", 2);
+    ASSERT(vmstring_equal(s, same), "embedded_zero: full equal");
+    ASSERT(!vmstring_equal(s, prefix), "embedded_zero: not equal to NUL-truncated prefix");
+
+    /* Distinct strings sharing the pre-NUL prefix must not collapse to equal. */
+    VmString *diff = vm_string_new(&heap, "ab\0XY", 5);
+    ASSERT(!vmstring_equal(s, diff), "embedded_zero: bytes after NUL distinguish");
+
+    vm_heap_destroy(&heap);
+}
+
+static void test_string_find_across_zero(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    /* Needle that lives entirely past the first NUL byte. */
+    VmString *hay = vm_string_new(&heap, "a\0bcd", 5);
+    VmString *needle = vm_string_new(&heap, "bcd", 3);
+    VmString *pre = vm_string_new(&heap, "a", 1);
+
+    ASSERT_EQ_INT(vmstring_find(hay, needle), 2, "find: needle after NUL at offset 2");
+    ASSERT(vmstring_contains(hay, needle), "contains: matches past NUL");
+    ASSERT_EQ_INT(vmstring_find(hay, pre), 0, "find: prefix at offset 0");
+
+    /* A needle containing an embedded NUL must match by full bytes. */
+    VmString *needle2 = vm_string_new(&heap, "\0bc", 3);
+    ASSERT_EQ_INT(vmstring_find(hay, needle2), 1, "find: NUL-containing needle at offset 1");
+
+    /* Empty needle matches at offset 0; absent needle returns -1. */
+    VmString *empty = vm_string_new(&heap, "", 0);
+    VmString *absent = vm_string_new(&heap, "zz", 2);
+    ASSERT_EQ_INT(vmstring_find(hay, empty), 0, "find: empty needle at 0");
+    ASSERT_EQ_INT(vmstring_find(hay, absent), -1, "find: absent needle -1");
+
+    vm_heap_destroy(&heap);
+}
+
+static void test_string_substr_across_zero(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    VmString *s = vm_string_new(&heap, "ab\0cd", 5);
+    VmString *sub = vm_string_substr(&heap, s, 1, 3); /* "b\0c" */
+    ASSERT_EQ_INT(vmstring_len(sub), 3, "substr: length spans the NUL");
+    ASSERT_EQ_INT((unsigned char)sub->data[0], 'b', "substr: byte 0");
+    ASSERT_EQ_INT((unsigned char)sub->data[1], 0, "substr: byte 1 is NUL");
+    ASSERT_EQ_INT((unsigned char)sub->data[2], 'c', "substr: byte 2");
+
+    /* char_at must index by stored length, including the NUL position. */
+    VmString *ch = vmstring_char_at(&heap, s, 2);
+    ASSERT_EQ_INT(vmstring_len(ch), 1, "char_at: single byte");
+    ASSERT_EQ_INT((unsigned char)ch->data[0], 0, "char_at: NUL byte at index 2");
+
+    vm_heap_destroy(&heap);
+}
+
+static void test_str_replace_op_embedded_zero(void) {
+    /* replace("a\0bXb\0c", "b", "Z") -> "a\0ZXZ\0c" : the '\0' bytes on each
+     * side of a replaced needle must be preserved and the length must stay 7. */
+    NvmModule *mod = nvm_module_new();
+    uint32_t s_idx   = nvm_add_string(mod, "a\0bXb\0c", 7);
+    uint32_t old_idx = nvm_add_string(mod, "b", 1);
+    uint32_t new_idx = nvm_add_string(mod, "Z", 1);
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, s_idx);
+    off += emit(code + off, OP_PUSH_STR, old_idx);
+    off += emit(code + off, OP_PUSH_STR, new_idx);
+    off += emit(code + off, OP_STR_REPLACE);
+    off += emit(code + off, OP_RET);
+    uint32_t fn_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_replace_zero: VM_OK");
+    ASSERT_EQ_INT(result.tag, TAG_STRING, "str_replace_zero: tag string");
+    ASSERT_EQ_INT(vmstring_len(result.as.string), 7, "str_replace_zero: length preserved");
+    const char *d = result.as.string->data;
+    ASSERT_EQ_INT((unsigned char)d[0], 'a', "str_replace_zero: [0]");
+    ASSERT_EQ_INT((unsigned char)d[1], 0,   "str_replace_zero: [1] NUL kept");
+    ASSERT_EQ_INT((unsigned char)d[2], 'Z', "str_replace_zero: [2] replaced");
+    ASSERT_EQ_INT((unsigned char)d[3], 'X', "str_replace_zero: [3]");
+    ASSERT_EQ_INT((unsigned char)d[4], 'Z', "str_replace_zero: [4] replaced");
+    ASSERT_EQ_INT((unsigned char)d[5], 0,   "str_replace_zero: [5] NUL kept");
+    ASSERT_EQ_INT((unsigned char)d[6], 'c', "str_replace_zero: [6]");
+    nvm_module_free(mod);
+}
+
+static void test_str_contains_op_embedded_zero(void) {
+    /* contains("a\0needle", "needle") must be true even though the needle
+     * begins right after an embedded NUL byte. */
+    NvmModule *mod = nvm_module_new();
+    uint32_t hay_idx = nvm_add_string(mod, "a\0needle", 8);
+    uint32_t nee_idx = nvm_add_string(mod, "needle", 6);
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, hay_idx);
+    off += emit(code + off, OP_PUSH_STR, nee_idx);
+    off += emit(code + off, OP_STR_CONTAINS);
+    off += emit(code + off, OP_RET);
+    uint32_t fn_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_contains_zero: VM_OK");
+    ASSERT_EQ_INT(result.tag, TAG_BOOL, "str_contains_zero: tag bool");
+    ASSERT(result.as.boolean, "str_contains_zero: found past NUL");
+    nvm_module_free(mod);
+}
+
+static void test_str_split_op_embedded_zero(void) {
+    /* split("x\0y,z", ",") -> ["x\0y", "z"], preserving the NUL in the first
+     * segment and reporting its full length of 3. Inspect the result before
+     * vm_destroy so the array elements are still live. */
+    NvmModule *mod = nvm_module_new();
+    uint32_t s_idx = nvm_add_string(mod, "x\0y,z", 5);
+    uint32_t d_idx = nvm_add_string(mod, ",", 1);
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, s_idx);
+    off += emit(code + off, OP_PUSH_STR, d_idx);
+    off += emit(code + off, OP_STR_SPLIT);
+    off += emit(code + off, OP_RET);
+    uint32_t fn_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "str_split_zero: VM_OK");
+    NanoValue result = vm_get_result(&vm);
+    ASSERT_EQ_INT(result.tag, TAG_ARRAY, "str_split_zero: tag array");
+    ASSERT_EQ_INT(result.as.array->length, 2, "str_split_zero: two segments");
+    NanoValue seg0 = vm_array_get(result.as.array, 0);
+    NanoValue seg1 = vm_array_get(result.as.array, 1);
+    ASSERT_EQ_INT(vmstring_len(seg0.as.string), 3, "str_split_zero: seg0 length 3");
+    ASSERT_EQ_INT((unsigned char)seg0.as.string->data[1], 0, "str_split_zero: seg0 keeps NUL");
+    ASSERT_EQ_INT(vmstring_len(seg1.as.string), 1, "str_split_zero: seg1 length 1");
+    ASSERT_EQ_INT((unsigned char)seg1.as.string->data[0], 'z', "str_split_zero: seg1 is z");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
 /* ========================================================================
  * Tests: Arrays
  * ======================================================================== */
@@ -3861,6 +4033,12 @@ int main(void) {
     RUN_TEST(test_string_concat);
     RUN_TEST(test_string_len);
     RUN_TEST(test_str_from_int);
+    RUN_TEST(test_string_embedded_zero_bytes);
+    RUN_TEST(test_string_find_across_zero);
+    RUN_TEST(test_string_substr_across_zero);
+    RUN_TEST(test_str_replace_op_embedded_zero);
+    RUN_TEST(test_str_contains_op_embedded_zero);
+    RUN_TEST(test_str_split_op_embedded_zero);
 
     printf("\n[Arrays]\n");
     RUN_TEST(test_array_literal);

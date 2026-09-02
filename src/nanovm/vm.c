@@ -644,6 +644,23 @@ static inline const char *str_at(const VmState *vm, uint32_t idx) {
     return nvm_get_string(vm->module, idx);
 }
 
+static inline uint32_t str_len_at(const VmState *vm, uint32_t idx) {
+    return nvm_get_string_len(vm->module, idx);
+}
+
+/* Length-aware substring search within raw byte buffers. Honors the
+ * provided lengths and therefore matches correctly across embedded zero
+ * bytes. Returns a pointer to the first match, or NULL when absent. */
+static const char *vm_mem_find(const char *hay, size_t hlen,
+                               const char *needle, size_t nlen) {
+    if (nlen == 0) return hay;
+    if (nlen > hlen) return NULL;
+    for (size_t i = 0; i <= hlen - nlen; i++) {
+        if (memcmp(hay + i, needle, nlen) == 0) return hay + i;
+    }
+    return NULL;
+}
+
 NanoValue vm_get_result(VmState *vm) {
     if (vm->stack_size == 0) return val_void();
     return vm->stack[vm->stack_size - 1];
@@ -751,8 +768,9 @@ VmTrap vm_core_execute(VmState *vm) {
         case OP_PUSH_STR: {
             uint32_t idx = instr.operands[0].u32;
             const char *s = str_at(vm, idx);
-            if (!s) s = "";
-            VmString *vs = vm_string_new(&vm->heap, s, (uint32_t)strlen(s));
+            uint32_t len = str_len_at(vm, idx);
+            if (!s) { s = ""; len = 0; }
+            VmString *vs = vm_string_new(&vm->heap, s, len);
             stack_push(vm, val_string(vs));
             break;
         }
@@ -2040,7 +2058,7 @@ dynamic_div:
             }
             int64_t idx = (idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             const char *str = vmstring_cstr(s.as.string);
-            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t len = (int64_t)vmstring_len(s.as.string);
             int64_t ch = (idx >= 0 && idx < len) ? (unsigned char)str[idx] : -1;
             vm_release(&vm->heap, s);
             stack_push(vm, val_int(ch));
@@ -2068,7 +2086,7 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_TRIM: not a string");
             }
             const char *str = vmstring_cstr(s.as.string);
-            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t len = (int64_t)vmstring_len(s.as.string);
             int64_t start = 0;
             while (start < len && (str[start] == ' ' || str[start] == '\t' ||
                                    str[start] == '\n' || str[start] == '\r')) {
@@ -2096,7 +2114,7 @@ dynamic_div:
                                            : "STR_TO_UPPER: not a string");
             }
             const char *str = vmstring_cstr(s.as.string);
-            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t len = (int64_t)vmstring_len(s.as.string);
             /* Strings are interned/immutable, so transform into a scratch
              * buffer and only then construct the result string. */
             char stackbuf[256];
@@ -2136,8 +2154,8 @@ dynamic_div:
             }
             const char *str = vmstring_cstr(s.as.string);
             const char *affix = vmstring_cstr(affix_v.as.string);
-            size_t slen = str ? strlen(str) : 0;
-            size_t alen = affix ? strlen(affix) : 0;
+            size_t slen = vmstring_len(s.as.string);
+            size_t alen = vmstring_len(affix_v.as.string);
             bool result;
             if (alen > slen) {
                 result = false;
@@ -2164,20 +2182,22 @@ dynamic_div:
             }
             const char *str = vmstring_cstr(s.as.string);
             const char *delim = vmstring_cstr(delim_v.as.string);
-            size_t dlen = delim ? strlen(delim) : 0;
+            size_t slen = vmstring_len(s.as.string);
+            size_t dlen = vmstring_len(delim_v.as.string);
             VmArray *arr = vm_array_new(&vm->heap, TAG_STRING, 8);
             if (dlen == 0) {
                 /* Empty delimiter: split into individual characters. */
-                size_t slen = str ? strlen(str) : 0;
                 for (size_t i = 0; i < slen; i++) {
                     VmString *ch = vm_string_new(&vm->heap, str + i, 1);
                     vm_array_push(&vm->heap, arr, val_string(ch));
                     vm_release(&vm->heap, val_string(ch));
                 }
             } else {
-                const char *start = str ? str : "";
+                const char *start = str;
+                const char *end = str + slen;
                 const char *found;
-                while ((found = strstr(start, delim)) != NULL) {
+                while ((found = vm_mem_find(start, (size_t)(end - start),
+                                            delim, dlen)) != NULL) {
                     VmString *seg = vm_string_new(&vm->heap, start,
                                                   (uint32_t)(found - start));
                     vm_array_push(&vm->heap, arr, val_string(seg));
@@ -2185,7 +2205,7 @@ dynamic_div:
                     start = found + dlen;
                 }
                 VmString *rest = vm_string_new(&vm->heap, start,
-                                               (uint32_t)strlen(start));
+                                               (uint32_t)(end - start));
                 vm_array_push(&vm->heap, arr, val_string(rest));
                 vm_release(&vm->heap, val_string(rest));
             }
@@ -2209,24 +2229,26 @@ dynamic_div:
             const char *str = vmstring_cstr(s.as.string);
             const char *old_str = vmstring_cstr(old_v.as.string);
             const char *new_str = vmstring_cstr(new_v.as.string);
-            size_t olen = old_str ? strlen(old_str) : 0;
-            if (!str) str = "";
+            size_t slen = vmstring_len(s.as.string);
+            size_t olen = vmstring_len(old_v.as.string);
             if (olen == 0) {
                 /* Empty needle: return the input unchanged (matches runtime). */
-                VmString *copy = vm_string_new(&vm->heap, str, (uint32_t)strlen(str));
+                VmString *copy = vm_string_new(&vm->heap, str, (uint32_t)slen);
                 vm_release(&vm->heap, new_v);
                 vm_release(&vm->heap, old_v);
                 vm_release(&vm->heap, s);
                 stack_push(vm, val_string(copy));
                 break;
             }
-            size_t nlen = new_str ? strlen(new_str) : 0;
+            size_t nlen = vmstring_len(new_v.as.string);
+            const char *str_end = str + slen;
             /* Count occurrences to size the output buffer. */
             size_t count = 0;
             const char *p = str;
             const char *found;
-            while ((found = strstr(p, old_str)) != NULL) { count++; p = found + olen; }
-            size_t slen = strlen(str);
+            while ((found = vm_mem_find(p, (size_t)(str_end - p), old_str, olen)) != NULL) {
+                count++; p = found + olen;
+            }
             /* out_len = slen + count*(nlen - olen); compute signed to be safe. */
             long long out_len_signed = (long long)slen +
                                        (long long)count * ((long long)nlen - (long long)olen);
@@ -2241,15 +2263,14 @@ dynamic_div:
             }
             char *dst = buf;
             const char *src = str;
-            while ((found = strstr(src, old_str)) != NULL) {
+            while ((found = vm_mem_find(src, (size_t)(str_end - src), old_str, olen)) != NULL) {
                 size_t seg = (size_t)(found - src);
                 memcpy(dst, src, seg); dst += seg;
                 memcpy(dst, new_str, nlen); dst += nlen;
                 src = found + olen;
             }
-            size_t rest = strlen(src);
+            size_t rest = (size_t)(str_end - src);
             memcpy(dst, src, rest); dst += rest;
-            *dst = '\0';
             VmString *out = vm_string_new(&vm->heap, buf, (uint32_t)(dst - buf));
             if (buf != stackbuf) free(buf);
             vm_release(&vm->heap, new_v);

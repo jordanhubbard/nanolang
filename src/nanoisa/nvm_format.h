@@ -237,6 +237,10 @@ uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx);
 
 /* Get a string from the module by index. Returns NULL if out of range. */
 const char *nvm_get_string(const NvmModule *mod, uint32_t index);
+/* Stored byte length of a string constant. Callers that reconstruct string
+ * values must use this instead of strlen() so embedded zero bytes survive.
+ * Returns 0 for an out-of-range index. */
+uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index);
 
 /* Find the latest function with this name. Returns UINT32_MAX if absent. */
 uint32_t nvm_find_function(const NvmModule *mod, const char *name);

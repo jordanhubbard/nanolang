@@ -178,6 +178,11 @@ const char *nvm_get_string(const NvmModule *mod, uint32_t index) {
     return mod->strings[index];
 }
 
+uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index) {
+    if (index >= mod->string_count) return 0;
+    return mod->string_lengths[index];
+}
+
 /* ========================================================================
  * Function Table
  * ======================================================================== */
