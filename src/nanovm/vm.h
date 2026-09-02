@@ -54,6 +54,11 @@ typedef struct {
     uint32_t max_frame_depth;
 } VmProfile;
 
+typedef struct {
+    VmString **strings;
+    uint32_t count;
+} VmModuleConstants;
+
 /* ========================================================================
  * Call Frame
  * ======================================================================== */
@@ -112,7 +117,7 @@ typedef struct VmState {
      * every reachable instruction, so re-checking them at dispatch time
      * is redundant. Cleared conservatively whenever a module changes or a
      * new, unverified module is linked. */
-    bool verified;
+    bool verified;    VmModuleConstants module_constants;
 
     /* Operand stack */
     NanoValue *stack;
@@ -149,6 +154,7 @@ typedef struct VmState {
     bool *decoded_linked_modules_valid;
     VmDispatchModule *dispatch_linked_modules;
     bool *dispatch_linked_modules_valid;
+    VmModuleConstants *linked_module_constants;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
 

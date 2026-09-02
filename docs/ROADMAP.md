@@ -133,7 +133,7 @@ Execution architecture:
 Runtime representation:
 - [ ] I will measure and evaluate split payload/tag operand stacks and globals.
 - [x] I dynamically size globals from serialized declarations instead of embedding 4,096 values in every VM.
-- [ ] I will preinstantiate module constants so string literals do not allocate and search the intern table on every execution.
+- [x] I preinstantiate each module's string constants once, then retain the indexed value without allocating or searching during execution.
 - [x] I replaced the linear intern-table scan with a chained hash-bucket table so string interning lookup, insertion, and removal are O(1) amortized instead of O(n); `test-intern` covers dedup, unlink-on-free, bucket growth, and embedded-NUL content.
 - [x] I consistently use stored string lengths and preserve embedded zero bytes: NanoVM string constants load with their serialized byte length via `nvm_get_string_len` instead of `strlen`, and `STR_CONTAINS`, `STR_SPLIT`, and `STR_REPLACE` search by stored length through `vmstring_find`/`vm_mem_find`; `tests/nanovm/test_vm.c` covers embedded `\0` bytes across find, substr, char_at, split, replace, and contains.
 - [x] I store homogeneous `array<int>`, `array<float>`, `array<bool>`, and `array<byte>` values unboxed in a compact packed buffer (`VmArray.packed`) rather than a boxed `NanoValue[]`, selected by `VmArray.unboxed` and routed through the `vm_array_*` accessors; `test-nanovm` covers the packed round-trip, mutation, slice, and remove paths.
