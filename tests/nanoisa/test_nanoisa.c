@@ -384,8 +384,12 @@ static void test_every_opcode_tooling_roundtrip(void) {
         }
         snprintf(source + length, sizeof(source) - (size_t)length, "\n.end\n");
 
+        /* Fragment, not a program: a lone DUP has an empty stack and a lone
+         * LOAD_LOCAL names a slot the zero-local function does not have, so
+         * these could never verify. This sweep checks encoding coverage, so it
+         * assembles without the verification pass. */
         AsmResult result;
-        NvmModule *mod = asm_assemble(source, &result);
+        NvmModule *mod = asm_assemble_unverified(source, &result);
         ASSERT(mod != NULL, "Every schema opcode assembles");
         ASSERT_EQ_INT(mod->code[mod->functions[0].code_offset], schema->opcode,
                       "Assembly emits schema opcode");
@@ -1334,8 +1338,12 @@ static void test_asm_symbolic_operands(void) {
         ".end\n"
         ".entry main\n";
 
+    /* Fragment, not a program: the symbol indices here are arbitrary by design
+     * (.symbol import write 7 with no imports declared), because what is under
+     * test is that symbolic operands resolve to the indices named, not that the
+     * result is runnable. Assemble without verification. */
     AsmResult result;
-    NvmModule *mod = asm_assemble(src, &result);
+    NvmModule *mod = asm_assemble_unverified(src, &result);
     ASSERT(mod != NULL, "Symbolic operands assemble");
     ASSERT_EQ_INT(result.error, ASM_OK, "Symbolic operands have no error");
     ASSERT_EQ_INT(mod->header.entry_point, 1, "Symbolic entry resolves function");

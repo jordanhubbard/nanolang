@@ -867,7 +867,8 @@ static bool collect_function_symbols(AsmState *state, const char *source, AsmRes
     return true;
 }
 
-NvmModule *asm_assemble(const char *source, AsmResult *result) {
+static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
+                                    bool verify) {
     memset(result, 0, sizeof(*result));
 
     AsmState state;
@@ -946,15 +947,25 @@ NvmModule *asm_assemble(const char *source, AsmResult *result) {
     NvmModule *mod = state.mod;
     asm_state_cleanup(&state);
 
-    NvmVerifyResult verify = nvm_verify(mod);
-    if (!verify.ok) {
-        result->error = ASM_ERR_VERIFY;
-        snprintf(result->message, sizeof(result->message),
-                 "Assembled module failed verification: %.210s", verify.error_msg);
-        nvm_module_free(mod);
-        return NULL;
+    if (verify) {
+        NvmVerifyResult verdict = nvm_verify(mod);
+        if (!verdict.ok) {
+            result->error = ASM_ERR_VERIFY;
+            snprintf(result->message, sizeof(result->message),
+                     "Assembled module failed verification: %.210s", verdict.error_msg);
+            nvm_module_free(mod);
+            return NULL;
+        }
     }
     return mod;
+}
+
+NvmModule *asm_assemble(const char *source, AsmResult *result) {
+    return asm_assemble_impl(source, result, true);
+}
+
+NvmModule *asm_assemble_unverified(const char *source, AsmResult *result) {
+    return asm_assemble_impl(source, result, false);
 }
 
 NvmModule *asm_assemble_file(const char *path, AsmResult *result) {
