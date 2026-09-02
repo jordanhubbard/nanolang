@@ -2144,7 +2144,9 @@ static void test_closure(void) {
     main_off += emit(main_code + main_off, OP_STORE_LOCAL, 0);     /* save closure */
     main_off += emit(main_code + main_off, OP_PUSH_I64, (int64_t)32); /* arg y */
     main_off += emit(main_code + main_off, OP_LOAD_LOCAL, 0);       /* load closure */
-    main_off += emit(main_code + main_off, OP_CLOSURE_CALL);
+    /* CALL_INDIRECT invokes closures directly; the former CLOSURE_CALL opcode
+     * was a duplicate that no frontend emitted and has been removed. */
+    main_off += emit(main_code + main_off, OP_CALL_INDIRECT);
     main_off += emit(main_code + main_off, OP_RET);
     uint32_t main_idx = add_fn(mod, "main", main_code, main_off, 0, 1);
 

@@ -358,7 +358,6 @@ static void test_every_opcode_tooling_roundtrip(void) {
         ASSERT_EQ_STR(info->name, schema->name, "Schema mnemonic matches metadata");
         ASSERT_EQ_INT(isa_opcode_by_name(schema->name), schema->opcode,
                       "Assembler lookup covers schema opcode");
-
         uint8_t buf[ISA_MAX_INSTRUCTION_SIZE];
         DecodedInstruction instr = {0};
         instr.opcode = schema->opcode;

@@ -162,7 +162,7 @@ Module format and tools:
 - [x] I reject trailing instruction and directive operands, and I run the bytecode verifier before returning any assembled module; `test-nanoisa` covers both rejection paths.
 - [ ] I will correct disassembler import annotations, branch operand roles, label construction, and binary-string handling.
 - [x] I tie every legacy opcode to its schema and enum value, VM dispatch behavior, an explicit or decode-backed verifier route, and tested encode, decode, assembly, and disassembly paths; `schema-check` and `test-nanoisa` fail when these layers drift.
-- [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
+- [x] I removed the no-op GC-scope opcodes (`GC_SCOPE_ENTER`, `GC_SCOPE_EXIT`) and the duplicate `CLOSURE_CALL` (subsumed by `CALL_INDIRECT`), which no frontend emitted; the remaining unemitted polymorphic scalar/string opcodes are retained as justified assembler-compatibility instructions (see the row above).
 - [x] I use separately linked `.nvm` modules: serialized `MODULE_REFS` define the checked dependency names and `CALL_MODULE` indices, `vm_link_named_module` enforces their order, and `test-nanovm` serializes, loads, links, and executes a two-file module graph end to end.
 
 FFI and traps:
@@ -779,13 +779,13 @@ Deliverables - ALL COMPLETE:
 - [x] .nvm Binary Format - I include sections for code, strings, functions, types, imports, debug info, and module refs.
 - [x] Assembler & Disassembler - I have a two-pass text assembler and a disassembler with label reconstruction.
 - [x] NanoVM Interpreter - I have a switch-dispatch execution engine with a trap model (~1,844 lines).
-- [x] Reference-Counted GC - I use scope-based auto-release with OP_GC_SCOPE_ENTER and OP_GC_SCOPE_EXIT.
+- [x] Reference-Counted GC - I use OP_GC_RETAIN/OP_GC_RELEASE with scope lifetime tracked implicitly by the call stack.
 - [x] Compiler Backend (nano_virt) - I have a three-pass AST-to-bytecode codegen (~3,083 lines).
 - [x] Co-Process FFI (nano_cop) - I isolate external calls in a separate process via a binary RPC protocol.
 - [x] VM Daemon (nano_vmd) - I can run as a persistent process to reduce startup latency.
 - [x] Native Binary Generation - I embed .nvm and my VM runtime into standalone executables.
 - [x] Cross-Module Linking - I use OP_CALL_MODULE with per-frame module tracking.
-- [x] Closure Support - I use OP_CLOSURE_NEW and OP_CLOSURE_CALL with upvalue capture.
+- [x] Closure Support - I use OP_CLOSURE_NEW with upvalue capture and invoke closures via OP_CALL_INDIRECT.
 - [x] Comprehensive Test Suite - I have 470 ISA tests, 150 VM tests, and 62 codegen tests.
 
 Architecture: My trap model separates my pure-compute core (83+ opcodes) from I/O operations, which allows for future FPGA acceleration. I have documented this in docs/NANOISA.md.
