@@ -625,13 +625,17 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 ../modules/forth_see/.build/libforth_see.so: ../modules/forth_see/forth_see.c ../modules/forth_see/forth_see.h \
 		../modules/nanoisa/nanoisa.c ../modules/nanoisa/nanoisa.h \
 		../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
-		../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c
+		../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
+		../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
+		../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c
 	@mkdir -p ../modules/forth_see/.build
 	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared \
-	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa \
+	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa -I../src \
 	    -o $@ ../modules/forth_see/forth_see.c ../modules/nanoisa/nanoisa.c \
 	    ../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
-	    ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c
+	    ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
+	    ../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
+	    ../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c
 
 # Explicit rule: compile nl_forth_interpreter.nano → bin/nl_forth_interpreter_vm (NVM bytecode, no extension)
 # The pattern rule $(BIN_DIR)/nl_%$(BIN_EXT) won't match because target suffix (_vm) differs from source name.
