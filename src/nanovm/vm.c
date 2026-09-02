@@ -138,8 +138,8 @@ void vm_init(VmState *vm, const NvmModule *module) {
                      "Failed to allocate %u globals", root_globals);
         }
         char dispatch_error[VM_DISPATCH_ERROR_SIZE];
-        if (vm_dispatch_build_module(&vm->decoded_module, &vm->dispatch_module,
-                                     dispatch_error)) {
+        if (vm_dispatch_build_module(&vm->decoded_module, vm->dispatch_profile,
+                                     &vm->dispatch_module, dispatch_error)) {
             vm->dispatch_module_valid = true;
         } else {
             vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
@@ -219,7 +219,7 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
     }
     VmDispatchModule dispatch;
     char dispatch_error[VM_DISPATCH_ERROR_SIZE];
-    if (!vm_dispatch_build_module(&decoded, &dispatch, dispatch_error)) {
+    if (!vm_dispatch_build_module(&decoded, vm->dispatch_profile, &dispatch, dispatch_error)) {
         vm_decoded_module_free(&decoded);
         vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
         return (uint32_t)-1;
@@ -392,7 +392,7 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
     if (dispatch_slot) {
         VmDispatchModule dispatch_replacement;
         char dispatch_error[VM_DISPATCH_ERROR_SIZE];
-        if (!vm_dispatch_build_module(slot, &dispatch_replacement, dispatch_error)) {
+        if (!vm_dispatch_build_module(slot, vm->dispatch_profile, &dispatch_replacement, dispatch_error)) {
             vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
             return false;
         }
@@ -556,6 +556,11 @@ void vm_profile_enable(VmState *vm, bool enabled) {
     if (!vm) return;
     memset(&vm->profile, 0, sizeof(vm->profile));
     vm->profile.enabled = enabled;
+}
+
+void vm_set_dispatch_profile(VmState *vm, VmDispatchProfile profile) {
+    if (!vm) return;
+    vm->dispatch_profile = profile;
 }
 
 bool vm_profile_write_json(const VmState *vm, FILE *out) {
@@ -791,6 +796,53 @@ VmTrap vm_core_execute(VmState *vm) {
         profile_instruction(vm, instr.opcode);
         if (vm->opcode_trace)
             vm_trace_instruction(vm, instr_start, &instr, stack_before);
+
+        /* Private superinstructions run before the portable opcode switch.
+         * They are an internal fusion of already-verified steps, so they
+         * reproduce the exact stack, heap, and ownership effects of the
+         * instructions they replace while advancing `ip` past the whole run
+         * in one dispatch step.  A dispatch instruction is never both a
+         * superinstruction and a portable opcode: super_op == VM_SUPER_NONE
+         * falls through to the normal switch below. */
+        if (decoded->super_op != VM_SUPER_NONE) {
+            switch (decoded->super_op) {
+            case VM_SUPER_LOAD_LOCAL_FIELD: {
+                /* Fused OP_LOAD_LOCAL idx ; OP_AGG_GET field. */
+                uint16_t idx = instr.operands[0].u16;
+                uint16_t field = decoded->super_operand;
+                uint32_t abs_idx = frame->stack_base + idx;
+                if (abs_idx >= vm->stack_size) {
+                    return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                      "Local %u out of range", idx);
+                }
+                NanoValue aggregate = vm->stack[abs_idx];
+                NanoValue value = val_void();
+                if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
+                        && field < aggregate.as.sval->field_count) {
+                    value = aggregate.as.sval->fields[field];
+                } else if (aggregate.tag == TAG_UNION && aggregate.as.uval
+                           && field < aggregate.as.uval->field_count) {
+                    value = aggregate.as.uval->fields[field];
+                } else if (aggregate.tag == TAG_TUPLE && aggregate.as.tuple
+                           && field < aggregate.as.tuple->count) {
+                    value = aggregate.as.tuple->elements[field];
+                } else {
+                    return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                      "AGG_GET field %u is unavailable", field);
+                }
+                vm_retain(&vm->heap, value);
+                stack_push(vm, value);
+                break;
+            }
+            case VM_SUPER_NONE:
+            case VM_SUPER__COUNT:
+            default:
+                return trap_error(vm, VM_ERR_DECODE,
+                                  "Unknown superinstruction %u",
+                                  (unsigned)decoded->super_op);
+            }
+            continue;
+        }
 
         switch (instr.opcode) {
 
