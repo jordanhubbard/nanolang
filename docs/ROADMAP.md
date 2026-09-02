@@ -468,10 +468,28 @@ System image and lifecycle:
 - [ ] I will define signed manifests for NanoISA modules, service interfaces, implementations, capabilities, and policy.
 - [ ] I will build deterministic system images from a locked dependency and service graph.
 - [ ] I will verify signatures, hashes, interface compatibility, and policy before activation.
+- [ ] I will sign `.nvm` module artifacts themselves, not only their manifests, carrying the signature and its key identifier in a dedicated section of the v2 module format.
+- [ ] I will verify a module's signature at load, in `nvm_deserialize`, immediately after the existing CRC32 check and over the same byte range, so every loader inherits it from one place.
+- [ ] I will make enforcement a runtime policy rather than a build-time one -- off, warn, or require -- so the same binary can refuse unsigned modules in a locked-down deployment and accept them on a development machine without rebuilding.
+- [ ] I will define where verification keys come from and how trust in them is established, since a signature check is only worth the provenance of the key that satisfies it.
 - [ ] I will implement atomic service and system upgrades with rollback.
 - [ ] I will implement health monitoring, crash-loop control, degraded operation, and recovery policy.
 - [ ] I will define administrative capabilities for inspection, update, backup, restore, and shutdown.
 - [ ] I will make boot, startup, steady state, upgrade, failure, and shutdown auditable.
+
+Scoping note on module signing: this is deliberately 5.0 work, not 4.0. The
+mechanism is cheap -- Ed25519 signing and verification are already available
+from the OpenSSL that every binary links today, the v2 module format's section
+directory and feature bits have room for a signature without a format break,
+and `nvm_deserialize` already has the gate where a check belongs, right after
+the CRC32. What is not cheap is deciding where verification keys come from and
+who is trusted to issue them, and that question belongs with the capability and
+policy work rather than ahead of it. Signing an artifact nobody can establish
+provenance for buys very little.
+
+The CRC32 in the current format is an integrity check, not an authenticity one:
+it detects corruption and is trivially recomputed by whoever edited the file.
+It should not be mistaken for a security property in the meantime.
 
 Kernel and isolation adapters, deliberately last:
 - [ ] I will specify the minimum kernel contract for address spaces, scheduling, IPC, shared memory, clocks, entropy, interrupts, credentials, and device access.
