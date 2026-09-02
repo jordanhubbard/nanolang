@@ -221,6 +221,10 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (imp->return_type >= TAG_COUNT)
             return fail("import[%u] return_type %u is not a valid value tag",
                         i, imp->return_type);
+        if (imp->param_count > NANO_MAX_FFI_ARGS)
+            return fail("import[%u] param_count %u exceeds the foreign-call "
+                        "argument limit of %u",
+                        i, imp->param_count, (unsigned)NANO_MAX_FFI_ARGS);
         if (imp->param_count > 0 && !mod->import_param_types[i])
             return fail("import[%u] declares %u params but has no param type array",
                         i, imp->param_count);

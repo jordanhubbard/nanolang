@@ -116,6 +116,23 @@ typedef struct {
 #define NVM_DEBUG_ENTRY_SIZE 12
 
 /* ========================================================================
+ * Foreign-call argument limit
+ *
+ * A single limit is shared by every path that crosses the native boundary:
+ * imported (extern) calls, the OP_CALL_EXTERN trap that carries their
+ * arguments, the direct in-process FFI dispatch, and the co-process
+ * (out-of-process) FFI dispatch. Keeping one constant guarantees that a
+ * module accepted by the verifier can actually be marshaled and dispatched
+ * by every backend rather than being silently truncated by whichever path
+ * happens to have the smallest hand-rolled array.
+ *
+ * The value is the maximum arity the FFI dispatch tables provide
+ * (see FFI_Fn0..FFI_Fn10 / FFI_DFn0..FFI_DFn10 in src/nanovm/vm_ffi.c).
+ * ======================================================================== */
+
+#define NANO_MAX_FFI_ARGS 10
+
+/* ========================================================================
  * Import Entry (serialized in IMPORTS section)
  * ======================================================================== */
 

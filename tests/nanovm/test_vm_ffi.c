@@ -119,12 +119,14 @@ TEST(call_too_many_args) {
     VmHeap heap;
     vm_heap_init(&heap);
 
-    /* Pass 17 args (> 16 max) — should return false with error */
-    NanoValue args[17];
-    for (int i = 0; i < 17; i++) args[i] = val_int(0);
+    /* Pass NANO_MAX_FFI_ARGS + 1 args — over the shared foreign-call limit,
+     * so dispatch must return false with an error rather than truncate. */
+    NanoValue args[NANO_MAX_FFI_ARGS + 1];
+    for (int i = 0; i < NANO_MAX_FFI_ARGS + 1; i++) args[i] = val_int(0);
     NanoValue result;
     char err[256] = "";
-    bool ok = vm_ffi_call(mod, 0, args, 17, &result, &heap, err, sizeof(err));
+    bool ok = vm_ffi_call(mod, 0, args, NANO_MAX_FFI_ARGS + 1, &result, &heap,
+                          err, sizeof(err));
     ASSERT(!ok);
     ASSERT(err[0] != '\0');
 

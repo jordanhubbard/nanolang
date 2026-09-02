@@ -443,10 +443,10 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             uint16_t argc       = cop_get_u16(mailbox->req_argc);
             uint16_t data_size  = cop_get_u16(mailbox->req_data_size);
 
-            NanoValue args[16] = {0};
+            NanoValue args[NANO_MAX_FFI_ARGS] = {0};
             int actual_argc = 0;
             uint32_t pos = 0;
-            for (int i = 0; i < argc && i < 16 && pos < data_size; i++) {
+            for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS && pos < data_size; i++) {
                 uint32_t consumed = cop_deserialize_value(mailbox->req_data + pos,
                                                           data_size - pos,
                                                           &args[i], &heap);

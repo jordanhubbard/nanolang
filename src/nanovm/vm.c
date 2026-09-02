@@ -2078,11 +2078,23 @@ dynamic_div:
             }
             int ext_argc = vm->module->imports[import_idx].param_count;
 
+            /* Foreign calls share a single argument limit across imports,
+             * traps, direct FFI, and co-process dispatch. The verifier
+             * rejects imports past NANO_MAX_FFI_ARGS, but guard here too so
+             * an unverified module traps cleanly instead of overrunning the
+             * fixed trap argument buffer. */
+            if (ext_argc > NANO_MAX_FFI_ARGS) {
+                return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                "Import %u declares %d args, exceeding the "
+                                "foreign-call argument limit of %d",
+                                import_idx, ext_argc, NANO_MAX_FFI_ARGS);
+            }
+
             /* Pop arguments from stack (they were pushed left-to-right,
              * so pop in reverse to get them in order) */
             VmTrap t = { .type = TRAP_EXTERN_CALL };
             t.data.extern_call.import_idx = import_idx;
-            t.data.extern_call.argc = ext_argc > 16 ? 16 : ext_argc;
+            t.data.extern_call.argc = ext_argc;
             for (int i = t.data.extern_call.argc - 1; i >= 0; i--) {
                 t.data.extern_call.args[i] = stack_pop(vm);
             }
