@@ -516,18 +516,28 @@ launcher: build $(LAUNCHER_BIN)
 	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 
 .PHONY: gpu-kernels
-gpu-kernels: gpu/matmul.ptx gpu/matmul.cl gpu/ocean.ptx gpu/ocean.cl
+GPU_KERNEL_DIR := $(BIN_DIR)/gpu
+GPU_KERNELS := \
+	$(GPU_KERNEL_DIR)/matmul.ptx \
+	$(GPU_KERNEL_DIR)/matmul.cl \
+	$(GPU_KERNEL_DIR)/ocean.ptx \
+	$(GPU_KERNEL_DIR)/ocean.cl
 
-gpu/matmul.ptx: gpu/matmul.nano $(COMPILER)
+gpu-kernels: $(GPU_KERNELS)
+
+$(GPU_KERNEL_DIR):
+	mkdir -p $@
+
+$(GPU_KERNEL_DIR)/matmul.ptx: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target ptx -o $@
 
-gpu/matmul.cl: gpu/matmul.nano $(COMPILER)
+$(GPU_KERNEL_DIR)/matmul.cl: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
-gpu/ocean.ptx: gpu/ocean.nano $(COMPILER)
+$(GPU_KERNEL_DIR)/ocean.ptx: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target ptx -o $@
 
-gpu/ocean.cl: gpu/ocean.nano $(COMPILER)
+$(GPU_KERNEL_DIR)/ocean.cl: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
 $(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT): gpu/ocean.nano $(COMPILER)
@@ -854,6 +864,7 @@ $(BIN_DIR)/mujoco_%$(BIN_SUFFIX)$(BIN_EXT): mujoco/mujoco_%.nano $(COMPILER)
 clean:
 	@echo "Cleaning example binaries..."
 	rm -f $(ALL_EXAMPLES)
+	rm -rf $(GPU_KERNEL_DIR)
 	rm -rf $(BIN_DIR)/*.dSYM
 	rm -rf ../modules/*/.build/ ../std/*/.build/
 	rm -rf $(NANO_BUILD_CACHE)

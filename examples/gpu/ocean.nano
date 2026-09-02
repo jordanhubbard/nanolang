@@ -489,7 +489,7 @@ fn main() -> int {
             let block_y: int = 8
             let grid_x: int = (/ (+ COLS (- block_x 1)) block_x)
             let grid_y: int = (/ (+ ROWS (- block_y 1)) block_y)
-            let launched: bool = (gpu_launch2d "examples/gpu/ocean.ptx" "compute_ocean"
+            let launched: bool = (gpu_launch2d "bin/gpu/ocean.ptx" "compute_ocean"
                 grid_x grid_y block_x block_y d_sine d_field COLS tick)
             if launched {
                 (gpu_sync)
@@ -498,7 +498,7 @@ fn main() -> int {
             if frame_on_gpu {
                 let pixel_grid_x: int = (/ (+ W (- block_x 1)) block_x)
                 let pixel_grid_y: int = (/ (+ H (- block_y 1)) block_y)
-                set frame_on_gpu (gpu_launch2d "examples/gpu/ocean.ptx" "shade_ocean"
+                set frame_on_gpu (gpu_launch2d "bin/gpu/ocean.ptx" "shade_ocean"
                     pixel_grid_x pixel_grid_y block_x block_y d_sine d_pixels W tick)
                 if frame_on_gpu {
                     (gpu_sync)
