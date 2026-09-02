@@ -24,13 +24,7 @@
       "Bash(echo \"grep exit=$?\")",
       "Bash(git push *)",
       "Bash(gh run *)",
-      "Bash(gh api *)",
-      "Bash(mac --version)",
-      "Read(//Users/jkh/Src/mac/.venv/bin/**)",
-      "Bash(python3 -c \"import sys; print\\(sys.path\\)\")",
-      "Bash(git pull *)",
-      "Bash(git stash *)",
-      "Bash(python3 -c ' *)"
+      "Bash(gh api *)"
     ]
   },
   "enableAllProjectMcpServers": true,
