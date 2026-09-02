@@ -31,6 +31,7 @@ typedef enum {
     ASM_ERR_UNDEFINED_LABEL,/* Jump to undefined label */
     ASM_ERR_DUPLICATE_LABEL,/* Label defined more than once */
     ASM_ERR_NO_FUNCTION,    /* Instruction outside .function/.end */
+    ASM_ERR_VERIFY,         /* Assembled module failed bytecode verification */
     ASM_ERR_MEMORY,         /* Allocation failure */
     ASM_ERR_IO,             /* File I/O error */
     ASM_ERR_UNDEFINED_SYMBOL, /* Symbolic operand has no declaration */
@@ -44,10 +45,19 @@ typedef struct {
     char message[256];   /* Human-readable error message */
 } AsmResult;
 
-/* Assemble text source into an NVM module.
+/* Assemble text source into an NVM module and verify it.
  * Returns a new NvmModule on success (caller frees with nvm_module_free).
- * On error, returns NULL and fills result with error info. */
+ * On error, returns NULL and fills result with error info. A module that
+ * assembles but fails verification is an error: nothing should be able to
+ * hand the VM bytecode the verifier would reject. */
 NvmModule *asm_assemble(const char *source, AsmResult *result);
+
+/* Assemble without the verification pass.
+ * For tooling that legitimately assembles a *fragment* rather than a runnable
+ * program -- an opcode-encoding coverage sweep, say, where a lone `DUP` has an
+ * empty stack by construction and could never verify. Use asm_assemble for
+ * anything whose output will be executed. */
+NvmModule *asm_assemble_unverified(const char *source, AsmResult *result);
 
 /* Assemble from a file path.
  * Returns a new NvmModule on success, NULL on error. */

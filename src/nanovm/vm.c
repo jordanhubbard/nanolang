@@ -7,6 +7,7 @@
 #include "vm.h"
 #include "vm_ffi.h"
 #include "cop_protocol.h"
+#include "../nanoisa/verifier.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -88,6 +89,52 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
     return true;
 }
 
+/* Establish the safety proof for the whole program the VM is about to run.
+ * The unchecked private stack handlers on the hot path are sound only when
+ * every reachable module has passed nvm_verify(); this recomputes that fact
+ * over the root module and every linked module and records it on the VM.
+ * Any module that fails verification (or is absent) clears the proof, so the
+ * VM falls back to the checked handlers. */
+static void vm_recompute_verified(VmState *vm) {
+    if (!vm) return;
+    bool proven = vm->root_module != NULL
+        && nvm_verify(vm->root_module).ok;
+    for (uint32_t i = 0; proven && i < vm->linked_module_count; i++) {
+        if (!vm->linked_modules[i] || !nvm_verify(vm->linked_modules[i]).ok)
+            proven = false;
+    }
+    vm->verified = proven;
+}
+static void vm_module_constants_free(VmState *vm, VmModuleConstants *constants) {
+    if (!constants) return;
+    for (uint32_t i = 0; i < constants->count; i++) {
+        if (constants->strings[i])
+            vm_release(&vm->heap, val_string(constants->strings[i]));
+    }
+    free(constants->strings);
+    constants->strings = NULL;
+    constants->count = 0;
+}
+
+static bool vm_module_constants_build(VmState *vm, const NvmModule *module,
+                                      VmModuleConstants *constants) {
+    memset(constants, 0, sizeof(*constants));
+    if (module->string_count == 0) return true;
+
+    constants->strings = calloc(module->string_count, sizeof(VmString *));
+    if (!constants->strings) return false;
+    constants->count = module->string_count;
+    for (uint32_t i = 0; i < module->string_count; i++) {
+        constants->strings[i] = vm_string_new(&vm->heap, module->strings[i],
+                                               module->string_lengths[i]);
+        if (!constants->strings[i]) {
+            vm_module_constants_free(vm, constants);
+            return false;
+        }
+    }
+    return true;
+}
+
 void vm_init(VmState *vm, const NvmModule *module) {
     memset(vm, 0, sizeof(*vm));
     vm->module = module;
@@ -109,6 +156,10 @@ void vm_init(VmState *vm, const NvmModule *module) {
     vm->opcode_trace = NANO_VM_TRACE_BUILD
         || (trace_env && trace_env[0] != '\0' && strcmp(trace_env, "0") != 0);
     vm_heap_init(&vm->heap);
+    if (!vm_module_constants_build(vm, module, &vm->module_constants)) {
+        vm_error(vm, VM_ERR_MEMORY, "Module constant instantiation failed");
+        return;
+    }
     char decode_error[VM_DECODE_ERROR_SIZE];
     if (vm_decode_module(module, &vm->decoded_module, decode_error)) {
         vm->decoded_module_valid = true;
@@ -120,8 +171,8 @@ void vm_init(VmState *vm, const NvmModule *module) {
                      "Failed to allocate %u globals", root_globals);
         }
         char dispatch_error[VM_DISPATCH_ERROR_SIZE];
-        if (vm_dispatch_build_module(&vm->decoded_module, &vm->dispatch_module,
-                                     dispatch_error)) {
+        if (vm_dispatch_build_module(&vm->decoded_module, vm->dispatch_profile,
+                                     &vm->dispatch_module, dispatch_error)) {
             vm->dispatch_module_valid = true;
         } else {
             vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
@@ -129,6 +180,9 @@ void vm_init(VmState *vm, const NvmModule *module) {
     } else {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
     }
+    /* Record whether the root module is verified so the hot path can pick
+     * the unchecked private handlers where the proof permits it. */
+    vm_recompute_verified(vm);
 }
 
 void vm_destroy(VmState *vm) {
@@ -150,11 +204,14 @@ void vm_destroy(VmState *vm) {
     for (uint32_t i = 0; i < vm->linked_module_count; i++) {
         vm_decoded_module_free(&vm->decoded_linked_modules[i]);
         vm_dispatch_module_free(&vm->dispatch_linked_modules[i]);
+        vm_module_constants_free(vm, &vm->linked_module_constants[i]);
     }
+    vm_module_constants_free(vm, &vm->module_constants);
     free(vm->decoded_linked_modules);
     free(vm->decoded_linked_modules_valid);
     free(vm->dispatch_linked_modules);
     free(vm->dispatch_linked_modules_valid);
+    free(vm->linked_module_constants);
     free(vm->linked_modules);
     free(vm->memory);
     vm_heap_destroy(&vm->heap);
@@ -163,6 +220,7 @@ void vm_destroy(VmState *vm) {
     vm->decoded_linked_modules_valid = NULL;
     vm->dispatch_linked_modules = NULL;
     vm->dispatch_linked_modules_valid = NULL;
+    vm->linked_module_constants = NULL;
     vm->linked_modules = NULL;
     vm->memory = NULL;
     vm->decoded_module_valid = false;
@@ -198,7 +256,7 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
     }
     VmDispatchModule dispatch;
     char dispatch_error[VM_DISPATCH_ERROR_SIZE];
-    if (!vm_dispatch_build_module(&decoded, &dispatch, dispatch_error)) {
+    if (!vm_dispatch_build_module(&decoded, vm->dispatch_profile, &dispatch, dispatch_error)) {
         vm_decoded_module_free(&decoded);
         vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
         return (uint32_t)-1;
@@ -213,6 +271,14 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
                  "Failed to allocate %u globals", linked_globals);
         return (uint32_t)-1;
     }
+
+    VmModuleConstants constants;
+    if (!vm_module_constants_build(vm, mod, &constants)) {
+        vm_decoded_module_free(&decoded);
+        vm_dispatch_module_free(&dispatch);
+        vm_error(vm, VM_ERR_MEMORY, "Module constant instantiation failed");
+        return (uint32_t)-1;
+    }
     if (vm->linked_module_count >= vm->linked_module_capacity) {
         uint32_t new_cap = vm->linked_module_capacity ? vm->linked_module_capacity * 2 : 8;
         const NvmModule **new_arr = realloc(vm->linked_modules,
@@ -220,6 +286,7 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
         if (!new_arr) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->linked_modules = new_arr;
@@ -228,6 +295,7 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
         if (!new_decoded) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->decoded_linked_modules = new_decoded;
@@ -236,6 +304,7 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
         if (!new_valid) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->decoded_linked_modules_valid = new_valid;
@@ -244,6 +313,7 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
         if (!new_dispatch) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->dispatch_linked_modules = new_dispatch;
@@ -252,9 +322,19 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
         if (!new_dispatch_valid) {
             vm_decoded_module_free(&decoded);
             vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
             return (uint32_t)-1;
         }
         vm->dispatch_linked_modules_valid = new_dispatch_valid;
+        VmModuleConstants *new_constants = realloc(vm->linked_module_constants,
+                                                    new_cap * sizeof(VmModuleConstants));
+        if (!new_constants) {
+            vm_decoded_module_free(&decoded);
+            vm_dispatch_module_free(&dispatch);
+            vm_module_constants_free(vm, &constants);
+            return (uint32_t)-1;
+        }
+        vm->linked_module_constants = new_constants;
         vm->linked_module_capacity = new_cap;
     }
     uint32_t idx = vm->linked_module_count++;
@@ -265,6 +345,10 @@ static uint32_t vm_link_module_at_next_index(VmState *vm, const NvmModule *mod) 
     vm->module_calls_resolved = false;
     vm->dispatch_linked_modules[idx] = dispatch;
     vm->dispatch_linked_modules_valid[idx] = true;
+    /* A newly linked module joins the program; re-establish the proof so an
+     * unverified link cannot leave the unchecked handlers enabled. */
+    vm_recompute_verified(vm);
+    vm->linked_module_constants[idx] = constants;
     return idx;
 }
 
@@ -327,6 +411,16 @@ static VmDispatchModule *dispatch_module_for(VmState *vm, const NvmModule *modul
     return NULL;
 }
 
+static VmModuleConstants *module_constants_for(VmState *vm,
+                                                const NvmModule *module) {
+    if (module == vm->root_module) return &vm->module_constants;
+    for (uint32_t i = 0; i < vm->linked_module_count; i++) {
+        if (vm->linked_modules[i] == module)
+            return &vm->linked_module_constants[i];
+    }
+    return NULL;
+}
+
 void vm_invalidate_module(VmState *vm, const NvmModule *module) {
     if (!vm || !module) return;
     bool *valid = NULL;
@@ -342,6 +436,8 @@ void vm_invalidate_module(VmState *vm, const NvmModule *module) {
         vm_dispatch_module_free(dispatch);
         *dispatch_valid = false;
     }
+    /* An invalidated module is no longer proven; drop to the checked path. */
+    vm->verified = false;
 }
 
 bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
@@ -355,6 +451,12 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
         vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
         return false;
     }
+    VmModuleConstants constants_replacement;
+    if (!vm_module_constants_build(vm, module, &constants_replacement)) {
+        vm_decoded_module_free(&replacement);
+        vm_error(vm, VM_ERR_MEMORY, "Module constant instantiation failed");
+        return false;
+    }
     vm_decoded_module_free(slot);
     *slot = replacement;
     *valid = true;
@@ -366,7 +468,9 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
     if (dispatch_slot) {
         VmDispatchModule dispatch_replacement;
         char dispatch_error[VM_DISPATCH_ERROR_SIZE];
-        if (!vm_dispatch_build_module(slot, &dispatch_replacement, dispatch_error)) {
+        if (!vm_dispatch_build_module(slot, vm->dispatch_profile, &dispatch_replacement, dispatch_error)) {
+            vm_module_constants_free(vm, &constants_replacement);
+
             vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
             return false;
         }
@@ -374,8 +478,18 @@ bool vm_rebuild_module(VmState *vm, const NvmModule *module) {
         *dispatch_slot = dispatch_replacement;
         *dispatch_valid = true;
     }
+    VmModuleConstants *constants_slot = module_constants_for(vm, module);
+    if (constants_slot) {
+        vm_module_constants_free(vm, constants_slot);
+        *constants_slot = constants_replacement;
+    } else {
+        vm_module_constants_free(vm, &constants_replacement);
+    }
     vm->last_error = VM_OK;
     vm->error_msg[0] = '\0';
+    /* The rebuilt module must be re-verified before the unchecked handlers
+     * may be used again. */
+    vm_recompute_verified(vm);
     return true;
 }
 
@@ -460,12 +574,31 @@ static inline VmResult stack_push(VmState *vm, NanoValue v) {
     return VM_OK;
 }
 
+/* Unchecked private handlers.
+ *
+ * These skip the operand-stack bounds guards. They are sound only for a
+ * verified program: nvm_verify()'s verify_stack_heights() infers the stack
+ * height at every reachable instruction and rejects any function that could
+ * underflow, so a pop/peek the verifier accepted can never touch below the
+ * base. vm->verified records that proof; the checked wrappers below route to
+ * these handlers only when it holds and fall back to the guarded path
+ * otherwise (e.g. an embedder that ran the VM without verifying). */
+static inline NanoValue stack_pop_unchecked(VmState *vm) {
+    return vm->stack[--vm->stack_size];
+}
+
+static inline NanoValue stack_peek_unchecked(VmState *vm, uint32_t offset) {
+    return vm->stack[vm->stack_size - 1 - offset];
+}
+
 static inline NanoValue stack_pop(VmState *vm) {
+    if (vm->verified) return stack_pop_unchecked(vm);
     if (vm->stack_size == 0) return val_void();
     return vm->stack[--vm->stack_size];
 }
 
 static inline NanoValue stack_peek(VmState *vm, uint32_t offset) {
+    if (vm->verified) return stack_peek_unchecked(vm, offset);
     if (offset >= vm->stack_size) return val_void();
     return vm->stack[vm->stack_size - 1 - offset];
 }
@@ -508,6 +641,11 @@ void vm_profile_enable(VmState *vm, bool enabled) {
     if (!vm) return;
     memset(&vm->profile, 0, sizeof(vm->profile));
     vm->profile.enabled = enabled;
+}
+
+void vm_set_dispatch_profile(VmState *vm, VmDispatchProfile profile) {
+    if (!vm) return;
+    vm->dispatch_profile = profile;
 }
 
 bool vm_profile_write_json(const VmState *vm, FILE *out) {
@@ -639,11 +777,18 @@ static bool result_tag_matches(uint8_t declared, uint8_t actual) {
  * Execution Engine
  * ======================================================================== */
 
-/* Resolve the string pool for convenience */
-static inline const char *str_at(const VmState *vm, uint32_t idx) {
-    return nvm_get_string(vm->module, idx);
+/* Length-aware substring search within raw byte buffers. Honors the
+ * provided lengths and therefore matches correctly across embedded zero
+ * bytes. Returns a pointer to the first match, or NULL when absent. */
+static const char *vm_mem_find(const char *hay, size_t hlen,
+                               const char *needle, size_t nlen) {
+    if (nlen == 0) return hay;
+    if (nlen > hlen) return NULL;
+    for (size_t i = 0; i <= hlen - nlen; i++) {
+        if (memcmp(hay + i, needle, nlen) == 0) return hay + i;
+    }
+    return NULL;
 }
-
 NanoValue vm_get_result(VmState *vm) {
     if (vm->stack_size == 0) return val_void();
     return vm->stack[vm->stack_size - 1];
@@ -727,6 +872,53 @@ VmTrap vm_core_execute(VmState *vm) {
         if (vm->opcode_trace)
             vm_trace_instruction(vm, instr_start, &instr, stack_before);
 
+        /* Private superinstructions run before the portable opcode switch.
+         * They are an internal fusion of already-verified steps, so they
+         * reproduce the exact stack, heap, and ownership effects of the
+         * instructions they replace while advancing `ip` past the whole run
+         * in one dispatch step.  A dispatch instruction is never both a
+         * superinstruction and a portable opcode: super_op == VM_SUPER_NONE
+         * falls through to the normal switch below. */
+        if (decoded->super_op != VM_SUPER_NONE) {
+            switch (decoded->super_op) {
+            case VM_SUPER_LOAD_LOCAL_FIELD: {
+                /* Fused OP_LOAD_LOCAL idx ; OP_AGG_GET field. */
+                uint16_t idx = instr.operands[0].u16;
+                uint16_t field = decoded->super_operand;
+                uint32_t abs_idx = frame->stack_base + idx;
+                if (abs_idx >= vm->stack_size) {
+                    return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                      "Local %u out of range", idx);
+                }
+                NanoValue aggregate = vm->stack[abs_idx];
+                NanoValue value = val_void();
+                if (aggregate.tag == TAG_STRUCT && aggregate.as.sval
+                        && field < aggregate.as.sval->field_count) {
+                    value = aggregate.as.sval->fields[field];
+                } else if (aggregate.tag == TAG_UNION && aggregate.as.uval
+                           && field < aggregate.as.uval->field_count) {
+                    value = aggregate.as.uval->fields[field];
+                } else if (aggregate.tag == TAG_TUPLE && aggregate.as.tuple
+                           && field < aggregate.as.tuple->count) {
+                    value = aggregate.as.tuple->elements[field];
+                } else {
+                    return trap_error(vm, VM_ERR_OUT_OF_BOUNDS,
+                                      "AGG_GET field %u is unavailable", field);
+                }
+                vm_retain(&vm->heap, value);
+                stack_push(vm, value);
+                break;
+            }
+            case VM_SUPER_NONE:
+            case VM_SUPER__COUNT:
+            default:
+                return trap_error(vm, VM_ERR_DECODE,
+                                  "Unknown superinstruction %u",
+                                  (unsigned)decoded->super_op);
+            }
+            continue;
+        }
+
         switch (instr.opcode) {
 
         /* ============================================================
@@ -750,10 +942,13 @@ VmTrap vm_core_execute(VmState *vm) {
 
         case OP_PUSH_STR: {
             uint32_t idx = instr.operands[0].u32;
-            const char *s = str_at(vm, idx);
-            if (!s) s = "";
-            VmString *vs = vm_string_new(&vm->heap, s, (uint32_t)strlen(s));
-            stack_push(vm, val_string(vs));
+            VmModuleConstants *constants = module_constants_for(vm, vm->module);
+            if (!constants || idx >= constants->count || !constants->strings[idx])
+                return trap_error(vm, VM_ERR_DECODE,
+                                  "String constant %u is not instantiated", idx);
+            NanoValue value = val_string(constants->strings[idx]);
+            vm_retain(&vm->heap, value);
+            stack_push(vm, value);
             break;
         }
 
@@ -2040,7 +2235,7 @@ dynamic_div:
             }
             int64_t idx = (idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
             const char *str = vmstring_cstr(s.as.string);
-            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t len = (int64_t)vmstring_len(s.as.string);
             int64_t ch = (idx >= 0 && idx < len) ? (unsigned char)str[idx] : -1;
             vm_release(&vm->heap, s);
             stack_push(vm, val_int(ch));
@@ -2068,7 +2263,7 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "STR_TRIM: not a string");
             }
             const char *str = vmstring_cstr(s.as.string);
-            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t len = (int64_t)vmstring_len(s.as.string);
             int64_t start = 0;
             while (start < len && (str[start] == ' ' || str[start] == '\t' ||
                                    str[start] == '\n' || str[start] == '\r')) {
@@ -2096,7 +2291,7 @@ dynamic_div:
                                            : "STR_TO_UPPER: not a string");
             }
             const char *str = vmstring_cstr(s.as.string);
-            int64_t len = str ? (int64_t)strlen(str) : 0;
+            int64_t len = (int64_t)vmstring_len(s.as.string);
             /* Strings are interned/immutable, so transform into a scratch
              * buffer and only then construct the result string. */
             char stackbuf[256];
@@ -2136,8 +2331,8 @@ dynamic_div:
             }
             const char *str = vmstring_cstr(s.as.string);
             const char *affix = vmstring_cstr(affix_v.as.string);
-            size_t slen = str ? strlen(str) : 0;
-            size_t alen = affix ? strlen(affix) : 0;
+            size_t slen = vmstring_len(s.as.string);
+            size_t alen = vmstring_len(affix_v.as.string);
             bool result;
             if (alen > slen) {
                 result = false;
@@ -2164,20 +2359,22 @@ dynamic_div:
             }
             const char *str = vmstring_cstr(s.as.string);
             const char *delim = vmstring_cstr(delim_v.as.string);
-            size_t dlen = delim ? strlen(delim) : 0;
+            size_t slen = vmstring_len(s.as.string);
+            size_t dlen = vmstring_len(delim_v.as.string);
             VmArray *arr = vm_array_new(&vm->heap, TAG_STRING, 8);
             if (dlen == 0) {
                 /* Empty delimiter: split into individual characters. */
-                size_t slen = str ? strlen(str) : 0;
                 for (size_t i = 0; i < slen; i++) {
                     VmString *ch = vm_string_new(&vm->heap, str + i, 1);
                     vm_array_push(&vm->heap, arr, val_string(ch));
                     vm_release(&vm->heap, val_string(ch));
                 }
             } else {
-                const char *start = str ? str : "";
+                const char *start = str;
+                const char *end = str + slen;
                 const char *found;
-                while ((found = strstr(start, delim)) != NULL) {
+                while ((found = vm_mem_find(start, (size_t)(end - start),
+                                            delim, dlen)) != NULL) {
                     VmString *seg = vm_string_new(&vm->heap, start,
                                                   (uint32_t)(found - start));
                     vm_array_push(&vm->heap, arr, val_string(seg));
@@ -2185,7 +2382,7 @@ dynamic_div:
                     start = found + dlen;
                 }
                 VmString *rest = vm_string_new(&vm->heap, start,
-                                               (uint32_t)strlen(start));
+                                               (uint32_t)(end - start));
                 vm_array_push(&vm->heap, arr, val_string(rest));
                 vm_release(&vm->heap, val_string(rest));
             }
@@ -2209,24 +2406,26 @@ dynamic_div:
             const char *str = vmstring_cstr(s.as.string);
             const char *old_str = vmstring_cstr(old_v.as.string);
             const char *new_str = vmstring_cstr(new_v.as.string);
-            size_t olen = old_str ? strlen(old_str) : 0;
-            if (!str) str = "";
+            size_t slen = vmstring_len(s.as.string);
+            size_t olen = vmstring_len(old_v.as.string);
             if (olen == 0) {
                 /* Empty needle: return the input unchanged (matches runtime). */
-                VmString *copy = vm_string_new(&vm->heap, str, (uint32_t)strlen(str));
+                VmString *copy = vm_string_new(&vm->heap, str, (uint32_t)slen);
                 vm_release(&vm->heap, new_v);
                 vm_release(&vm->heap, old_v);
                 vm_release(&vm->heap, s);
                 stack_push(vm, val_string(copy));
                 break;
             }
-            size_t nlen = new_str ? strlen(new_str) : 0;
+            size_t nlen = vmstring_len(new_v.as.string);
+            const char *str_end = str + slen;
             /* Count occurrences to size the output buffer. */
             size_t count = 0;
             const char *p = str;
             const char *found;
-            while ((found = strstr(p, old_str)) != NULL) { count++; p = found + olen; }
-            size_t slen = strlen(str);
+            while ((found = vm_mem_find(p, (size_t)(str_end - p), old_str, olen)) != NULL) {
+                count++; p = found + olen;
+            }
             /* out_len = slen + count*(nlen - olen); compute signed to be safe. */
             long long out_len_signed = (long long)slen +
                                        (long long)count * ((long long)nlen - (long long)olen);
@@ -2241,15 +2440,14 @@ dynamic_div:
             }
             char *dst = buf;
             const char *src = str;
-            while ((found = strstr(src, old_str)) != NULL) {
+            while ((found = vm_mem_find(src, (size_t)(str_end - src), old_str, olen)) != NULL) {
                 size_t seg = (size_t)(found - src);
                 memcpy(dst, src, seg); dst += seg;
                 memcpy(dst, new_str, nlen); dst += nlen;
                 src = found + olen;
             }
-            size_t rest = strlen(src);
+            size_t rest = (size_t)(str_end - src);
             memcpy(dst, src, rest); dst += rest;
-            *dst = '\0';
             VmString *out = vm_string_new(&vm->heap, buf, (uint32_t)(dst - buf));
             if (buf != stackbuf) free(buf);
             vm_release(&vm->heap, new_v);
@@ -2768,14 +2966,6 @@ dynamic_div:
             break;
         }
 
-        case OP_GC_SCOPE_ENTER:
-            /* Scope tracking is implicit in the call stack */
-            break;
-
-        case OP_GC_SCOPE_EXIT:
-            /* Scope tracking is implicit in the call stack */
-            break;
-
         /* ============================================================
          * Type Casts
          * ============================================================ */
@@ -2879,50 +3069,6 @@ dynamic_div:
                 c->captures[i] = stack_pop(vm);
             }
             stack_push(vm, val_closure(c));
-            break;
-        }
-
-        case OP_CLOSURE_CALL: {
-            NanoValue fn_val = stack_pop(vm);
-            if (fn_val.tag != TAG_CLOSURE || !fn_val.as.closure) {
-                vm_release(&vm->heap, fn_val);
-                return trap_error(vm, VM_ERR_TYPE_ERROR, "CLOSURE_CALL: not a closure");
-            }
-            VmClosure *closure = fn_val.as.closure;
-            uint32_t callee_idx = closure->fn_idx;
-            if (callee_idx >= vm->module->function_count) {
-                return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Closure fn %u not found", callee_idx);
-            }
-            const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
-            if (vm->frame_count >= VM_MAX_FRAMES) {
-                return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
-            }
-            if (vm->stack_size < callee->arity) {
-                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
-                                  "Function %u needs %u arguments",
-                                  callee_idx, callee->arity);
-            }
-
-            uint32_t new_base = vm->stack_size - callee->arity;
-            for (uint16_t i = callee->arity; i < callee->local_count; i++) {
-                stack_push(vm, val_void());
-            }
-
-            VmCallFrame *new_frame = &vm->frames[vm->frame_count++];
-            new_frame->fn_idx = callee_idx;
-            new_frame->return_ip = vm->ip;
-            new_frame->stack_base = new_base;
-            new_frame->local_count = callee->local_count;
-            new_frame->closure = closure;
-            new_frame->module = vm->module;
-            new_frame->current_line = 0;
-            new_frame->current_col  = 0;
-
-            frame = new_frame;
-            vm->current_fn = callee_idx;
-            vm->ip = callee->code_offset;
-            cur_fn = callee;
-            code_end = callee->code_offset + callee->code_length;
             break;
         }
 

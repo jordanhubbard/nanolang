@@ -8,6 +8,7 @@
 
 #include "assembler.h"
 #include "isa.h"
+#include "verifier.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -110,6 +111,16 @@ static void fn_emit(AsmState *state, const uint8_t *data, uint32_t size) {
 
 static void skip_whitespace(const char **p) {
     while (**p == ' ' || **p == '\t') (*p)++;
+}
+
+static bool require_line_end(const char *p, AsmResult *result) {
+    skip_whitespace(&p);
+    if (*p == '\0') return true;
+
+    result->error = ASM_ERR_SYNTAX;
+    snprintf(result->message, sizeof(result->message),
+             "Unexpected trailing input: %s", p);
+    return false;
 }
 
 static bool parse_identifier(const char **p, char *out, size_t out_size) {
@@ -252,9 +263,17 @@ static bool operand_symbol_kind(uint8_t opcode, int operand_index, SymbolKind *k
     }
     return false;
 }
+/* Parse one hex digit, returning 0-15 or -1 if not a hex digit. */
+static int hex_digit_value(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
 
 /* Parse a quoted string: "hello world" -> hello world
- * Supports escape sequences: \n, \t, \\, \" */
+ * Supports escape sequences: \n, \r, \t, \0, \\, \", and \xHH for
+ * arbitrary bytes so binary strings round-trip losslessly. */
 static bool parse_quoted_string(const char **p, char *out, size_t out_size, uint32_t *out_len) {
     skip_whitespace(p);
     if (**p != '"') return false;
@@ -267,10 +286,19 @@ static bool parse_quoted_string(const char **p, char *out, size_t out_size, uint
             (*p)++;
             switch (**p) {
                 case 'n':  out[i++] = '\n'; break;
+                case 'r':  out[i++] = '\r'; break;
                 case 't':  out[i++] = '\t'; break;
                 case '\\': out[i++] = '\\'; break;
                 case '"':  out[i++] = '"';  break;
                 case '0':  out[i++] = '\0'; break;
+                case 'x': {
+                    int hi = hex_digit_value((*p)[1]);
+                    int lo = hi < 0 ? -1 : hex_digit_value((*p)[2]);
+                    if (lo < 0) return false; /* \x must be followed by two hex digits */
+                    out[i++] = (char)((hi << 4) | lo);
+                    (*p) += 2;
+                    break;
+                }
                 default:   out[i++] = **p;  break;
             }
         } else {
@@ -523,7 +551,7 @@ static bool assemble_instruction(AsmState *state, const char *mnemonic,
         fn_emit(state, operand_buf, nbytes);
     }
 
-    return true;
+    return require_line_end(*rest, result);
 }
 
 /* ========================================================================
@@ -568,7 +596,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                          "Duplicate constant symbol: %.200s", name);
                 return false;
             }
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "symbol") == 0) {
@@ -642,7 +670,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                          "Duplicate function symbol: %.200s", name);
                 return false;
             }
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "end") == 0) {
@@ -691,7 +719,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             }
             state->patch_count = new_count;
 
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "entry") == 0) {
@@ -726,7 +754,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             }
             state->mod->header.entry_point = v;
             state->mod->header.flags |= NVM_FLAG_HAS_MAIN;
-            return true;
+            return require_line_end(p, result);
         }
 
         if (strcmp(directive, "flag") == 0) {
@@ -744,7 +772,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             } else if (strcmp(flag_name, "debug_info") == 0) {
                 state->mod->header.flags |= NVM_FLAG_DEBUG_INFO;
             }
-            return true;
+            return require_line_end(p, result);
         }
 
         result->error = ASM_ERR_SYNTAX;
@@ -856,7 +884,8 @@ static bool collect_function_symbols(AsmState *state, const char *source, AsmRes
     return true;
 }
 
-NvmModule *asm_assemble(const char *source, AsmResult *result) {
+static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
+                                    bool verify) {
     memset(result, 0, sizeof(*result));
 
     AsmState state;
@@ -934,7 +963,26 @@ NvmModule *asm_assemble(const char *source, AsmResult *result) {
 
     NvmModule *mod = state.mod;
     asm_state_cleanup(&state);
+
+    if (verify) {
+        NvmVerifyResult verdict = nvm_verify(mod);
+        if (!verdict.ok) {
+            result->error = ASM_ERR_VERIFY;
+            snprintf(result->message, sizeof(result->message),
+                     "Assembled module failed verification: %.210s", verdict.error_msg);
+            nvm_module_free(mod);
+            return NULL;
+        }
+    }
     return mod;
+}
+
+NvmModule *asm_assemble(const char *source, AsmResult *result) {
+    return asm_assemble_impl(source, result, true);
+}
+
+NvmModule *asm_assemble_unverified(const char *source, AsmResult *result) {
+    return asm_assemble_impl(source, result, false);
 }
 
 NvmModule *asm_assemble_file(const char *path, AsmResult *result) {
