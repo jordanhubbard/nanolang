@@ -32,17 +32,37 @@ struct VmString {
     VmHeapHeader header;
     uint32_t length;
     uint32_t hash;       /* Cached hash for interning */
+    struct VmString *intern_next; /* Chaining link within the intern bucket */
     char data[];         /* Flexible array member */
 };
 
-/* Array: dynamic, growable */
+/* Array: dynamic, growable.
+ *
+ * Homogeneous arrays of the non-reference primitive element types
+ * (TAG_INT, TAG_FLOAT, TAG_BOOL, TAG_U8) are stored *unboxed*: a compact
+ * typed buffer holding just the payloads (8/8/1/1 bytes per element) rather
+ * than a NanoValue[] (16 bytes each, plus a per-element type tag). This
+ * halves-or-better the memory footprint and removes per-element reference
+ * counting for these element types. All other arrays (references, void,
+ * mixed) keep the boxed NanoValue[] representation. The `unboxed` flag
+ * selects between the two; callers must go through the vm_array_* accessors,
+ * never touch `packed`/`elements` directly for reads or writes. */
 struct VmArray {
     VmHeapHeader header;
     uint8_t  elem_type;  /* Expected element type tag */
+    uint8_t  unboxed;    /* 1 => `packed` holds raw payloads, `elements` unused */
     uint32_t length;
     uint32_t capacity;
-    NanoValue *elements;
+    NanoValue *elements; /* Boxed storage (unboxed == 0) */
+    void     *packed;    /* Unboxed storage (unboxed == 1): int64_t/double/uint8_t buffer */
 };
+
+/* True when `elem_type` is one of the non-reference primitive types that
+ * qualify for unboxed storage. */
+bool vm_array_type_unboxable(uint8_t elem_type);
+
+/* Size in bytes of one unboxed element for `elem_type`, or 0 for boxed types. */
+size_t vm_array_elem_size(uint8_t elem_type);
 
 /* Struct: named fields */
 struct VmStruct {
@@ -79,9 +99,9 @@ struct VmClosure {
 
 /* HashMap entry */
 typedef struct VmHMEntry {
+    uint8_t state;  /* 0=empty, 1=filled, 2=tombstone */
     NanoValue key;
     NanoValue value;
-    struct VmHMEntry *next;  /* Chaining for collisions */
 } VmHMEntry;
 
 /* HashMap: key-value map */
@@ -90,8 +110,9 @@ struct VmHashMap {
     uint8_t key_type;
     uint8_t val_type;
     uint32_t count;
+    uint32_t tombstone_count;
     uint32_t bucket_count;
-    VmHMEntry **buckets;
+    VmHMEntry *entries;
 };
 
 /* ========================================================================
@@ -109,10 +130,12 @@ typedef struct {
 
 typedef struct VmHeap {
     VmHeapStats stats;
-    /* String interning table */
-    VmString **intern_table;
-    uint32_t intern_count;
-    uint32_t intern_capacity;
+    /* String interning table: chained hash buckets keyed by content hash.
+     * Lookup, insertion, and removal are all O(1) amortized, replacing the
+     * previous linear scan over every interned string. */
+    VmString **intern_buckets;
+    uint32_t   intern_bucket_count;
+    uint32_t   intern_count;
 } VmHeap;
 
 /* ========================================================================
@@ -138,6 +161,10 @@ uint32_t vmstring_len(VmString *s);
 bool vmstring_equal(VmString *a, VmString *b);
 int vmstring_compare(VmString *a, VmString *b);
 bool vmstring_contains(VmString *haystack, VmString *needle);
+/* Length-aware substring search that honors stored lengths and embedded
+ * zero bytes. Returns the byte offset of the first match, or -1 when the
+ * needle is not present. An empty needle matches at offset 0. */
+int64_t vmstring_find(VmString *haystack, VmString *needle);
 VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index);
 
 /* Array allocation */

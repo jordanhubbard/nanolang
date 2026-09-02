@@ -64,6 +64,19 @@ jobs:
             sdl2_mixer \
             sdl2_ttf
 
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          # Already satisfied on some images; skip rather than fight the
+          # environment. Where pip refuses under PEP 668
+          # (externally-managed-environment, seen on the arm64 runners), retry
+          # with --break-system-packages: this is a throwaway CI environment,
+          # not a system Python worth protecting.
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+          python3 -c 'import yaml'
+
       - name: Check dependencies
         shell: bash
         run: make check-deps
@@ -151,6 +164,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          # Already satisfied on some images; skip rather than fight the
+          # environment. Where pip refuses under PEP 668
+          # (externally-managed-environment, seen on the arm64 runners), retry
+          # with --break-system-packages: this is a throwaway CI environment,
+          # not a system Python worth protecting.
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+          python3 -c 'import yaml'
 
       - name: Install example dependencies (Ubuntu)
         if: runner.os == 'Linux'
@@ -271,6 +297,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          # Already satisfied on some images; skip rather than fight the
+          # environment. Where pip refuses under PEP 668
+          # (externally-managed-environment, seen on the arm64 runners), retry
+          # with --break-system-packages: this is a throwaway CI environment,
+          # not a system Python worth protecting.
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+          python3 -c 'import yaml'
+
       - name: Install dependencies
         timeout-minutes: 10
         run: |
@@ -330,6 +369,19 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        shell: bash
+        run: |
+          # Already satisfied on some images; skip rather than fight the
+          # environment. Where pip refuses under PEP 668
+          # (externally-managed-environment, seen on the arm64 runners), retry
+          # with --break-system-packages: this is a throwaway CI environment,
+          # not a system Python worth protecting.
+          python3 -c 'import yaml' 2>/dev/null && exit 0
+          python3 -m pip install --user --upgrade pyyaml \
+            || python3 -m pip install --user --break-system-packages --upgrade pyyaml
+          python3 -c 'import yaml'
 
       - name: Install dependencies
         timeout-minutes: 10

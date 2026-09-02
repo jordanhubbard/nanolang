@@ -53,7 +53,7 @@ void val_print(NanoValue v, FILE *out) {
                 fprintf(out, "[");
                 for (uint32_t i = 0; i < v.as.array->length; i++) {
                     if (i > 0) fprintf(out, ", ");
-                    val_print(v.as.array->elements[i], out);
+                    val_print(vm_array_get(v.as.array, i), out);
                 }
                 fprintf(out, "]");
             } else {

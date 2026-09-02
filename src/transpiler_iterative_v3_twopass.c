@@ -41,6 +41,8 @@ extern ASTNode *g_current_function;  /* Current function being transpiled */
 extern const char *g_source_file_for_line_directives; /* Source file for #line directives */
 extern bool g_profile_mode;          /* --profile: inject timing guard in next function body */
 extern const char *g_profile_func_name; /* function name for profiling guard */
+extern bool g_trace_mode;            /* --trace: inject trace guard in next function body */
+extern const char *g_trace_func_name; /* function name for tracing guard */
 
 /* =========================================================================
  * GENERIC TYPE NAME HELPERS
@@ -3145,7 +3147,18 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     "    if (_nl_prof_g.entry) clock_gettime(CLOCK_MONOTONIC, &_nl_prof_g.start);\n",
                     g_profile_func_name);
                 g_profile_mode = false;  /* consumed -- don't inject into nested blocks */
-                g_profile_mode = false;  /* consumed â don't inject into nested blocks */
+            }
+
+            /* --trace: inject a function-call trace guard at the start of function
+             * body blocks (indent==0). The guard shares the diagnostics hook, so a
+             * disabled trace only reads a cached int and does no other work. */
+            if (indent == 0 && g_trace_mode && g_trace_func_name) {
+                emit_formatted(list,
+                    "    __attribute__((cleanup(_nl_trace_guard_exit))) _NlTraceGuard _nl_trace_g ="
+                    " {_nl_diag_trace ? \"%s\" : (const char *)0};\n"
+                    "    if (_nl_trace_g.name) _nl_trace_enter(_nl_trace_g.name);\n",
+                    g_trace_func_name);
+                g_trace_mode = false;  /* consumed -- don't inject into nested blocks */
             }
 
             /* Push new scope for this block */

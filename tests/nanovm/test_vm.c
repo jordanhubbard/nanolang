@@ -285,6 +285,17 @@ static void test_predecode_mutation_lifecycle(void) {
                   "rebuilt function executes");
     ASSERT_EQ_INT(result.as.i64, 2, "rebuilt operand is visible");
 
+    uint32_t literal_idx = nvm_add_string(mod, "rebuilt", 7);
+    emit(mod->code, OP_PUSH_STR, literal_idx);
+    ASSERT(vm_rebuild_module(&vm, mod), "new string constant rebuild succeeds");
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "rebuilt string constant executes");
+    ASSERT_EQ_STR(vmstring_cstr(result.as.string), "rebuilt",
+                  "rebuilt string constant is visible");
+    ASSERT(result.as.string == vm.module_constants.strings[literal_idx],
+           "rebuild replaces the instantiated constant table");
+    vm_release(&vm.heap, result);
+
     vm_destroy(&vm);
     ASSERT(vm.stack == NULL, "destroy clears the operand stack allocation");
     ASSERT(vm.decoded_module.functions == NULL,
@@ -394,7 +405,7 @@ static void test_dispatch_projects_branch_targets(void) {
 
     VmDispatchModule dispatch;
     char derr[VM_DISPATCH_ERROR_SIZE];
-    ASSERT(vm_dispatch_build_module(&decoded, &dispatch, derr),
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_none(), &dispatch, derr),
            "dispatch IR projects from verified IR");
     ASSERT_EQ_INT(dispatch.function_count, 1, "one dispatch function");
 
@@ -443,7 +454,7 @@ static void test_dispatch_cursor_walks_stream(void) {
     ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
     VmDispatchModule dispatch;
     char derr[VM_DISPATCH_ERROR_SIZE];
-    ASSERT(vm_dispatch_build_module(&decoded, &dispatch, derr),
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_none(), &dispatch, derr),
            "dispatch IR projects");
 
     VmDispatchCursor cursor = {0};
@@ -504,6 +515,185 @@ static void test_dispatch_lockstep_with_verified_ir(void) {
     nvm_module_free(mod);
 }
 
+/* ------------------------------------------------------------------ *
+ * Private superinstructions (profile-selected dispatch fusion).
+ *
+ * These verify that a profile can fold LOAD_LOCAL + AGG_GET into one
+ * private dispatch step (VM_SUPER_LOAD_LOCAL_FIELD) without changing
+ * results, that the default profile leaves the stream unfused, and that
+ * fusion never breaks a branch that lands directly on the folded tail.
+ * ------------------------------------------------------------------ */
+
+/* Emit: pack a 2-field record into local 0, then LOAD_LOCAL 0 / AGG_GET field.
+ * Returns the byte offset of the AGG_GET instruction via *agg_get_off. */
+static uint32_t emit_local_field_program(uint8_t *code, uint16_t field,
+                                         uint32_t *load_local_off,
+                                         uint32_t *agg_get_off) {
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)111);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)222);
+    off += emit(code + off, OP_AGG_PACK, AGG_RECORD, (uint32_t)0, 0, 2);
+    off += emit(code + off, OP_STORE_LOCAL, 0);
+    if (load_local_off) *load_local_off = off;
+    off += emit(code + off, OP_LOAD_LOCAL, 0);
+    if (agg_get_off) *agg_get_off = off;
+    off += emit(code + off, OP_AGG_GET, field);
+    off += emit(code + off, OP_RET);
+    return off;
+}
+
+static void test_super_profile_none_leaves_stream_unfused(void) {
+    uint8_t code[128];
+    uint32_t load_off = 0, agg_off = 0;
+    uint32_t off = emit_local_field_program(code, 1, &load_off, &agg_off);
+    NvmModule *mod = make_module(code, off, 0, 1);
+
+    VmDecodedModule decoded;
+    char err[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
+    VmDispatchModule dispatch;
+    char derr[VM_DISPATCH_ERROR_SIZE];
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_none(),
+                                    &dispatch, derr),
+           "unfused dispatch IR projects");
+
+    const VmDispatchFunction *fn = &dispatch.functions[0];
+    uint32_t load_idx = fn->offset_to_index[load_off] - 1;
+    const VmDispatchInstruction *lead = &fn->instructions[load_idx];
+    ASSERT_EQ_INT(lead->super_op, VM_SUPER_NONE,
+                  "no profile means no superinstruction");
+    ASSERT_EQ_INT(lead->instruction.opcode, OP_LOAD_LOCAL,
+                  "leader stays a plain LOAD_LOCAL");
+    ASSERT_EQ_INT(lead->next_byte_offset, agg_off,
+                  "unfused fall-through still points at AGG_GET");
+
+    vm_dispatch_module_free(&dispatch);
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+}
+
+static void test_super_profile_fuses_local_field_load(void) {
+    uint8_t code[128];
+    uint32_t load_off = 0, agg_off = 0;
+    uint32_t off = emit_local_field_program(code, 1, &load_off, &agg_off);
+    NvmModule *mod = make_module(code, off, 0, 1);
+
+    VmDecodedModule decoded;
+    char err[VM_DECODE_ERROR_SIZE];
+    ASSERT(vm_decode_module(mod, &decoded, err), "verified IR decodes");
+    VmDispatchModule dispatch;
+    char derr[VM_DISPATCH_ERROR_SIZE];
+    ASSERT(vm_dispatch_build_module(&decoded, vm_dispatch_profile_all(),
+                                    &dispatch, derr),
+           "fused dispatch IR projects");
+
+    const VmDispatchFunction *fn = &dispatch.functions[0];
+    uint32_t load_idx = fn->offset_to_index[load_off] - 1;
+    const VmDispatchInstruction *lead = &fn->instructions[load_idx];
+    ASSERT_EQ_INT(lead->super_op, VM_SUPER_LOAD_LOCAL_FIELD,
+                  "profile fuses LOAD_LOCAL + AGG_GET");
+    ASSERT_EQ_INT(lead->super_operand, 1, "fused field index is carried");
+    ASSERT_EQ_INT(lead->instruction.opcode, OP_LOAD_LOCAL,
+                  "the leader still carries the local operand");
+
+    /* The fused leader skips past the AGG_GET; the folded AGG_GET stays in
+     * the array so a direct branch to it still works. */
+    uint32_t agg_idx = fn->offset_to_index[agg_off] - 1;
+    ASSERT_EQ_INT(lead->next_index, agg_idx + 1,
+                  "fused fall-through skips the folded AGG_GET");
+    ASSERT_EQ_INT(fn->instructions[agg_idx].instruction.opcode, OP_AGG_GET,
+                  "the folded AGG_GET remains independently reachable");
+    ASSERT_EQ_INT(fn->instructions[agg_idx].super_op, VM_SUPER_NONE,
+                  "the folded tail is not itself a superinstruction");
+
+    vm_dispatch_module_free(&dispatch);
+    vm_decoded_module_free(&decoded);
+    nvm_module_free(mod);
+}
+
+static void test_super_fusion_preserves_result(void) {
+    /* Same program run unfused and fused must return the same field value. */
+    for (uint16_t field = 0; field < 2; field++) {
+        uint8_t code[128];
+        uint32_t off = emit_local_field_program(code, field, NULL, NULL);
+
+        NvmModule *plain = make_module(code, off, 0, 1);
+        VmState vm_plain;
+        vm_init(&vm_plain, plain);
+        vm_set_dispatch_profile(&vm_plain, vm_dispatch_profile_none());
+        ASSERT(vm_rebuild_module(&vm_plain, plain),
+               "unfused rebuild succeeds");
+        NanoValue plain_result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm_plain, 0, NULL, 0, &plain_result), VM_OK,
+                      "unfused program executes");
+        int64_t plain_val = plain_result.as.i64;
+        vm_destroy(&vm_plain);
+        nvm_module_free(plain);
+
+        NvmModule *fused = make_module(code, off, 0, 1);
+        VmState vm_fused;
+        vm_init(&vm_fused, fused);
+        vm_set_dispatch_profile(&vm_fused, vm_dispatch_profile_all());
+        ASSERT(vm_rebuild_module(&vm_fused, fused),
+               "fused rebuild succeeds");
+        ASSERT(vm_fused.dispatch_module_valid, "fused dispatch IR is valid");
+        NanoValue fused_result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm_fused, 0, NULL, 0, &fused_result), VM_OK,
+                      "fused program executes");
+        ASSERT_EQ_INT(fused_result.as.i64, plain_val,
+                      "fused superinstruction returns the same field value");
+        int64_t expect = (field == 0) ? 111 : 222;
+        ASSERT_EQ_INT(fused_result.as.i64, expect,
+                      "fused field value matches the packed record");
+        vm_destroy(&vm_fused);
+        nvm_module_free(fused);
+    }
+}
+
+static void test_super_fusion_keeps_branch_target_reachable(void) {
+    /* A JMP_FALSE lands directly on the AGG_GET that a preceding LOAD_LOCAL
+     * would otherwise fuse with.  The folded tail must still execute the
+     * plain AGG_GET when reached by branch, proving fusion never rewrites a
+     * branch target. */
+    uint8_t code[160];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)10);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)20);
+    off += emit(code + off, OP_AGG_PACK, AGG_RECORD, (uint32_t)0, 0, 2);
+    off += emit(code + off, OP_STORE_LOCAL, 0);   /* local 0 = {10, 20} */
+
+    /* Push false, then a LOAD_LOCAL/AGG_GET pair the profile would fuse.
+     * A JMP_FALSE jumps over the LOAD_LOCAL straight onto the AGG_GET. */
+    off += emit(code + off, OP_LOAD_LOCAL, 0);    /* leave the record on top */
+    off += emit(code + off, OP_PUSH_BOOL, 0);     /* condition = false */
+    uint32_t jmp_off = off;
+    /* placeholder; patched once AGG_GET offset is known */
+    off += emit(code + off, OP_JMP_FALSE, (int32_t)0);
+    uint32_t load_off = off;
+    off += emit(code + off, OP_LOAD_LOCAL, 0);    /* skipped when false */
+    off += emit(code + off, OP_POP);              /* would drop the record */
+    uint32_t agg_off = off;
+    off += emit(code + off, OP_AGG_GET, 0);       /* branch target: field 0 */
+    off += emit(code + off, OP_RET);
+
+    /* Patch the JMP_FALSE to target the AGG_GET (relative to the jmp). */
+    (void)load_off;
+    emit(code + jmp_off, OP_JMP_FALSE, (int32_t)(agg_off - jmp_off));
+
+    NvmModule *mod = make_module(code, off, 0, 1);
+    VmState vm;
+    vm_init(&vm, mod);
+    vm_set_dispatch_profile(&vm, vm_dispatch_profile_all());
+    ASSERT(vm_rebuild_module(&vm, mod), "fused rebuild succeeds");
+    NanoValue result = val_void();
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "branch into folded AGG_GET executes");
+    ASSERT_EQ_INT(result.as.i64, 10,
+                  "branch target AGG_GET reads field 0 of the record");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_result_signature_enforcement(void) {
     uint8_t code[32];
     uint32_t off = 0;
@@ -551,6 +741,7 @@ static void test_instruction_profile(void) {
     NvmModule *mod = make_module(code, off, 0, 0);
     VmState vm;
     vm_init(&vm, mod);
+    uint64_t allocations = vm.heap.stats.allocation_calls;
     vm_profile_enable(&vm, true);
     ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "profiled execution succeeds");
     ASSERT_EQ_INT(vm.profile.retired, 4, "profile counts retired instructions");
@@ -560,8 +751,8 @@ static void test_instruction_profile(void) {
                   "profile counts opcode pairs");
     ASSERT_EQ_INT(vm.profile.pair_counts[(OP_PUSH_I64 << 8) | OP_ADD], 1,
                   "profile counts second opcode pair");
-    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, 0,
-                  "profile exposes allocation count");
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "profile shows execution performs no allocations");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -582,14 +773,15 @@ static void test_heap_profile(void) {
 
     VmState vm;
     vm_init(&vm, mod);
+    uint64_t allocations = vm.heap.stats.allocation_calls;
     vm_profile_enable(&vm, true);
     ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "heap-profile execution succeeds");
-    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, 1,
-                  "heap profile counts object allocations");
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "heap profile shows constant execution performs no allocations");
     ASSERT(vm.heap.stats.allocated > 0,
            "heap profile counts allocated bytes");
-    ASSERT_EQ_INT(vm.heap.stats.retain_calls, 1,
-                  "heap profile counts retains");
+    ASSERT_EQ_INT(vm.heap.stats.retain_calls, 2,
+                  "heap profile counts constant push and duplicate retains");
     ASSERT(vm.heap.stats.release_calls >= 1,
            "heap profile counts releases");
     vm_destroy(&vm);
@@ -1265,11 +1457,20 @@ static void test_push_string(void) {
 
     VmState vm;
     vm_init(&vm, mod);
-    VmResult r = vm_execute(&vm);
-    ASSERT_EQ_INT(r, VM_OK, "push_string: VM_OK");
-    NanoValue result = vm_get_result(&vm);
-    ASSERT_EQ_INT(result.tag, TAG_STRING, "push_string: tag is string");
-    ASSERT_EQ_STR(vmstring_cstr(result.as.string), "hello", "push_string: value");
+    uint64_t allocations = vm.heap.stats.allocation_calls;
+    VmString *constant = vm.module_constants.strings[str_idx];
+    for (uint32_t i = 0; i < 3; i++) {
+        NanoValue result = val_void();
+        VmResult r = vm_invoke(&vm, fn_idx, NULL, 0, &result);
+        ASSERT_EQ_INT(r, VM_OK, "push_string: VM_OK");
+        ASSERT_EQ_INT(result.tag, TAG_STRING, "push_string: tag is string");
+        ASSERT_EQ_STR(vmstring_cstr(result.as.string), "hello", "push_string: value");
+        ASSERT(result.as.string == constant,
+               "push_string: execution reuses the instantiated constant");
+        vm_release(&vm.heap, result);
+    }
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "push_string: repeated execution performs no allocations");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -1340,6 +1541,185 @@ static void test_str_from_int(void) {
     nvm_module_free(mod);
 }
 
+/* ------------------------------------------------------------------------
+ * Tests: stored string lengths / embedded zero bytes
+ *
+ * NanoVM strings carry an explicit byte length and may hold embedded '\0'
+ * bytes. These tests exercise the heap-level string operations directly to
+ * confirm they honor the stored length rather than treating the payload as a
+ * C string (which would truncate at the first zero byte).
+ * ------------------------------------------------------------------------ */
+
+static void test_string_embedded_zero_bytes(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    /* "ab\0cd" : length 5, embedded NUL at index 2. */
+    VmString *s = vm_string_new(&heap, "ab\0cd", 5);
+    ASSERT(s != NULL, "embedded_zero: alloc");
+    ASSERT_EQ_INT(vmstring_len(s), 5, "embedded_zero: stored length is 5");
+    ASSERT_EQ_INT((unsigned char)s->data[2], 0, "embedded_zero: byte 2 is NUL");
+    ASSERT_EQ_INT((unsigned char)s->data[4], 'd', "embedded_zero: byte 4 preserved");
+
+    /* Equality must compare full byte ranges, not stop at the NUL. */
+    VmString *same = vm_string_new(&heap, "ab\0cd", 5);
+    VmString *prefix = vm_string_new(&heap, "ab", 2);
+    ASSERT(vmstring_equal(s, same), "embedded_zero: full equal");
+    ASSERT(!vmstring_equal(s, prefix), "embedded_zero: not equal to NUL-truncated prefix");
+
+    /* Distinct strings sharing the pre-NUL prefix must not collapse to equal. */
+    VmString *diff = vm_string_new(&heap, "ab\0XY", 5);
+    ASSERT(!vmstring_equal(s, diff), "embedded_zero: bytes after NUL distinguish");
+
+    vm_heap_destroy(&heap);
+}
+
+static void test_string_find_across_zero(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    /* Needle that lives entirely past the first NUL byte. */
+    VmString *hay = vm_string_new(&heap, "a\0bcd", 5);
+    VmString *needle = vm_string_new(&heap, "bcd", 3);
+    VmString *pre = vm_string_new(&heap, "a", 1);
+
+    ASSERT_EQ_INT(vmstring_find(hay, needle), 2, "find: needle after NUL at offset 2");
+    ASSERT(vmstring_contains(hay, needle), "contains: matches past NUL");
+    ASSERT_EQ_INT(vmstring_find(hay, pre), 0, "find: prefix at offset 0");
+
+    /* A needle containing an embedded NUL must match by full bytes. */
+    VmString *needle2 = vm_string_new(&heap, "\0bc", 3);
+    ASSERT_EQ_INT(vmstring_find(hay, needle2), 1, "find: NUL-containing needle at offset 1");
+
+    /* Empty needle matches at offset 0; absent needle returns -1. */
+    VmString *empty = vm_string_new(&heap, "", 0);
+    VmString *absent = vm_string_new(&heap, "zz", 2);
+    ASSERT_EQ_INT(vmstring_find(hay, empty), 0, "find: empty needle at 0");
+    ASSERT_EQ_INT(vmstring_find(hay, absent), -1, "find: absent needle -1");
+
+    vm_heap_destroy(&heap);
+}
+
+static void test_string_substr_across_zero(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    VmString *s = vm_string_new(&heap, "ab\0cd", 5);
+    VmString *sub = vm_string_substr(&heap, s, 1, 3); /* "b\0c" */
+    ASSERT_EQ_INT(vmstring_len(sub), 3, "substr: length spans the NUL");
+    ASSERT_EQ_INT((unsigned char)sub->data[0], 'b', "substr: byte 0");
+    ASSERT_EQ_INT((unsigned char)sub->data[1], 0, "substr: byte 1 is NUL");
+    ASSERT_EQ_INT((unsigned char)sub->data[2], 'c', "substr: byte 2");
+
+    /* char_at must index by stored length, including the NUL position. */
+    VmString *ch = vmstring_char_at(&heap, s, 2);
+    ASSERT_EQ_INT(vmstring_len(ch), 1, "char_at: single byte");
+    ASSERT_EQ_INT((unsigned char)ch->data[0], 0, "char_at: NUL byte at index 2");
+
+    vm_heap_destroy(&heap);
+}
+
+static void test_str_replace_op_embedded_zero(void) {
+    /* replace("a\0bXb\0c", "b", "Z") -> "a\0ZXZ\0c" : the '\0' bytes on each
+     * side of a replaced needle must be preserved and the length must stay 7. */
+    NvmModule *mod = nvm_module_new();
+    uint32_t s_idx   = nvm_add_string(mod, "a\0bXb\0c", 7);
+    uint32_t old_idx = nvm_add_string(mod, "b", 1);
+    uint32_t new_idx = nvm_add_string(mod, "Z", 1);
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, s_idx);
+    off += emit(code + off, OP_PUSH_STR, old_idx);
+    off += emit(code + off, OP_PUSH_STR, new_idx);
+    off += emit(code + off, OP_STR_REPLACE);
+    off += emit(code + off, OP_RET);
+    uint32_t fn_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+
+    /* Assert before vm_destroy: run_module() tears the VM down and frees the
+     * heap before returning, so the result string would be dangling here. The
+     * sibling embedded-zero tests inspect the result while the VM is alive for
+     * the same reason. */
+    VmState vm;
+    vm_init(&vm, mod);
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "str_replace_zero: VM_OK");
+    NanoValue result = vm_get_result(&vm);
+    ASSERT_EQ_INT(result.tag, TAG_STRING, "str_replace_zero: tag string");
+    ASSERT_EQ_INT(vmstring_len(result.as.string), 7, "str_replace_zero: length preserved");
+    const char *d = result.as.string->data;
+    ASSERT_EQ_INT((unsigned char)d[0], 'a', "str_replace_zero: [0]");
+    ASSERT_EQ_INT((unsigned char)d[1], 0,   "str_replace_zero: [1] NUL kept");
+    ASSERT_EQ_INT((unsigned char)d[2], 'Z', "str_replace_zero: [2] replaced");
+    ASSERT_EQ_INT((unsigned char)d[3], 'X', "str_replace_zero: [3]");
+    ASSERT_EQ_INT((unsigned char)d[4], 'Z', "str_replace_zero: [4] replaced");
+    ASSERT_EQ_INT((unsigned char)d[5], 0,   "str_replace_zero: [5] NUL kept");
+    ASSERT_EQ_INT((unsigned char)d[6], 'c', "str_replace_zero: [6]");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+static void test_str_contains_op_embedded_zero(void) {
+    /* contains("a\0needle", "needle") must be true even though the needle
+     * begins right after an embedded NUL byte. */
+    NvmModule *mod = nvm_module_new();
+    uint32_t hay_idx = nvm_add_string(mod, "a\0needle", 8);
+    uint32_t nee_idx = nvm_add_string(mod, "needle", 6);
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, hay_idx);
+    off += emit(code + off, OP_PUSH_STR, nee_idx);
+    off += emit(code + off, OP_STR_CONTAINS);
+    off += emit(code + off, OP_RET);
+    uint32_t fn_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+
+    VmResult r;
+    NanoValue result = run_module(mod, &r);
+    ASSERT_EQ_INT(r, VM_OK, "str_contains_zero: VM_OK");
+    ASSERT_EQ_INT(result.tag, TAG_BOOL, "str_contains_zero: tag bool");
+    ASSERT(result.as.boolean, "str_contains_zero: found past NUL");
+    nvm_module_free(mod);
+}
+
+static void test_str_split_op_embedded_zero(void) {
+    /* split("x\0y,z", ",") -> ["x\0y", "z"], preserving the NUL in the first
+     * segment and reporting its full length of 3. Inspect the result before
+     * vm_destroy so the array elements are still live. */
+    NvmModule *mod = nvm_module_new();
+    uint32_t s_idx = nvm_add_string(mod, "x\0y,z", 5);
+    uint32_t d_idx = nvm_add_string(mod, ",", 1);
+
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_STR, s_idx);
+    off += emit(code + off, OP_PUSH_STR, d_idx);
+    off += emit(code + off, OP_STR_SPLIT);
+    off += emit(code + off, OP_RET);
+    uint32_t fn_idx = add_fn(mod, "main", code, off, 0, 0);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "str_split_zero: VM_OK");
+    NanoValue result = vm_get_result(&vm);
+    ASSERT_EQ_INT(result.tag, TAG_ARRAY, "str_split_zero: tag array");
+    ASSERT_EQ_INT(result.as.array->length, 2, "str_split_zero: two segments");
+    NanoValue seg0 = vm_array_get(result.as.array, 0);
+    NanoValue seg1 = vm_array_get(result.as.array, 1);
+    ASSERT_EQ_INT(vmstring_len(seg0.as.string), 3, "str_split_zero: seg0 length 3");
+    ASSERT_EQ_INT((unsigned char)seg0.as.string->data[1], 0, "str_split_zero: seg0 keeps NUL");
+    ASSERT_EQ_INT(vmstring_len(seg1.as.string), 1, "str_split_zero: seg1 length 1");
+    ASSERT_EQ_INT((unsigned char)seg1.as.string->data[0], 'z', "str_split_zero: seg1 is z");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
 /* ========================================================================
  * Tests: Arrays
  * ======================================================================== */
@@ -1361,9 +1741,10 @@ static void test_array_literal(void) {
     NanoValue result = vm_get_result(&vm);
     ASSERT_EQ_INT(result.tag, TAG_ARRAY, "array_literal: tag is array");
     ASSERT_EQ_INT(result.as.array->length, 3, "array_literal: length == 3");
-    ASSERT_EQ_INT(result.as.array->elements[0].as.i64, 10, "array_literal: [0] == 10");
-    ASSERT_EQ_INT(result.as.array->elements[1].as.i64, 20, "array_literal: [1] == 20");
-    ASSERT_EQ_INT(result.as.array->elements[2].as.i64, 30, "array_literal: [2] == 30");
+    ASSERT_EQ_INT(result.as.array->unboxed, 1, "array_literal: int array is unboxed");
+    ASSERT_EQ_INT(vm_array_get(result.as.array, 0).as.i64, 10, "array_literal: [0] == 10");
+    ASSERT_EQ_INT(vm_array_get(result.as.array, 1).as.i64, 20, "array_literal: [1] == 20");
+    ASSERT_EQ_INT(vm_array_get(result.as.array, 2).as.i64, 30, "array_literal: [2] == 30");
     vm_destroy(&vm);
     nvm_module_free(mod);
 }
@@ -1405,6 +1786,93 @@ static void test_array_len(void) {
     ASSERT_EQ_INT(r, VM_OK, "array_len: VM_OK");
     ASSERT_EQ_INT(result.as.i64, 5, "array_len: length == 5");
     nvm_module_free(mod);
+}
+
+/* Unboxed homogeneous arrays: int/float/bool/byte element types are stored in
+ * a compact packed buffer rather than a boxed NanoValue[]. Exercise the heap
+ * array API directly to prove the accessors round-trip payloads correctly and
+ * that mutation ops (set/pop/slice/remove/grow) preserve values. */
+static void test_array_unboxed_representation(void) {
+    /* Classification: only the four non-reference primitives are unboxable. */
+    ASSERT(vm_array_type_unboxable(TAG_INT),   "unboxable: int");
+    ASSERT(vm_array_type_unboxable(TAG_FLOAT), "unboxable: float");
+    ASSERT(vm_array_type_unboxable(TAG_BOOL),  "unboxable: bool");
+    ASSERT(vm_array_type_unboxable(TAG_U8),    "unboxable: byte");
+    ASSERT(!vm_array_type_unboxable(TAG_STRING), "boxed: string");
+    ASSERT(!vm_array_type_unboxable(TAG_ARRAY),  "boxed: array");
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+
+    /* --- int array (unboxed), forcing a grow past initial capacity --- */
+    VmArray *ints = vm_array_new(&heap, TAG_INT, 2);
+    ASSERT_EQ_INT(ints->unboxed, 1, "int array is unboxed");
+    for (int i = 0; i < 100; i++) {
+        vm_array_push(&heap, ints, val_int((int64_t)i * 3 - 7));
+    }
+    ASSERT_EQ_INT(ints->length, 100, "int array length after 100 pushes");
+    ASSERT_EQ_INT(vm_array_get(ints, 0).tag, TAG_INT, "int get preserves tag");
+    ASSERT_EQ_INT(vm_array_get(ints, 0).as.i64, -7, "int get [0]");
+    ASSERT_EQ_INT(vm_array_get(ints, 42).as.i64, 42 * 3 - 7, "int get [42]");
+    vm_array_set(ints, 42, val_int(999));
+    ASSERT_EQ_INT(vm_array_get(ints, 42).as.i64, 999, "int set/get [42]");
+    NanoValue popped = vm_array_pop(ints);
+    ASSERT_EQ_INT(popped.as.i64, 99 * 3 - 7, "int pop returns last");
+    ASSERT_EQ_INT(ints->length, 99, "int length after pop");
+
+    /* remove shifts the packed buffer down */
+    vm_array_remove(ints, 0);
+    ASSERT_EQ_INT(ints->length, 98, "int length after remove");
+    ASSERT_EQ_INT(vm_array_get(ints, 0).as.i64, 3 - 7, "int remove shifted [0]");
+
+    /* slice copies the packed buffer */
+    VmArray *sl = vm_array_slice(&heap, ints, 0, 3);
+    ASSERT_EQ_INT(sl->unboxed, 1, "slice stays unboxed");
+    ASSERT_EQ_INT(sl->length, 3, "slice length");
+    ASSERT_EQ_INT(vm_array_get(sl, 2).as.i64, 3 * 3 - 7, "slice value [2]");
+    vm_release(&heap, val_array(sl));
+    vm_release(&heap, val_array(ints));
+
+    /* --- float array (unboxed) --- */
+    VmArray *flts = vm_array_new(&heap, TAG_FLOAT, 8);
+    ASSERT_EQ_INT(flts->unboxed, 1, "float array is unboxed");
+    vm_array_push(&heap, flts, val_float(1.5));
+    vm_array_push(&heap, flts, val_float(-2.25));
+    ASSERT_EQ_INT(vm_array_get(flts, 0).tag, TAG_FLOAT, "float get tag");
+    ASSERT_EQ_F64(vm_array_get(flts, 0).as.f64, 1.5, "float get [0]");
+    ASSERT_EQ_F64(vm_array_get(flts, 1).as.f64, -2.25, "float get [1]");
+    vm_release(&heap, val_array(flts));
+
+    /* --- bool array (unboxed, 1 byte per element) --- */
+    VmArray *bools = vm_array_new(&heap, TAG_BOOL, 4);
+    ASSERT_EQ_INT(bools->unboxed, 1, "bool array is unboxed");
+    vm_array_push(&heap, bools, val_bool(true));
+    vm_array_push(&heap, bools, val_bool(false));
+    ASSERT_EQ_INT(vm_array_get(bools, 0).tag, TAG_BOOL, "bool get tag");
+    ASSERT(vm_array_get(bools, 0).as.boolean, "bool get [0] true");
+    ASSERT(!vm_array_get(bools, 1).as.boolean, "bool get [1] false");
+    vm_release(&heap, val_array(bools));
+
+    /* --- byte array (unboxed) --- */
+    VmArray *bytes = vm_array_new(&heap, TAG_U8, 4);
+    ASSERT_EQ_INT(bytes->unboxed, 1, "byte array is unboxed");
+    vm_array_push(&heap, bytes, val_u8(0));
+    vm_array_push(&heap, bytes, val_u8(255));
+    ASSERT_EQ_INT(vm_array_get(bytes, 0).tag, TAG_U8, "byte get tag");
+    ASSERT_EQ_INT(vm_array_get(bytes, 0).as.u8, 0, "byte get [0]");
+    ASSERT_EQ_INT(vm_array_get(bytes, 1).as.u8, 255, "byte get [1]");
+    vm_release(&heap, val_array(bytes));
+
+    /* --- reference element type stays boxed --- */
+    VmArray *strs = vm_array_new(&heap, TAG_STRING, 4);
+    ASSERT_EQ_INT(strs->unboxed, 0, "string array stays boxed");
+    VmString *hello = vm_string_new(&heap, "hi", 2);
+    vm_array_push(&heap, strs, val_string(hello));
+    vm_release(&heap, val_string(hello)); /* array holds its own ref */
+    ASSERT_EQ_INT(vm_array_get(strs, 0).tag, TAG_STRING, "boxed string get tag");
+    vm_release(&heap, val_array(strs));
+
+    vm_heap_destroy(&heap);
 }
 
 /* ========================================================================
@@ -1571,6 +2039,34 @@ static void test_hashmap_len(void) {
     nvm_module_free(mod);
 }
 
+static void test_hashmap_contiguous_collisions(void) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+    VmHashMap *map = vm_hashmap_new(&heap, TAG_INT, TAG_INT);
+    ASSERT(map != NULL, "hashmap allocation succeeds");
+    ASSERT(map->entries != NULL, "hashmap entries use one contiguous allocation");
+
+    for (int64_t i = 0; i < 40; i++) {
+        vm_hashmap_set(&heap, map, val_int(i * 16), val_int(i + 100));
+    }
+    ASSERT_EQ_INT(map->count, 40, "colliding inserts survive growth");
+    ASSERT(map->bucket_count >= 64, "contiguous table grows at its load limit");
+    for (int64_t i = 0; i < 40; i++) {
+        ASSERT_EQ_INT(vm_hashmap_get(map, val_int(i * 16)).as.i64, i + 100,
+                      "colliding key remains reachable");
+    }
+
+    vm_hashmap_delete(&heap, map, val_int(16 * 10));
+    ASSERT(!vm_hashmap_has(map, val_int(16 * 10)), "deleted colliding key is absent");
+    ASSERT(vm_hashmap_has(map, val_int(16 * 11)), "probe continues past tombstone");
+    vm_hashmap_set(&heap, map, val_int(16 * 50), val_int(150));
+    ASSERT_EQ_INT(vm_hashmap_get(map, val_int(16 * 50)).as.i64, 150,
+                  "tombstone remains reusable");
+
+    vm_release(&heap, val_hashmap(map));
+    vm_heap_destroy(&heap);
+}
+
 /* ========================================================================
  * Tests: Type Casts
  * ======================================================================== */
@@ -1677,7 +2173,9 @@ static void test_closure(void) {
     main_off += emit(main_code + main_off, OP_STORE_LOCAL, 0);     /* save closure */
     main_off += emit(main_code + main_off, OP_PUSH_I64, (int64_t)32); /* arg y */
     main_off += emit(main_code + main_off, OP_LOAD_LOCAL, 0);       /* load closure */
-    main_off += emit(main_code + main_off, OP_CLOSURE_CALL);
+    /* CALL_INDIRECT invokes closures directly; the former CLOSURE_CALL opcode
+     * was a duplicate that no frontend emitted and has been removed. */
+    main_off += emit(main_code + main_off, OP_CALL_INDIRECT);
     main_off += emit(main_code + main_off, OP_RET);
     uint32_t main_idx = add_fn(mod, "main", main_code, main_off, 0, 1);
 
@@ -2774,6 +3272,44 @@ static void test_call_module(void) {
     nvm_module_free(mod_b);
 }
 
+static void test_call_module_string_constant(void) {
+    NvmModule *mod_b = nvm_module_new();
+    uint32_t literal_idx = nvm_add_string(mod_b, "linked literal", 14);
+    uint8_t linked_code[16];
+    uint32_t linked_len = 0;
+    linked_len += emit(linked_code + linked_len, OP_PUSH_STR, literal_idx);
+    linked_len += emit(linked_code + linked_len, OP_RET);
+    uint32_t linked_fn = add_fn(mod_b, "literal", linked_code, linked_len, 0, 0);
+
+    NvmModule *mod_a = nvm_module_new();
+    uint8_t root_code[16];
+    uint32_t root_len = 0;
+    root_len += emit(root_code + root_len, OP_CALL_MODULE, (uint32_t)0, linked_fn);
+    root_len += emit(root_code + root_len, OP_RET);
+    uint32_t root_fn = add_fn(mod_a, "main", root_code, root_len, 0, 0);
+
+    VmState vm;
+    vm_init(&vm, mod_a);
+    ASSERT_EQ_INT(vm_link_module(&vm, mod_b), 0,
+                  "linked string module is instantiated");
+    uint64_t allocations = vm.heap.stats.allocation_calls;
+    VmString *constant = vm.linked_module_constants[0].strings[literal_idx];
+    for (uint32_t i = 0; i < 3; i++) {
+        NanoValue result = val_void();
+        ASSERT_EQ_INT(vm_invoke(&vm, root_fn, NULL, 0, &result), VM_OK,
+                      "linked string function executes");
+        ASSERT(result.as.string == constant,
+               "linked execution selects the linked module constant");
+        vm_release(&vm.heap, result);
+    }
+    ASSERT_EQ_INT(vm.heap.stats.allocation_calls, allocations,
+                  "linked string execution performs no allocations");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod_a);
+    nvm_module_free(mod_b);
+}
+
 static void test_call_module_bad_idx(void) {
     /* Test error on invalid module index */
     NvmModule *mod = nvm_module_new();
@@ -2984,6 +3520,74 @@ static void test_call_module_handle_resolution(void) {
     vm_destroy(&vm);
     nvm_module_free(mod_a);
     nvm_module_free(mod_b);
+}
+
+static void test_separately_linked_module_roundtrip(void) {
+    NvmModule *dependency = nvm_module_new();
+    uint8_t dependency_code[32];
+    uint32_t dependency_size = 0;
+    dependency_size += emit(dependency_code + dependency_size, OP_LOAD_LOCAL, 0);
+    dependency_size += emit(dependency_code + dependency_size, OP_PUSH_I64, (int64_t)7);
+    dependency_size += emit(dependency_code + dependency_size, OP_ADD);
+    dependency_size += emit(dependency_code + dependency_size, OP_RET);
+    NvmFunctionEntry add_seven = { .result_tag = TAG_INT, .result_count = 1 };
+    add_seven.name_idx = nvm_add_string(dependency, "add_seven", 9);
+    add_seven.arity = 1;
+    add_seven.local_count = 1;
+    add_seven.code_offset = nvm_append_code(dependency, dependency_code,
+                                             dependency_size);
+    add_seven.code_length = dependency_size;
+    nvm_add_function(dependency, &add_seven);
+
+    NvmModule *root = nvm_module_new();
+    uint32_t dependency_name = nvm_add_string(root, "math", 4);
+    ASSERT_EQ_INT(nvm_add_module_ref(root, dependency_name), 0,
+                  "separate link: dependency occupies module index 0");
+    uint8_t root_code[32];
+    uint32_t root_size = 0;
+    root_size += emit(root_code + root_size, OP_PUSH_I64, (int64_t)5);
+    root_size += emit(root_code + root_size, OP_CALL_MODULE, (uint32_t)0,
+                      (uint32_t)0);
+    root_size += emit(root_code + root_size, OP_RET);
+    NvmFunctionEntry main_fn = { .result_tag = TAG_INT, .result_count = 1 };
+    main_fn.name_idx = nvm_add_string(root, "main", 4);
+    main_fn.code_offset = nvm_append_code(root, root_code, root_size);
+    main_fn.code_length = root_size;
+    root->header.flags = NVM_FLAG_HAS_MAIN;
+    root->header.entry_point = nvm_add_function(root, &main_fn);
+
+    uint32_t root_blob_size = 0;
+    uint32_t dependency_blob_size = 0;
+    uint8_t *root_blob = nvm_serialize(root, &root_blob_size);
+    uint8_t *dependency_blob = nvm_serialize(dependency, &dependency_blob_size);
+    NvmModule *loaded_root = nvm_deserialize(root_blob, root_blob_size);
+    NvmModule *loaded_dependency = nvm_deserialize(dependency_blob,
+                                                    dependency_blob_size);
+    ASSERT(loaded_root != NULL && loaded_dependency != NULL,
+           "separate link: both module files deserialize");
+    ASSERT_EQ_INT(loaded_root->module_ref_count, 1,
+                  "separate link: dependency directory survives serialization");
+
+    VmState vm;
+    vm_init(&vm, loaded_root);
+    ASSERT_EQ_INT(vm_link_module(&vm, loaded_dependency), (uint32_t)-1,
+                  "separate link: unnamed linking cannot bypass dependencies");
+    ASSERT_EQ_INT(vm_link_named_module(&vm, "wrong", loaded_dependency),
+                  (uint32_t)-1, "separate link: dependency name is enforced");
+    ASSERT_EQ_INT(vm_link_named_module(&vm, "math", loaded_dependency), 0,
+                  "separate link: declared dependency links at index 0");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK,
+                  "separate link: serialized module graph executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 12,
+                  "separate link: cross-file call returns its result");
+
+    vm_destroy(&vm);
+    free(root_blob);
+    free(dependency_blob);
+    nvm_module_free(loaded_root);
+    nvm_module_free(loaded_dependency);
+    nvm_module_free(root);
+    nvm_module_free(dependency);
 }
 
 /* ========================================================================
@@ -3550,6 +4154,178 @@ static void test_indexed_stack_and_memory(void) {
     nvm_module_free(mod);
 }
 
+/* ========================================================================
+ * Dynamically-sized globals (Roadmap 4.0 Phase 12, Runtime representation)
+ * ======================================================================== */
+
+/* A module that stores to and loads from a global slot sizes the VM globals
+ * array to the declared slots instead of embedding VM_MAX_GLOBALS values. */
+static void test_globals_dynamic_size(void) {
+    uint8_t code[128];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_STORE_GLOBAL, (uint32_t)5);
+    off += emit(code + off, OP_LOAD_GLOBAL, (uint32_t)5);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    /* Sized to one past the highest referenced slot (index 5 => 6 slots),
+     * never the fixed VM_MAX_GLOBALS embedding. */
+    ASSERT_EQ_INT(vm.global_capacity, 6, "globals sized to declared slots");
+    ASSERT(vm.global_capacity < VM_MAX_GLOBALS, "globals not embedded at max");
+    ASSERT(vm.globals != NULL, "globals array allocated");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "global store/load executes");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 7, "global round-trips value");
+    vm_destroy(&vm);
+    ASSERT(vm.globals == NULL, "globals freed on destroy");
+    ASSERT_EQ_INT(vm.global_capacity, 0, "global capacity cleared on destroy");
+    nvm_module_free(mod);
+}
+
+/* A module that uses no globals allocates no globals array at all. */
+static void test_globals_none_unallocated(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)42);
+    off += emit(code + off, OP_RET);
+
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm.global_capacity, 0, "no globals => zero capacity");
+    ASSERT(vm.globals == NULL, "no globals => no allocation");
+    ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "global-free module executes");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* vm_ensure_globals grows the dynamically-sized array on demand and refuses
+ * to exceed VM_MAX_GLOBALS. */
+static void test_globals_ensure_bounds(void) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_module(code, off, 0, 0);
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT_EQ_INT(vm.global_capacity, 0, "no globals declared => zero capacity");
+    ASSERT(vm_ensure_globals(&vm, 8), "grow to 8 slots succeeds");
+    ASSERT_EQ_INT(vm.global_capacity, 8, "capacity grew to 8");
+    ASSERT(vm_ensure_globals(&vm, 3), "shrink request is a no-op success");
+    ASSERT_EQ_INT(vm.global_capacity, 8, "capacity never shrinks");
+    ASSERT(!vm_ensure_globals(&vm, VM_MAX_GLOBALS + 1),
+           "request beyond VM_MAX_GLOBALS is rejected");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* Build a module whose single "main" returns an int, with a well-formed
+ * result signature (result_count/result_tag agree) so nvm_verify() accepts it
+ * and the VM enables the verified fast path. */
+static NvmModule *make_verifiable_int_module(const uint8_t *code,
+                                             uint32_t code_size,
+                                             uint16_t local_count) {
+    NvmModule *mod = nvm_module_new();
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+    uint32_t code_off = nvm_append_code(mod, code, code_size);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx;
+    fn.arity = 0;
+    fn.code_offset = code_off;
+    fn.code_length = code_size;
+    fn.local_count = local_count;
+    fn.upvalue_count = 0;
+    fn.result_count = 1;
+    fn.result_tag = TAG_INT;
+    uint32_t fn_idx = nvm_add_function(mod, &fn);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = fn_idx;
+    return mod;
+}
+
+/* ========================================================================
+ * Verified fast path: unchecked private stack handlers
+ *
+ * nvm_verify() proves the operand-stack depth of every reachable
+ * instruction, so a verified module lets the VM use the unchecked private
+ * handlers (stack_pop_unchecked/stack_peek_unchecked). These tests pin the
+ * proof flag (vm.verified) to the verifier's verdict and confirm the
+ * unchecked path still computes correct results, while an unverifiable
+ * module stays on the guarded path.
+ * ======================================================================== */
+
+/* A well-formed module is verified, so the VM runs the unchecked handlers
+ * and still returns the right answer. */
+static void test_verified_fastpath_enabled(void) {
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)40);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
+    off += emit(code + off, OP_ADD);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.verified, "well-formed module enables the verified fast path");
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "verified module executes cleanly");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 42,
+                  "unchecked stack handlers compute the correct result");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* A module the verifier rejects (stack underflow: OP_ADD with an empty
+ * stack) must leave the proof flag clear so the guarded handlers stay in
+ * force rather than reading below the operand stack. */
+static void test_unverifiable_stays_checked(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_ADD); /* pops two with nothing pushed */
+    off += emit(code + off, OP_RET);
+    /* Signature is well-formed, so the only reason verification fails is the
+     * proven stack underflow at OP_ADD. */
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(!vm.verified,
+           "verifier rejects the underflowing module, proof flag stays clear");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
+/* Invalidating a module drops the proof; rebuilding a well-formed module
+ * re-establishes it. */
+static void test_verified_flag_tracks_module_lifecycle(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_verifiable_int_module(code, off, 0);
+
+    VmState vm;
+    vm_init(&vm, mod);
+    ASSERT(vm.verified, "initial well-formed module is verified");
+
+    vm_invalidate_module(&vm, mod);
+    ASSERT(!vm.verified, "invalidating a module clears the proof flag");
+
+    ASSERT(vm_rebuild_module(&vm, mod), "rebuild of well-formed module succeeds");
+    ASSERT(vm.verified, "rebuild re-establishes the proof flag");
+
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "rebuilt verified module executes cleanly");
+    ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 7,
+                  "rebuilt verified module returns the correct result");
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("=== NanoVM Test Suite ===\n");
@@ -3609,11 +4385,18 @@ int main(void) {
     RUN_TEST(test_string_concat);
     RUN_TEST(test_string_len);
     RUN_TEST(test_str_from_int);
+    RUN_TEST(test_string_embedded_zero_bytes);
+    RUN_TEST(test_string_find_across_zero);
+    RUN_TEST(test_string_substr_across_zero);
+    RUN_TEST(test_str_replace_op_embedded_zero);
+    RUN_TEST(test_str_contains_op_embedded_zero);
+    RUN_TEST(test_str_split_op_embedded_zero);
 
     printf("\n[Arrays]\n");
     RUN_TEST(test_array_literal);
     RUN_TEST(test_array_push_get);
     RUN_TEST(test_array_len);
+    RUN_TEST(test_array_unboxed_representation);
 
     printf("\n[Structs]\n");
     RUN_TEST(test_struct_literal);
@@ -3630,6 +4413,7 @@ int main(void) {
     printf("\n[Hashmaps]\n");
     RUN_TEST(test_hashmap_basic);
     RUN_TEST(test_hashmap_len);
+    RUN_TEST(test_hashmap_contiguous_collisions);
 
     printf("\n[Type Casts]\n");
     RUN_TEST(test_cast_int_from_float);
@@ -3649,6 +4433,11 @@ int main(void) {
     printf("\n[Error Handling]\n");
     RUN_TEST(test_type_error_add);
     RUN_TEST(test_no_entry_point);
+
+    printf("\n[Dynamically-sized globals]\n");
+    RUN_TEST(test_globals_dynamic_size);
+    RUN_TEST(test_globals_none_unallocated);
+    RUN_TEST(test_globals_ensure_bounds);
     RUN_TEST(test_persistent_invoke);
     RUN_TEST(test_predecode_mutation_lifecycle);
     RUN_TEST(test_predecode_rejects_malformed_code);
@@ -3679,9 +4468,11 @@ int main(void) {
 
     printf("\n[Cross-Module Linking]\n");
     RUN_TEST(test_call_module);
+    RUN_TEST(test_call_module_string_constant);
     RUN_TEST(test_call_module_bad_idx);
     RUN_TEST(test_call_module_chain);
     RUN_TEST(test_call_module_handle_resolution);
+    RUN_TEST(test_separately_linked_module_roundtrip);
 
     printf("\n[Stack Ops: ROT3]\n");
     RUN_TEST(test_rot3);
@@ -3728,6 +4519,10 @@ int main(void) {
     RUN_TEST(test_dispatch_projects_branch_targets);
     RUN_TEST(test_dispatch_cursor_walks_stream);
     RUN_TEST(test_dispatch_lockstep_with_verified_ir);
+    RUN_TEST(test_super_profile_none_leaves_stream_unfused);
+    RUN_TEST(test_super_profile_fuses_local_field_load);
+    RUN_TEST(test_super_fusion_preserves_result);
+    RUN_TEST(test_super_fusion_keeps_branch_target_reachable);
 
     printf("\n[Float/mixed arithmetic]\n");
     RUN_TEST(test_add_float_int);
@@ -3747,6 +4542,11 @@ int main(void) {
     RUN_TEST(test_arr_push_type_error);
     RUN_TEST(test_str_len_type_error);
     RUN_TEST(test_struct_get_type_error);
+
+    printf("\n[Verified Fast Path]\n");
+    RUN_TEST(test_verified_fastpath_enabled);
+    RUN_TEST(test_unverifiable_stays_checked);
+    RUN_TEST(test_verified_flag_tracks_module_lifecycle);
 
     printf("\n=== Results: %d passed, %d failed, %d total ===\n",
            tests_passed, tests_failed, tests_run);

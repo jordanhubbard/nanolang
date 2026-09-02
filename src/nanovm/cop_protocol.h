@@ -25,11 +25,13 @@ typedef enum {
     COP_MSG_INIT       = 0x01,  /* Payload: serialized import table */
     COP_MSG_FFI_REQ    = 0x02,  /* Payload: import_idx + serialized args */
     COP_MSG_SHUTDOWN   = 0x03,  /* No payload */
+    COP_MSG_FFI_BATCH  = 0x04,  /* Payload: count + [import_idx+argc+args]... */
 
     /* Co-process → VM */
     COP_MSG_FFI_RESULT = 0x10,  /* Payload: serialized NanoValue result */
     COP_MSG_FFI_ERROR  = 0x11,  /* Payload: error string */
-    COP_MSG_READY      = 0x12   /* No payload (init complete) */
+    COP_MSG_READY      = 0x12,  /* No payload (init complete) */
+    COP_MSG_FFI_BATCH_RESULT = 0x13  /* Payload: count + [serialized result]... */
 } CopMsgType;
 
 /* Wire Header (same 8-byte format as VmdMsgHeader) */
@@ -83,17 +85,30 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
 
 #define COP_MAILBOX_SLOT_SIZE 4096   /* fits any scalar/pixel FFI call */
 
+/* Maximum number of calls that may be coalesced into one boundary crossing.
+ * A batch still shares the single request/response slots, so the effective
+ * limit is whatever fits in COP_MAILBOX_SLOT_SIZE; this cap bounds the
+ * per-batch bookkeeping arrays and rejects hostile counts up front. */
+#define COP_MAX_BATCH 1024
+
 typedef struct CopMailbox {
     /* Request slot — written by parent, read by child */
     uint8_t  req_import_idx[4];
     uint8_t  req_argc[2];
     uint8_t  req_data_size[2];
+    /* Batch mode: 0 = single call (fields above describe it), >0 = req_data
+     * holds this many packed sub-requests, each encoded as
+     *   import_idx(u32) + argc(u16) + arg_data_size(u16) + serialized args. */
+    uint8_t  req_batch_count[4];
     uint8_t  req_data[COP_MAILBOX_SLOT_SIZE];
 
     /* Response slot — written by child, read by parent */
     uint8_t  resp_is_error;          /* 0=result, 1=error string */
     uint8_t  _pad[3];
     uint8_t  resp_data_size[4];
+    /* Batch mode response: number of serialized results packed in resp_data.
+     * Only meaningful when the matching request set req_batch_count > 0. */
+    uint8_t  resp_batch_count[4];
     uint8_t  resp_data[COP_MAILBOX_SLOT_SIZE];
     char     resp_error[256];
 } CopMailbox;
@@ -128,6 +143,15 @@ static inline uint64_t cop_get_u64(const uint8_t *p) {
 void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                     int sig_in_fd, int sig_out_fd,
                     const NvmModule *module);
+
+/* Batch request descriptor: one host call in a coalesced batch.
+ * All calls in a batch share a single boundary crossing (one signal + one
+ * ack) instead of paying the per-element round-trip cost. */
+typedef struct CopBatchCall {
+    uint32_t         import_idx;  /* index into the module import table */
+    const NanoValue *args;        /* argument array for this call */
+    int              arg_count;   /* number of arguments */
+} CopBatchCall;
 
 /* ========================================================================
  * Send / Receive Helpers (pipe-based I/O)
