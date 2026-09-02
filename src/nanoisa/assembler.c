@@ -284,6 +284,11 @@ static bool parse_quoted_string(const char **p, char *out, size_t out_size, uint
         if (i + 1 >= out_size) return false;
         if (**p == '\\') {
             (*p)++;
+            /* A backslash immediately before the terminator is an unterminated
+             * escape. Without this the default arm below consumes the NUL and
+             * the loop's (*p)++ steps past the end of the buffer, so the next
+             * iteration reads out of bounds. */
+            if (**p == '\0') return false;
             switch (**p) {
                 case 'n':  out[i++] = '\n'; break;
                 case 'r':  out[i++] = '\r'; break;

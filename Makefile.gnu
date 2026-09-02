@@ -54,14 +54,20 @@ LDFLAGS = -lm -lcrypto
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
+#
+# `override` is deliberate: this is a platform requirement, not a preference. A
+# plain `+=` is silently discarded when LDFLAGS is set on the command line, and
+# that is exactly what the sanitizer and coverage jobs do -- they pass their own
+# LDFLAGS and were losing -rdynamic, so every dlsym of a host symbol failed and
+# the FFI tests broke in those builds only.
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 EXPORT_DYNAMIC_LDFLAGS = -rdynamic
-LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
+override LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
 endif
 ifeq ($(UNAME_S),FreeBSD)
 EXPORT_DYNAMIC_LDFLAGS = -Wl,-E
-LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
+override LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
 endif
 ifeq ($(UNAME_S),Darwin)
 # Homebrew OpenSSL is keg-only on macOS — add include/lib paths
