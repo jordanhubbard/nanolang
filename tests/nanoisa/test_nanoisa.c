@@ -1577,6 +1577,102 @@ static void test_disasm_label_limit_degrades_gracefully(void) {
     free(code);
 }
 
+
+static void test_disasm_call_extern_import_annotation(void) {
+    /* CALL_EXTERN's operand is an import table index, not a function index.
+     * The disassembler must annotate it with the imported module/function. */
+    NvmModule *mod = nvm_module_new();
+    nvm_add_string(mod, "main", 4);
+    uint32_t modn = nvm_add_string(mod, "std", 3);
+    uint32_t fnn = nvm_add_string(mod, "println", 7);
+    uint8_t ptypes[1] = { TAG_STRING };
+    nvm_add_import(mod, modn, fnn, 1, TAG_INT, ptypes);
+
+    NvmFunctionEntry fn = { .name_idx = 0, .arity = 0, .code_offset = 0,
+                            .code_length = 0, .local_count = 0, .upvalue_count = 0,
+                            .result_tag = 0, .result_count = 0 };
+    nvm_add_function(mod, &fn);
+    uint8_t code[] = { OP_CALL_EXTERN, 0, 0, 0, 0, OP_HALT };
+    uint32_t off = nvm_append_code(mod, code, sizeof(code));
+    mod->functions[0].code_offset = off;
+    mod->functions[0].code_length = sizeof(code);
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "CALL_EXTERN disassembly produced output");
+    ASSERT(strstr(output, "CALL_EXTERN 0") != NULL, "Shows import index");
+    ASSERT(strstr(output, "; import std.println") != NULL,
+           "Annotates CALL_EXTERN with imported module.function");
+    /* Regression: it must not mislabel the operand as a function-table name. */
+    ASSERT(strstr(output, "; main") == NULL,
+           "CALL_EXTERN is not annotated as a local function");
+    free(output);
+    nvm_module_free(mod);
+}
+
+static void test_disasm_non_branch_i32_is_numeric(void) {
+    /* MATCH_TAG has a u16 variant operand and an i32 branch operand. Only the
+     * i32 branch resolves to a label; the u16 is a plain immediate. The old
+     * disassembler treated every i32 as a branch target — verify the branch
+     * role is honored and non-branch operands stay numeric. */
+    const char *src =
+        ".function test 0 1 0 void 0\n"
+        "  PUSH_I64 0\n"
+        "  MATCH_TAG 3 5\n"
+        "  PUSH_I64 1\n"
+        "target:\n"
+        "  RET\n"
+        ".end\n";
+    /* Fragment: the branch displacement here is arbitrary and lands
+     * mid-instruction, which the verifier correctly rejects. What is under test
+     * is how the disassembler renders the u16 variant vs the i32 branch
+     * operand, so assemble without verification. */
+    AsmResult result;
+    NvmModule *mod = asm_assemble_unverified(src, &result);
+    ASSERT(mod != NULL, "Assembly with MATCH_TAG succeeded");
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "MATCH_TAG disassembly produced output");
+    /* The u16 variant selector 3 must remain a plain number, not a label. */
+    ASSERT(strstr(output, "MATCH_TAG 3 ") != NULL,
+           "Variant selector stays numeric");
+    /* The branch operand resolves to a reconstructed label. */
+    ASSERT(strstr(output, "MATCH_TAG 3 L0") != NULL,
+           "Branch operand resolves to a label");
+    ASSERT(strstr(output, "cfg:match-tag-branch") != NULL,
+           "MATCH_TAG gets a control-flow annotation");
+    free(output);
+    nvm_module_free(mod);
+}
+
+static void test_disasm_binary_string_lossless(void) {
+    /* A string with embedded NUL and non-printable bytes must disassemble to
+     * escapes that round-trip through the assembler without truncation. */
+    NvmModule *mod = nvm_module_new();
+    const char data[] = { 'a', '\0', 'b', '\r', '\n', (char)0xFF, '\t', 'z' };
+    nvm_add_string(mod, data, (uint32_t)sizeof(data));
+
+    char *output = disasm_module(mod);
+    ASSERT(output != NULL, "Binary-string disassembly produced output");
+    /* Bytes after the embedded NUL must not be dropped. */
+    ASSERT(strstr(output, "a\\x00b\\r\\n\\xff\\tz") != NULL,
+           "Binary string escaped losslessly including bytes after NUL");
+
+    /* Round-trip: reassembling the emitted .string reproduces the bytes. */
+    AsmResult result;
+    NvmModule *mod2 = asm_assemble(output, &result);
+    ASSERT(mod2 != NULL, "Reassembly of binary string succeeded");
+    if (mod2) {
+        ASSERT_EQ_INT(nvm_get_string_len(mod2, 0), (uint32_t)sizeof(data),
+                      "Reassembled string preserves full byte length");
+        const char *s2 = nvm_get_string(mod2, 0);
+        ASSERT(s2 != NULL && memcmp(s2, data, sizeof(data)) == 0,
+               "Reassembled bytes match the original");
+        nvm_module_free(mod2);
+    }
+    free(output);
+    nvm_module_free(mod);
+}
+
 /* ========================================================================
  * Round-Trip Test
  * ======================================================================== */
@@ -1870,6 +1966,9 @@ int main(void) {
     RUN_TEST(test_disasm_rejects_wrapped_function_range);
     RUN_TEST(test_disasm_label_deduplication);
     RUN_TEST(test_disasm_label_limit_degrades_gracefully);
+    RUN_TEST(test_disasm_call_extern_import_annotation);
+    RUN_TEST(test_disasm_non_branch_i32_is_numeric);
+    RUN_TEST(test_disasm_binary_string_lossless);
 
     printf("\n[Round-Trip]\n");
     RUN_TEST(test_roundtrip_assemble_serialize_deserialize_disassemble);

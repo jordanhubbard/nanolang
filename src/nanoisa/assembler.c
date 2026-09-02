@@ -263,9 +263,17 @@ static bool operand_symbol_kind(uint8_t opcode, int operand_index, SymbolKind *k
     }
     return false;
 }
+/* Parse one hex digit, returning 0-15 or -1 if not a hex digit. */
+static int hex_digit_value(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
 
 /* Parse a quoted string: "hello world" -> hello world
- * Supports escape sequences: \n, \t, \\, \" */
+ * Supports escape sequences: \n, \r, \t, \0, \\, \", and \xHH for
+ * arbitrary bytes so binary strings round-trip losslessly. */
 static bool parse_quoted_string(const char **p, char *out, size_t out_size, uint32_t *out_len) {
     skip_whitespace(p);
     if (**p != '"') return false;
@@ -278,10 +286,19 @@ static bool parse_quoted_string(const char **p, char *out, size_t out_size, uint
             (*p)++;
             switch (**p) {
                 case 'n':  out[i++] = '\n'; break;
+                case 'r':  out[i++] = '\r'; break;
                 case 't':  out[i++] = '\t'; break;
                 case '\\': out[i++] = '\\'; break;
                 case '"':  out[i++] = '"';  break;
                 case '0':  out[i++] = '\0'; break;
+                case 'x': {
+                    int hi = hex_digit_value((*p)[1]);
+                    int lo = hi < 0 ? -1 : hex_digit_value((*p)[2]);
+                    if (lo < 0) return false; /* \x must be followed by two hex digits */
+                    out[i++] = (char)((hi << 4) | lo);
+                    (*p) += 2;
+                    break;
+                }
                 default:   out[i++] = **p;  break;
             }
         } else {
