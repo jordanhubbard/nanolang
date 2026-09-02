@@ -130,8 +130,15 @@ void nvm_module_free(NvmModule *mod) {
         free(mod->import_param_types);
     }
     free(mod->imports);
-    free(mod->module_refs);
+    free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
+}
+
+void nvm_call_descriptors_reset(NvmModule *mod) {
+    if (!mod) return;
+    free(mod->call_descriptors);
+    mod->call_descriptors = NULL;
+    mod->call_descriptor_count = 0;
 }
 
 /* ========================================================================
@@ -176,6 +183,10 @@ uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length) {
 const char *nvm_get_string(const NvmModule *mod, uint32_t index) {
     if (index >= mod->string_count) return NULL;
     return mod->strings[index];
+}
+
+uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index) {    if (index >= mod->string_count) return 0;
+    return mod->string_lengths[index];
 }
 
 /* ========================================================================

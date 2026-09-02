@@ -5,7 +5,11 @@
 
 /* Create environment */
 Environment *create_environment(void) {
-    Environment *env = malloc(sizeof(Environment));
+    /* calloc, not malloc: every field below is set explicitly, but zeroing
+     * first means a field added to Environment without a matching line here
+     * defaults to false/NULL/0 instead of holding allocator garbage. Four
+     * fields had already drifted that way -- see the diagnostics block. */
+    Environment *env = calloc(1, sizeof(Environment));
     env->symbols = malloc(sizeof(Symbol) * 8);
     env->symbol_count = 0;
     env->symbol_capacity = 8;
@@ -54,6 +58,10 @@ Environment *create_environment(void) {
     env->profile = false;
     env->profile_gprof = false;
     env->profile_output_path = NULL;
+    env->trace = false;
+    env->profile_runtime = false;
+    env->profile_flamegraph_path = NULL;
+    env->gpu_target = false;
     env->suppress_shadow_warnings = false;
     
     /* Initialize import tracker */

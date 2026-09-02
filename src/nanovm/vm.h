@@ -54,6 +54,11 @@ typedef struct {
     uint32_t max_frame_depth;
 } VmProfile;
 
+typedef struct {
+    VmString **strings;
+    uint32_t count;
+} VmModuleConstants;
+
 /* ========================================================================
  * Call Frame
  * ======================================================================== */
@@ -105,6 +110,14 @@ typedef struct VmState {
     bool module_calls_resolved;
     VmDispatchModule dispatch_module;
     bool dispatch_module_valid;
+    /* True once every module the VM will execute (root plus all linked
+     * modules) has passed nvm_verify(). This is the safety proof that
+     * lets the hot path use the unchecked private stack handlers: the
+     * verifier has already established stack depth and index bounds for
+     * every reachable instruction, so re-checking them at dispatch time
+     * is redundant. Cleared conservatively whenever a module changes or a
+     * new, unverified module is linked. */
+    bool verified;    VmModuleConstants module_constants;
 
     /* Operand stack */
     NanoValue *stack;
@@ -141,6 +154,7 @@ typedef struct VmState {
     bool *decoded_linked_modules_valid;
     VmDispatchModule *dispatch_linked_modules;
     bool *dispatch_linked_modules_valid;
+    VmModuleConstants *linked_module_constants;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
 
@@ -175,6 +189,11 @@ typedef struct VmState {
 
     /* Optional low-overhead instruction and control-flow counters. */
     VmProfile profile;
+
+    /* Profile that selects which private dispatch superinstructions the
+     * optimized IR fuses.  Defaults to none, so an unconfigured VM runs the
+     * plain verified stream; configure it before loading a module. */
+    VmDispatchProfile dispatch_profile;
 } VmState;
 
 /* ========================================================================
@@ -244,6 +263,12 @@ NanoValue vm_get_result(VmState *vm);
 
 /* Reset and enable or disable execution profiling. */
 void vm_profile_enable(VmState *vm, bool enabled);
+
+/* Select which private dispatch superinstructions are fused when the VM
+ * projects a module's optimized dispatch IR.  Rebuilds are required to take
+ * effect, so call this before the module is loaded (or invalidate and rebuild
+ * afterwards). */
+void vm_set_dispatch_profile(VmState *vm, VmDispatchProfile profile);
 
 /* Write deterministic JSON containing execution counters. */
 bool vm_profile_write_json(const VmState *vm, FILE *out);

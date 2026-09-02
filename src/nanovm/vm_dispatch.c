@@ -39,6 +39,52 @@ static bool dispatch_is_direct_call(uint8_t opcode) {
     return opcode == OP_CALL || opcode == OP_TAIL_CALL;
 }
 
+VmDispatchProfile vm_dispatch_profile_none(void) {
+    VmDispatchProfile profile = {0};
+    return profile;
+}
+
+VmDispatchProfile vm_dispatch_profile_all(void) {
+    VmDispatchProfile profile = {0};
+    profile.fuse_load_local_field = true;
+    return profile;
+}
+
+/*
+ * Apply the profile-selected private fusions to an already-projected
+ * function.  Each fusion collapses a contiguous run of verified instructions
+ * into one dispatch step by pointing the leader's fall-through past the folded
+ * tail and tagging the leader with a private superinstruction.  The folded
+ * instructions stay in the array and offset map, so a branch that lands
+ * directly on one still executes the plain, unfused opcode; only the linear
+ * fall-through is rerouted.  This keeps the fusion a pure representation-(3)
+ * optimization that never changes program meaning.
+ */
+static void dispatch_apply_fusions(VmDispatchFunction *out,
+                                   VmDispatchProfile profile) {
+    if (!out || out->instruction_count < 2) return;
+    for (uint32_t i = 0; i + 1 < out->instruction_count; i++) {
+        VmDispatchInstruction *lead = &out->instructions[i];
+        VmDispatchInstruction *next = &out->instructions[i + 1];
+        if (lead->super_op != VM_SUPER_NONE) continue;
+
+        /* LOAD_LOCAL idx ; AGG_GET field -> load a local aggregate field.
+         * Both operands are known at build time and neither instruction
+         * transfers control, so the pair fuses into one step. */
+        if (profile.fuse_load_local_field
+                && lead->instruction.opcode == OP_LOAD_LOCAL
+                && next->instruction.opcode == OP_AGG_GET
+                && lead->next_byte_offset == next->byte_offset
+                && lead->branch_target == VM_DISPATCH_NO_INDEX
+                && lead->call_target == VM_DISPATCH_NO_INDEX) {
+            lead->super_op = VM_SUPER_LOAD_LOCAL_FIELD;
+            lead->super_operand = next->instruction.operands[0].u16;
+            lead->next_byte_offset = next->next_byte_offset;
+            lead->next_index = next->next_index;
+        }
+    }
+}
+
 /*
  * Look up the dispatch index of the instruction that begins at
  * `function_offset`.  Returns VM_DISPATCH_NO_INDEX when the offset is not an
@@ -58,6 +104,7 @@ static uint32_t dispatch_index_at(const VmDispatchFunction *function,
 }
 
 bool vm_dispatch_build_function(const VmDecodedFunction *decoded,
+                                VmDispatchProfile profile,
                                 VmDispatchFunction *out,
                                 char error[VM_DISPATCH_ERROR_SIZE]) {
     if (!out) return false;
@@ -146,11 +193,17 @@ bool vm_dispatch_build_function(const VmDecodedFunction *decoded,
         }
     }
 
+    /* Third pass: apply the profile-selected private superinstruction
+     * fusions.  This runs after control flow is resolved so it can safely
+     * refuse to fuse across branch or call boundaries. */
+    dispatch_apply_fusions(out, profile);
+
     if (error) error[0] = '\0';
     return true;
 }
 
 bool vm_dispatch_build_module(const VmDecodedModule *decoded,
+                              VmDispatchProfile profile,
                               VmDispatchModule *out,
                               char error[VM_DISPATCH_ERROR_SIZE]) {
     if (!out) return false;
@@ -169,7 +222,7 @@ bool vm_dispatch_build_module(const VmDecodedModule *decoded,
     }
     out->function_count = decoded->function_count;
     for (uint32_t i = 0; i < decoded->function_count; i++) {
-        if (!vm_dispatch_build_function(&decoded->functions[i],
+        if (!vm_dispatch_build_function(&decoded->functions[i], profile,
                                         &out->functions[i], error)) {
             vm_dispatch_module_free(out);
             return false;

@@ -446,6 +446,135 @@ TEST(call_mixed_four_args) {
     vm_heap_destroy(&heap); nvm_module_free(mod); vm_ffi_shutdown();
 }
 
+/* ── resolve-once typed call descriptor tests ──────────────────────────── */
+
+TEST(descriptor_cached_after_first_call) {
+    /*
+     * The first successful FFI call must populate the module's typed call
+     * descriptor table and mark the import RESOLVED; the resolved func_ptr and
+     * precomputed signature are then reused on subsequent calls.
+     */
+    vm_ffi_init();
+
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "abs", 3);
+    uint8_t ptypes[1] = {TAG_INT};
+    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_INT, ptypes);
+
+    /* No descriptors before the first call. */
+    ASSERT(mod->call_descriptors == NULL);
+    ASSERT_EQ(mod->call_descriptor_count, 0u);
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue arg = val_int(-7);
+    NanoValue result;
+    char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, &arg, 1, &result, &heap, err, sizeof(err));
+
+    if (ok) {
+        /* Descriptor table allocated and this import resolved once. */
+        ASSERT(mod->call_descriptors != NULL);
+        ASSERT_EQ(mod->call_descriptor_count, 1u);
+        ASSERT(mod->call_descriptors[0].state == NVM_CALL_RESOLVED);
+        ASSERT(mod->call_descriptors[0].func_ptr != NULL);
+        ASSERT_EQ(mod->call_descriptors[0].param_count, 1);
+        ASSERT_EQ(mod->call_descriptors[0].return_type, (uint8_t)TAG_INT);
+        ASSERT(mod->call_descriptors[0].all_float == false);
+
+        void *first_ptr = mod->call_descriptors[0].func_ptr;
+
+        /* Second call reuses the same cached pointer. */
+        NanoValue arg2 = val_int(-99);
+        NanoValue result2;
+        ok = vm_ffi_call(mod, 0, &arg2, 1, &result2, &heap, err, sizeof(err));
+        ASSERT(ok);
+        ASSERT(mod->call_descriptors[0].func_ptr == first_ptr);
+        ASSERT(result2.tag == TAG_INT);
+        ASSERT(result2.as.i64 == 99);
+    }
+
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
+TEST(descriptor_failure_is_cached) {
+    /*
+     * A failed resolution must be remembered as NVM_CALL_FAILED so repeated
+     * calls report the same error without re-attempting symbol lookup.
+     */
+    vm_ffi_init();
+
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "xyzzy_no_such_function_456", 26);
+    nvm_add_import(mod, mod_idx, fn_idx, 0, TAG_INT, NULL);
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue result;
+    char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, NULL, 0, &result, &heap, err, sizeof(err));
+    ASSERT(!ok);
+    ASSERT(err[0] != '\0');
+    ASSERT(mod->call_descriptors != NULL);
+    ASSERT(mod->call_descriptors[0].state == NVM_CALL_FAILED);
+
+    /* Second call still fails, from the cached FAILED state. */
+    char err2[256] = "";
+    ok = vm_ffi_call(mod, 0, NULL, 0, &result, &heap, err2, sizeof(err2));
+    ASSERT(!ok);
+    ASSERT(err2[0] != '\0');
+    ASSERT(mod->call_descriptors[0].state == NVM_CALL_FAILED);
+
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
+TEST(descriptor_reset_forces_reresolve) {
+    /*
+     * nvm_call_descriptors_reset drops the cache so the next call resolves
+     * the import from scratch again.
+     */
+    vm_ffi_init();
+
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod != NULL);
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);
+    uint32_t fn_idx  = nvm_add_string(mod, "abs", 3);
+    uint8_t ptypes[1] = {TAG_INT};
+    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_INT, ptypes);
+
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue arg = val_int(-5);
+    NanoValue result;
+    char err[256] = "";
+    bool ok = vm_ffi_call(mod, 0, &arg, 1, &result, &heap, err, sizeof(err));
+
+    if (ok) {
+        ASSERT(mod->call_descriptors != NULL);
+        nvm_call_descriptors_reset(mod);
+        ASSERT(mod->call_descriptors == NULL);
+        ASSERT_EQ(mod->call_descriptor_count, 0u);
+
+        /* Re-resolve on the next call. */
+        ok = vm_ffi_call(mod, 0, &arg, 1, &result, &heap, err, sizeof(err));
+        ASSERT(ok);
+        ASSERT(mod->call_descriptors != NULL);
+        ASSERT(mod->call_descriptors[0].state == NVM_CALL_RESOLVED);
+    }
+
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
 /* ── main ──────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -464,7 +593,9 @@ int main(void) {
     RUN(call_mixed_fp_gp_ret_fp);
     RUN(call_mixed_gp_fp_ret_fp);
     RUN(call_mixed_fp_gp_ret_gp);
-    RUN(call_mixed_four_args);
+    RUN(call_mixed_four_args);    RUN(descriptor_cached_after_first_call);
+    RUN(descriptor_failure_is_cached);
+    RUN(descriptor_reset_forces_reresolve);
 
     printf("\n");
     if (g_fail == 0) {
