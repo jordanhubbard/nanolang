@@ -593,7 +593,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             if (named && !add_symbol(state, SYMBOL_CONSTANT, name, index)) {
                 result->error = ASM_ERR_DUPLICATE_SYMBOL;
                 snprintf(result->message, sizeof(result->message),
-                         "Duplicate constant symbol: %s", name);
+                         "Duplicate constant symbol: %.200s", name);
                 return false;
             }
             return require_line_end(p, result);
@@ -614,7 +614,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             if (!add_symbol(state, kind, name, value)) {
                 result->error = ASM_ERR_DUPLICATE_SYMBOL;
                 snprintf(result->message, sizeof(result->message),
-                         "Duplicate %s symbol: %s", symbol_kind_name(kind), name);
+                         "Duplicate %s symbol: %.200s", symbol_kind_name(kind), name);
                 return false;
             }
             return true;
@@ -667,7 +667,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             if (symbol < 0 || state->symbols[symbol].value != state->current_function) {
                 result->error = ASM_ERR_DUPLICATE_SYMBOL;
                 snprintf(result->message, sizeof(result->message),
-                         "Duplicate function symbol: %s", name);
+                         "Duplicate function symbol: %.200s", name);
                 return false;
             }
             return require_line_end(p, result);
@@ -873,7 +873,7 @@ static bool collect_function_symbols(AsmState *state, const char *source, AsmRes
                 result->error = ASM_ERR_DUPLICATE_SYMBOL;
                 result->line = line;
                 snprintf(result->message, sizeof(result->message),
-                         "Duplicate function symbol: %s", name);
+                         "Duplicate function symbol: %.200s", name);
                 free(line_buf);
                 return false;
             }
