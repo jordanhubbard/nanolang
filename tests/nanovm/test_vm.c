@@ -1638,9 +1638,15 @@ static void test_str_replace_op_embedded_zero(void) {
     mod->header.flags = NVM_FLAG_HAS_MAIN;
     mod->header.entry_point = fn_idx;
 
-    VmResult r;
-    NanoValue result = run_module(mod, &r);
+    /* Assert before vm_destroy: run_module() tears the VM down and frees the
+     * heap before returning, so the result string would be dangling here. The
+     * sibling embedded-zero tests inspect the result while the VM is alive for
+     * the same reason. */
+    VmState vm;
+    vm_init(&vm, mod);
+    VmResult r = vm_execute(&vm);
     ASSERT_EQ_INT(r, VM_OK, "str_replace_zero: VM_OK");
+    NanoValue result = vm_get_result(&vm);
     ASSERT_EQ_INT(result.tag, TAG_STRING, "str_replace_zero: tag string");
     ASSERT_EQ_INT(vmstring_len(result.as.string), 7, "str_replace_zero: length preserved");
     const char *d = result.as.string->data;
@@ -1651,6 +1657,7 @@ static void test_str_replace_op_embedded_zero(void) {
     ASSERT_EQ_INT((unsigned char)d[4], 'Z', "str_replace_zero: [4] replaced");
     ASSERT_EQ_INT((unsigned char)d[5], 0,   "str_replace_zero: [5] NUL kept");
     ASSERT_EQ_INT((unsigned char)d[6], 'c', "str_replace_zero: [6]");
+    vm_destroy(&vm);
     nvm_module_free(mod);
 }
 
