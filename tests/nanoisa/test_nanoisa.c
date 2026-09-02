@@ -1093,11 +1093,9 @@ static void test_asm_all_operand_types(void) {
 
     AsmResult result;
     NvmModule *mod = asm_assemble(src, &result);
-    ASSERT(mod != NULL, "All operand types assembly succeeded");
-    if (result.error != ASM_OK) {
-        printf("    Error at line %u: %s\n", result.line, result.message);
-    }
-    ASSERT_EQ_INT(result.error, ASM_OK, "No error");
+    ASSERT(mod == NULL, "All operand types were consumed before verification");
+    ASSERT_EQ_INT(result.error, ASM_ERR_VERIFY,
+                  "Semantically invalid operand fixture reaches verification");
 
     nvm_module_free(mod);
 }
@@ -1206,6 +1204,41 @@ static void test_asm_error_bad_u16_operand(void) {
     NvmModule *mod = asm_assemble(src, &result);
     ASSERT(mod == NULL, "Bad u16 operand returns NULL");
     ASSERT_EQ_INT(result.error, ASM_ERR_BAD_OPERAND, "Error type BAD_OPERAND");
+}
+
+static void test_asm_error_trailing_instruction_operand(void) {
+    const char *src =
+        ".function test 0 0 0 void 0\n"
+        "  HALT unexpected\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Trailing instruction operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_SYNTAX, "Trailing operand is a syntax error");
+    ASSERT_EQ_INT(result.line, 2, "Trailing operand reports its line");
+}
+
+static void test_asm_error_trailing_directive_operand(void) {
+    const char *src = ".entry 0 unexpected\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Trailing directive operand returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_SYNTAX, "Trailing directive input is a syntax error");
+    ASSERT_EQ_INT(result.line, 1, "Trailing directive input reports its line");
+}
+
+static void test_asm_rejects_unverified_module(void) {
+    const char *src =
+        ".function test 0 0 0 void 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  HALT\n"
+        ".end\n";
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod == NULL, "Unverified assembled module returns NULL");
+    ASSERT_EQ_INT(result.error, ASM_ERR_VERIFY, "Verifier failure has a distinct error");
+    ASSERT(strstr(result.message, "slot 0 >= local_count 0") != NULL,
+           "Assembler preserves verifier diagnostic");
 }
 
 static void test_asm_comments_and_whitespace(void) {
@@ -1813,6 +1846,9 @@ int main(void) {
     RUN_TEST(test_asm_error_bad_i64_operand);
     RUN_TEST(test_asm_error_bad_f64_operand);
     RUN_TEST(test_asm_error_bad_u16_operand);
+    RUN_TEST(test_asm_error_trailing_instruction_operand);
+    RUN_TEST(test_asm_error_trailing_directive_operand);
+    RUN_TEST(test_asm_rejects_unverified_module);
     RUN_TEST(test_asm_comments_and_whitespace);
     RUN_TEST(test_asm_string_escapes);
     RUN_TEST(test_asm_multiple_functions);
