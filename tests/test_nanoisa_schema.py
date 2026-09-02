@@ -15,6 +15,10 @@ generator = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(generator)
 
+# Opcodes the verifier checks with a dedicated `case`, beyond what decoding
+# alone establishes. Every other opcode in the schema is decode-backed and
+# falls to the `default:` arm; the test below asserts that partition is exact,
+# so adding a verifier rule without listing it here is a deliberate failure.
 SPECIALIZED_VERIFIER_OPCODES = {
     "OP_AGG_PACK",
     "OP_CALL",
@@ -26,15 +30,18 @@ SPECIALIZED_VERIFIER_OPCODES = {
     "OP_JMP",
     "OP_JMP_FALSE",
     "OP_JMP_TRUE",
+    "OP_LOAD_GLOBAL",
     "OP_LOAD_LOCAL",
     "OP_LOAD_UPVALUE",
     "OP_MATCH_TAG",
     "OP_PUSH_STR",
+    "OP_STORE_GLOBAL",
     "OP_STORE_LOCAL",
     "OP_STORE_UPVALUE",
     "OP_STRUCT_LITERAL",
     "OP_STRUCT_NEW",
     "OP_TAIL_CALL",
+    "OP_TYPE_CHECK",
     "OP_UNION_CONSTRUCT",
 }
 
