@@ -635,6 +635,7 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 ../modules/forth_see/.build/libforth_see.so: ../modules/forth_see/forth_see.c ../modules/forth_see/forth_see.h \
 		../modules/nanoisa/nanoisa.c ../modules/nanoisa/nanoisa.h \
 		../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
+		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
 		../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
 		../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
 		../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c
@@ -643,6 +644,7 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa -I../src \
 	    -o $@ ../modules/forth_see/forth_see.c ../modules/nanoisa/nanoisa.c \
 	    ../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
+		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
 	    ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
 	    ../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
 	    ../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c

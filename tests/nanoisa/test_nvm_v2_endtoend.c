@@ -1,0 +1,187 @@
+/*
+ * End-to-end test for v2 emission and loading.
+ *
+ * nanoisa_load_bytes is the single funnel every consumer goes through -- the
+ * VM, the co-process, the daemon, and generated wrappers -- so making it
+ * dispatch on the magic byte is the whole loader change. What this test proves
+ * is that the dispatch is real: the same module saved as v1 and as v2 comes
+ * back identical through one entry point, a v1 module still takes the v1 path
+ * untouched, and neither format is mistaken for the other.
+ */
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include "nanoisa.h"
+#include "nvm_format.h"
+#include "nvm_format_v2.h"
+#include "isa.h"
+
+static int g_pass = 0, g_fail = 0;
+
+#define CHECK(cond, what) do { \
+    if (cond) { g_pass++; } \
+    else { g_fail++; printf("  FAIL: %s  (%s:%d)\n", (what), __FILE__, __LINE__); } \
+} while (0)
+
+/* A module with two functions of one shape, one of another, an import, a
+ * module ref, and a string carrying an embedded zero -- the same fixture shape
+ * the bridge tests use, so a regression shows up as a difference here too. */
+static NvmModule *build_module(void) {
+    NvmModule *m = nvm_module_new();
+    if (!m) return NULL;
+    uint32_t s_add  = nvm_add_string(m, "add", 3);
+    uint32_t s_sub  = nvm_add_string(m, "sub", 3);
+    uint32_t s_main = nvm_add_string(m, "main", 4);
+    nvm_add_string(m, "a\0b", 3);
+    uint32_t s_libc = nvm_add_string(m, "libc", 4);
+    uint32_t s_puts = nvm_add_string(m, "puts", 4);
+
+    static const uint8_t code[12] = { 1,2,3,4,5,6,7,8,9,10,11,12 };
+    nvm_append_code(m, code, sizeof code);
+
+    NvmFunctionEntry f;
+    memset(&f, 0, sizeof f);
+    f.name_idx = s_add; f.arity = 2; f.code_offset = 0; f.code_length = 4;
+    f.local_count = 2; f.result_tag = TAG_INT; f.result_count = 1;
+    nvm_add_function(m, &f);
+    f.name_idx = s_sub; f.code_offset = 4;
+    nvm_add_function(m, &f);
+    memset(&f, 0, sizeof f);
+    f.name_idx = s_main; f.code_offset = 8; f.code_length = 4;
+    f.local_count = 1; f.result_tag = TAG_VOID; f.result_count = 0;
+    nvm_add_function(m, &f);
+
+    const uint8_t ptypes[1] = { TAG_STRING };
+    nvm_add_import(m, s_libc, s_puts, 1, TAG_INT, ptypes);
+    nvm_add_module_ref(m, s_libc);
+    nvm_add_debug_entry(m, 0, 17, 3);
+    m->header.entry_point = 2;
+    /* The same flags codegen sets. They are not decoration: HAS_MAIN is what
+     * the VM checks before it will run anything. */
+    m->header.flags = NVM_FLAG_HAS_MAIN | NVM_FLAG_NEEDS_EXTERN |
+                      NVM_FLAG_DEBUG_INFO;
+    return m;
+}
+
+/* Everything a consumer of a loaded module actually reads. If saving as v2 and
+ * loading back changes any of it, the format is not a faithful carrier. */
+static bool modules_agree(const NvmModule *a, const NvmModule *b) {
+    if (a->function_count != b->function_count) return false;
+    if (a->import_count != b->import_count) return false;
+    if (a->module_ref_count != b->module_ref_count) return false;
+    if (a->string_count != b->string_count) return false;
+    if (a->code_size != b->code_size) return false;
+    if (a->debug_count != b->debug_count) return false;
+    if (a->header.entry_point != b->header.entry_point) return false;
+    if (a->header.flags != b->header.flags) return false;
+    if (memcmp(a->code, b->code, a->code_size) != 0) return false;
+    for (uint32_t i = 0; i < a->string_count; i++) {
+        if (a->string_lengths[i] != b->string_lengths[i]) return false;
+        if (memcmp(a->strings[i], b->strings[i], a->string_lengths[i]) != 0)
+            return false;
+    }
+    for (uint32_t i = 0; i < a->function_count; i++) {
+        const NvmFunctionEntry *x = &a->functions[i], *y = &b->functions[i];
+        if (x->name_idx != y->name_idx || x->arity != y->arity) return false;
+        if (x->code_offset != y->code_offset) return false;
+        if (x->code_length != y->code_length) return false;
+        if (x->local_count != y->local_count) return false;
+        if (x->upvalue_count != y->upvalue_count) return false;
+        if (x->result_tag != y->result_tag) return false;
+        if (x->result_count != y->result_count) return false;
+    }
+    for (uint32_t i = 0; i < a->import_count; i++) {
+        const NvmImportEntry *x = &a->imports[i], *y = &b->imports[i];
+        if (x->module_name_idx != y->module_name_idx) return false;
+        if (x->function_name_idx != y->function_name_idx) return false;
+        if (x->param_count != y->param_count) return false;
+        if (x->return_type != y->return_type) return false;
+        if (memcmp(a->import_param_types[i], b->import_param_types[i],
+                   x->param_count) != 0) return false;
+    }
+    return true;
+}
+
+static void test_v2_bytes_carry_the_v2_magic(void) {
+    NvmModule *m = build_module();
+    CHECK(m != NULL, "fixture builds");
+    if (!m) return;
+    NanoisaErr err;
+    uint32_t n = 0;
+    uint8_t *bytes = nanoisa_save_bytes_v2(m, &n, &err);
+    CHECK(bytes != NULL, "a module saves as v2");
+    if (bytes) {
+        CHECK(n > NVM_V2_HEADER_SIZE, "the v2 blob is more than a header");
+        CHECK(bytes[0] == NVM_V2_MAGIC_0 && bytes[1] == NVM_V2_MAGIC_1 &&
+              bytes[2] == NVM_V2_MAGIC_2, "the v2 blob keeps the NVM prefix");
+        CHECK(bytes[3] == NVM_V2_MAGIC_3,
+              "the version byte is what the loader dispatches on");
+        free(bytes);
+    }
+    nvm_module_free(m);
+}
+
+static void test_the_same_module_survives_both_formats(void) {
+    NvmModule *m = build_module();
+    if (!m) { g_fail++; printf("  FAIL: fixture\n"); return; }
+    NanoisaErr err;
+
+    uint32_t n1 = 0, n2 = 0;
+    uint8_t *b1 = nanoisa_save_bytes(m, &n1, &err);
+    uint8_t *b2 = nanoisa_save_bytes_v2(m, &n2, &err);
+    CHECK(b1 && b2, "the module saves in both formats");
+    if (!b1 || !b2) { free(b1); free(b2); nvm_module_free(m); return; }
+
+    /* One entry point, two formats: the dispatch is the point of the test. */
+    NvmModule *l1 = nanoisa_load_bytes(b1, n1, &err);
+    CHECK(l1 != NULL, "a v1 blob still loads");
+    NvmModule *l2 = nanoisa_load_bytes(b2, n2, &err);
+    CHECK(l2 != NULL, "a v2 blob loads through the same entry point");
+
+    if (l1 && l2) {
+        CHECK(modules_agree(l1, l2),
+              "a module round-tripped through v2 matches the v1 round trip");
+        CHECK(modules_agree(m, l2), "and matches the module it was built from");
+    } else { g_fail += 2; printf("  FAIL: could not compare\n"); }
+
+    nvm_module_free(l1); nvm_module_free(l2);
+    free(b1); free(b2);
+    nvm_module_free(m);
+}
+
+static void test_garbage_is_still_rejected(void) {
+    NanoisaErr err;
+    uint8_t junk[64];
+    memset(junk, 0xAB, sizeof junk);
+    CHECK(nanoisa_load_bytes(junk, sizeof junk, &err) == NULL,
+          "bytes with no NVM magic are rejected");
+
+    /* "NVM" followed by a version byte no loader knows. Adding a v2 path must
+     * not turn the magic check into "anything starting with NVM". */
+    memcpy(junk, "NVM", 3);
+    junk[3] = 0x7F;
+    CHECK(nanoisa_load_bytes(junk, sizeof junk, &err) == NULL,
+          "an unknown NVM version byte is rejected, not guessed at");
+
+    NvmModule *m = build_module();
+    if (!m) { g_fail++; printf("  FAIL: fixture\n"); return; }
+    uint32_t n = 0;
+    uint8_t *b = nanoisa_save_bytes_v2(m, &n, &err);
+    if (b) {
+        b[n - 1] ^= 0xFF;   /* corrupt a payload byte, leaving the header */
+        CHECK(nanoisa_load_bytes(b, n, &err) == NULL,
+              "a corrupted v2 payload fails the checksum rather than loading");
+        free(b);
+    } else { g_fail++; printf("  FAIL: could not save v2\n"); }
+    nvm_module_free(m);
+}
+
+int main(void) {
+    printf("\n[nvm_v2_endtoend] v2 emission and magic-dispatching load...\n\n");
+    test_v2_bytes_carry_the_v2_magic();
+    test_the_same_module_survives_both_formats();
+    test_garbage_is_still_rejected();
+    printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
+    return g_fail == 0 ? 0 : 1;
+}

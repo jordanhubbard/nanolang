@@ -1,7 +1,7 @@
 /*
  * nano_virt main.c - CLI for compiling .nano to .nvm bytecode or native binary
  *
- * Usage: nano_virt input.nano [-o output] [--run] [--emit-nvm] [--daemon-wrapper] [-v]
+ * Usage: nano_virt input.nano [-o output] [--run] [--emit-nvm] [--emit-nvm-v2] [--daemon-wrapper] [-v]
  *
  * Pipeline: .nano → lexer → parser → typechecker → codegen → .nvm
  * With -o:        writes .nvm bytecode (if .nvm extension or --emit-nvm)
@@ -48,12 +48,13 @@ static char *read_file(const char *path) {
 }
 
 static void usage(const char *prog) {
-    fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--strip-debug] [--daemon-wrapper] [-v]\n", prog);
+    fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--emit-nvm-v2] [--strip-debug] [--daemon-wrapper] [-v]\n", prog);
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -o <path>          Output file (native binary, or .nvm if --emit-nvm)\n");
     fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
+    fprintf(stderr, "  --emit-nvm-v2      Write .nvm bytecode in the v2 container (implies --emit-nvm)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
     fprintf(stderr, "  -v                 Verbose output\n");
@@ -70,6 +71,7 @@ int main(int argc, char **argv) {
     const char *output = NULL;
     bool run = false;
     bool emit_nvm = false;
+    bool emit_nvm_v2 = false;
     bool strip_debug = false;
     bool daemon_wrapper = false;
     bool verbose = false;
@@ -81,6 +83,11 @@ int main(int argc, char **argv) {
             run = true;
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {
             emit_nvm = true;
+        } else if (strcmp(argv[i], "--emit-nvm-v2") == 0) {
+            /* Implies --emit-nvm: it selects the container, not whether to
+             * write bytecode at all. */
+            emit_nvm = true;
+            emit_nvm_v2 = true;
         } else if (strcmp(argv[i], "--strip-debug") == 0) {
             strip_debug = true;
         } else if (strcmp(argv[i], "--daemon-wrapper") == 0) {
@@ -173,7 +180,9 @@ int main(int argc, char **argv) {
     if (output) {
         uint32_t size = 0;
         NanoisaErr save_error;
-        uint8_t *blob = nanoisa_save_bytes(cg.module, &size, &save_error);
+        uint8_t *blob = emit_nvm_v2
+                          ? nanoisa_save_bytes_v2(cg.module, &size, &save_error)
+                          : nanoisa_save_bytes(cg.module, &size, &save_error);
         if (!blob) {
             fprintf(stderr, "error: serialization failed: %s\n",
                     save_error.message);

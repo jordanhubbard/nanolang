@@ -71,7 +71,61 @@ static NvmModule *build_v1(void) {
     nvm_add_module_ref(m, s_libc);
     nvm_add_debug_entry(m, 0, 17, 3);
     m->header.entry_point = 2;   /* main */
+    m->header.flags = NVM_FLAG_HAS_MAIN | NVM_FLAG_NEEDS_EXTERN |
+                      NVM_FLAG_DEBUG_INFO;
+    m->struct_count = 2;
+    m->enum_count = 1;
+    m->union_count = 3;
     return m;
+}
+
+/* Every v1 header flag restates something v2 encodes structurally, so the
+ * bridge derives them rather than carrying them. Getting this wrong is not
+ * subtle: without HAS_MAIN the VM refuses the module outright with "No entry
+ * point defined", which is exactly how the gap was found. */
+static void test_header_flags_are_derived(void) {
+    NvmModule *v1 = build_v1();
+    if (!v1) { g_fail++; printf("  FAIL: fixture\n"); return; }
+    NvmV2Module v2;
+    NvmModule *back = NULL;
+    nvm_v2_from_nvm_module(v1, &v2);
+    CHECK_RESULT(nvm_v2_to_nvm_module(&v2, &back), NVM_V2_OK, "converts back");
+    if (back) {
+        CHECK((back->header.flags & NVM_FLAG_HAS_MAIN) != 0,
+              "HAS_MAIN comes back from the presence of an entry point");
+        CHECK((back->header.flags & NVM_FLAG_NEEDS_EXTERN) != 0,
+              "NEEDS_EXTERN comes back from the import table");
+        CHECK((back->header.flags & NVM_FLAG_DEBUG_INFO) != 0,
+              "DEBUG_INFO comes back from the debug table");
+        CHECK(back->struct_count == 2 && back->enum_count == 1 &&
+              back->union_count == 3,
+              "the type-definition counts the verifier bounds against survive");
+        nvm_module_free(back);
+    } else { g_fail += 4; printf("  FAIL: no module\n"); }
+    nvm_v2_module_free(&v2);
+    nvm_module_free(v1);
+}
+
+/* A module with no main leaves entry_point at 0 and clears the flag. Reading
+ * the field alone would make it claim function 0 as its entry. */
+static void test_a_module_without_main_gains_no_entry_point(void) {
+    NvmModule *v1 = build_v1();
+    if (!v1) { g_fail++; printf("  FAIL: fixture\n"); return; }
+    v1->header.flags &= ~(uint32_t)NVM_FLAG_HAS_MAIN;
+    v1->header.entry_point = 0;
+    NvmV2Module v2;
+    nvm_v2_from_nvm_module(v1, &v2);
+    CHECK(v2.entry_point == NVM_V2_NO_ENTRY_POINT,
+          "a main-less module does not claim function 0 as its entry");
+    NvmModule *back = NULL;
+    nvm_v2_to_nvm_module(&v2, &back);
+    if (back) {
+        CHECK((back->header.flags & NVM_FLAG_HAS_MAIN) == 0,
+              "and does not gain HAS_MAIN on the way back");
+        nvm_module_free(back);
+    } else { g_fail++; printf("  FAIL: no module\n"); }
+    nvm_v2_module_free(&v2);
+    nvm_module_free(v1);
 }
 
 static void test_round_trip_through_v2(void) {
@@ -208,6 +262,8 @@ static void test_max_stack_is_zero_until_the_verifier_fills_it(void) {
 int main(void) {
     printf("\n[nvm_v2_convert] NvmModule <-> v2 bridge tests...\n\n");
     test_round_trip_through_v2();
+    test_header_flags_are_derived();
+    test_a_module_without_main_gains_no_entry_point();
     test_identical_shapes_share_a_signature();
     test_empty_module_converts();
     test_max_stack_is_zero_until_the_verifier_fills_it();
