@@ -275,6 +275,24 @@ void env_define_var_with_element_type(Environment *env, const char *name, Type t
     env_define_var_with_type_info(env, name, type, element_type, NULL, is_mut, value);
 }
 
+/* The most recent symbol with this name defined in the file currently being
+ * processed. Used where "the same variable, seen again" is the question --
+ * which is only ever true within one file. Matching by name alone lets a
+ * definition inherit metadata from an unrelated symbol in another module,
+ * which is the same cross-file confusion that made source-position lookups
+ * wrong. */
+static Symbol *env_get_var_same_file(Environment *env, const char *name) {
+    if (!env || !name) return NULL;
+    for (int i = env->symbol_count - 1; i >= 0; i--) {
+        Symbol *sym = &env->symbols[i];
+        if (!sym->name || safe_strcmp(sym->name, name) != 0) continue;
+        if (sym->def_file == env->current_file) return sym;
+        if (sym->def_file && env->current_file
+                && strcmp(sym->def_file, env->current_file) == 0) return sym;
+    }
+    return NULL;
+}
+
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
@@ -295,11 +313,12 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.from_c_header = false;  /* Not from C header (normal nanolang variable) */
     sym.def_line = 0;     /* Will be set by type checker if needed */
     sym.def_column = 0;
+    sym.def_file = env->current_file;   /* NULL when no file is in scope */
 
     /* WORKAROUND: Check if symbol already exists and preserve/update metadata */
     /* This handles a bug where symbols are added multiple times during type-checking.
      * When a symbol is re-added, preserve or update struct_type_name to maintain type information. */
-    Symbol *existing = env_get_var(env, name);
+    Symbol *existing = env_get_var_same_file(env, name);
     if (existing) {
         /* If existing has struct_type_name but new one doesn't, preserve it */
         if (existing->struct_type_name && !sym.struct_type_name) {
@@ -349,6 +368,14 @@ Symbol *env_get_var(Environment *env, const char *name) {
     return NULL;
 }
 
+void env_set_current_file(Environment *env, const char *path) {
+    if (env) env->current_file = path;
+}
+
+const char *env_current_file(Environment *env) {
+    return env ? env->current_file : NULL;
+}
+
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
     if (!env || !name) return NULL;
     if (line <= 0) return env_get_var(env, name);
@@ -373,6 +400,20 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         int sline = sym->def_line;
         int scol = sym->def_column;
         if (sline <= 0) {
+            continue;
+        }
+
+        /* Line numbers only mean something inside one file. Comparing a
+         * position in the file being processed against a definition in some
+         * other module returns whichever unrelated symbol happens to sit at a
+         * lower line there -- which is how an imported function's parameter
+         * `a` picked up an `a` from the main program and inherited its type,
+         * silently lowering float arithmetic to integer opcodes. A symbol from
+         * another file is not visible here at all; one with no file recorded
+         * still reaches the fallback below, which is what keeps builtins and
+         * anything registered without a location working. */
+        if (sym->def_file && env->current_file
+                && strcmp(sym->def_file, env->current_file) != 0) {
             continue;
         }
 

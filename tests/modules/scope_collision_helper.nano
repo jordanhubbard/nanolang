@@ -1,0 +1,37 @@
+/* Helper for tests/test_symbol_scoping.nano.
+ *
+ * The parameter names here deliberately collide with variables in the
+ * importing program. Symbol lookup uses source position to decide which
+ * definition is visible, and a position only means something inside the file
+ * it came from -- so compiling this function must resolve `a`, `b` and `t`
+ * against this file and nothing else.
+ */
+
+pub pure fn scoped_blend(a: float, b: float, t: float) -> float {
+    return (+ a (* (- b a) t))
+}
+
+shadow scoped_blend {
+    assert (== (scoped_blend 0.0 10.0 0.5) 5.0)
+    assert (== (scoped_blend 0.0 10.0 0.0) 0.0)
+}
+
+pub struct ScopedPoint {
+    x: float,
+    y: float
+}
+
+pub pure fn scoped_midpoint(a: ScopedPoint, b: ScopedPoint) -> ScopedPoint {
+    return ScopedPoint {
+        x: (* (+ a.x b.x) 0.5),
+        y: (* (+ a.y b.y) 0.5)
+    }
+}
+
+shadow scoped_midpoint {
+    let p: ScopedPoint = ScopedPoint { x: 0.0, y: 0.0 }
+    let q: ScopedPoint = ScopedPoint { x: 4.0, y: 8.0 }
+    let m: ScopedPoint = (scoped_midpoint p q)
+    assert (== m.x 2.0)
+    assert (== m.y 4.0)
+}

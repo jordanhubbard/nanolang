@@ -2809,6 +2809,34 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
         if (fn_node->as.function.params[i].struct_type_name) {
             cg->locals[slot].struct_type = fn_node->as.function.params[i].struct_type_name;
         }
+
+        /* Put the parameter's declared type where check_expression can find
+         * it. Operator lowering chooses the integer or the float opcode from
+         * that type, so a parameter the environment cannot resolve silently
+         * becomes an integer -- which is how a transitively imported
+         * `lerp(a: float, b: float, t: float)` compiled to I64_SUB and
+         * I64_ADD and would have trapped with "requires two integers" if it
+         * were ever called.
+         *
+         * Stamped with the file and line of this function, so it is visible
+         * exactly where it should be: within this file, at or after this
+         * point. Two modules may both have a parameter named `a` without
+         * either seeing the other's. */
+        const Parameter *param = &fn_node->as.function.params[i];
+        Value unset = create_void();
+        env_define_var_with_type_info(cg->env, param->name, param->type,
+                                      param->element_type, param->type_info,
+                                      false, unset);
+        Symbol *psym = env_get_var(cg->env, param->name);
+        if (psym) {
+            psym->def_line = fn_node->line;
+            psym->def_column = 0;
+            /* The environment owns and frees this string, so it gets a copy
+             * rather than the AST's pointer. */
+            if (param->struct_type_name && !psym->struct_type_name)
+                psym->struct_type_name = strdup(param->struct_type_name);
+            psym->is_used = true;   /* a parameter is not an unused local */
+        }
     }
 
     /* Compile function body */
@@ -2845,6 +2873,43 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
 }
 
 /* ── Main compilation entry point ───────────────────────────────── */
+
+/* Copy a struct definition out of an imported module's AST into the
+ * environment. The environment owns and frees these strings, and the AST is
+ * freed independently, so every field is duplicated -- handing over an AST
+ * pointer here is a double free at teardown, which is how I first wrote it. */
+static void register_imported_struct(Environment *env, ASTNode *item) {
+    if (!env || !item || item->type != AST_STRUCT_DEF) return;
+    StructDef sdef;
+    memset(&sdef, 0, sizeof(sdef));
+    sdef.name = strdup(item->as.struct_def.name);
+    sdef.field_count = item->as.struct_def.field_count;
+    sdef.field_names = malloc(sizeof(char *) * (size_t)sdef.field_count);
+    sdef.field_types = malloc(sizeof(Type) * (size_t)sdef.field_count);
+    sdef.field_type_names = malloc(sizeof(char *) * (size_t)sdef.field_count);
+    sdef.field_element_types = malloc(sizeof(Type) * (size_t)sdef.field_count);
+    if (!sdef.field_names || !sdef.field_types || !sdef.field_type_names
+            || !sdef.field_element_types) {
+        free(sdef.name); free(sdef.field_names); free(sdef.field_types);
+        free(sdef.field_type_names); free(sdef.field_element_types);
+        return;
+    }
+    for (int j = 0; j < sdef.field_count; j++) {
+        sdef.field_names[j] = strdup(item->as.struct_def.field_names[j]);
+        sdef.field_types[j] = item->as.struct_def.field_types[j];
+        sdef.field_type_names[j] =
+            item->as.struct_def.field_type_names && item->as.struct_def.field_type_names[j]
+              ? strdup(item->as.struct_def.field_type_names[j]) : NULL;
+        sdef.field_element_types[j] =
+            item->as.struct_def.field_element_types
+              ? item->as.struct_def.field_element_types[j] : TYPE_UNKNOWN;
+    }
+    sdef.is_resource = item->as.struct_def.is_resource;
+    sdef.is_extern = item->as.struct_def.is_extern;
+    sdef.is_pub = item->as.struct_def.is_pub;
+    sdef.module_name = NULL;
+    env_define_struct(env, sdef);
+}
 
 CodegenResult codegen_compile(ASTNode *program, Environment *env,
                               ModuleList *modules, const char *input_file) {
@@ -3257,6 +3322,17 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
                         sd->def_idx = cg.struct_count;
                         cg.struct_count++;
                     }
+                    /* Also give the environment the definition, so a field
+                     * access inside this module's own function bodies can be
+                     * typed. Codegen's table above answers "which struct index"
+                     * for AGG_GET; check_expression needs "what type is this
+                     * field" to pick the integer or float operator, and it
+                     * reads the environment. Without it, `a.x` on a float
+                     * field lowered to I64_ADD -- the same failure as an
+                     * untyped parameter, one level further in. */
+                    if (!env_get_struct(env, mitem->as.struct_def.name)) {
+                        register_imported_struct(env, mitem);
+                    }
                 }
 
                 if (mitem->type == AST_ENUM_DEF && cg.enum_count < MAX_ENUM_DEFS) {
@@ -3397,6 +3473,13 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
     }
 
     /* ── Pass 2: Compile function bodies ────────────────────────── */
+    /* Symbol visibility is decided by source position, and a position only
+     * means something inside the file it came from. Each pass below tells the
+     * environment which file it is walking, so a lookup for an identifier in
+     * an imported module cannot resolve to a symbol in the main program that
+     * happens to sit at a lower line number. */
+    const char *outer_file = env_current_file(env);
+    env_set_current_file(env, input_file);
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_FUNCTION && !item->as.function.is_extern) {
@@ -3411,6 +3494,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
             if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
 
+            env_set_current_file(env, modules->module_paths[mi]);
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = mod_ast->as.program.items[m];
                 if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
@@ -3421,6 +3505,7 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
             if (cg.had_error) break;
         }
     }
+    env_set_current_file(env, outer_file);   /* leave the environment as found */
 
     /* For shadow-only programs (no main), generate a synthetic main that returns 0 */
     if (main_fn_idx < 0 && !cg.had_error) {
