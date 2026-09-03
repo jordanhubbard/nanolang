@@ -48,11 +48,15 @@ def main() -> int:
             exit_codes.setdefault(row["workload"], set()).add(
                 int(row.get("exit_code") or 0)
             )
-            profiles.setdefault(row["workload"], Path(row["profile"]))
+            # Cold startup has no profile: its whole point is that nothing
+            # runs, so there are no counters to record.
+            if row.get("profile"):
+                profiles.setdefault(row["workload"], Path(row["profile"]))
 
     workloads = []
     for name, elapsed in sorted(samples.items()):
-        profile = json.loads(profiles[name].read_text())
+        path = profiles.get(name)
+        profile = json.loads(path.read_text()) if path and path.is_file() else {}
         median = statistics.median(elapsed)
         retired = int(profile.get("retired", 0))
         workloads.append(

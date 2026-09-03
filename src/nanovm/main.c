@@ -30,6 +30,9 @@ static bool g_isolate_ffi = false;
 /* Global flag for debug mode (--debug or DEBUG env var) */
 static bool g_debug_mode = false;
 static const char *g_profile_path = NULL;
+/* Iterations of the loaded module per process. Benchmarks use this to push
+ * process startup below the execution time they are trying to measure. */
+static uint32_t g_repeat = 1;
 
 static uint8_t *read_file(const char *path, uint32_t *out_size) {
     FILE *f = fopen(path, "rb");
@@ -130,6 +133,29 @@ static int run_standalone(const char *path) {
         }
     }
 
+    /* Repeat the program in this process, reusing the loaded module.
+     *
+     * Without this, a benchmark measures process startup and almost nothing
+     * else: the workloads here retire between 78 and 32,082 instructions and
+     * every one of them takes about the same 17 ms of wall clock, because the
+     * spawn dominates by three orders of magnitude. A harness built on that
+     * cannot see an interpreter change of any size. Running the module N times
+     * behind one startup lets the per-iteration cost be recovered by
+     * comparing two values of N. */
+    VmResult result = VM_OK;
+    for (uint32_t iteration = 1; iteration < g_repeat; iteration++) {
+        VmState warm;
+        vm_init(&warm, module);
+        if (g_isolate_ffi) warm.isolate_ffi = true;
+        VmResult r = vm_execute(&warm);
+        vm_destroy(&warm);
+        if (r != VM_OK) {
+            fprintf(stderr, "Runtime error on repeat iteration %u\n", iteration);
+            nvm_module_free(module);
+            return 1;
+        }
+    }
+
     VmState vm;
     vm_init(&vm, module);
     vm_profile_enable(&vm, g_profile_path != NULL);
@@ -144,7 +170,7 @@ static int run_standalone(const char *path) {
         vm.debug_mode = true;
     }
 
-    VmResult result = vm_execute(&vm);
+    result = vm_execute(&vm);
 
     if (g_profile_path) {
         FILE *profile = strcmp(g_profile_path, "-") == 0
@@ -235,6 +261,9 @@ int main(int argc, char *argv[]) {
             g_isolate_ffi = true;
         } else if (strcmp(argv[i], "--debug") == 0) {
             g_debug_mode = true;
+        } else if (strcmp(argv[i], "--repeat") == 0 && i + 1 < argc) {
+            long n = strtol(argv[++i], NULL, 10);
+            g_repeat = (n > 0 && n <= 1000000) ? (uint32_t)n : 1;
         } else if (strcmp(argv[i], "--profile-isa") == 0 && i + 1 < argc) {
             g_profile_path = argv[++i];
         } else if (argv[i][0] == '-') {
