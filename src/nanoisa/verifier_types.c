@@ -184,25 +184,42 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
     const uint32_t slots = (uint32_t)max_depth;
     const uint32_t n = decoded->instruction_count;
 
-    uint8_t *state = malloc((size_t)(n + 1) * slots);
-    uint16_t *depth = malloc((size_t)(n + 1) * sizeof(*depth));
-    bool *seen = calloc((size_t)(n + 1), sizeof(*seen));
-    uint32_t *work = malloc((size_t)(n + 1) * sizeof(*work));
-    if (!state || !depth || !seen || !work) {
-        free(state); free(depth); free(seen); free(work);
+    /* A fixpoint worklist: an instruction goes back on the queue whenever a
+     * merge widens its state, so it can be visited more than once. The queue
+     * is circular and carries a per-instruction "already queued" flag, which
+     * is what bounds it -- at most one entry per instruction can be live, so
+     * n + 1 slots always suffice.
+     *
+     * Without the flag the queue is unbounded: it held n + 1 entries while
+     * both first visits and re-queues pushed into it, and pushing past the
+     * end corrupted the heap. macOS absorbed it; glibc aborted while
+     * compiling an example, which is where this surfaced. */
+    const uint32_t capacity = n + 1;
+    uint8_t *state = malloc((size_t)capacity * slots);
+    uint16_t *depth = malloc((size_t)capacity * sizeof(*depth));
+    bool *seen = calloc((size_t)capacity, sizeof(*seen));
+    bool *queued = calloc((size_t)capacity, sizeof(*queued));
+    uint32_t *work = malloc((size_t)capacity * sizeof(*work));
+    if (!state || !depth || !seen || !queued || !work) {
+        free(state); free(depth); free(seen); free(queued); free(work);
         return ok;   /* height verification already passed; this is extra */
     }
-    memset(state, TYPE_UNKNOWN, (size_t)(n + 1) * slots);
-    memset(depth, 0, (size_t)(n + 1) * sizeof(*depth));
+    memset(state, TYPE_UNKNOWN, (size_t)capacity * slots);
+    memset(depth, 0, (size_t)capacity * sizeof(*depth));
 
-    uint32_t head = 0, tail = 0;
+    uint32_t head = 0, live = 0;
     seen[0] = true;
-    work[tail++] = 0;
+    queued[0] = true;
+    work[0] = 0;
+    live = 1;
 
     NvmVerifyResult result = ok;
 
-    while (head < tail) {
-        uint32_t index = work[head++];
+    while (live > 0) {
+        uint32_t index = work[head];
+        head = (head + 1) % capacity;
+        live--;
+        queued[index] = false;
         if (index >= n) continue;
 
         const VmDecodedInstruction *di = &decoded->instructions[index];
@@ -291,7 +308,11 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
                 memcpy(dst, next, slots);
                 depth[s] = nd;
                 seen[s] = true;
-                work[tail++] = s;
+                if (!queued[s]) {
+                    queued[s] = true;
+                    work[(head + live) % capacity] = s;
+                    live++;
+                }
                 continue;
             }
             /* Merge. A disagreement widens rather than failing: two paths
@@ -307,12 +328,16 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
             for (uint16_t k = common; k < depth[s] && k < slots; k++) {
                 if (dst[k] != TYPE_UNKNOWN) { dst[k] = TYPE_UNKNOWN; changed = true; }
             }
-            if (changed && tail <= n) work[tail++] = s;
+            if (changed && !queued[s]) {
+                queued[s] = true;
+                work[(head + live) % capacity] = s;
+                live++;
+            }
         }
     }
 
 done:
-    free(state); free(depth); free(seen); free(work);
+    free(state); free(depth); free(seen); free(queued); free(work);
     if (!result.ok && error && error_size > 0)
         snprintf(error, error_size, "%s", result.error_msg);
     return result;
