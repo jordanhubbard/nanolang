@@ -186,6 +186,11 @@ static void test_an_understated_max_stack_is_rejected(void) {
     n += isa_encode(&(DecodedInstruction){ .opcode = OP_PUSH_I64,
              .operands[0].i64 = 3 }, code + n, 64);
     n += isa_encode(&(DecodedInstruction){ .opcode = OP_ADD }, code + n, 64);
+    /* Down to nothing before returning: the function declares no results, and
+     * the verifier requires a return to leave exactly what is declared. The
+     * deepest point is still 3. */
+    n += isa_encode(&(DecodedInstruction){ .opcode = OP_POP }, code + n, 64);
+    n += isa_encode(&(DecodedInstruction){ .opcode = OP_POP }, code + n, 64);
     n += isa_encode(&(DecodedInstruction){ .opcode = OP_RET }, code + n, 64);
 
     NvmModule *m = nvm_module_new();

@@ -164,6 +164,20 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
             return fail("function[%u] %s at offset %u has no known stack effect",
                         fn_idx, info->name, decoded_instruction->byte_offset);
         int32_t before = heights[index];
+
+        /* Return shape: a return must leave exactly the results the function
+         * declares. Merely having enough is not the same thing -- a function
+         * declaring one result and returning with two leaves a value on the
+         * caller's stack that the caller was never verified against. */
+        if (instruction->opcode == OP_RET
+                && before != (int32_t)mod->functions[fn_idx].result_count) {
+            free(heights);
+            free(work);
+            return fail("function[%u] returns with %d values at offset %u but declares %u",
+                        fn_idx, before, decoded_instruction->byte_offset,
+                        mod->functions[fn_idx].result_count);
+        }
+
         if (before < pop_count) {
             free(heights);
             free(work);
@@ -191,6 +205,23 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
         }
         for (uint32_t i = 0; i < successor_count; i++) {
             uint32_t successor = successors[i];
+            /* Reaching the end of a function's code is an implicit return,
+             * not a fall-through into whatever follows: the VM checks the
+             * result count and tags there exactly as OP_RET does. So the rule
+             * is not "a path must end in RET" -- it is that every way out
+             * leaves what the function declares. Checking it here is what
+             * makes the implicit exit as verified as the explicit one. */
+            if (successor == decoded->instruction_count) {
+                if (after != (int32_t)mod->functions[fn_idx].result_count) {
+                    free(heights);
+                    free(work);
+                    return fail("function[%u] reaches its end after offset %u with %d values "
+                                "but declares %u",
+                                fn_idx, decoded_instruction->byte_offset, after,
+                                mod->functions[fn_idx].result_count);
+                }
+                continue;
+            }
             if (heights[successor] < 0) {
                 heights[successor] = after;
                 work[tail++] = successor;

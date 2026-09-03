@@ -66,6 +66,77 @@ static NvmModule *make_simple_module(const uint8_t *code, uint32_t code_size,
     return mod;
 }
 
+/* A function that leaves a value on the stack returns it, so it has to say
+ * so: OP_RET traps at run time when the count on the stack differs from the
+ * declared result_count, and the verifier now proves that statically. These
+ * fixtures compute one value and return, so they declare one. */
+static void declares_one_result(NvmModule *mod) {
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
+}
+
+/* ── Return shape ────────────────────────────────────────────────────────
+ *
+ * OP_RET traps when the number of values on the stack differs from the
+ * function's declared result_count, and reaching the end of a function's code
+ * is an implicit return the VM checks the same way. Both were run-time-only
+ * failures; the verifier now proves them statically.
+ */
+
+static void test_returning_more_than_declared_fails(void) {
+    const char *test_name = "return shape: returning more values than declared fails";
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)2);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    declares_one_result(mod);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "two values with one declared result must fail");
+    ASSERT(strstr(r.error_msg, "declares") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_returning_fewer_than_declared_fails(void) {
+    const char *test_name = "return shape: returning nothing when a result is declared fails";
+    uint8_t code[32];
+    uint32_t n = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    declares_one_result(mod);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "an empty stack with one declared result must fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_implicit_return_shape_is_checked(void) {
+    const char *test_name = "return shape: the implicit return at end of code is checked too";
+    /* No RET at all. The VM treats reaching the end as a return and checks the
+     * result count there, so leaving a value while declaring none is just as
+     * wrong as doing it explicitly -- and used to verify clean. */
+    uint8_t code[32];
+    uint32_t n = emit(code, OP_PUSH_I64, (int64_t)7);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "falling off the end with a value and no declared result must fail");
+    ASSERT(strstr(r.error_msg, "reaches its end") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_implicit_return_with_matching_shape_passes(void) {
+    const char *test_name = "return shape: a clean implicit return is still legal";
+    uint8_t code[32];
+    uint32_t n = emit(code, OP_NOP);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 /* ── Maximum operand depth ───────────────────────────────────────────────
  *
  * verify_stack_heights already walks every reachable instruction and knows the
@@ -96,6 +167,10 @@ static void test_max_stack_counts_the_deepest_point(void) {
     n += emit(code + n, OP_PUSH_I64, (int64_t)2);
     n += emit(code + n, OP_PUSH_I64, (int64_t)3);
     n += emit(code + n, OP_ADD);
+    /* Down to nothing before returning: the function declares no results, and
+     * the verifier now requires a return to leave exactly what is declared. */
+    n += emit(code + n, OP_POP);
+    n += emit(code + n, OP_POP);
     n += emit(code + n, OP_RET);
     NvmModule *mod = make_simple_module(code, n, 0, 0);
     uint16_t depth = 0;
@@ -159,6 +234,7 @@ static void test_valid_simple_function(void) {
     off += emit(code + off, OP_PUSH_VOID);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "simple NOP+RET function should verify OK");
     nvm_module_free(mod);
@@ -605,6 +681,8 @@ static void test_op_push_str_valid(void) {
     fn.name_idx = name_idx;
     fn.code_offset = code_off;
     fn.code_length = off;
+    fn.result_tag = TAG_STRING;   /* the pushed string is the result */
+    fn.result_count = 1;
     uint32_t fn_idx = nvm_add_function(mod, &fn);
     mod->header.flags = NVM_FLAG_HAS_MAIN;
     mod->header.entry_point = fn_idx;
@@ -635,6 +713,7 @@ static void test_op_load_local_valid(void) {
     off += emit(code + off, OP_LOAD_LOCAL, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 1 /* local_count */, 0);
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "OP_LOAD_LOCAL slot 0 with local_count=1 should pass");
     nvm_module_free(mod);
@@ -674,6 +753,7 @@ static void test_op_load_upvalue_valid(void) {
     off += emit(code + off, OP_LOAD_UPVALUE, (uint16_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 1 /* upvalue_count */);
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "OP_LOAD_UPVALUE slot 0 with upvalue_count=1 should pass");
     nvm_module_free(mod);
@@ -728,6 +808,7 @@ static void test_op_struct_new_valid(void) {
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     mod->struct_count = 2;  /* def_idx=0 is valid */
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "OP_STRUCT_NEW def_idx=0 with struct_count=2 should pass");
     nvm_module_free(mod);
@@ -758,6 +839,7 @@ static void test_op_struct_new_zero_count_skips(void) {
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     mod->struct_count = 0;
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "OP_STRUCT_NEW with struct_count=0 should skip validation");
     nvm_module_free(mod);
@@ -812,6 +894,7 @@ static void test_op_closure_new_valid(void) {
     off += emit(code + off, OP_CLOSURE_NEW, (uint32_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "OP_CLOSURE_NEW with valid fn_idx should pass");
     nvm_module_free(mod);
@@ -915,6 +998,7 @@ static void test_call_extern_valid_signature(void) {
     uint32_t fname = nvm_add_string(mod, "add", 3);
     uint8_t params[2] = { TAG_INT, TAG_INT };
     nvm_add_import(mod, mname, fname, 2, TAG_INT, params);
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "extern call to a well-formed import signature should verify OK");
     nvm_module_free(mod);
@@ -993,13 +1077,13 @@ static void test_call_module_recognized(void) {
     const char *test_name = "nvm_verify: OP_CALL_MODULE is a recognized linked call";
     uint8_t code[16];
     uint32_t off = 0;
-    /* The declared shape is what makes this verifiable without a linked table.
-     * Passing fewer arguments than the operand count was undefined behaviour:
-     * it read zero on arm64 and something else on x86-64. */
+    /* No arguments, one result: the encoded shape is what makes this
+     * verifiable without a linked-module table. */
     off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0,
-                (uint16_t)0, (uint16_t)0);
+                (uint16_t)0, (uint16_t)1);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, r.error_msg);
     nvm_module_free(mod);
@@ -1240,6 +1324,7 @@ static void test_arithmetic_instructions(void) {
     off += emit(code + off, OP_DIV);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
+    declares_one_result(mod);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "arithmetic opcodes should verify OK");
     nvm_module_free(mod);
@@ -1300,6 +1385,7 @@ static void test_verify_one_function(void) {
     off += emit(code + off, OP_PUSH_I64, (int64_t)42);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
+    declares_one_result(mod);
     NvmVerifyResult valid = nvm_verify_function(mod, 0);
     ASSERT(valid.ok, "valid incremental function should pass");
     NvmVerifyResult missing = nvm_verify_function(mod, 1);
@@ -1389,6 +1475,10 @@ int main(void) {
     test_hm_new_bad_value_tag();
     test_type_check_bad_tag();
     test_valid_type_tags_pass();
+    test_returning_more_than_declared_fails();
+    test_returning_fewer_than_declared_fails();
+    test_implicit_return_shape_is_checked();
+    test_implicit_return_with_matching_shape_passes();
     test_max_stack_of_an_empty_function();
     test_max_stack_counts_the_deepest_point();
     test_max_stack_is_refused_for_an_unverifiable_function();
