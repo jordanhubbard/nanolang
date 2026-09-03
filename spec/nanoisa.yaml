@@ -49,10 +49,10 @@ legacy_opcodes:
   - {name: ROT3, code: 0x0a, operands: [], pops: 3, pushes: 3}
   - {name: LOAD_LOCAL, code: 0x10, operands: [U16], pops: 0, pushes: 1}
   - {name: STORE_LOCAL, code: 0x11, operands: [U16], pops: 1, pushes: 0}
-  - {name: LOAD_GLOBAL, code: 0x12, operands: [U32]}
-  - {name: STORE_GLOBAL, code: 0x13, operands: [U32]}
-  - {name: LOAD_UPVALUE, code: 0x14, operands: [U16, U16]}
-  - {name: STORE_UPVALUE, code: 0x15, operands: [U16, U16]}
+  - {name: LOAD_GLOBAL, code: 0x12, operands: [U32], pops: 0, pushes: 1}
+  - {name: STORE_GLOBAL, code: 0x13, operands: [U32], pops: 1, pushes: 0}
+  - {name: LOAD_UPVALUE, code: 0x14, operands: [U16, U16], pops: 0, pushes: 1}
+  - {name: STORE_UPVALUE, code: 0x15, operands: [U16, U16], pops: 1, pushes: 0}
   - {name: ADD, code: 0x20, operands: [], pops: 2, pushes: 1}
   - {name: SUB, code: 0x21, operands: [], pops: 2, pushes: 1}
   - {name: MUL, code: 0x22, operands: [], pops: 2, pushes: 1}
@@ -73,130 +73,130 @@ legacy_opcodes:
   - {name: JMP_TRUE, code: 0x39, operands: [I32], pops: 1, pushes: 0}
   - {name: JMP_FALSE, code: 0x3a, operands: [I32], pops: 1, pushes: 0}
   - {name: CALL, code: 0x3b, operands: [U32]}
-  - {name: CALL_INDIRECT, code: 0x3c, operands: []}
+  - {name: CALL_INDIRECT, code: 0x3c, operands: [U16, U16]}
   - {name: RET, code: 0x3d, operands: []}
   - {name: CALL_EXTERN, code: 0x3e, operands: [U32]}
-  - {name: CALL_MODULE, code: 0x3f, operands: [U32, U32]}
-  - {name: STR_LEN, code: 0x40, operands: []}
-  - {name: STR_CONCAT, code: 0x41, operands: []}
-  - {name: STR_SUBSTR, code: 0x42, operands: []}
-  - {name: STR_CONTAINS, code: 0x43, operands: []}
-  - {name: STR_EQ, code: 0x44, operands: []}
-  - {name: STR_CHAR_AT, code: 0x45, operands: []}
-  - {name: STR_FROM_INT, code: 0x46, operands: []}
-  - {name: STR_FROM_FLOAT, code: 0x47, operands: []}
-  - {name: STR_TRIM, code: 0x48, operands: []}
-  - {name: STR_TO_LOWER, code: 0x49, operands: []}
-  - {name: STR_TO_UPPER, code: 0x4a, operands: []}
-  - {name: STR_STARTS_WITH, code: 0x4b, operands: []}
-  - {name: STR_ENDS_WITH, code: 0x4c, operands: []}
-  - {name: STR_SPLIT, code: 0x4d, operands: []}
-  - {name: STR_REPLACE, code: 0x4e, operands: []}
-  - {name: ARR_NEW, code: 0x50, operands: [U8]}
-  - {name: ARR_PUSH, code: 0x51, operands: []}
-  - {name: ARR_POP, code: 0x52, operands: []}
-  - {name: ARR_GET, code: 0x53, operands: []}
-  - {name: ARR_SET, code: 0x54, operands: []}
-  - {name: ARR_LEN, code: 0x55, operands: []}
-  - {name: ARR_SLICE, code: 0x56, operands: []}
-  - {name: ARR_REMOVE, code: 0x57, operands: []}
+  - {name: CALL_MODULE, code: 0x3f, operands: [U32, U32, U16, U16]}
+  - {name: STR_LEN, code: 0x40, operands: [], pops: 1, pushes: 1}
+  - {name: STR_CONCAT, code: 0x41, operands: [], pops: 2, pushes: 1}
+  - {name: STR_SUBSTR, code: 0x42, operands: [], pops: 3, pushes: 1}
+  - {name: STR_CONTAINS, code: 0x43, operands: [], pops: 2, pushes: 1}
+  - {name: STR_EQ, code: 0x44, operands: [], pops: 2, pushes: 1}
+  - {name: STR_CHAR_AT, code: 0x45, operands: [], pops: 2, pushes: 1}
+  - {name: STR_FROM_INT, code: 0x46, operands: [], pops: 1, pushes: 1}
+  - {name: STR_FROM_FLOAT, code: 0x47, operands: [], pops: 1, pushes: 1}
+  - {name: STR_TRIM, code: 0x48, operands: [], pops: 1, pushes: 1}
+  - {name: STR_TO_LOWER, code: 0x49, operands: [], pops: 1, pushes: 1}
+  - {name: STR_TO_UPPER, code: 0x4a, operands: [], pops: 1, pushes: 1}
+  - {name: STR_STARTS_WITH, code: 0x4b, operands: [], pops: 2, pushes: 1}
+  - {name: STR_ENDS_WITH, code: 0x4c, operands: [], pops: 2, pushes: 1}
+  - {name: STR_SPLIT, code: 0x4d, operands: [], pops: 2, pushes: 1}
+  - {name: STR_REPLACE, code: 0x4e, operands: [], pops: 3, pushes: 1}
+  - {name: ARR_NEW, code: 0x50, operands: [U8], pops: 0, pushes: 1}
+  - {name: ARR_PUSH, code: 0x51, operands: [], pops: 2, pushes: 1}
+  - {name: ARR_POP, code: 0x52, operands: [], pops: 1, pushes: 2}
+  - {name: ARR_GET, code: 0x53, operands: [], pops: 2, pushes: 1}
+  - {name: ARR_SET, code: 0x54, operands: [], pops: 3, pushes: 1}
+  - {name: ARR_LEN, code: 0x55, operands: [], pops: 1, pushes: 1}
+  - {name: ARR_SLICE, code: 0x56, operands: [], pops: 3, pushes: 1}
+  - {name: ARR_REMOVE, code: 0x57, operands: [], pops: 2, pushes: 1}
   - {name: ARR_LITERAL, code: 0x58, operands: [U8, U16]}
-  - {name: STRUCT_NEW, code: 0x60, operands: [U32]}
-  - {name: STRUCT_GET, code: 0x61, operands: [U16]}
-  - {name: STRUCT_SET, code: 0x62, operands: [U16]}
+  - {name: STRUCT_NEW, code: 0x60, operands: [U32], pops: 0, pushes: 1}
+  - {name: STRUCT_GET, code: 0x61, operands: [U16], pops: 1, pushes: 1}
+  - {name: STRUCT_SET, code: 0x62, operands: [U16], pops: 2, pushes: 1}
   - {name: STRUCT_LITERAL, code: 0x63, operands: [U32, U16]}
   - {name: UNION_CONSTRUCT, code: 0x68, operands: [U32, U16, U16]}
-  - {name: UNION_TAG, code: 0x69, operands: []}
-  - {name: UNION_FIELD, code: 0x6a, operands: [U16]}
+  - {name: UNION_TAG, code: 0x69, operands: [], pops: 1, pushes: 1}
+  - {name: UNION_FIELD, code: 0x6a, operands: [U16], pops: 1, pushes: 1}
   - {name: MATCH_TAG, code: 0x6b, operands: [U16, I32], pops: 0, pushes: 0}
-  - {name: ENUM_VAL, code: 0x6c, operands: [U32, U16]}
+  - {name: ENUM_VAL, code: 0x6c, operands: [U32, U16], pops: 0, pushes: 1}
   - {name: TUPLE_NEW, code: 0x70, operands: [U16]}
-  - {name: TUPLE_GET, code: 0x71, operands: [U16]}
-  - {name: HM_NEW, code: 0x78, operands: [U8, U8]}
-  - {name: HM_GET, code: 0x79, operands: []}
-  - {name: HM_SET, code: 0x7a, operands: []}
-  - {name: HM_HAS, code: 0x7b, operands: []}
-  - {name: HM_DELETE, code: 0x7c, operands: []}
-  - {name: HM_KEYS, code: 0x7d, operands: []}
-  - {name: HM_VALUES, code: 0x7e, operands: []}
-  - {name: HM_LEN, code: 0x7f, operands: []}
-  - {name: GC_RETAIN, code: 0x80, operands: []}
-  - {name: GC_RELEASE, code: 0x81, operands: []}
-  - {name: CAST_INT, code: 0x88, operands: []}
-  - {name: CAST_FLOAT, code: 0x89, operands: []}
-  - {name: CAST_BOOL, code: 0x8a, operands: []}
-  - {name: CAST_STRING, code: 0x8b, operands: []}
-  - {name: TYPE_CHECK, code: 0x8c, operands: [U8]}
+  - {name: TUPLE_GET, code: 0x71, operands: [U16], pops: 1, pushes: 1}
+  - {name: HM_NEW, code: 0x78, operands: [U8, U8], pops: 0, pushes: 1}
+  - {name: HM_GET, code: 0x79, operands: [], pops: 2, pushes: 1}
+  - {name: HM_SET, code: 0x7a, operands: [], pops: 3, pushes: 1}
+  - {name: HM_HAS, code: 0x7b, operands: [], pops: 2, pushes: 1}
+  - {name: HM_DELETE, code: 0x7c, operands: [], pops: 2, pushes: 1}
+  - {name: HM_KEYS, code: 0x7d, operands: [], pops: 1, pushes: 1}
+  - {name: HM_VALUES, code: 0x7e, operands: [], pops: 1, pushes: 1}
+  - {name: HM_LEN, code: 0x7f, operands: [], pops: 1, pushes: 1}
+  - {name: GC_RETAIN, code: 0x80, operands: [], pops: 1, pushes: 1}
+  - {name: GC_RELEASE, code: 0x81, operands: [], pops: 1, pushes: 0}
+  - {name: CAST_INT, code: 0x88, operands: [], pops: 1, pushes: 1}
+  - {name: CAST_FLOAT, code: 0x89, operands: [], pops: 1, pushes: 1}
+  - {name: CAST_BOOL, code: 0x8a, operands: [], pops: 1, pushes: 1}
+  - {name: CAST_STRING, code: 0x8b, operands: [], pops: 1, pushes: 1}
+  - {name: TYPE_CHECK, code: 0x8c, operands: [U8], pops: 1, pushes: 1}
   - {name: CLOSURE_NEW, code: 0x90, operands: [U32, U16]}
-  - {name: PRINT, code: 0xa0, operands: []}
-  - {name: ASSERT, code: 0xa1, operands: []}
-  - {name: DEBUG_LINE, code: 0xa2, operands: [U32]}
-  - {name: HALT, code: 0xa3, operands: []}
-  - {name: PRINTLN, code: 0xa4, operands: []}
-  - {name: OPAQUE_NULL, code: 0xb0, operands: []}
-  - {name: OPAQUE_VALID, code: 0xb1, operands: []}
-  - {name: MEM_LOAD8, code: 0xb2, operands: []}
-  - {name: MEM_LOAD16, code: 0xb3, operands: []}
-  - {name: MEM_LOAD32, code: 0xb4, operands: []}
-  - {name: MEM_LOAD64, code: 0xb5, operands: []}
-  - {name: MEM_STORE8, code: 0xb6, operands: []}
-  - {name: MEM_STORE16, code: 0xb7, operands: []}
-  - {name: MEM_STORE32, code: 0xb8, operands: []}
-  - {name: MEM_STORE64, code: 0xb9, operands: []}
-  - {name: I64_ADD, code: 0xc0, operands: []}
-  - {name: I64_SUB, code: 0xc1, operands: []}
-  - {name: I64_MUL, code: 0xc2, operands: []}
-  - {name: I64_DIV_S, code: 0xc3, operands: []}
-  - {name: I64_REM_S, code: 0xc4, operands: []}
-  - {name: I64_NEG, code: 0xc5, operands: []}
-  - {name: F64_ADD, code: 0xc8, operands: []}
-  - {name: F64_SUB, code: 0xc9, operands: []}
-  - {name: F64_MUL, code: 0xca, operands: []}
-  - {name: F64_DIV, code: 0xcb, operands: []}
-  - {name: F64_NEG, code: 0xcc, operands: []}
-  - {name: I64_EQ, code: 0xd0, operands: []}
-  - {name: I64_NE, code: 0xd1, operands: []}
-  - {name: I64_LT_S, code: 0xd2, operands: []}
-  - {name: I64_LE_S, code: 0xd3, operands: []}
-  - {name: I64_GT_S, code: 0xd4, operands: []}
-  - {name: I64_GE_S, code: 0xd5, operands: []}
-  - {name: F64_EQ, code: 0xd8, operands: []}
-  - {name: F64_NE, code: 0xd9, operands: []}
-  - {name: F64_LT, code: 0xda, operands: []}
-  - {name: F64_LE, code: 0xdb, operands: []}
-  - {name: F64_GT, code: 0xdc, operands: []}
-  - {name: F64_GE, code: 0xdd, operands: []}
-  - {name: BOOL_AND, code: 0xe0, operands: []}
-  - {name: BOOL_OR, code: 0xe1, operands: []}
-  - {name: BOOL_NOT, code: 0xe2, operands: []}
-  - {name: I64_DIV_U, code: 0xe3, operands: []}
-  - {name: I64_REM_U, code: 0xe4, operands: []}
-  - {name: I64_LT_U, code: 0xe5, operands: []}
-  - {name: I64_LE_U, code: 0xe6, operands: []}
-  - {name: I64_GT_U, code: 0xe7, operands: []}
-  - {name: I64_GE_U, code: 0xe8, operands: []}
-  - {name: I64_AND, code: 0xe9, operands: []}
-  - {name: I64_OR, code: 0xea, operands: []}
-  - {name: I64_XOR, code: 0xeb, operands: []}
-  - {name: I64_INVERT, code: 0xec, operands: []}
-  - {name: I64_SHL, code: 0xed, operands: []}
-  - {name: I64_SHR_S, code: 0xee, operands: []}
-  - {name: I64_SHR_U, code: 0xef, operands: []}
-  - {name: I64_ADD_CARRY, code: 0xf0, operands: []}
-  - {name: I64_SUB_BORROW, code: 0xf1, operands: []}
-  - {name: I64_MUL_WIDE_S, code: 0xf2, operands: []}
-  - {name: I64_MUL_WIDE_U, code: 0xf3, operands: []}
+  - {name: PRINT, code: 0xa0, operands: [], pops: 1, pushes: 0}
+  - {name: ASSERT, code: 0xa1, operands: [], pops: 1, pushes: 0}
+  - {name: DEBUG_LINE, code: 0xa2, operands: [U32], pops: 0, pushes: 0}
+  - {name: HALT, code: 0xa3, operands: [], pops: 0, pushes: 0}
+  - {name: PRINTLN, code: 0xa4, operands: [], pops: 1, pushes: 0}
+  - {name: OPAQUE_NULL, code: 0xb0, operands: [], pops: 0, pushes: 1}
+  - {name: OPAQUE_VALID, code: 0xb1, operands: [], pops: 1, pushes: 1}
+  - {name: MEM_LOAD8, code: 0xb2, operands: [], pops: 1, pushes: 1}
+  - {name: MEM_LOAD16, code: 0xb3, operands: [], pops: 1, pushes: 1}
+  - {name: MEM_LOAD32, code: 0xb4, operands: [], pops: 1, pushes: 1}
+  - {name: MEM_LOAD64, code: 0xb5, operands: [], pops: 1, pushes: 1}
+  - {name: MEM_STORE8, code: 0xb6, operands: [], pops: 2, pushes: 0}
+  - {name: MEM_STORE16, code: 0xb7, operands: [], pops: 2, pushes: 0}
+  - {name: MEM_STORE32, code: 0xb8, operands: [], pops: 2, pushes: 0}
+  - {name: MEM_STORE64, code: 0xb9, operands: [], pops: 2, pushes: 0}
+  - {name: I64_ADD, code: 0xc0, operands: [], pops: 2, pushes: 1}
+  - {name: I64_SUB, code: 0xc1, operands: [], pops: 2, pushes: 1}
+  - {name: I64_MUL, code: 0xc2, operands: [], pops: 2, pushes: 1}
+  - {name: I64_DIV_S, code: 0xc3, operands: [], pops: 2, pushes: 1}
+  - {name: I64_REM_S, code: 0xc4, operands: [], pops: 2, pushes: 1}
+  - {name: I64_NEG, code: 0xc5, operands: [], pops: 1, pushes: 1}
+  - {name: F64_ADD, code: 0xc8, operands: [], pops: 2, pushes: 1}
+  - {name: F64_SUB, code: 0xc9, operands: [], pops: 2, pushes: 1}
+  - {name: F64_MUL, code: 0xca, operands: [], pops: 2, pushes: 1}
+  - {name: F64_DIV, code: 0xcb, operands: [], pops: 2, pushes: 1}
+  - {name: F64_NEG, code: 0xcc, operands: [], pops: 1, pushes: 1}
+  - {name: I64_EQ, code: 0xd0, operands: [], pops: 2, pushes: 1}
+  - {name: I64_NE, code: 0xd1, operands: [], pops: 2, pushes: 1}
+  - {name: I64_LT_S, code: 0xd2, operands: [], pops: 2, pushes: 1}
+  - {name: I64_LE_S, code: 0xd3, operands: [], pops: 2, pushes: 1}
+  - {name: I64_GT_S, code: 0xd4, operands: [], pops: 2, pushes: 1}
+  - {name: I64_GE_S, code: 0xd5, operands: [], pops: 2, pushes: 1}
+  - {name: F64_EQ, code: 0xd8, operands: [], pops: 2, pushes: 1}
+  - {name: F64_NE, code: 0xd9, operands: [], pops: 2, pushes: 1}
+  - {name: F64_LT, code: 0xda, operands: [], pops: 2, pushes: 1}
+  - {name: F64_LE, code: 0xdb, operands: [], pops: 2, pushes: 1}
+  - {name: F64_GT, code: 0xdc, operands: [], pops: 2, pushes: 1}
+  - {name: F64_GE, code: 0xdd, operands: [], pops: 2, pushes: 1}
+  - {name: BOOL_AND, code: 0xe0, operands: [], pops: 2, pushes: 1}
+  - {name: BOOL_OR, code: 0xe1, operands: [], pops: 2, pushes: 1}
+  - {name: BOOL_NOT, code: 0xe2, operands: [], pops: 1, pushes: 1}
+  - {name: I64_DIV_U, code: 0xe3, operands: [], pops: 2, pushes: 1}
+  - {name: I64_REM_U, code: 0xe4, operands: [], pops: 2, pushes: 1}
+  - {name: I64_LT_U, code: 0xe5, operands: [], pops: 2, pushes: 1}
+  - {name: I64_LE_U, code: 0xe6, operands: [], pops: 2, pushes: 1}
+  - {name: I64_GT_U, code: 0xe7, operands: [], pops: 2, pushes: 1}
+  - {name: I64_GE_U, code: 0xe8, operands: [], pops: 2, pushes: 1}
+  - {name: I64_AND, code: 0xe9, operands: [], pops: 2, pushes: 1}
+  - {name: I64_OR, code: 0xea, operands: [], pops: 2, pushes: 1}
+  - {name: I64_XOR, code: 0xeb, operands: [], pops: 2, pushes: 1}
+  - {name: I64_INVERT, code: 0xec, operands: [], pops: 1, pushes: 1}
+  - {name: I64_SHL, code: 0xed, operands: [], pops: 2, pushes: 1}
+  - {name: I64_SHR_S, code: 0xee, operands: [], pops: 2, pushes: 1}
+  - {name: I64_SHR_U, code: 0xef, operands: [], pops: 2, pushes: 1}
+  - {name: I64_ADD_CARRY, code: 0xf0, operands: [], pops: 3, pushes: 2}
+  - {name: I64_SUB_BORROW, code: 0xf1, operands: [], pops: 3, pushes: 2}
+  - {name: I64_MUL_WIDE_S, code: 0xf2, operands: [], pops: 2, pushes: 2}
+  - {name: I64_MUL_WIDE_U, code: 0xf3, operands: [], pops: 2, pushes: 2}
   - {name: PICK, code: 0xf4, operands: [U16]}
   - {name: ROLL, code: 0xf5, operands: [U16]}
-  - {name: ARRAY_ADD, code: 0xf6, operands: []}
-  - {name: ARRAY_SUB, code: 0xf7, operands: []}
-  - {name: ARRAY_MUL, code: 0xf8, operands: []}
-  - {name: ARRAY_DIV, code: 0xf9, operands: []}
-  - {name: FUNCREF, code: 0xfa, operands: [U32]}
+  - {name: ARRAY_ADD, code: 0xf6, operands: [], pops: 2, pushes: 1}
+  - {name: ARRAY_SUB, code: 0xf7, operands: [], pops: 2, pushes: 1}
+  - {name: ARRAY_MUL, code: 0xf8, operands: [], pops: 2, pushes: 1}
+  - {name: ARRAY_DIV, code: 0xf9, operands: [], pops: 2, pushes: 1}
+  - {name: FUNCREF, code: 0xfa, operands: [U32], pops: 0, pushes: 1}
   - {name: AGG_PACK, code: 0xfb, operands: [U8, U32, U16, U16]}
-  - {name: AGG_GET, code: 0xfc, operands: [U16]}
-  - {name: AGG_SET, code: 0xfd, operands: [U16]}
-  - {name: AGG_TAG, code: 0xfe, operands: []}
+  - {name: AGG_GET, code: 0xfc, operands: [U16], pops: 1, pushes: 1}
+  - {name: AGG_SET, code: 0xfd, operands: [U16], pops: 2, pushes: 1}
+  - {name: AGG_TAG, code: 0xfe, operands: [], pops: 1, pushes: 1}
 
 # Extended opcode plane. When a code byte equals the extension_prefix (0xff)
 # the decoder does not treat it as an instruction; it reads one more byte and

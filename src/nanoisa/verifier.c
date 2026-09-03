@@ -113,10 +113,56 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
             pop_count = instruction->operands[3].u16;
             push_count = 1;
             break;
+        case OP_ARR_LITERAL:
+            pop_count = instruction->operands[1].u16;
+            push_count = 1;
+            break;
+        case OP_CALL_INDIRECT:
+            /* The callee is only known at run time, so its shape is encoded:
+             * the arguments plus the callable itself come off, the declared
+             * results go on. The VM checks the callee against this. */
+            pop_count = (int32_t)instruction->operands[0].u16 + 1;
+            push_count = instruction->operands[1].u16;
+            break;
+        case OP_CALL_MODULE:
+            /* The callee lives in another module, so its shape is encoded too.
+             * That makes a module's stack discipline provable before linking,
+             * and gives nvm_verify_linked a declared shape to check the real
+             * callee against -- a link-time signature mismatch that used to be
+             * invisible. */
+            pop_count = instruction->operands[2].u16;
+            push_count = instruction->operands[3].u16;
+            break;
+        case OP_RET:
+            /* A return consumes this function's declared results and leaves
+             * nothing: the frame goes away with it. */
+            pop_count = mod->functions[fn_idx].result_count;
+            push_count = 0;
+            break;
+        /* PICK and ROLL neither add nor remove anything below the depth they
+         * name, but they require it to exist. Charging the depth to both sides
+         * expresses that with the machinery already here: the underflow check
+         * sees the real requirement and the net effect stays correct. */
+        case OP_PICK:
+            pop_count = instruction->operands[0].u16 + 1;
+            push_count = instruction->operands[0].u16 + 2;
+            break;
+        case OP_ROLL:
+            pop_count = instruction->operands[0].u16 + 1;
+            push_count = instruction->operands[0].u16 + 1;
+            break;
         default:
             break;
         }
-        if (pop_count < 0 || push_count < 0) continue;
+
+        /* Fail closed. An instruction whose stack effect is unknown used to be
+         * skipped, which also skipped enqueueing its successors -- so the walk
+         * stopped there and every instruction after it went unverified while
+         * nvm_verify still returned ok. Absence of data must not read as
+         * proof. See issue #212. */
+        if (pop_count < 0 || push_count < 0)
+            return fail("function[%u] %s at offset %u has no known stack effect",
+                        fn_idx, info->name, decoded_instruction->byte_offset);
         int32_t before = heights[index];
         if (before < pop_count) {
             free(heights);
@@ -370,6 +416,18 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
                 if (fn_target >= target->function_count)
                     FAIL_DECODED("function[%u] OP_CALL_MODULE at offset %u: fn_idx %u >= linked function_count %u",
                                  fn_idx, fn->code_offset + pos, fn_target, target->function_count);
+                /* The encoded shape is what this module's stack discipline was
+                 * proven against. If the real callee disagrees, linking has
+                 * silently changed the meaning of the call. */
+                const NvmFunctionEntry *callee = &target->functions[fn_target];
+                if (instr.operands[2].u16 != callee->arity)
+                    FAIL_DECODED("function[%u] OP_CALL_MODULE at offset %u declares arity %u but linked callee takes %u",
+                                 fn_idx, fn->code_offset + pos,
+                                 instr.operands[2].u16, callee->arity);
+                if (instr.operands[3].u16 != callee->result_count)
+                    FAIL_DECODED("function[%u] OP_CALL_MODULE at offset %u declares %u results but linked callee returns %u",
+                                 fn_idx, fn->code_offset + pos,
+                                 instr.operands[3].u16, callee->result_count);
             }
             break;
         }

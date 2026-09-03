@@ -120,10 +120,12 @@ static void test_instruction_info(void) {
     ASSERT_EQ_INT(info->operands[0], OPERAND_U16, "LOAD_UPVALUE op0 type");
     ASSERT_EQ_INT(info->operands[1], OPERAND_U16, "LOAD_UPVALUE op1 type");
 
-    /* CALL_MODULE - two u32 operands */
+    /* CALL_MODULE - module index, function index, then the declared call
+     * shape. The shape is encoded so a module's stack discipline is provable
+     * before linking and so linking can confirm the real callee matches. */
     info = isa_get_info(OP_CALL_MODULE);
     ASSERT(info != NULL, "CALL_MODULE info exists");
-    ASSERT_EQ_INT(info->operand_count, 2, "CALL_MODULE operand count");
+    ASSERT_EQ_INT(info->operand_count, 4, "CALL_MODULE operand count");
 
     /* UNION_CONSTRUCT - three operands */
     info = isa_get_info(OP_UNION_CONSTRUCT);
@@ -1090,7 +1092,7 @@ static void test_asm_all_operand_types(void) {
         "  CALL 0\n"
         "  TAIL_CALL 0\n"
         "  CALL_EXTERN 1\n"
-        "  CALL_MODULE 0 1\n"
+        "  CALL_MODULE 0 1 0 1\n"
         "  HALT\n"
         ".end\n";
 
