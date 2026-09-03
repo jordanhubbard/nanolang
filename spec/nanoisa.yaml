@@ -94,7 +94,7 @@ legacy_opcodes:
   - {name: STR_REPLACE, code: 0x4e, operands: [], pops: 3, pushes: 1}
   - {name: ARR_NEW, code: 0x50, operands: [U8], pops: 0, pushes: 1}
   - {name: ARR_PUSH, code: 0x51, operands: [], pops: 2, pushes: 1}
-  - {name: ARR_POP, code: 0x52, operands: [], pops: 1, pushes: 2}
+  - {name: ARR_POP, code: 0x52, operands: [], pops: 1, pushes: 1}
   - {name: ARR_GET, code: 0x53, operands: [], pops: 2, pushes: 1}
   - {name: ARR_SET, code: 0x54, operands: [], pops: 3, pushes: 1}
   - {name: ARR_LEN, code: 0x55, operands: [], pops: 1, pushes: 1}
