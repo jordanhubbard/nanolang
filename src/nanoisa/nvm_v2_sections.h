@@ -123,4 +123,61 @@ NvmV2Result nvm_v2_signatures_encode(const NvmV2Signatures *s,
  * deduplicate before assigning indices. */
 bool nvm_v2_signature_equal(const NvmV2Signature *a, const NvmV2Signature *b);
 
+/* ── LAYOUTS ─────────────────────────────────────────────────────────────
+ * Gives AGG_PACK, AGG_GET, AGG_SET and AGG_TAG an on-disk referent.
+ *
+ *   count           u32
+ *   per entry:
+ *     kind          u8    NvmV2LayoutKind
+ *     _pad          u8    must be zero
+ *     field_count   u16
+ *     name_idx      u32   CONSTANTS index, or NVM_V2_NO_INDEX
+ *     per field:
+ *       type_tag    u8
+ *       _pad        u8[3] must be zero
+ *       nested_idx  u32   layout index, or NVM_V2_NO_INDEX when scalar
+ *       name_idx    u32   CONSTANTS index, or NVM_V2_NO_INDEX
+ *
+ * A layout is closed: every nested index refers to a LOWER-numbered layout.
+ * That makes the table acyclic by construction, so a decoder can validate it
+ * in one forward pass and nothing walking it can recurse forever. A forward or
+ * self reference is rejected rather than merely unusual.
+ */
+
+#define NVM_V2_NO_INDEX 0xFFFFFFFFu
+
+typedef enum {
+    NVM_V2_LAYOUT_STRUCT = 0,
+    NVM_V2_LAYOUT_TUPLE  = 1,
+    NVM_V2_LAYOUT_UNION  = 2,
+    NVM_V2_LAYOUT_ENUM   = 3
+} NvmV2LayoutKind;
+
+#define NVM_V2_LAYOUT_KIND_MAX NVM_V2_LAYOUT_ENUM
+
+typedef struct {
+    uint8_t  type_tag;
+    uint32_t nested_idx;  /* lower-numbered layout, or NVM_V2_NO_INDEX */
+    uint32_t name_idx;    /* CONSTANTS index, or NVM_V2_NO_INDEX */
+} NvmV2LayoutField;
+
+typedef struct {
+    uint8_t           kind;
+    uint16_t          field_count;
+    uint32_t          name_idx;
+    NvmV2LayoutField *fields;   /* owned; freed by nvm_v2_layouts_free */
+} NvmV2Layout;
+
+typedef struct {
+    NvmV2Layout *items;
+    uint32_t     count;
+} NvmV2Layouts;
+
+NvmV2Result nvm_v2_layouts_decode(const uint8_t *data, size_t size,
+                                  NvmV2Layouts *out);
+void        nvm_v2_layouts_free(NvmV2Layouts *l);
+size_t      nvm_v2_layouts_encoded_size(const NvmV2Layouts *l);
+NvmV2Result nvm_v2_layouts_encode(const NvmV2Layouts *l,
+                                  uint8_t *out, size_t size);
+
 #endif /* NANOISA_NVM_V2_SECTIONS_H */
