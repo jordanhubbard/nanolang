@@ -256,4 +256,90 @@ size_t      nvm_v2_globals_encoded_size(const NvmV2Globals *g);
 NvmV2Result nvm_v2_globals_encode(const NvmV2Globals *g,
                                   uint8_t *out, size_t size);
 
+/* ── IMPORTS and LINKS ───────────────────────────────────────────────────
+ * Same shape, different meaning. An import is a foreign function reached
+ * through the FFI or the co-process; a link is a call into another NanoISA
+ * module resolved at link time.
+ *
+ *   IMPORTS                          LINKS
+ *   count             u32            count             u32
+ *   per entry (16 bytes):            per entry (16 bytes):
+ *     module_name_idx u32              module_name_idx u32
+ *     symbol_name_idx u32              symbol_name_idx u32
+ *     signature_idx   u32              signature_idx   u32
+ *     kind            u8               flags           u32  bit 0 = weak
+ *     _pad            u8[3]
+ *
+ * Parameter counts and type tags are deliberately absent from both: they live
+ * in SIGNATURES. That is what removes v1's variable-length import tail.
+ */
+
+typedef enum {
+    NVM_V2_IMPORT_FFI       = 0,
+    NVM_V2_IMPORT_COPROCESS = 1
+} NvmV2ImportKind;
+
+#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_COPROCESS
+
+/* A weak link may resolve to nothing. Encoded and validated now; nothing
+ * consumes it until the 4.4 capability work. */
+#define NVM_V2_LINK_WEAK        0x01u
+#define NVM_V2_LINK_KNOWN_FLAGS 0x01u
+
+typedef struct {
+    uint32_t module_name_idx;
+    uint32_t symbol_name_idx;
+    uint32_t signature_idx;
+    uint8_t  kind;
+} NvmV2Import;
+
+typedef struct { NvmV2Import *items; uint32_t count; } NvmV2Imports;
+
+typedef struct {
+    uint32_t module_name_idx;
+    uint32_t symbol_name_idx;
+    uint32_t signature_idx;
+    uint32_t flags;
+} NvmV2Link;
+
+typedef struct { NvmV2Link *items; uint32_t count; } NvmV2Links;
+
+NvmV2Result nvm_v2_imports_decode(const uint8_t *data, size_t size, NvmV2Imports *out);
+void        nvm_v2_imports_free(NvmV2Imports *i);
+size_t      nvm_v2_imports_encoded_size(const NvmV2Imports *i);
+NvmV2Result nvm_v2_imports_encode(const NvmV2Imports *i, uint8_t *out, size_t size);
+
+NvmV2Result nvm_v2_links_decode(const uint8_t *data, size_t size, NvmV2Links *out);
+void        nvm_v2_links_free(NvmV2Links *l);
+size_t      nvm_v2_links_encoded_size(const NvmV2Links *l);
+NvmV2Result nvm_v2_links_encode(const NvmV2Links *l, uint8_t *out, size_t size);
+
+/* ── METADATA and DEBUG ──────────────────────────────────────────────────
+ *   METADATA                         DEBUG
+ *   count           u32              count             u32
+ *   per entry (8):                   per entry (16):
+ *     key_idx       u32                bytecode_offset u64  widened from v1
+ *     value_idx     u32                source_line     u32
+ *                                      source_col      u32  1-based, 0=unknown
+ *
+ * METADATA is free-form key/value into CONSTANTS, so adding a key is not a
+ * format change.
+ */
+
+typedef struct { uint32_t key_idx, value_idx; } NvmV2MetadataEntry;
+typedef struct { NvmV2MetadataEntry *items; uint32_t count; } NvmV2Metadata;
+
+typedef struct { uint64_t bytecode_offset; uint32_t source_line, source_col; } NvmV2DebugEntry;
+typedef struct { NvmV2DebugEntry *items; uint32_t count; } NvmV2Debug;
+
+NvmV2Result nvm_v2_metadata_decode(const uint8_t *data, size_t size, NvmV2Metadata *out);
+void        nvm_v2_metadata_free(NvmV2Metadata *m);
+size_t      nvm_v2_metadata_encoded_size(const NvmV2Metadata *m);
+NvmV2Result nvm_v2_metadata_encode(const NvmV2Metadata *m, uint8_t *out, size_t size);
+
+NvmV2Result nvm_v2_debug_decode(const uint8_t *data, size_t size, NvmV2Debug *out);
+void        nvm_v2_debug_free(NvmV2Debug *d);
+size_t      nvm_v2_debug_encoded_size(const NvmV2Debug *d);
+NvmV2Result nvm_v2_debug_encode(const NvmV2Debug *d, uint8_t *out, size_t size);
+
 #endif /* NANOISA_NVM_V2_SECTIONS_H */
