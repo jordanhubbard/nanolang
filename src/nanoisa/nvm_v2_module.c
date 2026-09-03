@@ -191,8 +191,12 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
     for (uint32_t i = 0; i < m->links.count; i++) {
         const NvmV2Link *lk = &m->links.items[i];
         if (!index_ok(lk->module_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
-        if (!index_ok(lk->symbol_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
-        if (!index_ok(lk->signature_idx, ns, false)) return NVM_V2_ERR_INDEX_RANGE;
+        /* A link may name a whole module rather than one symbol in it -- a
+         * plain dependency edge has no symbol and no call shape -- so both of
+         * these accept the sentinel. An out-of-range value is still rejected;
+         * only "absent" is legal. */
+        if (!index_ok(lk->symbol_name_idx, nc, true)) return NVM_V2_ERR_INDEX_RANGE;
+        if (!index_ok(lk->signature_idx, ns, true)) return NVM_V2_ERR_INDEX_RANGE;
     }
 
     for (uint32_t i = 0; i < m->layouts.count; i++) {
@@ -286,6 +290,8 @@ void nvm_v2_module_free(NvmV2Module *m) {
     nvm_v2_imports_free(&m->imports);
     nvm_v2_links_free(&m->links);
     nvm_v2_debug_free(&m->debug);
+    free(m->owned_tags);
+    m->owned_tags = NULL;
     m->code = NULL;
     m->code_size = 0;
     m->has_debug = false;
