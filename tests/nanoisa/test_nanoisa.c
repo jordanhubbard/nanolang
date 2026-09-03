@@ -1469,7 +1469,10 @@ static void test_disasm_labels(void) {
 static void test_disasm_source_annotations_and_cfg(void) {
     const char *src =
         ".string \"tests/disasm_sample.nano\"\n"
-        ".function main 0 1 0 void 0\n"
+        /* One declared result, and one value live at the RET both branches
+         * reach. The fixture used to declare void and return a value; the
+         * verifier now checks return shape, so that no longer assembles. */
+        ".function main 0 1 0 int 1\n"
         "  DEBUG_LINE 42\n"
         "  PUSH_I64 1\n"
         "  JMP done\n"
