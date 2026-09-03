@@ -2216,7 +2216,7 @@ static void test_closure(void) {
     main_off += emit(main_code + main_off, OP_LOAD_LOCAL, 0);       /* load closure */
     /* CALL_INDIRECT invokes closures directly; the former CLOSURE_CALL opcode
      * was a duplicate that no frontend emitted and has been removed. */
-    main_off += emit(main_code + main_off, OP_CALL_INDIRECT);
+    main_off += emit(main_code + main_off, OP_CALL_INDIRECT, 1, 1);
     main_off += emit(main_code + main_off, OP_RET);
     uint32_t main_idx = add_fn(mod, "main", main_code, main_off, 0, 1);
 
@@ -2244,7 +2244,7 @@ static void test_direct_function_reference(void) {
     uint32_t mo = 0;
     mo += emit(main_code + mo, OP_PUSH_I64, (int64_t)41);
     mo += emit(main_code + mo, OP_FUNCREF, callee);
-    mo += emit(main_code + mo, OP_CALL_INDIRECT);
+    mo += emit(main_code + mo, OP_CALL_INDIRECT, 1, 1);
     mo += emit(main_code + mo, OP_RET);
     uint32_t main_fn = add_fn(mod, "main", main_code, mo, 0, 0);
     mod->header.flags = NVM_FLAG_HAS_MAIN;
@@ -2819,7 +2819,7 @@ static void test_call_indirect(void) {
     moff = 0; /* reset */
     moff += emit(main_code + moff, OP_PUSH_I64, (int64_t)41);
     moff += emit(main_code + moff, OP_CLOSURE_NEW, (uint32_t)helper_idx, (uint16_t)0);
-    moff += emit(main_code + moff, OP_CALL_INDIRECT);
+    moff += emit(main_code + moff, OP_CALL_INDIRECT, 1, 1);
     moff += emit(main_code + moff, OP_RET);
 
     add_fn(mod, "main", main_code, moff, 0, 0);
@@ -3279,7 +3279,8 @@ static void test_call_module(void) {
         uint8_t code[64];
         uint32_t n = 0;
         n += emit(code + n, OP_PUSH_I64, (int64_t)5);  /* arg */
-        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);  /* mod 0, fn 0 */
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0,
+                  (uint16_t)1, (uint16_t)1);  /* mod 0, fn 0, 1 arg -> 1 result */
         n += emit(code + n, OP_RET);
 
         uint32_t name_idx = nvm_add_string(mod_a, "main", 4);
@@ -3325,7 +3326,8 @@ static void test_call_module_string_constant(void) {
     NvmModule *mod_a = nvm_module_new();
     uint8_t root_code[16];
     uint32_t root_len = 0;
-    root_len += emit(root_code + root_len, OP_CALL_MODULE, (uint32_t)0, linked_fn);
+    root_len += emit(root_code + root_len, OP_CALL_MODULE, (uint32_t)0, linked_fn,
+                     (uint16_t)0, (uint16_t)0);
     root_len += emit(root_code + root_len, OP_RET);
     uint32_t root_fn = add_fn(mod_a, "main", root_code, root_len, 0, 0);
 
@@ -3357,7 +3359,8 @@ static void test_call_module_bad_idx(void) {
     {
         uint8_t code[64];
         uint32_t n = 0;
-        n += emit(code + n, OP_CALL_MODULE, (uint32_t)99, (uint32_t)0);
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)99, (uint32_t)0,
+                  (uint16_t)0, (uint16_t)0);
         n += emit(code + n, OP_RET);
 
         uint32_t name_idx = nvm_add_string(mod, "main", 4);
@@ -3441,7 +3444,8 @@ static void test_call_module_chain(void) {
         uint8_t code[64];
         uint32_t n = 0;
         n += emit(code + n, OP_PUSH_I64, (int64_t)4);
-        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)1);
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)1,
+                  (uint16_t)1, (uint16_t)1);
         n += emit(code + n, OP_RET);
 
         uint32_t name = nvm_add_string(mod_a, "main", 4);
@@ -3509,7 +3513,8 @@ static void test_call_module_handle_resolution(void) {
         uint32_t n = 0;
         n += emit(code + n, OP_PUSH_I64, (int64_t)5);
         call_off = n;
-        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+        n += emit(code + n, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0,
+                  (uint16_t)1, (uint16_t)1);
         n += emit(code + n, OP_RET);
 
         uint32_t name_idx = nvm_add_string(mod_a, "main", 4);
@@ -3588,7 +3593,7 @@ static void test_separately_linked_module_roundtrip(void) {
     uint32_t root_size = 0;
     root_size += emit(root_code + root_size, OP_PUSH_I64, (int64_t)5);
     root_size += emit(root_code + root_size, OP_CALL_MODULE, (uint32_t)0,
-                      (uint32_t)0);
+                      (uint32_t)0, (uint16_t)1, (uint16_t)1);
     root_size += emit(root_code + root_size, OP_RET);
     NvmFunctionEntry main_fn = { .result_tag = TAG_INT, .result_count = 1 };
     main_fn.name_idx = nvm_add_string(root, "main", 4);

@@ -571,16 +571,20 @@ static void test_call_result_shape(void) {
     const char *test_name = "nvm_verify: OP_CALL contributes declared result count";
     uint8_t code[32];
     uint32_t off = 0;
+    /* The function declares one result, so RET consumes one. PUSH then CALL
+     * then a single POP leaves exactly that one value -- but only if CALL
+     * pushed its declared result. Had it contributed nothing, the POP would
+     * have taken the pushed value and RET would underflow, which is what makes
+     * this fixture a test of the result count rather than of nothing. */
     off += emit(code + off, OP_PUSH_I64, (int64_t)1);
     off += emit(code + off, OP_CALL, (uint32_t)0);
-    off += emit(code + off, OP_POP);
     off += emit(code + off, OP_POP);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     mod->functions[0].result_tag = TAG_INT;
     mod->functions[0].result_count = 1;
     NvmVerifyResult r = nvm_verify(mod);
-    ASSERT(r.ok, "call result should be present in subsequent stack state");
+    ASSERT(r.ok, r.error_msg);
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -989,11 +993,15 @@ static void test_call_module_recognized(void) {
     const char *test_name = "nvm_verify: OP_CALL_MODULE is a recognized linked call";
     uint8_t code[16];
     uint32_t off = 0;
-    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+    /* The declared shape is what makes this verifiable without a linked table.
+     * Passing fewer arguments than the operand count was undefined behaviour:
+     * it read zero on arm64 and something else on x86-64. */
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0,
+                (uint16_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify(mod);
-    ASSERT(r.ok, "linked module call should verify at single-module stage");
+    ASSERT(r.ok, r.error_msg);
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -1002,7 +1010,8 @@ static void test_call_module_linked_valid(void) {
     const char *test_name = "nvm_verify_linked: OP_CALL_MODULE resolves against linked table";
     uint8_t code[16];
     uint32_t off = 0;
-    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0,
+                (uint16_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *caller = make_simple_module(code, off, 0, 0);
 
@@ -1019,11 +1028,63 @@ static void test_call_module_linked_valid(void) {
     PASS(test_name);
 }
 
+/* The call site declares the shape its own stack discipline was proven
+ * against. If linking binds it to a callee of a different shape, the proof no
+ * longer describes what will run -- so linking is where the two are compared.
+ * Before the shape was encoded there was nothing to compare. */
+static void test_call_module_shape_mismatch_fails(void) {
+    const char *test_name = "nvm_verify_linked: declared call shape must match the callee";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0,
+                (uint16_t)2, (uint16_t)0);   /* claims two arguments */
+    off += emit(code + off, OP_RET);
+    NvmModule *caller = make_simple_module(code, off, 0, 0);
+
+    uint8_t callee_code[8];
+    uint32_t coff = emit(callee_code, OP_RET);
+    NvmModule *callee = make_simple_module(callee_code, coff, 0, 0);  /* takes none */
+
+    const NvmModule *table[1] = { callee };
+    NvmVerifyResult r = nvm_verify_linked(caller, table, 1);
+    ASSERT(!r.ok, "a call declaring two arguments to a nullary callee must fail");
+    ASSERT(strstr(r.error_msg, "arity") != NULL,
+           "the message should name the mismatch");
+    nvm_module_free(caller);
+    nvm_module_free(callee);
+    PASS(test_name);
+}
+
+/* Fail closed: an instruction with no known stack effect used to be skipped,
+ * which also skipped enqueueing its successors, so the walk stopped and
+ * everything after it went unverified while nvm_verify still returned ok.
+ * With every effect now declared, the way to observe the rule is a module
+ * whose stack discipline is only checkable because the walk continues past a
+ * portable-ISA instruction. */
+static void test_verification_continues_past_portable_isa_instructions(void) {
+    const char *test_name = "nvm_verify: the walk does not stop at a portable-ISA opcode";
+    uint8_t code[128];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)2);
+    n += emit(code + n, OP_I64_ADD);      /* 2 -> 1 */
+    n += emit(code + n, OP_POP);
+    n += emit(code + n, OP_POP);          /* underflows: nothing left */
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "the second POP underflows and must be caught");
+    ASSERT(strstr(r.error_msg, "underflow") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_call_module_linked_bad_module_idx(void) {
     const char *test_name = "nvm_verify_linked: OP_CALL_MODULE module index out of range fails";
     uint8_t code[16];
     uint32_t off = 0;
-    off += emit(code + off, OP_CALL_MODULE, (uint32_t)5, (uint32_t)0);
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)5, (uint32_t)0,
+                (uint16_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *caller = make_simple_module(code, off, 0, 0);
 
@@ -1046,7 +1107,8 @@ static void test_call_module_linked_unresolved(void) {
     const char *test_name = "nvm_verify_linked: OP_CALL_MODULE NULL linked module fails";
     uint8_t code[16];
     uint32_t off = 0;
-    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0,
+                (uint16_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *caller = make_simple_module(code, off, 0, 0);
 
@@ -1063,7 +1125,8 @@ static void test_call_module_linked_bad_fn_idx(void) {
     const char *test_name = "nvm_verify_linked: OP_CALL_MODULE callee fn index out of range fails";
     uint8_t code[16];
     uint32_t off = 0;
-    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)9);
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)9,
+                (uint16_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *caller = make_simple_module(code, off, 0, 0);
 
@@ -1086,11 +1149,15 @@ static void test_call_module_no_table_still_ok(void) {
     const char *test_name = "nvm_verify_linked: OP_CALL_MODULE with empty table verifies structurally";
     uint8_t code[16];
     uint32_t off = 0;
-    off += emit(code + off, OP_CALL_MODULE, (uint32_t)3, (uint32_t)7);
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)3, (uint32_t)7,
+                (uint16_t)0, (uint16_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
     NvmVerifyResult r = nvm_verify_linked(mod, NULL, 0);
-    ASSERT(r.ok, "no linked table means structural-only check, like nvm_verify");
+    /* Without a table the module and function indices cannot be resolved, but
+     * the encoded call shape still lets the stack walk continue -- which is why
+     * the shape is encoded rather than looked up. */
+    ASSERT(r.ok, r.error_msg);
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -1312,6 +1379,8 @@ int main(void) {
     test_compatible_branch_stack_heights();
     test_verify_one_function();
     test_call_module_linked_valid();
+    test_call_module_shape_mismatch_fails();
+    test_verification_continues_past_portable_isa_instructions();
     test_call_module_linked_bad_module_idx();
     test_call_module_linked_unresolved();
     test_call_module_linked_bad_fn_idx();

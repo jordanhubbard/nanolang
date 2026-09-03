@@ -94,7 +94,11 @@ typedef enum {
     OP_JMP_TRUE     = 0x39,  /* operand: i32 relative offset */
     OP_JMP_FALSE    = 0x3A,  /* operand: i32 relative offset */
     OP_CALL         = 0x3B,  /* operand: u32 function table index */
-    OP_CALL_INDIRECT = 0x3C, /* pop function value from stack */
+    /* pop function value from stack; operands: u16 arity, u16 result count.
+     * The shape is encoded because the callee is only known at run time, and
+     * without it the stack effect is not statically determinable -- which is
+     * what let stack verification stop at every indirect call (issue #212). */
+    OP_CALL_INDIRECT = 0x3C,
     OP_RET          = 0x3D,
     OP_CALL_EXTERN  = 0x3E,  /* operand: u32 import table index (RPC) */
     OP_CALL_MODULE  = 0x3F,  /* operands: u32 module index, u32 function index */

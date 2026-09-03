@@ -963,10 +963,10 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         uint16_t elem_slot = local_add(cg, "__filter_elem__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)elem_slot);
 
-        /* Call predicate: fn(elem) */
+        /* Call predicate: fn(elem) -> bool */
         emit_op(cg, OP_LOAD_LOCAL, (int)elem_slot);
         emit_op(cg, OP_LOAD_LOCAL, (int)fn_slot);
-        emit_op(cg, OP_CALL_INDIRECT);
+        emit_op(cg, OP_CALL_INDIRECT, 1, 1);
 
         /* If true, push element to result */
         uint32_t skip_instr = cg->code_size;
@@ -1027,7 +1027,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_ARR_GET);
         emit_op(cg, OP_LOAD_LOCAL, (int)fn_slot);
-        emit_op(cg, OP_CALL_INDIRECT);
+        emit_op(cg, OP_CALL_INDIRECT, 1, 1);   /* fn(elem) -> value */
 
         /* Push result to output array */
         emit_op(cg, OP_LOAD_LOCAL, (int)res_slot);
@@ -1085,7 +1085,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
         emit_op(cg, OP_ARR_GET);
         emit_op(cg, OP_LOAD_LOCAL, (int)fn_slot);
-        emit_op(cg, OP_CALL_INDIRECT);
+        emit_op(cg, OP_CALL_INDIRECT, 2, 1);   /* fn(acc, elem) -> acc */
         emit_op(cg, OP_STORE_LOCAL, (int)acc_slot);
 
         emit_op(cg, OP_LOAD_LOCAL, (int)idx_slot);
@@ -1751,17 +1751,17 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 int16_t slot = name ? local_find(cg, name) : -1;
                 if (slot >= 0) {
                     emit_op(cg, OP_LOAD_LOCAL, (int)slot);
-                    emit_op(cg, OP_CALL_INDIRECT);
+                    emit_op(cg, OP_CALL_INDIRECT, argc, 1);
                 } else {
                     /* Check if callee is a captured upvalue */
                     int16_t uv = name ? upvalue_resolve(cg, name) : -1;
                     if (uv >= 0) {
                         emit_op(cg, OP_LOAD_UPVALUE, 0, (int)uv);
-                        emit_op(cg, OP_CALL_INDIRECT);
+                        emit_op(cg, OP_CALL_INDIRECT, argc, 1);
                     } else if (node->as.call.func_expr) {
                         /* Computed function expression: ((get_fn) args) */
                         compile_expr(cg, node->as.call.func_expr);
-                        emit_op(cg, OP_CALL_INDIRECT);
+                        emit_op(cg, OP_CALL_INDIRECT, argc, 1);
                     } else {
                         cg_error(cg, node->line, "undefined function '%s'",
                                  name ? name : "(null)");

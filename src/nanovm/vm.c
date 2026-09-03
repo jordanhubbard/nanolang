@@ -1975,6 +1975,19 @@ dynamic_div:
 
                 const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
 
+                /* The instruction declares the shape the verifier proved this
+                 * function's stack discipline against. The callee is only
+                 * known now, so this is where the two are compared: a
+                 * mismatch means the proof does not describe what is about to
+                 * run. */
+                if (instr.operands[0].u16 != callee->arity
+                        || instr.operands[1].u16 != callee->result_count) {
+                    return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                      "Indirect call declares %u->%u but function %u is %u->%u",
+                                      instr.operands[0].u16, instr.operands[1].u16,
+                                      callee_idx, callee->arity, callee->result_count);
+                }
+
                 if (vm->frame_count >= VM_MAX_FRAMES) {
                     return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
                 }
