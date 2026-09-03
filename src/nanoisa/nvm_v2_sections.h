@@ -78,4 +78,49 @@ size_t      nvm_v2_constants_encoded_size(const NvmV2Constants *c);
 NvmV2Result nvm_v2_constants_encode(const NvmV2Constants *c,
                                     uint8_t *out, size_t size);
 
+/* ── SIGNATURES ──────────────────────────────────────────────────────────
+ * The single source of truth for call shapes.
+ *
+ *   count          u32
+ *   per entry:
+ *     param_count  u16
+ *     result_count u16
+ *     param_tags   u8[param_count],  padded to 4
+ *     result_tags  u8[result_count], padded to 4
+ *
+ * Functions, imports, links and indirect call sites all reference a signature
+ * by index rather than each carrying their own shape. That is what lets
+ * verification compare signature indices instead of re-deriving a shape from
+ * three different encodings, and it is why v2 import entries have no
+ * variable-length type tail the way v1's did.
+ *
+ * Producers must deduplicate: two identically-shaped callables share an entry,
+ * or index comparison stops being a valid equality test.
+ */
+
+typedef struct {
+    uint16_t       param_count;
+    uint16_t       result_count;
+    const uint8_t *param_tags;   /* aliases the decoded buffer; not owned */
+    const uint8_t *result_tags;  /* aliases the decoded buffer; not owned */
+} NvmV2Signature;
+
+typedef struct {
+    NvmV2Signature *items;
+    uint32_t        count;
+} NvmV2Signatures;
+
+/* Decodes in place: the tag arrays point into `data`, which must outlive
+ * `out`. */
+NvmV2Result nvm_v2_signatures_decode(const uint8_t *data, size_t size,
+                                     NvmV2Signatures *out);
+void        nvm_v2_signatures_free(NvmV2Signatures *s);
+size_t      nvm_v2_signatures_encoded_size(const NvmV2Signatures *s);
+NvmV2Result nvm_v2_signatures_encode(const NvmV2Signatures *s,
+                                     uint8_t *out, size_t size);
+
+/* True when two signatures describe the same call shape. Producers use this to
+ * deduplicate before assigning indices. */
+bool nvm_v2_signature_equal(const NvmV2Signature *a, const NvmV2Signature *b);
+
 #endif /* NANOISA_NVM_V2_SECTIONS_H */
