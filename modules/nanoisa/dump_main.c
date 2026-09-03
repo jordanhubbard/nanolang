@@ -1,7 +1,8 @@
 /*
- * nanoisa - dump NanoISA modules
+ * nanoisa - assemble and dump NanoISA modules
  *
  * Usage: nanoisa dump [--pretty] <file.nvm>
+ *        nanoisa asm <file.nasm> -o <file.nvm>
  */
 
 #include "nanoisa.h"
@@ -12,8 +13,28 @@
 
 static void usage(FILE *out) {
     fprintf(out,
-            "I dump .nvm files as NanoISA assembly.\n"
-            "Usage: nanoisa dump [--pretty] <file.nvm>\n");
+            "I assemble NanoISA assembly and dump .nvm files back to it.\n"
+            "Usage: nanoisa dump [--pretty] <file.nvm>\n"
+            "       nanoisa asm <file.nasm> -o <file.nvm>\n");
+}
+
+/* Assembling from the command line is what makes a written .nasm file
+ * runnable rather than decorative: the assembler already verifies before it
+ * returns a module, so a rejected example fails here rather than at load. */
+static int assemble_file(const char *src_path, const char *out_path) {
+    NanoisaErr err;
+    NvmModule *mod = nanoisa_assemble_file(src_path, &err);
+    if (!mod) {
+        fprintf(stderr, "I cannot assemble '%s': %s\n", src_path, err.message);
+        return 1;
+    }
+    int rc = nanoisa_save_file(mod, out_path, &err);
+    nvm_module_free(mod);
+    if (rc != NANOISA_OK) {
+        fprintf(stderr, "I cannot write '%s': %s\n", out_path, err.message);
+        return 1;
+    }
+    return 0;
 }
 
 static int dump_file(const char *path, int pretty) {
@@ -41,6 +62,18 @@ int main(int argc, char **argv) {
             || strcmp(argv[1], "-h") == 0)) {
         usage(stdout);
         return 0;
+    }
+
+    if (argc >= 2 && strcmp(argv[1], "asm") == 0) {
+        const char *src = NULL, *out = NULL;
+        for (int i = 2; i < argc; i++) {
+            if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) { out = argv[++i]; continue; }
+            if (argv[i][0] == '-') { usage(stderr); return 2; }
+            if (src) { usage(stderr); return 2; }
+            src = argv[i];
+        }
+        if (!src || !out) { usage(stderr); return 2; }
+        return assemble_file(src, out);
     }
 
     if (argc < 3 || strcmp(argv[1], "dump") != 0) {
