@@ -48,6 +48,18 @@ NvmVerifyResult nvm_verify(const NvmModule *mod);
 /* Validate one function after an incremental compiler appends it. */
 NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx);
 
+/* Verify one function and report the maximum operand-stack depth it reaches.
+ *
+ * The height walk already computes a height for every reachable instruction;
+ * this is the maximum of them. A v2 producer declares it in the FUNCTIONS entry
+ * and a loader confirms it, so a module's declared depth is one the verifier
+ * has agreed to rather than one it is trusted on. There is no honest maximum
+ * for code the verifier rejects, so a failure propagates instead of yielding a
+ * number, and *out_max_stack is left untouched. */
+NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
+                                              uint32_t fn_idx,
+                                              uint16_t *out_max_stack);
+
 /* Validate a module together with the table of modules it is linked against.
  *
  * nvm_verify() checks each module in isolation: an OP_CALL_MODULE operand pair

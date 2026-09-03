@@ -47,9 +47,15 @@ static bool instruction_index_at(const VmDecodedFunction *decoded,
     return true;
 }
 
+/* Walks every reachable instruction, checking that the stack height agrees at
+ * every join and never underflows. `out_max_stack`, when given, also receives
+ * the deepest height reached -- the value a v2 module declares and a loader
+ * confirms. It is only written on success: there is no honest maximum for code
+ * that does not verify. */
 static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                                             const VmDecodedFunction *decoded,
-                                            uint32_t fn_idx) {
+                                            uint32_t fn_idx,
+                                            uint16_t *out_max_stack) {
     int32_t *heights = malloc((decoded->instruction_count + 1) * sizeof(*heights));
     uint32_t *work = malloc((decoded->instruction_count + 1) * sizeof(*work));
     if (!heights || !work) {
@@ -57,6 +63,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
         free(work);
         return fail("function[%u] could not allocate stack verifier state", fn_idx);
     }
+    int32_t max_depth = 0;
     for (uint32_t i = 0; i <= decoded->instruction_count; i++) heights[i] = -1;
     uint32_t head = 0, tail = 0;
     heights[0] = 0;
@@ -119,6 +126,11 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                         pop_count, before);
         }
         int32_t after = before - pop_count + push_count;
+        /* The deepest point is often neither the first height nor the last --
+         * three values live before a binary op leaves two -- so both sides of
+         * every instruction count. */
+        if (before > max_depth) max_depth = before;
+        if (after > max_depth) max_depth = after;
         uint32_t successors[2];
         uint32_t successor_count = 0;
         uint8_t opcode = instruction->opcode;
@@ -149,6 +161,12 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
     }
     free(heights);
     free(work);
+    if (out_max_stack) {
+        if (max_depth > UINT16_MAX)
+            return fail("function[%u] maximum operand depth %d exceeds %u",
+                        fn_idx, max_depth, (unsigned)UINT16_MAX);
+        *out_max_stack = (uint16_t)max_depth;
+    }
     return ok_result();
 }
 
@@ -245,7 +263,8 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
 
 static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_idx,
                                            const NvmModule *const *linked_modules,
-                                           uint32_t linked_count) {
+                                           uint32_t linked_count,
+                                           uint16_t *out_max_stack) {
     NvmVerifyResult structure = verify_structure(mod);
     if (!structure.ok) return structure;
     if (fn_idx >= mod->function_count)
@@ -557,13 +576,20 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
     }
 
 #undef FAIL_DECODED
-    NvmVerifyResult stack_result = verify_stack_heights(mod, &decoded, fn_idx);
+    NvmVerifyResult stack_result =
+        verify_stack_heights(mod, &decoded, fn_idx, out_max_stack);
     vm_decoded_function_free(&decoded);
     return stack_result;
 }
 
 NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx) {
-    return verify_function_impl(mod, fn_idx, NULL, 0);
+    return verify_function_impl(mod, fn_idx, NULL, 0, NULL);
+}
+
+NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
+                                              uint32_t fn_idx,
+                                              uint16_t *out_max_stack) {
+    return verify_function_impl(mod, fn_idx, NULL, 0, out_max_stack);
 }
 
 /* ========================================================================
@@ -577,7 +603,7 @@ NvmVerifyResult nvm_verify(const NvmModule *mod) {
 
     /* Phase 2: per-function bytecode validation */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, NULL, 0);
+        r = verify_function_impl(mod, i, NULL, 0, NULL);
         if (!r.ok) return r;
     }
 
@@ -597,7 +623,7 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
     /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
      * supplied linked-module table so cross-module call operands are bounded. */
     for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, linked_modules, linked_count);
+        r = verify_function_impl(mod, i, linked_modules, linked_count, NULL);
         if (!r.ok) return r;
     }
 

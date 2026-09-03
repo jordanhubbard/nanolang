@@ -6,6 +6,7 @@
 #include "../../src/nanoisa/disassembler.h"
 #include "../../src/nanoisa/isa.h"
 #include "../../src/nanoisa/nvm_v2_sections.h"
+#include "../../src/nanoisa/verifier.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -118,13 +119,43 @@ NvmModule *nanoisa_load_bytes(const uint8_t *data, uint32_t size,
         }
         NvmModule *mod = NULL;
         r = nvm_v2_to_nvm_module(&v2, &mod);
-        nvm_v2_module_free(&v2);
         if (r != NVM_V2_OK || !mod) {
+            nvm_v2_module_free(&v2);
             set_error(err, NANOISA_ERR_FORMAT, 0,
                       "NVM v2 module is not expressible as v1: %s",
                       nvm_v2_result_name(r));
             return NULL;
         }
+
+        /* Confirm the declared operand depth rather than recompute it. A
+         * declared 0 means the producer had nothing to declare; any other
+         * value must be one the verifier agrees with, because a disagreement
+         * between producer and verifier is exactly the kind of thing that
+         * otherwise shows up as a stack overflow at run time. */
+        for (uint32_t i = 0; i < v2.functions.count; i++) {
+            uint16_t declared = v2.functions.items[i].max_stack;
+            if (declared == 0) continue;
+            uint16_t computed = 0;
+            NvmVerifyResult vr = nvm_verify_function_max_stack(mod, i, &computed);
+            if (!vr.ok) {
+                nvm_v2_module_free(&v2);
+                nvm_module_free(mod);
+                set_error(err, NANOISA_ERR_FORMAT, 0,
+                          "NVM v2 function %u does not verify: %s",
+                          i, vr.error_msg);
+                return NULL;
+            }
+            if (declared < computed) {
+                nvm_v2_module_free(&v2);
+                nvm_module_free(mod);
+                set_error(err, NANOISA_ERR_FORMAT, 0,
+                          "NVM v2 function %u declares max_stack %u but reaches %u",
+                          i, (unsigned)declared, (unsigned)computed);
+                return NULL;
+            }
+        }
+
+        nvm_v2_module_free(&v2);
         return mod;
     }
 

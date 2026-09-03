@@ -28,6 +28,7 @@
 #include "nvm_v2_sections.h"
 #include "nvm_format.h"
 #include "isa.h"
+#include "verifier.h"
 
 /* v1 keeps the source filename as a string-pool index outside every table. v2
  * has no such field, so it travels as a metadata pair under this key -- which
@@ -132,7 +133,16 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         fns[i].code_length   = f->code_length;
         fns[i].local_count   = f->local_count;
         fns[i].upvalue_count = f->upvalue_count;
-        fns[i].max_stack     = 0;   /* Task 13 fills this from the verifier */
+        /* The producer computes the depth and the loader confirms it, rather
+         * than the loader recomputing it: that is cheaper at load, and a
+         * mismatch then means the producer and the verifier disagree, which is
+         * worth failing on. A function the verifier rejects has no honest
+         * depth, so it keeps 0 -- "not declared" -- and the confirming side
+         * treats 0 as nothing to check. The module still has to pass
+         * nvm_verify before it runs either way. */
+        uint16_t depth = 0;
+        if (nvm_verify_function_max_stack(mod, i, &depth).ok)
+            fns[i].max_stack = depth;
     }
 
     NvmV2Import *ims = n_im ? calloc(n_im, sizeof *ims) : NULL;
