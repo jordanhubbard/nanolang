@@ -101,7 +101,8 @@ typedef enum {
     NVM_V2_ERR_SECTION_OVERLAP,
     NVM_V2_ERR_SECTION_DUPLICATE,
     NVM_V2_ERR_CHECKSUM,
-    NVM_V2_ERR_INDEX_RANGE   /* an index into another table is out of range */
+    NVM_V2_ERR_INDEX_RANGE,  /* an index into another table is out of range */
+    NVM_V2_ERR_FEATURE_MISMATCH /* feature bits disagree with the sections present */
 } NvmV2Result;
 
 /* Human-readable name for a result, for diagnostics. Never NULL. */

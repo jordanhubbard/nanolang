@@ -343,7 +343,7 @@ vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump
 
 NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
-NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c \
+NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
 	$(NANOISA_DIR)/verifier.c
 VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
@@ -759,6 +759,14 @@ test-nvm-v2-imports: $(NANOISA_OBJECTS)
 	@./tests/nanoisa/test_nvm_v2_imports
 	@rm -f tests/nanoisa/test_nvm_v2_imports
 
+.PHONY: test-nvm-v2-module
+test-nvm-v2-module: $(NANOISA_OBJECTS)
+	@echo "Running NanoISA v2 whole-module serialization tests..."
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_module \
+		tests/nanoisa/test_nvm_v2_module.c $(NANOISA_OBJECTS) $(LDFLAGS)
+	@./tests/nanoisa/test_nvm_v2_module
+	@rm -f tests/nanoisa/test_nvm_v2_module
+
 .PHONY: test-nvm-v2-functions
 test-nvm-v2-functions: $(NANOISA_OBJECTS)
 	@echo "Running NanoISA v2 FUNCTIONS and GLOBALS section tests..."
@@ -834,7 +842,7 @@ test-intern: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 	@rm -f tests/nanovm/test_intern
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \

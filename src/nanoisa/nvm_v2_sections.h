@@ -342,4 +342,45 @@ void        nvm_v2_debug_free(NvmV2Debug *d);
 size_t      nvm_v2_debug_encoded_size(const NvmV2Debug *d);
 NvmV2Result nvm_v2_debug_encode(const NvmV2Debug *d, uint8_t *out, size_t size);
 
+/* ── Whole module ────────────────────────────────────────────────────────
+ * Every section, plus the CODE byte range the directory locates.
+ *
+ * Serialization writes the header, then the directory, then payloads in
+ * ascending section-type order, then patches the checksum. Deserialization
+ * validates the container first and decodes only what the directory names.
+ *
+ * Cross-section validation lives here rather than in the codecs: a codec sees
+ * one section and cannot check an index into another.
+ */
+
+typedef struct {
+    uint16_t        isa_version;
+    uint32_t        entry_point;   /* FUNCTIONS index, or NVM_V2_NO_ENTRY_POINT */
+    NvmV2Metadata   metadata;
+    NvmV2Constants  constants;
+    NvmV2Signatures signatures;
+    NvmV2Layouts    layouts;
+    NvmV2Functions  functions;
+    NvmV2Globals    globals;
+    NvmV2Imports    imports;
+    NvmV2Links      links;
+    NvmV2Debug      debug;
+    const uint8_t  *code;          /* aliases the module buffer when decoded */
+    uint64_t        code_size;
+    bool            has_debug;     /* DEBUG present, even if empty */
+} NvmV2Module;
+
+/* Serialize into a caller-provided buffer. Returns the byte length via
+ * `out_size`; pass out=NULL to size only. */
+NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
+                                    uint8_t *out, size_t capacity,
+                                    size_t *out_size);
+
+/* Validate the container, decode every section, then check cross-section
+ * indices. The buffer must outlive `out`. */
+NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
+                                      NvmV2Module *out);
+
+void nvm_v2_module_free(NvmV2Module *m);
+
 #endif /* NANOISA_NVM_V2_SECTIONS_H */
