@@ -1892,6 +1892,7 @@ dynamic_div:
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
+            new_frame->owned_callable = val_void();
             new_frame->module = vm->module;
             new_frame->current_line = 0;
             new_frame->current_col  = 0;
@@ -1943,9 +1944,13 @@ dynamic_div:
             for (uint16_t i = callee->arity; i < callee->local_count; i++)
                 stack_push(vm, val_void());
 
+            /* A tail call reuses this frame, so the callable the frame was
+             * entered through goes away with it. */
+            vm_release(&vm->heap, frame->owned_callable);
             frame->fn_idx = callee_idx;
             frame->local_count = callee->local_count;
             frame->closure = NULL;
+            frame->owned_callable = val_void();
             frame->current_line = 0;
             frame->current_col = 0;
             vm->current_fn = callee_idx;
@@ -2009,6 +2014,9 @@ dynamic_div:
                 new_frame->local_count = callee->local_count;
                 new_frame->closure = closure;
                 new_frame->module = vm->module;
+                /* stack_pop transferred the callable's reference to fn_val;
+                 * the frame takes it from here and releases it on teardown. */
+                new_frame->owned_callable = fn_val;
             new_frame->current_line = 0;
             new_frame->current_col  = 0;
 
@@ -2055,6 +2063,8 @@ dynamic_div:
              * after the CALL in the caller) before we pop the frame */
             uint32_t ret_ip = frame->return_ip;
 
+            vm_release(&vm->heap, frame->owned_callable);
+            frame->owned_callable = val_void();
             vm->frame_count--;
 
             if (vm->frame_count == 0) {
@@ -2160,6 +2170,7 @@ dynamic_div:
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
             new_frame->closure = NULL;
+            new_frame->owned_callable = val_void();
             new_frame->module = target;  /* This frame runs in the target module */
             new_frame->current_line = 0;
             new_frame->current_col  = 0;
@@ -2586,7 +2597,7 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_REMOVE: not an array");
             }
             uint32_t idx = (uint32_t)(idx_v.tag == TAG_INT ? idx_v.as.i64 : 0);
-            vm_array_remove(arr.as.array, idx);
+            vm_array_remove(&vm->heap, arr.as.array, idx);
             stack_push(vm, arr);
             break;
         }
@@ -3253,6 +3264,8 @@ dynamic_div:
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, v);
         }
+        vm_release(&vm->heap, frame->owned_callable);
+        frame->owned_callable = val_void();
         vm->frame_count--;
         if (vm->frame_count == 0) {
             for (uint8_t i = 0; i < returning->result_count; i++)
@@ -3395,6 +3408,7 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
     frame->closure = NULL;
+    frame->owned_callable = val_void();
     frame->module = vm->module;
     frame->current_line = 0;
     frame->current_col  = 0;
@@ -3465,18 +3479,33 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                         &ext_result, scratch, sizeof(scratch));
                 }
             }
+            /* OP_CALL_EXTERN popped the arguments into the trap, which
+             * transferred the stack's references to it. The dispatch borrows
+             * them for the duration of the call and retains anything it keeps,
+             * so the trap is where they are released -- on every path,
+             * including the failing one, or an FFI call with a string or array
+             * argument leaks it. */
+            for (int i = 0; i < trap.data.extern_call.argc; i++) {
+                vm_release(&vm->heap, trap.data.extern_call.args[i]);
+                trap.data.extern_call.args[i] = val_void();
+            }
+
             if (!ffi_ok) {
                 return vm_error(vm, VM_ERR_NOT_IMPLEMENTED,
                                 "FFI call failed: %s", ext_err);
             }
             /* Void imports have no stack result. Non-void imports return one
              * value for the suspended instruction to consume. */
+            if (vm->opcode_trace)
+                vm_trace_ffi_result(vm, trap.data.extern_call.import_idx, ext_result);
             if (vm->module->imports[trap.data.extern_call.import_idx].return_type
                     != TAG_VOID) {
                 stack_push(vm, ext_result);
+            } else {
+                /* A void import contributes nothing to the stack, so anything
+                 * the dispatch allocated for the result has no other owner. */
+                vm_release(&vm->heap, ext_result);
             }
-            if (vm->opcode_trace)
-                vm_trace_ffi_result(vm, trap.data.extern_call.import_idx, ext_result);
             break;
         }
 
@@ -3551,6 +3580,12 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
 
     while (vm->stack_size > stack_base) {
         vm_release(&vm->heap, stack_pop(vm));
+    }
+    /* Any frame still standing owns its callable; a trap unwinds without
+     * reaching OP_RET, so this is the only place those get released. */
+    for (uint32_t i = 0; i < vm->frame_count; i++) {
+        vm_release(&vm->heap, vm->frames[i].owned_callable);
+        vm->frames[i].owned_callable = val_void();
     }
     vm->frame_count = 0;
     vm->ip = saved_ip;

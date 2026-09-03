@@ -563,7 +563,7 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
     return result;
 }
 
-void vm_array_remove(VmArray *a, uint32_t index) {
+void vm_array_remove(VmHeap *heap, VmArray *a, uint32_t index) {
     if (index >= a->length) return;
     if (a->unboxed) {
         size_t esz = vm_array_elem_size(a->elem_type);
@@ -574,6 +574,9 @@ void vm_array_remove(VmArray *a, uint32_t index) {
         a->length--;
         return;
     }
+    /* The array owned a reference to the element being dropped; nothing else
+     * will decrement it, so this is the only place it can happen. */
+    vm_release(heap, a->elements[index]);
     /* Shift elements left */
     for (uint32_t i = index; i < a->length - 1; i++) {
         a->elements[i] = a->elements[i + 1];

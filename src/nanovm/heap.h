@@ -174,7 +174,14 @@ NanoValue vm_array_pop(VmArray *a);
 NanoValue vm_array_get(VmArray *a, uint32_t index);
 void vm_array_set(VmArray *a, uint32_t index, NanoValue v);
 VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end);
-void vm_array_remove(VmArray *a, uint32_t index);
+/* Remove the element at `index`, shifting the tail left.
+ *
+ * Takes the heap because it must release the reference the array held to the
+ * element it drops -- exactly as vm_array_set releases the value it
+ * overwrites. Without that, removing an element from an array of strings,
+ * arrays or structs leaked it permanently: the refcount was never decremented
+ * and nothing else held a claim to decrement it. */
+void vm_array_remove(VmHeap *heap, VmArray *a, uint32_t index);
 
 /* Struct allocation */
 VmStruct *vm_struct_new(VmHeap *heap, uint32_t def_idx, uint32_t field_count);
