@@ -43,4 +43,39 @@ NvmV2Result nvm_v2_u64(NvmV2Cursor *c, uint64_t *out);
  * the lossless round-tripping the disassembler depends on. */
 NvmV2Result nvm_v2_align4(NvmV2Cursor *c);
 
+/* ── CONSTANTS ───────────────────────────────────────────────────────────
+ * Replaces v1's string pool with a typed constant pool.
+ *
+ *   count       u32
+ *   per entry:
+ *     tag       u8    NanoValueTag
+ *     _pad      u8[3] must be zero
+ *     length    u32   payload byte length
+ *     payload   u8[length], zero-padded to a 4-byte boundary
+ *
+ * The explicit length is the point: strings keep their bytes verbatim, so an
+ * embedded zero survives a round trip. This is the serialized half of the
+ * stored-string-length work -- a strlen-based pool truncates silently.
+ */
+
+typedef struct {
+    uint8_t        tag;      /* NanoValueTag */
+    uint32_t       length;   /* payload bytes */
+    const uint8_t *payload;  /* aliases the decoded buffer; not owned */
+} NvmV2Constant;
+
+typedef struct {
+    NvmV2Constant *items;
+    uint32_t       count;
+} NvmV2Constants;
+
+/* Decodes in place: items[].payload points into `data`, which must outlive
+ * `out`. Frees nothing on failure beyond its own working state. */
+NvmV2Result nvm_v2_constants_decode(const uint8_t *data, size_t size,
+                                    NvmV2Constants *out);
+void        nvm_v2_constants_free(NvmV2Constants *c);
+size_t      nvm_v2_constants_encoded_size(const NvmV2Constants *c);
+NvmV2Result nvm_v2_constants_encode(const NvmV2Constants *c,
+                                    uint8_t *out, size_t size);
+
 #endif /* NANOISA_NVM_V2_SECTIONS_H */
