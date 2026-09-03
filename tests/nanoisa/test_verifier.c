@@ -75,6 +75,92 @@ static void declares_one_result(NvmModule *mod) {
     mod->functions[0].result_count = 1;
 }
 
+/* ── Ownership effects ───────────────────────────────────────────────────
+ *
+ * GC_RETAIN and GC_RELEASE adjust an object's reference count without touching
+ * the operand stack, so stack height says nothing about whether they pair up.
+ * An unbalanced pair is a leak or a premature free, and both stay invisible
+ * until long after the instruction that caused them. Nothing emits these
+ * today, but the assembler accepts them -- which is exactly the path with no
+ * other check.
+ */
+
+static void test_unbalanced_retain_at_return_fails(void) {
+    const char *test_name = "ownership: returning while still holding a retain fails";
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_GC_RETAIN);    /* retains the top, no release */
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    declares_one_result(mod);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "an unreleased retain must be caught");
+    ASSERT(strstr(r.error_msg, "retained") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_release_without_retain_fails(void) {
+    const char *test_name = "ownership: releasing a reference never retained fails";
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_GC_RELEASE);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "an unmatched release must be caught");
+    ASSERT(strstr(r.error_msg, "does not hold") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_balanced_retain_release_passes(void) {
+    const char *test_name = "ownership: a matched retain/release pair verifies";
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_GC_RETAIN);
+    n += emit(code + n, OP_GC_RELEASE);   /* release also consumes the value */
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+/* One branch retains and the other does not, so the balance at the join
+ * depends on which way control went. Stack height agrees on both paths, so
+ * only the ownership check can see this. */
+static void test_branch_dependent_ownership_fails(void) {
+    const char *test_name = "ownership: a balance that depends on the branch taken fails";
+    uint8_t code[128];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_PUSH_BOOL, 1);
+    n += emit(code + n, OP_JMP_FALSE, (int32_t)0);
+    uint32_t jf_at = n - 5;                       /* patch below */
+    n += emit(code + n, OP_GC_RETAIN);
+    uint32_t join = n;
+    n += emit(code + n, OP_GC_RELEASE);
+    n += emit(code + n, OP_RET);
+    /* Point the false branch at the release, skipping the retain. */
+    int32_t rel = (int32_t)join - (int32_t)(jf_at);
+    code[jf_at + 1] = (uint8_t)rel;
+    code[jf_at + 2] = (uint8_t)(rel >> 8);
+    code[jf_at + 3] = (uint8_t)(rel >> 16);
+    code[jf_at + 4] = (uint8_t)(rel >> 24);
+
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    declares_one_result(mod);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "a path-dependent ownership balance must be caught");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 /* ── Return shape ────────────────────────────────────────────────────────
  *
  * OP_RET traps when the number of values on the stack differs from the
@@ -1475,6 +1561,10 @@ int main(void) {
     test_hm_new_bad_value_tag();
     test_type_check_bad_tag();
     test_valid_type_tags_pass();
+    test_unbalanced_retain_at_return_fails();
+    test_release_without_retain_fails();
+    test_balanced_retain_release_passes();
+    test_branch_dependent_ownership_fails();
     test_returning_more_than_declared_fails();
     test_returning_fewer_than_declared_fails();
     test_implicit_return_shape_is_checked();
