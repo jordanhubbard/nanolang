@@ -54,7 +54,7 @@ static void usage(const char *prog) {
     fprintf(stderr, "  -o <path>          Output file (native binary, or .nvm if --emit-nvm)\n");
     fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
-    fprintf(stderr, "  --emit-nvm-v2      Write .nvm bytecode in the v2 container (implies --emit-nvm)\n");
+    fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
     fprintf(stderr, "  -v                 Verbose output\n");
@@ -71,7 +71,6 @@ int main(int argc, char **argv) {
     const char *output = NULL;
     bool run = false;
     bool emit_nvm = false;
-    bool emit_nvm_v2 = false;
     bool strip_debug = false;
     bool daemon_wrapper = false;
     bool verbose = false;
@@ -84,10 +83,10 @@ int main(int argc, char **argv) {
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {
             emit_nvm = true;
         } else if (strcmp(argv[i], "--emit-nvm-v2") == 0) {
-            /* Implies --emit-nvm: it selects the container, not whether to
-             * write bytecode at all. */
+            /* Retired: v2 is what --emit-nvm writes since 4.0. Still accepted
+             * so build scripts written against the transitional flag keep
+             * working rather than failing on an unknown option. */
             emit_nvm = true;
-            emit_nvm_v2 = true;
         } else if (strcmp(argv[i], "--strip-debug") == 0) {
             strip_debug = true;
         } else if (strcmp(argv[i], "--daemon-wrapper") == 0) {
@@ -180,9 +179,7 @@ int main(int argc, char **argv) {
     if (output) {
         uint32_t size = 0;
         NanoisaErr save_error;
-        uint8_t *blob = emit_nvm_v2
-                          ? nanoisa_save_bytes_v2(cg.module, &size, &save_error)
-                          : nanoisa_save_bytes(cg.module, &size, &save_error);
+        uint8_t *blob = nanoisa_save_bytes(cg.module, &size, &save_error);
         if (!blob) {
             fprintf(stderr, "error: serialization failed: %s\n",
                     save_error.message);

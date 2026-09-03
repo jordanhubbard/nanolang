@@ -30,11 +30,17 @@ typedef struct {
 
 static size_t align4(size_t n) { return (n + 3u) & ~(size_t)3u; }
 
-/* Feature bits implied by a module's contents. The header must agree with
- * these: a module advertising a capability it does not carry, or carrying one
- * it does not advertise, is inconsistent either way, and a reader that trusted
- * the bits would make the wrong decision. */
-static uint32_t implied_features(const NvmV2Module *m) {
+/* Feature bits a module's contents REQUIRE. The header must set at least
+ * these: a module carrying a link table but not advertising LINKED would make
+ * a reader that trusted the bits skip work it has to do.
+ *
+ * The rule is a floor rather than an equality because a capability can be
+ * needed without leaving a trace in a table. A module can declare that it
+ * needs the FFI without listing an import -- v1's assembler spells that
+ * `.flag needs_extern` -- and refusing that would make a legal module
+ * unrepresentable. What is not allowed is carrying the table and denying the
+ * capability. */
+static uint32_t required_features(const NvmV2Module *m) {
     uint32_t f = 0;
     if (m->links.count) f |= NVM_V2_FEATURE_LINKED;
     if (m->imports.count) f |= NVM_V2_FEATURE_FFI;
@@ -107,7 +113,7 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
     h.magic[2] = NVM_V2_MAGIC_2; h.magic[3] = NVM_V2_MAGIC_3;
     h.format_version = NVM_V2_FORMAT_VERSION;
     h.isa_version    = m->isa_version ? m->isa_version : NVM_V2_ISA_VERSION;
-    h.feature_bits   = implied_features(m);
+    h.feature_bits   = required_features(m) | m->extra_features;
     h.total_size     = total;
     h.header_size    = NVM_V2_HEADER_SIZE;
     h.section_count  = section_count;
@@ -223,7 +229,8 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
         m->entry_point != NVM_V2_NO_ENTRY_POINT)
         return NVM_V2_ERR_INDEX_RANGE;
 
-    if (declared_features != implied_features(m))
+    uint32_t required = required_features(m);
+    if ((declared_features & required) != required)
         return NVM_V2_ERR_FEATURE_MISMATCH;
 
     return NVM_V2_OK;
@@ -242,6 +249,9 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
 
     out->isa_version = h.isa_version;
     out->entry_point = h.entry_point;
+    /* Kept whole: bits the tables already require are recomputed on the way
+     * out, so re-serializing this module produces the same header. */
+    out->extra_features = h.feature_bits;
 
     for (uint32_t i = 0; i < h.section_count; i++) {
         NvmV2SectionEntry e;

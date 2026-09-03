@@ -375,6 +375,11 @@ typedef struct {
      * to put the bytes, so it parks them here in one block and
      * nvm_v2_module_free releases it. NULL for a decoded module. */
     uint8_t        *owned_tags;
+
+    /* Capabilities the module declares beyond those its tables require -- a
+     * module can need the FFI without listing an import. Bits its contents
+     * already require are added automatically and need not be repeated. */
+    uint32_t        extra_features;
 } NvmV2Module;
 
 /* Serialize into a caller-provided buffer. Returns the byte length via

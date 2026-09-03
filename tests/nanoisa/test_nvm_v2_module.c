@@ -307,6 +307,28 @@ static void test_feature_bits_must_match_sections(void) {
     nvm_v2_module_free(&got);
 }
 
+/* The feature-bit rule is a floor, not an equality: a capability can be needed
+ * without leaving a trace in a table. A module may declare it needs the FFI
+ * with no import listed -- v1's assembler spells that `.flag needs_extern` --
+ * and refusing that would make a legal module unrepresentable. */
+static void test_a_capability_may_be_declared_without_a_table(void) {
+    NvmV2Module m;
+    memset(&m, 0, sizeof m);
+    m.isa_version = NVM_V2_ISA_VERSION;
+    m.entry_point = NVM_V2_NO_ENTRY_POINT;
+    m.extra_features = NVM_V2_FEATURE_FFI;   /* no imports at all */
+
+    uint8_t buf[512]; size_t n = 0;
+    CHECK_RESULT(nvm_v2_module_serialize(&m, buf, sizeof buf, &n), NVM_V2_OK,
+                 "a module declaring FFI with no imports serializes");
+    NvmV2Module got; memset(&got, 0, sizeof got);
+    CHECK_RESULT(nvm_v2_module_deserialize(buf, n, &got), NVM_V2_OK,
+                 "and is accepted");
+    CHECK((got.extra_features & NVM_V2_FEATURE_FFI) != 0,
+          "the declared capability survives the round trip");
+    nvm_v2_module_free(&got);
+}
+
 static void test_minimal_module_round_trips(void) {
     /* Only the required sections, all empty, no CODE and no DEBUG. */
     NvmV2Module m;
@@ -340,6 +362,7 @@ int main(void) {
     test_no_entry_point_is_allowed();
     test_nested_layout_index_past_the_table_is_rejected();
     test_feature_bits_must_match_sections();
+    test_a_capability_may_be_declared_without_a_table();
     test_minimal_module_round_trips();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
