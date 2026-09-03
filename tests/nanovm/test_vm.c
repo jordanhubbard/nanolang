@@ -1862,7 +1862,7 @@ static void test_array_unboxed_representation(void) {
     ASSERT_EQ_INT(ints->length, 99, "int length after pop");
 
     /* remove shifts the packed buffer down */
-    vm_array_remove(ints, 0);
+    vm_array_remove(&heap, ints, 0);
     ASSERT_EQ_INT(ints->length, 98, "int length after remove");
     ASSERT_EQ_INT(vm_array_get(ints, 0).as.i64, 3 - 7, "int remove shifted [0]");
 
@@ -2227,6 +2227,123 @@ static void test_closure(void) {
     NanoValue result = run_module(mod, &r);
     ASSERT_EQ_INT(r, VM_OK, "closure: VM_OK");
     ASSERT_EQ_INT(result.as.i64, 42, "closure: make_adder(10)(32) == 42");
+    nvm_module_free(mod);
+}
+
+/* Reference ownership when an array element is removed.
+ *
+ * vm_array_set releases the value it overwrites. vm_array_remove did not
+ * release the value it drops -- it shifted the tail left and decremented the
+ * length, so the array stopped pointing at the element while its refcount
+ * still counted the array as an owner. Nothing else held a claim, so the
+ * object leaked for the life of the process.
+ *
+ * Only arrays of reference types are affected; an unboxed array of ints has
+ * no references to lose, which is why this uses strings. */
+static void test_array_remove_releases_the_element(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+
+    VmArray *a = vm_array_new(&heap, TAG_STRING, 4);
+    NanoValue arr = val_array(a);
+    for (int i = 0; i < 3; i++) {
+        char buf[8];
+        snprintf(buf, sizeof buf, "s%d", i);
+        VmString *s = vm_string_new(&heap, buf, 2);
+        vm_array_push(&heap, a, val_string(s));
+        vm_release(&heap, val_string(s));   /* push retains */
+    }
+
+    size_t before = heap.stats.num_objects;
+    vm_array_remove(&heap, a, 1);
+    ASSERT_EQ_INT((int)heap.stats.num_objects, (int)before - 1,
+                  "array remove: the dropped element is freed");
+    ASSERT_EQ_INT((int)a->length, 2, "array remove: length shrinks");
+
+    vm_release(&heap, arr);
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0,
+                  "array remove: releasing the array leaves nothing behind");
+    vm_heap_destroy(&heap);
+}
+
+/* Reference ownership across an indirect call through a closure.
+ *
+ * CALL_INDIRECT pops the callable, taking the stack's reference into a local,
+ * and stores a borrowed VmClosure* in the new frame. Nothing released that
+ * reference: not the instruction, and not the frame teardown, which only
+ * releases stack slots. So every closure call through CALL_INDIRECT kept the
+ * closure alive forever.
+ *
+ * Counting live objects after the run is what makes this visible. A test that
+ * only checked the arithmetic result passed the whole time. */
+static void test_closure_call_releases_the_callable(void) {
+    NvmModule *mod = nvm_module_new();
+    uint32_t body_name = nvm_add_string(mod, "adder", 5);
+    uint32_t maker_name = nvm_add_string(mod, "make_adder", 10);
+    uint32_t main_name = nvm_add_string(mod, "main", 4);
+
+    /* adder(y) = y + captured x */
+    uint8_t body[32];
+    uint32_t bl = 0;
+    bl += emit(body + bl, OP_LOAD_LOCAL, (uint16_t)0);
+    bl += emit(body + bl, OP_LOAD_UPVALUE, (uint16_t)0, (uint16_t)0);
+    bl += emit(body + bl, OP_I64_ADD);
+    bl += emit(body + bl, OP_RET);
+    uint32_t bo = nvm_append_code(mod, body, bl);
+    NvmFunctionEntry bf = {0};
+    bf.name_idx = body_name; bf.arity = 1; bf.local_count = 1; bf.upvalue_count = 1;
+    bf.code_offset = bo; bf.code_length = bl;
+    bf.result_tag = TAG_INT; bf.result_count = 1;
+    uint32_t body_idx = nvm_add_function(mod, &bf);
+
+    /* make_adder(x) = closure over x */
+    uint8_t maker[32];
+    uint32_t mkl = 0;
+    mkl += emit(maker + mkl, OP_LOAD_LOCAL, (uint16_t)0);
+    mkl += emit(maker + mkl, OP_CLOSURE_NEW, body_idx, (uint16_t)1);
+    mkl += emit(maker + mkl, OP_RET);
+    uint32_t mko = nvm_append_code(mod, maker, mkl);
+    NvmFunctionEntry mkf = {0};
+    mkf.name_idx = maker_name; mkf.arity = 1; mkf.local_count = 1;
+    mkf.code_offset = mko; mkf.code_length = mkl;
+    mkf.result_tag = TAG_CLOSURE; mkf.result_count = 1;
+    uint32_t maker_idx = nvm_add_function(mod, &mkf);
+
+    /* main: call the closure, then discard the result so nothing is live. */
+    uint8_t mc[64];
+    uint32_t ml = 0;
+    ml += emit(mc + ml, OP_PUSH_I64, (int64_t)10);
+    ml += emit(mc + ml, OP_CALL, maker_idx);
+    ml += emit(mc + ml, OP_STORE_LOCAL, (uint16_t)0);
+    ml += emit(mc + ml, OP_PUSH_I64, (int64_t)32);
+    ml += emit(mc + ml, OP_LOAD_LOCAL, (uint16_t)0);
+    ml += emit(mc + ml, OP_CALL_INDIRECT, 1, 1);
+    ml += emit(mc + ml, OP_POP);
+    ml += emit(mc + ml, OP_RET);
+    uint32_t mo = nvm_append_code(mod, mc, ml);
+    NvmFunctionEntry mf = {0};
+    mf.name_idx = main_name; mf.local_count = 1;
+    mf.code_offset = mo; mf.code_length = ml;
+    mf.result_tag = TAG_VOID; mf.result_count = 0;
+    uint32_t main_idx = nvm_add_function(mod, &mf);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = main_idx;
+
+    VmState vm;
+    vm_init(&vm, mod);
+    /* vm_init preinstantiates the module's string constants, so the baseline
+     * is what is live before execution -- not zero. Comparing against zero
+     * would measure the constant pool, not ownership. */
+    size_t baseline = vm.heap.stats.num_objects;
+    VmResult r = vm_execute(&vm);
+    ASSERT_EQ_INT(r, VM_OK, "closure ownership: VM_OK");
+    /* The closure is the only heap object the program creates, and the local
+     * holding it is released with the frame, so the count must return to the
+     * baseline. Before CALL_INDIRECT transferred the callable's reference to
+     * the frame, it stayed one above. */
+    ASSERT_EQ_INT((int)vm.heap.stats.num_objects, (int)baseline,
+                  "closure ownership: no heap object outlives the call");
+    vm_destroy(&vm);
     nvm_module_free(mod);
 }
 
@@ -4469,6 +4586,8 @@ int main(void) {
 
     printf("\n[Closures]\n");
     RUN_TEST(test_closure);
+    RUN_TEST(test_array_remove_releases_the_element);
+    RUN_TEST(test_closure_call_releases_the_callable);
     RUN_TEST(test_direct_function_reference);
 
     printf("\n[I/O]\n");

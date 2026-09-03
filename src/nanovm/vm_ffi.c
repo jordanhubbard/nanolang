@@ -202,6 +202,12 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
                         break;
                 }
                 vm_array_push(heap, varr, elem);
+                /* push retains, so the reference vm_string_new handed back
+                 * has no owner once the array holds its own. Without this,
+                 * every string element of a marshalled array kept a reference
+                 * nothing would ever drop -- the same pattern OP_ARR_PUSH
+                 * already follows. Non-heap elements release to a no-op. */
+                vm_release(heap, elem);
             }
             NanoValue v = {0};
             v.tag = TAG_ARRAY;

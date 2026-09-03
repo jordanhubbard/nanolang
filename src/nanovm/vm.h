@@ -69,6 +69,13 @@ typedef struct {
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
     uint16_t local_count;     /* Number of locals (including params) */
     VmClosure *closure;       /* Non-NULL if this is a closure call */
+    /* The callable this frame was entered through, when the frame owns a
+     * reference to it. CALL_INDIRECT pops the callable off the stack, which
+     * transfers the stack's reference; the frame has to hold it for the
+     * duration of the call and release it on teardown, or every closure call
+     * keeps its closure alive forever. Void when the frame borrows instead
+     * (a direct call, or a closure inherited from the caller). */
+    NanoValue owned_callable;
     const NvmModule *module;  /* Module this frame belongs to (for cross-module calls) */
     uint32_t current_line;    /* Most recently seen OP_DEBUG_LINE value (0 = unknown) */
     uint32_t current_col;     /* Column from most recent debug entry (0 = unknown) */
