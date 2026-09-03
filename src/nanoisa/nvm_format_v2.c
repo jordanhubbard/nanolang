@@ -77,6 +77,7 @@ const char *nvm_v2_result_name(NvmV2Result r) {
     case NVM_V2_ERR_SECTION_DUPLICATE:return "duplicate-section";
     case NVM_V2_ERR_CHECKSUM:         return "checksum-mismatch";
     case NVM_V2_ERR_INDEX_RANGE:      return "index-out-of-range";
+    case NVM_V2_ERR_FEATURE_MISMATCH: return "feature-bits-mismatch";
     }
     return "unknown";
 }
