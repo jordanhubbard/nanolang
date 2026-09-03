@@ -75,6 +75,128 @@ static void declares_one_result(NvmModule *mod) {
     mod->functions[0].result_count = 1;
 }
 
+/* ── Types through basic blocks ──────────────────────────────────────────
+ *
+ * Every rule the type pass enforces restates a check the VM already performs
+ * at run time: I64_ADD traps with "requires two integers", F64_ADD with
+ * "requires two floats". Proving them statically turns a trap into a
+ * rejection. A slot whose type is not known never fails, so imprecision costs
+ * only missed diagnostics; a known contradiction always fails.
+ */
+
+static void test_integer_op_on_a_string_fails(void) {
+    const char *test_name = "types: an integer op on a string operand fails";
+    uint8_t code[64];
+    uint32_t n = 0;
+    NvmModule *mod = nvm_module_new();
+    uint32_t s_idx = nvm_add_string(mod, "hello", 5);
+    uint32_t name_idx = nvm_add_string(mod, "main", 4);
+    n += emit(code + n, OP_PUSH_STR, s_idx);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_I64_ADD);
+    n += emit(code + n, OP_RET);
+    uint32_t off = nvm_append_code(mod, code, n);
+    NvmFunctionEntry fn = {0};
+    fn.name_idx = name_idx; fn.code_offset = off; fn.code_length = n;
+    fn.result_tag = TAG_INT; fn.result_count = 1;
+    uint32_t idx = nvm_add_function(mod, &fn);
+    mod->header.flags = NVM_FLAG_HAS_MAIN;
+    mod->header.entry_point = idx;
+
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "adding an integer to a string must fail");
+    ASSERT(strstr(r.error_msg, "expects int") != NULL, r.error_msg);
+    ASSERT(strstr(r.error_msg, "string") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_integer_op_on_floats_fails(void) {
+    const char *test_name = "types: an integer op on float operands fails";
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_F64, 1.5);
+    n += emit(code + n, OP_PUSH_F64, 2.5);
+    n += emit(code + n, OP_I64_ADD);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    declares_one_result(mod);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "integer add on floats must fail");
+    ASSERT(strstr(r.error_msg, "float") != NULL, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_float_op_on_floats_passes(void) {
+    const char *test_name = "types: the matching float op verifies";
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_F64, 1.5);
+    n += emit(code + n, OP_PUSH_F64, 2.5);
+    n += emit(code + n, OP_F64_ADD);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    mod->functions[0].result_tag = TAG_FLOAT;
+    mod->functions[0].result_count = 1;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+/* A value loaded from a local carries no type in a v1 module, so nothing is
+ * known about it and nothing may be rejected. This is the property that keeps
+ * the analysis from rejecting working programs. */
+static void test_unknown_types_never_fail(void) {
+    const char *test_name = "types: an unknown operand type is not an error";
+    uint8_t code[64];
+    uint32_t n = 0;
+    n += emit(code + n, OP_LOAD_LOCAL, (uint16_t)0);
+    n += emit(code + n, OP_LOAD_LOCAL, (uint16_t)0);
+    n += emit(code + n, OP_I64_ADD);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 1, 0);
+    declares_one_result(mod);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+/* Two paths reaching one instruction with different known types widen to
+ * unknown rather than failing. Generated code does this whenever one arm of a
+ * conditional pushes a value and another pushes void, so rejecting it would
+ * reject working programs -- and the widened slot is then simply not known,
+ * which is the truth. */
+static void test_conflicting_merge_widens_rather_than_failing(void) {
+    const char *test_name = "types: a merge of different types widens to unknown";
+    uint8_t code[128];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_BOOL, 1);
+    uint32_t jf_at = n;
+    n += emit(code + n, OP_JMP_FALSE, (int32_t)0);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    uint32_t jmp_at = n;
+    n += emit(code + n, OP_JMP, (int32_t)0);
+    uint32_t else_at = n;
+    n += emit(code + n, OP_PUSH_F64, 1.0);
+    uint32_t join_at = n;
+    n += emit(code + n, OP_RET);
+
+    int32_t rel = (int32_t)else_at - (int32_t)jf_at;
+    memcpy(code + jf_at + 1, &rel, 4);
+    rel = (int32_t)join_at - (int32_t)jmp_at;
+    memcpy(code + jmp_at + 1, &rel, 4);
+
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    declares_one_result(mod);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, r.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 /* ── Ownership effects ───────────────────────────────────────────────────
  *
  * GC_RETAIN and GC_RELEASE adjust an object's reference count without touching
@@ -1561,6 +1683,11 @@ int main(void) {
     test_hm_new_bad_value_tag();
     test_type_check_bad_tag();
     test_valid_type_tags_pass();
+    test_integer_op_on_a_string_fails();
+    test_integer_op_on_floats_fails();
+    test_float_op_on_floats_passes();
+    test_unknown_types_never_fail();
+    test_conflicting_merge_widens_rather_than_failing();
     test_unbalanced_retain_at_return_fails();
     test_release_without_retain_fails();
     test_balanced_retain_release_passes();

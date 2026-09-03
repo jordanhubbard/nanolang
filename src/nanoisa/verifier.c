@@ -754,8 +754,16 @@ static NvmVerifyResult verify_function_impl(const NvmModule *mod, uint32_t fn_id
     }
 
 #undef FAIL_DECODED
+    uint16_t proven_depth = 0;
     NvmVerifyResult stack_result =
-        verify_stack_heights(mod, &decoded, fn_idx, out_max_stack);
+        verify_stack_heights(mod, &decoded, fn_idx, &proven_depth);
+    if (out_max_stack) *out_max_stack = proven_depth;
+
+    /* Types only once the shape is proven: the type pass indexes slots the
+     * height walk guarantees exist. */
+    if (stack_result.ok)
+        stack_result = nvm_verify_function_types(mod, fn_idx, &decoded,
+                                                 proven_depth, NULL, 0);
     vm_decoded_function_free(&decoded);
     return stack_result;
 }
