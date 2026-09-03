@@ -31,7 +31,7 @@
  *   [0x00000 .. WASM_HEAP_BASE)   — stack, globals
  *   [WASM_HEAP_BASE .. HEAP_END)  — nl_rc managed heap (bump-pointer)
  *
- * Object header layout (12 bytes):
+ * Object header layout (16 bytes):
  *   [0..3]  refcount  (uint32_t)
  *   [4..7]  size      (uint32_t)  — usable payload bytes
  *   [8..11] gc_word   (uint32_t):
@@ -63,15 +63,30 @@
 #  define NL_CYCLE_BUF_SIZE 256
 #endif
 
-/* ── GC header (12 bytes) ────────────────────────────────────────────────── */
+/* ── GC header (16 bytes) ────────────────────────────────────────────────── */
 
 typedef struct {
     uint32_t refcount;   /* reference count */
     uint32_t size;       /* usable payload size (bytes, excl. header) */
     uint32_t gc_word;    /* tri-color + child_count + flags (see above) */
+    uint32_t _pad;       /* keeps the header a multiple of NL_WASM_ALIGN so the
+                          * payload that follows it is 8-byte aligned; see the
+                          * assertion below */
 } NLRCHeader;
 
-#define NL_RC_HEADER_SIZE  ((uint32_t)sizeof(NLRCHeader))  /* 12 */
+#define NL_RC_HEADER_SIZE  ((uint32_t)sizeof(NLRCHeader))  /* 16 */
+
+/* The allocator hands out payloads at (slot + NL_RC_HEADER_SIZE) and rounds
+ * each slot to NL_WASM_ALIGN. The payload is therefore only as aligned as the
+ * header size allows: at 12 bytes it was 4-byte aligned, so every object
+ * holding a pointer or a double was under-aligned. That is undefined behaviour
+ * even where x86-64 and arm64 tolerate it, and closures tripped it on every
+ * release (see the _NLCl accesses in _nl_release_children).
+ *
+ * C99 has no _Static_assert, so this is the negative-array idiom: it fails to
+ * compile if the header ever stops being a multiple of the alignment. */
+typedef char nl_rc_header_alignment_check[
+    (sizeof(NLRCHeader) % NL_WASM_ALIGN == 0) ? 1 : -1];
 
 /* GC word field accessors */
 #define NL_GC_COLOR(hdr)          ((hdr)->gc_word & 0x3u)
@@ -94,7 +109,17 @@ typedef struct {
 
 /* ── Heap state ─────────────────────────────────────────────────────────── */
 
-static uint8_t  _nl_wasm_heap[NL_WASM_HEAP_SIZE];
+/* The heap base must itself be at least NL_WASM_ALIGN aligned. Payloads are
+ * handed out at base + header + k*align, so an under-aligned base under-aligns
+ * every object no matter what the header size is. A plain uint8_t array has
+ * alignment 1 and the linker is free to place it anywhere, which is how this
+ * drifted. C99 has no alignas, so the union gives the storage the alignment of
+ * its widest member. */
+static union {
+    uint64_t _align;
+    uint8_t  bytes[NL_WASM_HEAP_SIZE];
+} _nl_wasm_heap_storage;
+#define _nl_wasm_heap (_nl_wasm_heap_storage.bytes)
 static uint32_t _nl_wasm_bump        = 0;
 static uint32_t _nl_wasm_alloc_count = 0;
 static uint32_t _nl_wasm_live_bytes  = 0;

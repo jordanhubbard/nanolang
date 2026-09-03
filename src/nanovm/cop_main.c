@@ -113,9 +113,9 @@ static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
     import_idx = cop_get_u32(payload);
     argc = cop_get_u16(payload + 4);
 
-    NanoValue args[16] = {0};
+    NanoValue args[NANO_MAX_FFI_ARGS] = {0};
     uint32_t pos = 6;
-    for (int i = 0; i < argc && i < 16; i++) {
+    for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS; i++) {
         uint32_t consumed = cop_deserialize_value(payload + pos, payload_len - pos,
                                                    &args[i], &g_heap);
         if (consumed == 0) {
@@ -159,7 +159,7 @@ static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
     }
 
     /* Release deserialized args */
-    for (int i = 0; i < argc && i < 16; i++) {
+    for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS; i++) {
         vm_release(&g_heap, args[i]);
     }
 

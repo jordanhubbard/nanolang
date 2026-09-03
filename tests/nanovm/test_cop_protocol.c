@@ -14,6 +14,8 @@ char g_project_root[4096] = ".";
 const char *get_project_root(void) { return g_project_root; }
 
 #include "../../src/nanovm/cop_protocol.h"
+#include "../../src/nanovm/vm_ffi.h"
+#include "../../src/nanoisa/nvm_format.h"
 #include "../../src/nanovm/heap.h"
 #include "../../src/nanovm/value.h"
 #include <stdio.h>
@@ -388,6 +390,106 @@ TEST(serialize_array_roundtrip) {
     vm_heap_destroy(&heap2);
 }
 
+
+/* ── Batched co-process dispatch (end-to-end fork) ─────────────────────── */
+
+/* Build a throwaway module exposing libc `abs` as import 0 (int -> int). */
+static NvmModule *make_abs_module(void) {
+    NvmModule *mod = nvm_module_new();
+    uint32_t mod_idx = nvm_add_string(mod, "", 0);          /* bare extern */
+    uint32_t fn_idx  = nvm_add_string(mod, "abs", 3);
+    uint8_t param_types[1] = { TAG_INT };
+    nvm_add_import(mod, mod_idx, fn_idx, 1, TAG_INT, param_types);
+    return mod;
+}
+
+static void cop_vm_init(VmState *vm) {
+    memset(vm, 0, sizeof(*vm));
+    vm->cop_pid = -1;
+    vm->cop_in_fd = -1;
+    vm->cop_out_fd = -1;
+    vm->cop_sig_send_fd = -1;
+    vm->cop_sig_recv_fd = -1;
+    vm->cop_timeout_ms = 5000;
+    vm->isolate_ffi = true;
+}
+
+TEST(batch_roundtrip_many_calls) {
+    NvmModule *mod = make_abs_module();
+    VmState vm; cop_vm_init(&vm);
+    VmHeap heap; vm_heap_init(&heap);
+
+    enum { N = 64 };
+    CopBatchCall calls[N];
+    NanoValue argbuf[N];
+    NanoValue results[N];
+    for (int i = 0; i < N; i++) {
+        argbuf[i] = val_int(-(i + 1));
+        calls[i].import_idx = 0;
+        calls[i].args = &argbuf[i];
+        calls[i].arg_count = 1;
+    }
+
+    char err[256] = {0};
+    bool ok = vm_ffi_call_cop_batch(&vm, mod, calls, N, results, &heap,
+                                    err, sizeof(err));
+    ASSERT(ok);
+    for (int i = 0; i < N; i++) {
+        ASSERT(results[i].tag == TAG_INT);
+        ASSERT_EQ(results[i].as.i64, (int64_t)(i + 1));  /* abs(-(i+1)) */
+        vm_release(&heap, results[i]);
+    }
+
+    vm_ffi_cop_stop(&vm);
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+}
+
+TEST(batch_empty_is_noop) {
+    NvmModule *mod = make_abs_module();
+    VmState vm; cop_vm_init(&vm);
+    VmHeap heap; vm_heap_init(&heap);
+
+    NanoValue results[1];
+    char err[256] = {0};
+    bool ok = vm_ffi_call_cop_batch(&vm, mod, NULL, 0, results, &heap,
+                                    err, sizeof(err));
+    ASSERT(ok);
+    /* No co-process should have been launched for an empty batch. */
+    ASSERT(vm.cop_pid <= 0);
+
+    vm_ffi_cop_stop(&vm);
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+}
+
+TEST(batch_bad_import_reports_error) {
+    NvmModule *mod = make_abs_module();
+    VmState vm; cop_vm_init(&vm);
+    VmHeap heap; vm_heap_init(&heap);
+
+    NanoValue a0 = val_int(-7);
+    NanoValue a1 = val_int(-9);
+    CopBatchCall calls[2] = {
+        { .import_idx = 0,   .args = &a0, .arg_count = 1 },  /* valid */
+        { .import_idx = 999, .args = &a1, .arg_count = 1 },  /* out of range */
+    };
+    NanoValue results[2];
+    char err[256] = {0};
+    bool ok = vm_ffi_call_cop_batch(&vm, mod, calls, 2, results, &heap,
+                                    err, sizeof(err));
+    ASSERT(!ok);
+    ASSERT(err[0] != '\0');
+    /* The first (valid) call completed before the failure. */
+    ASSERT(results[0].tag == TAG_INT);
+    ASSERT_EQ(results[0].as.i64, 7);
+    vm_release(&heap, results[0]);
+
+    vm_ffi_cop_stop(&vm);
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+}
+
 /* ── main ──────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -416,6 +518,9 @@ int main(void) {
     RUN(serialize_string_length_little_endian);
     RUN(deserialize_hostile_lengths);
     RUN(serialize_array_roundtrip);
+    RUN(batch_roundtrip_many_calls);
+    RUN(batch_empty_is_noop);
+    RUN(batch_bad_import_reports_error);
 
     printf("\n");
     if (g_fail == 0) {

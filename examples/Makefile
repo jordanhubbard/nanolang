@@ -516,18 +516,28 @@ launcher: build $(LAUNCHER_BIN)
 	@cd .. && ./bin/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
 
 .PHONY: gpu-kernels
-gpu-kernels: gpu/matmul.ptx gpu/matmul.cl gpu/ocean.ptx gpu/ocean.cl
+GPU_KERNEL_DIR := $(BIN_DIR)/gpu
+GPU_KERNELS := \
+	$(GPU_KERNEL_DIR)/matmul.ptx \
+	$(GPU_KERNEL_DIR)/matmul.cl \
+	$(GPU_KERNEL_DIR)/ocean.ptx \
+	$(GPU_KERNEL_DIR)/ocean.cl
 
-gpu/matmul.ptx: gpu/matmul.nano $(COMPILER)
+gpu-kernels: $(GPU_KERNELS)
+
+$(GPU_KERNEL_DIR):
+	mkdir -p $@
+
+$(GPU_KERNEL_DIR)/matmul.ptx: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target ptx -o $@
 
-gpu/matmul.cl: gpu/matmul.nano $(COMPILER)
+$(GPU_KERNEL_DIR)/matmul.cl: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
-gpu/ocean.ptx: gpu/ocean.nano $(COMPILER)
+$(GPU_KERNEL_DIR)/ocean.ptx: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target ptx -o $@
 
-gpu/ocean.cl: gpu/ocean.nano $(COMPILER)
+$(GPU_KERNEL_DIR)/ocean.cl: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
 $(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT): gpu/ocean.nano $(COMPILER)
@@ -625,13 +635,17 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 ../modules/forth_see/.build/libforth_see.so: ../modules/forth_see/forth_see.c ../modules/forth_see/forth_see.h \
 		../modules/nanoisa/nanoisa.c ../modules/nanoisa/nanoisa.h \
 		../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
-		../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c
+		../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
+		../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
+		../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c
 	@mkdir -p ../modules/forth_see/.build
 	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared \
-	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa \
+	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa -I../src \
 	    -o $@ ../modules/forth_see/forth_see.c ../modules/nanoisa/nanoisa.c \
 	    ../src/nanoisa/isa.c ../src/nanoisa/nvm_format.c \
-	    ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c
+	    ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
+	    ../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
+	    ../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c
 
 # Explicit rule: compile nl_forth_interpreter.nano → bin/nl_forth_interpreter_vm (NVM bytecode, no extension)
 # The pattern rule $(BIN_DIR)/nl_%$(BIN_EXT) won't match because target suffix (_vm) differs from source name.
@@ -850,6 +864,7 @@ $(BIN_DIR)/mujoco_%$(BIN_SUFFIX)$(BIN_EXT): mujoco/mujoco_%.nano $(COMPILER)
 clean:
 	@echo "Cleaning example binaries..."
 	rm -f $(ALL_EXAMPLES)
+	rm -rf $(GPU_KERNEL_DIR)
 	rm -rf $(BIN_DIR)/*.dSYM
 	rm -rf ../modules/*/.build/ ../std/*/.build/
 	rm -rf $(NANO_BUILD_CACHE)

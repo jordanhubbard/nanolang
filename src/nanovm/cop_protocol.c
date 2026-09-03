@@ -9,6 +9,7 @@
 #include "vm_ffi.h"
 #include "heap.h"
 #include "../nanoisa/nvm_format.h"
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -83,7 +84,8 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
         cop_put_u32(buf + pos, count);
         pos += 4;
         for (uint32_t i = 0; i < count; i++) {
-            uint32_t n = cop_serialize_value(&arr->elements[i],
+            NanoValue elem = vm_array_get(arr, i);
+            uint32_t n = cop_serialize_value(&elem,
                                               buf + pos, buf_size - pos);
             if (n == 0) return 0;
             pos += n;
@@ -266,6 +268,106 @@ bool cop_send_simple(int fd, CopMsgType type) {
 }
 
 /* ========================================================================
+ * cop_child_run_batch — execute a coalesced batch of host calls
+ *
+ * Runs `batch_count` sub-requests packed in mailbox->req_data, writing one
+ * serialized result per call into mailbox->resp_data.  Stops at the first
+ * failing call and reports it via resp_is_error/resp_error, leaving
+ * resp_batch_count set to the number of results already produced.  This is
+ * the core of "batch high-frequency host work rather than cross the process
+ * boundary for each element": one signal/ack pair covers the whole batch.
+ * ======================================================================== */
+
+static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
+                                const NvmModule *module, VmHeap *heap) {
+    uint16_t req_data_size = cop_get_u16(mailbox->req_data_size);
+    uint32_t rpos = 0;   /* read cursor over packed sub-requests */
+    uint32_t wpos = 0;   /* write cursor over packed results     */
+    uint32_t done = 0;
+
+    if (batch_count > COP_MAX_BATCH) {
+        mailbox->resp_is_error = 1;
+        cop_put_u32(mailbox->resp_data_size, 0);
+        cop_put_u32(mailbox->resp_batch_count, 0);
+        strncpy(mailbox->resp_error, "COP: batch count exceeds COP_MAX_BATCH",
+                sizeof(mailbox->resp_error) - 1);
+        mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
+        return;
+    }
+
+    for (uint32_t c = 0; c < batch_count; c++) {
+        /* Sub-request header: import_idx(u32) + argc(u16) + arg_data_size(u16) */
+        if (rpos + 8 > req_data_size) {
+            mailbox->resp_is_error = 1;
+            cop_put_u32(mailbox->resp_data_size, 0);
+            cop_put_u32(mailbox->resp_batch_count, done);
+            snprintf(mailbox->resp_error, sizeof(mailbox->resp_error),
+                     "COP: truncated batch sub-request %u", c);
+            return;
+        }
+        uint32_t import_idx = cop_get_u32(mailbox->req_data + rpos); rpos += 4;
+        uint16_t argc       = cop_get_u16(mailbox->req_data + rpos); rpos += 2;
+        uint16_t arg_bytes  = cop_get_u16(mailbox->req_data + rpos); rpos += 2;
+
+        if (rpos + arg_bytes > req_data_size || argc > 16) {
+            mailbox->resp_is_error = 1;
+            cop_put_u32(mailbox->resp_data_size, 0);
+            cop_put_u32(mailbox->resp_batch_count, done);
+            snprintf(mailbox->resp_error, sizeof(mailbox->resp_error),
+                     "COP: malformed batch sub-request %u", c);
+            return;
+        }
+
+        NanoValue args[16] = {0};
+        int actual_argc = 0;
+        uint32_t apos = rpos;
+        uint32_t aend = rpos + arg_bytes;
+        for (int i = 0; i < argc && i < 16 && apos < aend; i++) {
+            uint32_t consumed = cop_deserialize_value(mailbox->req_data + apos,
+                                                      aend - apos, &args[i], heap);
+            if (consumed == 0) break;
+            apos += consumed;
+            actual_argc++;
+        }
+        rpos += arg_bytes;
+
+        NanoValue result;
+        char errmsg[256] = {0};
+        bool ok = vm_ffi_call(module, import_idx, args, actual_argc,
+                              &result, heap, errmsg, sizeof(errmsg));
+
+        for (int i = 0; i < actual_argc; i++) vm_release(heap, args[i]);
+
+        if (!ok) {
+            mailbox->resp_is_error = 1;
+            cop_put_u32(mailbox->resp_data_size, wpos);
+            cop_put_u32(mailbox->resp_batch_count, done);
+            strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
+            mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
+            return;
+        }
+
+        uint32_t rlen = cop_serialize_value(&result, mailbox->resp_data + wpos,
+                                            COP_MAILBOX_SLOT_SIZE - wpos);
+        vm_release(heap, result);
+        if (rlen == 0) {
+            mailbox->resp_is_error = 1;
+            cop_put_u32(mailbox->resp_data_size, wpos);
+            cop_put_u32(mailbox->resp_batch_count, done);
+            snprintf(mailbox->resp_error, sizeof(mailbox->resp_error),
+                     "COP: batch result %u overflows mailbox slot", c);
+            return;
+        }
+        wpos += rlen;
+        done++;
+    }
+
+    mailbox->resp_is_error = 0;
+    cop_put_u32(mailbox->resp_data_size, wpos);
+    cop_put_u32(mailbox->resp_batch_count, done);
+}
+
+/* ========================================================================
  * cop_child_main — shared-memory mailbox fast path (in-process child)
  *
  * Called after fork() in vm_ffi_cop_start(). The module pointer is valid
@@ -324,14 +426,27 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
             uint8_t trigger;
             if (read(sig_in_fd, &trigger, 1) != 1) break;
 
+            uint32_t batch_count = cop_get_u32(mailbox->req_batch_count);
+            if (batch_count > 0) {
+                /* ── Batched dispatch: many host calls, one boundary crossing ─
+                 * The request slot holds `batch_count` packed sub-requests; we
+                 * run each in order and pack a serialized result per call into
+                 * the response slot.  On the first failing call we stop and
+                 * report the error (with the completed count so the parent
+                 * knows how far the batch got). */
+                cop_child_run_batch(mailbox, batch_count, module, &heap);
+                if (write(sig_out_fd, &sig, 1) != 1) break;
+                continue;
+            }
+
             uint32_t import_idx = cop_get_u32(mailbox->req_import_idx);
             uint16_t argc       = cop_get_u16(mailbox->req_argc);
             uint16_t data_size  = cop_get_u16(mailbox->req_data_size);
 
-            NanoValue args[16] = {0};
+            NanoValue args[NANO_MAX_FFI_ARGS] = {0};
             int actual_argc = 0;
             uint32_t pos = 0;
-            for (int i = 0; i < argc && i < 16 && pos < data_size; i++) {
+            for (int i = 0; i < argc && i < NANO_MAX_FFI_ARGS && pos < data_size; i++) {
                 uint32_t consumed = cop_deserialize_value(mailbox->req_data + pos,
                                                           data_size - pos,
                                                           &args[i], &heap);
@@ -346,6 +461,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                              errmsg, sizeof(errmsg))) {
                 mailbox->resp_is_error  = 1;
                 cop_put_u32(mailbox->resp_data_size, 0);
+                cop_put_u32(mailbox->resp_batch_count, 0);
                 strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
                 mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             } else {
@@ -354,6 +470,7 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                                                     COP_MAILBOX_SLOT_SIZE);
                 mailbox->resp_is_error  = 0;
                 cop_put_u32(mailbox->resp_data_size, rlen);
+                cop_put_u32(mailbox->resp_batch_count, 0);
                 vm_release(&heap, result);
             }
 

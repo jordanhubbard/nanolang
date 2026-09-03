@@ -25,13 +25,12 @@
 # Note: Full matrix multiply (C = A @ B) requires a k-loop inside gpu fn.
 # Loop support in gpu fn (PTX while/for) is planned for a future release.
 #
-# Compile kernels to PTX:
-#   NANO_MODULE_PATH=modules nanoc matmul.nano --target ptx -o examples/gpu/matmul.ptx
-#   NANO_MODULE_PATH=modules nanoc matmul.nano --target opencl -o examples/gpu/matmul.cl
+# Compile kernels:
+#   make -C examples gpu-kernels
 #
 # Compile host program and run:
-#   NANO_MODULE_PATH=modules nanoc matmul.nano -o matmul
-#   ./matmul
+#   NANO_MODULE_PATH=modules nanoc examples/gpu/matmul.nano -o bin/matmul
+#   ./bin/matmul
 
 import "modules/gpu/gpu.nano"
 
@@ -118,7 +117,7 @@ fn main() -> int {
     let grid: int = (/ (+ n (- tile 1)) tile)
 
     # ── matrix_scale ──────────────────────────────────────────────────────────
-    let ok1: bool = (gpu_launch2d "examples/gpu/matmul.ptx" "matrix_scale"
+    let ok1: bool = (gpu_launch2d "bin/gpu/matmul.ptx" "matrix_scale"
                                   grid grid tile tile
                                   scale d_a d_c n)
     if (not ok1) {
@@ -157,7 +156,7 @@ fn main() -> int {
     }
 
     # ── matrix_hadamard ───────────────────────────────────────────────────────
-    let ok2: bool = (gpu_launch2d "examples/gpu/matmul.ptx" "matrix_hadamard"
+    let ok2: bool = (gpu_launch2d "bin/gpu/matmul.ptx" "matrix_hadamard"
                                   grid grid tile tile
                                   d_a d_b d_c n)
     if (not ok2) {

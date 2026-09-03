@@ -26,6 +26,23 @@ typedef struct {
     char name[16];
 } DisasmLabel;
 
+/* Return the operand index that carries a relative branch target for this
+ * opcode, or -1 if the opcode has no branch operand. Only these operands are
+ * branch offsets that resolve to labels; other I32 operands are plain
+ * immediates and must be printed numerically. */
+static int branch_operand_index(NanoOpcode opcode) {
+    switch (opcode) {
+        case OP_JMP:
+        case OP_JMP_TRUE:
+        case OP_JMP_FALSE:
+            return 0;
+        case OP_MATCH_TAG:
+            return 1;
+        default:
+            return -1;
+    }
+}
+
 static uint32_t collect_jump_targets(const uint8_t *code, uint32_t code_size,
                                       DisasmLabel *labels, uint32_t max_labels) {
     uint32_t label_count = 0;
@@ -36,31 +53,29 @@ static uint32_t collect_jump_targets(const uint8_t *code, uint32_t code_size,
         uint32_t consumed = isa_decode(code + pos, code_size - pos, &instr);
         if (consumed == 0) break;
 
-        /* Check if this instruction has an I32 operand (jump offset) */
-        const InstructionInfo *info = isa_get_info(instr.opcode);
-        if (info) {
-            for (int i = 0; i < info->operand_count; i++) {
-                if (info->operands[i] == OPERAND_I32) {
-                    /* Relative offset from instruction start */
-                    int32_t rel = instr.operands[i].i32;
-                    uint32_t target = (uint32_t)((int32_t)pos + rel);
-                    if (target <= code_size) {
-                        /* Check if we already have this target */
-                        bool found = false;
-                        for (uint32_t j = 0; j < label_count; j++) {
-                            if (labels[j].offset == target) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found && label_count < max_labels) {
-                            labels[label_count].offset = target;
-                            snprintf(labels[label_count].name,
-                                     sizeof(labels[label_count].name),
-                                     "L%u", label_count);
-                            label_count++;
-                        }
+        /* Only the branch operand of a control-flow opcode is a jump target;
+         * other I32 operands (e.g. immediates) must not create labels. */
+        int branch_idx = branch_operand_index(instr.opcode);
+        if (branch_idx >= 0 && branch_idx < instr.operand_count &&
+            instr.operand_types[branch_idx] == OPERAND_I32) {
+            /* Relative offset from instruction start */
+            int32_t rel = instr.operands[branch_idx].i32;
+            uint32_t target = (uint32_t)((int32_t)pos + rel);
+            if (target <= code_size) {
+                /* Check if we already have this target */
+                bool found = false;
+                for (uint32_t j = 0; j < label_count; j++) {
+                    if (labels[j].offset == target) {
+                        found = true;
+                        break;
                     }
+                }
+                if (!found && label_count < max_labels) {
+                    labels[label_count].offset = target;
+                    snprintf(labels[label_count].name,
+                             sizeof(labels[label_count].name),
+                             "L%u", label_count);
+                    label_count++;
                 }
             }
         }
@@ -84,6 +99,7 @@ static bool is_control_flow_opcode(NanoOpcode opcode) {
     return opcode == OP_JMP ||
            opcode == OP_JMP_FALSE ||
            opcode == OP_JMP_TRUE ||
+           opcode == OP_MATCH_TAG ||
            opcode == OP_CALL ||
            opcode == OP_TAIL_CALL ||
            opcode == OP_CALL_EXTERN ||
@@ -96,6 +112,7 @@ static const char *control_flow_note(NanoOpcode opcode) {
         case OP_JMP: return "jump";
         case OP_JMP_FALSE: return "branch-if-false";
         case OP_JMP_TRUE: return "branch-if-true";
+        case OP_MATCH_TAG: return "match-tag-branch";
         case OP_CALL: return "call";
         case OP_TAIL_CALL: return "tail-call";
         case OP_CALL_EXTERN: return "extern-call";
@@ -145,17 +162,42 @@ static void format_operand(FILE *out, const DecodedInstruction *instr, int idx,
                     }
                 }
             }
+            /* For CALL_EXTERN, the operand is an import table index (not a
+             * function table index): annotate with the imported module and
+             * function name so external calls read correctly. */
+            if (style == DISASM_STYLE_DETAILED &&
+                instr->opcode == OP_CALL_EXTERN && idx == 0 && mod) {
+                uint32_t imp_idx = instr->operands[idx].u32;
+                if (imp_idx < mod->import_count) {
+                    const NvmImportEntry *imp = &mod->imports[imp_idx];
+                    const char *mod_name = nvm_get_string(mod, imp->module_name_idx);
+                    const char *fn_name = nvm_get_string(mod, imp->function_name_idx);
+                    fprintf(out, " %u", imp_idx);
+                    if (mod_name && fn_name) {
+                        fprintf(out, "  ; import %s.%s", mod_name, fn_name);
+                    } else if (fn_name) {
+                        fprintf(out, "  ; import %s", fn_name);
+                    } else {
+                        fprintf(out, "  ; import");
+                    }
+                    return;
+                }
+            }
             fprintf(out, " %u", instr->operands[idx].u32);
             break;
         case OPERAND_I32: {
             int32_t rel = instr->operands[idx].i32;
-            uint32_t target = (uint32_t)((int32_t)instr_offset + rel);
-            const char *label = find_label_at(labels, label_count, target);
-            if (label) {
-                fprintf(out, " %s", label);
-            } else {
-                fprintf(out, " %d", rel);
+            /* Only the branch operand resolves to a label; other I32 operands
+             * are plain signed immediates and print numerically. */
+            if (branch_operand_index(instr->opcode) == idx) {
+                uint32_t target = (uint32_t)((int32_t)instr_offset + rel);
+                const char *label = find_label_at(labels, label_count, target);
+                if (label) {
+                    fprintf(out, " %s", label);
+                    break;
+                }
             }
+            fprintf(out, " %d", rel);
             break;
         }
         case OPERAND_I64:
@@ -273,15 +315,27 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
     for (uint32_t i = 0; i < mod->string_count; i++) {
         const char *s = nvm_get_string(mod, i);
         if (s) {
+            /* Emit exactly the stored bytes: strings may contain embedded NUL
+             * and other non-printable bytes, so iterate by length rather than
+             * stopping at the first NUL. Non-printable bytes are emitted as
+             * \xHH escapes so binary strings round-trip losslessly. */
+            uint32_t len = nvm_get_string_len(mod, i);
             fprintf(out, ".string \"");
-            /* Escape special characters */
-            for (const char *p = s; *p; p++) {
-                switch (*p) {
+            for (uint32_t j = 0; j < len; j++) {
+                unsigned char c = (unsigned char)s[j];
+                switch (c) {
                     case '\n': fprintf(out, "\\n"); break;
+                    case '\r': fprintf(out, "\\r"); break;
                     case '\t': fprintf(out, "\\t"); break;
                     case '\\': fprintf(out, "\\\\"); break;
                     case '"':  fprintf(out, "\\\""); break;
-                    default:   fputc(*p, out); break;
+                    default:
+                        if (c < 0x20 || c >= 0x7f) {
+                            fprintf(out, "\\x%02x", c);
+                        } else {
+                            fputc((int)c, out);
+                        }
+                        break;
                 }
             }
             fprintf(out, "\"\n");
@@ -318,7 +372,8 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
                 fn->arity, fn->local_count, fn->upvalue_count,
                 isa_tag_name(fn->result_tag), fn->result_count);
 
-        if (fn->code_length > 0 && fn->code_offset + fn->code_length <= mod->code_size) {
+        if (fn->code_length > 0 && fn->code_offset <= mod->code_size &&
+            fn->code_length <= mod->code_size - fn->code_offset) {
             disasm_function_styled(mod->code + fn->code_offset, fn->code_length,
                                    mod, out, style);
         }

@@ -21,22 +21,10 @@ update workflow. Its model-facing inputs are the
 The [deck builder](build_deck.py), [narrative builder](build_narrative.py),
 [slide rasterizer](render_slides.py), [Google Workspace publisher](publish_google_workspace.py),
 and [regeneration launcher](regenerate.sh) derive the PowerPoint and Word outputs
-from this reviewed package using `python-pptx` and `python-docx`. Image assets are
-retained because they are authored presentation inputs, not generated application source.
-`regenerate.sh` prefers the pinned OBJ_DIR toolchain from `make doc-toolchain-bootstrap`
-so a vanilla worker with no Codex plugin can rebuild. The prior
-[`build_deck.mjs`](build_deck.mjs) path remains a discovered fallback only (see
-[source notes](source-notes.md)'s "Codex-independent rebuild" entry). That backend choice
-is project-local and is not a dependency of NanoLang's authoring workflow.
-
-## Release Policy source status
-
-The source package now documents writable Free/Pre-release `main`, exact-main RC tags,
-release-line lockdown and README Release Engineer authority, per-project strict/loose
-patch authority, mandatory `Literate-AI-Release` pull-request classification, and safe
-marker-based branch collection. The maintained local PPTX/DOCX and published Google
-copies have not been regenerated or published for this source revision; regeneration and
-publication remain pending an explicit follow-up.
+from this reviewed package using `python-pptx` and `python-docx`. The only image asset is
+the NanoLang mascot from the user guide. Mechanism diagrams use native slide shapes.
+Local regeneration is complete. Google publication remains a separate authorized
+operation and requires Drive scopes in the token returned by `gcloud auth print-access-token`.
 
 Visual input: [NanoLang mascot](assets/nanolang-mascot.png), adapted from the user-guide
 asset. Mechanism diagrams are generated as native slide shapes.

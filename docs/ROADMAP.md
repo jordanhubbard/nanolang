@@ -126,19 +126,19 @@ Execution architecture:
 - [x] I made `--strip-debug` remove all generated runtime debug cost by stripping the side table from code that contains no debug opcodes.
 - [x] I removed generated `PUSH_VOID; POP`, unreachable `RET; JMP`, and statements after terminating control flow from NanoVirt lowering.
 - [x] I added direct tail-call lowering and frame-replacement execution with verifier and runtime signature checks.
-- [ ] I will add profile-selected private superinstructions without exposing frontend bookkeeping as portable opcodes.
+- [x] I add profile-selected private superinstructions in the optimized dispatch IR (`src/nanovm/vm_dispatch.c` `VmDispatchProfile` and `VmSuperOp`): a fusion runs only when a profile opts it in, the fused step lives entirely in representation 3 with no portable opcode, no serialized-bytecode or verified-IR footprint, and no frontend bookkeeping, and it preserves the byte-addressed `ip` contract; `docs/NANOISA_OPTIMIZATION_POLICY.md` records the acceptance policy and `tests/nanovm/test_vm.c` proves fused and unfused projections return identical results and never rewrite a branch target.
 - [x] I initially evaluated local-field load, local increment, compare-branch, union-tag branch, and tail-call fusions in `docs/superpowers/specs/2026-09-01-nanoisa-fusion-initial-evaluation.md`: each candidate is located in the predecoded dispatch IR (`src/nanovm/vm_dispatch.c`) and the lowering that generates it (`src/nanovirt/codegen.c`), ranked by expected win against correctness cost, and gated on the frequency and measurement floors of `docs/NANOISA_OPTIMIZATION_POLICY.md`; no fusion is accepted yet.
 - [ ] I will accept a fusion only when maintained NanoLang or Forth workloads justify it.
 
 Runtime representation:
 - [ ] I will measure and evaluate split payload/tag operand stacks and globals.
 - [x] I dynamically size globals from serialized declarations instead of embedding 4,096 values in every VM.
-- [ ] I will preinstantiate module constants so string literals do not allocate and search the intern table on every execution.
+- [x] I preinstantiate each module's string constants once, then retain the indexed value without allocating or searching during execution.
 - [x] I replaced the linear intern-table scan with a chained hash-bucket table so string interning lookup, insertion, and removal are O(1) amortized instead of O(n); `test-intern` covers dedup, unlink-on-free, bucket growth, and embedded-NUL content.
-- [ ] I will consistently use stored string lengths and preserve embedded zero bytes.
-- [ ] I will add unboxed homogeneous arrays for integer, float, boolean, and byte elements.
+- [x] I consistently use stored string lengths and preserve embedded zero bytes: NanoVM string constants load with their serialized byte length via `nvm_get_string_len` instead of `strlen`, and `STR_CONTAINS`, `STR_SPLIT`, and `STR_REPLACE` search by stored length through `vmstring_find`/`vm_mem_find`; `tests/nanovm/test_vm.c` covers embedded `\0` bytes across find, substr, char_at, split, replace, and contains.
+- [x] I store homogeneous `array<int>`, `array<float>`, `array<bool>`, and `array<byte>` values unboxed in a compact packed buffer (`VmArray.packed`) rather than a boxed `NanoValue[]`, selected by `VmArray.unboxed` and routed through the `vm_array_*` accessors; `test-nanovm` covers the packed round-trip, mutation, slice, and remove paths.
 - [ ] I will simplify array mutator stack effects and remove the two-result `ARR_POP` convention.
-- [ ] I will replace chained hash-map entries with a measured contiguous implementation.
+- [x] I replaced NanoVM's separately allocated chained hash-map entries with a contiguous open-addressed table. `test_hashmap_contiguous_collisions` measures one entry-array allocation per table rather than one allocation per inserted entry and tests collisions, growth, deletion tombstones, and tombstone reuse.
 - [ ] I will fix reference ownership for array removal, closure calls, FFI trap arguments, and marshalled arrays.
 - [ ] I will choose and document tracing collection or enforceable cycle restrictions for heap graphs.
 
@@ -146,41 +146,41 @@ Verifier and safety:
 - [x] I reject wrapped function code ranges and require every tested branch target to be an instruction boundary or the function-end sentinel; `test-verifier` verifies the malformed cases.
 - [ ] I will implement a control-flow verifier with instruction-boundary validation.
 - [ ] I will infer stack height and types through every basic block and require compatible merge states.
-- [ ] I will verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures.
+- [x] I verify call arity and result shape through signature-aware stack effects, dynamic aggregate and closure counts, local/global/flattened-upvalue bounds, encoded type tags, and complete import signatures; `test-verifier` covers each rejected malformed form.
 - [ ] I will verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination.
 - [x] `nvm_verify_linked` resolves every `OP_CALL_MODULE` operand pair against the linked-module table (module index, live module, callee function index), and per-function verification now covers every opcode family—type-tag operands are range-checked and any opcode reaching the default arm with an unhandled table operand is treated as a verifier bug; `test-verifier` exercises the linked-call and type-tag cases.
-- [ ] I will eliminate integer-overflow and overlap gaps in code-range and section validation.
-- [ ] I will rewrite verified operations to unchecked private handlers where the proof permits it.
-- [ ] I will add malformed-bytecode tests and fuzz the decoder, loader, verifier, assembler, disassembler, and co-process protocol.
+- [x] I reject wrapped and overlapping function code ranges and validate section ranges as an overflow-safe, non-overlapping partition; focused verifier and module-format tests cover containment, adjacency, and directory order.
+- [x] The VM re-runs `nvm_verify` over the root and every linked module (`vm_recompute_verified`) and records the result in `VmState.verified`; where that proof holds, the operand-stack accessors dispatch to unchecked private handlers (`stack_pop_unchecked`/`stack_peek_unchecked`) instead of re-checking depth the verifier already proved, falling back to the guarded path for any unverified module. `tests/nanovm/test_vm.c` (Verified Fast Path) pins the flag to the verifier verdict and checks both paths.
+- [x] I fuzz the decoder, loader, verifier, assembler, and disassembler with random, truncated, and bit-flipped bytecode in `tests/nanoisa/test_fuzz_malformed.c` (`make test-fuzz-malformed`), and fuzz the co-process wire protocol's value decode and message framing in `tests/nanovm/test_cop_fuzz.c` (`make test-cop-fuzz`); both run under `test-units`.
 
 Module format and tools:
 - [ ] I will design a NanoISA v2 module header with format version, ISA version, feature bits, total size, and bounded section directory.
 - [ ] I will serialize required code, constants, signatures, globals, imports, layouts, links, metadata, and optional debug sections.
 - [x] I reject duplicate singleton sections, overlaps, partial fixed-width records, trailing data, interior gaps, and arithmetic overflow in `nvm_deserialize` via a structural section-directory validation pass, covered by `tests/nanoisa/test_nanoisa.c` module-format tests.
-- [ ] I will make symbolic functions, imports, fields, types, constants, and labels first-class assembler operands.
+- [x] I accept typed symbolic functions, imports, fields, types, constants, and labels as assembler operands while retaining numeric operands, covered by focused NanoISA assembler tests.
 - [ ] I will make canonical disassembly lossless and byte-length aware.
-- [ ] I will validate complete operand consumption and verify every assembled module.
-- [ ] I will correct disassembler import annotations, branch operand roles, label construction, and binary-string handling.
-- [ ] I will add an exhaustive coverage check tying every opcode to schema, VM behavior, verifier rules, assembly, disassembly, and tests.
-- [ ] I will remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations.
-- [ ] I will choose one coherent flattened or separately linked module model and test it end to end.
+- [x] I reject trailing instruction and directive operands, and I run the bytecode verifier before returning any assembled module; `test-nanoisa` covers both rejection paths.
+- [x] I correct disassembler import annotations (`CALL_EXTERN` now resolves the imported module and function), branch operand roles (only genuine branch operands become labels; non-branch `i32` immediates print numerically), label construction, and binary-string handling (length-aware `\xHH`/`\r` escaping that round-trips embedded NUL and non-printable bytes), covered by disassembler tests in `tests/nanoisa/test_nanoisa.c`.
+- [x] I tie every legacy opcode to its schema and enum value, VM dispatch behavior, an explicit or decode-backed verifier route, and tested encode, decode, assembly, and disassembly paths; `schema-check` and `test-nanoisa` fail when these layers drift.
+- [x] I removed the no-op GC-scope opcodes (`GC_SCOPE_ENTER`, `GC_SCOPE_EXIT`) and the duplicate `CLOSURE_CALL` (subsumed by `CALL_INDIRECT`), which no frontend emitted; the remaining unemitted polymorphic scalar/string opcodes are retained as justified assembler-compatibility instructions (see the row above).
+- [x] I use separately linked `.nvm` modules: serialized `MODULE_REFS` define the checked dependency names and `CALL_MODULE` indices, `vm_link_named_module` enforces their order, and `test-nanovm` serializes, loads, links, and executes a two-file module graph end to end.
 
 FFI and traps:
-- [ ] I will resolve imports once into typed call descriptors.
-- [ ] I will use generated typed stubs or a general ABI layer for mixed integer and floating signatures.
-- [ ] I will make argument limits consistent across imports, traps, direct FFI, and co-process calls.
+- [x] I will resolve imports once into typed call descriptors.
+- [x] I dispatch mixed integer and floating FFI signatures through generated typed stubs (`scripts/gen_ffi_dispatch.py` → `src/nanovm/ffi_dispatch_generated.h`) so int/pointer args use general-purpose registers and float args use FP registers per the platform ABI, covered by mixed-signature tests in `tests/nanovm/test_vm_ffi.c`.
+- [x] I made argument limits consistent across imports, traps, direct FFI, and co-process calls by sharing a single `NANO_MAX_FFI_ARGS` limit (in `src/nanoisa/nvm_format.h`): the verifier rejects imports past it, the `OP_CALL_EXTERN` trap buffer is sized to it and traps instead of silently truncating, and the direct in-process, co-process, and interpreter FFI dispatch paths all size their argument arrays and bounds to it, covered by `tests/nanoisa/test_verifier.c` import-limit tests.
 - [ ] I will pass trap stack ranges instead of copying a fixed array of tagged values where measurement supports it.
 - [ ] I will make co-process serialization explicitly little-endian and restore a tested large-payload path.
 - [ ] I will measure cold startup, warm calls, scalar calls, strings, arrays, crashes, restarts, and batching.
-- [ ] I will batch high-frequency host work rather than cross the process boundary for each element.
+- [x] I batch high-frequency host work through a coalesced co-process path: `vm_ffi_call_cop_batch` packs many extern calls (`COP_MSG_FFI_BATCH`) into each shared-memory mailbox crossing so a signal/ack pair covers the whole batch instead of every element, with `tests/nanovm/test_cop_protocol.c` covering the forked round-trip, empty batches, and mid-batch error reporting.
 
 Documentation and acceptance:
 - [x] I replaced stale NanoISA opcode counts and architecture claims in the active documentation; historical changelog entries remain historical.
-- [ ] I will document the portable ISA separately from verified and optimized runtime representations.
+- [x] I document the portable ISA separately from verified and optimized runtime representations in [docs/NANOISA_PORTABLE_ISA.md](NANOISA_PORTABLE_ISA.md): the portable contract lives in `spec/nanoisa.yaml` and the `.nvm` format, while the verified instruction IR and optimized dispatch IR are documented as internal, non-portable runtime representations.
 - [ ] I will provide readable symbolic assembly examples for NanoLang and Forth.
-- [ ] I will record why every public instruction belongs in the ISA rather than a runtime library.
+- [x] I record why every public instruction belongs in the ISA rather than a runtime library: every `instruction_families` entry in `spec/nanoisa.yaml` carries a `justification` (representation, core-semantics, execution-substrate, control-flow, host-boundary, or encoding), `scripts/gen_nanoisa_schema.py` refuses to emit the schema without one, and the classification and rule live in `docs/superpowers/specs/2026-09-01-nanoisa-public-instruction-rationale.md`; covered by `tests/test_nanoisa_schema.py`.
 - [ ] I will demonstrate performance changes with distributions, not single timing claims.
-- [ ] I will make generated-C tracing and profiling dynamically selectable at
+- [x] I made generated-C tracing and profiling dynamically selectable at
   process startup, with one shared hook mechanism and no per-event environment
   lookups or expensive work when each hook is disabled.
 
@@ -468,10 +468,28 @@ System image and lifecycle:
 - [ ] I will define signed manifests for NanoISA modules, service interfaces, implementations, capabilities, and policy.
 - [ ] I will build deterministic system images from a locked dependency and service graph.
 - [ ] I will verify signatures, hashes, interface compatibility, and policy before activation.
+- [ ] I will sign `.nvm` module artifacts themselves, not only their manifests, carrying the signature and its key identifier in a dedicated section of the v2 module format.
+- [ ] I will verify a module's signature at load, in `nvm_deserialize`, immediately after the existing CRC32 check and over the same byte range, so every loader inherits it from one place.
+- [ ] I will make enforcement a runtime policy rather than a build-time one -- off, warn, or require -- so the same binary can refuse unsigned modules in a locked-down deployment and accept them on a development machine without rebuilding.
+- [ ] I will define where verification keys come from and how trust in them is established, since a signature check is only worth the provenance of the key that satisfies it.
 - [ ] I will implement atomic service and system upgrades with rollback.
 - [ ] I will implement health monitoring, crash-loop control, degraded operation, and recovery policy.
 - [ ] I will define administrative capabilities for inspection, update, backup, restore, and shutdown.
 - [ ] I will make boot, startup, steady state, upgrade, failure, and shutdown auditable.
+
+Scoping note on module signing: this is deliberately 5.0 work, not 4.0. The
+mechanism is cheap -- Ed25519 signing and verification are already available
+from the OpenSSL that every binary links today, the v2 module format's section
+directory and feature bits have room for a signature without a format break,
+and `nvm_deserialize` already has the gate where a check belongs, right after
+the CRC32. What is not cheap is deciding where verification keys come from and
+who is trusted to issue them, and that question belongs with the capability and
+policy work rather than ahead of it. Signing an artifact nobody can establish
+provenance for buys very little.
+
+The CRC32 in the current format is an integrity check, not an authenticity one:
+it detects corruption and is trivially recomputed by whoever edited the file.
+It should not be mistaken for a security property in the meantime.
 
 Kernel and isolation adapters, deliberately last:
 - [ ] I will specify the minimum kernel contract for address spaces, scheduling, IPC, shared memory, clocks, entropy, interrupts, credentials, and device access.
@@ -779,13 +797,13 @@ Deliverables - ALL COMPLETE:
 - [x] .nvm Binary Format - I include sections for code, strings, functions, types, imports, debug info, and module refs.
 - [x] Assembler & Disassembler - I have a two-pass text assembler and a disassembler with label reconstruction.
 - [x] NanoVM Interpreter - I have a switch-dispatch execution engine with a trap model (~1,844 lines).
-- [x] Reference-Counted GC - I use scope-based auto-release with OP_GC_SCOPE_ENTER and OP_GC_SCOPE_EXIT.
+- [x] Reference-Counted GC - I use OP_GC_RETAIN/OP_GC_RELEASE with scope lifetime tracked implicitly by the call stack.
 - [x] Compiler Backend (nano_virt) - I have a three-pass AST-to-bytecode codegen (~3,083 lines).
 - [x] Co-Process FFI (nano_cop) - I isolate external calls in a separate process via a binary RPC protocol.
 - [x] VM Daemon (nano_vmd) - I can run as a persistent process to reduce startup latency.
 - [x] Native Binary Generation - I embed .nvm and my VM runtime into standalone executables.
 - [x] Cross-Module Linking - I use OP_CALL_MODULE with per-frame module tracking.
-- [x] Closure Support - I use OP_CLOSURE_NEW and OP_CLOSURE_CALL with upvalue capture.
+- [x] Closure Support - I use OP_CLOSURE_NEW with upvalue capture and invoke closures via OP_CALL_INDIRECT.
 - [x] Comprehensive Test Suite - I have 470 ISA tests, 150 VM tests, and 62 codegen tests.
 
 Architecture: My trap model separates my pure-compute core (83+ opcodes) from I/O operations, which allows for future FPGA acceleration. I have documented this in docs/NANOISA.md.

@@ -9,6 +9,22 @@ Fuzzing is an automated testing technique that generates random or mutated input
 - **Lexer** (`fuzz_lexer.c`) - Tests tokenization of arbitrary source code
 - **Parser** (`fuzz_parser.c`) - Tests parsing of tokenized input
 
+### Deterministic malformed-input suites (no external fuzzer required)
+
+In addition to the libFuzzer/AFL++ targets above, two self-contained C suites
+exercise the binary pipeline with random, truncated, and bit-flipped inputs
+using a built-in deterministic PRNG. They run as part of `make test-units` and
+need no fuzzing toolchain:
+
+- **`tests/nanoisa/test_fuzz_malformed.c`** (`make test-fuzz-malformed`) fuzzes
+  the decoder (`isa_decode`), loader (`nvm_deserialize`), verifier
+  (`nvm_verify`), assembler (`asm_assemble`), and disassembler
+  (`disasm_module`). It asserts every component terminates without over-reading,
+  crashing, or hanging on arbitrary bytes.
+- **`tests/nanovm/test_cop_fuzz.c`** (`make test-cop-fuzz`) fuzzes the
+  co-process protocol's untrusted value decode (`cop_deserialize_value`) and
+  message framing (`cop_recv_header`/`cop_recv_payload`) over a socketpair.
+
 ## Prerequisites
 
 Choose one fuzzing engine:

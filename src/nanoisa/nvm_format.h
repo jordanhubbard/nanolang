@@ -116,6 +116,23 @@ typedef struct {
 #define NVM_DEBUG_ENTRY_SIZE 12
 
 /* ========================================================================
+ * Foreign-call argument limit
+ *
+ * A single limit is shared by every path that crosses the native boundary:
+ * imported (extern) calls, the OP_CALL_EXTERN trap that carries their
+ * arguments, the direct in-process FFI dispatch, and the co-process
+ * (out-of-process) FFI dispatch. Keeping one constant guarantees that a
+ * module accepted by the verifier can actually be marshaled and dispatched
+ * by every backend rather than being silently truncated by whichever path
+ * happens to have the smallest hand-rolled array.
+ *
+ * The value is the maximum arity the FFI dispatch tables provide
+ * (see FFI_Fn0..FFI_Fn10 / FFI_DFn0..FFI_DFn10 in src/nanovm/vm_ffi.c).
+ * ======================================================================== */
+
+#define NANO_MAX_FFI_ARGS 10
+
+/* ========================================================================
  * Import Entry (serialized in IMPORTS section)
  * ======================================================================== */
 
@@ -128,6 +145,33 @@ typedef struct {
 } NvmImportEntry;
 
 #define NVM_IMPORT_ENTRY_BASE_SIZE 11
+
+/* ========================================================================
+ * Typed Call Descriptor (runtime-only, not serialized)
+ *
+ * Imports are resolved once — the module name is loaded, the function symbol
+ * is looked up through the shared FFI loader, and the typed signature is
+ * precomputed — then cached here keyed by import index. Subsequent FFI calls
+ * reuse the cached descriptor instead of re-resolving the symbol and
+ * recomputing the signature classification on every invocation.
+ * ======================================================================== */
+
+typedef enum {
+    NVM_CALL_UNRESOLVED = 0, /* not yet resolved */
+    NVM_CALL_RESOLVED,       /* func_ptr valid, ready to dispatch */
+    NVM_CALL_FAILED          /* resolution attempted and failed */
+} NvmCallResolution;
+
+typedef struct {
+    NvmCallResolution state;  /* resolution status of this import */
+    void *func_ptr;           /* resolved native function pointer */
+    const char *func_name;    /* interned function name (module string pool) */
+    const char *module_name;  /* interned module name (module string pool) */
+    const uint8_t *param_types; /* param type tags, or NULL */
+    uint16_t param_count;     /* declared parameter count */
+    uint8_t return_type;      /* NanoValueTag of the return value */
+    bool all_float;           /* true when return + all params are TAG_FLOAT */
+} NvmCallDescriptor;
 
 /* ========================================================================
  * In-Memory NVM Module
@@ -172,6 +216,14 @@ typedef struct {
     uint8_t **import_param_types; /* param type arrays, one per import */
     uint32_t import_count;
     uint32_t import_capacity;
+
+    /* Ordered separately linked module dependencies */
+    NvmModuleRefEntry *module_refs;
+    uint32_t module_ref_count;
+    uint32_t module_ref_capacity;    /* Resolved typed call descriptors — runtime-only, lazily populated on the
+     * first FFI call for each import; never serialized. NULL until allocated. */
+    NvmCallDescriptor *call_descriptors;
+    uint32_t call_descriptor_count;
 
     /* Type definition counts — populated by codegen, used by verifier */
     uint32_t struct_count;
@@ -226,10 +278,28 @@ uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
                         uint32_t function_name_idx, uint16_t param_count,
                         uint8_t return_type, const uint8_t *param_types);
 
+/* Add an ordered separately linked module dependency. OP_CALL_MODULE uses the
+ * returned index as its module operand. */
+uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx);
+
 /* Get a string from the module by index. Returns NULL if out of range. */
 const char *nvm_get_string(const NvmModule *mod, uint32_t index);
+/* Stored byte length of a string constant. Callers that reconstruct string
+ * values must use this instead of strlen() so embedded zero bytes survive.
+ * Returns 0 for an out-of-range index. */
+uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index);
+
+/* Get the byte length of a string by index. Returns 0 if out of range.
+ * Strings may contain embedded NUL bytes, so callers that need lossless
+ * handling of binary strings must use this length rather than strlen(). */
+uint32_t nvm_get_string_len(const NvmModule *mod, uint32_t index);
 
 /* Find the latest function with this name. Returns UINT32_MAX if absent. */
 uint32_t nvm_find_function(const NvmModule *mod, const char *name);
+
+/* Release any cached typed call descriptors for a module. Safe to call when
+ * no descriptors are allocated. After this returns, the next FFI call will
+ * resolve imports from scratch again. */
+void nvm_call_descriptors_reset(NvmModule *mod);
 
 #endif /* NANOISA_NVM_FORMAT_H */

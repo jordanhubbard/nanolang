@@ -2258,6 +2258,59 @@ void generate_profiling_system(StringBuilder *sb, const char *profile_output_pat
     sb_append(sb, "/* ========== End Cross-Platform Profiling System ========== */\n\n");
 }
 
+void generate_diagnostics_runtime(StringBuilder *sb, bool want_profile, bool want_trace) {
+    sb_append(sb, "/* ========== Shared Diagnostics Hook Mechanism ========== */\n");
+    sb_append(sb, "/* One mechanism drives generated-C tracing and profiling. Each hook\n");
+    sb_append(sb, "   flag is resolved exactly once at process startup by _nl_diag_init();\n");
+    sb_append(sb, "   the hot paths read only a cached int, so a disabled hook performs no\n");
+    sb_append(sb, "   environment lookups and no other work. */\n\n");
+    sb_append(sb, "#include <stdlib.h>\n");
+    sb_append(sb, "#include <string.h>\n\n");
+    sb_append(sb, "static int _nl_diag_profile = 0;\n");
+    sb_append(sb, "static int _nl_diag_trace = 0;\n");
+    sb_append(sb, "static int _nl_diag_ready = 0;\n\n");
+    sb_append(sb, "static int _nl_diag_env_on(const char *name, int default_on) {\n");
+    sb_append(sb, "    const char *value = getenv(name);\n");
+    sb_append(sb, "    if (!value) return default_on;\n");
+    sb_append(sb, "    return value[0] && strcmp(value, \"0\") != 0;\n");
+    sb_append(sb, "}\n\n");
+    sb_append(sb, "/* Resolve every diagnostic hook once, at process startup. */\n");
+    sb_append(sb, "static void _nl_diag_init(void) {\n");
+    sb_append(sb, "    if (_nl_diag_ready) return;\n");
+    if (want_profile) {
+        sb_append(sb, "    _nl_diag_profile = _nl_diag_env_on(\"NANO_PROFILE\", 1);\n");
+    }
+    if (want_trace) {
+        sb_append(sb, "    _nl_diag_trace = _nl_diag_env_on(\"NANO_TRACE\", 1);\n");
+    }
+    sb_append(sb, "    _nl_diag_ready = 1;\n");
+    sb_append(sb, "}\n\n");
+    sb_append(sb, "static inline int _nl_diag_profile_is_enabled(void) { return _nl_diag_profile; }\n");
+    sb_append(sb, "static inline int _nl_diag_trace_is_enabled(void) { return _nl_diag_trace; }\n\n");
+
+    if (want_trace) {
+        sb_append(sb, "/* ---------- Generated-C Function-Call Tracing (--trace) ---------- */\n");
+        sb_append(sb, "static int _nl_trace_depth = 0;\n");
+        sb_append(sb, "static void _nl_trace_enter(const char *name) {\n");
+        sb_append(sb, "    if (!_nl_diag_trace) return;\n");
+        sb_append(sb, "    for (int i = 0; i < _nl_trace_depth; i++) fputs(\"  \", stderr);\n");
+        sb_append(sb, "    fprintf(stderr, \"-> %s\\n\", name);\n");
+        sb_append(sb, "    _nl_trace_depth++;\n");
+        sb_append(sb, "}\n");
+        sb_append(sb, "static void _nl_trace_exit(const char *name) {\n");
+        sb_append(sb, "    if (!_nl_diag_trace) return;\n");
+        sb_append(sb, "    if (_nl_trace_depth > 0) _nl_trace_depth--;\n");
+        sb_append(sb, "    for (int i = 0; i < _nl_trace_depth; i++) fputs(\"  \", stderr);\n");
+        sb_append(sb, "    fprintf(stderr, \"<- %s\\n\", name);\n");
+        sb_append(sb, "}\n");
+        sb_append(sb, "typedef struct { const char *name; } _NlTraceGuard;\n");
+        sb_append(sb, "static void _nl_trace_guard_exit(_NlTraceGuard *g) {\n");
+        sb_append(sb, "    if (g->name) _nl_trace_exit(g->name);\n");
+        sb_append(sb, "}\n\n");
+    }
+    sb_append(sb, "/* ========== End Shared Diagnostics Hook Mechanism ========== */\n\n");
+}
+
 void generate_instrumented_profiling_system(StringBuilder *sb) {
     sb_append(sb, "/* ========== Instrumented Profiling System (--profile) ========== */\n\n");
     sb_append(sb, "#include <time.h>\n\n");
@@ -2269,15 +2322,9 @@ void generate_instrumented_profiling_system(StringBuilder *sb) {
     sb_append(sb, "} _NlProfEntry;\n\n");
     sb_append(sb, "static _NlProfEntry _nl_prof_table[_NL_PROF_MAX_FUNCS];\n");
     sb_append(sb, "static int _nl_prof_count = 0;\n\n");
-    sb_append(sb, "/* Read once per process; hot hooks never query the environment. */\n");
-    sb_append(sb, "static int _nl_diag_profile_enabled = -1;\n");
-    sb_append(sb, "static int _nl_diag_profile_is_enabled(void) {\n");
-    sb_append(sb, "    if (_nl_diag_profile_enabled < 0) {\n");
-    sb_append(sb, "        const char *value = getenv(\"NANO_PROFILE\");\n");
-    sb_append(sb, "        _nl_diag_profile_enabled = !value || (value[0] && strcmp(value, \"0\") != 0);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return _nl_diag_profile_enabled;\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "/* Profiling consults the shared diagnostics hook resolved once at\n");
+    sb_append(sb, "   startup (see generate_diagnostics_runtime); hot hooks never query\n");
+    sb_append(sb, "   the environment. */\n\n");
     sb_append(sb, "static _NlProfEntry *_nl_prof_get_entry(const char *name) {\n");
     sb_append(sb, "    if (!_nl_diag_profile_is_enabled()) return (void*)0;\n");
     sb_append(sb, "    for (int i = 0; i < _nl_prof_count; i++) {\n");

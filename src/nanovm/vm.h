@@ -54,6 +54,11 @@ typedef struct {
     uint32_t max_frame_depth;
 } VmProfile;
 
+typedef struct {
+    VmString **strings;
+    uint32_t count;
+} VmModuleConstants;
+
 /* ========================================================================
  * Call Frame
  * ======================================================================== */
@@ -105,6 +110,14 @@ typedef struct VmState {
     bool module_calls_resolved;
     VmDispatchModule dispatch_module;
     bool dispatch_module_valid;
+    /* True once every module the VM will execute (root plus all linked
+     * modules) has passed nvm_verify(). This is the safety proof that
+     * lets the hot path use the unchecked private stack handlers: the
+     * verifier has already established stack depth and index bounds for
+     * every reachable instruction, so re-checking them at dispatch time
+     * is redundant. Cleared conservatively whenever a module changes or a
+     * new, unverified module is linked. */
+    bool verified;    VmModuleConstants module_constants;
 
     /* Operand stack */
     NanoValue *stack;
@@ -141,6 +154,7 @@ typedef struct VmState {
     bool *decoded_linked_modules_valid;
     VmDispatchModule *dispatch_linked_modules;
     bool *dispatch_linked_modules_valid;
+    VmModuleConstants *linked_module_constants;
     uint32_t linked_module_count;
     uint32_t linked_module_capacity;
 
@@ -175,6 +189,11 @@ typedef struct VmState {
 
     /* Optional low-overhead instruction and control-flow counters. */
     VmProfile profile;
+
+    /* Profile that selects which private dispatch superinstructions the
+     * optimized IR fuses.  Defaults to none, so an unconfigured VM runs the
+     * plain verified stream; configure it before loading a module. */
+    VmDispatchProfile dispatch_profile;
 } VmState;
 
 /* ========================================================================
@@ -202,7 +221,7 @@ typedef enum {
 typedef struct {
     VmTrapType type;
     union {
-        struct { uint32_t import_idx; NanoValue args[16]; int argc; } extern_call;
+        struct { uint32_t import_idx; NanoValue args[NANO_MAX_FFI_ARGS]; int argc; } extern_call;
         struct { NanoValue value; bool newline; } print;
         struct { NanoValue condition; } assert_check;
         struct { VmResult code; } error;
@@ -245,15 +264,26 @@ NanoValue vm_get_result(VmState *vm);
 /* Reset and enable or disable execution profiling. */
 void vm_profile_enable(VmState *vm, bool enabled);
 
+/* Select which private dispatch superinstructions are fused when the VM
+ * projects a module's optimized dispatch IR.  Rebuilds are required to take
+ * effect, so call this before the module is loaded (or invalidate and rebuild
+ * afterwards). */
+void vm_set_dispatch_profile(VmState *vm, VmDispatchProfile profile);
+
 /* Write deterministic JSON containing execution counters. */
 bool vm_profile_write_json(const VmState *vm, FILE *out);
 
 /* Get error message string */
 const char *vm_error_string(VmResult result);
 
-/* Link a module for cross-module calls (OP_CALL_MODULE).
+/* Link a module for legacy roots without MODULE_REFS (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* Link the next dependency declared by the root module's MODULE_REFS section.
+ * The name and declaration order define the OP_CALL_MODULE index. */
+uint32_t vm_link_named_module(VmState *vm, const char *name,
+                              const NvmModule *mod);
 
 /* Ensure the dynamically-sized globals array can hold at least `count` slots.
  * Grows (and zero-initializes new slots) up to VM_MAX_GLOBALS. Returns true on

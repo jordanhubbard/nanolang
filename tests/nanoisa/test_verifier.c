@@ -8,6 +8,7 @@
 #include "nanoisa/verifier.h"
 #include "nanoisa/nvm_format.h"
 #include "nanoisa/isa.h"
+#include "nanovm/vm.h"
 #include "nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,7 +88,7 @@ static void test_empty_module_no_main(void) {
 
 static void test_valid_simple_function(void) {
     const char *test_name = "nvm_verify: valid function with NOP+RET";
-    uint8_t code[16];
+    uint8_t code[32];
     uint32_t off = 0;
     off += emit(code + off, OP_NOP);
     off += emit(code + off, OP_PUSH_VOID);
@@ -136,6 +137,79 @@ static void test_function_code_length_overflow(void) {
     mod->functions[0].code_length = 2;
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(!r.ok, "wrapped code range should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static NvmModule *make_two_function_module(void) {
+    uint8_t code[4];
+    uint32_t code_size = 0;
+    code_size += emit(code + code_size, OP_RET);
+    code_size += emit(code + code_size, OP_RET);
+
+    NvmModule *mod = make_simple_module(code, code_size, 0, 0);
+    mod->functions[0].code_length = code_size / 2;
+    NvmFunctionEntry fn = mod->functions[0];
+    fn.code_offset = code_size / 2;
+    nvm_add_function(mod, &fn);
+    return mod;
+}
+
+static void test_adjacent_function_code_ranges(void) {
+    const char *test_name = "nvm_verify: adjacent function code ranges pass";
+    NvmModule *mod = make_two_function_module();
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "adjacent function ranges should pass");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_overlapping_function_code_ranges(void) {
+    const char *test_name = "nvm_verify: overlapping function code ranges fail";
+    NvmModule *mod = make_two_function_module();
+    mod->functions[1].code_offset = 0;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "identical function ranges should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_contained_function_code_range(void) {
+    const char *test_name = "nvm_verify: contained function code range fails";
+    NvmModule *mod = make_two_function_module();
+    mod->functions[0].code_length = mod->code_size;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "contained function range should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_empty_function_code_ranges(void) {
+    const char *test_name = "nvm_verify: empty function ranges own no bytes";
+    NvmModule *mod = make_two_function_module();
+    mod->functions[0].code_offset = 0;
+    mod->functions[0].code_length = 0;
+    mod->functions[1].code_offset = 0;
+    mod->functions[1].code_length = mod->code_size;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "empty function at non-empty range start should pass");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_function_code_length_beyond_end(void) {
+    const char *test_name = "nvm_verify: code_length beyond code_size fails";
+    uint8_t code[4];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    /* Valid offset that does not wrap: the length simply runs past the end of
+     * the code section. Distinct from the wrapped case above, which the
+     * subtraction-form check catches for a different reason. */
+    mod->functions[0].code_offset = 0;
+    mod->functions[0].code_length = mod->code_size + 100u;
+    mod->header.entry_point = 0;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "over-long code range must fail verification");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -412,6 +486,40 @@ static void test_tail_call_signatures(void) {
     PASS(test_name);
 }
 
+static void test_call_arity_underflow(void) {
+    const char *test_name = "nvm_verify: OP_CALL requires callee arity";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 1, 0);
+    mod->functions[0].arity = 1;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "call without its declared argument should fail");
+    ASSERT(strstr(r.error_msg, "stack underflow") != NULL,
+           "failure should identify call arity underflow");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_call_result_shape(void) {
+    const char *test_name = "nvm_verify: OP_CALL contributes declared result count";
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_CALL, (uint32_t)0);
+    off += emit(code + off, OP_POP);
+    off += emit(code + off, OP_POP);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    mod->functions[0].result_tag = TAG_INT;
+    mod->functions[0].result_count = 1;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "call result should be present in subsequent stack state");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_op_push_str_valid(void) {
     const char *test_name = "nvm_verify: OP_PUSH_STR to valid string index passes";
     NvmModule *mod = nvm_module_new();
@@ -517,6 +625,32 @@ static void test_op_load_upvalue_invalid(void) {
     PASS(test_name);
 }
 
+static void test_upvalue_depth_invalid(void) {
+    const char *test_name = "nvm_verify: flattened upvalue depth must be zero";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_LOAD_UPVALUE, (uint16_t)1, (uint16_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 1);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "nonzero flattened upvalue depth should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_global_index_invalid(void) {
+    const char *test_name = "nvm_verify: global index beyond VM table fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_LOAD_GLOBAL, (uint32_t)VM_MAX_GLOBALS);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "global index at the fixed limit should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_op_struct_new_valid(void) {
     const char *test_name = "nvm_verify: OP_STRUCT_NEW with valid def_idx passes";
     uint8_t code[16];
@@ -615,6 +749,50 @@ static void test_op_closure_new_valid(void) {
     PASS(test_name);
 }
 
+static void test_closure_capture_count_mismatch(void) {
+    const char *test_name = "nvm_verify: closure capture count matches callee upvalues";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CLOSURE_NEW, (uint32_t)0, (uint16_t)1);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "mismatched closure capture count should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_aggregate_count_underflow(void) {
+    const char *test_name = "nvm_verify: aggregate count requires enough fields";
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_AGG_PACK, (int)AGG_TUPLE, (uint32_t)0,
+                (uint16_t)0, (uint16_t)2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "aggregate with too few fields should fail");
+    ASSERT(strstr(r.error_msg, "stack underflow") != NULL,
+           "failure should identify aggregate count underflow");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_invalid_type_check_tag(void) {
+    const char *test_name = "nvm_verify: OP_TYPE_CHECK rejects invalid tag";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_VOID);
+    off += emit(code + off, OP_TYPE_CHECK, (int)TAG_COUNT);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "out-of-range type-check tag should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_match_tag_out_of_bounds(void) {
     const char *test_name = "nvm_verify: OP_MATCH_TAG target out of bounds fails";
     uint8_t code[16];
@@ -657,8 +835,10 @@ static void test_call_extern_invalid(void) {
 
 static void test_call_extern_valid_signature(void) {
     const char *test_name = "nvm_verify: OP_CALL_EXTERN with valid import signature passes";
-    uint8_t code[16];
+    uint8_t code[32];
     uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)2);
     off += emit(code + off, OP_CALL_EXTERN, (uint32_t)0);
     off += emit(code + off, OP_RET);
     NvmModule *mod = make_simple_module(code, off, 0, 0);
@@ -668,6 +848,21 @@ static void test_call_extern_valid_signature(void) {
     nvm_add_import(mod, mname, fname, 2, TAG_INT, params);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(r.ok, "extern call to a well-formed import signature should verify OK");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_import_signature_valid(void) {
+    const char *test_name = "nvm_verify: import with valid signature tags passes";
+    uint8_t code[8];
+    uint32_t off = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "mathlib", 7);
+    uint32_t fname = nvm_add_string(mod, "add", 3);
+    uint8_t params[2] = { TAG_INT, TAG_FLOAT };
+    nvm_add_import(mod, mname, fname, 2, TAG_INT, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, r.error_msg);
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -693,6 +888,34 @@ static void test_import_bad_param_type(void) {
     nvm_add_import(mod, mname, fname, 1, TAG_VOID, params);
     NvmVerifyResult r = nvm_verify(mod);
     ASSERT(!r.ok, "import with out-of-range param type should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_import_at_arg_limit_verifies(void) {
+    const char *test_name = "nvm_verify: import with NANO_MAX_FFI_ARGS params verifies";
+    NvmModule *mod = make_simple_module((const uint8_t[]){0x00}, 0, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "lib", 3);
+    uint32_t fname = nvm_add_string(mod, "f", 1);
+    uint8_t params[NANO_MAX_FFI_ARGS];
+    for (int i = 0; i < NANO_MAX_FFI_ARGS; i++) params[i] = TAG_INT;
+    nvm_add_import(mod, mname, fname, (uint16_t)NANO_MAX_FFI_ARGS, TAG_INT, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "import at the foreign-call argument limit should verify OK");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_import_over_arg_limit_fails(void) {
+    const char *test_name = "nvm_verify: import exceeding NANO_MAX_FFI_ARGS fails";
+    NvmModule *mod = make_simple_module((const uint8_t[]){0x00}, 0, 0, 0);
+    uint32_t mname = nvm_add_string(mod, "lib", 3);
+    uint32_t fname = nvm_add_string(mod, "f", 1);
+    uint8_t params[NANO_MAX_FFI_ARGS + 1];
+    for (int i = 0; i < NANO_MAX_FFI_ARGS + 1; i++) params[i] = TAG_INT;
+    nvm_add_import(mod, mname, fname, (uint16_t)(NANO_MAX_FFI_ARGS + 1), TAG_INT, params);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "import above the foreign-call argument limit should fail");
     nvm_module_free(mod);
     PASS(test_name);
 }
@@ -964,6 +1187,11 @@ int main(void) {
     test_bad_entry_point();
     test_function_code_offset_overflow();
     test_function_code_length_overflow();
+    test_adjacent_function_code_ranges();
+    test_overlapping_function_code_ranges();
+    test_contained_function_code_range();
+    test_empty_function_code_ranges();
+    test_function_code_length_beyond_end();
     test_function_name_idx_overflow();
     test_invalid_function_result_signature();
     test_multiple_function_results();
@@ -982,6 +1210,8 @@ int main(void) {
     test_op_call_valid();
     test_op_call_invalid_fn_idx();
     test_tail_call_signatures();
+    test_call_arity_underflow();
+    test_call_result_shape();
     test_op_push_str_valid();
     test_op_push_str_invalid();
     test_op_load_local_valid();
@@ -989,6 +1219,8 @@ int main(void) {
     test_op_store_local_invalid();
     test_op_load_upvalue_valid();
     test_op_load_upvalue_invalid();
+    test_upvalue_depth_invalid();
+    test_global_index_invalid();
     test_op_struct_new_valid();
     test_op_struct_new_invalid();
     test_op_struct_new_zero_count_skips();
@@ -996,12 +1228,18 @@ int main(void) {
     test_op_union_construct_invalid();
     test_op_closure_new_invalid();
     test_op_closure_new_valid();
+    test_closure_capture_count_mismatch();
+    test_aggregate_count_underflow();
+    test_invalid_type_check_tag();
     test_match_tag_out_of_bounds();
     test_null_code_nonzero_size();
     test_call_extern_invalid();
     test_call_extern_valid_signature();
+    test_import_signature_valid();
     test_import_bad_return_type();
     test_import_bad_param_type();
+    test_import_at_arg_limit_verifies();
+    test_import_over_arg_limit_fails();
     test_call_module_recognized();
     test_arithmetic_instructions();
     test_stack_underflow();

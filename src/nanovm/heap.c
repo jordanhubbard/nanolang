@@ -187,6 +187,15 @@ void vm_release(VmHeap *heap, NanoValue v) {
 }
 
 static void release_array(VmHeap *heap, VmArray *a) {
+    if (a->unboxed) {
+        /* Unboxed elements are plain payloads with no owned references. */
+        heap->stats.freed += sizeof(VmArray) +
+            (size_t)a->capacity * vm_array_elem_size(a->elem_type);
+        heap->stats.num_objects--;
+        free(a->packed);
+        free(a);
+        return;
+    }
     for (uint32_t i = 0; i < a->length; i++) {
         vm_release(heap, a->elements[i]);
     }
@@ -247,18 +256,15 @@ static void release_closure(VmHeap *heap, VmClosure *c) {
 
 static void release_hashmap(VmHeap *heap, VmHashMap *m) {
     for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            VmHMEntry *next = entry->next;
+        VmHMEntry *entry = &m->entries[i];
+        if (entry->state == 1) {
             vm_release(heap, entry->key);
             vm_release(heap, entry->value);
-            free(entry);
-            entry = next;
         }
     }
-    heap->stats.freed += sizeof(VmHashMap) + m->bucket_count * sizeof(VmHMEntry *);
+    heap->stats.freed += sizeof(VmHashMap) + m->bucket_count * sizeof(VmHMEntry);
     heap->stats.num_objects--;
-    free(m->buckets);
+    free(m->entries);
     free(m);
 }
 
@@ -341,10 +347,25 @@ int vmstring_compare(VmString *a, VmString *b) {
     return 0;
 }
 
+/* Length-aware substring search. Unlike strstr(), this honors the stored
+ * lengths of both strings and therefore matches correctly across embedded
+ * zero bytes in the haystack or needle. */
+int64_t vmstring_find(VmString *haystack, VmString *needle) {
+    uint32_t nlen = needle->length;
+    if (nlen == 0) return 0;
+    uint32_t hlen = haystack->length;
+    if (nlen > hlen) return -1;
+    const char *hay = haystack->data;
+    const char *nee = needle->data;
+    uint32_t last = hlen - nlen;
+    for (uint32_t i = 0; i <= last; i++) {
+        if (memcmp(hay + i, nee, nlen) == 0) return (int64_t)i;
+    }
+    return -1;
+}
+
 bool vmstring_contains(VmString *haystack, VmString *needle) {
-    if (needle->length == 0) return true;
-    if (needle->length > haystack->length) return false;
-    return strstr(haystack->data, needle->data) != NULL;
+    return vmstring_find(haystack, needle) >= 0;
 }
 
 VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index) {
@@ -372,6 +393,60 @@ VmString *vm_string_from_bool(VmHeap *heap, bool v) {
  * Array Allocation
  * ======================================================================== */
 
+bool vm_array_type_unboxable(uint8_t elem_type) {
+    return elem_type == TAG_INT || elem_type == TAG_FLOAT ||
+           elem_type == TAG_BOOL || elem_type == TAG_U8;
+}
+
+/* Size in bytes of one unboxed element for a given element type. Returns 0
+ * for boxed types (callers must not use packed storage for those). */
+size_t vm_array_elem_size(uint8_t elem_type) {
+    switch (elem_type) {
+        case TAG_INT:   return sizeof(int64_t);
+        case TAG_FLOAT: return sizeof(double);
+        case TAG_BOOL:  return sizeof(uint8_t);
+        case TAG_U8:    return sizeof(uint8_t);
+        default:        return 0;
+    }
+}
+
+/* Read the unboxed element at `index` and materialize it as a NanoValue. */
+static NanoValue packed_load(const VmArray *a, uint32_t index) {
+    switch (a->elem_type) {
+        case TAG_INT:   return val_int(((const int64_t *)a->packed)[index]);
+        case TAG_FLOAT: return val_float(((const double *)a->packed)[index]);
+        case TAG_BOOL:  return val_bool(((const uint8_t *)a->packed)[index] != 0);
+        case TAG_U8:    return val_u8(((const uint8_t *)a->packed)[index]);
+        default:        return val_void();
+    }
+}
+
+/* Store a NanoValue into unboxed slot `index`. Values whose tag does not match
+ * the array element type are coerced where it is lossless (int<->u8) and
+ * otherwise stored as their raw payload; callers are expected to push matching
+ * types. */
+static void packed_store(VmArray *a, uint32_t index, NanoValue v) {
+    switch (a->elem_type) {
+        case TAG_INT:
+            ((int64_t *)a->packed)[index] =
+                (v.tag == TAG_U8) ? (int64_t)v.as.u8 : v.as.i64;
+            break;
+        case TAG_FLOAT:
+            ((double *)a->packed)[index] =
+                (v.tag == TAG_INT) ? (double)v.as.i64 : v.as.f64;
+            break;
+        case TAG_BOOL:
+            ((uint8_t *)a->packed)[index] = v.as.boolean ? 1u : 0u;
+            break;
+        case TAG_U8:
+            ((uint8_t *)a->packed)[index] =
+                (v.tag == TAG_INT) ? (uint8_t)v.as.i64 : v.as.u8;
+            break;
+        default:
+            break;
+    }
+}
+
 VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity) {
     if (initial_capacity < 8) initial_capacity = 8;
     VmArray *a = malloc(sizeof(VmArray));
@@ -379,10 +454,21 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
     a->header.ref_count = 1;
     a->header.obj_type = TAG_ARRAY;
     a->elem_type = elem_type;
+    a->unboxed = vm_array_type_unboxable(elem_type) ? 1u : 0u;
     a->length = 0;
     a->capacity = initial_capacity;
-    a->elements = calloc(initial_capacity, sizeof(NanoValue));
-    heap->stats.allocated += sizeof(VmArray) + initial_capacity * sizeof(NanoValue);
+    a->elements = NULL;
+    a->packed = NULL;
+    if (a->unboxed) {
+        size_t esz = vm_array_elem_size(elem_type);
+        a->packed = calloc(initial_capacity, esz);
+        if (!a->packed) { free(a); return NULL; }
+        heap->stats.allocated += sizeof(VmArray) + (size_t)initial_capacity * esz;
+    } else {
+        a->elements = calloc(initial_capacity, sizeof(NanoValue));
+        if (!a->elements) { free(a); return NULL; }
+        heap->stats.allocated += sizeof(VmArray) + initial_capacity * sizeof(NanoValue);
+    }
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return a;
@@ -392,14 +478,21 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
  * OOM). Callers MUST NOT write past a->length when this returns false. */
 static bool array_grow(VmArray *a) {
     uint32_t new_cap = a->capacity ? a->capacity * 2 : 4;
+    size_t esz = a->unboxed ? vm_array_elem_size(a->elem_type) : sizeof(NanoValue);
     /* capacity*2 wraps to 0 for a 2^31-element array; reject rather than
      * realloc(0) and then write out of bounds. */
-    if (new_cap <= a->capacity || new_cap > (UINT32_MAX / sizeof(NanoValue))) {
+    if (new_cap <= a->capacity || new_cap > (UINT32_MAX / esz)) {
         return false;
     }
-    NanoValue *new_elems = realloc(a->elements, new_cap * sizeof(NanoValue));
-    if (!new_elems) return false;
-    a->elements = new_elems;
+    if (a->unboxed) {
+        void *new_buf = realloc(a->packed, (size_t)new_cap * esz);
+        if (!new_buf) return false;
+        a->packed = new_buf;
+    } else {
+        NanoValue *new_elems = realloc(a->elements, new_cap * sizeof(NanoValue));
+        if (!new_elems) return false;
+        a->elements = new_elems;
+    }
     a->capacity = new_cap;
     return true;
 }
@@ -410,6 +503,12 @@ void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
          * writing past the buffer (heap overflow). */
         if (!array_grow(a)) return;
     }
+    if (a->unboxed) {
+        packed_store(a, a->length, v);
+        a->length++;
+        /* Unboxed payloads own no references; nothing to retain. */
+        return;
+    }
     a->elements[a->length++] = v;
     vm_retain(heap, v);
 }
@@ -417,6 +516,9 @@ void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
 NanoValue vm_array_pop(VmArray *a) {
     if (a->length == 0) return val_void();
     a->length--;
+    if (a->unboxed) {
+        return packed_load(a, a->length);
+    }
     NanoValue v = a->elements[a->length];
     /* Don't release - caller takes ownership */
     return v;
@@ -424,11 +526,16 @@ NanoValue vm_array_pop(VmArray *a) {
 
 NanoValue vm_array_get(VmArray *a, uint32_t index) {
     if (index >= a->length) return val_void();
+    if (a->unboxed) return packed_load(a, index);
     return a->elements[index];
 }
 
 void vm_array_set(VmArray *a, uint32_t index, NanoValue v) {
     if (index >= a->length) return;
+    if (a->unboxed) {
+        packed_store(a, index, v);
+        return;
+    }
     a->elements[index] = v;
 }
 
@@ -439,6 +546,15 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
 
     uint32_t new_len = end - start;
     VmArray *result = vm_array_new(heap, a->elem_type, new_len);
+    if (!result) return NULL;
+    if (a->unboxed) {
+        size_t esz = vm_array_elem_size(a->elem_type);
+        memcpy(result->packed,
+               (const char *)a->packed + (size_t)start * esz,
+               (size_t)new_len * esz);
+        result->length = new_len;
+        return result;
+    }
     for (uint32_t i = 0; i < new_len; i++) {
         result->elements[i] = a->elements[start + i];
         vm_retain(heap, result->elements[i]);
@@ -449,6 +565,15 @@ VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end) 
 
 void vm_array_remove(VmArray *a, uint32_t index) {
     if (index >= a->length) return;
+    if (a->unboxed) {
+        size_t esz = vm_array_elem_size(a->elem_type);
+        char *base = (char *)a->packed;
+        memmove(base + (size_t)index * esz,
+                base + (size_t)(index + 1) * esz,
+                (size_t)(a->length - 1 - index) * esz);
+        a->length--;
+        return;
+    }
     /* Shift elements left */
     for (uint32_t i = index; i < a->length - 1; i++) {
         a->elements[i] = a->elements[i + 1];
@@ -554,110 +679,124 @@ VmHashMap *vm_hashmap_new(VmHeap *heap, uint8_t key_type, uint8_t val_type) {
     m->key_type = key_type;
     m->val_type = val_type;
     m->count = 0;
+    m->tombstone_count = 0;
     m->bucket_count = HM_INITIAL_BUCKETS;
-    m->buckets = calloc(HM_INITIAL_BUCKETS, sizeof(VmHMEntry *));
-    heap->stats.allocated += sizeof(VmHashMap) + HM_INITIAL_BUCKETS * sizeof(VmHMEntry *);
+    m->entries = calloc(HM_INITIAL_BUCKETS, sizeof(VmHMEntry));
+    if (!m->entries) {
+        free(m);
+        return NULL;
+    }
+    heap->stats.allocated += sizeof(VmHashMap) + HM_INITIAL_BUCKETS * sizeof(VmHMEntry);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
     return m;
 }
 
-static void hm_resize(VmHeap *heap, VmHashMap *m) {
-    uint32_t new_count = m->bucket_count * 2;
-    VmHMEntry **new_buckets = calloc(new_count, sizeof(VmHMEntry *));
-    if (!new_buckets) return;
-
-    for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            VmHMEntry *next = entry->next;
-            uint32_t idx = hash_value(entry->key) % new_count;
-            entry->next = new_buckets[idx];
-            new_buckets[idx] = entry;
-            entry = next;
+static bool hm_find_slot(VmHashMap *m, NanoValue key, uint32_t *slot, bool *found) {
+    uint32_t idx = hash_value(key) % m->bucket_count;
+    uint32_t first_tombstone = UINT32_MAX;
+    for (uint32_t probes = 0; probes < m->bucket_count; probes++) {
+        VmHMEntry *entry = &m->entries[idx];
+        if (entry->state == 0) {
+            *slot = first_tombstone != UINT32_MAX ? first_tombstone : idx;
+            *found = false;
+            return true;
         }
-    }
-    free(m->buckets);
-    m->buckets = new_buckets;
-    m->bucket_count = new_count;
-    (void)heap;
-}
-
-NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry *entry = m->buckets[idx];
-    while (entry) {
-        if (val_equal(entry->key, key)) return entry->value;
-        entry = entry->next;
-    }
-    return val_void();
-}
-
-void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry *entry = m->buckets[idx];
-    while (entry) {
-        if (val_equal(entry->key, key)) {
-            vm_release(heap, entry->value);
-            entry->value = value;
-            vm_retain(heap, value);
-            return;
+        if (entry->state == 2) {
+            if (first_tombstone == UINT32_MAX) first_tombstone = idx;
+        } else if (val_equal(entry->key, key)) {
+            *slot = idx;
+            *found = true;
+            return true;
         }
-        entry = entry->next;
+        idx = (idx + 1) % m->bucket_count;
     }
-
-    /* New entry */
-    VmHMEntry *new_entry = malloc(sizeof(VmHMEntry));
-    if (!new_entry) return;
-    new_entry->key = key;
-    new_entry->value = value;
-    vm_retain(heap, key);
-    vm_retain(heap, value);
-    new_entry->next = m->buckets[idx];
-    m->buckets[idx] = new_entry;
-    m->count++;
-
-    if ((double)m->count / (double)m->bucket_count > HM_LOAD_FACTOR) {
-        hm_resize(heap, m);
-    }
-}
-
-bool vm_hashmap_has(VmHashMap *m, NanoValue key) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry *entry = m->buckets[idx];
-    while (entry) {
-        if (val_equal(entry->key, key)) return true;
-        entry = entry->next;
+    if (first_tombstone != UINT32_MAX) {
+        *slot = first_tombstone;
+        *found = false;
+        return true;
     }
     return false;
 }
 
-void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key) {
-    uint32_t idx = hash_value(key) % m->bucket_count;
-    VmHMEntry **prev = &m->buckets[idx];
-    VmHMEntry *entry = *prev;
-    while (entry) {
-        if (val_equal(entry->key, key)) {
-            *prev = entry->next;
-            vm_release(heap, entry->key);
-            vm_release(heap, entry->value);
-            free(entry);
-            m->count--;
-            return;
+static bool hm_resize(VmHashMap *m, uint32_t new_count) {
+    VmHMEntry *old_entries = m->entries;
+    uint32_t old_count = m->bucket_count;
+    VmHMEntry *new_entries = calloc(new_count, sizeof(VmHMEntry));
+    if (!new_entries) return false;
+
+    m->entries = new_entries;
+    m->bucket_count = new_count;
+    m->count = 0;
+    m->tombstone_count = 0;
+    for (uint32_t i = 0; i < old_count; i++) {
+        if (old_entries[i].state == 1) {
+            uint32_t slot;
+            bool found;
+            (void)hm_find_slot(m, old_entries[i].key, &slot, &found);
+            m->entries[slot] = old_entries[i];
+            m->entries[slot].state = 1;
+            m->count++;
         }
-        prev = &entry->next;
-        entry = entry->next;
     }
+    free(old_entries);
+    return true;
+}
+
+NanoValue vm_hashmap_get(VmHashMap *m, NanoValue key) {
+    uint32_t slot;
+    bool found;
+    if (hm_find_slot(m, key, &slot, &found) && found) return m->entries[slot].value;
+    return val_void();
+}
+
+void vm_hashmap_set(VmHeap *heap, VmHashMap *m, NanoValue key, NanoValue value) {
+    if ((double)(m->count + m->tombstone_count + 1) / (double)m->bucket_count > HM_LOAD_FACTOR) {
+        if (m->bucket_count > UINT32_MAX / 2 || !hm_resize(m, m->bucket_count * 2)) return;
+    }
+
+    uint32_t slot;
+    bool found;
+    if (!hm_find_slot(m, key, &slot, &found)) return;
+    VmHMEntry *entry = &m->entries[slot];
+    if (found) {
+        vm_release(heap, entry->value);
+        entry->value = value;
+        vm_retain(heap, value);
+        return;
+    }
+    if (entry->state == 2) m->tombstone_count--;
+    entry->state = 1;
+    entry->key = key;
+    entry->value = value;
+    vm_retain(heap, key);
+    vm_retain(heap, value);
+    m->count++;
+}
+
+bool vm_hashmap_has(VmHashMap *m, NanoValue key) {
+    uint32_t slot;
+    bool found;
+    return hm_find_slot(m, key, &slot, &found) && found;
+}
+
+void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key) {
+    uint32_t slot;
+    bool found;
+    if (!hm_find_slot(m, key, &slot, &found) || !found) return;
+    VmHMEntry *entry = &m->entries[slot];
+    vm_release(heap, entry->key);
+    vm_release(heap, entry->value);
+    entry->state = 2;
+    m->count--;
+    m->tombstone_count++;
 }
 
 VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->key_type, m->count > 0 ? m->count : 8);
     for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            vm_array_push(heap, result, entry->key);
-            entry = entry->next;
-        }
+        VmHMEntry *entry = &m->entries[i];
+        if (entry->state == 1) vm_array_push(heap, result, entry->key);
     }
     return result;
 }
@@ -665,11 +804,8 @@ VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {
 VmArray *vm_hashmap_values(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->val_type, m->count > 0 ? m->count : 8);
     for (uint32_t i = 0; i < m->bucket_count; i++) {
-        VmHMEntry *entry = m->buckets[i];
-        while (entry) {
-            vm_array_push(heap, result, entry->value);
-            entry = entry->next;
-        }
+        VmHMEntry *entry = &m->entries[i];
+        if (entry->state == 1) vm_array_push(heap, result, entry->value);
     }
     return result;
 }

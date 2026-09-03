@@ -20,20 +20,28 @@ Characteristics of generated C (allocation, loops) live in [PERFORMANCE.md](PERF
 | --- | --- | --- | --- |
 | `-pg` plus optional `--profile-output <path>` | Wrap native `main` with `_nl_run_with_profiling`. Compile the C with `-pg -g -fno-omit-frame-pointer -fno-optimize-sibling-calls`. | JSON (`profile_type` is always `"sampling"`) on **stdout**, and the same JSON body in `<path>` when `--profile-output` is set | Agent-readable hotspots from the OS sampler |
 | `--profile` | Instrument generated C with timing hooks | Text table on **stderr** at exit; `NANO_PROFILE=0` disables collection without rebuilding | Call counts and time in the native backend |
+| `--trace` | Instrument generated C with function-call tracing hooks | Indented `-> fn` / `<- fn` lines on **stderr**; `NANO_TRACE=0` disables collection without rebuilding | Following the call flow in the native backend |
 | `--profile-runtime` / `--profile-runtime-output <p>` | Implies `--profile`. Native backend only | Collapsed stacks in `.nano.prof` (default `<binary>.nano.prof`) | Flame graphs; this file is what `--pgo` reads |
 | `--pgo <file>` | Profile-guided **inlining** from a `.nano.prof` | A faster native binary if the profile matches the call sites | Not driven by `-pg` JSON |
 
 `--profile-runtime` is rejected on non-native backends. I emit that error in
 `src/main.c`; I do not silently drop the flag.
 
-## Runtime Toggle for Generated-C Profiling
+## Shared Startup Hook for Generated-C Tracing and Profiling
 
-I read `NANO_PROFILE` once when a generated executable starts. A binary built
-with `--profile` collects timing data by default. Set `NANO_PROFILE=0` to
-disable the timing and flamegraph hooks without recompiling; set
-`NANO_PROFILE=1` to enable them explicitly. The generated function hook checks
-only its cached boolean, so disabled profiling does not perform environment
-lookups or timing calls.
+Generated-C tracing (`--trace`) and profiling (`--profile`) ride one hook
+mechanism. `_nl_diag_init()` runs once at process startup and resolves every
+diagnostic flag a single time: `NANO_PROFILE` drives profiling and `NANO_TRACE`
+drives tracing. After that, each generated hook reads only its cached boolean,
+so a disabled hook performs no per-event environment lookups and no other work
+(no timing calls, no trace formatting).
+
+A binary built with `--profile` collects timing data by default; set
+`NANO_PROFILE=0` to disable the timing and flamegraph hooks without recompiling,
+or `NANO_PROFILE=1` to enable them explicitly. A binary built with `--trace`
+prints an indented function-call trace to stderr by default; set `NANO_TRACE=0`
+to disable it at runtime, or `NANO_TRACE=1` to enable it explicitly. Both flags
+may be combined; they share the same startup resolution.
 
 `-pg` JSON is not a PGO input. `--pgo` reads `.nano.prof`.
 
@@ -179,6 +187,11 @@ The report is a stderr table: function, calls, total ms, average µs.
 `flamegraph.pl`. `--pgo` uses that file to decide inlines. It does not read
 `-pg` JSON.
 
+`--trace` injects function-call tracing in generated C. Each traced function
+gets an `__attribute__((cleanup))` guard that prints `-> fn` on entry and
+`<- fn` on exit, indented by call depth, and shares the startup hook resolved by
+`_nl_diag_init`.
+
 ## Implementation map
 
 | Piece | Where |
@@ -188,4 +201,6 @@ The report is a stderr table: function, calls, total ms, average µs.
 | Emit wrapper | `generate_profiling_system` in `src/stdlib_runtime.c` |
 | Call wrapper instead of `main` | `src/transpiler.c` when `env->profile_gprof` |
 | `--profile` / flamegraph | `generate_instrumented_profiling_system`, `generate_flamegraph_profiling_system` |
+| Shared startup hook (`NANO_PROFILE` / `NANO_TRACE`) | `generate_diagnostics_runtime` in `src/stdlib_runtime.c` |
+| `--trace` tracing hooks | `generate_diagnostics_runtime`; guard injected in `src/transpiler_iterative_v3_twopass.c` |
 | `--pgo` | `src/pgo_pass.c` |
