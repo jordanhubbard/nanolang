@@ -933,6 +933,166 @@ static void test_call_module_recognized(void) {
     PASS(test_name);
 }
 
+static void test_call_module_linked_valid(void) {
+    const char *test_name = "nvm_verify_linked: OP_CALL_MODULE resolves against linked table";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *caller = make_simple_module(code, off, 0, 0);
+
+    uint8_t callee_code[8];
+    uint32_t coff = 0;
+    coff += emit(callee_code + coff, OP_RET);
+    NvmModule *callee = make_simple_module(callee_code, coff, 0, 0);
+
+    const NvmModule *table[1] = { callee };
+    NvmVerifyResult r = nvm_verify_linked(caller, table, 1);
+    ASSERT(r.ok, "in-range linked call should verify");
+    nvm_module_free(caller);
+    nvm_module_free(callee);
+    PASS(test_name);
+}
+
+static void test_call_module_linked_bad_module_idx(void) {
+    const char *test_name = "nvm_verify_linked: OP_CALL_MODULE module index out of range fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)5, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *caller = make_simple_module(code, off, 0, 0);
+
+    uint8_t callee_code[8];
+    uint32_t coff = 0;
+    coff += emit(callee_code + coff, OP_RET);
+    NvmModule *callee = make_simple_module(callee_code, coff, 0, 0);
+
+    const NvmModule *table[1] = { callee };
+    NvmVerifyResult r = nvm_verify_linked(caller, table, 1);
+    ASSERT(!r.ok, "module index >= linked_count should fail");
+    ASSERT(strstr(r.error_msg, "module_idx") != NULL,
+           "failure should identify the module index");
+    nvm_module_free(caller);
+    nvm_module_free(callee);
+    PASS(test_name);
+}
+
+static void test_call_module_linked_unresolved(void) {
+    const char *test_name = "nvm_verify_linked: OP_CALL_MODULE NULL linked module fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0);
+    off += emit(code + off, OP_RET);
+    NvmModule *caller = make_simple_module(code, off, 0, 0);
+
+    const NvmModule *table[1] = { NULL };
+    NvmVerifyResult r = nvm_verify_linked(caller, table, 1);
+    ASSERT(!r.ok, "unresolved (NULL) linked module should fail");
+    ASSERT(strstr(r.error_msg, "unresolved") != NULL,
+           "failure should identify the unresolved link");
+    nvm_module_free(caller);
+    PASS(test_name);
+}
+
+static void test_call_module_linked_bad_fn_idx(void) {
+    const char *test_name = "nvm_verify_linked: OP_CALL_MODULE callee fn index out of range fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)0, (uint32_t)9);
+    off += emit(code + off, OP_RET);
+    NvmModule *caller = make_simple_module(code, off, 0, 0);
+
+    uint8_t callee_code[8];
+    uint32_t coff = 0;
+    coff += emit(callee_code + coff, OP_RET);
+    NvmModule *callee = make_simple_module(callee_code, coff, 0, 0);
+
+    const NvmModule *table[1] = { callee };
+    NvmVerifyResult r = nvm_verify_linked(caller, table, 1);
+    ASSERT(!r.ok, "callee function index >= function_count should fail");
+    ASSERT(strstr(r.error_msg, "linked function_count") != NULL,
+           "failure should identify the linked function bound");
+    nvm_module_free(caller);
+    nvm_module_free(callee);
+    PASS(test_name);
+}
+
+static void test_call_module_no_table_still_ok(void) {
+    const char *test_name = "nvm_verify_linked: OP_CALL_MODULE with empty table verifies structurally";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_CALL_MODULE, (uint32_t)3, (uint32_t)7);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify_linked(mod, NULL, 0);
+    ASSERT(r.ok, "no linked table means structural-only check, like nvm_verify");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_arr_new_bad_type_tag(void) {
+    const char *test_name = "nvm_verify: OP_ARR_NEW with invalid element type tag fails";
+    uint8_t code[8];
+    uint32_t off = 0;
+    off += emit(code + off, OP_ARR_NEW, (int)TAG_COUNT + 3);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "type tag >= TAG_COUNT should fail");
+    ASSERT(strstr(r.error_msg, "TAG_COUNT") != NULL,
+           "failure should identify the invalid type tag");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_hm_new_bad_value_tag(void) {
+    const char *test_name = "nvm_verify: OP_HM_NEW with invalid value type tag fails";
+    uint8_t code[8];
+    uint32_t off = 0;
+    off += emit(code + off, OP_HM_NEW, (int)TAG_INT, (int)TAG_COUNT + 1);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "value tag >= TAG_COUNT should fail");
+    ASSERT(strstr(r.error_msg, "value tag") != NULL,
+           "failure should identify the invalid value tag");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_type_check_bad_tag(void) {
+    const char *test_name = "nvm_verify: OP_TYPE_CHECK with invalid expected tag fails";
+    uint8_t code[16];
+    uint32_t off = 0;
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_TYPE_CHECK, (int)TAG_COUNT + 2);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok, "expected tag >= TAG_COUNT should fail");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_valid_type_tags_pass(void) {
+    const char *test_name = "nvm_verify: valid type tags on ARR_NEW/HM_NEW/TYPE_CHECK pass";
+    uint8_t code[32];
+    uint32_t off = 0;
+    off += emit(code + off, OP_ARR_NEW, (int)TAG_INT);
+    off += emit(code + off, OP_POP);
+    off += emit(code + off, OP_HM_NEW, (int)TAG_STRING, (int)TAG_INT);
+    off += emit(code + off, OP_POP);
+    off += emit(code + off, OP_PUSH_I64, (int64_t)7);
+    off += emit(code + off, OP_TYPE_CHECK, (int)TAG_INT);
+    off += emit(code + off, OP_POP);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(r.ok, "valid type tags should verify");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_arithmetic_instructions(void) {
     const char *test_name = "nvm_verify: arithmetic opcodes pass verification";
     uint8_t code[64];
@@ -1086,6 +1246,15 @@ int main(void) {
     test_incompatible_branch_stack_heights();
     test_compatible_branch_stack_heights();
     test_verify_one_function();
+    test_call_module_linked_valid();
+    test_call_module_linked_bad_module_idx();
+    test_call_module_linked_unresolved();
+    test_call_module_linked_bad_fn_idx();
+    test_call_module_no_table_still_ok();
+    test_arr_new_bad_type_tag();
+    test_hm_new_bad_value_tag();
+    test_type_check_bad_tag();
+    test_valid_type_tags_pass();
 
     printf("\n");
     if (g_fail == 0) {

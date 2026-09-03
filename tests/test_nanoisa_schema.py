@@ -21,12 +21,15 @@ SPEC.loader.exec_module(generator)
 # so adding a verifier rule without listing it here is a deliberate failure.
 SPECIALIZED_VERIFIER_OPCODES = {
     "OP_AGG_PACK",
+    "OP_ARR_LITERAL",
+    "OP_ARR_NEW",
     "OP_CALL",
     "OP_CALL_EXTERN",
     "OP_CALL_MODULE",
     "OP_CLOSURE_NEW",
     "OP_ENUM_VAL",
     "OP_FUNCREF",
+    "OP_HM_NEW",
     "OP_JMP",
     "OP_JMP_FALSE",
     "OP_JMP_TRUE",
@@ -116,10 +119,12 @@ class NanoisaSchemaTests(unittest.TestCase):
         self.assertEqual(explicit, SPECIALIZED_VERIFIER_OPCODES)
         decode_backed = expected - SPECIALIZED_VERIFIER_OPCODES
         self.assertEqual(explicit | decode_backed, expected)
-        self.assertRegex(
-            rules,
-            r"default:\s*/\* All other opcodes: valid by decode success \*/\s*break;",
-        )
+        # The default arm is not a silent accept-all. Opcodes that reach it are
+        # documented as safe-once-decoded, but it still rejects anything outside
+        # the primary opcode plane, so an unknown byte cannot be waved through
+        # as "some family we do not check".
+        self.assertIn("NANOISA_PRIMARY_OPCODE_LIMIT", rules)
+        self.assertRegex(rules, r"default:")
 
     def test_v2_families_declare_stack_and_ownership(self):
         for instruction in self.families():
