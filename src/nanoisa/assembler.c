@@ -604,6 +604,86 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return require_line_end(p, result);
         }
 
+        /* .import "module" "symbol" <return-tag> [param-tags...]
+         *
+         * The import table had no textual form, so a module with an import
+         * could be disassembled but not reassembled: CALL_EXTERN referred to
+         * a table the text never declared. Names are string literals rather
+         * than pool indices because nvm_add_string deduplicates, so a name
+         * the pool already holds resolves to the same index it had -- which is
+         * what keeps a disassemble/reassemble cycle byte-identical. */
+        if (strcmp(directive, "import") == 0) {
+            char module_name[256], symbol_name[256];
+            uint32_t mlen = 0, slen = 0;
+            uint8_t return_tag;
+            if (!parse_quoted_string(&p, module_name, sizeof(module_name), &mlen) ||
+                !parse_quoted_string(&p, symbol_name, sizeof(symbol_name), &slen) ||
+                !parse_result_tag(&p, &return_tag)) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "Expected: .import \"module\" \"symbol\" return-tag [param-tags...]");
+                return false;
+            }
+            uint8_t params[NANO_MAX_FFI_ARGS];
+            uint16_t param_count = 0;
+            for (;;) {
+                skip_whitespace(&p);
+                if (at_line_end(p)) break;
+                if (param_count >= NANO_MAX_FFI_ARGS) {
+                    result->error = ASM_ERR_SYNTAX;
+                    snprintf(result->message, sizeof(result->message),
+                             ".import takes at most %d parameter tags",
+                             NANO_MAX_FFI_ARGS);
+                    return false;
+                }
+                if (!parse_result_tag(&p, &params[param_count])) {
+                    result->error = ASM_ERR_SYNTAX;
+                    snprintf(result->message, sizeof(result->message),
+                             "Expected a type tag in .import parameter list");
+                    return false;
+                }
+                param_count++;
+            }
+            uint32_t midx = nvm_add_string(state->mod, module_name, mlen);
+            uint32_t sidx = nvm_add_string(state->mod, symbol_name, slen);
+            nvm_add_import(state->mod, midx, sidx, param_count, return_tag,
+                           param_count ? params : NULL);
+            return require_line_end(p, result);
+        }
+
+        /* .module_ref "name" -- an ordered linked-module dependency.
+         * OP_CALL_MODULE's first operand indexes this table. */
+        if (strcmp(directive, "module_ref") == 0) {
+            char name[256];
+            uint32_t len = 0;
+            if (!parse_quoted_string(&p, name, sizeof(name), &len)) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "Expected: .module_ref \"name\"");
+                return false;
+            }
+            nvm_add_module_ref(state->mod, nvm_add_string(state->mod, name, len));
+            return require_line_end(p, result);
+        }
+
+        /* .types <structs> <enums> <unions> -- the counts the verifier bounds
+         * AGG_* and STRUCT_NEW operands against. Only counts, because that is
+         * all a v1 module records. */
+        if (strcmp(directive, "types") == 0) {
+            uint32_t structs, enums, unions;
+            if (!parse_uint32(&p, &structs) || !parse_uint32(&p, &enums) ||
+                !parse_uint32(&p, &unions)) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "Expected: .types <structs> <enums> <unions>");
+                return false;
+            }
+            state->mod->struct_count = structs;
+            state->mod->enum_count = enums;
+            state->mod->union_count = unions;
+            return require_line_end(p, result);
+        }
+
         if (strcmp(directive, "symbol") == 0) {
             SymbolKind kind;
             char name[128];

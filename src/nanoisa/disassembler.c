@@ -309,40 +309,78 @@ void disasm_function(const uint8_t *code, uint32_t code_size,
  * Module Disassembly
  * ======================================================================== */
 
+/* Write a string-pool entry as a quoted literal the assembler will read back
+ * as the same bytes. Strings may hold embedded NUL and other non-printable
+ * bytes, so this iterates by stored length rather than stopping at the first
+ * NUL, and escapes anything outside printable ASCII. Shared by the .string
+ * pool and by the .import and .module_ref directives, which name entries in
+ * that pool -- three places that must agree on the escaping or a round trip
+ * stops being byte-exact. */
+static void disasm_write_quoted(FILE *out, const NvmModule *mod, uint32_t idx) {
+    const char *s = nvm_get_string(mod, idx);
+    uint32_t len = nvm_get_string_len(mod, idx);
+    fputc('"', out);
+    for (uint32_t j = 0; s && j < len; j++) {
+        unsigned char c = (unsigned char)s[j];
+        switch (c) {
+            case '\n': fprintf(out, "\\n"); break;
+            case '\r': fprintf(out, "\\r"); break;
+            case '\t': fprintf(out, "\\t"); break;
+            case '\\': fprintf(out, "\\\\"); break;
+            case '"':  fprintf(out, "\\\""); break;
+            default:
+                if (c < 0x20 || c >= 0x7f) fprintf(out, "\\x%02x", c);
+                else fputc((int)c, out);
+                break;
+        }
+    }
+    fputc('"', out);
+}
+
 void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
                                   DisasmStyle style) {
     /* String pool */
     for (uint32_t i = 0; i < mod->string_count; i++) {
-        const char *s = nvm_get_string(mod, i);
-        if (s) {
-            /* Emit exactly the stored bytes: strings may contain embedded NUL
-             * and other non-printable bytes, so iterate by length rather than
-             * stopping at the first NUL. Non-printable bytes are emitted as
-             * \xHH escapes so binary strings round-trip losslessly. */
-            uint32_t len = nvm_get_string_len(mod, i);
-            fprintf(out, ".string \"");
-            for (uint32_t j = 0; j < len; j++) {
-                unsigned char c = (unsigned char)s[j];
-                switch (c) {
-                    case '\n': fprintf(out, "\\n"); break;
-                    case '\r': fprintf(out, "\\r"); break;
-                    case '\t': fprintf(out, "\\t"); break;
-                    case '\\': fprintf(out, "\\\\"); break;
-                    case '"':  fprintf(out, "\\\""); break;
-                    default:
-                        if (c < 0x20 || c >= 0x7f) {
-                            fprintf(out, "\\x%02x", c);
-                        } else {
-                            fputc((int)c, out);
-                        }
-                        break;
-                }
-            }
-            fprintf(out, "\"\n");
-        }
+        if (!nvm_get_string(mod, i)) continue;
+        fprintf(out, ".string ");
+        disasm_write_quoted(out, mod, i);
+        fprintf(out, "\n");
     }
     if (mod->string_count > 0) {
         fprintf(out, "\n");
+    }
+
+    /* The tables a module carries beyond its code. Canonical style has to emit
+     * these or the text is not a description of the module: a CALL_EXTERN
+     * whose import table is missing does not even reassemble. Emitted in the
+     * order the assembler builds them, so indices are preserved -- the
+     * operands that reference them are positional. */
+    if (style == DISASM_STYLE_CANONICAL) {
+        if (mod->struct_count || mod->enum_count || mod->union_count) {
+            fprintf(out, ".types %u %u %u\n\n",
+                    mod->struct_count, mod->enum_count, mod->union_count);
+        }
+        for (uint32_t i = 0; i < mod->import_count; i++) {
+            const NvmImportEntry *im = &mod->imports[i];
+            fprintf(out, ".import ");
+            disasm_write_quoted(out, mod, im->module_name_idx);
+            fprintf(out, " ");
+            disasm_write_quoted(out, mod, im->function_name_idx);
+            fprintf(out, " %s", isa_tag_name(im->return_type));
+            for (uint16_t k = 0; k < im->param_count; k++) {
+                uint8_t tag = mod->import_param_types && mod->import_param_types[i]
+                                ? mod->import_param_types[i][k] : (uint8_t)TAG_VOID;
+                fprintf(out, " %s", isa_tag_name(tag));
+            }
+            fprintf(out, "\n");
+        }
+        if (mod->import_count) fprintf(out, "\n");
+        for (uint32_t i = 0; i < mod->module_ref_count; i++) {
+            fprintf(out, ".module_ref ");
+            disasm_write_quoted(out, mod, mod->module_refs[i].module_name_idx);
+            fprintf(out, "\n");
+        }
+        if (mod->module_ref_count) fprintf(out, "\n");
     }
 
     if (style == DISASM_STYLE_CANONICAL) {
