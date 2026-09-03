@@ -704,7 +704,9 @@ Tests: a module whose declared `max_stack` is too low is rejected; one that matc
 
 Commit: `feat(verifier): compute and check max operand depth`
 
-**Note:** this depends on `verify_stack_heights` in its current form. If PR #159's checks are re-applied first (see the redo note on that PR), coordinate — both touch the same function, and the merge collision between them is exactly what stalled #159 in the first place.
+**Note:** this depends on `verify_stack_heights` in its current form. The branch that collides with it is `task_c6e5d089` ("verify return shape, maximum operand depth, frame depth, ownership effects, and explicit termination"), which rewrites that function against a version predating #158's variadic stack-effect resolution and so needs redoing rather than rebasing. If that redo is in flight, coordinate — both compute the same maximum, and doing it twice in one function is how the two sides end up disagreeing.
+
+PR #159 does **not** collide with this task; it never touches `verify_stack_heights`. I said otherwise in an earlier revision of this plan and was wrong.
 
 ---
 
