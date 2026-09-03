@@ -63,6 +63,22 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
         free(work);
         return fail("function[%u] could not allocate stack verifier state", fn_idx);
     }
+    /* Ownership balance alongside stack height: GC_RETAIN and GC_RELEASE
+     * adjust an object's reference count without touching the operand stack,
+     * so height says nothing about whether they pair up. An unbalanced pair
+     * is a leak or a premature free -- both invisible until much later -- and
+     * both are decidable here for the same cost as the height walk. Nothing
+     * emits these today; the assembler accepts them, which is exactly the
+     * path that has no other check. */
+    int32_t *owed = malloc((decoded->instruction_count + 1) * sizeof(*owed));
+    if (!owed) {
+        free(heights);
+        free(work);
+        return fail("function[%u] could not allocate stack verifier state", fn_idx);
+    }
+    for (uint32_t i = 0; i <= decoded->instruction_count; i++) owed[i] = -1;
+    owed[0] = 0;
+
     int32_t max_depth = 0;
     for (uint32_t i = 0; i <= decoded->instruction_count; i++) heights[i] = -1;
     uint32_t head = 0, tail = 0;
@@ -173,6 +189,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                 && before != (int32_t)mod->functions[fn_idx].result_count) {
             free(heights);
             free(work);
+            free(owed);
             return fail("function[%u] returns with %d values at offset %u but declares %u",
                         fn_idx, before, decoded_instruction->byte_offset,
                         mod->functions[fn_idx].result_count);
@@ -181,11 +198,32 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
         if (before < pop_count) {
             free(heights);
             free(work);
+            free(owed);
             return fail("function[%u] stack underflow at offset %u (%s needs %d, has %d)",
                         fn_idx, decoded_instruction->byte_offset, info->name,
                         pop_count, before);
         }
         int32_t after = before - pop_count + push_count;
+
+        /* Ownership balance across this instruction. */
+        int32_t owed_before = owed[index];
+        int32_t owed_after = owed_before;
+        if (instruction->opcode == OP_GC_RETAIN) owed_after++;
+        else if (instruction->opcode == OP_GC_RELEASE) owed_after--;
+        if (owed_after < 0) {
+            free(heights);
+            free(work);
+            free(owed);
+            return fail("function[%u] releases a reference it does not hold at offset %u",
+                        fn_idx, decoded_instruction->byte_offset);
+        }
+        if (instruction->opcode == OP_RET && owed_before != 0) {
+            free(heights);
+            free(work);
+            free(owed);
+            return fail("function[%u] returns at offset %u still holding %d retained reference(s)",
+                        fn_idx, decoded_instruction->byte_offset, owed_before);
+        }
         /* The deepest point is often neither the first height nor the last --
          * three values live before a binary op leaves two -- so both sides of
          * every instruction count. */
@@ -213,6 +251,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                     || !instruction_index_at(decoded, target - base, &target_index)) {
                 free(heights);
                 free(work);
+                free(owed);
                 return fail("function[%u] branch at offset %u targets %u, which is "
                             "not an instruction boundary in this function",
                             fn_idx, decoded_instruction->byte_offset, target);
@@ -232,6 +271,14 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
              * leaves what the function declares. Checking it here is what
              * makes the implicit exit as verified as the explicit one. */
             if (successor == decoded->instruction_count) {
+                if (owed_after != 0) {
+                    free(heights);
+                    free(work);
+                    free(owed);
+                    return fail("function[%u] reaches its end after offset %u still holding "
+                                "%d retained reference(s)",
+                                fn_idx, decoded_instruction->byte_offset, owed_after);
+                }
                 if (after != (int32_t)mod->functions[fn_idx].result_count) {
                     free(heights);
                     free(work);
@@ -244,13 +291,23 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
             }
             if (heights[successor] < 0) {
                 heights[successor] = after;
+                owed[successor] = owed_after;
                 work[tail++] = successor;
+            } else if (owed[successor] != owed_after) {
+                uint32_t offset = decoded->instructions[successor].byte_offset;
+                int32_t existing = owed[successor];
+                free(heights);
+                free(work);
+                free(owed);
+                return fail("function[%u] incompatible ownership balance at offset %u (%d and %d)",
+                            fn_idx, offset, existing, owed_after);
             } else if (heights[successor] != after) {
                 uint32_t offset = successor == decoded->instruction_count
                     ? decoded->code_size : decoded->instructions[successor].byte_offset;
                 int32_t existing = heights[successor];
                 free(heights);
                 free(work);
+                free(owed);
                 return fail("function[%u] incompatible stack heights at offset %u (%d and %d)",
                             fn_idx, offset, existing, after);
             }
@@ -258,6 +315,18 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
     }
     free(heights);
     free(work);
+    free(owed);
+    /* Frame depth: a call reserves this function's locals plus the operand
+     * depth just proven. Both are u16 individually, so only their sum can
+     * exceed what a frame can address -- and a frame that wrapped would
+     * overlap its caller's. */
+    if ((uint32_t)mod->functions[fn_idx].local_count + (uint32_t)max_depth > UINT16_MAX)
+        return fail("function[%u] frame needs %u slots (%u locals + operand depth %d), "
+                    "more than a frame can address",
+                    fn_idx,
+                    (uint32_t)mod->functions[fn_idx].local_count + (uint32_t)max_depth,
+                    mod->functions[fn_idx].local_count, max_depth);
+
     if (out_max_stack) {
         if (max_depth > UINT16_MAX)
             return fail("function[%u] maximum operand depth %d exceeds %u",
