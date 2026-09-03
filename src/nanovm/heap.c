@@ -21,6 +21,10 @@ void vm_heap_init(VmHeap *heap) {
 }
 
 void vm_heap_destroy(VmHeap *heap) {
+    /* Reclaim cycles before tearing anything else down, so their members get
+     * their normal release path rather than being abandoned. */
+    vm_gc_collect_cycles(heap);
+    vm_gc_cycle_buffer_free(heap);
     /* Release all interned strings by walking each bucket chain. */
     for (uint32_t b = 0; b < heap->intern_bucket_count; b++) {
         VmString *s = heap->intern_buckets ? heap->intern_buckets[b] : NULL;
@@ -150,7 +154,22 @@ void vm_release(VmHeap *heap, NanoValue v) {
     VmHeapHeader *hdr = (VmHeapHeader *)ptr;
     if (hdr->ref_count == 0) return; /* already freed or static */
     hdr->ref_count--;
-    if (hdr->ref_count > 0) return;
+    if (hdr->ref_count > 0) {
+        /* Still referenced -- but possibly only from inside a cycle, which
+         * refcounting alone can never resolve. Remember it as a candidate;
+         * vm_gc_collect_cycles decides. */
+        if (heap) vm_gc_note_suspect(heap, v);
+        return;
+    }
+
+    /* Reached zero while sitting on the suspect buffer. The buffer holds a
+     * bare pointer, so freeing now leaves it dangling and the next collection
+     * reads a freed header -- which is what AddressSanitizer caught. The
+     * collector frees it instead, on the pass that finds it at zero. */
+    if (heap && hdr->buffered) {
+        hdr->colour = VM_GC_BLACK;
+        return;
+    }
 
     /* ref_count reached 0 - free the object */
     switch (v.tag) {
@@ -288,6 +307,8 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     if (!s) return NULL;
     s->header.ref_count = 1;
     s->header.obj_type = TAG_STRING;
+    s->header.colour = VM_GC_BLACK;
+    s->header.buffered = 0;
     s->length = length;
     s->hash = hash;
     s->intern_next = NULL;
@@ -453,6 +474,8 @@ VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity
     if (!a) return NULL;
     a->header.ref_count = 1;
     a->header.obj_type = TAG_ARRAY;
+    a->header.colour = VM_GC_BLACK;
+    a->header.buffered = 0;
     a->elem_type = elem_type;
     a->unboxed = vm_array_type_unboxable(elem_type) ? 1u : 0u;
     a->length = 0;
@@ -593,6 +616,8 @@ VmStruct *vm_struct_new(VmHeap *heap, uint32_t def_idx, uint32_t field_count) {
     if (!s) return NULL;
     s->header.ref_count = 1;
     s->header.obj_type = TAG_STRUCT;
+    s->header.colour = VM_GC_BLACK;
+    s->header.buffered = 0;
     s->def_idx = def_idx;
     s->field_count = field_count;
     s->field_names = NULL;
@@ -612,6 +637,8 @@ VmUnion *vm_union_new(VmHeap *heap, uint32_t def_idx, uint16_t variant, uint16_t
     if (!u) return NULL;
     u->header.ref_count = 1;
     u->header.obj_type = TAG_UNION;
+    u->header.colour = VM_GC_BLACK;
+    u->header.buffered = 0;
     u->def_idx = def_idx;
     u->variant = variant;
     u->field_count = field_count;
@@ -632,6 +659,8 @@ VmTuple *vm_tuple_new(VmHeap *heap, uint32_t count) {
     if (!t) return NULL;
     t->header.ref_count = 1;
     t->header.obj_type = TAG_TUPLE;
+    t->header.colour = VM_GC_BLACK;
+    t->header.buffered = 0;
     t->count = count;
     heap->stats.allocated += sz;
     heap->stats.allocation_calls++;
@@ -649,6 +678,8 @@ VmClosure *vm_closure_new(VmHeap *heap, uint32_t fn_idx, uint16_t capture_count)
     if (!c) return NULL;
     c->header.ref_count = 1;
     c->header.obj_type = TAG_CLOSURE;
+    c->header.colour = VM_GC_BLACK;
+    c->header.buffered = 0;
     c->fn_idx = fn_idx;
     c->capture_count = capture_count;
     heap->stats.allocated += sz;
@@ -679,6 +710,8 @@ VmHashMap *vm_hashmap_new(VmHeap *heap, uint8_t key_type, uint8_t val_type) {
     if (!m) return NULL;
     m->header.ref_count = 1;
     m->header.obj_type = TAG_HASHMAP;
+    m->header.colour = VM_GC_BLACK;
+    m->header.buffered = 0;
     m->key_type = key_type;
     m->val_type = val_type;
     m->count = 0;

@@ -24,6 +24,7 @@
     "../../src/nanovm/vm_decode.c",
     "../../src/nanovm/vm_dispatch.c",
     "../../src/nanovm/value.c",
-    "../../src/nanovm/heap.c"
+    "../../src/nanovm/heap.c",
+    "../../src/nanovm/heap_cycles.c"
   ]
 }

@@ -256,7 +256,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
     /* These match exactly the objects linked for nano_virt in Makefile.gnu,
      * minus nanovirt/main.o and nanovirt/codegen.o (not needed at runtime) */
     static const char *nanovm_objs[] = {
-        "nanovm/value.o", "nanovm/heap.o", "nanovm/vm.o",
+        "nanovm/value.o", "nanovm/heap.o", "nanovm/heap_cycles.o", "nanovm/vm.o",
         "nanovm/vm_ffi.o", "nanovm/vm_builtins.o", "nanovm/cop_protocol.o",
         /* asm_assemble() verifies its output, so anything linking the
          * assembler also needs the verifier and the decode/dispatch tables it

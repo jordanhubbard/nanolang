@@ -18,9 +18,24 @@
  * Heap Header (prepended to every heap object)
  * ======================================================================== */
 
+/* Tri-colour marks for the cycle collector (Bacon-Rajan, PLDI 2001). Only
+ * meaningful during a collection, except PURPLE, which persists between them
+ * to mark an object sitting in the suspect buffer. */
+#define VM_GC_BLACK  0u   /* in use, or already traced this pass */
+#define VM_GC_GRAY   1u   /* trial deletion applied to its children */
+#define VM_GC_WHITE  2u   /* provisionally garbage */
+#define VM_GC_PURPLE 3u   /* suspected cycle root; on the suspect buffer */
+
+/* How many suspects accumulate before a collection runs. Large enough that a
+ * program churning short-lived aggregates does not pay for a pass per object,
+ * small enough that a leak stays bounded. */
+#define VM_GC_CYCLE_THRESHOLD 4096u
+
 typedef struct VmHeapHeader {
     uint32_t ref_count;
     uint8_t  obj_type;  /* NanoValueTag */
+    uint8_t  colour;    /* VM_GC_* */
+    uint8_t  buffered;  /* nonzero while on the heap's suspect buffer */
 } VmHeapHeader;
 
 /* ========================================================================
@@ -136,11 +151,41 @@ typedef struct VmHeap {
     VmString **intern_buckets;
     uint32_t   intern_bucket_count;
     uint32_t   intern_count;
+
+    /* Suspect cycle roots: objects whose reference count dropped without
+     * reaching zero. Reference counting alone cannot reclaim a cycle -- every
+     * member keeps the next one alive -- and cycles are constructible from
+     * ordinary NanoLang, so something has to look. See vm_gc_collect_cycles. */
+    void     **cycle_buf;
+    uint32_t   cycle_count;
+    uint32_t   cycle_capacity;
+    uint64_t   cycles_collected;   /* objects reclaimed by cycle collection */
+    bool       gc_running;         /* guards re-entry: collection releases */
 } VmHeap;
 
 /* ========================================================================
  * Heap API
  * ======================================================================== */
+
+/* Reclaim objects that are only kept alive by references among themselves.
+ *
+ * Reference counting frees an object the moment its count reaches zero, which
+ * never happens for a cycle: each member's count includes the reference from
+ * the next. This walks the objects whose counts dropped without reaching zero
+ * and reclaims those that turn out to be unreachable, using trial deletion --
+ * subtract each member's internal references and see whether anything is left.
+ *
+ * Returns the number of objects reclaimed. Safe to call at any point; it only
+ * frees what is already unreachable. */
+uint64_t vm_gc_collect_cycles(VmHeap *heap);
+
+/* Record an object whose reference count dropped without reaching zero. Only
+ * such objects can be cycle roots: one whose count never dropped is still held
+ * by whoever held it before. Called from vm_release. */
+void vm_gc_note_suspect(VmHeap *heap, NanoValue v);
+
+/* Release the suspect buffer itself. */
+void vm_gc_cycle_buffer_free(VmHeap *heap);
 
 /* Initialize/destroy heap */
 void vm_heap_init(VmHeap *heap);

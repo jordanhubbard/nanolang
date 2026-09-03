@@ -2230,6 +2230,160 @@ static void test_closure(void) {
     nvm_module_free(mod);
 }
 
+/* ── Cycle collection ────────────────────────────────────────────────────
+ *
+ * Reference counting frees an object the moment its count reaches zero, which
+ * never happens for a cycle: each member's count includes the reference from
+ * the next. Cycles are constructible from ordinary NanoLang -- a struct with
+ * an `array<Self>` field, pushed into its own array -- so the VM collects them
+ * rather than forbidding the shape.
+ */
+
+static void test_self_referential_array_is_collected(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *a = vm_array_new(&heap, TAG_ARRAY, 4);
+    NanoValue av = val_array(a);
+    vm_array_push(&heap, a, av);      /* the array now holds itself */
+    vm_release(&heap, av);            /* drop the only outside reference */
+
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 1,
+                  "cycles: refcounting alone cannot free a self-reference");
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 1, "cycles: one object reclaimed");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "cycles: nothing left live");
+    vm_heap_destroy(&heap);
+}
+
+static void test_two_object_cycle_is_collected(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *x = vm_array_new(&heap, TAG_ARRAY, 2);
+    VmArray *y = vm_array_new(&heap, TAG_ARRAY, 2);
+    NanoValue xv = val_array(x), yv = val_array(y);
+    vm_array_push(&heap, x, yv);
+    vm_array_push(&heap, y, xv);
+    vm_release(&heap, xv);
+    vm_release(&heap, yv);
+
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 2, "cycles: two-object cycle survives refcounting");
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 2, "cycles: both reclaimed");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "cycles: nothing left live");
+    vm_heap_destroy(&heap);
+}
+
+/* The failure mode worse than the leak: freeing a cycle that is still
+ * reachable. Trial deletion must restore the counts it subtracted. */
+static void test_reachable_cycle_is_not_collected(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *p = vm_array_new(&heap, TAG_ARRAY, 2);
+    VmArray *q = vm_array_new(&heap, TAG_ARRAY, 2);
+    NanoValue pv = val_array(p), qv = val_array(q);
+    vm_array_push(&heap, p, qv);
+    vm_array_push(&heap, q, pv);
+    vm_release(&heap, qv);            /* pv is still held: the cycle is live */
+
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 0,
+                  "cycles: a reachable cycle must survive");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 2, "cycles: both still live");
+    /* Still usable, not just still allocated -- a collector that restored the
+     * count but corrupted the contents would pass the check above. */
+    ASSERT_EQ_INT((int)p->length, 1, "cycles: survivor is still readable");
+    ASSERT_EQ_INT((int)vm_array_get(p, 0).tag, TAG_ARRAY, "cycles: its element survived");
+
+    vm_release(&heap, pv);            /* now nothing outside points at it */
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 2, "cycles: collected once unreachable");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "cycles: nothing left live");
+    vm_heap_destroy(&heap);
+}
+
+/* A cycle whose payload includes a leaf. The string cannot close a cycle, but
+ * it is only reachable through one, so it has to go with it. */
+static void test_cycle_payload_is_freed_with_it(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *r = vm_array_new(&heap, TAG_ARRAY, 4);
+    NanoValue rv = val_array(r);
+    VmString *str = vm_string_new(&heap, "payload", 7);
+    vm_array_push(&heap, r, val_string(str));
+    vm_release(&heap, val_string(str));
+    vm_array_push(&heap, r, rv);
+    vm_release(&heap, rv);
+
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 2, "cycles: array and string live");
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 2, "cycles: both reclaimed");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "cycles: including the leaf");
+    vm_heap_destroy(&heap);
+}
+
+/* An object can reach zero while sitting on the suspect buffer, which holds a
+ * bare pointer to it. Freeing it there would leave that pointer dangling and
+ * the next collection would read a freed header -- so vm_release defers, and
+ * the collector frees it on the pass that finds it at zero.
+ *
+ * AddressSanitizer found this and two more like it in the same function:
+ * freeing an entry before the trial deletions had run, and freeing during the
+ * collection walk while later entries still had to be read. All three are the
+ * same mistake, which is reading an object's header after something else has
+ * freed it. */
+static void test_object_freed_while_buffered(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *outer = vm_array_new(&heap, TAG_ARRAY, 2);
+    VmArray *inner = vm_array_new(&heap, TAG_ARRAY, 2);
+    NanoValue ov = val_array(outer), iv = val_array(inner);
+
+    vm_array_push(&heap, outer, iv);   /* inner is held twice */
+    vm_release(&heap, iv);             /* down to one, and buffered as a suspect */
+    vm_release(&heap, ov);             /* outer goes, taking inner to zero */
+
+    /* inner is unreachable but still allocated, because it was buffered. */
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 1,
+                  "buffered: an object at zero is held for the collector");
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 1,
+                  "buffered: the collector frees it");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "buffered: nothing left live");
+    vm_heap_destroy(&heap);
+}
+
+/* Several cycles collected in one pass. Each root is walked from the buffer
+ * after earlier roots have already been dealt with, which is the shape that
+ * exposed freeing during the walk. */
+static void test_many_cycles_in_one_pass(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    const int pairs = 8;
+    for (int i = 0; i < pairs; i++) {
+        VmArray *x = vm_array_new(&heap, TAG_ARRAY, 2);
+        VmArray *y = vm_array_new(&heap, TAG_ARRAY, 2);
+        NanoValue xv = val_array(x), yv = val_array(y);
+        vm_array_push(&heap, x, yv);
+        vm_array_push(&heap, y, xv);
+        vm_release(&heap, xv);
+        vm_release(&heap, yv);
+    }
+    ASSERT_EQ_INT((int)heap.stats.num_objects, pairs * 2,
+                  "many cycles: all still live under refcounting");
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), pairs * 2,
+                  "many cycles: one pass reclaims every one");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "many cycles: nothing left live");
+    vm_heap_destroy(&heap);
+}
+
+/* Destroying a heap collects first, so a program that ends holding a cycle
+ * does not report it as still-allocated memory. */
+static void test_heap_destroy_collects_cycles(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *a = vm_array_new(&heap, TAG_ARRAY, 2);
+    NanoValue av = val_array(a);
+    vm_array_push(&heap, a, av);
+    vm_release(&heap, av);
+    vm_heap_destroy(&heap);
+    ASSERT_EQ_INT((int)heap.cycles_collected, 1,
+                  "cycles: teardown reclaims what is left");
+}
+
 /* Reference ownership when an array element is removed.
  *
  * vm_array_set releases the value it overwrites. vm_array_remove did not
@@ -2338,9 +2492,13 @@ static void test_closure_call_releases_the_callable(void) {
     VmResult r = vm_execute(&vm);
     ASSERT_EQ_INT(r, VM_OK, "closure ownership: VM_OK");
     /* The closure is the only heap object the program creates, and the local
-     * holding it is released with the frame, so the count must return to the
-     * baseline. Before CALL_INDIRECT transferred the callable's reference to
-     * the frame, it stayed one above. */
+     * holding it is released with the frame. Its count passes through one on
+     * the way down, which buffers it as a possible cycle root, so the last
+     * release defers to the collector rather than freeing a pointer the
+     * buffer still holds -- the count returns to baseline after a pass, not
+     * before it. Before CALL_INDIRECT transferred the callable's reference to
+     * the frame, it stayed one above even after collecting. */
+    vm_gc_collect_cycles(&vm.heap);
     ASSERT_EQ_INT((int)vm.heap.stats.num_objects, (int)baseline,
                   "closure ownership: no heap object outlives the call");
     vm_destroy(&vm);
@@ -4586,6 +4744,13 @@ int main(void) {
 
     printf("\n[Closures]\n");
     RUN_TEST(test_closure);
+    RUN_TEST(test_self_referential_array_is_collected);
+    RUN_TEST(test_two_object_cycle_is_collected);
+    RUN_TEST(test_reachable_cycle_is_not_collected);
+    RUN_TEST(test_cycle_payload_is_freed_with_it);
+    RUN_TEST(test_object_freed_while_buffered);
+    RUN_TEST(test_many_cycles_in_one_pass);
+    RUN_TEST(test_heap_destroy_collects_cycles);
     RUN_TEST(test_array_remove_releases_the_element);
     RUN_TEST(test_closure_call_releases_the_callable);
     RUN_TEST(test_direct_function_reference);
