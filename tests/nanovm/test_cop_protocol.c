@@ -23,6 +23,7 @@ const char *get_project_root(void) { return g_project_root; }
 #include <string.h>
 #include <assert.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 static int g_pass = 0, g_fail = 0;
 #define TEST(name) static void test_##name(void)
@@ -492,6 +493,130 @@ TEST(batch_bad_import_reports_error) {
 
 /* ── main ──────────────────────────────────────────────────────────────── */
 
+/* ── Large payloads ──────────────────────────────────────────────────────
+ *
+ * The mailbox fast path has 4 KB slots, so anything bigger travels the pipe
+ * path, which COP_MAX_PAYLOAD sizes at 16 MB. Nothing exercised a payload
+ * above 256 bytes: the fuzzer only checks that a length ABOVE the cap is
+ * rejected, which says nothing about whether a legal large one arrives
+ * intact. A pipe has a capacity of a few dozen KB, so a megabyte cannot be
+ * written and then read by one process -- it needs a reader draining
+ * concurrently, which is why this forks.
+ */
+
+#define LARGE_PAYLOAD_BYTES (1u * 1024u * 1024u)
+
+TEST(large_payload_survives_the_pipe) {
+    uint8_t *sent = malloc(LARGE_PAYLOAD_BYTES);
+    ASSERT(sent != NULL);
+    /* A pattern that catches truncation, duplication and byte swaps rather
+     * than a constant fill, which would survive all three. */
+    for (uint32_t i = 0; i < LARGE_PAYLOAD_BYTES; i++)
+        sent[i] = (uint8_t)((i * 31u + (i >> 8)) & 0xFF);
+
+    int fds[2];
+    if (pipe(fds) != 0) { free(sent); ASSERT(0); }
+
+    pid_t pid = fork();
+    if (pid < 0) { close(fds[0]); close(fds[1]); free(sent); ASSERT(0); }
+    if (pid == 0) {
+        close(fds[0]);
+        bool ok = cop_send(fds[1], COP_MSG_FFI_RESULT, sent, LARGE_PAYLOAD_BYTES);
+        close(fds[1]);
+        free(sent);
+        _exit(ok ? 0 : 1);
+    }
+    close(fds[1]);
+
+    CopMsgHeader hdr;
+    bool got_header = cop_recv_header(fds[0], &hdr);
+    uint8_t *received = malloc(LARGE_PAYLOAD_BYTES);
+    bool got_payload = false;
+    if (got_header && received && hdr.payload_len == LARGE_PAYLOAD_BYTES)
+        got_payload = cop_recv_payload(fds[0], received, hdr.payload_len);
+    close(fds[0]);
+    int status = 0;
+    waitpid(pid, &status, 0);
+
+    ASSERT(got_header);
+    ASSERT_EQ(hdr.payload_len, LARGE_PAYLOAD_BYTES);
+    ASSERT_EQ(hdr.msg_type, COP_MSG_FFI_RESULT);
+    ASSERT(got_payload);
+    ASSERT(received != NULL);
+    ASSERT_EQ(memcmp(sent, received, LARGE_PAYLOAD_BYTES), 0);
+    free(sent);
+    free(received);
+}
+
+TEST(large_string_value_survives_the_pipe) {
+    /* The same path carrying a serialized NanoValue rather than raw bytes:
+     * a string long enough that its length field matters. */
+    const uint32_t len = 512u * 1024u;
+    char *text = malloc(len);
+    ASSERT(text != NULL);
+    for (uint32_t i = 0; i < len; i++) text[i] = (char)('a' + (i % 26));
+    /* One embedded zero, because the length field is the only thing that
+     * makes it survive. */
+    text[len / 2] = '\0';
+
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmString *str = vm_string_new(&heap, text, len);
+    ASSERT(str != NULL);
+    NanoValue v = val_string(str);
+    uint32_t bufsize = len + 64;
+    uint8_t *buf = malloc(bufsize);
+    ASSERT(buf != NULL);
+    uint32_t written = cop_serialize_value(&v, buf, bufsize);
+    ASSERT(written == 1 + 4 + len);
+
+    NanoValue back;
+    uint32_t consumed = cop_deserialize_value(buf, written, &back, &heap);
+    ASSERT_EQ(consumed, written);
+    ASSERT_EQ(back.tag, TAG_STRING);
+    ASSERT(back.as.string != NULL);
+    ASSERT_EQ(back.as.string->length, len);
+    ASSERT_EQ(memcmp(back.as.string->data, text, len), 0);
+
+    vm_heap_destroy(&heap);
+    free(buf);
+    free(text);
+}
+
+TEST(wire_header_byte_layout_is_fixed) {
+    /* The wire header is little-endian by construction rather than by
+     * host accident: version, type, two reserved zero bytes, then the
+     * payload length low byte first. Pinning the exact bytes is what makes
+     * that a guarantee instead of a comment -- a host-order struct write
+     * would pass every same-machine test and fail across architectures. */
+    int fds[2];
+    if (pipe(fds) != 0) { ASSERT(0); }
+    ASSERT(cop_send(fds[1], COP_MSG_FFI_RESULT, "abcd", 4));
+    uint8_t wire[COP_HEADER_SIZE + 4];
+    ASSERT_EQ(read(fds[0], wire, sizeof(wire)), (ssize_t)sizeof(wire));
+    close(fds[0]); close(fds[1]);
+
+    ASSERT_EQ(wire[0], COP_PROTO_VERSION);
+    ASSERT_EQ(wire[1], (uint8_t)COP_MSG_FFI_RESULT);
+    ASSERT_EQ(wire[2], 0);
+    ASSERT_EQ(wire[3], 0);
+    ASSERT_EQ(wire[4], 4);   /* length low byte first */
+    ASSERT_EQ(wire[5], 0);
+    ASSERT_EQ(wire[6], 0);
+    ASSERT_EQ(wire[7], 0);
+    ASSERT_EQ(memcmp(wire + COP_HEADER_SIZE, "abcd", 4), 0);
+}
+
+TEST(a_payload_over_the_cap_is_refused_by_the_sender) {
+    /* The receiver already rejects an oversized declared length. The sender
+     * must refuse too, or it writes a header the peer will hang up on. */
+    int fds[2];
+    if (pipe(fds) != 0) { ASSERT(0); }
+    static const uint8_t one = 0;
+    ASSERT(!cop_send(fds[1], COP_MSG_FFI_RESULT, &one, COP_MAX_PAYLOAD + 1));
+    close(fds[0]); close(fds[1]);
+}
+
 int main(void) {
     printf("\n[cop_protocol] Co-process protocol tests...\n\n");
     RUN(serialize_int);
@@ -521,6 +646,10 @@ int main(void) {
     RUN(batch_roundtrip_many_calls);
     RUN(batch_empty_is_noop);
     RUN(batch_bad_import_reports_error);
+    RUN(wire_header_byte_layout_is_fixed);
+    RUN(a_payload_over_the_cap_is_refused_by_the_sender);
+    RUN(large_payload_survives_the_pipe);
+    RUN(large_string_value_survives_the_pipe);
 
     printf("\n");
     if (g_fail == 0) {
