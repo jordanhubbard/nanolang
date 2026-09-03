@@ -188,6 +188,22 @@ static void test_link_signature_index_is_checked(void) {
     nvm_v2_module_free(&got);
 }
 
+static void test_link_may_name_a_module_with_no_symbol(void) {
+    /* A dependency edge names a module, not a symbol in it, and has no call
+     * shape. Both fields take the sentinel; only an out-of-range value is an
+     * error. The v1 bridge emits exactly this shape for a module ref. */
+    DECL_PARTS; NvmV2Module m;
+    build_module(&m, ck, sg, fn, gl, im, lk, md, db);
+    lk[0].symbol_name_idx = NVM_V2_NO_INDEX;
+    lk[0].signature_idx   = NVM_V2_NO_INDEX;
+    uint8_t buf[1024]; size_t n = 0;
+    nvm_v2_module_serialize(&m, buf, sizeof buf, &n);
+    NvmV2Module got; memset(&got, 0, sizeof got);
+    CHECK_RESULT(nvm_v2_module_deserialize(buf, n, &got), NVM_V2_OK,
+                 "a link with no symbol and no signature is legal");
+    nvm_v2_module_free(&got);
+}
+
 static void test_code_range_outside_code_section_is_rejected(void) {
     DECL_PARTS; NvmV2Module m;
     build_module(&m, ck, sg, fn, gl, im, lk, md, db);
@@ -317,6 +333,7 @@ int main(void) {
     test_constant_index_out_of_range_is_rejected();
     test_import_signature_index_is_checked();
     test_link_signature_index_is_checked();
+    test_link_may_name_a_module_with_no_symbol();
     test_code_range_outside_code_section_is_rejected();
     test_code_range_cannot_wrap();
     test_entry_point_out_of_range_is_rejected();

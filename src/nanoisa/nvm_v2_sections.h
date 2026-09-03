@@ -13,6 +13,7 @@
 #define NANOISA_NVM_V2_SECTIONS_H
 
 #include "nvm_format_v2.h"
+#include "nvm_format.h"   /* NvmModule, for the v1 bridge declared at the end */
 
 /* ── Cursor ──────────────────────────────────────────────────────────────
  * Every section decoder walks a byte range and must never read past it.
@@ -368,6 +369,12 @@ typedef struct {
     const uint8_t  *code;          /* aliases the module buffer when decoded */
     uint64_t        code_size;
     bool            has_debug;     /* DEBUG present, even if empty */
+
+    /* Signature tag arrays alias the buffer when a module is decoded, so
+     * nothing owns them. A producer that synthesizes signatures has nowhere
+     * to put the bytes, so it parks them here in one block and
+     * nvm_v2_module_free releases it. NULL for a decoded module. */
+    uint8_t        *owned_tags;
 } NvmV2Module;
 
 /* Serialize into a caller-provided buffer. Returns the byte length via
@@ -382,5 +389,21 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
                                       NvmV2Module *out);
 
 void nvm_v2_module_free(NvmV2Module *m);
+
+/* ── The v1 bridge ──────────────────────────────────────────────────────────
+ *
+ * These let v2 be adopted without rewriting every producer at once. Declared
+ * here rather than in a header of their own so a caller needs one include.
+ *
+ * `nvm_v2_from_nvm_module` builds an owning NvmV2Module: free it with
+ * nvm_v2_module_free. `nvm_v2_to_nvm_module` allocates an NvmModule: free it
+ * with nvm_module_free.
+ *
+ * A v1 module does not record function parameter types or max_stack. The
+ * bridge emits TAG_VOID placeholder parameter tags and a max_stack of 0
+ * rather than guessing; a v2-native producer supplies the real values.
+ */
+NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out);
+NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out);
 
 #endif /* NANOISA_NVM_V2_SECTIONS_H */
