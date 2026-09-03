@@ -2525,8 +2525,14 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_POP: not an array");
             }
             NanoValue v = vm_array_pop(arr.as.array);
+            /* One result: the popped element. The array used to be pushed back
+             * as a second result, which every caller then had to discard --
+             * codegen emitted an OP_POP after every array_pop. The array is a
+             * heap reference the caller already holds; threading it back
+             * through the stack bought nothing and made this the only
+             * instruction in the ISA with two results. */
+            vm_release(&vm->heap, arr);
             stack_push(vm, v);
-            stack_push(vm, arr);
             break;
         }
 

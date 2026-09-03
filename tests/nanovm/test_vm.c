@@ -2997,16 +2997,16 @@ static void test_arr_slice(void) {
 }
 
 static void test_arr_pop(void) {
-    /* ARR_POP: pops last element from array.
-     * Pushes: popped_value first, then arr (array is on top after op) */
+    /* ARR_POP removes the last element and leaves just that element. It used
+     * to leave the element AND the array, making it the only instruction in
+     * the ISA with two results and forcing every caller to discard one. */
     uint8_t code[64];
     uint32_t off = 0;
     /* Create [10, 20] */
     off += emit(code + off, OP_PUSH_I64, (int64_t)10);
     off += emit(code + off, OP_PUSH_I64, (int64_t)20);
     off += emit(code + off, OP_ARR_LITERAL, (uint8_t)TAG_INT, (uint16_t)2);
-    off += emit(code + off, OP_ARR_POP);  /* stack: [v=20, arr=[10]] (arr on top) */
-    off += emit(code + off, OP_POP);      /* discard arr (top), stack: [v=20] */
+    off += emit(code + off, OP_ARR_POP);  /* stack: [20] */
     off += emit(code + off, OP_RET);      /* return 20 */
     NvmModule *mod = make_module(code, off, 0, 0);
     VmResult r;

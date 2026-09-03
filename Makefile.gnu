@@ -868,7 +868,7 @@ test-intern: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 	@rm -f tests/nanovm/test_intern
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -951,6 +951,10 @@ test-examples-regressions: $(COMPILER_C)
 # in examples/Makefile must stay honest: an example that compiles, or that the
 # native compiler accepts, is not a valid exclusion. Needs nanoc_c as well as
 # the VM tools so it can tell a NanoVirt gap from a broken source.
+.PHONY: test-verify-all-programs
+test-verify-all-programs: nano_virt nano_vm
+	@bash tests/test_verify_all_programs.sh
+
 .PHONY: test-vm-examples
 test-vm-examples: nano_virt nano_vm $(COMPILER_C)
 	@bash tests/test_vm_examples_coverage.sh

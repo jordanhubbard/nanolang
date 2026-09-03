@@ -196,8 +196,28 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
         uint8_t opcode = instruction->opcode;
         if (opcode == OP_JMP || opcode == OP_JMP_TRUE || opcode == OP_JMP_FALSE
                 || opcode == OP_MATCH_TAG) {
-            instruction_index_at(decoded, decoded_instruction->resolved_target,
-                                 &successors[successor_count++]);
+            /* resolved_target is an offset into the whole CODE section, while
+             * the instruction-index table is per function, so the function's
+             * base has to come off first. Without that, every branch in a
+             * function at a nonzero code offset looked up an out-of-range
+             * offset -- and because the old code incremented successor_count
+             * whether or not the lookup succeeded, it then walked an
+             * uninitialized successor. Function 0 starts at offset 0, so it
+             * was the only one where the two agreed, which is why this stayed
+             * hidden until stack heights actually propagated past the first
+             * branch. */
+            uint32_t base = mod->functions[fn_idx].code_offset;
+            uint32_t target = decoded_instruction->resolved_target;
+            uint32_t target_index;
+            if (target < base
+                    || !instruction_index_at(decoded, target - base, &target_index)) {
+                free(heights);
+                free(work);
+                return fail("function[%u] branch at offset %u targets %u, which is "
+                            "not an instruction boundary in this function",
+                            fn_idx, decoded_instruction->byte_offset, target);
+            }
+            successors[successor_count++] = target_index;
         }
         if (opcode != OP_JMP && opcode != OP_RET && opcode != OP_TAIL_CALL
                 && opcode != OP_HALT) {

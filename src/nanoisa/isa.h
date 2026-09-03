@@ -123,7 +123,7 @@ typedef enum {
     /* Array Ops (0x50-0x5F) */
     OP_ARR_NEW      = 0x50,  /* operand: u8 element type tag */
     OP_ARR_PUSH     = 0x51,  /* pop value, pop array -> push array */
-    OP_ARR_POP      = 0x52,  /* pop array -> push value, push array */
+    OP_ARR_POP      = 0x52,  /* pop array -> push the removed element */
     OP_ARR_GET      = 0x53,  /* pop index, pop array -> push value */
     OP_ARR_SET      = 0x54,  /* pop value, pop index, pop array -> push array */
     OP_ARR_LEN      = 0x55,  /* pop array -> push int */

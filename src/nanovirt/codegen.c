@@ -832,10 +832,9 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     }
     if (strcmp(name, "array_pop") == 0 && argc == 1) {
         compile_expr(cg, args[0]); /* array */
+        /* ARR_POP leaves just the removed element, which is what
+         * array_pop evaluates to. */
         emit_op(cg, OP_ARR_POP);
-        /* ARR_POP stack effect: [... v, arr] (array on top, value below).
-         * We want just the value, so pop the array off the top. */
-        emit_op(cg, OP_POP);
         return true;
     }
     if (strcmp(name, "array_set") == 0 && argc == 3) {
@@ -2158,9 +2157,20 @@ static void compile_expr(CG *cg, ASTNode *node) {
             patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
         }
 
-        /* Default: pop the union, push void */
+        /* No arm matched. This used to pop the union and push void, which
+         * made the path look like it produced a value of the match's type
+         * when it had not: for `match` in a value-returning function whose
+         * arms all return, the void then reached the function's implicit RET
+         * and the module would trap there with "returned 0 values, expected
+         * 1" -- if it ever got there. Reaching this point is a runtime error,
+         * so say so and stop. The trailing HALT is unreachable after the
+         * assert traps; it is what tells the verifier this path does not
+         * continue, which in turn makes an all-arms-return match correctly
+         * have no fall-through at all. */
         emit_op(cg, OP_POP);
-        emit_op(cg, OP_PUSH_VOID);
+        emit_op(cg, OP_PUSH_BOOL, 0);
+        emit_op(cg, OP_ASSERT);
+        emit_op(cg, OP_HALT);
 
         /* Patch all end jumps */
         for (int i = 0; i < end_count; i++) {
@@ -2332,6 +2342,24 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
 
 /* ── Statement compilation ──────────────────────────────────────── */
 
+/* Does compiling `node` as an expression leave a value on the operand stack?
+ *
+ * Almost always the declared type answers this: a void call like `(println x)`
+ * consumes its argument and leaves nothing, so a statement that discards the
+ * result must not POP. Popping anyway reaches below the operand stack into the
+ * frame's locals and corrupts the frame -- silently, because it often happened
+ * to cancel out, so affected programs still printed the right answers.
+ *
+ * `match` is the exception: its lowering pushes an explicit PUSH_VOID at the
+ * end of every arm, so it leaves a value even when that value is void. Asking
+ * the type for a match would skip a POP that IS needed, which is the same bug
+ * mirrored. */
+static bool expr_leaves_value(CG *cg, ASTNode *node) {
+    if (!node) return false;
+    if (node->type == AST_MATCH) return true;
+    return check_expression(node, cg->env) != TYPE_VOID;
+}
+
 static bool stmt_falls_through(ASTNode *node) {
     if (!node) return true;
     switch (node->type) {
@@ -2348,6 +2376,16 @@ static bool stmt_falls_through(ASTNode *node) {
             return !node->as.if_stmt.else_branch
                 || stmt_falls_through(node->as.if_stmt.then_branch)
                 || stmt_falls_through(node->as.if_stmt.else_branch);
+        case AST_MATCH: {
+            /* Sound only because the synthesized no-arm-matched path now
+             * terminates rather than producing void: with every arm body
+             * terminating too, nothing reaches the code after the match. */
+            for (int i = 0; i < node->as.match_expr.arm_count; i++) {
+                if (stmt_falls_through(node->as.match_expr.arm_bodies[i]))
+                    return true;
+            }
+            return node->as.match_expr.arm_count == 0;
+        }
         default:
             return true;
     }
@@ -2472,10 +2510,23 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         loop->break_count = 0;
         loop->top_offset = cg->code_size;
 
-        compile_expr(cg, node->as.while_stmt.condition);
-        uint32_t jf_instr = cg->code_size;
-        uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
-        uint32_t jf_patch = jf_off + 1;
+        /* `while true` has no normal exit, so emitting a test-and-branch
+         * invents one: control could apparently leave the loop and fall into
+         * whatever follows, which for a value-returning function is its
+         * implicit RET with nothing on the stack. That path would trap if it
+         * were ever taken, and it made read_varint in std/binary -- an
+         * infinite loop whose every path returns -- fail verification. Only
+         * `break` leaves such a loop, and break patches jump to the end
+         * independently. */
+        bool unconditional = node->as.while_stmt.condition
+            && node->as.while_stmt.condition->type == AST_BOOL
+            && node->as.while_stmt.condition->as.bool_val;
+        uint32_t jf_instr = 0, jf_patch = 0;
+        if (!unconditional) {
+            compile_expr(cg, node->as.while_stmt.condition);
+            jf_instr = cg->code_size;
+            jf_patch = emit_op(cg, OP_JMP_FALSE, (int32_t)0) + 1;
+        }
 
         compile_stmt(cg, node->as.while_stmt.body);
 
@@ -2487,7 +2538,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
         uint32_t loop_end = cg->code_size;
         /* Patch the conditional jump to after loop */
-        patch_jump(cg, jf_patch, jf_instr, loop_end);
+        if (!unconditional)
+            patch_jump(cg, jf_patch, jf_instr, loop_end);
 
         /* Patch all break statements */
         for (int i = 0; i < loop->break_count; i++) {
@@ -2650,7 +2702,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_MATCH:
     case AST_TRY_OP:
         compile_expr(cg, node);
-        emit_op(cg, OP_POP);
+        if (expr_leaves_value(cg, node))
+            emit_op(cg, OP_POP);
         break;
 
     case AST_CALL:
@@ -2716,7 +2769,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             emit_op(cg, OP_STORE_LOCAL, (int)slot);
         }
         compile_expr(cg, node->as.par_let.body);
-        emit_op(cg, OP_POP);
+        if (expr_leaves_value(cg, node->as.par_let.body))
+            emit_op(cg, OP_POP);
         break;
     }
 
