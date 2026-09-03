@@ -16,6 +16,7 @@
 #include "nvm_v2_sections.h"
 #include "nvm_format.h"
 #include "isa.h"
+#include "verifier.h"
 
 static int g_pass = 0, g_fail = 0;
 
@@ -243,18 +244,24 @@ static void test_empty_module_converts(void) {
     nvm_module_free(v1);
 }
 
-static void test_max_stack_is_zero_until_the_verifier_fills_it(void) {
-    /* A v1 module does not record max_stack: nothing computes it at this
-     * layer. The bridge emits 0 rather than a guess, and Task 13 populates it
-     * from the verifier. Asserting it here keeps that gap visible. */
+/* The producer computes the operand depth and the loader confirms it. The
+ * fixture's bytecode is arbitrary bytes rather than real instructions, so the
+ * verifier rejects it -- which is the case worth pinning: a function with no
+ * honest depth declares 0, meaning "nothing to check", instead of a guess that
+ * the confirming side would then enforce. */
+static void test_an_unverifiable_function_declares_no_depth(void) {
     NvmModule *v1 = build_v1();
     if (!v1) { g_fail++; printf("  FAIL: fixture\n"); return; }
     NvmV2Module v2;
     nvm_v2_from_nvm_module(v1, &v2);
-    bool all_zero = true;
-    for (uint32_t i = 0; i < v2.functions.count; i++)
-        if (v2.functions.items[i].max_stack != 0) all_zero = false;
-    CHECK(all_zero, "max_stack is 0 from a v1 source, not a guess");
+    for (uint32_t i = 0; i < v2.functions.count; i++) {
+        uint16_t declared = v2.functions.items[i].max_stack;
+        uint16_t computed = 0;
+        bool verifies = nvm_verify_function_max_stack(v1, i, &computed).ok;
+        CHECK(verifies ? declared == computed : declared == 0,
+              verifies ? "a verifiable function declares the depth the verifier computes"
+                       : "an unverifiable function declares 0 rather than a guess");
+    }
     nvm_v2_module_free(&v2);
     nvm_module_free(v1);
 }
@@ -266,7 +273,7 @@ int main(void) {
     test_a_module_without_main_gains_no_entry_point();
     test_identical_shapes_share_a_signature();
     test_empty_module_converts();
-    test_max_stack_is_zero_until_the_verifier_fills_it();
+    test_an_unverifiable_function_declares_no_depth();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }

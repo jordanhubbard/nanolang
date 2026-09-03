@@ -66,6 +66,71 @@ static NvmModule *make_simple_module(const uint8_t *code, uint32_t code_size,
     return mod;
 }
 
+/* ── Maximum operand depth ───────────────────────────────────────────────
+ *
+ * verify_stack_heights already walks every reachable instruction and knows the
+ * stack height at each one; it just discarded the maximum. Returning it is what
+ * lets a v2 producer declare max_stack and a loader confirm it, so the value a
+ * module carries is one the verifier has agreed to rather than one it trusts.
+ */
+
+static void test_max_stack_of_an_empty_function(void) {
+    const char *test_name = "max_stack: a function with no instructions is 0";
+    NvmModule *mod = make_simple_module(NULL, 0, 0, 0);
+    uint16_t depth = 0xFFFF;
+    NvmVerifyResult r = nvm_verify_function_max_stack(mod, 0, &depth);
+    ASSERT(r.ok, r.error_msg);
+    ASSERT(depth == 0, "an empty function needs no operand slots");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_max_stack_counts_the_deepest_point(void) {
+    const char *test_name = "max_stack: reports the deepest reachable height";
+    /* push, push, push, add (3 -> 2), ret. The deepest point is 3, which is
+     * neither the first nor the last height -- a maximum that only tracked the
+     * end would report 2 and a module declaring 2 would then overflow. */
+    uint8_t code[128];
+    uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)2);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)3);
+    n += emit(code + n, OP_ADD);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    uint16_t depth = 0;
+    NvmVerifyResult r = nvm_verify_function_max_stack(mod, 0, &depth);
+    ASSERT(r.ok, r.error_msg);
+    ASSERT(depth == 3, "three values are live at once before the add");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_max_stack_is_refused_for_an_unverifiable_function(void) {
+    const char *test_name = "max_stack: an underflowing function reports no depth";
+    /* A bare ADD underflows. There is no honest maximum for code the verifier
+     * rejects, so the failure propagates rather than yielding a number. */
+    uint8_t code[64];
+    uint32_t n = emit(code, OP_ADD);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    uint16_t depth = 0;
+    NvmVerifyResult r = nvm_verify_function_max_stack(mod, 0, &depth);
+    ASSERT(!r.ok, "an underflowing function must not report a depth");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
+static void test_max_stack_out_of_range_function(void) {
+    const char *test_name = "max_stack: a function index past the table fails";
+    NvmModule *mod = make_simple_module(NULL, 0, 0, 0);
+    uint16_t depth = 0;
+    NvmVerifyResult r = nvm_verify_function_max_stack(mod, 7, &depth);
+    ASSERT(!r.ok, "index 7 does not exist");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 /* ── Tests ───────────────────────────────────────────────────────────────── */
 
 static void test_null_module(void) {
@@ -1255,6 +1320,10 @@ int main(void) {
     test_hm_new_bad_value_tag();
     test_type_check_bad_tag();
     test_valid_type_tags_pass();
+    test_max_stack_of_an_empty_function();
+    test_max_stack_counts_the_deepest_point();
+    test_max_stack_is_refused_for_an_unverifiable_function();
+    test_max_stack_out_of_range_function();
 
     printf("\n");
     if (g_fail == 0) {

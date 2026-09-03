@@ -16,6 +16,8 @@
 #include "nvm_format.h"
 #include "nvm_format_v2.h"
 #include "isa.h"
+#include "nvm_v2_sections.h"
+#include "verifier.h"
 
 static int g_pass = 0, g_fail = 0;
 
@@ -177,11 +179,65 @@ static void test_garbage_is_still_rejected(void) {
     nvm_module_free(m);
 }
 
+/* The producer declares the operand depth and the loader confirms it. If the
+ * loader took the declared value on trust, a module claiming less depth than it
+ * uses would be accepted and overflow its stack at run time. */
+static void test_an_understated_max_stack_is_rejected(void) {
+    /* push, push, push, add, ret -- deepest height 3. */
+    uint8_t code[128];
+    uint32_t n = 0;
+    n += isa_encode(&(DecodedInstruction){ .opcode = OP_PUSH_I64,
+             .operands[0].i64 = 1 }, code + n, 64);
+    n += isa_encode(&(DecodedInstruction){ .opcode = OP_PUSH_I64,
+             .operands[0].i64 = 2 }, code + n, 64);
+    n += isa_encode(&(DecodedInstruction){ .opcode = OP_PUSH_I64,
+             .operands[0].i64 = 3 }, code + n, 64);
+    n += isa_encode(&(DecodedInstruction){ .opcode = OP_ADD }, code + n, 64);
+    n += isa_encode(&(DecodedInstruction){ .opcode = OP_RET }, code + n, 64);
+
+    NvmModule *m = nvm_module_new();
+    if (!m) { g_fail++; printf("  FAIL: fixture\n"); return; }
+    uint32_t name = nvm_add_string(m, "main", 4);
+    uint32_t off = nvm_append_code(m, code, n);
+    NvmFunctionEntry f;
+    memset(&f, 0, sizeof f);
+    f.name_idx = name; f.code_offset = off; f.code_length = n;
+    uint32_t idx = nvm_add_function(m, &f);
+    m->header.flags = NVM_FLAG_HAS_MAIN;
+    m->header.entry_point = idx;
+
+    NvmV2Module v2;
+    if (nvm_v2_from_nvm_module(m, &v2) != NVM_V2_OK) {
+        g_fail++; printf("  FAIL: conversion\n"); nvm_module_free(m); return;
+    }
+    CHECK(v2.functions.count == 1 && v2.functions.items[0].max_stack == 3,
+          "the producer declares the depth the verifier computes");
+
+    /* Understate it by one and re-serialize. Everything else about the module
+     * stays valid, so only the confirming check can catch this. */
+    v2.functions.items[0].max_stack = 2;
+    size_t need = 0;
+    nvm_v2_module_serialize(&v2, NULL, 0, &need);
+    uint8_t *buf = malloc(need);
+    if (buf) {
+        size_t written = 0;
+        nvm_v2_module_serialize(&v2, buf, need, &written);
+        NanoisaErr err;
+        CHECK(nanoisa_load_bytes(buf, (uint32_t)written, &err) == NULL,
+              "a module declaring less operand depth than it uses is rejected");
+        free(buf);
+    } else { g_fail++; printf("  FAIL: alloc\n"); }
+
+    nvm_v2_module_free(&v2);
+    nvm_module_free(m);
+}
+
 int main(void) {
     printf("\n[nvm_v2_endtoend] v2 emission and magic-dispatching load...\n\n");
     test_v2_bytes_carry_the_v2_magic();
     test_the_same_module_survives_both_formats();
     test_garbage_is_still_rejected();
+    test_an_understated_max_stack_is_rejected();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }
