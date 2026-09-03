@@ -638,7 +638,7 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
 		../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
 		../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
-		../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c
+		../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c ../src/nanovm/heap_cycles.c
 	@mkdir -p ../modules/forth_see/.build
 	$(CC) -Wall -Wextra -Werror -std=c99 -fPIC -shared \
 	    -I../modules/forth_see -I../modules/nanoisa -I../src/nanoisa -I../src \
@@ -647,7 +647,7 @@ test: $(COMPILER) $(BIN_DIR)/run_examples$(BIN_SUFFIX)$(BIN_EXT)
 		../src/nanoisa/nvm_format_v2.c ../src/nanoisa/nvm_v2_cursor.c ../src/nanoisa/nvm_v2_constants.c ../src/nanoisa/nvm_v2_signatures.c ../src/nanoisa/nvm_v2_layouts.c ../src/nanoisa/nvm_v2_functions.c ../src/nanoisa/nvm_v2_imports.c ../src/nanoisa/nvm_v2_module.c ../src/nanoisa/nvm_v2_convert.c \
 	    ../src/nanoisa/assembler.c ../src/nanoisa/disassembler.c \
 	    ../src/nanoisa/verifier.c ../src/nanovm/vm_decode.c \
-	    ../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c
+	    ../src/nanovm/vm_dispatch.c ../src/nanovm/value.c ../src/nanovm/heap.c ../src/nanovm/heap_cycles.c
 
 # Explicit rule: compile nl_forth_interpreter.nano → bin/nl_forth_interpreter_vm (NVM bytecode, no extension)
 # The pattern rule $(BIN_DIR)/nl_%$(BIN_EXT) won't match because target suffix (_vm) differs from source name.
