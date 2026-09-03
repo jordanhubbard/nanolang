@@ -201,12 +201,37 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         out->metadata.count = 1;
     }
 
+    /* v1 records only how many structs, enums and unions a module defines --
+     * the verifier bounds AGG_* operands against those counts. v2 has no
+     * count field because it has the layouts themselves, so the counts travel
+     * as that many field-less layouts of each kind. They carry no shape
+     * because v1 has none to give; a v2-native producer emits real ones. */
+    uint32_t n_lay = mod->struct_count + mod->enum_count + mod->union_count;
+    if (n_lay) {
+        NvmV2Layout *lay = calloc(n_lay, sizeof *lay);
+        if (!lay) goto oom;
+        uint32_t k = 0;
+        for (uint32_t i = 0; i < mod->struct_count; i++, k++) {
+            lay[k].kind = NVM_V2_LAYOUT_STRUCT; lay[k].name_idx = NVM_V2_NO_INDEX;
+        }
+        for (uint32_t i = 0; i < mod->enum_count; i++, k++) {
+            lay[k].kind = NVM_V2_LAYOUT_ENUM; lay[k].name_idx = NVM_V2_NO_INDEX;
+        }
+        for (uint32_t i = 0; i < mod->union_count; i++, k++) {
+            lay[k].kind = NVM_V2_LAYOUT_UNION; lay[k].name_idx = NVM_V2_NO_INDEX;
+        }
+        out->layouts.items = lay;
+        out->layouts.count = n_lay;
+    }
+
     out->code      = mod->code;
     out->code_size = mod->code_size;
 
-    /* v1 defaults entry_point to 0 whether or not function 0 exists, so a
-     * module with no functions would otherwise claim one. */
-    out->entry_point = (mod->header.entry_point < n_fn)
+    /* v1 leaves entry_point at 0 when there is no main and marks the absence
+     * with a flag, so the flag is the source of truth. Reading the field alone
+     * would make every main-less module claim function 0 as its entry. */
+    out->entry_point = ((mod->header.flags & NVM_FLAG_HAS_MAIN) &&
+                        mod->header.entry_point < n_fn)
                          ? mod->header.entry_point
                          : NVM_V2_NO_ENTRY_POINT;
 
@@ -302,8 +327,27 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
                             d->source_line, d->source_col);
     }
 
-    mod->header.entry_point =
-        (m->entry_point == NVM_V2_NO_ENTRY_POINT) ? 0 : m->entry_point;
+    for (uint32_t i = 0; i < m->layouts.count; i++) {
+        switch (m->layouts.items[i].kind) {
+        case NVM_V2_LAYOUT_STRUCT: mod->struct_count++; break;
+        case NVM_V2_LAYOUT_ENUM:   mod->enum_count++;   break;
+        case NVM_V2_LAYOUT_UNION:  mod->union_count++;  break;
+        default: break;   /* a tuple layout has no v1 counterpart */
+        }
+    }
+
+    /* Every v1 header flag restates something v2 encodes structurally, so all
+     * three are derived rather than carried. Deriving them is also what keeps
+     * them from disagreeing with the module they describe. */
+    mod->header.flags = 0;
+    if (m->entry_point != NVM_V2_NO_ENTRY_POINT) {
+        mod->header.flags |= NVM_FLAG_HAS_MAIN;
+        mod->header.entry_point = m->entry_point;
+    } else {
+        mod->header.entry_point = 0;
+    }
+    if (m->imports.count) mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
+    if (m->debug.count)   mod->header.flags |= NVM_FLAG_DEBUG_INFO;
 
     *out = mod;
     return NVM_V2_OK;

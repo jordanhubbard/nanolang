@@ -5,6 +5,7 @@
 #include "../../src/nanoisa/assembler.h"
 #include "../../src/nanoisa/disassembler.h"
 #include "../../src/nanoisa/isa.h"
+#include "../../src/nanoisa/nvm_v2_sections.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -97,8 +98,39 @@ NvmModule *nanoisa_load_bytes(const uint8_t *data, uint32_t size,
         return NULL;
     }
     if (data[0] != NVM_MAGIC_0 || data[1] != NVM_MAGIC_1
-            || data[2] != NVM_MAGIC_2 || data[3] != NVM_MAGIC_3) {
+            || data[2] != NVM_MAGIC_2) {
         set_error(err, NANOISA_ERR_FORMAT, 0, "Invalid NVM magic");
+        return NULL;
+    }
+
+    /* The fourth magic byte is the container version, and this function is the
+     * single funnel every consumer goes through -- the VM, the co-process, the
+     * daemon, generated wrappers -- so dispatching here is the whole loader
+     * change. A byte belonging to neither format is still rejected rather than
+     * guessed at. */
+    if (data[3] == NVM_V2_MAGIC_3) {
+        NvmV2Module v2;
+        NvmV2Result r = nvm_v2_module_deserialize(data, size, &v2);
+        if (r != NVM_V2_OK) {
+            set_error(err, NANOISA_ERR_FORMAT, 0,
+                      "Invalid NVM v2 module: %s", nvm_v2_result_name(r));
+            return NULL;
+        }
+        NvmModule *mod = NULL;
+        r = nvm_v2_to_nvm_module(&v2, &mod);
+        nvm_v2_module_free(&v2);
+        if (r != NVM_V2_OK || !mod) {
+            set_error(err, NANOISA_ERR_FORMAT, 0,
+                      "NVM v2 module is not expressible as v1: %s",
+                      nvm_v2_result_name(r));
+            return NULL;
+        }
+        return mod;
+    }
+
+    if (data[3] != NVM_MAGIC_3) {
+        set_error(err, NANOISA_ERR_FORMAT, 0,
+                  "Unknown NVM container version %u", (unsigned)data[3]);
         return NULL;
     }
     if (read_u32_le(data + 4) != NVM_FORMAT_VERSION) {
@@ -119,6 +151,52 @@ NvmModule *nanoisa_load_bytes(const uint8_t *data, uint32_t size,
                   "Invalid NVM section data");
     }
     return mod;
+}
+
+uint8_t *nanoisa_save_bytes_v2(const NvmModule *mod, uint32_t *out_size,
+                               NanoisaErr *err) {
+    clear_error(err);
+    if (!mod || !out_size) {
+        set_error(err, NANOISA_ERR_ARGUMENT, 0,
+                  "Module and output size are required");
+        return NULL;
+    }
+    *out_size = 0;
+
+    NvmV2Module v2;
+    NvmV2Result r = nvm_v2_from_nvm_module(mod, &v2);
+    if (r != NVM_V2_OK) {
+        set_error(err, NANOISA_ERR_MEMORY, 0,
+                  "Could not convert module to v2: %s", nvm_v2_result_name(r));
+        return NULL;
+    }
+
+    size_t need = 0;
+    r = nvm_v2_module_serialize(&v2, NULL, 0, &need);
+    if (r != NVM_V2_OK || need > UINT32_MAX) {
+        nvm_v2_module_free(&v2);
+        set_error(err, NANOISA_ERR_FORMAT, 0, "Could not size v2 module");
+        return NULL;
+    }
+
+    uint8_t *buf = malloc(need);
+    if (!buf) {
+        nvm_v2_module_free(&v2);
+        set_error(err, NANOISA_ERR_MEMORY, 0, "Out of memory");
+        return NULL;
+    }
+
+    size_t written = 0;
+    r = nvm_v2_module_serialize(&v2, buf, need, &written);
+    nvm_v2_module_free(&v2);
+    if (r != NVM_V2_OK) {
+        free(buf);
+        set_error(err, NANOISA_ERR_FORMAT, 0,
+                  "Could not serialize v2 module: %s", nvm_v2_result_name(r));
+        return NULL;
+    }
+    *out_size = (uint32_t)written;
+    return buf;
 }
 
 NvmModule *nanoisa_load_file(const char *path, NanoisaErr *err) {
