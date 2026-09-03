@@ -237,40 +237,116 @@ and optimized runtime representations my VM builds from a loaded module; see
 which layer is the portable contract and which layers are internal.
 ## .nvm Binary Format
 
-### Header (32 bytes)
+Since 4.0 a `.nvm` file is a NanoISA **v2** container, magic `NVM\x02`. The v1
+container (`NVM\x01`) is retired: `.nvm` files are build artifacts rather than
+distributed packages, so the loader refuses a v1 module with
 
 ```
-[magic: "NVM\x01" (4B)] [version (4B)] [flags (4B)] [entry_point (4B)]
-[section_count (4B)] [string_pool_offset (4B)] [string_pool_length (4B)] [CRC32 checksum (4B)]
+module was built for NanoISA v1 (NVM\x01); rebuild it with nanoc 4.0 or later
 ```
+
+rather than carrying a compatibility path that would have to stay correct
+forever. `--emit-nvm` writes v2; `--emit-nvm-v2` remains accepted as a retired
+alias so build scripts written during the transition keep working.
+
+### Header (40 bytes)
+
+```
+[magic: "NVM\x02" (4B)] [format_version (2B)] [isa_version (2B)] [feature_bits (4B)]
+[total_size (8B)] [header_size (4B)] [section_count (4B)] [entry_point (4B)]
+[flags (4B, reserved, must be zero)] [CRC32 checksum (4B)]
+```
+
+`total_size` is what bounds everything else. Every section's range is checked
+against it **by subtraction** (`size > total - offset`), never by addition,
+which would wrap for an offset near the top of the range and admit a section
+that appears to fit.
+
+`feature_bits` names the capabilities a reader needs: `LINKED`, `FFI`, `DEBUG`,
+`COPROCESS`. A bit this reader does not implement is refused rather than
+ignored, so a module using a feature is never silently half-understood. The
+rule is a **floor**: the bits must include everything the module's tables
+require, and may include more, because a capability can be needed without
+leaving a trace in a table -- a module may declare it needs the FFI with no
+import listed, which is what v1's `.flag needs_extern` says.
+
+`entry_point` is a FUNCTIONS index, or `0xFFFFFFFF` for a module with no entry
+point. v1 left the field at 0 and marked the absence with a flag, so a module
+with no `main` appeared to name function 0.
 
 ### Sections
 
-Each section has a 12-byte directory entry: `[type (4B)] [offset (4B)] [size (4B)]`
+Each section has a 24-byte directory entry:
+`[type (4B)] [flags (4B, reserved)] [offset (8B)] [size (8B)]`. Entries are
+emitted in ascending type order, which makes the file canonical -- two
+producers emitting the same module emit the same bytes -- and lets validation
+be a single forward pass.
 
 | Section | Type | Contents |
 |---------|------|----------|
-| `CODE` | 0x0001 | Bytecode instructions |
-| `STRINGS` | 0x0002 | String constant pool (deduplicated) |
-| `FUNCTIONS` | 0x0003 | Function table (name, arity, code offset, locals, upvalues) |
-| `STRUCTS` | 0x0004 | Struct type definitions |
-| `ENUMS` | 0x0005 | Enum type definitions |
-| `UNIONS` | 0x0006 | Union type definitions |
+| `METADATA` | 0x0001 | Key/value constant-index pairs |
+| `CONSTANTS` | 0x0002 | Typed constant pool |
+| `SIGNATURES` | 0x0003 | Call shapes, deduplicated |
+| `LAYOUTS` | 0x0004 | Struct, tuple, union and enum layouts |
+| `FUNCTIONS` | 0x0005 | Function table |
+| `CODE` | 0x0006 | Bytecode instructions |
 | `GLOBALS` | 0x0007 | Global variable declarations |
-| `IMPORTS` | 0x0008 | Extern function stubs for FFI |
-| `DEBUG` | 0x0009 | Source maps (bytecode offset to source line) |
-| `METADATA` | 0x000A | Module name, version |
-| `MODULE_REFS` | 0x000B | Referenced module names for cross-module linking |
+| `IMPORTS` | 0x0008 | Foreign functions |
+| `LINKS` | 0x0009 | Cross-module dependencies |
+| `DEBUG` | 0x000A | Source maps; optional |
 
-### String Pool
+### Constants
 
-Variable-length entries: `[length: u32] [utf8_bytes: length]`. I deduplicate strings at compile time.
+`[tag: u8] [pad: u8[3]] [length: u32] [payload: length, padded to 4]`
 
-### Function Entries (18 bytes each)
+The explicit length is the point. v1's pool was read with `strlen`, so a string
+holding an embedded zero was silently truncated; here the bytes survive
+verbatim.
+
+### Signatures
+
+`[param_count: u16] [result_count: u16] [param_tags] [result_tags]`, each tag
+array padded to 4.
+
+Functions, imports, links and indirect call sites reference a signature by
+index rather than each carrying its own shape. Producers must deduplicate, so
+two identically-shaped callables share an entry: that is what makes comparing
+signature indices a valid equality test, and it is why v2 import entries have
+no variable-length type tail the way v1's did.
+
+### Layouts
+
+`[kind: u8] [pad: u8] [field_count: u16] [name_idx: u32]`, then per field
+`[type_tag: u8] [pad: u8[3]] [nested_idx: u32] [name_idx: u32]`.
+
+Every nested index refers to a **lower-numbered** layout, which makes the table
+acyclic by construction: a decoder validates it in one forward pass and nothing
+walking it can recurse forever. A forward or self reference is rejected.
+
+### Function Entries (32 bytes each)
 
 ```
-[name_idx (4B)] [arity (2B)] [code_offset (4B)] [code_length (4B)] [local_count (2B)] [upvalue_count (2B)]
+[name_idx (4B)] [signature_idx (4B)] [code_offset (8B)] [code_length (8B)]
+[local_count (2B)] [upvalue_count (2B)] [max_stack (2B)] [flags (2B, reserved)]
 ```
+
+Arity and result shape are absent because they live in SIGNATURES. Offsets are
+64-bit; v1's were 32.
+
+`max_stack` is the maximum operand-stack depth the function reaches. The
+producer computes it and the loader **confirms** it against the verifier: a
+module declaring less depth than it uses is rejected, because a disagreement
+between producer and verifier otherwise surfaces as a stack overflow at run
+time. A declared 0 means the producer had nothing to declare.
+
+### Cross-section validation
+
+A section codec sees one section and cannot check an index into another, so the
+whole-module reader checks what none of them can: every signature, constant and
+layout index resolves; every function's `[code_offset, code_offset+code_length)`
+lies inside CODE, bounded by subtraction so a range near `2^64` cannot wrap back
+into it; the entry point names a real function or the sentinel; and the header's
+feature bits cover what the sections require.
 
 ## Execution Model
 

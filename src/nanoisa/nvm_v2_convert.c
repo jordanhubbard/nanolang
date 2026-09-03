@@ -234,6 +234,12 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
         out->layouts.count = n_lay;
     }
 
+    /* NEEDS_EXTERN is not always derivable: the assembler lets a module
+     * declare it with no import table at all (`.flag needs_extern`). The
+     * feature bit carries it either way. */
+    if (mod->header.flags & NVM_FLAG_NEEDS_EXTERN)
+        out->extra_features |= NVM_V2_FEATURE_FFI;
+
     out->code      = mod->code;
     out->code_size = mod->code_size;
 
@@ -356,7 +362,8 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     } else {
         mod->header.entry_point = 0;
     }
-    if (m->imports.count) mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
+    if (m->imports.count || (m->extra_features & NVM_V2_FEATURE_FFI))
+        mod->header.flags |= NVM_FLAG_NEEDS_EXTERN;
     if (m->debug.count)   mod->header.flags |= NVM_FLAG_DEBUG_INFO;
 
     *out = mod;

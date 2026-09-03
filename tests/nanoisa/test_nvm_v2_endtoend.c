@@ -111,7 +111,7 @@ static void test_v2_bytes_carry_the_v2_magic(void) {
     if (!m) return;
     NanoisaErr err;
     uint32_t n = 0;
-    uint8_t *bytes = nanoisa_save_bytes_v2(m, &n, &err);
+    uint8_t *bytes = nanoisa_save_bytes(m, &n, &err);
     CHECK(bytes != NULL, "a module saves as v2");
     if (bytes) {
         CHECK(n > NVM_V2_HEADER_SIZE, "the v2 blob is more than a header");
@@ -129,26 +129,19 @@ static void test_the_same_module_survives_both_formats(void) {
     if (!m) { g_fail++; printf("  FAIL: fixture\n"); return; }
     NanoisaErr err;
 
-    uint32_t n1 = 0, n2 = 0;
-    uint8_t *b1 = nanoisa_save_bytes(m, &n1, &err);
-    uint8_t *b2 = nanoisa_save_bytes_v2(m, &n2, &err);
-    CHECK(b1 && b2, "the module saves in both formats");
-    if (!b1 || !b2) { free(b1); free(b2); nvm_module_free(m); return; }
+    uint32_t n = 0;
+    uint8_t *b = nanoisa_save_bytes(m, &n, &err);
+    CHECK(b != NULL, "the module saves");
+    if (!b) { nvm_module_free(m); return; }
 
-    /* One entry point, two formats: the dispatch is the point of the test. */
-    NvmModule *l1 = nanoisa_load_bytes(b1, n1, &err);
-    CHECK(l1 != NULL, "a v1 blob still loads");
-    NvmModule *l2 = nanoisa_load_bytes(b2, n2, &err);
-    CHECK(l2 != NULL, "a v2 blob loads through the same entry point");
-
-    if (l1 && l2) {
-        CHECK(modules_agree(l1, l2),
-              "a module round-tripped through v2 matches the v1 round trip");
-        CHECK(modules_agree(m, l2), "and matches the module it was built from");
-    } else { g_fail += 2; printf("  FAIL: could not compare\n"); }
-
-    nvm_module_free(l1); nvm_module_free(l2);
-    free(b1); free(b2);
+    NvmModule *l = nanoisa_load_bytes(b, n, &err);
+    CHECK(l != NULL, "and loads back");
+    if (l) {
+        CHECK(modules_agree(m, l),
+              "everything a consumer reads survives the round trip");
+        nvm_module_free(l);
+    } else { g_fail++; printf("  FAIL: could not compare\n"); }
+    free(b);
     nvm_module_free(m);
 }
 
@@ -159,8 +152,8 @@ static void test_garbage_is_still_rejected(void) {
     CHECK(nanoisa_load_bytes(junk, sizeof junk, &err) == NULL,
           "bytes with no NVM magic are rejected");
 
-    /* "NVM" followed by a version byte no loader knows. Adding a v2 path must
-     * not turn the magic check into "anything starting with NVM". */
+    /* "NVM" followed by a version byte no loader knows. The magic check must
+     * not become "anything starting with NVM". */
     memcpy(junk, "NVM", 3);
     junk[3] = 0x7F;
     CHECK(nanoisa_load_bytes(junk, sizeof junk, &err) == NULL,
@@ -169,7 +162,7 @@ static void test_garbage_is_still_rejected(void) {
     NvmModule *m = build_module();
     if (!m) { g_fail++; printf("  FAIL: fixture\n"); return; }
     uint32_t n = 0;
-    uint8_t *b = nanoisa_save_bytes_v2(m, &n, &err);
+    uint8_t *b = nanoisa_save_bytes(m, &n, &err);
     if (b) {
         b[n - 1] ^= 0xFF;   /* corrupt a payload byte, leaving the header */
         CHECK(nanoisa_load_bytes(b, n, &err) == NULL,
@@ -232,9 +225,49 @@ static void test_an_understated_max_stack_is_rejected(void) {
     nvm_module_free(m);
 }
 
+/* v1 is retired as of 4.0. .nvm files are build artifacts, not distributed
+ * packages, so the fix is to rebuild -- and the message has to say so, because
+ * "Invalid NVM magic" would send someone looking for a corrupt file. */
+static void test_a_v1_module_is_refused_with_a_rebuild_instruction(void) {
+    NvmModule *m = build_module();
+    if (!m) { g_fail++; printf("  FAIL: fixture\n"); return; }
+    NanoisaErr err;
+    uint32_t n = 0;
+    uint8_t *v1 = nanoisa_save_bytes_v1(m, &n, &err);
+    CHECK(v1 != NULL, "a v1 blob can still be produced for this test");
+    if (v1) {
+        CHECK(v1[3] == NVM_MAGIC_3, "it carries the v1 version byte");
+        memset(&err, 0, sizeof err);
+        CHECK(nanoisa_load_bytes(v1, n, &err) == NULL, "and the loader refuses it");
+        CHECK(strstr(err.message, "NanoISA v1") != NULL,
+              "the message names the format the module was built for");
+        CHECK(strstr(err.message, "rebuild") != NULL,
+              "and tells the reader what to do about it");
+        free(v1);
+    }
+    nvm_module_free(m);
+}
+
+static void test_the_default_container_is_v2(void) {
+    NvmModule *m = build_module();
+    if (!m) { g_fail++; printf("  FAIL: fixture\n"); return; }
+    NanoisaErr err;
+    uint32_t n = 0;
+    uint8_t *b = nanoisa_save_bytes(m, &n, &err);
+    CHECK(b != NULL, "a module saves");
+    if (b) {
+        CHECK(b[3] == NVM_V2_MAGIC_3,
+              "nanoisa_save_bytes writes v2 without being asked");
+        free(b);
+    }
+    nvm_module_free(m);
+}
+
 int main(void) {
     printf("\n[nvm_v2_endtoend] v2 emission and magic-dispatching load...\n\n");
     test_v2_bytes_carry_the_v2_magic();
+    test_the_default_container_is_v2();
+    test_a_v1_module_is_refused_with_a_rebuild_instruction();
     test_the_same_module_survives_both_formats();
     test_garbage_is_still_rejected();
     test_an_understated_max_stack_is_rejected();

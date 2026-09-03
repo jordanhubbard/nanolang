@@ -38,13 +38,6 @@ static void set_error(NanoisaErr *err, NanoisaErrorCode code, uint32_t line,
     va_end(args);
 }
 
-static uint32_t read_u32_le(const uint8_t *data) {
-    return (uint32_t)data[0]
-        | ((uint32_t)data[1] << 8)
-        | ((uint32_t)data[2] << 16)
-        | ((uint32_t)data[3] << 24);
-}
-
 static const char *section_name(uint32_t type) {
     switch (type) {
         case NVM_SECTION_CODE: return "code";
@@ -159,33 +152,23 @@ NvmModule *nanoisa_load_bytes(const uint8_t *data, uint32_t size,
         return mod;
     }
 
-    if (data[3] != NVM_MAGIC_3) {
+    if (data[3] == NVM_MAGIC_3) {
+        /* v1 is retired as of 4.0. .nvm files are build artifacts rather than
+         * distributed packages, so the fix is to rebuild rather than to keep a
+         * compatibility path that would have to stay correct forever. */
         set_error(err, NANOISA_ERR_FORMAT, 0,
-                  "Unknown NVM container version %u", (unsigned)data[3]);
-        return NULL;
-    }
-    if (read_u32_le(data + 4) != NVM_FORMAT_VERSION) {
-        set_error(err, NANOISA_ERR_FORMAT, 0,
-                  "Unsupported NVM format version %u",
-                  read_u32_le(data + 4));
-        return NULL;
-    }
-    if (read_u32_le(data + 28)
-            != nvm_crc32(data + NVM_HEADER_SIZE, size - NVM_HEADER_SIZE)) {
-        set_error(err, NANOISA_ERR_FORMAT, 0, "Invalid NVM checksum");
+                  "module was built for NanoISA v1 (NVM\\x01); "
+                  "rebuild it with nanoc 4.0 or later");
         return NULL;
     }
 
-    NvmModule *mod = nvm_deserialize(data, size);
-    if (!mod) {
-        set_error(err, NANOISA_ERR_FORMAT, 0,
-                  "Invalid NVM section data");
-    }
-    return mod;
+    set_error(err, NANOISA_ERR_FORMAT, 0,
+              "Unknown NVM container version %u", (unsigned)data[3]);
+    return NULL;
 }
 
-uint8_t *nanoisa_save_bytes_v2(const NvmModule *mod, uint32_t *out_size,
-                               NanoisaErr *err) {
+uint8_t *nanoisa_save_bytes(const NvmModule *mod, uint32_t *out_size,
+                            NanoisaErr *err) {
     clear_error(err);
     if (!mod || !out_size) {
         set_error(err, NANOISA_ERR_ARGUMENT, 0,
@@ -280,8 +263,8 @@ NvmModule *nanoisa_load_file(const char *path, NanoisaErr *err) {
     return mod;
 }
 
-uint8_t *nanoisa_save_bytes(const NvmModule *mod, uint32_t *out_size,
-                            NanoisaErr *err) {
+uint8_t *nanoisa_save_bytes_v1(const NvmModule *mod, uint32_t *out_size,
+                               NanoisaErr *err) {
     clear_error(err);
     if (!mod || !out_size) {
         set_error(err, NANOISA_ERR_ARGUMENT, 0,
