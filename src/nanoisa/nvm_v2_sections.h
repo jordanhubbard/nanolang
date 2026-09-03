@@ -180,4 +180,80 @@ size_t      nvm_v2_layouts_encoded_size(const NvmV2Layouts *l);
 NvmV2Result nvm_v2_layouts_encode(const NvmV2Layouts *l,
                                   uint8_t *out, size_t size);
 
+/* ── FUNCTIONS ───────────────────────────────────────────────────────────
+ *   count             u32
+ *   per entry (32 bytes):
+ *     name_idx        u32   CONSTANTS index
+ *     signature_idx   u32   SIGNATURES index
+ *     code_offset     u64   byte offset into CODE
+ *     code_length     u64
+ *     local_count     u16
+ *     upvalue_count   u16
+ *     max_stack       u16   verifier-proven maximum operand depth
+ *     flags           u16   reserved, must be zero
+ *
+ * arity, result_tag and result_count are deliberately absent: they live in
+ * SIGNATURES, referenced by signature_idx. max_stack is new, and is what lets
+ * the verifier discharge the maximum-operand-depth obligation statically
+ * rather than leaning on a runtime stack limit.
+ */
+
+typedef struct {
+    uint32_t name_idx;
+    uint32_t signature_idx;
+    uint64_t code_offset;
+    uint64_t code_length;
+    uint16_t local_count;
+    uint16_t upvalue_count;
+    uint16_t max_stack;
+} NvmV2Function;
+
+typedef struct {
+    NvmV2Function *items;
+    uint32_t       count;
+} NvmV2Functions;
+
+NvmV2Result nvm_v2_functions_decode(const uint8_t *data, size_t size,
+                                    NvmV2Functions *out);
+void        nvm_v2_functions_free(NvmV2Functions *f);
+size_t      nvm_v2_functions_encoded_size(const NvmV2Functions *f);
+NvmV2Result nvm_v2_functions_encode(const NvmV2Functions *f,
+                                    uint8_t *out, size_t size);
+
+/* ── GLOBALS ─────────────────────────────────────────────────────────────
+ *   count           u32
+ *   per entry (12 bytes):
+ *     name_idx      u32   CONSTANTS index
+ *     type_tag      u8
+ *     flags         u8    bit 0 = mutable; other bits reserved, must be zero
+ *     _pad          u16   must be zero
+ *     init_idx      u32   CONSTANTS index, or NVM_V2_NO_INDEX
+ *
+ * This section is what lets a VM size its globals from the module's own
+ * declarations rather than embedding a fixed ceiling, and gives the verifier a
+ * real bound to check LOAD_GLOBAL and STORE_GLOBAL operands against.
+ */
+
+#define NVM_V2_GLOBAL_MUTABLE 0x01u
+#define NVM_V2_GLOBAL_KNOWN_FLAGS 0x01u
+
+typedef struct {
+    uint32_t name_idx;
+    uint8_t  type_tag;
+    uint8_t  flags;
+    uint32_t init_idx;   /* CONSTANTS index, or NVM_V2_NO_INDEX */
+} NvmV2Global;
+
+typedef struct {
+    NvmV2Global *items;
+    uint32_t     count;
+} NvmV2Globals;
+
+NvmV2Result nvm_v2_globals_decode(const uint8_t *data, size_t size,
+                                  NvmV2Globals *out);
+void        nvm_v2_globals_free(NvmV2Globals *g);
+size_t      nvm_v2_globals_encoded_size(const NvmV2Globals *g);
+NvmV2Result nvm_v2_globals_encode(const NvmV2Globals *g,
+                                  uint8_t *out, size_t size);
+
 #endif /* NANOISA_NVM_V2_SECTIONS_H */
