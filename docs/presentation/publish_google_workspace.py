@@ -149,7 +149,18 @@ def _resumable_create(
     return json.loads(body.decode("utf-8")) if body else {}
 
 
-def _ensure_org_reader(token: str, file_id: str) -> dict:
+def _ensure_link_reader(token: str, file_id: str) -> dict:
+    """Make the file readable by anyone holding the link.
+
+    This published to a single organization's domain before. A domain
+    permission can only name a domain the authenticated principal belongs to,
+    so from a personal account it fails outright -- and a deck cited from a
+    public release announcement has to be readable by people outside any one
+    organization anyway.
+
+    `allowFileDiscovery` stays false: the link is the capability. The file does
+    not appear in search results for people who were never given it.
+    """
     listed = _json(
         token,
         "GET",
@@ -158,9 +169,7 @@ def _ensure_org_reader(token: str, file_id: str) -> dict:
     )
     permissions = listed.get("permissions") or []
     already = any(
-        item.get("type") == "domain"
-        and item.get("domain") == "nvidia.com"
-        and item.get("role") == "reader"
+        item.get("type") == "anyone" and item.get("role") == "reader"
         for item in permissions
         if isinstance(item, dict)
     )
@@ -170,8 +179,7 @@ def _ensure_org_reader(token: str, file_id: str) -> dict:
             "POST",
             f"{DRIVE}/files/{urllib.parse.quote(file_id)}/permissions?supportsAllDrives=true",
             {
-                "type": "domain",
-                "domain": "nvidia.com",
+                "type": "anyone",
                 "role": "reader",
                 "allowFileDiscovery": False,
             },
@@ -267,14 +275,18 @@ def main() -> int:
         parents = [str(item) for item in (slides_meta.get("parents") or []) if item]
     else:
         updated_slides = _resumable_create(
-            token, name="NanoLang Developer Overview (3.5 edition)", parents=[],
+            token, name="NanoLang Developer Overview (4.0 edition)", parents=[],
             source_mime=PPTX_MIME, google_mime=SLIDES_GOOGLE, path=pptx,
         )
         slides_id = str(updated_slides.get("id") or "")
         if not slides_id:
             raise SystemExit("Drive create did not return a Slides file id")
         parents = [str(item) for item in (updated_slides.get("parents") or []) if item]
-    slides_access = {"publication": "owner-authenticated"}
+    # The deck is the artifact the release announcement cites, so it needs the
+    # same link access the narrative gets. Previously only the narrative was
+    # shared and the deck stayed private, which would have made a published
+    # link resolve to a permission wall.
+    slides_access = _ensure_link_reader(token, slides_id)
 
     if args.doc_id:
         updated_doc = _resumable_update(token, args.doc_id, docx, DOCX_MIME)
@@ -283,14 +295,14 @@ def main() -> int:
             token,
             "PATCH",
             f"{DRIVE}/files/{urllib.parse.quote(doc_id)}?supportsAllDrives=true",
-            {"name": "NanoLang Developer Narrative (3.5 edition)"},
+            {"name": "NanoLang Developer Narrative (4.0 edition)"},
         )
         if renamed.get("name"):
             updated_doc["name"] = renamed["name"]
     else:
         updated_doc = _resumable_create(
             token,
-            name="NanoLang Developer Narrative (3.5 edition)",
+            name="NanoLang Developer Narrative (4.0 edition)",
             parents=parents,
             source_mime=DOCX_MIME,
             google_mime=DOCS_GOOGLE,
@@ -299,7 +311,7 @@ def main() -> int:
         doc_id = str(updated_doc.get("id") or "")
         if not doc_id:
             raise SystemExit("Drive create did not return a document id")
-    doc_access = _ensure_org_reader(token, doc_id)
+    doc_access = _ensure_link_reader(token, doc_id)
 
     export_root = HERE.parents[1] / "_build" / "nanolang-developer-overview"
     exported_pptx = export_root / "published-export.pptx"
