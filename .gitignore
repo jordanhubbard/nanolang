@@ -141,3 +141,8 @@ site/
 
 # Stray MAC workspace artifacts (never belong in source control)
 /$MAC_TASK_WORKSPACE/
+
+# Document authoring toolchain, installed by `make doc-toolchain-bootstrap`.
+# Generated artifacts belong in the repository; the interpreter that built them
+# does not.
+/_build/

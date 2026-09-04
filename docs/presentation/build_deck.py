@@ -67,8 +67,17 @@ def footer(slide, number):
 
 
 def title(slide, headline, subtitle, number):
-    text(slide, headline, 0.65, 0.5, 11.8, 0.7, 28, INK, True)
-    text(slide, subtitle, 0.68, 1.28, 11.6, 0.45, 13, STEEL)
+    """Headline, subtitle, footer.
+
+    The headline colour follows the slide's own background: drawn in ink it
+    disappears entirely on the dark slides, which is what it had been doing on
+    every second slide of the deck. `slide()` records the fill it painted so
+    this does not have to be passed at each call site and cannot be forgotten
+    at one of them.
+    """
+    dark = getattr(slide, "_nanolang_dark", False)
+    text(slide, headline, 0.65, 0.5, 11.8, 0.7, 28, FOG if dark else INK, True)
+    text(slide, subtitle, 0.68, 1.28, 11.6, 0.45, 13, BLUE if dark else STEEL)
     footer(slide, number)
 
 
@@ -81,72 +90,155 @@ def build() -> Path:
     def slide(fill=FOG):
         s = prs.slides.add_slide(blank)
         box(s, 0, 0, W, H, fill)
+        # Remembered so title() can choose a headline colour that contrasts.
+        s._nanolang_dark = (fill == INK)
         return s
 
     mascot = ASSETS / "nanolang-mascot.png"
 
+    # 1 — cover
     s = slide(INK)
     s.shapes.add_picture(str(mascot), Inches(8.0), Inches(0.0), width=Inches(5.33), height=Inches(7.5))
     box(s, 0, 0, 9.1, H, INK)
-    text(s, "NANOLANG", 0.7, 0.6, 2.0, 0.3, 13, GREEN, True)
+    text(s, "NANOLANG 4.0", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
     text(s, "I say what I mean.\nI compile myself.\nI show my evidence.", 0.7, 1.55, 7.0, 2.5, 34, FOG, True)
-    text(s, "A developer's view of my syntax, compiler, NanoISA, NanoVM, and the 4.0 boundary.", 0.75, 4.45, 6.4, 0.9, 17, BLUE)
-    text(s, "3.5 shipped · 4.0 begins", 0.75, 6.55, 4.0, 0.3, 13, ORANGE, True)
-    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_3.5.md.", "I describe tested behavior and label 4.0 work as future work."])
+    text(s, "A developer's view of my syntax, compiler, NanoISA, NanoVM, and what my verifier proves.", 0.75, 4.45, 6.7, 0.9, 17, BLUE)
+    text(s, "NanoISA v2 · NanoVM v2 · Phase 12 complete", 0.75, 6.55, 5.6, 0.3, 13, ORANGE, True)
+    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.0.md.",
+              "I describe tested behavior. Work I have not done is labelled as such."])
 
+    # 2 — syntax
     s = slide(); title(s, "My design refuses ambiguity.", "Prefix calls, explicit boundaries, and one canonical form keep generated code readable.", 2)
-    for i, (head, body) in enumerate([("PREFIX", "(f x y)"), ("TYPES", "int · float · bool · string"), ("PROOF", "shadow fn { ... }")]):
+    for i, (head, body_) in enumerate([("PREFIX", "(f x y)"), ("TYPES", "int · float · bool · string"), ("PROOF", "shadow fn { ... }")]):
         x = 0.8 + i * 4.15
-        box(s, x, 2.4, 3.5, 2.0, PANEL, True); text(s, head, x + .2, 2.7, 3.1, .3, 14, ORANGE, True); text(s, body, x + .2, 3.25, 3.1, .7, 20, FOG, True, mono=True)
-    notes(s, ["Authority: docs/PERSONA.md and docs/CANONICAL_STYLE.md.", "I do not claim that every legacy surface is equally regular; the active NanoISA work is separately scoped."])
+        box(s, x, 2.4, 3.5, 2.0, PANEL, True); text(s, head, x + .2, 2.7, 3.1, .3, 14, ORANGE, True); text(s, body_, x + .2, 3.25, 3.1, .7, 20, FOG, True, mono=True)
+    notes(s, ["Authority: docs/PERSONA.md and docs/CANONICAL_STYLE.md."])
 
+    # 3 — two paths
     s = slide(INK); title(s, "One source language, two execution paths.", "The C path is my native baseline. NanoISA and NanoVM make the intermediate explicit.", 3)
-    for i, (head, body, color) in enumerate([(".nano", "source + shadow tests", ORANGE), ("nanoc", "generated C", BLUE), ("nano_virt", "NVM bytecode", GREEN), ("nano_vm", "decoded execution", FOG)]):
-        x = .75 + i * 3.05; box(s, x, 2.6, 2.45, 1.35, PANEL, True); text(s, head, x+.15, 2.82, 2.15, .25, 15, color, True, mono=True); text(s, body, x+.15, 3.2, 2.15, .45, 12, FOG)
+    for i, (head, body_, color) in enumerate([(".nano", "source + shadow tests", ORANGE), ("nanoc", "generated C", BLUE), ("nano_virt", "NVM bytecode", GREEN), ("nano_vm", "verified execution", FOG)]):
+        x = .75 + i * 3.05; box(s, x, 2.6, 2.45, 1.35, PANEL, True); text(s, head, x+.15, 2.82, 2.15, .25, 15, color, True, mono=True); text(s, body_, x+.15, 3.2, 2.15, .45, 12, FOG)
     text(s, "compile → verify → execute", 4.15, 5.2, 5, .35, 21, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
     notes(s, ["Authority: docs/NANOISA.md and src/nanovirt/main.c."])
 
+    # 4 — readable bytecode
     s = slide(); title(s, "NanoISA is readable bytecode, not a hidden intermediate.", "I keep the serialized module inspectable and use decoded forms only inside execution.", 4)
     box(s, .75, 2.1, 5.7, 3.7, PANEL, True); text(s, ".function main 0 0 0 int 1\n  PUSH_I64 40\n  PUSH_I64 2\n  I64_MUL\n  RET", 1.05, 2.55, 5.1, 2.2, 17, FOG, mono=True)
     box(s, 6.8, 2.1, 5.75, 3.7, INK, True); text(s, "schema → metadata → assembler\n\nThe source of truth is\nspec/nanoisa.yaml", 7.15, 2.6, 5.0, 1.8, 20, GREEN, True)
-    notes(s, ["Authority: spec/nanoisa.yaml, scripts/gen_nanoisa_schema.py, src/nanoisa/assembler.c, and src/nanoisa/disassembler.c."])
+    notes(s, ["Authority: spec/nanoisa.yaml, scripts/gen_nanoisa_schema.py, src/nanoisa/assembler.c, src/nanoisa/disassembler.c.",
+              "Canonical disassembly reassembles to byte-identical bytecode; make test-disasm-roundtrip."])
 
-    s = slide(INK); title(s, "NanoVM executes decoded instructions.", "I preserve byte offsets for diagnostics while the private cursor advances through instruction records.", 5)
-    for i, label in enumerate(["decode once", "boundary map", "indexed cursor", "switch dispatch"]):
-        x = .9 + i * 3.0; box(s, x, 2.65, 2.35, 1.2, PANEL, True); text(s, str(i+1), x+.15, 2.85, .35, .3, 16, ORANGE, True); text(s, label, x+.55, 2.85, 1.55, .5, 14, FOG, True)
-    text(s, "NANO_VM_TRACE=1", 4.35, 5.25, 4.7, .35, 21, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
-    notes(s, ["Authority: src/nanovm/vm.c, src/nanovm/vm_decode.c, and skills/nanovm-opcode-debugging/SKILL.md."])
+    # 5 — v2 module format
+    s = slide(INK); title(s, "My module format carries the instruction set.", "A .nvm file is a v2 container: versioned, bounded, and refused rather than guessed at.", 5)
+    for i, (head, body_, color) in enumerate([
+            ("BOUNDED", "every range checked\nby subtraction", GREEN),
+            ("TYPED", "signatures deduplicated,\nindices comparable", BLUE),
+            ("ACYCLIC", "layouts nest only\ndownward", ORANGE),
+            ("EXACT", "constants carry\nexplicit lengths", FOG)]):
+        x = .75 + i * 3.05; box(s, x, 2.35, 2.45, 2.15, PANEL, True)
+        text(s, head, x+.2, 2.6, 2.05, .3, 13, color, True)
+        text(s, body_, x+.2, 3.1, 2.05, 1.2, 14, FOG)
+    text(s, "size > total - offset   ·   never   offset + size > total", 2.0, 5.35, 9.3, .4, 17, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
+    notes(s, ["Authority: src/nanoisa/nvm_format_v2.[ch], src/nanoisa/nvm_v2_*.c, docs/NANOISA.md.",
+              "Subtraction form is the point: an offset near the top of the range cannot wrap into it.",
+              "An explicit length is why a string holding an embedded zero survives a round trip."])
 
-    s = slide(); title(s, "Every function carries a shadow test.", "The test is an executable statement about behavior, not a coverage ornament.", 6)
-    box(s, .8, 2.0, 5.8, 3.8, INK, True); text(s, "fn gcd(a: int, b: int) -> int {\n    ...\n}\n\nshadow gcd {\n    assert (== (gcd 48 18) 6)\n}", 1.1, 2.35, 5.2, 2.9, 16, FOG, mono=True)
-    text(s, "322 NanoVM tests\n63 NanoVirt tests\n1,090 NanoISA tests", 7.15, 2.45, 4.5, 1.7, 23, GREEN, True)
-    notes(s, ["Authority: CONTRIBUTING.md, userguide/part1_fundamentals/04_functions.md, and current test suites."])
+    # 6 — what the verifier proves
+    s = slide(); title(s, "My verifier proves a program before it runs.", "Each property below was a run-time trap. Now it is a rejection.", 6)
+    props = [("stack height", "through every basic block, merges must agree"),
+             ("operand types", "a known contradiction is refused; unknown never fails"),
+             ("return shape", "every exit leaves exactly what the function declares"),
+             ("operand depth", "producer declares it, loader confirms it"),
+             ("ownership", "retain and release must balance on every path")]
+    for i, (head, body_) in enumerate(props):
+        y = 1.95 + i * .82; box(s, .9, y, 11.5, .66, PANEL, True)
+        text(s, head, 1.2, y+.17, 2.9, .3, 15, GREEN, True)
+        text(s, body_, 4.3, y+.17, 7.9, .3, 14, FOG)
+    notes(s, ["Authority: src/nanoisa/verifier.c, src/nanoisa/verifier_types.c, tests/nanoisa/test_verifier.c (93 tests).",
+              "Every call now carries its signature, so a module is provable before it is linked."])
 
-    s = slide(INK); title(s, "FFI is an explicit unsafe boundary.", "Imports carry signatures. The co-process can keep foreign code outside my VM process.", 7)
+    # 7 — the failure that mattered
+    s = slide(INK); title(s, "What my verifier used to miss.", "It declared stack effects for 32 of its 161 instructions and skipped the rest.", 7)
+    box(s, .8, 2.05, 6.1, 3.85, PANEL, True)
+    text(s, "PUSH_I64 1\nI64_ADD    ; no declared effect\nPOP\nPOP\nPOP        ; stack held one\nRET", 1.1, 2.45, 5.5, 2.6, 17, FOG, mono=True)
+    text(s, "verified ok", 1.1, 5.15, 5.5, .4, 18, ORANGE, True, mono=True)
+    box(s, 7.25, 2.05, 5.3, 3.85, INK, True)
+    text(s, "Skipping an instruction\nalso skipped its successors,\nso the walk stopped there\nand everything after it\nwent unchecked.\n\nAbsence of evidence was\nindistinguishable from proof.", 7.6, 2.45, 4.6, 3.1, 17, FOG, True)
+    notes(s, ["Authority: docs/RELEASE_4.0.md and the fix in src/nanoisa/verifier.c.",
+              "Fixing it exposed a second bug in the same walk and then eight latent codegen bugs it had hidden.",
+              "An unknown effect is now a hard failure: absence of data must not read as proof."])
+
+    # 8 — dispatch
+    s = slide(); title(s, "I dispatch through a label table, and keep a portable fallback.", "One copy of 161 handlers, reached two ways. Adopted on measurement, not principle.", 8)
+    box(s, .85, 2.15, 5.7, 3.0, PANEL, True)
+    text(s, "COMPUTED GOTO", 1.15, 2.45, 5.1, .3, 14, GREEN, True)
+    text(s, "one indirect branch per opcode\n\n-4.2% on my Forth interpreter\nagainst a 1.0-1.6% noise band", 1.15, 2.95, 5.1, 1.8, 16, FOG)
+    box(s, 7.0, 2.15, 5.5, 3.0, INK, True)
+    text(s, "PORTABLE SWITCH", 7.3, 2.45, 4.9, .3, 14, BLUE, True)
+    text(s, "any compiler without\nlabels as values\n\n-DNANO_NO_COMPUTED_GOTO", 7.3, 2.95, 4.9, 1.8, 16, FOG)
+    text(s, "152 programs, both builds, identical output", 2.0, 5.55, 9.3, .4, 17, ORANGE, True, mono=True, align=PP_ALIGN.CENTER)
+    notes(s, ["Authority: src/nanovm/vm.c, docs/NANOISA_MEASUREMENTS.md, make test-dispatch-equivalence.",
+              "VM_CASE and VM_NEXT are the only difference, so the two strategies cannot drift in what an instruction does.",
+              "The threaded build has no loop around the handlers, so a stray break is a compile error rather than a silent exit."])
+
+    # 9 — shadow tests
+    s = slide(INK); title(s, "Every function carries a shadow test.", "The test is an executable statement about behavior, not a coverage ornament.", 9)
+    box(s, .8, 2.0, 5.8, 3.8, PANEL, True); text(s, "fn gcd(a: int, b: int) -> int {\n    ...\n}\n\nshadow gcd {\n    assert (== (gcd 48 18) 6)\n}", 1.1, 2.35, 5.2, 2.9, 16, FOG, mono=True)
+    text(s, "2,632 NanoISA tests\n621 NanoVM tests\n93 verifier tests\n63 NanoVirt tests", 7.15, 2.35, 4.7, 2.2, 22, GREEN, True)
+    notes(s, ["Authority: CONTRIBUTING.md and the current test suites, counted at the v4.0.0 tag.",
+              "make test-verify-all-programs additionally verifies every program in tests/, because compiling is not verifying."])
+
+    # 10 — FFI
+    s = slide(); title(s, "FFI is an explicit unsafe boundary.", "Imports carry signatures. The co-process can keep foreign code outside my VM process.", 10)
     box(s, .8, 2.25, 3.0, 2.6, PANEL, True); text(s, "NanoLang", 1.05, 2.65, 2.5, .3, 18, FOG, True); text(s, "typed call", 1.05, 3.35, 2.5, .3, 15, BLUE, True)
     box(s, 5.15, 2.25, 3.0, 2.6, PANEL, True); text(s, "NanoVM", 5.4, 2.65, 2.5, .3, 18, FOG, True); text(s, "typed trap", 5.4, 3.35, 2.5, .3, 15, GREEN, True)
     box(s, 9.5, 2.25, 3.0, 2.6, PANEL, True); text(s, "nano_cop", 9.75, 2.65, 2.5, .3, 18, FOG, True); text(s, "foreign process", 9.75, 3.35, 2.5, .6, 15, ORANGE, True)
-    notes(s, ["Authority: docs/EXTERN_FFI.md, src/nanovm/vm_ffi.c, and src/nanovm/cop_protocol.c.", "The FFI boundary is tested; it is not part of the formally verified NanoCore subset."])
+    text(s, "isolation costs about 48x per crossing — which is what batching exists to amortize", 1.0, 5.6, 11.3, .4, 15, BLUE, align=PP_ALIGN.CENTER)
+    notes(s, ["Authority: docs/EXTERN_FFI.md, src/nanovm/vm_ffi.c, src/nanovm/cop_protocol.c, docs/NANOISA_MEASUREMENTS.md.",
+              "The FFI boundary is tested; it is not part of the formally verified NanoCore subset."])
 
-    s = slide(); title(s, "Diagnostics are optional and cheap when disabled.", "I read runtime switches once, then keep the hot path to a cached boolean guard.", 8)
-    for i, (var, body, color) in enumerate([("NANO_VM_TRACE", "opcode + stack + FFI records", ORANGE), ("NANO_PROFILE", "generated-C timing hooks", GREEN), ("--profile-isa", "structured VM counters", BLUE)]):
-        y = 2.1 + i * 1.15; box(s, 1.0, y, 11.2, .8, PANEL, True); text(s, var, 1.3, y+.22, 3.0, .3, 15, color, True, mono=True); text(s, body, 4.7, y+.22, 6.8, .3, 15, FOG)
-    notes(s, ["Authority: src/nanovm/vm.c, src/stdlib_runtime.c, and skills/nanovm-opcode-debugging/SKILL.md."])
+    # 11 — cycles
+    s = slide(INK); title(s, "I collect cycles, so my backends agree about leaks.", "Reference counting cannot reclaim a cycle, and a cycle is constructible from ordinary NanoLang.", 11)
+    box(s, .8, 2.1, 6.0, 3.5, PANEL, True)
+    text(s, "struct Node {\n  children: array<Node>\n}\n\nset kids (array_push kids n)", 1.1, 2.5, 5.4, 2.2, 16, FOG, mono=True)
+    box(s, 7.15, 2.1, 5.4, 3.5, INK, True)
+    text(s, "array_push mutates in place,\nso the field and the local are\none object -- and it now\ncontains its own owner.\n\nForbidding that shape would\nforbid trees and graphs.", 7.5, 2.5, 4.7, 2.8, 16, FOG, True)
+    notes(s, ["Authority: src/nanovm/heap_cycles.c, Bacon and Rajan (PLDI 2001), tests/nanovm/test_vm.c.",
+              "The generated-C runtime already collected cycles; the VM did not, so the two disagreed about whether a program leaks.",
+              "The test that matters most is the one where a reachable cycle must survive and still be readable."])
 
-    s = slide(INK); title(s, "What I measured for 3.5.", "Seven maintained workloads, 20 samples each, with the result kept as evidence.", 9)
-    metrics = [("7", "workloads"), ("20", "samples each"), ("0", "failed runs"), ("all", "profiles recorded")]
-    for i, (n, label) in enumerate(metrics):
-        x = .8 + i * 3.05; text(s, n, x, 2.45, 2.4, .75, 38, GREEN if i != 2 else ORANGE, True, align=PP_ALIGN.CENTER); text(s, label, x, 3.35, 2.4, .35, 14, FOG, True, align=PP_ALIGN.CENTER)
-    text(s, "retired · branches · calls · heap · traps · FFI", 2.0, 5.3, 9.3, .35, 18, BLUE, True, mono=True, align=PP_ALIGN.CENTER)
-    notes(s, ["Authority: scripts/benchmark_nanoisa.sh, scripts/summarize_nanoisa_bench.py, and docs/RELEASE_3.5.md."])
+    # 12 — measurement
+    s = slide(); title(s, "What I measured, and what I declined because of it.", "A number without its spread is not evidence. Every claim below carries a noise band.", 12)
+    rows = [("cold startup", "17.4 ms", "60-1800x a single execution", ORANGE),
+            ("Forth interpreter", "282.7 us", "IQR 1.6%", GREEN),
+            ("computed goto", "-4.2%", "accepted: beats the band", GREEN),
+            ("split tag stacks", "unmeasurable", "declined: band is 5-10%", STEEL),
+            ("trap stack ranges", "no effect", "declined: crossing is 48x the copy", STEEL)]
+    for i, (name, num, note, color) in enumerate(rows):
+        y = 2.0 + i * .78; box(s, .9, y, 11.5, .62, PANEL, True)
+        text(s, name, 1.2, y+.15, 3.4, .3, 15, FOG, True)
+        text(s, num, 4.8, y+.15, 2.4, .3, 15, color, True, mono=True)
+        text(s, note, 7.4, y+.15, 4.8, .3, 14, FOG)
+    notes(s, ["Authority: docs/NANOISA_MEASUREMENTS.md and scripts/benchmark_nanoisa.sh.",
+              "Before 4.0 the suite timed one process per sample, so every workload took about 17 ms whether it retired 78 instructions or 32,082.",
+              "It could not have detected an interpreter change of any size, which is why these questions stayed open."])
 
-    s = slide(); title(s, "3.5 shipped. 4.0 is a different promise.", "I keep the boundary visible so a passing benchmark is not mistaken for a complete v2 verifier.", 10)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "3.5 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True); text(s, "measurement\ngenerated metadata\npredecoded execution\ntail calls\nruntime diagnostics", 1.1, 2.9, 4.7, 2.2, 19, FOG, True)
-    box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "4.0 WORK", 7.2, 2.35, 4.9, .3, 15, ORANGE, True); text(s, "stack/type-flow verifier\nlinked callable handles\nv2 module contract\ntyped ABI and ownership\ncomputed dispatch + fusions", 7.2, 2.9, 4.7, 2.2, 19, FOG, True)
-    notes(s, ["Authority: docs/RELEASE_3.5.md and docs/ROADMAP.md.", "The right column is roadmap work, not shipped behavior."])
+    # 13 — boundary
+    s = slide(INK); title(s, "4.0 shipped. Here is what I have not done.", "I keep the boundary visible, because a known defect is not the same as an unknown one.", 13)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "4.0 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    text(s, "v2 module format\nstack and type verification\nreturn, depth, ownership\ncycle collection\ncomputed dispatch\nhonest measurement", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
+    box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "NOT DONE", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
+    text(s, "header dependencies (#211)\nmodule signing → 5.0\nLLVM and Wasm as\n  NanoISA translators\nForth 2012 → 4.1", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
+    notes(s, ["Authority: docs/RELEASE_4.0.md, docs/ROADMAP.md, and the open issue list.",
+              "Phase 12 is 78 of 78. The right column is scope or filed defect, not vagueness."])
 
-    s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7)); text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True); text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True); text(s, "docs/PERSONA.md · docs/ROADMAP.md · CONTRIBUTING.md", .8, 5.25, 7.4, .4, 13, BLUE, mono=True); notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, and docs/ROADMAP.md."])
-    footer(s, 12)
+    # 14 — closing
+    s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7))
+    text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True)
+    text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True)
+    text(s, "docs/RELEASE_4.0.md · docs/ROADMAP.md · docs/NANOISA_MEASUREMENTS.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
+    notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md."])
+    footer(s, 14)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(OUT))
@@ -157,7 +249,7 @@ def main() -> None:
     output = build()
     manifest = Path(os.environ.get("OBJ_DIR", str(REPO / "_build"))) / "nanolang-developer-overview" / "capability-manifest.json"
     manifest.parent.mkdir(parents=True, exist_ok=True)
-    manifest.write_text(json.dumps({"schema": "nanolang/developer-overview@1", "slides": 12, "local_artifact": str(output)}, indent=2) + "\n")
+    manifest.write_text(json.dumps({"schema": "nanolang/developer-overview@1", "slides": 14, "local_artifact": str(output)}, indent=2) + "\n")
     print(f"built 12 slides -> {output}")
 
 
