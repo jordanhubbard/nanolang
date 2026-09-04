@@ -6,9 +6,9 @@ tests, roadmap, and release evidence.
 
 **4.0 edition.** This package describes my released 4.0: NanoISA v2, NanoVM v2, what my verifier proves, and what I have not done.
 
-Published presentation: pending publication
+Published presentation: https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview
 
-Published narrative: pending publication
+Published narrative: https://docs.google.com/document/d/1AHbhUecsOx2QHG4fTMlFDA7l4xZR9IhhgV80NmdiCb8/preview
 
 Start with the [current deliverables](current-deliverables.md), then read
 the [deck specification](deck-specification.md),
