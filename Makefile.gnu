@@ -917,6 +917,14 @@ test-glut-launch:
 test-ci-deps:
 	@bash tests/test_ci_dependency_install.sh
 
+# Forth 2012 pins plus Gforth differential runs of pi.fs. Needs no compiler.
+# Gforth is required in CI; missing locally skips the interpreter cases after
+# the pin-consistency checks.
+.PHONY: test-forth-gforth-diff
+test-forth-gforth-diff:
+	@chmod +x tests/test_forth_gforth_diff.sh
+	@bash tests/test_forth_gforth_diff.sh
+
 # Module validator: keg-only pkg-config prefixes and Darwin/brew hints.
 # scripts/validate-modules.sh is `make modules`; this pins the two macOS
 # lies it used to tell (missing readline, apt-get remediation).
@@ -1034,6 +1042,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Checking stdlib documentation coverage..."
 	@bash tests/check_stdlib_docs.sh
+	@echo ""
+	@echo "Checking Forth 2012 pins and Gforth differential runs..."
+	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@echo ""
 	@if [ -x $(INTERPRETER) ]; then \
 		echo "Running property-based tests (interpreter)..."; \
@@ -1354,6 +1365,7 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-pt2-audio
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
+	@$(MAKE) --no-print-directory test-forth-gforth-diff
 
 .PHONY: test-pt2-audio
 # Regression test: pt2_audio must render non-silent samples (previously it just
@@ -2331,6 +2343,7 @@ help:
 	@echo "  make test-vm           - Run all tests through NanoVM backend"
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
+	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
 	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"

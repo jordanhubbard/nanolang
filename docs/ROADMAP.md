@@ -194,10 +194,18 @@ Foundation:
 - [x] I selected Forth 2012 Core and every optional word set as the target.
 - [x] I established the persistent NanoVM invocation boundary required by an interactive compiler.
 - [x] I added and verified `examples/language/forth/pi.fs` under Gforth for 0, 1, 10, and 50 places.
-- [ ] I will pin the exact maintained-standard and test-suite revisions.
-- [ ] I will confirm licensing before vendoring third-party conformance files.
-- [ ] I will add differential runs against a pinned Gforth release.
-- [ ] I will document cells, characters, addresses, division, floats, files, terminals, blocks, limits, and ambiguous-condition behavior.
+- [x] I pinned Forth 2012, Jackson test-suite v0.15.0,
+      forth200x `91f1ed9c756aac27f57e939c270b5f2c84262427`, and Gforth 0.7.3
+      in `docs/FORTH_2012.md` and `tests/forth/pins.json`.
+- [x] I confirmed Jackson-suite notices permit vendoring with copyright
+      retained, refused a wholesale forth200x copy until a per-file inventory
+      exists, and refused to vendor GPL Gforth; I have not vendored any of
+      them yet.
+- [x] I added `make test-forth-gforth-diff` against pinned Gforth 0.7.3 for
+      `pi.fs` at 0, 1, 10, and 50 places.
+- [x] I documented cells, characters, addresses, division, floats, files,
+      terminals, blocks, limits, and ambiguous-condition behavior in
+      `docs/FORTH_2012.md` as the assumed NanoISA Forth contract.
 
 Compiler and runtime:
 - [ ] I will create one mutable `NvmModule` and persistent `VmState` per Forth session.

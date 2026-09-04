@@ -4,8 +4,12 @@
 
 This is the implementation contract for replacing my current Forth-like
 example. I will target the maintained Forth standard, including the Core word
-set and every optional word set. I will pin the exact standard and test-suite
-revisions before I claim conformance.
+set and every optional word set.
+
+I pinned the standard, test-suite revisions, Gforth 0.7.3, licensing facts,
+and the environmental contract in [Forth 2012 Pins](../../FORTH_2012.md).
+I am not a Forth 2012 Standard System until those pinned suites pass on the
+NanoISA compiler.
 
 Passing a test suite is evidence. It is not, by itself, a conformance claim.
 

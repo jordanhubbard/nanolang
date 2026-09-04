@@ -11,6 +11,8 @@
 \ produces:
 \
 \     3.14159265358979323846264338327950288419716939937510
+\
+\ Gforth 0.7.3 golden outputs are pinned in tests/forth/pins.json.
 
 variable places        \ requested digits after decimal point
 variable alen          \ number of elements in work array

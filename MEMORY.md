@@ -70,7 +70,8 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 - C99 compiler (`cc`)
 - GNU Make (`make` on Linux/macOS, `gmake` on BSD)
 - Python 3 (for schema generation bootstrap)
-- Optional: Rocq Prover >= 9.0 (for formal proofs), SDL2 (for graphics examples)
+- Optional: Rocq Prover >= 9.0 (for formal proofs), SDL2 (for graphics examples),
+  Gforth 0.7.3 (for `make test-forth-gforth-diff`)
 
 ### Key Make Targets
 
@@ -80,6 +81,7 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 | `make vm` | Build VM backend: `nano_virt`, `nano_vm`, `nano_cop`, `nano_vmd` |
 | `make test` | Full test suite (units + integration + language tests) |
 | `make test-quick` | Language tests only (fastest) |
+| `make test-forth-gforth-diff` | Forth 2012 pins + Gforth 0.7.3 `pi.fs` differential |
 | `make test-vm` | Run test suite through NanoVM backend |
 | `make examples` | Build all 150+ example programs |
 | `make bootstrap` | Full GCC-style bootstrap (Stage 0 → 1 → 2 → 3) |

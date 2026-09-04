@@ -5,6 +5,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- pin Forth 2012 revisions, licensing, and Gforth 0.7.3 pi.fs differentials
+
 ## [4.0.0] - 2026-09-03
 
 ### Added

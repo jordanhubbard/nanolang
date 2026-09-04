@@ -92,6 +92,13 @@ How I am built:
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
 
+10.1. **[Forth 2012 Pins](FORTH_2012.md)** - My Forth 4.1 pins
+    - Frozen Forth 2012 document, not later Forth 200x proposals
+    - Jackson v0.15.0 and forth200x snapshot, not yet vendored
+    - Gforth 0.7.3 differential on `pi.fs`
+    - Environmental contract (assumed until the NanoISA compiler exists)
+    - I do not claim a Standard System yet
+
 10.2. **[Async Primitives](ASYNC_PRIMITIVES.md)** - My async/await model
     - Source-level `async fn` / `await`
     - Cooperative CPS/coroutine execution model
