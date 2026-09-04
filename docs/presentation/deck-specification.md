@@ -8,8 +8,13 @@ and what my 4.0 verifier actually proves.
 
 **4.0 edition.** The 3.5 edition ended at the boundary between measurement and
 a verified v2. That boundary is now behind me, so the deck's job changes: it
-must show what the verifier proves, and it must be honest that the previous
-verifier proved less than it appeared to.
+must show what the verifier proves, it must be honest that the previous
+verifier proved less than it appeared to, and it must show the hardening
+underneath the verifier rather than presenting the verifier as the whole of my
+defence.
+
+The deck is also read by people who have never encountered me. It must
+introduce what I am before it argues about what I prove.
 
 ## Narrative stance
 
@@ -39,13 +44,28 @@ because the fix is what makes every other 4.0 claim mean something.
 5. My module format carries the instruction set.
 6. My verifier proves a program before it runs.
 7. What my verifier used to miss.
-8. NanoVM dispatches through a label table, and keeps a portable fallback.
-9. Every function carries a shadow test.
-10. FFI is an explicit unsafe boundary and can be isolated.
-11. I collect cycles, so my two backends agree about leaks.
-12. What I measured, and what I declined because of it.
-13. What 4.0 shipped, and what I have not done.
-14. Start with the code, then run the gates.
+8. I treat every module as hostile input.
+9. NanoVM dispatches through a label table, and keeps a portable fallback.
+10. Every function carries a shadow test.
+11. FFI is an explicit unsafe boundary and can be isolated.
+12. I collect cycles, so my two backends agree about leaks.
+13. What I measured, and what I declined because of it.
+14. What 4.0 shipped, and what I have not done.
+15. Start with the code, then run the gates.
+
+Slide 1 must say what I am before it says what I prove. A reader may never
+have heard of me, and a reader who has will have met me at 3.5; neither is
+served by a cover that assumes the answer. The orientation for the second
+reader is one line: my bytecode used to be well-formed, and now it is verified.
+
+Slide 8 exists because slides 6 and 7 are about one layer and the release was
+about more than one. A correct verifier still sits on top of a decoder, a
+loader, an assembler, a disassembler and a wire protocol, and every one of
+those parses input that a hostile module controls. The slide names all six as
+fuzzed, and shows the bounds form -- `size > total - offset`, never
+`offset + size > total` -- because the wrapping version passes exactly the case
+it exists to reject. Do not reduce this to a list of test counts: the claim is
+that the arithmetic was changed, not that more tests were added around it.
 
 Slide 7 is the one that must not be softened. It shows the six-instruction
 program that passed verification, and it names the count: effects declared for
