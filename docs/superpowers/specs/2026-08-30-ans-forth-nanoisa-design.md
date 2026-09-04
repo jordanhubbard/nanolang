@@ -15,8 +15,9 @@ Passing a test suite is evidence. It is not, by itself, a conformance claim.
 
 The session runtime in `src/forth/` exists: one mutable `NvmModule`, one
 persistent `VmState`, Forth stacks, virtual addresses, file handles,
-dictionary headers with early-bound execution tokens, and nested input
-sources. `make test-forth-session` is the evidence. Colon compilation is
+dictionary headers with early-bound execution tokens, nested input
+sources, and colon compilation to verified NanoISA functions.
+`make test-forth-session` is the evidence. Typed imports and `SEE` are
 still ahead.
 
 ## Architecture

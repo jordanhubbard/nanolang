@@ -3,7 +3,9 @@
  */
 
 #include "forth_session.h"
+#include "nanoisa/verifier.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,8 +65,12 @@ typedef struct {
 struct ForthSession {
     NvmModule *module;
     VmState vm;
-    int64_t data[FORTH_STACK_CELLS];
-    uint32_t data_depth;
+    uint64_t data_stack_addr;
+    uint64_t data_depth_addr;
+    uint32_t dpush_fn;
+    uint32_t dpop_fn;
+    uint32_t throw_fn;
+    uint64_t throw_code_addr;
     int64_t ret[FORTH_RETURN_STACK_CELLS];
     uint32_t ret_depth;
     double fp[FORTH_FLOAT_STACK_CELLS];
@@ -90,10 +96,21 @@ struct ForthSession {
     uint64_t blocks_addr;
     ForthSourceFrame sources[FORTH_SOURCE_NEST];
     uint32_t source_depth;
+    bool colon_open;
+    uint32_t colon_fn_idx;
+    ForthNt colon_nt;
+    uint32_t colon_saved_fn_count;
+    uint32_t colon_saved_code_size;
+    uint32_t colon_saved_header_count;
+    ForthNt colon_saved_latest;
+    uint32_t colon_saved_control_depth;
+    uint8_t colon_code[FORTH_COLON_CODE_MAX];
+    uint32_t colon_code_len;
 };
 
 static bool forth_allocate_ex(ForthSession *session, uint64_t bytes, uint64_t *addr,
                               bool pinned);
+static bool forth_install_dpush(ForthSession *session);
 
 static uint64_t align_cells(uint64_t bytes) {
     if (bytes > UINT64_MAX - (FORTH_CELL_BYTES - 1)) return UINT64_MAX;
@@ -277,6 +294,17 @@ static bool forth_session_init_language(ForthSession *session) {
     if (!forth_store_cell(session, session->sysvars + FORTH_CELL_BYTES * 2, 0))
         return false;
 
+    if (!forth_allocate_ex(session, FORTH_CELL_BYTES, &session->data_depth_addr, true))
+        return false;
+    if (!forth_allocate_ex(session,
+                           (uint64_t)FORTH_STACK_CELLS * (uint64_t)FORTH_CELL_BYTES,
+                           &session->data_stack_addr, true))
+        return false;
+    if (!forth_store_cell(session, session->data_depth_addr, 0)) return false;
+    if (!forth_allocate_ex(session, FORTH_CELL_BYTES, &session->throw_code_addr, true))
+        return false;
+    if (!forth_store_cell(session, session->throw_code_addr, 0)) return false;
+
     session->source_depth = 1;
     base = &session->sources[0];
     memset(base, 0, sizeof(*base));
@@ -310,6 +338,10 @@ ForthSession *forth_session_create(void) {
     }
     session->bump = FORTH_CELL_BYTES;
     if (!forth_session_init_language(session)) {
+        forth_session_destroy(session);
+        return NULL;
+    }
+    if (!forth_install_dpush(session)) {
         forth_session_destroy(session);
         return NULL;
     }
@@ -350,19 +382,42 @@ VmResult forth_session_invoke(ForthSession *session, uint32_t fn_idx,
 }
 
 bool forth_data_push(ForthSession *session, int64_t cell) {
-    if (!session || session->data_depth >= FORTH_STACK_CELLS) return false;
-    session->data[session->data_depth++] = cell;
-    return true;
+    int64_t depth = 0;
+    uint64_t addr;
+
+    if (!session) return false;
+    if (!forth_fetch_cell(session, session->data_depth_addr, &depth)) return false;
+    if (depth < 0 || depth >= (int64_t)FORTH_STACK_CELLS) return false;
+    addr = session->data_stack_addr + (uint64_t)depth * (uint64_t)FORTH_CELL_BYTES;
+    if (!forth_store_cell(session, addr, cell)) return false;
+    return forth_store_cell(session, session->data_depth_addr, depth + 1);
 }
 
 bool forth_data_pop(ForthSession *session, int64_t *out) {
-    if (!session || session->data_depth == 0 || !out) return false;
-    *out = session->data[--session->data_depth];
-    return true;
+    int64_t depth = 0;
+    uint64_t addr;
+
+    if (!session || !out) return false;
+    if (!forth_fetch_cell(session, session->data_depth_addr, &depth)) return false;
+    if (depth <= 0) return false;
+    addr = session->data_stack_addr
+        + (uint64_t)(depth - 1) * (uint64_t)FORTH_CELL_BYTES;
+    if (!forth_fetch_cell(session, addr, out)) return false;
+    return forth_store_cell(session, session->data_depth_addr, depth - 1);
 }
 
 uint32_t forth_data_depth(const ForthSession *session) {
-    return session ? session->data_depth : 0;
+    uint64_t bits = 0;
+    uint32_t i;
+
+    if (!session || !session->vm.memory) return 0;
+    if (session->data_depth_addr + FORTH_CELL_BYTES > session->vm.memory_size)
+        return 0;
+    for (i = 0; i < FORTH_CELL_BYTES; i++) {
+        bits |= (uint64_t)session->vm.memory[session->data_depth_addr + i] << (i * 8);
+    }
+    if ((int64_t)bits < 0 || (int64_t)bits > (int64_t)FORTH_STACK_CELLS) return 0;
+    return (uint32_t)bits;
 }
 
 bool forth_return_push(ForthSession *session, int64_t cell) {
@@ -865,4 +920,495 @@ bool forth_refill(ForthSession *session) {
     if (!frame) return false;
     if (frame->kind == FORTH_SRC_FILE) return refill_file_line(session, frame);
     return false;
+}
+
+static uint32_t forth_emit_into(uint8_t *buf, NanoOpcode op, ...) {
+    DecodedInstruction instr;
+    const InstructionInfo *info;
+    va_list args;
+    int i;
+
+    memset(&instr, 0, sizeof(instr));
+    instr.opcode = op;
+    info = isa_get_info(op);
+    if (!info) return 0;
+    va_start(args, op);
+    for (i = 0; i < info->operand_count; i++) {
+        switch (info->operands[i]) {
+            case OPERAND_U8:  instr.operands[i].u8  = (uint8_t)va_arg(args, int);      break;
+            case OPERAND_U16: instr.operands[i].u16 = (uint16_t)va_arg(args, int);     break;
+            case OPERAND_U32: instr.operands[i].u32 = va_arg(args, uint32_t);          break;
+            case OPERAND_I32: instr.operands[i].i32 = va_arg(args, int32_t);           break;
+            case OPERAND_I64: instr.operands[i].i64 = va_arg(args, int64_t);           break;
+            case OPERAND_F64: instr.operands[i].f64 = va_arg(args, double);            break;
+            default:
+                va_end(args);
+                return 0;
+        }
+    }
+    va_end(args);
+    return isa_encode(&instr, buf, ISA_MAX_INSTRUCTION_SIZE);
+}
+
+static bool forth_install_dpush(ForthSession *session) {
+    uint8_t code[256];
+    uint32_t off = 0;
+    uint32_t n;
+    NvmFunctionEntry fn;
+    NvmVerifyResult verified;
+    NvmModule *mod;
+    int64_t depth_addr;
+    int64_t stack_base;
+
+    if (!session || !session->module) return false;
+    mod = session->module;
+    depth_addr = (int64_t)session->data_depth_addr;
+    stack_base = (int64_t)session->data_stack_addr;
+    memset(&fn, 0, sizeof(fn));
+
+    n = forth_emit_into(code + off, OP_PUSH_I64, depth_addr); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_MEM_LOAD64); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_STORE_LOCAL, 1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)FORTH_CELL_BYTES); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_I64_MUL); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, stack_base); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_I64_ADD); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_STORE_LOCAL, 2); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 2); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_MEM_STORE64); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, depth_addr); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_I64_ADD); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_MEM_STORE64); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_RET); if (!n) return false; off += n;
+
+    fn.name_idx = nvm_add_string(mod, "nl_forth_dpush", 14);
+    fn.arity = 1;
+    fn.code_offset = nvm_append_code(mod, code, off);
+    fn.code_length = off;
+    fn.local_count = 3;
+    fn.result_tag = TAG_VOID;
+    fn.result_count = 0;
+    session->dpush_fn = nvm_add_function(mod, &fn);
+    if (session->dpush_fn >= mod->function_count) return false;
+    verified = nvm_verify_function(mod, session->dpush_fn);
+    if (!verified.ok) return false;
+
+    off = 0;
+    memset(&fn, 0, sizeof(fn));
+    n = forth_emit_into(code + off, OP_PUSH_I64, depth_addr); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_MEM_LOAD64); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_STORE_LOCAL, 0); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_I64_SUB); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_STORE_LOCAL, 1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, depth_addr); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_MEM_STORE64); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 1); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)FORTH_CELL_BYTES); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_I64_MUL); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, stack_base); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_I64_ADD); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_MEM_LOAD64); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_RET); if (!n) return false; off += n;
+
+    fn.name_idx = nvm_add_string(mod, "nl_forth_dpop", 13);
+    fn.arity = 0;
+    fn.code_offset = nvm_append_code(mod, code, off);
+    fn.code_length = off;
+    fn.local_count = 2;
+    fn.result_tag = TAG_INT;
+    fn.result_count = 1;
+    session->dpop_fn = nvm_add_function(mod, &fn);
+    if (session->dpop_fn >= mod->function_count) return false;
+    verified = nvm_verify_function(mod, session->dpop_fn);
+    if (!verified.ok) return false;
+
+    off = 0;
+    memset(&fn, 0, sizeof(fn));
+    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)0); if (!n) return false; off += n;
+    n = forth_emit_into(code + off, OP_I64_EQ); if (!n) return false; off += n;
+    {
+        uint32_t jmp_off = off;
+        uint32_t done_off;
+        int32_t rel;
+        n = forth_emit_into(code + off, OP_JMP_TRUE, (int32_t)0); if (!n) return false; off += n;
+        n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)session->throw_code_addr); if (!n) return false; off += n;
+        n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
+        n = forth_emit_into(code + off, OP_MEM_STORE64); if (!n) return false; off += n;
+        n = forth_emit_into(code + off, OP_HALT); if (!n) return false; off += n;
+        done_off = off;
+        rel = (int32_t)done_off - (int32_t)jmp_off;
+        code[jmp_off + 1] = (uint8_t)(rel & 0xFF);
+        code[jmp_off + 2] = (uint8_t)((rel >> 8) & 0xFF);
+        code[jmp_off + 3] = (uint8_t)((rel >> 16) & 0xFF);
+        code[jmp_off + 4] = (uint8_t)((rel >> 24) & 0xFF);
+    }
+    n = forth_emit_into(code + off, OP_RET); if (!n) return false; off += n;
+
+    fn.name_idx = nvm_add_string(mod, "nl_forth_throw", 14);
+    fn.arity = 1;
+    fn.code_offset = nvm_append_code(mod, code, off);
+    fn.code_length = off;
+    fn.local_count = 1;
+    fn.result_tag = TAG_VOID;
+    fn.result_count = 0;
+    session->throw_fn = nvm_add_function(mod, &fn);
+    if (session->throw_fn >= mod->function_count) return false;
+    verified = nvm_verify_function(mod, session->throw_fn);
+    if (!verified.ok) return false;
+    return forth_session_rebuild(session);
+}
+
+static bool colon_emit(ForthSession *session, NanoOpcode op, ...) {
+    uint8_t buf[ISA_MAX_INSTRUCTION_SIZE];
+    DecodedInstruction instr;
+    const InstructionInfo *info;
+    va_list args;
+    uint32_t n;
+    int i;
+
+    if (!session || !session->colon_open) return false;
+    memset(&instr, 0, sizeof(instr));
+    instr.opcode = op;
+    info = isa_get_info(op);
+    if (!info) return false;
+    va_start(args, op);
+    for (i = 0; i < info->operand_count; i++) {
+        switch (info->operands[i]) {
+            case OPERAND_U8:  instr.operands[i].u8  = (uint8_t)va_arg(args, int);      break;
+            case OPERAND_U16: instr.operands[i].u16 = (uint16_t)va_arg(args, int);     break;
+            case OPERAND_U32: instr.operands[i].u32 = va_arg(args, uint32_t);          break;
+            case OPERAND_I32: instr.operands[i].i32 = va_arg(args, int32_t);           break;
+            case OPERAND_I64: instr.operands[i].i64 = va_arg(args, int64_t);           break;
+            case OPERAND_F64: instr.operands[i].f64 = va_arg(args, double);            break;
+            default:
+                va_end(args);
+                return false;
+        }
+    }
+    va_end(args);
+    n = isa_encode(&instr, buf, sizeof(buf));
+    if (n == 0) return false;
+    if (session->colon_code_len > FORTH_COLON_CODE_MAX - n) return false;
+    memcpy(session->colon_code + session->colon_code_len, buf, n);
+    session->colon_code_len += n;
+    return true;
+}
+
+static bool colon_rollback(ForthSession *session) {
+    uint32_t i;
+    NvmModule *mod;
+
+    if (!session || !session->colon_open) return false;
+    mod = session->module;
+    for (i = session->colon_saved_header_count; i < session->header_count; i++) {
+        if (session->headers[i].used && session->headers[i].name_addr != 0)
+            forth_free(session, session->headers[i].name_addr);
+        session->headers[i].used = false;
+    }
+    session->header_count = session->colon_saved_header_count;
+    session->latest = session->colon_saved_latest;
+    session->control_depth = session->colon_saved_control_depth;
+    if (mod) {
+        if (session->colon_saved_fn_count <= mod->function_count)
+            mod->function_count = session->colon_saved_fn_count;
+        if (session->colon_saved_code_size <= mod->code_size)
+            mod->code_size = session->colon_saved_code_size;
+    }
+    session->colon_open = false;
+    session->colon_code_len = 0;
+    session->colon_fn_idx = 0;
+    session->colon_nt = 0;
+    return true;
+}
+
+bool forth_colon_begin(ForthSession *session, const char *name, uint32_t name_len) {
+    uint8_t stub[ISA_MAX_INSTRUCTION_SIZE];
+    uint32_t stub_len;
+    NvmFunctionEntry fn;
+    NvmModule *mod;
+    ForthNt nt = 0;
+    uint32_t before;
+
+    if (!session || !name || session->colon_open) return false;
+    if (name_len == 0 || name_len > FORTH_NAME_MAX) return false;
+    mod = session->module;
+    if (!mod) return false;
+
+    session->colon_saved_fn_count = mod->function_count;
+    session->colon_saved_code_size = mod->code_size;
+    session->colon_saved_header_count = session->header_count;
+    session->colon_saved_latest = session->latest;
+    session->colon_saved_control_depth = session->control_depth;
+
+    stub_len = forth_emit_into(stub, OP_RET);
+    if (stub_len == 0) return false;
+    memset(&fn, 0, sizeof(fn));
+    fn.name_idx = nvm_add_string(mod, name, name_len);
+    fn.arity = 0;
+    fn.code_offset = nvm_append_code(mod, stub, stub_len);
+    fn.code_length = stub_len;
+    fn.local_count = 0;
+    fn.result_tag = TAG_VOID;
+    fn.result_count = 0;
+    before = mod->function_count;
+    session->colon_fn_idx = nvm_add_function(mod, &fn);
+    if (mod->function_count != before + 1) return false;
+
+    session->colon_open = true;
+    session->colon_code_len = 0;
+    if (!forth_define(session, name, name_len, (ForthXt)session->colon_fn_idx,
+                      false, true, &nt)) {
+        colon_rollback(session);
+        return false;
+    }
+    session->colon_nt = nt;
+    return true;
+}
+
+bool forth_colon_literal(ForthSession *session, int64_t cell) {
+    if (!session || !session->colon_open) return false;
+    if (!colon_emit(session, OP_PUSH_I64, cell)) return false;
+    return colon_emit(session, OP_CALL, session->dpush_fn);
+}
+
+bool forth_colon_call(ForthSession *session, ForthXt xt) {
+    if (!session || !session->colon_open || !session->module) return false;
+    if (xt >= session->module->function_count) return false;
+    if (xt == session->colon_fn_idx) return false;
+    return colon_emit(session, OP_CALL, xt);
+}
+
+bool forth_colon_recurse(ForthSession *session) {
+    if (!session || !session->colon_open) return false;
+    return colon_emit(session, OP_CALL, session->colon_fn_idx);
+}
+
+static bool colon_patch_jump(ForthSession *session, uint32_t instr_off,
+                             uint32_t target_off) {
+    int32_t rel;
+    uint32_t patch_off;
+
+    if (!session) return false;
+    if (instr_off + 5 > session->colon_code_len) return false;
+    if (session->colon_code[instr_off] != (uint8_t)OP_JMP
+            && session->colon_code[instr_off] != (uint8_t)OP_JMP_FALSE
+            && session->colon_code[instr_off] != (uint8_t)OP_JMP_TRUE)
+        return false;
+    rel = (int32_t)target_off - (int32_t)instr_off;
+    patch_off = instr_off + 1;
+    session->colon_code[patch_off] = (uint8_t)(rel & 0xFF);
+    session->colon_code[patch_off + 1] = (uint8_t)((rel >> 8) & 0xFF);
+    session->colon_code[patch_off + 2] = (uint8_t)((rel >> 16) & 0xFF);
+    session->colon_code[patch_off + 3] = (uint8_t)((rel >> 24) & 0xFF);
+    return true;
+}
+
+static bool colon_pop_ctrl(ForthSession *session, ForthCtrlKind expected,
+                           uint32_t *value) {
+    ForthCtrlKind kind = FORTH_CTRL_ORIG;
+    uint32_t got = 0;
+    if (!forth_control_pop(session, &kind, &got)) return false;
+    if (kind != expected) {
+        forth_control_push(session, kind, got);
+        return false;
+    }
+    *value = got;
+    return true;
+}
+
+static bool colon_emit_dpop(ForthSession *session) {
+    return colon_emit(session, OP_CALL, session->dpop_fn);
+}
+
+bool forth_colon_if(ForthSession *session) {
+    uint32_t instr_off;
+    if (!session || !session->colon_open) return false;
+    if (!colon_emit_dpop(session)) return false;
+    instr_off = session->colon_code_len;
+    if (!colon_emit(session, OP_JMP_FALSE, (int32_t)0)) return false;
+    return forth_control_push(session, FORTH_CTRL_ORIG, instr_off);
+}
+
+bool forth_colon_else(ForthSession *session) {
+    uint32_t if_off = 0;
+    uint32_t skip_off;
+    if (!session || !session->colon_open) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_ORIG, &if_off)) return false;
+    skip_off = session->colon_code_len;
+    if (!colon_emit(session, OP_JMP, (int32_t)0)) return false;
+    if (!colon_patch_jump(session, if_off, session->colon_code_len)) return false;
+    return forth_control_push(session, FORTH_CTRL_ORIG, skip_off);
+}
+
+bool forth_colon_then(ForthSession *session) {
+    uint32_t orig = 0;
+    if (!session || !session->colon_open) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_ORIG, &orig)) return false;
+    return colon_patch_jump(session, orig, session->colon_code_len);
+}
+
+bool forth_colon_cs_begin(ForthSession *session) {
+    if (!session || !session->colon_open) return false;
+    return forth_control_push(session, FORTH_CTRL_DEST, session->colon_code_len);
+}
+
+bool forth_colon_until(ForthSession *session) {
+    uint32_t dest = 0;
+    uint32_t instr_off;
+    int32_t rel;
+    if (!session || !session->colon_open) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_DEST, &dest)) return false;
+    if (!colon_emit_dpop(session)) return false;
+    instr_off = session->colon_code_len;
+    rel = (int32_t)dest - (int32_t)instr_off;
+    return colon_emit(session, OP_JMP_FALSE, rel);
+}
+
+bool forth_colon_again(ForthSession *session) {
+    uint32_t dest = 0;
+    uint32_t instr_off;
+    int32_t rel;
+    if (!session || !session->colon_open) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_DEST, &dest)) return false;
+    instr_off = session->colon_code_len;
+    rel = (int32_t)dest - (int32_t)instr_off;
+    return colon_emit(session, OP_JMP, rel);
+}
+
+bool forth_colon_while(ForthSession *session) {
+    uint32_t instr_off;
+    if (!session || !session->colon_open) return false;
+    if (!colon_emit_dpop(session)) return false;
+    instr_off = session->colon_code_len;
+    if (!colon_emit(session, OP_JMP_FALSE, (int32_t)0)) return false;
+    return forth_control_push(session, FORTH_CTRL_ORIG, instr_off);
+}
+
+bool forth_colon_repeat(ForthSession *session) {
+    uint32_t orig = 0;
+    uint32_t dest = 0;
+    uint32_t instr_off;
+    int32_t rel;
+    if (!session || !session->colon_open) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_ORIG, &orig)) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_DEST, &dest)) return false;
+    instr_off = session->colon_code_len;
+    rel = (int32_t)dest - (int32_t)instr_off;
+    if (!colon_emit(session, OP_JMP, rel)) return false;
+    return colon_patch_jump(session, orig, session->colon_code_len);
+}
+
+bool forth_colon_finish(ForthSession *session, ForthNt *nt) {
+    NvmModule *mod;
+    NvmFunctionEntry *fn;
+    NvmVerifyResult verified;
+    uint32_t code_off;
+
+    if (!session || !nt || !session->colon_open || !session->module) return false;
+    if (session->control_depth != session->colon_saved_control_depth) {
+        colon_rollback(session);
+        return false;
+    }
+    if (!colon_emit(session, OP_RET)) {
+        colon_rollback(session);
+        return false;
+    }
+    mod = session->module;
+    fn = &mod->functions[session->colon_fn_idx];
+    code_off = nvm_append_code(mod, session->colon_code, session->colon_code_len);
+    fn->code_offset = code_off;
+    fn->code_length = session->colon_code_len;
+    verified = nvm_verify_function(mod, session->colon_fn_idx);
+    if (!verified.ok) {
+        colon_rollback(session);
+        return false;
+    }
+    if (!forth_reveal(session, session->colon_nt)) {
+        colon_rollback(session);
+        return false;
+    }
+    *nt = session->colon_nt;
+    session->colon_open = false;
+    session->colon_code_len = 0;
+    if (!forth_session_rebuild(session)) {
+        session->colon_open = true;
+        colon_rollback(session);
+        return false;
+    }
+    return true;
+}
+
+bool forth_colon_abort(ForthSession *session) {
+    return colon_rollback(session);
+}
+
+bool forth_colon_is_open(const ForthSession *session) {
+    return session && session->colon_open;
+}
+
+ForthXt forth_colon_xt(const ForthSession *session) {
+    if (!session || !session->colon_open) return 0;
+    return session->colon_fn_idx;
+}
+
+bool forth_colon_throw(ForthSession *session) {
+    if (!session || !session->colon_open) return false;
+    if (!colon_emit(session, OP_CALL, session->dpop_fn)) return false;
+    return colon_emit(session, OP_CALL, session->throw_fn);
+}
+
+bool forth_catch(ForthSession *session, ForthXt xt, int64_t *code) {
+    uint32_t saved_data;
+    uint32_t saved_ret;
+    uint32_t saved_fp;
+    uint32_t saved_control;
+    uint32_t saved_source;
+    int64_t saved_to_in = 0;
+    int64_t saved_blk = 0;
+    int64_t thrown = 0;
+    VmResult ran;
+
+    if (!session || !code || !session->module) return false;
+    if (xt >= session->module->function_count) return false;
+
+    saved_data = forth_data_depth(session);
+    saved_ret = session->ret_depth;
+    saved_fp = session->fp_depth;
+    saved_control = session->control_depth;
+    saved_source = session->source_depth;
+    if (!forth_fetch_cell(session, session->sysvars, &saved_to_in)) return false;
+    if (!forth_fetch_cell(session, session->sysvars + FORTH_CELL_BYTES, &saved_blk))
+        return false;
+    if (!forth_store_cell(session, session->throw_code_addr, 0)) return false;
+
+    ran = forth_session_invoke(session, xt, NULL, 0, NULL);
+    if (ran != VM_OK) return false;
+    if (!forth_fetch_cell(session, session->throw_code_addr, &thrown)) return false;
+    if (thrown == 0) {
+        *code = 0;
+        return true;
+    }
+
+    while (session->source_depth > saved_source) {
+        if (!forth_source_pop(session)) return false;
+    }
+    session->ret_depth = saved_ret;
+    session->fp_depth = saved_fp;
+    session->control_depth = saved_control;
+    if (!forth_store_cell(session, session->data_depth_addr, (int64_t)saved_data))
+        return false;
+    if (!forth_store_cell(session, session->sysvars, saved_to_in)) return false;
+    if (!forth_store_cell(session, session->sysvars + FORTH_CELL_BYTES, saved_blk))
+        return false;
+    if (!forth_store_cell(session, session->throw_code_addr, 0)) return false;
+    *code = thrown;
+    return true;
 }

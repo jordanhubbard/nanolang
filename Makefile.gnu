@@ -2364,7 +2364,7 @@ help:
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
-	@echo "  make test-forth-session - Forth session module, VM, stacks, and address space"
+	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
 	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"

@@ -4,7 +4,8 @@
  * I keep one mutable NvmModule and one persistent VmState for a Forth
  * interpreter session. NanoVM's operand stack is the calling convention for
  * verified NanoISA functions. It is not my Forth data stack. Dictionary
- * headers, word lists, and nested input sources live on the same session.
+ * headers, word lists, nested input sources, colon compilation, and
+ * CATCH/THROW live on the same session.
  *
  * This is a C host runtime, not a NanoLang language feature. There is no
  * src_nano twin.
@@ -30,6 +31,7 @@
 #define FORTH_ORDER_MAX 8
 #define FORTH_WORDLIST_MAX 16
 #define FORTH_SOURCE_NEST 16
+#define FORTH_COLON_CODE_MAX 8192
 
 typedef uint32_t ForthNt;
 typedef uint32_t ForthXt;
@@ -118,5 +120,24 @@ bool forth_source_push_file(ForthSession *session, uint32_t fileid);
 bool forth_source_push_block(ForthSession *session, uint32_t blk);
 bool forth_source_pop(ForthSession *session);
 bool forth_refill(ForthSession *session);
+
+bool forth_colon_begin(ForthSession *session, const char *name, uint32_t name_len);
+bool forth_colon_literal(ForthSession *session, int64_t cell);
+bool forth_colon_call(ForthSession *session, ForthXt xt);
+bool forth_colon_recurse(ForthSession *session);
+bool forth_colon_if(ForthSession *session);
+bool forth_colon_else(ForthSession *session);
+bool forth_colon_then(ForthSession *session);
+bool forth_colon_cs_begin(ForthSession *session);
+bool forth_colon_until(ForthSession *session);
+bool forth_colon_again(ForthSession *session);
+bool forth_colon_while(ForthSession *session);
+bool forth_colon_repeat(ForthSession *session);
+bool forth_colon_throw(ForthSession *session);
+bool forth_catch(ForthSession *session, ForthXt xt, int64_t *code);
+bool forth_colon_finish(ForthSession *session, ForthNt *nt);
+bool forth_colon_abort(ForthSession *session);
+bool forth_colon_is_open(const ForthSession *session);
+ForthXt forth_colon_xt(const ForthSession *session);
 
 #endif

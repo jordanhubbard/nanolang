@@ -9,6 +9,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - pin Forth 2012 revisions, licensing, and Gforth 0.7.3 pi.fs differentials
 - own one NvmModule and persistent VmState per Forth session, with Forth stacks, virtual addresses, and file handles
 - keep Forth dictionary headers, word lists, and nested input sources on the session
+- compile colon definitions privately to verified NanoISA, publish atomically, and bind `OP_CALL` / `RECURSE` to reserved execution tokens
+- compile Forth `IF`/`ELSE`/`THEN`, `BEGIN`/`UNTIL`/`AGAIN`, and `WHILE`/`REPEAT` with a checked control stack
+- restore Forth stacks and input sources on `CATCH`/`THROW`; `THROW 0` continues
 
 ## [4.0.0] - 2026-09-03
 

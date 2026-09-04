@@ -213,10 +213,11 @@ Compiler and runtime:
 - [x] I will add a byte-addressable virtual Forth address space with validated allocation and file handles.
 - [x] I will implement dictionary headers, execution tokens, name tokens, early binding, immediacy, and word lists.
 - [x] I will implement nested terminal, evaluated-string, included-file, and block input sources with `SOURCE` and `>IN` restoration.
-- [ ] I will compile each colon definition privately to NanoISA, verify it, then publish it atomically.
-- [ ] I will compile calls to earlier definitions as stable `OP_CALL` references and `RECURSE` to the reserved current definition.
-- [ ] I will compile structured control flow with a checked compile-control stack and branch patching.
-- [ ] I will implement `CATCH` and `THROW` by restoring Forth stacks, locals, input sources, and NanoVM invocation state.
+- [x] I will compile each colon definition privately to NanoISA, verify it, then publish it atomically.
+- [x] I will compile calls to earlier definitions as stable `OP_CALL` references and `RECURSE` to the reserved current definition.
+- [x] I will compile structured control flow with a checked compile-control stack and branch patching.
+- [x] I will implement `CATCH` and `THROW` by restoring Forth stacks, input sources, and NanoVM invocation state.
+- [ ] I will restore Forth locals on `THROW` once recursive Locals exist.
 - [ ] I will implement typed Forth import declarations that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
 - [ ] I will reject FFI signatures the active ABI cannot call correctly instead of guessing.
 - [ ] I will restart an isolated FFI co-process after dynamic import-table mutation.

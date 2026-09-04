@@ -11,14 +11,19 @@ This file is the pin. `tests/forth/pins.json` is the machine-readable copy.
 The architecture contract is
 [ANS Forth on NanoISA](superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md).
 The compiler that will satisfy these pins is still Phase 13 work. The session
-runtime in `src/forth/` is the first slice: one mutable `NvmModule`, one
-persistent `VmState`, Forth stacks that are not the NanoVM operand stack, a
-virtual address space, and a file-handle table. `make test-forth-session`
-covers that slice. It does not compile colon definitions and it is not Core.
+runtime in `src/forth/` compiles colon definitions to verified NanoISA,
+including `OP_CALL`, `RECURSE`, structured control flow, and `CATCH`/`THROW`.
+`make test-forth-session` covers that slice. It is not Core.
 
 Dictionary FIND is case-insensitive for ASCII `A`–`Z`. Redefining a name
 creates a new header; the old name token still maps to the old execution
-token. `SOURCE` and `>IN` live in the virtual address space. Nested
+token. Colon definitions are reserved, compiled privately to NanoISA, verified,
+and published only when they verify. A compiled call binds the execution token
+it saw; `RECURSE` binds the current reservation. `IF`/`ELSE`/`THEN`,
+`BEGIN`/`UNTIL`/`AGAIN`, and `WHILE`/`REPEAT` patch branches on a checked
+compile-control stack. `CATCH` restores Forth stacks and input sources;
+`vm_invoke` unwinds NanoVM frames. `THROW 0` continues. `SOURCE` and `>IN`
+live in the virtual address space. Nested
 `EVALUATE`, included files, and blocks restore both on pop. The block image
 is 32 disposable 1024-byte blocks. `TIB`, `>IN`, `BLK`, `STATE`, and that
 image are pinned: `FREE` of those addresses fails.
