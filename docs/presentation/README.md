@@ -4,7 +4,7 @@ This is the reproducible authoring package for my developer presentation and tec
 narrative: a Google Slides deck and a Google Doc built from my source, specifications,
 tests, roadmap, and release evidence.
 
-**3.5 edition.** This package describes my released 3.5 foundation and the 4.0 boundary.
+**4.0 edition.** This package describes my released 4.0: NanoISA v2, NanoVM v2, what my verifier proves, and what I have not done.
 
 Published presentation: pending publication
 

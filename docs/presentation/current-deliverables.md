@@ -1,11 +1,11 @@
 # Current NanoLang deliverables
 
-- Native Google Slides, 3.5 edition: pending publication.
-- Native Google Doc, 3.5 edition: pending publication.
+- Native Google Slides, 4.0 edition: pending publication.
+- Native Google Doc, 4.0 edition: pending publication.
 - Local PowerPoint: [nanolang-developer-overview.pptx](nanolang-developer-overview.pptx)
 - Local Word narrative: [nanolang-developer-overview.docx](nanolang-developer-overview.docx)
 
-The deck has 12 slides for software developers and compiler engineers. The
+The deck has 14 slides for software developers and compiler engineers. The
 narrative is its technical companion. Both are generated from my source,
 specifications, tests, roadmap, and release evidence.
 

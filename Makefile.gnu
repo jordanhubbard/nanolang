@@ -1210,6 +1210,32 @@ benchmark:
 benchmark-nanoisa: nano_virt nano_vm
 	@bash scripts/benchmark_nanoisa.sh
 
+# Document authoring toolchain
+#
+# docs/presentation/regenerate_python.sh refuses to pip-install on its own and
+# points here instead, so that pulling packages from the network is an explicit
+# action someone took rather than a side effect of regenerating a deck. The
+# environment lives in an ignored directory; only the artifacts it builds are
+# committed.
+DOC_TOOLCHAIN_DIR ?= _build/doc-toolchain
+
+.PHONY: doc-toolchain-bootstrap
+doc-toolchain-bootstrap:
+	@echo "Installing the document authoring toolchain into $(DOC_TOOLCHAIN_DIR)..."
+	@python3 -m venv $(DOC_TOOLCHAIN_DIR)
+	@$(DOC_TOOLCHAIN_DIR)/bin/python3 -m pip install --quiet --upgrade pip
+	@$(DOC_TOOLCHAIN_DIR)/bin/python3 -m pip install --quiet python-pptx python-docx lxml Pillow
+	@$(DOC_TOOLCHAIN_DIR)/bin/python3 -c "import pptx, docx, PIL, lxml; print('toolchain ready')"
+
+.PHONY: presentation
+presentation: doc-toolchain-check
+	@bash docs/presentation/regenerate.sh
+
+.PHONY: doc-toolchain-check
+doc-toolchain-check:
+	@OBJ_DIR=$(CURDIR)/_build bash docs/presentation/regenerate_python.sh --check >/dev/null 2>&1 \
+		|| { echo "Run 'make doc-toolchain-bootstrap' first."; exit 1; }
+
 # API documentation (nanodoc)
 DOCS_OUTPUT ?= docs/api
 NANODOC_SOURCES := $(wildcard std/*/*.nano) $(wildcard examples/language/*.nano)
