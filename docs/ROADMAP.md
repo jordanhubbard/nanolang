@@ -208,9 +208,9 @@ Foundation:
       `docs/FORTH_2012.md` as the assumed NanoISA Forth contract.
 
 Compiler and runtime:
-- [ ] I will create one mutable `NvmModule` and persistent `VmState` per Forth session.
-- [ ] I will add VM-owned data, return, floating-point, and control-flow stacks.
-- [ ] I will add a byte-addressable virtual Forth address space with validated allocation and file handles.
+- [x] I will create one mutable `NvmModule` and persistent `VmState` per Forth session.
+- [x] I will add VM-owned data, return, floating-point, and control-flow stacks.
+- [x] I will add a byte-addressable virtual Forth address space with validated allocation and file handles.
 - [ ] I will implement dictionary headers, execution tokens, name tokens, early binding, immediacy, and word lists.
 - [ ] I will implement nested terminal, evaluated-string, included-file, and block input sources with `SOURCE` and `>IN` restoration.
 - [ ] I will compile each colon definition privately to NanoISA, verify it, then publish it atomically.

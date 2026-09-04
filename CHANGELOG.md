@@ -7,6 +7,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - pin Forth 2012 revisions, licensing, and Gforth 0.7.3 pi.fs differentials
+- own one NvmModule and persistent VmState per Forth session, with Forth stacks, virtual addresses, and file handles
 
 ## [4.0.0] - 2026-09-03
 

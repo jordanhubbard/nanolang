@@ -10,7 +10,11 @@ This file is the pin. `tests/forth/pins.json` is the machine-readable copy.
 
 The architecture contract is
 [ANS Forth on NanoISA](superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md).
-The compiler that will satisfy these pins is still Phase 13 work.
+The compiler that will satisfy these pins is still Phase 13 work. The session
+runtime in `src/forth/` is the first slice: one mutable `NvmModule`, one
+persistent `VmState`, Forth stacks that are not the NanoVM operand stack, a
+virtual address space, and a file-handle table. `make test-forth-session`
+covers that slice. It does not compile colon definitions and it is not Core.
 
 ## What is pinned
 
@@ -169,8 +173,9 @@ requirements. Where the standard leaves a choice, I pick one and keep it.
 
 ### Limits (implementation-defined)
 
-These are the initial `ENVIRONMENT?` answers I will report. They are assumed
-until the runtime exists.
+These are the initial `ENVIRONMENT?` answers I will report. `STACK-CELLS` and
+`RETURN-STACK-CELLS` match the session stacks in `src/forth/forth_session.h`.
+`ENVIRONMENT?` itself is still absent until Core exists.
 
 | Query | Value |
 | --- | ---: |
@@ -191,17 +196,33 @@ silence. The NanoISA Forth will `THROW` a distinct code, or reject the
 definition at compile time, rather than wrap, invent a stack picture, or
 continue with a host pointer.
 
-Until that compiler exists, this paragraph is policy, not tested behavior.
-Cases I will record explicitly when the compiler lands include: stack
-overflow and underflow; division by zero; invalid addresses; executing a
-compile-only word while interpreting; a `DOES>` body with the wrong picture;
-redefining during compilation of that definition; and UTF-8 trailing bytes
-that do not complete a character.
+The session runtime already rejects stack overflow and underflow, unaligned or
+unallocated addresses, host pointers used as Forth addresses, and stale file
+handles. It returns failure from the C API. `THROW` codes come later with the
+Exception word set. Remaining cases I will record when the compiler lands
+include: division by zero; executing a compile-only word while interpreting;
+a `DOES>` body with the wrong picture; redefining during compilation of that
+definition; and UTF-8 trailing bytes that do not complete a character.
+
+## Session runtime
+
+`ForthSession` (`src/forth/forth_session.h`) owns:
+
+- one mutable `NvmModule` and one `VmState` for the life of the session;
+- data, return, floating-point, and compile-control stacks, separate from
+  NanoVM's operand stack (`vm_invoke` must not clear them);
+- a byte-addressable virtual space in `VmState` linear memory, with an
+  allocation table so host pointers are not Forth addresses;
+- a file-handle table with generation-checked ids.
+
+Appending a function without `forth_session_rebuild` leaves decode stale.
+`nvm_verify_function` is the check I will require before dictionary publish;
+the session tests call it when they append a constant function.
 
 ## What this does not do
 
 I do not run Jackson `runtests.fth` yet. There is no NanoISA Forth to include
 it. I do not vendor the suites. I do not claim Core.
 
-The next work is the Phase 13 compiler: one mutable `NvmModule` and persistent
-`VmState` per session, then Core words compiled to verified NanoISA.
+The next work is dictionary headers, input sources, and colon definitions
+compiled privately to NanoISA, verified, then published.
