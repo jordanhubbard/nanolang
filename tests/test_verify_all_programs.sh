@@ -26,12 +26,10 @@ VM=./bin/nano_vm
 #   test_import_aliasing.nano  - a function's local_count is smaller than its
 #                                arity, so the frame cannot hold its arguments
 #
-#   The next three contain a transitively-imported function whose float
-#   arithmetic lowered to integer opcodes (issue #223). The verifier is right
-#   and the bytecode is wrong: the VM traps on I64_ADD with float operands, so
-#   these would fail if the affected function were ever called. Removing them
-#   from this list is the acceptance test for that fix.
-ALLOW="test_import_aliasing.nano test_vector2d.nano contracts_stdlib_test.nano contracts_matrix_timing_test.nano"
+# Three programs were here for issue #223, where a transitively imported
+# function's float arithmetic lowered to integer opcodes. They came off this
+# list when symbol lookup became file-scoped, which is what the list is for.
+ALLOW="test_import_aliasing.nano"
 
 tmp=$(mktemp -t verifyall.XXXXXX).nvm
 trap 'rm -f "$tmp"' EXIT

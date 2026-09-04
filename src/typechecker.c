@@ -4711,6 +4711,10 @@ void typecheck_set_current_file(const char *path) {
     g_typecheck_current_file = path;
 }
 
+/* The environment needs the same notion for symbol visibility, but it is not
+ * reachable from here -- callers that own the environment set it directly.
+ * Kept as one concept with two owners rather than two concepts. */
+
 static void emit_context_error(
     const char *title,
     int line,

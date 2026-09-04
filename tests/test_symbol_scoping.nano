@@ -1,0 +1,76 @@
+/* Regression for issue #223: symbol lookup must not compare source positions
+ * across files.
+ *
+ * `a`, `b` and `t` below are integers, defined at line numbers lower than the
+ * imported module's parameters of the same name. Symbol visibility is decided
+ * by "the most recent definition at or before this line", and before that
+ * comparison was confined to one file, compiling the imported function
+ * resolved its parameters against these integers and inherited their type.
+ *
+ * Operator lowering picks the integer or the float opcode from that type, so
+ * the imported function's float arithmetic compiled to I64_SUB and I64_ADD.
+ * The VM traps on those with "requires two integers", so the function was
+ * broken -- silently, because nothing called it along that path.
+ *
+ * scoped_midpoint covers the same thing one level in: a field access needs the
+ * struct definition, which a transitively imported module's declarations must
+ * also reach the environment for.
+ */
+
+from "modules/scope_collision_helper.nano" import scoped_blend, ScopedPoint, scoped_midpoint
+
+fn blend_matches_expectation() -> bool {
+    /* Names chosen to collide with the imported function's parameters. */
+    let a: int = 1
+    let b: int = 2
+    let t: int = 3
+    if (!= (+ a (+ b t)) 6) {
+        return false
+    }
+    if (!= (scoped_blend 0.0 10.0 0.25) 2.5) {
+        return false
+    }
+    if (!= (scoped_blend 2.0 4.0 0.5) 3.0) {
+        return false
+    }
+    return true
+}
+
+shadow blend_matches_expectation {
+    assert (blend_matches_expectation)
+}
+
+fn midpoint_matches_expectation() -> bool {
+    let x: int = 100
+    let y: int = 200
+    if (!= (+ x y) 300) {
+        return false
+    }
+    let p: ScopedPoint = ScopedPoint { x: 1.0, y: 3.0 }
+    let q: ScopedPoint = ScopedPoint { x: 3.0, y: 7.0 }
+    let m: ScopedPoint = (scoped_midpoint p q)
+    if (!= m.x 2.0) {
+        return false
+    }
+    if (!= m.y 5.0) {
+        return false
+    }
+    return true
+}
+
+shadow midpoint_matches_expectation {
+    assert (midpoint_matches_expectation)
+}
+
+fn main() -> int {
+    if (!(blend_matches_expectation)) {
+        (println "FAIL: blend")
+        return 1
+    }
+    if (!(midpoint_matches_expectation)) {
+        (println "FAIL: midpoint")
+        return 1
+    }
+    (println "symbol scoping tests passed")
+    return 0
+}

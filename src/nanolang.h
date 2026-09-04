@@ -570,6 +570,16 @@ typedef struct {
     bool from_c_header;  /* True if this constant was loaded from a C header #define */
     int def_line;        /* Line where variable was defined */
     int def_column;      /* Column where variable was defined */
+    /* Source file the definition came from, or NULL for symbols with no file
+     * (builtins, and anything registered without a location).
+     *
+     * Line numbers are only comparable within a file. Without this, a lookup
+     * that picks "the most recent symbol defined at or before this line"
+     * compares a line number from one file against a definition in another,
+     * and quietly returns an unrelated variable that happens to sit at a lower
+     * line in some other module. Not owned: it points at a path string the
+     * caller keeps alive for the compilation. */
+    const char *def_file;
 } Symbol;
 
 /* Function table entry */
@@ -793,6 +803,10 @@ typedef struct {
 
     /* Algebraic effects registry (opaque pointer; cast to EffectRegistry* in effects.c) */
     void *effect_registry;
+
+    /* File whose code is being processed; stamped onto definitions and used to
+     * keep source-position lookups inside one file. Borrowed, not owned. */
+    const char *current_file;
 } Environment;
 
 /* Function declarations */
@@ -843,6 +857,17 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 
 /* Environment */
 Environment *create_environment(void);
+
+/* The file whose code is currently being processed.
+ *
+ * Symbol lookups that reason about source position are only meaningful inside
+ * one file, so definitions are stamped with this and located lookups ignore
+ * symbols from elsewhere. Callers that walk a specific file's AST -- the
+ * typechecker entering a module, codegen compiling an imported module's
+ * bodies -- set it around that walk and restore it after. The string is
+ * borrowed, not copied. */
+void env_set_current_file(Environment *env, const char *path);
+const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
