@@ -5,6 +5,109 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-09-03
+
+### Added
+- infer operand types through every basic block (#224)
+- check ownership effects and frame depth (#221)
+- collect reference cycles (#220)
+- add tested symbolic assembly examples (#219)
+- make canonical disassembly lossless (#215)
+- prove return shape statically (#214)
+- make the v2 module format the default (#210)
+- compute and check max operand depth (#208)
+- emit and load v2 modules behind --emit-nvm-v2 (#207)
+- convert between NvmModule and the v2 container (#209)
+- whole-module v2 serialization and cross-section validation (#205)
+- encode and decode the v2 IMPORTS, LINKS, METADATA and DEBUG sections (#204)
+- encode and decode the v2 FUNCTIONS and GLOBALS sections (#203)
+- encode and decode the v2 LAYOUTS section (#202)
+- encode and decode the v2 SIGNATURES section (#201)
+- encode and decode the v2 CONSTANTS section (#200)
+- add the bounds-checked cursor for v2 section decoding (#199)
+- harden function ranges and branch targets (#128)
+
+### Changed
+- dispatch through a label table where the compiler allows (#225)
+- measure execution instead of process startup (#222)
+- pin the wire byte layout and test the large-payload path (#216)
+- measure computed-goto dispatch and record the decision against it (#198)
+- name the right branch in the plan's Task 13 collision note (#197)
+- MAC task task_e65fad401e65d182556b185627ffb07d: Verify linked-module calls and every opcode family rather than selected operands only (#196)
+- write the 4.0 release document and bring the changelog up to date (#195)
+- Implementation plan for the NanoISA v2 module format (#194)
+- Implement the v2 module container: header and section directory (#193)
+- cover the extern-call argument limit on the execution path (#192)
+- MAC task task_b8c2e917cfa7532a0914fcfde71877d3: Make argument limits consistent across imports, traps, direct FFI, and co-process calls (#169)
+- Bundle a generated WAV so sdl_audio_wav has a default (#179)
+- cover non-wrapping over-long code ranges and valid import signatures (#173)
+- Specify the NanoISA v2 module format (#172)
+- scope module signing explicitly to 5.0 (#191)
+- clean NanoLang presentation authoring package (#134)
+- make the pyyaml install survive PEP 668 runners (#183)
+- install pyyaml so schema-check can run (#182)
+- record the integration benchmark for the recovered work
+- drop local .claude settings swept in by an over-broad git add
+- recover: validate complete operand consumption (task_ef9e2d44, approved but never published)
+- Make generated-C tracing and profiling dynamically selectable at process startup, with one shared hook mechanism and ... (task_c2cd6757ca772d96fe31bd7982d41333) (#175)
+- Replace chained hash-map entries with a measured contiguous implementation (task_dc7b8b55c544fe5a6591d6d1cee27fff) (#155)
+- Batch high-frequency host work rather than cross the process boundary for each element (task_23b3c6ceb7c4d6b6fcad219ee27fa97e) (#170)
+- Document the portable ISA separately from verified and optimized runtime representations (task_4f706c20951735ab246462ba68853ea2) (#178)
+- Use generated typed stubs or a general ABI layer for mixed integer and floating signatures (task_d5b6ebd1146e789c114037cda9fff9d9) (#177)
+- Choose one coherent flattened or separately linked module model and test it end to end (task_b25fc1d1d6fcc3ed416974df94f73491) (#166)
+- Add an exhaustive coverage check tying every opcode to schema, VM behavior, verifier rules, assembly, disassembly, an... (task_5eaea82338c6eaad7b9ebd2a883e5714) (#165)
+- Add malformed-bytecode tests and fuzz the decoder, loader, verifier, assembler, disassembler, and co-process protocol (task_34f40c67d0579535b820f91bb57d00c0) (#164)
+- MAC task task_c7dbefc25811eded67074bf807cb3132: Record why every public instruction belongs in the ISA rather than a runtime library
+- Make symbolic functions, imports, fields, types, constants, and labels first-class assembler operands (task_de09eed3382c75b6306461634000211f) (#162)
+- MAC task task_497f43bf1fabcc1d3ffbe19b6227dbc8: Resolve imports once into typed call descriptors
+- Eliminate integer-overflow and overlap gaps in code-range and section validation (task_9a9fb97d491f5ecf38c3ea11e65f92cd) (#160)
+- MAC task task_4ffa2d2afab91335d5e5d333ed25b5fe: Remove or justify opcodes that no frontend emits, including no-op GC scopes and duplicated closure/string operations
+- MAC task task_4ae13273aed3dd8cce7524500d64bf76: Correct disassembler import annotations, branch operand roles, label construction, and binary-string handling
+- Verify call arity, result shape, aggregate counts, local/global/upvalue bounds, type tags, and import signatures (task_8ace2f517a3254eac3744561fb3bfb8f) (#158)
+- MAC task task_b9423dba41b3c1cb9c99caa77f8cd860: Rewrite verified operations to unchecked private handlers where the proof permits it
+- Add unboxed homogeneous arrays for integer, float, boolean, and byte elements (task_cfc51a97dd37b93a2cee7a1080406a04) (#161)
+- Replace linear transient-string interning or stop interning transient values (task_17ccd24fce8b2b6f7bd305ce31e92876) (#157)
+- MAC task task_1e7b2d8a0eabe16b338e1abf0fa36f13: Consistently use stored string lengths and preserve embedded zero bytes
+- Dynamically size globals from serialized declarations instead of embedding 4,096 values in every VM (task_6cac13465b0a9acafe0d0d845b1afe16) (#153)
+- MAC task task_deba0dbe48cf9797aae9aab814e5baca: Preinstantiate module constants so string literals do not allocate and search the intern table on every execution
+- Initially evaluate local-field load, local increment, compare-branch, union-tag branch, and tail-call fusions (task_c035d8c695fefe01213666c883d50d7e) (#152)
+- MAC task task_fc36a92356c08a07fda74fa773684916: Add profile-selected private superinstructions without exposing frontend bookkeeping as portable opcodes
+- MAC task task_b5ad6c4b9baaa8fce18d3c739a266d34: Move trimming, case conversion, splitting, replacement, formatting, parsing, and collection algorithms from the ISA i... (#148)
+- MAC task task_2885f0a720489b5d3f83f8e5b0cf6e47: Replace special print, assert, and host operations with typed traps where that improves composition (#147)
+- MAC task task_2601fac15e38ad2c0f9d3e8f5f861654: Retain only primitive string and aggregate operations justified by representation or measured cost (#146)
+- MAC task task_95a5d10435ec578fed9a3395efe74f35: Give each portable instruction one comprehensible meaning and keep operand forms symmetric (#143)
+- MAC task task_0fd9121fa91d7b9208e9ea79d09d843c: Separate compact serialized bytecode, verified instruction IR, and optimized dispatch IR (#144)
+- MAC task task_ee63b2c32c5b600e16289566bab6ea3b: Build instruction-boundary maps and resolve branches plus direct and tail calls during instantiation; layouts, consta... (#142)
+- MAC task task_c0fe61a767e9e204f823d879d50d1757: Define a clean extended-opcode space without treating an opcode value as an instruction count (#140)
+- MAC task task_b7c534c9150ee4bb4b8bca62b37b50dd: Add compact constants, short local forms, and compact general operands without making assembly irregular (#139)
+- Resolve linked calls to callable handles (#137)
+- Regularize calls around verified signatures (#136)
+- Implement NanoISA verifier stack-height propagation (#132)
+- add NanoLang developer presentation package (#131)
+- use indexed decoded dispatch (#130)
+- cover malformed container ranges and debug records (#127)
+- MAC task task_647c015a6b4b4e76a3c223a6f920b7a1: 4.0 module format and tools workstream (#126)
+- publish NanoLang 3.5 release presentation (#125)
+
+### Fixed
+- confine symbol visibility to one file (#226)
+- repair stack discipline the verifier now checks (#218)
+- fix reference ownership at four leaking sites (#217)
+- stop treating an unknown stack effect as a verified one (#213)
+- keep generated GPU kernels out of source tree (#190)
+- reject a quoted string ending in a backslash (#189)
+- keep -rdynamic when LDFLAGS is overridden on the command line (#188)
+- align the RC heap base and pad the header so payloads are 8-byte aligned (#187)
+- initialize four Environment fields that were never set (#186)
+- link the verifier everywhere the assembler is linked
+- bound format conversions that GCC rejects under -Werror (#184)
+- list the verifier routes #158 added so the coverage check passes (#180)
+- give modules/nanoisa the verifier its assembler now needs
+- assert the replace result while the VM is still alive
+- separate verified assembly from fragment assembly
+- list the verifier routes #158 added so the coverage check passes
+- encode co-process wire fields as little endian (#129)
+
 Work toward 4.0 (NanoISA v2 and NanoVM v2). See [docs/RELEASE_4.0.md](docs/RELEASE_4.0.md)
 for what 4.0 is and what remains.
 
