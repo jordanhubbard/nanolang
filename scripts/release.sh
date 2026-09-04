@@ -393,6 +393,22 @@ main() {
     local test_status=$(grep -E "TOTAL:|passed|failed" "$test_output_file" | tail -1 || echo "All tests passed")
     rm -f "$test_output_file"
     
+    # Documentation freshness, immediately before the tag.
+    #
+    # This script had no documentation step at all until 4.0, which is how
+    # CONTRIBUTING.md went an entire release without being opened while the
+    # rules it states changed underneath it. The gate is last because prose
+    # should describe the release being cut, and it is before create_release
+    # because after the tag is too late.
+    #
+    # Release past it with a reason, never with a boolean:
+    #   RELEASE_DOCS_ACK="user guide covers no changed surface" make release
+    info "Checking documentation freshness..."
+    if ! make release-docs-check; then
+        error "Documentation is stale. Update it, or set RELEASE_DOCS_ACK to a reason."
+    fi
+    success "Documentation is current"
+
     # Create release
     create_release "$NEXT_VERSION" "$CURRENT_VERSION" "$test_status"
     
