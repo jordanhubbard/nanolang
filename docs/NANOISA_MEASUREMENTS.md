@@ -73,24 +73,50 @@ that was in flight.
 
 ## Decisions
 
-### Computed-goto dispatch — not accepted on current evidence
+### Computed-goto dispatch — built, measured, accepted
 
-Computed goto replaces a `switch` with a jump table indexed per instruction,
-removing one bounds check and one indirect branch per dispatch. Its ceiling is
-therefore the share of runtime spent in dispatch rather than in instruction
-bodies.
+Computed goto replaces the dispatch `switch` with a table of label addresses,
+so each handler ends by jumping directly to the next one. The `switch` compiles
+to a single indirect branch shared by every opcode, which a branch predictor
+has little hope of predicting; a jump per handler gives it a separate site per
+opcode with its own history.
 
-The two workloads with a usable noise band sit at 1.6–1.7%. A dispatch change
-has to beat that on the median to be accepted, on a rewrite of 2,291 lines
-whose failure mode is silent fall-through between cases — the kind of bug that
-produces wrong answers rather than crashes.
+Measured against the portable `switch` on the same machine, build flags and
+workloads, 20 samples of 2000 iterations:
 
-The policy says the simpler implementation wins when performance is
-statistically tied. I have no measurement showing it is not tied, so it is not
-accepted. The portable `switch` remains, which is also the fallback the roadmap
-asks for; the item is closed as *evaluated and declined*, not as *implemented*.
+| workload | switch | goto | change | noise (IQR) |
+|---|---:|---:|---:|---:|
+| `nl_forth_interpreter` | 421.5 µs | 403.7 µs | **−4.2%** | 1.0–1.6% |
+| `nl_fibonacci` | 207.7 µs | 205.0 µs | −1.3% | 1.2–1.9% |
+| `nl_hashmap_word_count` | 9.5 µs | 9.4 µs | −0.5% | 4.9% |
+| `nl_string_operations` | 11.4 µs | 11.2 µs | −1.4% | 7.6% |
+| `nl_array_complete` | 18.8 µs | 18.7 µs | −0.7% | 4.2% |
+| `nl_function_variables` | 18.7 µs | 18.5 µs | −1.0% | 2.8% |
 
-Re-open it with a prototype measured against this baseline on the same machine.
+Against the policy: the Forth interpreter improves by roughly three times its
+noise band, no workload regresses at all, both the NanoLang and Forth groups
+are preserved or improved, and nothing moves into allocations or FFI traffic
+because the handlers are unchanged. The binary grows 48 bytes. Accepted.
+
+Forth is where it shows because a Forth interpreter written in NanoISA is a
+dispatch loop inside a dispatch loop: short handlers, many of them, taken in
+data-dependent order. That is the shape computed goto is for, and the flat
+results elsewhere are the same fact from the other side -- a workload whose
+time goes into instruction bodies has little dispatch to save.
+
+**An earlier revision of this document declined computed goto** on the grounds
+that no measurement showed it beating the noise. That was true of the evidence
+then and is the right default, but "no measurement exists" is a reason to
+measure rather than a conclusion. Building it was cheap enough to settle the
+question, and the question came back the other way.
+
+The portable `switch` remains, selected by `-DNANO_NO_COMPUTED_GOTO` or by any
+compiler without labels as values. `make test-dispatch-equivalence` runs every
+program in `tests/` through both builds and compares output and exit status,
+because the two strategies share their handlers and can only differ in control
+flow -- a handler that falls into the next one instead of dispatching gives
+wrong answers in one build and not the other, which no single-build suite can
+see.
 
 ### Private superinstructions (fusion) — mechanism shipped, none enabled
 

@@ -80,6 +80,18 @@ class NanoisaSchemaTests(unittest.TestCase):
                     return source[brace + 1:index]
         raise AssertionError(f"unterminated switch after {marker}")
 
+    @staticmethod
+    def dispatch_body(source):
+        """The opcode handlers, however they are dispatched to.
+
+        VM_DISPATCH_BEGIN expands to a switch or to a computed goto depending
+        on the compiler, so the region is delimited by the macros rather than
+        by a brace-matched switch statement.
+        """
+        start = source.index("VM_DISPATCH_BEGIN(instr.opcode)")
+        end = source.index("VM_DISPATCH_END()", start)
+        return source[start:end]
+
     def test_codes_and_names_are_unique(self):
         entries = self.schema["legacy_opcodes"]
         self.assertEqual(len({entry["code"] for entry in entries}), len(entries))
@@ -106,10 +118,38 @@ class NanoisaSchemaTests(unittest.TestCase):
         }
         self.assertEqual(enum_entries, expected)
 
+        # The dispatch handlers are written once and reached either through a
+        # switch or through a computed-goto table, so the opcode labels are
+        # VM_CASE(...) rather than `case ...:`. This test is the guarantee that
+        # every ISA opcode has a handler at all, so it has to read whichever
+        # form the source uses rather than assume the switch.
         vm_source = (ROOT / "src/nanovm/vm.c").read_text()
-        dispatch = self.switch_body(vm_source, "switch (instr.opcode)")
-        vm_opcodes = set(re.findall(r"\bcase\s+(OP_[A-Z0-9_]+)\s*:", dispatch))
+        dispatch = self.dispatch_body(vm_source)
+        vm_opcodes = set(re.findall(r"\bVM_CASE\((OP_[A-Z0-9_]+)\)", dispatch))
+        vm_opcodes |= set(re.findall(r"\bcase\s+(OP_[A-Z0-9_]+)\s*:", dispatch))
         self.assertEqual(vm_opcodes, set(expected))
+
+    def test_computed_goto_table_matches_the_handlers(self):
+        """Every handler must be reachable through the computed-goto table.
+
+        The handlers are labelled with VM_CASE and the table is a separate list
+        of assignments, so the two can drift. An opcode with a handler but no
+        table entry would dispatch to the default and be reported as unknown --
+        not silent corruption, but a working instruction that stops working,
+        and only in the threaded build. Comparing the two lists in the source
+        is the only place that drift is visible, since the table is a
+        function-local static the tests cannot read at run time.
+        """
+        vm_source = (ROOT / "src/nanovm/vm.c").read_text()
+        handlers = set(re.findall(r"\bVM_CASE\((OP_[A-Z0-9_]+)\)", vm_source))
+        table = set(re.findall(
+            r"vm_labels\[(OP_[A-Z0-9_]+)\]\s*=\s*&&L_(?:OP_[A-Z0-9_]+);", vm_source))
+        self.assertEqual(handlers, table)
+
+        # And each entry must point at its own label rather than another's.
+        for name, label in re.findall(
+                r"vm_labels\[(OP_[A-Z0-9_]+)\]\s*=\s*&&L_(OP_[A-Z0-9_]+);", vm_source):
+            self.assertEqual(name, label)
 
     def test_every_schema_opcode_has_a_verifier_route(self):
         expected = set(self.legacy_opcodes())
