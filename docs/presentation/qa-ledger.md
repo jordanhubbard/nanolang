@@ -7,7 +7,7 @@
   `docs/NANOISA_MEASUREMENTS.md`, and current tests at the `v4.0.0` tag.
 - Revalidated every count in `source-notes.md` by running the suites: 2,632
   NanoISA, 621 NanoVM, 93 verifier, 63 NanoVirt.
-- Built 14 slides and rendered all 14 with the Pillow-based renderer. Contact
+- Built 15 slides and rendered all 15 with the Pillow-based renderer. Contact
   sheet and full-size inspection completed. No text-frame overlaps detected.
 - Fixed a defect in `build_deck.py` that had been present since the 3.5
   edition: `title()` drew the headline in ink regardless of the slide's
@@ -18,7 +18,7 @@
   pip-install on its own and directed the reader to that target, which did not
   exist, so the documented regeneration path could not be followed.
 - Published both artifacts and verified them by read-back. Exported the
-  uploads back out of Google and compared: 14 slides and 14 note pages for the
+  uploads back out of Google and compared: 15 slides and 15 note pages for the
   deck, 29 headings for the narrative, all matching the local build.
   - Deck: https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview
   - Narrative: https://docs.google.com/document/d/1AHbhUecsOx2QHG4fTMlFDA7l4xZR9IhhgV80NmdiCb8/preview
