@@ -890,7 +890,9 @@ make test-differential    # Compare Coq reference interpreter vs NanoVM
 C host runtime, not a NanoLang language feature (no `src_nano/` twin). One
 `ForthSession` owns one mutable `NvmModule`, one persistent `VmState`, Forth
 data/return/float/control stacks (not the NanoVM operand stack), a virtual
-address space in VM linear memory, and generation-checked file handles.
+address space in VM linear memory, generation-checked file handles,
+dictionary headers with early-bound xts and word lists, and nested input
+sources (`SOURCE`, `>IN`, `BLK`).
 
 | File | Purpose |
 |------|---------|

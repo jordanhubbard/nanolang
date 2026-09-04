@@ -211,8 +211,8 @@ Compiler and runtime:
 - [x] I will create one mutable `NvmModule` and persistent `VmState` per Forth session.
 - [x] I will add VM-owned data, return, floating-point, and control-flow stacks.
 - [x] I will add a byte-addressable virtual Forth address space with validated allocation and file handles.
-- [ ] I will implement dictionary headers, execution tokens, name tokens, early binding, immediacy, and word lists.
-- [ ] I will implement nested terminal, evaluated-string, included-file, and block input sources with `SOURCE` and `>IN` restoration.
+- [x] I will implement dictionary headers, execution tokens, name tokens, early binding, immediacy, and word lists.
+- [x] I will implement nested terminal, evaluated-string, included-file, and block input sources with `SOURCE` and `>IN` restoration.
 - [ ] I will compile each colon definition privately to NanoISA, verify it, then publish it atomically.
 - [ ] I will compile calls to earlier definitions as stable `OP_CALL` references and `RECURSE` to the reserved current definition.
 - [ ] I will compile structured control flow with a checked compile-control stack and branch patching.

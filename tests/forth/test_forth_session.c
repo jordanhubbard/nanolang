@@ -138,6 +138,11 @@ static void test_null_session_is_rejected(void) {
     ASSERT(!forth_file_open(NULL, "/tmp/x", "w", &fileid), "NULL file open");
     ASSERT(!forth_file_close(NULL, 1), "NULL file close");
     ASSERT(!forth_file_is_open(NULL, 1), "NULL file is_open");
+    ASSERT(forth_forth_wordlist(NULL) == 0, "NULL forth wordlist");
+    ASSERT(!forth_find(NULL, "X", 1, NULL, NULL, NULL), "NULL find");
+    ASSERT(!forth_source_load_terminal(NULL, (const uint8_t *)"x", 1),
+           "NULL terminal");
+    ASSERT(forth_source_depth(NULL) == 0, "NULL source depth");
     PASS(test_name);
 }
 
@@ -278,7 +283,9 @@ static void test_address_space_and_allocation(void) {
     hostish = (uint64_t)(uintptr_t)&stack_cell;
     ASSERT(!forth_store_cell(session, hostish, 1), "host pointer is not a Forth address");
     ASSERT(!forth_free(session, hostish), "cannot free a host pointer");
-    ASSERT(!forth_free(session, 8), "cannot free an address that was never allocated");
+    ASSERT(!forth_free(session, 1), "cannot free an address that was never allocated");
+    ASSERT(!forth_free(session, forth_to_in_addr(session)),
+           "cannot free the >IN cell");
 
     forth_session_destroy(session);
     PASS(test_name);
@@ -321,6 +328,213 @@ static void test_file_handles(void) {
     PASS(test_name);
 }
 
+static bool copy_forth_text(ForthSession *session, uint64_t addr, uint64_t n,
+                            char *buf, size_t cap) {
+    uint64_t i;
+    uint8_t byte;
+    if (n >= cap) return false;
+    for (i = 0; i < n; i++) {
+        if (!forth_fetch_byte(session, addr + i, &byte)) return false;
+        buf[i] = (char)byte;
+    }
+    buf[n] = '\0';
+    return true;
+}
+
+static void test_dictionary_headers_and_early_binding(void) {
+    const char *test_name = "dict: headers, immediacy, early binding, word lists";
+    ForthSession *session = forth_session_create();
+    ForthNt nt1 = 0, nt2 = 0, found = 0, hidden = 0;
+    ForthXt xt = 0, xt_found = 0;
+    bool immediate = false;
+    ForthWid forth, extra, current;
+    ForthWid order[FORTH_ORDER_MAX];
+    uint32_t norder = 0;
+    uint64_t name_addr = 0;
+    uint32_t name_len = 0;
+    char namebuf[16];
+
+    ASSERT(session != NULL, "create failed");
+    forth = forth_forth_wordlist(session);
+    ASSERT(forth != 0, "FORTH-WORDLIST");
+    ASSERT(forth_get_current(session) == forth, "CURRENT starts as FORTH");
+    ASSERT(forth_get_order(session, order, FORTH_ORDER_MAX, &norder), "GET-ORDER");
+    ASSERT(norder == 1 && order[0] == forth, "search order is FORTH");
+
+    ASSERT(forth_define(session, "DUP", 3, (ForthXt)1, false, false, &nt1),
+           "define DUP xt=1");
+    ASSERT(nt1 != 0, "nt is not zero");
+    ASSERT(forth_latest(session) == nt1, "LATEST");
+    ASSERT(forth_nt_wid(session, nt1) == forth, "header lives in CURRENT");
+    ASSERT(forth_nt_xt(session, nt1, &xt) && xt == 1, "nt maps to xt 1");
+    ASSERT(!forth_nt_immediate(session, nt1), "not immediate");
+    ASSERT(!forth_nt_hidden(session, nt1), "not hidden");
+    ASSERT(forth_nt_name(session, nt1, &name_addr, &name_len) && name_len == 3,
+           "name length");
+    ASSERT(copy_forth_text(session, name_addr, name_len, namebuf, sizeof(namebuf)),
+           "copy name");
+    ASSERT(strcmp(namebuf, "DUP") == 0, "name bytes");
+
+    ASSERT(forth_find(session, "dup", 3, &found, &xt_found, &immediate),
+           "FIND is case-insensitive");
+    ASSERT(found == nt1 && xt_found == 1 && !immediate, "FIND DUP");
+
+    ASSERT(forth_define(session, "DUP", 3, (ForthXt)2, true, false, &nt2),
+           "redefine DUP xt=2 immediate");
+    ASSERT(nt2 != nt1, "redefinition is a new header");
+    ASSERT(forth_find(session, "DUP", 3, &found, &xt_found, &immediate),
+           "FIND after redefine");
+    ASSERT(found == nt2 && xt_found == 2 && immediate, "FIND sees the new xt");
+    ASSERT(forth_nt_xt(session, nt1, &xt) && xt == 1,
+           "old nt still binds the old xt");
+
+    ASSERT(forth_define(session, "SMUDGE", 6, (ForthXt)3, false, true, &hidden),
+           "hidden header");
+    ASSERT(forth_nt_hidden(session, hidden), "hidden");
+    ASSERT(!forth_find(session, "SMUDGE", 6, &found, &xt_found, &immediate),
+           "FIND skips hidden");
+    ASSERT(forth_reveal(session, hidden), "reveal");
+    ASSERT(forth_find(session, "SMUDGE", 6, &found, &xt_found, &immediate),
+           "FIND after reveal");
+    ASSERT(found == hidden && xt_found == 3, "revealed xt");
+
+    ASSERT(forth_wordlist_create(session, &extra) && extra != forth,
+           "WORDLIST");
+    ASSERT(forth_set_current(session, extra), "SET-CURRENT extra");
+    ASSERT(forth_define(session, "ONLYEXTRA", 9, (ForthXt)4, false, false, &nt1),
+           "define in extra");
+    ASSERT(!forth_find(session, "ONLYEXTRA", 9, &found, &xt_found, &immediate),
+           "not in FORTH search order");
+    order[0] = extra;
+    order[1] = forth;
+    ASSERT(forth_set_order(session, order, 2), "SET-ORDER extra then FORTH");
+    ASSERT(forth_find(session, "ONLYEXTRA", 9, &found, &xt_found, &immediate),
+           "FIND with extra first");
+    ASSERT(xt_found == 4, "extra word");
+    ASSERT(forth_find(session, "DUP", 3, &found, &xt_found, &immediate),
+           "FORTH still searched");
+    ASSERT(xt_found == 2, "DUP from FORTH");
+
+    current = forth_get_current(session);
+    ASSERT(current == extra, "CURRENT stays extra");
+    ASSERT(!forth_set_current(session, 0), "invalid wid");
+    ASSERT(!forth_set_order(session, order, FORTH_ORDER_MAX + 1), "order overflow");
+
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_nested_input_sources(void) {
+    const char *test_name = "source: terminal, evaluate, file, block, restore";
+    ForthSession *session = forth_session_create();
+    uint64_t caddr = 0, u = 0, eval_addr = 0, saved_to_in = 0;
+    int64_t to_in = 0, blk = 0;
+    char text[64];
+    char path[] = "/tmp/forth_source_XXXXXX";
+    int fd;
+    FILE *fp;
+    uint32_t fileid = 0;
+    uint32_t i;
+
+    ASSERT(session != NULL, "create failed");
+    ASSERT(forth_source_depth(session) == 1, "base source");
+    ASSERT(forth_source_id(session) == 0, "terminal SOURCE-ID");
+    ASSERT(forth_to_in_addr(session) != 0, ">IN address");
+    ASSERT(forth_blk_addr(session) != 0, "BLK address");
+    ASSERT(!forth_source_pop(session), "cannot pop the base source");
+
+    ASSERT(forth_source_load_terminal(session, (const uint8_t *)"1 2 +", 5),
+           "load TIB");
+    ASSERT(forth_source(session, &caddr, &u) && u == 5, "SOURCE length");
+    ASSERT(copy_forth_text(session, caddr, u, text, sizeof(text)), "copy TIB");
+    ASSERT(strcmp(text, "1 2 +") == 0, "TIB contents");
+    ASSERT(forth_store_cell(session, forth_to_in_addr(session), 2), "set >IN");
+    ASSERT(forth_fetch_cell(session, forth_to_in_addr(session), &to_in)
+           && to_in == 2, ">IN stored in Forth memory");
+
+    ASSERT(forth_allocate(session, 8, &eval_addr), "evaluate string");
+    ASSERT(forth_store_byte(session, eval_addr, (uint8_t)'A'), "A");
+    ASSERT(forth_store_byte(session, eval_addr + 1, (uint8_t)'B'), "B");
+    ASSERT(forth_store_byte(session, eval_addr + 2, (uint8_t)'C'), "C");
+    ASSERT(forth_source_push_evaluate(session, eval_addr, 3), "EVALUATE");
+    ASSERT(forth_source_depth(session) == 2, "nested");
+    ASSERT(forth_source_id(session) == -1, "EVALUATE SOURCE-ID");
+    ASSERT(forth_source(session, &caddr, &u) && u == 3, "evaluate SOURCE");
+    ASSERT(copy_forth_text(session, caddr, u, text, sizeof(text))
+           && strcmp(text, "ABC") == 0, "evaluate text");
+    ASSERT(forth_fetch_cell(session, forth_to_in_addr(session), &to_in)
+           && to_in == 0, "EVALUATE resets >IN");
+    ASSERT(forth_fetch_cell(session, forth_blk_addr(session), &blk) && blk == 0,
+           "BLK 0 while evaluating");
+    ASSERT(!forth_refill(session), "REFILL is false on a string");
+    ASSERT(forth_source_pop(session), "pop evaluate");
+    ASSERT(forth_source_depth(session) == 1, "restored terminal");
+    ASSERT(forth_source_id(session) == 0, "restored SOURCE-ID");
+    ASSERT(forth_source(session, &caddr, &u) && u == 5, "restored TIB");
+    ASSERT(forth_fetch_cell(session, forth_to_in_addr(session), &to_in)
+           && to_in == 2, "restored >IN");
+
+    fd = mkstemp(path);
+    ASSERT(fd >= 0, "mkstemp");
+    fp = fdopen(fd, "w+");
+    ASSERT(fp != NULL, "fdopen");
+    ASSERT(fwrite("hello\r\nworld\n", 1, 13, fp) == 13, "write lines");
+    ASSERT(fflush(fp) == 0, "flush");
+    fclose(fp);
+    ASSERT(forth_file_open(session, path, "r", &fileid), "open include");
+    ASSERT(forth_source_push_file(session, fileid), "INCLUDE-FILE");
+    ASSERT(forth_source_id(session) == (int64_t)fileid, "file SOURCE-ID");
+    ASSERT(forth_refill(session), "first line");
+    ASSERT(forth_source(session, &caddr, &u) && u == 5, "hello length");
+    ASSERT(copy_forth_text(session, caddr, u, text, sizeof(text))
+           && strcmp(text, "hello") == 0, "CRLF stripped");
+    ASSERT(forth_refill(session), "second line");
+    ASSERT(forth_source(session, &caddr, &u) && u == 5, "world length");
+    ASSERT(copy_forth_text(session, caddr, u, text, sizeof(text))
+           && strcmp(text, "world") == 0, "LF line");
+    ASSERT(!forth_refill(session), "EOF");
+    ASSERT(forth_source_pop(session), "pop file");
+    ASSERT(forth_source_id(session) == 0, "back to terminal");
+    ASSERT(forth_file_close(session, fileid), "close include");
+    unlink(path);
+
+    ASSERT(forth_source_push_block(session, 20), "LOAD 20");
+    ASSERT(forth_source_id(session) == 0, "block SOURCE-ID is 0");
+    ASSERT(forth_fetch_cell(session, forth_blk_addr(session), &blk) && blk == 20,
+           "BLK");
+    ASSERT(forth_source(session, &caddr, &u) && u == FORTH_BLOCK_SIZE,
+           "block is 1024");
+    ASSERT(forth_store_byte(session, caddr, (uint8_t)'Z'), "write block");
+    ASSERT(!forth_refill(session), "block REFILL is false here");
+    ASSERT(forth_source_pop(session), "pop block");
+    ASSERT(forth_fetch_cell(session, forth_blk_addr(session), &blk) && blk == 0,
+           "BLK restored");
+    ASSERT(forth_source_push_block(session, 20), "reload 20");
+    ASSERT(forth_source(session, &caddr, &u), "block SOURCE");
+    {
+        uint8_t byte = 0;
+        ASSERT(forth_fetch_byte(session, caddr, &byte) && byte == (uint8_t)'Z',
+               "block image persists");
+    }
+    ASSERT(forth_source_pop(session), "pop block again");
+    ASSERT(!forth_source_push_block(session, FORTH_BLOCK_COUNT), "block range");
+
+    ASSERT(forth_allocate(session, 1, &eval_addr), "tiny evaluate");
+    ASSERT(forth_store_byte(session, eval_addr, (uint8_t)'x'), "x");
+    for (i = 1; i < FORTH_SOURCE_NEST; i++) {
+        ASSERT(forth_source_push_evaluate(session, eval_addr, 1), "nest");
+    }
+    ASSERT(!forth_source_push_evaluate(session, eval_addr, 1), "nest overflow");
+    while (forth_source_depth(session) > 1) {
+        ASSERT(forth_source_pop(session), "unwind");
+    }
+
+    saved_to_in = forth_to_in_addr(session);
+    ASSERT(saved_to_in % FORTH_CELL_BYTES == 0, ">IN is cell-aligned");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
 int main(void) {
     printf("Forth session runtime tests\n");
     test_session_owns_module_and_vm();
@@ -329,6 +543,8 @@ int main(void) {
     test_stale_decode_requires_rebuild();
     test_address_space_and_allocation();
     test_file_handles();
+    test_dictionary_headers_and_early_binding();
+    test_nested_input_sources();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail ? 1 : 0;
 }

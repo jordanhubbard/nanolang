@@ -16,6 +16,13 @@ persistent `VmState`, Forth stacks that are not the NanoVM operand stack, a
 virtual address space, and a file-handle table. `make test-forth-session`
 covers that slice. It does not compile colon definitions and it is not Core.
 
+Dictionary FIND is case-insensitive for ASCII `A`–`Z`. Redefining a name
+creates a new header; the old name token still maps to the old execution
+token. `SOURCE` and `>IN` live in the virtual address space. Nested
+`EVALUATE`, included files, and blocks restore both on pop. The block image
+is 32 disposable 1024-byte blocks. `TIB`, `>IN`, `BLK`, `STATE`, and that
+image are pinned: `FREE` of those addresses fails.
+
 ## What is pinned
 
 ### Standard document
@@ -213,7 +220,11 @@ definition; and UTF-8 trailing bytes that do not complete a character.
   NanoVM's operand stack (`vm_invoke` must not clear them);
 - a byte-addressable virtual space in `VmState` linear memory, with an
   allocation table so host pointers are not Forth addresses;
-- a file-handle table with generation-checked ids.
+- a file-handle table with generation-checked ids;
+- dictionary headers, name tokens, execution tokens, immediacy, hidden
+  (smudged) names, and a search order of word lists;
+- nested terminal, evaluated-string, included-file, and block input sources
+  with `SOURCE` / `>IN` / `BLK` restoration.
 
 Appending a function without `forth_session_rebuild` leaves decode stale.
 `nvm_verify_function` is the check I will require before dictionary publish;
@@ -224,5 +235,6 @@ the session tests call it when they append a constant function.
 I do not run Jackson `runtests.fth` yet. There is no NanoISA Forth to include
 it. I do not vendor the suites. I do not claim Core.
 
-The next work is dictionary headers, input sources, and colon definitions
-compiled privately to NanoISA, verified, then published.
+The next work is colon definitions compiled privately to NanoISA, verified,
+then published, with `OP_CALL` early binding and `RECURSE` to the reserved
+current definition.

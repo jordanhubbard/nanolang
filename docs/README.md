@@ -96,7 +96,7 @@ How I am built:
     - Frozen Forth 2012 document, not later Forth 200x proposals
     - Jackson v0.15.0 and forth200x snapshot, not yet vendored
     - Gforth 0.7.3 differential on `pi.fs`
-    - Environmental contract; session runtime owns module, VM, stacks, and virtual addresses
+    - Environmental contract; session runtime owns module, VM, stacks, dictionary, and nested input sources
     - I do not claim a Standard System yet
 
 10.2. **[Async Primitives](ASYNC_PRIMITIVES.md)** - My async/await model

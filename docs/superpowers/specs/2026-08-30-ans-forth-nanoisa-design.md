@@ -14,8 +14,10 @@ NanoISA compiler.
 Passing a test suite is evidence. It is not, by itself, a conformance claim.
 
 The session runtime in `src/forth/` exists: one mutable `NvmModule`, one
-persistent `VmState`, Forth stacks, virtual addresses, and file handles.
-`make test-forth-session` is the evidence. Colon compilation is still ahead.
+persistent `VmState`, Forth stacks, virtual addresses, file handles,
+dictionary headers with early-bound execution tokens, and nested input
+sources. `make test-forth-session` is the evidence. Colon compilation is
+still ahead.
 
 ## Architecture
 
