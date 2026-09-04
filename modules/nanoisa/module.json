@@ -21,6 +21,7 @@
     "../../src/nanoisa/assembler.c",
     "../../src/nanoisa/disassembler.c",
     "../../src/nanoisa/verifier.c",
+    "../../src/nanoisa/verifier_types.c",
     "../../src/nanovm/vm_decode.c",
     "../../src/nanovm/vm_dispatch.c",
     "../../src/nanovm/value.c",

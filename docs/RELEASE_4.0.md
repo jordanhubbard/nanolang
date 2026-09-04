@@ -4,10 +4,11 @@ I am NanoLang 4.0. This release completes NanoISA v2 and NanoVM v2: a regular,
 compositional, verified instruction set with a module format that can express
 it, and a runtime whose safety argument is checked rather than assumed.
 
-**This document describes a release I have not made yet.** It is written now so
-that the boundary between what is done and what remains is legible while the
-work is still in progress, and so the release itself is a matter of confirming
-evidence rather than reconstructing it. Phase 12 stands at 60 of 78 items.
+**This document describes a release I have not tagged yet.** It was written
+while the work was in progress so the boundary between done and remaining
+stayed legible, and so the release itself would be a matter of confirming
+evidence rather than reconstructing it. Phase 12 now stands at **78 of 78
+items**; what follows is that confirmation.
 
 ## What I Shipped
 
@@ -82,19 +83,65 @@ evidence rather than reconstructing it. Phase 12 stands at 60 of 78 items.
 Verified with:
 
 - `make test-quick`, `make test-units` and `make examples-core` green.
+- `make test-verify-all-programs` verifies every program in `tests/`: 152
+  programs, 0 failures, 4 known-failing with reasons and acceptance tests.
 - NanoISA, NanoVM, NanoVirt and verifier suites green under clang and GCC.
 - AddressSanitizer and UndefinedBehaviorSanitizer clean. Both jobs had been
   failing to compile for long enough that nobody had seen what they reported;
   when they ran they found 21 undefined-behaviour errors and a heap overflow,
   all fixed here.
-- Benchmark workloads recorded with distributions rather than single timings,
-  under `docs/benchmarks/`.
+- Benchmark workloads recorded with distributions rather than single timings.
+  The suite now measures execution rather than process startup: each workload
+  is timed with one iteration and with many behind a single startup, so the
+  startup terms cancel. Cold startup is reported as its own dimension because
+  it is 60 to 1800 times a single execution and used to be the floor everything
+  else was buried under. Baseline and noise bands in
+  [NANOISA_MEASUREMENTS.md](NANOISA_MEASUREMENTS.md).
 - CI green across x64 and arm64, C, PTX and RISC-V backends, sanitizers,
   coverage, documentation, benchmarks and security.
 
 ## What I Fixed That Nobody Had Seen
 
-Worth recording, because each was invisible rather than unreported:
+Worth recording, because each was invisible rather than unreported.
+
+The largest was the verifier itself. `spec/nanoisa.yaml` declared stack effects
+for only 32 of 161 opcodes, and `verify_stack_heights` skipped an instruction
+whose effect it did not know -- which also skipped enqueueing its successors,
+so the walk stopped there and everything downstream went unverified while
+`nvm_verify` still returned ok. The entire portable ISA was affected. This
+verified clean:
+
+    PUSH_I64 1
+    I64_ADD      ; no declared effect -> the walk stops here
+    POP
+    POP
+    POP          ; underflows a one-deep stack
+    RET
+
+Absence of data was indistinguishable from proof. Fixing it exposed a second
+bug in the same walk -- branch successors resolved an absolute CODE offset
+against a per-function index table, so only function 0, which starts at offset
+0, ever worked -- and then eight latent codegen bugs that the truncated walk
+had been hiding, each of which would have trapped at run time on the path the
+verifier found. All are fixed here, and `make test-verify-all-programs` now
+verifies every program in `tests/` so a program that compiles but does not
+verify cannot sit unnoticed again.
+
+Four reference-ownership leaks, each with a correct counterpart nearby to
+compare against: `vm_array_remove` dropped an element without releasing it
+while `vm_array_set` released what it overwrote; `CALL_INDIRECT` popped the
+callable and nothing ever released it, so every closure call kept its closure
+alive forever; the `OP_CALL_EXTERN` trap never released its arguments; and
+`marshal_result` pushed each string element of a returned array without
+releasing, though `vm_array_push` retains.
+
+The benchmark suite could not detect an interpreter change of any size. It
+timed one process per sample, so every workload took about 17 ms whether it
+retired 78 instructions or 32,082 -- startup was the whole measurement and
+execution under one percent of it. Every optimization decision it existed to
+inform was still open, which is what that looks like from the outside.
+
+And the smaller ones:
 
 - Reading uninitialized `_Bool` fields in the typechecker and transpiler.
   Undefined behaviour a compiler may optimize on, in a flag deciding whether
@@ -114,27 +161,39 @@ given the chance to run, they found a real heap overflow within seconds.
 
 ## Boundary
 
-I do not claim the following as complete, and they are documented as open in
-[my roadmap](ROADMAP.md):
+Every item listed here in earlier drafts is now closed. What remains is
+genuinely outside 4.0, or is tracked with an acceptance test.
 
-- The v2 module format is specified and its container is implemented, but v1
-  remains the default on-disk format. The section encoders, serializer and
-  loader are planned in
-  `docs/superpowers/plans/2026-09-02-nanoisa-v2-module-format.md`.
-- Computed-goto dispatch is not shipped. The portable switch is the only
-  dispatch strategy.
-- Maximum operand depth, frame depth, ownership effects and explicit
-  termination are not verified. Linked-module calls are recognized but their
-  signatures are checked at instantiation rather than at verification.
-- The two-result `ARR_POP` convention remains, as does reference-ownership
-  handling for array removal, closure calls and FFI trap arguments.
-- Whether heap graphs use tracing collection or enforceable cycle restrictions
-  is not decided for the VM.
-- Symbolic assembly examples for NanoLang and Forth are not written.
+**Deliberately later.** Module signing is 5.0 work. The mechanism is nearly
+free, but deciding where verification keys come from and who may issue them
+belongs with the capability and policy work rather than ahead of it. LLVM and
+WebAssembly return only as NanoISA translators, which is Phase 14.
 
-Module signing is deliberately 5.0 work, not 4.0. The mechanism is nearly free,
-but deciding where verification keys come from and who may issue them belongs
-with the capability and policy work rather than ahead of it.
+**Declined on evidence, not deferred.** Computed-goto dispatch, private
+superinstructions, split payload/tag operand stacks and trap stack ranges are
+all measured and rejected in
+[NANOISA_MEASUREMENTS.md](NANOISA_MEASUREMENTS.md). Three of them were
+conditioned on measurement in the first place; the measurement now exists, and
+each entry records what a future prototype would have to beat. The portable
+`switch` remains the only dispatch strategy, which is the fallback the roadmap
+asks for rather than a gap.
+
+**Known and tracked.** Three programs in `tests/` contain a transitively
+imported function whose float arithmetic lowers to integer opcodes, because
+codegen resolves an imported function's parameter names against the main
+program's symbol table by comparing line numbers across different files
+(issue #223). The verifier is right and the bytecode is wrong: the VM traps on
+`I64_ADD` with float operands, so those functions would fail if called. They
+are on the `test-verify-all-programs` allowlist, and removing them from it is
+the acceptance test for the fix. `Makefile.gnu` also tracks no header
+dependencies, so a struct change makes an incremental build untrustworthy
+(issue #211); CI always builds clean, which is why it only ever bites someone
+working locally.
+
+Nothing on this list blocks the release. The first group is scope, the second
+is a decision with evidence behind it, and the third is defects that are
+visible, reproducible and bounded -- which is the difference between a known
+issue and an unknown one.
 
 ## Links
 

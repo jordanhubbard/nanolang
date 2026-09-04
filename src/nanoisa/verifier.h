@@ -13,6 +13,7 @@
 #define NANOISA_VERIFIER_H
 
 #include "nvm_format.h"
+#include "../nanovm/vm_decode.h"   /* VmDecodedFunction, for the type pass */
 #include <stdbool.h>
 
 #define NVM_VERIFY_ERROR_SIZE 256
@@ -56,6 +57,21 @@ NvmVerifyResult nvm_verify_function(const NvmModule *mod, uint32_t fn_idx);
  * has agreed to rather than one it is trusted on. There is no honest maximum
  * for code the verifier rejects, so a failure propagates instead of yielding a
  * number, and *out_max_stack is left untouched. */
+/* Abstract type interpretation over the operand stack, run after the height
+ * walk proves the shape. Declared here so verifier.c can call it; the decoded
+ * function and proven depth come from that walk rather than being recomputed.
+ *
+ * A slot holds either a known tag or unknown, and a merge of two different
+ * known tags widens to unknown rather than failing -- generated code
+ * legitimately joins a real value with a void placeholder. What fails is a
+ * definite contradiction: an instruction requiring an integer given a slot
+ * known to hold a string. Unknown never fails, so imprecision costs only
+ * missed diagnostics. */
+NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
+                                          const VmDecodedFunction *decoded,
+                                          uint16_t max_depth,
+                                          char *error, size_t error_size);
+
 NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
                                               uint32_t fn_idx,
                                               uint16_t *out_max_stack);
