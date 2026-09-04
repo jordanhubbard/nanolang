@@ -147,7 +147,37 @@ shadow list_length {
 }
 ```
 
-### 5. Documentation
+### 5. Your Bytecode Must Verify
+
+Compiling is not verifying. I can emit a module that loads, runs correctly on
+every path you tried, and still fails verification. 4.0 found eight such bugs,
+and each had been passing every test in this repository.
+
+`make test` runs `test-verify-all-programs`, which verifies every program in
+`tests/`. If your change makes a program compile but not verify, that is your
+bug and not the verifier's.
+
+What I prove before a module executes:
+- Stack height through every basic block, with merge states required to agree.
+- Operand types, where a definite contradiction is refused. Unknown never fails.
+- Return shape: every exit leaves exactly what the function declares.
+- Maximum operand depth, declared by the producer and confirmed by the loader.
+- Ownership: retain and release balance on every path.
+
+Two rules about the verifier itself, both learned the expensive way:
+- An unknown stack effect is a hard failure, never a skip. Mine skipped 129 of
+  161 instructions and their successors, then reported success. Absence of
+  evidence must not read as proof.
+- Do not add a rule I do not already enforce at run time. A rule that is not
+  true of the VM is a language restriction smuggled in through the verifier.
+
+If you add a surface that parses input -- a decoder, a loader, an assembler, a
+wire format -- fuzz it. `tests/nanoisa/test_fuzz_malformed.c` and
+`tests/nanovm/test_cop_fuzz.c` show the shape. Write every range check as
+`size > total - offset`, never `offset + size > total`, which wraps and admits
+exactly the input the check exists to reject.
+
+### 6. Documentation
 
 I prefer code that explains itself. Use comments only when necessary.
 
@@ -166,7 +196,7 @@ My README policy:
 - Keep it focused on what I am and how to run me.
 - Do not document every function. Use my `--help` flags.
 
-### 6. Precise Error Messages
+### 7. Precise Error Messages
 
 My error messages must tell the user what happened and how to fix it.
 
@@ -186,7 +216,7 @@ Error at line 42, column 18: Undefined function 'list_Point_new'
 
 I require line and column numbers for every error during parsing, type-checking, or transpiling.
 
-### 7. Backward Compatibility
+### 8. Backward Compatibility
 
 I expect features that I have already released to keep working.
 
@@ -198,14 +228,31 @@ If you want to make a breaking change:
 
 Safe changes include fixing bugs, improving my error messages, or optimizing my performance without changing my behavior.
 
-### 8. Efficiency
+### 9. Efficiency
 
 I value correctness over performance, but I do not tolerate waste.
 
 - Use the right data structures.
 - Avoid slow algorithms where input size might grow.
-- Profile your changes before you optimize them.
-- Memory leaks are bugs. Always free what you allocate.
+- Memory leaks are bugs. Free what you allocate, and balance every retain with
+  a release. I now prove that balance rather than trusting it, and I collect
+  the reference cycles that counting alone can never reclaim.
+
+If you are making a change *because* it should be faster,
+`docs/NANOISA_OPTIMIZATION_POLICY.md` governs and
+`docs/NANOISA_MEASUREMENTS.md` records what I have already measured. The bar:
+
+- Measure with `make benchmark-nanoisa`, using the same machine, compiler,
+  build flags, workloads and sample count before and after.
+- Report a distribution, not a timing: median and interquartile range. One
+  number is not evidence.
+- The median improvement must exceed the run-to-run noise band. Two of my
+  workloads have a 1.6% band and two have a 10% band, so "5% faster" means
+  different things depending on which one you measured.
+- Behavior must not change, and the semantic-equivalence tests must pass.
+- When the measurement says no, I publish that too. Three of the four
+  optimizations evaluated for 4.0 were declined, and the declines are recorded
+  beside the acceptance. A measurement you do not like is still a result.
 
 My compilation should take less than 5 seconds for small files. My shadow tests should take less than 1 second. If you write more than 2000 lines in one file, you may need to split it.
 
@@ -228,15 +275,30 @@ Before you submit your work, verify:
 # Clean build
 make clean && make
 
-# All tests pass
+# All tests. This reaches test-units, which verifies every program in tests/,
+# round-trips canonical disassembly to byte-identical bytecode, and runs the
+# suite through both dispatch strategies.
 make test
 
-# No warnings
+# No warnings from your own program
 ./bin/nanoc your_file.nano
 
 # Self-hosted components build
 make
 ```
+
+If you touched NanoISA, the module format, or the VM, also run the fuzz and
+malformed-input suites directly, because they are the ones that fail loudly on
+a change that looks harmless:
+
+```bash
+make test-fuzz-malformed test-cop-fuzz test-verify-all-programs
+```
+
+If you changed `spec/nanoisa.yaml`, `make schema-check` must pass. The
+specification is the source of truth for the instruction set; the assembler,
+disassembler, and metadata are generated from it, so do not edit them to agree
+with a change you made somewhere else.
 
 ### 4. PR Description
 I expect your description to follow this format:
@@ -252,6 +314,12 @@ Brief description
 - Shadow tests: Done / Updated / None
 - Integration tests: Done / Updated / None
 - All tests passing: Yes / No
+- Every program in tests/ still verifies: Yes / N/A
+
+## Measurement
+Required only for a change made in order to be faster. Median and IQR before
+and after, same machine and flags, per docs/NANOISA_OPTIMIZATION_POLICY.md.
+Omit this section entirely if the change is not a performance claim.
 
 ## Breaking Changes
 Yes / No
@@ -260,6 +328,7 @@ Yes / No
 - Builds warning-free
 - All tests pass
 - Shadow tests pass
+- Bytecode verifies
 - Documentation updated
 - Self-hosted components updated
 ```
