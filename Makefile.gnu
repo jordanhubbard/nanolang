@@ -47,7 +47,11 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -Isrc -D_GNU_SOURCE
+# -fPIC is required on Linux: libnano_session.so links COMMON_OBJECTS, and
+# transpiler.o carries TLS (`sbuf`) that ld rejects without PIC
+# (R_X86_64_TPOFF32). Darwin dylibs are more lenient, which hid this until
+# examples-core built nano_emacs on Ubuntu.
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
@@ -1746,6 +1750,10 @@ $(COMPILER_C): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	@echo "✓ C Compiler: $(COMPILER_C)"
 
 # Default compiler target - link to nanoc_c initially (bootstrap will update to nanoc_stage2)
+# `make nanoc` must work: the CI bench job invokes that name, not bin/nanoc.
+.PHONY: nanoc
+nanoc: $(COMPILER)
+
 $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		ln -sf nanoc_stage2 $(COMPILER); \
@@ -2456,6 +2464,7 @@ help:
 	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
 	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
 	@echo "  make test-interpreter-examples - Language examples under bin/nano"
+	@echo "  make nanoc             - Build bin/nanoc (symlink to nanoc_c or nanoc_stage2)"
 	@echo "  make test-nanoc-bench  - nanoc --bench writes non-zero ns/op"
 	@echo "  make test-bench        - bench_native_run calls the interpreter"
 	@echo "  make nano_forth        - Build bin/forth (NanoISA session REPL for the IDE)"

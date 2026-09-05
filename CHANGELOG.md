@@ -31,6 +31,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - enable the CI `bench` job: `nanoc --bench` measures the tree-walker and fails on a zero ns/op; it does not compare against a stored 2× baseline
 
 ### Fixed
+- NanoVM example coverage treats `emacs/emacs_buffer.nano`, `emacs/emacs_keys.nano`, and `emacs/init.nano` as libraries rather than standalone programs
+- `make nanoc` builds `bin/nanoc`; the CI bench job installs `libssl-dev` instead of unused clang/lld
+- compile with `-fPIC` so Linux can link `libnano_session.so` (TLS in the transpiler is not relocatable otherwise)
 - `VARIABLE` allots the data cell after the name, matching `CREATE`
 - `forth_take_word` consumes the trailing blank so `S"` does not include a
   leading space; interpret `S"` still uses one transient `WORD` buffer
