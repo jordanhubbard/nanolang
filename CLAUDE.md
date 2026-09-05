@@ -26,7 +26,8 @@ mac task close <id> --reason="..."   # complete work
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
 
-1. **File follow-up issues** via `mac task create`
+1. **File follow-up issues** via `mac task create` **and add matching
+   `docs/ROADMAP.md` checkboxes** for defects discovered this session
 2. **Run quality gates** (if code changed) — tests, linters, builds
 3. **Update issue status** via `mac task close`
 4. **PUSH TO REMOTE** — MANDATORY:

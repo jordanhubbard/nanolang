@@ -36,6 +36,9 @@ int64_t nl_sdl_poll_mouse_motion(void);
 /* Poll for keyboard events - returns scancode or -1 */
 int64_t nl_sdl_poll_keypress(void);
 
+int64_t nl_sdl_mod_ctrl(void);
+int64_t nl_sdl_mod_meta(void);
+
 /* Poll for mouse wheel/trackpad scroll - returns positive (up) or negative (down), 0 if no scroll */
 int64_t nl_sdl_poll_mouse_wheel(void);
 

@@ -206,7 +206,7 @@ void bench_print_human(const BenchResult *r, FILE *out) {
 
 /* ── Top-level entry: run all @bench functions ─────────────────────────── */
 
-int bench_run_program(ASTNode *program, const BenchOptions *opts,
+int bench_run_program(ASTNode *program, Environment *env, const BenchOptions *opts,
                       const char *source_file, FILE *out_file) {
     BenchFn fns[BENCH_MAX_FUNCTIONS];
     int fn_count = 0;
@@ -217,6 +217,13 @@ int bench_run_program(ASTNode *program, const BenchOptions *opts,
             "[bench] No @bench functions found.\n"
             "  Annotate functions with @bench or prefix names with 'bench_'.\n");
         return 1;
+    }
+
+    if (env) {
+        if (!run_program(program, env)) {
+            fprintf(stderr, "[bench] interpreter setup failed\n");
+            return 1;
+        }
     }
 
     if (opts->verbose)
@@ -236,12 +243,12 @@ int bench_run_program(ASTNode *program, const BenchOptions *opts,
             continue;
         }
 
-        /* Build a native runner via the interpreter/transpiler.
-         * For now we use a stub runner that calls the interpreter on the AST. */
+        /* Build a native runner via the interpreter. */
         BenchNativeCtx ctx = {
             .program     = program,
             .fn_name     = fn->name,
             .fn_node     = fn->node,
+            .env         = env,
         };
 
         uint64_t n = opts->n_iters;

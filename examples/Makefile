@@ -96,14 +96,11 @@ endif
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
 NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
-# The native Forth interpreter also has a short, user-facing CLI name.
+# The Forth IDE PTY child. NanoISA Forth lives in the parent makefile as
+# bin/nano_forth; bin/forth is that executable, not the old NanoLang interpreter.
 FORTH_CLI :=
 ifeq ($(EXAMPLES_BACKEND_NORMALIZED),c)
-ifeq ($(READLINE_AVAILABLE),yes)
-ifeq ($(IS_SELFHOSTED),)
 FORTH_CLI := $(BIN_DIR)/forth
-endif
-endif
 endif
 
 # === REPL Example ===
@@ -229,7 +226,7 @@ ROOT_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ROOT_EXAMPLES)))
 # === GPU Examples ===
 
 ifeq ($(SDL_AVAILABLE),yes)
-GPU_EXAMPLES := $(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT)
+GPU_EXAMPLES := $(BIN_DIR)/julia_flow$(BIN_SUFFIX)$(BIN_EXT)
 else
 GPU_EXAMPLES :=
 endif
@@ -258,7 +255,8 @@ SDL_EXAMPLES = \
 	$(patsubst graphics/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(SDL_GRAPHICS_SOURCES)) \
 	$(patsubst audio/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard audio/sdl_*.nano)) \
 	$(patsubst games/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard games/sdl_*.nano)) \
-	$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+	$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT) \
+	$(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)
 else
 SDL_EXAMPLES =
 endif
@@ -420,7 +418,7 @@ ALL_VM_SOURCES := $(filter-out $(VM_EXCLUDED_SOURCES),$(ALL_NANO_SOURCES))
 
 # === Targets ===
 
-.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth forth-ide
+.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth forth-ide nano-emacs $(BIN_DIR)/forth
 
 # Default: build all examples
 all: build
@@ -520,8 +518,8 @@ GPU_KERNEL_DIR := $(BIN_DIR)/gpu
 GPU_KERNELS := \
 	$(GPU_KERNEL_DIR)/matmul.ptx \
 	$(GPU_KERNEL_DIR)/matmul.cl \
-	$(GPU_KERNEL_DIR)/ocean.ptx \
-	$(GPU_KERNEL_DIR)/ocean.cl
+	$(GPU_KERNEL_DIR)/julia_flow.ptx \
+	$(GPU_KERNEL_DIR)/julia_flow.cl
 
 gpu-kernels: $(GPU_KERNELS)
 
@@ -534,13 +532,13 @@ $(GPU_KERNEL_DIR)/matmul.ptx: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 $(GPU_KERNEL_DIR)/matmul.cl: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
-$(GPU_KERNEL_DIR)/ocean.ptx: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
+$(GPU_KERNEL_DIR)/julia_flow.ptx: gpu/julia_flow.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target ptx -o $@
 
-$(GPU_KERNEL_DIR)/ocean.cl: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
+$(GPU_KERNEL_DIR)/julia_flow.cl: gpu/julia_flow.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
-$(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT): gpu/ocean.nano $(COMPILER)
+$(BIN_DIR)/julia_flow$(BIN_SUFFIX)$(BIN_EXT): gpu/julia_flow.nano $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
@@ -676,9 +674,10 @@ test-forth: test-forth-see
 run-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@cd .. && FORTH_INTERACTIVE=1 bin/nano_vm bin/nl_forth_interpreter_vm
 
-$(BIN_DIR)/forth: $(BIN_DIR)/nl_forth_interpreter
-	@echo "Linking $@..."
-	cp $< $@
+$(BIN_DIR)/forth:
+	@$(MAKE) -C .. bin/forth
+
+$(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/forth
 
 forth: $(BIN_DIR)/forth
 	@cd .. && ./bin/forth --interactive
@@ -686,6 +685,15 @@ forth: $(BIN_DIR)/forth
 forth-ide: $(COMPILER) $(BIN_DIR)/forth $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 	@echo "Launching Forth IDE..."
 	@cd .. && ./bin/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
+
+$(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT): emacs/nano_emacs.nano emacs/emacs_keys.nano emacs/emacs_buffer.nano emacs/init.nano $(COMPILER)
+	@echo "Building libnano-session and $@..."
+	$(MAKE) -C .. libnano-session
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
+
+nano-emacs: $(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)
+	@echo "Launching Nano Emacs..."
+	@cd .. && ./bin/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)
 
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
@@ -893,6 +901,7 @@ help:
 	@echo "  make mujoco       - Build MuJoCo examples"
 	@echo "  make forth        - Launch the standalone Forth CLI"
 	@echo "  make forth-ide    - Launch the SDL Forth IDE"
+	@echo "  make nano-emacs   - Launch the SDL Nano Emacs editor"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Naming Convention:"

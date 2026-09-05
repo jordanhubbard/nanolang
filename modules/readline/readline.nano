@@ -15,8 +15,11 @@ module readline
 # === EXTERNAL C WRAPPERS ===
 
 # Core readline function - reads a line with editing and prompt
-# Returns empty string on EOF (Ctrl-D)
+# Returns empty string on EOF (Ctrl-D) or on a blank line.
+# Call rl_hit_eof after a read to distinguish those cases.
 extern fn rl_readline_wrapper(_prompt: string) -> string
+extern fn rl_hit_eof_wrapper() -> int
+extern fn rl_raw_getline_wrapper(_prompt: string) -> string
 
 # History management
 extern fn rl_add_history_wrapper(_line: string) -> void
@@ -44,7 +47,7 @@ extern fn rl_append_history_wrapper(_nelements: int, _filename: string) -> int
 
 # Read a line with the given prompt
 # Returns the input string (without newline)
-# Returns empty string on EOF (user pressed Ctrl-D)
+# Returns empty string on EOF (user pressed Ctrl-D) or on a blank line.
 pub fn rl_readline(prompt: string) -> string {
     unsafe {
         return (rl_readline_wrapper prompt)
@@ -53,6 +56,28 @@ pub fn rl_readline(prompt: string) -> string {
 
 shadow rl_readline {
     # Can't test interactive input in shadow test
+    assert true
+}
+
+# 1 when the last rl_readline / rl_raw_getline hit end-of-file.
+pub fn rl_hit_eof() -> bool {
+    unsafe {
+        return (== (rl_hit_eof_wrapper) 1)
+    }
+}
+
+shadow rl_hit_eof {
+    assert (not (rl_hit_eof))
+}
+
+# Line reader that does not take over the tty. Use this from a PTY client.
+pub fn rl_raw_getline(prompt: string) -> string {
+    unsafe {
+        return (rl_raw_getline_wrapper prompt)
+    }
+}
+
+shadow rl_raw_getline {
     assert true
 }
 

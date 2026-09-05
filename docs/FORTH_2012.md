@@ -11,14 +11,19 @@ This file is the pin. `tests/forth/pins.json` is the machine-readable copy.
 The architecture contract is
 [ANS Forth on NanoISA](superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md).
 The compiler that will satisfy these pins is still Phase 13 work. The session
-runtime in `src/forth/` is the first slice: one mutable `NvmModule`, one
-persistent `VmState`, Forth stacks that are not the NanoVM operand stack, a
-virtual address space, and a file-handle table. `make test-forth-session`
-covers that slice. It does not compile colon definitions and it is not Core.
+runtime in `src/forth/` compiles colon definitions to verified NanoISA,
+including `OP_CALL`, `RECURSE`, structured control flow, and `CATCH`/`THROW`.
+`make test-forth-session` covers that slice. It is not Core.
 
 Dictionary FIND is case-insensitive for ASCII `A`–`Z`. Redefining a name
 creates a new header; the old name token still maps to the old execution
-token. `SOURCE` and `>IN` live in the virtual address space. Nested
+token. Colon definitions are reserved, compiled privately to NanoISA, verified,
+and published only when they verify. A compiled call binds the execution token
+it saw; `RECURSE` binds the current reservation. `IF`/`ELSE`/`THEN`,
+`BEGIN`/`UNTIL`/`AGAIN`, and `WHILE`/`REPEAT` patch branches on a checked
+compile-control stack. `CATCH` restores Forth stacks and input sources;
+`vm_invoke` unwinds NanoVM frames. `THROW 0` continues. `SOURCE` and `>IN`
+live in the virtual address space. Nested
 `EVALUATE`, included files, and blocks restore both on pop. The block image
 is 32 disposable 1024-byte blocks. `TIB`, `>IN`, `BLK`, `STATE`, and that
 image are pinned: `FREE` of those addresses fails.
@@ -205,11 +210,38 @@ continue with a host pointer.
 
 The session runtime already rejects stack overflow and underflow, unaligned or
 unallocated addresses, host pointers used as Forth addresses, and stale file
-handles. It returns failure from the C API. `THROW` codes come later with the
-Exception word set. Remaining cases I will record when the compiler lands
-include: division by zero; executing a compile-only word while interpreting;
-a `DOES>` body with the wrong picture; redefining during compilation of that
-definition; and UTF-8 trailing bytes that do not complete a character.
+handles. It returns failure from the C API.
+
+`CATCH` and `THROW` are Forth words. `THROW` HALTs the current NanoISA
+invocation after storing the code; `CATCH` uses a nested invoke so a throw
+from a called word still returns to `CATCH`. An uncaught `THROW` fails
+`forth_interpret`. Compiling `' WORD` compiles a literal xt (interpretation
+semantics plus `LITERAL`).
+
+Executing a compile-only word with `EXECUTE` (or while interpreting a
+non-immediate compile-only stub) is an ambiguous condition I reject: interpret
+fails rather than running `OP_RET` as a silent no-op. Remaining cases I will
+record as they land include: division by zero; a `DOES>` body with the wrong
+picture; redefining during compilation of that definition; and UTF-8 trailing
+bytes that do not complete a character.
+
+Interpret-time `S"` copies into one `WORD` buffer (`session->word_addr`). A
+second `S"` overwrites that buffer. That is the documented transient. Compiled
+`S"` allots in the dictionary and does not use the buffer.
+
+`nl_forth_runtime` uses the session currently on the C invoke/interpret stack
+(`g_forth`). Nested invoke saves and restores it. Two `ForthSession` objects
+do not share a dictionary. I do not support overlapping interprets of two
+sessions on one C stack.
+
+`>BODY` of a `CREATE` child is the captured data address. `>NUMBER` converts
+unsigned digits in `BASE` into a double-cell accumulator and returns the
+unconverted suffix. `POSTPONE` of an immediate host compiles the runtime
+trampoline; `POSTPONE` of a non-immediate word compiles `xt COMPILE,`.
+`ABORT"` types the parsed string and throws `-2` when the flag is true.
+`KEY` and `ACCEPT` read remaining `SOURCE` (the user input device of this
+session is the current input source). `QUIT` empties the return stack, stores
+zero in `STATE`, restores `SOURCE-ID` 0, and stops the current interpret line.
 
 ## Session runtime
 

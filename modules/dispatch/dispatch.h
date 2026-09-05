@@ -66,6 +66,9 @@ void nl_group_notify(void* g, void* q, nl_dispatch_fn fn);
  *  Returns 0 on success, non-zero on timeout. */
 int nl_group_wait_ns(void* g, int64_t timeout_ns);
 
+/** 1 when this host implements libdispatch; 0 on the stub backend. */
+int nl_dispatch_available(void);
+
 #ifdef __cplusplus
 }
 #endif

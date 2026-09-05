@@ -1,0 +1,29 @@
+{
+  "name": "nano_eval",
+  "version": "1.0.0",
+  "stability": "experimental",
+  "summary": "Persistent NanoLang tree-walker session with editor host primitives.",
+  "use_when": [
+    "User wants to evaluate NanoLang inside an editor the way Emacs evaluates Emacs Lisp",
+    "User needs C-x C-e / M-: against a live Environment"
+  ],
+  "avoid_when": [
+    "User wants to compile a program to C (use nanoc)",
+    "User wants GNU Emacs package compatibility"
+  ],
+  "capabilities": [
+    "eval_string",
+    "persistent_environment",
+    "editor_host_primitives"
+  ],
+  "keywords": ["emacs", "eval", "repl", "editor", "interpreter"],
+  "examples": ["examples/emacs/nano_emacs.nano"],
+  "dependencies": {
+    "nanolang": [],
+    "system": []
+  },
+  "io_surfaces": [],
+  "alternatives": [
+    {"when": "batch script", "module": "interpreter bin/nano"}
+  ]
+}

@@ -33,6 +33,15 @@ shadow work_item {
 }
 
 fn main() -> int {
+    if (not (dispatch_available)) {
+        (println "SKIP: libdispatch is not available on this platform")
+        return 0
+    }
+    if (> (str_length (getenv "NANO_INTERPRETER")) 0) {
+        (println "SKIP: the tree-walking interpreter cannot run libdispatch callbacks")
+        return 0
+    }
+
     /* Create a concurrent queue */
     let q: NlQueue = (queue_concurrent "nano.demo.worker")
 
