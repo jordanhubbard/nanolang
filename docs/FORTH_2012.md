@@ -10,8 +10,8 @@ This file is the pin. `tests/forth/pins.json` is the machine-readable copy.
 
 The architecture contract is
 [ANS Forth on NanoISA](superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md).
-The compiler that will satisfy these pins is still Phase 13 work. The session
-runtime in `src/forth/` compiles colon definitions to verified NanoISA,
+The compiler that will satisfy these pins remains Phase 13 work. The session
+runtime and `bin/nano_forth` on main compile colon definitions to verified NanoISA,
 including `OP_CALL`, `RECURSE`, structured control flow, and `CATCH`/`THROW`.
 `make test-forth-session` covers that slice. It is not Core.
 
@@ -63,8 +63,7 @@ Gforth.
 
 `make test-forth-gforth-diff` runs `examples/language/forth/pi.fs` for 0, 1, 10,
 and 50 places under that Gforth and checks the exact decimal strings below.
-That is tested against Gforth 0.7.3. It is not a claim about my own Forth,
-which does not compile colon definitions to NanoISA yet.
+That is tested against Gforth 0.7.3. It is not a claim about my own Forth.
 
 | Places | Output |
 | ---: | --- |
@@ -264,9 +263,8 @@ the session tests call it when they append a constant function.
 
 ## What this does not do
 
-I do not run Jackson `runtests.fth` yet. There is no NanoISA Forth to include
-it. I do not vendor the suites. I do not claim Core.
-
-The next work is colon definitions compiled privately to NanoISA, verified,
-then published, with `OP_CALL` early binding and `RECURSE` to the reserved
-current definition.
+`make test-forth-jackson` is the Jackson Core gate. It invokes `bin/forth`
+against `runtests.fth` through `INCLUDED`, with a timeout, once the pinned suite
+is present. It currently fails because the NanoISA session does not implement
+the INCLUDE/File Access support required by `INCLUDED`. Jackson Core is not a
+pass until that target is green. I do not claim Core or a Standard System.
