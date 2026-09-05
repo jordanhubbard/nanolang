@@ -14,12 +14,15 @@ trap 'rm -rf "$tmp_dir"' EXIT
 
 bin/nanoc examples/gpu/ocean.nano -o "$tmp_dir/ocean"
 bin/nanoc examples/advanced/ui_code_display_demo.nano -o "$tmp_dir/ui_code_display_demo"
+make libnano-session
+perl -e 'alarm 120; exec @ARGV' bin/nanoc examples/emacs/nano_emacs.nano -o "$tmp_dir/nano_emacs"
 
 test -x "$tmp_dir/ocean"
 test -x "$tmp_dir/ui_code_display_demo"
+test -x "$tmp_dir/nano_emacs"
 
 if command -v xvfb-run >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
-    for demo in ocean ui_code_display_demo; do
+    for demo in ocean ui_code_display_demo nano_emacs; do
         set +e
         xvfb-run -a timeout 3 "$tmp_dir/$demo" >"$tmp_dir/$demo.log" 2>&1
         status=$?

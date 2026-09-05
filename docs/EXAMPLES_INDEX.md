@@ -1,8 +1,8 @@
 # My Examples Index
 
-Last audited: 2026-08-23.
+Last audited: 2026-09-04.
 
-I have 241 `.nano` files under `examples/`: 8 at the directory root and 233 below category directories. This count includes the generated OPL output fixture. I count files on disk; deleted sketches do not remain examples by reputation alone.
+I have 245 `.nano` files under `examples/`: 8 at the directory root and 237 below category directories. This count includes the generated OPL output fixture. I count files on disk; deleted sketches do not remain examples by reputation alone.
 
 This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
@@ -65,6 +65,7 @@ Use these build labels:
 | `examples/data/` | 1 | data module demos |
 | `examples/debug/` | 4 | diagnostics, logging, property tests |
 | `examples/diagnostics/` | 1 | expected-failure diagnostics |
+| `examples/emacs/` | 4 | SDL editor plus keymap and buffer helpers |
 | `examples/games/` | 3 | SDL game showcases |
 | `examples/gpu/` | 6 | GPU modules |
 | `examples/graphics/` | 19 | SDL and OpenGL-adjacent visual examples |
@@ -249,6 +250,7 @@ These have real value because they show that I can hold a larger design together
 | `examples/games/sdl_asteroids.nano` | Real-time loop, collision logic, wrapping, scoring, and rendering. |
 | `examples/audio/sdl_nanoamp.nano` | Audio, UI, visualization, and preferences. |
 | `examples/graphics/sdl_forth_ide.nano` | Terminal-like UI, process interaction, and editor behavior. |
+| `examples/emacs/nano_emacs.nano` | Windowed SDL editor with panes, a minibuffer, and NanoLang as the extension language. |
 | `examples/playground/playground_server.nano` | Browser-facing tooling around compilation. |
 | `examples/large_project/` | A small package with a manifest and multiple imported source files. |
 

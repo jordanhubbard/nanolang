@@ -28,6 +28,16 @@ stays parked until Phase 13 closes. Option C remains 4.4.
   `NANO_PROFILE` once at process startup, cache its boolean, keep disabled hooks
   cheap, preserve timing and flamegraph evidence, and test enabled and disabled
   generated executables without rebuilding.
+- [x] I ship a windowed SDL editor (`examples/emacs/nano_emacs.nano`) that uses
+  `modules/ui_widgets` and the line buffer in `examples/lib/source_editor.nano`,
+  with Emacs-shaped panes, a minibuffer, and C-x / M-x keys.
+- [x] I evaluate NanoLang in that editor through a persistent tree-walker
+  session (`modules/nano_eval`) with host primitives `ed_message`, `ed_insert`,
+  `ed_buffer_string`, `ed_point`, `ed_goto_char`, `ed_find_file`,
+  `ed_save_buffer`, `ed_split_window`, and `ed_other_window`.
+- [x] I test keymap prefix dispatch, buffer point/insert, `eval_string` of
+  `(+ 1 2)`, surviving `defn`, queued `ed_message`, and I compile the editor
+  with a timeout. I do not claim GNU Emacs compatibility.
 - [x] **4.1 / Phase 13 (primary).** I implement typed Forth import declarations
   that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
 - [x] **4.1 / Phase 13 (primary).** I reject FFI signatures the active ABI

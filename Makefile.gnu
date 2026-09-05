@@ -616,6 +616,39 @@ test-eval: stage1
 	@./tests/test_eval
 	@rm -f tests/test_eval
 
+ifeq ($(UNAME_S),Darwin)
+NANO_EVAL_EXPORT = -Wl,-export_dynamic
+NANO_SESSION_LIB = $(BIN_DIR)/libnano_session.dylib
+NANO_SESSION_LINKFLAGS = -dynamiclib -install_name @rpath/libnano_session.dylib
+else
+NANO_EVAL_EXPORT = -Wl,--export-dynamic
+NANO_SESSION_LIB = $(BIN_DIR)/libnano_session.so
+NANO_SESSION_LINKFLAGS = -shared
+endif
+
+.PHONY: test-nano-eval
+test-nano-eval: stage1
+	@echo "Running NanoLang editor eval-session tests..."
+	$(CC) $(CFLAGS) -Imodules/nano_eval -o tests/test_nano_eval \
+		tests/test_nano_eval.c modules/nano_eval/nano_eval.c \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(NANO_EVAL_EXPORT)
+	@./tests/test_nano_eval
+	@rm -f tests/test_nano_eval
+
+.PHONY: libnano-session
+libnano-session: $(NANO_SESSION_LIB)
+
+$(NANO_SESSION_LIB): modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_stubs.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -fPIC $(NANO_SESSION_LINKFLAGS) -o $@ \
+		modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_stubs.c \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-nano-emacs
+test-nano-emacs: stage1 libnano-session
+	@echo "Compiling Nano Emacs (timeout 120s)..."
+	perl -e 'alarm 120; exec @ARGV' ./bin/nanoc_c examples/emacs/nano_emacs.nano -o bin/nano_emacs
+	@test -x bin/nano_emacs
+
 .PHONY: test-opt-passes
 test-opt-passes: stage1
 	@echo "Running optimization pass unit tests..."
@@ -919,7 +952,7 @@ test-forth-pty: $(BIN_DIR)/forth
 	@rm -f tests/forth/test_forth_pty_repl
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1480,7 +1513,7 @@ $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 # Defaults: C reference compiler, C/native backend, one pass.
 examples: examples-core
 
-.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-launcher forth forth-ide
+.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-launcher forth forth-ide nano-emacs
 
 examples-core: modules-index check-deps-sdl
 	@echo ""
@@ -1571,6 +1604,9 @@ forth: $(BIN_DIR)/forth
 
 forth-ide: $(COMPILER_C) check-deps-sdl $(BIN_DIR)/forth
 	@$(MAKE) -C examples forth-ide COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+
+nano-emacs: $(COMPILER_C) check-deps-sdl libnano-session
+	@$(MAKE) -C examples nano-emacs COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
 # bin/nano_vm. Every eligible source must lower successfully.
@@ -2394,6 +2430,9 @@ help:
 	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
 	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
 	@echo "  make nano_forth        - Build bin/forth (NanoISA session REPL for the IDE)"
+	@echo "  make test-nano-eval    - SDL editor NanoLang eval session (C-x C-e host)"
+	@echo "  make libnano-session   - Tree-walker dylib for Nano Emacs (dlopen)"
+	@echo "  make test-nano-emacs   - Compile examples/emacs/nano_emacs.nano with timeout"
 	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"

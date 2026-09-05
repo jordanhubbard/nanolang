@@ -255,7 +255,8 @@ SDL_EXAMPLES = \
 	$(patsubst graphics/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(SDL_GRAPHICS_SOURCES)) \
 	$(patsubst audio/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard audio/sdl_*.nano)) \
 	$(patsubst games/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(wildcard games/sdl_*.nano)) \
-	$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT)
+	$(BIN_DIR)/sdl_example_launcher$(BIN_SUFFIX)$(BIN_EXT) \
+	$(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)
 else
 SDL_EXAMPLES =
 endif
@@ -417,7 +418,7 @@ ALL_VM_SOURCES := $(filter-out $(VM_EXCLUDED_SOURCES),$(ALL_NANO_SOURCES))
 
 # === Targets ===
 
-.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth forth-ide $(BIN_DIR)/forth
+.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth forth-ide nano-emacs $(BIN_DIR)/forth
 
 # Default: build all examples
 all: build
@@ -685,6 +686,15 @@ forth-ide: $(COMPILER) $(BIN_DIR)/forth $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(B
 	@echo "Launching Forth IDE..."
 	@cd .. && ./bin/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 
+$(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT): emacs/nano_emacs.nano emacs/emacs_keys.nano emacs/emacs_buffer.nano emacs/init.nano $(COMPILER)
+	@echo "Building libnano-session and $@..."
+	$(MAKE) -C .. libnano-session
+	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
+
+nano-emacs: $(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)
+	@echo "Launching Nano Emacs..."
+	@cd .. && ./bin/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)
+
 # Category targets
 nl: $(COMPILER) $(NL_EXAMPLES)
 api-lessons: $(COMPILER) $(API_LESSONS_EXAMPLES)
@@ -891,6 +901,7 @@ help:
 	@echo "  make mujoco       - Build MuJoCo examples"
 	@echo "  make forth        - Launch the standalone Forth CLI"
 	@echo "  make forth-ide    - Launch the SDL Forth IDE"
+	@echo "  make nano-emacs   - Launch the SDL Nano Emacs editor"
 	@echo "  make clean        - Remove build artifacts"
 	@echo ""
 	@echo "Naming Convention:"
