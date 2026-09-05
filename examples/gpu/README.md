@@ -27,7 +27,7 @@ arguments.
 
 On macOS I load `/System/Library/Frameworks/OpenCL.framework/OpenCL`. Apple has
 deprecated OpenCL. Framework presence is not a portability guarantee, and I do
-not describe the GPU Ocean prototype as a supported macOS showcase.
+not describe the OpenCL Julia showcase as a supported macOS guarantee.
 
 ## Quick start
 

@@ -226,7 +226,7 @@ ROOT_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(ROOT_EXAMPLES)))
 # === GPU Examples ===
 
 ifeq ($(SDL_AVAILABLE),yes)
-GPU_EXAMPLES := $(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT)
+GPU_EXAMPLES := $(BIN_DIR)/julia_flow$(BIN_SUFFIX)$(BIN_EXT)
 else
 GPU_EXAMPLES :=
 endif
@@ -518,8 +518,8 @@ GPU_KERNEL_DIR := $(BIN_DIR)/gpu
 GPU_KERNELS := \
 	$(GPU_KERNEL_DIR)/matmul.ptx \
 	$(GPU_KERNEL_DIR)/matmul.cl \
-	$(GPU_KERNEL_DIR)/ocean.ptx \
-	$(GPU_KERNEL_DIR)/ocean.cl
+	$(GPU_KERNEL_DIR)/julia_flow.ptx \
+	$(GPU_KERNEL_DIR)/julia_flow.cl
 
 gpu-kernels: $(GPU_KERNELS)
 
@@ -532,13 +532,13 @@ $(GPU_KERNEL_DIR)/matmul.ptx: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 $(GPU_KERNEL_DIR)/matmul.cl: gpu/matmul.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
-$(GPU_KERNEL_DIR)/ocean.ptx: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
+$(GPU_KERNEL_DIR)/julia_flow.ptx: gpu/julia_flow.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target ptx -o $@
 
-$(GPU_KERNEL_DIR)/ocean.cl: gpu/ocean.nano $(COMPILER) | $(GPU_KERNEL_DIR)
+$(GPU_KERNEL_DIR)/julia_flow.cl: gpu/julia_flow.nano $(COMPILER) | $(GPU_KERNEL_DIR)
 	$(COMPILER) $< --target opencl -o $@
 
-$(BIN_DIR)/ocean$(BIN_SUFFIX)$(BIN_EXT): gpu/ocean.nano $(COMPILER)
+$(BIN_DIR)/julia_flow$(BIN_SUFFIX)$(BIN_EXT): gpu/julia_flow.nano $(COMPILER)
 	@echo "Building $@..."
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 

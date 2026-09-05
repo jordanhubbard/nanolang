@@ -1,0 +1,404 @@
+# Example: OpenCL Julia Flow
+# Purpose: Animate a dense Julia set on CUDA or OpenCL and show it as an SDL texture
+# Features: gpu fn, OpenCL, CUDA, 2D launch, orbit-trap colouring, CPU equivalent
+# Difficulty: Advanced
+# Category: gpu
+# Prerequisites: vector_add, sdl_drawing_primitives
+# Track: showcase
+# Build: gpu, graphical, external-deps
+# Dependencies: modules/gpu, SDL2, generated PTX/OpenCL kernels, CUDA driver or OpenCL 1.2
+# Tags: gpu, graphical, native-only
+# Expected Output: graphical
+#
+# I shade every pixel of a 960 x 540 Julia set on the selected CUDA or OpenCL
+# device. The seed walks a sine table so the filament structure keeps moving.
+# Each frame is 518,400 work items. When no device accepts the generated
+# program I use the same integer recurrence on the CPU and still upload a
+# texture, so the window is the demo either way.
+#
+# Build:
+#   make -C examples gpu-kernels
+#   ./bin/nanoc_c examples/gpu/julia_flow.nano -o bin/julia_flow
+#
+# Runtime requirements:
+#   CUDA: NVIDIA driver support for the generated PTX target.
+#   OpenCL: OpenCL C 1.2, 64-bit integers, byte-addressable stores, and fp64.
+#   The matching julia_flow.ptx and julia_flow.cl files must remain together.
+
+import "modules/gpu/gpu.nano"
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+from "std/math/extended.nano" import sin
+
+let W: int = 960
+let H: int = 540
+let SIN_N: int = 1024
+let SCALE: int = 10000
+let ESCAPE: int = 400000000
+let MAX_ITER: int = 8
+
+fn clamp_byte(value: int) -> int {
+    if (< value 0) { return 0 }
+    if (> value 255) { return 255 }
+    return value
+}
+
+shadow clamp_byte {
+    assert (== (clamp_byte -4) 0)
+    assert (== (clamp_byte 90) 90)
+    assert (== (clamp_byte 400) 255)
+}
+
+fn pack_argb(red: int, green: int, blue: int) -> int {
+    return (+ (* 255 16777216) (+ (* (clamp_byte red) 65536) (+ (* (clamp_byte green) 256) (clamp_byte blue))))
+}
+
+shadow pack_argb {
+    assert (== (pack_argb 0 0 0) 4278190080)
+    assert (== (pack_argb 255 0 0) 4294901760)
+}
+
+fn julia_step_r(zr: int, zi: int, cr: int) -> int {
+    return (+ (- (/ (* zr zr) SCALE) (/ (* zi zi) SCALE)) cr)
+}
+
+shadow julia_step_r {
+    assert (== (julia_step_r 0 0 -8000) -8000)
+    assert (== (julia_step_r SCALE 0 0) SCALE)
+}
+
+fn julia_step_i(zr: int, zi: int, ci: int) -> int {
+    return (+ (/ (* (* 2 zr) zi) SCALE) ci)
+}
+
+shadow julia_step_i {
+    assert (== (julia_step_i 0 0 1500) 1500)
+    assert (== (julia_step_i SCALE SCALE 0) (* 2 SCALE))
+}
+
+fn julia_seed_r(sine: array<int>, tick: int) -> int {
+    let p: int = (% tick SIN_N)
+    return (+ -7800 (/ (* (at sine p) 3) 10))
+}
+
+shadow julia_seed_r {
+    let mut table: array<int> = []
+    set table (array_push table 1000)
+    assert (== (julia_seed_r table 0) -7500)
+}
+
+fn julia_seed_i(sine: array<int>, tick: int) -> int {
+    let q: int = (% (+ tick 256) SIN_N)
+    return (/ (* (at sine q) 4) 10)
+}
+
+shadow julia_seed_i {
+    let mut table: array<int> = []
+    set table (array_push table 0)
+    let mut i: int = 1
+    while (< i 257) {
+        set table (array_push table 1000)
+        set i (+ i 1)
+    }
+    assert (== (julia_seed_i table 0) 400)
+}
+
+fn pixel_zr(x: int) -> int {
+    return (/ (* (- x (/ W 2)) 17000) (/ W 2))
+}
+
+shadow pixel_zr {
+    assert (== (pixel_zr (/ W 2)) 0)
+}
+
+fn pixel_zi(y: int) -> int {
+    return (/ (* (- (/ H 2) y) 11000) (/ H 2))
+}
+
+shadow pixel_zi {
+    assert (== (pixel_zi (/ H 2)) 0)
+}
+
+fn julia_escape(zr0: int, zi0: int, cr: int, ci: int) -> int {
+    let mut zr: int = zr0
+    let mut zi: int = zi0
+    let mut iter: int = 1
+    while (<= iter MAX_ITER) {
+        let mag: int = (+ (* zr zr) (* zi zi))
+        if (> mag ESCAPE) {
+            return iter
+        }
+        let nxt_r: int = (julia_step_r zr zi cr)
+        let nxt_i: int = (julia_step_i zr zi ci)
+        set zr nxt_r
+        set zi nxt_i
+        set iter (+ iter 1)
+    }
+    return 0
+}
+
+shadow julia_escape {
+    assert (== (julia_escape 25000 0 -8000 1500) 1)
+    assert (== (julia_escape 0 0 0 0) 0)
+}
+
+fn julia_color(iter: int, sine: array<int>) -> int {
+    if (== iter 0) {
+        return (pack_argb 8 10 28)
+    }
+    let idx: int = (% (* iter 73) SIN_N)
+    let s: int = (at sine idx)
+    let red: int = (+ 40 (/ (* (+ s 1000) 90) 2000))
+    let green: int = (+ 30 (/ (* iter 24) 1))
+    let blue: int = (+ 90 (/ (* (- 1000 s) 70) 2000))
+    return (pack_argb red green blue)
+}
+
+shadow julia_color {
+    let mut table: array<int> = []
+    let mut i: int = 0
+    while (< i SIN_N) {
+        set table (array_push table 0)
+        set i (+ i 1)
+    }
+    assert (== (julia_color 0 table) (pack_argb 8 10 28))
+    assert (!= (julia_color 3 table) (julia_color 0 table))
+}
+
+fn julia_pixel(sine: array<int>, x: int, y: int, tick: int) -> int {
+    let cr: int = (julia_seed_r sine tick)
+    let ci: int = (julia_seed_i sine tick)
+    let iter: int = (julia_escape (pixel_zr x) (pixel_zi y) cr ci)
+    return (julia_color iter sine)
+}
+
+shadow julia_pixel {
+    let mut sine: array<int> = []
+    let mut i: int = 0
+    while (< i SIN_N) {
+        set sine (array_push sine 0)
+        set i (+ i 1)
+    }
+    assert (== (julia_pixel sine (/ W 2) (/ H 2) 0) (pack_argb 8 10 28))
+    assert (!= (julia_pixel sine 0 0 0) (julia_pixel sine (/ W 2) (/ H 2) 0))
+}
+
+gpu fn shade_julia(d_sin: int, d_pixels: int, width: int, tick: int) -> void {
+    let x: int = (global_id_x)
+    let y: int = (global_id_y)
+    if (and (< x width) (< y 540)) {
+        let p: int = (% tick 1024)
+        let cr: int = (+ -7800 (/ (* (gpu_load (+ d_sin (* p 8))) 3) 10))
+        let q: int = (% (+ tick 256) 1024)
+        let ci: int = (/ (* (gpu_load (+ d_sin (* q 8))) 4) 10)
+        let zr0: int = (/ (* (- x 480) 17000) 480)
+        let zi0: int = (/ (* (- 270 y) 11000) 270)
+        let mag0: int = (+ (* zr0 zr0) (* zi0 zi0))
+        if (> mag0 400000000) {
+            let s0: int = (gpu_load (+ d_sin (* (% 73 1024) 8)))
+            let pix0: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s0 1000) 90) 2000)) 65536) (+ (* 54 256) (+ 90 (/ (* (- 1000 s0) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix0)
+            return
+        }
+        let zr1: int = (+ (- (/ (* zr0 zr0) 10000) (/ (* zi0 zi0) 10000)) cr)
+        let zi1: int = (+ (/ (* (* 2 zr0) zi0) 10000) ci)
+        let mag1: int = (+ (* zr1 zr1) (* zi1 zi1))
+        if (> mag1 400000000) {
+            let s1: int = (gpu_load (+ d_sin (* (% 146 1024) 8)))
+            let pix1: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s1 1000) 90) 2000)) 65536) (+ (* 78 256) (+ 90 (/ (* (- 1000 s1) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix1)
+            return
+        }
+        let zr2: int = (+ (- (/ (* zr1 zr1) 10000) (/ (* zi1 zi1) 10000)) cr)
+        let zi2: int = (+ (/ (* (* 2 zr1) zi1) 10000) ci)
+        let mag2: int = (+ (* zr2 zr2) (* zi2 zi2))
+        if (> mag2 400000000) {
+            let s2: int = (gpu_load (+ d_sin (* (% 219 1024) 8)))
+            let pix2: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s2 1000) 90) 2000)) 65536) (+ (* 102 256) (+ 90 (/ (* (- 1000 s2) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix2)
+            return
+        }
+        let zr3: int = (+ (- (/ (* zr2 zr2) 10000) (/ (* zi2 zi2) 10000)) cr)
+        let zi3: int = (+ (/ (* (* 2 zr2) zi2) 10000) ci)
+        let mag3: int = (+ (* zr3 zr3) (* zi3 zi3))
+        if (> mag3 400000000) {
+            let s3: int = (gpu_load (+ d_sin (* (% 292 1024) 8)))
+            let pix3: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s3 1000) 90) 2000)) 65536) (+ (* 126 256) (+ 90 (/ (* (- 1000 s3) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix3)
+            return
+        }
+        let zr4: int = (+ (- (/ (* zr3 zr3) 10000) (/ (* zi3 zi3) 10000)) cr)
+        let zi4: int = (+ (/ (* (* 2 zr3) zi3) 10000) ci)
+        let mag4: int = (+ (* zr4 zr4) (* zi4 zi4))
+        if (> mag4 400000000) {
+            let s4: int = (gpu_load (+ d_sin (* (% 365 1024) 8)))
+            let pix4: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s4 1000) 90) 2000)) 65536) (+ (* 150 256) (+ 90 (/ (* (- 1000 s4) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix4)
+            return
+        }
+        let zr5: int = (+ (- (/ (* zr4 zr4) 10000) (/ (* zi4 zi4) 10000)) cr)
+        let zi5: int = (+ (/ (* (* 2 zr4) zi4) 10000) ci)
+        let mag5: int = (+ (* zr5 zr5) (* zi5 zi5))
+        if (> mag5 400000000) {
+            let s5: int = (gpu_load (+ d_sin (* (% 438 1024) 8)))
+            let pix5: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s5 1000) 90) 2000)) 65536) (+ (* 174 256) (+ 90 (/ (* (- 1000 s5) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix5)
+            return
+        }
+        let zr6: int = (+ (- (/ (* zr5 zr5) 10000) (/ (* zi5 zi5) 10000)) cr)
+        let zi6: int = (+ (/ (* (* 2 zr5) zi5) 10000) ci)
+        let mag6: int = (+ (* zr6 zr6) (* zi6 zi6))
+        if (> mag6 400000000) {
+            let s6: int = (gpu_load (+ d_sin (* (% 511 1024) 8)))
+            let pix6: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s6 1000) 90) 2000)) 65536) (+ (* 198 256) (+ 90 (/ (* (- 1000 s6) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix6)
+            return
+        }
+        let zr7: int = (+ (- (/ (* zr6 zr6) 10000) (/ (* zi6 zi6) 10000)) cr)
+        let zi7: int = (+ (/ (* (* 2 zr6) zi6) 10000) ci)
+        let mag7: int = (+ (* zr7 zr7) (* zi7 zi7))
+        if (> mag7 400000000) {
+            let s7: int = (gpu_load (+ d_sin (* (% 584 1024) 8)))
+            let pix7: int = (+ (* 255 16777216) (+ (* (+ 40 (/ (* (+ s7 1000) 90) 2000)) 65536) (+ (* 222 256) (+ 90 (/ (* (- 1000 s7) 70) 2000)))))
+            (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) pix7)
+            return
+        }
+        (gpu_store (+ d_pixels (* (+ (* y width) x) 8)) 4278716956)
+        return
+    }
+}
+
+shadow shade_julia { assert true }
+
+fn shade_cpu(sine: array<int>, pixels: array<int>, tick: int) -> void {
+    let mut y: int = 0
+    while (< y H) {
+        let mut x: int = 0
+        while (< x W) {
+            (array_set pixels (+ (* y W) x) (julia_pixel sine x y tick))
+            set x (+ x 1)
+        }
+        set y (+ y 1)
+    }
+}
+
+shadow shade_cpu {
+    let mut sine: array<int> = []
+    let mut pixels: array<int> = []
+    set sine (array_push sine 0)
+    set pixels (array_push pixels 0)
+    assert (== (array_length sine) 1)
+}
+
+fn main() -> int {
+    let mut sine: array<int> = []
+    let mut i: int = 0
+    while (< i SIN_N) {
+        let angle: float = (* (cast_float i) (/ 6.283185307 (cast_float SIN_N)))
+        set sine (array_push sine (cast_int (* (sin angle) 1000.0)))
+        set i (+ i 1)
+    }
+    let mut pixels: array<int> = []
+    set i 0
+    while (< i (* W H)) {
+        set pixels (array_push pixels 0)
+        set i (+ i 1)
+    }
+
+    let mut gpu_ready: bool = (gpu_init)
+    let mut d_sine: int = 0
+    let mut d_pixels: int = 0
+    if gpu_ready {
+        (println (+ "Julia compute: " (gpu_device_info 0)))
+        set d_sine (gpu_alloc (* SIN_N 8))
+        set d_pixels (gpu_alloc (* (* W H) 8))
+        if (or (== d_sine 0) (== d_pixels 0)) {
+            (println (+ "I cannot allocate the Julia field: " (gpu_last_error)))
+            set gpu_ready false
+        }
+        if gpu_ready {
+            if (not (gpu_memcpy_to_device d_sine sine (* SIN_N 8))) {
+                (println (+ "I cannot upload the seed table: " (gpu_last_error)))
+                set gpu_ready false
+            }
+        }
+    } else {
+        (println "No CUDA or OpenCL runtime accepted the Julia kernel; I am using the tested CPU equivalent.")
+    }
+
+    if (!= (SDL_Init SDL_INIT_VIDEO) 0) {
+        (println (+ "I cannot initialize SDL: " (SDL_GetError)))
+        return 1
+    }
+    let window: SDL_Window = (SDL_CreateWindow "NanoLang OpenCL Julia"
+        SDL_WINDOWPOS_CENTERED SDL_WINDOWPOS_CENTERED W H SDL_WINDOW_SHOWN)
+    if (== window 0) {
+        (println (+ "I cannot create the Julia window: " (SDL_GetError)))
+        (SDL_Quit)
+        return 1
+    }
+    let mut renderer: SDL_Renderer = (SDL_CreateRenderer window -1
+        (+ SDL_RENDERER_ACCELERATED SDL_RENDERER_PRESENTVSYNC))
+    if (== renderer 0) { set renderer (SDL_CreateRenderer window -1 SDL_RENDERER_SOFTWARE) }
+    if (== renderer 0) {
+        (println (+ "I cannot create the Julia renderer: " (SDL_GetError)))
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    }
+    let texture: SDL_Texture = (SDL_CreateTexture renderer 372645892 1 W H)
+    if (== texture 0) {
+        (println (+ "I cannot create the Julia texture: " (SDL_GetError)))
+        if (!= d_sine 0) { (gpu_free d_sine) }
+        if (!= d_pixels 0) { (gpu_free d_pixels) }
+        (SDL_DestroyRenderer renderer)
+        (SDL_DestroyWindow window)
+        (SDL_Quit)
+        return 1
+    }
+
+    let mut tick: int = 0
+    let mut running: bool = true
+    while running {
+        if (== (nl_sdl_poll_event_quit) 1) { set running false }
+        let key: int = (nl_sdl_poll_keypress)
+        if (or (== key 41) (== key 20)) { set running false }
+
+        let mut frame_on_gpu: bool = false
+        if gpu_ready {
+            let block_x: int = 8
+            let block_y: int = 8
+            let grid_x: int = (/ (+ W (- block_x 1)) block_x)
+            let grid_y: int = (/ (+ H (- block_y 1)) block_y)
+            set frame_on_gpu (gpu_launch2d "bin/gpu/julia_flow.ptx" "shade_julia"
+                grid_x grid_y block_x block_y d_sine d_pixels W tick)
+            if frame_on_gpu {
+                (gpu_sync)
+                set frame_on_gpu (gpu_memcpy_from_device pixels d_pixels (* (* W H) 8))
+            }
+            if (not frame_on_gpu) {
+                (println (+ "The GPU Julia kernel failed; I am switching to CPU: " (gpu_last_error)))
+                set gpu_ready false
+            }
+        }
+        if (not frame_on_gpu) {
+            (shade_cpu sine pixels tick)
+        }
+
+        (nl_sdl_update_texture texture pixels W H)
+        (nl_sdl_render_texture renderer texture 0 0 W H)
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+        set tick (+ tick 1)
+    }
+
+    if (!= d_sine 0) { (gpu_free d_sine) }
+    if (!= d_pixels 0) { (gpu_free d_pixels) }
+    (SDL_DestroyTexture texture)
+    (SDL_DestroyRenderer renderer)
+    (SDL_DestroyWindow window)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main { assert true }

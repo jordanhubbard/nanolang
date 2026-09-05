@@ -251,6 +251,7 @@ These have real value because they show that I can hold a larger design together
 | `examples/audio/sdl_nanoamp.nano` | Audio, UI, visualization, and preferences. |
 | `examples/graphics/sdl_forth_ide.nano` | Terminal-like UI, process interaction, and editor behavior. |
 | `examples/emacs/nano_emacs.nano` | Windowed SDL editor with panes, a minibuffer, and NanoLang as the extension language. |
+| `examples/gpu/julia_flow.nano` | Animated OpenCL/CUDA Julia set as an SDL texture. |
 | `examples/playground/playground_server.nano` | Browser-facing tooling around compilation. |
 | `examples/large_project/` | A small package with a manifest and multiple imported source files. |
 

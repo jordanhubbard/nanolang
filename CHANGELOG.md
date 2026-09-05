@@ -20,6 +20,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - add `bin/nano_forth` as the NanoISA session REPL and copy it to `bin/forth` so `sdl_forth_ide` always has its PTY child
 - ship a windowed SDL editor (`examples/emacs/nano_emacs.nano`) that evaluates NanoLang in a persistent tree-walker session
 
+### Changed
+- replace the GPU ocean window with an animated OpenCL/CUDA Julia set
+
 ### Fixed
 - `VARIABLE` allots the data cell after the name, matching `CREATE`
 - `forth_take_word` consumes the trailing blank so `S"` does not include a
