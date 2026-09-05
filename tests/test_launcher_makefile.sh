@@ -75,6 +75,13 @@ else
     fail "GPU examples do not load kernels from bin/gpu"
 fi
 
+if grep -q '$(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/forth' examples/Makefile &&
+        grep -q 'nl_pty_fork_exec pty_fd "bin/forth"' examples/graphics/sdl_forth_ide.nano; then
+    pass "sdl_forth_ide depends on bin/forth and execs it"
+else
+    fail "sdl_forth_ide is not wired to bin/forth"
+fi
+
 echo "=========================================="
 if [ "$FAILURES" -eq 0 ]; then
     echo -e "${GREEN}All example launcher Makefile tests passed${NC}"

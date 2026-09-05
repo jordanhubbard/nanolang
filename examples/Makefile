@@ -96,14 +96,11 @@ endif
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
 NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
-# The native Forth interpreter also has a short, user-facing CLI name.
+# The Forth IDE PTY child. NanoISA Forth lives in the parent makefile as
+# bin/nano_forth; bin/forth is that executable, not the old NanoLang interpreter.
 FORTH_CLI :=
 ifeq ($(EXAMPLES_BACKEND_NORMALIZED),c)
-ifeq ($(READLINE_AVAILABLE),yes)
-ifeq ($(IS_SELFHOSTED),)
 FORTH_CLI := $(BIN_DIR)/forth
-endif
-endif
 endif
 
 # === REPL Example ===
@@ -420,7 +417,7 @@ ALL_VM_SOURCES := $(filter-out $(VM_EXCLUDED_SOURCES),$(ALL_NANO_SOURCES))
 
 # === Targets ===
 
-.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth forth-ide
+.PHONY: all build examples-available nl api-lessons verified opl sdl ncurses opengl mujoco debug clean help launcher vm-examples vm-launcher vm-launcher-sdl test test-forth run-forth forth forth-ide $(BIN_DIR)/forth
 
 # Default: build all examples
 all: build
@@ -676,9 +673,10 @@ test-forth: test-forth-see
 run-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@cd .. && FORTH_INTERACTIVE=1 bin/nano_vm bin/nl_forth_interpreter_vm
 
-$(BIN_DIR)/forth: $(BIN_DIR)/nl_forth_interpreter
-	@echo "Linking $@..."
-	cp $< $@
+$(BIN_DIR)/forth:
+	@$(MAKE) -C .. bin/forth
+
+$(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/forth
 
 forth: $(BIN_DIR)/forth
 	@cd .. && ./bin/forth --interactive
