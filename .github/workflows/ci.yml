@@ -698,7 +698,7 @@ jobs:
 
       - name: Install clang / build deps
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh clang lld
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev
 
       - name: Build nanoc
         run: make nanoc

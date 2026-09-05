@@ -386,9 +386,14 @@ ALL_EXAMPLES = \
 # covered automatically and must lower to bytecode.
 
 # Library modules imported by other examples. They define no `main`, so neither
-# the native build nor the VM build compiles them on their own.
+# the native build nor the VM build compiles them on their own. emacs_buffer
+# and emacs_keys are imported by nano_emacs.nano; init.nano is the editor's
+# startup eval snippet, not a program.
 VM_LIBRARY_SOURCES := \
 	advanced/math_helper.nano \
+	emacs/emacs_buffer.nano \
+	emacs/emacs_keys.nano \
+	emacs/init.nano \
 	$(wildcard lib/*.nano) \
 	$(wildcard large_project/src/*.nano) \
 	opl/opl_ast.nano \

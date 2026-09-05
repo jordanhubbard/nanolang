@@ -8,6 +8,15 @@ cd "$REPO_ROOT"
 NANOC="${NANOC:-./bin/nanoc}"
 SAMPLE="examples/bench_sample.nano"
 
+# The CI bench job runs `make nanoc`. GNU make looks for a target named `nanoc`,
+# not `bin/nanoc`. `make -q` returns 2 when the target does not exist.
+make -q nanoc
+nanoc_q=$?
+if [ "$nanoc_q" -eq 2 ]; then
+    echo "ERROR: make nanoc is not a target (CI bench job invokes that name)"
+    exit 1
+fi
+
 if [ ! -x "$NANOC" ]; then
     echo "ERROR: $NANOC is not built"
     exit 1

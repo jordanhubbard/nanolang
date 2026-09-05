@@ -17,6 +17,17 @@ stays parked until Phase 13 closes. Option C remains 4.4.
 
 ## Active Execution Queue
 
+- [x] Unbreak main CI after the Forth merge: `emacs/emacs_buffer.nano`,
+  `emacs/emacs_keys.nano`, and `emacs/init.nano` belong in `VM_LIBRARY_SOURCES`
+  because they are not standalone programs. `nano_emacs.nano` stays eligible.
+  `make test-vm-examples` must pass.
+- [x] Unbreak main CI: `make nanoc` builds `bin/nanoc`. The bench job installs
+  `libssl-dev` and runs that target. `tests/test_nanoc_bench.sh` fails if
+  `make nanoc` is not a target.
+- [x] Unbreak main CI: I compile with `-fPIC` so Linux can link
+  `bin/libnano_session.so` (TLS in `transpiler.o` is not relocatable otherwise).
+  `make examples-core` on Linux must get past Nano Emacs.
+
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
   indirect calls, FFI, and the current Forth interpreter. Compiled Forth, its
