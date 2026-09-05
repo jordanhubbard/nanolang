@@ -2,7 +2,7 @@
 
 Last audited: 2026-09-04.
 
-I have 245 `.nano` files under `examples/`: 8 at the directory root and 237 below category directories. This count includes the generated OPL output fixture. I count files on disk; deleted sketches do not remain examples by reputation alone.
+I have 246 `.nano` files under `examples/`: 8 at the directory root and 238 below category directories. This count includes the generated OPL output fixture. I count files on disk; deleted sketches do not remain examples by reputation alone.
 
 This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
@@ -76,7 +76,7 @@ Use these build labels:
 | `examples/lib/` | 5 | internal launcher/editor support |
 | `examples/mujoco/` | 6 | MuJoCo modules |
 | `examples/network/` | 2 | HTTP server modules |
-| `examples/opengl/` | 6 | OpenGL modules |
+| `examples/opengl/` | 7 | OpenGL modules |
 | `examples/opl/` | 12 | parser/compiler showcase |
 | `examples/opl/examples/output/` | 1 | generated OPL output fixture |
 | `examples/physics/` | 6 | Bullet physics modules |
@@ -252,6 +252,7 @@ These have real value because they show that I can hold a larger design together
 | `examples/graphics/sdl_forth_ide.nano` | Terminal-like UI, process interaction, and editor behavior. |
 | `examples/emacs/nano_emacs.nano` | Windowed SDL editor with panes, a minibuffer, and NanoLang as the extension language. |
 | `examples/gpu/julia_flow.nano` | Animated OpenCL/CUDA Julia set as an SDL texture. |
+| `examples/opengl/opengl_lit_atelier.nano` | High-polygon GLUT solids, four moving lights, and camera motion. |
 | `examples/playground/playground_server.nano` | Browser-facing tooling around compilation. |
 | `examples/large_project/` | A small package with a manifest and multiple imported source files. |
 

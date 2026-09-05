@@ -22,6 +22,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - replace the GPU ocean window with an animated OpenCL/CUDA Julia set
+- add an OpenGL atelier of high-polygon GLUT solids under four moving lights
 
 ### Fixed
 - `VARIABLE` allots the data cell after the name, matching `CREATE`
