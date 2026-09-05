@@ -82,6 +82,32 @@ stays parked until Phase 13 closes. Option C remains 4.4.
   workloads, emit non-zero ns/op, and enable the CI `bench` job without
   `if: false` or `|| true`. The job fails on a benchmark error or a zero
   measurement; it does not claim a 2× baseline comparison until I store one.
+- [ ] Side-quest parallel to 4.1 (does not wait on the Core gate): I write
+  `docs/NANOISA_HL_ROUNDTRIP.md` stating what "rich enough to reconstruct a
+  high-level language from NanoISA" means: named functions and types, structured
+  control flow, and a declared host ABI. A C file that embeds `nano_vm` plus a
+  bytecode array is not reconstruction. Canonical disassembly remaining
+  bytecode (`make test-disasm-roundtrip`) is not this test. I do not delete
+  `transpiler.nano`. I do not claim I can target any language.
+- [ ] Side-quest parallel to 4.1: I inventory `.nvm` v2 (`FUNCTIONS`,
+  `SIGNATURES`, `LAYOUTS`, `IMPORTS`, `LINKS`, `CONSTANTS`, `DEBUG`,
+  `METADATA`) against what reconstruction needs, including local names — slots
+  are numbers today. The table is present / missing /
+  reconstructable-from-bytecode-only. I do not add sections until that table
+  names a blocking gap.
+- [ ] Side-quest parallel to 4.1: I pin a small closed fixture (one struct,
+  one loop, one extern, a `fn main`) compiled with `--emit-nvm`, and I record
+  what a reader of that module can recover without the `.nano` source.
+- [ ] Side-quest parallel to 4.1: I spike reconstructing that module into two
+  high-level surface syntaxes from the same `.nvm` (structured C, and NanoLang
+  or another HLL). If either surface is only a bytecode interpreter in that
+  language, the spike failed. A checked golden file or shadow tests lock what
+  the spike actually recovered. I do not add a product `nvm2c`.
+- [ ] Side-quest parallel to 4.1: I publish the finding in
+  `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient, insufficient, or blocked on named
+  metadata. "Almost any high-level language" stays a question until that
+  document answers it from evidence. This quest does not replace the
+  NanoLang→C backend.
 - [ ] Side-quest after 4.1: I isolate the SDL editor walker in
   `bin/nano_emacs_worker` with a length-prefixed pipe protocol (create/destroy,
   bind buffer, eval string, drain `ed_*` commands, crash detection and restart).
