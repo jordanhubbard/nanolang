@@ -19,10 +19,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `POSTPONE` of a non-immediate word compiles it)
 - add `bin/nano_forth` as the NanoISA session REPL and copy it to `bin/forth` so `sdl_forth_ide` always has its PTY child
 - ship a windowed SDL editor (`examples/emacs/nano_emacs.nano`) that evaluates NanoLang in a persistent tree-walker session
+- add an OpenGL atelier of high-polygon GLUT solids under four moving lights
 
 ### Changed
 - replace the GPU ocean window with an animated OpenCL/CUDA Julia set
-- add an OpenGL atelier of high-polygon GLUT solids under four moving lights
 
 ### Fixed
 - `VARIABLE` allots the data cell after the name, matching `CREATE`
