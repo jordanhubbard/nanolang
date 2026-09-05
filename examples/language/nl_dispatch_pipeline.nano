@@ -33,6 +33,15 @@ shadow noop_work {
 }
 
 fn main() -> int {
+    if (not (dispatch_available)) {
+        (println "SKIP: libdispatch is not available on this platform")
+        return 0
+    }
+    if (> (str_length (getenv "NANO_INTERPRETER")) 0) {
+        (println "SKIP: the tree-walking interpreter cannot run libdispatch callbacks")
+        return 0
+    }
+
     let n_tasks: int = 16
     let q_work: NlQueue = (queue_concurrent "nano.pipeline.work")
     let q_result: NlQueue = (queue_serial "nano.pipeline.result")

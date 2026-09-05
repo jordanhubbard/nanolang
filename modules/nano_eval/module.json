@@ -1,0 +1,11 @@
+{
+  "name": "nano_eval",
+  "version": "1.0.0",
+  "description": "Persistent NanoLang tree-walker session for the SDL editor",
+  "headers": ["nano_eval.h"],
+  "cflags": ["-Imodules/nano_eval"],
+  "c_sources": ["nano_eval_bridge.c"],
+  "ldflags": [],
+  "system_packages": [],
+  "dependencies": []
+}

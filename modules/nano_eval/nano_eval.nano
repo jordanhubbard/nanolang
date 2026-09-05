@@ -1,0 +1,29 @@
+# Persistent NanoLang eval session for the SDL editor.
+# The compiled editor talks to a tree-walker Environment through these externs.
+
+extern fn nano_eval_create() -> int
+extern fn nano_eval_destroy(_session: int) -> void
+extern fn nano_eval_string(_session: int, _source: string) -> string
+extern fn nano_eval_error(_session: int) -> string
+extern fn nano_eval_bind_buffer(_session: int, _text: string, _point: int) -> void
+extern fn nano_eval_buffer(_session: int) -> string
+extern fn nano_eval_point(_session: int) -> int
+extern fn nano_eval_cmd_count(_session: int) -> int
+extern fn nano_eval_cmd_kind(_session: int, _index: int) -> int
+extern fn nano_eval_cmd_arg(_session: int, _index: int) -> string
+extern fn nano_eval_cmd_clear(_session: int) -> void
+
+let NANO_EVAL_CMD_MESSAGE: int = 1
+let NANO_EVAL_CMD_FIND_FILE: int = 2
+let NANO_EVAL_CMD_SAVE: int = 3
+let NANO_EVAL_CMD_SPLIT: int = 4
+let NANO_EVAL_CMD_OTHER_WINDOW: int = 5
+
+fn nano_eval_cmd_is_message(kind: int) -> bool {
+    return (== kind NANO_EVAL_CMD_MESSAGE)
+}
+
+shadow nano_eval_cmd_is_message {
+    assert (nano_eval_cmd_is_message 1)
+    assert (not (nano_eval_cmd_is_message 0))
+}

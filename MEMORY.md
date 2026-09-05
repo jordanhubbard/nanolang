@@ -82,7 +82,7 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 | `make test` | Full test suite (units + integration + language tests) |
 | `make test-quick` | Language tests only (fastest) |
 | `make test-forth-gforth-diff` | Forth 2012 pins + Gforth 0.7.3 `pi.fs` differential |
-| `make test-forth-session` | Forth session: module, VmState, stacks, virtual addresses, file handles |
+| `make test-forth-session` | Forth session: colon compile, dictionary, sources, stacks |
 | `make test-vm` | Run test suite through NanoVM backend |
 | `make examples` | Build all 150+ example programs |
 | `make bootstrap` | Full GCC-style bootstrap (Stage 0 → 1 → 2 → 3) |
@@ -890,7 +890,15 @@ make test-differential    # Compare Coq reference interpreter vs NanoVM
 C host runtime, not a NanoLang language feature (no `src_nano/` twin). One
 `ForthSession` owns one mutable `NvmModule`, one persistent `VmState`, Forth
 data/return/float/control stacks (not the NanoVM operand stack), a virtual
-address space in VM linear memory, and generation-checked file handles.
+address space in VM linear memory, generation-checked file handles,
+dictionary headers with early-bound xts and word lists, nested input
+sources (`SOURCE`, `>IN`, `BLK`), and colon compilation: a definition is
+built privately, checked with `nvm_verify_function`, and published only
+after it verifies. Compiled calls are `OP_CALL`; `RECURSE` uses the reserved
+current function. The Forth data stack lives in virtual memory so compiled
+words and the host API share it. Structured control flow patches `OP_JMP` /
+`OP_JMP_FALSE` from a checked compile-control stack. `CATCH`/`THROW` restore
+Forth stacks and input sources; NanoVM frames unwind through `vm_invoke`.
 
 | File | Purpose |
 |------|---------|

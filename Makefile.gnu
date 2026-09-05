@@ -616,6 +616,46 @@ test-eval: stage1
 	@./tests/test_eval
 	@rm -f tests/test_eval
 
+.PHONY: test-bench
+test-bench: stage1
+	@echo "Running bench runner unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_bench tests/test_bench.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_bench
+	@rm -f tests/test_bench
+
+ifeq ($(UNAME_S),Darwin)
+NANO_EVAL_EXPORT = -Wl,-export_dynamic
+NANO_SESSION_LIB = $(BIN_DIR)/libnano_session.dylib
+NANO_SESSION_LINKFLAGS = -dynamiclib -install_name @rpath/libnano_session.dylib
+else
+NANO_EVAL_EXPORT = -Wl,--export-dynamic
+NANO_SESSION_LIB = $(BIN_DIR)/libnano_session.so
+NANO_SESSION_LINKFLAGS = -shared
+endif
+
+.PHONY: test-nano-eval
+test-nano-eval: stage1
+	@echo "Running NanoLang editor eval-session tests..."
+	$(CC) $(CFLAGS) -Imodules/nano_eval -o tests/test_nano_eval \
+		tests/test_nano_eval.c modules/nano_eval/nano_eval.c \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(NANO_EVAL_EXPORT)
+	@./tests/test_nano_eval
+	@rm -f tests/test_nano_eval
+
+.PHONY: libnano-session
+libnano-session: $(NANO_SESSION_LIB)
+
+$(NANO_SESSION_LIB): modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_stubs.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -fPIC $(NANO_SESSION_LINKFLAGS) -o $@ \
+		modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_stubs.c \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+.PHONY: test-nano-emacs
+test-nano-emacs: stage1 libnano-session
+	@echo "Compiling Nano Emacs (timeout 120s)..."
+	perl -e 'alarm 120; exec @ARGV' ./bin/nanoc_c examples/emacs/nano_emacs.nano -o bin/nano_emacs
+	@test -x bin/nano_emacs
+
 .PHONY: test-opt-passes
 test-opt-passes: stage1
 	@echo "Running optimization pass unit tests..."
@@ -885,6 +925,22 @@ $(OBJ_DIR)/forth/%.o: $(FORTH_DIR)/%.c $(FORTH_DIR)/forth_session.h | $(OBJ_DIR)
 $(OBJ_DIR)/forth:
 	mkdir -p $(OBJ_DIR)/forth
 
+ifeq ($(UNAME_S),Darwin)
+NANO_FORTH_EXPORT = -Wl,-export_dynamic
+else
+NANO_FORTH_EXPORT =
+endif
+
+$(BIN_DIR)/nano_forth: $(FORTH_DIR)/forth_repl.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $(FORTH_DIR)/forth_repl.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(NANO_FORTH_EXPORT)
+
+$(BIN_DIR)/forth: $(BIN_DIR)/nano_forth
+	cp $< $@
+
+.PHONY: nano_forth
+nano_forth: $(BIN_DIR)/forth
+
 .PHONY: test-forth-session
 test-forth-session: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running Forth session runtime tests..."
@@ -894,8 +950,16 @@ test-forth-session: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMM
 	@./tests/forth/test_forth_session
 	@rm -f tests/forth/test_forth_session
 
+.PHONY: test-forth-pty
+test-forth-pty: $(BIN_DIR)/forth
+	@echo "Running Forth PTY REPL liveness tests..."
+	$(CC) $(CFLAGS) -Imodules/pty -o tests/forth/test_forth_pty_repl \
+		tests/forth/test_forth_pty_repl.c modules/pty/pty.c
+	@./tests/forth/test_forth_pty_repl
+	@rm -f tests/forth/test_forth_pty_repl
+
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -916,6 +980,16 @@ test-proptest: $(INTERPRETER)
 	@echo "Running proptest smoke tests..."
 	@bash tests/test_proptest.sh
 	@echo "proptest smoke tests passed."
+
+.PHONY: test-interpreter-examples
+test-interpreter-examples: $(INTERPRETER)
+	@echo "Running language examples under bin/nano..."
+	@bash tests/test_interpreter_language_examples.sh
+
+.PHONY: test-nanoc-bench
+test-nanoc-bench: $(COMPILER)
+	@echo "Running nanoc --bench contract..."
+	@bash tests/test_nanoc_bench.sh
 
 # GLUT initialization boundary tests.
 # Unit-tests modules/glut/glut_init.c against a stub GLUT, guards every call
@@ -1065,6 +1139,15 @@ test-impl: test-units
 	@echo ""
 	@echo "Checking Forth 2012 pins and Gforth differential runs..."
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@echo ""
+	@echo "Checking Forth IDE PTY interpreter liveness..."
+	@$(MAKE) --no-print-directory test-forth-pty
+	@echo ""
+	@echo "Testing language examples under the tree-walking interpreter..."
+	@$(MAKE) --no-print-directory test-interpreter-examples
+	@echo ""
+	@echo "Testing nanoc --bench measurements..."
+	@$(MAKE) --no-print-directory test-nanoc-bench
 	@echo ""
 	@if [ -x $(INTERPRETER) ]; then \
 		echo "Running property-based tests (interpreter)..."; \
@@ -1386,6 +1469,9 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@$(MAKE) --no-print-directory test-interpreter-examples
+	@$(MAKE) --no-print-directory test-nanoc-bench
+	@$(MAKE) --no-print-directory test-bench
 
 .PHONY: test-pt2-audio
 # Regression test: pt2_audio must render non-silent samples (previously it just
@@ -1453,7 +1539,7 @@ $(USERGUIDE_CHECK_TOOL): $(USERGUIDE_CHECK_TOOL_SRC) | $(USERGUIDE_DIR)
 # Defaults: C reference compiler, C/native backend, one pass.
 examples: examples-core
 
-.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-launcher forth forth-ide
+.PHONY: examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-launcher forth forth-ide nano-emacs
 
 examples-core: modules-index check-deps-sdl
 	@echo ""
@@ -1539,11 +1625,14 @@ launcher: examples-c check-deps-sdl
 	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
 
-forth: $(COMPILER_C)
-	@$(MAKE) -C examples forth COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+forth: $(BIN_DIR)/forth
+	./bin/forth --interactive
 
-forth-ide: $(COMPILER_C) check-deps-sdl
+forth-ide: $(COMPILER_C) check-deps-sdl $(BIN_DIR)/forth
 	@$(MAKE) -C examples forth-ide COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+
+nano-emacs: $(COMPILER_C) check-deps-sdl libnano-session
+	@$(MAKE) -C examples nano-emacs COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
 # bin/nano_vm. Every eligible source must lower successfully.
@@ -2364,7 +2453,15 @@ help:
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
-	@echo "  make test-forth-session - Forth session module, VM, stacks, and address space"
+	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
+	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
+	@echo "  make test-interpreter-examples - Language examples under bin/nano"
+	@echo "  make test-nanoc-bench  - nanoc --bench writes non-zero ns/op"
+	@echo "  make test-bench        - bench_native_run calls the interpreter"
+	@echo "  make nano_forth        - Build bin/forth (NanoISA session REPL for the IDE)"
+	@echo "  make test-nano-eval    - SDL editor NanoLang eval session (C-x C-e host)"
+	@echo "  make libnano-session   - Tree-walker dylib for Nano Emacs (dlopen)"
+	@echo "  make test-nano-emacs   - Compile examples/emacs/nano_emacs.nano with timeout"
 	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"

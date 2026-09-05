@@ -52,9 +52,27 @@ shadow count_primes_sieve {
     assert (== (count_primes_sieve 100) 25)
 }
 
+fn example_prime_limit() -> int {
+    let override: string = (getenv "NANO_PRIME_LIMIT")
+    if (> (str_length override) 0) {
+        return (string_to_int override)
+    }
+    let interp: string = (getenv "NANO_INTERPRETER")
+    if (> (str_length interp) 0) {
+        return 10000
+    }
+    return 1000000
+}
+
+shadow example_prime_limit {
+    let limit: int = (example_prime_limit)
+    assert (> limit 0)
+}
+
 fn main() -> int {
-    print("Calculating primes up to 1,000,000 (OPTIMIZED - Sieve of Eratosthenes)...")
-    let total: int = (count_primes_sieve 1000000)
+    let limit: int = (example_prime_limit)
+    print((+ "Calculating primes up to " (+ (int_to_string limit) " (OPTIMIZED - Sieve of Eratosthenes)...")))
+    let total: int = (count_primes_sieve limit)
     print("Total primes found: ")
     print((int_to_string total))
     return 0

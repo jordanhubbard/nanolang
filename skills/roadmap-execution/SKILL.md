@@ -26,6 +26,14 @@ Small fixes that restore already documented behavior may use an existing
 roadmap item. If no item describes the work, add one first. Do not turn every
 typo into a new phase; use the smallest accurate checkbox.
 
+**Discovered bugs always go on the roadmap.** If I find a defect, an overclaim
+(`[x]` for work that is only a C API, a REPL special-case, a layout mismatch),
+or required work during a session, I add a concrete checkbox in
+`docs/ROADMAP.md` at the correct dependency position before I continue. I do
+not leave defects in chat-only notes. A defect I already fixed in the same
+session still gets an `[x]` item so it stays in product history. I file or
+update a MAC task for ownership. Chat is not the ledger.
+
 ## During Implementation
 
 - Execute the first unchecked active item whose dependencies are complete.

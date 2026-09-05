@@ -1,0 +1,184 @@
+# Example: Emacs keymap helpers
+# Purpose: Prefix keymap for the SDL Nano Emacs editor
+# Features: C-x prefix, Meta commands, motion keys
+# Difficulty: Intermediate
+# Category: emacs
+# Track: internal
+# Build: local
+# Expected Output: none
+
+let KM_NONE: int = 0
+let KM_CX: int = 1
+
+let CMD_NONE: int = 0
+let CMD_CANCEL: int = 1
+let CMD_PREFIX_CX: int = 2
+let CMD_FIND_FILE: int = 3
+let CMD_SAVE: int = 4
+let CMD_EVAL_SEXP: int = 5
+let CMD_SPLIT: int = 6
+let CMD_ONLY: int = 7
+let CMD_OTHER: int = 8
+let CMD_QUIT: int = 9
+let CMD_NEXT_LINE: int = 10
+let CMD_PREV_LINE: int = 11
+let CMD_FORWARD: int = 12
+let CMD_BACKWARD: int = 13
+let CMD_BOL: int = 14
+let CMD_EOL: int = 15
+let CMD_BACKSPACE: int = 16
+let CMD_DELETE: int = 17
+let CMD_PAGE_DOWN: int = 18
+let CMD_PAGE_UP: int = 19
+let CMD_M_X: int = 20
+let CMD_EVAL_EXPR: int = 21
+let CMD_NEWLINE: int = 22
+
+let SC_A: int = 4
+let SC_B: int = 5
+let SC_C: int = 6
+let SC_D: int = 7
+let SC_E: int = 8
+let SC_F: int = 9
+let SC_G: int = 10
+let SC_N: int = 17
+let SC_O: int = 18
+let SC_P: int = 19
+let SC_S: int = 22
+let SC_V: int = 25
+let SC_X: int = 27
+let SC_1: int = 30
+let SC_2: int = 31
+let SC_RETURN: int = 40
+let SC_ESCAPE: int = 41
+let SC_BACKSPACE: int = 42
+let SC_RIGHT: int = 79
+let SC_LEFT: int = 80
+let SC_DOWN: int = 81
+let SC_UP: int = 82
+let SC_SEMICOLON: int = 51
+
+pub fn keymap_pack(cmd: int, prefix: int) -> int {
+    return (+ (* cmd 100) prefix)
+}
+
+shadow keymap_pack {
+    assert (== (keymap_pack 3 1) 301)
+    assert (== (keymap_pack 0 0) 0)
+}
+
+pub fn keymap_cmd(packed: int) -> int {
+    return (/ packed 100)
+}
+
+shadow keymap_cmd {
+    assert (== (keymap_cmd 301) 3)
+    assert (== (keymap_cmd 10) 0)
+}
+
+pub fn keymap_prefix(packed: int) -> int {
+    return (% packed 100)
+}
+
+shadow keymap_prefix {
+    assert (== (keymap_prefix 301) 1)
+    assert (== (keymap_prefix 200) 0)
+}
+
+pub fn keymap_dispatch(prefix: int, scancode: int, ctrl: int, meta: int) -> int {
+    if (or (== scancode SC_ESCAPE) (and (== ctrl 1) (== scancode SC_G))) {
+        return (keymap_pack CMD_CANCEL KM_NONE)
+    }
+    if (== prefix KM_CX) {
+        if (or (and (== ctrl 1) (== scancode SC_F)) (== scancode SC_F)) {
+            return (keymap_pack CMD_FIND_FILE KM_NONE)
+        }
+        if (or (and (== ctrl 1) (== scancode SC_S)) (== scancode SC_S)) {
+            return (keymap_pack CMD_SAVE KM_NONE)
+        }
+        if (or (and (== ctrl 1) (== scancode SC_E)) (== scancode SC_E)) {
+            return (keymap_pack CMD_EVAL_SEXP KM_NONE)
+        }
+        if (or (and (== ctrl 1) (== scancode SC_C)) (== scancode SC_C)) {
+            return (keymap_pack CMD_QUIT KM_NONE)
+        }
+        if (== scancode SC_2) {
+            return (keymap_pack CMD_SPLIT KM_NONE)
+        }
+        if (== scancode SC_1) {
+            return (keymap_pack CMD_ONLY KM_NONE)
+        }
+        if (or (== scancode SC_O) (and (== ctrl 1) (== scancode SC_O))) {
+            return (keymap_pack CMD_OTHER KM_NONE)
+        }
+        return (keymap_pack CMD_NONE KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_X)) {
+        return (keymap_pack CMD_PREFIX_CX KM_CX)
+    }
+    if (and (== meta 1) (== scancode SC_X)) {
+        return (keymap_pack CMD_M_X KM_NONE)
+    }
+    if (and (== meta 1) (== scancode SC_SEMICOLON)) {
+        return (keymap_pack CMD_EVAL_EXPR KM_NONE)
+    }
+    if (and (== meta 1) (== scancode SC_V)) {
+        return (keymap_pack CMD_PAGE_UP KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_N)) {
+        return (keymap_pack CMD_NEXT_LINE KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_P)) {
+        return (keymap_pack CMD_PREV_LINE KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_F)) {
+        return (keymap_pack CMD_FORWARD KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_B)) {
+        return (keymap_pack CMD_BACKWARD KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_A)) {
+        return (keymap_pack CMD_BOL KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_E)) {
+        return (keymap_pack CMD_EOL KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_D)) {
+        return (keymap_pack CMD_DELETE KM_NONE)
+    }
+    if (and (== ctrl 1) (== scancode SC_V)) {
+        return (keymap_pack CMD_PAGE_DOWN KM_NONE)
+    }
+    if (== scancode SC_DOWN) {
+        return (keymap_pack CMD_NEXT_LINE KM_NONE)
+    }
+    if (== scancode SC_UP) {
+        return (keymap_pack CMD_PREV_LINE KM_NONE)
+    }
+    if (== scancode SC_RIGHT) {
+        return (keymap_pack CMD_FORWARD KM_NONE)
+    }
+    if (== scancode SC_LEFT) {
+        return (keymap_pack CMD_BACKWARD KM_NONE)
+    }
+    if (== scancode SC_BACKSPACE) {
+        return (keymap_pack CMD_BACKSPACE KM_NONE)
+    }
+    if (== scancode SC_RETURN) {
+        return (keymap_pack CMD_NEWLINE KM_NONE)
+    }
+    return (keymap_pack CMD_NONE KM_NONE)
+}
+
+shadow keymap_dispatch {
+    assert (== (keymap_cmd (keymap_dispatch 0 SC_X 1 0)) CMD_PREFIX_CX)
+    assert (== (keymap_prefix (keymap_dispatch 0 SC_X 1 0)) KM_CX)
+    assert (== (keymap_cmd (keymap_dispatch KM_CX SC_F 1 0)) CMD_FIND_FILE)
+    assert (== (keymap_cmd (keymap_dispatch KM_CX SC_S 1 0)) CMD_SAVE)
+    assert (== (keymap_cmd (keymap_dispatch KM_CX SC_E 1 0)) CMD_EVAL_SEXP)
+    assert (== (keymap_cmd (keymap_dispatch KM_CX SC_2 0 0)) CMD_SPLIT)
+    assert (== (keymap_cmd (keymap_dispatch 0 SC_X 0 1)) CMD_M_X)
+    assert (== (keymap_cmd (keymap_dispatch 0 SC_N 1 0)) CMD_NEXT_LINE)
+    assert (== (keymap_cmd (keymap_dispatch 0 SC_G 1 0)) CMD_CANCEL)
+    assert (== (keymap_prefix (keymap_dispatch KM_CX SC_G 1 0)) KM_NONE)
+}

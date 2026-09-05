@@ -1,0 +1,158 @@
+# Example: Emacs buffer helpers
+# Purpose: Point, region, and text reconstruction for the SDL editor
+# Features: linear point, insert string, rebuild from eval session
+# Difficulty: Intermediate
+# Category: emacs
+# Track: internal
+# Build: local
+# Expected Output: none
+
+from "examples/lib/source_editor.nano" import EditorState, editor_new, editor_open, split_into_lines, join_lines, clamp_cursor
+from "modules/std/fs.nano" import exists
+
+pub fn emacs_scratch() -> EditorState {
+    let mut lines: array<string> = []
+    set lines (array_push lines "")
+    return EditorState {
+        lines: lines, cursor_row: 0, cursor_col: 0,
+        file_path: "*scratch*", modified: false, scroll_offset: 0,
+        active: true, build_status: "", build_output: ""
+    }
+}
+
+shadow emacs_scratch {
+    let ed: EditorState = (emacs_scratch)
+    assert ed.active
+    assert (== (array_length ed.lines) 1)
+}
+
+pub fn editor_point(ed: EditorState) -> int {
+    let mut p: int = 0
+    let mut i: int = 0
+    while (< i ed.cursor_row) {
+        if (< i (array_length ed.lines)) {
+            set p (+ p (+ (str_length (at ed.lines i)) 1))
+        }
+        set i (+ i 1)
+    }
+    return (+ p ed.cursor_col)
+}
+
+shadow editor_point {
+    let ed: EditorState = (emacs_scratch)
+    assert (== (editor_point ed) 0)
+}
+
+pub fn editor_goto_char(ed: EditorState, point: int) -> EditorState {
+    let mut p: int = point
+    if (< p 0) { set p 0 }
+    let mut row: int = 0
+    let n: int = (array_length ed.lines)
+    if (== n 0) {
+        return ed
+    }
+    while (< row n) {
+        let line: string = (at ed.lines row)
+        let llen: int = (str_length line)
+        let mut span: int = llen
+        if (< row (- n 1)) {
+            set span (+ llen 1)
+        }
+        if (< p span) {
+            return (clamp_cursor EditorState {
+                lines: ed.lines, cursor_row: row, cursor_col: p,
+                file_path: ed.file_path, modified: ed.modified,
+                scroll_offset: ed.scroll_offset, active: ed.active,
+                build_status: ed.build_status, build_output: ed.build_output
+            })
+        }
+        set p (- p span)
+        set row (+ row 1)
+    }
+    return (clamp_cursor EditorState {
+        lines: ed.lines, cursor_row: (- n 1),
+        cursor_col: (str_length (at ed.lines (- n 1))),
+        file_path: ed.file_path, modified: ed.modified,
+        scroll_offset: ed.scroll_offset, active: ed.active,
+        build_status: ed.build_status, build_output: ed.build_output
+    })
+}
+
+shadow editor_goto_char {
+    let mut lines: array<string> = []
+    set lines (array_push lines "ab")
+    set lines (array_push lines "cd")
+    let ed0: EditorState = EditorState {
+        lines: lines, cursor_row: 0, cursor_col: 0,
+        file_path: "t", modified: false, scroll_offset: 0,
+        active: true, build_status: "", build_output: ""
+    }
+    let ed1: EditorState = (editor_goto_char ed0 3)
+    assert (== ed1.cursor_row 1)
+    assert (== ed1.cursor_col 0)
+}
+
+pub fn editor_from_text(text: string, point: int, path: string, modified: bool) -> EditorState {
+    let lines: array<string> = (split_into_lines text)
+    let ed: EditorState = EditorState {
+        lines: lines, cursor_row: 0, cursor_col: 0,
+        file_path: path, modified: modified, scroll_offset: 0,
+        active: true, build_status: "", build_output: ""
+    }
+    return (editor_goto_char ed point)
+}
+
+shadow editor_from_text {
+    let ed: EditorState = (editor_from_text "ab\ncd" 3 "t" false)
+    assert (== ed.cursor_row 1)
+    assert (== (join_lines ed.lines) "ab\ncd")
+}
+
+pub fn line_end_col(ed: EditorState) -> int {
+    if (>= ed.cursor_row (array_length ed.lines)) {
+        return 0
+    }
+    return (str_length (at ed.lines ed.cursor_row))
+}
+
+shadow line_end_col {
+    let ed: EditorState = (emacs_scratch)
+    assert (== (line_end_col ed) 0)
+}
+
+pub fn editor_visit(path: string) -> EditorState {
+    if (exists path) {
+        return (editor_open path)
+    }
+    return (editor_from_text "" 0 path true)
+}
+
+shadow editor_visit {
+    let ed: EditorState = (editor_visit "/no/such/nano_emacs_buffer")
+    assert (== ed.file_path "/no/such/nano_emacs_buffer")
+    assert (== (join_lines ed.lines) "")
+}
+
+pub fn click_x(encoded: int) -> int {
+    if (< encoded 0) {
+        return 0
+    }
+    return (/ encoded 10000)
+}
+
+shadow click_x {
+    assert (== (click_x 12800400) 1280)
+    assert (== (click_x -1) 0)
+}
+
+pub fn click_y(encoded: int) -> int {
+    if (< encoded 0) {
+        return 0
+    }
+    return (% encoded 10000)
+}
+
+shadow click_y {
+    assert (== (click_y 12800400) 400)
+    assert (== (click_y -1) 0)
+}

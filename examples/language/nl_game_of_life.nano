@@ -160,6 +160,51 @@ shadow print_grid {
 
 # === MAIN ===
 
+fn example_life_width() -> int {
+    let override: string = (getenv "NANO_LIFE_WIDTH")
+    if (> (str_length override) 0) {
+        return (string_to_int override)
+    }
+    if (> (str_length (getenv "NANO_INTERPRETER")) 0) {
+        return 8
+    }
+    return GRID_WIDTH
+}
+
+shadow example_life_width {
+    assert (> (example_life_width) 0)
+}
+
+fn example_life_height() -> int {
+    let override: string = (getenv "NANO_LIFE_HEIGHT")
+    if (> (str_length override) 0) {
+        return (string_to_int override)
+    }
+    if (> (str_length (getenv "NANO_INTERPRETER")) 0) {
+        return 8
+    }
+    return GRID_HEIGHT
+}
+
+shadow example_life_height {
+    assert (> (example_life_height) 0)
+}
+
+fn example_life_generations() -> int {
+    let override: string = (getenv "NANO_LIFE_GENERATIONS")
+    if (> (str_length override) 0) {
+        return (string_to_int override)
+    }
+    if (> (str_length (getenv "NANO_INTERPRETER")) 0) {
+        return 2
+    }
+    return GENERATIONS
+}
+
+shadow example_life_generations {
+    assert (> (example_life_generations) 0)
+}
+
 fn main() -> int {
     (println "")
     (println "╔════════════════════════════════════════════╗")
@@ -167,11 +212,14 @@ fn main() -> int {
     (println "╚════════════════════════════════════════════╝")
     (println "")
     
-    let grid_size: int = (* GRID_WIDTH GRID_HEIGHT)
+    let width: int = (example_life_width)
+    let height: int = (example_life_height)
+    let generations: int = (example_life_generations)
+    let grid_size: int = (* width height)
     (print "Grid: ")
-    (print GRID_WIDTH)
+    (print width)
     (print "x")
-    (print GRID_HEIGHT)
+    (print height)
     (print " = ")
     (print grid_size)
     (println " cells")
@@ -209,23 +257,23 @@ fn main() -> int {
     (println "%)")
     (println "")
     (println "Generation 0:")
-    (print_grid grid GRID_WIDTH GRID_HEIGHT)
+    (print_grid grid width height)
     (println "")
     
     # Simulate generations
     let mut gen: int = 0
     let mut new_grid: array<int> = []
     
-    while (< gen GENERATIONS) {
+    while (< gen generations) {
         # Compute next generation
         set new_grid []
         set i 0
         
         while (< i grid_size) {
-            let x: int = (% i GRID_WIDTH)
-            let y: int = (/ i GRID_WIDTH)
-            let alive: CellState = (grid_get grid x y GRID_WIDTH GRID_HEIGHT)
-            let neighbors: int = (count_neighbors grid x y GRID_WIDTH GRID_HEIGHT)
+            let x: int = (% i width)
+            let y: int = (/ i width)
+            let alive: CellState = (grid_get grid x y width height)
+            let neighbors: int = (count_neighbors grid x y width height)
             let new_cell: CellState = (apply_rules alive neighbors)
             
             set new_grid (array_push new_grid new_cell)
@@ -236,7 +284,7 @@ fn main() -> int {
         set gen (+ gen 1)
         
         (println (+ "Generation " (+ (int_to_string gen) ":")))
-        (print_grid grid GRID_WIDTH GRID_HEIGHT)
+        (print_grid grid width height)
         (println "")
     }
     

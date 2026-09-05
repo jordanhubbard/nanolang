@@ -158,6 +158,41 @@ shadow generate_sentence {
     assert (== last_char 46)  # 46 is '.'
 }
 
+fn builtin_word_list() -> string {
+    return "apple\nbanana\ncherry\ndate\negg\nfig\ngrape\nhoney\niris\njade\nkiwi\nlemon\nmango\nnectar\nolive\npeach\n"
+}
+
+shadow builtin_word_list {
+    assert (> (count_words (builtin_word_list)) 8)
+}
+
+fn load_dictionary() -> string {
+    let override: string = (getenv "NANO_DICT_PATH")
+    if (> (strlen override) 0) {
+        let from_override: string = (read override)
+        if (> (strlen from_override) 0) {
+            return from_override
+        }
+    }
+
+    let from_repo: string = (read "examples/language/data/words.txt")
+    if (> (strlen from_repo) 0) {
+        return from_repo
+    }
+
+    let from_system: string = (read "/usr/share/dict/words")
+    if (> (strlen from_system) 0) {
+        return from_system
+    }
+
+    return (builtin_word_list)
+}
+
+shadow load_dictionary {
+    let content: string = (load_dictionary)
+    assert (> (count_words content) 0)
+}
+
 # Main function
 fn main() -> int {
     (println "========================================")
@@ -169,15 +204,12 @@ fn main() -> int {
     let seed: int = (time 0)
     unsafe { (srand seed) }
     
-    # Try to read dictionary file
-    let dict_path: string = "/usr/share/dict/words"
-    let content: string = (read dict_path)
+    let content: string = (load_dictionary)
     let content_len: int = (strlen content)
     
     if (== content_len 0) {
-        (println "Error: Could not read dictionary file")
-        (println "Expected file at: /usr/share/dict/words")
-        return 1
+        (println "SKIP: no dictionary words available")
+        return 0
     } else {
         let word_count_in_dict: int = (count_words content)
         (println "Dictionary loaded successfully!")

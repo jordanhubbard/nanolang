@@ -10,8 +10,12 @@
 #endif
 #endif
 
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 700
+#endif
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include "pty.h"
 
@@ -109,6 +113,21 @@ int64_t nl_pty_fork_exec(int64_t master_fd, const char *prog,
 #ifdef TIOCSCTTY
         ioctl(slave_fd, TIOCSCTTY, 0);
 #endif
+
+        /* Cooked slave: CR from SDL (Enter) becomes NL for fgets, and the
+         * child sees a normal canonical tty rather than a raw 0-column line. */
+        {
+            struct termios tio;
+            if (tcgetattr(slave_fd, &tio) == 0) {
+                tio.c_iflag |= ICRNL | IGNPAR;
+                tio.c_iflag &= (unsigned)~(IXON | IXOFF | ISTRIP);
+                tio.c_oflag |= OPOST | ONLCR;
+                tio.c_lflag |= ICANON | ECHO | ISIG | IEXTEN | ECHOE | ECHOK;
+                tio.c_cc[VMIN] = 1;
+                tio.c_cc[VTIME] = 0;
+                tcsetattr(slave_fd, TCSANOW, &tio);
+            }
+        }
 
         dup2(slave_fd, STDIN_FILENO);
         dup2(slave_fd, STDOUT_FILENO);

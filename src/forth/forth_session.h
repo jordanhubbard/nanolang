@@ -3,7 +3,9 @@
  *
  * I keep one mutable NvmModule and one persistent VmState for a Forth
  * interpreter session. NanoVM's operand stack is the calling convention for
- * verified NanoISA functions. It is not my Forth data stack.
+ * verified NanoISA functions. It is not my Forth data stack. Dictionary
+ * headers, word lists, nested input sources, colon compilation, and
+ * CATCH/THROW (C API and Forth words) live on the same session.
  *
  * This is a C host runtime, not a NanoLang language feature. There is no
  * src_nano twin.
@@ -22,12 +24,29 @@
 #define FORTH_RETURN_STACK_CELLS 1024
 #define FORTH_FLOAT_STACK_CELLS 256
 #define FORTH_CONTROL_STACK_CELLS 64
+#define FORTH_NAME_MAX 255
+#define FORTH_TIB_SIZE 256
+#define FORTH_BLOCK_SIZE 1024
+#define FORTH_BLOCK_COUNT 32
+#define FORTH_ORDER_MAX 8
+#define FORTH_WORDLIST_MAX 16
+#define FORTH_SOURCE_NEST 16
+#define FORTH_COLON_CODE_MAX 8192
+#define FORTH_HOLD_MAX 255
+#define FORTH_PAD_MAX 255
+#define FORTH_WORD_MAX 256
+#define FORTH_OUT_MAX 4096
+
+typedef uint32_t ForthNt;
+typedef uint32_t ForthXt;
+typedef uint32_t ForthWid;
 
 typedef enum {
     FORTH_CTRL_ORIG = 1,
     FORTH_CTRL_DEST = 2,
     FORTH_CTRL_DO = 3,
-    FORTH_CTRL_CASE = 4
+    FORTH_CTRL_CASE = 4,
+    FORTH_CTRL_QDO = 5
 } ForthCtrlKind;
 
 typedef struct ForthSession ForthSession;
@@ -70,5 +89,77 @@ bool forth_file_open(ForthSession *session, const char *path, const char *mode,
                      uint32_t *fileid);
 bool forth_file_close(ForthSession *session, uint32_t fileid);
 bool forth_file_is_open(const ForthSession *session, uint32_t fileid);
+
+ForthWid forth_forth_wordlist(const ForthSession *session);
+ForthWid forth_get_current(const ForthSession *session);
+bool forth_set_current(ForthSession *session, ForthWid wid);
+bool forth_wordlist_create(ForthSession *session, ForthWid *wid);
+bool forth_get_order(const ForthSession *session, ForthWid *wids, uint32_t cap,
+                     uint32_t *count);
+bool forth_set_order(ForthSession *session, const ForthWid *wids, uint32_t count);
+
+bool forth_define(ForthSession *session, const char *name, uint32_t name_len,
+                  ForthXt xt, bool immediate, bool hidden, ForthNt *nt);
+bool forth_reveal(ForthSession *session, ForthNt nt);
+bool forth_mark_immediate(ForthSession *session, ForthNt nt);
+bool forth_find(const ForthSession *session, const char *name, uint32_t name_len,
+                ForthNt *nt, ForthXt *xt, bool *immediate);
+bool forth_nt_xt(const ForthSession *session, ForthNt nt, ForthXt *xt);
+bool forth_nt_name(const ForthSession *session, ForthNt nt, uint64_t *addr,
+                   uint32_t *len);
+bool forth_nt_immediate(const ForthSession *session, ForthNt nt);
+bool forth_nt_hidden(const ForthSession *session, ForthNt nt);
+ForthWid forth_nt_wid(const ForthSession *session, ForthNt nt);
+ForthNt forth_latest(const ForthSession *session);
+
+uint64_t forth_to_in_addr(const ForthSession *session);
+uint64_t forth_blk_addr(const ForthSession *session);
+uint64_t forth_state_addr(const ForthSession *session);
+uint64_t forth_base_addr(const ForthSession *session);
+bool forth_source(const ForthSession *session, uint64_t *caddr, uint64_t *u);
+int64_t forth_source_id(const ForthSession *session);
+uint32_t forth_source_depth(const ForthSession *session);
+bool forth_source_load_terminal(ForthSession *session, const uint8_t *bytes,
+                                uint32_t len);
+bool forth_source_push_evaluate(ForthSession *session, uint64_t caddr, uint64_t u);
+bool forth_source_push_file(ForthSession *session, uint32_t fileid);
+bool forth_source_push_block(ForthSession *session, uint32_t blk);
+bool forth_source_pop(ForthSession *session);
+bool forth_refill(ForthSession *session);
+
+bool forth_colon_begin(ForthSession *session, const char *name, uint32_t name_len);
+bool forth_colon_literal(ForthSession *session, int64_t cell);
+bool forth_colon_call(ForthSession *session, ForthXt xt);
+bool forth_colon_recurse(ForthSession *session);
+bool forth_colon_if(ForthSession *session);
+bool forth_colon_else(ForthSession *session);
+bool forth_colon_then(ForthSession *session);
+bool forth_colon_cs_begin(ForthSession *session);
+bool forth_colon_until(ForthSession *session);
+bool forth_colon_again(ForthSession *session);
+bool forth_colon_while(ForthSession *session);
+bool forth_colon_repeat(ForthSession *session);
+bool forth_colon_do(ForthSession *session);
+bool forth_colon_qdo(ForthSession *session);
+bool forth_colon_loop(ForthSession *session);
+bool forth_colon_plus_loop(ForthSession *session);
+bool forth_colon_leave(ForthSession *session);
+bool forth_colon_unloop(ForthSession *session);
+bool forth_colon_exit(ForthSession *session);
+bool forth_colon_throw(ForthSession *session);
+const char *forth_output(const ForthSession *session);
+void forth_output_clear(ForthSession *session);
+bool forth_catch(ForthSession *session, ForthXt xt, int64_t *code);
+bool forth_import_declare(ForthSession *session, const char *module_name,
+                          const char *symbol, const uint8_t *param_tags,
+                          uint16_t param_count, uint8_t return_tag,
+                          ForthNt *nt);
+char *forth_see(const ForthSession *session, ForthXt xt);
+bool forth_interpret(ForthSession *session, const uint8_t *text, uint32_t len);
+bool forth_exit_requested(const ForthSession *session);
+bool forth_colon_finish(ForthSession *session, ForthNt *nt);
+bool forth_colon_abort(ForthSession *session);
+bool forth_colon_is_open(const ForthSession *session);
+ForthXt forth_colon_xt(const ForthSession *session);
 
 #endif
