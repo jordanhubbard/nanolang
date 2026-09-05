@@ -158,3 +158,4 @@ site/
 # Compiled Forth C helpers built next to their sources.
 /tests/forth/test_forth_include_gap
 /tests/forth/test_forth_core_load
+/tests/test_nsi

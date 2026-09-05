@@ -105,6 +105,11 @@ How I am built:
     - VM trap boundary for suspension/resumption integration
     - libdispatch-backed queue integrations where available
 
+10.4. **[Nano Service Interface](NSI.md)** - My v0 service-contract identifiers
+    - Interface, method, type, error, and capability ids
+    - Names are not identity; missing or duplicate ids fail closed
+    - Direction, ownership, generation, and migration are later items
+
 10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
     - Type soundness (preservation and progress)
     - Determinism of evaluation

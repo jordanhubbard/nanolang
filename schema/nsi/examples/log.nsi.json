@@ -1,0 +1,20 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/log",
+    "name": "log"
+  },
+  "methods": [
+    { "id": "nsi:nanolang/log#write", "name": "write" },
+    { "id": "nsi:nanolang/log#write_event", "name": "write_event" }
+  ],
+  "types": [
+    { "id": "nsi:nanolang/log#Level", "name": "Level" }
+  ],
+  "errors": [
+    { "id": "nsi:nanolang/log#io", "name": "io" }
+  ],
+  "capabilities": [
+    { "id": "cap:nanolang/log.write", "name": "write" }
+  ]
+}

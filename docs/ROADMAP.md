@@ -145,6 +145,11 @@ remains 4.4.
       and LTR-isolated code fences on `dir=rtl` pages. JSON/TOON stay
       English. I do not call the system internationalized.
       (`task_232233a85c9f445ebf7ce93eddec48cc`)
+- [x] **4.3 / Phase 16.** I define NSI v0 with stable interface, method, type,
+      error, and capability identifiers (`schema/nsi/`, `src/nsi.c`,
+      `docs/NSI.md`, `make test-nsi`). Direction, ownership, generation,
+      and module migration are later items.
+      (`task_3581c13d862e43f0a76a52e86185b92e`)
 
 ## Release Map
 
@@ -704,7 +709,7 @@ service, a protected process, another NanoVM, or a remote endpoint according to
 deployment policy.
 
 Interface definition:
-- [ ] I will define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers.
+- [x] I define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`, `docs/NSI.md`, `make test-nsi`). Names without ids fail closed.
 - [ ] I will describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema.
 - [ ] I will support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors.
 - [ ] I will define backward- and forward-compatibility rules for interfaces and wire representations.
@@ -1551,6 +1556,6 @@ I aim to be:
 ---
 
 Last Updated: September 5, 2026
-Current Phase: 4.2 Phase 15 evidence is in; I do not call the system internationalized. Next 4.x work is 4.3 (Phase 16). 5.0 One IR is recorded, not started.
+Current Phase: 4.3 Phase 16 identifiers are in (`make test-nsi`). Next is parameter direction, ownership, and streaming. 5.0 One IR is recorded, not started.
 Next Major Milestone: 4.3 service interfaces, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
 Next Review: after a named human reviewer accepts a translated guide page

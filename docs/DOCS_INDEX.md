@@ -29,6 +29,7 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 
 ### Modules / FFI
 - [Module System](MODULE_SYSTEM.md)
+- [Nano Service Interface](NSI.md) - v0 identifiers only; I do not generate bindings yet
 - [Extern FFI](EXTERN_FFI.md)
 
 ### Contributing / Maintainers
