@@ -5,7 +5,34 @@
     "name": "log"
   },
   "methods": [
-    { "id": "nsi:nanolang/log#write", "name": "write" },
+    {
+      "id": "nsi:nanolang/log#write",
+      "name": "write",
+      "params": [
+        {
+          "id": "nsi:nanolang/log#write.level",
+          "name": "level",
+          "type": "nsi:nanolang/log#Level",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/log#write.message",
+          "name": "message",
+          "type": "nsi:core/string",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
     { "id": "nsi:nanolang/log#write_event", "name": "write_event" }
   ],
   "types": [

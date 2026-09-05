@@ -2878,7 +2878,7 @@ help:
 	@echo "  make test-locale-cli  - nanoc --locale / --print-locale"
 	@echo "  make test-utf8        - RFC 3629 walker and pipeline diagnostic ids"
 	@echo "  make test-catalog     - UTF-8 catalogs, fallback, format, completeness"
-	@echo "  make test-nsi         - NSI v0 identifiers (interface/method/type/error/capability)"
+	@echo "  make test-nsi         - NSI v0 identifiers and parameter contract"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"
 	@echo "  make test-locale-catalog - six-language catalog stderr vs English JSON"

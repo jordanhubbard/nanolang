@@ -16,11 +16,33 @@ static void free_named(NlNsiNamed *items, size_t n) {
     free(items);
 }
 
+static void free_params(NlNsiParam *items, size_t n) {
+    size_t i;
+    if (!items) return;
+    for (i = 0; i < n; i++) {
+        free(items[i].id);
+        free(items[i].name);
+        free(items[i].type_id);
+    }
+    free(items);
+}
+
+static void free_methods(NlNsiMethod *items, size_t n) {
+    size_t i;
+    if (!items) return;
+    for (i = 0; i < n; i++) {
+        free(items[i].id);
+        free(items[i].name);
+        free_params(items[i].params, items[i].param_count);
+    }
+    free(items);
+}
+
 void nl_nsi_free(NlNsi *nsi) {
     if (!nsi) return;
     free(nsi->iface.id);
     free(nsi->iface.name);
-    free_named(nsi->methods, nsi->method_count);
+    free_methods(nsi->methods, nsi->method_count);
     free_named(nsi->types, nsi->type_count);
     free_named(nsi->errors, nsi->error_count);
     free_named(nsi->capabilities, nsi->capability_count);
@@ -90,20 +112,210 @@ static bool parse_named_array(cJSON *arr, NlNsiNamed **out, size_t *count) {
     return true;
 }
 
+static bool parse_enum(cJSON *obj, const char *key, const char *const *names, int n, int *out) {
+    cJSON *item;
+    int i;
+    if (!obj || !key || !names || !out || n <= 0) return false;
+    item = cJSON_GetObjectItemCaseSensitive(obj, key);
+    if (!cJSON_IsString(item) || !item->valuestring) return false;
+    for (i = 0; i < n; i++) {
+        if (strcmp(item->valuestring, names[i]) == 0) {
+            *out = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool streaming_matches_direction(NlNsiDirection dir, NlNsiStreaming stream) {
+    if (stream == NL_NSI_STREAM_NONE) return true;
+    if (stream == NL_NSI_STREAM_IN)
+        return dir == NL_NSI_DIR_IN || dir == NL_NSI_DIR_INOUT;
+    if (stream == NL_NSI_STREAM_OUT)
+        return dir == NL_NSI_DIR_OUT || dir == NL_NSI_DIR_INOUT ||
+               dir == NL_NSI_DIR_RETURN;
+    if (stream == NL_NSI_STREAM_BIDI) return dir == NL_NSI_DIR_INOUT;
+    return false;
+}
+
+static const char *const k_direction[] = { "in", "out", "inout", "return" };
+static const char *const k_ownership[] = { "borrow", "transfer", "copy" };
+static const char *const k_lifetime[] = { "call", "caller", "callee", "resource" };
+static const char *const k_mutability[] = { "immutable", "mutable" };
+static const char *const k_streaming[] = { "none", "in", "out", "bidi" };
+
+static bool parse_param(cJSON *obj, NlNsiParam *out) {
+    NlNsiNamed named = {0};
+    cJSON *optional;
+    cJSON *type;
+    int direction = 0;
+    int ownership = 0;
+    int lifetime = 0;
+    int mutability = 0;
+    int streaming = 0;
+
+    if (!parse_named(obj, &named)) return false;
+    out->id = named.id;
+    out->name = named.name;
+    type = cJSON_GetObjectItemCaseSensitive(obj, "type");
+    if (!cJSON_IsString(type) || !id_ascii_ok(type->valuestring)) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    if (!starts_with(type->valuestring, "nsi:")) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    if (!parse_enum(obj, "direction", k_direction, 4, &direction) ||
+        !parse_enum(obj, "ownership", k_ownership, 3, &ownership) ||
+        !parse_enum(obj, "lifetime", k_lifetime, 4, &lifetime) ||
+        !parse_enum(obj, "mutability", k_mutability, 2, &mutability) ||
+        !parse_enum(obj, "streaming", k_streaming, 4, &streaming)) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    optional = cJSON_GetObjectItemCaseSensitive(obj, "optional");
+    if (!cJSON_IsBool(optional)) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    out->type_id = strdup(type->valuestring);
+    if (!out->type_id) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    out->direction = (NlNsiDirection)direction;
+    out->ownership = (NlNsiOwnership)ownership;
+    out->lifetime = (NlNsiLifetime)lifetime;
+    out->mutability = (NlNsiMutability)mutability;
+    out->optional = cJSON_IsTrue(optional) ? 1 : 0;
+    out->streaming = (NlNsiStreaming)streaming;
+    if (!streaming_matches_direction(out->direction, out->streaming)) {
+        free(out->id);
+        free(out->name);
+        free(out->type_id);
+        out->id = NULL;
+        out->name = NULL;
+        out->type_id = NULL;
+        return false;
+    }
+    return true;
+}
+
+static bool parse_param_array(cJSON *arr, NlNsiParam **out, size_t *count) {
+    int n;
+    int i;
+    if (!arr) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    if (!cJSON_IsArray(arr)) return false;
+    n = cJSON_GetArraySize(arr);
+    if (n < 0) return false;
+    if (n == 0) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    *out = calloc((size_t)n, sizeof(**out));
+    if (!*out) return false;
+    *count = 0;
+    for (i = 0; i < n; i++) {
+        if (!parse_param(cJSON_GetArrayItem(arr, i), &(*out)[i])) {
+            free_params(*out, (size_t)i);
+            *out = NULL;
+            *count = 0;
+            return false;
+        }
+        (*count)++;
+    }
+    return true;
+}
+
+static bool parse_method(cJSON *obj, NlNsiMethod *out) {
+    NlNsiNamed named = {0};
+    if (!parse_named(obj, &named)) return false;
+    out->id = named.id;
+    out->name = named.name;
+    out->params = NULL;
+    out->param_count = 0;
+    if (!parse_param_array(cJSON_GetObjectItemCaseSensitive(obj, "params"),
+                           &out->params, &out->param_count)) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    return true;
+}
+
+static bool parse_method_array(cJSON *arr, NlNsiMethod **out, size_t *count) {
+    int n;
+    int i;
+    if (!arr) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    if (!cJSON_IsArray(arr)) return false;
+    n = cJSON_GetArraySize(arr);
+    if (n < 0) return false;
+    if (n == 0) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    *out = calloc((size_t)n, sizeof(**out));
+    if (!*out) return false;
+    *count = 0;
+    for (i = 0; i < n; i++) {
+        if (!parse_method(cJSON_GetArrayItem(arr, i), &(*out)[i])) {
+            free_methods(*out, (size_t)i);
+            *out = NULL;
+            *count = 0;
+            return false;
+        }
+        (*count)++;
+    }
+    return true;
+}
+
 static bool ids_unique(const NlNsi *nsi) {
-    size_t n;
+    size_t n = 1u;
     size_t i;
     size_t j;
     size_t k = 0;
     const char **ids;
     bool ok = true;
 
-    n = 1u + nsi->method_count + nsi->type_count + nsi->error_count +
-        nsi->capability_count;
+    n += nsi->method_count + nsi->type_count + nsi->error_count +
+         nsi->capability_count;
+    for (i = 0; i < nsi->method_count; i++) n += nsi->methods[i].param_count;
     ids = malloc(n * sizeof(*ids));
     if (!ids) return false;
     ids[k++] = nsi->iface.id;
-    for (i = 0; i < nsi->method_count; i++) ids[k++] = nsi->methods[i].id;
+    for (i = 0; i < nsi->method_count; i++) {
+        ids[k++] = nsi->methods[i].id;
+        for (j = 0; j < nsi->methods[i].param_count; j++)
+            ids[k++] = nsi->methods[i].params[j].id;
+    }
     for (i = 0; i < nsi->type_count; i++) ids[k++] = nsi->types[i].id;
     for (i = 0; i < nsi->error_count; i++) ids[k++] = nsi->errors[i].id;
     for (i = 0; i < nsi->capability_count; i++) ids[k++] = nsi->capabilities[i].id;
@@ -129,10 +341,15 @@ static bool fragment_of_interface(const char *iface, const char *id) {
 
 static bool validate_prefixes(const NlNsi *nsi) {
     size_t i;
+    size_t j;
     if (!starts_with(nsi->iface.id, "nsi:")) return false;
     if (strchr(nsi->iface.id, '#') != NULL) return false;
     for (i = 0; i < nsi->method_count; i++) {
         if (!fragment_of_interface(nsi->iface.id, nsi->methods[i].id)) return false;
+        for (j = 0; j < nsi->methods[i].param_count; j++) {
+            if (!fragment_of_interface(nsi->iface.id, nsi->methods[i].params[j].id))
+                return false;
+        }
     }
     for (i = 0; i < nsi->type_count; i++) {
         if (!fragment_of_interface(nsi->iface.id, nsi->types[i].id)) return false;
@@ -199,8 +416,8 @@ NlNsi *nl_nsi_load_path(const char *path) {
     nsi->version = NL_NSI_VERSION;
 
     if (!parse_named(cJSON_GetObjectItemCaseSensitive(json, "interface"), &nsi->iface) ||
-        !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "methods"),
-                           &nsi->methods, &nsi->method_count) ||
+        !parse_method_array(cJSON_GetObjectItemCaseSensitive(json, "methods"),
+                            &nsi->methods, &nsi->method_count) ||
         !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "types"),
                            &nsi->types, &nsi->type_count) ||
         !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "errors"),
@@ -229,4 +446,15 @@ size_t nl_nsi_method_count(const NlNsi *nsi) {
 const char *nl_nsi_method_id(const NlNsi *nsi, size_t i) {
     if (!nsi || i >= nsi->method_count) return "";
     return nsi->methods[i].id ? nsi->methods[i].id : "";
+}
+
+size_t nl_nsi_param_count(const NlNsi *nsi, size_t method_i) {
+    if (!nsi || method_i >= nsi->method_count) return 0;
+    return nsi->methods[method_i].param_count;
+}
+
+const NlNsiParam *nl_nsi_param(const NlNsi *nsi, size_t method_i, size_t param_i) {
+    if (!nsi || method_i >= nsi->method_count) return NULL;
+    if (param_i >= nsi->methods[method_i].param_count) return NULL;
+    return &nsi->methods[method_i].params[param_i];
 }

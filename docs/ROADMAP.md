@@ -150,6 +150,10 @@ remains 4.4.
       `docs/NSI.md`, `make test-nsi`). Direction, ownership, generation,
       and module migration are later items.
       (`task_3581c13d862e43f0a76a52e86185b92e`)
+- [x] **4.3 / Phase 16.** I describe parameter direction, ownership, borrowing,
+      transfer, lifetime, mutability, optionality, and streaming in NSI v0
+      (`make test-nsi`, `docs/NSI.md`). Records and generation are later.
+      (`task_ab516c43dbdf4915b76d178409b2e56b`)
 
 ## Release Map
 
@@ -710,7 +714,7 @@ deployment policy.
 
 Interface definition:
 - [x] I define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`, `docs/NSI.md`, `make test-nsi`). Names without ids fail closed.
-- [ ] I will describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema.
+- [x] I describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema (`docs/NSI.md`, `make test-nsi`). Unknown enumerations fail closed.
 - [ ] I will support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors.
 - [ ] I will define backward- and forward-compatibility rules for interfaces and wire representations.
 - [ ] I will reject ambiguous ABI inference; every foreign boundary will have an explicit typed contract.
@@ -1556,6 +1560,6 @@ I aim to be:
 ---
 
 Last Updated: September 5, 2026
-Current Phase: 4.3 Phase 16 identifiers are in (`make test-nsi`). Next is parameter direction, ownership, and streaming. 5.0 One IR is recorded, not started.
+Current Phase: 4.3 Phase 16 identifiers and parameter contract are in (`make test-nsi`). Next is records, variants, arrays, strings, binary, resources, callbacks, and versioned errors. 5.0 One IR is recorded, not started.
 Next Major Milestone: 4.3 service interfaces, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
 Next Review: after a named human reviewer accepts a translated guide page

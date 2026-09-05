@@ -6,12 +6,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
-- NSI v0 identifiers: UTF-8 JSON with stable interface, method, type,
-  error, and capability ids (`schema/nsi/examples/log.nsi.json`,
-  `src/nsi.c`, `docs/NSI.md`). Missing ids, duplicates, wrong version,
-  and invalid UTF-8 fail closed. Direction, ownership, generated
-  bindings, and module migration are later Phase 16 items.
-  `make test-nsi`.
+- NSI v0: stable interface, method, type, error, capability, and
+  parameter ids (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`,
+  `docs/NSI.md`). Parameter direction, ownership, lifetime, mutability,
+  optionality, and streaming fail closed. Records, generated bindings,
+  and module migration are later Phase 16 items. `make test-nsi`.
 - UTF-8 message catalogs for `en`, `zh`, `hi`, `es`, `ar`, and `fr`
   (`catalogs/messages/`, `src/catalog.c`). Human stderr looks up the
   process locale; JSON/TOON stay English. `make test-catalog` and

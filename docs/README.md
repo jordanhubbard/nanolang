@@ -106,9 +106,10 @@ How I am built:
     - libdispatch-backed queue integrations where available
 
 10.4. **[Nano Service Interface](NSI.md)** - My v0 service-contract identifiers
-    - Interface, method, type, error, and capability ids
-    - Names are not identity; missing or duplicate ids fail closed
-    - Direction, ownership, generation, and migration are later items
+    - Interface, method, type, error, capability, and parameter ids
+    - Direction, ownership, lifetime, mutability, optionality, streaming
+    - Names are not identity; missing or unknown enumerations fail closed
+    - Records, generation, and migration are later items
 
 10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
     - Type soundness (preservation and progress)
