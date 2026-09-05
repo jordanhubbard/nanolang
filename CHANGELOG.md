@@ -29,6 +29,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `bin/nano` sets `NANO_INTERPRETER=1`; the sieve and Game of Life use a smaller workload under the interpreter
 - libdispatch examples print `SKIP:` and exit 0 when GCD is not available, and also under `bin/nano` because the tree-walker cannot run GCD callbacks
 - enable the CI `bench` job: `nanoc --bench` measures the tree-walker and fails on a zero ns/op; it does not compare against a stored 2× baseline
+- record a side quest to test whether NanoISA metadata is rich enough to reconstruct high-level languages; I do not claim that it is
 
 ### Fixed
 - `VARIABLE` allots the data cell after the name, matching `CREATE`
