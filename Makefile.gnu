@@ -616,6 +616,13 @@ test-eval: stage1
 	@./tests/test_eval
 	@rm -f tests/test_eval
 
+.PHONY: test-bench
+test-bench: stage1
+	@echo "Running bench runner unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_bench tests/test_bench.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@./tests/test_bench
+	@rm -f tests/test_bench
+
 ifeq ($(UNAME_S),Darwin)
 NANO_EVAL_EXPORT = -Wl,-export_dynamic
 NANO_SESSION_LIB = $(BIN_DIR)/libnano_session.dylib
@@ -952,7 +959,7 @@ test-forth-pty: $(BIN_DIR)/forth
 	@rm -f tests/forth/test_forth_pty_repl
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -973,6 +980,16 @@ test-proptest: $(INTERPRETER)
 	@echo "Running proptest smoke tests..."
 	@bash tests/test_proptest.sh
 	@echo "proptest smoke tests passed."
+
+.PHONY: test-interpreter-examples
+test-interpreter-examples: $(INTERPRETER)
+	@echo "Running language examples under bin/nano..."
+	@bash tests/test_interpreter_language_examples.sh
+
+.PHONY: test-nanoc-bench
+test-nanoc-bench: $(COMPILER)
+	@echo "Running nanoc --bench contract..."
+	@bash tests/test_nanoc_bench.sh
 
 # GLUT initialization boundary tests.
 # Unit-tests modules/glut/glut_init.c against a stub GLUT, guards every call
@@ -1125,6 +1142,12 @@ test-impl: test-units
 	@echo ""
 	@echo "Checking Forth IDE PTY interpreter liveness..."
 	@$(MAKE) --no-print-directory test-forth-pty
+	@echo ""
+	@echo "Testing language examples under the tree-walking interpreter..."
+	@$(MAKE) --no-print-directory test-interpreter-examples
+	@echo ""
+	@echo "Testing nanoc --bench measurements..."
+	@$(MAKE) --no-print-directory test-nanoc-bench
 	@echo ""
 	@if [ -x $(INTERPRETER) ]; then \
 		echo "Running property-based tests (interpreter)..."; \
@@ -1446,6 +1469,9 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@$(MAKE) --no-print-directory test-interpreter-examples
+	@$(MAKE) --no-print-directory test-nanoc-bench
+	@$(MAKE) --no-print-directory test-bench
 
 .PHONY: test-pt2-audio
 # Regression test: pt2_audio must render non-silent samples (previously it just
@@ -2429,6 +2455,9 @@ help:
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
 	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
 	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
+	@echo "  make test-interpreter-examples - Language examples under bin/nano"
+	@echo "  make test-nanoc-bench  - nanoc --bench writes non-zero ns/op"
+	@echo "  make test-bench        - bench_native_run calls the interpreter"
 	@echo "  make nano_forth        - Build bin/forth (NanoISA session REPL for the IDE)"
 	@echo "  make test-nano-eval    - SDL editor NanoLang eval session (C-x C-e host)"
 	@echo "  make libnano-session   - Tree-walker dylib for Nano Emacs (dlopen)"

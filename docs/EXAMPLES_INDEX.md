@@ -2,7 +2,7 @@
 
 Last audited: 2026-09-04.
 
-I have 246 `.nano` files under `examples/`: 8 at the directory root and 238 below category directories. This count includes the generated OPL output fixture. I count files on disk; deleted sketches do not remain examples by reputation alone.
+I have 247 `.nano` files under `examples/`: 9 at the directory root and 238 below category directories. This count includes the generated OPL output fixture. I count files on disk; deleted sketches do not remain examples by reputation alone.
 
 This file is the source of truth for my public examples. `examples/README.md` and `docs/LEARNING_PATH.md` point here instead of keeping their own stale catalogs.
 
@@ -57,7 +57,7 @@ Use these build labels:
 
 | Directory | `.nano` files | Track |
 | --- | ---: | --- |
-| `examples/` | 8 | tools, launchers, root showcases |
+| `examples/` | 9 | tools, launchers, root showcases, `bench_sample.nano` |
 | `examples/advanced/` | 25 | modules and advanced language demos |
 | `examples/api_lessons/` | 41 | focused API lessons |
 | `examples/audio/` | 6 | audio modules and showcases |

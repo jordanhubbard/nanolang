@@ -30,6 +30,15 @@ shadow noop_update {
 }
 
 fn main() -> int {
+    if (not (dispatch_available)) {
+        (println "SKIP: libdispatch is not available on this platform")
+        return 0
+    }
+    if (> (str_length (getenv "NANO_INTERPRETER")) 0) {
+        (println "SKIP: the tree-walking interpreter cannot run libdispatch callbacks")
+        return 0
+    }
+
     let q_stats: NlQueue = (queue_serial "nano.main.stats")
     let q_work: NlQueue = (queue_concurrent "nano.main.workers")
     let g: NlQueueGroup = (group_create)

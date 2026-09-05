@@ -33,6 +33,7 @@ extern fn nl_group_destroy(g: NlQueueGroup) -> void
 extern fn nl_group_async(g: NlQueueGroup, q: NlQueue, blk: fn() -> void) -> void
 extern fn nl_group_notify(g: NlQueueGroup, q: NlQueue, blk: fn() -> void) -> void
 extern fn nl_group_wait_ns(g: NlQueueGroup, timeout_ns: int) -> int
+extern fn nl_dispatch_available() -> int
 
 /* ── Public API ───────────────────────────────────────────────────────────── */
 
@@ -101,6 +102,11 @@ pub fn group_wait_ms(g: NlQueueGroup, timeout_ms: int) -> int {
         set ns (* timeout_ms 1000000)
     }
     unsafe { return (nl_group_wait_ns g ns) }
+}
+
+/* True when this host implements libdispatch (Apple GCD today). */
+pub fn dispatch_available() -> bool {
+    unsafe { return (!= (nl_dispatch_available) 0) }
 }
 
 /* ── Shadow tests ─────────────────────────────────────────────────────────── */
@@ -193,4 +199,9 @@ shadow group_wait_ms {
     assert (== rc 0)
     (group_destroy g)
     (queue_destroy q)
+}
+
+shadow dispatch_available {
+    let available: bool = (dispatch_available)
+    assert (or available (not available))
 }

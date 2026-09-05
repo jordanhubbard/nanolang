@@ -20,9 +20,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - add `bin/nano_forth` as the NanoISA session REPL and copy it to `bin/forth` so `sdl_forth_ide` always has its PTY child
 - ship a windowed SDL editor (`examples/emacs/nano_emacs.nano`) that evaluates NanoLang in a persistent tree-walker session
 - add an OpenGL atelier of high-polygon GLUT solids under four moving lights
+- ship `examples/language/data/words.txt` and a built-in fallback so `nl_random_sentence.nano` does not need `/usr/share/dict/words`
+- add `examples/bench_sample.nano` with two zero-parameter `bench_*` workloads
 
 ### Changed
 - replace the GPU ocean window with an animated OpenCL/CUDA Julia set
+- `bin/nano` sets `NANO_INTERPRETER=1`; the sieve and Game of Life use a smaller workload under the interpreter
+- libdispatch examples print `SKIP:` and exit 0 when GCD is not available, and also under `bin/nano` because the tree-walker cannot run GCD callbacks
+- enable the CI `bench` job: `nanoc --bench` measures the tree-walker and fails on a zero ns/op; it does not compare against a stored 2× baseline
 
 ### Fixed
 - `VARIABLE` allots the data cell after the name, matching `CREATE`

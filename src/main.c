@@ -622,7 +622,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 fprintf(stderr, "[bench] Cannot open %s for writing\n",
                         opts->bench_json);
         }
-        int bench_rc = bench_run_program(program, &bopts, input_file, json_out);
+        int bench_rc = bench_run_program(program, env, &bopts, input_file, json_out);
         if (json_out) fclose(json_out);
         free_ast(program);
         free_tokens(tokens, token_count);

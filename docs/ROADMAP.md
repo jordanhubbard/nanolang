@@ -52,6 +52,18 @@ stays parked until Phase 13 closes. Option C remains 4.4.
   NanoISA session. Remaining word sets, `pi.fs`, and `sdl_forth_ide` stay in
   Phase 13 until this Core gate passes. Locals-on-`THROW` waits on recursive
   Locals; I do not treat it as the next item.
+- [x] Parallel to 4.1 (does not wait on the Core gate): I close the interpreter
+  example failures in `docs/KNOWN_LIMITATIONS.md`. `bin/nano` loads a shipped or
+  built-in word list for `nl_random_sentence.nano`, uses a smaller workload for
+  the sieve and Game of Life when `NANO_INTERPRETER` is set, and skips the
+  libdispatch examples with a printed reason when the host has no GCD or when
+  the tree-walker cannot run GCD callbacks. I test those files under `bin/nano`
+  with a timeout.
+- [x] Parallel to 4.1 (does not wait on the Core gate): I wire `--bench` to the
+  tree-walker, add `examples/bench_sample.nano` with two zero-parameter
+  workloads, emit non-zero ns/op, and enable the CI `bench` job without
+  `if: false` or `|| true`. The job fails on a benchmark error or a zero
+  measurement; it does not claim a 2× baseline comparison until I store one.
 - [ ] Side-quest after 4.1: I isolate the SDL editor walker in
   `bin/nano_emacs_worker` with a length-prefixed pipe protocol (create/destroy,
   bind buffer, eval string, drain `ed_*` commands, crash detection and restart).
