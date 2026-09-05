@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from i18n_catalog import LANGUAGES, load_catalog, validate_catalogs
+
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "userguide"
@@ -27,6 +29,9 @@ class Page:
     rel_output: Path
     title: str
     section: str
+
+
+DIRECTIONS = {"ar": "rtl"}
 
 
 def parse_nav() -> list[Page]:
@@ -345,26 +350,35 @@ def navigation(pages: list[Page], current: Page) -> str:
     return "".join(groups)
 
 
-def page_html(page: Page, body: str, pages: list[Page]) -> str:
+def page_html(page: Page, body: str, pages: list[Page], language: str = "en") -> str:
     import os
     root = Path(os.path.relpath(Path("."), page.rel_output.parent)).as_posix()
     home = Path(os.path.relpath(Path("index.html"), page.rel_output.parent)).as_posix()
     css = f"{root}/assets/style.css" if root != "." else "assets/style.css"
+    catalog = load_catalog(language)
+    direction = DIRECTIONS.get(language, "ltr")
+    alternates = "".join(
+        f'<link rel="alternate" hreflang="{item}" href="/{item}/{page.rel_output.as_posix()}">'
+        for item in LANGUAGES
+    )
+    draft = "" if language == "en" else f'<p class="translation-draft">{html.escape(catalog["guide.draft"])}</p>'
     return f'''<!doctype html>
-<html lang="en">
+<html lang="{language}" dir="{direction}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="NanoLang user guide">
+<link rel="canonical" href="/{language}/{page.rel_output.as_posix()}">
+{alternates}
 <title>{html.escape(page.title)} | NanoLang</title>
 <link rel="stylesheet" href="{css}">
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
-<header class="site-header"><a href="{home}">NanoLang</a><span>User Guide</span></header>
+<header class="site-header"><a href="{home}">NanoLang</a><span>{html.escape(catalog["guide.title"])}</span></header>
 <div class="layout">
 <nav class="sidebar" aria-label="Guide navigation">{navigation(pages, page)}</nav>
-<main id="content">{body}</main>
+<main id="content">{draft}{body}</main>
 </div>
 </body>
 </html>'''
@@ -372,7 +386,7 @@ def page_html(page: Page, body: str, pages: list[Page]) -> str:
 
 def validate_site(pages: list[Page], anchors: dict[Path, set[str]]) -> None:
     errors: list[str] = []
-    expected = {page.rel_output for page in pages}
+    expected = {Path(language) / page.rel_output for language in LANGUAGES for page in pages}
     actual = {path.relative_to(OUTPUT) for path in OUTPUT.rglob("*.html")}
     if expected != actual:
         errors.append(f"HTML inventory mismatch: expected {len(expected)}, found {len(actual)}")
@@ -387,7 +401,7 @@ def validate_site(pages: list[Page], anchors: dict[Path, set[str]]) -> None:
             errors.append(f"{output.relative_to(OUTPUT)}: duplicate HTML id")
         for href in href_pattern.findall(text):
             split = urlsplit(html.unescape(href))
-            if split.scheme or href.startswith("mailto:"):
+            if split.scheme or href.startswith(("mailto:", "/")):
                 continue
             target = output.parent / (split.path or output.name)
             target = target.resolve()
@@ -405,21 +419,26 @@ def validate_site(pages: list[Page], anchors: dict[Path, set[str]]) -> None:
 
 
 def build() -> None:
+    validate_catalogs()
     pages = parse_nav()
     generate_sources()
     shutil.rmtree(OUTPUT, ignore_errors=True)
-    (OUTPUT / "assets").mkdir(parents=True)
-    shutil.copyfile(SOURCE / "assets/style.css", OUTPUT / "assets/style.css")
+    for language in LANGUAGES:
+        (OUTPUT / language / "assets").mkdir(parents=True)
+        shutil.copyfile(SOURCE / "assets/style.css", OUTPUT / language / "assets/style.css")
     source_to_output = {page.rel_source: page.rel_output for page in pages}
     anchors: dict[Path, set[str]] = {}
-    for page in pages:
-        body, page_anchors = render_markdown(source_text(page), page, source_to_output)
-        destination = OUTPUT / page.rel_output
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(page_html(page, body, pages))
-        anchors[page.rel_output] = page_anchors
+    for language in LANGUAGES:
+        for page in pages:
+            body, page_anchors = render_markdown(source_text(page), page, source_to_output)
+            if language == "ar":
+                body = re.sub(r"<pre>", '<pre dir="ltr">', body)
+            destination = OUTPUT / language / page.rel_output
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_text(page_html(page, body, pages, language), encoding="utf-8")
+            anchors[Path(language) / page.rel_output] = page_anchors
     validate_site(pages, anchors)
-    print(f"Built and validated {len(pages)} pages in {OUTPUT.relative_to(ROOT)}")
+    print(f"Built and validated {len(pages) * len(LANGUAGES)} pages in {OUTPUT.relative_to(ROOT)}")
 
 
 def main() -> int:

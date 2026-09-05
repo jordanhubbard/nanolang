@@ -1,0 +1,8 @@
+{
+  "catalog.missing": "缺少消息：{message_id}",
+  "diagnostic.error": "错误",
+  "diagnostic.warning": "警告",
+  "guide.draft": "本版本是机器生成的草稿。",
+  "guide.title": "用户指南",
+  "log.compiler.start": "正在编译 {path}"
+}

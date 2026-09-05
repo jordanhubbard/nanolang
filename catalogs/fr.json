@@ -1,0 +1,8 @@
+{
+  "catalog.missing": "Message manquant : {message_id}",
+  "diagnostic.error": "erreur",
+  "diagnostic.warning": "avertissement",
+  "guide.draft": "Cette édition est un brouillon généré automatiquement.",
+  "guide.title": "Guide d'utilisation",
+  "log.compiler.start": "Compilation de {path}"
+}
