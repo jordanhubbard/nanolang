@@ -8,15 +8,45 @@
     "User says 'dependency locator', 'module tools', 'build utilities'",
     "User wants project management"
   ],
-  "avoid_when": ["User just writing application code"],
-  "capabilities": ["dep_locator", "module_utils", "build_helpers"],
-  "keywords": ["tools", "build", "utilities", "development"],
+  "avoid_when": [
+    "User just writing application code"
+  ],
+  "capabilities": [
+    "dep_locator",
+    "module_utils",
+    "build_helpers"
+  ],
+  "keywords": [
+    "tools",
+    "build",
+    "utilities",
+    "development"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["std"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "std"
+    ],
     "system": []
   },
-  "io_surfaces": ["files"],
-  "alternatives": []
+  "io_surfaces": [
+    "files"
+  ],
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/pure",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/pure.nsi.json",
+    "required_capabilities": [],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

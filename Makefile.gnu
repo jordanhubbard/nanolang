@@ -769,6 +769,34 @@ test-nsi:
 	@./tests/test_nsi
 	@rm -f tests/test_nsi
 
+.PHONY: test-nsi-gen
+test-nsi-gen:
+	@echo "Running NSI binding-generator tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_gen tests/test_nsi_gen.c \
+		$(SRC_DIR)/nsi_gen.c $(SRC_DIR)/nsi.c $(SRC_DIR)/utf8.c $(SRC_DIR)/cJSON.c
+	@./tests/test_nsi_gen
+	@rm -f tests/test_nsi_gen
+
+.PHONY: test-nsi-runtime
+test-nsi-runtime:
+	@echo "Running NSI runtime, transport, and acceptance tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_runtime tests/test_nsi_runtime.c \
+		$(SRC_DIR)/nsi_runtime.c $(SRC_DIR)/nsi.c $(SRC_DIR)/utf8.c $(SRC_DIR)/cJSON.c
+	@./tests/test_nsi_runtime
+	@rm -f tests/test_nsi_runtime
+	@if [ -x ./bin/nanoc ]; then \
+		perl -e 'alarm 30; exec @ARGV' -- ./bin/nanoc tests/nsi_client.nano -o tests/nsi_client_bin; \
+		rm -f tests/nsi_client_bin; \
+	fi
+
+.PHONY: test-nsi-manifest
+test-nsi-manifest:
+	@echo "Running NSI module-manifest and inventory tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_manifest tests/test_nsi_manifest.c \
+		$(SRC_DIR)/nsi_manifest.c $(SRC_DIR)/nsi.c $(SRC_DIR)/utf8.c $(SRC_DIR)/cJSON.c
+	@./tests/test_nsi_manifest
+	@rm -f tests/test_nsi_manifest
+
 .PHONY: test-log-utf8
 test-log-utf8:
 	@echo "Running log UTF-8 and event-id tests..."
@@ -1043,7 +1071,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -2878,7 +2906,10 @@ help:
 	@echo "  make test-locale-cli  - nanoc --locale / --print-locale"
 	@echo "  make test-utf8        - RFC 3629 walker and pipeline diagnostic ids"
 	@echo "  make test-catalog     - UTF-8 catalogs, fallback, format, completeness"
-	@echo "  make test-nsi         - NSI v0 identifiers, params, and typed payloads"
+	@echo "  make test-nsi         - NSI v0 identifiers, params, typed payloads, document compatibility"
+	@echo "  make test-nsi-gen     - NSI NanoLang/Forth/Python/Rust/C++ bindings, dispatch, NanoISA"
+	@echo "  make test-nsi-runtime - NSI frames, adapters, handles, and unchanged-client acceptance"
+	@echo "  make test-nsi-manifest - NSI module manifests, inventory, and discovery"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"
 	@echo "  make test-locale-catalog - six-language catalog stderr vs English JSON"

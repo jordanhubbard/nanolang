@@ -36,7 +36,9 @@
     "sqlite",
     "data"
   ],
-  "examples": ["examples/advanced/sqlite_simple.nano"],
+  "examples": [
+    "examples/advanced/sqlite_simple.nano"
+  ],
   "dependencies": {
     "nanolang": [],
     "system": [
@@ -51,9 +53,32 @@
       }
     ]
   },
-  "io_surfaces": ["files"],
+  "io_surfaces": [
+    "files"
+  ],
   "alternatives": [
-    {"when": "simple key-value storage", "module": "filesystem"},
-    {"when": "in-memory data only", "module": "core (arrays/lists)"}
-  ]
+    {
+      "when": "simple key-value storage",
+      "module": "filesystem"
+    },
+    {
+      "when": "in-memory data only",
+      "module": "core (arrays/lists)"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/filesystem",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/filesystem.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/filesystem.open"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

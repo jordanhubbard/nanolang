@@ -4,9 +4,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-/* Nano Service Interface v0: identifiers, optional parameter contract,
- * and optional typed payloads. Compatibility, generation, and adapters
- * are later. */
+/* Nano Service Interface v0: identifiers, required parameter contracts,
+ * typed payloads, document compatibility, and generation. Opaque types
+ * and omitted params fail closed. */
 
 #define NL_NSI_VERSION 0
 
@@ -76,6 +76,7 @@ typedef struct {
     char *name;
     NlNsiParam *params;
     size_t param_count;
+    int idempotent;
 } NlNsiMethod;
 
 typedef struct {
@@ -131,5 +132,7 @@ typedef enum {
 } NlNsiCompatResult;
 
 NlNsiCompatResult nl_nsi_compat(const NlNsi *older, const NlNsi *newer);
+
+const NlNsiMethod *nl_nsi_find_method(const NlNsi *nsi, const char *id);
 
 #endif

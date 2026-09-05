@@ -15,13 +15,40 @@
     "matplotlib_adapter",
     "png_export"
   ],
-  "keywords": ["matplotlib", "plot", "png", "python"],
+  "keywords": [
+    "matplotlib",
+    "plot",
+    "png",
+    "python"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["pybridge"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "pybridge"
+    ],
     "system": []
   },
-  "io_surfaces": ["files", "process"],
-  "alternatives": []
+  "io_surfaces": [
+    "files",
+    "process"
+  ],
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/python",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/python.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/python.eval"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "python"
+  }
 }

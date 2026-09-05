@@ -33,7 +33,7 @@
         }
       ]
     },
-    { "id": "nsi:nanolang/log#write_event", "name": "write_event" }
+    { "id": "nsi:nanolang/log#write_event", "name": "write_event", "idempotent": true, "params": [] }
   ],
   "types": [
     { "id": "nsi:nanolang/log#Level", "name": "Level", "kind": "variant",

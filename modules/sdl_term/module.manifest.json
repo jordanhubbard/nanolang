@@ -2,7 +2,7 @@
   "name": "sdl_term",
   "version": "1.0.0",
   "stability": "experimental",
-  "summary": "SDL2 terminal emulator — embed a VT100-compatible terminal in any SDL window.",
+  "summary": "SDL2 terminal emulator \u2014 embed a VT100-compatible terminal in any SDL window.",
   "use_when": [
     "User wants a terminal/REPL embedded inside an SDL graphical window",
     "User says 'SDL terminal', 'graphical terminal', 'embed terminal in SDL'",
@@ -29,24 +29,55 @@
     "subprocess",
     "repl"
   ],
-  "examples": ["modules/sdl_term/mvp.nano"],
+  "examples": [
+    "modules/sdl_term/mvp.nano"
+  ],
   "dependencies": {
-    "nanolang": ["sdl", "sdl_ttf"],
+    "nanolang": [
+      "sdl",
+      "sdl_ttf"
+    ],
     "system": [
       {
         "id": "sdl2",
-        "install": { "apt": "libsdl2-dev", "brew": "sdl2" },
+        "install": {
+          "apt": "libsdl2-dev",
+          "brew": "sdl2"
+        },
         "version": ">=2.0"
       },
       {
         "id": "sdl2_ttf",
-        "install": { "apt": "libsdl2-ttf-dev", "brew": "sdl2_ttf" },
+        "install": {
+          "apt": "libsdl2-ttf-dev",
+          "brew": "sdl2_ttf"
+        },
         "version": ">=2.0"
       }
     ]
   },
-  "io_surfaces": ["window"],
+  "io_surfaces": [
+    "window"
+  ],
   "alternatives": [
-    {"when": "standalone terminal TUI", "module": "ncurses"}
-  ]
+    {
+      "when": "standalone terminal TUI",
+      "module": "ncurses"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/graphics",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/graphics.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/graphics.present"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

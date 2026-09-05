@@ -19,13 +19,45 @@
     "png_export",
     "numpy_cpu_fallback"
   ],
-  "keywords": ["warp", "cuda", "fluid", "simulation", "gpu", "numpy", "python"],
-  "examples": ["examples/fluid_sim.nano"],
+  "keywords": [
+    "warp",
+    "cuda",
+    "fluid",
+    "simulation",
+    "gpu",
+    "numpy",
+    "python"
+  ],
+  "examples": [
+    "examples/fluid_sim.nano"
+  ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["pybridge"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "pybridge"
+    ],
     "system": []
   },
-  "io_surfaces": ["files", "process"],
-  "alternatives": []
+  "io_surfaces": [
+    "files",
+    "process"
+  ],
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/python",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/python.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/python.eval"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "python"
+  }
 }

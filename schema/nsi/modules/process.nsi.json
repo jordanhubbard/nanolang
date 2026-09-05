@@ -1,0 +1,58 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/process",
+    "name": "process"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/process#spawn",
+      "name": "spawn",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/process#spawn.argv",
+          "name": "argv",
+          "type": "nsi:core/string",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/process#spawn.handle",
+          "name": "handle",
+          "type": "nsi:nanolang/process#Child",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/process#Child",
+      "name": "Child",
+      "kind": "resource"
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/process#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/process.spawn",
+      "name": "spawn"
+    }
+  ]
+}

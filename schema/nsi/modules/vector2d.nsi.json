@@ -1,0 +1,38 @@
+{
+  "nsi_version": 0,
+  "interface": { "id": "nsi:nanolang/vector2d", "name": "vector2d" },
+  "methods": [
+    {
+      "id": "nsi:nanolang/vector2d#add",
+      "name": "add",
+      "idempotent": true,
+      "params": [
+        {
+          "id": "nsi:nanolang/vector2d#add.x1", "name": "x1", "type": "nsi:core/int",
+          "direction": "in", "ownership": "copy", "lifetime": "call",
+          "mutability": "immutable", "optional": false, "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/vector2d#add.y1", "name": "y1", "type": "nsi:core/int",
+          "direction": "in", "ownership": "copy", "lifetime": "call",
+          "mutability": "immutable", "optional": false, "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/vector2d#add.x2", "name": "x2", "type": "nsi:core/int",
+          "direction": "in", "ownership": "copy", "lifetime": "call",
+          "mutability": "immutable", "optional": false, "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/vector2d#add.y2", "name": "y2", "type": "nsi:core/int",
+          "direction": "in", "ownership": "copy", "lifetime": "call",
+          "mutability": "immutable", "optional": false, "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [],
+  "errors": [
+    { "id": "nsi:nanolang/vector2d#range", "name": "range", "version": "1" }
+  ],
+  "capabilities": []
+}

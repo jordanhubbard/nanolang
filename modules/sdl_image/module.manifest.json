@@ -22,7 +22,17 @@
     "create_texture_from_file",
     "render_images"
   ],
-  "keywords": ["sdl", "image", "png", "jpg", "jpeg", "texture", "sprite", "icon", "graphics"],
+  "keywords": [
+    "sdl",
+    "image",
+    "png",
+    "jpg",
+    "jpeg",
+    "texture",
+    "sprite",
+    "icon",
+    "graphics"
+  ],
   "examples": [
     "examples/graphics/sdl_image_demo.nano",
     "examples/graphics/sdl_image_sprite_animation.nano",
@@ -30,15 +40,48 @@
     "examples/sdl_example_launcher.nano"
   ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["sdl"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "sdl"
+    ],
     "system": [
-      {"id": "sdl2_image", "install": {"apt": "libsdl2-image-dev", "brew": "sdl2_image"}}
+      {
+        "id": "sdl2_image",
+        "install": {
+          "apt": "libsdl2-image-dev",
+          "brew": "sdl2_image"
+        }
+      }
     ]
   },
-  "io_surfaces": ["window"],
+  "io_surfaces": [
+    "window"
+  ],
   "alternatives": [
-    {"when": "BMP only", "module": "sdl"},
-    {"when": "custom image formats", "module": "custom_loader"}
-  ]
+    {
+      "when": "BMP only",
+      "module": "sdl"
+    },
+    {
+      "when": "custom image formats",
+      "module": "custom_loader"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/graphics",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/graphics.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/graphics.present"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

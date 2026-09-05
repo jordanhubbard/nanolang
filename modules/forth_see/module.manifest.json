@@ -10,9 +10,35 @@
   "avoid_when": [
     "General purpose NVM disassembly (use nanoisa tools instead)"
   ],
-  "capabilities": ["nvm_decompile", "isa_disassemble"],
-  "keywords": ["forth", "see", "decompiler", "nanoisa", "disassembler", "nvm"],
+  "capabilities": [
+    "nvm_decompile",
+    "isa_disassemble"
+  ],
+  "keywords": [
+    "forth",
+    "see",
+    "decompiler",
+    "nanoisa",
+    "disassembler",
+    "nvm"
+  ],
   "examples": [],
-  "dependencies": { "nanolang": [], "system": [] },
-  "io_surfaces": []
+  "dependencies": {
+    "nanolang": [],
+    "system": []
+  },
+  "io_surfaces": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/pure",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/pure.nsi.json",
+    "required_capabilities": [],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

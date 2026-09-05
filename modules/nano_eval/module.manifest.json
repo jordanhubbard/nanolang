@@ -16,14 +16,40 @@
     "persistent_environment",
     "editor_host_primitives"
   ],
-  "keywords": ["emacs", "eval", "repl", "editor", "interpreter"],
-  "examples": ["examples/emacs/nano_emacs.nano"],
+  "keywords": [
+    "emacs",
+    "eval",
+    "repl",
+    "editor",
+    "interpreter"
+  ],
+  "examples": [
+    "examples/emacs/nano_emacs.nano"
+  ],
   "dependencies": {
     "nanolang": [],
     "system": []
   },
   "io_surfaces": [],
   "alternatives": [
-    {"when": "batch script", "module": "interpreter bin/nano"}
-  ]
+    {
+      "when": "batch script",
+      "module": "interpreter bin/nano"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/process",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/process.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/process.spawn"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

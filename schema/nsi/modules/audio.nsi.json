@@ -1,0 +1,58 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/audio",
+    "name": "audio"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/audio#write_frame",
+      "name": "write_frame",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/audio#write_frame.bytes",
+          "name": "bytes",
+          "type": "nsi:core/bytes",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/audio#write_frame.handle",
+          "name": "handle",
+          "type": "nsi:nanolang/audio#Stream",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/audio#Stream",
+      "name": "Stream",
+      "kind": "resource"
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/audio#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/audio.write_frame",
+      "name": "write_frame"
+    }
+  ]
+}

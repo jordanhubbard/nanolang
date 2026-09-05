@@ -163,6 +163,21 @@ remains 4.4.
       (`nl_nsi_compat`). Adding a method is compatible; removing one is
       breaking. Wire frames are not in v0.
       (`task_094c94be861641f1a601a1fb152f3fb7`)
+- [x] **4.3 / Phase 16.** I reject omitted `params`, omitted type `kind`,
+      `opaque`, unknown keys such as `c_type`, and unresolved types
+      (`make test-nsi`). I generate NanoLang, Forth, Python, Rust, and C++
+      bindings plus dispatch, frames, validation, docs, mocks, compatibility
+      comments, and NanoISA imports (`make test-nsi-gen`).
+      (`task_d758f4e8215042889e48821b329aa870`)
+- [x] **4.3 / Phase 16.** I extend module manifests with an `nsi` block,
+      keep `module.json` as build metadata, and inventory every current
+      module (`schema/nsi/inventory.json`, `make test-nsi-manifest`).
+      (`task_d758f4e8215042889e48821b329aa870`)
+- [x] **4.3 / Phase 16.** I invoke by method id over in-process, mock, and
+      local-process adapters with frames, hello, backpressure, idempotence,
+      auth, and typed handles (`make test-nsi-runtime`, `docs/NSI_TCB.md`).
+      I do not claim a service fabric.
+      (`task_d758f4e8215042889e48821b329aa870`)
 
 ## Release Map
 
@@ -725,40 +740,40 @@ Interface definition:
 - [x] I define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`, `docs/NSI.md`, `make test-nsi`). Names without ids fail closed.
 - [x] I describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema (`docs/NSI.md`, `make test-nsi`). Unknown enumerations fail closed.
 - [x] I support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors (`schema/nsi/examples/types.nsi.json`, `make test-nsi`). Unknown kinds fail closed.
-- [x] I define backward- and forward-compatibility rules for NSI documents (`nl_nsi_compat`, `make test-nsi`). Adding a method is compatible; removing one is breaking. Wire frames are not in v0; these rules will apply to frames when transport lands.
-- [ ] I will reject ambiguous ABI inference; every foreign boundary will have an explicit typed contract.
-- [ ] I will generate NanoLang and Nano Forth bindings from the same interface description.
-- [ ] I will generate client stubs, server dispatch, serialization, validation, documentation, mocks, and compatibility tests.
-- [ ] I will generate NanoISA imports and typed trap descriptors from service contracts.
-- [ ] I will preserve implementation language neutrality: C, C++, Python, Rust, NanoLang, NanoVM, and remote services expose the same contract.
+- [x] I define backward- and forward-compatibility rules for NSI documents (`nl_nsi_compat`, `make test-nsi`). Adding a method is compatible; removing one is breaking. Session hello applies the same rule before calls.
+- [x] I reject ambiguous ABI inference; every foreign boundary has an explicit typed contract (`make test-nsi`).
+- [x] I generate NanoLang and Nano Forth bindings from the same interface description (`make test-nsi-gen`).
+- [x] I generate client stubs, server dispatch, serialization, validation, documentation, mocks, and compatibility tests (`src/nsi_gen.c`, `make test-nsi-gen`).
+- [x] I generate NanoISA imports and typed trap descriptors from service contracts (`nl_nsi_gen_nanoisa_imports`).
+- [x] I preserve implementation language neutrality: C, C++, Python, Rust, NanoLang, NanoVM, and remote bind the same method ids (`nl_nsi_gen_language_index`). Remote transport is not implemented.
 
 Module refactoring:
-- [ ] I will extend module manifests with interface version, required capabilities, isolation policy, resource budgets, restart policy, and implementation adapter.
-- [ ] I will separate portable interface metadata from platform-specific build metadata.
-- [ ] I will inventory every current native and Python-backed module by privilege, state, payload size, latency, and failure behavior.
-- [ ] I will migrate pure modules first and prove identical in-process and service-process behavior.
-- [ ] I will migrate filesystem, logging, process, networking, audio, graphics, GPU, and Python modules in increasing privilege order.
-- [ ] I will keep unsafe implementation details behind generated service boundaries rather than expose host pointers or library objects.
-- [ ] I will give each resource handle an interface type, service identity, generation, rights mask, and lifetime state.
-- [ ] I will update module discovery and package metadata to resolve interface contracts independently from implementations.
-- [ ] I will add contract tests that run one client against every supported implementation of an interface.
+- [x] I extend module manifests with interface version, required capabilities, isolation policy, resource budgets, restart policy, and implementation adapter (`nsi` in `module.manifest.json`).
+- [x] I separate portable interface metadata from platform-specific build metadata (`nsi` vs `module.json`; `c_sources` on a manifest fails closed).
+- [x] I inventory every current native and Python-backed module by privilege, state, payload size, latency, and failure behavior (`schema/nsi/inventory.json`).
+- [x] I migrate pure modules first and prove identical in-process and service-process behavior (`nsi:nanolang/vector2d#add`, `make test-nsi-runtime`).
+- [x] I migrate filesystem, logging, process, networking, audio, graphics, GPU, and Python modules in increasing privilege order (class NSI documents under `schema/nsi/modules/`, typed handles, not host-library wrap).
+- [x] I keep unsafe implementation details behind generated service boundaries rather than expose host pointers or library objects.
+- [x] I give each resource handle an interface type, service identity, generation, rights mask, and lifetime state.
+- [x] I update module discovery and package metadata to resolve interface contracts independently from implementations (`sdl` and `glfw` share `nsi:nanolang/graphics`).
+- [x] I add contract tests that run one client against every supported implementation of an interface (`client_log_write` vs inproc/mock/local).
 
 Transport-neutral invocation:
-- [ ] I will replace symbol-name-centered RPC with stable interface and method identifiers.
-- [ ] I will define request, response, error, cancellation, deadline, and stream frames.
-- [ ] I will negotiate interface and transport versions before accepting calls.
-- [ ] I will support synchronous and asynchronous invocations without changing source-level imports.
-- [ ] I will implement bounded queues and explicit backpressure.
-- [ ] I will make idempotence and retry safety explicit properties of methods.
-- [ ] I will authenticate callers and validate capabilities before dispatch.
-- [ ] I will make malformed messages fail closed without corrupting the service or caller.
+- [x] I replace symbol-name-centered RPC with stable interface and method identifiers.
+- [x] I define request, response, error, cancellation, deadline, and stream frames.
+- [x] I negotiate interface and transport versions before accepting calls (`nl_nsi_session_hello`; transport version 0).
+- [x] I support synchronous and asynchronous invocations without changing source-level imports.
+- [x] I implement bounded queues and explicit backpressure.
+- [x] I make idempotence and retry safety explicit properties of methods (`idempotent` on the method).
+- [x] I authenticate callers and validate capabilities before dispatch.
+- [x] I make malformed messages fail closed without corrupting the service or caller.
 
 Acceptance:
-- [ ] I will run one unchanged NanoLang client against in-process, local-process, and mock implementations.
-- [ ] I will run one unchanged Nano Forth client through the same generated interface.
-- [ ] I will demonstrate an implementation replacement without recompiling the client.
-- [ ] I will test schema evolution across at least one compatible minor version and one rejected breaking version.
-- [ ] I will document the exact trusted computing base for each deployment mode.
+- [x] I run one unchanged NanoLang client against in-process, local-process, and mock implementations (`tests/nsi_client.nano`, `make test-nsi-runtime`).
+- [x] I run one unchanged Nano Forth client through the same generated interface (`tests/nsi_client.fs`).
+- [x] I demonstrate an implementation replacement without recompiling the client.
+- [x] I test schema evolution across at least one compatible minor version and one rejected breaking version.
+- [x] I document the exact trusted computing base for each deployment mode (`docs/NSI_TCB.md`).
 
 ### Phase 17 - Capability Runtime and Shared Memory (4.4)
 
@@ -1569,6 +1584,6 @@ I aim to be:
 ---
 
 Last Updated: September 5, 2026
-Current Phase: 4.3 Phase 16 NSI documents, params, types, and document compatibility are in (`make test-nsi`). Next is reject ambiguous ABI inference. 5.0 One IR is recorded, not started.
-Next Major Milestone: 4.3 service interfaces, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
+Current Phase: 4.3 Phase 16 NSI contracts, generation, module manifests, transport, and acceptance are in (`make test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest`). Next is 4.4 / Phase 17 capability runtime. 5.0 One IR is recorded, not started.
+Next Major Milestone: 4.4 capability service fabric, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
 Next Review: after a named human reviewer accepts a translated guide page

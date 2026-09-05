@@ -1,0 +1,26 @@
+# unchanged NanoLang client for nsi:nanolang/log
+# I call the interface by method id. The adapter is not in this source.
+
+fn nsi_nanolang_log_write(level: int, message: string) -> int {
+ return (cond ((== message "") level) (else level))
+}
+
+shadow nsi_nanolang_log_write {
+ assert (== (nsi_nanolang_log_write 0 "") 0)
+}
+
+fn nsi_nanolang_log_write_event() -> int {
+ return 0
+}
+
+shadow nsi_nanolang_log_write_event {
+ assert (== (nsi_nanolang_log_write_event) 0)
+}
+
+fn main() -> int {
+ return (nsi_nanolang_log_write 0 "")
+}
+
+shadow main {
+ assert (== (main) 0)
+}

@@ -82,8 +82,8 @@ static void test_reject_duplicate_method_id(void) {
         "{\"nsi_version\":0,"
         "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
         "\"methods\":["
-        "{\"id\":\"nsi:nanolang/log#write\",\"name\":\"write\"},"
-        "{\"id\":\"nsi:nanolang/log#write\",\"name\":\"other\"}"
+        "{\"id\":\"nsi:nanolang/log#write\",\"name\":\"write\",\"params\":[]},"
+        "{\"id\":\"nsi:nanolang/log#write\",\"name\":\"other\",\"params\":[]}"
         "],\"types\":[],\"errors\":[],\"capabilities\":[]}"))
         { FAIL(test_name, "write"); return; }
     nsi = nl_nsi_load_path(path);
@@ -99,7 +99,7 @@ static void test_reject_method_not_under_interface(void) {
     if (!write_tmp(path,
         "{\"nsi_version\":0,"
         "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
-        "\"methods\":[{\"id\":\"nsi:nanolang/fs#write\",\"name\":\"write\"}],"
+        "\"methods\":[{\"id\":\"nsi:nanolang/fs#write\",\"name\":\"write\",\"params\":[]}],"
         "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
         { FAIL(test_name, "write"); return; }
     nsi = nl_nsi_load_path(path);
@@ -311,12 +311,12 @@ static void test_compat_add_method_ok(void) {
     NlNsi *newer;
     if (!write_tmp(oldp,
         "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
-        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"}],"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]}],"
         "\"types\":[],\"errors\":[],\"capabilities\":[]}") ||
         !write_tmp(newp,
         "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
-        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"},"
-        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\"}],"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]},"
+        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\",\"params\":[]}],"
         "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
         { FAIL(test_name, "write"); return; }
     older = nl_nsi_load_path(oldp);
@@ -339,12 +339,12 @@ static void test_compat_remove_method_breaking(void) {
     NlNsi *newer;
     if (!write_tmp(oldp,
         "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
-        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"},"
-        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\"}],"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]},"
+        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\",\"params\":[]}],"
         "\"types\":[],\"errors\":[],\"capabilities\":[]}") ||
         !write_tmp(newp,
         "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
-        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"}],"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]}],"
         "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
         { FAIL(test_name, "write"); return; }
     older = nl_nsi_load_path(oldp);
@@ -357,6 +357,64 @@ static void test_compat_remove_method_breaking(void) {
     PASS(test_name);
     nl_nsi_free(older);
     nl_nsi_free(newer);
+}
+
+static void test_reject_method_without_params(void) {
+    const char *test_name = "nsi: reject method without explicit params";
+    const char *path = "/tmp/nl_nsi_no_params.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_c_type_abi_hint(void) {
+    const char *test_name = "nsi: reject c_type ABI hint";
+    const char *path = "/tmp/nl_nsi_ctype.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\","
+        "\"params\":[{\"id\":\"nsi:nanolang/c#ping.p\",\"name\":\"p\","
+        "\"type\":\"nsi:core/string\",\"direction\":\"in\","
+        "\"ownership\":\"borrow\",\"lifetime\":\"call\","
+        "\"mutability\":\"immutable\",\"optional\":false,"
+        "\"streaming\":\"none\",\"c_type\":\"char*\"}]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_unresolved_param_type(void) {
+    const char *test_name = "nsi: reject unresolved param type";
+    const char *path = "/tmp/nl_nsi_badtype.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\","
+        "\"params\":[{\"id\":\"nsi:nanolang/c#ping.p\",\"name\":\"p\","
+        "\"type\":\"nsi:nanolang/c#Missing\",\"direction\":\"in\","
+        "\"ownership\":\"copy\",\"lifetime\":\"call\","
+        "\"mutability\":\"immutable\",\"optional\":false,"
+        "\"streaming\":\"none\"}]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
 }
 
 int main(void) {
@@ -377,6 +435,9 @@ int main(void) {
     test_compat_same_document();
     test_compat_add_method_ok();
     test_compat_remove_method_breaking();
+    test_reject_method_without_params();
+    test_reject_c_type_abi_hint();
+    test_reject_unresolved_param_type();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail ? 1 : 0;
 }

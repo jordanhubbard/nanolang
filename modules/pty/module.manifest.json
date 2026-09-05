@@ -2,7 +2,7 @@
   "name": "pty",
   "version": "1.0.0",
   "stability": "experimental",
-  "summary": "POSIX pseudo-terminal bindings — open a PTY, fork a subprocess, relay its I/O.",
+  "summary": "POSIX pseudo-terminal bindings \u2014 open a PTY, fork a subprocess, relay its I/O.",
   "use_when": [
     "User wants to embed a subprocess terminal inside an SDL or graphical window",
     "User needs to run a program and capture its stdin/stdout as a terminal stream",
@@ -29,13 +29,35 @@
     "exec",
     "tty"
   ],
-  "examples": ["modules/pty/mvp.nano"],
+  "examples": [
+    "modules/pty/mvp.nano"
+  ],
   "dependencies": {
     "nanolang": [],
     "system": []
   },
-  "io_surfaces": ["subprocess"],
+  "io_surfaces": [
+    "subprocess"
+  ],
   "alternatives": [
-    {"when": "simple process output without terminal", "module": "stdio"}
-  ]
+    {
+      "when": "simple process output without terminal",
+      "module": "stdio"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/process",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/process.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/process.spawn"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

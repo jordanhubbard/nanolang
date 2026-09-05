@@ -8,18 +8,56 @@
     "User says 'physics', 'collision', 'rigid body', 'soft body'",
     "User is building a physics-based game or simulation"
   ],
-  "avoid_when": ["User wants simple collision only (implement manually)"],
-  "capabilities": ["rigid_body", "soft_body", "collision_detection", "physics_simulation"],
-  "keywords": ["physics", "bullet", "collision", "simulation", "rigid body"],
+  "avoid_when": [
+    "User wants simple collision only (implement manually)"
+  ],
+  "capabilities": [
+    "rigid_body",
+    "soft_body",
+    "collision_detection",
+    "physics_simulation"
+  ],
+  "keywords": [
+    "physics",
+    "bullet",
+    "collision",
+    "simulation",
+    "rigid body"
+  ],
   "examples": [
     "examples/physics/bullet_beads_simple.nano",
     "examples/physics/bullet_beads_visual.nano",
     "examples/physics/bullet_soft_body_modern.nano"
   ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "system": [{"id": "bullet", "install": {"apt": "libbullet-dev", "brew": "bullet"}}]
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "system": [
+      {
+        "id": "bullet",
+        "install": {
+          "apt": "libbullet-dev",
+          "brew": "bullet"
+        }
+      }
+    ]
   },
   "io_surfaces": [],
-  "alternatives": []
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/gpu",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/gpu.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/gpu.submit"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

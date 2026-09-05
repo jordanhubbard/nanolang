@@ -103,6 +103,34 @@ static bool starts_with(const char *s, const char *pfx) {
     return s && pfx && strncmp(s, pfx, strlen(pfx)) == 0;
 }
 
+static bool keys_allowed(const cJSON *obj, const char *const *allowed, size_t n) {
+    const cJSON *child;
+    if (!obj || !cJSON_IsObject(obj)) return false;
+    cJSON_ArrayForEach(child, obj) {
+        size_t i;
+        int ok = 0;
+        if (!child->string) return false;
+        for (i = 0; i < n; i++) {
+            if (strcmp(child->string, allowed[i]) == 0) {
+                ok = 1;
+                break;
+            }
+        }
+        if (!ok) return false;
+    }
+    return true;
+}
+
+static bool is_core_type(const char *id) {
+    return id &&
+           (strcmp(id, "nsi:core/string") == 0 ||
+            strcmp(id, "nsi:core/int") == 0 ||
+            strcmp(id, "nsi:core/bool") == 0 ||
+            strcmp(id, "nsi:core/unit") == 0 ||
+            strcmp(id, "nsi:core/bytes") == 0 ||
+            strcmp(id, "nsi:core/float") == 0);
+}
+
 static bool parse_named(cJSON *obj, NlNsiNamed *out) {
     cJSON *id;
     cJSON *name;
@@ -137,7 +165,9 @@ static bool parse_named_array(cJSON *arr, NlNsiNamed **out, size_t *count) {
     if (!*out) return false;
     *count = 0;
     for (i = 0; i < n; i++) {
-        if (!parse_named(cJSON_GetArrayItem(arr, i), &(*out)[i])) {
+        static const char *const keys[] = { "id", "name" };
+        cJSON *item = cJSON_GetArrayItem(arr, i);
+        if (!keys_allowed(item, keys, 2) || !parse_named(item, &(*out)[i])) {
             free_named(*out, (size_t)i);
             *out = NULL;
             *count = 0;
@@ -181,6 +211,10 @@ static const char *const k_mutability[] = { "immutable", "mutable" };
 static const char *const k_streaming[] = { "none", "in", "out", "bidi" };
 
 static bool parse_param(cJSON *obj, NlNsiParam *out) {
+    static const char *const keys[] = {
+        "id", "name", "type", "direction", "ownership", "lifetime",
+        "mutability", "optional", "streaming"
+    };
     NlNsiNamed named = {0};
     cJSON *optional;
     cJSON *type;
@@ -190,6 +224,7 @@ static bool parse_param(cJSON *obj, NlNsiParam *out) {
     int mutability = 0;
     int streaming = 0;
 
+    if (!keys_allowed(obj, keys, 9)) return false;
     if (!parse_named(obj, &named)) return false;
     out->id = named.id;
     out->name = named.name;
@@ -285,14 +320,37 @@ static bool parse_param_array(cJSON *arr, NlNsiParam **out, size_t *count) {
 }
 
 static bool parse_method(cJSON *obj, NlNsiMethod *out) {
+    static const char *const keys[] = { "id", "name", "params", "idempotent" };
     NlNsiNamed named = {0};
+    cJSON *params;
+    cJSON *idemp;
+    if (!keys_allowed(obj, keys, 4)) return false;
     if (!parse_named(obj, &named)) return false;
     out->id = named.id;
     out->name = named.name;
     out->params = NULL;
     out->param_count = 0;
-    if (!parse_param_array(cJSON_GetObjectItemCaseSensitive(obj, "params"),
-                           &out->params, &out->param_count)) {
+    out->idempotent = 0;
+    idemp = cJSON_GetObjectItemCaseSensitive(obj, "idempotent");
+    if (idemp) {
+        if (!cJSON_IsBool(idemp)) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+        out->idempotent = cJSON_IsTrue(idemp) ? 1 : 0;
+    }
+    params = cJSON_GetObjectItemCaseSensitive(obj, "params");
+    if (!params || !cJSON_IsArray(params)) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    if (!parse_param_array(params, &out->params, &out->param_count)) {
         free(out->id);
         free(out->name);
         out->id = NULL;
@@ -349,8 +407,10 @@ static bool version_ok(const char *v) {
 }
 
 static bool parse_member(cJSON *obj, NlNsiMember *out, int require_type) {
+    static const char *const keys[] = { "id", "name", "type" };
     NlNsiNamed named = {0};
     cJSON *type;
+    if (!keys_allowed(obj, keys, 3)) return false;
     if (!parse_named(obj, &named)) return false;
     out->id = named.id;
     out->name = named.name;
@@ -427,8 +487,32 @@ static bool parse_type(cJSON *obj, NlNsiType *out) {
     out->method_id = NULL;
     out->result_id = NULL;
     kind_item = cJSON_GetObjectItemCaseSensitive(obj, "kind");
-    if (kind_item) {
-        if (!parse_enum(obj, "kind", k_type_kind, 9, &kind)) {
+    if (!kind_item ||
+        !parse_enum(obj, "kind", k_type_kind, 9, &kind) ||
+        kind == NL_NSI_TYPE_OPAQUE) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    out->kind = (NlNsiTypeKind)kind;
+    {
+        const char *const *keys = NULL;
+        size_t nkeys = 0;
+        static const char *const k_record[] = { "id", "name", "kind", "fields" };
+        static const char *const k_variant[] = { "id", "name", "kind", "cases" };
+        static const char *const k_array[] = { "id", "name", "kind", "element" };
+        static const char *const k_simple[] = { "id", "name", "kind" };
+        static const char *const k_callback[] = { "id", "name", "kind", "method" };
+        static const char *const k_async[] = { "id", "name", "kind", "result" };
+        if (out->kind == NL_NSI_TYPE_RECORD) { keys = k_record; nkeys = 4; }
+        else if (out->kind == NL_NSI_TYPE_VARIANT) { keys = k_variant; nkeys = 4; }
+        else if (out->kind == NL_NSI_TYPE_ARRAY) { keys = k_array; nkeys = 4; }
+        else if (out->kind == NL_NSI_TYPE_CALLBACK) { keys = k_callback; nkeys = 4; }
+        else if (out->kind == NL_NSI_TYPE_ASYNC) { keys = k_async; nkeys = 4; }
+        else { keys = k_simple; nkeys = 3; }
+        if (!keys_allowed(obj, keys, nkeys)) {
             free(out->id);
             free(out->name);
             out->id = NULL;
@@ -436,7 +520,6 @@ static bool parse_type(cJSON *obj, NlNsiType *out) {
             return false;
         }
     }
-    out->kind = (NlNsiTypeKind)kind;
     if (out->kind == NL_NSI_TYPE_RECORD) {
         if (!parse_member_array(cJSON_GetObjectItemCaseSensitive(obj, "fields"),
                                 &out->members, &out->member_count, 1)) {
@@ -546,8 +629,10 @@ static bool parse_type_array(cJSON *arr, NlNsiType **out, size_t *count) {
 }
 
 static bool parse_error(cJSON *obj, NlNsiError *out) {
+    static const char *const keys[] = { "id", "name", "version" };
     NlNsiNamed named = {0};
     cJSON *ver;
+    if (!keys_allowed(obj, keys, 3)) return false;
     if (!parse_named(obj, &named)) return false;
     out->id = named.id;
     out->name = named.name;
@@ -691,6 +776,39 @@ static bool validate_prefixes(const NlNsi *nsi) {
     return true;
 }
 
+static bool type_bound_ok(const NlNsi *nsi, const char *id) {
+    size_t i;
+    if (is_core_type(id)) return true;
+    if (!nsi || !id) return false;
+    for (i = 0; i < nsi->type_count; i++) {
+        if (nsi->types[i].id && strcmp(nsi->types[i].id, id) == 0 &&
+            nsi->types[i].kind != NL_NSI_TYPE_OPAQUE)
+            return true;
+    }
+    return false;
+}
+
+static bool validate_type_bounds(const NlNsi *nsi) {
+    size_t i;
+    size_t j;
+    for (i = 0; i < nsi->method_count; i++) {
+        for (j = 0; j < nsi->methods[i].param_count; j++) {
+            if (!type_bound_ok(nsi, nsi->methods[i].params[j].type_id))
+                return false;
+        }
+    }
+    for (i = 0; i < nsi->type_count; i++) {
+        const NlNsiType *t = &nsi->types[i];
+        for (j = 0; j < t->member_count; j++) {
+            if (t->members[j].type_id && !type_bound_ok(nsi, t->members[j].type_id))
+                return false;
+        }
+        if (t->element_id && !type_bound_ok(nsi, t->element_id)) return false;
+        if (t->result_id && !type_bound_ok(nsi, t->result_id)) return false;
+    }
+    return true;
+}
+
 NlNsi *nl_nsi_load_path(const char *path) {
     FILE *fp;
     long size;
@@ -742,20 +860,30 @@ NlNsi *nl_nsi_load_path(const char *path) {
     }
     nsi->version = NL_NSI_VERSION;
 
-    if (!parse_named(cJSON_GetObjectItemCaseSensitive(json, "interface"), &nsi->iface) ||
-        !parse_method_array(cJSON_GetObjectItemCaseSensitive(json, "methods"),
-                            &nsi->methods, &nsi->method_count) ||
-        !parse_type_array(cJSON_GetObjectItemCaseSensitive(json, "types"),
-                           &nsi->types, &nsi->type_count) ||
-        !parse_error_array(cJSON_GetObjectItemCaseSensitive(json, "errors"),
-                           &nsi->errors, &nsi->error_count) ||
-        !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "capabilities"),
-                           &nsi->capabilities, &nsi->capability_count) ||
-        !ids_unique(nsi) ||
-        !validate_prefixes(nsi)) {
-        nl_nsi_free(nsi);
-        cJSON_Delete(json);
-        return NULL;
+    {
+        static const char *const root_keys[] = {
+            "nsi_version", "interface", "methods", "types", "errors", "capabilities"
+        };
+        static const char *const iface_keys[] = { "id", "name" };
+        cJSON *iface = cJSON_GetObjectItemCaseSensitive(json, "interface");
+        if (!keys_allowed(json, root_keys, 6) ||
+            !keys_allowed(iface, iface_keys, 2) ||
+            !parse_named(iface, &nsi->iface) ||
+            !parse_method_array(cJSON_GetObjectItemCaseSensitive(json, "methods"),
+                                &nsi->methods, &nsi->method_count) ||
+            !parse_type_array(cJSON_GetObjectItemCaseSensitive(json, "types"),
+                               &nsi->types, &nsi->type_count) ||
+            !parse_error_array(cJSON_GetObjectItemCaseSensitive(json, "errors"),
+                               &nsi->errors, &nsi->error_count) ||
+            !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "capabilities"),
+                               &nsi->capabilities, &nsi->capability_count) ||
+            !ids_unique(nsi) ||
+            !validate_prefixes(nsi) ||
+            !validate_type_bounds(nsi)) {
+            nl_nsi_free(nsi);
+            cJSON_Delete(json);
+            return NULL;
+        }
     }
 
     cJSON_Delete(json);
@@ -799,6 +927,10 @@ static const NlNsiMethod *find_method(const NlNsi *nsi, const char *id) {
         if (cstr_eq(nsi->methods[i].id, id)) return &nsi->methods[i];
     }
     return NULL;
+}
+
+const NlNsiMethod *nl_nsi_find_method(const NlNsi *nsi, const char *id) {
+    return find_method(nsi, id);
 }
 
 static const NlNsiParam *find_param(const NlNsiMethod *m, const char *id) {
@@ -868,6 +1000,7 @@ NlNsiCompatResult nl_nsi_compat(const NlNsi *older, const NlNsi *newer) {
         const NlNsiMethod *om = &older->methods[i];
         const NlNsiMethod *nm = find_method(newer, om->id);
         if (!nm) return NL_NSI_COMPAT_BREAKING;
+        if (om->idempotent && !nm->idempotent) return NL_NSI_COMPAT_BREAKING;
         for (j = 0; j < om->param_count; j++) {
             const NlNsiParam *op = &om->params[j];
             const NlNsiParam *np = find_param(nm, op->id);

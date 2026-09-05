@@ -1,11 +1,10 @@
 # Nano Service Interface
 
-I turn a module boundary into a versioned contract. v0 is identifiers, an
-optional parameter contract, and optional typed payloads.
-
-An NSI document is UTF-8 JSON. `nsi_version` is `0`. I reject any other
-version. I reject invalid UTF-8. I reject a name without an `id`. I reject
-duplicate ids in one document.
+I turn a module boundary into a versioned contract. An NSI document is UTF-8
+JSON. `nsi_version` is `0`. I reject any other version. I reject invalid
+UTF-8. I reject a name without an `id`. I reject duplicate ids in one
+document. I reject omitted `params`, omitted type `kind`, `opaque`, and
+unknown keys such as `c_type`. That is ABI inference, and I fail closed.
 
 ## Identifiers
 
@@ -16,15 +15,14 @@ duplicate ids in one document.
 | Capability | `cap:` | `cap:<namespace>/<name>` |
 
 Ids are ASCII: letters, digits, `:`, `/`, `.`, `_`, `-`, and `#` only in the
-method/type/error/parameter fragment. Names are not the identity. Two contracts
-that share a name and disagree on an id are different contracts.
+method/type/error/parameter fragment. Names are not the identity.
 
 Example: [schema/nsi/examples/log.nsi.json](../schema/nsi/examples/log.nsi.json).
 
 ## Parameters
 
-A method may omit `params`. If `params` is present, every entry has an `id`,
-a `name`, a `type` id, and these fields:
+A method must include `params` (the array may be empty). Every param has an
+`id`, a `name`, a `type` id, and these fields:
 
 | Field | Values |
 | --- | --- |
@@ -35,18 +33,19 @@ a `name`, a `type` id, and these fields:
 | `optional` | JSON boolean |
 | `streaming` | `none`, `in`, `out`, `bidi` |
 
-`type` is an `nsi:` identifier. It may name a type in this document or a
-core scalar such as `nsi:core/string`. I do not infer ABI from names.
+`idempotent` on a method is optional and defaults to false. A newer document
+may not drop idempotence from a method a client already relied on.
 
-Streaming must match direction: `in` streams need `in` or `inout`; `out`
-streams need `out`, `inout`, or `return`; `bidi` needs `inout`. Unknown
-enumerations fail closed.
+`type` is an `nsi:` identifier. It must name a type in this document or a
+core scalar: `nsi:core/string`, `nsi:core/int`, `nsi:core/bool`,
+`nsi:core/unit`, `nsi:core/bytes`, `nsi:core/float`.
+
+Streaming must match direction. Unknown enumerations fail closed.
 
 ## Types
 
-A type may omit `kind` (opaque named type) or set `kind` to one of:
-`opaque`, `record`, `variant`, `array`, `string`, `binary`, `resource`,
-`callback`, `async`.
+A type must set `kind` to one of: `record`, `variant`, `array`, `string`,
+`binary`, `resource`, `callback`, `async`.
 
 | Kind | Extra fields |
 | --- | --- |
@@ -56,12 +55,7 @@ A type may omit `kind` (opaque named type) or set `kind` to one of:
 | `callback` | `method`: a method id in this document |
 | `async` | `result`: `nsi:` type id |
 
-`nsi:core/string`, `nsi:core/int`, `nsi:core/unit`, and `nsi:core/bytes`
-are core scalars. They do not appear in `types[]`. Errors may carry a
-`version` token (`[A-Za-z0-9._-]+`). I do not infer a C ABI from these
-kinds.
-
-Example: [schema/nsi/examples/types.nsi.json](../schema/nsi/examples/types.nsi.json).
+Errors may carry a `version` token (`[A-Za-z0-9._-]+`).
 
 ## Compatibility
 
@@ -73,13 +67,48 @@ cases; they must keep old cases. Record fields may not be added or removed.
 Error ids and version tokens must remain. Different interface ids are
 breaking.
 
-Wire request/response frames are not in v0. These rules apply to NSI
-documents and will apply to frames when transport lands.
+`nl_nsi_session_hello` applies the same rule before any call. Transport
+version is `0`.
 
-## What v0 is not
+## Generation
 
-v0 does not describe generated bindings or a wire frame. Those are later
-Phase 16 items. Loading a document does not migrate a module. `module.json`
-and `module.manifest.json` stay the current build and discovery metadata.
+`src/nsi_gen.c` emits NanoLang, Nano Forth, Python, Rust, and C++ stubs,
+C dispatch by method id, mocks, documentation, example request/response
+frames, validation tables, compatibility-test comments, a language index,
+and NanoISA `IMPORT` / `TRAP cap` descriptors from one document. Generated
+NanoLang includes shadow tests. I do not infer a C ABI.
 
-I do not generate clients from v0. I do not claim a service fabric.
+`make test-nsi-gen`.
+
+## Modules
+
+Portable contract fields live under `nsi` in `module.manifest.json`:
+interface id and version, schema path, required capabilities, isolation,
+resource budgets, restart policy, and adapter. Platform build fields stay
+in `module.json` (`c_sources`, `headers`). A `c_sources` key on the
+manifest fails closed.
+
+I inventory privilege, state, payload size, latency, and failure behavior
+in [schema/nsi/inventory.json](../schema/nsi/inventory.json). Graphics
+modules such as `sdl` and `glfw` share `nsi:nanolang/graphics` and differ
+only in adapter/path. `make test-nsi-manifest`.
+
+## Invocation
+
+`src/nsi_runtime.c` dispatches on method ids, not symbol names. Request,
+response, error, cancel, deadline, hello, and stream frames are JSON with
+`nsi_version` 0. In-process, mock, and local-process adapters share the
+client call. Local-process uses a `socketpair` child. Bounded queues
+backpressure. Idempotent methods replay by `request_id`. Callers present
+auth and capabilities or I refuse. Malformed JSON and extra payload keys
+fail closed. Resource methods return generation, rights, type, and service
+id; they do not return host pointers.
+
+`make test-nsi-runtime`. The unchanged NanoLang client is
+[tests/nsi_client.nano](../tests/nsi_client.nano). The unchanged Forth
+client is [tests/nsi_client.fs](../tests/nsi_client.fs).
+
+Trusted computing base: [NSI_TCB.md](NSI_TCB.md).
+
+I do not claim a service fabric. I do not host remote peers. Capability
+unforgeability is Phase 17.

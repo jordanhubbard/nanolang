@@ -159,3 +159,7 @@ site/
 /tests/forth/test_forth_include_gap
 /tests/forth/test_forth_core_load
 /tests/test_nsi
+/tests/test_nsi_gen
+/tests/test_nsi_runtime
+/tests/test_nsi_manifest
+/tests/nsi_client_bin

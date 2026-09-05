@@ -103,7 +103,10 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 | `make test-utf8` | RFC 3629 walker and pipeline diagnostic-id lookup |
 | `make test-src-utf8` | `nanoc` rejects invalid UTF-8 source (`CSRC01`); ASCII identifiers (`L0003`); typechecker `E024` |
 | `make test-catalog` | UTF-8 message catalogs, fallback, format, six-language keys |
-| `make test-nsi` | NSI v0 identifiers, params, typed payloads, document compatibility |
+| `make test-nsi` | NSI v0 identifiers, params, typed payloads, document compatibility, ABI rejection |
+| `make test-nsi-gen` | NSI NanoLang/Forth/Python/Rust/C++ bindings, dispatch, NanoISA imports |
+| `make test-nsi-runtime` | NSI frames, inproc/mock/local adapters, handles, unchanged-client acceptance |
+| `make test-nsi-manifest` | NSI module manifests, inventory, discovery by interface id |
 | `make test-log-utf8` | log event ids `LOG01` and bidi/ANSI sanitize |
 | `make test-locale-catalog` | human stderr catalogs for `en zh hi es ar fr` (CIO01) and zh L0003; JSON stays English |
 | `make test-i18n-scripts` | six-script literals through C and NanoVM |

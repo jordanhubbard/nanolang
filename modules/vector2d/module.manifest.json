@@ -21,12 +21,35 @@
     "vector_length",
     "vector_distance"
   ],
-  "keywords": ["math", "vector", "2d", "physics", "geometry"],
-  "examples": ["examples/graphics/sdl_boids.nano"],
+  "keywords": [
+    "math",
+    "vector",
+    "2d",
+    "physics",
+    "geometry"
+  ],
+  "examples": [
+    "examples/graphics/sdl_boids.nano"
+  ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
+    "nanolang": [
+      "core>=1.0"
+    ],
     "system": []
   },
   "io_surfaces": [],
-  "alternatives": []
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/vector2d",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/vector2d.nsi.json",
+    "required_capabilities": [],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

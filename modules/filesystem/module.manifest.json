@@ -17,15 +17,45 @@
     "recursive_search",
     "file_filtering"
   ],
-  "keywords": ["files", "filesystem", "directory", "glob", "search"],
+  "keywords": [
+    "files",
+    "filesystem",
+    "directory",
+    "glob",
+    "search"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["std"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "std"
+    ],
     "system": []
   },
-  "io_surfaces": ["files"],
+  "io_surfaces": [
+    "files"
+  ],
   "alternatives": [
-    {"when": "basic file ops", "module": "std"}
-  ]
+    {
+      "when": "basic file ops",
+      "module": "std"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/filesystem",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/filesystem.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/filesystem.open"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

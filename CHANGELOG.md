@@ -12,8 +12,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   optionality, and streaming fail closed. Typed payloads (record, variant,
   array, string, binary, resource, callback, async) and versioned errors
   are in the same loader. `nl_nsi_compat` answers whether a client of an
-  older document can call a newer one. Wire frames and generated bindings
-  are later Phase 16 items. `make test-nsi`.
+  older document can call a newer one. Omitted `params`, omitted `kind`,
+  `opaque`, and unknown keys such as `c_type` fail closed.
+  `src/nsi_gen.c` emits NanoLang, Forth, Python, Rust, and C++ stubs,
+  dispatch, frames, validation, docs, mocks, compatibility comments, and
+  NanoISA imports (`make test-nsi-gen`). Module manifests carry a portable
+  `nsi` block; `module.json` stays build metadata
+  (`make test-nsi-manifest`, `schema/nsi/inventory.json`).
+  `src/nsi_runtime.c` invokes by method id over in-process, mock, and
+  local-process adapters with hello, queues, idempotence, auth, and typed
+  handles (`make test-nsi-runtime`, `docs/NSI_TCB.md`). I do not claim a
+  service fabric. `make test-nsi`.
 - UTF-8 message catalogs for `en`, `zh`, `hi`, `es`, `ar`, and `fr`
   (`catalogs/messages/`, `src/catalog.c`). Human stderr looks up the
   process locale; JSON/TOON stay English. `make test-catalog` and

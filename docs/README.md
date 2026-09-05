@@ -105,13 +105,16 @@ How I am built:
     - VM trap boundary for suspension/resumption integration
     - libdispatch-backed queue integrations where available
 
-10.4. **[Nano Service Interface](NSI.md)** - My v0 service-contract identifiers
+10.4. **[Nano Service Interface](NSI.md)** - My v0 service contracts
     - Interface, method, type, error, capability, and parameter ids
     - Direction, ownership, lifetime, mutability, optionality, streaming
     - Records, variants, arrays, strings, binary, resources, callbacks, async
-    - Compatibility of NSI documents (`nl_nsi_compat`); wire frames later
-    - Names are not identity; missing or unknown enumerations fail closed
-    - ABI inference rejection, generation, and migration are later items
+    - Document compatibility (`nl_nsi_compat`) and session hello
+    - Generated NanoLang/Forth/Python/Rust/C++ bindings and NanoISA imports
+    - Module `nsi` manifests, inventory, in-process/mock/local-process adapters
+    - [Trusted computing base](NSI_TCB.md) per deployment mode
+    - Names are not identity; ABI inference and malformed frames fail closed
+    - I do not claim a service fabric
 
 10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
     - Type soundness (preservation and progress)
