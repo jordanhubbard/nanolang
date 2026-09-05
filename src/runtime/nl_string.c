@@ -5,6 +5,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For strdup() */
 
 #include "nl_string.h"
+#include "../utf8.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -23,13 +24,6 @@ static int utf8_sequence_length(unsigned char first_byte) {
     if ((first_byte & 0xF0) == 0xE0) return 3;   // 1110xxxx
     if ((first_byte & 0xF8) == 0xF0) return 4;   // 11110xxx
     return 0; // Invalid
-}
-
-/**
- * Check if byte is a valid UTF-8 continuation byte
- */
-static bool is_utf8_continuation(unsigned char byte) {
-    return (byte & 0xC0) == 0x80; // 10xxxxxx
 }
 
 /* ============================================================================
@@ -190,34 +184,10 @@ bool nl_string_equals_cstr(const nl_string_t *str, const char *cstr) {
 
 bool nl_string_validate_utf8(nl_string_t *str) {
     if (!str) return false;
-    
-    size_t i = 0;
-    while (i < str->length) {
-        unsigned char byte = str->data[i];
-        int seq_len = utf8_sequence_length(byte);
-        
-        if (seq_len == 0) {
-            str->is_utf8 = false;
-            return false;
-        }
-        
-        // Check we have enough bytes
-        if (i + seq_len > str->length) {
-            str->is_utf8 = false;
-            return false;
-        }
-        
-        // Validate continuation bytes
-        for (int j = 1; j < seq_len; j++) {
-            if (!is_utf8_continuation(str->data[i + j])) {
-                str->is_utf8 = false;
-                return false;
-            }
-        }
-        
-        i += seq_len;
+    if (!nl_utf8_validate(str->data, str->length, NULL)) {
+        str->is_utf8 = false;
+        return false;
     }
-    
     str->is_utf8 = true;
     return true;
 }

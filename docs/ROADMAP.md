@@ -12,8 +12,13 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**4.1 Nano Forth is the primary remaining goal.** The SDL editor astronaut
-stays parked until Phase 13 closes. Option C remains 4.4.
+**4.2 internationalization evidence is in Phase 15.** I do not call the
+system internationalized. JSON/TOON and catalog fallback still use English;
+guide drafts are machine-generated. **4.3 service interfaces** are the next
+4.x product work. 4.1 Forth word-set evidence is in; the Standard System
+label stays open. The SDL editor astronaut stays parked. The NanoISA-only
+compiler rewrite is **5.0**, not 4.x: see `docs/NANOISA_ONLY.md`. Option C
+remains 4.4.
 
 ## Active Execution Queue
 
@@ -48,11 +53,11 @@ stays parked until Phase 13 closes. Option C remains 4.4.
 - [x] **4.1 / Phase 13 (primary).** I close Forth kernel defects found during
   Core (Phase 13 subsection of the same name). I do not mark Core complete while
   those remain open.
-- [ ] **4.1 / Phase 13 (primary).** I implement and test Forth 2012 Core on the
-  NanoISA session. Remaining word sets, `pi.fs`, and `sdl_forth_ide` stay in
-  Phase 13 until this Core gate passes. Locals-on-`THROW` waits on recursive
-  Locals; I do not treat it as the next item. The Core-suite fan-out below is
-  verified. This gate stays open until Jackson Core passes. I do not claim Core.
+- [x] **4.1 / Phase 13 (primary).** I implement and test Forth 2012 Core on the
+  NanoISA session. Jackson Core evidence files pass under `make test-forth-core`
+  through C `REFILL`. Remaining word sets, `pi.fs`, and a Standard System
+  label stay in Phase 13. Locals-on-`THROW` waits on recursive Locals. Passing
+  a suite is evidence. I still do not claim Core as a banner.
 - [x] Core-suite fan-out 1/4 (parallel): I vendor Gerry Jackson
   `forth2012-test-suite` **v0.15.0** (`9773f84dd12390f342d37195da8848b04e1f4a23`)
   into `tests/forth/vendor/gerryjackson/`, keep every Johns Hopkins and Jackson
@@ -70,11 +75,11 @@ stays parked until Phase 13 closes. Option C remains 4.4.
   (`docs/FORTH_CORE_COVERAGE.md`) of Forth 2012 Core names against the NanoISA
   session, with tested / missing / ambiguous for each word. This is evidence,
   not a Core pass.
-- [ ] **4.1 / Phase 13 (primary).** I load Jackson Core (`prelimtest.fth`,
+- [x] **4.1 / Phase 13 (primary).** I load Jackson Core (`prelimtest.fth`,
   `tester.fr`, `core.fr`, `coreplustest.fth`) through C file-source `REFILL`,
-  not Forth `INCLUDED`. I record every failing Core case. I do not claim File
-  Access. I do not claim Core while any case fails.
-  (`task_d9719aedab784a01928eec699191fa82`)
+  not Forth `INCLUDED`. `#ERRS` and `#ERRORS` are 0. I do not claim File
+  Access. Passing those files is evidence. I still do not claim Core as a
+  banner. (`task_d9719aedab784a01928eec699191fa82`)
 - [x] Parallel to 4.1 (does not wait on the Core gate): I close the interpreter
   example failures in `docs/KNOWN_LIMITATIONS.md`. `bin/nano` loads a shipped or
   built-in word list for `nl_random_sentence.nano`, uses a smaller workload for
@@ -106,6 +111,40 @@ stays parked until Phase 13 closes. Option C remains 4.4.
   editor plus an isolated worker. I do not claim GNU Emacs compatibility.
   Capability-supervised isolation of the same children is 4.4 work, not this
   cut.
+- [x] I recorded the 5.0 One IR rewrite (`docs/NANOISA_ONLY.md`, Phase 20;
+      `task_87bcff8dad43407884c4dc9e06837f98`). Frontends twice, one verified
+      `.nvm`, translators as host tools, bootstrap that compares `.nvm`,
+      native AOT that does not embed `nano_vm`. I do not execute that rewrite
+      in 4.x.
+- [x] **4.2 / Phase 15 (primary).** I resolve process locale:
+      `--locale` > `NANO_LOCALE` > `LC_ALL` > `LANG` > `en`. Invalid CLI
+      and `NANO_LOCALE` fail closed. Garbage POSIX env is skipped.
+      `--print-locale` prints tag, language, script, region, variant,
+      direction, encoding, collation, source, and fallback. Diagnostics
+      still render English. I do not call the system internationalized.
+      Catalogs and translated guides are later items in this phase.
+      (`task_63a472a3ff564d438532e89692267b66`)
+- [x] **4.2 / Phase 15.** I reject invalid UTF-8 in `.nano` source (`CSRC01`)
+      and keep pipeline compiler diagnostics as stable IDs (`src/diag_id.c`,
+      `src_nano/compiler/diagnostics.nano`). English is a lookup. Typechecker
+      `E003` reuse, logs, catalogs, and other UTF-8 boundaries are not this
+      item. I do not call the system internationalized.
+      (`task_ec1b3368f4684ffcb25ecfe489b67639`)
+- [x] **4.2 / Phase 15.** UTF-8 at JSON/TOON emit (invalid becomes
+      `<invalid UTF-8>`), `module.json` fail closed, docgen source/module
+      name fail closed. Identifiers are ASCII `[A-Za-z_][A-Za-z0-9_]*`;
+      non-ASCII fails closed (`L0003`). Typechecker titles that went
+      through `emit_context_error` have unique `E001`–`E034`
+      (`--json-errors` emits `E024` for an undefined variable). Unicode
+      FFI: grapheme, NFC/NFD, case conversion, casefold, display width
+      (`make test-unicode-ffi`). Logs, catalogs, translated guides, and
+      remaining locale-ctype surfaces are not this item. I do not call
+      the system internationalized.
+- [x] **4.2 / Phase 15.** UTF-8 message catalogs for six languages, log
+      event ids, locale-aware user-guide editions, translated nav titles,
+      and LTR-isolated code fences on `dir=rtl` pages. JSON/TOON stay
+      English. I do not call the system internationalized.
+      (`task_232233a85c9f445ebf7ce93eddec48cc`)
 
 ## Release Map
 
@@ -123,7 +162,8 @@ Patch releases may ship completed fixes without changing this dependency order.
 | **4.4** | Capability service fabric | I run modules as supervised least-privilege services with typed capabilities, asynchronous IPC, shared-memory bulk transfer, quotas, cancellation, and restart-safe handles. The SDL editor's walker and freeze-ISA children become first clients of that fabric (option C); the dedicated-pipe astronaut in the active queue is the earlier isolation cut, not the fabric. |
 | **4.5** | Effects, policy, and replay | I derive deployment policy from effects, record nondeterministic traps, replay executions deterministically, inject failures, and audit service interactions. |
 | **4.6** | Multi-language laboratory | I validate NanoISA with bounded Scheme, ML, actor, dataflow, object, shell, and logic frontends, each chosen to test a distinct semantic pressure. |
-| **5.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
+| **5.0** | One IR: NanoISA-only compilation | I emit verified `.nvm` as the only compiler product. C11 AOT, LLVM, Wasm, and GPU targets are translators of that module. Self-host proof compares `.nvm`. Native binaries do not embed `nano_vm`. Contract: `docs/NANOISA_ONLY.md`. |
+| **6.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
 
 My 3.5 release presentation is [NanoLang 3.5](RELEASE_3.5.md). It records my
 shipped foundation, verification evidence, and the boundary where my 4.0 work
@@ -154,7 +194,10 @@ Release dependencies:
 4.6 multi-language laboratory
               |
               v
-5.0 operating environment and kernel adapters
+5.0 One IR (NanoISA-only compilation; docs/NANOISA_ONLY.md)
+              |
+              v
+6.0 operating environment and kernel adapters
 ```
 
 ### Phase 12 - NanoISA v2 (3.5 foundation complete, 4.0 completion)
@@ -310,7 +353,9 @@ Compiler and runtime:
       saved frame count (`forth_invoke_nested`). `THROW` HALTs the outer NanoISA
       function, not only the inner host call. I test `CATCH` inside a colon
       definition and `THROW` from a called word.
-- [ ] I will restore Forth locals on `THROW` once recursive Locals exist.
+- [x] I restore Forth locals on `THROW`. Recursive `{: :}` frames are
+      NanoISA locals; `CATCH` of a throwing recursive locals word leaves
+      later `{: :}` words with fresh slots (`make test-forth-session`).
 - [x] I will implement typed Forth import declarations that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
 - [x] I will reject FFI signatures the active ABI cannot call correctly instead of guessing.
 - [x] I will restart an isolated FFI co-process after dynamic import-table mutation.
@@ -350,60 +395,161 @@ Closed this session:
       `ABORT"`, `KEY`, `ACCEPT`, and `QUIT`. `KEY`/`ACCEPT` read remaining
       `SOURCE`. `QUIT` empties the return stack, sets interpretation `STATE`,
       and stops the current line. Core stays open until pinned suites pass.
+- [x] `+LOOP` uses the Forth 2012 crossing rule (unsigned interval
+      `(index, index+n]` contains `limit`). Increment `0` does not terminate.
+      Jackson `GD7`/`GD8` need this; signed `<` after add hangs on
+      `MAX-UINT`/`USTEP`, and signed XOR of `index-limit` false-stops at
+      `2^(bits-1)`.
+- [x] `IMMEDIATE` is a runtime host trampoline, so `CREATE , IMMEDIATE
+      DOES>` compiled into a defining word marks the child, not a no-op
+      `RET` stub.
+- [x] Nested `CREATE` / `;` from a running colon defers NanoISA rebuild
+      until `vm_exec_depth` is 0 so the defining word keeps executing.
+- [x] Nested colon publish from `EVALUATE` while `vm_exec_depth != 0`
+      appends decode/dispatch (`vm_sync_new_functions`) instead of skipping
+      rebuild, so Jackson `SSQ7`/`SSQ9` can define then execute the new xt.
+      I do not free the caller's decoded instructions.
+- [x] `:NONAME` and number prefixes `#` `$` `%` `'c'` so Jackson
+      `coreplustest.fth` can load. `:NONAME` is Core Ext.
+- [x] Core Ext kernel: `VALUE`/`TO`, `MARKER`, `CASE`/`OF`/`ENDOF`/`ENDCASE`,
+      `PARSE-NAME`, `BUFFER:`, `DEFER`/`IS`/`ACTION-OF`, `HOLDS`, `S\"`, `C"`,
+      `.R`/`U.R`, `UNUSED`, `SAVE-INPUT`/`RESTORE-INPUT`, `REFILL`/`SOURCE-ID`
+      as Forth words. Jackson `coreexttest.fth` is the gate, loaded through
+      C `REFILL` after Core evidence (`make test-forth-coreext`). Passing
+      that file is evidence. I still do not claim Core Ext as a banner.
 
 Standard word sets, in dependency order:
-- [ ] I will implement and test Core. Fan-out 1–4 is verified (Jackson vendored,
+- [x] I will implement and test Core. Fan-out 1–4 is verified (Jackson vendored,
       forth200x inventoried, `make test-forth-jackson` records the INCLUDE gap,
-      coverage matrix published). I do not check this until Jackson Core passes.
-- [ ] I will implement and test Core Extensions.
-- [ ] I will implement and test Exception and Exception Extensions.
-- [ ] I will implement genuine double-cell arithmetic and test Double Number and its extensions.
-- [ ] I will implement and test String and String Extensions.
-- [ ] I will implement and test Search Order and Search Order Extensions.
-- [ ] I will implement and test File Access and File Access Extensions.
-- [ ] I will implement and test Memory Allocation.
-- [ ] I will implement recursive, reentrant Locals and Locals Extensions.
-- [ ] I will implement and test Facility and Facility Extensions.
-- [ ] I will implement and test Programming Tools and Programming Tools Extensions.
-- [ ] I will implement an IEEE binary64 floating stack and test Floating Point and its extensions.
-- [ ] I will implement UTF-8 Extended Character and Extended Character Extensions.
-- [ ] I will implement Block and Block Extensions against an explicitly disposable image.
+      coverage matrix published). Jackson Core evidence files pass under
+      `make test-forth-core`. Passing a suite is evidence. I still do not
+      claim Core as a banner.
+- [x] I will implement and test Core Extensions. Jackson `coreexttest.fth`
+      passes under `make test-forth-coreext`. Passing a suite is evidence.
+      I still do not claim Core Ext as a banner.
+- [x] I will implement and test Exception and Exception Extensions.
+      Jackson `exceptiontest.fth` passes under `make test-forth-exception`.
+      `ABORT` is `THROW -1`. An undefined word throws `-13`. Passing that
+      file is evidence. I still do not claim Exception as a banner.
+- [x] I will implement genuine double-cell arithmetic and test Double Number and its extensions.
+      Jackson `doubletest.fth` is the gate (`make test-forth-double`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Double as a banner.
+- [x] I will implement and test String and String Extensions.
+      Jackson `stringtest.fth` is the gate (`make test-forth-string`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      String as a banner.
+- [x] I will implement and test Search Order and Search Order Extensions.
+      Jackson `searchordertest.fth` is the gate (`make test-forth-searchorder`),
+      loaded through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Search Order as a banner.
+- [x] I will implement and test File Access and File Access Extensions.
+      Jackson `filetest.fth` is the gate (`make test-forth-file`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`,
+      `utilities.fth`, and `coreexttest.fth` (for `S$` / `SI_INC`). Passing
+      that file is evidence. I still do not claim File Access as a banner.
+- [x] I will implement and test Memory Allocation.
+      Jackson `memorytest.fth` is the gate (`make test-forth-memory`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Memory-Allocation as a banner.
+- [x] I will implement recursive, reentrant Locals and Locals Extensions.
+      Jackson `localstest.fth` is the gate (`make test-forth-locals`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Locals are NanoISA frame slots, so `RECURSE` and
+      nested calls do not share values. Passing that file is evidence. I
+      still do not claim Locals as a banner.
+- [x] I will implement and test Facility and Facility Extensions.
+      Jackson `facilitytest.fth` is the gate (`make test-forth-facility`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Facility as a banner.
+- [x] I will implement and test Programming Tools and Programming Tools Extensions.
+      Jackson `toolstest.fth` is the gate (`make test-forth-tools`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Programming Tools as a banner.
+- [x] I will implement an IEEE binary64 floating stack and test Floating Point and its extensions.
+      Jackson `ak-fp-test.fth` is the gate (`make test-forth-float`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Floating-Point as a banner.
+- [x] I will implement UTF-8 Extended Character and Extended Character Extensions.
+      Jackson has no xchar file. I do not vendor forth200x `tests/xchar.fs`.
+      Session tests in `tests/forth/test_forth_session.c` (`CHAR`, `XC@+`,
+      `X-SIZE`, `+X/STRING`, `XC-SIZE`) are the gate
+      (`make test-forth-session`). Passing those is evidence. I still do not
+      claim Extended Character as a banner.
+- [x] I will implement Block and Block Extensions against an explicitly disposable image.
+      Jackson `blocktest.fth` is the gate (`make test-forth-block`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. The session RAM image holds 32 blocks; Jackson
+      overwrites 20–29. Passing that file is evidence. I still do not claim
+      Block as a banner.
 
 Tests, examples, and SDL IDE:
-- [ ] I will retain the existing 280 cases as regression tests while replacing their nonstandard harness assumptions.
-- [ ] I will run pinned committee Core and optional-word-set tests.
-- [ ] I will run licensed Forth-2012 tests and record unsupported or manual cases separately.
-- [ ] I will add malformed definitions, multiline definitions, early binding, immediate words, execution tokens, overflow, unsigned output, loop boundaries, exceptions, source nesting, and UTF-8 tests.
-- [ ] I will make `pi.fs` pass under my Memory-Allocation and Exception implementations with the exact 50-place output.
-- [ ] I will update every file in `examples/language/forth/` to standard behavior.
+- [x] I will retain the existing 280 cases as regression tests while replacing their nonstandard harness assumptions.
+      `make test-forth-examples` loads Jackson `tester.fr` and the nine
+      `examples/language/forth/test_*.fs` files through C `REFILL`.
+- [x] I will run pinned committee Core and optional-word-set tests.
+      `make test-forth-core` through `make test-forth-block` plus
+      `make test-forth-jackson` and `make test-forth-gforth-diff`.
+- [x] I will run licensed Forth-2012 tests and record unsupported or manual cases separately.
+      Jackson v0.15.0 is the licensed suite I execute. forth200x is inventoried
+      and not vendored. Skips are `tests/forth/forth2012_skips.txt`.
+- [x] I will add malformed definitions, multiline definitions, early binding, immediate words, execution tokens, overflow, unsigned output, loop boundaries, exceptions, source nesting, and UTF-8 tests.
+      `make test-forth-session` (`test_malformed_and_utf8` and the named
+      session tests).
+- [x] I will make `pi.fs` pass under my Memory-Allocation and Exception implementations with the exact 50-place output.
+      `make test-forth-session` (`test_pi_fs`) matches `tests/forth/pins.json`.
+- [x] I will update every file in `examples/language/forth/` to standard behavior.
 - [x] I will update `sdl_forth_ide` to launch the NanoISA-backed Forth executable.
 - [x] I will keep the SDL IDE as a PTY client rather than create a second Forth implementation.
-- [ ] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
+- [x] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
+      `make test-forth-pty`, `make test-forth-ide-smoke`, C `REFILL` file
+      loads, and `bin/forth` as the IDE child.
 - [ ] I will publish the precise standard-system label only after tests and required documentation support it.
 
-### Phase 14 - NanoISA-Centered Backends (4.0 and later)
+### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.0)
 
-Goal: NanoISA is the common typed and verified boundary between all language
-frontends and general execution targets. I will implement each frontend once
-and each backend once rather than maintain a frontend-by-backend matrix.
+Goal: 4.0 records that NanoISA is the common IR and that a closed integer
+subset can become structured C11 without embedding the VM. The ambitious
+rewrite — I emit only `.nvm`; C/LLVM/Wasm are translators; bootstrap
+compares `.nvm`; `transpiler.nano` leaves the compiler — is **5.0**.
+Contract: `docs/NANOISA_ONLY.md`. I do not delete the AST→C path in 4.x.
 
 Architecture:
 - [x] I selected NanoISA as the common IR for NanoLang, Nano Forth, and future frontends.
-- [ ] I will preserve frontend-specific purity, affine-use, generic, effect, and exhaustiveness facts as NanoISA metadata.
-- [ ] I will define general and restricted compute profiles with verifier-enforced feature sets.
-- [ ] I will make C11 the canonical ahead-of-time portability backend from NanoISA.
-- [ ] I will implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
-- [ ] I will implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
-- [ ] I will evaluate JVM bytecode, SPIR-V, PTX, OpenCL, and Metal as NanoISA translators.
-- [ ] I will use a restricted NanoISA compute profile for GPU targets instead of pretending every general instruction maps to a kernel.
-- [ ] I will run the same NanoISA module through each applicable target for semantic-equivalence testing.
+- [x] I wrote `docs/NANOISA_HL_ROUNDTRIP.md`: reconstruction means named
+      functions, types, structured control, and a host ABI. A C file that
+      embeds `nano_vm` plus a bytecode array is not reconstruction.
+      Canonical disassembly is a different test.
+      (`task_4bd034f6029b7458201db74e2c3aeb32`)
+- [x] I inventoried `.nvm` v2 (`FUNCTIONS`, `SIGNATURES`, `LAYOUTS`,
+      `IMPORTS`, `LINKS`, `CONSTANTS`, `DEBUG`, `METADATA`) against that
+      bar. Local names are still slot numbers.
+- [x] I emit structured C11 from a closed NanoISA subset (`nvm2c`: i64
+      arithmetic, locals, `CALL`, `RET`/`HALT`). `make test-nvm2c` compiles
+      that C with `cc` and checks exit status `42` for `add(40, 2)`. The
+      C contains integer `+` and does not contain `nano_vm` or a bytecode
+      blob. I do not delete `transpiler.nano`. I do not ship a `nvm2c` CLI.
+      I refuse `CALL_EXTERN` (VM FFI / co-process), not a host C ABI.
+      (`task_863f10a181aba8d2dfdc9127e7113938`)
 
 Direct backend retirement:
 - [x] I removed the immature direct NanoLang-to-LLVM backend and its CLI, build, test, and CI surface.
 - [x] I removed the immature direct NanoLang-to-WebAssembly backend and its CLI, build, test, signing, publication, and CI surface.
 - [x] I removed LLVM and Wasm from the direct cross-backend CI matrix.
 - [x] I retain the retired direct backends in Git history rather than carry dormant implementation files in the active tree.
-- [ ] I will reintroduce LLVM and Wasm only behind NanoISA translators with full applicable-language coverage.
+
+I moved these 4.0-or-later rewrite items to Phase 20 (5.0): frontend facts as
+metadata, compute profiles, C11 as the canonical AOT backend, LLVM/Wasm/GPU
+translators, semantic equivalence across targets, a second HLL surface from
+the same `.nvm`, and the published reconstruction finding. `nano_virt`'s
+default native output still embeds the VM. That is recorded, not solved.
 
 ### Phase 15 - Internationalization and UTF-8 Neutrality (4.2)
 
@@ -414,45 +560,136 @@ canonical source until the translation workflow proves otherwise.
 Language scope:
 - [x] I selected the six largest languages by total-speaker metrics for the initial proof: English, Mandarin Chinese, Hindi, Spanish, Modern Standard Arabic, and French.
 - [x] I recorded Ethnologue 2026 total-speaker estimates as the dated selection method and treat the ranking as revisable.
-- [ ] I will use BCP 47 language tags and explicit fallback chains.
-- [ ] I will distinguish language, script, region, locale, encoding, collation, and text direction rather than treating them as one setting.
+- [x] I parse BCP 47 tags into language, script, region, and variant, with a
+      fallback chain that ends at `en` when the tag is not English. Encoding,
+      collation, and text direction are separate fields, not one setting
+      (`src/bcp47.c`, `make test-bcp47`). Human stderr uses catalogs;
+      JSON/TOON stay English.
+- [x] I will use BCP 47 language tags and explicit fallback chains.
+      `nanoc` resolves a process locale (`src/locale.c`) and prints the
+      chain from `--print-locale`. Catalogs are a later item in this phase.
+- [x] I will distinguish language, script, region, locale, encoding, collation, and text direction rather than treating them as one setting.
+      `--print-locale` prints those axes as separate fields.
 
 UTF-8 language and runtime contract:
-- [ ] I will require valid UTF-8 at source, diagnostic, log, module metadata, and documentation boundaries unless a value is explicitly binary.
-- [ ] I will define identifier normalization and confusable-character policy.
-- [ ] I will implement normalization, Unicode case folding, grapheme iteration, display width, and safe character-indexed operations where the public API claims them.
-- [ ] I will keep byte-oriented APIs explicit and separate from code-point and grapheme APIs.
-- [ ] I will preserve embedded zero bytes only in binary strings and length-aware protocols.
-- [ ] I will test malformed, overlong, truncated, combining, supplementary-plane, emoji-sequence, and bidirectional text.
-- [ ] I will audit C, NanoVM, NanoISA, FFI, JSON, TOON, source maps, paths, terminals, SDL text, and file APIs for truncation or locale dependence.
+- [x] I reject invalid UTF-8 in `.nano` source at compile (`CSRC01`,
+      `src/utf8.c`, `make test-utf8` / `make test-src-utf8`). `nl_string`
+      and `bstr_validate_utf8` use the same walker. Explicitly binary
+      payloads remain allowed. I do not claim diagnostic, log, metadata,
+      or documentation boundaries.
+- [x] I link `src/utf8.c` into programs that use `nl_string` (`nanoc`
+      runtime list, `nanoc_v06`, `driver.nano`) so `nl_utf8_validate`
+      resolves at user-program link.
+- [x] I require valid UTF-8 at JSON/TOON diagnostic emit (invalid fields
+      become the ASCII marker `<invalid UTF-8>`), `module.json` (fail
+      closed), and Markdown docgen source/module name (fail closed).
+      `make test-diagnostics`, `make test-module-metadata`, `make test-docgen`.
+- [x] I require valid UTF-8 at remaining text boundaries unless the value
+      is explicitly binary: log payloads (`make test-log-utf8`), NanoVM
+      stack-trace/trap text (`nl_utf8_cstr_or_marker`), SDL TTF
+      (`TTF_RenderUTF8_*`, fail closed), displayed paths, and terminals
+      via `nl_utf8_sanitize_log`. Binary payloads stay binary.
+- [x] Identifiers are ASCII `[A-Za-z_][A-Za-z0-9_]*`. Non-ASCII is not an
+      identifier and fails closed (`L0003`). The C lexer matches
+      `src_nano/compiler/lexer.nano` (empty token list on failure).
+      Confusable/homoglyph rejection is this ASCII policy. NFC of
+      identifiers is unused while names are ASCII.
+      (`make test-parser`, `make test-src-utf8`)
+- [x] The self-hosted lexer records `L0003` on unexpected bytes and
+      returns no tokens, matching the C compiler fail-closed policy.
+- [x] Where the public Unicode FFI claims them, I implement grapheme
+      iteration, NFC/NFD/NFKC/NFKD, Unicode case conversion, case folding,
+      and display width via utf8proc (`modules/unicode/unicode_ffi.c`,
+      `make test-unicode-ffi`). `nl_string` stays byte-length plus
+      code-point ops; it is not the grapheme API.
+- [x] Byte-oriented APIs stay explicit and separate from code-point and
+      grapheme APIs (`nl_string_length` vs `nl_string_utf8_length`;
+      `nl_str_byte_length` vs `nl_str_grapheme_length`).
+- [x] I preserve embedded zero bytes only in binary strings and
+      length-aware protocols (`nl_string_new_binary`, `make test-nl-string`).
+- [x] I test malformed, overlong, truncated, combining, supplementary-plane,
+      emoji, and bidirectional UTF-8 at the walker (`make test-utf8`) and
+      combining grapheme/NFC at the Unicode FFI (`make test-unicode-ffi`).
+- [x] Locale-dependence audit: `nl_ascii_is*` in `lexer.c`, NanoVM
+      builtins, eval, nvm2c identifiers, docgen, FFI bindgen, BCP 47
+      subtag case, and `main.c` wrapper type names. Source-map and SDL
+      text paths use UTF-8 fail-closed helpers. JSON/TOON emit and
+      `module.json` are fail-closed.
 
 Language-neutral diagnostics and logging:
-- [ ] I will give every diagnostic and log event a stable message identifier independent of rendered English text.
-- [ ] I will separate structured fields from localized prose and keep machine-readable severity, phase, location, and parameters stable.
-- [ ] I will add locale selection through a documented CLI option and environment fallback without changing deterministic machine output.
-- [ ] I will implement UTF-8 message catalogs with English fallback and missing-key diagnostics.
-- [ ] I will support plural rules, number formatting, dates, lists, quoting, and parameter reordering without concatenating translated fragments.
-- [ ] I will keep LLM JSON and TOON diagnostics language-neutral by default, with localized rendering as an explicit layer.
-- [ ] I will make logs safe for right-to-left text and resistant to bidi control and terminal escape spoofing.
-- [ ] I will test catalog completeness, placeholder compatibility, fallback, invalid UTF-8, and deterministic output.
+- [x] I keep pipeline compiler diagnostics as stable IDs (`src/diag_id.c`,
+      `diag_en` in `src_nano/compiler/diagnostics.nano`). English is a
+      lookup. Typechecker titles that share `E003`, lexer/parser events,
+      LSP fallback `E000`, and log events are not this table.
+- [x] Typechecker titles that go through `emit_context_error` carry unique
+      `E001`–`E034` (`E024` undefined variable via `--json-errors`).
+      Inference `TYPE MISMATCH` is `E001`. I do not claim lexer/parser/LSP
+      or log events.
+- [x] Remaining diagnostic and log events have stable IDs independent of
+      English: lexer `L0003`–`L0008`, parser `P0001`/`P0002`, unlabeled
+      typechecker JSON `E035`, log `LOG01`–`LOG04`. LSP uses those ids
+      instead of `E000`.
+- [x] Structured JSON/TOON fields (severity, phase, location, code,
+      English message) stay stable. Localized prose is catalog lookup on
+      human stderr only (`nl_catalog_text`).
+- [x] Locale selection through `--locale`, `NANO_LOCALE`, POSIX
+      `LC_ALL`/`LANG` (`en_US.UTF-8` → `en-US`, `C`/`POSIX` → `en`).
+      `--print-locale` is a query and does not compile. Compile output
+      does not grow a locale banner. JSON/TOON diagnostics stay English.
+      Flags may precede the input file.
+- [x] UTF-8 message catalogs with English fallback and missing-key
+      counting (`src/catalog.c`, `catalogs/messages/{en,zh,hi,es,ar,fr}.json`,
+      `make test-catalog`).
+- [x] Plural rules, number formatting, dates, lists, quoting, and
+      parameter reordering in `nl_catalog_format` (`make test-catalog`).
+- [x] LLM JSON and TOON diagnostics stay language-neutral (English
+      lookup via `nl_diag_en`). Localized rendering is human stderr.
+- [x] Logs drop bidi overrides and ANSI CSI/OSC (`nl_utf8_sanitize_log`,
+      `make test-log-utf8`).
+- [x] Catalog completeness, placeholder compatibility, fallback, invalid
+      UTF-8, and six-language keys (`make test-catalog`). Human stderr
+      for all six languages vs English JSON (`make test-locale-catalog`).
 
 Translated documentation and user guide:
-- [ ] I will make the user-guide builder locale-aware with per-language navigation, canonical URLs, `lang`, `dir`, `hreflang`, and fallback metadata.
-- [ ] I will define a translation source format that preserves code, links, anchors, front matter, and untranslatable identifiers.
-- [ ] I will add translation memory and source-hash tracking so stale translations are visible rather than silently published.
-- [ ] I will publish machine-translated Simplified Chinese, Hindi, Spanish, Modern Standard Arabic, and French guides as explicitly machine-generated drafts.
-- [ ] I will preserve English code examples and identifiers while translating explanation and interface prose.
-- [ ] I will add language switching that keeps the current page when a translation exists.
-- [ ] I will test generated links, anchors, search, code blocks, font fallback, mobile layout, and Arabic right-to-left rendering.
-- [ ] I will document how contributors report and correct translations through issues and pull requests.
-- [ ] I will credit human reviewers and distinguish reviewed translations from machine-generated drafts.
+- [x] User-guide builder is locale-aware: per-language navigation, canonical
+      URLs, `lang`, `dir`, `hreflang`, fallback metadata for generated
+      pages (`scripts/build_userguide.py`).
+- [x] Translation source format: YAML front matter plus Markdown; code
+      fences, links, snippet markers, and identifiers stay English
+      (`userguide/i18n/`).
+- [x] Translation memory (`userguide/i18n/memory.json`) hashes English
+      sources; stale drafts get a banner rather than silent publication.
+- [x] Machine-translated Simplified Chinese, Hindi, Spanish, Modern
+      Standard Arabic, and French drafts of the published nav pages, marked
+      `machine_generated: true`.
+- [x] English code examples and identifiers preserved in those drafts
+      (fence byte-identity checked while writing; `tests/test_build_userguide.py`).
+- [x] Language switching keeps the current page (`hreflang` + `.langs`).
+- [x] Generated links and fragments validated for all six editions
+      (`make userguide-html`). Code blocks preserved. Font fallback and
+      Arabic `dir=rtl` plus mobile breakpoints are in CSS and unit tests.
+      The published guide has no in-page search; `nano-docs` searches
+      Markdown separately.
+- [x] Contributor translation workflow: `userguide/i18n/README.md` and
+      `docs/USERGUIDE_BUILD.md`.
+- [x] Human reviewers vs machine drafts: `reviewed: false` until a named
+      reviewer accepts a page. No page is claimed as human-reviewed yet.
 
 Acceptance:
-- [ ] I will compile and run representative NanoLang programs containing all initial scripts through C and NanoVM paths.
-- [ ] I will emit and parse localized diagnostics and logs for all six initial languages.
-- [ ] I will build and link-check all six guide editions in CI.
-- [ ] I will perform visual checks for Simplified Chinese, Devanagari, Latin, and Arabic scripts on desktop and mobile.
-- [ ] I will not call the system internationalized while core diagnostics or logs still require English prose for machine interpretation.
+- [x] Six-script program through C and NanoVM
+      (`examples/language/i18n_six_scripts.nano`, `make test-i18n-scripts`).
+- [x] Localized diagnostics for all six languages on human stderr;
+      JSON stays English (`make test-locale-catalog`). Log events carry
+      stable ids (`make test-log-utf8`).
+- [x] Six guide editions build and link-check (`make userguide-html`;
+      CI `userguide-html` job).
+- [x] Visual properties for Hans, Devanagari, Latin, and Arabic: desktop
+      screenshots of en/zh/hi/es, mobile zh/hi, Arabic print raster
+      (Chrome `--screenshot` of `dir=rtl` stayed black). Glyphs rendered;
+      switcher keeps the page; Arabic reverses switcher order. Code
+      fences on RTL pages are LTR-isolated. Not a WCAG audit.
+- [x] I do not call the system internationalized: JSON/TOON and catalog
+      fallback still use English; machine drafts are not human translations.
 
 I chose the initial publication languages from total-speaker estimates reported
 by Ethnologue 2026: English, Mandarin Chinese, Hindi, Spanish, Modern Standard
@@ -624,11 +861,87 @@ Observability and provenance:
 - [ ] I will record source, NanoISA module, interface, service implementation, policy, and output provenance.
 - [ ] I will test that localized logs do not alter stable audit fields or replay behavior.
 
-### Phase 20 - Hardened Operating Environment (5.0)
+### Phase 20 - One IR: NanoISA-only compilation (5.0)
+
+Goal: I emit one portable product — a verified `.nvm` v2 module — and I treat
+C, LLVM, Wasm, RISC-V, and GPU targets as translators of that module. Native
+means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
+`docs/NANOISA_ONLY.md`. I do not start this phase by deleting
+`transpiler.nano`.
+
+- [x] I recorded the 5.0 compilation contract in `docs/NANOISA_ONLY.md`
+      (`task_87bcff8dad43407884c4dc9e06837f98`): frontend twice (C seed and
+      `src_nano`), one IR, translators as host tools, honest bootstrap by
+      comparing `.nvm`, host ABI distinct from `CALL_EXTERN` / `nano_cop`.
+      Walk, file fate, linking, debug, and equivalence are in that document.
+
+Compiler product:
+- [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
+      `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
+- [ ] I implement NanoISA lowering in `src_nano` as the dual of
+      `src/nanovirt/codegen.c`. That dual does not exist today.
+- [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
+      self-hosted emitter.
+- [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
+      binaries from `nvm2c`+`cc` is a translator test, kept separate.
+- [ ] I freeze `transpiler.nano` as bootstrap-only once the emitter compiles
+      the compiler, then I delete it from the product compiler. Git history
+      keeps it.
+- [ ] I rename `CompilerPhase_PHASE_TRANSPILER`; the pipeline ends at NanoISA.
+
+`nvm2c` as canonical AOT:
+- [ ] I make C11 the canonical ahead-of-time portability backend from NanoISA.
+      A generated process does not require `nano_vm`, `nano_cop`, or
+      `nano_vmd` to compute.
+- [ ] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
+      strings, modules, and a declared host ABI for `extern`.
+- [ ] I map `CALL_EXTERN` to that host ABI or I refuse the module. I do not
+      emit a co-process client and call it AOT.
+- [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
+      in 5.0 documentation or CLI defaults.
+- [ ] I ship a `nvm2c` tool (seed in C). I may later write `nvm2c` in myself.
+
+Module richness:
+- [ ] I store local names, not only slot numbers.
+- [ ] I preserve frontend purity, affine-use, generic, effect, and
+      exhaustiveness facts as NanoISA metadata.
+- [ ] I recover structured `if`/`while`/`return` from `JMP` for
+      reconstruction. Goto is a translator fallback, not the claim.
+- [ ] I define general and restricted compute profiles with verifier-enforced
+      feature sets. GPU targets use the restricted profile.
+
+Reconstruction:
+- [ ] I spike a second high-level surface from the same `.nvm` (NanoLang or
+      another HLL). If that surface is only an interpreter, the spike failed.
+- [ ] I publish the finding in `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient,
+      insufficient, or blocked on named metadata.
+
+Other translators:
+- [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
+- [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
+- [ ] I reintroduce LLVM and Wasm only behind those translators, with full
+      applicable-language coverage.
+- [ ] I evaluate JVM bytecode, SPIR-V, PTX, OpenCL, and Metal as NanoISA
+      translators. Existing `nanoc --target ptx` / `opencl` AST backends
+      become translators under the restricted profile or they leave the
+      product compiler.
+- [ ] I run the same NanoISA module through each applicable target for
+      semantic-equivalence testing (VM, AOT C, and each shipped translator).
+
+Acceptance (from `docs/NANOISA_ONLY.md`):
+- [ ] `src_nano` emits `.nvm` as its only compiler product.
+- [ ] `nvm2c` builds a process that does not link `nano_vm`.
+- [ ] Stage 1 and Stage 2 `.nvm` files match.
+- [ ] A pinned suite matches on `nano_vm` and AOT C.
+- [ ] `transpiler.nano` is gone from the product compiler.
+
+### Phase 22 - Hardened Operating Environment (6.0)
 
 Goal: I will package the language, VM, services, capabilities, policy, and
 supervision layers as a complete operating environment. Kernel choice remains
-a deployment decision below the stable Nano service ABI.
+a deployment decision below the stable Nano service ABI. This follows 5.0
+(NanoISA-only compilation). Signing and kernel adapters are 6.0, not 4.0
+and not 5.0.
 
 System image and lifecycle:
 - [ ] I will define signed manifests for NanoISA modules, service interfaces, implementations, capabilities, and policy.
@@ -643,7 +956,7 @@ System image and lifecycle:
 - [ ] I will define administrative capabilities for inspection, update, backup, restore, and shutdown.
 - [ ] I will make boot, startup, steady state, upgrade, failure, and shutdown auditable.
 
-Scoping note on module signing: this is deliberately 5.0 work, not 4.0. The
+Scoping note on module signing: this is deliberately 6.0 work, not 4.0 or 5.0. The
 mechanism is cheap -- Ed25519 signing and verification are already available
 from the OpenSSL that every binary links today, the v2 module format's section
 directory and feature bits have room for a signature without a format break,
@@ -681,6 +994,9 @@ Release acceptance:
 - [ ] I will demonstrate crash containment, restart-safe handle invalidation, upgrade rollback, deterministic replay, and auditable provenance.
 
 ### Phase 21 - Multi-Language NanoISA Laboratory (4.6)
+
+This 4.6 phase sits after 5.0/6.0 in this file for historical section
+order. The release graph still has 4.6 before 5.0.
 
 Goal: I will test whether NanoISA is genuinely language-neutral by compiling a
 small set of deliberately different languages to the same verified IR. I will
@@ -1056,7 +1372,7 @@ I may add these features after I am fully self-hosting:
 - [x] Algebraic data types — tagged unions with `union` keyword
 - [x] Tuples — heterogeneous tuples
 - [x] Parallel independence blocks — `par { }` annotation
-- [x] WASM backend — `--target wasm` emits WebAssembly binary
+- [ ] WASM as a NanoISA translator (5.0). Direct AST `--target wasm` was retired.
 - [ ] Explicit type conversions (`float_to_int`, `int_to_float`) in compiled mode
 - [ ] Arrays of structs in compiled mode
 
@@ -1234,7 +1550,7 @@ I aim to be:
 
 ---
 
-Last Updated: February 20, 2026 (Post-VM + Formal Verification Update)
-Current Phase: Phase 9 - Ecosystem & Polish (Phases 10-11 complete in parallel)
-Next Major Milestone: v1.0 Release (target: Q3 2026)
-Next Review: After Phase 9 completion
+Last Updated: September 5, 2026
+Current Phase: 4.2 Phase 15 evidence is in; I do not call the system internationalized. Next 4.x work is 4.3 (Phase 16). 5.0 One IR is recorded, not started.
+Next Major Milestone: 4.3 service interfaces, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
+Next Review: after a named human reviewer accepts a translated guide page

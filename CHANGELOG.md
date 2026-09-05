@@ -6,7 +6,103 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
-- vendor Gerry Jackson Forth-2012 tests v0.15.0, inventory forth200x licenses without copying that tree, add `make test-forth-jackson` for the INCLUDE gap, and publish a Core coverage matrix that is not a Core pass
+- UTF-8 message catalogs for `en`, `zh`, `hi`, `es`, `ar`, and `fr`
+  (`catalogs/messages/`, `src/catalog.c`). Human stderr looks up the
+  process locale; JSON/TOON stay English. `make test-catalog` and
+  `make test-locale-catalog` (CIO01 for six languages, L0003 for zh).
+  Logs carry event ids (`LOG01`–`LOG04`) and drop bidi overrides and ANSI
+  (`make test-log-utf8`). Lexer unexpected bytes are `L0003`; the
+  self-hosted lexer fails closed to match C. `nanoc` accepts flags before
+  the input file. User-guide builder emits six editions with
+  `lang`/`dir`/`hreflang`, translated navigation titles, translation
+  memory, and machine drafts under `userguide/i18n/`. RTL editions isolate
+  code fences LTR so braces stay source order. I do not call the
+  system internationalized.
+- UTF-8 at JSON/TOON diagnostic emit (invalid fields become
+  `<invalid UTF-8>`), `module.json` fail closed, and Markdown docgen
+  source/module name fail closed. Identifiers are ASCII
+  `[A-Za-z_][A-Za-z0-9_]*`; non-ASCII fails closed (`L0003`). Typechecker
+  `emit_context_error` titles are unique `E001`–`E034`. Unicode FFI:
+  grapheme, NFC/NFD, casefold, display width (`make test-unicode-ffi`).
+  Logs, catalogs, and translated guides landed in later Unreleased items.
+  I do not call the system internationalized.
+- Strict UTF-8 of `.nano` source at compile (`CSRC01`, `src/utf8.c`). I
+  reject overlong encodings, surrogates, truncated sequences, and code
+  points above U+10FFFF. `nl_string` and `bstr_validate_utf8` share the
+  walker. User-program `cc` links `src/utf8.c`. JSON/TOON emit, `module.json`,
+  and Markdown docgen also require UTF-8.
+- Pipeline compiler diagnostic IDs (`src/diag_id.c`, `diag_en` in
+  `src_nano/compiler/diagnostics.nano`). English is a lookup. Typechecker
+  `emit_context_error` titles are unique `E001`–`E034`.
+- 5.0 compilation contract: I emit one verified `.nvm`; C11/LLVM/Wasm/GPU
+  are translators; bootstrap compares `.nvm`; native AOT does not embed
+  `nano_vm` (`docs/NANOISA_ONLY.md`, Phase 20). I do not execute that
+  rewrite in 4.x. The former 5.0 operating-environment theme is 6.0.
+- Process locale: `nanoc --locale <tag>` and `--print-locale`, with
+  `NANO_LOCALE` then POSIX `LC_ALL`/`LANG` then `en` (`src/locale.c`).
+  Invalid CLI/`NANO_LOCALE` fail closed. Diagnostics still render English.
+- Forth 2012 Core Ext words `VALUE`/`TO`, `MARKER`, `CASE`, `PARSE-NAME`,
+  `BUFFER:`, `DEFER`/`IS`/`ACTION-OF`, `HOLDS`, `S\"`, `C"`, `.R`/`U.R`,
+  `UNUSED`, `SAVE-INPUT`/`RESTORE-INPUT`, `REFILL`, and `SOURCE-ID` on the
+  NanoISA session. Jackson `coreexttest.fth` passes under
+  `make test-forth-coreext`. Passing a suite is evidence; I still do not
+  claim Core Ext as a banner.
+- Jackson Double Number words (`D+`, `D-`, `D2*`, `D2/`, `M*/`, `2CONSTANT`,
+  `2VALUE`/`TO`, trailing-`.` double literals, and the rest of Jackson's
+  Double list) on the NanoISA session. Jackson `doubletest.fth` passes under
+  `make test-forth-double`. Passing a suite is evidence; I still do not
+  claim Double as a banner.
+- Jackson String words (`-TRAILING`, `/STRING`, `BLANK`, `CMOVE`, `CMOVE>`,
+  `COMPARE`, `SEARCH`, `SLITERAL`, `UNESCAPE`, `REPLACES`, `SUBSTITUTE`) on
+  the NanoISA session. Jackson `stringtest.fth` passes under
+  `make test-forth-string`. Passing a suite is evidence; I still do not
+  claim String as a banner.
+- Jackson Search Order words (`WORDLIST`, `GET-ORDER`/`SET-ORDER`,
+  `FORTH-WORDLIST`, `ALSO`/`ONLY`/`PREVIOUS`/`FORTH`/`DEFINITIONS`,
+  `SEARCH-WORDLIST`) on the NanoISA session. Jackson `searchordertest.fth`
+  passes under `make test-forth-searchorder`. Passing a suite is evidence;
+  I still do not claim Search Order as a banner.
+- Jackson File Access words (`CREATE-FILE`, `OPEN-FILE`, `READ-LINE`,
+  `INCLUDED`/`INCLUDE`/`REQUIRED`/`REQUIRE`, and the rest of Jackson's File
+  list) on the NanoISA session. Jackson `filetest.fth` passes under
+  `make test-forth-file`. Passing a suite is evidence; I still do not
+  claim File Access as a banner.
+- Jackson Memory-Allocation words (`ALLOCATE`, `FREE`, `RESIZE`) on the
+  NanoISA session. Heap allocations do not move `HERE`. Jackson
+  `memorytest.fth` passes under `make test-forth-memory`. Passing a suite
+  is evidence; I still do not claim Memory-Allocation as a banner.
+- Jackson Locals words (`{:`, `(LOCAL)`, `TO` of a local) on the NanoISA
+  session. Locals are per-call NanoISA slots, so they are recursive and
+  reentrant. Jackson `localstest.fth` passes under `make test-forth-locals`.
+  Passing a suite is evidence; I still do not claim Locals as a banner.
+- Jackson Facility structure words (`BEGIN-STRUCTURE`, `END-STRUCTURE`,
+  `+FIELD`, `FIELD:`, `CFIELD:`) on the NanoISA session. Jackson
+  `facilitytest.fth` passes under `make test-forth-facility`. Passing a
+  suite is evidence; I still do not claim Facility as a banner.
+- Jackson Programming Tools words (`AHEAD`, `[IF]`/`[ELSE]`/`[THEN]`,
+  `CS-PICK`/`CS-ROLL`, `[DEFINED]`/`[UNDEFINED]`, `N>R`/`NR>`, `SYNONYM`,
+  `TRAVERSE-WORDLIST`, `NAME>COMPILE`/`NAME>INTERPRET`/`NAME>STRING`) on
+  the NanoISA session. Jackson `toolstest.fth` passes under
+  `make test-forth-tools`. Passing a suite is evidence; I still do not
+  claim Programming Tools as a banner.
+- Jackson Floating-Point words (IEEE binary64 stack, `D>F`/`F>D`,
+  `FLITERAL`, `>FLOAT`, `F~`, `REPRESENT`, and the Jackson `ak-fp-test.fth`
+  arithmetic/trig/exp set) on the NanoISA session. Jackson `ak-fp-test.fth`
+  passes under `make test-forth-float`. Passing a suite is evidence; I still
+  do not claim Floating-Point as a banner.
+- UTF-8 Extended Character words (`CHAR`/`[CHAR]` decode a code point,
+  `XC@+`, `X-SIZE`, `+X/STRING`, `XC-SIZE`, and the rest of the Xchar hosts)
+  on the NanoISA session. Jackson has no xchar file. Session tests under
+  `make test-forth-session` are the evidence. I still do not claim Extended
+  Character as a banner.
+- Block and Block Ext words (`BLOCK`/`BUFFER`/`UPDATE`/`FLUSH`/`LOAD`/`LIST`/`THRU`,
+  block `REFILL`/`SAVE-INPUT`, and `\` to the next 64-character line) on a
+  disposable 32-block RAM image. Jackson `blocktest.fth` passes under
+  `make test-forth-block`. Passing a suite is evidence; I still do not claim
+  Block as a banner.
+- `vm_sync_new_functions` appends decode/dispatch for newly published NanoISA
+  functions without freeing a running caller's decoded instructions, so a
+  colon defined inside `EVALUATE` is invokable (Jackson `SSQ7`/`SSQ9`).
 - pin Forth 2012 revisions, licensing, and Gforth 0.7.3 pi.fs differentials
 - own one NvmModule and persistent VmState per Forth session, with Forth stacks, virtual addresses, and file handles
 - keep Forth dictionary headers, word lists, and nested input sources on the session
@@ -23,13 +119,37 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - add an OpenGL atelier of high-polygon GLUT solids under four moving lights
 - ship `examples/language/data/words.txt` and a built-in fallback so `nl_random_sentence.nano` does not need `/usr/share/dict/words`
 - add `examples/bench_sample.nano` with two zero-parameter `bench_*` workloads
+- `make test-forth-examples` runs 280 T{ cases from `examples/language/forth/`
+  through Jackson `tester.fr`; `make test-forth-ide-smoke` compiles
+  `sdl_forth_ide` when SDL2 is present
+- `tests/forth/forth2012_skips.txt` records forth200x and Jackson gaps I do
+  not treat as banners
+- BCP 47 tag parse, fallback chains, and separate language / script / region /
+  encoding / collation / direction fields (`src/bcp47.c`, `make test-bcp47`).
+- `nvm2c` translates a closed NanoISA subset (i64 arithmetic, locals, `CALL`,
+  `RET`/`HALT`) to structured C11 that `cc` compiles; `make test-nvm2c` pins
+  `add(40, 2)` exiting 42 without embedding `nano_vm`. This is not a product
+  CLI and does not replace `transpiler.nano` or `wrapper_gen`.
+- `docs/NANOISA_HL_ROUNDTRIP.md` records whether NanoISA metadata is rich
+  enough to reconstruct high-level languages; I do not claim that it is.
+  Diagnostics and guides still render English. I do not call the system
+  internationalized.
 
 ### Changed
 - split the Forth 2012 Core gate into four parallel suite items (Jackson vendor, forth200x inventory, `make test-forth-jackson`, coverage matrix)
+- `examples/language/forth/` T{ cases use Forth 2012 stack pictures (`S>D`
+  before `FM/MOD`/`SM/REM`, `CREATE` for comma'd cells, `RECURSE`, `DEFER`
+  for mutual recursion)
 - replace the GPU ocean window with an animated OpenCL/CUDA Julia set
 - `bin/nano` sets `NANO_INTERPRETER=1`; the sieve and Game of Life use a smaller workload under the interpreter
 - libdispatch examples print `SKIP:` and exit 0 when GCD is not available, and also under `bin/nano` because the tree-walker cannot run GCD callbacks
 - enable the CI `bench` job: `nanoc --bench` measures the tree-walker and fails on a zero ns/op; it does not compare against a stored 2× baseline
+- `nvm2c` translates a closed NanoISA subset (i64 arithmetic, locals, `CALL`,
+  `RET`/`HALT`) to structured C11 that `cc` compiles; `make test-nvm2c` pins
+  `add(40, 2)` exiting 42 without embedding `nano_vm`. This is not a product
+  CLI and does not replace `transpiler.nano` or `wrapper_gen`
+- record whether NanoISA metadata is rich enough to reconstruct high-level
+  languages in `docs/NANOISA_HL_ROUNDTRIP.md`; I do not claim that it is
 
 ### Fixed
 - `VARIABLE` allots the data cell after the name, matching `CREATE`
@@ -38,6 +158,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - a runtime host that returns `0` while interpreting fails closed instead of
   re-entering its trampoline
 - `EXECUTE` of a compile-only word is rejected
+- aborting an unclosed colon sets `STATE` to interpret
+- unsigned single-cell number parse accepts `2^64-1` as all-bits-one
 
 ## [4.0.0] - 2026-09-03
 

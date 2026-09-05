@@ -82,6 +82,80 @@ class UserGuideBuildTests(unittest.TestCase):
         count = len(list((ROOT / "examples").rglob("*.nano")))
         self.assertIn(f"I have {count} NanoLang examples", generated)
 
+    def test_slugify_keeps_cjk_and_arabic(self):
+        self.assertIn("开始", build_userguide.slugify("开始"))
+        self.assertIn("البداية", build_userguide.slugify("البداية"))
+
+    def test_slugify_keeps_devanagari_matras(self):
+        slug = build_userguide.slugify("NanoLang उपयोगकर्ता मार्गदर्शिका")
+        self.assertIn("उपयोगकर्ता", slug)
+        self.assertIn("मार्गदर्शिका", slug)
+
+    def test_translation_source_zh_index(self):
+        pages = build_userguide.parse_nav()
+        index = pages[0]
+        english = index.source.read_text()
+        body, meta = build_userguide.translation_source(index, "zh", english)
+        self.assertEqual(meta.get("fallback"), "false")
+        self.assertIn("用户指南", body)
+        self.assertIn("```nano", body)
+        self.assertIn("fn factorial", body)
+
+    def test_stale_translation_banner(self):
+        pages = build_userguide.parse_nav()
+        index = pages[0]
+        english = index.source.read_text()
+        original = build_userguide.memory_hashes
+        build_userguide.memory_hashes = lambda: {index.rel_source.as_posix(): "deadbeef"}
+        try:
+            body, meta = build_userguide.translation_source(index, "zh", english)
+        finally:
+            build_userguide.memory_hashes = original
+        self.assertEqual(meta.get("stale"), "true")
+        self.assertIn("Stale translation", body)
+
+    def test_translated_nav_titles_on_index(self):
+        pages = build_userguide.parse_nav()
+        titles = {
+            pages[0].rel_source: "首页",
+            Path("guide/01_getting_started.md"): "入门",
+        }
+        html = build_userguide.page_html(pages[0], "<p>x</p>", pages, "zh", titles)
+        self.assertIn("入门", html)
+        self.assertNotIn(">Getting Started<", html)
+
+    def test_language_switcher_keeps_page(self):
+        page = self.page
+        html = build_userguide.language_switcher(page, "en")
+        self.assertIn("zh/guide/01_getting_started.html", html)
+        self.assertIn('lang="ar"', html)
+        self.assertIn('aria-current="page"', html)
+        arabic = build_userguide.page_html(page, "<p>x</p>", [page], "ar")
+        self.assertIn('dir="rtl"', arabic)
+        self.assertIn('hreflang="zh-Hans"', arabic)
+        self.assertIn('class="langs"', arabic)
+
+    def test_memory_tracks_published_english(self):
+        pages = [
+            "index.md",
+            "guide/01_getting_started.md",
+            "guide/06_tools_and_backends.md",
+        ]
+        hashes = build_userguide.memory_hashes()
+        for rel in pages:
+            current = build_userguide.sha256_text((ROOT / "userguide" / rel).read_text())
+            self.assertEqual(hashes[rel], current, rel)
+
+    def test_css_font_fallback_and_mobile(self):
+        css = (ROOT / "userguide/assets/style.css").read_text()
+        self.assertIn("Noto Sans SC", css)
+        self.assertIn("Noto Sans Devanagari", css)
+        self.assertIn("Noto Naskh Arabic", css)
+        self.assertIn('html[dir="rtl"]', css)
+        self.assertIn("unicode-bidi: isolate", css)
+        self.assertIn("@media (max-width: 760px)", css)
+        self.assertIn(".langs", css)
+
 
 if __name__ == "__main__":
     unittest.main()

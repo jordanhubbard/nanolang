@@ -11,6 +11,7 @@
 
 #include "docgen.h"
 #include "nanolang.h"
+#include "utf8.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -287,10 +288,10 @@ static void emit_code_line(FILE *out, const char *line, size_t len) {
         }
 
         /* Number */
-        if (isdigit(c)) {
+        if (nl_ascii_isdigit(c)) {
             fputs("<span class=\"nm\">", out);
             while (i < len &&
-                   (isdigit((unsigned char)line[i]) || line[i] == '.' ||
+                   (nl_ascii_isdigit((unsigned char)line[i]) || line[i] == '.' ||
                     line[i] == 'e' || line[i] == 'E')) {
                 emit_char_escaped(out, line[i]);
                 i++;
@@ -300,9 +301,9 @@ static void emit_code_line(FILE *out, const char *line, size_t len) {
         }
 
         /* Identifier or keyword */
-        if (isalpha(c) || c == '_') {
+        if (nl_ascii_isalpha(c) || c == '_') {
             size_t start = i;
-            while (i < len && (isalnum((unsigned char)line[i]) || line[i] == '_'))
+            while (i < len && (nl_ascii_isalnum((unsigned char)line[i]) || line[i] == '_'))
                 i++;
             size_t wlen = i - start;
             if (is_nano_kw(line + start, wlen)) {

@@ -1,0 +1,17 @@
+# Forth 2012 cases I do not run, or do not treat as a banner.
+
+# Not vendored. Per-file license inventory: docs/FORTH_200X_INVENTORY.md
+# Pin: tests/forth/pins.json (Forth-Standard/forth200x 91f1ed9c).
+forth200x: not-run  wholesale copy refused; I do not execute that tree
+
+# Jackson v0.15.0 is the licensed suite I do run (make test-forth-core and
+# the optional-word-set targets). These Jackson files or words are gaps.
+jackson-xchar: not-run  Jackson has no xchar file; session tests are the gate
+jackson-facility-AT-XY: not-in-suite  facilitytest.fth does not test AT-XY
+jackson-facility-KEY?: not-in-suite  facilitytest.fth does not test KEY?
+jackson-facility-PAGE: not-in-suite  facilitytest.fth does not test PAGE
+jackson-facility-TIME&DATE: not-in-suite  facilitytest.fth does not test TIME&DATE
+jackson-tools-.S: not-claimed  I do not treat .S as a Programming-Tools pass
+
+# System label. Passing a word-set file is evidence, not a Standard System.
+standard-system: not-claimed  docs/FORTH_2012.md refuses the banner

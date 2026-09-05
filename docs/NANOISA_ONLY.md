@@ -1,0 +1,307 @@
+# 5.0 — I emit one thing
+
+This is the compilation contract for release **5.0**. It is a major-version
+rewrite of how I become a process image. It is not 4.x work. 4.0 keeps the
+decision and a closed-subset spike (`nvm2c` for i64 arithmetic). 4.x keeps
+Forth, internationalization, services, capabilities, effects, and the
+language laboratory. I do not delete `transpiler.nano` until this contract
+has compiled me.
+
+I speak plainly: C is a substrate, not my IR. NanoISA is my IR. Every
+frontend lowers to one verified module. Every native or portable target
+is a **consumer of that module**. The NanoLang→C pretty-printer leaves
+the compiler. `cc` stays. `nano_vm` stays as a runner, not as the
+definition of "native."
+
+## The shape
+
+```
+source (NanoLang, Forth, later others)
+        |
+        |  frontend: lex, parse, typecheck, modules
+        |  (exists twice: C seed and src_nano)
+        v
+   verified .nvm v2
+        |
+        +---> nano_vm          interpret / debug / Forth session
+        +---> nvm2c → cc       canonical AOT portable native
+        +---> nvm2llvm         optional translator
+        +---> nvm2wasm         optional translator
+        +---> nvm2riscv        optional translator
+        +---> GPU translators  restricted compute profile only
+```
+
+There is no arrow from my AST to C, LLVM, or Wasm in the product compiler.
+Those arrows were the matrix I am done paying for.
+
+`nano_virt -o` today still embeds `.nvm` plus `nano_vm` (`wrapper_gen.c`),
+and may talk to `nano_cop` or `nano_vmd`. That is a **packaged interpreter**.
+It is allowed as a debug and Forth-session path. It is not a native
+binary in the 5.0 sense. A 5.0 native process computes with C operators
+(or LLVM machine code, or Wasm) and does not require `nano_vm`,
+`nano_cop`, or `nano_vmd` to add two integers.
+
+## Bootstrap, rewritten
+
+I already compile myself from C: `cc` builds `bin/nanoc_c` from `src/`.
+Self-hosting then pretty-prints C twice. Stage 3 compares native binaries
+and apologizes for UUID noise. That is a translator property pretending
+to be a compiler property.
+
+5.0 bootstrap:
+
+```
+Stage 0  cc builds nanoc_c (frontend + NanoISA codegen) and nvm2c
+Stage 1  nanoc_c --emit-nvm src_nano → stage1.nvm
+         nvm2c stage1.nvm → stage1.c → cc → nanoc_stage1
+Stage 2  nanoc_stage1 --emit-nvm src_nano → stage2.nvm
+         nvm2c stage2.nvm → stage2.c → cc → nanoc_stage2
+Stage 3  compare stage1.nvm and stage2.nvm
+```
+
+Stage 3 becomes honest. `.nvm` is what I generated. If those match, I
+compiled myself. `nvm2c`+`cc` matching is a **translator** test, kept
+separate: same module through the VM and through AOT C, same observable
+results on a pinned suite.
+
+The seed `nvm2c` stays C, the way `cc` stays C. I may later write
+`nvm2c` in myself and lower it through NanoISA. The seed translator
+remains a host program. Runtime C (`gc.c`, lists) is the same pattern:
+not a language feature, not 2×.
+
+## What `src_nano` becomes
+
+**Keep.** Lexer, parser, typechecker, diagnostics, module loader, `file_io`,
+CLI, generated AST/schema. Those do not care what the last pass emits.
+
+**Replace, not dual.** `transpiler.nano` (~7.6k lines of C emission) ceases
+to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
+last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
+→ `.nvm`. That dual does not exist in `src_nano` today. That is the real
+self-hosting work of 5.0.
+
+**Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
+language backend. Default output is `.nvm`. `-o binary` is the tool
+pipeline `emit .nvm → nvm2c → cc`.
+
+**Schema.** `CompilerPhase_PHASE_TRANSPILER` is the wrong name. The
+pipeline ends at NanoISA. Target translators are not compiler phases.
+
+**IR.** `compiler/ir.nano` grows NanoISA module types, or those live next
+to codegen. It does not grow a C AST.
+
+**What I will not put in `src_nano`.** `nvm2c`, `nvm2llvm`, `nvm2wasm`,
+`nvm2riscv`. Those are ISA tools.
+
+## Dual implementation after the move
+
+Today a language feature is 2× because **frontend and C emission** exist
+twice.
+
+After 5.0 a language feature is 2× because **frontend and NanoISA
+lowering** exist twice. The cost moves. I stop duplicating `nl_` mangling,
+`gc_release` placement, and include graphs. I start duplicating bytecode
+lowering (locals, jumps, imports, layouts) which so far exists only in C.
+
+Adding a **target** is not 2× in `src_nano`. It is one ISA consumer. That
+is the reason LLVM frontends do not each emit C.
+
+## The module as a product
+
+v2 already has `FUNCTIONS`, `SIGNATURES`, `LAYOUTS`, `IMPORTS`, `LINKS`,
+`CONSTANTS`, `METADATA`, `DEBUG`. 5.0 makes that the *only* portable
+compiler product:
+
+- **Local names**, not only slot numbers, so reconstructed C and NanoLang
+  are readable. Bootstrap does not need pretty names. A C backend as a
+  product does.
+- **Frontend facts** as metadata: purity, affine-use, generics, effects,
+  exhaustiveness. Verifier-enforced where they affect safety; optional
+  where they only affect reconstruction or optimization.
+- **Declared host ABI** for imports. `CALL_EXTERN` as RPC into `nano_cop`
+  is a VM isolation story. AOT C emits a call into a fixed C ABI, or
+  it refuses the module. I do not pretend those are the same.
+- **Compute profiles.** General (VM, AOT CPU) and restricted (GPU
+  kernels). The verifier enforces the feature set. I do not map every
+  general opcode onto a kernel.
+- **Structured control** recovered from `JMP` / `JMP_FALSE` into
+  `if`/`while`/`return` for reconstruction. Goto is a translator
+  fallback, not the reconstruction claim.
+
+Reconstruction succeeded when a reader of one `.nvm`, without the
+original source, can produce named functions, types, structured control,
+and a host ABI. A C file that embeds `nano_vm` plus a bytecode array
+failed. Canonical disassembly is a different test.
+
+## Translators
+
+| Translator | Job | Not |
+| --- | --- | --- |
+| `nvm2c` | Canonical AOT portability. C11. Locals, arithmetic, calls, control, runtime ABI. | VM wrapper |
+| `nvm2llvm` | Optional. Same module, LLVM IR. | NanoLang AST backend |
+| `nvm2wasm` | Optional. Same module, Wasm. | NanoLang AST backend |
+| `nvm2riscv` | Optional. Same module, assembly. | AST `riscv_backend` as a second IR |
+| GPU (SPIR-V / PTX / Metal / OpenCL) | Restricted profile only | Pretending general NanoISA is a kernel language |
+| JVM / others | Evaluate; accept only as translators of verified NanoISA | New AST backends |
+
+I reintroduce LLVM and Wasm only behind these translators, with the same
+module run through the VM and through the translator for semantic
+equivalence.
+
+PTX and OpenCL AST backends that still hang off `nanoc --target` either
+become NanoISA→target translators under the restricted profile, or they
+leave the product compiler. Mixing the two stories recreates the matrix.
+
+## Runtime and isolation
+
+`nano_vm` remains the reference interpreter and the Forth session host.
+`nano_cop` remains process-isolated FFI for the VM path. `nano_vmd` remains
+an optional daemon for that path.
+
+5.0 AOT binaries do not spawn those processes to compute. Host calls go
+through the declared ABI. If a module needs isolation, 4.4's capability
+fabric supervises it; isolation is not a substitute for a C backend.
+
+The tree-walker (`bin/nano`) is a third semantics. Bootstrap does not
+need it. Keeping it is a product choice.
+
+## Forth already lives here
+
+Forth on NanoISA already compiles words to verified functions and runs
+them in one session. 5.0 makes NanoLang the same citizen: one module
+format, one verifier, one set of translators. Forth does not grow a C
+pretty-printer.
+
+## Why this is the architecture
+
+I am not a C generator with a VM sidecar. I am a compiler family with
+one verified instruction set. LLVM proved that a mid-level IR can host
+many languages and many machines. I take the same shape, with a
+narrower contract:
+
+- the IR is a **module**, not a pile of SSA files
+- the verifier is **mine**, not an after-the-fact optimizer
+- frontends exist **twice** (C seed and `src_nano`) until I trust the
+  lowering, then the last pass is NanoISA on both
+- targets are **host tools**. They do not live in the language compiler
+- "native" means **operators in the process**, not a bytecode blob
+  wearing a process costume
+
+The dual-implementation tax does not disappear. It **moves**: every
+language feature is still lexer/parser/types plus NanoISA lowering,
+twice. What disappears is the third and fourth copy of every feature
+as C pretty-printing, LLVM-from-AST, Wasm-from-AST, and GPU-from-AST.
+That matrix is how I paid twice for the language and N times for
+targets. 5.0 pays twice for the language and once per translator.
+
+## How I walk there
+
+I do not start 5.0 by deleting the C path. I walk it in named cuts.
+Each cut has a test that can fail without stranding bootstrap.
+
+**A — Emitter exists.** `src_nano` grows a dual of
+`src/nanovirt/codegen.c`. It emits `.nvm`. The C pretty-printer still
+builds the compiler. I compare `.nvm` from the C seed's NanoISA path
+and from `src_nano` on a pinned subset, not yet the whole compiler.
+
+**B — AOT covers the compiler subset.** `nvm2c` translates functions,
+structs, loops, arrays, strings, modules, and a declared host ABI.
+`CALL_EXTERN` maps to that ABI or the module is refused. I ship a
+`nvm2c` CLI. A generated process does not link `nano_vm`. A pinned
+suite matches on `nano_vm` and on AOT C.
+
+**C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
+is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written
+down in the driver, not a language phase. `CompilerPhase_PHASE_TRANSPILER`
+is renamed. `wrapper_gen` remains a packaged-interpreter flag, not the
+default meaning of native.
+
+**D — Honest bootstrap.** Stage 1 and Stage 2 `.nvm` files match. I
+freeze `transpiler.nano` as bootstrap-only. Matching native binaries
+are a translator test, kept separate.
+
+**E — Pretty-printer leaves.** I delete `transpiler.nano` from the
+product compiler (git keeps it). Optional `nvm2llvm` / `nvm2wasm` /
+`nvm2riscv` consume the same module. GPU translators use the restricted
+profile or they leave. I spike a second high-level surface from one
+`.nvm` and publish sufficient / insufficient / blocked in
+`docs/NANOISA_HL_ROUNDTRIP.md`.
+
+I do not skip to E. A cut that cannot compile `src_nano` is not done.
+
+## File fate
+
+These are product decisions, not a cleanup pass:
+
+| Today | 5.0 |
+| --- | --- |
+| `src/transpiler.c`, `src_nano/compiler/transpiler.nano` | Freeze, then remove from the product compiler |
+| `src/c_backend.c` | Driver of `nvm2c`, or gone; not a second IR |
+| `src/nanovirt/codegen.c` | Stays; `src_nano` grows its dual |
+| `src/nanovirt/wrapper_gen.c` | Packaged interpreter / Forth-session native; not default `-o` |
+| `src/nanoisa/nvm2c.c` | Canonical AOT; grows from the i64 spike to the compiler subset |
+| `src/ptx_backend.c`, `src/opencl_backend.c` | NanoISA→GPU translators under the restricted profile, or they leave |
+| `src/riscv_backend.c` | Becomes `nvm2riscv`, or it leaves |
+| Retired AST LLVM/Wasm | Stay retired. Re-enter only as translators of `.nvm` |
+| `nano_vm`, `nano_cop`, `nano_vmd` | Stay as VM path. AOT does not spawn them to add integers |
+| `bin/nano` tree-walker | Product choice; not bootstrap |
+
+## Linking, debug, and equivalence
+
+v2 already refuses to flatten dependency modules into the root file.
+5.0 AOT respects that: translators consume a linked module graph, not a
+single mashed C translation unit, unless a translator documents a
+flatten as its own lowering. `CALL_MODULE` stays a module index, the
+same one `vm_link_named_module` already checks.
+
+Debug information lives in the NanoISA `DEBUG` section and becomes
+DWARF (or the target's analog) in the translator. I do not keep a
+second debug pipeline on the AST.
+
+Equivalence is a harness, not a slogan: the same `.nvm` on `nano_vm`,
+on AOT C, and on each shipped translator, against a pinned suite.
+Disagreement is a translator bug or a verifier hole. I do not paper
+over it with "backend differences."
+
+Reconstruction is the richness test for the module format. If a reader
+of one `.nvm` cannot recover named functions, types, structured
+control, and a host ABI, the IR is still a VM encoding. I will say so
+in `docs/NANOISA_HL_ROUNDTRIP.md` instead of hoping.
+
+## Completeness gate before I delete the pretty-printer
+
+The self-hosted NanoISA emitter must compile **the compiler**: functions,
+structs, loops, arrays, strings, modules, `extern` mapped to the host
+ABI. Until that subset is closed, `transpiler.nano` stays as
+bootstrap-only. I freeze it, then delete it once `stage1.nvm` is the
+artifact that builds the next compiler.
+
+I do not start 5.0 by deleting the C path. I start by writing the
+NanoISA emitter in `src_nano` until it compiles `src_nano`.
+
+## What 5.0 is not
+
+- Not 4.2 catalogs, 4.3 service schemas, 4.4 capability fabric, 4.5
+  replay, or 4.6 extra frontends. Those remain 4.x.
+- Not 6.0 (the operating environment that was formerly numbered 5.0):
+  signed images, kernel adapters, seL4. Those sit on top of this IR,
+  they are not a substitute for it.
+- Not a claim that I can reconstruct almost any high-level language
+  until local names, structured control, and a host ABI exist and a
+  second surface from the same `.nvm` is not an interpreter.
+
+## Acceptance
+
+5.0 closes when all of these are true:
+
+1. `src_nano` emits `.nvm` as its only compiler product.
+2. `nvm2c` translates that module to structured C11 that `cc` builds into
+   a process which does not link `nano_vm`.
+3. Stage 1 and Stage 2 `.nvm` files match.
+4. A pinned suite gives the same answers on `nano_vm` and on AOT C.
+5. `transpiler.nano` is gone from the product compiler (history keeps it).
+6. LLVM and Wasm, if present, are translators of the same module.
+7. `docs/NANOISA_HL_ROUNDTRIP.md` states sufficient / insufficient /
+   blocked from evidence, not aspiration.
+
+Until then I keep paying the C pretty-printer tax, on purpose.

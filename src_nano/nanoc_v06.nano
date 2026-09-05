@@ -1685,6 +1685,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "nl_string.c"))
             set cc_cmd (+ cc_cmd " ")
+            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/utf8.c"))
+            set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "cli.c"))
             set cc_cmd (+ cc_cmd " ")
             set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "regex.c"))

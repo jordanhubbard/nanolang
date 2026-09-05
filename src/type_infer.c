@@ -276,7 +276,7 @@ HMType *hm_record_field_type(InferCtx *ctx, HMType *rec,
         /* Not a record type — field access on wrong kind */
         if (line > 0) {
             fprintf(stderr,
-                    "\n[E003] FIELD ACCESS ON NON-RECORD  %s:%d:%d\n"
+                    "\n[E020] FIELD ACCESS ON NON-RECORD  %s:%d:%d\n"
                     "  Type '%s' is not a record type.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>",
                     line, col,
@@ -311,7 +311,7 @@ HMType *hm_record_field_type(InferCtx *ctx, HMType *rec,
     /* Closed record, field missing */
     if (line > 0) {
         fprintf(stderr,
-                "\n[E003] MISSING FIELD  %s:%d:%d\n"
+                "\n[E021] MISSING FIELD  %s:%d:%d\n"
                 "  Closed record type '%s' has no field '%s'.\n",
                 ctx->source_file ? ctx->source_file : "<unknown>",
                 line, col,
@@ -429,7 +429,7 @@ bool hm_unify_rows(InferCtx *ctx, HMType *r1, HMType *r2, int line, int col) {
         if (!tail2) {
             /* r2 is closed; r1's extra fields can't be accommodated */
             fprintf(stderr,
-                    "\n[E003] ROW MISMATCH  %s:%d:%d\n"
+                    "\n[E022] ROW MISMATCH  %s:%d:%d\n"
                     "  Record type '%s' has extra fields not present in closed '%s'.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>",
                     line, col,
@@ -452,7 +452,7 @@ bool hm_unify_rows(InferCtx *ctx, HMType *r1, HMType *r2, int line, int col) {
         /* r2 has extra fields → r1's tail must absorb them */
         if (!tail1) {
             fprintf(stderr,
-                    "\n[E003] ROW MISMATCH  %s:%d:%d\n"
+                    "\n[E022] ROW MISMATCH  %s:%d:%d\n"
                     "  Record type '%s' has extra fields not present in closed '%s'.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>",
                     line, col,
@@ -469,7 +469,7 @@ bool hm_unify_rows(InferCtx *ctx, HMType *r1, HMType *r2, int line, int col) {
         /* Both sides have unique fields — need both tails to be open */
         if (!tail1 && !tail2) {
             fprintf(stderr,
-                    "\n[E003] ROW MISMATCH  %s:%d:%d\n"
+                    "\n[E022] ROW MISMATCH  %s:%d:%d\n"
                     "  Closed record types '%s' and '%s' have incompatible fields.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>",
                     line, col,
@@ -479,7 +479,7 @@ bool hm_unify_rows(InferCtx *ctx, HMType *r1, HMType *r2, int line, int col) {
         } else if (!tail1) {
             /* r1 closed, can't absorb r2's extra fields */
             fprintf(stderr,
-                    "\n[E003] ROW MISMATCH  %s:%d:%d\n"
+                    "\n[E022] ROW MISMATCH  %s:%d:%d\n"
                     "  Closed record '%s' cannot absorb extra fields from '%s'.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>",
                     line, col,
@@ -488,7 +488,7 @@ bool hm_unify_rows(InferCtx *ctx, HMType *r1, HMType *r2, int line, int col) {
             ok = false;
         } else if (!tail2) {
             fprintf(stderr,
-                    "\n[E003] ROW MISMATCH  %s:%d:%d\n"
+                    "\n[E022] ROW MISMATCH  %s:%d:%d\n"
                     "  Closed record '%s' cannot absorb extra fields from '%s'.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>",
                     line, col,
@@ -685,7 +685,7 @@ static void emit_type_mismatch(InferCtx *ctx, HMType *t1, HMType *t2,
 
     /* Mirror the style of typechecker.c emit_context_error */
     fprintf(stderr,
-            "\n%s[E003] TYPE MISMATCH%s  %s%s:%d:%d%s\n"
+            "\n%s[E001] TYPE MISMATCH%s  %s%s:%d:%d%s\n"
             "  Inferred %s%s%s, but expected %s%s%s\n",
             CSTART_ERROR, CEND,
             CSTART_DIM, ctx->source_file ? ctx->source_file : "<unknown>",
@@ -714,7 +714,7 @@ bool hm_unify(InferCtx *ctx, HMType *t1, HMType *t2, int line, int col) {
     if (t1->kind == HM_VAR) {
         if (t2->kind == HM_VAR && t1->as.var_id == t2->as.var_id) return true;
         if (occurs(ctx, t1->as.var_id, t2)) {
-            fprintf(stderr, "\n[E003] INFINITE TYPE  %s:%d:%d\n"
+            fprintf(stderr, "\n[E023] INFINITE TYPE  %s:%d:%d\n"
                     "  Recursive type constraint would create an infinite type.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>", line, col);
             ctx->has_error = true;
@@ -727,7 +727,7 @@ bool hm_unify(InferCtx *ctx, HMType *t1, HMType *t2, int line, int col) {
     /* Bind type variable (right) */
     if (t2->kind == HM_VAR) {
         if (occurs(ctx, t2->as.var_id, t1)) {
-            fprintf(stderr, "\n[E003] INFINITE TYPE  %s:%d:%d\n"
+            fprintf(stderr, "\n[E023] INFINITE TYPE  %s:%d:%d\n"
                     "  Recursive type constraint would create an infinite type.\n",
                     ctx->source_file ? ctx->source_file : "<unknown>", line, col);
             ctx->has_error = true;

@@ -8,6 +8,7 @@
 #include "vm_ffi.h"
 #include "cop_protocol.h"
 #include "../nanoisa/verifier.h"
+#include "../utf8.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -499,6 +500,138 @@ void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module) {
 
 VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module) {
     return vm_rebuild_module(vm, module) ? VM_OK : vm->last_error;
+}
+
+static void vm_resolve_function_calls(VmState *vm, VmDecodedFunction *function,
+                                      VmDispatchFunction *dispatch);
+
+static bool vm_module_constants_append(VmState *vm, const NvmModule *module,
+                                       VmModuleConstants *constants) {
+    uint32_t i;
+    VmString **grown;
+
+    if (!vm || !module || !constants) return false;
+    if (module->string_count <= constants->count) return true;
+    grown = realloc(constants->strings,
+                    (size_t)module->string_count * sizeof(*grown));
+    if (!grown) return false;
+    constants->strings = grown;
+    for (i = constants->count; i < module->string_count; i++) {
+        constants->strings[i] = vm_string_new(&vm->heap, module->strings[i],
+                                              module->string_lengths[i]);
+        if (!constants->strings[i]) {
+            constants->count = i;
+            return false;
+        }
+    }
+    constants->count = module->string_count;
+    return true;
+}
+
+bool vm_sync_new_functions(VmState *vm, const NvmModule *module) {
+    bool *valid = NULL;
+    bool *dispatch_valid = NULL;
+    VmDecodedModule *decoded;
+    VmDispatchModule *dispatch;
+    VmModuleConstants *constants;
+    VmDecodedFunction *decoded_fns;
+    VmDispatchFunction *dispatch_fns;
+    char decode_error[VM_DECODE_ERROR_SIZE];
+    char dispatch_error[VM_DISPATCH_ERROR_SIZE];
+    uint32_t old;
+    uint32_t n;
+    uint32_t i;
+
+    if (!vm || !module) return false;
+    decoded = decoded_module_for(vm, module, &valid);
+    if (!decoded || !valid || !*valid) {
+        if (vm->frame_count != 0) {
+            vm_error(vm, VM_ERR_DECODE,
+                     "Cannot rebuild a module while a function is executing");
+            return false;
+        }
+        return vm_rebuild_module(vm, module);
+    }
+    if (decoded->function_count >= module->function_count) return true;
+
+    old = decoded->function_count;
+    n = module->function_count;
+    dispatch = dispatch_module_for(vm, module, &dispatch_valid);
+    if (dispatch && dispatch_valid && *dispatch_valid
+            && dispatch->function_count != old) {
+        vm_error(vm, VM_ERR_DECODE,
+                 "Decoded and dispatch function counts drifted");
+        return false;
+    }
+
+    decoded_fns = realloc(decoded->functions, (size_t)n * sizeof(*decoded_fns));
+    if (!decoded_fns) {
+        vm_error(vm, VM_ERR_MEMORY, "Failed to grow decoded functions");
+        return false;
+    }
+    memset(decoded_fns + old, 0, (size_t)(n - old) * sizeof(*decoded_fns));
+    decoded->functions = decoded_fns;
+
+    for (i = old; i < n; i++) {
+        if (!vm_decode_function(module, i, &decoded->functions[i], decode_error)) {
+            uint32_t j;
+            for (j = old; j < i; j++)
+                vm_decoded_function_free(&decoded->functions[j]);
+            vm_error(vm, VM_ERR_DECODE, "%s", decode_error);
+            return false;
+        }
+    }
+
+    if (dispatch && dispatch_valid && *dispatch_valid) {
+        dispatch_fns = realloc(dispatch->functions,
+                               (size_t)n * sizeof(*dispatch_fns));
+        if (!dispatch_fns) {
+            for (i = old; i < n; i++)
+                vm_decoded_function_free(&decoded->functions[i]);
+            vm_error(vm, VM_ERR_MEMORY, "Failed to grow dispatch functions");
+            return false;
+        }
+        memset(dispatch_fns + old, 0, (size_t)(n - old) * sizeof(*dispatch_fns));
+        dispatch->functions = dispatch_fns;
+        for (i = old; i < n; i++) {
+            if (!vm_dispatch_build_function(&decoded->functions[i],
+                                            vm->dispatch_profile,
+                                            &dispatch->functions[i],
+                                            dispatch_error)) {
+                uint32_t j;
+                for (j = old; j < i; j++)
+                    vm_dispatch_function_free(&dispatch->functions[j]);
+                for (j = old; j < n; j++)
+                    vm_decoded_function_free(&decoded->functions[j]);
+                vm_error(vm, VM_ERR_DECODE, "%s", dispatch_error);
+                return false;
+            }
+        }
+        dispatch->function_count = n;
+    }
+
+    decoded->function_count = n;
+    constants = module_constants_for(vm, module);
+    if (constants && !vm_module_constants_append(vm, module, constants)) {
+        vm_error(vm, VM_ERR_MEMORY, "Module constant append failed");
+        return false;
+    }
+
+    if (vm->module_calls_resolved) {
+        for (i = old; i < n; i++) {
+            vm_resolve_function_calls(vm, &decoded->functions[i],
+                (dispatch && dispatch_valid && *dispatch_valid)
+                    ? &dispatch->functions[i] : NULL);
+        }
+    }
+    vm_recompute_verified(vm);
+    vm->last_error = VM_OK;
+    vm->error_msg[0] = '\0';
+    return true;
+}
+
+void vm_request_halt(VmState *vm) {
+    if (vm) vm->halt_requested = true;
 }
 
 /* Bind one function's cross-module calls to callable handles.
@@ -3587,6 +3720,8 @@ void vm_stack_trace(const VmState *vm, FILE *out) {
         }
 
         int frame_num = (int)vm->frame_count - 1 - i;
+        fn_name = nl_utf8_cstr_or_marker(fn_name);
+        src_file = nl_utf8_cstr_or_marker(src_file);
         if (line > 0 && col > 0) {
             fprintf(out, "  #%-2d  %s  %s:%u:%u\n",
                     frame_num, fn_name, src_file, line, col);
@@ -3630,6 +3765,8 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     }
 
     uint32_t stack_base = vm->stack_size;
+
+    vm->halt_requested = false;
 
     /* Push args as first locals */
     for (uint16_t i = 0; i < arg_count; i++) {
@@ -3747,6 +3884,10 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                  * the dispatch allocated for the result has no other owner. */
                 vm_release(&vm->heap, ext_result);
             }
+            if (vm->halt_requested) {
+                vm->halt_requested = false;
+                return VM_OK;
+            }
             break;
         }
 
@@ -3757,9 +3898,9 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             if (vm->debug_mode || (vm->module->header.flags & NVM_FLAG_DEBUG_INFO)) {
                 FILE *trace_out = vm->output ? vm->output : stderr;
                 fprintf(trace_out, "\nRuntime error: %s\n",
-                        vm_error_string(trap.data.error.code));
+                        nl_utf8_cstr_or_marker(vm_error_string(trap.data.error.code)));
                 if (vm->error_msg[0]) {
-                    fprintf(trace_out, "  %s\n", vm->error_msg);
+                    fprintf(trace_out, "  %s\n", nl_utf8_cstr_or_marker(vm->error_msg));
                 }
                 vm_stack_trace(vm, trace_out);
             }

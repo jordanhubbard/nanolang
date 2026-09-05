@@ -1,0 +1,10 @@
+{
+  "index.md": "f95f8fce845af06b9e3ea32e79779b989d90d56d56c70360ba37575bb3dc964d",
+  "guide/01_getting_started.md": "741f803514277761e81ed7b6d09898678112435775ce349c58e1d447b6fbbefe",
+  "guide/02_language.md": "73e1dee9bc460446f84484c4111dcae3347e479f6712cda9dcbd8e4ed6248507",
+  "guide/03_data_and_errors.md": "f08d67226d01123a665ce897d807c9fc72778fa760c661c84fece960d7b9ce0f",
+  "guide/04_modules_and_ffi.md": "ef8831faf28c0f4ec3939f3c41ae3f96b8f3ab12c9f79cb28cf3f87893ba2448",
+  "guide/05_testing_and_trust.md": "130583eae11a919653c05628f8fa2422d1c03755617c9d645c18118e9e741650",
+  "guide/06_tools_and_backends.md": "0bc1445aa0b929877de8b5416c1d19bb46aea1c84729e9237dd75bea1af326ca",
+  "guide/07_performance_profiling.md": "ce4a53efbf253280f81a815400b4dcfddc07d7193dc691c5af071787bea342f5"
+}

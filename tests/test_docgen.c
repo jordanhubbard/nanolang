@@ -330,6 +330,27 @@ static void test_md_doc_comment(void) {
     free_tokens(tokens, token_count);
 }
 
+static void test_md_rejects_invalid_utf8(void) {
+    const char *src = "fn f() -> int { return 0 }\n";
+    int token_count = 0;
+    Token *tokens = tokenize(src, &token_count);
+    ASSERT(tokens != NULL, "tokenize should succeed");
+    if (!tokens) return;
+
+    ASTNode *program = parse_program(tokens, token_count);
+    ASSERT(program != NULL, "parse_program should succeed");
+    if (!program) { free_tokens(tokens, token_count); return; }
+
+    char junk[] = { 'x', (char)0xFF, 0 };
+    bool ok = emit_doc_md("/tmp/test_docgen_bad.md", program, junk, "m");
+    ASSERT(!ok, "emit_doc_md should reject invalid UTF-8 source");
+    ok = emit_doc_md("/tmp/test_docgen_bad2.md", program, src, junk);
+    ASSERT(!ok, "emit_doc_md should reject invalid UTF-8 module name");
+
+    free_ast(program);
+    free_tokens(tokens, token_count);
+}
+
 /* ── Entry point ──────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -343,6 +364,7 @@ int main(void) {
     test_md_basic_generation();
     test_md_no_exported_items();
     test_md_doc_comment();
+    test_md_rejects_invalid_utf8();
 
     if (tests_failed == 0) {
         printf("docgen tests: %d/%d passed\n", tests_run, tests_run);

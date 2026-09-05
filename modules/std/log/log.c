@@ -10,6 +10,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
+#include "../../../src/utf8.h"
+#include "../../../src/diag_id.h"
 
 /* Log levels */
 #define LOG_LEVEL_DEBUG 0
@@ -108,26 +110,34 @@ static void json_escape(FILE *out, const char *s) {
     }
 }
 
-void nl_log_write(int64_t level, const char *message) {
+void nl_log_write_event(int64_t level, const char *event_id, const char *message) {
+    char safe[4096];
     if (level < g_current_log_level) {
-        return;  /* Filtered by log level */
+        return;
     }
-    
+
+    event_id = event_id && event_id[0] ? event_id : NL_DIAG_LOG;
+    nl_utf8_sanitize_log(message, safe, sizeof safe);
+
     FILE *out = get_output_stream();
     
     if (g_output_mode == OUTPUT_MODE_JSON) {
-        /* JSON format */
-        fputs("{\"level\":\"", out);
+        fputs("{\"id\":\"", out);
+        json_escape(out, event_id);
+        fputs("\",\"level\":\"", out);
         json_escape(out, level_to_string((int)level));
         fputs("\",\"message\":\"", out);
-        json_escape(out, message);
+        json_escape(out, safe);
         fputs("\"}\n", out);
     } else {
-        /* Text format */
-        fprintf(out, "[%s] %s\n", level_to_string((int)level), message);
+        fprintf(out, "[%s] %s %s\n", level_to_string((int)level), event_id, safe);
     }
     
     fflush(out);
+}
+
+void nl_log_write(int64_t level, const char *message) {
+    nl_log_write_event(level, NL_DIAG_LOG, message);
 }
 
 /* =============================================================================
@@ -136,15 +146,20 @@ void nl_log_write(int64_t level, const char *message) {
 
 int64_t nl_log_trace_enter(const char *fn_name) {
     int64_t trace_id = g_next_trace_id++;
+    char safe[1024];
+    nl_utf8_sanitize_log(fn_name, safe, sizeof safe);
     
     if (LOG_LEVEL_DEBUG >= g_current_log_level) {
         FILE *out = get_output_stream();
         if (g_output_mode == OUTPUT_MODE_JSON) {
-            fputs("{\"level\":\"DEBUG\",\"type\":\"trace_enter\",\"function\":\"", out);
-            json_escape(out, fn_name);
+            fputs("{\"id\":\"", out);
+            json_escape(out, NL_DIAG_LOG_ENTER);
+            fputs("\",\"level\":\"DEBUG\",\"type\":\"trace_enter\",\"function\":\"", out);
+            json_escape(out, safe);
             fprintf(out, "\",\"trace_id\":%lld}\n", (long long)trace_id);
         } else {
-            fprintf(out, "[DEBUG] ENTER %s (trace_id=%lld)\n", fn_name, (long long)trace_id);
+            fprintf(out, "[DEBUG] %s ENTER %s (trace_id=%lld)\n",
+                    NL_DIAG_LOG_ENTER, safe, (long long)trace_id);
         }
         fflush(out);
     }
@@ -153,30 +168,41 @@ int64_t nl_log_trace_enter(const char *fn_name) {
 }
 
 void nl_log_trace_exit(int64_t trace_id, const char *fn_name) {
+    char safe[1024];
+    nl_utf8_sanitize_log(fn_name, safe, sizeof safe);
     if (LOG_LEVEL_DEBUG >= g_current_log_level) {
         FILE *out = get_output_stream();
         if (g_output_mode == OUTPUT_MODE_JSON) {
-            fputs("{\"level\":\"DEBUG\",\"type\":\"trace_exit\",\"function\":\"", out);
-            json_escape(out, fn_name);
+            fputs("{\"id\":\"", out);
+            json_escape(out, NL_DIAG_LOG_EXIT);
+            fputs("\",\"level\":\"DEBUG\",\"type\":\"trace_exit\",\"function\":\"", out);
+            json_escape(out, safe);
             fprintf(out, "\",\"trace_id\":%lld}\n", (long long)trace_id);
         } else {
-            fprintf(out, "[DEBUG] EXIT %s (trace_id=%lld)\n", fn_name, (long long)trace_id);
+            fprintf(out, "[DEBUG] %s EXIT %s (trace_id=%lld)\n",
+                    NL_DIAG_LOG_EXIT, safe, (long long)trace_id);
         }
         fflush(out);
     }
 }
 
 void nl_log_trace_event(const char *name, const char *data) {
+    char safe_name[1024];
+    char safe_data[2048];
+    nl_utf8_sanitize_log(name, safe_name, sizeof safe_name);
+    nl_utf8_sanitize_log(data, safe_data, sizeof safe_data);
     if (LOG_LEVEL_DEBUG >= g_current_log_level) {
         FILE *out = get_output_stream();
         if (g_output_mode == OUTPUT_MODE_JSON) {
-            fputs("{\"level\":\"DEBUG\",\"type\":\"trace_event\",\"name\":\"", out);
-            json_escape(out, name);
+            fputs("{\"id\":\"", out);
+            json_escape(out, NL_DIAG_LOG_EVENT);
+            fputs("\",\"level\":\"DEBUG\",\"type\":\"trace_event\",\"name\":\"", out);
+            json_escape(out, safe_name);
             fputs("\",\"data\":\"", out);
-            json_escape(out, data);
+            json_escape(out, safe_data);
             fputs("\"}\n", out);
         } else {
-            fprintf(out, "[DEBUG] EVENT %s: %s\n", name, data);
+            fprintf(out, "[DEBUG] %s EVENT %s: %s\n", NL_DIAG_LOG_EVENT, safe_name, safe_data);
         }
         fflush(out);
     }

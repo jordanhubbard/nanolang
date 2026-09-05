@@ -1,8 +1,7 @@
 /*
- * FIND INCLUDE / INCLUDED / OPEN-FILE must fail: those are File Access
- * words, not Core, and they are not in the NanoISA session dictionary.
- * FIND DUP must succeed. C file-source helpers exist; they are not Forth
- * words. This is the Jackson INCLUDE gap, not a Core pass.
+ * FIND Core words. C file-source helpers exist. Core evidence is not
+ * loaded by Forth INCLUDED. This is the Jackson Core-evidence probe,
+ * not a Core pass.
  */
 
 #include "forth/forth_session.h"
@@ -13,22 +12,6 @@
 
 int g_argc = 0;
 char **g_argv = NULL;
-
-static int expect_missing(ForthSession *session, const char *name) {
-    ForthNt nt = 0;
-    ForthXt xt = 0;
-    bool immediate = false;
-    bool found;
-
-    found = forth_find(session, name, (uint32_t)strlen(name), &nt, &xt, &immediate);
-    if (found) {
-        printf("  FAIL  FIND %s succeeded; File Access words must stay absent\n",
-               name);
-        return 1;
-    }
-    printf("  PASS  FIND %s is empty\n", name);
-    return 0;
-}
 
 static int expect_present(ForthSession *session, const char *name) {
     ForthNt nt = 0;
@@ -61,19 +44,9 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    fail |= expect_missing(session, "INCLUDE");
-    fail |= expect_missing(session, "INCLUDED");
-    fail |= expect_missing(session, "OPEN-FILE");
     fail |= expect_present(session, "DUP");
     fail |= expect_present(session, "EVALUATE");
     fail |= expect_present(session, "SOURCE");
-
-    if (forth_interpret(session, (const uint8_t *)"INCLUDED", 8)) {
-        printf("  FAIL  interpret INCLUDED succeeded\n");
-        fail = 1;
-    } else {
-        printf("  PASS  interpret INCLUDED fails\n");
-    }
 
     /* C helpers exist; they are not INCLUDE. */
     if (!forth_file_open(session, "/dev/null", "r", &fileid)) {

@@ -35,22 +35,19 @@
               ┌────────────┴───────────┐
               ▼                        ▼
    ┌────────────────────┐   ┌──────────────────────┐
-   │  C Transpile Path  │   │    NanoISA VM Path    │
+   │  C Transpile Path  │   │    NanoISA Path       │
    │   (bin/nanoc)      │   │   (bin/nano_virt)     │
    └────────┬───────────┘   └──────────┬───────────┘
             │                          │
-  Lex → Parse → TypeCheck → Transpile  │  Lex → Parse → TypeCheck → Codegen
+  AST → C (`transpiler` / `c_backend`) │  AST → .nvm
             │                          │
-            ▼                          ▼
-     Generated .c file           .nvm bytecode
-            │                          │
-            ▼                     ┌────┴────┐
-     cc → native binary           │         │
-                              nano_vm    native binary
-                              (executor)  (embeds VM)
-                                  │
-                              nano_cop (isolated FFI)
-                              nano_vmd (daemon mode)
+            ▼                     ┌────┴────────────┐
+     cc → native binary           │                 │
+                              nano_vm          nvm2c (spike)
+                              (+ optional cop)   structured C11 → cc
+                              wrapper_gen still  no nano_vm / nano_cop
+                              embeds VM in a     in the generated process
+                              "native" binary
 ```
 
 ### Compilation Pipeline (Both Paths)
@@ -60,7 +57,8 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 ```
 
 **Backend A — C Transpiler:** AST → C source → `cc` → native binary  
-**Backend B — NanoISA Codegen:** AST → bytecode → .nvm file or embedded in native binary
+**Backend B — NanoISA VM:** AST → bytecode → `.nvm` → `nano_vm` (optional `nano_cop` / `nano_vmd`). `nano_virt -o` still embeds that VM.  
+**Backend C — NanoISA AOT (spike):** `.nvm` → `nvm2c` → structured C11 → `cc`. Closed i64 subset only (`make test-nvm2c`). Not a CLI. The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`), not 4.x.
 
 ---
 
@@ -82,8 +80,33 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 | `make test` | Full test suite (units + integration + language tests) |
 | `make test-quick` | Language tests only (fastest) |
 | `make test-forth-gforth-diff` | Forth 2012 pins + Gforth 0.7.3 `pi.fs` differential |
-| `make test-forth-jackson` | Jackson v0.15.0 vendor pin and INCLUDE/file-access gap (not Core) |
+| `make test-forth-jackson` | Jackson v0.15.0 vendor pin and INCLUDE/file-access gap (not a Core run) |
+| `make test-forth-core` | Jackson Core evidence via C file-source `REFILL` (not a Core banner claim) |
+| `make test-forth-coreext` | Jackson Core Ext evidence via C file-source `REFILL` (not a Core Ext banner claim) |
+| `make test-forth-exception` | Jackson Exception via C file-source `REFILL` (not an Exception banner claim) |
+| `make test-forth-double` | Jackson Double via C file-source `REFILL` (not a Double banner claim) |
+| `make test-forth-string` | Jackson String via C file-source `REFILL` (not a String banner claim) |
+| `make test-forth-searchorder` | Jackson Search Order via C file-source `REFILL` (not a Search Order banner claim) |
+| `make test-forth-file` | Jackson File Access via C file-source `REFILL` (not a File Access banner claim) |
+| `make test-forth-memory` | Jackson Memory-Allocation via C file-source `REFILL` (not a Memory-Allocation banner claim) |
+| `make test-forth-locals` | Jackson Locals via C file-source `REFILL` (not a Locals banner claim) |
+| `make test-forth-facility` | Jackson Facility via C file-source `REFILL` (not a Facility banner claim) |
+| `make test-forth-tools` | Jackson Programming Tools via C file-source `REFILL` (not a Programming Tools banner claim) |
+| `make test-forth-float` | Jackson Floating-Point via C file-source `REFILL` (not a Floating-Point banner claim) |
+| `make test-forth-block` | Jackson Block via C file-source `REFILL` on a disposable RAM image (not a Block banner claim) |
+| `make test-forth-examples` | 280 example T{ cases via Jackson `tester.fr` (not a Core banner claim) |
 | `make test-forth-session` | Forth session: colon compile, dictionary, sources, stacks |
+| `make test-forth-pty` | Forth IDE PTY child stays alive and evaluates a line |
+| `make test-forth-ide-smoke` | Compile `sdl_forth_ide` when SDL2 is present; xvfb init when available |
+| `make test-bcp47` | BCP 47 parse, fallback chain, and process-locale resolve |
+| `make test-locale-cli` | `nanoc --locale` / `--print-locale` (flags may precede the input file) |
+| `make test-utf8` | RFC 3629 walker and pipeline diagnostic-id lookup |
+| `make test-src-utf8` | `nanoc` rejects invalid UTF-8 source (`CSRC01`); ASCII identifiers (`L0003`); typechecker `E024` |
+| `make test-catalog` | UTF-8 message catalogs, fallback, format, six-language keys |
+| `make test-log-utf8` | log event ids `LOG01` and bidi/ANSI sanitize |
+| `make test-locale-catalog` | human stderr catalogs for `en zh hi es ar fr` (CIO01) and zh L0003; JSON stays English |
+| `make test-i18n-scripts` | six-script literals through C and NanoVM |
+| `make test-unicode-ffi` | grapheme, NFC/NFD, casefold, display width via utf8proc |
 | `make test-vm` | Run test suite through NanoVM backend |
 | `make examples` | Build all 150+ example programs |
 | `make bootstrap` | Full GCC-style bootstrap (Stage 0 → 1 → 2 → 3) |
@@ -906,12 +929,17 @@ Forth stacks and input sources; NanoVM frames unwind through `vm_invoke`.
 | `forth_session.c` | Session create/destroy, stacks, ALLOCATE/FREE, file table |
 | `forth_session.h` | Public API and `STACK-CELLS` / `RETURN-STACK-CELLS` limits |
 
+### 10.4b nvm2c (NanoISA → C11 spike) — `src/nanoisa/nvm2c.c`
+
+Closed subset: i64 arithmetic, locals, `CALL`, `RET`/`HALT`. Emits structured
+C, not a bytecode wrapper. `make test-nvm2c`. Refuses `CALL_EXTERN`.
+
 ### 10.5 NanoVirt (Bytecode Compiler) — `src/nanovirt/`
 
 | File | LOC | Purpose |
 |------|-----|---------|
 | `codegen.c` | 3,083 | AST to bytecode compiler |
-| `wrapper_gen.c` | 574 | Native executable generator |
+| `wrapper_gen.c` | 574 | Native executable that embeds `.nvm` + VM (not AOT C) |
 | `main.c` | 331 | `nano_virt` entry |
 
 ### 10.6 Self-Hosted Compiler — `src_nano/`
@@ -1144,7 +1172,7 @@ shadow divide {
 | `-o <path>` | Output binary path |
 | `--keep-c` | Keep generated C file |
 | `-v` | Verbose output |
-| `--llm-diags-json <path>` | Machine-readable diagnostics |
+| `--llm-diags-json <path>` | Machine-readable diagnostics (pipeline `code` is the ID; English is a lookup) |
 | `-pg` | Enable profiling |
 | `--run` | (nano_virt) Execute immediately |
 | `--emit-nvm` | (nano_virt) Output .nvm bytecode |

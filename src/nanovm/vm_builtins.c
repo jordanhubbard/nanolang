@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <math.h>
 #include "runtime/dyn_array.h"
+#include "utf8.h"
 
 /* mkdtemp declaration (not exposed on macOS with -std=c99) */
 #ifndef _DARWIN_C_SOURCE
@@ -146,12 +147,12 @@ char *vm_string_from_char(int64_t code) {
 
 /* ── Character classification ────────────────────────────────────── */
 
-int64_t vm_is_digit(int64_t c) { return (c >= '0' && c <= '9') ? 1 : 0; }
-int64_t vm_is_alpha(int64_t c) { return isalpha((int)c) ? 1 : 0; }
-int64_t vm_is_alnum(int64_t c) { return isalnum((int)c) ? 1 : 0; }
-int64_t vm_is_space(int64_t c) { return isspace((int)c) ? 1 : 0; }
-int64_t vm_is_upper(int64_t c) { return isupper((int)c) ? 1 : 0; }
-int64_t vm_is_lower(int64_t c) { return islower((int)c) ? 1 : 0; }
+int64_t vm_is_digit(int64_t c) { return nl_ascii_isdigit((int)c) ? 1 : 0; }
+int64_t vm_is_alpha(int64_t c) { return nl_ascii_isalpha((int)c) ? 1 : 0; }
+int64_t vm_is_alnum(int64_t c) { return nl_ascii_isalnum((int)c) ? 1 : 0; }
+int64_t vm_is_space(int64_t c) { return nl_ascii_isspace((int)c) ? 1 : 0; }
+int64_t vm_is_upper(int64_t c) { return nl_ascii_isupper((int)c) ? 1 : 0; }
+int64_t vm_is_lower(int64_t c) { return nl_ascii_islower((int)c) ? 1 : 0; }
 int64_t vm_is_whitespace(int64_t c) {
     return (c == ' ' || c == '\t' || c == '\n' || c == '\r') ? 1 : 0;
 }
@@ -209,23 +210,7 @@ int64_t vm_bstr_utf8_char_at(const char *str, int64_t char_index) {
 
 int64_t vm_bstr_validate_utf8(const char *str) {
     if (!str) return 0;
-    const unsigned char *s = (const unsigned char *)str;
-    while (*s) {
-        if (*s < 0x80) { s++; }
-        else if ((*s & 0xE0) == 0xC0) {
-            if ((s[1] & 0xC0) != 0x80) return 0;
-            s += 2;
-        } else if ((*s & 0xF0) == 0xE0) {
-            if ((s[1] & 0xC0) != 0x80 || (s[2] & 0xC0) != 0x80) return 0;
-            s += 3;
-        } else if ((*s & 0xF8) == 0xF0) {
-            if ((s[1] & 0xC0) != 0x80 || (s[2] & 0xC0) != 0x80 || (s[3] & 0xC0) != 0x80) return 0;
-            s += 4;
-        } else {
-            return 0;
-        }
-    }
-    return 1;
+    return nl_utf8_validate(str, strlen(str), NULL) ? 1 : 0;
 }
 
 /* ── Binary string operations ────────────────────────────────────── */

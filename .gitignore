@@ -149,3 +149,12 @@ site/
 # Generated artifacts belong in the repository; the interpreter that built them
 # does not.
 /_build/
+
+# Jackson File Access tests create these in the current directory.
+/fatest1.txt
+/FATEST2.TXT
+/fatest3.txt
+
+# Compiled Forth C helpers built next to their sources.
+/tests/forth/test_forth_include_gap
+/tests/forth/test_forth_core_load

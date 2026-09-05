@@ -34,16 +34,20 @@ T{ w-val -> 1 }T
 : w-val  2 ;
 T{ w-val -> 2 }T
 
-testing mutual recursion via exit
+testing mutual recursion via defer
+defer w-odd
 : w-even  dup 0 = if drop -1 exit then 1 - w-odd ;
-: w-odd   dup 0 = if drop 0 exit then 1 - w-even ;
+: w-odd-body  dup 0 = if drop 0 exit then 1 - w-even ;
+' w-odd-body is w-odd
 T{ 0 w-even -> -1 }T
 T{ 1 w-even -> 0 }T
 T{ 4 w-even -> -1 }T
 T{ 3 w-even -> 0 }T
 
 testing hex and decimal in words
-: w-base-test  hex ff decimal ;
+hex
+: w-base-test  ff decimal ;
+decimal
 T{ w-base-test 1 + -> 256 }T
 
 testing begin/until in words

@@ -14,6 +14,7 @@
 #include "eval/eval_math.h"
 #include "eval/eval_string.h"
 #include "eval/eval_io.h"
+#include "utf8.h"
 #include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h>
@@ -4018,63 +4019,63 @@ static Value eval_call(ASTNode *node, Environment *env) {
             fprintf(stderr, "Error: isalpha requires 1 int argument\n");
             return create_void();
         }
-        return create_bool(isalpha((int)args[0].as.int_val) != 0);
+        return create_bool(nl_ascii_isalpha((int)args[0].as.int_val) != 0);
     }
     if (strcmp(name, "isdigit") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isdigit requires 1 int argument\n");
             return create_void();
         }
-        return create_bool(isdigit((int)args[0].as.int_val) != 0);
+        return create_bool(nl_ascii_isdigit((int)args[0].as.int_val) != 0);
     }
     if (strcmp(name, "isalnum") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isalnum requires 1 int argument\n");
             return create_void();
         }
-        return create_bool(isalnum((int)args[0].as.int_val) != 0);
+        return create_bool(nl_ascii_isalnum((int)args[0].as.int_val) != 0);
     }
     if (strcmp(name, "islower") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: islower requires 1 int argument\n");
             return create_void();
         }
-        return create_bool(islower((int)args[0].as.int_val) != 0);
+        return create_bool(nl_ascii_islower((int)args[0].as.int_val) != 0);
     }
     if (strcmp(name, "isupper") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isupper requires 1 int argument\n");
             return create_void();
         }
-        return create_bool(isupper((int)args[0].as.int_val) != 0);
+        return create_bool(nl_ascii_isupper((int)args[0].as.int_val) != 0);
     }
     if (strcmp(name, "tolower") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: tolower requires 1 int argument\n");
             return create_void();
         }
-        return create_int(tolower((int)args[0].as.int_val));
+        return create_int(nl_ascii_tolower((int)args[0].as.int_val));
     }
     if (strcmp(name, "toupper") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: toupper requires 1 int argument\n");
             return create_void();
         }
-        return create_int(toupper((int)args[0].as.int_val));
+        return create_int(nl_ascii_toupper((int)args[0].as.int_val));
     }
     if (strcmp(name, "isspace") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isspace requires 1 int argument\n");
             return create_void();
         }
-        return create_bool(isspace((int)args[0].as.int_val) != 0);
+        return create_bool(nl_ascii_isspace((int)args[0].as.int_val) != 0);
     }
     if (strcmp(name, "isprint") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {
             fprintf(stderr, "Error: isprint requires 1 int argument\n");
             return create_void();
         }
-        return create_bool(isprint((int)args[0].as.int_val) != 0);
+        return create_bool(nl_ascii_isprint((int)args[0].as.int_val) != 0);
     }
     if (strcmp(name, "ispunct") == 0) {
         if (node->as.call.arg_count < 1 || args[0].type != VAL_INT) {

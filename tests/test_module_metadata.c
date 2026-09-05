@@ -6,11 +6,15 @@
  */
 
 #include "../src/nanolang.h"
+#include "../src/module_builder.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
@@ -296,6 +300,34 @@ void test_deserialize_stub_returns_false(void) {
     ASSERT_NULL(out);
 }
 
+void test_module_json_requires_utf8(void) {
+    char dir[512];
+    snprintf(dir, sizeof(dir), "%s/nano_mod_utf8_%d",
+             getenv("TMPDIR") ? getenv("TMPDIR") : "/tmp", (int)getpid());
+    rmdir(dir);
+    ASSERT(mkdir(dir, 0700) == 0);
+    char path[640];
+    snprintf(path, sizeof(path), "%s/module.json", dir);
+    FILE *f = fopen(path, "wb");
+    ASSERT_NOT_NULL(f);
+    fputs("{ \"name\": \"x\" }", f);
+    fputc((char)0xFF, f);
+    fclose(f);
+    ASSERT_NULL(module_load_metadata(dir));
+    unlink(path);
+
+    f = fopen(path, "wb");
+    ASSERT_NOT_NULL(f);
+    fputs("{ \"name\": \"okmod\", \"version\": \"0\" }", f);
+    fclose(f);
+    ModuleBuildMetadata *meta = module_load_metadata(dir);
+    ASSERT_NOT_NULL(meta);
+    ASSERT(meta->name && strcmp(meta->name, "okmod") == 0);
+    module_metadata_free(meta);
+    unlink(path);
+    rmdir(dir);
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -318,6 +350,7 @@ int main(void) {
     TEST(embed_metadata_at_end);
     TEST(embed_metadata_before_main);
     TEST(deserialize_stub_returns_false);
+    TEST(module_json_requires_utf8);
 
     printf("\n✓ All module metadata tests passed!\n");
     return 0;

@@ -853,7 +853,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 char message[256];
                 snprintf(message, sizeof(message), "I cannot find a variable named `%s`.", expr->as.identifier);
                 emit_context_error(
-                    "UNDEFINED VARIABLE",
+                    "E024 UNDEFINED VARIABLE",
                     expr->line,
                     expr->column,
                     (int)safe_strlen(expr->as.identifier),
@@ -915,7 +915,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         snprintf(message, sizeof(message),
                                 "Symbol `%s` does not belong to module `%s`.", symbol_name, module_name);
                         emit_context_error(
-                            "WRONG MODULE",
+                            "E032 WRONG MODULE",
                             expr->line,
                             expr->column,
                             (int)safe_strlen(symbol_name),
@@ -930,7 +930,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         snprintf(message, sizeof(message),
                                 "Constant `%s` from module `%s` was not imported.", symbol_name, module_name);
                         emit_context_error(
-                            "NOT IMPORTED",
+                            "E033 NOT IMPORTED",
                             expr->line,
                             expr->column,
                             (int)safe_strlen(symbol_name),
@@ -947,7 +947,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 snprintf(message, sizeof(message),
                         "I cannot find `%s` in module `%s`.", symbol_name, module_name);
                 emit_context_error(
-                    "UNDEFINED SYMBOL",
+                    "E025 UNDEFINED SYMBOL",
                     expr->line,
                     expr->column,
                     (int)safe_strlen(symbol_name),
@@ -1889,7 +1889,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                         "Unknown list element type `%s` in `%s`.",
                                         type_name, expr->as.call.name);
                                 emit_context_error(
-                                    "UNDEFINED IDENTIFIER",
+                                    "E026 UNDEFINED IDENTIFIER",
                                     expr->line,
                                     expr->column,
                                     (int)safe_strlen(expr->as.call.name),
@@ -1908,7 +1908,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "I cannot find a function named `%s`.",
                         safe_format_string(expr->as.call.name));
                 emit_context_error(
-                    "UNDEFINED FUNCTION",
+                    "E027 UNDEFINED FUNCTION",
                     expr->line,
                     expr->column,
                     (int)safe_strlen(expr->as.call.name),
@@ -2052,7 +2052,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                     "I cannot find a function named `%s`.",
                                     arg->as.identifier);
                             emit_context_error(
-                                "UNDEFINED FUNCTION",
+                                "E027 UNDEFINED FUNCTION",
                                 arg->line,
                                 arg->column,
                                 (int)safe_strlen(arg->as.identifier),
@@ -2391,7 +2391,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "I cannot find a function named `%s`.",
                         qualified_name);
                 emit_context_error(
-                    "UNDEFINED FUNCTION",
+                    "E027 UNDEFINED FUNCTION",
                     expr->line,
                     expr->column,
                     (int)safe_strlen(qualified_name),
@@ -3454,7 +3454,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
              * to identify which effect this handle block handles.
              */
             if (expr->as.handle_expr.handler_count == 0) {
-                emit_context_error("Empty handler", expr->line, expr->column, 6,
+                emit_context_error("E028 EMPTY HANDLER", expr->line, expr->column, 6,
                     "Handler block has no operation handlers",
                     "E014: handle...with requires at least one operation handler");
                 g_typecheck_error_count++;
@@ -3475,7 +3475,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             if (!matched_effect) {
-                emit_context_error("Unknown effect operation", expr->line, expr->column,
+                emit_context_error("E029 UNKNOWN EFFECT OPERATION", expr->line, expr->column,
                     (int)strlen(first_op),
                     "No registered effect declares this operation",
                     "E015: define the effect before using handle...with");
@@ -3491,7 +3491,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             for (int i = 0; i < expr->as.handle_expr.handler_count; i++) {
                 const char *op_name = expr->as.handle_expr.handler_op_names[i];
                 if (!effect_get_op(matched_effect, op_name)) {
-                    emit_context_error("Unknown operation in handler", expr->line, expr->column,
+                    emit_context_error("E030 UNKNOWN HANDLER OPERATION", expr->line, expr->column,
                         (int)strlen(op_name),
                         "This operation is not declared in the matched effect",
                         "E015: check the effect declaration for valid operation names");
@@ -4016,7 +4016,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 char message[256];
                 snprintf(message, sizeof(message), "I cannot find a variable named `%s`.", stmt->as.set.name);
                 emit_context_error(
-                    "UNDEFINED VARIABLE",
+                    "E024 UNDEFINED VARIABLE",
                     stmt->line,
                     stmt->column,
                     (int)safe_strlen(stmt->as.set.name),
@@ -4515,7 +4515,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Expression statement - operator expression used as statement has no effect */
             check_expression(stmt, tc->env);
             emit_context_error(
-                "EXPRESSION HAS NO EFFECT",
+                "E034 EXPRESSION HAS NO EFFECT",
                 stmt->line,
                 stmt->column,
                 1,
@@ -4629,7 +4629,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                      "This %s is used as a statement but produces no side effect. The result is discarded.",
                      kind);
             emit_context_error(
-                "EXPRESSION HAS NO EFFECT",
+                "E034 EXPRESSION HAS NO EFFECT",
                 stmt->line,
                 stmt->column,
                 1,
@@ -4820,7 +4820,7 @@ static void emit_context_error(
 
     /* Populate JSON diagnostics for LSP / tooling when enabled */
     if (g_json_output_enabled) {
-        /* Extract error code from title bracket: "[E003] UNDEFINED VARIABLE" -> "E003" */
+        /* Extract a stable id: "[E003] ..." or leading "E001 TYPE ...". */
         char code_buf[16] = "";
         if (title) {
             const char *lb = strchr(title, '[');
@@ -4832,8 +4832,16 @@ static void emit_context_error(
                     code_buf[clen] = '\0';
                 }
             }
+            if (!code_buf[0] && title[0] == 'E') {
+                size_t n = 1;
+                while (title[n] >= '0' && title[n] <= '9') n++;
+                if (n > 1 && n < sizeof(code_buf) && (title[n] == '\0' || title[n] == ' ')) {
+                    memcpy(code_buf, title, n);
+                    code_buf[n] = '\0';
+                }
+            }
         }
-        const char *code = code_buf[0] ? code_buf : "E000";
+        const char *code = code_buf[0] ? code_buf : "E035";
         const char *msg  = message ? message : "";
         const char *hint_str = (hint && hint[0]) ? hint : NULL;
         if (is_warning)
@@ -6067,7 +6075,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register algebraic effect definition */
             const char *eff_name = item->as.effect_decl.effect_name;
             if (env_get_effect(env, eff_name)) {
-                emit_context_error("Duplicate effect", item->line, item->column, (int)strlen(eff_name),
+                emit_context_error("E031 DUPLICATE EFFECT", item->line, item->column, (int)strlen(eff_name),
                     "Effect is already defined in this scope",
                     "E013: effect names must be unique");
                 tc.has_error = true;

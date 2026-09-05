@@ -135,32 +135,51 @@ char* nl_str_grapheme_at(const char* str, int64_t grapheme_index) {
     return NULL;
 }
 
-/* Convert to lowercase (Unicode-aware) */
+/* Convert to lowercase (Unicode-aware). This is not case folding. */
 char* nl_str_to_lowercase(const char* str) {
     if (!str) return NULL;
-    
+
     const uint8_t* input = (const uint8_t*)str;
-    utf8proc_uint8_t* result = NULL;
-    
-    utf8proc_map(
-        input,
-        0,  // 0 means string is null-terminated
-        &result,
-        UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_CASEFOLD | UTF8PROC_COMPAT
-    );
-    
-    return (char*)result;
+    size_t len = strlen(str);
+    size_t result_capacity = len * 4;
+    char* output = malloc(result_capacity);
+    if (!output) return NULL;
+
+    utf8proc_int32_t codepoint;
+    utf8proc_ssize_t bytes_read;
+    size_t input_offset = 0;
+    size_t output_offset = 0;
+
+    while (input_offset < len) {
+        bytes_read = utf8proc_iterate(input + input_offset, len - input_offset, &codepoint);
+
+        if (bytes_read <= 0) {
+            output[output_offset++] = input[input_offset++];
+            continue;
+        }
+
+        utf8proc_int32_t lower = utf8proc_tolower(codepoint);
+        utf8proc_uint8_t buffer[4];
+        utf8proc_ssize_t encoded_bytes = utf8proc_encode_char(lower, buffer);
+
+        if (encoded_bytes > 0 && output_offset + (size_t)encoded_bytes < result_capacity) {
+            memcpy(output + output_offset, buffer, (size_t)encoded_bytes);
+            output_offset += (size_t)encoded_bytes;
+        }
+
+        input_offset += (size_t)bytes_read;
+    }
+
+    output[output_offset] = '\0';
+    return output;
 }
 
 /* Convert to uppercase (Unicode-aware) */
 char* nl_str_to_uppercase(const char* str) {
     if (!str) return NULL;
-    
+
     const uint8_t* input = (const uint8_t*)str;
-    utf8proc_uint8_t* result = NULL;
-    
-    // Note: utf8proc doesn't have a direct uppercase function
-    // We need to iterate and apply toupper to each codepoint
+    /* utf8proc has no map flag for uppercase; iterate and toupper. */
     size_t len = strlen(str);
     size_t result_capacity = len * 4;  // Allocate generous buffer
     char* output = malloc(result_capacity);
@@ -264,7 +283,47 @@ bool nl_str_is_valid_utf8(const char* str) {
         
         offset += bytes_read;
     }
-    
+
     return true;
+}
+
+/* Unicode case folding (UAX #21 / utf8proc CASEFOLD). Distinct from
+ * to_lowercase: ß folds to "ss". */
+char* nl_str_casefold(const char* str) {
+    if (!str) return NULL;
+
+    utf8proc_uint8_t* result = NULL;
+    utf8proc_map(
+        (const uint8_t*)str,
+        0,
+        &result,
+        UTF8PROC_NULLTERM | UTF8PROC_STABLE | UTF8PROC_COMPOSE | UTF8PROC_CASEFOLD
+    );
+    return (char*)result;
+}
+
+/* Terminal columns for East Asian Width / combining marks.
+ * Combining marks contribute 0. Invalid UTF-8 bytes contribute 1. */
+int64_t nl_str_display_width(const char* str) {
+    if (!str) return 0;
+
+    const uint8_t* input = (const uint8_t*)str;
+    size_t len = strlen(str);
+    size_t offset = 0;
+    int64_t width = 0;
+
+    while (offset < len) {
+        utf8proc_int32_t codepoint;
+        utf8proc_ssize_t bytes_read = utf8proc_iterate(input + offset, len - offset, &codepoint);
+        if (bytes_read <= 0) {
+            width += 1;
+            offset++;
+            continue;
+        }
+        int w = utf8proc_charwidth(codepoint);
+        if (w > 0) width += w;
+        offset += (size_t)bytes_read;
+    }
+    return width;
 }
 

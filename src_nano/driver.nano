@@ -417,7 +417,7 @@ fn run_cc(c_file: string, output_file: string, verbose_mode: bool, extra_cc_args
     }
     
     /* Build the cc command */
-    let runtime_files: string = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_LexerToken.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/runtime/cli.c src/runtime/schema_lists.c"
+    let runtime_files: string = "src/runtime/list_int.c src/runtime/list_string.c src/runtime/list_LexerToken.c src/runtime/token_helpers.c src/runtime/gc.c src/runtime/dyn_array.c src/runtime/gc_struct.c src/runtime/nl_string.c src/utf8.c src/runtime/cli.c src/runtime/schema_lists.c"
     
     let mut cc_cmd: string = "cc -o "
     set cc_cmd (+ cc_cmd output_file)

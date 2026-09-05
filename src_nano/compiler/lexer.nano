@@ -22,6 +22,7 @@ shadow is_identifier_start {
     assert (is_identifier_start 95)  /* _ */
     assert (not (is_identifier_start 48)) /* 0 */
     assert (not (is_identifier_start 32)) /* space */
+    assert (not (is_identifier_start 195)) /* UTF-8 lead of é; not an identifier */
 }
 
 pure fn is_identifier_char(c: int) -> bool {
@@ -669,6 +670,7 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
     let mut line: int = 1
     let mut column: int = 1
     let mut line_start: int = 0
+    let mut lex_failed: bool = false
 
     while (< i len) {
         let c: int = (char_at source i)
@@ -846,10 +848,16 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                                                                                             (push_tok tokens LexerTokenType.TOKEN_GT "" line column)
                                                                                                             set new_pos (+ i 1)
                                                                                                         } else {
-                                                                                                            /* Unexpected character */
+                                                                                                            /* Unexpected character: fail closed like the C lexer */
                                                                                                             let diag: CompilerDiagnostic = (diag_lexer_error "L0003" "Unexpected character" (diag_location file_name line column))
                                                                                                             (diag_list_add diags diag)
+                                                                                                            set lex_failed true
                                                                                                             set new_pos (+ i 1)
+                                                                                                            if (>= c 192) {
+                                                                                                                while (and (< new_pos len) (and (>= (char_at source new_pos) 128) (<= (char_at source new_pos) 191))) {
+                                                                                                                    set new_pos (+ new_pos 1)
+                                                                                                                }
+                                                                                                            }
                                                                                                         }
                                                                                                     }
                                                                                                 }
@@ -885,6 +893,9 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
         }
     }
 
+    if lex_failed {
+        return (list_LexerToken_new)
+    }
     (push_tok tokens LexerTokenType.TOKEN_EOF "" line column)
     return tokens
 }
@@ -908,4 +919,9 @@ shadow tokenize_string {
     let toks: List<LexerToken> = (tokenize_string source "test.nano" diags)
     assert (> (list_LexerToken_length toks) 0)
     assert (not (diag_list_has_errors diags))
+    let bad: string = "fn café() -> int { return 0 }"
+    let diags_bad: List<CompilerDiagnostic> = (diag_list_new)
+    let toks_bad: List<LexerToken> = (tokenize_string bad "cafe.nano" diags_bad)
+    assert (== (list_LexerToken_length toks_bad) 0)
+    assert (diag_list_has_errors diags_bad)
 }

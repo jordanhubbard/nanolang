@@ -28,6 +28,7 @@
 
 #include "docgen_md.h"
 #include "nanolang.h"
+#include "utf8.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -409,6 +410,14 @@ static void emit_md_doc_body(FILE *out, const char *doc) {
 bool emit_doc_md(const char *output_path, ASTNode *program,
                  const char *source_text, const char *module_name) {
     if (!program || program->type != AST_PROGRAM) return false;
+    if (source_text && !nl_utf8_ok_cstr(source_text)) {
+        fprintf(stderr, "docgen_md: source is not valid UTF-8\n");
+        return false;
+    }
+    if (module_name && !nl_utf8_ok_cstr(module_name)) {
+        fprintf(stderr, "docgen_md: module name is not valid UTF-8\n");
+        return false;
+    }
 
     MdDocMap dmap = md_build_doc_map(source_text);
 

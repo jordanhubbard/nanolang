@@ -154,7 +154,7 @@ EXAMPLES_STAGE_SUFFIX = $(if $(EXAMPLES_IS_NANOISA),_nanoisa,$(if $(filter $(EXA
 EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_STAGE_SUFFIX))
 
 # Source files
-COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c
+COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
@@ -197,7 +197,7 @@ SCHEMA_JSON = schema/compiler_schema.json
 SCHEMA_OUTPUTS = $(SRC_NANO_DIR)/generated/compiler_schema.nano $(SRC_NANO_DIR)/generated/compiler_ast.nano $(SRC_DIR)/generated/compiler_schema.h src/nanoisa/generated_schema.h
 SCHEMA_STAMP = $(BUILD_DIR)/schema.stamp
 
-HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h
+HEADERS = $(SRC_DIR)/nanolang.h $(SRC_DIR)/generated/compiler_schema.h $(SRC_DIR)/builtins_registry.h $(RUNTIME_DIR)/list_int.h $(RUNTIME_DIR)/list_string.h $(RUNTIME_DIR)/list_LexerToken.h $(RUNTIME_DIR)/token_helpers.h $(RUNTIME_DIR)/gc.h $(RUNTIME_DIR)/dyn_array.h $(RUNTIME_DIR)/gc_struct.h $(RUNTIME_DIR)/nl_string.h $(RUNTIME_DIR)/ffi_loader.h $(RUNTIME_DIR)/module_build_dir.h $(SRC_DIR)/module_builder.h $(SRC_DIR)/bcp47.h $(SRC_DIR)/locale.h $(SRC_DIR)/utf8.h $(SRC_DIR)/diag_id.h
 
 .PHONY: schema schema-check
 schema: $(SCHEMA_STAMP)
@@ -345,12 +345,13 @@ NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
 NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
-	$(NANOISA_DIR)/verifier.c
+	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c
 VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
 NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
 NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \
 	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT)
+NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
 $(OBJ_DIR)/nanoisa/%.o: $(NANOISA_DIR)/%.c $(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -c $< -o $@
@@ -363,12 +364,20 @@ $(OBJ_DIR)/nanoisa:
 	mkdir -p $(OBJ_DIR)/nanoisa
 
 .PHONY: test-nanoisa
-test-nanoisa: schema-check $(NANOISA_OBJECTS)
+test-nanoisa: schema-check $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA tests..."
 	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nanoisa \
-		tests/nanoisa/test_nanoisa.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nanoisa.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nanoisa
 	@rm -f tests/nanoisa/test_nanoisa
+
+.PHONY: test-nvm2c
+test-nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	@echo "Running nvm2c structured-C tests..."
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nvm2c \
+		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c
+	@rm -f tests/nanoisa/test_nvm2c
 
 .PHONY: test-nanoisa-module
 test-nanoisa-module: build
@@ -391,15 +400,15 @@ $(NANOISA_DUMP_OBJECT): $(NANOISA_MODULE_DIR)/dump_main.c $(NANOISA_MODULE_DIR)/
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
 
 .PHONY: nanoisa_dump
-nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_DUMP_OBJECT) | bin
-	$(CC) $(CFLAGS) -o bin/nanoisa $(NANOISA_DUMP_OBJECT) $(NANOISA_OBJECTS) $(LDFLAGS)
+nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
+	$(CC) $(CFLAGS) -o bin/nanoisa $(NANOISA_DUMP_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
 .PHONY: test-nanoisa-dump
 test-nanoisa-dump: nanoisa_dump
 	@echo "Running NanoISA dump CLI tests..."
 	@$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) \
 		-o tests/nanoisa/test_nanoisa_dump \
-		tests/nanoisa/test_nanoisa_dump.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nanoisa_dump.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nanoisa_dump bin/nanoisa
 	@rm -f tests/nanoisa/test_nanoisa_dump
 
@@ -724,10 +733,71 @@ test-row-poly: build
 	@echo "Running row-polymorphic records tests..."
 	@bash scripts/check_shadow_tests.sh tests/test_row_poly.nano
 
+.PHONY: test-bcp47
+test-bcp47:
+	@echo "Running BCP 47 locale tag tests..."
+	$(CC) $(CFLAGS) -o tests/test_bcp47 tests/test_bcp47.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c
+	@./tests/test_bcp47
+	@rm -f tests/test_bcp47
+
+.PHONY: test-locale-cli
+test-locale-cli: $(COMPILER_C)
+	@echo "Running nanoc locale CLI tests..."
+	@bash tests/test_locale_cli.sh $(COMPILER_C)
+
+.PHONY: test-utf8
+test-utf8:
+	@echo "Running UTF-8 walker and diagnostic-id tests..."
+	$(CC) $(CFLAGS) -o tests/test_utf8 tests/test_utf8.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c
+	@./tests/test_utf8
+	@rm -f tests/test_utf8
+
+.PHONY: test-catalog
+test-catalog:
+	@echo "Running message-catalog tests..."
+	$(CC) $(CFLAGS) -o tests/test_catalog tests/test_catalog.c \
+		$(SRC_DIR)/catalog.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/utf8.c \
+		$(SRC_DIR)/cJSON.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c
+	@./tests/test_catalog
+	@rm -f tests/test_catalog
+
+.PHONY: test-log-utf8
+test-log-utf8:
+	@echo "Running log UTF-8 and event-id tests..."
+	$(CC) $(CFLAGS) -o tests/test_log_utf8 tests/test_log_utf8.c \
+		modules/std/log/log.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c
+	@./tests/test_log_utf8
+	@rm -f tests/test_log_utf8
+
+.PHONY: test-src-utf8
+test-src-utf8: $(COMPILER_C)
+	@echo "Running nanoc source UTF-8 tests..."
+	@bash tests/test_src_utf8.sh $(COMPILER_C)
+
+.PHONY: test-locale-catalog
+test-locale-catalog: $(COMPILER_C)
+	@echo "Running localized catalog stderr tests..."
+	@bash tests/test_locale_catalog.sh $(COMPILER_C)
+
+.PHONY: test-i18n-scripts
+test-i18n-scripts: $(COMPILER_C) nano_virt nano_vm
+	@echo "Running six-script source through C and NanoVM..."
+	@bash tests/test_i18n_scripts.sh $(COMPILER_C)
+
+.PHONY: test-unicode-ffi
+test-unicode-ffi:
+	@echo "Running unicode FFI tests..."
+	@pkg-config --exists libutf8proc
+	$(CC) $(CFLAGS) $$(pkg-config --cflags libutf8proc) -o tests/test_unicode_ffi \
+		tests/test_unicode_ffi.c modules/unicode/unicode_ffi.c \
+		$$(pkg-config --libs libutf8proc)
+	@./tests/test_unicode_ffi
+	@rm -f tests/test_unicode_ffi
+
 .PHONY: test-nl-string
-test-nl-string: stage1
+test-nl-string: $(OBJ_DIR)/runtime/nl_string.o $(OBJ_DIR)/utf8.o
 	@echo "Running nl_string unit tests..."
-	$(CC) $(CFLAGS) -o tests/test_nl_string tests/test_nl_string.c $(OBJ_DIR)/runtime/nl_string.o $(LDFLAGS)
+	$(CC) $(CFLAGS) -o tests/test_nl_string tests/test_nl_string.c $(OBJ_DIR)/runtime/nl_string.o $(OBJ_DIR)/utf8.o $(LDFLAGS)
 	@./tests/test_nl_string
 	@rm -f tests/test_nl_string
 
@@ -791,108 +861,108 @@ test-dyn-array: stage1
 	@rm -f tests/test_dyn_array
 
 .PHONY: test-verifier
-test-verifier: $(NANOISA_OBJECTS)
+test-verifier: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NVM verifier tests..."
 	$(CC) $(CFLAGS) -o tests/nanoisa/test_verifier \
-		tests/nanoisa/test_verifier.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_verifier.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_verifier
 	@rm -f tests/nanoisa/test_verifier
 
 .PHONY: test-nvm-v2-imports
-test-nvm-v2-imports: $(NANOISA_OBJECTS)
+test-nvm-v2-imports: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 IMPORTS/LINKS/METADATA/DEBUG tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_imports \
-		tests/nanoisa/test_nvm_v2_imports.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_imports.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_imports
 	@rm -f tests/nanoisa/test_nvm_v2_imports
 
 .PHONY: test-nvm-v2-module
-test-nvm-v2-module: $(NANOISA_OBJECTS)
+test-nvm-v2-module: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 whole-module serialization tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_module \
-		tests/nanoisa/test_nvm_v2_module.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_module.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_module
 	@rm -f tests/nanoisa/test_nvm_v2_module
 
 .PHONY: test-nvm-v2-convert
-test-nvm-v2-convert: $(NANOISA_OBJECTS)
+test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v1<->v2 bridge tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_convert \
-		tests/nanoisa/test_nvm_v2_convert.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_convert.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_convert
 	@rm -f tests/nanoisa/test_nvm_v2_convert
 
 .PHONY: test-nvm-v2-endtoend
-test-nvm-v2-endtoend: $(NANOISA_OBJECTS)
+test-nvm-v2-endtoend: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 emit/load end-to-end tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Imodules/nanoisa \
 		-o tests/nanoisa/test_nvm_v2_endtoend \
 		tests/nanoisa/test_nvm_v2_endtoend.c \
-		$(NANOISA_OBJECTS) $(LDFLAGS)
+		$(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_endtoend
 	@rm -f tests/nanoisa/test_nvm_v2_endtoend
 
 .PHONY: test-disasm-roundtrip
-test-disasm-roundtrip: $(NANOISA_OBJECTS)
+test-disasm-roundtrip: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running canonical disassembly round-trip tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_disasm_roundtrip \
-		tests/nanoisa/test_disasm_roundtrip.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_disasm_roundtrip.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_disasm_roundtrip
 	@rm -f tests/nanoisa/test_disasm_roundtrip
 
 .PHONY: test-nvm-v2-functions
-test-nvm-v2-functions: $(NANOISA_OBJECTS)
+test-nvm-v2-functions: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 FUNCTIONS and GLOBALS section tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_functions \
-		tests/nanoisa/test_nvm_v2_functions.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_functions.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_functions
 	@rm -f tests/nanoisa/test_nvm_v2_functions
 
 .PHONY: test-nvm-v2-layouts
-test-nvm-v2-layouts: $(NANOISA_OBJECTS)
+test-nvm-v2-layouts: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 LAYOUTS section tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_layouts \
-		tests/nanoisa/test_nvm_v2_layouts.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_layouts.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_layouts
 	@rm -f tests/nanoisa/test_nvm_v2_layouts
 
 .PHONY: test-nvm-v2-signatures
-test-nvm-v2-signatures: $(NANOISA_OBJECTS)
+test-nvm-v2-signatures: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 SIGNATURES section tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_signatures \
-		tests/nanoisa/test_nvm_v2_signatures.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_signatures.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_signatures
 	@rm -f tests/nanoisa/test_nvm_v2_signatures
 
 .PHONY: test-nvm-v2-constants
-test-nvm-v2-constants: $(NANOISA_OBJECTS)
+test-nvm-v2-constants: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 CONSTANTS section tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_constants \
-		tests/nanoisa/test_nvm_v2_constants.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_constants.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_constants
 	@rm -f tests/nanoisa/test_nvm_v2_constants
 
 .PHONY: test-nvm-v2-cursor
-test-nvm-v2-cursor: $(NANOISA_OBJECTS)
+test-nvm-v2-cursor: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 section-cursor tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_cursor \
-		tests/nanoisa/test_nvm_v2_cursor.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_v2_cursor.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_cursor
 	@rm -f tests/nanoisa/test_nvm_v2_cursor
 
 .PHONY: test-nvm-format-v2
-test-nvm-format-v2: $(NANOISA_OBJECTS)
+test-nvm-format-v2: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA v2 container tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_format_v2 \
-		tests/nanoisa/test_nvm_format_v2.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_nvm_format_v2.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_format_v2
 	@rm -f tests/nanoisa/test_nvm_format_v2
 
 .PHONY: test-fuzz-malformed
-test-fuzz-malformed: $(NANOISA_OBJECTS)
+test-fuzz-malformed: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA malformed-bytecode / fuzz tests..."
 	$(CC) $(CFLAGS) -o tests/nanoisa/test_fuzz_malformed \
-		tests/nanoisa/test_fuzz_malformed.c $(NANOISA_OBJECTS) $(LDFLAGS)
+		tests/nanoisa/test_fuzz_malformed.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_fuzz_malformed
 	@rm -f tests/nanoisa/test_fuzz_malformed
 
@@ -958,8 +1028,14 @@ test-forth-pty: $(BIN_DIR)/forth
 	@./tests/forth/test_forth_pty_repl
 	@rm -f tests/forth/test_forth_pty_repl
 
+.PHONY: test-forth-ide-smoke
+test-forth-ide-smoke: $(BIN_DIR)/forth
+	@echo "Running Forth IDE build and graphical smoke..."
+	@chmod +x tests/test_forth_ide_smoke.sh
+	@bash tests/test_forth_ide_smoke.sh
+
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1031,6 +1107,244 @@ test-forth-jackson: $(BIN_DIR)/forth $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOIS
 	@$(TIMEOUT_CMD) bash tests/test_forth_jackson.sh
 	@rm -f tests/forth/test_forth_include_gap
 
+# Load Jackson Core evidence through C file-source REFILL. Does not claim
+# File Access. Fails if any Core case fails. I still do not claim Core as a banner.
+.PHONY: test-forth-core
+test-forth-core: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Core via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Core Ext after Core evidence. Not Core. Not a Standard System.
+.PHONY: test-forth-coreext
+test-forth-coreext: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Core Ext via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/coreexttest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Exception after Core evidence. Not File Access. Not a Standard System.
+.PHONY: test-forth-exception
+test-forth-exception: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Exception via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/exceptiontest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Double after Core evidence. Not a Standard System.
+.PHONY: test-forth-double
+test-forth-double: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Double via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/doubletest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson String after Core evidence. Not a Standard System.
+.PHONY: test-forth-string
+test-forth-string: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson String via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/stringtest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson File Access after Core evidence and Core Ext helpers. Not a Standard System.
+.PHONY: test-forth-file
+test-forth-file: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson File Access via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/coreexttest.fth \
+		tests/forth/vendor/gerryjackson/src/filetest.fth
+	@rm -f tests/forth/test_forth_core_load fatest1.txt FATEST2.TXT fatest3.txt
+
+# Load Jackson Memory-Allocation after Core evidence. Not a Standard System.
+.PHONY: test-forth-memory
+test-forth-memory: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Memory-Allocation via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/memorytest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Locals after Core evidence. Not a Standard System.
+.PHONY: test-forth-locals
+test-forth-locals: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Locals via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/localstest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Facility after Core evidence. Not a Standard System.
+.PHONY: test-forth-facility
+test-forth-facility: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Facility via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/facilitytest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Programming Tools after Core evidence. Not a Standard System.
+.PHONY: test-forth-tools
+test-forth-tools: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Programming Tools via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/toolstest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Floating-Point after Core evidence. Not a Standard System.
+.PHONY: test-forth-float
+test-forth-float: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Floating-Point via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/fp/ak-fp-test.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Block after Core evidence. Not a Standard System.
+# Disposable RAM image; Jackson overwrites blocks 20-29.
+.PHONY: test-forth-block
+test-forth-block: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Block via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/blocktest.fth
+	@rm -f tests/forth/test_forth_core_load
+
+# 280 T{ cases in examples/language/forth/ via Jackson tester.fr. Not Core.
+.PHONY: test-forth-examples
+test-forth-examples: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running 280 example T{ cases via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		examples/language/forth/session_prelude.fs \
+		examples/language/forth/test_arithmetic.fs \
+		examples/language/forth/test_stack.fs \
+		examples/language/forth/test_compare.fs \
+		examples/language/forth/test_bitwise.fs \
+		examples/language/forth/test_memory.fs \
+		examples/language/forth/test_rstack.fs \
+		examples/language/forth/test_control.fs \
+		examples/language/forth/test_words.fs \
+		examples/language/forth/test_base.fs
+	@rm -f tests/forth/test_forth_core_load
+
+# Load Jackson Search Order after Core evidence. Not a Standard System.
+.PHONY: test-forth-searchorder
+test-forth-searchorder: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Search Order via C file-source REFILL..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_core_load \
+		tests/forth/test_forth_core_load.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/forth/test_forth_core_load \
+		tests/forth/vendor/gerryjackson/src/prelimtest.fth \
+		tests/forth/vendor/gerryjackson/src/tester.fr \
+		tests/forth/vendor/gerryjackson/src/core.fr \
+		tests/forth/vendor/gerryjackson/src/coreplustest.fth \
+		tests/forth/vendor/gerryjackson/src/errorreport.fth \
+		tests/forth/vendor/gerryjackson/src/utilities.fth \
+		tests/forth/vendor/gerryjackson/src/searchordertest.fth
+	@rm -f tests/forth/test_forth_core_load
+
 # Module validator: keg-only pkg-config prefixes and Darwin/brew hints.
 # scripts/validate-modules.sh is `make modules`; this pins the two macOS
 # lies it used to tell (missing readline, apt-get remediation).
@@ -1101,6 +1415,10 @@ test-ringbuf:
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
+	@$(MAKE) --no-print-directory test-locale-cli
+	@$(MAKE) --no-print-directory test-src-utf8
+	@$(MAKE) --no-print-directory test-locale-catalog
+	@$(MAKE) --no-print-directory test-i18n-scripts
 	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
 	@echo ""
 	@echo "=========================================="
@@ -1155,8 +1473,53 @@ test-impl: test-units
 	@echo "Checking Jackson Forth-2012 vendor pin and INCLUDE gap..."
 	@$(MAKE) --no-print-directory test-forth-jackson
 	@echo ""
+	@echo "Checking Jackson Core evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-core
+	@echo ""
+	@echo "Checking Jackson Core Ext evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-coreext
+	@echo ""
+	@echo "Checking Jackson Exception evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-exception
+	@echo ""
+	@echo "Checking Jackson Double evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-double
+	@echo ""
+	@echo "Checking Jackson String evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-string
+	@echo ""
+	@echo "Checking Jackson Search Order evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-searchorder
+	@echo ""
+	@echo "Checking Jackson File Access evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-file
+	@echo ""
+	@echo "Checking Jackson Memory-Allocation evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-memory
+	@echo ""
+	@echo "Checking Jackson Locals evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-locals
+	@echo ""
+	@echo "Checking Jackson Facility evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-facility
+	@echo ""
+	@echo "Checking Jackson Programming Tools evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-tools
+	@echo ""
+	@echo "Checking Jackson Floating-Point evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-float
+	@echo ""
+	@echo "Checking Jackson Block evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-block
+	@echo ""
+	@echo "Checking 280 example T{ cases via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-examples
+	@echo ""
 	@echo "Checking Forth IDE PTY interpreter liveness..."
 	@$(MAKE) --no-print-directory test-forth-pty
+	@echo ""
+	@echo "Checking Forth IDE build and graphical smoke..."
+	@$(MAKE) --no-print-directory test-forth-ide-smoke
 	@echo ""
 	@echo "Testing language examples under the tree-walking interpreter..."
 	@$(MAKE) --no-print-directory test-interpreter-examples
@@ -1485,6 +1848,22 @@ test-quick: build
 	@$(MAKE) --no-print-directory check-stdlib-docs
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@$(MAKE) --no-print-directory test-forth-jackson
+	@$(MAKE) --no-print-directory test-forth-core
+	@$(MAKE) --no-print-directory test-forth-coreext
+	@$(MAKE) --no-print-directory test-forth-exception
+	@$(MAKE) --no-print-directory test-forth-double
+	@$(MAKE) --no-print-directory test-forth-string
+	@$(MAKE) --no-print-directory test-forth-searchorder
+	@$(MAKE) --no-print-directory test-forth-file
+	@$(MAKE) --no-print-directory test-forth-memory
+	@$(MAKE) --no-print-directory test-forth-locals
+	@$(MAKE) --no-print-directory test-forth-facility
+	@$(MAKE) --no-print-directory test-forth-tools
+	@$(MAKE) --no-print-directory test-forth-float
+	@$(MAKE) --no-print-directory test-forth-block
+	@$(MAKE) --no-print-directory test-forth-examples
+	@$(MAKE) --no-print-directory test-forth-pty
+	@$(MAKE) --no-print-directory test-forth-ide-smoke
 	@$(MAKE) --no-print-directory test-interpreter-examples
 	@$(MAKE) --no-print-directory test-nanoc-bench
 	@$(MAKE) --no-print-directory test-bench
@@ -1824,8 +2203,8 @@ $(DAP_SERVER): $(DAP_OBJECTS) | $(BIN_DIR)
 .PHONY: dap
 dap: $(DAP_SERVER)
 
-$(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(LDFLAGS)
+$(FFI_BINDGEN): $(OBJ_DIR)/ffi_bindgen.o $(OBJ_DIR)/utf8.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(FFI_BINDGEN) $(OBJ_DIR)/ffi_bindgen.o $(OBJ_DIR)/utf8.o $(LDFLAGS)
 
 $(BIN_DIR)/nano_lint: tools/nano_lint.nano | $(BIN_DIR)
 	@$(TIMEOUT_CMD) $(COMPILER) tools/nano_lint.nano -o $(BIN_DIR)/nano_lint
@@ -2470,8 +2849,32 @@ help:
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
 	@echo "  make test-forth-jackson - Jackson v0.15.0 vendor pin and INCLUDE/file-access gap"
+	@echo "  make test-forth-core    - Jackson Core evidence via C file-source REFILL"
+	@echo "  make test-forth-coreext - Jackson Core Ext via C file-source REFILL"
+	@echo "  make test-forth-exception - Jackson Exception via C file-source REFILL"
+	@echo "  make test-forth-double - Jackson Double via C file-source REFILL"
+	@echo "  make test-forth-string - Jackson String via C file-source REFILL"
+	@echo "  make test-forth-searchorder - Jackson Search Order via C file-source REFILL"
+	@echo "  make test-forth-file   - Jackson File Access via C file-source REFILL"
+	@echo "  make test-forth-memory - Jackson Memory-Allocation via C file-source REFILL"
+	@echo "  make test-forth-locals - Jackson Locals via C file-source REFILL"
+	@echo "  make test-forth-facility - Jackson Facility via C file-source REFILL"
+	@echo "  make test-forth-tools - Jackson Programming Tools via C file-source REFILL"
+	@echo "  make test-forth-float - Jackson Floating-Point via C file-source REFILL"
+	@echo "  make test-forth-block - Jackson Block via C file-source REFILL (disposable RAM image)"
+	@echo "  make test-forth-examples - 280 example T{ cases via Jackson tester.fr"
 	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
 	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
+	@echo "  make test-forth-ide-smoke - compile sdl_forth_ide; xvfb init when available"
+	@echo "  make test-bcp47       - BCP 47 parse, fallback, and process-locale resolve"
+	@echo "  make test-locale-cli  - nanoc --locale / --print-locale"
+	@echo "  make test-utf8        - RFC 3629 walker and pipeline diagnostic ids"
+	@echo "  make test-catalog     - UTF-8 catalogs, fallback, format, completeness"
+	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
+	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"
+	@echo "  make test-locale-catalog - six-language catalog stderr vs English JSON"
+	@echo "  make test-unicode-ffi - grapheme, NFC/NFD, casefold, display width"
+	@echo "  make test-src-utf8    - nanoc rejects invalid UTF-8 source (CSRC01)"
 	@echo "  make test-interpreter-examples - Language examples under bin/nano"
 	@echo "  make test-nanoc-bench  - nanoc --bench writes non-zero ns/op"
 	@echo "  make test-bench        - bench_native_run calls the interpreter"

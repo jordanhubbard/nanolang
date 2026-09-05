@@ -70,8 +70,10 @@ if "I am not a Forth 2012 Standard System" not in doc:
     errors.append("docs/FORTH_2012.md dropped the non-conformance sentence")
 if "I do not claim Core" not in doc:
     errors.append("docs/FORTH_2012.md must say I do not claim Core")
-if "INCLUDE and INCLUDED are not Forth words" not in doc:
-    errors.append("docs/FORTH_2012.md missing the INCLUDE gap sentence")
+if "Core evidence files still load through C `REFILL`" not in doc:
+    errors.append("docs/FORTH_2012.md missing C REFILL Core evidence sentence")
+if "I do not run `runtests.fth` as the Core gate" not in doc:
+    errors.append("docs/FORTH_2012.md missing runtests.fth Core-gate sentence")
 if "forth_file_open" not in doc or "forth_source_push_file" not in doc:
     errors.append("docs/FORTH_2012.md missing C file-source helpers in the gap")
 if "Standard System" in doc and "I am not a Forth 2012 Standard System" not in doc:
@@ -229,21 +231,17 @@ else
     else
         pass "bin/forth is bin/nano_forth"
     fi
-    repl_out=$(printf 'INCLUDED\nBYE\n' | perl -e 'alarm 15; exec @ARGV' "$FORTH" --interactive 2>&1 || true)
+    repl_out=$(printf 'BYE\n' | perl -e 'alarm 15; exec @ARGV' "$FORTH" --interactive 2>&1 || true)
     if printf '%s' "$repl_out" | grep -q 'Forth 2012 Standard System'; then
         fail_msg "REPL claimed a Standard System"
-    fi
-    if printf '%s' "$repl_out" | grep -q ' ?'; then
-        pass "interactive INCLUDED is unknown"
     else
-        fail_msg "interactive INCLUDED did not print ?"
-        printf '%s\n' "$repl_out"
+        pass "interactive REPL does not claim a Standard System"
     fi
 fi
 
 echo
 if [ "$fail" -eq 0 ]; then
-    echo "Jackson vendor, INCLUDE gap, and coverage checks passed. I do not claim Core."
+    echo "Jackson vendor, Core-evidence classification, and coverage checks passed. I do not claim Core."
     exit 0
 fi
 echo "$fail Jackson Core-suite check(s) failed."

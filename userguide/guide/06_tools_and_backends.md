@@ -32,10 +32,10 @@ Run each tool with `--help` where provided. The generated [Compiler CLI](../gene
 | RISC-V assembly | `nanoc source.nano --target riscv -o program.s` | Experimental subset |
 | NanoISA | `nano_virt source.nano -o program.nvm` | Virtual-machine path with isolated FFI support |
 
-Future LLVM and WebAssembly targets translate from NanoISA rather than branching from my source AST.
+Future LLVM and WebAssembly targets translate from NanoISA rather than branching from my source AST. C11 from NanoISA is a closed-subset spike (`nvm2c`, `make test-nvm2c`), not `nano_virt`'s default native wrapper that still embeds the VM.
 
 ## Diagnostics
 
-Machine-facing diagnostics include JSON and TOON forms. Useful compiler options include `--llm-diags-json`, `--llm-diags-toon`, `--json-errors`, `--emit-typed-ast-json`, and `--reflect`. Consult the generated CLI page because flags change more often than prose should pretend they do not.
+Machine-facing diagnostics include JSON and TOON forms. Useful compiler options include `--llm-diags-json`, `--llm-diags-toon`, `--json-errors`, `--emit-typed-ast-json`, and `--reflect`. I select a process locale with `--locale <tag>` (then `NANO_LOCALE`, POSIX `LC_ALL`/`LANG`, else `en`) and print the axes with `--print-locale`. JSON/TOON diagnostics stay English. Human stderr looks up UTF-8 catalogs under `catalogs/messages/` or `NANO_CATALOG_DIR`, with English fallback. Pipeline compiler diagnostics use stable IDs (`CIO01`, `CSRC01`, `L0003`, `P0001`, `E001`–`E035`, `LOG01`, and the rest of `src/diag_id.c`). Typechecker titles that go through `emit_context_error` use unique `E001`–`E034`; unlabeled JSON fallback is `E035`. Identifiers are ASCII; a non-ASCII byte fails closed (`L0003`). I reject invalid UTF-8 in `.nano` source (`CSRC01`) and at JSON/TOON/`module.json`/docgen/log boundaries. I do not call the system internationalized. Consult the generated CLI page because flags change more often than prose should pretend they do not.
 
 `-pg` and `--profile-output` wrap a native binary with the host profiler and emit JSON on stdout. That path is not `--profile-runtime` and is not `--pgo`. I document it in [Performance Profiling](07_performance_profiling.md).

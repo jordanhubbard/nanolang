@@ -272,4 +272,101 @@ shadow diag_list_get {
     assert (== retrieved.code "E001")
 }
 
+/* Pipeline diagnostic ids. Dual of src/diag_id.c. English is a lookup.
+ * Typechecker titles that reuse E003 are not in this table. */
+
+pub fn diag_id_io_open() -> string { return "CIO01" }
+pub fn diag_id_lex_failed() -> string { return "CLEX01" }
+pub fn diag_id_parse_failed() -> string { return "CPARSE01" }
+pub fn diag_id_import_failed() -> string { return "CIMPORT01" }
+pub fn diag_id_type_failed() -> string { return "CTYPE01" }
+pub fn diag_id_mod_compile() -> string { return "CMOD01" }
+pub fn diag_id_shadow_failed() -> string { return "CSHADOW01" }
+pub fn diag_id_trans_failed() -> string { return "CTRANS01" }
+pub fn diag_id_c_temp() -> string { return "CC01" }
+pub fn diag_id_cc_cmd() -> string { return "CCC02" }
+pub fn diag_id_cc_failed() -> string { return "CCC01" }
+pub fn diag_id_src_utf8() -> string { return "CSRC01" }
+
+pub fn diag_en(code: string) -> string {
+    if (== code "CIO01") { return "Could not open input file" } else { (print "") }
+    if (== code "CLEX01") { return "Lexing failed" } else { (print "") }
+    if (== code "CPARSE01") { return "Parsing failed" } else { (print "") }
+    if (== code "CIMPORT01") { return "Module loading failed" } else { (print "") }
+    if (== code "CTYPE01") { return "Type checking failed" } else { (print "") }
+    if (== code "CMOD01") { return "Failed to compile imported modules" } else { (print "") }
+    if (== code "CSHADOW01") { return "Shadow tests failed" } else { (print "") }
+    if (== code "CTRANS01") { return "Transpilation failed" } else { (print "") }
+    if (== code "CC01") { return "Could not create temporary C file" } else { (print "") }
+    if (== code "CCC02") { return "C compile command too long" } else { (print "") }
+    if (== code "CCC01") { return "C compilation failed" } else { (print "") }
+    if (== code "CSRC01") { return "Source is not valid UTF-8" } else { (print "") }
+    if (== code "CAT01") { return "Missing catalog key" } else { (print "") }
+    if (== code "L0003") { return "Unknown byte; identifiers are ASCII" } else { (print "") }
+    if (== code "L0004") { return "Unterminated string" } else { (print "") }
+    if (== code "L0005") { return "Unterminated f-string" } else { (print "") }
+    if (== code "L0006") { return "Unclosed '{' in f-string" } else { (print "") }
+    if (== code "L0007") { return "Unterminated character literal" } else { (print "") }
+    if (== code "L0008") { return "Incomplete escape sequence" } else { (print "") }
+    if (== code "P0001") { return "Parsing error" } else { (print "") }
+    if (== code "P0002") { return "Invalid token array" } else { (print "") }
+    if (== code "LOG01") { return "log" } else { (print "") }
+    return code
+}
+
+shadow diag_id_io_open {
+    assert (== (diag_id_io_open) "CIO01")
+}
+
+shadow diag_id_lex_failed {
+    assert (== (diag_id_lex_failed) "CLEX01")
+}
+
+shadow diag_id_parse_failed {
+    assert (== (diag_id_parse_failed) "CPARSE01")
+}
+
+shadow diag_id_import_failed {
+    assert (== (diag_id_import_failed) "CIMPORT01")
+}
+
+shadow diag_id_type_failed {
+    assert (== (diag_id_type_failed) "CTYPE01")
+}
+
+shadow diag_id_mod_compile {
+    assert (== (diag_id_mod_compile) "CMOD01")
+}
+
+shadow diag_id_shadow_failed {
+    assert (== (diag_id_shadow_failed) "CSHADOW01")
+}
+
+shadow diag_id_trans_failed {
+    assert (== (diag_id_trans_failed) "CTRANS01")
+}
+
+shadow diag_id_c_temp {
+    assert (== (diag_id_c_temp) "CC01")
+}
+
+shadow diag_id_cc_cmd {
+    assert (== (diag_id_cc_cmd) "CCC02")
+}
+
+shadow diag_id_cc_failed {
+    assert (== (diag_id_cc_failed) "CCC01")
+}
+
+shadow diag_id_src_utf8 {
+    assert (== (diag_id_src_utf8) "CSRC01")
+}
+
+shadow diag_en {
+    assert (== (diag_en "CSRC01") "Source is not valid UTF-8")
+    assert (== (diag_en "CIO01") "Could not open input file")
+    assert (== (diag_en "L0003") "Unknown byte; identifiers are ASCII")
+    assert (== (diag_en "nope") "nope")
+}
+
 /* Note: This module is designed to be imported, not run standalone */

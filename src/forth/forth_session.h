@@ -156,6 +156,8 @@ bool forth_import_declare(ForthSession *session, const char *module_name,
                           ForthNt *nt);
 char *forth_see(const ForthSession *session, ForthXt xt);
 bool forth_interpret(ForthSession *session, const uint8_t *text, uint32_t len);
+bool forth_interpret_loop(ForthSession *session);
+bool forth_interpret_file(ForthSession *session, const char *path);
 bool forth_exit_requested(const ForthSession *session);
 bool forth_colon_finish(ForthSession *session, ForthNt *nt);
 bool forth_colon_abort(ForthSession *session);
