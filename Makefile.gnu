@@ -1019,6 +1019,26 @@ test-forth-gforth-diff:
 	@chmod +x tests/test_forth_gforth_diff.sh
 	@bash tests/test_forth_gforth_diff.sh
 
+# Jackson Core is intentionally outside test-quick until it passes. The full
+# implementation gate runs it and fails rather than hiding a missing word set.
+.PHONY: test-forth-jackson
+test-forth-jackson:
+	@if [ ! -f tests/forth/vendor/gerryjackson/runtests.fth ]; then \
+		echo "test-forth-jackson: vendor missing: tests/forth/vendor/gerryjackson/runtests.fth" >&2; \
+		exit 1; \
+	fi
+	@$(MAKE) --no-print-directory $(BIN_DIR)/forth
+	@probe=$$(mktemp "$${TMPDIR:-/tmp}/nano-forth-included.XXXXXX"); \
+	trap 'rm -f "$$probe"' EXIT; \
+	output=$$(printf 'S" %s" INCLUDED BYE\n' "$$probe" | \
+		$(TIMEOUT_CMD) ./$(BIN_DIR)/forth --interactive 2>&1) || { printf '%s\n' "$$output"; exit 1; }; \
+	if printf '%s\n' "$$output" | grep -q ' ?'; then \
+		echo "test-forth-jackson: missing Forth INCLUDE/file-access support: INCLUDED cannot load a file" >&2; \
+		exit 1; \
+	fi
+	@printf 'S" %s" INCLUDED BYE\n' "$(abspath tests/forth/vendor/gerryjackson/runtests.fth)" | \
+		$(TIMEOUT_CMD) ./$(BIN_DIR)/forth --interactive
+
 # Module validator: keg-only pkg-config prefixes and Darwin/brew hints.
 # scripts/validate-modules.sh is `make modules`; this pins the two macOS
 # lies it used to tell (missing readline, apt-get remediation).
@@ -1139,6 +1159,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Checking Forth 2012 pins and Gforth differential runs..."
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@echo ""
+	@echo "Checking Jackson Forth 2012 Core..."
+	@$(MAKE) --no-print-directory test-forth-jackson
 	@echo ""
 	@echo "Checking Forth IDE PTY interpreter liveness..."
 	@$(MAKE) --no-print-directory test-forth-pty
@@ -2453,6 +2476,7 @@ help:
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
+	@echo "  make test-forth-jackson - Run pinned Jackson Forth 2012 Core via INCLUDED"
 	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
 	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
 	@echo "  make test-interpreter-examples - Language examples under bin/nano"
