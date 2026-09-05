@@ -1,0 +1,507 @@
+# Example: Nano Emacs
+# Purpose: Windowed SDL editor with NanoLang as the extension language
+# Features: ui_widgets, source_editor, nano_eval, Emacs keys, minibuffer
+# Difficulty: Advanced
+# Category: emacs
+# Prerequisites: sdl_ui_widgets_extended, source_editor
+# Track: showcase
+# Build: graphical, external-deps
+# Dependencies: SDL2, SDL2_ttf, modules/ui_widgets, modules/nano_eval
+# Tags: graphical, editor, native-only
+# Expected Output: graphical
+#
+# I edit text in a native window. C-x C-e evaluates NanoLang in a persistent
+# tree-walker session. Host primitives (ed_insert, ed_message, ...) queue
+# work that I apply after eval returns. I am not GNU Emacs.
+
+unsafe module "modules/sdl/sdl.nano"
+unsafe module "modules/sdl_helpers/sdl_helpers.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf.nano"
+unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
+module "modules/ui_widgets/ui_widgets.nano"
+module "modules/nano_eval/nano_eval.nano"
+from "modules/std/env.nano" import get as env_get
+from "examples/lib/source_editor.nano" import EditorState, editor_save, editor_insert_char, editor_insert_newline, editor_delete_char, editor_move_cursor, editor_scroll_to_cursor, editor_get_content
+module "examples/emacs/emacs_keys.nano"
+module "examples/emacs/emacs_buffer.nano"
+
+let WIN_W: int = 1280
+let WIN_H: int = 800
+let TOP_H: int = 40
+let MINI_H: int = 32
+let MODE_H: int = 22
+let FONT_PT: int = 14
+let LINE_H: int = 18
+let GUTTER: int = 6
+let CELL_W: int = 8
+let MINI_NONE: int = 0
+let MINI_FIND: int = 1
+let MINI_EVAL: int = 2
+let MINI_MX: int = 3
+
+struct EvalResult {
+    ed: EditorState,
+    text: string,
+    err: string
+}
+
+fn current_line(ed: EditorState) -> string {
+    if (>= ed.cursor_row (array_length ed.lines)) {
+        return ""
+    }
+    return (at ed.lines ed.cursor_row)
+}
+
+shadow current_line {
+    let ed: EditorState = (emacs_scratch)
+    assert (== (current_line ed) "")
+}
+
+fn load_file_source(path: string) -> string {
+    let visited: EditorState = (editor_visit path)
+    if (== visited.file_path path) {
+        if visited.modified {
+            return ""
+        }
+        return (editor_get_content visited)
+    }
+    return ""
+}
+
+shadow load_file_source {
+    assert (== (load_file_source "/no/such/nano_emacs_init") "")
+}
+
+fn eval_source(session: int, ed: EditorState, source: string) -> EvalResult {
+    (nano_eval_bind_buffer session (editor_get_content ed) (editor_point ed))
+    let text: string = (nano_eval_string session source)
+    let err: string = (nano_eval_error session)
+    let new_text: string = (nano_eval_buffer session)
+    let new_point: int = (nano_eval_point session)
+    let changed: bool = (not (== new_text (editor_get_content ed)))
+    let new_ed: EditorState = (editor_from_text new_text new_point ed.file_path (or ed.modified changed))
+    return EvalResult { ed: new_ed, text: text, err: err }
+}
+
+shadow eval_source {
+    assert true
+}
+
+fn eval_echo(ev: EvalResult) -> string {
+    if (> (str_length ev.err) 0) {
+        return ev.err
+    }
+    return (+ "=> " ev.text)
+}
+
+shadow eval_echo {
+    let ed: EditorState = (emacs_scratch)
+    let ev: EvalResult = EvalResult { ed: ed, text: "3", err: "" }
+    assert (== (eval_echo ev) "=> 3")
+}
+
+fn is_scratch(path: string) -> bool {
+    return (== path "*scratch*")
+}
+
+shadow is_scratch {
+    assert (is_scratch "*scratch*")
+    assert (not (is_scratch "a.nano"))
+}
+
+fn mx_is_find(name: string) -> bool {
+    return (== name "find-file")
+}
+
+shadow mx_is_find {
+    assert (mx_is_find "find-file")
+    assert (not (mx_is_find "save-buffer"))
+}
+
+fn mx_is_save(name: string) -> bool {
+    return (== name "save-buffer")
+}
+
+shadow mx_is_save {
+    assert (mx_is_save "save-buffer")
+}
+
+fn mx_is_eval(name: string) -> bool {
+    return (== name "eval-last-sexp")
+}
+
+shadow mx_is_eval {
+    assert (mx_is_eval "eval-last-sexp")
+}
+
+fn wrap_call(name: string) -> string {
+    return (+ "(" (+ name ")"))
+}
+
+shadow wrap_call {
+    assert (== (wrap_call "greet") "(greet)")
+}
+
+fn move_by_cmd(ed: EditorState, cmd: int) -> EditorState {
+    if (== cmd CMD_NEXT_LINE) { return (editor_move_cursor ed 1 0) }
+    if (== cmd CMD_PREV_LINE) { return (editor_move_cursor ed -1 0) }
+    if (== cmd CMD_FORWARD) { return (editor_move_cursor ed 0 1) }
+    if (== cmd CMD_BACKWARD) { return (editor_move_cursor ed 0 -1) }
+    if (== cmd CMD_BOL) { return (editor_move_cursor ed 0 (- 0 ed.cursor_col)) }
+    if (== cmd CMD_EOL) { return (editor_move_cursor ed 0 (- (line_end_col ed) ed.cursor_col)) }
+    if (== cmd CMD_BACKSPACE) { return (editor_delete_char ed) }
+    if (== cmd CMD_NEWLINE) { return (editor_insert_newline ed) }
+    if (== cmd CMD_PAGE_DOWN) { return (editor_move_cursor ed 16 0) }
+    if (== cmd CMD_PAGE_UP) { return (editor_move_cursor ed -16 0) }
+    if (== cmd CMD_DELETE) {
+        return (editor_delete_char (editor_move_cursor ed 0 1))
+    }
+    return ed
+}
+
+shadow move_by_cmd {
+    let ed: EditorState = (emacs_scratch)
+    let moved: EditorState = (move_by_cmd ed CMD_NEXT_LINE)
+    assert (== moved.cursor_row 0)
+}
+
+fn click_row(ed: EditorState, pane_y: int, click_py: int) -> EditorState {
+    let row: int = (+ ed.scroll_offset (/ (- click_py pane_y) LINE_H))
+    return (editor_move_cursor ed (- row ed.cursor_row) 0)
+}
+
+shadow click_row {
+    let ed: EditorState = (emacs_scratch)
+    let moved: EditorState = (click_row ed 40 40)
+    assert (== moved.cursor_row 0)
+}
+
+fn draw_buffer(renderer: SDL_Renderer, font: TTF_Font, ed: EditorState, x: int, y: int, w: int, h: int) -> void {
+    (nl_ui_panel renderer x y w h 18 18 22 255)
+    let vis: int = (/ h LINE_H)
+    let mut i: int = 0
+    while (< i vis) {
+        let row: int = (+ ed.scroll_offset i)
+        if (< row (array_length ed.lines)) {
+            let line: string = (at ed.lines row)
+            let py: int = (+ y (* i LINE_H))
+            if (== row ed.cursor_row) {
+                (nl_ui_panel renderer x py w LINE_H 32 40 55 255)
+            }
+            (nl_ui_label renderer font line (+ x GUTTER) py 210 210 220 255)
+            if (== row ed.cursor_row) {
+                let cx: int = (+ (+ x GUTTER) (* ed.cursor_col CELL_W))
+                (nl_ui_panel renderer cx py 2 LINE_H 230 200 80 255)
+            }
+        }
+        set i (+ i 1)
+    }
+}
+
+shadow draw_buffer {
+    assert true
+}
+
+fn mini_prompt(mode: int) -> string {
+    if (== mode MINI_FIND) { return "Find file: " }
+    if (== mode MINI_EVAL) { return "Eval: " }
+    if (== mode MINI_MX) { return "M-x " }
+    return ""
+}
+
+shadow mini_prompt {
+    assert (== (mini_prompt MINI_FIND) "Find file: ")
+    assert (== (mini_prompt MINI_NONE) "")
+}
+
+fn main() -> int {
+    let sdl_ok: int = (SDL_Init SDL_INIT_VIDEO)
+    if (!= sdl_ok 0) {
+        (println "I failed to initialize SDL")
+        return 1
+    }
+
+    let ttf_ok: int = (TTF_Init)
+    if (!= ttf_ok 0) {
+        (println "I failed to initialize TTF")
+        return 1
+    }
+
+    let win: SDL_Window = (SDL_CreateWindow "Nano Emacs" 80 40 WIN_W WIN_H SDL_WINDOW_SHOWN)
+    let renderer: SDL_Renderer = (SDL_CreateRenderer win -1 SDL_RENDERER_ACCELERATED)
+    let font: TTF_Font = (nl_open_font_portable "DejaVuSansMono" FONT_PT)
+    (nl_sdl_start_text_input)
+
+    let session: int = (nano_eval_create)
+    if (== session 0) {
+        (println "I cannot start the NanoLang eval session. Build libnano-session first.")
+        return 1
+    }
+
+    let init_src: string = (load_file_source "examples/emacs/init.nano")
+    if (> (str_length init_src) 0) {
+        (nano_eval_string session init_src)
+    }
+    let home: string = (env_get "HOME")
+    if (> (str_length home) 0) {
+        let user_src: string = (load_file_source (+ home "/.nanoemacs.nano"))
+        if (> (str_length user_src) 0) {
+            (nano_eval_string session user_src)
+        }
+    }
+
+    let mut ed: EditorState = (emacs_scratch)
+    let mut ed2: EditorState = (emacs_scratch)
+    let mut splits: int = 1
+    let mut focus: int = 0
+    let mut prefix: int = KM_NONE
+    let mut mini_mode: int = MINI_NONE
+    let mut mini: string = ""
+    let mut echo: string = "C-x C-f find, C-x C-s save, C-x C-e eval, M-x, C-x C-c quit"
+    let mut running: bool = true
+
+    while running {
+        (nl_ui_update_mouse_state)
+        if (!= (nl_sdl_poll_event_quit) 0) {
+            set running false
+        }
+
+        let body_top: int = TOP_H
+        let body_h: int = (- (- WIN_H TOP_H) MINI_H)
+        let mut pane_h: int = body_h
+        if (== splits 2) {
+            set pane_h (/ body_h 2)
+        }
+
+        let click: int = (nl_sdl_poll_mouse_click)
+        if (>= click 0) {
+            let cx: int = (click_x click)
+            let cy: int = (click_y click)
+            let col: int = (/ (- cx GUTTER) CELL_W)
+            if (and (>= cy body_top) (< cy (+ body_top (- pane_h MODE_H)))) {
+                set focus 0
+                set ed (click_row ed body_top cy)
+                set ed (editor_move_cursor ed 0 (- col ed.cursor_col))
+            }
+            if (and (== splits 2) (>= cy (+ body_top pane_h))) {
+                set focus 1
+                set ed2 (click_row ed2 (+ body_top pane_h) cy)
+                set ed2 (editor_move_cursor ed2 0 (- col ed2.cursor_col))
+            }
+        }
+
+        let wheel: int = (nl_sdl_poll_mouse_wheel)
+        if (!= wheel 0) {
+            if (== focus 0) {
+                set ed (editor_move_cursor ed (* wheel -3) 0)
+            } else {
+                set ed2 (editor_move_cursor ed2 (* wheel -3) 0)
+            }
+        }
+
+        let sc: int = (nl_sdl_poll_keypress)
+        let ctrl: int = (nl_sdl_mod_ctrl)
+        let meta: int = (nl_sdl_mod_meta)
+        if (>= sc 0) {
+            if (> mini_mode MINI_NONE) {
+                if (== sc 41) {
+                    set mini_mode MINI_NONE
+                    set mini ""
+                    set echo "Quit"
+                }
+                if (== sc 42) {
+                    let ml: int = (str_length mini)
+                    if (> ml 0) {
+                        set mini (str_substring mini 0 (- ml 1))
+                    }
+                }
+                if (== sc 40) {
+                    if (== mini_mode MINI_FIND) {
+                        set ed (editor_visit mini)
+                        set echo (+ "Visited " mini)
+                        set mini_mode MINI_NONE
+                        set mini ""
+                    }
+                    if (== mini_mode MINI_EVAL) {
+                        let ev: EvalResult = (eval_source session ed mini)
+                        set ed ev.ed
+                        set echo (eval_echo ev)
+                        set mini_mode MINI_NONE
+                        set mini ""
+                    }
+                    if (== mini_mode MINI_MX) {
+                        if (mx_is_find mini) {
+                            set mini_mode MINI_FIND
+                            set mini ""
+                            set echo "Find file: "
+                        } else {
+                            if (mx_is_save mini) {
+                                if (is_scratch ed.file_path) {
+                                    set echo "Visit a file first (C-x C-f)"
+                                } else {
+                                    set ed (editor_save ed)
+                                    set echo (+ "Wrote " ed.file_path)
+                                }
+                                set mini_mode MINI_NONE
+                                set mini ""
+                            } else {
+                                if (mx_is_eval mini) {
+                                    let ev2: EvalResult = (eval_source session ed (current_line ed))
+                                    set ed ev2.ed
+                                    set echo (eval_echo ev2)
+                                    set mini_mode MINI_NONE
+                                    set mini ""
+                                } else {
+                                    let ev3: EvalResult = (eval_source session ed (wrap_call mini))
+                                    set ed ev3.ed
+                                    set echo (eval_echo ev3)
+                                    set mini_mode MINI_NONE
+                                    set mini ""
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                let packed: int = (keymap_dispatch prefix sc ctrl meta)
+                set prefix (keymap_prefix packed)
+                let cmd: int = (keymap_cmd packed)
+                if (== cmd CMD_QUIT) { set running false }
+                if (== cmd CMD_CANCEL) { set echo "Quit" set prefix KM_NONE }
+                if (== cmd CMD_PREFIX_CX) { set echo "C-x-" }
+                if (== cmd CMD_FIND_FILE) {
+                    set mini_mode MINI_FIND
+                    set mini ""
+                    set echo "Find file: "
+                }
+                if (== cmd CMD_SAVE) {
+                    if (is_scratch ed.file_path) {
+                        set echo "Visit a file first (C-x C-f)"
+                    } else {
+                        set ed (editor_save ed)
+                        set echo (+ "Wrote " ed.file_path)
+                    }
+                }
+                if (== cmd CMD_EVAL_SEXP) {
+                    let evs: EvalResult = (eval_source session ed (current_line ed))
+                    set ed evs.ed
+                    set echo (eval_echo evs)
+                }
+                if (== cmd CMD_SPLIT) { set splits 2 set ed2 ed set echo "Split" }
+                if (== cmd CMD_ONLY) { set splits 1 set focus 0 set echo "One window" }
+                if (== cmd CMD_OTHER) {
+                    if (== splits 2) {
+                        if (== focus 0) { set focus 1 } else { set focus 0 }
+                    }
+                }
+                if (== cmd CMD_M_X) { set mini_mode MINI_MX set mini "" set echo "M-x " }
+                if (== cmd CMD_EVAL_EXPR) { set mini_mode MINI_EVAL set mini "" set echo "Eval: " }
+                if (!= cmd CMD_NONE) {
+                    if (== focus 0) {
+                        set ed (move_by_cmd ed cmd)
+                    } else {
+                        set ed2 (move_by_cmd ed2 cmd)
+                    }
+                }
+            }
+        }
+
+        let typed: string = (nl_sdl_poll_text_input)
+        if (> (str_length typed) 0) {
+            if (> mini_mode MINI_NONE) {
+                if (and (== ctrl 0) (== meta 0)) {
+                    set mini (+ mini typed)
+                }
+            } else {
+                if (and (and (== ctrl 0) (== meta 0)) (== prefix KM_NONE)) {
+                    if (== focus 0) {
+                        set ed (editor_insert_char ed typed)
+                    } else {
+                        set ed2 (editor_insert_char ed2 typed)
+                    }
+                }
+            }
+        }
+
+        let mut ci: int = 0
+        let ncmd: int = (nano_eval_cmd_count session)
+        while (< ci ncmd) {
+            let kind: int = (nano_eval_cmd_kind session ci)
+            let arg: string = (nano_eval_cmd_arg session ci)
+            if (== kind NANO_EVAL_CMD_MESSAGE) { set echo arg }
+            if (== kind NANO_EVAL_CMD_FIND_FILE) { set ed (editor_visit arg) }
+            if (== kind NANO_EVAL_CMD_SAVE) {
+                if (not (is_scratch ed.file_path)) { set ed (editor_save ed) }
+            }
+            if (== kind NANO_EVAL_CMD_SPLIT) { set splits 2 set ed2 ed }
+            if (== kind NANO_EVAL_CMD_OTHER_WINDOW) {
+                if (== splits 2) {
+                    if (== focus 0) { set focus 1 } else { set focus 0 }
+                }
+            }
+            set ci (+ ci 1)
+        }
+        if (> ncmd 0) {
+            (nano_eval_cmd_clear session)
+        }
+
+        let vis: int = (/ (- pane_h MODE_H) LINE_H)
+        set ed (editor_scroll_to_cursor ed vis)
+        set ed2 (editor_scroll_to_cursor ed2 vis)
+
+        (SDL_SetRenderDrawColor renderer 12 12 16 255)
+        (SDL_RenderClear renderer)
+
+        (nl_ui_panel renderer 0 0 WIN_W TOP_H 28 28 36 255)
+        let hit_find: int = (nl_ui_button renderer font "Find" 8 6 70 28)
+        let hit_save: int = (nl_ui_button renderer font "Save" 84 6 70 28)
+        let hit_eval: int = (nl_ui_button renderer font "Eval" 160 6 70 28)
+        let hit_split: int = (nl_ui_button renderer font "Split" 236 6 70 28)
+        (nl_ui_label renderer font ed.file_path 320 12 140 180 220 255)
+        if (== hit_find 1) {
+            set mini_mode MINI_FIND
+            set mini ""
+            set echo "Find file: "
+        }
+        if (== hit_save 1) {
+            if (is_scratch ed.file_path) {
+                set echo "Visit a file first (C-x C-f)"
+            } else {
+                set ed (editor_save ed)
+                set echo (+ "Wrote " ed.file_path)
+            }
+        }
+        if (== hit_eval 1) {
+            let eve: EvalResult = (eval_source session ed (current_line ed))
+            set ed eve.ed
+            set echo (eval_echo eve)
+        }
+        if (== hit_split 1) { set splits 2 set ed2 ed }
+
+        (draw_buffer renderer font ed 0 body_top WIN_W (- pane_h MODE_H))
+        (nl_ui_panel renderer 0 (- (+ body_top pane_h) MODE_H) WIN_W MODE_H 24 28 34 255)
+        (nl_ui_label renderer font (+ ed.file_path (+ "  L" (int_to_string (+ ed.cursor_row 1)))) 8 (- (+ body_top pane_h) MODE_H) 180 200 160 255)
+
+        if (== splits 2) {
+            (draw_buffer renderer font ed2 0 (+ body_top pane_h) WIN_W (- pane_h MODE_H))
+        }
+
+        (nl_ui_panel renderer 0 (- WIN_H MINI_H) WIN_W MINI_H 20 20 26 255)
+        if (> mini_mode MINI_NONE) {
+            (nl_ui_label renderer font (+ (mini_prompt mini_mode) mini) 8 (- WIN_H 24) 240 220 140 255)
+        } else {
+            (nl_ui_label renderer font echo 8 (- WIN_H 24) 160 200 160 255)
+        }
+
+        (SDL_RenderPresent renderer)
+        (SDL_Delay 16)
+    }
+
+    (nano_eval_destroy session)
+    (SDL_Quit)
+    return 0
+}
+
+shadow main {
+    assert true
+}

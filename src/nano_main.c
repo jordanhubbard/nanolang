@@ -18,6 +18,7 @@
 #include "proptest.h"
 #include <errno.h>
 #include <limits.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -203,6 +204,9 @@ int main(int argc, char *argv[]) {
     g_argv = argv;
 
     resolve_project_root(argv[0]);
+
+    /* Examples use this to pick a smaller workload than compiled C. */
+    setenv("NANO_INTERPRETER", "1", 0);
 
     if (argc < 2 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
         printf("nano - Nanolang tree-walking interpreter\n\n");

@@ -25,24 +25,59 @@
 
 /* Track initialization state */
 static int rl_initialized = 0;
+static int rl_got_eof = 0;
+static char rl_raw_line_buf[4096];
+
+static void strip_line_endings(char *line) {
+    size_t len;
+    if (!line) return;
+    len = strlen(line);
+    while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+        line[len - 1] = '\0';
+        len--;
+    }
+}
+
+int64_t rl_hit_eof_wrapper(void) {
+    return rl_got_eof ? 1 : 0;
+}
 
 /* Core readline function - reads a line with editing and prompt */
 const char* rl_readline_wrapper(const char* prompt) {
+    char* line;
+    char* result;
+
+    rl_got_eof = 0;
     if (!rl_initialized) {
         rl_initialize_wrapper();
     }
-    
-    char* line = readline(prompt ? prompt : "");
+
+    line = readline(prompt ? prompt : "");
     if (!line) {
-        /* EOF received (Ctrl-D) */
+        rl_got_eof = 1;
         return "";
     }
-    
+
     /* Return the line - caller should not free this as NanoLang
      * expects GC-managed or static strings. We'll strdup to be safe. */
-    char* result = strdup(line);
+    result = strdup(line);
     free(line);
     return result ? result : "";
+}
+
+const char* rl_raw_getline_wrapper(const char* prompt) {
+    rl_got_eof = 0;
+    if (prompt && prompt[0] != '\0') {
+        fputs(prompt, stdout);
+        fflush(stdout);
+    }
+    if (fgets(rl_raw_line_buf, (int)sizeof(rl_raw_line_buf), stdin) == NULL) {
+        rl_got_eof = 1;
+        rl_raw_line_buf[0] = '\0';
+        return rl_raw_line_buf;
+    }
+    strip_line_endings(rl_raw_line_buf);
+    return rl_raw_line_buf;
 }
 
 /* Add a line to the history */

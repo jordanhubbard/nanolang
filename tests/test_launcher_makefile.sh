@@ -54,7 +54,7 @@ else
 fi
 
 GPU_PLAN="$(make -C examples -n -B gpu-kernels COMPILER="$STUB_COMPILER" 2>&1)" || true
-for artifact in matmul.ptx matmul.cl ocean.ptx ocean.cl; do
+for artifact in matmul.ptx matmul.cl julia_flow.ptx julia_flow.cl; do
     if printf '%s\n' "$GPU_PLAN" | grep -Fq -- "-o ../bin/gpu/$artifact"; then
         pass "gpu-kernels writes $artifact under bin/gpu"
     else
@@ -62,17 +62,24 @@ for artifact in matmul.ptx matmul.cl ocean.ptx ocean.cl; do
     fi
 done
 
-if printf '%s\n' "$GPU_PLAN" | grep -Eq -- '-o gpu/(matmul|ocean)\.(ptx|cl)'; then
+if printf '%s\n' "$GPU_PLAN" | grep -Eq -- '-o gpu/(matmul|julia_flow|ocean)\.(ptx|cl)'; then
     fail "gpu-kernels still writes generated files into examples/gpu"
 else
     pass "gpu-kernels leaves examples/gpu source-only"
 fi
 
 if grep -q 'gpu_launch2d "bin/gpu/matmul.ptx"' examples/gpu/matmul.nano &&
-        grep -q 'gpu_launch2d "bin/gpu/ocean.ptx"' examples/gpu/ocean.nano; then
+        grep -q 'gpu_launch2d "bin/gpu/julia_flow.ptx"' examples/gpu/julia_flow.nano; then
     pass "GPU examples load kernels from bin/gpu"
 else
     fail "GPU examples do not load kernels from bin/gpu"
+fi
+
+if grep -q '$(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT): $(BIN_DIR)/forth' examples/Makefile &&
+        grep -q 'nl_pty_fork_exec pty_fd "bin/forth"' examples/graphics/sdl_forth_ide.nano; then
+    pass "sdl_forth_ide depends on bin/forth and execs it"
+else
+    fail "sdl_forth_ide is not wired to bin/forth"
 fi
 
 echo "=========================================="

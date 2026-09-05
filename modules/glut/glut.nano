@@ -89,35 +89,35 @@ pub extern fn glutWireTeapot(_size: float) -> void
 
 # Sphere
 pub extern fn glutSolidSphere(_radius: float, _slices: int, _stacks: int) -> void
-extern fn glutWireSphere(_radius: float, _slices: int, _stacks: int) -> void
+pub extern fn glutWireSphere(_radius: float, _slices: int, _stacks: int) -> void
 
 # Cube
-extern fn glutSolidCube(_size: float) -> void
-extern fn glutWireCube(_size: float) -> void
+pub extern fn glutSolidCube(_size: float) -> void
+pub extern fn glutWireCube(_size: float) -> void
 
 # Cone
-extern fn glutSolidCone(_base: float, _height: float, _slices: int, _stacks: int) -> void
-extern fn glutWireCone(_base: float, _height: float, _slices: int, _stacks: int) -> void
+pub extern fn glutSolidCone(_base: float, _height: float, _slices: int, _stacks: int) -> void
+pub extern fn glutWireCone(_base: float, _height: float, _slices: int, _stacks: int) -> void
 
 # Torus (donut)
-extern fn glutSolidTorus(_innerRadius: float, _outerRadius: float, _sides: int, _rings: int) -> void
-extern fn glutWireTorus(_innerRadius: float, _outerRadius: float, _sides: int, _rings: int) -> void
+pub extern fn glutSolidTorus(_innerRadius: float, _outerRadius: float, _sides: int, _rings: int) -> void
+pub extern fn glutWireTorus(_innerRadius: float, _outerRadius: float, _sides: int, _rings: int) -> void
 
 # Dodecahedron (12-sided)
-extern fn glutSolidDodecahedron() -> void
-extern fn glutWireDodecahedron() -> void
+pub extern fn glutSolidDodecahedron() -> void
+pub extern fn glutWireDodecahedron() -> void
 
 # Octahedron (8-sided)
-extern fn glutSolidOctahedron() -> void
-extern fn glutWireOctahedron() -> void
+pub extern fn glutSolidOctahedron() -> void
+pub extern fn glutWireOctahedron() -> void
 
 # Tetrahedron (4-sided)
-extern fn glutSolidTetrahedron() -> void
-extern fn glutWireTetrahedron() -> void
+pub extern fn glutSolidTetrahedron() -> void
+pub extern fn glutWireTetrahedron() -> void
 
 # Icosahedron (20-sided)
-extern fn glutSolidIcosahedron() -> void
-extern fn glutWireIcosahedron() -> void
+pub extern fn glutSolidIcosahedron() -> void
+pub extern fn glutWireIcosahedron() -> void
 
 # === Text Rendering ===
 

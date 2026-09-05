@@ -372,6 +372,15 @@ int64_t nl_sdl_poll_keypress(void) {
     return -1;
 }
 
+int64_t nl_sdl_mod_ctrl(void) {
+    return (SDL_GetModState() & KMOD_CTRL) ? 1 : 0;
+}
+
+int64_t nl_sdl_mod_meta(void) {
+    SDL_Keymod mods = SDL_GetModState();
+    return (mods & (KMOD_ALT | KMOD_GUI)) ? 1 : 0;
+}
+
 /* Helper to poll for mouse wheel events
  * Returns wheel.y value: positive = scroll up, negative = scroll down, 0 = no scroll
  * Typical values are -1 or +1

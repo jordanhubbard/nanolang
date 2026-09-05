@@ -44,6 +44,7 @@ mac task close <id> --reason="..."   # complete work
 4. **⚠️ Shadow Tests MANDATORY**: Required for ALL functions (including examples) - NO EXCEPTIONS except `extern`
 5. **Minimal Comments**: Code should be self-documenting
 6. **⚠️ LLM-First**: ONE canonical way per operation - see `docs/CANONICAL_STYLE.md`
+7. **⚠️ Discovered bugs go on `docs/ROADMAP.md`**: add a concrete checkbox (and a MAC task) in the same session. Chat is not the ledger.
 
 ### Dual Implementation Constraint (CRITICAL)
 **Every language feature requires 2× implementation effort:**

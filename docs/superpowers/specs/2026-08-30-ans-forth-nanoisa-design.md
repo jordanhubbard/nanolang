@@ -13,6 +13,16 @@ NanoISA compiler.
 
 Passing a test suite is evidence. It is not, by itself, a conformance claim.
 
+The session runtime in `src/forth/` exists: one mutable `NvmModule`, one
+persistent `VmState`, Forth stacks, virtual addresses, file handles,
+dictionary headers with early-bound execution tokens, nested input
+sources, and colon compilation to verified NanoISA functions.
+`make test-forth-session` is the evidence. Typed imports, ABI rejection,
+co-process restart after import-table mutation, and `SEE` of compiled
+NanoISA (including imported words) are in that suite. Forth 2012 Core on
+the session interpreter is still ahead: numbers, `+`, `DUP`, `*`, and
+`: ... ;` exist, not the rest of the word set.
+
 ## Architecture
 
 I will compile each Forth colon definition to a verified, zero-argument
@@ -22,9 +32,10 @@ whole interpreter session. Definitions will call earlier definitions with
 
 NanoVM's operand stack belongs to its function calling convention and keeps at
 most one return value. It therefore cannot also be the Forth data stack. The
-Forth data stack, return stack, floating-point stack, and address space will be
-persistent VM-owned state. NanoISA functions will use private runtime helpers
-to access that state and use the operand stack only for temporary values.
+Forth data stack, return stack, floating-point stack, and address space are
+persistent session-owned state (`ForthSession`). NanoISA functions will use
+private runtime helpers to access that state and use the operand stack only
+for temporary values.
 
 The outer interpreter and compiler will maintain:
 

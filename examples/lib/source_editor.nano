@@ -12,7 +12,7 @@
 
 from "modules/std/fs.nano" import read, write, exists
 
-struct EditorState {
+pub struct EditorState {
     lines: array<string>,
     cursor_row: int,
     cursor_col: int,
@@ -24,7 +24,7 @@ struct EditorState {
     build_output: string
 }
 
-fn editor_new() -> EditorState {
+pub fn editor_new() -> EditorState {
     return EditorState {
         lines: [], cursor_row: 0, cursor_col: 0,
         file_path: "", modified: false, scroll_offset: 0,
@@ -39,7 +39,7 @@ shadow editor_new {
     assert (not ed.modified)
 }
 
-fn split_into_lines(content: string) -> array<string> {
+pub fn split_into_lines(content: string) -> array<string> {
     let mut lines: array<string> = []
     let clen: int = (str_length content)
     let mut pos: int = 0
@@ -67,7 +67,7 @@ shadow split_into_lines {
     assert (>= (array_length lines) 1)
 }
 
-fn join_lines(lines: array<string>) -> string {
+pub fn join_lines(lines: array<string>) -> string {
     let mut result: string = ""
     let mut i: int = 0
     while (< i (array_length lines)) {
@@ -87,7 +87,7 @@ shadow join_lines {
     assert (== (join_lines lines) "hello\nworld")
 }
 
-fn editor_open(path: string) -> EditorState {
+pub fn editor_open(path: string) -> EditorState {
     let content: string = (read path)
     let lines: array<string> = (split_into_lines content)
     return EditorState {
@@ -101,7 +101,7 @@ shadow editor_open {
     assert (== 0 0)
 }
 
-fn editor_close(_ed: EditorState) -> EditorState {
+pub fn editor_close(_ed: EditorState) -> EditorState {
     return (editor_new)
 }
 
@@ -111,7 +111,7 @@ shadow editor_close {
     assert (not closed.active)
 }
 
-fn editor_save(ed: EditorState) -> EditorState {
+pub fn editor_save(ed: EditorState) -> EditorState {
     if (not ed.active) { return ed }
     let content: string = (join_lines ed.lines)
     let result: int = (write ed.file_path content)
@@ -133,7 +133,7 @@ shadow editor_save {
     assert (== 0 0)
 }
 
-fn clamp_cursor(ed: EditorState) -> EditorState {
+pub fn clamp_cursor(ed: EditorState) -> EditorState {
     let nlines: int = (array_length ed.lines)
     let mut row: int = ed.cursor_row
     if (>= row nlines) { set row (- nlines 1) }
@@ -159,7 +159,7 @@ shadow clamp_cursor {
     assert (== clamped.cursor_col 0)
 }
 
-fn editor_move_cursor(ed: EditorState, dr: int, dc: int) -> EditorState {
+pub fn editor_move_cursor(ed: EditorState, dr: int, dc: int) -> EditorState {
     let new_row: int = (+ ed.cursor_row dr)
     let new_col: int = (+ ed.cursor_col dc)
     return (clamp_cursor EditorState {
@@ -175,7 +175,7 @@ shadow editor_move_cursor {
     assert (== moved.cursor_row 0)
 }
 
-fn editor_insert_char(ed: EditorState, ch: string) -> EditorState {
+pub fn editor_insert_char(ed: EditorState, ch: string) -> EditorState {
     if (not ed.active) { return ed }
     let nlines: int = (array_length ed.lines)
     if (== nlines 0) { return ed }
@@ -211,7 +211,7 @@ shadow editor_insert_char {
     assert (== 0 0)
 }
 
-fn editor_insert_newline(ed: EditorState) -> EditorState {
+pub fn editor_insert_newline(ed: EditorState) -> EditorState {
     if (not ed.active) { return ed }
     let nlines: int = (array_length ed.lines)
     if (== nlines 0) { return ed }
@@ -244,7 +244,7 @@ shadow editor_insert_newline {
     assert (== 0 0)
 }
 
-fn editor_delete_char(ed: EditorState) -> EditorState {
+pub fn editor_delete_char(ed: EditorState) -> EditorState {
     if (not ed.active) { return ed }
     let nlines: int = (array_length ed.lines)
     if (== nlines 0) { return ed }
@@ -306,7 +306,7 @@ shadow editor_delete_char {
     assert (== 0 0)
 }
 
-fn editor_scroll_to_cursor(ed: EditorState, visible_lines: int) -> EditorState {
+pub fn editor_scroll_to_cursor(ed: EditorState, visible_lines: int) -> EditorState {
     let mut offset: int = ed.scroll_offset
     if (< ed.cursor_row offset) { set offset ed.cursor_row }
     if (>= ed.cursor_row (+ offset visible_lines)) {
@@ -326,7 +326,7 @@ shadow editor_scroll_to_cursor {
     assert (== scrolled.scroll_offset 0)
 }
 
-fn editor_scroll(ed: EditorState, delta: int) -> EditorState {
+pub fn editor_scroll(ed: EditorState, delta: int) -> EditorState {
     let mut offset: int = (+ ed.scroll_offset delta)
     if (< offset 0) { set offset 0 }
     let max_offset: int = (- (array_length ed.lines) 1)
@@ -348,7 +348,7 @@ shadow editor_scroll {
     assert (== scrolled.scroll_offset 0)
 }
 
-fn editor_get_content(ed: EditorState) -> string {
+pub fn editor_get_content(ed: EditorState) -> string {
     return (join_lines ed.lines)
 }
 
@@ -357,7 +357,7 @@ shadow editor_get_content {
     assert (== (editor_get_content ed) "")
 }
 
-fn editor_line_count(ed: EditorState) -> int {
+pub fn editor_line_count(ed: EditorState) -> int {
     return (array_length ed.lines)
 }
 
@@ -375,7 +375,7 @@ shadow new_example_template {
     assert (> (str_length tmpl) 0)
 }
 
-fn editor_new_file(path: string, name: string, category: string) -> EditorState {
+pub fn editor_new_file(path: string, name: string, category: string) -> EditorState {
     let content: string = (new_example_template name category)
     let lines: array<string> = (split_into_lines content)
     return EditorState {

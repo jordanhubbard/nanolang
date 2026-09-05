@@ -40,20 +40,24 @@ This was causing issues, but I resolved it by improving my struct literal detect
 ## Tree-Walking Interpreter (`bin/nano`) — Known Limitations
 
 The `bin/nano` interpreter runs NanoLang programs directly without compiling to C.
-Its performance and host-module boundaries differ from compiled C output. The
-examples below document those boundaries; this is not a current pass-count report.
+Its performance and host-module boundaries differ from compiled C output.
+
+`bin/nano` sets `NANO_INTERPRETER=1` unless that variable is already present.
+Language examples that used to time out or abort now either finish a smaller
+workload or print `SKIP:` and exit 0.
 
 ### Performance: Computationally Intensive Programs
 
-The tree-walking interpreter is significantly slower than compiled C output.
-Programs that iterate millions of times will time out:
+The tree-walking interpreter is slower than compiled C output. Those examples
+take a smaller default when `NANO_INTERPRETER` is set:
 
-- `nl_primes_sieve.nano` — Sieve of Eratosthenes over 1,000,000 elements
-- `nl_game_of_life.nano` — 40×20 grid Conway's Game of Life (10 generations)
+- `nl_primes_sieve.nano` — 10,000 under the interpreter, 1,000,000 when compiled.
+  Override with `NANO_PRIME_LIMIT`.
+- `nl_game_of_life.nano` — 8×8 and 2 generations under the interpreter, 40×20
+  and 10 generations when compiled. Override with `NANO_LIFE_WIDTH`,
+  `NANO_LIFE_HEIGHT`, and `NANO_LIFE_GENERATIONS`.
 
-These programs work correctly when compiled with `nanoc` and run natively.
-For the interpreter, the benchmark limit should be reduced (e.g. to 10,000) to
-complete in a reasonable time.
+`nl_primes.nano` prints primes up to 50. It is not a million-element trial.
 
 ### Platform: libdispatch (Grand Central Dispatch)
 
@@ -63,13 +67,14 @@ Three examples use GCD for concurrent task dispatch:
 - `nl_dispatch_pipeline.nano`
 - `nl_dispatch_stats.nano`
 
-These require the `dispatch` module shared library and libdispatch. On macOS
-this works natively. On Linux, libdispatch must be installed separately
-(`libdispatch-dev`) and the module must be compiled. The `group_wait` call
-fails when the native library is unavailable.
+These require the `dispatch` module and libdispatch. On macOS that is the
+system GCD. The C stubs on other hosts return `dispatch_available() = false`.
+The examples print `SKIP: libdispatch is not available on this platform` and
+exit 0 instead of aborting on `group_wait`. Under `bin/nano` they also print
+`SKIP:` because the tree-walker cannot run libdispatch callbacks.
 
-### Runtime: Missing Data File
+### Runtime: Dictionary file
 
-- `nl_random_sentence.nano` — Requires a dictionary file at a runtime path
-  that is not included in the repository. This is a data dependency, not an
-  interpreter bug.
+- `nl_random_sentence.nano` — Reads `NANO_DICT_PATH` if set, then
+  `examples/language/data/words.txt`, then `/usr/share/dict/words`, then a
+  built-in word list. Missing system dictionaries are not a hard failure.
