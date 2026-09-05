@@ -51,7 +51,25 @@ stays parked until Phase 13 closes. Option C remains 4.4.
 - [ ] **4.1 / Phase 13 (primary).** I implement and test Forth 2012 Core on the
   NanoISA session. Remaining word sets, `pi.fs`, and `sdl_forth_ide` stay in
   Phase 13 until this Core gate passes. Locals-on-`THROW` waits on recursive
-  Locals; I do not treat it as the next item.
+  Locals; I do not treat it as the next item. This gate stays open until the
+  four Core-suite fan-out items below are verified. I do not claim Core.
+- [ ] Core-suite fan-out 1/4 (parallel): I vendor Gerry Jackson
+  `forth2012-test-suite` **v0.15.0** (`9773f84dd12390f342d37195da8848b04e1f4a23`)
+  into `tests/forth/vendor/gerryjackson/`, keep every Johns Hopkins and Jackson
+  notice, set `vendor: true` in `tests/forth/pins.json` for that suite only, and
+  do not copy optional-word-set files as Core evidence.
+- [ ] Core-suite fan-out 2/4 (parallel): I write a per-file license inventory of
+  the pinned forth200x snapshot (`91f1ed9c756aac27f57e939c270b5f2c84262427`) in
+  a new `docs/FORTH_200X_INVENTORY.md`. I do not vendor that tree.
+- [ ] Core-suite fan-out 3/4 (parallel): I add `make test-forth-jackson` that
+  runs `bin/nano_forth` / `bin/forth` against Jackson Core via `INCLUDED` (or
+  records a precise INCLUDE/file-access gap). I update `docs/FORTH_2012.md` so
+  it no longer says there is no NanoISA Forth. I do not run optional word sets
+  in this target. I do not claim Core if any Core case fails.
+- [ ] Core-suite fan-out 4/4 (parallel): I publish a Core word coverage matrix
+  (`docs/FORTH_CORE_COVERAGE.md`) of Forth 2012 Core names against the NanoISA
+  session, with tested / missing / ambiguous for each word. This is evidence,
+  not a Core pass.
 - [x] Parallel to 4.1 (does not wait on the Core gate): I close the interpreter
   example failures in `docs/KNOWN_LIMITATIONS.md`. `bin/nano` loads a shipped or
   built-in word list for `nl_random_sentence.nano`, uses a smaller workload for
@@ -329,7 +347,9 @@ Closed this session:
       and stops the current line. Core stays open until pinned suites pass.
 
 Standard word sets, in dependency order:
-- [ ] I will implement and test Core.
+- [ ] I will implement and test Core. The active-queue Core-suite fan-out
+      (Jackson vendor, forth200x inventory, `make test-forth-jackson`, coverage
+      matrix) is the next evidence. I do not check this until those pass.
 - [ ] I will implement and test Core Extensions.
 - [ ] I will implement and test Exception and Exception Extensions.
 - [ ] I will implement genuine double-cell arithmetic and test Double Number and its extensions.

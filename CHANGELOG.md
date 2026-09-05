@@ -24,6 +24,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - add `examples/bench_sample.nano` with two zero-parameter `bench_*` workloads
 
 ### Changed
+- split the Forth 2012 Core gate into four parallel suite items (Jackson vendor, forth200x inventory, `make test-forth-jackson`, coverage matrix)
 - replace the GPU ocean window with an animated OpenCL/CUDA Julia set
 - `bin/nano` sets `NANO_INTERPRETER=1`; the sieve and Game of Life use a smaller workload under the interpreter
 - libdispatch examples print `SKIP:` and exit 0 when GCD is not available, and also under `bin/nano` because the tree-walker cannot run GCD callbacks
