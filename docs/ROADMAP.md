@@ -237,9 +237,9 @@ Tests, examples, and SDL IDE:
 - [ ] I will add malformed definitions, multiline definitions, early binding, immediate words, execution tokens, overflow, unsigned output, loop boundaries, exceptions, source nesting, and UTF-8 tests.
 - [ ] I will make `pi.fs` pass under my Memory-Allocation and Exception implementations with the exact 50-place output.
 - [ ] I will update every file in `examples/language/forth/` to standard behavior.
-- [ ] I will update `sdl_forth_ide` to launch the NanoISA-backed Forth executable.
-- [ ] I will keep the SDL IDE as a PTY client rather than create a second Forth implementation.
-- [ ] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
+- [x] `sdl_forth_ide` launches the NanoISA-backed Forth executable through `bin/forth`, a launcher over `bin/nl_forth_interpreter_vm` run by `bin/nano_vm`.
+- [x] The SDL IDE is a PTY client of that one executable rather than a second Forth implementation; `bin/forth` no longer compiles a separate native binary.
+- [x] `tests/test_forth_ide_pty.sh` covers the launcher build, PTY startup and file loading against the NanoISA-backed executable, interpreter liveness, and a graphical smoke build of `sdl_forth_ide`.
 - [ ] I will publish the precise standard-system label only after tests and required documentation support it.
 
 ### Phase 14 - NanoISA-Centered Backends (4.0 and later)

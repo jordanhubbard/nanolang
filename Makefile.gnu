@@ -1507,10 +1507,13 @@ launcher: examples-c check-deps-sdl
 	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
 
-forth: $(COMPILER_C)
+# `bin/forth` and the SDL IDE both run the NanoISA-backed Forth executable
+# (bin/nl_forth_interpreter_vm via bin/nano_vm), so ensure the NanoISA toolchain
+# is built alongside the C compiler used for the example binaries.
+forth: $(COMPILER_C) nano_virt nano_vm
 	@$(MAKE) -C examples forth COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
-forth-ide: $(COMPILER_C) check-deps-sdl
+forth-ide: $(COMPILER_C) nano_virt nano_vm check-deps-sdl
 	@$(MAKE) -C examples forth-ide COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
