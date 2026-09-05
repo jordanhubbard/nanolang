@@ -11,7 +11,7 @@
       "url": "https://github.com/gerryjackson/forth2012-test-suite",
       "tag": "v0.15.0",
       "sha": "9773f84dd12390f342d37195da8848b04e1f4a23",
-      "vendor": false,
+      "vendor": true,
       "license": "Mixed. Hayes core tests: (C) 1995 Johns Hopkins University / Applied Physics Laboratory, may be distributed freely as long as that copyright notice remains. Jackson-authored files: public domain with notice retained. No SPDX LICENSE file in the repository."
     },
     "forth200x": {
