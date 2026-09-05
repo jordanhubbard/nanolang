@@ -11,8 +11,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `docs/NSI.md`). Parameter direction, ownership, lifetime, mutability,
   optionality, and streaming fail closed. Typed payloads (record, variant,
   array, string, binary, resource, callback, async) and versioned errors
-  are in the same loader. Compatibility, generated bindings, and module
-  migration are later Phase 16 items. `make test-nsi`.
+  are in the same loader. `nl_nsi_compat` answers whether a client of an
+  older document can call a newer one. Wire frames and generated bindings
+  are later Phase 16 items. `make test-nsi`.
 - UTF-8 message catalogs for `en`, `zh`, `hi`, `es`, `ar`, and `fr`
   (`catalogs/messages/`, `src/catalog.c`). Human stderr looks up the
   process locale; JSON/TOON stay English. `make test-catalog` and

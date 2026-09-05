@@ -123,4 +123,13 @@ const char *nl_nsi_method_id(const NlNsi *nsi, size_t i);
 size_t nl_nsi_param_count(const NlNsi *nsi, size_t method_i);
 const NlNsiParam *nl_nsi_param(const NlNsi *nsi, size_t method_i, size_t param_i);
 
+/* Can a client written against older call an implementation of newer?
+ * Wire frames are not in v0; these rules apply to NSI documents. */
+typedef enum {
+    NL_NSI_COMPAT_OK = 0,
+    NL_NSI_COMPAT_BREAKING = 1
+} NlNsiCompatResult;
+
+NlNsiCompatResult nl_nsi_compat(const NlNsi *older, const NlNsi *newer);
+
 #endif

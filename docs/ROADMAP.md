@@ -159,6 +159,10 @@ remains 4.4.
       (`schema/nsi/examples/types.nsi.json`, `make test-nsi`). Compatibility
       and generation are later.
       (`task_d9e85990a21944fe836852591361f2ff`)
+- [x] **4.3 / Phase 16.** I define NSI document compatibility
+      (`nl_nsi_compat`). Adding a method is compatible; removing one is
+      breaking. Wire frames are not in v0.
+      (`task_094c94be861641f1a601a1fb152f3fb7`)
 
 ## Release Map
 
@@ -721,7 +725,7 @@ Interface definition:
 - [x] I define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`, `docs/NSI.md`, `make test-nsi`). Names without ids fail closed.
 - [x] I describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema (`docs/NSI.md`, `make test-nsi`). Unknown enumerations fail closed.
 - [x] I support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors (`schema/nsi/examples/types.nsi.json`, `make test-nsi`). Unknown kinds fail closed.
-- [ ] I will define backward- and forward-compatibility rules for interfaces and wire representations.
+- [x] I define backward- and forward-compatibility rules for NSI documents (`nl_nsi_compat`, `make test-nsi`). Adding a method is compatible; removing one is breaking. Wire frames are not in v0; these rules will apply to frames when transport lands.
 - [ ] I will reject ambiguous ABI inference; every foreign boundary will have an explicit typed contract.
 - [ ] I will generate NanoLang and Nano Forth bindings from the same interface description.
 - [ ] I will generate client stubs, server dispatch, serialization, validation, documentation, mocks, and compatibility tests.
@@ -1565,6 +1569,6 @@ I aim to be:
 ---
 
 Last Updated: September 5, 2026
-Current Phase: 4.3 Phase 16 identifiers, parameter contract, and typed payloads are in (`make test-nsi`). Next is backward- and forward-compatibility rules. 5.0 One IR is recorded, not started.
+Current Phase: 4.3 Phase 16 NSI documents, params, types, and document compatibility are in (`make test-nsi`). Next is reject ambiguous ABI inference. 5.0 One IR is recorded, not started.
 Next Major Milestone: 4.3 service interfaces, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
 Next Review: after a named human reviewer accepts a translated guide page

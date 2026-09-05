@@ -291,6 +291,74 @@ static void test_reject_array_without_element(void) {
     PASS(test_name);
 }
 
+static void test_compat_same_document(void) {
+    const char *test_name = "nsi: document is compatible with itself";
+    NlNsi *a = nl_nsi_load_path("schema/nsi/examples/log.nsi.json");
+    NlNsi *b = nl_nsi_load_path("schema/nsi/examples/log.nsi.json");
+    if (!a || !b) { FAIL(test_name, "load"); nl_nsi_free(a); nl_nsi_free(b); return; }
+    if (nl_nsi_compat(a, b) != NL_NSI_COMPAT_OK)
+        { FAIL(test_name, "compat"); nl_nsi_free(a); nl_nsi_free(b); return; }
+    PASS(test_name);
+    nl_nsi_free(a);
+    nl_nsi_free(b);
+}
+
+static void test_compat_add_method_ok(void) {
+    const char *test_name = "nsi: adding a method is compatible";
+    const char *oldp = "/tmp/nl_nsi_old.json";
+    const char *newp = "/tmp/nl_nsi_new.json";
+    NlNsi *older;
+    NlNsi *newer;
+    if (!write_tmp(oldp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}") ||
+        !write_tmp(newp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"},"
+        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\"}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    older = nl_nsi_load_path(oldp);
+    newer = nl_nsi_load_path(newp);
+    unlink(oldp);
+    unlink(newp);
+    if (!older || !newer) { FAIL(test_name, "load"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    if (nl_nsi_compat(older, newer) != NL_NSI_COMPAT_OK)
+        { FAIL(test_name, "expected ok"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    PASS(test_name);
+    nl_nsi_free(older);
+    nl_nsi_free(newer);
+}
+
+static void test_compat_remove_method_breaking(void) {
+    const char *test_name = "nsi: removing a method is breaking";
+    const char *oldp = "/tmp/nl_nsi_old2.json";
+    const char *newp = "/tmp/nl_nsi_new2.json";
+    NlNsi *older;
+    NlNsi *newer;
+    if (!write_tmp(oldp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"},"
+        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\"}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}") ||
+        !write_tmp(newp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    older = nl_nsi_load_path(oldp);
+    newer = nl_nsi_load_path(newp);
+    unlink(oldp);
+    unlink(newp);
+    if (!older || !newer) { FAIL(test_name, "load"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    if (nl_nsi_compat(older, newer) != NL_NSI_COMPAT_BREAKING)
+        { FAIL(test_name, "expected breaking"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    PASS(test_name);
+    nl_nsi_free(older);
+    nl_nsi_free(newer);
+}
+
 int main(void) {
     test_load_log_example();
     test_load_types_example();
@@ -306,6 +374,9 @@ int main(void) {
     test_reject_unknown_type_kind();
     test_reject_empty_variant();
     test_reject_array_without_element();
+    test_compat_same_document();
+    test_compat_add_method_ok();
+    test_compat_remove_method_breaking();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail ? 1 : 0;
 }

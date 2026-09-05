@@ -785,3 +785,120 @@ const NlNsiParam *nl_nsi_param(const NlNsi *nsi, size_t method_i, size_t param_i
     if (param_i >= nsi->methods[method_i].param_count) return NULL;
     return &nsi->methods[method_i].params[param_i];
 }
+
+static int cstr_eq(const char *a, const char *b) {
+    if (a == NULL && b == NULL) return 1;
+    if (a == NULL || b == NULL) return 0;
+    return strcmp(a, b) == 0;
+}
+
+static const NlNsiMethod *find_method(const NlNsi *nsi, const char *id) {
+    size_t i;
+    if (!nsi || !id) return NULL;
+    for (i = 0; i < nsi->method_count; i++) {
+        if (cstr_eq(nsi->methods[i].id, id)) return &nsi->methods[i];
+    }
+    return NULL;
+}
+
+static const NlNsiParam *find_param(const NlNsiMethod *m, const char *id) {
+    size_t i;
+    if (!m || !id) return NULL;
+    for (i = 0; i < m->param_count; i++) {
+        if (cstr_eq(m->params[i].id, id)) return &m->params[i];
+    }
+    return NULL;
+}
+
+static const NlNsiType *find_type(const NlNsi *nsi, const char *id) {
+    size_t i;
+    if (!nsi || !id) return NULL;
+    for (i = 0; i < nsi->type_count; i++) {
+        if (cstr_eq(nsi->types[i].id, id)) return &nsi->types[i];
+    }
+    return NULL;
+}
+
+static const NlNsiMember *find_member(const NlNsiType *t, const char *id) {
+    size_t i;
+    if (!t || !id) return NULL;
+    for (i = 0; i < t->member_count; i++) {
+        if (cstr_eq(t->members[i].id, id)) return &t->members[i];
+    }
+    return NULL;
+}
+
+static const NlNsiError *find_error(const NlNsi *nsi, const char *id) {
+    size_t i;
+    if (!nsi || !id) return NULL;
+    for (i = 0; i < nsi->error_count; i++) {
+        if (cstr_eq(nsi->errors[i].id, id)) return &nsi->errors[i];
+    }
+    return NULL;
+}
+
+static int param_contract_eq(const NlNsiParam *a, const NlNsiParam *b) {
+    if (!a || !b) return 0;
+    return cstr_eq(a->type_id, b->type_id) &&
+           a->direction == b->direction &&
+           a->ownership == b->ownership &&
+           a->lifetime == b->lifetime &&
+           a->mutability == b->mutability &&
+           a->optional == b->optional &&
+           a->streaming == b->streaming;
+}
+
+static int type_payload_eq(const NlNsiType *a, const NlNsiType *b) {
+    if (!a || !b) return 0;
+    if (a->kind != b->kind) return 0;
+    if (!cstr_eq(a->element_id, b->element_id)) return 0;
+    if (!cstr_eq(a->method_id, b->method_id)) return 0;
+    if (!cstr_eq(a->result_id, b->result_id)) return 0;
+    return 1;
+}
+
+NlNsiCompatResult nl_nsi_compat(const NlNsi *older, const NlNsi *newer) {
+    size_t i;
+    size_t j;
+    if (!older || !newer) return NL_NSI_COMPAT_BREAKING;
+    if (!cstr_eq(older->iface.id, newer->iface.id)) return NL_NSI_COMPAT_BREAKING;
+    if (older->version != newer->version) return NL_NSI_COMPAT_BREAKING;
+
+    for (i = 0; i < older->method_count; i++) {
+        const NlNsiMethod *om = &older->methods[i];
+        const NlNsiMethod *nm = find_method(newer, om->id);
+        if (!nm) return NL_NSI_COMPAT_BREAKING;
+        for (j = 0; j < om->param_count; j++) {
+            const NlNsiParam *op = &om->params[j];
+            const NlNsiParam *np = find_param(nm, op->id);
+            if (!np || !param_contract_eq(op, np)) return NL_NSI_COMPAT_BREAKING;
+        }
+        for (j = 0; j < nm->param_count; j++) {
+            if (find_param(om, nm->params[j].id)) continue;
+            if (!nm->params[j].optional || nm->params[j].direction != NL_NSI_DIR_IN)
+                return NL_NSI_COMPAT_BREAKING;
+        }
+    }
+
+    for (i = 0; i < older->type_count; i++) {
+        const NlNsiType *ot = &older->types[i];
+        const NlNsiType *nt = find_type(newer, ot->id);
+        if (!nt || !type_payload_eq(ot, nt)) return NL_NSI_COMPAT_BREAKING;
+        for (j = 0; j < ot->member_count; j++) {
+            const NlNsiMember *omem = &ot->members[j];
+            const NlNsiMember *nmem = find_member(nt, omem->id);
+            if (!nmem || !cstr_eq(omem->type_id, nmem->type_id))
+                return NL_NSI_COMPAT_BREAKING;
+        }
+        if (ot->kind == NL_NSI_TYPE_RECORD && nt->member_count != ot->member_count)
+            return NL_NSI_COMPAT_BREAKING;
+    }
+
+    for (i = 0; i < older->error_count; i++) {
+        const NlNsiError *oe = &older->errors[i];
+        const NlNsiError *ne = find_error(newer, oe->id);
+        if (!ne || !cstr_eq(oe->version, ne->version)) return NL_NSI_COMPAT_BREAKING;
+    }
+
+    return NL_NSI_COMPAT_OK;
+}

@@ -63,11 +63,23 @@ kinds.
 
 Example: [schema/nsi/examples/types.nsi.json](../schema/nsi/examples/types.nsi.json).
 
+## Compatibility
+
+`nl_nsi_compat(older, newer)` asks whether a client written against `older`
+can call an implementation of `newer`. Adding a method is compatible.
+Removing a method is breaking. Existing parameter contracts must match.
+A newer method may add an optional `in` parameter. Newer variants may add
+cases; they must keep old cases. Record fields may not be added or removed.
+Error ids and version tokens must remain. Different interface ids are
+breaking.
+
+Wire request/response frames are not in v0. These rules apply to NSI
+documents and will apply to frames when transport lands.
+
 ## What v0 is not
 
-v0 does not describe compatibility rules, generated bindings, or a wire
-frame. Those are later Phase 16 items. Loading a document does not migrate
-a module. `module.json` and `module.manifest.json` stay the current build
-and discovery metadata.
+v0 does not describe generated bindings or a wire frame. Those are later
+Phase 16 items. Loading a document does not migrate a module. `module.json`
+and `module.manifest.json` stay the current build and discovery metadata.
 
 I do not generate clients from v0. I do not claim a service fabric.
