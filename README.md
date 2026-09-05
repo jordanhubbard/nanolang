@@ -226,7 +226,9 @@ make examples       # Build my examples
 cd examples && make launcher
 ```
 
-**Forth CLI:**
+**Forth CLI:** `bin/forth` is a launcher over the NanoISA-backed Forth
+(`bin/nl_forth_interpreter_vm` run by `bin/nano_vm`); the SDL IDE launches this
+same executable over a PTY rather than embedding a second Forth.
 ```bash
 make forth
 # or, after `make examples`:

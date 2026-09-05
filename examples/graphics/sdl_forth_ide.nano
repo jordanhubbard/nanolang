@@ -1,6 +1,9 @@
 # Example: Forth IDE
-# Purpose: Split-pane SDL terminal IDE for the NanoLang Forth interpreter
+# Purpose: Split-pane SDL terminal IDE that is a PTY client of the NanoISA-backed Forth executable
 # Features: SDL graphics, PTY subprocess, terminal emulation, file browser
+# Note: This IDE launches bin/forth, a launcher over the ONE NanoISA-backed
+#       Forth (bin/nl_forth_interpreter_vm run by bin/nano_vm). It never embeds
+#       or reimplements Forth itself.
 # Difficulty: Advanced
 # Category: graphics
 # Prerequisites: sdl_drawing_primitives
@@ -212,7 +215,9 @@ fn main() -> int {
     let term: int = (nl_sdl_term_create "" FONT_PT term_rows term_cols)
     if (== term 0) { (println "nl_sdl_term_create failed") return 1 } else { (print "") }
 
-    # Start the standalone Forth CLI in explicit interactive mode.
+    # Start the NanoISA-backed Forth executable in explicit interactive mode.
+    # bin/forth is a thin launcher over bin/nl_forth_interpreter_vm (run by
+    # bin/nano_vm); the IDE is only a PTY client, not a second Forth.
     let pty_fd: int = (nl_pty_open term_rows term_cols)
     if (== pty_fd -1) { (println "nl_pty_open failed") return 1 } else { (print "") }
 
@@ -221,7 +226,7 @@ fn main() -> int {
         "" "")
     if (== pty_pid -1) {
         (nl_pty_close pty_fd)
-        (println "nl_pty_fork_exec failed — is bin/forth built?")
+        (println "nl_pty_fork_exec failed — build the NanoISA Forth with: make forth")
         return 1
     } else { (print "") }
 

@@ -96,13 +96,16 @@ endif
 NL_EXAMPLES := $(patsubst language/%.nano,$(BIN_DIR)/%$(BIN_SUFFIX)$(BIN_EXT),$(NL_SOURCES))
 NL_NAMES := $(sort $(patsubst $(BIN_DIR)/%,%,$(NL_EXAMPLES)))
 
-# The native Forth interpreter also has a short, user-facing CLI name.
+# The Forth CLI has a short, user-facing name. `bin/forth` is a launcher over
+# the NanoISA-backed executable (see the $(BIN_DIR)/forth rule below), not a
+# separately compiled native binary, so its availability tracks the NanoISA
+# toolchain (nano_virt + nano_vm) rather than libreadline. It is installed for
+# the default C example build; the NanoISA example build can't resolve the
+# launcher's runtime modules, so it is skipped there.
 FORTH_CLI :=
 ifeq ($(EXAMPLES_BACKEND_NORMALIZED),c)
-ifeq ($(READLINE_AVAILABLE),yes)
 ifeq ($(IS_SELFHOSTED),)
 FORTH_CLI := $(BIN_DIR)/forth
-endif
 endif
 endif
 
@@ -676,9 +679,15 @@ test-forth: test-forth-see
 run-forth: $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
 	@cd .. && FORTH_INTERACTIVE=1 bin/nano_vm bin/nl_forth_interpreter_vm
 
-$(BIN_DIR)/forth: $(BIN_DIR)/nl_forth_interpreter
-	@echo "Linking $@..."
-	cp $< $@
+# `bin/forth` is NOT a second, natively compiled Forth. It is a thin launcher
+# that runs the ONE Forth implementation -- the NanoISA-backed
+# `nl_forth_interpreter` bytecode executed by `bin/nano_vm`. The SDL IDE launches
+# this same launcher over a PTY, so the CLI, the IDE, and the ANS test suite all
+# exercise the identical NanoISA-backed executable.
+$(BIN_DIR)/forth: ../scripts/forth-launcher.sh $(BIN_DIR)/nano_vm $(BIN_DIR)/nl_forth_interpreter_vm ../modules/forth_see/.build/libforth_see.so
+	@echo "Installing $@ (NanoISA-backed Forth launcher)..."
+	cp ../scripts/forth-launcher.sh $@
+	chmod +x $@
 
 forth: $(BIN_DIR)/forth
 	@cd .. && ./bin/forth --interactive
@@ -730,6 +739,9 @@ $(BIN_DIR)/nanoc_stage2:
 
 $(BIN_DIR)/nano_virt:
 	@$(MAKE) -C .. nano_virt
+
+$(BIN_DIR)/nano_vm:
+	@$(MAKE) -C .. nano_vm
 
 $(INTERPRETER):
 	@$(MAKE) -C .. bin/nano
