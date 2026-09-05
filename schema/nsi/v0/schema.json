@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nanolang.dev/schema/nsi/v0/schema.json",
+  "title": "Nano Service Interface v0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["nsi", "interface", "version", "types"],
+  "properties": {
+    "nsi": { "const": 0 },
+    "interface": { "$ref": "#/$defs/id" },
+    "version": { "$ref": "#/$defs/version" },
+    "types": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/typeDeclaration" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)*$"
+    },
+    "version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["major", "minor"],
+      "properties": {
+        "major": { "type": "integer", "minimum": 0 },
+        "minor": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "typeRef": {
+      "anyOf": [
+        { "enum": ["bool", "i64", "u64", "f64", "string", "binary"] },
+        { "$ref": "#/$defs/id" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "element"],
+          "properties": {
+            "kind": { "const": "array" },
+            "element": { "$ref": "#/$defs/typeRef" }
+          }
+        }
+      ]
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/id" },
+        "type": { "$ref": "#/$defs/typeRef" },
+        "optional": { "type": "boolean", "default": false }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/id" },
+        "type": { "$ref": "#/$defs/typeRef" }
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "fields"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/id" },
+        "kind": { "const": "record" },
+        "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } }
+      }
+    },
+    "variant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "cases"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/id" },
+        "kind": { "const": "variant" },
+        "cases": { "type": "array", "items": { "$ref": "#/$defs/case" } }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/id" },
+        "kind": { "const": "resource" }
+      }
+    },
+    "callback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "parameters", "result"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/id" },
+        "kind": { "const": "callback" },
+        "parameters": { "type": "array", "items": { "$ref": "#/$defs/field" } },
+        "result": { "$ref": "#/$defs/typeRef" },
+        "async": { "type": "boolean", "default": false }
+      }
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "version", "fields"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 1 },
+        "name": { "$ref": "#/$defs/id" },
+        "kind": { "const": "error" },
+        "version": { "$ref": "#/$defs/version" },
+        "fields": { "type": "array", "items": { "$ref": "#/$defs/field" } }
+      }
+    },
+    "typeDeclaration": {
+      "oneOf": [
+        { "$ref": "#/$defs/record" },
+        { "$ref": "#/$defs/variant" },
+        { "$ref": "#/$defs/resource" },
+        { "$ref": "#/$defs/callback" },
+        { "$ref": "#/$defs/error" }
+      ]
+    }
+  }
+}

@@ -464,7 +464,10 @@ deployment policy.
 Interface definition:
 - [ ] I will define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers.
 - [ ] I will describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema.
-- [ ] I will support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors.
+- [x] I support NSI v0 records, variants, arrays, strings, binary data,
+      resources, callbacks, asynchronous results, and versioned errors. The
+      schema rejects unknown kinds and properties; compatibility rules and
+      generated bindings remain separate work.
 - [ ] I will define backward- and forward-compatibility rules for interfaces and wire representations.
 - [ ] I will reject ambiguous ABI inference; every foreign boundary will have an explicit typed contract.
 - [ ] I will generate NanoLang and Nano Forth bindings from the same interface description.

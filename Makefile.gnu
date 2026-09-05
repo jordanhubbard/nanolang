@@ -46,6 +46,10 @@
 SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
+.PHONY: test-nsi
+test-nsi:
+	python3 -m unittest tests.test_nsi_schema
+
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -Isrc -D_GNU_SOURCE
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations

@@ -1,0 +1,46 @@
+{
+  "nsi": 0,
+  "interface": "example.payloads",
+  "version": { "major": 1, "minor": 0 },
+  "types": [
+    {
+      "id": 1,
+      "name": "message",
+      "kind": "record",
+      "fields": [
+        { "id": 1, "name": "title", "type": "string" },
+        { "id": 2, "name": "body", "type": "binary" },
+        { "id": 3, "name": "tags", "type": { "kind": "array", "element": "string" } }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "delivery",
+      "kind": "variant",
+      "cases": [
+        { "id": 1, "name": "queued" },
+        { "id": 2, "name": "sent", "type": "message" },
+        { "id": 3, "name": "failed", "type": "delivery.error" }
+      ]
+    },
+    { "id": 3, "name": "subscription", "kind": "resource" },
+    {
+      "id": 4,
+      "name": "delivery.callback",
+      "kind": "callback",
+      "parameters": [{ "id": 1, "name": "event", "type": "delivery" }],
+      "result": "bool",
+      "async": true
+    },
+    {
+      "id": 5,
+      "name": "delivery.error",
+      "kind": "error",
+      "version": { "major": 1, "minor": 0 },
+      "fields": [
+        { "id": 1, "name": "code", "type": "u64" },
+        { "id": 2, "name": "message", "type": "string" }
+      ]
+    }
+  ]
+}
