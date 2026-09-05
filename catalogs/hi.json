@@ -1,0 +1,8 @@
+{
+  "catalog.missing": "संदेश अनुपलब्ध है: {message_id}",
+  "diagnostic.error": "त्रुटि",
+  "diagnostic.warning": "चेतावनी",
+  "guide.draft": "यह संस्करण मशीन से बनाया गया प्रारूप है।",
+  "guide.title": "उपयोगकर्ता मार्गदर्शिका",
+  "log.compiler.start": "{path} संकलित किया जा रहा है"
+}

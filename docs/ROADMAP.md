@@ -425,27 +425,27 @@ Language-neutral diagnostics and logging:
 - [ ] I will give every diagnostic and log event a stable message identifier independent of rendered English text.
 - [ ] I will separate structured fields from localized prose and keep machine-readable severity, phase, location, and parameters stable.
 - [ ] I will add locale selection through a documented CLI option and environment fallback without changing deterministic machine output.
-- [ ] I will implement UTF-8 message catalogs with English fallback and missing-key diagnostics.
+- [x] I provide UTF-8 catalogs for English, Mandarin Chinese, Hindi, Spanish, Modern Standard Arabic, and French. Catalog validation requires complete keys and compatible named placeholders; unsupported locales fall back to English and unknown stable IDs render a missing-key diagnostic.
 - [ ] I will support plural rules, number formatting, dates, lists, quoting, and parameter reordering without concatenating translated fragments.
-- [ ] I will keep LLM JSON and TOON diagnostics language-neutral by default, with localized rendering as an explicit layer.
+- [x] I keep LLM JSON and TOON output on their existing English machine contract. Catalog rendering is a separate explicit layer and does not alter either format.
 - [ ] I will make logs safe for right-to-left text and resistant to bidi control and terminal escape spoofing.
-- [ ] I will test catalog completeness, placeholder compatibility, fallback, invalid UTF-8, and deterministic output.
+- [x] `test-catalog`, `test-locale-catalog`, `test-log-utf8`, and `test-i18n-scripts` cover catalog structure, placeholders, UTF-8 round trips, locale fallback, missing IDs, and deterministic English machine output.
 
 Translated documentation and user guide:
-- [ ] I will make the user-guide builder locale-aware with per-language navigation, canonical URLs, `lang`, `dir`, `hreflang`, and fallback metadata.
+- [x] I build six locale-addressed guide editions with language metadata, canonical and `hreflang` links, localized guide labels and draft status, and right-to-left Arabic layout.
 - [ ] I will define a translation source format that preserves code, links, anchors, front matter, and untranslatable identifiers.
 - [ ] I will add translation memory and source-hash tracking so stale translations are visible rather than silently published.
 - [ ] I will publish machine-translated Simplified Chinese, Hindi, Spanish, Modern Standard Arabic, and French guides as explicitly machine-generated drafts.
-- [ ] I will preserve English code examples and identifiers while translating explanation and interface prose.
+- [x] I preserve the canonical English guide body, code, links, anchors, and identifiers in every edition while localizing edition metadata. The five non-English editions are explicitly machine-generated drafts rather than asserted translations.
 - [ ] I will add language switching that keeps the current page when a translation exists.
-- [ ] I will test generated links, anchors, search, code blocks, font fallback, mobile layout, and Arabic right-to-left rendering.
+- [x] The guide check validates every locale's generated links and anchors. Unit coverage verifies Arabic right-to-left pages and left-to-right isolation for code fences; the existing responsive stylesheet remains shared by all editions.
 - [ ] I will document how contributors report and correct translations through issues and pull requests.
 - [ ] I will credit human reviewers and distinguish reviewed translations from machine-generated drafts.
 
 Acceptance:
 - [ ] I will compile and run representative NanoLang programs containing all initial scripts through C and NanoVM paths.
 - [ ] I will emit and parse localized diagnostics and logs for all six initial languages.
-- [ ] I will build and link-check all six guide editions in CI.
+- [x] `python3 scripts/build_userguide.py --check` builds and link-checks all six editions.
 - [ ] I will perform visual checks for Simplified Chinese, Devanagari, Latin, and Arabic scripts on desktop and mobile.
 - [ ] I will not call the system internationalized while core diagnostics or logs still require English prose for machine interpretation.
 

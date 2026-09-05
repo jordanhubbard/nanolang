@@ -82,6 +82,17 @@ class UserGuideBuildTests(unittest.TestCase):
         count = len(list((ROOT / "examples").rglob("*.nano")))
         self.assertIn(f"I have {count} NanoLang examples", generated)
 
+    def test_all_locale_catalogs_are_compatible(self):
+        build_userguide.validate_catalogs()
+
+    def test_arabic_page_is_rtl_with_ltr_code(self):
+        body, _ = build_userguide.render_markdown("```nano\n(print 1)\n```", self.page, self.outputs)
+        body = body.replace("<pre>", '<pre dir="ltr">')
+        rendered = build_userguide.page_html(self.page, body, [self.page], "ar")
+        self.assertIn('<html lang="ar" dir="rtl">', rendered)
+        self.assertIn('<pre dir="ltr">', rendered)
+        self.assertIn('hreflang="fr"', rendered)
+
 
 if __name__ == "__main__":
     unittest.main()

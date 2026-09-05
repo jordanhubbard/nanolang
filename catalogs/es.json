@@ -1,0 +1,8 @@
+{
+  "catalog.missing": "Falta el mensaje: {message_id}",
+  "diagnostic.error": "error",
+  "diagnostic.warning": "advertencia",
+  "guide.draft": "Esta edición es un borrador generado por máquina.",
+  "guide.title": "Guía del usuario",
+  "log.compiler.start": "Compilando {path}"
+}

@@ -1,0 +1,8 @@
+{
+  "catalog.missing": "الرسالة مفقودة: {message_id}",
+  "diagnostic.error": "خطأ",
+  "diagnostic.warning": "تحذير",
+  "guide.draft": "هذه النسخة مسودة مولدة آليًا.",
+  "guide.title": "دليل المستخدم",
+  "log.compiler.start": "يجري تصريف {path}"
+}

@@ -1473,6 +1473,19 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-nanoc-bench
 	@$(MAKE) --no-print-directory test-bench
 
+.PHONY: test-catalog test-locale-catalog test-log-utf8 test-i18n-scripts
+test-catalog:
+	@PYTHONPATH=scripts python3 -c 'from i18n_catalog import validate_catalogs; validate_catalogs()'
+
+test-locale-catalog: test-catalog
+	@PYTHONPATH=scripts python3 -m unittest tests.test_build_userguide
+
+test-log-utf8: test-catalog
+	@PYTHONPATH=scripts python3 -c 'from i18n_catalog import render; assert render("ar", "log.compiler.start", path="مثال.nano").encode("utf-8").decode("utf-8")'
+
+test-i18n-scripts: test-catalog
+	@PYTHONPATH=scripts python3 -c 'from i18n_catalog import render; assert render("xx", "diagnostic.error") == "error"; assert "unknown.id" in render("fr", "unknown.id")'
+
 .PHONY: test-pt2-audio
 # Regression test: pt2_audio must render non-silent samples (previously it just
 # memset the output buffer and never called paulaGenerateSamples). Compiles the

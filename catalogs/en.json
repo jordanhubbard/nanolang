@@ -1,0 +1,8 @@
+{
+  "catalog.missing": "Missing message: {message_id}",
+  "diagnostic.error": "error",
+  "diagnostic.warning": "warning",
+  "guide.draft": "This edition is a machine-generated draft.",
+  "guide.title": "User Guide",
+  "log.compiler.start": "Compiling {path}"
+}
