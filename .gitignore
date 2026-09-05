@@ -51,6 +51,9 @@ __pycache__/
 # Dependency directories
 node_modules/
 vendor/
+# Jackson Forth-2012 suite is pinned under tests/forth/vendor/
+!tests/forth/vendor/
+!tests/forth/vendor/**
 .nanolang/
 
 # Debug files

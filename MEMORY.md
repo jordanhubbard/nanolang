@@ -82,6 +82,7 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 | `make test` | Full test suite (units + integration + language tests) |
 | `make test-quick` | Language tests only (fastest) |
 | `make test-forth-gforth-diff` | Forth 2012 pins + Gforth 0.7.3 `pi.fs` differential |
+| `make test-forth-jackson` | Jackson v0.15.0 vendor pin and INCLUDE/file-access gap (not Core) |
 | `make test-forth-session` | Forth session: colon compile, dictionary, sources, stacks |
 | `make test-vm` | Run test suite through NanoVM backend |
 | `make examples` | Build all 150+ example programs |

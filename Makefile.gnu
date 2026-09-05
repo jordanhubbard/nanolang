@@ -1019,6 +1019,18 @@ test-forth-gforth-diff:
 	@chmod +x tests/test_forth_gforth_diff.sh
 	@bash tests/test_forth_gforth_diff.sh
 
+# Jackson v0.15.0 vendor pin, Core-evidence classification, and the INCLUDE
+# gap. Does not run optional word sets. Does not claim Core.
+.PHONY: test-forth-jackson
+test-forth-jackson: $(BIN_DIR)/forth $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Jackson Forth-2012 vendor and INCLUDE-gap tests..."
+	@$(TIMEOUT_CMD) $(CC) $(CFLAGS) -o tests/forth/test_forth_include_gap \
+		tests/forth/test_forth_include_gap.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@chmod +x tests/test_forth_jackson.sh
+	@$(TIMEOUT_CMD) bash tests/test_forth_jackson.sh
+	@rm -f tests/forth/test_forth_include_gap
+
 # Module validator: keg-only pkg-config prefixes and Darwin/brew hints.
 # scripts/validate-modules.sh is `make modules`; this pins the two macOS
 # lies it used to tell (missing readline, apt-get remediation).
@@ -1139,6 +1151,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Checking Forth 2012 pins and Gforth differential runs..."
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@echo ""
+	@echo "Checking Jackson Forth-2012 vendor pin and INCLUDE gap..."
+	@$(MAKE) --no-print-directory test-forth-jackson
 	@echo ""
 	@echo "Checking Forth IDE PTY interpreter liveness..."
 	@$(MAKE) --no-print-directory test-forth-pty
@@ -1469,6 +1484,7 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@$(MAKE) --no-print-directory test-forth-jackson
 	@$(MAKE) --no-print-directory test-interpreter-examples
 	@$(MAKE) --no-print-directory test-nanoc-bench
 	@$(MAKE) --no-print-directory test-bench
@@ -2453,6 +2469,7 @@ help:
 	@echo "  make test-daemon       - Run all tests through NanoVM daemon backend"
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
+	@echo "  make test-forth-jackson - Jackson v0.15.0 vendor pin and INCLUDE/file-access gap"
 	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
 	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
 	@echo "  make test-interpreter-examples - Language examples under bin/nano"
