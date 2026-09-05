@@ -50,7 +50,8 @@ jobs:
             libsdl2-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
-            libncurses-dev
+            libncurses-dev \
+            gforth
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
@@ -62,7 +63,8 @@ jobs:
             openssl \
             sdl2 \
             sdl2_mixer \
-            sdl2_ttf
+            sdl2_ttf \
+            gforth
 
       - name: Install Python dependencies
         shell: bash
@@ -395,7 +397,8 @@ jobs:
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
-            libsdl2-ttf-dev
+            libsdl2-ttf-dev \
+            gforth
 
       - name: Build with coverage
         run: make coverage
