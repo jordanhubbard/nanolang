@@ -36,10 +36,17 @@
     { "id": "nsi:nanolang/log#write_event", "name": "write_event" }
   ],
   "types": [
-    { "id": "nsi:nanolang/log#Level", "name": "Level" }
+    { "id": "nsi:nanolang/log#Level", "name": "Level", "kind": "variant",
+      "cases": [
+        { "id": "nsi:nanolang/log#Level.debug", "name": "debug" },
+        { "id": "nsi:nanolang/log#Level.info", "name": "info" },
+        { "id": "nsi:nanolang/log#Level.warn", "name": "warn" },
+        { "id": "nsi:nanolang/log#Level.error", "name": "error" }
+      ]
+    }
   ],
   "errors": [
-    { "id": "nsi:nanolang/log#io", "name": "io" }
+    { "id": "nsi:nanolang/log#io", "name": "io", "version": "1" }
   ],
   "capabilities": [
     { "id": "cap:nanolang/log.write", "name": "write" }

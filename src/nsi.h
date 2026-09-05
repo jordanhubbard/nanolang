@@ -4,9 +4,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-/* Nano Service Interface v0: identifiers plus an optional parameter
- * contract (direction, ownership, lifetime, mutability, optionality,
- * streaming). Records, compatibility, generation, and adapters are later. */
+/* Nano Service Interface v0: identifiers, optional parameter contract,
+ * and optional typed payloads. Compatibility, generation, and adapters
+ * are later. */
 
 #define NL_NSI_VERSION 0
 
@@ -42,6 +42,18 @@ typedef enum {
     NL_NSI_STREAM_BIDI
 } NlNsiStreaming;
 
+typedef enum {
+    NL_NSI_TYPE_OPAQUE = 0,
+    NL_NSI_TYPE_RECORD,
+    NL_NSI_TYPE_VARIANT,
+    NL_NSI_TYPE_ARRAY,
+    NL_NSI_TYPE_STRING,
+    NL_NSI_TYPE_BINARY,
+    NL_NSI_TYPE_RESOURCE,
+    NL_NSI_TYPE_CALLBACK,
+    NL_NSI_TYPE_ASYNC
+} NlNsiTypeKind;
+
 typedef struct {
     char *id;
     char *name;
@@ -67,13 +79,36 @@ typedef struct {
 } NlNsiMethod;
 
 typedef struct {
+    char *id;
+    char *name;
+    char *type_id;
+} NlNsiMember;
+
+typedef struct {
+    char *id;
+    char *name;
+    NlNsiTypeKind kind;
+    NlNsiMember *members;
+    size_t member_count;
+    char *element_id;
+    char *method_id;
+    char *result_id;
+} NlNsiType;
+
+typedef struct {
+    char *id;
+    char *name;
+    char *version;
+} NlNsiError;
+
+typedef struct {
     int version;
     NlNsiNamed iface;
     NlNsiMethod *methods;
     size_t method_count;
-    NlNsiNamed *types;
+    NlNsiType *types;
     size_t type_count;
-    NlNsiNamed *errors;
+    NlNsiError *errors;
     size_t error_count;
     NlNsiNamed *capabilities;
     size_t capability_count;

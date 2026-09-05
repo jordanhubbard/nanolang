@@ -1,7 +1,7 @@
 # Nano Service Interface
 
-I turn a module boundary into a versioned contract. v0 is identifiers plus
-an optional parameter contract.
+I turn a module boundary into a versioned contract. v0 is identifiers, an
+optional parameter contract, and optional typed payloads.
 
 An NSI document is UTF-8 JSON. `nsi_version` is `0`. I reject any other
 version. I reject invalid UTF-8. I reject a name without an `id`. I reject
@@ -36,18 +36,38 @@ a `name`, a `type` id, and these fields:
 | `streaming` | `none`, `in`, `out`, `bidi` |
 
 `type` is an `nsi:` identifier. It may name a type in this document or a
-core scalar such as `nsi:core/string`. Records, variants, arrays, and
-resources are a later item. I do not infer ABI from names.
+core scalar such as `nsi:core/string`. I do not infer ABI from names.
 
 Streaming must match direction: `in` streams need `in` or `inout`; `out`
 streams need `out`, `inout`, or `return`; `bidi` needs `inout`. Unknown
 enumerations fail closed.
 
+## Types
+
+A type may omit `kind` (opaque named type) or set `kind` to one of:
+`opaque`, `record`, `variant`, `array`, `string`, `binary`, `resource`,
+`callback`, `async`.
+
+| Kind | Extra fields |
+| --- | --- |
+| `record` | `fields`: `{id,name,type}` |
+| `variant` | `cases`: `{id,name}` and optional `type`; at least one case |
+| `array` | `element`: `nsi:` type id |
+| `callback` | `method`: a method id in this document |
+| `async` | `result`: `nsi:` type id |
+
+`nsi:core/string`, `nsi:core/int`, `nsi:core/unit`, and `nsi:core/bytes`
+are core scalars. They do not appear in `types[]`. Errors may carry a
+`version` token (`[A-Za-z0-9._-]+`). I do not infer a C ABI from these
+kinds.
+
+Example: [schema/nsi/examples/types.nsi.json](../schema/nsi/examples/types.nsi.json).
+
 ## What v0 is not
 
-v0 does not describe records, variants, compatibility rules, generated
-bindings, or a wire frame. Those are later Phase 16 items. Loading a
-document does not migrate a module. `module.json` and
-`module.manifest.json` stay the current build and discovery metadata.
+v0 does not describe compatibility rules, generated bindings, or a wire
+frame. Those are later Phase 16 items. Loading a document does not migrate
+a module. `module.json` and `module.manifest.json` stay the current build
+and discovery metadata.
 
 I do not generate clients from v0. I do not claim a service fabric.

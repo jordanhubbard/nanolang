@@ -108,8 +108,9 @@ How I am built:
 10.4. **[Nano Service Interface](NSI.md)** - My v0 service-contract identifiers
     - Interface, method, type, error, capability, and parameter ids
     - Direction, ownership, lifetime, mutability, optionality, streaming
+    - Records, variants, arrays, strings, binary, resources, callbacks, async
     - Names are not identity; missing or unknown enumerations fail closed
-    - Records, generation, and migration are later items
+    - Compatibility, generation, and migration are later items
 
 10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
     - Type soundness (preservation and progress)

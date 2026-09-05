@@ -38,13 +38,49 @@ static void free_methods(NlNsiMethod *items, size_t n) {
     free(items);
 }
 
+static void free_members(NlNsiMember *items, size_t n) {
+    size_t i;
+    if (!items) return;
+    for (i = 0; i < n; i++) {
+        free(items[i].id);
+        free(items[i].name);
+        free(items[i].type_id);
+    }
+    free(items);
+}
+
+static void free_types(NlNsiType *items, size_t n) {
+    size_t i;
+    if (!items) return;
+    for (i = 0; i < n; i++) {
+        free(items[i].id);
+        free(items[i].name);
+        free_members(items[i].members, items[i].member_count);
+        free(items[i].element_id);
+        free(items[i].method_id);
+        free(items[i].result_id);
+    }
+    free(items);
+}
+
+static void free_errors(NlNsiError *items, size_t n) {
+    size_t i;
+    if (!items) return;
+    for (i = 0; i < n; i++) {
+        free(items[i].id);
+        free(items[i].name);
+        free(items[i].version);
+    }
+    free(items);
+}
+
 void nl_nsi_free(NlNsi *nsi) {
     if (!nsi) return;
     free(nsi->iface.id);
     free(nsi->iface.name);
     free_methods(nsi->methods, nsi->method_count);
-    free_named(nsi->types, nsi->type_count);
-    free_named(nsi->errors, nsi->error_count);
+    free_types(nsi->types, nsi->type_count);
+    free_errors(nsi->errors, nsi->error_count);
     free_named(nsi->capabilities, nsi->capability_count);
     free(nsi);
 }
@@ -297,6 +333,276 @@ static bool parse_method_array(cJSON *arr, NlNsiMethod **out, size_t *count) {
     return true;
 }
 
+static bool type_ref_ok(const char *id) {
+    return id_ascii_ok(id) && starts_with(id, "nsi:");
+}
+
+static bool version_ok(const char *v) {
+    size_t i;
+    if (!v || !v[0]) return false;
+    for (i = 0; v[i]; i++) {
+        unsigned char c = (unsigned char)v[i];
+        if (!nl_ascii_isalnum((int)c) && c != '.' && c != '_' && c != '-')
+            return false;
+    }
+    return true;
+}
+
+static bool parse_member(cJSON *obj, NlNsiMember *out, int require_type) {
+    NlNsiNamed named = {0};
+    cJSON *type;
+    if (!parse_named(obj, &named)) return false;
+    out->id = named.id;
+    out->name = named.name;
+    out->type_id = NULL;
+    type = cJSON_GetObjectItemCaseSensitive(obj, "type");
+    if (type) {
+        if (!cJSON_IsString(type) || !type_ref_ok(type->valuestring)) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+        out->type_id = strdup(type->valuestring);
+        if (!out->type_id) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+    } else if (require_type) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    return true;
+}
+
+static bool parse_member_array(cJSON *arr, NlNsiMember **out, size_t *count, int require_type) {
+    int n;
+    int i;
+    if (!arr || !cJSON_IsArray(arr)) return false;
+    n = cJSON_GetArraySize(arr);
+    if (n < 0) return false;
+    if (n == 0) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    *out = calloc((size_t)n, sizeof(**out));
+    if (!*out) return false;
+    *count = 0;
+    for (i = 0; i < n; i++) {
+        if (!parse_member(cJSON_GetArrayItem(arr, i), &(*out)[i], require_type)) {
+            free_members(*out, (size_t)i);
+            *out = NULL;
+            *count = 0;
+            return false;
+        }
+        (*count)++;
+    }
+    return true;
+}
+
+static const char *const k_type_kind[] = {
+    "opaque", "record", "variant", "array", "string", "binary",
+    "resource", "callback", "async"
+};
+
+static bool parse_type(cJSON *obj, NlNsiType *out) {
+    NlNsiNamed named = {0};
+    cJSON *kind_item;
+    int kind = NL_NSI_TYPE_OPAQUE;
+
+    if (!parse_named(obj, &named)) return false;
+    out->id = named.id;
+    out->name = named.name;
+    out->members = NULL;
+    out->member_count = 0;
+    out->element_id = NULL;
+    out->method_id = NULL;
+    out->result_id = NULL;
+    kind_item = cJSON_GetObjectItemCaseSensitive(obj, "kind");
+    if (kind_item) {
+        if (!parse_enum(obj, "kind", k_type_kind, 9, &kind)) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+    }
+    out->kind = (NlNsiTypeKind)kind;
+    if (out->kind == NL_NSI_TYPE_RECORD) {
+        if (!parse_member_array(cJSON_GetObjectItemCaseSensitive(obj, "fields"),
+                                &out->members, &out->member_count, 1)) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+    } else if (out->kind == NL_NSI_TYPE_VARIANT) {
+        if (!parse_member_array(cJSON_GetObjectItemCaseSensitive(obj, "cases"),
+                                &out->members, &out->member_count, 0) ||
+            out->member_count == 0) {
+            free(out->id);
+            free(out->name);
+            free_members(out->members, out->member_count);
+            out->id = NULL;
+            out->name = NULL;
+            out->members = NULL;
+            out->member_count = 0;
+            return false;
+        }
+    } else if (out->kind == NL_NSI_TYPE_ARRAY) {
+        cJSON *el = cJSON_GetObjectItemCaseSensitive(obj, "element");
+        if (!cJSON_IsString(el) || !type_ref_ok(el->valuestring)) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+        out->element_id = strdup(el->valuestring);
+        if (!out->element_id) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+    } else if (out->kind == NL_NSI_TYPE_CALLBACK) {
+        cJSON *m = cJSON_GetObjectItemCaseSensitive(obj, "method");
+        if (!cJSON_IsString(m) || !id_ascii_ok(m->valuestring)) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+        out->method_id = strdup(m->valuestring);
+        if (!out->method_id) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+    } else if (out->kind == NL_NSI_TYPE_ASYNC) {
+        cJSON *r = cJSON_GetObjectItemCaseSensitive(obj, "result");
+        if (!cJSON_IsString(r) || !type_ref_ok(r->valuestring)) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+        out->result_id = strdup(r->valuestring);
+        if (!out->result_id) {
+            free(out->id);
+            free(out->name);
+            out->id = NULL;
+            out->name = NULL;
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool parse_type_array(cJSON *arr, NlNsiType **out, size_t *count) {
+    int n;
+    int i;
+    if (!arr) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    if (!cJSON_IsArray(arr)) return false;
+    n = cJSON_GetArraySize(arr);
+    if (n < 0) return false;
+    if (n == 0) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    *out = calloc((size_t)n, sizeof(**out));
+    if (!*out) return false;
+    *count = 0;
+    for (i = 0; i < n; i++) {
+        if (!parse_type(cJSON_GetArrayItem(arr, i), &(*out)[i])) {
+            free_types(*out, (size_t)i);
+            *out = NULL;
+            *count = 0;
+            return false;
+        }
+        (*count)++;
+    }
+    return true;
+}
+
+static bool parse_error(cJSON *obj, NlNsiError *out) {
+    NlNsiNamed named = {0};
+    cJSON *ver;
+    if (!parse_named(obj, &named)) return false;
+    out->id = named.id;
+    out->name = named.name;
+    out->version = NULL;
+    ver = cJSON_GetObjectItemCaseSensitive(obj, "version");
+    if (!ver) return true;
+    if (!cJSON_IsString(ver) || !version_ok(ver->valuestring)) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    out->version = strdup(ver->valuestring);
+    if (!out->version) {
+        free(out->id);
+        free(out->name);
+        out->id = NULL;
+        out->name = NULL;
+        return false;
+    }
+    return true;
+}
+
+static bool parse_error_array(cJSON *arr, NlNsiError **out, size_t *count) {
+    int n;
+    int i;
+    if (!arr) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    if (!cJSON_IsArray(arr)) return false;
+    n = cJSON_GetArraySize(arr);
+    if (n < 0) return false;
+    if (n == 0) {
+        *out = NULL;
+        *count = 0;
+        return true;
+    }
+    *out = calloc((size_t)n, sizeof(**out));
+    if (!*out) return false;
+    *count = 0;
+    for (i = 0; i < n; i++) {
+        if (!parse_error(cJSON_GetArrayItem(arr, i), &(*out)[i])) {
+            free_errors(*out, (size_t)i);
+            *out = NULL;
+            *count = 0;
+            return false;
+        }
+        (*count)++;
+    }
+    return true;
+}
+
 static bool ids_unique(const NlNsi *nsi) {
     size_t n = 1u;
     size_t i;
@@ -308,6 +614,7 @@ static bool ids_unique(const NlNsi *nsi) {
     n += nsi->method_count + nsi->type_count + nsi->error_count +
          nsi->capability_count;
     for (i = 0; i < nsi->method_count; i++) n += nsi->methods[i].param_count;
+    for (i = 0; i < nsi->type_count; i++) n += nsi->types[i].member_count;
     ids = malloc(n * sizeof(*ids));
     if (!ids) return false;
     ids[k++] = nsi->iface.id;
@@ -316,7 +623,11 @@ static bool ids_unique(const NlNsi *nsi) {
         for (j = 0; j < nsi->methods[i].param_count; j++)
             ids[k++] = nsi->methods[i].params[j].id;
     }
-    for (i = 0; i < nsi->type_count; i++) ids[k++] = nsi->types[i].id;
+    for (i = 0; i < nsi->type_count; i++) {
+        ids[k++] = nsi->types[i].id;
+        for (j = 0; j < nsi->types[i].member_count; j++)
+            ids[k++] = nsi->types[i].members[j].id;
+    }
     for (i = 0; i < nsi->error_count; i++) ids[k++] = nsi->errors[i].id;
     for (i = 0; i < nsi->capability_count; i++) ids[k++] = nsi->capabilities[i].id;
     for (i = 0; i < k && ok; i++) {
@@ -353,6 +664,22 @@ static bool validate_prefixes(const NlNsi *nsi) {
     }
     for (i = 0; i < nsi->type_count; i++) {
         if (!fragment_of_interface(nsi->iface.id, nsi->types[i].id)) return false;
+        for (j = 0; j < nsi->types[i].member_count; j++) {
+            if (!fragment_of_interface(nsi->iface.id, nsi->types[i].members[j].id))
+                return false;
+        }
+        if (nsi->types[i].kind == NL_NSI_TYPE_CALLBACK) {
+            int found = 0;
+            size_t m;
+            for (m = 0; m < nsi->method_count; m++) {
+                if (nsi->types[i].method_id &&
+                    strcmp(nsi->types[i].method_id, nsi->methods[m].id) == 0) {
+                    found = 1;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
     }
     for (i = 0; i < nsi->error_count; i++) {
         if (!fragment_of_interface(nsi->iface.id, nsi->errors[i].id)) return false;
@@ -418,9 +745,9 @@ NlNsi *nl_nsi_load_path(const char *path) {
     if (!parse_named(cJSON_GetObjectItemCaseSensitive(json, "interface"), &nsi->iface) ||
         !parse_method_array(cJSON_GetObjectItemCaseSensitive(json, "methods"),
                             &nsi->methods, &nsi->method_count) ||
-        !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "types"),
+        !parse_type_array(cJSON_GetObjectItemCaseSensitive(json, "types"),
                            &nsi->types, &nsi->type_count) ||
-        !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "errors"),
+        !parse_error_array(cJSON_GetObjectItemCaseSensitive(json, "errors"),
                            &nsi->errors, &nsi->error_count) ||
         !parse_named_array(cJSON_GetObjectItemCaseSensitive(json, "capabilities"),
                            &nsi->capabilities, &nsi->capability_count) ||

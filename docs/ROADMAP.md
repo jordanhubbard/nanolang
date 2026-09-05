@@ -154,6 +154,11 @@ remains 4.4.
       transfer, lifetime, mutability, optionality, and streaming in NSI v0
       (`make test-nsi`, `docs/NSI.md`). Records and generation are later.
       (`task_ab516c43dbdf4915b76d178409b2e56b`)
+- [x] **4.3 / Phase 16.** I support records, variants, arrays, strings, binary,
+      resources, callbacks, asynchronous results, and versioned errors
+      (`schema/nsi/examples/types.nsi.json`, `make test-nsi`). Compatibility
+      and generation are later.
+      (`task_d9e85990a21944fe836852591361f2ff`)
 
 ## Release Map
 
@@ -715,7 +720,7 @@ deployment policy.
 Interface definition:
 - [x] I define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`, `docs/NSI.md`, `make test-nsi`). Names without ids fail closed.
 - [x] I describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema (`docs/NSI.md`, `make test-nsi`). Unknown enumerations fail closed.
-- [ ] I will support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors.
+- [x] I support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors (`schema/nsi/examples/types.nsi.json`, `make test-nsi`). Unknown kinds fail closed.
 - [ ] I will define backward- and forward-compatibility rules for interfaces and wire representations.
 - [ ] I will reject ambiguous ABI inference; every foreign boundary will have an explicit typed contract.
 - [ ] I will generate NanoLang and Nano Forth bindings from the same interface description.
@@ -1560,6 +1565,6 @@ I aim to be:
 ---
 
 Last Updated: September 5, 2026
-Current Phase: 4.3 Phase 16 identifiers and parameter contract are in (`make test-nsi`). Next is records, variants, arrays, strings, binary, resources, callbacks, and versioned errors. 5.0 One IR is recorded, not started.
+Current Phase: 4.3 Phase 16 identifiers, parameter contract, and typed payloads are in (`make test-nsi`). Next is backward- and forward-compatibility rules. 5.0 One IR is recorded, not started.
 Next Major Milestone: 4.3 service interfaces, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
 Next Review: after a named human reviewer accepts a translated guide page
