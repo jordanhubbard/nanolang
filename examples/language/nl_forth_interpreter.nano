@@ -27,7 +27,7 @@
 # to callers. This replaces the struct-based approach that NanoLang doesn't support for List fields.
 
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
-from "modules/readline/readline.nano" import rl_readline, rl_add_history
+from "modules/readline/readline.nano" import rl_readline, rl_add_history, rl_raw_getline, rl_hit_eof
 module "modules/forth_see/forth_see.nano"
 
 extern fn list_int_new() -> int64_t
@@ -1274,23 +1274,49 @@ fn run_file(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List
     return (list_int_get dspace 8)
 }
 
+fn forth_use_raw_io() -> bool {
+    return (> (str_length (getenv "FORTH_RAW_IO")) 0)
+}
+
+shadow forth_use_raw_io {
+    # The flag is process-environment state; the helper must stay callable.
+    let _flag: bool = (forth_use_raw_io)
+    assert true
+}
+
+fn forth_read_line(prompt: string) -> string {
+    if (forth_use_raw_io) {
+        return (rl_raw_getline prompt)
+    }
+    return (rl_readline prompt)
+}
+
+shadow forth_read_line {
+    assert true
+}
+
 # ── REPL ───────────────────────────────────────────────────────────────────────
-# Interactive Forth REPL using readline for line editing and history.
+# Interactive Forth REPL. A real tty uses readline. A PTY client (the SDL IDE)
+# sets FORTH_RAW_IO so I read lines with fgets and leave termios alone.
 # Exits when the user types "bye", presses Ctrl-D (EOF), or dspace[4] becomes 0.
+# A blank line is not EOF.
 fn forth_repl(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: List<string>, wbodies: List<string>, wimm: List<int>) -> int {
     (println "FIG Forth 83 -- NanoLang interpreter")
     (println "Type Forth expressions, ': word def ;' to define words, 'bye' or Ctrl-D to quit.")
     (println "")
     # dspace[4] is the running flag: 1 = running, 0 = stop (set by "bye" or EOF)
     while (== (list_int_get dspace 4) 1) {
-        let line: string = (rl_readline "forth> ")
-        if (== (str_length line) 0) {
-            # EOF (Ctrl-D) — stop the loop
+        let line: string = (forth_read_line "forth> ")
+        if (rl_hit_eof) {
             (println "")
             (list_int_set dspace 4 0)
         } else {
-            (rl_add_history line)
-            (exec_line stack rstack dspace wnames wbodies wimm line)
+            if (> (str_length line) 0) {
+                if (not (forth_use_raw_io)) {
+                    (rl_add_history line)
+                } else { (print "") }
+                (exec_line stack rstack dspace wnames wbodies wimm line)
+            } else { (print "") }
         }
     }
     return 0

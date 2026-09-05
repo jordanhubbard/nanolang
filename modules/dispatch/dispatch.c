@@ -101,6 +101,10 @@ int nl_group_wait_ns(void* gv, int64_t timeout_ns) {
     return (int)dispatch_group_wait(g->g, t);
 }
 
+int nl_dispatch_available(void) {
+    return 1;
+}
+
 #else /* non-Apple stub implementations */
 
 #define DISPATCH_UNAVAILABLE(fn) \
@@ -119,5 +123,6 @@ void  nl_group_destroy(void* gv)                    { (void)gv; DISPATCH_UNAVAIL
 void  nl_group_async(void* gv, void* qv, nl_dispatch_fn fp) { (void)gv; (void)qv; (void)fp; DISPATCH_UNAVAILABLE(nl_group_async); }
 void  nl_group_notify(void* gv, void* qv, nl_dispatch_fn fp) { (void)gv; (void)qv; (void)fp; DISPATCH_UNAVAILABLE(nl_group_notify); }
 int   nl_group_wait_ns(void* gv, int64_t timeout_ns) { (void)gv; (void)timeout_ns; DISPATCH_UNAVAILABLE(nl_group_wait_ns); return -1; }
+int   nl_dispatch_available(void) { return 0; }
 
 #endif /* __APPLE__ */

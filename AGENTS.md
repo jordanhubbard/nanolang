@@ -7,7 +7,7 @@ Portable [Agent Skills](https://code.claude.com/docs/en/skills) live in
 If your tool does not auto-discover them, read the relevant `SKILL.md` directly:
 
 - [`skills/reading-nanolang`](skills/reading-nanolang/SKILL.md) — how to read/write `.nano` code (prefix calls, mandatory shadow tests, explicit types, the persona voice).
-- [`skills/roadmap-execution`](skills/roadmap-execution/SKILL.md) — add multi-deliverable work to `docs/ROADMAP.md` before implementation, then execute its checkboxes in dependency order.
+- [`skills/roadmap-execution`](skills/roadmap-execution/SKILL.md) — add multi-deliverable work to `docs/ROADMAP.md` before implementation, then execute its checkboxes in dependency order. **Discovered bugs always go on the roadmap** in the same session; chat is not the ledger.
 - [`skills/mac-task-tracking`](skills/mac-task-tracking/SKILL.md) — issue tracking via `mac task` (not bd/beads).
 - [`skills/session-completion`](skills/session-completion/SKILL.md) — landing the plane: quality gates, task status, and pushing.
 

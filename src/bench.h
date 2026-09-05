@@ -71,6 +71,7 @@ typedef struct {
     ASTNode    *program;
     const char *fn_name;
     ASTNode    *fn_node;
+    Environment *env;
 } BenchNativeCtx;
 
 /* Forward declaration — implemented in bench_native.c (auto-generated stub) */
@@ -96,7 +97,7 @@ void bench_print_human(const BenchResult *r, FILE *out);
  * Discover @bench functions in the program AST and run them all.
  * Returns 0 on success, non-zero if any benchmark failed.
  */
-int bench_run_program(ASTNode *program, const BenchOptions *opts,
+int bench_run_program(ASTNode *program, Environment *env, const BenchOptions *opts,
                       const char *source_file, FILE *out_file);
 
 #endif /* BENCH_H */

@@ -183,6 +183,40 @@ shadow draw_status {
     assert true
 }
 
+fn cell_size(value: int, fallback: int) -> int {
+    if (< value 1) {
+        return fallback
+    }
+    return value
+}
+
+shadow cell_size {
+    assert (== (cell_size 0 8) 8)
+    assert (== (cell_size 9 8) 9)
+}
+
+fn terminal_cells(pixels: int, cell: int, fallback: int) -> int {
+    let size: int = (cell_size cell 8)
+    let count: int = (/ pixels size)
+    if (< count fallback) {
+        return fallback
+    }
+    return count
+}
+
+shadow terminal_cells {
+    assert (== (terminal_cells 800 0 24) 100)
+    assert (== (terminal_cells 10 8 24) 24)
+}
+
+fn start_forth_child(pty_fd: int) -> int {
+    return (nl_pty_fork_exec pty_fd "bin/forth" "--interactive" "FORTH_RAW_IO" "1")
+}
+
+shadow start_forth_child {
+    assert true
+}
+
 # === MAIN ===
 
 fn main() -> int {
@@ -205,25 +239,26 @@ fn main() -> int {
     let ch: int = (nl_sdl_term_cell_h dummy_term)
     (nl_sdl_term_destroy dummy_term)
 
-    let term_cols: int = (/ TERM_W cw)
-    let term_rows: int = (/ WIN_H ch)
+    let term_cols: int = (terminal_cells TERM_W cw 80)
+    let term_rows: int = (terminal_cells WIN_H ch 24)
 
     # Create the embedded terminal
     let term: int = (nl_sdl_term_create "" FONT_PT term_rows term_cols)
     if (== term 0) { (println "nl_sdl_term_create failed") return 1 } else { (print "") }
 
-    # Start the standalone Forth CLI in explicit interactive mode.
+    # Start the standalone Forth CLI. FORTH_RAW_IO keeps readline from taking
+    # over the PTY slave, which used to look like an immediate EOF.
     let pty_fd: int = (nl_pty_open term_rows term_cols)
     if (== pty_fd -1) { (println "nl_pty_open failed") return 1 } else { (print "") }
 
-    let pty_pid: int = (nl_pty_fork_exec pty_fd
-        "bin/forth" "--interactive"
-        "" "")
+    let mut pty_pid: int = (start_forth_child pty_fd)
     if (== pty_pid -1) {
         (nl_pty_close pty_fd)
         (println "nl_pty_fork_exec failed — is bin/forth built?")
         return 1
     } else { (print "") }
+
+    let mut respawns: int = 0
 
     # Enumerate Forth files (bare filenames for display)
     let forth_dir: string = "examples/language/forth"
@@ -247,11 +282,25 @@ fn main() -> int {
             (nl_sdl_term_feed term pty_data)
         } else { (print "") }
 
-        # Check if child is still alive
+        # Keep a live PTY session. bye, a crash, or a missed exec all look
+        # the same from here; I restart unless the binary will not stay up.
         let alive: int = (nl_pty_is_alive pty_pid)
         if (== alive 0) {
-            set status_msg "Forth interpreter exited."
-            set status_err true
+            if (< respawns 8) {
+                set pty_pid (start_forth_child pty_fd)
+                if (== pty_pid -1) {
+                    set status_msg "I cannot restart bin/forth."
+                    set status_err true
+                    set respawns 8
+                } else {
+                    set respawns (+ respawns 1)
+                    set status_msg "I restarted the Forth interpreter."
+                    set status_err false
+                }
+            } else {
+                set status_msg "Forth interpreter exited."
+                set status_err true
+            }
         } else { (print "") }
 
         # Poll quit

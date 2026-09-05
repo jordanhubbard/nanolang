@@ -11,8 +11,16 @@
 
 #include <stdint.h>
 
-/* Core readline function */
+/* Core readline function. Empty string may be a blank line or EOF;
+ * call rl_hit_eof_wrapper() to tell them apart. */
 const char* rl_readline_wrapper(const char* prompt);
+
+/* 1 if the last rl_readline_wrapper / rl_raw_getline_wrapper hit EOF. */
+int64_t rl_hit_eof_wrapper(void);
+
+/* Line reader for PTY / embedded clients. Prints prompt, uses fgets,
+ * does not take over termios. Empty string may be a blank line or EOF. */
+const char* rl_raw_getline_wrapper(const char* prompt);
 
 /* History management */
 void rl_add_history_wrapper(const char* line);

@@ -1,0 +1,5 @@
+# I evaluate NanoLang the way GNU Emacs evaluates Emacs Lisp: in a live
+# session, from the buffer, through a small editor API. I am not GNU Emacs.
+# I am a windowed SDL editor with panes, a minibuffer, and C-x / M-x keys.
+
+(ed_message "I loaded examples/emacs/init.nano")
