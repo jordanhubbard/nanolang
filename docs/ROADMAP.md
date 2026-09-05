@@ -70,6 +70,10 @@ stays parked until Phase 13 closes. Option C remains 4.4.
   (`docs/FORTH_CORE_COVERAGE.md`) of Forth 2012 Core names against the NanoISA
   session, with tested / missing / ambiguous for each word. This is evidence,
   not a Core pass.
+- [ ] **4.1 / Phase 13 (primary).** I load Jackson Core (`prelimtest.fth`,
+  `tester.fr`, `core.fr`, `coreplustest.fth`) through C file-source `REFILL`,
+  not Forth `INCLUDED`. I record every failing Core case. I do not claim File
+  Access. I do not claim Core while any case fails.
 - [x] Parallel to 4.1 (does not wait on the Core gate): I close the interpreter
   example failures in `docs/KNOWN_LIMITATIONS.md`. `bin/nano` loads a shipped or
   built-in word list for `nl_random_sentence.nano`, uses a smaller workload for
