@@ -10,10 +10,10 @@ This file is the pin. `tests/forth/pins.json` is the machine-readable copy.
 
 The architecture contract is
 [ANS Forth on NanoISA](superpowers/specs/2026-08-30-ans-forth-nanoisa-design.md).
-The compiler that will satisfy these pins is still Phase 13 work. The session
-runtime in `src/forth/` compiles colon definitions to verified NanoISA,
-including `OP_CALL`, `RECURSE`, structured control flow, and `CATCH`/`THROW`.
-`make test-forth-session` covers that slice. It is not Core.
+The session runtime in `src/forth/` compiles colon definitions to verified
+NanoISA, including `OP_CALL`, `RECURSE`, structured control flow, and
+`CATCH`/`THROW`. `bin/nano_forth` / `bin/forth` is that REPL. Session tests
+cover that slice. Jackson Core has not run. It is not Core.
 
 Dictionary FIND is case-insensitive for ASCII `A`–`Z`. Redefining a name
 creates a new header; the old name token still maps to the old execution
@@ -42,18 +42,19 @@ by name and date.
 
 ### Test suites
 
-I have not vendored either suite. I record the revisions I will vendor, and the
-license facts that decide whether I may.
+Jackson v0.15.0 is vendored. The forth200x snapshot is inventoried and not
+copied. Gforth is not vendored.
 
 | Suite | Pin | Vendor? |
 | --- | --- | --- |
-| Gerry Jackson Forth-2012 tests | `gerryjackson/forth2012-test-suite` tag **v0.15.0** (`9773f84dd12390f342d37195da8848b04e1f4a23`) | Not yet |
-| Committee process + later tests | `Forth-Standard/forth200x` `master` at **91f1ed9c756aac27f57e939c270b5f2c84262427** (2026-07-05) | Not yet |
+| Gerry Jackson Forth-2012 tests | `gerryjackson/forth2012-test-suite` tag **v0.15.0** (`9773f84dd12390f342d37195da8848b04e1f4a23`) | Yes: `tests/forth/vendor/gerryjackson/` |
+| Committee process + later tests | `Forth-Standard/forth200x` `master` at **91f1ed9c756aac27f57e939c270b5f2c84262427** (2026-07-05) | No. Inventory: `docs/FORTH_200X_INVENTORY.md` |
 
-Jackson v0.15.0 is the Forth-2012 Core and optional-word-set suite I will run.
-The forth200x snapshot is the committee repository at a recorded commit; it
-includes later material (for example recognizer tests) that is not Forth 2012.
-I will not treat those later files as 2012 conformance evidence.
+Jackson v0.15.0 is the Forth-2012 Core and optional-word-set suite. The tag
+includes optional-word-set files; those files are not Core evidence.
+`make test-forth-jackson` does not run them. The forth200x snapshot includes
+later material (for example recognizer tests) that is not Forth 2012. I will
+not treat those later files as 2012 conformance evidence.
 
 ### Differential Gforth
 
@@ -63,8 +64,9 @@ Gforth.
 
 `make test-forth-gforth-diff` runs `examples/language/forth/pi.fs` for 0, 1, 10,
 and 50 places under that Gforth and checks the exact decimal strings below.
-That is tested against Gforth 0.7.3. It is not a claim about my own Forth,
-which does not compile colon definitions to NanoISA yet.
+That is tested against Gforth 0.7.3. It is not a claim about my own Forth.
+Colon definitions compile to NanoISA. `pi.fs` still needs Memory-Allocation
+and Exception before I run it on that session.
 
 | Places | Output |
 | ---: | --- |
@@ -76,12 +78,12 @@ which does not compile colon definitions to NanoISA yet.
 If `gforth` is missing, the pin-consistency checks still run. The Gforth cases
 fail in CI (`CI` is set) and are skipped locally.
 
-## Licensing — before vendoring
+## Licensing
 
-I confirmed these facts before copying any third-party Forth tests into the
-tree. I still have not vendored them. I will vendor Jackson v0.15.0 only when
-the NanoISA Forth compiler can include `runtests.fth`. I will not vendor
-Gforth. I will not vendor `Forth-Standard/forth200x` wholesale.
+I confirmed these facts before copying third-party Forth tests. I vendored
+Jackson v0.15.0 with notices retained. I will not vendor Gforth. I will not
+vendor `Forth-Standard/forth200x` wholesale. The per-file inventory is
+`docs/FORTH_200X_INVENTORY.md`.
 
 **Jackson suite.** There is no SPDX `LICENSE` file. The Hayes core tests carry:
 
@@ -103,7 +105,7 @@ repository.
 
 ## Conformance labels
 
-Until the compiler exists and the pinned suites pass:
+Until the pinned suites pass:
 
 - I do not claim a Forth 2012 Standard System.
 - I do not claim an ANS Forth Standard System.
@@ -118,9 +120,9 @@ label until every selected word set has that record.
 
 ## Environmental model
 
-This is the contract for the NanoISA Forth I will build. It is **assumed**
-until the compiler implements it. Nothing in this section is proved. The pi
-digits above are tested only on Gforth.
+This is the contract for the NanoISA Forth session. Session tests cover parts
+of it. Nothing in this section is a Standard System claim. The pi digits above
+are tested only on Gforth.
 
 Values follow Forth 2012 §3 usage requirements and §4 documentation
 requirements. Where the standard leaves a choice, I pick one and keep it.
@@ -187,7 +189,8 @@ requirements. Where the standard leaves a choice, I pick one and keep it.
 
 These are the initial `ENVIRONMENT?` answers I will report. `STACK-CELLS` and
 `RETURN-STACK-CELLS` match the session stacks in `src/forth/forth_session.h`.
-`ENVIRONMENT?` itself is still absent until Core exists.
+`ENVIRONMENT?` answers the queries in this table from the session. That is
+not a Core pass.
 
 | Query | Value |
 | --- | ---: |
@@ -264,9 +267,14 @@ the session tests call it when they append a constant function.
 
 ## What this does not do
 
-I do not run Jackson `runtests.fth` yet. There is no NanoISA Forth to include
-it. I do not vendor the suites. I do not claim Core.
+I do not claim Core. I do not run Jackson `runtests.fth`. That driver
+`INCLUDED`s optional word sets. Core evidence files are `prelimtest.fth`,
+`tester.fr`, `core.fr`, and `coreplustest.fth`.
 
-The next work is colon definitions compiled privately to NanoISA, verified,
-then published, with `OP_CALL` early binding and `RECURSE` to the reserved
-current definition.
+INCLUDE and INCLUDED are not Forth words. They belong to File Access, which
+is after Core on the roadmap. The C helpers `forth_file_open` and
+`forth_source_push_file` exist and session tests use them. `forth_interpret`
+loads at most `FORTH_TIB_SIZE` bytes into the terminal buffer and does not
+`REFILL` a file source when a line ends. `bin/forth` accepts `--interactive`
+only; it has no file argv. `make test-forth-jackson` records that gap. It
+does not execute `core.fr`. The coverage matrix is `docs/FORTH_CORE_COVERAGE.md`.

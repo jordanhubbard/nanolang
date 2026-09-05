@@ -6,6 +6,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- vendor Gerry Jackson Forth-2012 tests v0.15.0, inventory forth200x licenses without copying that tree, add `make test-forth-jackson` for the INCLUDE gap, and publish a Core coverage matrix that is not a Core pass
 - pin Forth 2012 revisions, licensing, and Gforth 0.7.3 pi.fs differentials
 - own one NvmModule and persistent VmState per Forth session, with Forth stacks, virtual addresses, and file handles
 - keep Forth dictionary headers, word lists, and nested input sources on the session

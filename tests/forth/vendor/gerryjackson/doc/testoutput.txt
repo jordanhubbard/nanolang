@@ -1,0 +1,250 @@
+Gforth 0.7.9_20150825, Copyright (C) 1995-2015 Free Software Foundation, Inc.
+Gforth comes with ABSOLUTELY NO WARRANTY; for details type `license'
+Type `bye' to exit
+
+Running ANS Forth and Forth 2012 test programs, version 0.13
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+  SIGNED: -80000000 7FFFFFFF
+UNSIGNED: 0 FFFFFFFF
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+Gforth  output from running the test suite
+RECEIVED: "Gforth  output from running the test suite"
+*
+d:\projects\forthapps\forthsystemtests\anstests\src/core.fr:997: warning: redefi
+ned GDX
+End of Core word set tests
+*********
+You should see 2345: 2345
+*
+End of additional Core tests
+
+d:\projects\forthapps\forthsystemtests\anstests\src/utilities.fth:42: warning: r
+edefined ?DEFTEST1
+d:\projects\forthapps\forthsystemtests\anstests\src/utilities.fth:92: warning: r
+edefined SBUF***********
+d:\projects\forthapps\forthsystemtests\anstests\src/coreexttest.fth:330: warning
+: redefined MA1*********
+
+Output from .(
+You should see -9876: -9876
+and again: -9876
+
+
+On the next 2 lines you should see First then Second messages:
+First message via .(
+Second message via ."
+
+*
+
+Output from .R and U.R
+You should see lines duplicated:
+indented by 0 spaces
+1984383623
+1984383623
+-2088648480
+-2088648480
+1984383623
+1984383623
+2206318816
+2206318816
+
+indented by 0 spaces
+1984383623
+1984383623
+-2088648480
+-2088648480
+1984383623
+1984383623
+2206318816
+2206318816
+
+indented by 5 spaces
+     1984383623
+     1984383623
+     -2088648480
+     -2088648480
+     1984383623
+     1984383623
+     2206318816
+     2206318816
+
+*******
+The next test should display:
+One line...
+another line
+One line...
+anotherLine
+
+End of Core Extension word tests
+*********Screen 29 not modified
+ 0 Should show a (mostly) blank screen
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+Screen 20 not modified
+ 0 List of the First test block
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+Screen 29 not modified
+ 0 List of the Last test block
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+Screen 21 not modified
+ 0
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15                                                    End of Screen
+Screen 29 not modified
+ 0 Should show another (mostly) blank screen
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+***Given Characters per Line: 64
+*
+End of Block word tests
+*****************
+You should see lines duplicated:
+     8970676912557384689
+     8970676912557384689
+        8970676912557384689
+        8970676912557384689
+     -8522862768232894102
+     -8522862768232894102
+          -8522862768232894102
+          -8522862768232894102
+**
+End of Double-Number word tests
+***
+End of Exception word tests
+****
+End of Facility word tests
+**************
+d:\projects\forthapps\forthsystemtests\anstests\src/filetest.fth:228: warning: r
+edefined SSQ10*****
+End of File-Access word set tests
+***********
+INCORRECT RESULT: T{ LOC-ENVQ SWAP 15 > -> TRUE TRUE }T**
+End of Locals word set tests. <0> ****
+End of Memory-Allocation word tests
+**********
+d:\projects\forthapps\forthsystemtests\anstests\src/toolstest.fth:329: warning:
+redefined TRAV3
+d:\projects\forthapps\forthsystemtests\anstests\src/toolstest.fth:329: warning:
+redefined TRAV3
+d:\projects\forthapps\forthsystemtests\anstests\src/toolstest.fth:329: warning:
+redefined TRAV3
+d:\projects\forthapps\forthsystemtests\anstests\src/toolstest.fth:339: warning:
+redefined GET-ALL
+End of Programming Tools word tests
+**********
+ONLY FORTH DEFINITIONS search order and compilation wordlist
+Forth Root     Forth
+Plus another unnamed wordlist at the head of the search order
+??? Forth Root     ???
+End of Search Order word tests
+*********
+d:\projects\forthapps\forthsystemtests\anstests\src/stringtest.fth:163: warning:
+ redefined BUF*
+End of String word tests
+
+---------------------------
+        Error Report
+Word Set             Errors
+---------------------------
+Core                    0
+Core extension          0
+Block                   0
+Double number           0
+Exception               0
+Facility                0
+File-access             0
+Locals                  1
+Memory-allocation       0
+Programming-tools       0
+Search-order            0
+String                  0
+---------------------------
+Total                   1
+---------------------------
+
+
+Forth tests completed

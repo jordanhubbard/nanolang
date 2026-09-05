@@ -1,0 +1,279 @@
+Record of changes to the ANS Forth and Forth 2012 test suite
+from version 0.9 onwards
+
+Version 0.13.6
+~~~~~~~~~~~~~~
+coreexttest.fth
+   - case sensitivity issue fixed
+doubletest.fth
+   - Fixed overflow bug in M*/ test 
+filetest.fth
+   - Removed dependency on D= and 2VARIABLE in the Double Number word set
+   - Replaced double numbers e.g. 500. with 500 0
+   - Deleted Version History it duplicate information in this file 
+stringtest.fth
+   - Rewrite of SUBSTITUTE tests with overlapping buffers
+   
+Version 0.13.5
+~~~~~~~~~~~~~~
+Ignore - faulty release
+
+Version 0.13.4
+~~~~~~~~~~~~~~
+core.fr
+   - test ALIGN and ALIGNED before , (comma) so that dataspace can be aligned
+     before it is tested (see issue #18)
+coreplustest.fth
+   - tests ALLOT with n <= 0
+   - Items tested list updated
+   - Version history removed
+coreexttest.fth
+   - type changed to TYPE in definition SSQ4 (issue #26)
+   - s\\\" changed to S\\\" in definitions SSQ7 and SSQ9 (issue #26)
+prelimtest.fth
+   - CONSTANT now tested
+
+Version 0.13.3
+~~~~~~~~~~~~~~
+doubletest.fth
+   - additional tests for D< and DU< to detect faulty implementation
+   - Definitions SSQ4, SSQ7 and SSQ9 - converted type and s\" to upper case
+
+filetest.fth
+   -  Testing READ-LINE with buffer length = 0 and <= the line length in the file.
+
+coreplustest.fth
+   - added test for IF ... BEGIN ... REPEAT
+   - additional DOES> test
+   - additional +LOOP tests about setting I to arbitrary values
+
+errorreport.fth
+   - TOTAL-ERRORS now includes Core word errors (bug fix)  
+
+Version 0.13.2
+~~~~~~~~~~~~~~
+filetest.fth
+   - renamed SSQ10, SSQ11, SSQ12 to SSQ11, SSQ12, SSQ13 to avoid redefinition
+     messages
+
+stringtest.fth
+   - renamed BUF to SUBBUF to avoid redefinition message
+
+toolstest.fth
+   - improved NAME>INTERPRET test
+   - in >UPPERCASE replaced ?DO with IF etc as ?DO is Core Extension
+   - renamed first GET-ALL to (GET-ALL) to avoid redefinition message
+
+Version 0.13.1
+~~~~~~~~~~~~~~
+blocktest.fth
+   - fixed issue #7 faults with single buffer blocks
+
+core.fth
+   - corrected ACCEPT buffer block length to decimal 80 characters
+
+coreplustest.fth 
+   - moved double number with prefixes to doubletest.fth
+   - now tests maximum length definition names and all graphical characters accepted
+   - parses upper case characters using 'X' notation
+   - tests FIND with zero length strings and non-existent names
+
+doubletest.fth
+   - received double number with prefixes from coreplus.fth
+
+Version 0.13
+~~~~~~~~~~~~
+
+Several files - TABs replaced with space characters as whether control
+   characters are treated as spaces is system dependent
+
+blocktest.fth
+   - New test program
+
+coreplustest.fth
+   - TRUE changed to <TRUE> to use Core definitions
+
+coreexttest.fth
+   - <FALSE> and <TRUE> with FALSE and TRUE to avoid dependence on Core tests
+   - Moved SAVE-INPUT and RESTORE-INPUT tests in a file to filetest.fth
+   - Use of 2VARIABLE (in the optional Double number word set) replaced
+     with CREATE.
+   - Calls to COMPARE replaced by new definition STR= to avoid use of
+     a word from an optional word set.
+   - UNUSED tests revised as UNUSED UNUSED = may return FALSE when an
+     implementation has the data stack sharing unused dataspace.
+   - Double number input dependency removed from the HOLDS tests.
+   - Minor case differences removed in definition names (all now in
+     upper case).
+
+doubletest.fth, facilitytest.fth, memorytest.fth
+   - Assumptions and dependencies added or changed
+
+errorreport.fth
+   - includes block test report
+   - improved display
+
+exceptiontest.fth
+   - Use of CASE etc replaced to avoid dependency on Core Ext
+
+filetest.fth
+   - S" in interpretation mode tested.
+   - Added tests of SAVE-INPUT RESTORE-INPUT REFILL in a file, (moved from
+     coreexttest.fth).
+   - Calls to COMPARE replaced with STR= (in utilities.fth) 
+
+localstest.fth
+   - Priority of locals tests made conditional on the required search-order
+     words being available from the Seach-order wordset
+
+runtests.fth
+   - includes blocktest.fth and utilities.fth
+
+searchordertest.fth
+   - Interpretive use of S" replaced by $" from utilities.fth
+   - Replaced two instances of ?DO with DO (as ?DO is in the Core Ext word set) 
+
+stringtest.fth
+   - Interpretive use of S" replaced by $" from utilities.fth
+
+tester.fr
+   - Replaced Core Ext <> with = 0=
+
+toolstest.fth
+   - Additional tests on [ELSE] and [THEN]
+
+utilities.fth
+   - New file, included after Core tests, to provide various definitions for
+     the remaining optional word set test programs.
+
+Version 0.12
+~~~~~~~~~~~~
+
+core.fr
+   - 2 lines > 80 characters shortened to < 80
+
+coreplustest.fth
+   - >IN manipulation test modified to work on 16 bit systems
+
+doubletest.fth
+   - tests D< acts on MS cells of double words
+
+facilitytest.fth
+   - the test T{ 0 CF33 ALIGNED -> 0 F33 }T is incorrect and replaced with
+     T{ 0 CF33 CHAR+ ALIGNED -> 0 F33 }T
+     T{ 0 F33 ALIGNED -> 0 F33 }T
+
+Version 0.11 25 April 2015
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+coreplus-test.fth
+   - Number prefixes # $ % and 'c' character input tested
+
+coreexttest.fth
+   - PARSE-NAME HOLDS tests added
+   - DEFER IS ACTION-OF DEFER! DEFER@ tests added
+   - S\" tests added
+   - BUFFER: tests added
+   - Empty CASE statements tested
+   - [COMPILE] tests removed as it is obsolescent in Forth 2012
+   
+doubletest.fth
+   - 2VALUE tests added
+
+errorreport.fth
+   - new file to display summary of errors at the end of a test run
+
+facilitytest.fth
+   - new test file, testing BEGIN-STRUCTURE END-STRUCTURE +FIELD CFIELD: FIELD:
+
+filetest.fth
+   - S\" in interpretation mode tested
+   - REQUIRED REQUIRE INCLUDE tested
+   - Two S" and/or S\" buffers availability tested
+
+localstest.fth
+   - first release, tests {: ... :} locals syntax and (LOCAL)
+
+memorytest.fth
+   - now tests memory region contents following RESIZE failure
+   - @ and ! work in allocated memory (contributed by Peter Knaggs)
+
+toolstest.fth
+   - added tests for [DEFINED] [UNDEFINED] N>R NR> SYNONYM
+     TRAVERSE-WORDLISTNAME>COMPILE NAME>INTERPRET NAME>STRING
+
+stringtest.fth
+   - REPLACES SUBSTITUTE UNESCAPE tested
+
+Version 0.10 3 August 2014
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+coreplustest.fth
+   - IMMEDIATE doesn't toggle a flag
+
+coreexttest.fth
+   - Added tests contributed by James Bowman for:
+     <> U> 0<> 0> NIP TUCK ROLL PICK 2>R 2R@ 2R>
+     HEX WITHIN UNUSED AGAIN MARKER
+   - Added tests for: .R U.R ERASE PAD REFILL SOURCE-ID 
+   - Removed ABORT from NeverExecuted to enable systems to continue after
+     failure of RESTORE-INPUT.
+   - Removed max-intx which is no longer used.
+   - additional CASE family test
+
+searchordertest.fth
+   - Name changes to remove redefinition messages
+
+Version 0.9 1 April 2012
+~~~~~~~~~~~~~~~~~~~~~~~~~
+All tests work with both tester.fr and ttester.fs
+
+coreplustest.fth
+   - multiple ELSE's in an IF statement
+   - DO +LOOP tests with large increments
+   - Ackermann function test for RECURSE added
+   - >IN manipulation in interpreter mode
+   - immediate CONSTANTs, VARIABLEs and CREATEd words tested
+   - recursive :NONAME definitions moved to core extension test file
+   - parsing behaviour of S" ." and ( tested
+
+coreexttest.fth
+   - SAVE-INPUT and RESTORE-INPUT tests modified to work with ttester.fs
+   - CONVERT test deleted, obsolete word removed from Forth 200X
+   - immediate VALUEs tested
+   - recursive :NONAME tests added
+   - PARSE and .( tests added
+   - Parsing behaviour of C" tested
+
+doubletest.fth
+   - immediate 2CONSTANTs and 2VARIABLEs tested
+
+memorytest.fth
+   - Definition of CHECKMEM modified to work with ttester.fs
+
+toolstest.fth
+   - Further tests on [IF] [ELSE] [THEN]
+
+Version 0.8
+~~~~~~~~~~~
+   - Tests added to stringtests.fth
+
+Version 0.7
+~~~~~~~~~~~
+   - Includes a readme.html.
+   - Name changes to avoid redefinition warnings.
+
+Version 0.6
+~~~~~~~~~~~
+   - corrected the case of some words to ensure the tests will run on a
+     case-sensitive system
+
+Version 0.5
+~~~~~~~~~~~
+   - includes a correction to the file-access tests.
+
+Version 0.4
+~~~~~~~~~~~
+   - to make some tests independent of cell size
+   - to use T{ and }T instead of { and } as the test words. This avoids
+     a clash with the Forth 200X use of { and } for Locals.
