@@ -63,3 +63,6 @@ treat this as "skip filing" and continue, never as a hard failure. The
 - Do not use TodoWrite / TaskCreate or markdown TODO lists as the issue tracker.
 - Do not silently drop a follow-up you promised to file; file it as a `mac task`
   (or state clearly that you could not because auth was unavailable).
+- A MAC task is not a substitute for `docs/ROADMAP.md`. File the task **and**
+  add a concrete roadmap checkbox in dependency order (see
+  `skills/roadmap-execution/SKILL.md`).

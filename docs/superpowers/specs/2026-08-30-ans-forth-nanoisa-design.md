@@ -17,8 +17,11 @@ The session runtime in `src/forth/` exists: one mutable `NvmModule`, one
 persistent `VmState`, Forth stacks, virtual addresses, file handles,
 dictionary headers with early-bound execution tokens, nested input
 sources, and colon compilation to verified NanoISA functions.
-`make test-forth-session` is the evidence. Typed imports and `SEE` are
-still ahead.
+`make test-forth-session` is the evidence. Typed imports, ABI rejection,
+co-process restart after import-table mutation, and `SEE` of compiled
+NanoISA (including imported words) are in that suite. Forth 2012 Core on
+the session interpreter is still ahead: numbers, `+`, `DUP`, `*`, and
+`: ... ;` exist, not the rest of the word set.
 
 ## Architecture
 

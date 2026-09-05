@@ -10,6 +10,7 @@
 #include "nanoisa/verifier.h"
 #include "nanovm/value.h"
 #include "nanovm/vm.h"
+#include "nanovm/vm_ffi.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -793,6 +794,510 @@ static void test_catch_and_throw(void) {
     PASS(test_name);
 }
 
+static void test_typed_import_abs(void) {
+    const char *test_name = "import: abs lowers to CALL_EXTERN and runs";
+    ForthSession *session = forth_session_create();
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    ForthNt found_nt = 0;
+    ForthXt found_xt = 0;
+    bool immediate = true;
+    uint8_t params[1];
+    int64_t cell = 0;
+    NvmModule *mod;
+    uint32_t i;
+    bool saw_extern = false;
+
+    params[0] = TAG_INT;
+    ASSERT(session != NULL, "create failed");
+    mod = forth_session_module(session);
+    ASSERT(mod != NULL, "module");
+    {
+        uint32_t imports0 = mod->import_count;
+        ASSERT(forth_import_declare(session, "", "abs", params, 1, TAG_INT, &nt),
+               "declare abs");
+        mod = forth_session_module(session);
+        ASSERT(mod != NULL && mod->import_count == imports0 + 1, "one new import entry");
+        ASSERT(forth_nt_xt(session, nt, &xt), "abs xt");
+        ASSERT(forth_find(session, "abs", 3, &found_nt, &found_xt, &immediate),
+               "abs is in the dictionary");
+        ASSERT(found_xt == xt && !immediate, "early-bound non-immediate xt");
+        for (i = 0; i < mod->functions[xt].code_length; ) {
+            DecodedInstruction instr;
+            uint32_t n = isa_decode(mod->code + mod->functions[xt].code_offset + i,
+                                    mod->functions[xt].code_length - i, &instr);
+            ASSERT(n > 0, "decode wrapper");
+            if (instr.opcode == OP_CALL_EXTERN && instr.operands[0].u32 == imports0)
+                saw_extern = true;
+            i += n;
+        }
+        ASSERT(saw_extern, "wrapper emits OP_CALL_EXTERN for abs");
+    }
+    ASSERT(forth_data_push(session, -42), "push -42");
+    ASSERT(forth_session_invoke(session, xt, NULL, 0, NULL) == VM_OK, "invoke abs");
+    ASSERT(forth_data_pop(session, &cell) && cell == 42, "abs(-42) is 42");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_import_rejects_unusable_abi(void) {
+    const char *test_name = "import: reject mixed float and oversized FFI";
+    ForthSession *session = forth_session_create();
+    ForthNt nt = 0;
+    uint8_t mixed[2];
+    uint8_t too_many[NANO_MAX_FFI_ARGS + 1];
+    uint8_t bad[1];
+    uint16_t i;
+    uint32_t imports0;
+
+    mixed[0] = TAG_INT;
+    mixed[1] = TAG_FLOAT;
+    for (i = 0; i < NANO_MAX_FFI_ARGS + 1; i++)
+        too_many[i] = TAG_INT;
+    bad[0] = TAG_STRING;
+    ASSERT(session != NULL, "create failed");
+    imports0 = forth_session_module(session)->import_count;
+    ASSERT(!forth_import_declare(session, "", "f", mixed, 2, TAG_INT, &nt),
+           "mixed float/int");
+    ASSERT(!forth_import_declare(session, "", "g", too_many,
+                                 (uint16_t)(NANO_MAX_FFI_ARGS + 1), TAG_INT, &nt),
+           "too many args");
+    ASSERT(!forth_import_declare(session, "", "h", bad, 1, TAG_INT, &nt),
+           "string param is not a Forth cell");
+    ASSERT(forth_session_module(session)->import_count == imports0, "no import leaked");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_import_stops_cop(void) {
+    const char *test_name = "import: stop FFI co-process after table mutation";
+    ForthSession *session = forth_session_create();
+    ForthNt nt = 0;
+    uint8_t params[1];
+    VmState *vm;
+    bool started;
+
+    params[0] = TAG_INT;
+    ASSERT(session != NULL, "create failed");
+    vm = forth_session_vm(session);
+    ASSERT(vm != NULL, "vm");
+    vm->isolate_ffi = true;
+    started = vm_ffi_cop_start(vm, forth_session_module(session));
+    ASSERT(started && vm->cop_pid > 0, "co-process started");
+    ASSERT(forth_import_declare(session, "", "abs", params, 1, TAG_INT, &nt),
+           "declare after cop is live");
+    ASSERT(vm->cop_pid <= 0, "import stops the stale co-process");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_see_disassembles_colon_and_import(void) {
+    const char *test_name = "see: NanoISA of colon words and imported words";
+    ForthSession *session = forth_session_create();
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    uint8_t params[1];
+    char *text = NULL;
+
+    params[0] = TAG_INT;
+    ASSERT(session != NULL, "create failed");
+    ASSERT(forth_colon_begin(session, "LIT7", 4), "begin");
+    ASSERT(forth_colon_literal(session, 7), "7");
+    ASSERT(forth_colon_finish(session, &nt), "finish");
+    ASSERT(forth_nt_xt(session, nt, &xt), "xt");
+    text = forth_see(session, xt);
+    ASSERT(text != NULL, "see colon");
+    ASSERT(strstr(text, "7") != NULL, "literal in disassembly");
+    free(text);
+
+    ASSERT(forth_import_declare(session, "", "abs", params, 1, TAG_INT, &nt),
+           "import abs");
+    ASSERT(forth_nt_xt(session, nt, &xt), "abs xt");
+    text = forth_see(session, xt);
+    ASSERT(text != NULL, "see import");
+    ASSERT(strstr(text, "extern-call") != NULL, "imported word shows CALL_EXTERN");
+    ASSERT(strstr(text, "abs") != NULL, "imported word names the symbol");
+    free(text);
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_interpret_numbers(void) {
+    const char *test_name = "interpret: numbers go to the data stack";
+    ForthSession *session = forth_session_create();
+    int64_t cell = 0;
+    const uint8_t line[] = "7 8";
+
+    ASSERT(session != NULL, "create failed");
+    ASSERT(forth_interpret(session, line, 3), "interpret 7 8");
+    ASSERT(forth_data_pop(session, &cell) && cell == 8, "TOS 8");
+    ASSERT(forth_data_pop(session, &cell) && cell == 7, "NOS 7");
+    ASSERT(forth_data_depth(session) == 0, "empty after");
+    ASSERT(!forth_interpret(session, (const uint8_t *)"no-such-word", 12),
+           "unknown word fails");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_interpret_plus_dup_star(void) {
+    const char *test_name = "interpret: + DUP * and colon definitions";
+    ForthSession *session = forth_session_create();
+    int64_t cell = 0;
+    const uint8_t add[] = "7 8 +";
+    const uint8_t sqr[] = ": SQR DUP * ; 6 SQR";
+
+    ASSERT(session != NULL, "create failed");
+    ASSERT(forth_interpret(session, add, 5), "7 8 +");
+    ASSERT(forth_data_pop(session, &cell) && cell == 15, "7 8 + is 15");
+    ASSERT(forth_interpret(session, sqr, 19), ": SQR DUP * ; 6 SQR");
+    ASSERT(forth_data_pop(session, &cell) && cell == 36, "6 squared is 36");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static bool interpret_cstr(ForthSession *session, const char *text) {
+    return forth_interpret(session, (const uint8_t *)text, (uint32_t)strlen(text));
+}
+
+static bool expect_cells(ForthSession *session, const int64_t *want, uint32_t n) {
+    uint32_t i;
+    int64_t cell = 0;
+    if (forth_data_depth(session) != n) return false;
+    for (i = n; i > 0; i--) {
+        if (!forth_data_pop(session, &cell) || cell != want[i - 1]) return false;
+    }
+    return true;
+}
+
+static void test_core_arithmetic_stack_compare(void) {
+    const char *test_name = "core: arithmetic, stack, compare, bitwise";
+    ForthSession *session = forth_session_create();
+    int64_t want[8];
+
+    ASSERT(session != NULL, "create failed");
+    ASSERT(interpret_cstr(session, "5 3 -"), "5 3 -");
+    want[0] = 2;
+    ASSERT(expect_cells(session, want, 1), "5 3 - is 2");
+
+    ASSERT(interpret_cstr(session, "-7 2 /MOD"), "-7 2 /MOD");
+    want[0] = 1;
+    want[1] = -4;
+    ASSERT(expect_cells(session, want, 2), "floored /MOD");
+
+    ASSERT(interpret_cstr(session, "7 3 MOD"), "7 3 MOD");
+    want[0] = 1;
+    ASSERT(expect_cells(session, want, 1), "7 3 MOD is 1");
+
+    ASSERT(interpret_cstr(session, "-7 3 MOD"), "-7 3 MOD");
+    want[0] = 2;
+    ASSERT(expect_cells(session, want, 1), "floored MOD");
+
+    ASSERT(interpret_cstr(session, "1 2 3 ROT"), "rot");
+    want[0] = 2;
+    want[1] = 3;
+    want[2] = 1;
+    ASSERT(expect_cells(session, want, 3), "1 2 3 ROT");
+
+    ASSERT(interpret_cstr(session, "0 0 = 1 0 = 0 0= -1 0<"), "flags");
+    want[0] = -1;
+    want[1] = 0;
+    want[2] = -1;
+    want[3] = -1;
+    ASSERT(expect_cells(session, want, 4), "true is -1");
+
+    ASSERT(interpret_cstr(session, "1 3 AND 1 2 OR 0 INVERT"), "bitwise");
+    want[0] = 1;
+    want[1] = 3;
+    want[2] = -1;
+    ASSERT(expect_cells(session, want, 3), "AND OR INVERT");
+
+    ASSERT(interpret_cstr(session, "1 8 LSHIFT 256 8 RSHIFT"), "shifts");
+    want[0] = 256;
+    want[1] = 1;
+    ASSERT(expect_cells(session, want, 2), "LSHIFT RSHIFT");
+
+    ASSERT(interpret_cstr(session, "-5 ABS 2 1 MAX 2 1 MIN"), "abs min max");
+    want[0] = 5;
+    want[1] = 2;
+    want[2] = 1;
+    ASSERT(expect_cells(session, want, 3), "ABS MAX MIN");
+
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_core_memory_control_base(void) {
+    const char *test_name = "core: VARIABLE CONSTANT IF BEGIN BASE HERE";
+    ForthSession *session = forth_session_create();
+    int64_t want[8];
+    int64_t here1 = 0;
+    int64_t here2 = 0;
+
+    ASSERT(session != NULL, "create failed");
+    ASSERT(interpret_cstr(session, "VARIABLE MV1 42 MV1 ! MV1 @"), "variable");
+    want[0] = 42;
+    ASSERT(expect_cells(session, want, 1), "VARIABLE @ !");
+
+    ASSERT(interpret_cstr(session, "5 CONSTANT MK5 MK5"), "constant");
+    want[0] = 5;
+    ASSERT(expect_cells(session, want, 1), "CONSTANT");
+
+    ASSERT(interpret_cstr(session, ": CHOOSE IF 1 ELSE 2 THEN ; -1 CHOOSE 0 CHOOSE"),
+           "if else then");
+    want[0] = 1;
+    want[1] = 2;
+    ASSERT(expect_cells(session, want, 2), "IF ELSE THEN");
+
+    ASSERT(interpret_cstr(session, ": BU 0 BEGIN 1+ DUP 5 = UNTIL ; BU"),
+           "begin until");
+    want[0] = 5;
+    ASSERT(expect_cells(session, want, 1), "BEGIN UNTIL");
+
+    ASSERT(interpret_cstr(session, ": DL 0 5 0 DO 1+ LOOP ; DL"), "do loop");
+    want[0] = 5;
+    ASSERT(expect_cells(session, want, 1), "DO LOOP");
+
+    ASSERT(interpret_cstr(session, ": DI 5 0 DO I LOOP ; DI"), "do i");
+    want[0] = 0;
+    want[1] = 1;
+    want[2] = 2;
+    want[3] = 3;
+    want[4] = 4;
+    ASSERT(expect_cells(session, want, 5), "I inside DO");
+
+    ASSERT(interpret_cstr(session, ": DPL 10 0 DO I 2 +LOOP ; DPL"), "+loop");
+    want[0] = 0;
+    want[1] = 2;
+    want[2] = 4;
+    want[3] = 6;
+    want[4] = 8;
+    ASSERT(expect_cells(session, want, 5), "+LOOP");
+
+    ASSERT(interpret_cstr(session, ": QD 5 5 ?DO I LOOP ; QD"), "?do empty");
+    ASSERT(forth_data_depth(session) == 0, "?DO equal");
+
+    ASSERT(interpret_cstr(session, ": LV 10 0 DO I DUP 3 = IF DROP LEAVE THEN LOOP ; LV"),
+           "leave");
+    want[0] = 0;
+    want[1] = 1;
+    want[2] = 2;
+    ASSERT(expect_cells(session, want, 3), "LEAVE");
+
+    ASSERT(interpret_cstr(session, "1 >R R@ R>"), "rstack");
+    want[0] = 1;
+    want[1] = 1;
+    ASSERT(expect_cells(session, want, 2), ">R R@ R>");
+
+    ASSERT(interpret_cstr(session, "HEX FF DECIMAL"), "hex");
+    want[0] = 255;
+    ASSERT(expect_cells(session, want, 1), "HEX FF is 255");
+
+    ASSERT(interpret_cstr(session, "HERE"), "here");
+    ASSERT(forth_data_pop(session, &here1), "pop HERE");
+    ASSERT(interpret_cstr(session, "8 ALLOT HERE"), "allot");
+    ASSERT(forth_data_pop(session, &here2), "pop HERE after ALLOT");
+    ASSERT(here2 - here1 == 8, "ALLOT 8");
+
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_core_io_create_evaluate(void) {
+    const char *test_name = "core: EMIT S\" CREATE EVALUATE ENVIRONMENT?";
+    ForthSession *session = forth_session_create();
+    int64_t want[8];
+
+    ASSERT(session != NULL, "create failed");
+    forth_output_clear(session);
+    ASSERT(interpret_cstr(session, "65 EMIT 66 EMIT CR"), "emit");
+    ASSERT(strcmp(forth_output(session), "AB\n") == 0, "EMIT CR text");
+
+    forth_output_clear(session);
+    ASSERT(interpret_cstr(session, "S\" hi\" TYPE"), "squote type");
+    ASSERT(strcmp(forth_output(session), "hi") == 0, "S\" TYPE");
+
+    ASSERT(interpret_cstr(session, "CREATE CR0 5 , CR0 @"), "create comma");
+    want[0] = 5;
+    ASSERT(expect_cells(session, want, 1), "CREATE , @");
+
+    ASSERT(interpret_cstr(session, ": KONST CREATE , DOES> @ ; 7 KONST SEVEN SEVEN"),
+           "does");
+    want[0] = 7;
+    ASSERT(expect_cells(session, want, 1), "DOES> CONSTANT");
+
+    ASSERT(interpret_cstr(session, "S\" 2 3 +\" EVALUATE"), "evaluate");
+    want[0] = 5;
+    ASSERT(expect_cells(session, want, 1), "EVALUATE");
+
+    ASSERT(interpret_cstr(session, "S\" FLOORED\" ENVIRONMENT?"), "env");
+    want[0] = -1;
+    want[1] = -1;
+    ASSERT(expect_cells(session, want, 2), "FLOORED is true");
+
+    ASSERT(interpret_cstr(session, "1 2 3 1 PICK"), "pick");
+    want[0] = 1;
+    want[1] = 2;
+    want[2] = 3;
+    want[3] = 2;
+    ASSERT(expect_cells(session, want, 4), "1 PICK");
+
+    forth_output_clear(session);
+    ASSERT(interpret_cstr(session, "42 ."), "dot");
+    ASSERT(strcmp(forth_output(session), "42 ") == 0, ". prints 42");
+
+    ASSERT(interpret_cstr(session, "7 S>D 2 SM/REM"), "sm/rem");
+    want[0] = 1;
+    want[1] = 3;
+    ASSERT(expect_cells(session, want, 2), "SM/REM");
+
+    ASSERT(interpret_cstr(session, "-7 S>D 2 FM/MOD"), "fm/mod");
+    want[0] = 1;
+    want[1] = -4;
+    ASSERT(expect_cells(session, want, 2), "FM/MOD floored");
+
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_kernel_defects(void) {
+    const char *test_name = "kernel: VARIABLE CATCH BYE EXECUTE sessions S\"";
+    ForthSession *session;
+    ForthSession *other;
+    int64_t want[8];
+    int64_t cell = 0;
+
+    session = forth_session_create();
+    ASSERT(session != NULL, "create failed");
+
+    ASSERT(interpret_cstr(session, "ALIGN VARIABLE VX HERE VX -"),
+           "variable layout");
+    want[0] = 8;
+    ASSERT(expect_cells(session, want, 1), "VARIABLE cell is after the name");
+
+    ASSERT(interpret_cstr(session, "VARIABLE MV1 9 MV1 ! MV1 @"), "variable store");
+    want[0] = 9;
+    ASSERT(expect_cells(session, want, 1), "VARIABLE @");
+
+    forth_output_clear(session);
+    ASSERT(interpret_cstr(session, "S\"  hi\" TYPE"), "squote extra blanks");
+    ASSERT(strcmp(forth_output(session), "hi") == 0, "S\" skips blanks after the word");
+
+    forth_output_clear(session);
+    ASSERT(interpret_cstr(session, "S\" aa\" S\" bb\" TYPE"), "squote clobber");
+    ASSERT(strcmp(forth_output(session), "bb") == 0,
+           "interpret S\" uses one transient buffer");
+    ASSERT(forth_data_pop(session, &cell), "drop leftover S\" length");
+    ASSERT(forth_data_pop(session, &cell), "drop leftover S\" address");
+
+    ASSERT(interpret_cstr(session, ": BOOM 99 THROW ; ' BOOM CATCH"), "catch throw");
+    want[0] = 99;
+    ASSERT(expect_cells(session, want, 1), "CATCH of THROW is 99");
+
+    ASSERT(interpret_cstr(session, ": OKW 7 ; ' OKW CATCH"), "catch ok");
+    want[0] = 7;
+    want[1] = 0;
+    ASSERT(expect_cells(session, want, 2), "CATCH of a word is 0");
+
+    ASSERT(interpret_cstr(session, ": INNER 42 THROW ; : WRAP ' INNER CATCH ; WRAP"),
+           "catch in colon");
+    want[0] = 42;
+    ASSERT(expect_cells(session, want, 1), "CATCH compiled in a colon");
+
+    ASSERT(interpret_cstr(session, ": NESTED INNER ; ' NESTED CATCH"),
+           "throw from callee");
+    want[0] = 42;
+    ASSERT(expect_cells(session, want, 1), "THROW HALTs the outer NanoISA function");
+
+    ASSERT(!interpret_cstr(session, "99 THROW"), "uncaught THROW fails interpret");
+    ASSERT(!interpret_cstr(session, "' IF EXECUTE"), "EXECUTE of IF is rejected");
+
+    other = forth_session_create();
+    ASSERT(other != NULL, "second session");
+    ASSERT(interpret_cstr(other, "5 CONSTANT K1"), "other CONSTANT");
+    ASSERT(!interpret_cstr(other, "VX @"), "other session has no VX");
+    ASSERT(interpret_cstr(session, "MV1 @"), "first session still has MV1");
+    ASSERT(forth_data_pop(session, &cell) && cell == 9, "sessions do not share dict");
+    ASSERT(interpret_cstr(other, "K1"), "other K1");
+    ASSERT(forth_data_pop(other, &cell) && cell == 5, "other value");
+    forth_session_destroy(other);
+
+    ASSERT(interpret_cstr(session, ": FOOX BYE ; FOOX"), "compiled BYE");
+    ASSERT(forth_exit_requested(session), "BYE requests process exit");
+    ASSERT(!forth_exit_requested(NULL), "NULL session is not exiting");
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
+static void test_core_remaining_words(void) {
+    const char *test_name = "core: >BODY >NUMBER POSTPONE ABORT\" KEY ACCEPT QUIT";
+    ForthSession *session = forth_session_create();
+    int64_t want[8];
+    int64_t cell = 0;
+    uint8_t ch = 0;
+
+    ASSERT(session != NULL, "create failed");
+
+    ASSERT(interpret_cstr(session, "CREATE GB ' GB >BODY GB ="), ">BODY");
+    want[0] = -1;
+    ASSERT(expect_cells(session, want, 1), "CREATE xt >BODY is the body");
+
+    ASSERT(interpret_cstr(session, "0 0 S\" 123\" >NUMBER"), ">NUMBER 123");
+    ASSERT(forth_data_pop(session, &cell) && cell == 0, ">NUMBER leftover count");
+    ASSERT(forth_data_pop(session, &cell), ">NUMBER leftover addr");
+    want[0] = 123;
+    want[1] = 0;
+    ASSERT(expect_cells(session, want, 2), ">NUMBER accumulates 123");
+
+    ASSERT(interpret_cstr(session, "0 0 S\" 12X\" >NUMBER"), ">NUMBER stops");
+    ASSERT(forth_data_pop(session, &cell) && cell == 1, "one leftover char");
+    ASSERT(forth_data_pop(session, &cell), "caddr of X");
+    ASSERT(forth_fetch_byte(session, (uint64_t)cell, &ch) && ch == (uint8_t)'X',
+           "leftover is X");
+    want[0] = 12;
+    want[1] = 0;
+    ASSERT(expect_cells(session, want, 2), ">NUMBER 12 from 12X");
+
+    ASSERT(interpret_cstr(session,
+                          ": LITPOST POSTPONE DUP ; IMMEDIATE : USES 7 LITPOST ; USES"),
+           "postpone DUP");
+    want[0] = 7;
+    want[1] = 7;
+    ASSERT(expect_cells(session, want, 2), "POSTPONE DUP compiled DUP");
+
+    ASSERT(interpret_cstr(session,
+                          ": IFPOST POSTPONE IF ; IMMEDIATE "
+                          ": T IFPOST 1 THEN ; 0 T"),
+           "postpone IF");
+    ASSERT(forth_data_depth(session) == 0, "POSTPONE IF skips when false");
+    ASSERT(interpret_cstr(session, "1 T"), "postpone IF true");
+    want[0] = 1;
+    ASSERT(expect_cells(session, want, 1), "POSTPONE IF takes the true path");
+
+    ASSERT(interpret_cstr(session, "0 ABORT\" no\""), "ABORT\" false");
+    ASSERT(forth_data_depth(session) == 0, "false ABORT\" is a no-op");
+    ASSERT(!interpret_cstr(session, "1 ABORT\" yes\""), "ABORT\" true fails");
+
+    ASSERT(interpret_cstr(session, "KEY A"), "KEY");
+    want[0] = 65;
+    ASSERT(expect_cells(session, want, 1), "KEY A is 65");
+
+    ASSERT(interpret_cstr(session, "PAD 5 ACCEPT hello"), "ACCEPT");
+    want[0] = 5;
+    ASSERT(expect_cells(session, want, 1), "ACCEPT copies 5");
+    forth_output_clear(session);
+    ASSERT(interpret_cstr(session, "PAD 5 TYPE"), "type accepted");
+    ASSERT(strcmp(forth_output(session), "hello") == 0, "ACCEPT text");
+
+    ASSERT(interpret_cstr(session, "1 >R QUIT"), "QUIT");
+    ASSERT(interpret_cstr(session, "STATE @"), "state after QUIT");
+    want[0] = 0;
+    ASSERT(expect_cells(session, want, 1), "QUIT enters interpretation state");
+    ASSERT(forth_return_depth(session) == 0, "QUIT empties the return stack");
+
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
 int main(void) {
     printf("Forth session runtime tests\n");
     test_session_owns_module_and_vm();
@@ -806,6 +1311,17 @@ int main(void) {
     test_colon_compile_verify_and_early_binding();
     test_colon_structured_control_flow();
     test_catch_and_throw();
+    test_typed_import_abs();
+    test_import_rejects_unusable_abi();
+    test_import_stops_cop();
+    test_see_disassembles_colon_and_import();
+    test_interpret_numbers();
+    test_interpret_plus_dup_star();
+    test_core_arithmetic_stack_compare();
+    test_core_memory_control_base();
+    test_core_io_create_evaluate();
+    test_kernel_defects();
+    test_core_remaining_words();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);
     return g_fail ? 1 : 0;
 }

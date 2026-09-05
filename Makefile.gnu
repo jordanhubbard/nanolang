@@ -885,6 +885,22 @@ $(OBJ_DIR)/forth/%.o: $(FORTH_DIR)/%.c $(FORTH_DIR)/forth_session.h | $(OBJ_DIR)
 $(OBJ_DIR)/forth:
 	mkdir -p $(OBJ_DIR)/forth
 
+ifeq ($(UNAME_S),Darwin)
+NANO_FORTH_EXPORT = -Wl,-export_dynamic
+else
+NANO_FORTH_EXPORT =
+endif
+
+$(BIN_DIR)/nano_forth: $(FORTH_DIR)/forth_repl.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $(FORTH_DIR)/forth_repl.c $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(NANO_FORTH_EXPORT)
+
+$(BIN_DIR)/forth: $(BIN_DIR)/nano_forth
+	cp $< $@
+
+.PHONY: nano_forth
+nano_forth: $(BIN_DIR)/forth
+
 .PHONY: test-forth-session
 test-forth-session: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running Forth session runtime tests..."
@@ -893,6 +909,14 @@ test-forth-session: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMM
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/forth/test_forth_session
 	@rm -f tests/forth/test_forth_session
+
+.PHONY: test-forth-pty
+test-forth-pty: $(BIN_DIR)/forth
+	@echo "Running Forth PTY REPL liveness tests..."
+	$(CC) $(CFLAGS) -Imodules/pty -o tests/forth/test_forth_pty_repl \
+		tests/forth/test_forth_pty_repl.c modules/pty/pty.c
+	@./tests/forth/test_forth_pty_repl
+	@rm -f tests/forth/test_forth_pty_repl
 
 .PHONY: test-units
 test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates
@@ -1065,6 +1089,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Checking Forth 2012 pins and Gforth differential runs..."
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@echo ""
+	@echo "Checking Forth IDE PTY interpreter liveness..."
+	@$(MAKE) --no-print-directory test-forth-pty
 	@echo ""
 	@if [ -x $(INTERPRETER) ]; then \
 		echo "Running property-based tests (interpreter)..."; \
@@ -1539,10 +1566,10 @@ launcher: examples-c check-deps-sdl
 	@$(EXAMPLES_TIMEOUT_CMD) $(MAKE) -C examples launcher COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 	@echo "✅ Examples built successfully!"
 
-forth: $(COMPILER_C)
-	@$(MAKE) -C examples forth COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
+forth: $(BIN_DIR)/forth
+	./bin/forth --interactive
 
-forth-ide: $(COMPILER_C) check-deps-sdl
+forth-ide: $(COMPILER_C) check-deps-sdl $(BIN_DIR)/forth
 	@$(MAKE) -C examples forth-ide COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
@@ -2365,6 +2392,8 @@ help:
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
 	@echo "  make test-forth-session - Forth session colon compile, dictionary, and sources"
+	@echo "  make test-forth-pty    - Forth IDE PTY child stays alive and evaluates a line"
+	@echo "  make nano_forth        - Build bin/forth (NanoISA session REPL for the IDE)"
 	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"

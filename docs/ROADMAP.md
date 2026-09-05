@@ -7,6 +7,14 @@ the work here as checkable items, including its tests and documentation. I mark
 an item complete only after I have verified it. MAC tasks track ownership and
 execution; this document records product direction and order.
 
+When I discover a defect, an overclaim, or required work while executing this
+document, I add a concrete checkbox here in dependency order before I continue.
+Chat is not the ledger. A defect I already fixed in the same session still gets
+an `[x]` item so it stays in product history.
+
+**4.1 Nano Forth is the primary remaining goal.** The SDL editor astronaut
+stays parked until Phase 13 closes. Option C remains 4.4.
+
 ## Active Execution Queue
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
@@ -20,6 +28,39 @@ execution; this document records product direction and order.
   `NANO_PROFILE` once at process startup, cache its boolean, keep disabled hooks
   cheap, preserve timing and flamegraph evidence, and test enabled and disabled
   generated executables without rebuilding.
+- [x] **4.1 / Phase 13 (primary).** I implement typed Forth import declarations
+  that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
+- [x] **4.1 / Phase 13 (primary).** I reject FFI signatures the active ABI
+  cannot call correctly instead of guessing, and I restart an isolated FFI
+  co-process after dynamic import-table mutation.
+- [x] **4.1 / Phase 13 (primary).** I make `SEE` disassemble the actual compiled
+  NanoISA function and describe imported words.
+- [x] **4.1 / Phase 13 (primary).** I close Forth kernel defects found during
+  Core (Phase 13 subsection of the same name). I do not mark Core complete while
+  those remain open.
+- [ ] **4.1 / Phase 13 (primary).** I implement and test Forth 2012 Core on the
+  NanoISA session. Remaining word sets, `pi.fs`, and `sdl_forth_ide` stay in
+  Phase 13 until this Core gate passes. Locals-on-`THROW` waits on recursive
+  Locals; I do not treat it as the next item.
+- [ ] Side-quest after 4.1: I isolate the SDL editor walker in
+  `bin/nano_emacs_worker` with a length-prefixed pipe protocol (create/destroy,
+  bind buffer, eval string, drain `ed_*` commands, crash detection and restart).
+  I do not overload `COP_MSG_FFI_REQ` as eval. The frame does not `dlopen` the
+  interpreter.
+- [ ] Side-quest after 4.1: I keep the editor's `nano_eval_*` C API and make
+  the bridge an RPC client of that worker. A walker crash echoes an error,
+  restarts the worker, and keeps buffers. The child never re-enters SDL.
+- [ ] Side-quest after 4.1: I add freeze-defun (`C-x C-z` / `M-x freeze-defun`):
+  extract the current top-level `fn`, timeout-compile it to `.nvm`, and run
+  `nano_vm` as a grandchild. `C-x C-e` stays walker eval. Frozen v1 is pure
+  (result or error echo only; no `ed_*` inside the `.nvm`). A freeze-child
+  crash does not kill the frame.
+- [ ] Side-quest after 4.1: I test killing the worker mid-eval (parent survives
+  and can restart), freeze of a pure function, and timeout compile of
+  `nano_emacs`. In-process `make test-nano-eval` remains. I document a live
+  editor plus an isolated worker. I do not claim GNU Emacs compatibility.
+  Capability-supervised isolation of the same children is 4.4 work, not this
+  cut.
 
 ## Release Map
 
@@ -34,7 +75,7 @@ Patch releases may ship completed fixes without changing this dependency order.
 | **4.1** | Nano Forth | I compile Forth words to NanoISA, implement Forth 2012 Core and optional word sets, run pinned conformance suites, and use the same typed service/import boundary as NanoLang. |
 | **4.2** | International Nano platform | I provide language-neutral UTF-8 diagnostics and logs plus English, Mandarin Chinese, Hindi, Spanish, Modern Standard Arabic, and French guide editions. |
 | **4.3** | Service interfaces and module migration | I turn module manifests into versioned service contracts and generate clients, servers, wire schemas, policy declarations, compatibility tests, and documentation. |
-| **4.4** | Capability service fabric | I run modules as supervised least-privilege services with typed capabilities, asynchronous IPC, shared-memory bulk transfer, quotas, cancellation, and restart-safe handles. |
+| **4.4** | Capability service fabric | I run modules as supervised least-privilege services with typed capabilities, asynchronous IPC, shared-memory bulk transfer, quotas, cancellation, and restart-safe handles. The SDL editor's walker and freeze-ISA children become first clients of that fabric (option C); the dedicated-pipe astronaut in the active queue is the earlier isolation cut, not the fabric. |
 | **4.5** | Effects, policy, and replay | I derive deployment policy from effects, record nondeterministic traps, replay executions deterministically, inject failures, and audit service interactions. |
 | **4.6** | Multi-language laboratory | I validate NanoISA with bounded Scheme, ML, actor, dataflow, object, shell, and logic frontends, each chosen to test a distinct semantic pressure. |
 | **5.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
@@ -188,7 +229,8 @@ Documentation and acceptance:
 
 Goal: I will implement a standards-oriented Forth system whose colon words are
 verified NanoISA functions and whose typed library words use the same import and
-co-process machinery as NanoLang.
+co-process machinery as NanoLang. This phase is the primary remaining 4.1
+goal. The SDL editor astronaut is a side-quest after this phase closes.
 
 Foundation:
 - [x] I selected Forth 2012 Core and every optional word set as the target.
@@ -216,12 +258,53 @@ Compiler and runtime:
 - [x] I will compile each colon definition privately to NanoISA, verify it, then publish it atomically.
 - [x] I will compile calls to earlier definitions as stable `OP_CALL` references and `RECURSE` to the reserved current definition.
 - [x] I will compile structured control flow with a checked compile-control stack and branch patching.
-- [x] I will implement `CATCH` and `THROW` by restoring Forth stacks, input sources, and NanoVM invocation state.
+- [x] I restore Forth stacks, input sources, and NanoVM invocation state from C
+      (`forth_catch` / `forth_colon_throw`). That is not dictionary words
+      `CATCH` and `THROW`.
+- [x] I expose `CATCH` and `THROW` as Forth words. Nested `vm_invoke` keeps a
+      saved frame count (`forth_invoke_nested`). `THROW` HALTs the outer NanoISA
+      function, not only the inner host call. I test `CATCH` inside a colon
+      definition and `THROW` from a called word.
 - [ ] I will restore Forth locals on `THROW` once recursive Locals exist.
-- [ ] I will implement typed Forth import declarations that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
-- [ ] I will reject FFI signatures the active ABI cannot call correctly instead of guessing.
-- [ ] I will restart an isolated FFI co-process after dynamic import-table mutation.
-- [ ] I will make `SEE` disassemble the actual compiled NanoISA function and describe imported words.
+- [x] I will implement typed Forth import declarations that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
+- [x] I will reject FFI signatures the active ABI cannot call correctly instead of guessing.
+- [x] I will restart an isolated FFI co-process after dynamic import-table mutation.
+- [x] I will make `SEE` disassemble the actual compiled NanoISA function and describe imported words.
+
+Kernel defects found during Core (dependency order; Core stays open until
+these that belong to Core are verified). Ownership:
+`task_a13c30e77f703469932d36d7d1065b41`. Dictionary `CATCH`/`THROW` lives with
+compiler and runtime above, not only this list.
+
+Closed this session:
+- [x] I stop sharing `FORTH_CTRL_ORIG` between `LEAVE` and `IF`/`THEN`. Leave
+      jumps are a chain on `ForthCtrlItem.aux`. `IF LEAVE THEN LOOP` compiles.
+- [x] `S"` and `."` skip leading blanks after the word so `TYPE` does not print
+      a leading space.
+- [x] `CREATE` captures `HERE` after the name is allotted, so `,` and `@` hit
+      the body, not the name bytes.
+- [x] `bin/forth` is a copy of `bin/nano_forth`, not `nl_forth_interpreter`.
+      `make sdl` and `make forth-ide` require it. The PTY test execs it.
+- [x] `forth_take_word` consumes the trailing blank. `S"` with extra blanks
+      still types the payload, not a leading space.
+- [x] `VARIABLE` allots the data cell after the name, matching `CREATE`.
+      `ALIGN VARIABLE VX HERE VX -` is one cell.
+- [x] Interpret-time `S"` uses one `WORD` buffer; a second `S"` clobbers the
+      first. The contract is in `docs/FORTH_2012.md` and
+      `test_kernel_defects`.
+- [x] A runtime host that returns `0` at interpret `STATE` fails closed. It
+      does not `vm_invoke` its own trampoline.
+- [x] I removed unused `FORTH_HOST_UNLOOP` and `FORTH_HOST_BRACKET`.
+- [x] `g_forth` is the session on the C invoke/interpret stack. Nested invoke
+      saves and restores it. Two sessions do not share a dictionary.
+- [x] `BYE` is a Forth word. The REPL does not special-case the line `bye`.
+      `: FOOX BYE ; FOOX` sets `forth_exit_requested`.
+- [x] `EXECUTE` of a compile-only stub (`IF`, `:`, …) is rejected. The
+      ambiguous-condition policy is in `docs/FORTH_2012.md`.
+- [x] Remaining Core words: `>BODY`, `>NUMBER`, `POSTPONE` (via `COMPILE,`),
+      `ABORT"`, `KEY`, `ACCEPT`, and `QUIT`. `KEY`/`ACCEPT` read remaining
+      `SOURCE`. `QUIT` empties the return stack, sets interpretation `STATE`,
+      and stops the current line. Core stays open until pinned suites pass.
 
 Standard word sets, in dependency order:
 - [ ] I will implement and test Core.
@@ -246,8 +329,8 @@ Tests, examples, and SDL IDE:
 - [ ] I will add malformed definitions, multiline definitions, early binding, immediate words, execution tokens, overflow, unsigned output, loop boundaries, exceptions, source nesting, and UTF-8 tests.
 - [ ] I will make `pi.fs` pass under my Memory-Allocation and Exception implementations with the exact 50-place output.
 - [ ] I will update every file in `examples/language/forth/` to standard behavior.
-- [ ] I will update `sdl_forth_ide` to launch the NanoISA-backed Forth executable.
-- [ ] I will keep the SDL IDE as a PTY client rather than create a second Forth implementation.
+- [x] I will update `sdl_forth_ide` to launch the NanoISA-backed Forth executable.
+- [x] I will keep the SDL IDE as a PTY client rather than create a second Forth implementation.
 - [ ] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
 - [ ] I will publish the precise standard-system label only after tests and required documentation support it.
 
@@ -405,6 +488,10 @@ Resource governance:
 - [ ] I will define behavior for quota exhaustion, cancellation races, partial results, and abandoned clients.
 - [ ] I will expose structured resource accounting without requiring localized prose.
 - [ ] I will test hostile clients, forged handles, stale generations, oversized messages, queue floods, and service crashes.
+- [ ] I will use the SDL editor's walker session and freeze-ISA child as
+  capability-runtime clients: buffer and eval rights are unforgeable, eval
+  time/memory/queue budgets apply, cancellation aborts a hung eval, and a
+  restarted worker invalidates stale session handles.
 
 ### Phase 18 - Portable Service Fabric and Supervision (4.4)
 
@@ -437,6 +524,29 @@ Service migration milestones:
 - [ ] I will migrate graphics and window-system access with surface and input capabilities.
 - [ ] I will migrate GPU access with device, queue, memory, shader, and synchronization capabilities.
 - [ ] I will migrate Python integration into a typed language-service adapter with no direct Python-object leakage.
+
+Live editor as a fabric client (option C; depends on the parked astronaut
+side-quest after 4.1, not on starting that work now):
+- [ ] I will stop treating `bin/nano_emacs_worker` as a special-case pipe
+  daemon. The SDL frame is a client. The walker and freeze-ISA processes are
+  supervised services with startup, readiness, restart, and replacement
+  policies. I still do not host the walker or NanoISA inside the frame, and I
+  still do not route editor eval through the NanoVM FFI co-process protocol.
+- [ ] I will grant the walker only the editor capabilities it needs (bound
+  buffer copy, queued chrome commands, echo). I will grant freeze-ISA a
+  narrower set: compile/run a module and return a result or error, with no
+  `ed_*` unless a later 4.4 checkbox explicitly adds buffer capabilities to
+  frozen modules.
+- [ ] I will apply Phase 17 quotas and cancellation to eval and freeze: a hung
+  walker or `nano_vm` grandchild is cancelled or restarted; the frame stays up;
+  generation-bumped session handles fail closed after restart.
+- [ ] I will use the shared-memory data plane for large buffer bind/return when
+  the copying RPC is the measured bottleneck, with the copying fallback when
+  mappings are unavailable.
+- [ ] I will test: kill the walker, kill the freeze child, exhaust eval quota,
+  present a stale handle after restart, and confirm the frame survives and
+  refuses the stale handle. I will document the editor as a live client of the
+  fabric. I will not claim GNU Emacs compatibility.
 
 ### Phase 19 - Effects, Deployment Policy, and Deterministic Replay (4.5)
 
