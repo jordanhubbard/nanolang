@@ -162,4 +162,7 @@ site/
 /tests/test_nsi_gen
 /tests/test_nsi_runtime
 /tests/test_nsi_manifest
+/tests/test_nsi_cap
+/tests/test_nsi_shm
+/tests/test_nsi_fabric
 /tests/nsi_client_bin

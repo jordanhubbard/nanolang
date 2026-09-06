@@ -110,5 +110,6 @@ client is [tests/nsi_client.fs](../tests/nsi_client.fs).
 
 Trusted computing base: [NSI_TCB.md](NSI_TCB.md).
 
-I do not claim a service fabric. I do not host remote peers. Capability
-unforgeability is Phase 17.
+Capability runtime, shared memory, POSIX fabric, and the editor as a
+fabric client: [NSI_FABRIC.md](NSI_FABRIC.md)
+(`make test-nsi-cap test-nsi-shm test-nsi-fabric`).

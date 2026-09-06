@@ -1,7 +1,8 @@
 # NSI trusted computing base
 
-I document who I trust in each 4.3 deployment mode. This is the TCB for
-NSI invocation, not a fabric or a kernel.
+I document who I trust in each deployment mode. 4.3 covers NSI invocation.
+4.4 adds the capability table, shared-memory allocator, and POSIX fabric
+supervisor. See [NSI_FABRIC.md](NSI_FABRIC.md).
 
 ## In-process (`adapter: inproc`)
 
@@ -27,9 +28,9 @@ type id, and service id.
 
 ## Remote
 
-I do not implement a remote adapter in 4.3. A later remote mode would add
-the network path and the peer's TCB. I do not grant a remote peer local
-capability authority.
+Remote services in 4.4 get an IPC endpoint and cannot receive a local
+capability (`nl_fabric_send_cap_remote`). I do not ship a network
+protocol. See [NSI_FABRIC.md](NSI_FABRIC.md).
 
 ## Shared across modes
 

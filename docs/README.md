@@ -113,8 +113,9 @@ How I am built:
     - Generated NanoLang/Forth/Python/Rust/C++ bindings and NanoISA imports
     - Module `nsi` manifests, inventory, in-process/mock/local-process adapters
     - [Trusted computing base](NSI_TCB.md) per deployment mode
+    - [Capability runtime and service fabric](NSI_FABRIC.md) (4.4)
     - Names are not identity; ABI inference and malformed frames fail closed
-    - I do not claim a service fabric
+    - I do not claim a kernel or GNU Emacs compatibility
 
 10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
     - Type soundness (preservation and progress)

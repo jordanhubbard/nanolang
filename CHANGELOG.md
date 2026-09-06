@@ -21,8 +21,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`make test-nsi-manifest`, `schema/nsi/inventory.json`).
   `src/nsi_runtime.c` invokes by method id over in-process, mock, and
   local-process adapters with hello, queues, idempotence, auth, and typed
-  handles (`make test-nsi-runtime`, `docs/NSI_TCB.md`). I do not claim a
-  service fabric. `make test-nsi`.
+  handles (`make test-nsi-runtime`, `docs/NSI_TCB.md`). `make test-nsi`.
+- Capability runtime and POSIX service fabric (4.4): unforgeable `NlCap`
+  tokens, rights attenuation, transfer, revocation, generation bump
+  (`src/nsi_cap.c`, `make test-nsi-cap`). Capability-scoped shared
+  memory with copy fallback and payload-size benches (`src/nsi_shm.c`,
+  `make test-nsi-shm`). Supervisor, `NlHost` POSIX/inproc adapters,
+  scoped log/fs/process/net/audio/graphics/gpu/python services, remote
+  cap denial, and the SDL editor as a fabric client of `editor.walker`
+  / `editor.freeze` (`src/nsi_fabric.c`, `docs/NSI_FABRIC.md`,
+  `make test-nsi-fabric`). I do not claim a kernel, GNU Emacs
+  compatibility, or a CUDA/CPython wrap.
 - UTF-8 message catalogs for `en`, `zh`, `hi`, `es`, `ar`, and `fr`
   (`catalogs/messages/`, `src/catalog.c`). Human stderr looks up the
   process locale; JSON/TOON stay English. `make test-catalog` and

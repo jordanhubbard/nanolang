@@ -797,6 +797,36 @@ test-nsi-manifest:
 	@./tests/test_nsi_manifest
 	@rm -f tests/test_nsi_manifest
 
+NSI_FABRIC_LIBS =
+ifeq ($(UNAME_S),Linux)
+NSI_FABRIC_LIBS = -pthread
+endif
+
+.PHONY: test-nsi-cap
+test-nsi-cap:
+	@echo "Running NSI capability-runtime tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_cap tests/test_nsi_cap.c \
+		$(SRC_DIR)/nsi_cap.c
+	@./tests/test_nsi_cap
+	@rm -f tests/test_nsi_cap
+
+.PHONY: test-nsi-shm
+test-nsi-shm:
+	@echo "Running NSI shared-memory tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_shm tests/test_nsi_shm.c \
+		$(SRC_DIR)/nsi_shm.c $(SRC_DIR)/nsi_cap.c
+	@./tests/test_nsi_shm
+	@rm -f tests/test_nsi_shm
+
+.PHONY: test-nsi-fabric
+test-nsi-fabric:
+	@echo "Running NSI fabric, supervisor, and editor-client tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_fabric tests/test_nsi_fabric.c \
+		$(SRC_DIR)/nsi_fabric.c $(SRC_DIR)/nsi_shm.c $(SRC_DIR)/nsi_cap.c \
+		$(SRC_DIR)/nsi.c $(SRC_DIR)/utf8.c $(SRC_DIR)/cJSON.c $(NSI_FABRIC_LIBS)
+	@./tests/test_nsi_fabric
+	@rm -f tests/test_nsi_fabric
+
 .PHONY: test-log-utf8
 test-log-utf8:
 	@echo "Running log UTF-8 and event-id tests..."
@@ -1071,7 +1101,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -2910,6 +2940,9 @@ help:
 	@echo "  make test-nsi-gen     - NSI NanoLang/Forth/Python/Rust/C++ bindings, dispatch, NanoISA"
 	@echo "  make test-nsi-runtime - NSI frames, adapters, handles, and unchanged-client acceptance"
 	@echo "  make test-nsi-manifest - NSI module manifests, inventory, and discovery"
+	@echo "  make test-nsi-cap     - NSI unforgeable capabilities, attenuation, audit"
+	@echo "  make test-nsi-shm     - NSI capability-scoped shared memory and copy fallback"
+	@echo "  make test-nsi-fabric  - NSI supervisor, POSIX host, editor as fabric client"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"
 	@echo "  make test-locale-catalog - six-language catalog stderr vs English JSON"

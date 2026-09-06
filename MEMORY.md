@@ -107,6 +107,9 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 | `make test-nsi-gen` | NSI NanoLang/Forth/Python/Rust/C++ bindings, dispatch, NanoISA imports |
 | `make test-nsi-runtime` | NSI frames, inproc/mock/local adapters, handles, unchanged-client acceptance |
 | `make test-nsi-manifest` | NSI module manifests, inventory, discovery by interface id |
+| `make test-nsi-cap` | Unforgeable capabilities, attenuation, transfer, audit |
+| `make test-nsi-shm` | Capability-scoped shared memory, copy fallback, benches |
+| `make test-nsi-fabric` | POSIX fabric, supervisor, editor walker/freeze as fabric clients |
 | `make test-log-utf8` | log event ids `LOG01` and bidi/ANSI sanitize |
 | `make test-locale-catalog` | human stderr catalogs for `en zh hi es ar fr` (CIO01) and zh L0003; JSON stays English |
 | `make test-i18n-scripts` | six-script literals through C and NanoVM |

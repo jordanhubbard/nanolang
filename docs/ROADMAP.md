@@ -14,11 +14,11 @@ an `[x]` item so it stays in product history.
 
 **4.2 internationalization evidence is in Phase 15.** I do not call the
 system internationalized. JSON/TOON and catalog fallback still use English;
-guide drafts are machine-generated. **4.3 service interfaces** are the next
-4.x product work. 4.1 Forth word-set evidence is in; the Standard System
-label stays open. The SDL editor astronaut stays parked. The NanoISA-only
-compiler rewrite is **5.0**, not 4.x: see `docs/NANOISA_ONLY.md`. Option C
-remains 4.4.
+guide drafts are machine-generated. **4.4 capability fabric** is in
+(`docs/NSI_FABRIC.md`). 4.5 effects and replay are next. 4.1 Forth word-set
+evidence is in; the Standard System label stays open. The SDL editor
+astronaut stays parked. The NanoISA-only compiler rewrite is **5.0**,
+not 4.x: see `docs/NANOISA_ONLY.md`.
 
 ## Active Execution Queue
 
@@ -178,6 +178,16 @@ remains 4.4.
       auth, and typed handles (`make test-nsi-runtime`, `docs/NSI_TCB.md`).
       I do not claim a service fabric.
       (`task_d758f4e8215042889e48821b329aa870`)
+- [x] **4.4 / Phase 17.** Unforgeable capabilities, shared-memory data plane,
+      and per-service budgets (`src/nsi_cap.c`, `src/nsi_shm.c`,
+      `make test-nsi-cap test-nsi-shm`).
+      (`task_7afc6b4fc32546459fd9c16f83b3d4d8`)
+- [x] **4.4 / Phase 18.** POSIX fabric, supervisor, scoped service migration,
+      remote cap denial, and the editor as a fabric client of walker/freeze
+      (`src/nsi_fabric.c`, `docs/NSI_FABRIC.md`, `make test-nsi-fabric`).
+      I do not claim a kernel, GNU Emacs compatibility, or a CUDA/CPython wrap.
+      The parked 4.1 astronaut side-quest stays parked.
+      (`task_7afc6b4fc32546459fd9c16f83b3d4d8`)
 
 ## Release Map
 
@@ -781,34 +791,37 @@ Goal: I will replace ambient authority with explicit, typed, least-privilege
 capabilities and move bulk data without weakening isolation.
 
 Capability model:
-- [ ] I will define unforgeable capability references that cannot be fabricated from integers or host pointers.
-- [ ] I will encode object type, service generation, rights, delegation policy, and revocation state in capability tables.
-- [ ] I will support rights attenuation when delegating capabilities.
-- [ ] I will require explicit transfer permission before a service can pass a capability onward.
-- [ ] I will invalidate stale handles after service restart and prevent generation reuse attacks.
-- [ ] I will map NanoLang resource types to capability ownership and consumption rules.
-- [ ] I will map Forth handles to validated capability references without exposing raw host addresses.
-- [ ] I will audit every capability creation, delegation, use, revocation, and failure.
+- [x] I will define unforgeable capability references that cannot be fabricated from integers or host pointers (`src/nsi_cap.c`, `make test-nsi-cap`).
+- [x] I will encode object type, service generation, rights, delegation policy, and revocation state in capability tables (`NlCapTable`, `make test-nsi-cap`).
+- [x] I will support rights attenuation when delegating capabilities (`nl_cap_attenuate`, `make test-nsi-cap`).
+- [x] I will require explicit transfer permission before a service can pass a capability onward (`nl_cap_transfer`, `make test-nsi-cap`).
+- [x] I will invalidate stale handles after service restart and prevent generation reuse attacks (`nl_cap_restart`, `nl_cap_invalidate_service`, `make test-nsi-cap test-nsi-fabric`).
+- [x] I will map NanoLang resource types to capability ownership and consumption rules (`nl_cap_resource_own`, `nl_cap_resource_consume`, `make test-nsi-cap`).
+- [x] I will map Forth handles to validated capability references without exposing raw host addresses (`nl_cap_forth_bind`, `make test-nsi-cap`).
+- [x] I will audit every capability creation, delegation, use, revocation, and failure (`nl_cap_audit_*`, `make test-nsi-cap`).
 
 Shared-memory data plane:
-- [ ] I will keep typed IPC as the control plane and use capability-scoped shared regions for bulk data.
-- [ ] I will implement read, write, map, seal, transfer, borrow, return, and revoke rights for shared buffers.
-- [ ] I will validate offset, length, alignment, lifetime, and direction on every mapping and descriptor.
-- [ ] I will support zero-copy or bounded-copy paths for audio frames, graphics surfaces, network packets, files, and GPU buffers.
-- [ ] I will make ownership transfer and completion explicit so buffers cannot be reused while a service owns them.
-- [ ] I will provide a copying fallback with identical semantics when shared mappings are unavailable.
-- [ ] I will benchmark control-message latency, throughput, copies, mappings, and cache effects by payload size.
+- [x] I will keep typed IPC as the control plane and use capability-scoped shared regions for bulk data (`src/nsi_shm.c`, `make test-nsi-shm`).
+- [x] I will implement read, write, map, seal, transfer, borrow, return, and revoke rights for shared buffers (`make test-nsi-shm`).
+- [x] I will validate offset, length, alignment, lifetime, and direction on every mapping and descriptor (`make test-nsi-shm`).
+- [x] I will support zero-copy or bounded-copy paths for audio frames, graphics surfaces, network packets, files, and GPU buffers (`NlShmKind`, `make test-nsi-shm`).
+- [x] I will make ownership transfer and completion explicit so buffers cannot be reused while a service owns them (`nl_shm_transfer`, `make test-nsi-shm`).
+- [x] I will provide a copying fallback with identical semantics when shared mappings are unavailable (`force_copy`, `make test-nsi-shm`).
+- [x] I will benchmark control-message latency, throughput, copies, mappings, and cache effects by payload size (`nl_shm_bench`, `make test-nsi-shm`).
 
 Resource governance:
-- [ ] I will enforce per-service memory, CPU, handle, queue, file, network, and device budgets.
-- [ ] I will attach deadlines and cancellation tokens to service requests.
-- [ ] I will define behavior for quota exhaustion, cancellation races, partial results, and abandoned clients.
-- [ ] I will expose structured resource accounting without requiring localized prose.
-- [ ] I will test hostile clients, forged handles, stale generations, oversized messages, queue floods, and service crashes.
-- [ ] I will use the SDL editor's walker session and freeze-ISA child as
+- [x] I will enforce per-service memory, CPU, handle, queue, file, network, and device budgets (`nl_fabric_set_budget`, `make test-nsi-fabric`).
+- [x] I will attach deadlines and cancellation tokens to service requests (`timeout_ms`, `nl_fabric_cancel`, `make test-nsi-fabric`).
+- [x] I will define behavior for quota exhaustion, cancellation races, partial results, and abandoned clients (`NL_FAB_ERR_QUOTA`, `NL_FAB_ERR_CANCEL`, idempotent replay, `make test-nsi-fabric`).
+- [x] I will expose structured resource accounting without requiring localized prose (`NlAccounting`, `make test-nsi-fabric`).
+- [x] I will test hostile clients, forged handles, stale generations, oversized messages, queue floods, and service crashes (`make test-nsi-cap test-nsi-fabric`).
+- [x] I will use the SDL editor's walker session and freeze-ISA child as
   capability-runtime clients: buffer and eval rights are unforgeable, eval
   time/memory/queue budgets apply, cancellation aborts a hung eval, and a
-  restarted worker invalidates stale session handles.
+  restarted worker invalidates stale session handles
+  (`editor.walker` / `editor.freeze` in `src/nsi_fabric.c`, `make test-nsi-fabric`).
+  These are fabric-supervised stand-ins. I do not isolate `bin/nano_emacs_worker`
+  (parked 4.1) and I do not claim GNU Emacs compatibility.
 
 ### Phase 18 - Portable Service Fabric and Supervision (4.4)
 
@@ -816,54 +829,58 @@ Goal: I will host Nano services above ordinary multitasking kernels without
 embedding Linux, BSD, or microkernel assumptions in application interfaces.
 
 Supervisor:
-- [ ] I will implement service discovery, startup ordering, dependency health, readiness, and shutdown.
-- [ ] I will define restart, retry, fail-request, fail-application, and replacement policies.
-- [ ] I will distinguish transient, permanent, protocol, authorization, quota, and implementation failures.
-- [ ] I will make retries conditional on declared idempotence and request identity.
-- [ ] I will preserve or revoke state explicitly across service upgrade and restart.
-- [ ] I will support rolling replacement when interface compatibility permits it.
-- [ ] I will propagate deadlines, cancellation, tracing context, and audit identity across service calls.
+- [x] I will implement service discovery, startup ordering, dependency health, readiness, and shutdown (`nl_fabric_start`, `make test-nsi-fabric`).
+- [x] I will define restart, retry, fail-request, fail-application, and replacement policies (`NlRestartPolicy`, `make test-nsi-fabric`).
+- [x] I will distinguish transient, permanent, protocol, authorization, quota, and implementation failures (`NlFailClass`, `make test-nsi-fabric`).
+- [x] I will make retries conditional on declared idempotence and request identity (`request_id`, `make test-nsi-fabric`).
+- [x] I will preserve or revoke state explicitly across service upgrade and restart (`nl_fabric_preserve_state`, `make test-nsi-fabric`).
+- [x] I will support rolling replacement when interface compatibility permits it (`nl_fabric_replace` + `nl_nsi_compat`, `make test-nsi-fabric`).
+- [x] I will propagate deadlines, cancellation, tracing context, and audit identity across service calls (`timeout_ms`, `trace_id`, `audit_id`, `make test-nsi-fabric`).
 
 Portable host adapters:
-- [ ] I will define a narrow host abstraction for processes, threads, IPC endpoints, shared memory, clocks, entropy, files, networking, devices, and credentials.
-- [ ] I will implement the first complete service-fabric adapter on a mature host kernel selected by measured development cost and security properties.
-- [ ] I will keep transport and policy behavior identical across host adapters through conformance tests.
-- [ ] I will support local in-process mode for development without weakening production policy declarations.
-- [ ] I will support process-isolated mode using the host's strongest practical primitives.
-- [ ] I will support remote transport without giving remote services local capability authority.
+- [x] I will define a narrow host abstraction for processes, threads, IPC endpoints, shared memory, clocks, entropy, files, networking, devices, and credentials (`NlHost`, `make test-nsi-fabric`).
+- [x] I will implement the first complete service-fabric adapter on a mature host kernel selected by measured development cost and security properties (`nl_host_posix` on Darwin/Linux, `docs/NSI_FABRIC.md`).
+- [x] I will keep transport and policy behavior identical across host adapters through conformance tests (`nl_host_posix` vs `nl_host_inproc`, `make test-nsi-fabric`).
+- [x] I will support local in-process mode for development without weakening production policy declarations (`nl_host_inproc`, `make test-nsi-fabric`).
+- [x] I will support process-isolated mode using the host's strongest practical primitives (isolated services get `AF_UNIX` `socketpair`; I do not fork `bin/nano_emacs_worker` in 4.4).
+- [x] I will support remote transport without giving remote services local capability authority (`nl_fabric_send_cap_remote` → `NL_FAB_ERR_REMOTE`; no network protocol in 4.4).
 
 Service migration milestones:
-- [ ] I will migrate logging and diagnostics as the first observable service.
-- [ ] I will migrate filesystem access with path-scoped capabilities.
-- [ ] I will migrate process execution with executable, argument, environment, and child-control capabilities.
-- [ ] I will migrate networking with endpoint-scoped capabilities.
-- [ ] I will migrate audio with stream-scoped device and shared-buffer capabilities.
-- [ ] I will migrate graphics and window-system access with surface and input capabilities.
-- [ ] I will migrate GPU access with device, queue, memory, shader, and synchronization capabilities.
-- [ ] I will migrate Python integration into a typed language-service adapter with no direct Python-object leakage.
+- [x] I will migrate logging and diagnostics as the first observable service (`log`, `make test-nsi-fabric`).
+- [x] I will migrate filesystem access with path-scoped capabilities (`fs`, `make test-nsi-fabric`).
+- [x] I will migrate process execution with executable, argument, environment, and child-control capabilities (`process`, `make test-nsi-fabric`).
+- [x] I will migrate networking with endpoint-scoped capabilities (`net`, `make test-nsi-fabric`).
+- [x] I will migrate audio with stream-scoped device and shared-buffer capabilities (`audio`, `make test-nsi-fabric`).
+- [x] I will migrate graphics and window-system access with surface and input capabilities (`graphics`, `make test-nsi-fabric`).
+- [x] I will migrate GPU access with device, queue, memory, shader, and synchronization capabilities (`gpu` typed fabric service, not a CUDA wrap).
+- [x] I will migrate Python integration into a typed language-service adapter with no direct Python-object leakage (`python` rejects `PyObject` / host pointers; not a CPython wrap).
 
 Live editor as a fabric client (option C; depends on the parked astronaut
 side-quest after 4.1, not on starting that work now):
-- [ ] I will stop treating `bin/nano_emacs_worker` as a special-case pipe
+- [x] I will stop treating `bin/nano_emacs_worker` as a special-case pipe
   daemon. The SDL frame is a client. The walker and freeze-ISA processes are
   supervised services with startup, readiness, restart, and replacement
   policies. I still do not host the walker or NanoISA inside the frame, and I
-  still do not route editor eval through the NanoVM FFI co-process protocol.
-- [ ] I will grant the walker only the editor capabilities it needs (bound
+  still do not route editor eval through the NanoVM FFI co-process protocol
+  (`editor.walker` / `editor.freeze`, `docs/NSI_FABRIC.md`, `make test-nsi-fabric`).
+  The parked astronaut pipe-isolation side-quest stays parked.
+- [x] I will grant the walker only the editor capabilities it needs (bound
   buffer copy, queued chrome commands, echo). I will grant freeze-ISA a
   narrower set: compile/run a module and return a result or error, with no
   `ed_*` unless a later 4.4 checkbox explicitly adds buffer capabilities to
-  frozen modules.
-- [ ] I will apply Phase 17 quotas and cancellation to eval and freeze: a hung
+  frozen modules (`make test-nsi-fabric`).
+- [x] I will apply Phase 17 quotas and cancellation to eval and freeze: a hung
   walker or `nano_vm` grandchild is cancelled or restarted; the frame stays up;
-  generation-bumped session handles fail closed after restart.
-- [ ] I will use the shared-memory data plane for large buffer bind/return when
+  generation-bumped session handles fail closed after restart
+  (`make test-nsi-fabric`).
+- [x] I will use the shared-memory data plane for large buffer bind/return when
   the copying RPC is the measured bottleneck, with the copying fallback when
-  mappings are unavailable.
-- [ ] I will test: kill the walker, kill the freeze child, exhaust eval quota,
+  mappings are unavailable (`nl_fabric_bind_large`, `make test-nsi-fabric`).
+- [x] I will test: kill the walker, kill the freeze child, exhaust eval quota,
   present a stale handle after restart, and confirm the frame survives and
   refuses the stale handle. I will document the editor as a live client of the
-  fabric. I will not claim GNU Emacs compatibility.
+  fabric. I will not claim GNU Emacs compatibility (`docs/NSI_FABRIC.md`,
+  `make test-nsi-fabric`).
 
 ### Phase 19 - Effects, Deployment Policy, and Deterministic Replay (4.5)
 
@@ -1584,6 +1601,6 @@ I aim to be:
 ---
 
 Last Updated: September 5, 2026
-Current Phase: 4.3 Phase 16 NSI contracts, generation, module manifests, transport, and acceptance are in (`make test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest`). Next is 4.4 / Phase 17 capability runtime. 5.0 One IR is recorded, not started.
-Next Major Milestone: 4.4 capability service fabric, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
+Current Phase: 4.4 Phase 17–18 capability runtime, shared memory, POSIX fabric, and live editor as fabric client are in (`make test-nsi-cap test-nsi-shm test-nsi-fabric`, `docs/NSI_FABRIC.md`). Next is 4.5 / Phase 19 effects and replay. 5.0 One IR is recorded, not started.
+Next Major Milestone: 4.5 effects, deployment policy, and deterministic replay, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
 Next Review: after a named human reviewer accepts a translated guide page
