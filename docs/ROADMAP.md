@@ -44,6 +44,11 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
 - [x] **4.4 release.** GCC `-Werror=stringop-truncation` on
       `strncpy(g_project_root, exe_path, PATH_MAX-1)` in `src/main.c` failed
       the AddressSanitizer job. Copy with an explicit length instead.
+- [x] **4.4 release.** GCC 15 `-Werror=stringop-truncation` on
+      `strncpy(..., FORTH_PATH_MAX-1)` in `src/forth/forth_session.c` when
+      source and destination are both `FORTH_PATH_MAX`. Copy with an explicit
+      length. `make test-forth-session` passed on Ubuntu GCC 15 (`ubuntu.local`).
+      MAC `task_5e86f861c17e44859bc371a8d0c4b27d`.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and

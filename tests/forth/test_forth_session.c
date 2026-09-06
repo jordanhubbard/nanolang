@@ -1512,6 +1512,44 @@ static void test_interpret_file_refill(void) {
     PASS(test_name);
 }
 
+static void test_required_skips_second_load(void) {
+    const char *test_name = "REQUIRED: second load of the same file is a no-op";
+    ForthSession *session = forth_session_create();
+    char path[] = "/tmp/forth_required_XXXXXX";
+    char cmd[256];
+    int fd;
+    FILE *fp;
+    int64_t want[1];
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    bool immediate = false;
+
+    ASSERT(session != NULL, "create failed");
+    ASSERT(forth_find(session, "REQUIRED", 8, &nt, &xt, &immediate),
+           "REQUIRED is present");
+
+    memcpy(path, "/tmp/forth_required_XXXXXX", sizeof(path));
+    fd = mkstemp(path);
+    ASSERT(fd >= 0, "mkstemp");
+    fp = fdopen(fd, "w+");
+    ASSERT(fp != NULL, "fdopen");
+    ASSERT(fwrite("42\n", 1, 3, fp) == 3, "write forth");
+    ASSERT(fflush(fp) == 0, "flush");
+    fclose(fp);
+
+    ASSERT((size_t)snprintf(cmd, sizeof(cmd),
+                            "S\" %s\" REQUIRED S\" %s\" REQUIRED",
+                            path, path) < sizeof(cmd),
+           "command fits");
+    ASSERT(interpret_cstr(session, cmd), "REQUIRED twice");
+    want[0] = 42;
+    ASSERT(expect_cells(session, want, 1), "second REQUIRED does not reload");
+    unlink(path);
+
+    forth_session_destroy(session);
+    PASS(test_name);
+}
+
 static void test_core_ext_words(void) {
     const char *test_name = "core ext: VALUE TO CASE MARKER PARSE-NAME S\\\" ";
     ForthSession *session = forth_session_create();
@@ -1985,6 +2023,7 @@ int main(void) {
     test_core_ext_words();
     test_double_words();
     test_interpret_file_refill();
+    test_required_skips_second_load();
     test_locals();
     test_facility_structures();
     test_programming_tools();

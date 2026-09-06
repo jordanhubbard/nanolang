@@ -28,6 +28,24 @@
 #define FORTH_FAM_RW 3
 #define FORTH_FAM_BIN 8
 #define FORTH_REGION_INITIAL 16
+
+static void forth_copy_bounded(char *dest, size_t dest_size, const char *src) {
+    size_t n;
+    if (!dest || dest_size == 0) {
+        return;
+    }
+    if (!src) {
+        dest[0] = '\0';
+        return;
+    }
+    n = strlen(src);
+    if (n >= dest_size) {
+        n = dest_size - 1;
+    }
+    memcpy(dest, src, n);
+    dest[n] = '\0';
+}
+
 #define FORTH_SUBST_MAX 32
 #define FORTH_SUBST_NAME_MAX 64
 #define FORTH_LOCAL_MAX 16
@@ -1260,8 +1278,7 @@ bool forth_file_open(ForthSession *session, const char *path, const char *mode,
     session->files[slot].generation = gen;
     session->files[slot].fp = fp;
     session->files[slot].used = true;
-    strncpy(session->files[slot].path, path, FORTH_PATH_MAX - 1);
-    session->files[slot].path[FORTH_PATH_MAX - 1] = '\0';
+    forth_copy_bounded(session->files[slot].path, FORTH_PATH_MAX, path);
     *fileid = (gen << 16) | (slot + 1u);
     return true;
 }
@@ -4959,8 +4976,8 @@ static bool forth_mark_required(ForthSession *session, const char *path) {
     if (!session || !path || path[0] == '\0') return false;
     if (forth_already_required(session, path)) return true;
     if (session->required_count >= FORTH_REQUIRED_MAX) return false;
-    strncpy(session->required[session->required_count], path, FORTH_PATH_MAX - 1);
-    session->required[session->required_count][FORTH_PATH_MAX - 1] = '\0';
+    forth_copy_bounded(session->required[session->required_count], FORTH_PATH_MAX,
+                      path);
     session->required_count++;
     return true;
 }
@@ -4972,13 +4989,11 @@ static bool forth_resolve_include_path(ForthSession *session, const char *name,
 
     if (!session || !name || name[0] == '\0' || !out || cap < 2) return false;
     if (name[0] == '/') {
-        strncpy(out, name, cap - 1);
-        out[cap - 1] = '\0';
+        forth_copy_bounded(out, cap, name);
         return true;
     }
     if (stat(name, &st) == 0) {
-        strncpy(out, name, cap - 1);
-        out[cap - 1] = '\0';
+        forth_copy_bounded(out, cap, name);
         return true;
     }
     for (d = session->source_depth; d > 0; d--) {
@@ -5002,8 +5017,7 @@ static bool forth_resolve_include_path(ForthSession *session, const char *name,
         memcpy(out + dirlen + 1, name, nlen + 1);
         if (stat(out, &st) == 0) return true;
     }
-    strncpy(out, name, cap - 1);
-    out[cap - 1] = '\0';
+    forth_copy_bounded(out, cap, name);
     return true;
 }
 
