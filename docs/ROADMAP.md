@@ -27,16 +27,19 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
       System / conflicting Forth-IDE work unmerged. I do not merge MAC lease
       branches that are already contained in the product branch.
-      MAC `task_7b6e8957be5b4abf8b0ea4751fd9b635`.
+      MAC `task_b19f5e408d373ec2bf1efa6d54e4d366` (supersedes failed
+      `task_7b6e8957be5b4abf8b0ea4751fd9b635`).
 - [ ] **4.4 release.** I run the release test pipeline (`make test`, CI on the
       release PR, `make release-docs-check`) and tag `v4.4.0`. Last Git tag is
       `v4.0.0`; 4.1–4.3 were product phases on the same branch, not separate
       tags.
+      MAC `task_f3049ae5d8389ecc96ff28754e52b31b`.
 - [ ] **4.4 release.** I update README, CONTRIBUTING, the user-facing indexes,
       `docs/RELEASE_4.4.md`, and the developer deck/narrative for 4.4. I write
       a LinkedIn post covering the key changes since `v4.0.0`. I do not claim
       a Forth Standard System, GNU Emacs compatibility, a kernel, or that the
       system is internationalized.
+      MAC `task_d2f80f3c3ca6ee5f81070545a5a2ac5f`.
 - [x] **4.4 release.** `test_interpret_file_refill` called `mkstemp` twice on
       one buffer. The first call consumes the `XXXXXX` template; Linux then
       returns `EINVAL` (`FAIL: mkstemp unknown`). Restore the template before
@@ -55,6 +58,27 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       succeeds. Fix the MVP (or skip it until it matches current unsafe
       rules) so every module MVP compiles.
       MAC `task_d35028a1b27f45948ffccb351fc7bd4a`.
+- [ ] **4.1 leftover.** I publish the precise Forth 2012 Standard System
+      label only after tests and required documentation support it. Passing
+      Jackson files is not that label.
+      MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
+- [ ] **4.5 / Phase 19.** Effects to deployment policy, trap journal and
+      deterministic replay, then observability and provenance. After `v4.4.0`.
+      MAC `task_2bd5c3128983683b78134ad9257b7d3b`,
+      `task_36c1ce545c4d12a0a2c520dd146ea5f1`,
+      `task_860edd8c08843bf90ad9559d0b821cef`.
+- [ ] **4.6 / Phase 21.** Shared NanoISA frontend contract, then Scheme, ML,
+      Actor, Dataflow, Object, Shell, Logic, then the frontend matrix. After
+      4.5. NanoLang stays my native language.
+      MAC `task_e62d1cd35b49296604012df95de7911b` (contract),
+      `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
+      `task_3eed929292a80ed58dd3a8db1ed701b6` (ML),
+      `task_0850b9adc62c593b8e4e180e070efcee` (Actor),
+      `task_9cb85a523c197b9e2c80ddcffe9ed31a` (Dataflow),
+      `task_90023c92e9fb3841aab9fcc71d8cf90d` (Object),
+      `task_ee91ee94749200ab6309e6c05df3dd61` (Shell),
+      `task_69fc7f6660a1976f10606a42d78fd264` (Logic),
+      `task_92c497c72b7aa1fc993d666f66843759` (matrix).
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
@@ -598,6 +622,7 @@ Tests, examples, and SDL IDE:
       `make test-forth-pty`, `make test-forth-ide-smoke`, C `REFILL` file
       loads, and `bin/forth` as the IDE child.
 - [ ] I will publish the precise standard-system label only after tests and required documentation support it.
+      MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
 
 ### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.0)
 
@@ -932,7 +957,7 @@ Live editor as a fabric client (option C; the dedicated-pipe astronaut is
 Goal: I will connect declared program effects to deployable least-privilege
 policy and make nondeterministic execution recordable, replayable, and auditable.
 
-Effects to policy:
+Effects to policy (MAC `task_2bd5c3128983683b78134ad9257b7d3b`):
 - [ ] I will define the relationship between source effects, module requirements, NanoISA traps, service methods, and capabilities.
 - [ ] I will emit a complete effect and capability inventory for each program.
 - [ ] I will generate a reviewable deployment manifest from that inventory.
@@ -940,7 +965,7 @@ Effects to policy:
 - [ ] I will report unused grants so policy can converge toward least privilege.
 - [ ] I will support explicit administrator overrides without silently widening source declarations.
 
-Record and replay:
+Record and replay (MAC `task_36c1ce545c4d12a0a2c520dd146ea5f1`):
 - [ ] I will define a versioned trap journal containing sequence, capability, method, arguments or hashes, result, timing, service generation, and implementation version.
 - [ ] I will record time, entropy, file, network, user-input, process, GPU, audio, and service nondeterminism at the boundary where it enters a NanoVM.
 - [ ] I will replay a NanoVM without invoking original services when the journal contains all required events.
@@ -950,7 +975,7 @@ Record and replay:
 - [ ] I will sign and hash journals when they are used as audit evidence.
 - [ ] I will define redaction and encryption so replayability does not require publishing sensitive payloads.
 
-Observability and provenance:
+Observability and provenance (MAC `task_860edd8c08843bf90ad9559d0b821cef`):
 - [ ] I will assign trace IDs across NanoVM, router, service, and kernel-adapter boundaries.
 - [ ] I will emit structured metrics and traces through an implementation-neutral telemetry interface.
 - [ ] I will record source, NanoISA module, interface, service implementation, policy, and output provenance.
@@ -1098,7 +1123,7 @@ small set of deliberately different languages to the same verified IR. I will
 not collect syntax for its own sake. Each frontend must expose a distinct
 architectural weakness or prove a distinct capability.
 
-Shared frontend contract:
+Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [ ] I will define a frontend interface for source locations, typed functions, layouts, constants, imports, effects, capabilities, and diagnostics.
 - [ ] I will require every frontend to emit the same versioned NanoISA module format and pass the same verifier.
 - [ ] I will give every frontend access to the same service contracts, capability model, FFI isolation, debugger metadata, profiler, and target translators.
@@ -1108,7 +1133,7 @@ Shared frontend contract:
 - [ ] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
 - [ ] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
 
-Nano Scheme:
+Nano Scheme (MAC `task_6647a64cc76edac6e3d0f62c228d98c4`):
 - [ ] I will implement a small Scheme frontend as the first post-Forth language experiment.
 - [ ] I will support lexical scope, closures, first-class procedures, recursive data, and interactive evaluation.
 - [ ] I will implement proper tail calls and verify constant frame depth under deep recursion.
@@ -1116,43 +1141,43 @@ Nano Scheme:
 - [ ] I will use Scheme to stress allocation, callable representation, tail calls, dynamic values, and live code publication.
 - [ ] I will run a pinned subset of a recognized Scheme test suite and document intentional exclusions.
 
-Nano ML:
+Nano ML (MAC `task_3eed929292a80ed58dd3a8db1ed701b6`):
 - [ ] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
 - [ ] I will use ML to test generic instantiation, aggregate layouts, exhaustive matching, closures, and module signatures.
 - [ ] I will preserve inferred type and exhaustiveness facts in NanoISA metadata where target-independent optimization can use them.
 - [ ] I will run shared aggregate and service-interface programs under both NanoLang and Nano ML.
 
-Nano Actor:
+Nano Actor (MAC `task_0850b9adc62c593b8e4e180e070efcee`):
 - [ ] I will implement an Erlang, Elixir, and Gleam-inspired actor frontend.
 - [ ] I will support isolated actors, typed mailboxes, pattern-matched messages, monitors, links, supervision trees, deadlines, and cancellation.
 - [ ] I will first execute actors as isolated NanoVM contexts in one host process.
 - [ ] I will then move unchanged actors across service-process boundaries through the Phase 18 transport.
 - [ ] I will test crash containment, mailbox ordering, supervision, hot code replacement, and restart-safe capabilities.
 
-Nano Dataflow:
+Nano Dataflow (MAC `task_9cb85a523c197b9e2c80ddcffe9ed31a`):
 - [ ] I will implement a deterministic dataflow and workflow frontend with typed nodes, streams, backpressure, and explicit effects.
 - [ ] I will map graph dependencies to local, service-process, and remote scheduling without changing program semantics.
 - [ ] I will use dataflow programs to test shared-memory bulk transfer, provenance, replay, cancellation, retries, and parallel determinism.
 - [ ] I will record every external input required to reproduce a completed workflow.
 
-Nano Object:
+Nano Object (MAC `task_90023c92e9fb3841aab9fcc71d8cf90d`):
 - [ ] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
 - [ ] I will use it to test dynamic dispatch, inline caches, layout evolution, callable handles, image persistence, and debugger reflection.
 - [ ] I will measure specialization and quickening without exposing cache-specific operations in portable NanoISA.
 
-Nano Shell:
+Nano Shell (MAC `task_ee91ee94749200ab6309e6c05df3dd61`):
 - [ ] I will implement a capability-safe orchestration shell using structured values rather than text-only pipelines.
 - [ ] I will expose processes, files, networks, services, streams, cancellation, and remote execution only through explicit capabilities.
 - [ ] I will preserve typed values across pipelines and make text parsing an explicit adapter.
 - [ ] I will use Nano Shell as the administrative language for service graphs only after capability and policy enforcement are complete.
 
-Nano Logic:
+Nano Logic (MAC `task_69fc7f6660a1976f10606a42d78fd264`):
 - [ ] I will implement a bounded Datalog or logic frontend for declarative authorization, dependency, and policy rules.
 - [ ] I will support facts, rules, unification appropriate to the selected subset, queries, and deterministic fixed-point evaluation.
 - [ ] I will use it to test choice points or tabling only when those mechanisms are justified by the selected language subset.
 - [ ] I will compile deployment and capability policy queries to verified NanoISA or a documented restricted profile.
 
-Frontend matrix and demonstrations:
+Frontend matrix and demonstrations (MAC `task_92c497c72b7aa1fc993d666f66843759`):
 - [ ] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
 - [ ] I will implement one shared service interface consumed from NanoLang, Nano Forth, Nano Scheme, and Nano ML.
 - [ ] I will implement one supervised service in Nano Actor and orchestrate it from Nano Shell.
@@ -1645,7 +1670,7 @@ I aim to be:
 
 ---
 
-Last Updated: September 5, 2026
-Current Phase: 4.4 Phase 17–18 capability runtime, shared memory, POSIX fabric, and live editor as fabric client are in (`make test-nsi-cap test-nsi-shm test-nsi-fabric`, `docs/NSI_FABRIC.md`). Next is 4.5 / Phase 19 effects and replay. 5.0 One IR is recorded, not started.
-Next Major Milestone: 4.5 effects, deployment policy, and deterministic replay, then close 4.x, then 5.0 (`docs/NANOISA_ONLY.md`)
+Last Updated: September 6, 2026
+Current Phase: 4.4 Phase 17–18 capability runtime, shared memory, POSIX fabric, and live editor as fabric client are in (`make test-nsi-cap test-nsi-shm test-nsi-fabric`, `docs/NSI_FABRIC.md`). Remaining 4.x: tag `v4.4.0`, then 4.5 / Phase 19, then 4.6 / Phase 21. 5.0 One IR is recorded, not started.
+Next Major Milestone: 4.4 tag, then 4.5 effects, deployment policy, and deterministic replay, then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`)
 Next Review: after a named human reviewer accepts a translated guide page
