@@ -37,6 +37,13 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       a LinkedIn post covering the key changes since `v4.0.0`. I do not claim
       a Forth Standard System, GNU Emacs compatibility, a kernel, or that the
       system is internationalized.
+- [x] **4.4 release.** `test_interpret_file_refill` called `mkstemp` twice on
+      one buffer. The first call consumes the `XXXXXX` template; Linux then
+      returns `EINVAL` (`FAIL: mkstemp unknown`). Restore the template before
+      each call.
+- [x] **4.4 release.** GCC `-Werror=stringop-truncation` on
+      `strncpy(g_project_root, exe_path, PATH_MAX-1)` in `src/main.c` failed
+      the AddressSanitizer job. Copy with an explicit length instead.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and

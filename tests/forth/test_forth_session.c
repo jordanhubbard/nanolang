@@ -1479,6 +1479,9 @@ static void test_interpret_file_refill(void) {
     ASSERT(forth_find(session, "INCLUDED", 8, &nt, &xt, &immediate),
            "INCLUDED is present");
 
+    /* mkstemp rewrites the six X's. Restore the template before each call;
+     * Linux returns EINVAL if they are gone, Darwin often still succeeds. */
+    memcpy(path, "/tmp/forth_interp_XXXXXX", sizeof(path));
     fd = mkstemp(path);
     ASSERT(fd >= 0, "mkstemp");
     fp = fdopen(fd, "w+");
@@ -1494,6 +1497,7 @@ static void test_interpret_file_refill(void) {
     ASSERT(expect_cells(session, want, 2), "multiline and colon across lines");
     unlink(path);
 
+    memcpy(path, "/tmp/forth_interp_XXXXXX", sizeof(path));
     fd = mkstemp(path);
     ASSERT(fd >= 0, "mkstemp unknown");
     fp = fdopen(fd, "w+");

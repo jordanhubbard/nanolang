@@ -146,8 +146,14 @@ static void resolve_project_root(const char *argv0) {
             *slash = '\0';
         }
     }
-    strncpy(g_project_root, exe_path, sizeof(g_project_root) - 1);
-    g_project_root[sizeof(g_project_root) - 1] = '\0';
+    {
+        size_t n = strlen(exe_path);
+        if (n >= sizeof(g_project_root)) {
+            n = sizeof(g_project_root) - 1;
+        }
+        memcpy(g_project_root, exe_path, n);
+        g_project_root[n] = '\0';
+    }
 }
 
 static void json_escape(FILE *out, const char *s) {
