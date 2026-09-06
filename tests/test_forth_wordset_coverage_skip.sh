@@ -6,7 +6,9 @@ set -euo pipefail
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root"
 
-covered=$(make -n --no-print-directory test-impl \
+# Isolate from a parent `make test CFLAGS=...-fprofile-arcs...` so the
+# default dry-run does not inherit coverage flags via MAKEFLAGS.
+covered=$(MAKEFLAGS= make -n --no-print-directory test-impl \
     CFLAGS='-Wall -fprofile-arcs -ftest-coverage' 2>/dev/null)
 
 if ! grep -q 'Skipping Jackson word-set REFILL under coverage instrumentation.' <<<"$covered"; then
@@ -22,7 +24,8 @@ if grep -q 'test-forth-wordsets' <<<"$covered"; then
     exit 1
 fi
 
-plain=$(make -n --no-print-directory test-impl 2>/dev/null)
+plain=$(MAKEFLAGS= make -n --no-print-directory test-impl \
+    CFLAGS='-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE' 2>/dev/null)
 if ! grep -q 'test-forth-wordsets' <<<"$plain"; then
     echo "FAIL: default dry-run omitted test-forth-wordsets"
     exit 1
