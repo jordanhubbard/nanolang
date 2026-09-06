@@ -51,6 +51,7 @@ jobs:
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libncurses-dev \
+            libutf8proc-dev \
             gforth
 
       - name: Install dependencies (macOS)
@@ -64,6 +65,7 @@ jobs:
             sdl2 \
             sdl2_mixer \
             sdl2_ttf \
+            utf8proc \
             gforth
 
       - name: Install Python dependencies
@@ -322,9 +324,8 @@ jobs:
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
-            libsdl2-ttf-dev
-
-      - name: Build with AddressSanitizer
+            libsdl2-ttf-dev \
+            libutf8proc-dev
         run: |
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
@@ -398,6 +399,7 @@ jobs:
             libsdl2-image-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
+            libutf8proc-dev \
             gforth
 
       - name: Build with coverage

@@ -241,6 +241,63 @@ static void test_idemp_and_frames(void) {
     nl_nsi_session_close(s);
 }
 
+static void test_bounded_copies(void) {
+    const char *test_name = "nsi_rt: bounded copies keep a terminator";
+    char kind8[8];
+    char kind32[32];
+    char json[96];
+    NlNsiSession *s;
+    NlNsiCall c;
+    NlNsiResult r;
+    char long_rid[64];
+    size_t i;
+
+    snprintf(json, sizeof(json),
+             "{\"nsi_version\":0,\"frame\":\"abcdefghijklmnop\"}");
+    if (nl_nsi_frame_kind(json, kind8, sizeof(kind8)) != 0 ||
+        strcmp(kind8, "abcdefg") != 0) {
+        FAIL(test_name, "frame-trunc");
+        return;
+    }
+    snprintf(json, sizeof(json),
+             "{\"nsi_version\":0,\"frame\":\"1234567890123456789012345678901\"}");
+    if (nl_nsi_frame_kind(json, kind32, sizeof(kind32)) != 0 ||
+        strlen(kind32) != 31 ||
+        strcmp(kind32, "1234567890123456789012345678901") != 0) {
+        FAIL(test_name, "frame-31");
+        return;
+    }
+    s = open_log(NL_NSI_ADAPTER_INPROC);
+    if (!s) { FAIL(test_name, "open"); return; }
+    memset(long_rid, 'r', sizeof(long_rid) - 1);
+    long_rid[sizeof(long_rid) - 1] = '\0';
+    memset(&c, 0, sizeof(c));
+    c.method_id = "nsi:nanolang/log#write_event";
+    c.payload_json = "{}";
+    c.capability = "cap:nanolang/log.write";
+    c.auth = "tok";
+    c.request_id = long_rid;
+    c.timeout_ms = 1000;
+    c.async = 1;
+    if (nl_nsi_invoke(s, &c, &r) != NL_NSI_OK || !r.call_id || r.call_id[0] == '\0') {
+        FAIL(test_name, "async-id");
+        nl_nsi_result_free(&r);
+        nl_nsi_session_close(s);
+        return;
+    }
+    for (i = 0; r.call_id[i] != '\0'; i++) {
+    }
+    if (i >= 32) {
+        FAIL(test_name, "call-id-term");
+        nl_nsi_result_free(&r);
+        nl_nsi_session_close(s);
+        return;
+    }
+    nl_nsi_result_free(&r);
+    PASS(test_name);
+    nl_nsi_session_close(s);
+}
+
 static void test_handles_and_schema(void) {
     const char *test_name = "nsi_rt: resource handle and schema evolution";
     NlNsi *fs = nl_nsi_load_path("schema/nsi/modules/filesystem.nsi.json");
@@ -363,6 +420,7 @@ int main(void) {
     test_auth_and_malformed();
     test_queue_cancel_deadline();
     test_idemp_and_frames();
+    test_bounded_copies();
     test_handles_and_schema();
     test_privilege_methods();
     printf("\n%d passed, %d failed\n", g_pass, g_fail);

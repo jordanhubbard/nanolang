@@ -52,6 +52,19 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       source and destination are both `FORTH_PATH_MAX`. Copy with an explicit
       length. `make test-forth-session` passed on Ubuntu GCC 15 (`ubuntu.local`).
       MAC `task_5e86f861c17e44859bc371a8d0c4b27d`.
+- [x] **4.4 release.** The same truncation warning on `strncpy` into
+      `PATH_MAX` project-root buffers in `src/nano_main.c` (AddressSanitizer
+      job), `src/repl_main.c`, `src/lsp_server.c`, and `src/dap_server.c`.
+      Use `safe_strncpy`.
+- [x] **4.4 release.** GCC `-Werror=stringop-truncation` on
+      `strncpy(q->call_id, cid, 31)` in `src/nsi_runtime.c` when both arrays
+      are 32 bytes (`make test-nsi-runtime`). Copy with an explicit length.
+- [x] **4.4 release.** GCC `-Werror=format-truncation` on
+      `snprintf(tiny, 8, "%zu", n)` in `src/nsi_fabric.c`
+      (`make test-nsi-fabric`). The decimal form of `size_t` needs 21 bytes.
+- [x] **4.4 release.** macOS CI `make test-unicode-ffi` failed because
+      utf8proc was not installed and `pkg-config --exists` was a hard error.
+      Install utf8proc in CI and skip the target when the library is absent.
 - [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
       `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
       uses extern SDL/term calls outside `unsafe`. `make examples` still

@@ -42,6 +42,23 @@ struct NlCapTable {
     int audit_seq;
 };
 
+static void bounded_copy(char *dest, size_t dest_size, const char *src) {
+    size_t n;
+    if (!dest || dest_size == 0) {
+        return;
+    }
+    if (!src) {
+        dest[0] = '\0';
+        return;
+    }
+    n = strlen(src);
+    if (n >= dest_size) {
+        n = dest_size - 1;
+    }
+    memcpy(dest, src, n);
+    dest[n] = '\0';
+}
+
 static void fill_rand(void *buf, size_t n) {
 #if defined(__APPLE__)
     arc4random_buf(buf, n);
@@ -108,10 +125,10 @@ static int mint_slot(NlCapTable *t, const char *type_id, const char *service_id,
     t->slots[i].rights = rights;
     t->slots[i].generation = t->next_generation;
     t->slots[i].secret = secret;
-    strncpy(t->slots[i].type_id, type_id, sizeof(t->slots[i].type_id) - 1);
-    strncpy(t->slots[i].service_id, service_id, sizeof(t->slots[i].service_id) - 1);
+    bounded_copy(t->slots[i].type_id, sizeof(t->slots[i].type_id), type_id);
+    bounded_copy(t->slots[i].service_id, sizeof(t->slots[i].service_id), service_id);
     if (scope)
-        strncpy(t->slots[i].scope, scope, sizeof(t->slots[i].scope) - 1);
+        bounded_copy(t->slots[i].scope, sizeof(t->slots[i].scope), scope);
     out->secret = secret;
     out->slot = (uint32_t)i;
     out->generation = t->slots[i].generation;

@@ -697,7 +697,7 @@ int nl_fabric_bind_buffer(NlFabric *f, const NlCap *cap, const char *text) {
 int nl_fabric_bind_large(NlFabric *f, const NlCap *cap, const void *data, size_t n,
                          int force_copy, NlShm **region, size_t *bound) {
     NlShm *r;
-    char tiny[8];
+    char tiny[32];
     int rc;
     if (!f || !cap || !data || n == 0) return NL_FAB_ERR;
     r = nl_shm_create(f->caps, cap, n, NL_SHM_FILE, force_copy);

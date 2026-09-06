@@ -86,6 +86,23 @@ static char *xstrdup(const char *s) {
     return d;
 }
 
+static void bounded_copy(char *dest, size_t dest_size, const char *src) {
+    size_t n;
+    if (!dest || dest_size == 0) {
+        return;
+    }
+    if (!src) {
+        dest[0] = '\0';
+        return;
+    }
+    n = strlen(src);
+    if (n >= dest_size) {
+        n = dest_size - 1;
+    }
+    memcpy(dest, src, n);
+    dest[n] = '\0';
+}
+
 static int cap_granted(const NlNsiSession *s, const char *cap) {
     size_t i;
     if (!cap || !cap[0]) return s->cap_count == 0;
@@ -177,8 +194,7 @@ int nl_nsi_frame_kind(const char *json, char *kind_out, size_t kind_n) {
         cJSON_Delete(o);
         return -1;
     }
-    strncpy(kind_out, frame->valuestring, kind_n - 1);
-    kind_out[kind_n - 1] = '\0';
+    bounded_copy(kind_out, kind_n, frame->valuestring);
     cJSON_Delete(o);
     return 0;
 }
@@ -245,8 +261,8 @@ static NlNsiHandle *mint_handle(NlNsiSession *s, const char *type_id, uint32_t r
     if (!s || s->handle_count >= NL_NSI_MAX_HANDLES) return NULL;
     h = &s->handles[s->handle_count++];
     memset(h, 0, sizeof(*h));
-    strncpy(h->type_id, type_id ? type_id : "", sizeof(h->type_id) - 1);
-    strncpy(h->service_id, nl_nsi_interface_id(s->nsi), sizeof(h->service_id) - 1);
+    bounded_copy(h->type_id, sizeof(h->type_id), type_id ? type_id : "");
+    bounded_copy(h->service_id, sizeof(h->service_id), nl_nsi_interface_id(s->nsi));
     s->next_generation++;
     h->generation = s->next_generation;
     h->rights = rights;
@@ -338,13 +354,15 @@ static void store_idemp(NlNsiSession *s, const char *rid, const char *payload, i
     for (i = 0; i < NL_NSI_MAX_IDEMP; i++) {
         if (!s->idemp[i].used) {
             s->idemp[i].used = 1;
-            strncpy(s->idemp[i].request_id, rid, sizeof(s->idemp[i].request_id) - 1);
-            strncpy(s->idemp[i].payload, payload ? payload : "", sizeof(s->idemp[i].payload) - 1);
+            bounded_copy(s->idemp[i].request_id, sizeof(s->idemp[i].request_id), rid);
+            bounded_copy(s->idemp[i].payload, sizeof(s->idemp[i].payload),
+                         payload ? payload : "");
             s->idemp[i].status = status;
             return;
         }
         if (strcmp(s->idemp[i].request_id, rid) == 0) {
-            strncpy(s->idemp[i].payload, payload ? payload : "", sizeof(s->idemp[i].payload) - 1);
+            bounded_copy(s->idemp[i].payload, sizeof(s->idemp[i].payload),
+                         payload ? payload : "");
             s->idemp[i].status = status;
             return;
         }
@@ -590,15 +608,15 @@ NlNsiSession *nl_nsi_session_open(const NlNsi *nsi, NlNsiAdapterKind kind,
     s->child = -1;
     s->qbound = queue_bound;
     if (schema_path)
-        strncpy(s->schema_path, schema_path, sizeof(s->schema_path) - 1);
+        bounded_copy(s->schema_path, sizeof(s->schema_path), schema_path);
     if (auth)
-        strncpy(s->auth, auth, sizeof(s->auth) - 1);
+        bounded_copy(s->auth, sizeof(s->auth), auth);
     for (i = 0; i < cap_count; i++) {
         if (!caps[i]) {
             nl_nsi_session_close(s);
             return NULL;
         }
-        strncpy(s->caps[i], caps[i], sizeof(s->caps[i]) - 1);
+        bounded_copy(s->caps[i], sizeof(s->caps[i]), caps[i]);
     }
     s->cap_count = cap_count;
     if (kind == NL_NSI_ADAPTER_LOCAL) {
@@ -638,12 +656,16 @@ int nl_nsi_session_negotiated(const NlNsiSession *s) {
 
 static void copy_call(NlNsiQItem *q, const NlNsiCall *call, const char *cid) {
     memset(q, 0, sizeof(*q));
-    strncpy(q->method_id, call->method_id ? call->method_id : "", sizeof(q->method_id) - 1);
-    strncpy(q->payload, call->payload_json ? call->payload_json : "{}", sizeof(q->payload) - 1);
-    strncpy(q->request_id, call->request_id ? call->request_id : "", sizeof(q->request_id) - 1);
-    strncpy(q->capability, call->capability ? call->capability : "", sizeof(q->capability) - 1);
-    strncpy(q->auth, call->auth ? call->auth : "", sizeof(q->auth) - 1);
-    strncpy(q->call_id, cid, sizeof(q->call_id) - 1);
+    bounded_copy(q->method_id, sizeof(q->method_id),
+                 call->method_id ? call->method_id : "");
+    bounded_copy(q->payload, sizeof(q->payload),
+                 call->payload_json ? call->payload_json : "{}");
+    bounded_copy(q->request_id, sizeof(q->request_id),
+                 call->request_id ? call->request_id : "");
+    bounded_copy(q->capability, sizeof(q->capability),
+                 call->capability ? call->capability : "");
+    bounded_copy(q->auth, sizeof(q->auth), call->auth ? call->auth : "");
+    bounded_copy(q->call_id, sizeof(q->call_id), cid);
     q->timeout_ms = call->timeout_ms;
 }
 

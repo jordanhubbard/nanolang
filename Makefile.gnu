@@ -882,12 +882,18 @@ test-i18n-scripts: $(COMPILER_C) nano_virt nano_vm
 .PHONY: test-unicode-ffi
 test-unicode-ffi:
 	@echo "Running unicode FFI tests..."
-	@pkg-config --exists libutf8proc
-	$(CC) $(CFLAGS) $$(pkg-config --cflags libutf8proc) -o tests/test_unicode_ffi \
+	@pc=""; \
+	if pkg-config --exists libutf8proc 2>/dev/null; then pc=libutf8proc; \
+	elif pkg-config --exists utf8proc 2>/dev/null; then pc=utf8proc; fi; \
+	if [ -z "$$pc" ]; then \
+	  echo "SKIP: utf8proc not installed (pkg-config libutf8proc/utf8proc)"; \
+	  exit 0; \
+	fi; \
+	$(CC) $(CFLAGS) $$(pkg-config --cflags $$pc) -o tests/test_unicode_ffi \
 		tests/test_unicode_ffi.c modules/unicode/unicode_ffi.c \
-		$$(pkg-config --libs libutf8proc)
-	@./tests/test_unicode_ffi
-	@rm -f tests/test_unicode_ffi
+		$$(pkg-config --libs $$pc) && \
+	./tests/test_unicode_ffi && \
+	rm -f tests/test_unicode_ffi
 
 .PHONY: test-nl-string
 test-nl-string: $(OBJ_DIR)/runtime/nl_string.o $(OBJ_DIR)/utf8.o

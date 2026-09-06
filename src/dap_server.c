@@ -54,8 +54,7 @@ static void resolve_project_root(const char *argv0) {
         slash = strrchr(exe_path, '/');
         if (slash) *slash = '\0';
     }
-    strncpy(g_project_root, exe_path, sizeof(g_project_root) - 1);
-    g_project_root[sizeof(g_project_root) - 1] = '\0';
+    safe_strncpy(g_project_root, exe_path, sizeof(g_project_root));
 }
 
 /* =========================================================================
