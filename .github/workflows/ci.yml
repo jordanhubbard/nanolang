@@ -326,6 +326,8 @@ jobs:
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
             libutf8proc-dev
+
+      - name: Build with AddressSanitizer
         run: |
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)

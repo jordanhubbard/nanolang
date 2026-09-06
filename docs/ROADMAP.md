@@ -62,9 +62,9 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
 - [x] **4.4 release.** GCC `-Werror=format-truncation` on
       `snprintf(tiny, 8, "%zu", n)` in `src/nsi_fabric.c`
       (`make test-nsi-fabric`). The decimal form of `size_t` needs 21 bytes.
-- [x] **4.4 release.** macOS CI `make test-unicode-ffi` failed because
-      utf8proc was not installed and `pkg-config --exists` was a hard error.
-      Install utf8proc in CI and skip the target when the library is absent.
+- [x] **4.4 release.** YAML in `.github/workflows/ci.yml` had two `run:`
+      keys on the sanitizer install step, so GitHub never started CI on
+      `ab2bf349`. Restore the AddressSanitizer step.
 - [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
       `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
       uses extern SDL/term calls outside `unsafe`. `make examples` still
