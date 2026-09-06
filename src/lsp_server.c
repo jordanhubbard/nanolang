@@ -58,8 +58,7 @@ static void resolve_project_root(const char *argv0) {
         slash = strrchr(exe_path, '/');
         if (slash) *slash = '\0';
     }
-    strncpy(g_project_root, exe_path, sizeof(g_project_root) - 1);
-    g_project_root[sizeof(g_project_root) - 1] = '\0';
+    safe_strncpy(g_project_root, exe_path, sizeof(g_project_root));
 }
 
 /* =========================================================================
@@ -520,14 +519,14 @@ static bool doc_compile(void) {
     /* Phase 1: Lex */
     g_doc.tokens = tokenize(g_doc.source, &g_doc.token_count);
     if (!g_doc.tokens) {
-        json_error("E000", "Lexing failed", g_doc.real_path, 1, 1, NULL);
+        json_error(lexer_last_error_id(), "Lexing failed", g_doc.real_path, 1, 1, NULL);
         return false;
     }
 
     /* Phase 2: Parse */
     g_doc.ast = parse_program(g_doc.tokens, g_doc.token_count);
     if (!g_doc.ast) {
-        json_error("E000", "Parsing failed", g_doc.real_path, 1, 1, NULL);
+        json_error(parser_last_error_id(), "Parsing failed", g_doc.real_path, 1, 1, NULL);
         return false;
     }
 

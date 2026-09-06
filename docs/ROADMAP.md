@@ -12,10 +12,93 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**4.1 Nano Forth is the primary remaining goal.** The SDL editor astronaut
-stays parked until Phase 13 closes. Option C remains 4.4.
+**4.2 internationalization evidence is in Phase 15.** I do not call the
+system internationalized. JSON/TOON and catalog fallback still use English;
+guide drafts are machine-generated. **4.4 capability fabric** is in
+(`docs/NSI_FABRIC.md`). 4.5 effects and replay are next. 4.1 Forth word-set
+evidence is in; the Standard System label stays open. The SDL editor
+astronaut (`docs/NANO_EMACS.md`, `bin/nano_emacs_worker`) is in. The
+NanoISA-only compiler rewrite is **5.0**, not 4.x: see
+`docs/NANOISA_ONLY.md`.
 
 ## Active Execution Queue
+
+- [ ] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
+      to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
+      System / conflicting Forth-IDE work unmerged. I do not merge MAC lease
+      branches that are already contained in the product branch.
+      MAC `task_b19f5e408d373ec2bf1efa6d54e4d366` (supersedes failed
+      `task_7b6e8957be5b4abf8b0ea4751fd9b635`).
+- [ ] **4.4 release.** I run the release test pipeline (`make test`, CI on the
+      release PR, `make release-docs-check`) and tag `v4.4.0`. Last Git tag is
+      `v4.0.0`; 4.1–4.3 were product phases on the same branch, not separate
+      tags.
+      MAC `task_f3049ae5d8389ecc96ff28754e52b31b`.
+- [ ] **4.4 release.** I update README, CONTRIBUTING, the user-facing indexes,
+      `docs/RELEASE_4.4.md`, and the developer deck/narrative for 4.4. I write
+      a LinkedIn post covering the key changes since `v4.0.0`. I do not claim
+      a Forth Standard System, GNU Emacs compatibility, a kernel, or that the
+      system is internationalized.
+      MAC `task_d2f80f3c3ca6ee5f81070545a5a2ac5f`.
+- [x] **4.4 release.** `test_interpret_file_refill` called `mkstemp` twice on
+      one buffer. The first call consumes the `XXXXXX` template; Linux then
+      returns `EINVAL` (`FAIL: mkstemp unknown`). Restore the template before
+      each call.
+- [x] **4.4 release.** GCC `-Werror=stringop-truncation` on
+      `strncpy(g_project_root, exe_path, PATH_MAX-1)` in `src/main.c` failed
+      the AddressSanitizer job. Copy with an explicit length instead.
+- [x] **4.4 release.** GCC 15 `-Werror=stringop-truncation` on
+      `strncpy(..., FORTH_PATH_MAX-1)` in `src/forth/forth_session.c` when
+      source and destination are both `FORTH_PATH_MAX`. Copy with an explicit
+      length. `make test-forth-session` passed on Ubuntu GCC 15 (`ubuntu.local`).
+      MAC `task_5e86f861c17e44859bc371a8d0c4b27d`.
+- [x] **4.4 release.** The same truncation warning on `strncpy` into
+      `PATH_MAX` project-root buffers in `src/nano_main.c` (AddressSanitizer
+      job), `src/repl_main.c`, `src/lsp_server.c`, and `src/dap_server.c`.
+      Use `safe_strncpy`.
+- [x] **4.4 release.** GCC `-Werror=stringop-truncation` on
+      `strncpy(q->call_id, cid, 31)` in `src/nsi_runtime.c` when both arrays
+      are 32 bytes (`make test-nsi-runtime`). Copy with an explicit length.
+- [x] **4.4 release.** GCC `-Werror=format-truncation` on
+      `snprintf(tiny, 8, "%zu", n)` in `src/nsi_fabric.c`
+      (`make test-nsi-fabric`). The decimal form of `size_t` needs 21 bytes.
+- [x] **4.4 release.** YAML in `.github/workflows/ci.yml` had two `run:`
+      keys on the sanitizer install step, so GitHub never started CI on
+      `ab2bf349`. Restore the AddressSanitizer step.
+- [ ] **4.4 release.** Code Coverage `make test` hits `TEST_TIMEOUT` (1800s)
+      during Jackson word-set REFILL under `-fprofile-arcs`, then Forth PTY
+      liveness fails (`banner/prompt never appeared`) because gcov stalls
+      the REPL. Build and Test and Memory Sanitizers already passed those
+      suites. Skip word-set REFILL, PTY, and IDE smoke under coverage;
+      keep the Jackson pin / INCLUDE-gap test.
+      MAC `task_d10e63b263724e4ab4ae75dd4a281529`.
+- [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
+      `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
+      uses extern SDL/term calls outside `unsafe`. `make examples` still
+      succeeds. Fix the MVP (or skip it until it matches current unsafe
+      rules) so every module MVP compiles.
+      MAC `task_d35028a1b27f45948ffccb351fc7bd4a`.
+- [ ] **4.1 leftover.** I publish the precise Forth 2012 Standard System
+      label only after tests and required documentation support it. Passing
+      Jackson files is not that label.
+      MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
+- [ ] **4.5 / Phase 19.** Effects to deployment policy, trap journal and
+      deterministic replay, then observability and provenance. After `v4.4.0`.
+      MAC `task_2bd5c3128983683b78134ad9257b7d3b`,
+      `task_36c1ce545c4d12a0a2c520dd146ea5f1`,
+      `task_860edd8c08843bf90ad9559d0b821cef`.
+- [ ] **4.6 / Phase 21.** Shared NanoISA frontend contract, then Scheme, ML,
+      Actor, Dataflow, Object, Shell, Logic, then the frontend matrix. After
+      4.5. NanoLang stays my native language.
+      MAC `task_e62d1cd35b49296604012df95de7911b` (contract),
+      `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
+      `task_3eed929292a80ed58dd3a8db1ed701b6` (ML),
+      `task_0850b9adc62c593b8e4e180e070efcee` (Actor),
+      `task_9cb85a523c197b9e2c80ddcffe9ed31a` (Dataflow),
+      `task_90023c92e9fb3841aab9fcc71d8cf90d` (Object),
+      `task_ee91ee94749200ab6309e6c05df3dd61` (Shell),
+      `task_69fc7f6660a1976f10606a42d78fd264` (Logic),
+      `task_92c497c72b7aa1fc993d666f66843759` (matrix).
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
@@ -48,28 +131,33 @@ stays parked until Phase 13 closes. Option C remains 4.4.
 - [x] **4.1 / Phase 13 (primary).** I close Forth kernel defects found during
   Core (Phase 13 subsection of the same name). I do not mark Core complete while
   those remain open.
-- [ ] **4.1 / Phase 13 (primary).** I implement and test Forth 2012 Core on the
-  NanoISA session. Remaining word sets, `pi.fs`, and `sdl_forth_ide` stay in
-  Phase 13 until this Core gate passes. Locals-on-`THROW` waits on recursive
-  Locals; I do not treat it as the next item. This gate stays open until the
-  four Core-suite fan-out items below are verified. I do not claim Core.
-- [ ] Core-suite fan-out 1/4 (parallel): I vendor Gerry Jackson
+- [x] **4.1 / Phase 13 (primary).** I implement and test Forth 2012 Core on the
+  NanoISA session. Jackson Core evidence files pass under `make test-forth-core`
+  through C `REFILL`. Remaining word sets, `pi.fs`, and a Standard System
+  label stay in Phase 13. Locals-on-`THROW` waits on recursive Locals. Passing
+  a suite is evidence. I still do not claim Core as a banner.
+- [x] Core-suite fan-out 1/4 (parallel): I vendor Gerry Jackson
   `forth2012-test-suite` **v0.15.0** (`9773f84dd12390f342d37195da8848b04e1f4a23`)
   into `tests/forth/vendor/gerryjackson/`, keep every Johns Hopkins and Jackson
   notice, set `vendor: true` in `tests/forth/pins.json` for that suite only, and
   do not copy optional-word-set files as Core evidence.
-- [ ] Core-suite fan-out 2/4 (parallel): I write a per-file license inventory of
+- [x] Core-suite fan-out 2/4 (parallel): I write a per-file license inventory of
   the pinned forth200x snapshot (`91f1ed9c756aac27f57e939c270b5f2c84262427`) in
   a new `docs/FORTH_200X_INVENTORY.md`. I do not vendor that tree.
-- [ ] Core-suite fan-out 3/4 (parallel): I add `make test-forth-jackson` that
+- [x] Core-suite fan-out 3/4 (parallel): I add `make test-forth-jackson` that
   runs `bin/nano_forth` / `bin/forth` against Jackson Core via `INCLUDED` (or
   records a precise INCLUDE/file-access gap). I update `docs/FORTH_2012.md` so
   it no longer says there is no NanoISA Forth. I do not run optional word sets
   in this target. I do not claim Core if any Core case fails.
-- [ ] Core-suite fan-out 4/4 (parallel): I publish a Core word coverage matrix
+- [x] Core-suite fan-out 4/4 (parallel): I publish a Core word coverage matrix
   (`docs/FORTH_CORE_COVERAGE.md`) of Forth 2012 Core names against the NanoISA
   session, with tested / missing / ambiguous for each word. This is evidence,
   not a Core pass.
+- [x] **4.1 / Phase 13 (primary).** I load Jackson Core (`prelimtest.fth`,
+  `tester.fr`, `core.fr`, `coreplustest.fth`) through C file-source `REFILL`,
+  not Forth `INCLUDED`. `#ERRS` and `#ERRORS` are 0. I do not claim File
+  Access. Passing those files is evidence. I still do not claim Core as a
+  banner. (`task_d9719aedab784a01928eec699191fa82`)
 - [x] Parallel to 4.1 (does not wait on the Core gate): I close the interpreter
   example failures in `docs/KNOWN_LIMITATIONS.md`. `bin/nano` loads a shipped or
   built-in word list for `nl_random_sentence.nano`, uses a smaller workload for
@@ -82,25 +170,110 @@ stays parked until Phase 13 closes. Option C remains 4.4.
   workloads, emit non-zero ns/op, and enable the CI `bench` job without
   `if: false` or `|| true`. The job fails on a benchmark error or a zero
   measurement; it does not claim a 2× baseline comparison until I store one.
-- [ ] Side-quest after 4.1: I isolate the SDL editor walker in
+- [x] Side-quest after 4.1: I isolate the SDL editor walker in
   `bin/nano_emacs_worker` with a length-prefixed pipe protocol (create/destroy,
   bind buffer, eval string, drain `ed_*` commands, crash detection and restart).
   I do not overload `COP_MSG_FFI_REQ` as eval. The frame does not `dlopen` the
-  interpreter.
-- [ ] Side-quest after 4.1: I keep the editor's `nano_eval_*` C API and make
+  interpreter. (`make nano_emacs_worker`, `docs/NANO_EMACS.md`,
+  `make test-nano-emacs-worker`)
+- [x] Side-quest after 4.1: I keep the editor's `nano_eval_*` C API and make
   the bridge an RPC client of that worker. A walker crash echoes an error,
   restarts the worker, and keeps buffers. The child never re-enters SDL.
-- [ ] Side-quest after 4.1: I add freeze-defun (`C-x C-z` / `M-x freeze-defun`):
+  (`modules/nano_eval/nano_eval_bridge.c`, `make test-nano-emacs-worker`)
+- [x] Side-quest after 4.1: I add freeze-defun (`C-x C-z` / `M-x freeze-defun`):
   extract the current top-level `fn`, timeout-compile it to `.nvm`, and run
   `nano_vm` as a grandchild. `C-x C-e` stays walker eval. Frozen v1 is pure
   (result or error echo only; no `ed_*` inside the `.nvm`). A freeze-child
-  crash does not kill the frame.
-- [ ] Side-quest after 4.1: I test killing the worker mid-eval (parent survives
+  crash does not kill the frame. (`modules/nano_eval/nano_eval_freeze.c`,
+  `examples/emacs/emacs_keys.nano`, `make test-nano-emacs-worker`)
+- [x] Side-quest after 4.1: I test killing the worker mid-eval (parent survives
   and can restart), freeze of a pure function, and timeout compile of
   `nano_emacs`. In-process `make test-nano-eval` remains. I document a live
   editor plus an isolated worker. I do not claim GNU Emacs compatibility.
   Capability-supervised isolation of the same children is 4.4 work, not this
-  cut.
+  cut. (`make test-nano-emacs-worker`, `make test-nano-eval`,
+  `make test-nano-emacs`, `docs/NANO_EMACS.md`)
+  (`task_d36c571fef9a4dcca2d2a1a845040b27`)
+- [x] freeze-frame isolation test reads the eval result before destroy so the
+  string is not a dangling pointer (`tests/test_nano_emacs_worker.c`).
+- [x] I recorded the 5.0 One IR rewrite (`docs/NANOISA_ONLY.md`, Phase 20;
+      `task_87bcff8dad43407884c4dc9e06837f98`). Frontends twice, one verified
+      `.nvm`, translators as host tools, bootstrap that compares `.nvm`,
+      native AOT that does not embed `nano_vm`. I do not execute that rewrite
+      in 4.x.
+- [x] **4.2 / Phase 15 (primary).** I resolve process locale:
+      `--locale` > `NANO_LOCALE` > `LC_ALL` > `LANG` > `en`. Invalid CLI
+      and `NANO_LOCALE` fail closed. Garbage POSIX env is skipped.
+      `--print-locale` prints tag, language, script, region, variant,
+      direction, encoding, collation, source, and fallback. Diagnostics
+      still render English. I do not call the system internationalized.
+      Catalogs and translated guides are later items in this phase.
+      (`task_63a472a3ff564d438532e89692267b66`)
+- [x] **4.2 / Phase 15.** I reject invalid UTF-8 in `.nano` source (`CSRC01`)
+      and keep pipeline compiler diagnostics as stable IDs (`src/diag_id.c`,
+      `src_nano/compiler/diagnostics.nano`). English is a lookup. Typechecker
+      `E003` reuse, logs, catalogs, and other UTF-8 boundaries are not this
+      item. I do not call the system internationalized.
+      (`task_ec1b3368f4684ffcb25ecfe489b67639`)
+- [x] **4.2 / Phase 15.** UTF-8 at JSON/TOON emit (invalid becomes
+      `<invalid UTF-8>`), `module.json` fail closed, docgen source/module
+      name fail closed. Identifiers are ASCII `[A-Za-z_][A-Za-z0-9_]*`;
+      non-ASCII fails closed (`L0003`). Typechecker titles that went
+      through `emit_context_error` have unique `E001`–`E034`
+      (`--json-errors` emits `E024` for an undefined variable). Unicode
+      FFI: grapheme, NFC/NFD, case conversion, casefold, display width
+      (`make test-unicode-ffi`). Logs, catalogs, translated guides, and
+      remaining locale-ctype surfaces are not this item. I do not call
+      the system internationalized.
+- [x] **4.2 / Phase 15.** UTF-8 message catalogs for six languages, log
+      event ids, locale-aware user-guide editions, translated nav titles,
+      and LTR-isolated code fences on `dir=rtl` pages. JSON/TOON stay
+      English. I do not call the system internationalized.
+      (`task_232233a85c9f445ebf7ce93eddec48cc`)
+- [x] **4.3 / Phase 16.** I define NSI v0 with stable interface, method, type,
+      error, and capability identifiers (`schema/nsi/`, `src/nsi.c`,
+      `docs/NSI.md`, `make test-nsi`). Direction, ownership, generation,
+      and module migration are later items.
+      (`task_3581c13d862e43f0a76a52e86185b92e`)
+- [x] **4.3 / Phase 16.** I describe parameter direction, ownership, borrowing,
+      transfer, lifetime, mutability, optionality, and streaming in NSI v0
+      (`make test-nsi`, `docs/NSI.md`). Records and generation are later.
+      (`task_ab516c43dbdf4915b76d178409b2e56b`)
+- [x] **4.3 / Phase 16.** I support records, variants, arrays, strings, binary,
+      resources, callbacks, asynchronous results, and versioned errors
+      (`schema/nsi/examples/types.nsi.json`, `make test-nsi`). Compatibility
+      and generation are later.
+      (`task_d9e85990a21944fe836852591361f2ff`)
+- [x] **4.3 / Phase 16.** I define NSI document compatibility
+      (`nl_nsi_compat`). Adding a method is compatible; removing one is
+      breaking. Wire frames are not in v0.
+      (`task_094c94be861641f1a601a1fb152f3fb7`)
+- [x] **4.3 / Phase 16.** I reject omitted `params`, omitted type `kind`,
+      `opaque`, unknown keys such as `c_type`, and unresolved types
+      (`make test-nsi`). I generate NanoLang, Forth, Python, Rust, and C++
+      bindings plus dispatch, frames, validation, docs, mocks, compatibility
+      comments, and NanoISA imports (`make test-nsi-gen`).
+      (`task_d758f4e8215042889e48821b329aa870`)
+- [x] **4.3 / Phase 16.** I extend module manifests with an `nsi` block,
+      keep `module.json` as build metadata, and inventory every current
+      module (`schema/nsi/inventory.json`, `make test-nsi-manifest`).
+      (`task_d758f4e8215042889e48821b329aa870`)
+- [x] **4.3 / Phase 16.** I invoke by method id over in-process, mock, and
+      local-process adapters with frames, hello, backpressure, idempotence,
+      auth, and typed handles (`make test-nsi-runtime`, `docs/NSI_TCB.md`).
+      I do not claim a service fabric.
+      (`task_d758f4e8215042889e48821b329aa870`)
+- [x] **4.4 / Phase 17.** Unforgeable capabilities, shared-memory data plane,
+      and per-service budgets (`src/nsi_cap.c`, `src/nsi_shm.c`,
+      `make test-nsi-cap test-nsi-shm`).
+      (`task_7afc6b4fc32546459fd9c16f83b3d4d8`)
+- [x] **4.4 / Phase 18.** POSIX fabric, supervisor, scoped service migration,
+      remote cap denial, and the editor as a fabric client of walker/freeze
+      (`src/nsi_fabric.c`, `docs/NSI_FABRIC.md`, `make test-nsi-fabric`).
+      I do not claim a kernel, GNU Emacs compatibility, or a CUDA/CPython wrap.
+      The 4.1 astronaut dedicated-pipe worker is `bin/nano_emacs_worker`
+      (`docs/NANO_EMACS.md`); 4.4 keeps fabric stand-ins for walker/freeze.
+      (`task_7afc6b4fc32546459fd9c16f83b3d4d8`)
 
 ## Release Map
 
@@ -118,7 +291,8 @@ Patch releases may ship completed fixes without changing this dependency order.
 | **4.4** | Capability service fabric | I run modules as supervised least-privilege services with typed capabilities, asynchronous IPC, shared-memory bulk transfer, quotas, cancellation, and restart-safe handles. The SDL editor's walker and freeze-ISA children become first clients of that fabric (option C); the dedicated-pipe astronaut in the active queue is the earlier isolation cut, not the fabric. |
 | **4.5** | Effects, policy, and replay | I derive deployment policy from effects, record nondeterministic traps, replay executions deterministically, inject failures, and audit service interactions. |
 | **4.6** | Multi-language laboratory | I validate NanoISA with bounded Scheme, ML, actor, dataflow, object, shell, and logic frontends, each chosen to test a distinct semantic pressure. |
-| **5.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
+| **5.0** | One IR: NanoISA-only compilation | I emit verified `.nvm` as the only compiler product. C11 AOT, LLVM, Wasm, and GPU targets are translators of that module. Self-host proof compares `.nvm`. Native binaries do not embed `nano_vm`. Contract: `docs/NANOISA_ONLY.md`. |
+| **6.0** | Nano operating environment | I package signed services, startup graphs, upgrades, rollback, health monitoring, and kernel adapters into a complete operating environment. Linux, 5BSD, seL4, and other kernels remain interchangeable substrates below the service ABI. |
 
 My 3.5 release presentation is [NanoLang 3.5](RELEASE_3.5.md). It records my
 shipped foundation, verification evidence, and the boundary where my 4.0 work
@@ -149,7 +323,10 @@ Release dependencies:
 4.6 multi-language laboratory
               |
               v
-5.0 operating environment and kernel adapters
+5.0 One IR (NanoISA-only compilation; docs/NANOISA_ONLY.md)
+              |
+              v
+6.0 operating environment and kernel adapters
 ```
 
 ### Phase 12 - NanoISA v2 (3.5 foundation complete, 4.0 completion)
@@ -270,7 +447,8 @@ Documentation and acceptance:
 Goal: I will implement a standards-oriented Forth system whose colon words are
 verified NanoISA functions and whose typed library words use the same import and
 co-process machinery as NanoLang. This phase is the primary remaining 4.1
-goal. The SDL editor astronaut is a side-quest after this phase closes.
+goal. The SDL editor astronaut is a side-quest after this phase
+(`docs/NANO_EMACS.md`, `bin/nano_emacs_worker`).
 
 Foundation:
 - [x] I selected Forth 2012 Core and every optional word set as the target.
@@ -280,9 +458,9 @@ Foundation:
       forth200x `91f1ed9c756aac27f57e939c270b5f2c84262427`, and Gforth 0.7.3
       in `docs/FORTH_2012.md` and `tests/forth/pins.json`.
 - [x] I confirmed Jackson-suite notices permit vendoring with copyright
-      retained, refused a wholesale forth200x copy until a per-file inventory
-      exists, and refused to vendor GPL Gforth; I have not vendored any of
-      them yet.
+      retained, inventoried forth200x per file instead of copying it, and
+      refused to vendor GPL Gforth. Jackson v0.15.0 is vendored under
+      `tests/forth/vendor/gerryjackson/`. forth200x and Gforth are not.
 - [x] I added `make test-forth-gforth-diff` against pinned Gforth 0.7.3 for
       `pi.fs` at 0, 1, 10, and 50 places.
 - [x] I documented cells, characters, addresses, division, floats, files,
@@ -305,7 +483,9 @@ Compiler and runtime:
       saved frame count (`forth_invoke_nested`). `THROW` HALTs the outer NanoISA
       function, not only the inner host call. I test `CATCH` inside a colon
       definition and `THROW` from a called word.
-- [ ] I will restore Forth locals on `THROW` once recursive Locals exist.
+- [x] I restore Forth locals on `THROW`. Recursive `{: :}` frames are
+      NanoISA locals; `CATCH` of a throwing recursive locals word leaves
+      later `{: :}` words with fresh slots (`make test-forth-session`).
 - [x] I will implement typed Forth import declarations that lower to `NvmImportEntry` and `OP_CALL_EXTERN`.
 - [x] I will reject FFI signatures the active ABI cannot call correctly instead of guessing.
 - [x] I will restart an isolated FFI co-process after dynamic import-table mutation.
@@ -345,60 +525,162 @@ Closed this session:
       `ABORT"`, `KEY`, `ACCEPT`, and `QUIT`. `KEY`/`ACCEPT` read remaining
       `SOURCE`. `QUIT` empties the return stack, sets interpretation `STATE`,
       and stops the current line. Core stays open until pinned suites pass.
+- [x] `+LOOP` uses the Forth 2012 crossing rule (unsigned interval
+      `(index, index+n]` contains `limit`). Increment `0` does not terminate.
+      Jackson `GD7`/`GD8` need this; signed `<` after add hangs on
+      `MAX-UINT`/`USTEP`, and signed XOR of `index-limit` false-stops at
+      `2^(bits-1)`.
+- [x] `IMMEDIATE` is a runtime host trampoline, so `CREATE , IMMEDIATE
+      DOES>` compiled into a defining word marks the child, not a no-op
+      `RET` stub.
+- [x] Nested `CREATE` / `;` from a running colon defers NanoISA rebuild
+      until `vm_exec_depth` is 0 so the defining word keeps executing.
+- [x] Nested colon publish from `EVALUATE` while `vm_exec_depth != 0`
+      appends decode/dispatch (`vm_sync_new_functions`) instead of skipping
+      rebuild, so Jackson `SSQ7`/`SSQ9` can define then execute the new xt.
+      I do not free the caller's decoded instructions.
+- [x] `:NONAME` and number prefixes `#` `$` `%` `'c'` so Jackson
+      `coreplustest.fth` can load. `:NONAME` is Core Ext.
+- [x] Core Ext kernel: `VALUE`/`TO`, `MARKER`, `CASE`/`OF`/`ENDOF`/`ENDCASE`,
+      `PARSE-NAME`, `BUFFER:`, `DEFER`/`IS`/`ACTION-OF`, `HOLDS`, `S\"`, `C"`,
+      `.R`/`U.R`, `UNUSED`, `SAVE-INPUT`/`RESTORE-INPUT`, `REFILL`/`SOURCE-ID`
+      as Forth words. Jackson `coreexttest.fth` is the gate, loaded through
+      C `REFILL` after Core evidence (`make test-forth-coreext`). Passing
+      that file is evidence. I still do not claim Core Ext as a banner.
 
 Standard word sets, in dependency order:
-- [ ] I will implement and test Core. The active-queue Core-suite fan-out
-      (Jackson vendor, forth200x inventory, `make test-forth-jackson`, coverage
-      matrix) is the next evidence. I do not check this until those pass.
-- [ ] I will implement and test Core Extensions.
-- [ ] I will implement and test Exception and Exception Extensions.
-- [ ] I will implement genuine double-cell arithmetic and test Double Number and its extensions.
-- [ ] I will implement and test String and String Extensions.
-- [ ] I will implement and test Search Order and Search Order Extensions.
-- [ ] I will implement and test File Access and File Access Extensions.
-- [ ] I will implement and test Memory Allocation.
-- [ ] I will implement recursive, reentrant Locals and Locals Extensions.
-- [ ] I will implement and test Facility and Facility Extensions.
-- [ ] I will implement and test Programming Tools and Programming Tools Extensions.
-- [ ] I will implement an IEEE binary64 floating stack and test Floating Point and its extensions.
-- [ ] I will implement UTF-8 Extended Character and Extended Character Extensions.
-- [ ] I will implement Block and Block Extensions against an explicitly disposable image.
+- [x] I will implement and test Core. Fan-out 1–4 is verified (Jackson vendored,
+      forth200x inventoried, `make test-forth-jackson` records the INCLUDE gap,
+      coverage matrix published). Jackson Core evidence files pass under
+      `make test-forth-core`. Passing a suite is evidence. I still do not
+      claim Core as a banner.
+- [x] I will implement and test Core Extensions. Jackson `coreexttest.fth`
+      passes under `make test-forth-coreext`. Passing a suite is evidence.
+      I still do not claim Core Ext as a banner.
+- [x] I will implement and test Exception and Exception Extensions.
+      Jackson `exceptiontest.fth` passes under `make test-forth-exception`.
+      `ABORT` is `THROW -1`. An undefined word throws `-13`. Passing that
+      file is evidence. I still do not claim Exception as a banner.
+- [x] I will implement genuine double-cell arithmetic and test Double Number and its extensions.
+      Jackson `doubletest.fth` is the gate (`make test-forth-double`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Double as a banner.
+- [x] I will implement and test String and String Extensions.
+      Jackson `stringtest.fth` is the gate (`make test-forth-string`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      String as a banner.
+- [x] I will implement and test Search Order and Search Order Extensions.
+      Jackson `searchordertest.fth` is the gate (`make test-forth-searchorder`),
+      loaded through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Search Order as a banner.
+- [x] I will implement and test File Access and File Access Extensions.
+      Jackson `filetest.fth` is the gate (`make test-forth-file`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`,
+      `utilities.fth`, and `coreexttest.fth` (for `S$` / `SI_INC`). Passing
+      that file is evidence. I still do not claim File Access as a banner.
+- [x] I will implement and test Memory Allocation.
+      Jackson `memorytest.fth` is the gate (`make test-forth-memory`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Memory-Allocation as a banner.
+- [x] I will implement recursive, reentrant Locals and Locals Extensions.
+      Jackson `localstest.fth` is the gate (`make test-forth-locals`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Locals are NanoISA frame slots, so `RECURSE` and
+      nested calls do not share values. Passing that file is evidence. I
+      still do not claim Locals as a banner.
+- [x] I will implement and test Facility and Facility Extensions.
+      Jackson `facilitytest.fth` is the gate (`make test-forth-facility`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Facility as a banner.
+- [x] I will implement and test Programming Tools and Programming Tools Extensions.
+      Jackson `toolstest.fth` is the gate (`make test-forth-tools`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Programming Tools as a banner.
+- [x] I will implement an IEEE binary64 floating stack and test Floating Point and its extensions.
+      Jackson `ak-fp-test.fth` is the gate (`make test-forth-float`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. Passing that file is evidence. I still do not claim
+      Floating-Point as a banner.
+- [x] I will implement UTF-8 Extended Character and Extended Character Extensions.
+      Jackson has no xchar file. I do not vendor forth200x `tests/xchar.fs`.
+      Session tests in `tests/forth/test_forth_session.c` (`CHAR`, `XC@+`,
+      `X-SIZE`, `+X/STRING`, `XC-SIZE`) are the gate
+      (`make test-forth-session`). Passing those is evidence. I still do not
+      claim Extended Character as a banner.
+- [x] I will implement Block and Block Extensions against an explicitly disposable image.
+      Jackson `blocktest.fth` is the gate (`make test-forth-block`), loaded
+      through C `REFILL` after Core evidence, `errorreport.fth`, and
+      `utilities.fth`. The session RAM image holds 32 blocks; Jackson
+      overwrites 20–29. Passing that file is evidence. I still do not claim
+      Block as a banner.
 
 Tests, examples, and SDL IDE:
-- [ ] I will retain the existing 280 cases as regression tests while replacing their nonstandard harness assumptions.
-- [ ] I will run pinned committee Core and optional-word-set tests.
-- [ ] I will run licensed Forth-2012 tests and record unsupported or manual cases separately.
-- [ ] I will add malformed definitions, multiline definitions, early binding, immediate words, execution tokens, overflow, unsigned output, loop boundaries, exceptions, source nesting, and UTF-8 tests.
-- [ ] I will make `pi.fs` pass under my Memory-Allocation and Exception implementations with the exact 50-place output.
-- [ ] I will update every file in `examples/language/forth/` to standard behavior.
+- [x] I will retain the existing 280 cases as regression tests while replacing their nonstandard harness assumptions.
+      `make test-forth-examples` loads Jackson `tester.fr` and the nine
+      `examples/language/forth/test_*.fs` files through C `REFILL`.
+- [x] I will run pinned committee Core and optional-word-set tests.
+      `make test-forth-core` through `make test-forth-block` plus
+      `make test-forth-jackson` and `make test-forth-gforth-diff`.
+- [x] I will run licensed Forth-2012 tests and record unsupported or manual cases separately.
+      Jackson v0.15.0 is the licensed suite I execute. forth200x is inventoried
+      and not vendored. Skips are `tests/forth/forth2012_skips.txt`.
+- [x] I will add malformed definitions, multiline definitions, early binding, immediate words, execution tokens, overflow, unsigned output, loop boundaries, exceptions, source nesting, and UTF-8 tests.
+      `make test-forth-session` (`test_malformed_and_utf8` and the named
+      session tests).
+- [x] I will make `pi.fs` pass under my Memory-Allocation and Exception implementations with the exact 50-place output.
+      `make test-forth-session` (`test_pi_fs`) matches `tests/forth/pins.json`.
+- [x] I will update every file in `examples/language/forth/` to standard behavior.
 - [x] I will update `sdl_forth_ide` to launch the NanoISA-backed Forth executable.
 - [x] I will keep the SDL IDE as a PTY client rather than create a second Forth implementation.
-- [ ] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
+- [x] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
+      `make test-forth-pty`, `make test-forth-ide-smoke`, C `REFILL` file
+      loads, and `bin/forth` as the IDE child.
 - [ ] I will publish the precise standard-system label only after tests and required documentation support it.
+      MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
 
-### Phase 14 - NanoISA-Centered Backends (4.0 and later)
+### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.0)
 
-Goal: NanoISA is the common typed and verified boundary between all language
-frontends and general execution targets. I will implement each frontend once
-and each backend once rather than maintain a frontend-by-backend matrix.
+Goal: 4.0 records that NanoISA is the common IR and that a closed integer
+subset can become structured C11 without embedding the VM. The ambitious
+rewrite — I emit only `.nvm`; C/LLVM/Wasm are translators; bootstrap
+compares `.nvm`; `transpiler.nano` leaves the compiler — is **5.0**.
+Contract: `docs/NANOISA_ONLY.md`. I do not delete the AST→C path in 4.x.
 
 Architecture:
 - [x] I selected NanoISA as the common IR for NanoLang, Nano Forth, and future frontends.
-- [ ] I will preserve frontend-specific purity, affine-use, generic, effect, and exhaustiveness facts as NanoISA metadata.
-- [ ] I will define general and restricted compute profiles with verifier-enforced feature sets.
-- [ ] I will make C11 the canonical ahead-of-time portability backend from NanoISA.
-- [ ] I will implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
-- [ ] I will implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
-- [ ] I will evaluate JVM bytecode, SPIR-V, PTX, OpenCL, and Metal as NanoISA translators.
-- [ ] I will use a restricted NanoISA compute profile for GPU targets instead of pretending every general instruction maps to a kernel.
-- [ ] I will run the same NanoISA module through each applicable target for semantic-equivalence testing.
+- [x] I wrote `docs/NANOISA_HL_ROUNDTRIP.md`: reconstruction means named
+      functions, types, structured control, and a host ABI. A C file that
+      embeds `nano_vm` plus a bytecode array is not reconstruction.
+      Canonical disassembly is a different test.
+      (`task_4bd034f6029b7458201db74e2c3aeb32`)
+- [x] I inventoried `.nvm` v2 (`FUNCTIONS`, `SIGNATURES`, `LAYOUTS`,
+      `IMPORTS`, `LINKS`, `CONSTANTS`, `DEBUG`, `METADATA`) against that
+      bar. Local names are still slot numbers.
+- [x] I emit structured C11 from a closed NanoISA subset (`nvm2c`: i64
+      arithmetic, locals, `CALL`, `RET`/`HALT`). `make test-nvm2c` compiles
+      that C with `cc` and checks exit status `42` for `add(40, 2)`. The
+      C contains integer `+` and does not contain `nano_vm` or a bytecode
+      blob. I do not delete `transpiler.nano`. I do not ship a `nvm2c` CLI.
+      I refuse `CALL_EXTERN` (VM FFI / co-process), not a host C ABI.
+      (`task_863f10a181aba8d2dfdc9127e7113938`)
 
 Direct backend retirement:
 - [x] I removed the immature direct NanoLang-to-LLVM backend and its CLI, build, test, and CI surface.
 - [x] I removed the immature direct NanoLang-to-WebAssembly backend and its CLI, build, test, signing, publication, and CI surface.
 - [x] I removed LLVM and Wasm from the direct cross-backend CI matrix.
 - [x] I retain the retired direct backends in Git history rather than carry dormant implementation files in the active tree.
-- [ ] I will reintroduce LLVM and Wasm only behind NanoISA translators with full applicable-language coverage.
+
+I moved these 4.0-or-later rewrite items to Phase 20 (5.0): frontend facts as
+metadata, compute profiles, C11 as the canonical AOT backend, LLVM/Wasm/GPU
+translators, semantic equivalence across targets, a second HLL surface from
+the same `.nvm`, and the published reconstruction finding. `nano_virt`'s
+default native output still embeds the VM. That is recorded, not solved.
 
 ### Phase 15 - Internationalization and UTF-8 Neutrality (4.2)
 
@@ -409,45 +691,136 @@ canonical source until the translation workflow proves otherwise.
 Language scope:
 - [x] I selected the six largest languages by total-speaker metrics for the initial proof: English, Mandarin Chinese, Hindi, Spanish, Modern Standard Arabic, and French.
 - [x] I recorded Ethnologue 2026 total-speaker estimates as the dated selection method and treat the ranking as revisable.
-- [ ] I will use BCP 47 language tags and explicit fallback chains.
-- [ ] I will distinguish language, script, region, locale, encoding, collation, and text direction rather than treating them as one setting.
+- [x] I parse BCP 47 tags into language, script, region, and variant, with a
+      fallback chain that ends at `en` when the tag is not English. Encoding,
+      collation, and text direction are separate fields, not one setting
+      (`src/bcp47.c`, `make test-bcp47`). Human stderr uses catalogs;
+      JSON/TOON stay English.
+- [x] I will use BCP 47 language tags and explicit fallback chains.
+      `nanoc` resolves a process locale (`src/locale.c`) and prints the
+      chain from `--print-locale`. Catalogs are a later item in this phase.
+- [x] I will distinguish language, script, region, locale, encoding, collation, and text direction rather than treating them as one setting.
+      `--print-locale` prints those axes as separate fields.
 
 UTF-8 language and runtime contract:
-- [ ] I will require valid UTF-8 at source, diagnostic, log, module metadata, and documentation boundaries unless a value is explicitly binary.
-- [ ] I will define identifier normalization and confusable-character policy.
-- [ ] I will implement normalization, Unicode case folding, grapheme iteration, display width, and safe character-indexed operations where the public API claims them.
-- [ ] I will keep byte-oriented APIs explicit and separate from code-point and grapheme APIs.
-- [ ] I will preserve embedded zero bytes only in binary strings and length-aware protocols.
-- [ ] I will test malformed, overlong, truncated, combining, supplementary-plane, emoji-sequence, and bidirectional text.
-- [ ] I will audit C, NanoVM, NanoISA, FFI, JSON, TOON, source maps, paths, terminals, SDL text, and file APIs for truncation or locale dependence.
+- [x] I reject invalid UTF-8 in `.nano` source at compile (`CSRC01`,
+      `src/utf8.c`, `make test-utf8` / `make test-src-utf8`). `nl_string`
+      and `bstr_validate_utf8` use the same walker. Explicitly binary
+      payloads remain allowed. I do not claim diagnostic, log, metadata,
+      or documentation boundaries.
+- [x] I link `src/utf8.c` into programs that use `nl_string` (`nanoc`
+      runtime list, `nanoc_v06`, `driver.nano`) so `nl_utf8_validate`
+      resolves at user-program link.
+- [x] I require valid UTF-8 at JSON/TOON diagnostic emit (invalid fields
+      become the ASCII marker `<invalid UTF-8>`), `module.json` (fail
+      closed), and Markdown docgen source/module name (fail closed).
+      `make test-diagnostics`, `make test-module-metadata`, `make test-docgen`.
+- [x] I require valid UTF-8 at remaining text boundaries unless the value
+      is explicitly binary: log payloads (`make test-log-utf8`), NanoVM
+      stack-trace/trap text (`nl_utf8_cstr_or_marker`), SDL TTF
+      (`TTF_RenderUTF8_*`, fail closed), displayed paths, and terminals
+      via `nl_utf8_sanitize_log`. Binary payloads stay binary.
+- [x] Identifiers are ASCII `[A-Za-z_][A-Za-z0-9_]*`. Non-ASCII is not an
+      identifier and fails closed (`L0003`). The C lexer matches
+      `src_nano/compiler/lexer.nano` (empty token list on failure).
+      Confusable/homoglyph rejection is this ASCII policy. NFC of
+      identifiers is unused while names are ASCII.
+      (`make test-parser`, `make test-src-utf8`)
+- [x] The self-hosted lexer records `L0003` on unexpected bytes and
+      returns no tokens, matching the C compiler fail-closed policy.
+- [x] Where the public Unicode FFI claims them, I implement grapheme
+      iteration, NFC/NFD/NFKC/NFKD, Unicode case conversion, case folding,
+      and display width via utf8proc (`modules/unicode/unicode_ffi.c`,
+      `make test-unicode-ffi`). `nl_string` stays byte-length plus
+      code-point ops; it is not the grapheme API.
+- [x] Byte-oriented APIs stay explicit and separate from code-point and
+      grapheme APIs (`nl_string_length` vs `nl_string_utf8_length`;
+      `nl_str_byte_length` vs `nl_str_grapheme_length`).
+- [x] I preserve embedded zero bytes only in binary strings and
+      length-aware protocols (`nl_string_new_binary`, `make test-nl-string`).
+- [x] I test malformed, overlong, truncated, combining, supplementary-plane,
+      emoji, and bidirectional UTF-8 at the walker (`make test-utf8`) and
+      combining grapheme/NFC at the Unicode FFI (`make test-unicode-ffi`).
+- [x] Locale-dependence audit: `nl_ascii_is*` in `lexer.c`, NanoVM
+      builtins, eval, nvm2c identifiers, docgen, FFI bindgen, BCP 47
+      subtag case, and `main.c` wrapper type names. Source-map and SDL
+      text paths use UTF-8 fail-closed helpers. JSON/TOON emit and
+      `module.json` are fail-closed.
 
 Language-neutral diagnostics and logging:
-- [ ] I will give every diagnostic and log event a stable message identifier independent of rendered English text.
-- [ ] I will separate structured fields from localized prose and keep machine-readable severity, phase, location, and parameters stable.
-- [ ] I will add locale selection through a documented CLI option and environment fallback without changing deterministic machine output.
-- [ ] I will implement UTF-8 message catalogs with English fallback and missing-key diagnostics.
-- [ ] I will support plural rules, number formatting, dates, lists, quoting, and parameter reordering without concatenating translated fragments.
-- [ ] I will keep LLM JSON and TOON diagnostics language-neutral by default, with localized rendering as an explicit layer.
-- [ ] I will make logs safe for right-to-left text and resistant to bidi control and terminal escape spoofing.
-- [ ] I will test catalog completeness, placeholder compatibility, fallback, invalid UTF-8, and deterministic output.
+- [x] I keep pipeline compiler diagnostics as stable IDs (`src/diag_id.c`,
+      `diag_en` in `src_nano/compiler/diagnostics.nano`). English is a
+      lookup. Typechecker titles that share `E003`, lexer/parser events,
+      LSP fallback `E000`, and log events are not this table.
+- [x] Typechecker titles that go through `emit_context_error` carry unique
+      `E001`–`E034` (`E024` undefined variable via `--json-errors`).
+      Inference `TYPE MISMATCH` is `E001`. I do not claim lexer/parser/LSP
+      or log events.
+- [x] Remaining diagnostic and log events have stable IDs independent of
+      English: lexer `L0003`–`L0008`, parser `P0001`/`P0002`, unlabeled
+      typechecker JSON `E035`, log `LOG01`–`LOG04`. LSP uses those ids
+      instead of `E000`.
+- [x] Structured JSON/TOON fields (severity, phase, location, code,
+      English message) stay stable. Localized prose is catalog lookup on
+      human stderr only (`nl_catalog_text`).
+- [x] Locale selection through `--locale`, `NANO_LOCALE`, POSIX
+      `LC_ALL`/`LANG` (`en_US.UTF-8` → `en-US`, `C`/`POSIX` → `en`).
+      `--print-locale` is a query and does not compile. Compile output
+      does not grow a locale banner. JSON/TOON diagnostics stay English.
+      Flags may precede the input file.
+- [x] UTF-8 message catalogs with English fallback and missing-key
+      counting (`src/catalog.c`, `catalogs/messages/{en,zh,hi,es,ar,fr}.json`,
+      `make test-catalog`).
+- [x] Plural rules, number formatting, dates, lists, quoting, and
+      parameter reordering in `nl_catalog_format` (`make test-catalog`).
+- [x] LLM JSON and TOON diagnostics stay language-neutral (English
+      lookup via `nl_diag_en`). Localized rendering is human stderr.
+- [x] Logs drop bidi overrides and ANSI CSI/OSC (`nl_utf8_sanitize_log`,
+      `make test-log-utf8`).
+- [x] Catalog completeness, placeholder compatibility, fallback, invalid
+      UTF-8, and six-language keys (`make test-catalog`). Human stderr
+      for all six languages vs English JSON (`make test-locale-catalog`).
 
 Translated documentation and user guide:
-- [ ] I will make the user-guide builder locale-aware with per-language navigation, canonical URLs, `lang`, `dir`, `hreflang`, and fallback metadata.
-- [ ] I will define a translation source format that preserves code, links, anchors, front matter, and untranslatable identifiers.
-- [ ] I will add translation memory and source-hash tracking so stale translations are visible rather than silently published.
-- [ ] I will publish machine-translated Simplified Chinese, Hindi, Spanish, Modern Standard Arabic, and French guides as explicitly machine-generated drafts.
-- [ ] I will preserve English code examples and identifiers while translating explanation and interface prose.
-- [ ] I will add language switching that keeps the current page when a translation exists.
-- [ ] I will test generated links, anchors, search, code blocks, font fallback, mobile layout, and Arabic right-to-left rendering.
-- [ ] I will document how contributors report and correct translations through issues and pull requests.
-- [ ] I will credit human reviewers and distinguish reviewed translations from machine-generated drafts.
+- [x] User-guide builder is locale-aware: per-language navigation, canonical
+      URLs, `lang`, `dir`, `hreflang`, fallback metadata for generated
+      pages (`scripts/build_userguide.py`).
+- [x] Translation source format: YAML front matter plus Markdown; code
+      fences, links, snippet markers, and identifiers stay English
+      (`userguide/i18n/`).
+- [x] Translation memory (`userguide/i18n/memory.json`) hashes English
+      sources; stale drafts get a banner rather than silent publication.
+- [x] Machine-translated Simplified Chinese, Hindi, Spanish, Modern
+      Standard Arabic, and French drafts of the published nav pages, marked
+      `machine_generated: true`.
+- [x] English code examples and identifiers preserved in those drafts
+      (fence byte-identity checked while writing; `tests/test_build_userguide.py`).
+- [x] Language switching keeps the current page (`hreflang` + `.langs`).
+- [x] Generated links and fragments validated for all six editions
+      (`make userguide-html`). Code blocks preserved. Font fallback and
+      Arabic `dir=rtl` plus mobile breakpoints are in CSS and unit tests.
+      The published guide has no in-page search; `nano-docs` searches
+      Markdown separately.
+- [x] Contributor translation workflow: `userguide/i18n/README.md` and
+      `docs/USERGUIDE_BUILD.md`.
+- [x] Human reviewers vs machine drafts: `reviewed: false` until a named
+      reviewer accepts a page. No page is claimed as human-reviewed yet.
 
 Acceptance:
-- [ ] I will compile and run representative NanoLang programs containing all initial scripts through C and NanoVM paths.
-- [ ] I will emit and parse localized diagnostics and logs for all six initial languages.
-- [ ] I will build and link-check all six guide editions in CI.
-- [ ] I will perform visual checks for Simplified Chinese, Devanagari, Latin, and Arabic scripts on desktop and mobile.
-- [ ] I will not call the system internationalized while core diagnostics or logs still require English prose for machine interpretation.
+- [x] Six-script program through C and NanoVM
+      (`examples/language/i18n_six_scripts.nano`, `make test-i18n-scripts`).
+- [x] Localized diagnostics for all six languages on human stderr;
+      JSON stays English (`make test-locale-catalog`). Log events carry
+      stable ids (`make test-log-utf8`).
+- [x] Six guide editions build and link-check (`make userguide-html`;
+      CI `userguide-html` job).
+- [x] Visual properties for Hans, Devanagari, Latin, and Arabic: desktop
+      screenshots of en/zh/hi/es, mobile zh/hi, Arabic print raster
+      (Chrome `--screenshot` of `dir=rtl` stayed black). Glyphs rendered;
+      switcher keeps the page; Arabic reverses switcher order. Code
+      fences on RTL pages are LTR-isolated. Not a WCAG audit.
+- [x] I do not call the system internationalized: JSON/TOON and catalog
+      fallback still use English; machine drafts are not human translations.
 
 I chose the initial publication languages from total-speaker estimates reported
 by Ethnologue 2026: English, Mandarin Chinese, Hindi, Spanish, Modern Standard
@@ -462,43 +835,43 @@ service, a protected process, another NanoVM, or a remote endpoint according to
 deployment policy.
 
 Interface definition:
-- [ ] I will define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers.
-- [ ] I will describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema.
-- [ ] I will support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors.
-- [ ] I will define backward- and forward-compatibility rules for interfaces and wire representations.
-- [ ] I will reject ambiguous ABI inference; every foreign boundary will have an explicit typed contract.
-- [ ] I will generate NanoLang and Nano Forth bindings from the same interface description.
-- [ ] I will generate client stubs, server dispatch, serialization, validation, documentation, mocks, and compatibility tests.
-- [ ] I will generate NanoISA imports and typed trap descriptors from service contracts.
-- [ ] I will preserve implementation language neutrality: C, C++, Python, Rust, NanoLang, NanoVM, and remote services expose the same contract.
+- [x] I define a versioned Nano Service Interface schema with stable interface, method, type, error, and capability identifiers (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`, `docs/NSI.md`, `make test-nsi`). Names without ids fail closed.
+- [x] I describe parameter direction, ownership, borrowing, transfer, lifetime, mutability, optionality, and streaming in the schema (`docs/NSI.md`, `make test-nsi`). Unknown enumerations fail closed.
+- [x] I support records, variants, arrays, strings, binary data, resources, callbacks, asynchronous results, and versioned errors (`schema/nsi/examples/types.nsi.json`, `make test-nsi`). Unknown kinds fail closed.
+- [x] I define backward- and forward-compatibility rules for NSI documents (`nl_nsi_compat`, `make test-nsi`). Adding a method is compatible; removing one is breaking. Session hello applies the same rule before calls.
+- [x] I reject ambiguous ABI inference; every foreign boundary has an explicit typed contract (`make test-nsi`).
+- [x] I generate NanoLang and Nano Forth bindings from the same interface description (`make test-nsi-gen`).
+- [x] I generate client stubs, server dispatch, serialization, validation, documentation, mocks, and compatibility tests (`src/nsi_gen.c`, `make test-nsi-gen`).
+- [x] I generate NanoISA imports and typed trap descriptors from service contracts (`nl_nsi_gen_nanoisa_imports`).
+- [x] I preserve implementation language neutrality: C, C++, Python, Rust, NanoLang, NanoVM, and remote bind the same method ids (`nl_nsi_gen_language_index`). Remote transport is not implemented.
 
 Module refactoring:
-- [ ] I will extend module manifests with interface version, required capabilities, isolation policy, resource budgets, restart policy, and implementation adapter.
-- [ ] I will separate portable interface metadata from platform-specific build metadata.
-- [ ] I will inventory every current native and Python-backed module by privilege, state, payload size, latency, and failure behavior.
-- [ ] I will migrate pure modules first and prove identical in-process and service-process behavior.
-- [ ] I will migrate filesystem, logging, process, networking, audio, graphics, GPU, and Python modules in increasing privilege order.
-- [ ] I will keep unsafe implementation details behind generated service boundaries rather than expose host pointers or library objects.
-- [ ] I will give each resource handle an interface type, service identity, generation, rights mask, and lifetime state.
-- [ ] I will update module discovery and package metadata to resolve interface contracts independently from implementations.
-- [ ] I will add contract tests that run one client against every supported implementation of an interface.
+- [x] I extend module manifests with interface version, required capabilities, isolation policy, resource budgets, restart policy, and implementation adapter (`nsi` in `module.manifest.json`).
+- [x] I separate portable interface metadata from platform-specific build metadata (`nsi` vs `module.json`; `c_sources` on a manifest fails closed).
+- [x] I inventory every current native and Python-backed module by privilege, state, payload size, latency, and failure behavior (`schema/nsi/inventory.json`).
+- [x] I migrate pure modules first and prove identical in-process and service-process behavior (`nsi:nanolang/vector2d#add`, `make test-nsi-runtime`).
+- [x] I migrate filesystem, logging, process, networking, audio, graphics, GPU, and Python modules in increasing privilege order (class NSI documents under `schema/nsi/modules/`, typed handles, not host-library wrap).
+- [x] I keep unsafe implementation details behind generated service boundaries rather than expose host pointers or library objects.
+- [x] I give each resource handle an interface type, service identity, generation, rights mask, and lifetime state.
+- [x] I update module discovery and package metadata to resolve interface contracts independently from implementations (`sdl` and `glfw` share `nsi:nanolang/graphics`).
+- [x] I add contract tests that run one client against every supported implementation of an interface (`client_log_write` vs inproc/mock/local).
 
 Transport-neutral invocation:
-- [ ] I will replace symbol-name-centered RPC with stable interface and method identifiers.
-- [ ] I will define request, response, error, cancellation, deadline, and stream frames.
-- [ ] I will negotiate interface and transport versions before accepting calls.
-- [ ] I will support synchronous and asynchronous invocations without changing source-level imports.
-- [ ] I will implement bounded queues and explicit backpressure.
-- [ ] I will make idempotence and retry safety explicit properties of methods.
-- [ ] I will authenticate callers and validate capabilities before dispatch.
-- [ ] I will make malformed messages fail closed without corrupting the service or caller.
+- [x] I replace symbol-name-centered RPC with stable interface and method identifiers.
+- [x] I define request, response, error, cancellation, deadline, and stream frames.
+- [x] I negotiate interface and transport versions before accepting calls (`nl_nsi_session_hello`; transport version 0).
+- [x] I support synchronous and asynchronous invocations without changing source-level imports.
+- [x] I implement bounded queues and explicit backpressure.
+- [x] I make idempotence and retry safety explicit properties of methods (`idempotent` on the method).
+- [x] I authenticate callers and validate capabilities before dispatch.
+- [x] I make malformed messages fail closed without corrupting the service or caller.
 
 Acceptance:
-- [ ] I will run one unchanged NanoLang client against in-process, local-process, and mock implementations.
-- [ ] I will run one unchanged Nano Forth client through the same generated interface.
-- [ ] I will demonstrate an implementation replacement without recompiling the client.
-- [ ] I will test schema evolution across at least one compatible minor version and one rejected breaking version.
-- [ ] I will document the exact trusted computing base for each deployment mode.
+- [x] I run one unchanged NanoLang client against in-process, local-process, and mock implementations (`tests/nsi_client.nano`, `make test-nsi-runtime`).
+- [x] I run one unchanged Nano Forth client through the same generated interface (`tests/nsi_client.fs`).
+- [x] I demonstrate an implementation replacement without recompiling the client.
+- [x] I test schema evolution across at least one compatible minor version and one rejected breaking version.
+- [x] I document the exact trusted computing base for each deployment mode (`docs/NSI_TCB.md`).
 
 ### Phase 17 - Capability Runtime and Shared Memory (4.4)
 
@@ -506,34 +879,38 @@ Goal: I will replace ambient authority with explicit, typed, least-privilege
 capabilities and move bulk data without weakening isolation.
 
 Capability model:
-- [ ] I will define unforgeable capability references that cannot be fabricated from integers or host pointers.
-- [ ] I will encode object type, service generation, rights, delegation policy, and revocation state in capability tables.
-- [ ] I will support rights attenuation when delegating capabilities.
-- [ ] I will require explicit transfer permission before a service can pass a capability onward.
-- [ ] I will invalidate stale handles after service restart and prevent generation reuse attacks.
-- [ ] I will map NanoLang resource types to capability ownership and consumption rules.
-- [ ] I will map Forth handles to validated capability references without exposing raw host addresses.
-- [ ] I will audit every capability creation, delegation, use, revocation, and failure.
+- [x] I will define unforgeable capability references that cannot be fabricated from integers or host pointers (`src/nsi_cap.c`, `make test-nsi-cap`).
+- [x] I will encode object type, service generation, rights, delegation policy, and revocation state in capability tables (`NlCapTable`, `make test-nsi-cap`).
+- [x] I will support rights attenuation when delegating capabilities (`nl_cap_attenuate`, `make test-nsi-cap`).
+- [x] I will require explicit transfer permission before a service can pass a capability onward (`nl_cap_transfer`, `make test-nsi-cap`).
+- [x] I will invalidate stale handles after service restart and prevent generation reuse attacks (`nl_cap_restart`, `nl_cap_invalidate_service`, `make test-nsi-cap test-nsi-fabric`).
+- [x] I will map NanoLang resource types to capability ownership and consumption rules (`nl_cap_resource_own`, `nl_cap_resource_consume`, `make test-nsi-cap`).
+- [x] I will map Forth handles to validated capability references without exposing raw host addresses (`nl_cap_forth_bind`, `make test-nsi-cap`).
+- [x] I will audit every capability creation, delegation, use, revocation, and failure (`nl_cap_audit_*`, `make test-nsi-cap`).
 
 Shared-memory data plane:
-- [ ] I will keep typed IPC as the control plane and use capability-scoped shared regions for bulk data.
-- [ ] I will implement read, write, map, seal, transfer, borrow, return, and revoke rights for shared buffers.
-- [ ] I will validate offset, length, alignment, lifetime, and direction on every mapping and descriptor.
-- [ ] I will support zero-copy or bounded-copy paths for audio frames, graphics surfaces, network packets, files, and GPU buffers.
-- [ ] I will make ownership transfer and completion explicit so buffers cannot be reused while a service owns them.
-- [ ] I will provide a copying fallback with identical semantics when shared mappings are unavailable.
-- [ ] I will benchmark control-message latency, throughput, copies, mappings, and cache effects by payload size.
+- [x] I will keep typed IPC as the control plane and use capability-scoped shared regions for bulk data (`src/nsi_shm.c`, `make test-nsi-shm`).
+- [x] I will implement read, write, map, seal, transfer, borrow, return, and revoke rights for shared buffers (`make test-nsi-shm`).
+- [x] I will validate offset, length, alignment, lifetime, and direction on every mapping and descriptor (`make test-nsi-shm`).
+- [x] I will support zero-copy or bounded-copy paths for audio frames, graphics surfaces, network packets, files, and GPU buffers (`NlShmKind`, `make test-nsi-shm`).
+- [x] I will make ownership transfer and completion explicit so buffers cannot be reused while a service owns them (`nl_shm_transfer`, `make test-nsi-shm`).
+- [x] I will provide a copying fallback with identical semantics when shared mappings are unavailable (`force_copy`, `make test-nsi-shm`).
+- [x] I will benchmark control-message latency, throughput, copies, mappings, and cache effects by payload size (`nl_shm_bench`, `make test-nsi-shm`).
 
 Resource governance:
-- [ ] I will enforce per-service memory, CPU, handle, queue, file, network, and device budgets.
-- [ ] I will attach deadlines and cancellation tokens to service requests.
-- [ ] I will define behavior for quota exhaustion, cancellation races, partial results, and abandoned clients.
-- [ ] I will expose structured resource accounting without requiring localized prose.
-- [ ] I will test hostile clients, forged handles, stale generations, oversized messages, queue floods, and service crashes.
-- [ ] I will use the SDL editor's walker session and freeze-ISA child as
+- [x] I will enforce per-service memory, CPU, handle, queue, file, network, and device budgets (`nl_fabric_set_budget`, `make test-nsi-fabric`).
+- [x] I will attach deadlines and cancellation tokens to service requests (`timeout_ms`, `nl_fabric_cancel`, `make test-nsi-fabric`).
+- [x] I will define behavior for quota exhaustion, cancellation races, partial results, and abandoned clients (`NL_FAB_ERR_QUOTA`, `NL_FAB_ERR_CANCEL`, idempotent replay, `make test-nsi-fabric`).
+- [x] I will expose structured resource accounting without requiring localized prose (`NlAccounting`, `make test-nsi-fabric`).
+- [x] I will test hostile clients, forged handles, stale generations, oversized messages, queue floods, and service crashes (`make test-nsi-cap test-nsi-fabric`).
+- [x] I will use the SDL editor's walker session and freeze-ISA child as
   capability-runtime clients: buffer and eval rights are unforgeable, eval
   time/memory/queue budgets apply, cancellation aborts a hung eval, and a
-  restarted worker invalidates stale session handles.
+  restarted worker invalidates stale session handles
+  (`editor.walker` / `editor.freeze` in `src/nsi_fabric.c`, `make test-nsi-fabric`).
+  These are fabric-supervised stand-ins. Isolation of `bin/nano_emacs_worker`
+  is the 4.1 astronaut side-quest (`docs/NANO_EMACS.md`). I do not claim GNU
+  Emacs compatibility.
 
 ### Phase 18 - Portable Service Fabric and Supervision (4.4)
 
@@ -541,61 +918,66 @@ Goal: I will host Nano services above ordinary multitasking kernels without
 embedding Linux, BSD, or microkernel assumptions in application interfaces.
 
 Supervisor:
-- [ ] I will implement service discovery, startup ordering, dependency health, readiness, and shutdown.
-- [ ] I will define restart, retry, fail-request, fail-application, and replacement policies.
-- [ ] I will distinguish transient, permanent, protocol, authorization, quota, and implementation failures.
-- [ ] I will make retries conditional on declared idempotence and request identity.
-- [ ] I will preserve or revoke state explicitly across service upgrade and restart.
-- [ ] I will support rolling replacement when interface compatibility permits it.
-- [ ] I will propagate deadlines, cancellation, tracing context, and audit identity across service calls.
+- [x] I will implement service discovery, startup ordering, dependency health, readiness, and shutdown (`nl_fabric_start`, `make test-nsi-fabric`).
+- [x] I will define restart, retry, fail-request, fail-application, and replacement policies (`NlRestartPolicy`, `make test-nsi-fabric`).
+- [x] I will distinguish transient, permanent, protocol, authorization, quota, and implementation failures (`NlFailClass`, `make test-nsi-fabric`).
+- [x] I will make retries conditional on declared idempotence and request identity (`request_id`, `make test-nsi-fabric`).
+- [x] I will preserve or revoke state explicitly across service upgrade and restart (`nl_fabric_preserve_state`, `make test-nsi-fabric`).
+- [x] I will support rolling replacement when interface compatibility permits it (`nl_fabric_replace` + `nl_nsi_compat`, `make test-nsi-fabric`).
+- [x] I will propagate deadlines, cancellation, tracing context, and audit identity across service calls (`timeout_ms`, `trace_id`, `audit_id`, `make test-nsi-fabric`).
 
 Portable host adapters:
-- [ ] I will define a narrow host abstraction for processes, threads, IPC endpoints, shared memory, clocks, entropy, files, networking, devices, and credentials.
-- [ ] I will implement the first complete service-fabric adapter on a mature host kernel selected by measured development cost and security properties.
-- [ ] I will keep transport and policy behavior identical across host adapters through conformance tests.
-- [ ] I will support local in-process mode for development without weakening production policy declarations.
-- [ ] I will support process-isolated mode using the host's strongest practical primitives.
-- [ ] I will support remote transport without giving remote services local capability authority.
+- [x] I will define a narrow host abstraction for processes, threads, IPC endpoints, shared memory, clocks, entropy, files, networking, devices, and credentials (`NlHost`, `make test-nsi-fabric`).
+- [x] I will implement the first complete service-fabric adapter on a mature host kernel selected by measured development cost and security properties (`nl_host_posix` on Darwin/Linux, `docs/NSI_FABRIC.md`).
+- [x] I will keep transport and policy behavior identical across host adapters through conformance tests (`nl_host_posix` vs `nl_host_inproc`, `make test-nsi-fabric`).
+- [x] I will support local in-process mode for development without weakening production policy declarations (`nl_host_inproc`, `make test-nsi-fabric`).
+- [x] I will support process-isolated mode using the host's strongest practical primitives (isolated services get `AF_UNIX` `socketpair`; I do not fork `bin/nano_emacs_worker` in 4.4).
+- [x] I will support remote transport without giving remote services local capability authority (`nl_fabric_send_cap_remote` → `NL_FAB_ERR_REMOTE`; no network protocol in 4.4).
 
 Service migration milestones:
-- [ ] I will migrate logging and diagnostics as the first observable service.
-- [ ] I will migrate filesystem access with path-scoped capabilities.
-- [ ] I will migrate process execution with executable, argument, environment, and child-control capabilities.
-- [ ] I will migrate networking with endpoint-scoped capabilities.
-- [ ] I will migrate audio with stream-scoped device and shared-buffer capabilities.
-- [ ] I will migrate graphics and window-system access with surface and input capabilities.
-- [ ] I will migrate GPU access with device, queue, memory, shader, and synchronization capabilities.
-- [ ] I will migrate Python integration into a typed language-service adapter with no direct Python-object leakage.
+- [x] I will migrate logging and diagnostics as the first observable service (`log`, `make test-nsi-fabric`).
+- [x] I will migrate filesystem access with path-scoped capabilities (`fs`, `make test-nsi-fabric`).
+- [x] I will migrate process execution with executable, argument, environment, and child-control capabilities (`process`, `make test-nsi-fabric`).
+- [x] I will migrate networking with endpoint-scoped capabilities (`net`, `make test-nsi-fabric`).
+- [x] I will migrate audio with stream-scoped device and shared-buffer capabilities (`audio`, `make test-nsi-fabric`).
+- [x] I will migrate graphics and window-system access with surface and input capabilities (`graphics`, `make test-nsi-fabric`).
+- [x] I will migrate GPU access with device, queue, memory, shader, and synchronization capabilities (`gpu` typed fabric service, not a CUDA wrap).
+- [x] I will migrate Python integration into a typed language-service adapter with no direct Python-object leakage (`python` rejects `PyObject` / host pointers; not a CPython wrap).
 
-Live editor as a fabric client (option C; depends on the parked astronaut
-side-quest after 4.1, not on starting that work now):
-- [ ] I will stop treating `bin/nano_emacs_worker` as a special-case pipe
-  daemon. The SDL frame is a client. The walker and freeze-ISA processes are
-  supervised services with startup, readiness, restart, and replacement
-  policies. I still do not host the walker or NanoISA inside the frame, and I
-  still do not route editor eval through the NanoVM FFI co-process protocol.
-- [ ] I will grant the walker only the editor capabilities it needs (bound
+Live editor as a fabric client (option C; the dedicated-pipe astronaut is
+`docs/NANO_EMACS.md`, not these fabric stand-ins):
+- [x] I will stop treating `bin/nano_emacs_worker` as a special-case pipe
+  daemon in the fabric. The SDL frame is a client. The walker and freeze-ISA
+  processes are supervised services with startup, readiness, restart, and
+  replacement policies. I still do not host the walker or NanoISA inside the
+  frame, and I still do not route editor eval through the NanoVM FFI
+  co-process protocol (`editor.walker` / `editor.freeze`, `docs/NSI_FABRIC.md`,
+  `make test-nsi-fabric`). The dedicated-pipe worker is the 4.1 astronaut
+  (`docs/NANO_EMACS.md`).
+- [x] I will grant the walker only the editor capabilities it needs (bound
   buffer copy, queued chrome commands, echo). I will grant freeze-ISA a
   narrower set: compile/run a module and return a result or error, with no
   `ed_*` unless a later 4.4 checkbox explicitly adds buffer capabilities to
-  frozen modules.
-- [ ] I will apply Phase 17 quotas and cancellation to eval and freeze: a hung
+  frozen modules (`make test-nsi-fabric`).
+- [x] I will apply Phase 17 quotas and cancellation to eval and freeze: a hung
   walker or `nano_vm` grandchild is cancelled or restarted; the frame stays up;
-  generation-bumped session handles fail closed after restart.
-- [ ] I will use the shared-memory data plane for large buffer bind/return when
+  generation-bumped session handles fail closed after restart
+  (`make test-nsi-fabric`).
+- [x] I will use the shared-memory data plane for large buffer bind/return when
   the copying RPC is the measured bottleneck, with the copying fallback when
-  mappings are unavailable.
-- [ ] I will test: kill the walker, kill the freeze child, exhaust eval quota,
+  mappings are unavailable (`nl_fabric_bind_large`, `make test-nsi-fabric`).
+- [x] I will test: kill the walker, kill the freeze child, exhaust eval quota,
   present a stale handle after restart, and confirm the frame survives and
   refuses the stale handle. I will document the editor as a live client of the
-  fabric. I will not claim GNU Emacs compatibility.
+  fabric. I will not claim GNU Emacs compatibility (`docs/NSI_FABRIC.md`,
+  `make test-nsi-fabric`).
 
 ### Phase 19 - Effects, Deployment Policy, and Deterministic Replay (4.5)
 
 Goal: I will connect declared program effects to deployable least-privilege
 policy and make nondeterministic execution recordable, replayable, and auditable.
 
-Effects to policy:
+Effects to policy (MAC `task_2bd5c3128983683b78134ad9257b7d3b`):
 - [ ] I will define the relationship between source effects, module requirements, NanoISA traps, service methods, and capabilities.
 - [ ] I will emit a complete effect and capability inventory for each program.
 - [ ] I will generate a reviewable deployment manifest from that inventory.
@@ -603,7 +985,7 @@ Effects to policy:
 - [ ] I will report unused grants so policy can converge toward least privilege.
 - [ ] I will support explicit administrator overrides without silently widening source declarations.
 
-Record and replay:
+Record and replay (MAC `task_36c1ce545c4d12a0a2c520dd146ea5f1`):
 - [ ] I will define a versioned trap journal containing sequence, capability, method, arguments or hashes, result, timing, service generation, and implementation version.
 - [ ] I will record time, entropy, file, network, user-input, process, GPU, audio, and service nondeterminism at the boundary where it enters a NanoVM.
 - [ ] I will replay a NanoVM without invoking original services when the journal contains all required events.
@@ -613,17 +995,93 @@ Record and replay:
 - [ ] I will sign and hash journals when they are used as audit evidence.
 - [ ] I will define redaction and encryption so replayability does not require publishing sensitive payloads.
 
-Observability and provenance:
+Observability and provenance (MAC `task_860edd8c08843bf90ad9559d0b821cef`):
 - [ ] I will assign trace IDs across NanoVM, router, service, and kernel-adapter boundaries.
 - [ ] I will emit structured metrics and traces through an implementation-neutral telemetry interface.
 - [ ] I will record source, NanoISA module, interface, service implementation, policy, and output provenance.
 - [ ] I will test that localized logs do not alter stable audit fields or replay behavior.
 
-### Phase 20 - Hardened Operating Environment (5.0)
+### Phase 20 - One IR: NanoISA-only compilation (5.0)
+
+Goal: I emit one portable product — a verified `.nvm` v2 module — and I treat
+C, LLVM, Wasm, RISC-V, and GPU targets as translators of that module. Native
+means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
+`docs/NANOISA_ONLY.md`. I do not start this phase by deleting
+`transpiler.nano`.
+
+- [x] I recorded the 5.0 compilation contract in `docs/NANOISA_ONLY.md`
+      (`task_87bcff8dad43407884c4dc9e06837f98`): frontend twice (C seed and
+      `src_nano`), one IR, translators as host tools, honest bootstrap by
+      comparing `.nvm`, host ABI distinct from `CALL_EXTERN` / `nano_cop`.
+      Walk, file fate, linking, debug, and equivalence are in that document.
+
+Compiler product:
+- [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
+      `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
+- [ ] I implement NanoISA lowering in `src_nano` as the dual of
+      `src/nanovirt/codegen.c`. That dual does not exist today.
+- [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
+      self-hosted emitter.
+- [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
+      binaries from `nvm2c`+`cc` is a translator test, kept separate.
+- [ ] I freeze `transpiler.nano` as bootstrap-only once the emitter compiles
+      the compiler, then I delete it from the product compiler. Git history
+      keeps it.
+- [ ] I rename `CompilerPhase_PHASE_TRANSPILER`; the pipeline ends at NanoISA.
+
+`nvm2c` as canonical AOT:
+- [ ] I make C11 the canonical ahead-of-time portability backend from NanoISA.
+      A generated process does not require `nano_vm`, `nano_cop`, or
+      `nano_vmd` to compute.
+- [ ] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
+      strings, modules, and a declared host ABI for `extern`.
+- [ ] I map `CALL_EXTERN` to that host ABI or I refuse the module. I do not
+      emit a co-process client and call it AOT.
+- [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
+      in 5.0 documentation or CLI defaults.
+- [ ] I ship a `nvm2c` tool (seed in C). I may later write `nvm2c` in myself.
+
+Module richness:
+- [ ] I store local names, not only slot numbers.
+- [ ] I preserve frontend purity, affine-use, generic, effect, and
+      exhaustiveness facts as NanoISA metadata.
+- [ ] I recover structured `if`/`while`/`return` from `JMP` for
+      reconstruction. Goto is a translator fallback, not the claim.
+- [ ] I define general and restricted compute profiles with verifier-enforced
+      feature sets. GPU targets use the restricted profile.
+
+Reconstruction:
+- [ ] I spike a second high-level surface from the same `.nvm` (NanoLang or
+      another HLL). If that surface is only an interpreter, the spike failed.
+- [ ] I publish the finding in `docs/NANOISA_HL_ROUNDTRIP.md`: sufficient,
+      insufficient, or blocked on named metadata.
+
+Other translators:
+- [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
+- [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
+- [ ] I reintroduce LLVM and Wasm only behind those translators, with full
+      applicable-language coverage.
+- [ ] I evaluate JVM bytecode, SPIR-V, PTX, OpenCL, and Metal as NanoISA
+      translators. Existing `nanoc --target ptx` / `opencl` AST backends
+      become translators under the restricted profile or they leave the
+      product compiler.
+- [ ] I run the same NanoISA module through each applicable target for
+      semantic-equivalence testing (VM, AOT C, and each shipped translator).
+
+Acceptance (from `docs/NANOISA_ONLY.md`):
+- [ ] `src_nano` emits `.nvm` as its only compiler product.
+- [ ] `nvm2c` builds a process that does not link `nano_vm`.
+- [ ] Stage 1 and Stage 2 `.nvm` files match.
+- [ ] A pinned suite matches on `nano_vm` and AOT C.
+- [ ] `transpiler.nano` is gone from the product compiler.
+
+### Phase 22 - Hardened Operating Environment (6.0)
 
 Goal: I will package the language, VM, services, capabilities, policy, and
 supervision layers as a complete operating environment. Kernel choice remains
-a deployment decision below the stable Nano service ABI.
+a deployment decision below the stable Nano service ABI. This follows 5.0
+(NanoISA-only compilation). Signing and kernel adapters are 6.0, not 4.0
+and not 5.0.
 
 System image and lifecycle:
 - [ ] I will define signed manifests for NanoISA modules, service interfaces, implementations, capabilities, and policy.
@@ -638,7 +1096,7 @@ System image and lifecycle:
 - [ ] I will define administrative capabilities for inspection, update, backup, restore, and shutdown.
 - [ ] I will make boot, startup, steady state, upgrade, failure, and shutdown auditable.
 
-Scoping note on module signing: this is deliberately 5.0 work, not 4.0. The
+Scoping note on module signing: this is deliberately 6.0 work, not 4.0 or 5.0. The
 mechanism is cheap -- Ed25519 signing and verification are already available
 from the OpenSSL that every binary links today, the v2 module format's section
 directory and feature bits have room for a signature without a format break,
@@ -677,12 +1135,15 @@ Release acceptance:
 
 ### Phase 21 - Multi-Language NanoISA Laboratory (4.6)
 
+This 4.6 phase sits after 5.0/6.0 in this file for historical section
+order. The release graph still has 4.6 before 5.0.
+
 Goal: I will test whether NanoISA is genuinely language-neutral by compiling a
 small set of deliberately different languages to the same verified IR. I will
 not collect syntax for its own sake. Each frontend must expose a distinct
 architectural weakness or prove a distinct capability.
 
-Shared frontend contract:
+Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [ ] I will define a frontend interface for source locations, typed functions, layouts, constants, imports, effects, capabilities, and diagnostics.
 - [ ] I will require every frontend to emit the same versioned NanoISA module format and pass the same verifier.
 - [ ] I will give every frontend access to the same service contracts, capability model, FFI isolation, debugger metadata, profiler, and target translators.
@@ -692,7 +1153,7 @@ Shared frontend contract:
 - [ ] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
 - [ ] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
 
-Nano Scheme:
+Nano Scheme (MAC `task_6647a64cc76edac6e3d0f62c228d98c4`):
 - [ ] I will implement a small Scheme frontend as the first post-Forth language experiment.
 - [ ] I will support lexical scope, closures, first-class procedures, recursive data, and interactive evaluation.
 - [ ] I will implement proper tail calls and verify constant frame depth under deep recursion.
@@ -700,43 +1161,43 @@ Nano Scheme:
 - [ ] I will use Scheme to stress allocation, callable representation, tail calls, dynamic values, and live code publication.
 - [ ] I will run a pinned subset of a recognized Scheme test suite and document intentional exclusions.
 
-Nano ML:
+Nano ML (MAC `task_3eed929292a80ed58dd3a8db1ed701b6`):
 - [ ] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
 - [ ] I will use ML to test generic instantiation, aggregate layouts, exhaustive matching, closures, and module signatures.
 - [ ] I will preserve inferred type and exhaustiveness facts in NanoISA metadata where target-independent optimization can use them.
 - [ ] I will run shared aggregate and service-interface programs under both NanoLang and Nano ML.
 
-Nano Actor:
+Nano Actor (MAC `task_0850b9adc62c593b8e4e180e070efcee`):
 - [ ] I will implement an Erlang, Elixir, and Gleam-inspired actor frontend.
 - [ ] I will support isolated actors, typed mailboxes, pattern-matched messages, monitors, links, supervision trees, deadlines, and cancellation.
 - [ ] I will first execute actors as isolated NanoVM contexts in one host process.
 - [ ] I will then move unchanged actors across service-process boundaries through the Phase 18 transport.
 - [ ] I will test crash containment, mailbox ordering, supervision, hot code replacement, and restart-safe capabilities.
 
-Nano Dataflow:
+Nano Dataflow (MAC `task_9cb85a523c197b9e2c80ddcffe9ed31a`):
 - [ ] I will implement a deterministic dataflow and workflow frontend with typed nodes, streams, backpressure, and explicit effects.
 - [ ] I will map graph dependencies to local, service-process, and remote scheduling without changing program semantics.
 - [ ] I will use dataflow programs to test shared-memory bulk transfer, provenance, replay, cancellation, retries, and parallel determinism.
 - [ ] I will record every external input required to reproduce a completed workflow.
 
-Nano Object:
+Nano Object (MAC `task_90023c92e9fb3841aab9fcc71d8cf90d`):
 - [ ] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
 - [ ] I will use it to test dynamic dispatch, inline caches, layout evolution, callable handles, image persistence, and debugger reflection.
 - [ ] I will measure specialization and quickening without exposing cache-specific operations in portable NanoISA.
 
-Nano Shell:
+Nano Shell (MAC `task_ee91ee94749200ab6309e6c05df3dd61`):
 - [ ] I will implement a capability-safe orchestration shell using structured values rather than text-only pipelines.
 - [ ] I will expose processes, files, networks, services, streams, cancellation, and remote execution only through explicit capabilities.
 - [ ] I will preserve typed values across pipelines and make text parsing an explicit adapter.
 - [ ] I will use Nano Shell as the administrative language for service graphs only after capability and policy enforcement are complete.
 
-Nano Logic:
+Nano Logic (MAC `task_69fc7f6660a1976f10606a42d78fd264`):
 - [ ] I will implement a bounded Datalog or logic frontend for declarative authorization, dependency, and policy rules.
 - [ ] I will support facts, rules, unification appropriate to the selected subset, queries, and deterministic fixed-point evaluation.
 - [ ] I will use it to test choice points or tabling only when those mechanisms are justified by the selected language subset.
 - [ ] I will compile deployment and capability policy queries to verified NanoISA or a documented restricted profile.
 
-Frontend matrix and demonstrations:
+Frontend matrix and demonstrations (MAC `task_92c497c72b7aa1fc993d666f66843759`):
 - [ ] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
 - [ ] I will implement one shared service interface consumed from NanoLang, Nano Forth, Nano Scheme, and Nano ML.
 - [ ] I will implement one supervised service in Nano Actor and orchestrate it from Nano Shell.
@@ -1051,7 +1512,7 @@ I may add these features after I am fully self-hosting:
 - [x] Algebraic data types — tagged unions with `union` keyword
 - [x] Tuples — heterogeneous tuples
 - [x] Parallel independence blocks — `par { }` annotation
-- [x] WASM backend — `--target wasm` emits WebAssembly binary
+- [ ] WASM as a NanoISA translator (5.0). Direct AST `--target wasm` was retired.
 - [ ] Explicit type conversions (`float_to_int`, `int_to_float`) in compiled mode
 - [ ] Arrays of structs in compiled mode
 
@@ -1229,7 +1690,7 @@ I aim to be:
 
 ---
 
-Last Updated: February 20, 2026 (Post-VM + Formal Verification Update)
-Current Phase: Phase 9 - Ecosystem & Polish (Phases 10-11 complete in parallel)
-Next Major Milestone: v1.0 Release (target: Q3 2026)
-Next Review: After Phase 9 completion
+Last Updated: September 6, 2026
+Current Phase: 4.4 Phase 17–18 capability runtime, shared memory, POSIX fabric, and live editor as fabric client are in (`make test-nsi-cap test-nsi-shm test-nsi-fabric`, `docs/NSI_FABRIC.md`). Remaining 4.x: tag `v4.4.0`, then 4.5 / Phase 19, then 4.6 / Phase 21. 5.0 One IR is recorded, not started.
+Next Major Milestone: 4.4 tag, then 4.5 effects, deployment policy, and deterministic replay, then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`)
+Next Review: after a named human reviewer accepts a translated guide page

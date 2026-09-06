@@ -53,9 +53,32 @@
       }
     ]
   },
-  "io_surfaces": ["terminal"],
+  "io_surfaces": [
+    "terminal"
+  ],
   "alternatives": [
-    {"when": "simple input without editing", "module": "stdio"},
-    {"when": "full terminal UI", "module": "ncurses"}
-  ]
+    {
+      "when": "simple input without editing",
+      "module": "stdio"
+    },
+    {
+      "when": "full terminal UI",
+      "module": "ncurses"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/graphics",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/graphics.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/graphics.present"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

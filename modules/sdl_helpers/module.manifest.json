@@ -18,20 +18,57 @@
     "render_shapes",
     "load_fonts_portable"
   ],
-  "keywords": ["sdl", "utilities", "helpers", "drawing", "text", "input"],
+  "keywords": [
+    "sdl",
+    "utilities",
+    "helpers",
+    "drawing",
+    "text",
+    "input"
+  ],
   "examples": [
     "examples/graphics/sdl_drawing_primitives.nano",
     "examples/graphics/sdl_texture_demo.nano"
   ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["sdl"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "sdl"
+    ],
     "system": [
-      {"id": "sdl2", "install": {"apt": "libsdl2-dev", "brew": "sdl2"}}
+      {
+        "id": "sdl2",
+        "install": {
+          "apt": "libsdl2-dev",
+          "brew": "sdl2"
+        }
+      }
     ]
   },
-  "io_surfaces": ["window"],
+  "io_surfaces": [
+    "window"
+  ],
   "alternatives": [
-    {"when": "raw SDL control", "module": "sdl"}
-  ]
+    {
+      "when": "raw SDL control",
+      "module": "sdl"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/graphics",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/graphics.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/graphics.present"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

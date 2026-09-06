@@ -20,7 +20,14 @@
     "set_controls",
     "read_qpos_qvel"
   ],
-  "keywords": ["mujoco", "physics", "robotics", "mjcf", "simulation", "opengl"],
+  "keywords": [
+    "mujoco",
+    "physics",
+    "robotics",
+    "mjcf",
+    "simulation",
+    "opengl"
+  ],
   "examples": [
     "examples/mujoco/mujoco_state_audit.nano",
     "examples/mujoco/mujoco_cartpole_balance.nano",
@@ -30,10 +37,47 @@
     "examples/mujoco/mujoco_opengl_robot_sorter.nano"
   ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["opengl", "glfw", "glew"],
-    "system": [{"id": "mujoco", "install": {"brew": "mujoco", "source": "https://github.com/google-deepmind/mujoco/releases"}}]
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "opengl",
+      "glfw",
+      "glew"
+    ],
+    "system": [
+      {
+        "id": "mujoco",
+        "install": {
+          "brew": "mujoco",
+          "source": "https://github.com/google-deepmind/mujoco/releases"
+        }
+      }
+    ]
   },
-  "io_surfaces": ["files", "window"],
-  "alternatives": [{"when": "soft body physics", "module": "bullet"}]
+  "io_surfaces": [
+    "files",
+    "window"
+  ],
+  "alternatives": [
+    {
+      "when": "soft body physics",
+      "module": "bullet"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/gpu",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/gpu.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/gpu.submit"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

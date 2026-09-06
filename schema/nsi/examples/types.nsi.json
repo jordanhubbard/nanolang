@@ -1,0 +1,55 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/types",
+    "name": "types"
+  },
+  "methods": [
+    { "id": "nsi:nanolang/types#ping", "name": "ping", "params": [] }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/types#Point",
+      "name": "Point",
+      "kind": "record",
+      "fields": [
+        { "id": "nsi:nanolang/types#Point.x", "name": "x", "type": "nsi:core/int" },
+        { "id": "nsi:nanolang/types#Point.y", "name": "y", "type": "nsi:core/int" }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/types#Color",
+      "name": "Color",
+      "kind": "variant",
+      "cases": [
+        { "id": "nsi:nanolang/types#Color.rgb", "name": "rgb", "type": "nsi:nanolang/types#Point" },
+        { "id": "nsi:nanolang/types#Color.named", "name": "named", "type": "nsi:core/string" }
+      ]
+    },
+    {
+      "id": "nsi:nanolang/types#Points",
+      "name": "Points",
+      "kind": "array",
+      "element": "nsi:nanolang/types#Point"
+    },
+    { "id": "nsi:nanolang/types#Label", "name": "Label", "kind": "string" },
+    { "id": "nsi:nanolang/types#Blob", "name": "Blob", "kind": "binary" },
+    { "id": "nsi:nanolang/types#Handle", "name": "Handle", "kind": "resource" },
+    {
+      "id": "nsi:nanolang/types#PingFn",
+      "name": "PingFn",
+      "kind": "callback",
+      "method": "nsi:nanolang/types#ping"
+    },
+    {
+      "id": "nsi:nanolang/types#Pending",
+      "name": "Pending",
+      "kind": "async",
+      "result": "nsi:core/unit"
+    }
+  ],
+  "errors": [
+    { "id": "nsi:nanolang/types#bad", "name": "bad", "version": "1" }
+  ],
+  "capabilities": []
+}

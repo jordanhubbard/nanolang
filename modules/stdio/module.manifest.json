@@ -17,14 +17,46 @@
     "read_line",
     "console_io"
   ],
-  "keywords": ["io", "stdio", "console", "terminal", "print", "input"],
-  "examples": ["examples/language/nl_hello.nano", "examples/language/nl_calculator.nano"],
+  "keywords": [
+    "io",
+    "stdio",
+    "console",
+    "terminal",
+    "print",
+    "input"
+  ],
+  "examples": [
+    "examples/language/nl_hello.nano",
+    "examples/language/nl_calculator.nano"
+  ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
+    "nanolang": [
+      "core>=1.0"
+    ],
     "system": []
   },
-  "io_surfaces": ["terminal"],
+  "io_surfaces": [
+    "terminal"
+  ],
   "alternatives": [
-    {"when": "file operations", "module": "std"}
-  ]
+    {
+      "when": "file operations",
+      "module": "std"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/filesystem",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/filesystem.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/filesystem.open"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

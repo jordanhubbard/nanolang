@@ -23,18 +23,49 @@
     "env_vars",
     "glob_matching"
   ],
-  "keywords": ["files", "io", "filesystem", "process", "environment", "standard library"],
+  "keywords": [
+    "files",
+    "io",
+    "filesystem",
+    "process",
+    "environment",
+    "standard library"
+  ],
   "examples": [
     "examples/language/nl_hello.nano",
     "scripts/gen_compiler_schema.nano"
   ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
+    "nanolang": [
+      "core>=1.0"
+    ],
     "system": []
   },
-  "io_surfaces": ["files", "terminal"],
+  "io_surfaces": [
+    "files",
+    "terminal"
+  ],
   "alternatives": [
-    {"when": "async I/O", "module": "uv"},
-    {"when": "just stdio", "module": "stdio"}
-  ]
+    {
+      "when": "async I/O",
+      "module": "uv"
+    },
+    {
+      "when": "just stdio",
+      "module": "stdio"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/pure",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/pure.nsi.json",
+    "required_capabilities": [],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

@@ -4,7 +4,7 @@
   "description": "Persistent NanoLang tree-walker session for the SDL editor",
   "headers": ["nano_eval.h"],
   "cflags": ["-Imodules/nano_eval"],
-  "c_sources": ["nano_eval_bridge.c"],
+  "c_sources": ["nano_eval_bridge.c", "nano_eval_ipc.c", "nano_eval_freeze.c"],
   "ldflags": [],
   "system_packages": [],
   "dependencies": []

@@ -53,8 +53,28 @@
       }
     ]
   },
-  "io_surfaces": ["network"],
+  "io_surfaces": [
+    "network"
+  ],
   "alternatives": [
-    {"when": "HTTP client (make requests)", "module": "curl"}
-  ]
+    {
+      "when": "HTTP client (make requests)",
+      "module": "curl"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/net",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/net.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/net.connect"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

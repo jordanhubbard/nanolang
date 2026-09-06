@@ -4,11 +4,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
+import os
 import re
 import shutil
 import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -18,6 +21,22 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "userguide"
 OUTPUT = ROOT / "build/userguide/html"
 GENERATED = ROOT / "build/userguide/generated"
+I18N = SOURCE / "i18n"
+
+LOCALES = (
+    ("en", "English", "ltr", "en"),
+    ("zh", "中文", "ltr", "zh-Hans"),
+    ("hi", "हिन्दी", "ltr", "hi"),
+    ("es", "Español", "ltr", "es"),
+    ("ar", "العربية", "rtl", "ar"),
+    ("fr", "Français", "ltr", "fr"),
+)
+
+LOCALE_LABEL = {code: label for code, label, _dir, _bcp in LOCALES}
+LOCALE_DIR = {code: direction for code, _label, direction, _bcp in LOCALES}
+LOCALE_BCP = {code: bcp for code, _label, _dir, bcp in LOCALES}
+
+ACTIVE_LOCALES = [code for code, *_rest in LOCALES]
 
 
 @dataclass(frozen=True)
@@ -27,6 +46,64 @@ class Page:
     rel_output: Path
     title: str
     section: str
+
+
+def sha256_text(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def memory_hashes() -> dict[str, str]:
+    path = I18N / "memory.json"
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text())
+
+
+def parse_front_matter(text: str) -> tuple[dict[str, str], str]:
+    if not text.startswith("---\n"):
+        return {}, text
+    end = text.find("\n---\n", 4)
+    if end < 0:
+        return {}, text
+    meta: dict[str, str] = {}
+    for line in text[4:end].splitlines():
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        meta[key.strip()] = value.strip()
+    return meta, text[end + 5 :]
+
+
+def translation_source(page: Page, locale: str, english: str) -> tuple[str, dict[str, str]]:
+    if locale == "en":
+        return english, {"machine_generated": "false", "stale": "false", "fallback": "false"}
+    rel = page.rel_source.as_posix()
+    path = I18N / locale / rel
+    hashes = memory_hashes()
+    current = sha256_text(english)
+    remembered = hashes.get(rel, "")
+    stale = bool(remembered) and remembered != current
+    if page.rel_source.parts[0] == "generated" or not path.exists():
+        banner = (
+            "> This page is an English fallback. I have not published a "
+            f"{LOCALE_LABEL[locale]} translation of this generated reference yet.\n\n"
+        )
+        return banner + english, {
+            "machine_generated": "true",
+            "stale": "true" if stale else "false",
+            "fallback": "true",
+        }
+    meta, body = parse_front_matter(path.read_text())
+    if stale:
+        body = (
+            "> Stale translation: the English source changed after this draft. "
+            "Treat the English edition as the authority.\n\n"
+            + body
+        )
+        meta["stale"] = "true"
+    meta.setdefault("machine_generated", "true")
+    meta.setdefault("fallback", "false")
+    return body, meta
 
 
 def parse_nav() -> list[Page]:
@@ -200,7 +277,12 @@ def source_text(page: Page) -> str:
 def slugify(text: str) -> str:
     text = re.sub(r"<[^>]+>", "", text)
     text = re.sub(r"[`*_~]", "", text).lower()
-    return re.sub(r"[^a-z0-9]+", "-", text).strip("-") or "section"
+    kept: list[str] = []
+    for ch in text:
+        kind = unicodedata.category(ch)[0]
+        kept.append(ch if kind in ("L", "M", "N") else "-")
+    slug = re.sub(r"-+", "-", "".join(kept)).strip("-")
+    return slug or "section"
 
 
 def rewrite_href(href: str, page: Page, source_to_output: dict[Path, Path]) -> str:
@@ -330,104 +412,215 @@ def render_markdown(markdown: str, page: Page, source_to_output: dict[Path, Path
     return "\n".join(out), anchors
 
 
-def navigation(pages: list[Page], current: Page) -> str:
+def locale_output(locale: str) -> Path:
+    return OUTPUT if locale == "en" else OUTPUT / locale
+
+
+def locale_nav_titles(pages: list[Page], locale: str) -> dict[Path, str]:
+    titles: dict[Path, str] = {}
+    if locale == "en":
+        return titles
+    for page in pages:
+        english = source_text(page)
+        _body, meta = translation_source(page, locale, english)
+        title = meta.get("title")
+        if title:
+            titles[page.rel_source] = title
+    return titles
+
+
+def page_href(from_locale: str, to_locale: str, from_rel: Path, to_rel: Path) -> str:
+    src = locale_output(from_locale) / from_rel
+    dst = locale_output(to_locale) / to_rel
+    return Path(os.path.relpath(dst, src.parent)).as_posix()
+
+
+SECTION_LABELS = {
+    "en": {"Start": "Start", "Learn": "Learn", "Use": "Use", "Reference": "Reference"},
+    "zh": {"Start": "开始", "Learn": "学习", "Use": "使用", "Reference": "参考"},
+    "hi": {"Start": "शुरुआत", "Learn": "सीखें", "Use": "उपयोग", "Reference": "संदर्भ"},
+    "es": {"Start": "Inicio", "Learn": "Aprender", "Use": "Usar", "Reference": "Referencia"},
+    "ar": {"Start": "ابدأ", "Learn": "تعلّم", "Use": "استخدم", "Reference": "مرجع"},
+    "fr": {"Start": "Début", "Learn": "Apprendre", "Use": "Utiliser", "Reference": "Référence"},
+}
+
+
+def navigation(pages: list[Page], current: Page, locale: str = "en", titles: dict[Path, str] | None = None) -> str:
     groups: list[str] = []
+    section_names = SECTION_LABELS.get(locale, SECTION_LABELS["en"])
     for section in dict.fromkeys(page.section for page in pages):
         links = []
         for page in pages:
             if page.section != section:
                 continue
-            import os
             href = Path(os.path.relpath(page.rel_output, current.rel_output.parent)).as_posix()
             active = ' aria-current="page" class="active"' if page == current else ""
-            links.append(f'<li><a href="{href}"{active}>{html.escape(page.title)}</a></li>')
-        groups.append(f'<section><h2>{html.escape(section)}</h2><ul>{"".join(links)}</ul></section>')
+            label = (titles or {}).get(page.rel_source, page.title)
+            links.append(f'<li><a href="{href}"{active}>{html.escape(label)}</a></li>')
+        groups.append(f'<section><h2>{html.escape(section_names.get(section, section))}</h2><ul>{"".join(links)}</ul></section>')
     return "".join(groups)
 
 
-def page_html(page: Page, body: str, pages: list[Page]) -> str:
-    import os
+def language_switcher(page: Page, locale: str) -> str:
+    links = []
+    for code, label, _direction, _bcp in LOCALES:
+        if code not in ACTIVE_LOCALES:
+            continue
+        href = page_href(locale, code, page.rel_output, page.rel_output)
+        current = ' aria-current="page"' if code == locale else ""
+        links.append(f'<a href="{html.escape(href, quote=True)}" lang="{LOCALE_BCP[code]}"{current}>{html.escape(label)}</a>')
+    return f'<nav class="langs" aria-label="Language">{"".join(links)}</nav>'
+
+
+def hreflang_tags(page: Page, locale: str) -> str:
+    tags = []
+    for code, _label, _direction, bcp in LOCALES:
+        if code not in ACTIVE_LOCALES:
+            continue
+        href = page_href(locale, code, page.rel_output, page.rel_output)
+        tags.append(f'<link rel="alternate" hreflang="{bcp}" href="{html.escape(href, quote=True)}">')
+    canonical = page_href(locale, locale, page.rel_output, page.rel_output)
+    tags.append(f'<link rel="canonical" href="{html.escape(canonical, quote=True)}">')
+    return "\n".join(tags)
+
+
+def page_html(page: Page, body: str, pages: list[Page], locale: str = "en", titles: dict[Path, str] | None = None) -> str:
     root = Path(os.path.relpath(Path("."), page.rel_output.parent)).as_posix()
     home = Path(os.path.relpath(Path("index.html"), page.rel_output.parent)).as_posix()
     css = f"{root}/assets/style.css" if root != "." else "assets/style.css"
+    lang = LOCALE_BCP[locale]
+    direction = LOCALE_DIR[locale]
     return f'''<!doctype html>
-<html lang="en">
+<html lang="{html.escape(lang, quote=True)}" dir="{direction}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="NanoLang user guide">
 <title>{html.escape(page.title)} | NanoLang</title>
 <link rel="stylesheet" href="{css}">
+{hreflang_tags(page, locale)}
 </head>
 <body>
 <a class="skip-link" href="#content">Skip to content</a>
-<header class="site-header"><a href="{home}">NanoLang</a><span>User Guide</span></header>
+<header class="site-header"><a href="{home}">NanoLang</a><span>User Guide</span>{language_switcher(page, locale)}</header>
 <div class="layout">
-<nav class="sidebar" aria-label="Guide navigation">{navigation(pages, page)}</nav>
+<nav class="sidebar" aria-label="Guide navigation">{navigation(pages, page, locale, titles)}</nav>
 <main id="content">{body}</main>
 </div>
 </body>
 </html>'''
 
 
-def validate_site(pages: list[Page], anchors: dict[Path, set[str]]) -> None:
+def edition_html_files(output_root: Path, locale: str) -> list[Path]:
+    other = {code for code, *_ in LOCALES if code != "en"}
+    files = []
+    for path in output_root.rglob("*.html"):
+        rel = path.relative_to(output_root)
+        if locale == "en" and rel.parts and rel.parts[0] in other:
+            continue
+        files.append(path)
+    return files
+
+
+def validate_site(pages: list[Page], anchors: dict[Path, set[str]], output_root: Path, locale: str) -> None:
     errors: list[str] = []
     expected = {page.rel_output for page in pages}
-    actual = {path.relative_to(OUTPUT) for path in OUTPUT.rglob("*.html")}
+    html_files = edition_html_files(output_root, locale)
+    actual = {path.relative_to(output_root) for path in html_files}
     if expected != actual:
-        errors.append(f"HTML inventory mismatch: expected {len(expected)}, found {len(actual)}")
+        errors.append(f"{output_root.relative_to(ROOT)}: HTML inventory mismatch: expected {len(expected)}, found {len(actual)}")
     href_pattern = re.compile(r'href="([^"]+)"')
     id_pattern = re.compile(r'id="([^"]+)"')
-    for output in sorted(OUTPUT.rglob("*.html")):
+    site_root = OUTPUT.resolve()
+    for output in sorted(html_files):
         text = output.read_text()
         ids = id_pattern.findall(text)
-        page_anchor_set = anchors.setdefault(output.relative_to(OUTPUT), set())
+        rel = output.relative_to(output_root)
+        page_anchor_set = anchors.setdefault(rel, set())
         page_anchor_set.update(ids)
         if len(ids) != len(set(ids)):
-            errors.append(f"{output.relative_to(OUTPUT)}: duplicate HTML id")
+            errors.append(f"{output.relative_to(ROOT)}: duplicate HTML id")
+        if 'hreflang="' not in text:
+            errors.append(f"{output.relative_to(ROOT)}: missing hreflang")
+        if 'lang="' not in text:
+            errors.append(f"{output.relative_to(ROOT)}: missing lang")
+        if locale == "ar" and 'dir="rtl"' not in text:
+            errors.append(f"{output.relative_to(ROOT)}: Arabic edition missing dir=rtl")
+        if 'class="langs"' not in text:
+            errors.append(f"{output.relative_to(ROOT)}: missing language switcher")
         for href in href_pattern.findall(text):
             split = urlsplit(html.unescape(href))
             if split.scheme or href.startswith("mailto:"):
                 continue
-            target = output.parent / (split.path or output.name)
-            target = target.resolve()
+            target = (output.parent / (split.path or output.name)).resolve()
             try:
-                rel = target.relative_to(OUTPUT.resolve())
+                target.relative_to(site_root)
             except ValueError:
-                errors.append(f"{output.relative_to(OUTPUT)}: link escapes site: {href}")
+                errors.append(f"{output.relative_to(ROOT)}: link escapes site: {href}")
                 continue
             if split.path and not target.exists():
-                errors.append(f"{output.relative_to(OUTPUT)}: missing target: {href}")
-            if split.fragment and rel.suffix == ".html" and split.fragment not in anchors.get(rel, set()):
-                errors.append(f"{output.relative_to(OUTPUT)}: missing fragment: {href}")
+                errors.append(f"{output.relative_to(ROOT)}: missing target: {href}")
+            if split.fragment and target.suffix == ".html":
+                try:
+                    target_rel = target.relative_to(output_root.resolve())
+                except ValueError:
+                    continue
+                if split.fragment not in anchors.get(target_rel, set()):
+                    errors.append(f"{output.relative_to(ROOT)}: missing fragment: {href}")
     if errors:
         raise ValueError("\n".join(errors))
 
 
-def build() -> None:
+def build_locale(pages: list[Page], locale: str) -> dict[Path, set[str]]:
+    out = locale_output(locale)
+    (out / "assets").mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(SOURCE / "assets/style.css", out / "assets/style.css")
+    source_to_output = {page.rel_source: page.rel_output for page in pages}
+    anchors: dict[Path, set[str]] = {}
+    titles = locale_nav_titles(pages, locale)
+    for page in pages:
+        english = source_text(page)
+        markdown, meta = translation_source(page, locale, english)
+        body, page_anchors = render_markdown(markdown, page, source_to_output)
+        destination = out / page.rel_output
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(page_html(page, body, pages, locale, titles))
+        anchors[page.rel_output] = page_anchors
+    print(f"Built {len(pages)} {locale} pages in {out.relative_to(ROOT)}")
+    return anchors
+
+
+def build(locales: list[str] | None = None) -> None:
+    global ACTIVE_LOCALES
+    wanted = locales or [code for code, *_ in LOCALES]
+    unknown = [code for code in wanted if code not in LOCALE_DIR]
+    if unknown:
+        raise ValueError(f"unknown locale: {', '.join(unknown)}")
+    ACTIVE_LOCALES = wanted
     pages = parse_nav()
     generate_sources()
     shutil.rmtree(OUTPUT, ignore_errors=True)
-    (OUTPUT / "assets").mkdir(parents=True)
-    shutil.copyfile(SOURCE / "assets/style.css", OUTPUT / "assets/style.css")
-    source_to_output = {page.rel_source: page.rel_output for page in pages}
-    anchors: dict[Path, set[str]] = {}
-    for page in pages:
-        body, page_anchors = render_markdown(source_text(page), page, source_to_output)
-        destination = OUTPUT / page.rel_output
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(page_html(page, body, pages))
-        anchors[page.rel_output] = page_anchors
-    validate_site(pages, anchors)
-    print(f"Built and validated {len(pages)} pages in {OUTPUT.relative_to(ROOT)}")
+    OUTPUT.mkdir(parents=True)
+    anchors_by_locale: dict[str, dict[Path, set[str]]] = {}
+    for locale in wanted:
+        anchors_by_locale[locale] = build_locale(pages, locale)
+    for locale in wanted:
+        validate_site(pages, anchors_by_locale[locale], locale_output(locale), locale)
+        print(f"Validated {locale} edition")
+    print(f"Built {len(wanted)} guide editions")
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="build and validate the guide")
-    parser.parse_args()
+    parser.add_argument(
+        "--locales",
+        default="en,zh,hi,es,ar,fr",
+        help="comma-separated locale codes",
+    )
+    args = parser.parse_args()
     try:
-        build()
+        build([part.strip() for part in args.locales.split(",") if part.strip()])
     except (OSError, ValueError) as error:
         print(f"userguide: {error}", file=sys.stderr)
         return 1

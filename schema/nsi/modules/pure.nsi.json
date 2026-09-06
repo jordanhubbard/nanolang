@@ -1,0 +1,17 @@
+{
+  "nsi_version": 0,
+  "interface": { "id": "nsi:nanolang/pure", "name": "pure" },
+  "methods": [
+    {
+      "id": "nsi:nanolang/pure#ping",
+      "name": "ping",
+      "idempotent": true,
+      "params": []
+    }
+  ],
+  "types": [],
+  "errors": [
+    { "id": "nsi:nanolang/pure#fail", "name": "fail", "version": "1" }
+  ],
+  "capabilities": []
+}

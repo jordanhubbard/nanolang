@@ -1,0 +1,443 @@
+#include "nsi.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+static int g_pass = 0;
+static int g_fail = 0;
+
+#define PASS(name) do { g_pass++; printf("  %-60s PASS\n", (name)); } while (0)
+#define FAIL(name, msg) do { g_fail++; printf("  %-60s FAIL: %s\n", (name), (msg)); } while (0)
+
+static void test_load_log_example(void) {
+    const char *test_name = "nsi: load log example and read stable ids";
+    NlNsi *nsi = nl_nsi_load_path("schema/nsi/examples/log.nsi.json");
+    if (!nsi) { FAIL(test_name, "load"); return; }
+    if (nsi->version != 0) { FAIL(test_name, "version"); nl_nsi_free(nsi); return; }
+    if (strcmp(nl_nsi_interface_id(nsi), "nsi:nanolang/log") != 0)
+        { FAIL(test_name, "interface id"); nl_nsi_free(nsi); return; }
+    if (nl_nsi_method_count(nsi) != 2)
+        { FAIL(test_name, "method count"); nl_nsi_free(nsi); return; }
+    if (strcmp(nl_nsi_method_id(nsi, 0), "nsi:nanolang/log#write") != 0)
+        { FAIL(test_name, "method id"); nl_nsi_free(nsi); return; }
+    if (nsi->type_count != 1 || strcmp(nsi->types[0].id, "nsi:nanolang/log#Level") != 0)
+        { FAIL(test_name, "type id"); nl_nsi_free(nsi); return; }
+    if (nsi->types[0].kind != NL_NSI_TYPE_VARIANT || nsi->types[0].member_count != 4)
+        { FAIL(test_name, "variant"); nl_nsi_free(nsi); return; }
+    if (nsi->error_count != 1 || strcmp(nsi->errors[0].id, "nsi:nanolang/log#io") != 0)
+        { FAIL(test_name, "error id"); nl_nsi_free(nsi); return; }
+    if (!nsi->errors[0].version || strcmp(nsi->errors[0].version, "1") != 0)
+        { FAIL(test_name, "error version"); nl_nsi_free(nsi); return; }
+    if (nsi->capability_count != 1 ||
+        strcmp(nsi->capabilities[0].id, "cap:nanolang/log.write") != 0)
+        { FAIL(test_name, "capability id"); nl_nsi_free(nsi); return; }
+    if (nl_nsi_param_count(nsi, 0) != 2)
+        { FAIL(test_name, "param count"); nl_nsi_free(nsi); return; }
+    if (nl_nsi_param_count(nsi, 1) != 0)
+        { FAIL(test_name, "write_event params optional"); nl_nsi_free(nsi); return; }
+    {
+        const NlNsiParam *p = nl_nsi_param(nsi, 0, 1);
+        if (!p || strcmp(p->id, "nsi:nanolang/log#write.message") != 0)
+            { FAIL(test_name, "param id"); nl_nsi_free(nsi); return; }
+        if (p->direction != NL_NSI_DIR_IN || p->ownership != NL_NSI_OWN_BORROW ||
+            p->lifetime != NL_NSI_LIFE_CALL || p->mutability != NL_NSI_MUT_IMMUTABLE ||
+            p->optional != 0 || p->streaming != NL_NSI_STREAM_NONE)
+            { FAIL(test_name, "param contract"); nl_nsi_free(nsi); return; }
+        if (strcmp(p->type_id, "nsi:core/string") != 0)
+            { FAIL(test_name, "param type"); nl_nsi_free(nsi); return; }
+    }
+    PASS(test_name);
+    nl_nsi_free(nsi);
+}
+
+static int write_tmp(const char *path, const char *body) {
+    FILE *fp = fopen(path, "wb");
+    if (!fp) return 0;
+    fputs(body, fp);
+    fclose(fp);
+    return 1;
+}
+
+static void test_reject_missing_interface_id(void) {
+    const char *test_name = "nsi: reject missing interface id";
+    const char *path = "/tmp/nl_nsi_no_id.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,\"interface\":{\"name\":\"log\"},"
+        "\"methods\":[],\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_duplicate_method_id(void) {
+    const char *test_name = "nsi: reject duplicate method id";
+    const char *path = "/tmp/nl_nsi_dup.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
+        "\"methods\":["
+        "{\"id\":\"nsi:nanolang/log#write\",\"name\":\"write\",\"params\":[]},"
+        "{\"id\":\"nsi:nanolang/log#write\",\"name\":\"other\",\"params\":[]}"
+        "],\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_method_not_under_interface(void) {
+    const char *test_name = "nsi: reject method id outside interface";
+    const char *path = "/tmp/nl_nsi_orphan.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/fs#write\",\"name\":\"write\",\"params\":[]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_wrong_version(void) {
+    const char *test_name = "nsi: reject unknown nsi_version";
+    const char *path = "/tmp/nl_nsi_ver.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":1,"
+        "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
+        "\"methods\":[],\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_invalid_utf8(void) {
+    const char *test_name = "nsi: reject invalid UTF-8";
+    const char *path = "/tmp/nl_nsi_utf8.json";
+    FILE *fp = fopen(path, "wb");
+    NlNsi *nsi;
+    if (!fp) { FAIL(test_name, "open"); return; }
+    fputs("{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:x\",\"name\":\"x\xff\"}}", fp);
+    fclose(fp);
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_capability_without_cap_prefix(void) {
+    const char *test_name = "nsi: reject capability without cap: prefix";
+    const char *path = "/tmp/nl_nsi_cap.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
+        "\"methods\":[],\"types\":[],\"errors\":[],"
+        "\"capabilities\":[{\"id\":\"nsi:nanolang/log#write\",\"name\":\"write\"}]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_param_missing_direction(void) {
+    const char *test_name = "nsi: reject param missing direction";
+    const char *path = "/tmp/nl_nsi_param_dir.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/log#write\",\"name\":\"write\","
+        "\"params\":[{\"id\":\"nsi:nanolang/log#write.p\",\"name\":\"p\","
+        "\"type\":\"nsi:core/string\",\"ownership\":\"borrow\","
+        "\"lifetime\":\"call\",\"mutability\":\"immutable\","
+        "\"optional\":false,\"streaming\":\"none\"}]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_unknown_ownership(void) {
+    const char *test_name = "nsi: reject unknown ownership";
+    const char *path = "/tmp/nl_nsi_own.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/log#write\",\"name\":\"write\","
+        "\"params\":[{\"id\":\"nsi:nanolang/log#write.p\",\"name\":\"p\","
+        "\"type\":\"nsi:core/string\",\"direction\":\"in\","
+        "\"ownership\":\"shared\",\"lifetime\":\"call\","
+        "\"mutability\":\"immutable\",\"optional\":false,"
+        "\"streaming\":\"none\"}]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_stream_in_on_out_param(void) {
+    const char *test_name = "nsi: reject streaming in on out param";
+    const char *path = "/tmp/nl_nsi_stream.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/log\",\"name\":\"log\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/log#write\",\"name\":\"write\","
+        "\"params\":[{\"id\":\"nsi:nanolang/log#write.p\",\"name\":\"p\","
+        "\"type\":\"nsi:core/string\",\"direction\":\"out\","
+        "\"ownership\":\"transfer\",\"lifetime\":\"caller\","
+        "\"mutability\":\"mutable\",\"optional\":false,"
+        "\"streaming\":\"in\"}]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_load_types_example(void) {
+    const char *test_name = "nsi: load records variants arrays resources callbacks async";
+    NlNsi *nsi = nl_nsi_load_path("schema/nsi/examples/types.nsi.json");
+    size_t i;
+    int saw_record = 0, saw_array = 0, saw_callback = 0, saw_async = 0;
+    if (!nsi) { FAIL(test_name, "load"); return; }
+    for (i = 0; i < nsi->type_count; i++) {
+        if (nsi->types[i].kind == NL_NSI_TYPE_RECORD && nsi->types[i].member_count == 2)
+            saw_record = 1;
+        if (nsi->types[i].kind == NL_NSI_TYPE_ARRAY &&
+            nsi->types[i].element_id &&
+            strcmp(nsi->types[i].element_id, "nsi:nanolang/types#Point") == 0)
+            saw_array = 1;
+        if (nsi->types[i].kind == NL_NSI_TYPE_CALLBACK &&
+            nsi->types[i].method_id &&
+            strcmp(nsi->types[i].method_id, "nsi:nanolang/types#ping") == 0)
+            saw_callback = 1;
+        if (nsi->types[i].kind == NL_NSI_TYPE_ASYNC &&
+            nsi->types[i].result_id &&
+            strcmp(nsi->types[i].result_id, "nsi:core/unit") == 0)
+            saw_async = 1;
+    }
+    if (!saw_record || !saw_array || !saw_callback || !saw_async)
+        { FAIL(test_name, "kinds"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+    nl_nsi_free(nsi);
+}
+
+static void test_reject_unknown_type_kind(void) {
+    const char *test_name = "nsi: reject unknown type kind";
+    const char *path = "/tmp/nl_nsi_kind.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/t\",\"name\":\"t\"},"
+        "\"methods\":[],\"types\":[{\"id\":\"nsi:nanolang/t#X\",\"name\":\"X\","
+        "\"kind\":\"union\"}],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_empty_variant(void) {
+    const char *test_name = "nsi: reject empty variant";
+    const char *path = "/tmp/nl_nsi_empty_var.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/t\",\"name\":\"t\"},"
+        "\"methods\":[],\"types\":[{\"id\":\"nsi:nanolang/t#X\",\"name\":\"X\","
+        "\"kind\":\"variant\",\"cases\":[]}],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_array_without_element(void) {
+    const char *test_name = "nsi: reject array without element";
+    const char *path = "/tmp/nl_nsi_arr.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/t\",\"name\":\"t\"},"
+        "\"methods\":[],\"types\":[{\"id\":\"nsi:nanolang/t#X\",\"name\":\"X\","
+        "\"kind\":\"array\"}],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_compat_same_document(void) {
+    const char *test_name = "nsi: document is compatible with itself";
+    NlNsi *a = nl_nsi_load_path("schema/nsi/examples/log.nsi.json");
+    NlNsi *b = nl_nsi_load_path("schema/nsi/examples/log.nsi.json");
+    if (!a || !b) { FAIL(test_name, "load"); nl_nsi_free(a); nl_nsi_free(b); return; }
+    if (nl_nsi_compat(a, b) != NL_NSI_COMPAT_OK)
+        { FAIL(test_name, "compat"); nl_nsi_free(a); nl_nsi_free(b); return; }
+    PASS(test_name);
+    nl_nsi_free(a);
+    nl_nsi_free(b);
+}
+
+static void test_compat_add_method_ok(void) {
+    const char *test_name = "nsi: adding a method is compatible";
+    const char *oldp = "/tmp/nl_nsi_old.json";
+    const char *newp = "/tmp/nl_nsi_new.json";
+    NlNsi *older;
+    NlNsi *newer;
+    if (!write_tmp(oldp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}") ||
+        !write_tmp(newp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]},"
+        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\",\"params\":[]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    older = nl_nsi_load_path(oldp);
+    newer = nl_nsi_load_path(newp);
+    unlink(oldp);
+    unlink(newp);
+    if (!older || !newer) { FAIL(test_name, "load"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    if (nl_nsi_compat(older, newer) != NL_NSI_COMPAT_OK)
+        { FAIL(test_name, "expected ok"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    PASS(test_name);
+    nl_nsi_free(older);
+    nl_nsi_free(newer);
+}
+
+static void test_compat_remove_method_breaking(void) {
+    const char *test_name = "nsi: removing a method is breaking";
+    const char *oldp = "/tmp/nl_nsi_old2.json";
+    const char *newp = "/tmp/nl_nsi_new2.json";
+    NlNsi *older;
+    NlNsi *newer;
+    if (!write_tmp(oldp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]},"
+        "{\"id\":\"nsi:nanolang/c#pong\",\"name\":\"pong\",\"params\":[]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}") ||
+        !write_tmp(newp,
+        "{\"nsi_version\":0,\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\",\"params\":[]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    older = nl_nsi_load_path(oldp);
+    newer = nl_nsi_load_path(newp);
+    unlink(oldp);
+    unlink(newp);
+    if (!older || !newer) { FAIL(test_name, "load"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    if (nl_nsi_compat(older, newer) != NL_NSI_COMPAT_BREAKING)
+        { FAIL(test_name, "expected breaking"); nl_nsi_free(older); nl_nsi_free(newer); return; }
+    PASS(test_name);
+    nl_nsi_free(older);
+    nl_nsi_free(newer);
+}
+
+static void test_reject_method_without_params(void) {
+    const char *test_name = "nsi: reject method without explicit params";
+    const char *path = "/tmp/nl_nsi_no_params.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\"}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_c_type_abi_hint(void) {
+    const char *test_name = "nsi: reject c_type ABI hint";
+    const char *path = "/tmp/nl_nsi_ctype.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\","
+        "\"params\":[{\"id\":\"nsi:nanolang/c#ping.p\",\"name\":\"p\","
+        "\"type\":\"nsi:core/string\",\"direction\":\"in\","
+        "\"ownership\":\"borrow\",\"lifetime\":\"call\","
+        "\"mutability\":\"immutable\",\"optional\":false,"
+        "\"streaming\":\"none\",\"c_type\":\"char*\"}]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+static void test_reject_unresolved_param_type(void) {
+    const char *test_name = "nsi: reject unresolved param type";
+    const char *path = "/tmp/nl_nsi_badtype.json";
+    NlNsi *nsi;
+    if (!write_tmp(path,
+        "{\"nsi_version\":0,"
+        "\"interface\":{\"id\":\"nsi:nanolang/c\",\"name\":\"c\"},"
+        "\"methods\":[{\"id\":\"nsi:nanolang/c#ping\",\"name\":\"ping\","
+        "\"params\":[{\"id\":\"nsi:nanolang/c#ping.p\",\"name\":\"p\","
+        "\"type\":\"nsi:nanolang/c#Missing\",\"direction\":\"in\","
+        "\"ownership\":\"copy\",\"lifetime\":\"call\","
+        "\"mutability\":\"immutable\",\"optional\":false,"
+        "\"streaming\":\"none\"}]}],"
+        "\"types\":[],\"errors\":[],\"capabilities\":[]}"))
+        { FAIL(test_name, "write"); return; }
+    nsi = nl_nsi_load_path(path);
+    unlink(path);
+    if (nsi) { FAIL(test_name, "accepted"); nl_nsi_free(nsi); return; }
+    PASS(test_name);
+}
+
+int main(void) {
+    test_load_log_example();
+    test_load_types_example();
+    test_reject_missing_interface_id();
+    test_reject_duplicate_method_id();
+    test_reject_method_not_under_interface();
+    test_reject_wrong_version();
+    test_reject_invalid_utf8();
+    test_reject_capability_without_cap_prefix();
+    test_reject_param_missing_direction();
+    test_reject_unknown_ownership();
+    test_reject_stream_in_on_out_param();
+    test_reject_unknown_type_kind();
+    test_reject_empty_variant();
+    test_reject_array_without_element();
+    test_compat_same_document();
+    test_compat_add_method_ok();
+    test_compat_remove_method_breaking();
+    test_reject_method_without_params();
+    test_reject_c_type_abi_hint();
+    test_reject_unresolved_param_type();
+    printf("\n%d passed, %d failed\n", g_pass, g_fail);
+    return g_fail ? 1 : 0;
+}

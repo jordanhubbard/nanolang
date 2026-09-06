@@ -65,5 +65,20 @@
     "LOG_LEVEL_FATAL",
     "OUTPUT_MODE_TEXT",
     "OUTPUT_MODE_JSON"
-  ]
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/log",
+    "interface_version": "0",
+    "schema": "schema/nsi/examples/log.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/log.write"
+    ],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

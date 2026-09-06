@@ -44,8 +44,13 @@
   ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["curl", "json"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "curl",
+      "json"
+    ],
     "system": [
       {
         "id": "curl",
@@ -58,6 +63,24 @@
       }
     ]
   },
-  "io_surfaces": ["network", "env"],
-  "alternatives": []
+  "io_surfaces": [
+    "network",
+    "env"
+  ],
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/net",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/net.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/net.connect"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

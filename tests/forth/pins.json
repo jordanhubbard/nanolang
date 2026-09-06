@@ -11,8 +11,9 @@
       "url": "https://github.com/gerryjackson/forth2012-test-suite",
       "tag": "v0.15.0",
       "sha": "9773f84dd12390f342d37195da8848b04e1f4a23",
-      "vendor": false,
-      "license": "Mixed. Hayes core tests: (C) 1995 Johns Hopkins University / Applied Physics Laboratory, may be distributed freely as long as that copyright notice remains. Jackson-authored files: public domain with notice retained. No SPDX LICENSE file in the repository."
+      "vendor": true,
+      "path": "tests/forth/vendor/gerryjackson/",
+      "license": "Mixed. Hayes core tests: (C) 1995 Johns Hopkins University / Applied Physics Laboratory, may be distributed freely as long as that copyright notice remains. Jackson-authored files: public domain with notice retained. No SPDX LICENSE file in the repository. Notices are kept in the vendored copy."
     },
     "forth200x": {
       "url": "https://github.com/Forth-Standard/forth200x",
@@ -20,7 +21,7 @@
       "sha": "91f1ed9c756aac27f57e939c270b5f2c84262427",
       "date": "2026-07-05",
       "vendor": false,
-      "license": "No repository LICENSE file. Individual files vary; some reference implementations are public domain. Do not vendor wholesale until a per-file inventory exists."
+      "license": "No repository LICENSE file. Individual files vary; some reference implementations are public domain. Per-file inventory: docs/FORTH_200X_INVENTORY.md. I do not vendor this tree."
     }
   },
   "gforth": {

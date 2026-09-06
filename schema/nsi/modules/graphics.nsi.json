@@ -1,0 +1,58 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/graphics",
+    "name": "graphics"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/graphics#present",
+      "name": "present",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/graphics#present.surface",
+          "name": "surface",
+          "type": "nsi:core/int",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/graphics#present.handle",
+          "name": "handle",
+          "type": "nsi:nanolang/graphics#Surface",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/graphics#Surface",
+      "name": "Surface",
+      "kind": "resource"
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/graphics#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/graphics.present",
+      "name": "present"
+    }
+  ]
+}

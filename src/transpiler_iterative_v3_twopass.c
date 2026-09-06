@@ -11,6 +11,7 @@
 #include "nanolang.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
+#include "utf8.h"
 #include <stdarg.h>
 #include <string.h>
 
@@ -720,9 +721,9 @@ static void emit_string_interp(WorkList *list, const char *raw, Environment *env
     while (*p) {
         if (*p == '{') {
             const char *q = p + 1;
-            if (*q && (isalpha((unsigned char)*q) || *q == '_')) {
+            if (*q && (nl_ascii_isalpha((unsigned char)*q) || *q == '_')) {
                 const char *ident_start = q;
-                while (*q && (isalnum((unsigned char)*q) || *q == '_')) q++;
+                while (*q && (nl_ascii_isalnum((unsigned char)*q) || *q == '_')) q++;
                 if (*q == '}') {
                     /* Flush pending literal */
                     if (lit_len > 0 && nparts < MAX_INTERP_PARTS) {

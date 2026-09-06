@@ -1,0 +1,6 @@
+# Jackson v0.15.0 files I treat as Forth 2012 Core evidence.
+# Optional-word-set files in the same tag are not listed here.
+src/prelimtest.fth
+src/tester.fr
+src/core.fr
+src/coreplustest.fth

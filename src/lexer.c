@@ -1,7 +1,15 @@
 #include "nanolang.h"
+#include "utf8.h"
+#include "diag_id.h"
 
 /* Forward declaration for mutual recursion with lex_fstring */
 Token *tokenize(const char *source, int *token_count);
+
+static const char *s_lex_id = NULL;
+
+const char *lexer_last_error_id(void) {
+    return s_lex_id ? s_lex_id : NL_DIAG_LEX_FAILED;
+}
 
 /* Helper function to create a token */
 static Token create_token(TokenType type, const char *value, int line, int column) {
@@ -13,13 +21,16 @@ static Token create_token(TokenType type, const char *value, int line, int colum
     return token;
 }
 
-/* Check if character is part of an identifier */
+/* Identifiers are ASCII [A-Za-z_][A-Za-z0-9_]*. Non-ASCII is not an
+ * identifier (confusable/homoglyph policy: I do not accept it). */
 static bool is_identifier_start(char c) {
-    return isalpha(c) || c == '_';
+    unsigned char u = (unsigned char)c;
+    return (u >= 'A' && u <= 'Z') || (u >= 'a' && u <= 'z') || u == '_';
 }
 
 static bool is_identifier_char(char c) {
-    return isalnum(c) || c == '_';
+    unsigned char u = (unsigned char)c;
+    return is_identifier_start(c) || (u >= '0' && u <= '9');
 }
 
 /* Check if string is a keyword and return appropriate token type */
@@ -181,6 +192,7 @@ static int lex_fstring(const char *source, int *pos,
                 part_start = i;
             } else {
                 fprintf(stderr, "Error at line %d: Unclosed '{' in f-string\n", line);
+                s_lex_id = NL_DIAG_LEX_FBRACE;
                 free(part_starts); free(part_ends); free(part_is_expr);
                 return 0;
             }
@@ -191,6 +203,7 @@ static int lex_fstring(const char *source, int *pos,
 
     if (!found_end) {
         fprintf(stderr, "Error at line %d: Unterminated f-string\n", line);
+        s_lex_id = NL_DIAG_LEX_FSTRING;
         free(part_starts); free(part_ends); free(part_is_expr);
         return 0;
     }
@@ -255,6 +268,9 @@ static int lex_fstring(const char *source, int *pos,
 }
 
 /* Tokenize the source code */
+static int s_lex_depth = 0;
+static int s_lex_errors = 0;
+
 Token *tokenize(const char *source, int *token_count) {
     int capacity = 64;
     int count = 0;
@@ -264,9 +280,15 @@ Token *tokenize(const char *source, int *token_count) {
     int line_start = 0;  /* Track start of current line for column calculation */
     int i = 0;
 
+    if (s_lex_depth == 0) {
+        s_lex_errors = 0;
+        s_lex_id = NULL;
+    }
+    s_lex_depth++;
+
     while (source[i] != '\0') {
         /* Skip whitespace */
-        if (isspace(source[i])) {
+        if (nl_ascii_isspace((unsigned char)source[i])) {
             if (source[i] == '\n') {
                 line++;
                 line_start = i + 1;
@@ -320,6 +342,7 @@ Token *tokenize(const char *source, int *token_count) {
             i++; /* Skip opening quote */
             if (source[i] == '\0') {
                 fprintf(stderr, "Error: Unterminated character literal at line %d\n", line);
+                s_lex_id = NL_DIAG_LEX_CHAR;
                 free(tokens);
                 return NULL;
             }
@@ -330,6 +353,7 @@ Token *tokenize(const char *source, int *token_count) {
                 i++;
                 if (source[i] == '\0') {
                     fprintf(stderr, "Error: Incomplete escape sequence at line %d\n", line);
+                    s_lex_id = NL_DIAG_LEX_ESC;
                     free(tokens);
                     return NULL;
                 }
@@ -355,6 +379,7 @@ Token *tokenize(const char *source, int *token_count) {
             
             if (source[i] != '\'') {
                 fprintf(stderr, "Error: Unterminated character literal at line %d (expected ')\n", line);
+                s_lex_id = NL_DIAG_LEX_CHAR;
                 free(tokens);
                 return NULL;
             }
@@ -389,6 +414,7 @@ Token *tokenize(const char *source, int *token_count) {
             }
             if (source[i] != '"') {
                 fprintf(stderr, "Error: Unterminated string at line %d\n", line);
+                s_lex_id = NL_DIAG_LEX_STRING;
                 free(tokens);
                 return NULL;
             }
@@ -403,15 +429,16 @@ Token *tokenize(const char *source, int *token_count) {
         }
 
         /* Numbers (integers and floats) */
-        if (isdigit(source[i]) || (source[i] == '-' && isdigit(source[i + 1]))) {
+        if (nl_ascii_isdigit((unsigned char)source[i]) ||
+            (source[i] == '-' && nl_ascii_isdigit((unsigned char)source[i + 1]))) {
             int start = i;
             if (source[i] == '-') i++;
-            while (isdigit(source[i])) i++;
+            while (nl_ascii_isdigit((unsigned char)source[i])) i++;
 
             /* Check for float */
-            if (source[i] == '.' && isdigit(source[i + 1])) {
+            if (source[i] == '.' && nl_ascii_isdigit((unsigned char)source[i + 1])) {
                 i++;
-                while (isdigit(source[i])) i++;
+                while (nl_ascii_isdigit((unsigned char)source[i])) i++;
                 int len = i - start;
                 char *num_str = malloc(len + 1);
                 strncpy(num_str, source + start, len);
@@ -521,14 +548,28 @@ Token *tokenize(const char *source, int *token_count) {
             case '<': tokens[count++] = create_token(TOKEN_LT, NULL, line, column); i++; break;
             case '>': tokens[count++] = create_token(TOKEN_GT, NULL, line, column); i++; break;
             case '?': tokens[count++] = create_token(TOKEN_QUESTION, NULL, line, column); i++; break;
-            default:
-                fprintf(stderr, "Error: Unknown character '%c' at line %d\n", source[i], line);
+            default: {
+                unsigned char u = (unsigned char)source[i];
+                fprintf(stderr, "Error: Unknown byte 0x%02X at line %d (identifiers are ASCII)\n",
+                        u, line);
+                s_lex_id = NL_DIAG_LEX_BYTE;
+                s_lex_errors++;
                 i++;
+                if (u >= 0xC0) {
+                    while (source[i] && (((unsigned char)source[i] & 0xC0) == 0x80)) i++;
+                }
                 break;
+            }
         }
     }
 
     tokens[count++] = create_token(TOKEN_EOF, NULL, line, column);
+    s_lex_depth--;
+    if (s_lex_depth == 0 && s_lex_errors > 0) {
+        free_tokens(tokens, count);
+        *token_count = 0;
+        return NULL;
+    }
     *token_count = count;
     return tokens;
 }

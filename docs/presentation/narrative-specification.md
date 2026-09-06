@@ -28,17 +28,19 @@ release evidence without turning future roadmap items into current features.
    5.1. Unit, integration, and shadow tests
    5.2. NanoISA profiles and opcode traces
    5.3. Generated-C profiling
-6. Release 3.5
+6. Release 4.0
    6.1. What I shipped
-   6.2. What I measured
-   6.3. What I do not claim
-7. The 4.0 boundary
-   7.1. Verifier and module work
-   7.2. Runtime representation and dispatch work
-   7.3. FFI and ownership work
-8. How to work on me
-   8.1. Read the source and roadmap
-   8.2. Run the gates
+   6.2. What the verifier used to miss
+   6.3. What I measured
+7. Release 4.4
+   7.1. Forth Core evidence
+   7.2. Catalogs and guide drafts
+   7.3. NSI, capabilities, and POSIX fabric
+   7.4. Isolated Nano Emacs walker
+8. What I have not done
+9. How to work on me
+   9.1. Read the source and roadmap
+   9.2. Run the gates
 
 ## Style
 

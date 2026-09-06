@@ -1,16 +1,18 @@
-\ run_tests.fs — Master test runner for the NanoLang Forth interpreter
-\ Run with: FORTH_FILE=examples/language/forth/run_tests.fs bin/nl_forth_interpreter_vm
-\ Exit code = number of test failures (0 = all pass).
+\ run_tests.fs — 280 T{ cases for the NanoISA Forth session.
+\
+\ make test-forth-examples loads Jackson tester.fr, session_prelude.fs
+\ (DECIMAL and TEST-SUMMARY), then each test_*.fs through C file-source
+\ REFILL. That is the gate. INCLUDE here is for a File Access Forth that
+\ already has tester.fr.
 
-include examples/language/forth/test_arithmetic.fs
-include examples/language/forth/test_stack.fs
-include examples/language/forth/test_compare.fs
-include examples/language/forth/test_bitwise.fs
-include examples/language/forth/test_memory.fs
-include examples/language/forth/test_rstack.fs
-include examples/language/forth/test_control.fs
-include examples/language/forth/test_words.fs
-include examples/language/forth/test_base.fs
+INCLUDE examples/language/forth/test_arithmetic.fs
+INCLUDE examples/language/forth/test_stack.fs
+INCLUDE examples/language/forth/test_compare.fs
+INCLUDE examples/language/forth/test_bitwise.fs
+INCLUDE examples/language/forth/test_memory.fs
+INCLUDE examples/language/forth/test_rstack.fs
+INCLUDE examples/language/forth/test_control.fs
+INCLUDE examples/language/forth/test_words.fs
+INCLUDE examples/language/forth/test_base.fs
 
-\ Grand total across all files
-test-summary
+TEST-SUMMARY

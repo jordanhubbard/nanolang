@@ -1,0 +1,24 @@
+# Example: Six-script greeting
+# Purpose: UTF-8 string literals in English, Mandarin, Hindi, Spanish, Arabic, and French
+# Features: string, println, shadow tests
+# Difficulty: Beginner
+# Category: language
+# Prerequisites: none
+# Expected Output: Hello 你好 नमस्ते Hola مرحبا Bonjour
+
+fn greet_all() -> string {
+    return "Hello 你好 नमस्ते Hola مرحبا Bonjour"
+}
+
+shadow greet_all {
+    assert (> (str_length (greet_all)) 20)
+}
+
+fn main() -> int {
+    (println (greet_all))
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

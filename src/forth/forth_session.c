@@ -11,11 +11,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <float.h>
+#include <math.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define FORTH_ADDR_INITIAL 65536u
 #define FORTH_ADDR_MAX (16u * 1024u * 1024u)
+#define FORTH_HEAP_BASE (8u * 1024u * 1024u)
 #define FORTH_FILE_SLOTS 32
+#define FORTH_PATH_MAX 1024
+#define FORTH_REQUIRED_MAX 64
+#define FORTH_FAM_RO 1
+#define FORTH_FAM_WO 2
+#define FORTH_FAM_RW 3
+#define FORTH_FAM_BIN 8
 #define FORTH_REGION_INITIAL 16
+
+static void forth_copy_bounded(char *dest, size_t dest_size, const char *src) {
+    size_t n;
+    if (!dest || dest_size == 0) {
+        return;
+    }
+    if (!src) {
+        dest[0] = '\0';
+        return;
+    }
+    n = strlen(src);
+    if (n >= dest_size) {
+        n = dest_size - 1;
+    }
+    memcpy(dest, src, n);
+    dest[n] = '\0';
+}
+
+#define FORTH_SUBST_MAX 32
+#define FORTH_SUBST_NAME_MAX 64
+#define FORTH_LOCAL_MAX 16
 
 typedef struct {
     uint64_t addr;
@@ -34,6 +67,7 @@ typedef struct {
     uint32_t generation;
     FILE *fp;
     bool used;
+    char path[FORTH_PATH_MAX];
 } ForthFile;
 
 typedef struct {
@@ -45,7 +79,8 @@ typedef struct {
     bool hidden;
     bool compile_only;
     bool used;
-    uint8_t host_kind;
+    uint16_t host_kind;
+    uint8_t body_cells;
     uint8_t name[FORTH_NAME_MAX];
     uint64_t data_addr;
 } ForthHeader;
@@ -124,7 +159,200 @@ enum {
     FORTH_HOST_ABORT_QUOTE,
     FORTH_HOST_ACCEPT,
     FORTH_HOST_KEY,
-    FORTH_HOST_QUIT
+    FORTH_HOST_QUIT,
+    FORTH_HOST_DOES_ENTER,
+    FORTH_HOST_DOT_PAREN,
+    FORTH_HOST_PLUSLOOP,
+    FORTH_HOST_NONAME,
+    FORTH_HOST_SOURCE_ID,
+    FORTH_HOST_REFILL,
+    FORTH_HOST_PARSE_NAME,
+    FORTH_HOST_VALUE,
+    FORTH_HOST_TO,
+    FORTH_HOST_MARKER,
+    FORTH_HOST_MARKER_RUN,
+    FORTH_HOST_CASE,
+    FORTH_HOST_OF,
+    FORTH_HOST_ENDOF,
+    FORTH_HOST_ENDCASE,
+    FORTH_HOST_C_QUOTE,
+    FORTH_HOST_S_BACKSLASH,
+    FORTH_HOST_DOT_R,
+    FORTH_HOST_UDOT_R,
+    FORTH_HOST_HOLDS,
+    FORTH_HOST_UNUSED,
+    FORTH_HOST_SAVE_INPUT,
+    FORTH_HOST_RESTORE_INPUT,
+    FORTH_HOST_IS,
+    FORTH_HOST_ACTION_OF,
+    FORTH_HOST_TWO_VALUE,
+    FORTH_HOST_DPLUS,
+    FORTH_HOST_DMINUS,
+    FORTH_HOST_DNEGATE,
+    FORTH_HOST_DTWO_STAR,
+    FORTH_HOST_DTWO_SLASH,
+    FORTH_HOST_DLESS,
+    FORTH_HOST_DEQUAL,
+    FORTH_HOST_DABS,
+    FORTH_HOST_DMAX,
+    FORTH_HOST_DMIN,
+    FORTH_HOST_MPLUS,
+    FORTH_HOST_DULESS,
+    FORTH_HOST_M_STAR_SLASH,
+    FORTH_HOST_TWO_LITERAL,
+    FORTH_HOST_TRAILING,
+    FORTH_HOST_CMOVE,
+    FORTH_HOST_CMOVE_UP,
+    FORTH_HOST_COMPARE,
+    FORTH_HOST_SEARCH,
+    FORTH_HOST_SLITERAL,
+    FORTH_HOST_UNESCAPE,
+    FORTH_HOST_REPLACES,
+    FORTH_HOST_SUBSTITUTE,
+    FORTH_HOST_WORDLIST,
+    FORTH_HOST_GET_ORDER,
+    FORTH_HOST_SET_ORDER,
+    FORTH_HOST_GET_CURRENT,
+    FORTH_HOST_SET_CURRENT,
+    FORTH_HOST_FORTH_WORDLIST,
+    FORTH_HOST_ALSO,
+    FORTH_HOST_PREVIOUS,
+    FORTH_HOST_ONLY,
+    FORTH_HOST_FORTH,
+    FORTH_HOST_DEFINITIONS,
+    FORTH_HOST_SEARCH_WORDLIST,
+    FORTH_HOST_ORDER,
+    FORTH_HOST_BIN,
+    FORTH_HOST_OPEN_FILE,
+    FORTH_HOST_CREATE_FILE,
+    FORTH_HOST_CLOSE_FILE,
+    FORTH_HOST_DELETE_FILE,
+    FORTH_HOST_READ_FILE,
+    FORTH_HOST_READ_LINE,
+    FORTH_HOST_WRITE_FILE,
+    FORTH_HOST_WRITE_LINE,
+    FORTH_HOST_FILE_POSITION,
+    FORTH_HOST_FILE_SIZE,
+    FORTH_HOST_REPOSITION_FILE,
+    FORTH_HOST_RESIZE_FILE,
+    FORTH_HOST_FLUSH_FILE,
+    FORTH_HOST_RENAME_FILE,
+    FORTH_HOST_FILE_STATUS,
+    FORTH_HOST_INCLUDED,
+    FORTH_HOST_INCLUDE,
+    FORTH_HOST_INCLUDE_FILE,
+    FORTH_HOST_REQUIRED,
+    FORTH_HOST_REQUIRE,
+    FORTH_HOST_ALLOCATE,
+    FORTH_HOST_MEM_FREE,
+    FORTH_HOST_MEM_RESIZE,
+    FORTH_HOST_LOCALS_BRACE,
+    FORTH_HOST_LOCAL,
+    FORTH_HOST_DOT_S,
+    FORTH_HOST_AHEAD,
+    FORTH_HOST_BRACKET_IF,
+    FORTH_HOST_BRACKET_ELSE,
+    FORTH_HOST_BRACKET_THEN,
+    FORTH_HOST_CS_PICK,
+    FORTH_HOST_CS_ROLL,
+    FORTH_HOST_DEFINED,
+    FORTH_HOST_UNDEFINED,
+    FORTH_HOST_N_TO_R,
+    FORTH_HOST_NR_FROM,
+    FORTH_HOST_SYNONYM,
+    FORTH_HOST_TRAVERSE_WORDLIST,
+    FORTH_HOST_NAME_TO_COMPILE,
+    FORTH_HOST_NAME_TO_INTERPRET,
+    FORTH_HOST_NAME_TO_STRING,
+    FORTH_HOST_D_TO_F,
+    FORTH_HOST_F_TO_D,
+    FORTH_HOST_FDEPTH,
+    FORTH_HOST_FDROP,
+    FORTH_HOST_FDUP,
+    FORTH_HOST_FSWAP,
+    FORTH_HOST_FOVER,
+    FORTH_HOST_FROT,
+    FORTH_HOST_FPLUS,
+    FORTH_HOST_FMINUS,
+    FORTH_HOST_FSTAR,
+    FORTH_HOST_FSLASH,
+    FORTH_HOST_FNEGATE,
+    FORTH_HOST_FZERO_LESS,
+    FORTH_HOST_FZERO_EQUAL,
+    FORTH_HOST_FLESS,
+    FORTH_HOST_FABS,
+    FORTH_HOST_FMAX,
+    FORTH_HOST_FMIN,
+    FORTH_HOST_FTILDE,
+    FORTH_HOST_FFETCH,
+    FORTH_HOST_FSTORE,
+    FORTH_HOST_SFFETCH,
+    FORTH_HOST_SFSTORE,
+    FORTH_HOST_DFFETCH,
+    FORTH_HOST_DFSTORE,
+    FORTH_HOST_FLITERAL,
+    FORTH_HOST_F_LIT_BITS,
+    FORTH_HOST_FLOATS,
+    FORTH_HOST_SFLOATS,
+    FORTH_HOST_DFLOATS,
+    FORTH_HOST_TO_FLOAT,
+    FORTH_HOST_FLOOR,
+    FORTH_HOST_FROUND,
+    FORTH_HOST_FSQRT,
+    FORTH_HOST_FSIN,
+    FORTH_HOST_FCOS,
+    FORTH_HOST_FTAN,
+    FORTH_HOST_FASIN,
+    FORTH_HOST_FACOS,
+    FORTH_HOST_FATAN,
+    FORTH_HOST_FATAN2,
+    FORTH_HOST_FSINCOS,
+    FORTH_HOST_FEXP,
+    FORTH_HOST_FEXPM1,
+    FORTH_HOST_FLN,
+    FORTH_HOST_FLOG,
+    FORTH_HOST_FLNP1,
+    FORTH_HOST_FSTAR_STAR,
+    FORTH_HOST_FALOG,
+    FORTH_HOST_FSINH,
+    FORTH_HOST_FCOSH,
+    FORTH_HOST_FTANH,
+    FORTH_HOST_FASINH,
+    FORTH_HOST_FACOSH,
+    FORTH_HOST_FATANH,
+    FORTH_HOST_REPRESENT,
+    FORTH_HOST_PRECISION,
+    FORTH_HOST_SET_PRECISION,
+    FORTH_HOST_FS_DOT,
+    FORTH_HOST_FE_DOT,
+    FORTH_HOST_F_DOT,
+    FORTH_HOST_XCHAR_PLUS,
+    FORTH_HOST_XCHAR_MINUS,
+    FORTH_HOST_XC_FETCH_PLUS,
+    FORTH_HOST_XC_STORE_PLUS,
+    FORTH_HOST_XC_STORE_PLUS_Q,
+    FORTH_HOST_XC_SIZE,
+    FORTH_HOST_X_SIZE,
+    FORTH_HOST_XC_COMMA,
+    FORTH_HOST_XEMIT,
+    FORTH_HOST_XKEY,
+    FORTH_HOST_XKEY_Q,
+    FORTH_HOST_PLUS_XSTRING,
+    FORTH_HOST_X_STRING_MINUS,
+    FORTH_HOST_TRAILING_GARBAGE,
+    FORTH_HOST_X_WIDTH,
+    FORTH_HOST_XC_WIDTH,
+    FORTH_HOST_XHOLD,
+    FORTH_HOST_EKEY_TO_XCHAR,
+    FORTH_HOST_BLOCK,
+    FORTH_HOST_BUFFER,
+    FORTH_HOST_UPDATE,
+    FORTH_HOST_FLUSH,
+    FORTH_HOST_SAVE_BUFFERS,
+    FORTH_HOST_EMPTY_BUFFERS,
+    FORTH_HOST_LOAD,
+    FORTH_HOST_LIST,
+    FORTH_HOST_THRU
 };
 
 typedef enum {
@@ -143,7 +371,23 @@ typedef struct {
     int64_t blk;
     int64_t saved_to_in;
     int64_t saved_blk;
+    int64_t file_pos;
 } ForthSourceFrame;
+
+typedef struct {
+    uint8_t name[FORTH_SUBST_NAME_MAX];
+    uint32_t nlen;
+    uint64_t text_addr;
+    uint32_t tlen;
+    bool used;
+} ForthSubst;
+
+typedef struct {
+    uint8_t name[FORTH_NAME_MAX];
+    uint32_t nlen;
+    bool from_stack;
+    bool inited;
+} ForthCompileLocal;
 
 struct ForthSession {
     NvmModule *module;
@@ -166,12 +410,14 @@ struct ForthSession {
     uint32_t runtime_import;
     double fp[FORTH_FLOAT_STACK_CELLS];
     uint32_t fp_depth;
+    uint32_t fprecision;
     ForthCtrlItem control[FORTH_CONTROL_STACK_CELLS];
     uint32_t control_depth;
     ForthRegion *regions;
     uint32_t region_count;
     uint32_t region_cap;
     uint64_t bump;
+    uint64_t heap_next;
     ForthFile files[FORTH_FILE_SLOTS];
     ForthHeader *headers;
     uint32_t header_count;
@@ -185,6 +431,8 @@ struct ForthSession {
     uint64_t here_cell_addr;
     uint64_t pad_addr;
     uint64_t word_addr;
+    uint64_t s_quote_addr[2];
+    uint32_t s_quote_sel;
     uint64_t hold_addr;
     uint64_t hld_addr;
     char *out_buf;
@@ -194,9 +442,15 @@ struct ForthSession {
     uint64_t tib_addr;
     uint64_t file_tib_addr;
     uint64_t blocks_addr;
+    uint64_t block_cache_addr;
+    uint64_t xchar_enc_addr;
+    bool block_assigned[FORTH_BLOCK_COUNT];
+    bool block_dirty[FORTH_BLOCK_COUNT];
+    int32_t block_current;
     ForthSourceFrame sources[FORTH_SOURCE_NEST];
     uint32_t source_depth;
     bool colon_open;
+    bool colon_noname;
     uint32_t colon_fn_idx;
     ForthNt colon_nt;
     uint32_t colon_saved_fn_count;
@@ -208,18 +462,39 @@ struct ForthSession {
     uint32_t colon_code_len;
     bool colon_does_pending;
     uint32_t colon_does_off;
+    uint32_t colon_does_chain_off;
+    ForthCompileLocal colon_locals[FORTH_LOCAL_MAX];
+    uint32_t colon_local_count;
+    bool colon_locals_closed;
+    uint32_t colon_parent_local_count;
+    uint32_t colon_does_a_local_count;
+    ForthNt does_child_nt;
+    bool does_rebuild_pending;
+    uint32_t vm_exec_depth;
     bool exit_requested;
     bool quit_requested;
+    ForthSubst subst[FORTH_SUBST_MAX];
+    char required[FORTH_REQUIRED_MAX][FORTH_PATH_MAX];
+    uint32_t required_count;
 };
 
 static bool forth_allocate_ex(ForthSession *session, uint64_t bytes, uint64_t *addr,
                               bool pinned);
 static bool forth_install_dpush(ForthSession *session);
 static bool forth_install_kernel(ForthSession *session);
+static bool forth_install_runtime_import(ForthSession *session);
 static void wrap_patch_rel(uint8_t *code, uint32_t instr_off, uint32_t target_off);
 static bool wrap_emit(uint8_t *code, uint32_t *off, uint32_t cap, NanoOpcode op, ...);
-static bool forth_interpret_loop(ForthSession *session);
-static int forth_run_host(ForthSession *session, uint8_t host, int64_t state);
+bool forth_interpret_loop(ForthSession *session);
+static int forth_run_host(ForthSession *session, uint16_t host, int64_t state);
+static bool forth_throw_pending(ForthSession *session);
+static bool forth_throw_now(ForthSession *session, int64_t code);
+static bool forth_dict_allot(ForthSession *session, int64_t n);
+static bool refill_file_line(ForthSession *session, ForthSourceFrame *frame);
+static int forth_host_parse_name(ForthSession *session);
+static bool forth_block_assign(ForthSession *session, uint32_t blk, bool load);
+static bool forth_block_in_range(uint32_t blk);
+static uint64_t forth_block_cache(const ForthSession *session, uint32_t blk);
 
 static ForthSession *g_forth = NULL;
 
@@ -383,7 +658,16 @@ static bool snapshot_source(ForthSession *session) {
 
 static bool restore_source(ForthSession *session) {
     ForthSourceFrame *frame = source_top(session);
+    uint32_t slot;
+    FILE *fp;
+
     if (!frame) return false;
+    if (frame->kind == FORTH_SRC_FILE) {
+        if (!decode_fileid(session, frame->fileid, &slot)) return false;
+        fp = session->files[slot].fp;
+        if (!fp || fseek(fp, (long)frame->file_pos, SEEK_SET) != 0) return false;
+        if (!refill_file_line(session, frame)) return false;
+    }
     if (!forth_store_cell(session, session->sysvars, frame->saved_to_in))
         return false;
     if (!forth_store_cell(session, session->sysvars + FORTH_CELL_BYTES,
@@ -410,6 +694,22 @@ static bool forth_session_init_language(ForthSession *session) {
                            (uint64_t)FORTH_BLOCK_SIZE * (uint64_t)FORTH_BLOCK_COUNT,
                            &session->blocks_addr, true))
         return false;
+    if (!forth_allocate_ex(session,
+                           (uint64_t)FORTH_BLOCK_SIZE * (uint64_t)FORTH_BLOCK_COUNT,
+                           &session->block_cache_addr, true))
+        return false;
+    if (!forth_allocate_ex(session, 8, &session->xchar_enc_addr, true))
+        return false;
+    {
+        const char *enc = "UTF-8";
+        uint32_t i;
+        for (i = 0; enc[i] != 0; i++) {
+            if (!forth_store_byte(session, session->xchar_enc_addr + i,
+                                  (uint8_t)enc[i]))
+                return false;
+        }
+    }
+    session->block_current = -1;
 
     if (!forth_store_cell(session, session->sysvars, 0)) return false;
     if (!forth_store_cell(session, session->sysvars + FORTH_CELL_BYTES, 0))
@@ -446,6 +746,15 @@ static bool forth_session_init_language(ForthSession *session) {
         return false;
     if (!forth_allocate_ex(session, FORTH_WORD_MAX, &session->word_addr, true))
         return false;
+    if (!forth_allocate_ex(session, FORTH_WORD_MAX, &session->s_quote_addr[0],
+                           true))
+        return false;
+    if (!forth_allocate_ex(session, FORTH_WORD_MAX, &session->s_quote_addr[1],
+                           true))
+        return false;
+    session->s_quote_sel = 0;
+    session->heap_next = FORTH_HEAP_BASE;
+    session->fprecision = 5;
     if (!forth_allocate_ex(session, FORTH_HOLD_MAX, &session->hold_addr, true))
         return false;
     if (!forth_allocate_ex(session, FORTH_CELL_BYTES, &session->hld_addr, true))
@@ -491,6 +800,10 @@ ForthSession *forth_session_create(void) {
         forth_session_destroy(session);
         return NULL;
     }
+    if (!forth_install_runtime_import(session)) {
+        forth_session_destroy(session);
+        return NULL;
+    }
     if (!forth_install_dpush(session)) {
         forth_session_destroy(session);
         return NULL;
@@ -530,6 +843,13 @@ bool forth_session_rebuild(ForthSession *session) {
     return vm_rebuild_module(&session->vm, session->module);
 }
 
+static bool forth_flush_does_rebuild(ForthSession *session) {
+    if (!session || !session->does_rebuild_pending) return true;
+    if (session->vm_exec_depth != 0) return true;
+    session->does_rebuild_pending = false;
+    return forth_session_rebuild(session);
+}
+
 VmResult forth_session_invoke(ForthSession *session, uint32_t fn_idx,
                               const NanoValue *args, uint16_t arg_count,
                               NanoValue *out_result) {
@@ -538,8 +858,12 @@ VmResult forth_session_invoke(ForthSession *session, uint32_t fn_idx,
     if (!session) return VM_ERR_UNDEFINED_FUNCTION;
     prev = g_forth;
     g_forth = session;
+    session->vm_exec_depth++;
     ran = vm_invoke(&session->vm, fn_idx, args, arg_count, out_result);
+    session->vm_exec_depth--;
     g_forth = prev;
+    if (ran == VM_OK && !forth_flush_does_rebuild(session))
+        return VM_ERR_DECODE;
     return ran;
 }
 
@@ -564,13 +888,17 @@ static VmResult forth_invoke_nested(ForthSession *session, ForthXt xt) {
     vm->frame_count = 0;
     prev = g_forth;
     g_forth = session;
+    session->vm_exec_depth++;
     ran = vm_invoke(vm, xt, NULL, 0, NULL);
+    session->vm_exec_depth--;
     g_forth = prev;
     if (saved_frames > 0)
         memcpy(vm->frames, copy, (size_t)saved_frames * sizeof(VmCallFrame));
     vm->frame_count = saved_frames;
     vm->ip = saved_ip;
     vm->current_fn = saved_fn;
+    if (ran == VM_OK && !forth_flush_does_rebuild(session))
+        return VM_ERR_DECODE;
     return ran;
 }
 
@@ -723,20 +1051,19 @@ uint32_t forth_control_depth(const ForthSession *session) {
     return session ? session->control_depth : 0;
 }
 
-static bool forth_allocate_ex(ForthSession *session, uint64_t bytes, uint64_t *addr,
-                              bool pinned) {
-    uint64_t size;
+/* 1 reused, 0 none found, -1 error. Dictionary and heap never share holes. */
+static int forth_try_reuse_region(ForthSession *session, uint64_t size,
+                                  bool pinned, bool heap, uint64_t *addr) {
     uint32_t i;
-
-    if (!session || !addr || bytes == 0) return false;
-    size = align_cells(bytes);
-    if (size == 0 || size == UINT64_MAX) return false;
 
     for (i = 0; i < session->region_count; i++) {
         ForthRegion *region = &session->regions[i];
+        bool region_heap;
         if (region->used || region->size < size) continue;
+        region_heap = region->addr >= FORTH_HEAP_BASE;
+        if (region_heap != heap) continue;
         if (region->size - size >= FORTH_CELL_BYTES) {
-            if (!regions_reserve(session, 1)) return false;
+            if (!regions_reserve(session, 1)) return -1;
             region = &session->regions[i];
             session->regions[session->region_count].addr = region->addr + size;
             session->regions[session->region_count].size = region->size - size;
@@ -748,10 +1075,26 @@ static bool forth_allocate_ex(ForthSession *session, uint64_t bytes, uint64_t *a
         region->used = true;
         region->pinned = pinned;
         *addr = region->addr;
-        return true;
+        return 1;
     }
+    return 0;
+}
+
+static bool forth_allocate_ex(ForthSession *session, uint64_t bytes, uint64_t *addr,
+                              bool pinned) {
+    uint64_t size;
+    int reused;
+
+    if (!session || !addr || bytes == 0) return false;
+    size = align_cells(bytes);
+    if (size == 0 || size == UINT64_MAX) return false;
+
+    reused = forth_try_reuse_region(session, size, pinned, false, addr);
+    if (reused < 0) return false;
+    if (reused > 0) return true;
 
     if (session->bump > UINT64_MAX - size) return false;
+    if (session->bump + size > FORTH_HEAP_BASE) return false;
     if (!ensure_memory(session, session->bump + size)) return false;
     if (!regions_reserve(session, 1)) return false;
     session->regions[session->region_count].addr = session->bump;
@@ -770,6 +1113,97 @@ static bool forth_allocate_ex(ForthSession *session, uint64_t bytes, uint64_t *a
 
 bool forth_allocate(ForthSession *session, uint64_t bytes, uint64_t *addr) {
     return forth_allocate_ex(session, bytes, addr, false);
+}
+
+static bool forth_heap_allocate(ForthSession *session, uint64_t bytes, uint64_t *addr) {
+    uint64_t size;
+    int reused;
+
+    if (!session || !addr || bytes == 0) return false;
+    size = align_cells(bytes);
+    if (size == 0 || size == UINT64_MAX) return false;
+
+    reused = forth_try_reuse_region(session, size, false, true, addr);
+    if (reused < 0) return false;
+    if (reused > 0) return true;
+
+    if (session->heap_next < FORTH_HEAP_BASE) session->heap_next = FORTH_HEAP_BASE;
+    if (session->heap_next > UINT64_MAX - size) return false;
+    if (!ensure_memory(session, session->heap_next + size)) return false;
+    if (!regions_reserve(session, 1)) return false;
+    session->regions[session->region_count].addr = session->heap_next;
+    session->regions[session->region_count].size = size;
+    session->regions[session->region_count].used = true;
+    session->regions[session->region_count].pinned = false;
+    session->region_count++;
+    *addr = session->heap_next;
+    session->heap_next += size;
+    return true;
+}
+
+static bool forth_resize(ForthSession *session, uint64_t addr, uint64_t new_bytes,
+                         uint64_t *new_addr) {
+    int idx;
+    ForthRegion *region;
+    uint64_t new_size;
+    uint64_t old_size;
+    uint64_t dst = 0;
+    uint64_t ncopy;
+    uint64_t i;
+
+    if (!session || !new_addr || addr == 0 || new_bytes == 0) return false;
+    if (addr < FORTH_HEAP_BASE) return false;
+    idx = find_region_at(session, addr);
+    if (idx < 0) return false;
+    region = &session->regions[idx];
+    if (region->pinned) return false;
+    new_size = align_cells(new_bytes);
+    if (new_size == 0 || new_size == UINT64_MAX) return false;
+    old_size = region->size;
+    if (new_size == old_size) {
+        *new_addr = addr;
+        return true;
+    }
+    if (new_size < old_size) {
+        if (addr + old_size == session->heap_next) {
+            session->heap_next = addr + new_size;
+            region->size = new_size;
+            *new_addr = addr;
+            return true;
+        }
+        if (old_size - new_size >= FORTH_CELL_BYTES) {
+            if (!regions_reserve(session, 1)) return false;
+            region = &session->regions[idx];
+            session->regions[session->region_count].addr = addr + new_size;
+            session->regions[session->region_count].size = old_size - new_size;
+            session->regions[session->region_count].used = false;
+            session->regions[session->region_count].pinned = false;
+            session->region_count++;
+        }
+        region->size = new_size;
+        *new_addr = addr;
+        return true;
+    }
+    if (addr + old_size == session->heap_next) {
+        uint64_t extra = new_size - old_size;
+        if (session->heap_next > UINT64_MAX - extra) return false;
+        if (!ensure_memory(session, session->heap_next + extra)) return false;
+        session->heap_next += extra;
+        region->size = new_size;
+        *new_addr = addr;
+        return true;
+    }
+    if (!forth_heap_allocate(session, new_bytes, &dst)) return false;
+    ncopy = old_size < new_size ? old_size : new_size;
+    if (dst + ncopy > session->vm.memory_size
+            || addr + ncopy > session->vm.memory_size)
+        return false;
+    for (i = 0; i < ncopy; i++) {
+        session->vm.memory[dst + i] = session->vm.memory[addr + i];
+    }
+    if (!forth_free(session, addr)) return false;
+    *new_addr = dst;
+    return true;
 }
 
 bool forth_free(ForthSession *session, uint64_t addr) {
@@ -844,6 +1278,7 @@ bool forth_file_open(ForthSession *session, const char *path, const char *mode,
     session->files[slot].generation = gen;
     session->files[slot].fp = fp;
     session->files[slot].used = true;
+    forth_copy_bounded(session->files[slot].path, FORTH_PATH_MAX, path);
     *fileid = (gen << 16) | (slot + 1u);
     return true;
 }
@@ -960,26 +1395,38 @@ bool forth_mark_immediate(ForthSession *session, ForthNt nt) {
     return true;
 }
 
+static bool forth_find_in_wid(const ForthSession *session, ForthWid wid,
+                              const char *name, uint32_t name_len,
+                              ForthNt *nt, ForthXt *xt, bool *immediate) {
+    uint32_t i;
+
+    if (!session || !name || !valid_wid(session, wid)) return false;
+    if (name_len == 0 || name_len > FORTH_NAME_MAX) return false;
+    for (i = session->header_count; i > 0; i--) {
+        const ForthHeader *header = &session->headers[i - 1];
+        if (!header->used || header->hidden || header->wid != wid) continue;
+        if (!names_equal(header->name, header->name_len,
+                         (const uint8_t *)name, name_len))
+            continue;
+        if (nt) *nt = i;
+        if (xt) *xt = header->xt;
+        if (immediate) *immediate = header->immediate;
+        return true;
+    }
+    return false;
+}
+
 bool forth_find(const ForthSession *session, const char *name, uint32_t name_len,
                 ForthNt *nt, ForthXt *xt, bool *immediate) {
-    uint32_t o, i;
+    uint32_t o;
 
     if (!session || !name) return false;
     if (name_len == 0 || name_len > FORTH_NAME_MAX) return false;
 
     for (o = 0; o < session->order_count; o++) {
-        ForthWid wid = session->order[o];
-        for (i = session->header_count; i > 0; i--) {
-            const ForthHeader *header = &session->headers[i - 1];
-            if (!header->used || header->hidden || header->wid != wid) continue;
-            if (!names_equal(header->name, header->name_len,
-                             (const uint8_t *)name, name_len))
-                continue;
-            if (nt) *nt = i;
-            if (xt) *xt = header->xt;
-            if (immediate) *immediate = header->immediate;
+        if (forth_find_in_wid(session, session->order[o], name, name_len,
+                              nt, xt, immediate))
             return true;
-        }
     }
     return false;
 }
@@ -1120,7 +1567,7 @@ bool forth_source_push_block(ForthSession *session, uint32_t blk) {
     child = &session->sources[session->source_depth];
     memset(child, 0, sizeof(*child));
     child->kind = FORTH_SRC_BLOCK;
-    child->caddr = session->blocks_addr + (uint64_t)blk * FORTH_BLOCK_SIZE;
+    child->caddr = session->block_cache_addr + (uint64_t)blk * FORTH_BLOCK_SIZE;
     child->u = FORTH_BLOCK_SIZE;
     child->source_id = 0;
     child->blk = (int64_t)blk;
@@ -1150,6 +1597,10 @@ static bool refill_file_line(ForthSession *session, ForthSourceFrame *frame) {
     if (!decode_fileid(session, frame->fileid, &slot)) return false;
     fp = session->files[slot].fp;
     if (!fp) return false;
+    {
+        long pos = ftell(fp);
+        frame->file_pos = (pos < 0) ? 0 : (int64_t)pos;
+    }
 
     while ((c = fgetc(fp)) != EOF) {
         any = true;
@@ -1176,6 +1627,18 @@ bool forth_refill(ForthSession *session) {
     ForthSourceFrame *frame = source_top(session);
     if (!frame) return false;
     if (frame->kind == FORTH_SRC_FILE) return refill_file_line(session, frame);
+    if (frame->kind == FORTH_SRC_BLOCK) {
+        int64_t next = frame->blk + 1;
+        if (next < 1 || next >= (int64_t)FORTH_BLOCK_COUNT) return false;
+        if (!forth_block_assign(session, (uint32_t)next, true)) return false;
+        frame->blk = next;
+        frame->caddr = forth_block_cache(session, (uint32_t)next);
+        frame->u = FORTH_BLOCK_SIZE;
+        if (!forth_store_cell(session, session->sysvars, 0)) return false;
+        if (!forth_store_cell(session, session->sysvars + FORTH_CELL_BYTES, next))
+            return false;
+        return true;
+    }
     return false;
 }
 
@@ -1451,59 +1914,20 @@ static bool forth_install_dpush(ForthSession *session) {
 
     off = 0;
     memset(&fn, 0, sizeof(fn));
+    n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)FORTH_HOST_PLUSLOOP);
+    if (!n) return false;
+    off += n;
+    n = forth_emit_into(code + off, OP_CALL_EXTERN, session->runtime_import);
+    if (!n) return false;
+    off += n;
+    n = forth_emit_into(code + off, OP_POP); if (!n) return false; off += n;
     n = forth_emit_into(code + off, OP_CALL, session->dpop_fn); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_STORE_LOCAL, 2); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_CALL, session->rpop_fn); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_STORE_LOCAL, 0); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_CALL, session->rpop_fn); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_STORE_LOCAL, 1); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 2); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_I64_ADD); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_STORE_LOCAL, 0); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_LOAD_LOCAL, 2); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)0); if (!n) return false; off += n;
-    n = forth_emit_into(code + off, OP_I64_LT_S); if (!n) return false; off += n;
-    {
-        uint32_t jmp_neg = off;
-        uint32_t jmp_pos_done;
-        uint32_t jmp_to_done;
-        uint32_t jmp_neg_term;
-        uint32_t cont;
-        uint32_t done;
-        n = forth_emit_into(code + off, OP_JMP_TRUE, (int32_t)0); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_LOAD_LOCAL, 1); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_I64_LT_S); if (!n) return false; off += n;
-        jmp_pos_done = off;
-        n = forth_emit_into(code + off, OP_JMP_FALSE, (int32_t)0); if (!n) return false; off += n;
-        jmp_to_done = off;
-        n = forth_emit_into(code + off, OP_JMP, (int32_t)0); if (!n) return false; off += n;
-        wrap_patch_rel(code, jmp_neg, off);
-        n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_LOAD_LOCAL, 1); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_I64_LT_S); if (!n) return false; off += n;
-        jmp_neg_term = off;
-        n = forth_emit_into(code + off, OP_JMP_TRUE, (int32_t)0); if (!n) return false; off += n;
-        cont = off;
-        wrap_patch_rel(code, jmp_to_done, cont);
-        n = forth_emit_into(code + off, OP_LOAD_LOCAL, 1); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_CALL, session->rpush_fn); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_LOAD_LOCAL, 0); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_CALL, session->rpush_fn); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)-1); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_RET); if (!n) return false; off += n;
-        done = off;
-        wrap_patch_rel(code, jmp_pos_done, done);
-        wrap_patch_rel(code, jmp_neg_term, done);
-        n = forth_emit_into(code + off, OP_PUSH_I64, (int64_t)0); if (!n) return false; off += n;
-        n = forth_emit_into(code + off, OP_RET); if (!n) return false; off += n;
-    }
+    n = forth_emit_into(code + off, OP_RET); if (!n) return false; off += n;
     fn.name_idx = nvm_add_string(mod, "nl_forth_plusloop_step", 22);
     fn.arity = 0;
     fn.code_offset = nvm_append_code(mod, code, off);
     fn.code_length = off;
-    fn.local_count = 3;
+    fn.local_count = 0;
     fn.result_tag = TAG_INT;
     fn.result_count = 1;
     session->plusloop_step_fn = nvm_add_function(mod, &fn);
@@ -1603,6 +2027,71 @@ static bool colon_emit(ForthSession *session, NanoOpcode op, ...) {
     return true;
 }
 
+static int forth_local_slot(const ForthSession *session, const uint8_t *name,
+                            uint32_t nlen) {
+    uint32_t i;
+    if (!session || !session->colon_open || !name || nlen == 0) return -1;
+    for (i = session->colon_local_count; i > 0; i--) {
+        const ForthCompileLocal *loc = &session->colon_locals[i - 1];
+        if (names_equal(loc->name, loc->nlen, name, nlen))
+            return (int)(i - 1);
+    }
+    return -1;
+}
+
+static bool forth_colon_local_fetch(ForthSession *session, int slot) {
+    if (!colon_emit(session, OP_LOAD_LOCAL, slot)) return false;
+    return colon_emit(session, OP_CALL, session->dpush_fn);
+}
+
+static bool forth_colon_local_store(ForthSession *session, int slot) {
+    if (!colon_emit(session, OP_CALL, session->dpop_fn)) return false;
+    return colon_emit(session, OP_STORE_LOCAL, slot);
+}
+
+static void forth_reset_colon_locals(ForthSession *session) {
+    if (!session) return;
+    session->colon_local_count = 0;
+    session->colon_locals_closed = false;
+}
+
+static bool forth_add_colon_local(ForthSession *session, const uint8_t *name,
+                                  uint32_t nlen, bool from_stack, bool eager) {
+    ForthCompileLocal *loc;
+    uint32_t slot;
+    if (!session || !session->colon_open || !name || nlen == 0) return false;
+    if (session->colon_locals_closed) return false;
+    if (nlen > FORTH_NAME_MAX) return false;
+    if (session->colon_local_count >= FORTH_LOCAL_MAX) return false;
+    if (forth_local_slot(session, name, nlen) >= 0) return false;
+    slot = session->colon_local_count;
+    loc = &session->colon_locals[slot];
+    memcpy(loc->name, name, nlen);
+    loc->nlen = nlen;
+    loc->from_stack = from_stack;
+    loc->inited = false;
+    session->colon_local_count++;
+    if (eager && from_stack) {
+        if (!forth_colon_local_store(session, (int)slot)) return false;
+        loc->inited = true;
+    }
+    return true;
+}
+
+static bool forth_locals_close(ForthSession *session) {
+    uint32_t i;
+    if (!session || !session->colon_open) return false;
+    if (session->colon_locals_closed) return true;
+    for (i = session->colon_local_count; i > 0; i--) {
+        ForthCompileLocal *loc = &session->colon_locals[i - 1];
+        if (!loc->from_stack || loc->inited) continue;
+        if (!forth_colon_local_store(session, (int)(i - 1))) return false;
+        loc->inited = true;
+    }
+    session->colon_locals_closed = true;
+    return true;
+}
+
 static bool colon_rollback(ForthSession *session) {
     uint32_t i;
     NvmModule *mod;
@@ -1624,13 +2113,20 @@ static bool colon_rollback(ForthSession *session) {
             mod->code_size = session->colon_saved_code_size;
     }
     session->colon_open = false;
+    session->colon_noname = false;
     session->colon_code_len = 0;
     session->colon_fn_idx = 0;
     session->colon_nt = 0;
+    session->colon_local_count = 0;
+    session->colon_locals_closed = false;
+    session->colon_parent_local_count = 0;
+    session->colon_does_a_local_count = 0;
+    if (!forth_store_cell(session, forth_state_addr(session), 0)) return false;
     return true;
 }
 
-bool forth_colon_begin(ForthSession *session, const char *name, uint32_t name_len) {
+static bool colon_begin_common(ForthSession *session, const char *name,
+                               uint32_t name_len, bool named) {
     uint8_t stub[ISA_MAX_INSTRUCTION_SIZE];
     uint32_t stub_len;
     NvmFunctionEntry fn;
@@ -1664,9 +2160,19 @@ bool forth_colon_begin(ForthSession *session, const char *name, uint32_t name_le
     if (mod->function_count != before + 1) return false;
 
     session->colon_open = true;
+    session->colon_noname = !named;
     session->colon_code_len = 0;
     session->colon_does_pending = false;
     session->colon_does_off = 0;
+    session->colon_does_chain_off = 0;
+    session->colon_local_count = 0;
+    session->colon_locals_closed = false;
+    session->colon_parent_local_count = 0;
+    session->colon_does_a_local_count = 0;
+    if (!named) {
+        session->colon_nt = 0;
+        return true;
+    }
     if (!forth_define(session, name, name_len, (ForthXt)session->colon_fn_idx,
                       false, true, &nt)) {
         colon_rollback(session);
@@ -1674,6 +2180,14 @@ bool forth_colon_begin(ForthSession *session, const char *name, uint32_t name_le
     }
     session->colon_nt = nt;
     return true;
+}
+
+bool forth_colon_begin(ForthSession *session, const char *name, uint32_t name_len) {
+    return colon_begin_common(session, name, name_len, true);
+}
+
+static bool forth_colon_begin_noname(ForthSession *session) {
+    return colon_begin_common(session, ":NONAME", 7, false);
 }
 
 bool forth_colon_literal(ForthSession *session, int64_t cell) {
@@ -1687,6 +2201,16 @@ bool forth_colon_call(ForthSession *session, ForthXt xt) {
     if (xt >= session->module->function_count) return false;
     if (xt == session->colon_fn_idx) return false;
     return colon_emit(session, OP_CALL, xt);
+}
+
+static bool colon_call_named(ForthSession *session, const char *name) {
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    bool imm = false;
+    if (!name) return false;
+    if (!forth_find(session, name, (uint32_t)strlen(name), &nt, &xt, &imm))
+        return false;
+    return forth_colon_call(session, xt);
 }
 
 bool forth_colon_recurse(ForthSession *session) {
@@ -1758,6 +2282,14 @@ bool forth_colon_then(ForthSession *session) {
     return colon_patch_jump(session, orig, session->colon_code_len);
 }
 
+static bool forth_colon_ahead(ForthSession *session) {
+    uint32_t instr_off;
+    if (!session || !session->colon_open) return false;
+    instr_off = session->colon_code_len;
+    if (!colon_emit(session, OP_JMP, (int32_t)0)) return false;
+    return forth_control_push(session, FORTH_CTRL_ORIG, instr_off);
+}
+
 bool forth_colon_cs_begin(ForthSession *session) {
     if (!session || !session->colon_open) return false;
     return forth_control_push(session, FORTH_CTRL_DEST, session->colon_code_len);
@@ -1787,12 +2319,15 @@ bool forth_colon_again(ForthSession *session) {
 }
 
 bool forth_colon_while(ForthSession *session) {
+    uint32_t dest = 0;
     uint32_t instr_off;
     if (!session || !session->colon_open) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_DEST, &dest)) return false;
     if (!colon_emit_dpop(session)) return false;
     instr_off = session->colon_code_len;
     if (!colon_emit(session, OP_JMP_FALSE, (int32_t)0)) return false;
-    return forth_control_push(session, FORTH_CTRL_ORIG, instr_off);
+    if (!forth_control_push(session, FORTH_CTRL_ORIG, instr_off)) return false;
+    return forth_control_push(session, FORTH_CTRL_DEST, dest);
 }
 
 bool forth_colon_repeat(ForthSession *session) {
@@ -1801,8 +2336,8 @@ bool forth_colon_repeat(ForthSession *session) {
     uint32_t instr_off;
     int32_t rel;
     if (!session || !session->colon_open) return false;
-    if (!colon_pop_ctrl(session, FORTH_CTRL_ORIG, &orig)) return false;
     if (!colon_pop_ctrl(session, FORTH_CTRL_DEST, &dest)) return false;
+    if (!colon_pop_ctrl(session, FORTH_CTRL_ORIG, &orig)) return false;
     instr_off = session->colon_code_len;
     rel = (int32_t)dest - (int32_t)instr_off;
     if (!colon_emit(session, OP_JMP, rel)) return false;
@@ -1916,54 +2451,126 @@ bool forth_colon_exit(ForthSession *session) {
     return colon_emit(session, OP_RET);
 }
 
+static bool forth_publish_does_code(ForthSession *session, uint8_t *code,
+                                    uint32_t len, uint16_t locals,
+                                    uint32_t *xt_out) {
+    NvmFunctionEntry dfn;
+    NvmVerifyResult dver;
+    NvmModule *mod;
+    uint32_t xt;
+
+    if (!session || !code || !xt_out || !session->module) return false;
+    mod = session->module;
+    memset(&dfn, 0, sizeof(dfn));
+    dfn.name_idx = nvm_add_string(mod, "nl_forth_does", 13);
+    dfn.arity = 0;
+    dfn.code_offset = nvm_append_code(mod, code, len);
+    dfn.code_length = len;
+    dfn.local_count = locals;
+    dfn.result_tag = TAG_VOID;
+    dfn.result_count = 0;
+    xt = nvm_add_function(mod, &dfn);
+    if (xt >= mod->function_count) return false;
+    dver = nvm_verify_function(mod, xt);
+    if (!dver.ok) return false;
+    *xt_out = xt;
+    return true;
+}
+
+static bool forth_emit_does_attach(ForthSession *session, uint8_t *code,
+                                   uint32_t *off, uint32_t cap, uint32_t does_xt) {
+    if (!wrap_emit(code, off, cap, OP_PUSH_I64, (int64_t)does_xt)) return false;
+    if (!wrap_emit(code, off, cap, OP_CALL, session->dpush_fn)) return false;
+    if (!wrap_emit(code, off, cap, OP_PUSH_I64, (int64_t)FORTH_HOST_DOES))
+        return false;
+    if (!wrap_emit(code, off, cap, OP_CALL_EXTERN, session->runtime_import))
+        return false;
+    return wrap_emit(code, off, cap, OP_POP);
+}
+
 bool forth_colon_finish(ForthSession *session, ForthNt *nt) {
     NvmModule *mod;
     NvmFunctionEntry *fn;
     NvmVerifyResult verified;
     uint32_t code_off;
+    uint16_t parent_locals;
+    uint16_t does_locals;
+    uint16_t does_a_locals;
 
     if (!session || !nt || !session->colon_open || !session->module) return false;
     if (session->control_depth != session->colon_saved_control_depth) {
         colon_rollback(session);
         return false;
     }
+    if (!forth_locals_close(session)) {
+        colon_rollback(session);
+        return false;
+    }
+    parent_locals = session->colon_does_pending
+        ? (uint16_t)session->colon_parent_local_count
+        : (uint16_t)session->colon_local_count;
+    does_locals = (uint16_t)session->colon_local_count;
+    does_a_locals = (uint16_t)session->colon_does_a_local_count;
     if (session->colon_does_pending) {
         uint8_t does_code[FORTH_COLON_CODE_MAX];
-        uint32_t does_len = session->colon_code_len - session->colon_does_off;
         uint32_t does_off = 0;
-        NvmFunctionEntry dfn;
-        NvmVerifyResult dver;
-        uint32_t does_xt;
-        if (session->colon_does_off > session->colon_code_len) {
+        uint32_t does_xt = 0;
+        uint32_t start = session->colon_does_off;
+        uint32_t chain = session->colon_does_chain_off;
+        uint32_t end = session->colon_code_len;
+
+        if (start > end) {
             colon_rollback(session);
             return false;
         }
-        memcpy(does_code, session->colon_code + session->colon_does_off, does_len);
-        does_off = does_len;
-        if (!wrap_emit(does_code, &does_off, sizeof(does_code), OP_RET)) {
-            colon_rollback(session);
-            return false;
+        if (chain != 0 && chain >= start && chain <= end) {
+            uint32_t does_xt_b = 0;
+            uint32_t b_len = end - chain;
+            uint8_t b_code[FORTH_COLON_CODE_MAX];
+            uint32_t b_off = 0;
+
+            memcpy(b_code, session->colon_code + chain, b_len);
+            b_off = b_len;
+            if (!wrap_emit(b_code, &b_off, sizeof(b_code), OP_RET)) {
+                colon_rollback(session);
+                return false;
+            }
+            if (!forth_publish_does_code(session, b_code, b_off, does_locals,
+                                         &does_xt_b)) {
+                colon_rollback(session);
+                return false;
+            }
+            memcpy(does_code, session->colon_code + start, chain - start);
+            does_off = chain - start;
+            if (!forth_emit_does_attach(session, does_code, &does_off,
+                                        sizeof(does_code), does_xt_b)) {
+                colon_rollback(session);
+                return false;
+            }
+            if (!wrap_emit(does_code, &does_off, sizeof(does_code), OP_RET)) {
+                colon_rollback(session);
+                return false;
+            }
+            if (!forth_publish_does_code(session, does_code, does_off,
+                                         does_a_locals, &does_xt)) {
+                colon_rollback(session);
+                return false;
+            }
+        } else {
+            uint32_t does_len = end - start;
+            memcpy(does_code, session->colon_code + start, does_len);
+            does_off = does_len;
+            if (!wrap_emit(does_code, &does_off, sizeof(does_code), OP_RET)) {
+                colon_rollback(session);
+                return false;
+            }
+            if (!forth_publish_does_code(session, does_code, does_off,
+                                         does_locals, &does_xt)) {
+                colon_rollback(session);
+                return false;
+            }
         }
-        mod = session->module;
-        memset(&dfn, 0, sizeof(dfn));
-        dfn.name_idx = nvm_add_string(mod, "nl_forth_does", 13);
-        dfn.arity = 0;
-        dfn.code_offset = nvm_append_code(mod, does_code, does_off);
-        dfn.code_length = does_off;
-        dfn.local_count = 0;
-        dfn.result_tag = TAG_VOID;
-        dfn.result_count = 0;
-        does_xt = nvm_add_function(mod, &dfn);
-        if (does_xt >= mod->function_count) {
-            colon_rollback(session);
-            return false;
-        }
-        dver = nvm_verify_function(mod, does_xt);
-        if (!dver.ok) {
-            colon_rollback(session);
-            return false;
-        }
-        session->colon_code_len = session->colon_does_off;
+        session->colon_code_len = start;
         if (!forth_colon_literal(session, (int64_t)does_xt)
                 || !colon_emit(session, OP_PUSH_I64, (int64_t)FORTH_HOST_DOES)
                 || !colon_emit(session, OP_CALL_EXTERN, session->runtime_import)
@@ -1972,6 +2579,7 @@ bool forth_colon_finish(ForthSession *session, ForthNt *nt) {
             return false;
         }
         session->colon_does_pending = false;
+        session->colon_does_chain_off = 0;
     }
     if (!colon_emit(session, OP_RET)) {
         colon_rollback(session);
@@ -1982,22 +2590,42 @@ bool forth_colon_finish(ForthSession *session, ForthNt *nt) {
     code_off = nvm_append_code(mod, session->colon_code, session->colon_code_len);
     fn->code_offset = code_off;
     fn->code_length = session->colon_code_len;
+    fn->local_count = parent_locals;
     verified = nvm_verify_function(mod, session->colon_fn_idx);
     if (!verified.ok) {
         colon_rollback(session);
         return false;
     }
-    if (!forth_reveal(session, session->colon_nt)) {
-        colon_rollback(session);
-        return false;
-    }
-    *nt = session->colon_nt;
-    session->colon_open = false;
-    session->colon_code_len = 0;
-    if (!forth_session_rebuild(session)) {
-        session->colon_open = true;
-        colon_rollback(session);
-        return false;
+    {
+        ForthXt published_xt = session->colon_fn_idx;
+        bool noname = session->colon_noname;
+        if (!noname) {
+            if (!forth_reveal(session, session->colon_nt)) {
+                colon_rollback(session);
+                return false;
+            }
+        }
+        *nt = session->colon_nt;
+        session->colon_open = false;
+        session->colon_noname = false;
+        session->colon_code_len = 0;
+        forth_reset_colon_locals(session);
+        session->colon_parent_local_count = 0;
+        session->colon_does_a_local_count = 0;
+        if (session->vm_exec_depth != 0) {
+            session->does_rebuild_pending = true;
+            if (!vm_sync_new_functions(&session->vm, session->module)) {
+                session->colon_open = true;
+                colon_rollback(session);
+                return false;
+            }
+        } else if (!forth_session_rebuild(session)) {
+            session->colon_open = true;
+            colon_rollback(session);
+            return false;
+        }
+        if (noname && !forth_data_push(session, (int64_t)published_xt))
+            return false;
     }
     return true;
 }
@@ -2142,7 +2770,7 @@ static void wrap_patch_rel(uint8_t *code, uint32_t instr_off, uint32_t target_of
 
 static bool forth_publish_prim(ForthSession *session, const char *name,
                               const uint8_t *code, uint32_t off,
-                              uint16_t locals, bool immediate, uint8_t host) {
+                              uint16_t locals, bool immediate, uint16_t host) {
     NvmFunctionEntry fn;
     NvmVerifyResult verified;
     NvmModule *mod;
@@ -2232,7 +2860,7 @@ static bool forth_install_cmp(ForthSession *session, const char *name,
 
 static bool forth_install_host_flags(ForthSession *session, const char *name,
                                      bool immediate, bool compile_only,
-                                     uint8_t host) {
+                                     uint16_t host) {
     uint8_t code[16];
     uint32_t off = 0;
     ForthHeader *header;
@@ -2252,12 +2880,12 @@ static bool forth_install_host_flags(ForthSession *session, const char *name,
 }
 
 static bool forth_install_host(ForthSession *session, const char *name,
-                               bool immediate, uint8_t host) {
+                               bool immediate, uint16_t host) {
     return forth_install_host_flags(session, name, immediate, false, host);
 }
 
 static bool forth_install_compile_only(ForthSession *session, const char *name,
-                                       uint8_t host) {
+                                       uint16_t host) {
     return forth_install_host_flags(session, name, true, true, host);
 }
 
@@ -2279,7 +2907,7 @@ static bool forth_install_runtime_import(ForthSession *session) {
 }
 
 static bool forth_install_runtime_host(ForthSession *session, const char *name,
-                                       uint8_t host) {
+                                       uint16_t host) {
     uint8_t code[64];
     uint32_t off = 0;
     if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)host))
@@ -2289,6 +2917,18 @@ static bool forth_install_runtime_host(ForthSession *session, const char *name,
     if (!wrap_emit(code, &off, sizeof(code), OP_POP)) return false;
     if (!wrap_emit(code, &off, sizeof(code), OP_RET)) return false;
     return forth_publish_prim(session, name, code, off, 0, false, host);
+}
+
+static bool forth_install_abort(ForthSession *session) {
+    uint8_t code[64];
+    uint32_t off = 0;
+    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)-1))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_CALL, session->throw_fn))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_RET)) return false;
+    return forth_publish_prim(session, "ABORT", code, off, 0, false,
+                              FORTH_HOST_NONE);
 }
 
 static bool forth_install_throw_word(ForthSession *session) {
@@ -2317,10 +2957,17 @@ static bool forth_install_bye(ForthSession *session) {
 int64_t nl_forth_runtime(int64_t kind) {
     ForthSession *session = g_forth;
     int rc;
+    int64_t thrown = 0;
     if (!session) return 0;
-    rc = forth_run_host(session, (uint8_t)kind, 0);
+    rc = forth_run_host(session, (uint16_t)kind, 0);
     if (rc < 0) {
-        forth_store_cell(session, session->throw_code_addr, -1);
+        if (!forth_fetch_cell(session, session->throw_code_addr, &thrown)
+                || thrown == 0) {
+            forth_store_cell(session, session->throw_code_addr, -1);
+        }
+        vm_request_halt(&session->vm);
+    } else if (forth_throw_pending(session)) {
+        vm_request_halt(&session->vm);
     }
     return 0;
 }
@@ -2423,6 +3070,36 @@ static bool forth_install_core_colon(ForthSession *session) {
         ": SPACES DUP 0> IF 0 DO BL EMIT LOOP ELSE DROP THEN ;",
         ": */MOD >R M* R> FM/MOD ;",
         ": */ */MOD SWAP DROP ;",
+        ": ERASE 0 FILL ;",
+        ": 2>R SWAP >R >R ;",
+        ": 2R> R> R> SWAP ;",
+        ": 2R@ R> R> 2DUP >R >R SWAP ;",
+        ": BUFFER: CREATE ALLOT ;",
+        ": DEFER CREATE ['] ABORT , DOES> @ EXECUTE ;",
+        ": DEFER@ >BODY @ ;",
+        ": DEFER! >BODY ! ;",
+        ": 2CONSTANT CREATE , , DOES> 2@ ;",
+        ": 2VARIABLE CREATE 0 , 0 , ;",
+        ": D0= OR 0= ;",
+        ": D0< NIP 0< ;",
+        ": D>S DROP ;",
+        ": 2ROT 2>R 2SWAP 2R> 2SWAP ;",
+        ": D. DUP >R DABS <# #S R> SIGN #> TYPE SPACE ;",
+        ": D.R >R DUP >R DABS <# #S R> SIGN #> R> OVER - 0 MAX SPACES TYPE ;",
+        ": /STRING DUP >R - SWAP R> + SWAP ;",
+        ": BLANK BL FILL ;",
+        ": R/O 1 ;",
+        ": W/O 2 ;",
+        ": R/W 3 ;",
+        ": BEGIN-STRUCTURE CREATE HERE 0 0 , DOES> @ ;",
+        ": END-STRUCTURE SWAP ! ;",
+        ": +FIELD CREATE OVER , + DOES> @ + ;",
+        ": FIELD: ALIGNED 1 CELLS +FIELD ;",
+        ": CFIELD: 1 CHARS +FIELD ;",
+        ": F, HERE 8 ALLOT F! ;",
+        ": FCONSTANT CREATE F, DOES> F@ ;",
+        ": FVARIABLE CREATE 8 ALLOT ;",
+        "VARIABLE SCR",
         NULL
     };
     uint32_t i;
@@ -2690,13 +3367,25 @@ static bool forth_install_kernel(ForthSession *session) {
     if (!forth_publish_prim(session, "UM*", code, off, 2, false, FORTH_HOST_NONE))
         return false;
 
-    if (!forth_install_runtime_import(session)) return false;
-
-    if (!forth_install_compile_only(session, ":", FORTH_HOST_COLON)) return false;
+    if (!forth_install_runtime_host(session, ":", FORTH_HOST_COLON)) return false;
+    {
+        ForthNt colon_nt = 0;
+        ForthXt colon_xt = 0;
+        bool colon_imm = false;
+        ForthHeader *colon_hdr;
+        if (!forth_find(session, ":", 1, &colon_nt, &colon_xt, &colon_imm))
+            return false;
+        colon_hdr = header_at(session, colon_nt);
+        if (!colon_hdr) return false;
+        colon_hdr->compile_only = true;
+    }
+    if (!forth_install_runtime_host(session, ":NONAME", FORTH_HOST_NONAME))
+        return false;
     if (!forth_install_compile_only(session, ";", FORTH_HOST_SEMI)) return false;
     if (!forth_install_compile_only(session, "IF", FORTH_HOST_IF)) return false;
     if (!forth_install_compile_only(session, "ELSE", FORTH_HOST_ELSE)) return false;
     if (!forth_install_compile_only(session, "THEN", FORTH_HOST_THEN)) return false;
+    if (!forth_install_compile_only(session, "AHEAD", FORTH_HOST_AHEAD)) return false;
     if (!forth_install_compile_only(session, "BEGIN", FORTH_HOST_BEGIN)) return false;
     if (!forth_install_compile_only(session, "UNTIL", FORTH_HOST_UNTIL)) return false;
     if (!forth_install_compile_only(session, "AGAIN", FORTH_HOST_AGAIN)) return false;
@@ -2715,7 +3404,9 @@ static bool forth_install_kernel(ForthSession *session) {
     if (!forth_install_compile_only(session, "]", FORTH_HOST_RBRACKET)) return false;
     if (!forth_install_compile_only(session, "LITERAL", FORTH_HOST_LITERAL))
         return false;
-    if (!forth_install_host(session, "IMMEDIATE", false, FORTH_HOST_IMMEDIATE))
+    if (!forth_install_compile_only(session, "2LITERAL", FORTH_HOST_TWO_LITERAL))
+        return false;
+    if (!forth_install_runtime_host(session, "IMMEDIATE", FORTH_HOST_IMMEDIATE))
         return false;
     if (!forth_install_runtime_host(session, "'", FORTH_HOST_TICK)) return false;
     if (!forth_install_compile_only(session, "[']", FORTH_HOST_BRACKET_TICK))
@@ -2736,6 +3427,7 @@ static bool forth_install_kernel(ForthSession *session) {
     if (!forth_install_host(session, "(", true, FORTH_HOST_PAREN)) return false;
     if (!forth_install_host(session, "S\"", true, FORTH_HOST_S_QUOTE)) return false;
     if (!forth_install_host(session, ".\"", true, FORTH_HOST_DOT_QUOTE)) return false;
+    if (!forth_install_host(session, ".(", true, FORTH_HOST_DOT_PAREN)) return false;
     if (!forth_install_host(session, "DOES>", true, FORTH_HOST_DOES)) return false;
     if (!forth_install_runtime_host(session, "CREATE", FORTH_HOST_CREATE))
         return false;
@@ -2751,8 +3443,6 @@ static bool forth_install_kernel(ForthSession *session) {
     if (!forth_install_runtime_host(session, "TYPE", FORTH_HOST_TYPE)) return false;
     if (!forth_install_runtime_host(session, "CR", FORTH_HOST_CR)) return false;
     if (!forth_install_runtime_host(session, "ENVIRONMENT?", FORTH_HOST_ENVIRONMENT))
-        return false;
-    if (!forth_install_runtime_host(session, "ABORT", FORTH_HOST_ABORT))
         return false;
     if (!forth_install_runtime_host(session, "UM/MOD", FORTH_HOST_UM_MOD))
         return false;
@@ -2777,6 +3467,7 @@ static bool forth_install_kernel(ForthSession *session) {
     if (!forth_install_runtime_host(session, ".", FORTH_HOST_DOT)) return false;
     if (!forth_install_runtime_host(session, "U.", FORTH_HOST_UDOT)) return false;
     if (!forth_install_throw_word(session)) return false;
+    if (!forth_install_abort(session)) return false;
     if (!forth_install_runtime_host(session, "CATCH", FORTH_HOST_CATCH)) return false;
     if (!forth_install_bye(session)) return false;
     if (!forth_install_runtime_host(session, "COMPILE,", FORTH_HOST_COMPILE_COMMA))
@@ -2793,6 +3484,413 @@ static bool forth_install_kernel(ForthSession *session) {
         return false;
     if (!forth_install_runtime_host(session, "KEY", FORTH_HOST_KEY)) return false;
     if (!forth_install_runtime_host(session, "QUIT", FORTH_HOST_QUIT)) return false;
+    if (!forth_install_runtime_host(session, "SOURCE-ID", FORTH_HOST_SOURCE_ID))
+        return false;
+    if (!forth_install_runtime_host(session, "REFILL", FORTH_HOST_REFILL))
+        return false;
+    if (!forth_install_runtime_host(session, "PARSE-NAME", FORTH_HOST_PARSE_NAME))
+        return false;
+    if (!forth_install_runtime_host(session, "VALUE", FORTH_HOST_VALUE))
+        return false;
+    if (!forth_install_host(session, "TO", true, FORTH_HOST_TO)) return false;
+    if (!forth_install_host(session, "IS", true, FORTH_HOST_IS)) return false;
+    if (!forth_install_host(session, "ACTION-OF", true, FORTH_HOST_ACTION_OF))
+        return false;
+    if (!forth_install_runtime_host(session, "MARKER", FORTH_HOST_MARKER))
+        return false;
+    if (!forth_install_compile_only(session, "CASE", FORTH_HOST_CASE)) return false;
+    if (!forth_install_compile_only(session, "OF", FORTH_HOST_OF)) return false;
+    if (!forth_install_compile_only(session, "ENDOF", FORTH_HOST_ENDOF))
+        return false;
+    if (!forth_install_compile_only(session, "ENDCASE", FORTH_HOST_ENDCASE))
+        return false;
+    if (!forth_install_compile_only(session, "C\"", FORTH_HOST_C_QUOTE))
+        return false;
+    if (!forth_install_host(session, "S\\\"", true, FORTH_HOST_S_BACKSLASH))
+        return false;
+    if (!forth_install_runtime_host(session, ".R", FORTH_HOST_DOT_R)) return false;
+    if (!forth_install_runtime_host(session, "U.R", FORTH_HOST_UDOT_R))
+        return false;
+    if (!forth_install_runtime_host(session, "HOLDS", FORTH_HOST_HOLDS))
+        return false;
+    if (!forth_install_runtime_host(session, "UNUSED", FORTH_HOST_UNUSED))
+        return false;
+    if (!forth_install_runtime_host(session, "SAVE-INPUT", FORTH_HOST_SAVE_INPUT))
+        return false;
+    if (!forth_install_runtime_host(session, "RESTORE-INPUT",
+                                    FORTH_HOST_RESTORE_INPUT))
+        return false;
+    if (!forth_install_runtime_host(session, "2VALUE", FORTH_HOST_TWO_VALUE))
+        return false;
+    if (!forth_install_runtime_host(session, "D+", FORTH_HOST_DPLUS)) return false;
+    if (!forth_install_runtime_host(session, "D-", FORTH_HOST_DMINUS)) return false;
+    if (!forth_install_runtime_host(session, "DNEGATE", FORTH_HOST_DNEGATE))
+        return false;
+    if (!forth_install_runtime_host(session, "D2*", FORTH_HOST_DTWO_STAR))
+        return false;
+    if (!forth_install_runtime_host(session, "D2/", FORTH_HOST_DTWO_SLASH))
+        return false;
+    if (!forth_install_runtime_host(session, "D<", FORTH_HOST_DLESS)) return false;
+    if (!forth_install_runtime_host(session, "D=", FORTH_HOST_DEQUAL)) return false;
+    if (!forth_install_runtime_host(session, "DABS", FORTH_HOST_DABS)) return false;
+    if (!forth_install_runtime_host(session, "DMAX", FORTH_HOST_DMAX)) return false;
+    if (!forth_install_runtime_host(session, "DMIN", FORTH_HOST_DMIN)) return false;
+    if (!forth_install_runtime_host(session, "M+", FORTH_HOST_MPLUS)) return false;
+    if (!forth_install_runtime_host(session, "DU<", FORTH_HOST_DULESS)) return false;
+    if (!forth_install_runtime_host(session, "M*/", FORTH_HOST_M_STAR_SLASH))
+        return false;
+    if (!forth_install_runtime_host(session, "-TRAILING", FORTH_HOST_TRAILING))
+        return false;
+    if (!forth_install_runtime_host(session, "CMOVE", FORTH_HOST_CMOVE))
+        return false;
+    if (!forth_install_runtime_host(session, "CMOVE>", FORTH_HOST_CMOVE_UP))
+        return false;
+    if (!forth_install_runtime_host(session, "COMPARE", FORTH_HOST_COMPARE))
+        return false;
+    if (!forth_install_runtime_host(session, "SEARCH", FORTH_HOST_SEARCH))
+        return false;
+    if (!forth_install_compile_only(session, "SLITERAL", FORTH_HOST_SLITERAL))
+        return false;
+    if (!forth_install_runtime_host(session, "UNESCAPE", FORTH_HOST_UNESCAPE))
+        return false;
+    if (!forth_install_runtime_host(session, "REPLACES", FORTH_HOST_REPLACES))
+        return false;
+    if (!forth_install_runtime_host(session, "SUBSTITUTE", FORTH_HOST_SUBSTITUTE))
+        return false;
+    if (!forth_install_runtime_host(session, "WORDLIST", FORTH_HOST_WORDLIST))
+        return false;
+    if (!forth_install_runtime_host(session, "GET-ORDER", FORTH_HOST_GET_ORDER))
+        return false;
+    if (!forth_install_runtime_host(session, "SET-ORDER", FORTH_HOST_SET_ORDER))
+        return false;
+    if (!forth_install_runtime_host(session, "GET-CURRENT",
+                                    FORTH_HOST_GET_CURRENT))
+        return false;
+    if (!forth_install_runtime_host(session, "SET-CURRENT",
+                                    FORTH_HOST_SET_CURRENT))
+        return false;
+    if (!forth_install_runtime_host(session, "FORTH-WORDLIST",
+                                    FORTH_HOST_FORTH_WORDLIST))
+        return false;
+    if (!forth_install_runtime_host(session, "ALSO", FORTH_HOST_ALSO))
+        return false;
+    if (!forth_install_runtime_host(session, "PREVIOUS", FORTH_HOST_PREVIOUS))
+        return false;
+    if (!forth_install_runtime_host(session, "ONLY", FORTH_HOST_ONLY))
+        return false;
+    if (!forth_install_runtime_host(session, "FORTH", FORTH_HOST_FORTH))
+        return false;
+    if (!forth_install_runtime_host(session, "DEFINITIONS",
+                                    FORTH_HOST_DEFINITIONS))
+        return false;
+    if (!forth_install_runtime_host(session, "SEARCH-WORDLIST",
+                                    FORTH_HOST_SEARCH_WORDLIST))
+        return false;
+    if (!forth_install_runtime_host(session, "ORDER", FORTH_HOST_ORDER))
+        return false;
+    if (!forth_install_runtime_host(session, "BIN", FORTH_HOST_BIN))
+        return false;
+    if (!forth_install_runtime_host(session, "OPEN-FILE", FORTH_HOST_OPEN_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "CREATE-FILE",
+                                    FORTH_HOST_CREATE_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "CLOSE-FILE", FORTH_HOST_CLOSE_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "DELETE-FILE",
+                                    FORTH_HOST_DELETE_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "READ-FILE", FORTH_HOST_READ_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "READ-LINE", FORTH_HOST_READ_LINE))
+        return false;
+    if (!forth_install_runtime_host(session, "WRITE-FILE", FORTH_HOST_WRITE_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "WRITE-LINE", FORTH_HOST_WRITE_LINE))
+        return false;
+    if (!forth_install_runtime_host(session, "FILE-POSITION",
+                                    FORTH_HOST_FILE_POSITION))
+        return false;
+    if (!forth_install_runtime_host(session, "FILE-SIZE", FORTH_HOST_FILE_SIZE))
+        return false;
+    if (!forth_install_runtime_host(session, "REPOSITION-FILE",
+                                    FORTH_HOST_REPOSITION_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "RESIZE-FILE",
+                                    FORTH_HOST_RESIZE_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "FLUSH-FILE", FORTH_HOST_FLUSH_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "RENAME-FILE",
+                                    FORTH_HOST_RENAME_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "FILE-STATUS",
+                                    FORTH_HOST_FILE_STATUS))
+        return false;
+    if (!forth_install_runtime_host(session, "INCLUDED", FORTH_HOST_INCLUDED))
+        return false;
+    if (!forth_install_runtime_host(session, "INCLUDE", FORTH_HOST_INCLUDE))
+        return false;
+    if (!forth_install_runtime_host(session, "INCLUDE-FILE",
+                                    FORTH_HOST_INCLUDE_FILE))
+        return false;
+    if (!forth_install_runtime_host(session, "REQUIRED", FORTH_HOST_REQUIRED))
+        return false;
+    if (!forth_install_runtime_host(session, "REQUIRE", FORTH_HOST_REQUIRE))
+        return false;
+    if (!forth_install_runtime_host(session, "ALLOCATE", FORTH_HOST_ALLOCATE))
+        return false;
+    if (!forth_install_runtime_host(session, "FREE", FORTH_HOST_MEM_FREE))
+        return false;
+    if (!forth_install_runtime_host(session, "RESIZE", FORTH_HOST_MEM_RESIZE))
+        return false;
+    if (!forth_install_compile_only(session, "{:", FORTH_HOST_LOCALS_BRACE))
+        return false;
+    if (!forth_install_runtime_host(session, "(LOCAL)", FORTH_HOST_LOCAL))
+        return false;
+    {
+        ForthNt local_nt = 0;
+        ForthXt local_xt = 0;
+        bool local_imm = false;
+        ForthHeader *local_hdr;
+        if (!forth_find(session, "(LOCAL)", 7, &local_nt, &local_xt, &local_imm))
+            return false;
+        local_hdr = header_at(session, local_nt);
+        if (!local_hdr) return false;
+        local_hdr->compile_only = true;
+    }
+    if (!forth_install_runtime_host(session, ".S", FORTH_HOST_DOT_S))
+        return false;
+    if (!forth_install_host(session, "[IF]", true, FORTH_HOST_BRACKET_IF))
+        return false;
+    if (!forth_install_host(session, "[ELSE]", true, FORTH_HOST_BRACKET_ELSE))
+        return false;
+    if (!forth_install_host(session, "[THEN]", true, FORTH_HOST_BRACKET_THEN))
+        return false;
+    if (!forth_install_runtime_host(session, "CS-PICK", FORTH_HOST_CS_PICK))
+        return false;
+    if (!forth_install_runtime_host(session, "CS-ROLL", FORTH_HOST_CS_ROLL))
+        return false;
+    {
+        ForthNt cs_nt = 0;
+        ForthXt cs_xt = 0;
+        bool cs_imm = false;
+        ForthHeader *cs_hdr;
+        if (!forth_find(session, "CS-PICK", 7, &cs_nt, &cs_xt, &cs_imm))
+            return false;
+        cs_hdr = header_at(session, cs_nt);
+        if (!cs_hdr) return false;
+        cs_hdr->compile_only = true;
+        if (!forth_find(session, "CS-ROLL", 7, &cs_nt, &cs_xt, &cs_imm))
+            return false;
+        cs_hdr = header_at(session, cs_nt);
+        if (!cs_hdr) return false;
+        cs_hdr->compile_only = true;
+    }
+    if (!forth_install_host(session, "[DEFINED]", true, FORTH_HOST_DEFINED))
+        return false;
+    if (!forth_install_host(session, "[UNDEFINED]", true, FORTH_HOST_UNDEFINED))
+        return false;
+    if (!forth_install_runtime_host(session, "N>R", FORTH_HOST_N_TO_R))
+        return false;
+    if (!forth_install_runtime_host(session, "NR>", FORTH_HOST_NR_FROM))
+        return false;
+    if (!forth_install_runtime_host(session, "SYNONYM", FORTH_HOST_SYNONYM))
+        return false;
+    if (!forth_install_runtime_host(session, "TRAVERSE-WORDLIST",
+                                    FORTH_HOST_TRAVERSE_WORDLIST))
+        return false;
+    if (!forth_install_runtime_host(session, "NAME>COMPILE",
+                                    FORTH_HOST_NAME_TO_COMPILE))
+        return false;
+    if (!forth_install_runtime_host(session, "NAME>INTERPRET",
+                                    FORTH_HOST_NAME_TO_INTERPRET))
+        return false;
+    if (!forth_install_runtime_host(session, "NAME>STRING",
+                                    FORTH_HOST_NAME_TO_STRING))
+        return false;
+    if (!forth_install_runtime_host(session, "D>F", FORTH_HOST_D_TO_F))
+        return false;
+    if (!forth_install_runtime_host(session, "F>D", FORTH_HOST_F_TO_D))
+        return false;
+    if (!forth_install_runtime_host(session, "FDEPTH", FORTH_HOST_FDEPTH))
+        return false;
+    if (!forth_install_runtime_host(session, "FDROP", FORTH_HOST_FDROP))
+        return false;
+    if (!forth_install_runtime_host(session, "FDUP", FORTH_HOST_FDUP))
+        return false;
+    if (!forth_install_runtime_host(session, "FSWAP", FORTH_HOST_FSWAP))
+        return false;
+    if (!forth_install_runtime_host(session, "FOVER", FORTH_HOST_FOVER))
+        return false;
+    if (!forth_install_runtime_host(session, "FROT", FORTH_HOST_FROT))
+        return false;
+    if (!forth_install_runtime_host(session, "F+", FORTH_HOST_FPLUS))
+        return false;
+    if (!forth_install_runtime_host(session, "F-", FORTH_HOST_FMINUS))
+        return false;
+    if (!forth_install_runtime_host(session, "F*", FORTH_HOST_FSTAR))
+        return false;
+    if (!forth_install_runtime_host(session, "F/", FORTH_HOST_FSLASH))
+        return false;
+    if (!forth_install_runtime_host(session, "FNEGATE", FORTH_HOST_FNEGATE))
+        return false;
+    if (!forth_install_runtime_host(session, "F0<", FORTH_HOST_FZERO_LESS))
+        return false;
+    if (!forth_install_runtime_host(session, "F0=", FORTH_HOST_FZERO_EQUAL))
+        return false;
+    if (!forth_install_runtime_host(session, "F<", FORTH_HOST_FLESS))
+        return false;
+    if (!forth_install_runtime_host(session, "FABS", FORTH_HOST_FABS))
+        return false;
+    if (!forth_install_runtime_host(session, "FMAX", FORTH_HOST_FMAX))
+        return false;
+    if (!forth_install_runtime_host(session, "FMIN", FORTH_HOST_FMIN))
+        return false;
+    if (!forth_install_runtime_host(session, "F~", FORTH_HOST_FTILDE))
+        return false;
+    if (!forth_install_runtime_host(session, "F@", FORTH_HOST_FFETCH))
+        return false;
+    if (!forth_install_runtime_host(session, "F!", FORTH_HOST_FSTORE))
+        return false;
+    if (!forth_install_runtime_host(session, "SF@", FORTH_HOST_SFFETCH))
+        return false;
+    if (!forth_install_runtime_host(session, "SF!", FORTH_HOST_SFSTORE))
+        return false;
+    if (!forth_install_runtime_host(session, "DF@", FORTH_HOST_DFFETCH))
+        return false;
+    if (!forth_install_runtime_host(session, "DF!", FORTH_HOST_DFSTORE))
+        return false;
+    if (!forth_install_compile_only(session, "FLITERAL", FORTH_HOST_FLITERAL))
+        return false;
+    if (!forth_install_runtime_host(session, "FLOATS", FORTH_HOST_FLOATS))
+        return false;
+    if (!forth_install_runtime_host(session, "SFLOATS", FORTH_HOST_SFLOATS))
+        return false;
+    if (!forth_install_runtime_host(session, "DFLOATS", FORTH_HOST_DFLOATS))
+        return false;
+    if (!forth_install_runtime_host(session, ">FLOAT", FORTH_HOST_TO_FLOAT))
+        return false;
+    if (!forth_install_runtime_host(session, "FLOOR", FORTH_HOST_FLOOR))
+        return false;
+    if (!forth_install_runtime_host(session, "FROUND", FORTH_HOST_FROUND))
+        return false;
+    if (!forth_install_runtime_host(session, "FSQRT", FORTH_HOST_FSQRT))
+        return false;
+    if (!forth_install_runtime_host(session, "FSIN", FORTH_HOST_FSIN))
+        return false;
+    if (!forth_install_runtime_host(session, "FCOS", FORTH_HOST_FCOS))
+        return false;
+    if (!forth_install_runtime_host(session, "FTAN", FORTH_HOST_FTAN))
+        return false;
+    if (!forth_install_runtime_host(session, "FASIN", FORTH_HOST_FASIN))
+        return false;
+    if (!forth_install_runtime_host(session, "FACOS", FORTH_HOST_FACOS))
+        return false;
+    if (!forth_install_runtime_host(session, "FATAN", FORTH_HOST_FATAN))
+        return false;
+    if (!forth_install_runtime_host(session, "FATAN2", FORTH_HOST_FATAN2))
+        return false;
+    if (!forth_install_runtime_host(session, "FSINCOS", FORTH_HOST_FSINCOS))
+        return false;
+    if (!forth_install_runtime_host(session, "FEXP", FORTH_HOST_FEXP))
+        return false;
+    if (!forth_install_runtime_host(session, "FEXPM1", FORTH_HOST_FEXPM1))
+        return false;
+    if (!forth_install_runtime_host(session, "FLN", FORTH_HOST_FLN))
+        return false;
+    if (!forth_install_runtime_host(session, "FLOG", FORTH_HOST_FLOG))
+        return false;
+    if (!forth_install_runtime_host(session, "FLNP1", FORTH_HOST_FLNP1))
+        return false;
+    if (!forth_install_runtime_host(session, "F**", FORTH_HOST_FSTAR_STAR))
+        return false;
+    if (!forth_install_runtime_host(session, "FALOG", FORTH_HOST_FALOG))
+        return false;
+    if (!forth_install_runtime_host(session, "FSINH", FORTH_HOST_FSINH))
+        return false;
+    if (!forth_install_runtime_host(session, "FCOSH", FORTH_HOST_FCOSH))
+        return false;
+    if (!forth_install_runtime_host(session, "FTANH", FORTH_HOST_FTANH))
+        return false;
+    if (!forth_install_runtime_host(session, "FASINH", FORTH_HOST_FASINH))
+        return false;
+    if (!forth_install_runtime_host(session, "FACOSH", FORTH_HOST_FACOSH))
+        return false;
+    if (!forth_install_runtime_host(session, "FATANH", FORTH_HOST_FATANH))
+        return false;
+    if (!forth_install_runtime_host(session, "REPRESENT", FORTH_HOST_REPRESENT))
+        return false;
+    if (!forth_install_runtime_host(session, "PRECISION", FORTH_HOST_PRECISION))
+        return false;
+    if (!forth_install_runtime_host(session, "SET-PRECISION",
+                                    FORTH_HOST_SET_PRECISION))
+        return false;
+    if (!forth_install_runtime_host(session, "FS.", FORTH_HOST_FS_DOT))
+        return false;
+    if (!forth_install_runtime_host(session, "FE.", FORTH_HOST_FE_DOT))
+        return false;
+    if (!forth_install_runtime_host(session, "F.", FORTH_HOST_F_DOT))
+        return false;
+    if (!forth_install_runtime_host(session, "XCHAR+", FORTH_HOST_XCHAR_PLUS))
+        return false;
+    if (!forth_install_runtime_host(session, "XCHAR-", FORTH_HOST_XCHAR_MINUS))
+        return false;
+    if (!forth_install_runtime_host(session, "XC@+", FORTH_HOST_XC_FETCH_PLUS))
+        return false;
+    if (!forth_install_runtime_host(session, "XC!+", FORTH_HOST_XC_STORE_PLUS))
+        return false;
+    if (!forth_install_runtime_host(session, "XC!+?", FORTH_HOST_XC_STORE_PLUS_Q))
+        return false;
+    if (!forth_install_runtime_host(session, "XC-SIZE", FORTH_HOST_XC_SIZE))
+        return false;
+    if (!forth_install_runtime_host(session, "X-SIZE", FORTH_HOST_X_SIZE))
+        return false;
+    if (!forth_install_runtime_host(session, "XC,", FORTH_HOST_XC_COMMA))
+        return false;
+    if (!forth_install_runtime_host(session, "XEMIT", FORTH_HOST_XEMIT))
+        return false;
+    if (!forth_install_runtime_host(session, "XKEY", FORTH_HOST_XKEY))
+        return false;
+    if (!forth_install_runtime_host(session, "XKEY?", FORTH_HOST_XKEY_Q))
+        return false;
+    if (!forth_install_runtime_host(session, "+X/STRING", FORTH_HOST_PLUS_XSTRING))
+        return false;
+    if (!forth_install_runtime_host(session, "X\\STRING-",
+                                    FORTH_HOST_X_STRING_MINUS))
+        return false;
+    if (!forth_install_runtime_host(session, "-TRAILING-GARBAGE",
+                                    FORTH_HOST_TRAILING_GARBAGE))
+        return false;
+    if (!forth_install_runtime_host(session, "X-WIDTH", FORTH_HOST_X_WIDTH))
+        return false;
+    if (!forth_install_runtime_host(session, "XC-WIDTH", FORTH_HOST_XC_WIDTH))
+        return false;
+    if (!forth_install_runtime_host(session, "XHOLD", FORTH_HOST_XHOLD))
+        return false;
+    if (!forth_install_runtime_host(session, "EKEY>XCHAR",
+                                    FORTH_HOST_EKEY_TO_XCHAR))
+        return false;
+    if (!forth_install_runtime_host(session, "BLOCK", FORTH_HOST_BLOCK))
+        return false;
+    if (!forth_install_runtime_host(session, "BUFFER", FORTH_HOST_BUFFER))
+        return false;
+    if (!forth_install_runtime_host(session, "UPDATE", FORTH_HOST_UPDATE))
+        return false;
+    if (!forth_install_runtime_host(session, "FLUSH", FORTH_HOST_FLUSH))
+        return false;
+    if (!forth_install_runtime_host(session, "SAVE-BUFFERS",
+                                    FORTH_HOST_SAVE_BUFFERS))
+        return false;
+    if (!forth_install_runtime_host(session, "EMPTY-BUFFERS",
+                                    FORTH_HOST_EMPTY_BUFFERS))
+        return false;
+    if (!forth_install_runtime_host(session, "LOAD", FORTH_HOST_LOAD))
+        return false;
+    if (!forth_install_runtime_host(session, "LIST", FORTH_HOST_LIST))
+        return false;
+    if (!forth_install_runtime_host(session, "THRU", FORTH_HOST_THRU))
+        return false;
 
     if (!forth_session_rebuild(session)) return false;
 
@@ -2965,29 +4063,1320 @@ static int forth_digit_value(uint8_t c) {
     return -1;
 }
 
+typedef struct {
+    int64_t lo;
+    int64_t hi;
+    bool is_double;
+    bool is_float;
+    double fvalue;
+} ForthParsedNumber;
+
 static bool forth_parse_number(ForthSession *session, const uint8_t *name,
-                               uint32_t len, int64_t *out) {
+                               uint32_t len, ForthParsedNumber *out) {
     uint32_t i = 0;
     int sign = 1;
-    int64_t value = 0;
     int64_t base = 10;
+    bool is_double = false;
 
     if (!session || !name || !out || len == 0) return false;
+    memset(out, 0, sizeof(*out));
+    if (len == 3 && name[0] == (uint8_t)'\'' && name[2] == (uint8_t)'\'') {
+        out->lo = (int64_t)name[1];
+        return true;
+    }
+    if (name[len - 1] == (uint8_t)'.') {
+        is_double = true;
+        len--;
+        if (len == 0) return false;
+    }
     if (!forth_fetch_cell(session, forth_base_addr(session), &base)) return false;
     if (base < 2 || base > 36) return false;
-    if (name[0] == (uint8_t)'-' && len > 1) {
-        sign = -1;
+    if (name[0] == (uint8_t)'#') {
+        base = 10;
+        i = 1;
+    } else if (name[0] == (uint8_t)'$') {
+        base = 16;
+        i = 1;
+    } else if (name[0] == (uint8_t)'%') {
+        base = 2;
         i = 1;
     }
     if (i >= len) return false;
-    for (; i < len; i++) {
-        int digit = forth_digit_value(name[i]);
-        if (digit < 0 || (int64_t)digit >= base) return false;
-        if (value > (INT64_MAX - digit) / base) return false;
-        value = value * base + digit;
+    if (name[i] == (uint8_t)'-' && i + 1 < len) {
+        sign = -1;
+        i++;
     }
-    *out = sign < 0 ? -value : value;
+    if (i >= len) return false;
+    if (is_double) {
+        unsigned __int128 acc = 0;
+
+        for (; i < len; i++) {
+            int digit = forth_digit_value(name[i]);
+            if (digit < 0 || (int64_t)digit >= base) return false;
+            if (acc > (((unsigned __int128)-1) - (unsigned)digit)
+                    / (unsigned __int128)(uint64_t)base)
+                return false;
+            acc = acc * (unsigned __int128)(uint64_t)base + (unsigned)digit;
+        }
+        if (sign < 0) acc = ~acc + 1;
+        out->lo = (int64_t)(uint64_t)acc;
+        out->hi = (int64_t)(uint64_t)(acc >> 64);
+        out->is_double = true;
+        return true;
+    }
+    {
+        uint64_t uacc = 0;
+
+        for (; i < len; i++) {
+            int digit = forth_digit_value(name[i]);
+            if (digit < 0 || (int64_t)digit >= base) return false;
+            if (uacc > (UINT64_MAX - (uint64_t)digit) / (uint64_t)base)
+                return false;
+            uacc = uacc * (uint64_t)base + (uint64_t)digit;
+        }
+        if (sign < 0) uacc = 0u - uacc;
+        out->lo = (int64_t)uacc;
+        return true;
+    }
+}
+
+static bool forth_parse_to_float(const uint8_t *s, uint32_t len, bool allow_blank,
+                                 double *out) {
+    uint32_t i = 0;
+    int sign = 1;
+    int exp_sign = 1;
+    int expv = 0;
+    bool have_digit = false;
+    bool in_frac = false;
+    double acc = 0.0;
+    double place = 0.1;
+
+    if (!s || !out) return false;
+    while (i < len && forth_is_blank(s[i])) i++;
+    if (i >= len) {
+        if (allow_blank) {
+            *out = 0.0;
+            return true;
+        }
+        return false;
+    }
+    if (s[i] == (uint8_t)'+' || s[i] == (uint8_t)'-') {
+        if (s[i] == (uint8_t)'-') sign = -1;
+        i++;
+    }
+    while (i < len) {
+        uint8_t c = s[i];
+        if (c >= (uint8_t)'0' && c <= (uint8_t)'9') {
+            have_digit = true;
+            if (!in_frac) {
+                acc = acc * 10.0 + (double)(c - (uint8_t)'0');
+            } else {
+                acc += place * (double)(c - (uint8_t)'0');
+                place *= 0.1;
+            }
+            i++;
+        } else if (c == (uint8_t)'.' && !in_frac) {
+            in_frac = true;
+            i++;
+        } else {
+            break;
+        }
+    }
+    if (!have_digit) return false;
+    if (i >= len) return false;
+    {
+        uint8_t mark = s[i];
+        if (mark != (uint8_t)'E' && mark != (uint8_t)'e'
+                && mark != (uint8_t)'D' && mark != (uint8_t)'d')
+            return false;
+    }
+    i++;
+    if (i < len && (s[i] == (uint8_t)'+' || s[i] == (uint8_t)'-')) {
+        if (s[i] == (uint8_t)'-') exp_sign = -1;
+        i++;
+    }
+    while (i < len && s[i] >= (uint8_t)'0' && s[i] <= (uint8_t)'9') {
+        if (expv > 10000) return false;
+        expv = expv * 10 + (int)(s[i] - (uint8_t)'0');
+        i++;
+    }
+    if (i != len) return false;
+    acc *= pow(10.0, (double)(exp_sign * expv));
+    if (sign < 0) acc = -acc;
+    *out = acc;
     return true;
+}
+
+static bool forth_dpop(ForthSession *session, int64_t *lo, int64_t *hi) {
+    if (!forth_data_pop(session, hi)) return false;
+    return forth_data_pop(session, lo);
+}
+
+static bool forth_dpush(ForthSession *session, int64_t lo, int64_t hi) {
+    return forth_data_push(session, lo) && forth_data_push(session, hi);
+}
+
+static __int128 forth_pack_d(int64_t lo, int64_t hi) {
+    return ((__int128)hi << 64) | (__int128)(uint64_t)lo;
+}
+
+static void forth_unpack_d(__int128 d, int64_t *lo, int64_t *hi) {
+    *lo = (int64_t)(uint64_t)d;
+    *hi = (int64_t)(uint64_t)((unsigned __int128)d >> 64);
+}
+
+static uint64_t forth_i64_absu(int64_t n, int *sign) {
+    if (n < 0) {
+        *sign = -1;
+        return ~(uint64_t)n + 1;
+    }
+    *sign = 1;
+    return (uint64_t)n;
+}
+
+static bool forth_udiv192(uint64_t hi64, unsigned __int128 lo128, uint64_t den,
+                          unsigned __int128 *q, uint64_t *r) {
+    unsigned __int128 n1;
+    unsigned __int128 q1;
+    unsigned __int128 r1;
+    unsigned __int128 n0;
+
+    if (den == 0 || !q || !r) return false;
+    n1 = ((unsigned __int128)hi64 << 64) | (uint64_t)(lo128 >> 64);
+    q1 = n1 / den;
+    r1 = n1 % den;
+    if ((q1 >> 64) != 0) return false;
+    n0 = (r1 << 64) | (uint64_t)lo128;
+    *q = (q1 << 64) | (n0 / den);
+    *r = (uint64_t)(n0 % den);
+    return true;
+}
+
+static bool forth_m_star_slash(ForthSession *session) {
+    int64_t n2 = 0;
+    int64_t n1 = 0;
+    int64_t dlo = 0;
+    int64_t dhi = 0;
+    int dsign = 1;
+    int n1sign = 1;
+    int n2sign = 1;
+    int rsign;
+    uint64_t n1u;
+    uint64_t n2u;
+    unsigned __int128 mag;
+    unsigned __int128 p0;
+    unsigned __int128 p1;
+    unsigned __int128 mid;
+    unsigned __int128 prod_lo;
+    uint64_t prod_hi;
+    unsigned __int128 q;
+    uint64_t rem = 0;
+    int64_t qlo = 0;
+    int64_t qhi = 0;
+
+    if (!forth_data_pop(session, &n2) || n2 == 0)
+        return forth_throw_now(session, -10);
+    if (!forth_data_pop(session, &n1)) return false;
+    if (!forth_dpop(session, &dlo, &dhi)) return false;
+    mag = ((unsigned __int128)(uint64_t)dhi << 64) | (uint64_t)dlo;
+    if (dhi < 0) {
+        dsign = -1;
+        mag = ~mag + 1;
+    }
+    n1u = forth_i64_absu(n1, &n1sign);
+    n2u = forth_i64_absu(n2, &n2sign);
+    rsign = dsign * n1sign * n2sign;
+    p0 = (unsigned __int128)(uint64_t)mag * n1u;
+    p1 = (mag >> 64) * (unsigned __int128)n1u;
+    mid = (p0 >> 64) + (uint64_t)p1;
+    prod_lo = ((unsigned __int128)(uint64_t)mid << 64) | (uint64_t)p0;
+    prod_hi = (uint64_t)(p1 >> 64) + (uint64_t)(mid >> 64);
+    if (!forth_udiv192(prod_hi, prod_lo, n2u, &q, &rem)) return false;
+    if (rsign < 0) {
+        if (rem != 0) q += 1;
+        q = ~q + 1;
+    }
+    qlo = (int64_t)(uint64_t)q;
+    qhi = (int64_t)(uint64_t)(q >> 64);
+    return forth_dpush(session, qlo, qhi);
+}
+
+static int forth_host_dmath(ForthSession *session, uint8_t kind) {
+    int64_t alo = 0;
+    int64_t ahi = 0;
+    int64_t blo = 0;
+    int64_t bhi = 0;
+    int64_t n = 0;
+    __int128 a;
+    __int128 b;
+    unsigned __int128 ua;
+    unsigned __int128 ub;
+
+    switch (kind) {
+    case FORTH_HOST_DPLUS:
+        if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        forth_unpack_d(forth_pack_d(alo, ahi) + forth_pack_d(blo, bhi), &alo, &ahi);
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DMINUS:
+        if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        forth_unpack_d(forth_pack_d(alo, ahi) - forth_pack_d(blo, bhi), &alo, &ahi);
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DNEGATE:
+        if (!forth_dpop(session, &alo, &ahi)) return -1;
+        forth_unpack_d(-forth_pack_d(alo, ahi), &alo, &ahi);
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DTWO_STAR:
+        if (!forth_dpop(session, &alo, &ahi)) return -1;
+        forth_unpack_d(forth_pack_d(alo, ahi) << 1, &alo, &ahi);
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DTWO_SLASH:
+        if (!forth_dpop(session, &alo, &ahi)) return -1;
+        forth_unpack_d(forth_pack_d(alo, ahi) >> 1, &alo, &ahi);
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DLESS:
+        if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        a = forth_pack_d(alo, ahi);
+        b = forth_pack_d(blo, bhi);
+        return forth_data_push(session, a < b ? -1 : 0) ? 1 : -1;
+    case FORTH_HOST_DEQUAL:
+        if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        return forth_data_push(session, (alo == blo && ahi == bhi) ? -1 : 0) ? 1
+                                                                            : -1;
+    case FORTH_HOST_DABS:
+        if (!forth_dpop(session, &alo, &ahi)) return -1;
+        a = forth_pack_d(alo, ahi);
+        if (a < 0) a = -a;
+        forth_unpack_d(a, &alo, &ahi);
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DMAX:
+        if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        a = forth_pack_d(alo, ahi);
+        b = forth_pack_d(blo, bhi);
+        if (a < b) {
+            alo = blo;
+            ahi = bhi;
+        }
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DMIN:
+        if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        a = forth_pack_d(alo, ahi);
+        b = forth_pack_d(blo, bhi);
+        if (a > b) {
+            alo = blo;
+            ahi = bhi;
+        }
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_MPLUS:
+        if (!forth_data_pop(session, &n) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        forth_unpack_d(forth_pack_d(alo, ahi) + (__int128)n, &alo, &ahi);
+        return forth_dpush(session, alo, ahi) ? 1 : -1;
+    case FORTH_HOST_DULESS:
+        if (!forth_dpop(session, &blo, &bhi) || !forth_dpop(session, &alo, &ahi))
+            return -1;
+        ua = ((unsigned __int128)(uint64_t)ahi << 64) | (uint64_t)alo;
+        ub = ((unsigned __int128)(uint64_t)bhi << 64) | (uint64_t)blo;
+        return forth_data_push(session, ua < ub ? -1 : 0) ? 1 : -1;
+    case FORTH_HOST_M_STAR_SLASH:
+        return forth_m_star_slash(session) ? 1 : -1;
+    default:
+        return -1;
+    }
+}
+
+static bool forth_copy_from_vm(ForthSession *session, uint64_t addr, uint32_t n,
+                               uint8_t *dst) {
+    uint32_t i;
+    if (n > 0 && !dst) return false;
+    for (i = 0; i < n; i++) {
+        if (!forth_fetch_byte(session, addr + i, &dst[i])) return false;
+    }
+    return true;
+}
+
+static bool forth_copy_to_vm(ForthSession *session, uint64_t addr, uint32_t n,
+                             const uint8_t *src) {
+    uint32_t i;
+    if (n > 0 && !src) return false;
+    for (i = 0; i < n; i++) {
+        if (!forth_store_byte(session, addr + i, src[i])) return false;
+    }
+    return true;
+}
+
+static ForthSubst *forth_subst_find(ForthSession *session, const uint8_t *name,
+                                    uint32_t nlen) {
+    uint32_t i;
+    for (i = 0; i < FORTH_SUBST_MAX; i++) {
+        if (session->subst[i].used
+                && names_equal(session->subst[i].name, session->subst[i].nlen,
+                               name, nlen))
+            return &session->subst[i];
+    }
+    return NULL;
+}
+
+static int forth_host_cmove(ForthSession *session, bool backward) {
+    int64_t u = 0;
+    int64_t dest = 0;
+    int64_t src = 0;
+    int64_t i;
+
+    if (!forth_data_pop(session, &u) || u < 0) return -1;
+    if (!forth_data_pop(session, &dest) || !forth_data_pop(session, &src))
+        return -1;
+    if (u == 0) return 1;
+    if (!backward) {
+        for (i = 0; i < u; i++) {
+            uint8_t ch = 0;
+            if (!forth_fetch_byte(session, (uint64_t)src + (uint64_t)i, &ch))
+                return -1;
+            if (!forth_store_byte(session, (uint64_t)dest + (uint64_t)i, ch))
+                return -1;
+        }
+    } else {
+        for (i = u - 1; i >= 0; i--) {
+            uint8_t ch = 0;
+            if (!forth_fetch_byte(session, (uint64_t)src + (uint64_t)i, &ch))
+                return -1;
+            if (!forth_store_byte(session, (uint64_t)dest + (uint64_t)i, ch))
+                return -1;
+        }
+    }
+    return 1;
+}
+
+static int forth_host_trailing(ForthSession *session) {
+    int64_t u = 0;
+    int64_t addr = 0;
+    uint8_t ch = 0;
+
+    if (!forth_data_pop(session, &u) || u < 0) return -1;
+    if (!forth_data_pop(session, &addr)) return -1;
+    while (u > 0) {
+        if (!forth_fetch_byte(session, (uint64_t)addr + (uint64_t)u - 1, &ch))
+            return -1;
+        if (ch != (uint8_t)' ') break;
+        u--;
+    }
+    if (!forth_data_push(session, addr)) return -1;
+    return forth_data_push(session, u) ? 1 : -1;
+}
+
+static int forth_host_compare(ForthSession *session) {
+    int64_t u2 = 0;
+    int64_t a2 = 0;
+    int64_t u1 = 0;
+    int64_t a1 = 0;
+    int64_t n;
+    int64_t i;
+
+    if (!forth_data_pop(session, &u2) || u2 < 0) return -1;
+    if (!forth_data_pop(session, &a2) || !forth_data_pop(session, &u1) || u1 < 0)
+        return -1;
+    if (!forth_data_pop(session, &a1)) return -1;
+    n = u1 < u2 ? u1 : u2;
+    for (i = 0; i < n; i++) {
+        uint8_t c1 = 0;
+        uint8_t c2 = 0;
+        if (!forth_fetch_byte(session, (uint64_t)a1 + (uint64_t)i, &c1)) return -1;
+        if (!forth_fetch_byte(session, (uint64_t)a2 + (uint64_t)i, &c2)) return -1;
+        if (c1 != c2)
+            return forth_data_push(session, c1 < c2 ? -1 : 1) ? 1 : -1;
+    }
+    if (u1 == u2) return forth_data_push(session, 0) ? 1 : -1;
+    return forth_data_push(session, u1 < u2 ? -1 : 1) ? 1 : -1;
+}
+
+static int forth_host_search(ForthSession *session) {
+    int64_t u2 = 0;
+    int64_t a2 = 0;
+    int64_t u1 = 0;
+    int64_t a1 = 0;
+    int64_t i;
+    int64_t j;
+
+    if (!forth_data_pop(session, &u2) || u2 < 0) return -1;
+    if (!forth_data_pop(session, &a2) || !forth_data_pop(session, &u1) || u1 < 0)
+        return -1;
+    if (!forth_data_pop(session, &a1)) return -1;
+    if (u2 == 0) {
+        if (!forth_data_push(session, a1) || !forth_data_push(session, u1))
+            return -1;
+        return forth_data_push(session, -1) ? 1 : -1;
+    }
+    if (u2 <= u1) {
+        for (i = 0; i <= u1 - u2; i++) {
+            int match = 1;
+            for (j = 0; j < u2; j++) {
+                uint8_t c1 = 0;
+                uint8_t c2 = 0;
+                if (!forth_fetch_byte(session, (uint64_t)a1 + (uint64_t)i
+                                      + (uint64_t)j, &c1))
+                    return -1;
+                if (!forth_fetch_byte(session, (uint64_t)a2 + (uint64_t)j, &c2))
+                    return -1;
+                if (c1 != c2) {
+                    match = 0;
+                    break;
+                }
+            }
+            if (match) {
+                if (!forth_data_push(session, a1 + i)
+                        || !forth_data_push(session, u1 - i))
+                    return -1;
+                return forth_data_push(session, -1) ? 1 : -1;
+            }
+        }
+    }
+    if (!forth_data_push(session, a1) || !forth_data_push(session, u1))
+        return -1;
+    return forth_data_push(session, 0) ? 1 : -1;
+}
+
+static int forth_host_sliteral(ForthSession *session) {
+    int64_t u = 0;
+    int64_t src = 0;
+    uint64_t dest;
+    uint32_t i;
+
+    if (!forth_colon_is_open(session)) return -1;
+    if (!forth_data_pop(session, &u) || u < 0) return -1;
+    if (!forth_data_pop(session, &src)) return -1;
+    dest = session->bump;
+    if (!forth_dict_allot(session, u)) return -1;
+    for (i = 0; i < (uint32_t)u; i++) {
+        uint8_t ch = 0;
+        if (!forth_fetch_byte(session, (uint64_t)src + i, &ch)) return -1;
+        if (!forth_store_byte(session, dest + i, ch)) return -1;
+    }
+    if (!forth_colon_literal(session, (int64_t)dest)) return -1;
+    return forth_colon_literal(session, u) ? 1 : -1;
+}
+
+static int forth_host_unescape(ForthSession *session) {
+    int64_t dest = 0;
+    int64_t u1 = 0;
+    int64_t src = 0;
+    int64_t i;
+    int64_t o = 0;
+
+    if (!forth_data_pop(session, &dest) || !forth_data_pop(session, &u1) || u1 < 0)
+        return -1;
+    if (!forth_data_pop(session, &src)) return -1;
+    for (i = 0; i < u1; i++) {
+        uint8_t ch = 0;
+        if (!forth_fetch_byte(session, (uint64_t)src + (uint64_t)i, &ch))
+            return -1;
+        if (!forth_store_byte(session, (uint64_t)dest + (uint64_t)o, ch))
+            return -1;
+        o++;
+        if (ch == (uint8_t)'%') {
+            if (!forth_store_byte(session, (uint64_t)dest + (uint64_t)o, ch))
+                return -1;
+            o++;
+        }
+    }
+    if (!forth_data_push(session, dest)) return -1;
+    return forth_data_push(session, o) ? 1 : -1;
+}
+
+static int forth_host_replaces(ForthSession *session) {
+    int64_t nlen = 0;
+    int64_t naddr = 0;
+    int64_t tlen = 0;
+    int64_t taddr = 0;
+    ForthSubst *slot;
+    uint64_t copy;
+    uint32_t i;
+
+    if (!forth_data_pop(session, &nlen) || nlen < 0) return -1;
+    if (!forth_data_pop(session, &naddr) || !forth_data_pop(session, &tlen)
+            || tlen < 0)
+        return -1;
+    if (!forth_data_pop(session, &taddr)) return -1;
+    if ((uint32_t)nlen > FORTH_SUBST_NAME_MAX) return -1;
+    {
+        uint8_t name[FORTH_SUBST_NAME_MAX];
+        if ((uint32_t)nlen > 0
+                && !forth_copy_from_vm(session, (uint64_t)naddr, (uint32_t)nlen,
+                                       name))
+            return -1;
+        slot = forth_subst_find(session, name, (uint32_t)nlen);
+        if (!slot) {
+            for (i = 0; i < FORTH_SUBST_MAX; i++) {
+                if (!session->subst[i].used) {
+                    slot = &session->subst[i];
+                    break;
+                }
+            }
+        }
+        if (!slot) return -1;
+        memcpy(slot->name, name, (size_t)nlen);
+        slot->nlen = (uint32_t)nlen;
+        slot->used = true;
+    }
+    copy = session->bump;
+    if (!forth_dict_allot(session, tlen)) return -1;
+    for (i = 0; i < (uint32_t)tlen; i++) {
+        uint8_t ch = 0;
+        if (!forth_fetch_byte(session, (uint64_t)taddr + i, &ch)) return -1;
+        if (!forth_store_byte(session, copy + i, ch)) return -1;
+    }
+    slot->text_addr = copy;
+    slot->tlen = (uint32_t)tlen;
+    return 1;
+}
+
+static int forth_host_substitute(ForthSession *session) {
+    int64_t u2 = 0;
+    int64_t dest = 0;
+    int64_t u1 = 0;
+    int64_t src = 0;
+    uint8_t *inbuf = NULL;
+    uint8_t *outbuf = NULL;
+    uint32_t i = 0;
+    uint32_t o = 0;
+    int64_t nsub = 0;
+    int rc = -1;
+
+    if (!forth_data_pop(session, &u2) || u2 < 0) return -1;
+    if (!forth_data_pop(session, &dest) || !forth_data_pop(session, &u1) || u1 < 0)
+        return -1;
+    if (!forth_data_pop(session, &src)) return -1;
+    if (u1 > 0) {
+        inbuf = malloc((size_t)u1);
+        if (!inbuf) return -1;
+        if (!forth_copy_from_vm(session, (uint64_t)src, (uint32_t)u1, inbuf))
+            goto done;
+    }
+    if (u2 > 0) {
+        outbuf = malloc((size_t)u2);
+        if (!outbuf) goto done;
+    }
+    while (i < (uint32_t)u1) {
+        if (inbuf[i] != (uint8_t)'%') {
+            if (o >= (uint32_t)u2) {
+                nsub = -1;
+                goto overflow;
+            }
+            if (u2 > 0) outbuf[o] = inbuf[i];
+            o++;
+            i++;
+            continue;
+        }
+        if (i + 1 < (uint32_t)u1 && inbuf[i + 1] == (uint8_t)'%') {
+            if (o >= (uint32_t)u2) {
+                nsub = -1;
+                goto overflow;
+            }
+            if (u2 > 0) outbuf[o] = (uint8_t)'%';
+            o++;
+            i += 2;
+            continue;
+        }
+        {
+            uint32_t j = i + 1;
+            ForthSubst *slot;
+            while (j < (uint32_t)u1 && inbuf[j] != (uint8_t)'%') j++;
+            if (j >= (uint32_t)u1) {
+                while (i < (uint32_t)u1) {
+                    if (o >= (uint32_t)u2) {
+                        nsub = -1;
+                        goto overflow;
+                    }
+                    if (u2 > 0) outbuf[o] = inbuf[i];
+                    o++;
+                    i++;
+                }
+                break;
+            }
+            slot = forth_subst_find(session, inbuf + i + 1, j - (i + 1));
+            if (slot) {
+                uint32_t k;
+                if (o + slot->tlen > (uint32_t)u2) {
+                    nsub = -1;
+                    goto overflow;
+                }
+                for (k = 0; k < slot->tlen; k++) {
+                    uint8_t ch = 0;
+                    if (!forth_fetch_byte(session, slot->text_addr + k, &ch))
+                        goto done;
+                    if (u2 > 0) outbuf[o] = ch;
+                    o++;
+                }
+                nsub++;
+                i = j + 1;
+            } else {
+                uint32_t k;
+                for (k = i; k <= j; k++) {
+                    if (o >= (uint32_t)u2) {
+                        nsub = -1;
+                        goto overflow;
+                    }
+                    if (u2 > 0) outbuf[o] = inbuf[k];
+                    o++;
+                }
+                i = j + 1;
+            }
+        }
+    }
+    if (o > 0 && !forth_copy_to_vm(session, (uint64_t)dest, o, outbuf)) goto done;
+    if (!forth_data_push(session, dest) || !forth_data_push(session, (int64_t)o)
+            || !forth_data_push(session, nsub))
+        goto done;
+    rc = 1;
+    goto done;
+overflow:
+    if (!forth_data_push(session, dest) || !forth_data_push(session, 0)
+            || !forth_data_push(session, -1))
+        goto done;
+    rc = 1;
+done:
+    free(inbuf);
+    free(outbuf);
+    return rc;
+}
+
+static int forth_host_string(ForthSession *session, uint8_t kind) {
+    switch (kind) {
+    case FORTH_HOST_TRAILING:
+        return forth_host_trailing(session);
+    case FORTH_HOST_CMOVE:
+        return forth_host_cmove(session, false);
+    case FORTH_HOST_CMOVE_UP:
+        return forth_host_cmove(session, true);
+    case FORTH_HOST_COMPARE:
+        return forth_host_compare(session);
+    case FORTH_HOST_SEARCH:
+        return forth_host_search(session);
+    case FORTH_HOST_SLITERAL:
+        return forth_host_sliteral(session);
+    case FORTH_HOST_UNESCAPE:
+        return forth_host_unescape(session);
+    case FORTH_HOST_REPLACES:
+        return forth_host_replaces(session);
+    case FORTH_HOST_SUBSTITUTE:
+        return forth_host_substitute(session);
+    default:
+        return -1;
+    }
+}
+
+static int forth_minimum_order(ForthSession *session) {
+    ForthWid forth = forth_forth_wordlist(session);
+    return forth_set_order(session, &forth, 1) ? 1 : -1;
+}
+
+static int forth_host_get_order(ForthSession *session) {
+    ForthWid wids[FORTH_ORDER_MAX];
+    uint32_t count = 0;
+    uint32_t i;
+
+    if (!forth_get_order(session, wids, FORTH_ORDER_MAX, &count)) return -1;
+    for (i = count; i > 0; i--) {
+        if (!forth_data_push(session, (int64_t)wids[i - 1])) return -1;
+    }
+    return forth_data_push(session, (int64_t)count) ? 1 : -1;
+}
+
+static int forth_host_set_order(ForthSession *session) {
+    int64_t n = 0;
+    ForthWid wids[FORTH_ORDER_MAX];
+    uint32_t i;
+
+    if (!forth_data_pop(session, &n)) return -1;
+    if (n == -1) return forth_minimum_order(session);
+    if (n < 0 || n > (int64_t)FORTH_ORDER_MAX) return -1;
+    for (i = 0; i < (uint32_t)n; i++) {
+        int64_t wid = 0;
+        if (!forth_data_pop(session, &wid) || wid < 0
+                || (uint64_t)wid > (uint64_t)UINT32_MAX)
+            return -1;
+        wids[i] = (ForthWid)wid;
+    }
+    return forth_set_order(session, wids, (uint32_t)n) ? 1 : -1;
+}
+
+static int forth_host_also(ForthSession *session) {
+    ForthWid wids[FORTH_ORDER_MAX];
+    uint32_t count = 0;
+    uint32_t i;
+
+    if (!forth_get_order(session, wids, FORTH_ORDER_MAX, &count)) return -1;
+    if (count == 0 || count >= FORTH_ORDER_MAX) return -1;
+    for (i = count; i > 0; i--) wids[i] = wids[i - 1];
+    count++;
+    return forth_set_order(session, wids, count) ? 1 : -1;
+}
+
+static int forth_host_previous(ForthSession *session) {
+    ForthWid wids[FORTH_ORDER_MAX];
+    uint32_t count = 0;
+
+    if (!forth_get_order(session, wids, FORTH_ORDER_MAX, &count)) return -1;
+    if (count == 0) return -1;
+    return forth_set_order(session, wids + 1, count - 1) ? 1 : -1;
+}
+
+static int forth_host_forth(ForthSession *session) {
+    ForthWid wids[FORTH_ORDER_MAX];
+    uint32_t count = 0;
+    ForthWid forth = forth_forth_wordlist(session);
+
+    if (!forth_get_order(session, wids, FORTH_ORDER_MAX, &count)) return -1;
+    if (count == 0) return forth_set_order(session, &forth, 1) ? 1 : -1;
+    wids[0] = forth;
+    return forth_set_order(session, wids, count) ? 1 : -1;
+}
+
+static int forth_host_definitions(ForthSession *session) {
+    if (!session || session->order_count == 0) return -1;
+    return forth_set_current(session, session->order[0]) ? 1 : -1;
+}
+
+static int forth_host_search_wordlist(ForthSession *session) {
+    int64_t wid = 0;
+    int64_t u = 0;
+    int64_t caddr = 0;
+    uint8_t name[FORTH_NAME_MAX];
+    ForthXt xt = 0;
+    bool imm = false;
+
+    if (!forth_data_pop(session, &wid) || !forth_data_pop(session, &u) || u < 0
+            || !forth_data_pop(session, &caddr))
+        return -1;
+    if (u > (int64_t)FORTH_NAME_MAX) return -1;
+    if (u > 0
+            && !forth_copy_from_vm(session, (uint64_t)caddr, (uint32_t)u, name))
+        return -1;
+    if (wid < 0 || (uint64_t)wid > (uint64_t)UINT32_MAX) return -1;
+    if (forth_find_in_wid(session, (ForthWid)wid, (const char *)name,
+                          (uint32_t)u, NULL, &xt, &imm)) {
+        if (!forth_data_push(session, (int64_t)xt)) return -1;
+        return forth_data_push(session, imm ? 1 : -1) ? 1 : -1;
+    }
+    return forth_data_push(session, 0) ? 1 : -1;
+}
+
+static int forth_host_order(ForthSession *session) {
+    ForthWid wids[FORTH_ORDER_MAX];
+    uint32_t count = 0;
+    uint32_t i;
+    uint32_t k;
+    char buf[48];
+    int n;
+
+    if (!forth_get_order(session, wids, FORTH_ORDER_MAX, &count)) return -1;
+    for (i = 0; i < count; i++) {
+        n = snprintf(buf, sizeof(buf), "%u ", (unsigned)wids[i]);
+        if (n < 0) return -1;
+        for (k = 0; k < (uint32_t)n; k++) {
+            if (!forth_emit_char(session, (uint8_t)buf[k])) return -1;
+        }
+    }
+    n = snprintf(buf, sizeof(buf), "CURRENT %u\n",
+                 (unsigned)forth_get_current(session));
+    if (n < 0) return -1;
+    for (k = 0; k < (uint32_t)n; k++) {
+        if (!forth_emit_char(session, (uint8_t)buf[k])) return -1;
+    }
+    return 1;
+}
+
+static int forth_host_search_order(ForthSession *session, uint8_t kind) {
+    ForthWid wid = 0;
+    int64_t cell = 0;
+
+    switch (kind) {
+    case FORTH_HOST_WORDLIST:
+        if (!forth_wordlist_create(session, &wid)) return -1;
+        return forth_data_push(session, (int64_t)wid) ? 1 : -1;
+    case FORTH_HOST_GET_ORDER:
+        return forth_host_get_order(session);
+    case FORTH_HOST_SET_ORDER:
+        return forth_host_set_order(session);
+    case FORTH_HOST_GET_CURRENT:
+        return forth_data_push(session, (int64_t)forth_get_current(session))
+            ? 1 : -1;
+    case FORTH_HOST_SET_CURRENT:
+        if (!forth_data_pop(session, &cell) || cell < 0
+                || (uint64_t)cell > (uint64_t)UINT32_MAX)
+            return -1;
+        return forth_set_current(session, (ForthWid)cell) ? 1 : -1;
+    case FORTH_HOST_FORTH_WORDLIST:
+        return forth_data_push(session,
+                               (int64_t)forth_forth_wordlist(session)) ? 1 : -1;
+    case FORTH_HOST_ALSO:
+        return forth_host_also(session);
+    case FORTH_HOST_PREVIOUS:
+        return forth_host_previous(session);
+    case FORTH_HOST_ONLY:
+        return forth_minimum_order(session);
+    case FORTH_HOST_FORTH:
+        return forth_host_forth(session);
+    case FORTH_HOST_DEFINITIONS:
+        return forth_host_definitions(session);
+    case FORTH_HOST_SEARCH_WORDLIST:
+        return forth_host_search_wordlist(session);
+    case FORTH_HOST_ORDER:
+        return forth_host_order(session);
+    default:
+        return -1;
+    }
+}
+
+static int64_t forth_saved_errno(void) {
+    int err = errno;
+    return err == 0 ? (int64_t)-1 : (int64_t)err;
+}
+
+static FILE *forth_fp_from_id(ForthSession *session, uint32_t fileid,
+                              uint32_t *slot_out) {
+    uint32_t slot;
+    if (!decode_fileid(session, fileid, &slot)) return NULL;
+    if (slot_out) *slot_out = slot;
+    return session->files[slot].fp;
+}
+
+static bool forth_pop_path(ForthSession *session, char *out, size_t cap) {
+    int64_t u = 0;
+    int64_t caddr = 0;
+    uint32_t i;
+
+    if (!out || cap < 2) return false;
+    if (!forth_data_pop(session, &u) || u < 0) return false;
+    if (!forth_data_pop(session, &caddr)) return false;
+    if ((uint64_t)u >= cap) return false;
+    for (i = 0; i < (uint32_t)u; i++) {
+        uint8_t ch = 0;
+        if (!forth_fetch_byte(session, (uint64_t)caddr + i, &ch)) return false;
+        out[i] = (char)ch;
+    }
+    out[u] = '\0';
+    return true;
+}
+
+static bool forth_already_required(const ForthSession *session, const char *path) {
+    uint32_t i;
+    if (!session || !path) return false;
+    for (i = 0; i < session->required_count; i++) {
+        if (strcmp(session->required[i], path) == 0) return true;
+    }
+    return false;
+}
+
+static bool forth_mark_required(ForthSession *session, const char *path) {
+    if (!session || !path || path[0] == '\0') return false;
+    if (forth_already_required(session, path)) return true;
+    if (session->required_count >= FORTH_REQUIRED_MAX) return false;
+    forth_copy_bounded(session->required[session->required_count], FORTH_PATH_MAX,
+                      path);
+    session->required_count++;
+    return true;
+}
+
+static bool forth_resolve_include_path(ForthSession *session, const char *name,
+                                       char *out, size_t cap) {
+    struct stat st;
+    uint32_t d;
+
+    if (!session || !name || name[0] == '\0' || !out || cap < 2) return false;
+    if (name[0] == '/') {
+        forth_copy_bounded(out, cap, name);
+        return true;
+    }
+    if (stat(name, &st) == 0) {
+        forth_copy_bounded(out, cap, name);
+        return true;
+    }
+    for (d = session->source_depth; d > 0; d--) {
+        const ForthSourceFrame *frame = &session->sources[d - 1];
+        uint32_t slot;
+        const char *base;
+        const char *slash;
+        size_t dirlen;
+        size_t nlen;
+
+        if (frame->kind != FORTH_SRC_FILE) continue;
+        if (!decode_fileid(session, frame->fileid, &slot)) continue;
+        base = session->files[slot].path;
+        slash = strrchr(base, '/');
+        if (!slash) continue;
+        dirlen = (size_t)(slash - base);
+        nlen = strlen(name);
+        if (dirlen + 1 + nlen + 1 > cap) continue;
+        memcpy(out, base, dirlen);
+        out[dirlen] = '/';
+        memcpy(out + dirlen + 1, name, nlen + 1);
+        if (stat(out, &st) == 0) return true;
+    }
+    forth_copy_bounded(out, cap, name);
+    return true;
+}
+
+static const char *forth_fam_mode(int64_t fam, bool create) {
+    int64_t acc = fam & 3;
+
+    if (create) {
+        if (acc == FORTH_FAM_WO) return "wb";
+        return "w+b";
+    }
+    if (acc == FORTH_FAM_RO) return "rb";
+    return "r+b";
+}
+
+static bool forth_pop_fileid(ForthSession *session, uint32_t *fileid) {
+    int64_t cell = 0;
+    if (!fileid || !forth_data_pop(session, &cell)) return false;
+    if (cell < 0 || cell > (int64_t)UINT32_MAX) return false;
+    *fileid = (uint32_t)cell;
+    return true;
+}
+
+static int forth_push_ud_ior(ForthSession *session, uint64_t value, int64_t ior) {
+    if (!forth_data_push(session, (int64_t)value)) return -1;
+    if (!forth_data_push(session, 0)) return -1;
+    return forth_data_push(session, ior) ? 1 : -1;
+}
+
+static int forth_include_fileid(ForthSession *session, uint32_t fileid) {
+    ForthSession *prev;
+    bool ok = true;
+
+    if (!forth_source_push_file(session, fileid)) return -1;
+    prev = g_forth;
+    g_forth = session;
+    while (forth_refill(session)) {
+        if (!forth_interpret_loop(session)) {
+            ok = false;
+            break;
+        }
+        if (session->exit_requested) break;
+        if (session->quit_requested) {
+            session->quit_requested = false;
+            break;
+        }
+    }
+    g_forth = prev;
+    if (ok && forth_colon_is_open(session)) ok = false;
+    if (!forth_source_pop(session)) ok = false;
+    return ok ? 1 : -1;
+}
+
+static int forth_included_path(ForthSession *session, const char *path) {
+    uint32_t fileid = 0;
+    int rc;
+
+    if (!path || path[0] == '\0') return -1;
+    if (!forth_file_open(session, path, "rb", &fileid)
+            && !forth_file_open(session, path, "r", &fileid))
+        return -1;
+    rc = forth_include_fileid(session, fileid);
+    forth_file_close(session, fileid);
+    if (rc > 0 && !forth_mark_required(session, path)) return -1;
+    return rc;
+}
+
+static int forth_host_included(ForthSession *session) {
+    char name[FORTH_PATH_MAX];
+    char resolved[FORTH_PATH_MAX];
+
+    if (!forth_pop_path(session, name, sizeof(name))) return -1;
+    if (!forth_resolve_include_path(session, name, resolved, sizeof(resolved)))
+        return -1;
+    return forth_included_path(session, resolved);
+}
+
+static int forth_host_required(ForthSession *session) {
+    char name[FORTH_PATH_MAX];
+    char resolved[FORTH_PATH_MAX];
+
+    if (!forth_pop_path(session, name, sizeof(name))) return -1;
+    if (!forth_resolve_include_path(session, name, resolved, sizeof(resolved)))
+        return -1;
+    if (forth_already_required(session, resolved)) return 1;
+    return forth_included_path(session, resolved);
+}
+
+static int forth_host_include_word(ForthSession *session, bool required_only) {
+    int pr = forth_host_parse_name(session);
+    if (pr < 0) return -1;
+    return required_only ? forth_host_required(session)
+                         : forth_host_included(session);
+}
+
+static int forth_host_open_create(ForthSession *session, bool create) {
+    int64_t fam = 0;
+    char path[FORTH_PATH_MAX];
+    uint32_t fileid = 0;
+    const char *mode;
+
+    if (!forth_data_pop(session, &fam)) return -1;
+    if (!forth_pop_path(session, path, sizeof(path))) return -1;
+    mode = forth_fam_mode(fam, create);
+    errno = 0;
+    if (!forth_file_open(session, path, mode, &fileid)) {
+        if (!forth_data_push(session, 0)) return -1;
+        return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+    }
+    if (!forth_data_push(session, (int64_t)fileid)) return -1;
+    return forth_data_push(session, 0) ? 1 : -1;
+}
+
+static int forth_host_read_line(ForthSession *session) {
+    int64_t u1 = 0;
+    int64_t caddr = 0;
+    uint32_t fileid = 0;
+    FILE *fp;
+    int c;
+    uint32_t n = 0;
+    bool got_term = false;
+    bool any = false;
+
+    if (!forth_pop_fileid(session, &fileid)) return -1;
+    if (!forth_data_pop(session, &u1) || u1 < 0) return -1;
+    if (!forth_data_pop(session, &caddr)) return -1;
+    fp = forth_fp_from_id(session, fileid, NULL);
+    if (!fp) {
+        if (!forth_data_push(session, 0) || !forth_data_push(session, 0))
+            return -1;
+        return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+    }
+    if (u1 == 0) {
+        c = fgetc(fp);
+        if (c == EOF) {
+            if (!forth_data_push(session, 0) || !forth_data_push(session, 0))
+                return -1;
+            return forth_data_push(session, 0) ? 1 : -1;
+        }
+        ungetc(c, fp);
+        if (!forth_data_push(session, 0) || !forth_data_push(session, (int64_t)-1))
+            return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    }
+    for (;;) {
+        c = fgetc(fp);
+        if (c == EOF) break;
+        any = true;
+        if (c == '\n') {
+            got_term = true;
+            break;
+        }
+        if (c == '\r') {
+            int next = fgetc(fp);
+            if (next != '\n' && next != EOF) ungetc(next, fp);
+            got_term = true;
+            break;
+        }
+        if ((uint64_t)n >= (uint64_t)u1) {
+            ungetc(c, fp);
+            got_term = true;
+            break;
+        }
+        if (!forth_store_byte(session, (uint64_t)caddr + n, (uint8_t)c))
+            return -1;
+        n++;
+    }
+    if (!any && !got_term) {
+        if (!forth_data_push(session, 0) || !forth_data_push(session, 0))
+            return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    }
+    if (!got_term && n > 0) got_term = true;
+    if (!forth_data_push(session, (int64_t)n)) return -1;
+    if (!forth_data_push(session, got_term ? (int64_t)-1 : 0)) return -1;
+    return forth_data_push(session, 0) ? 1 : -1;
+}
+
+static int forth_host_file(ForthSession *session, uint8_t kind) {
+    int64_t fam = 0;
+    int64_t u = 0;
+    int64_t caddr = 0;
+    int64_t lo = 0;
+    int64_t hi = 0;
+    uint32_t fileid = 0;
+    FILE *fp;
+    char path[FORTH_PATH_MAX];
+    char dest[FORTH_PATH_MAX];
+    struct stat st;
+    uint32_t i;
+    int c;
+    uint32_t n;
+
+    switch (kind) {
+    case FORTH_HOST_BIN:
+        if (!forth_data_pop(session, &fam)) return -1;
+        return forth_data_push(session, fam | FORTH_FAM_BIN) ? 1 : -1;
+    case FORTH_HOST_OPEN_FILE:
+        return forth_host_open_create(session, false);
+    case FORTH_HOST_CREATE_FILE:
+        return forth_host_open_create(session, true);
+    case FORTH_HOST_CLOSE_FILE:
+        if (!forth_pop_fileid(session, &fileid))
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        errno = 0;
+        if (!forth_file_close(session, fileid))
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_DELETE_FILE:
+        if (!forth_pop_path(session, path, sizeof(path))) return -1;
+        errno = 0;
+        if (unlink(path) != 0)
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_READ_FILE:
+        if (!forth_pop_fileid(session, &fileid)) return -1;
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &caddr)) return -1;
+        fp = forth_fp_from_id(session, fileid, NULL);
+        if (!fp) {
+            if (!forth_data_push(session, 0)) return -1;
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        }
+        n = 0;
+        while ((uint64_t)n < (uint64_t)u) {
+            c = fgetc(fp);
+            if (c == EOF) break;
+            if (!forth_store_byte(session, (uint64_t)caddr + n, (uint8_t)c))
+                return -1;
+            n++;
+        }
+        if (!forth_data_push(session, (int64_t)n)) return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_READ_LINE:
+        return forth_host_read_line(session);
+    case FORTH_HOST_WRITE_FILE:
+    case FORTH_HOST_WRITE_LINE:
+        if (!forth_pop_fileid(session, &fileid)) return -1;
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &caddr)) return -1;
+        fp = forth_fp_from_id(session, fileid, NULL);
+        if (!fp) return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        for (i = 0; i < (uint32_t)u; i++) {
+            uint8_t ch = 0;
+            if (!forth_fetch_byte(session, (uint64_t)caddr + i, &ch)) return -1;
+            if (fputc((int)ch, fp) == EOF)
+                return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        }
+        if (kind == FORTH_HOST_WRITE_LINE && fputc('\n', fp) == EOF)
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_FILE_POSITION:
+        if (!forth_pop_fileid(session, &fileid)) return -1;
+        fp = forth_fp_from_id(session, fileid, NULL);
+        if (!fp) return forth_push_ud_ior(session, 0, (int64_t)-1);
+        {
+            long pos = ftell(fp);
+            if (pos < 0) return forth_push_ud_ior(session, 0, forth_saved_errno());
+            return forth_push_ud_ior(session, (uint64_t)pos, 0);
+        }
+    case FORTH_HOST_FILE_SIZE:
+        if (!forth_pop_fileid(session, &fileid)) return -1;
+        fp = forth_fp_from_id(session, fileid, NULL);
+        if (!fp) return forth_push_ud_ior(session, 0, (int64_t)-1);
+        if (fstat(fileno(fp), &st) != 0)
+            return forth_push_ud_ior(session, 0, forth_saved_errno());
+        return forth_push_ud_ior(session, (uint64_t)st.st_size, 0);
+    case FORTH_HOST_REPOSITION_FILE:
+        if (!forth_pop_fileid(session, &fileid)) return -1;
+        if (!forth_data_pop(session, &hi) || !forth_data_pop(session, &lo))
+            return -1;
+        fp = forth_fp_from_id(session, fileid, NULL);
+        if (!fp || hi != 0 || lo < 0)
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (fseek(fp, (long)lo, SEEK_SET) != 0)
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_RESIZE_FILE:
+        if (!forth_pop_fileid(session, &fileid)) return -1;
+        if (!forth_data_pop(session, &hi) || !forth_data_pop(session, &lo))
+            return -1;
+        fp = forth_fp_from_id(session, fileid, NULL);
+        if (!fp || hi != 0 || lo < 0)
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (fflush(fp) != 0 || ftruncate(fileno(fp), (off_t)lo) != 0)
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_FLUSH_FILE:
+        if (!forth_pop_fileid(session, &fileid))
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        fp = forth_fp_from_id(session, fileid, NULL);
+        if (!fp) return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (fflush(fp) != 0)
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_RENAME_FILE:
+        if (!forth_pop_path(session, dest, sizeof(dest))) return -1;
+        if (!forth_pop_path(session, path, sizeof(path))) return -1;
+        errno = 0;
+        if (rename(path, dest) != 0)
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_FILE_STATUS:
+        if (!forth_pop_path(session, path, sizeof(path))) return -1;
+        errno = 0;
+        if (stat(path, &st) != 0) {
+            if (!forth_data_push(session, 0)) return -1;
+            return forth_data_push(session, forth_saved_errno()) ? 1 : -1;
+        }
+        if (!forth_data_push(session, 0)) return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_INCLUDED:
+        return forth_host_included(session);
+    case FORTH_HOST_INCLUDE:
+        return forth_host_include_word(session, false);
+    case FORTH_HOST_INCLUDE_FILE:
+        if (!forth_pop_fileid(session, &fileid)) return -1;
+        return forth_include_fileid(session, fileid);
+    case FORTH_HOST_REQUIRED:
+        return forth_host_required(session);
+    case FORTH_HOST_REQUIRE:
+        return forth_host_include_word(session, true);
+    default:
+        return -1;
+    }
+}
+
+static int forth_host_mem(ForthSession *session, uint8_t kind) {
+    int64_t n = 0;
+    int64_t addr = 0;
+    uint64_t got = 0;
+
+    switch (kind) {
+    case FORTH_HOST_ALLOCATE:
+        if (!forth_data_pop(session, &n)) return -1;
+        if (n <= 0 || !forth_heap_allocate(session, (uint64_t)n, &got)) {
+            if (!forth_data_push(session, 0)) return -1;
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        }
+        if (!forth_data_push(session, (int64_t)got)) return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_MEM_FREE:
+        if (!forth_data_pop(session, &addr)) return -1;
+        if (addr < (int64_t)FORTH_HEAP_BASE
+                || !forth_free(session, (uint64_t)addr))
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    case FORTH_HOST_MEM_RESIZE:
+        if (!forth_data_pop(session, &n) || !forth_data_pop(session, &addr))
+            return -1;
+        if (addr <= 0 || n <= 0
+                || !forth_resize(session, (uint64_t)addr, (uint64_t)n, &got)) {
+            if (!forth_data_push(session, addr)) return -1;
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        }
+        if (!forth_data_push(session, (int64_t)got)) return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    default:
+        return -1;
+    }
 }
 
 static int forth_take_word(ForthSession *session, uint8_t *name, uint32_t *nlen) {
@@ -3036,8 +5425,16 @@ static int forth_take_word(ForthSession *session, uint8_t *name, uint32_t *nlen)
 static bool forth_dict_allot(ForthSession *session, int64_t n) {
     uint64_t addr;
     uint64_t size;
-    if (!session || n < 0) return false;
+    if (!session) return false;
     if (n == 0) return true;
+    if (n < 0) {
+        if (n == INT64_MIN) return false;
+        size = (uint64_t)(-n);
+        if (session->bump < size) return false;
+        session->bump -= size;
+        return forth_store_cell(session, session->here_cell_addr,
+                                (int64_t)session->bump);
+    }
     size = (uint64_t)n;
     addr = session->bump;
     if (addr > UINT64_MAX - size) return false;
@@ -3164,6 +5561,26 @@ static bool forth_copy_to_word(ForthSession *session, uint64_t src, uint32_t len
     return true;
 }
 
+static bool forth_store_s_quote(ForthSession *session, uint64_t src, uint32_t len,
+                                const uint8_t *bytes, uint64_t *addr_out) {
+    uint64_t dest;
+    uint32_t i;
+    uint32_t stored = len;
+
+    if (!session || !addr_out) return false;
+    if (stored > FORTH_WORD_MAX) stored = FORTH_WORD_MAX;
+    dest = session->s_quote_addr[session->s_quote_sel & 1u];
+    session->s_quote_sel ^= 1u;
+    for (i = 0; i < stored; i++) {
+        uint8_t ch = 0;
+        if (bytes) ch = bytes[i];
+        else if (!forth_fetch_byte(session, src + i, &ch)) return false;
+        if (!forth_store_byte(session, dest + i, ch)) return false;
+    }
+    *addr_out = dest;
+    return true;
+}
+
 static bool forth_env_query(ForthSession *session, uint64_t caddr, uint32_t len) {
     char name[64];
     uint32_t i;
@@ -3207,6 +5624,54 @@ static bool forth_env_query(ForthSession *session, uint64_t caddr, uint32_t len)
     }
     if (strcmp(name, "FLOORED") == 0) {
         return forth_data_push(session, -1) && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "DOUBLE") == 0 || strcmp(name, "DOUBLE-EXT") == 0
+            || strcmp(name, "STRING") == 0 || strcmp(name, "STRING-EXT") == 0
+            || strcmp(name, "SEARCH-ORDER") == 0
+            || strcmp(name, "SEARCH-ORDER-EXT") == 0
+            || strcmp(name, "FILE") == 0 || strcmp(name, "FILE-EXT") == 0
+            || strcmp(name, "MEMORY-ALLOC") == 0
+            || strcmp(name, "LOCALS") == 0
+            || strcmp(name, "LOCALS-EXT") == 0
+            || strcmp(name, "FACILITY") == 0
+            || strcmp(name, "FACILITY-EXT") == 0
+            || strcmp(name, "TOOLS") == 0
+            || strcmp(name, "TOOLS-EXT") == 0
+            || strcmp(name, "FLOATING") == 0
+            || strcmp(name, "FLOATING-EXT") == 0
+            || strcmp(name, "XCHAR") == 0
+            || strcmp(name, "XCHAR-EXT") == 0
+            || strcmp(name, "BLOCK") == 0
+            || strcmp(name, "BLOCK-EXT") == 0) {
+        return forth_data_push(session, -1) && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "XCHAR-ENCODING") == 0) {
+        return forth_data_push(session, (int64_t)session->xchar_enc_addr)
+            && forth_data_push(session, 5)
+            && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "MAX-XCHAR") == 0) {
+        return forth_data_push(session, 0x10FFFF)
+            && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "XCHAR-MAXMEM") == 0) {
+        return forth_data_push(session, 4) && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "FLOATING-STACK") == 0) {
+        return forth_data_push(session, FORTH_FLOAT_STACK_CELLS)
+            && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "MAX-FLOAT") == 0) {
+        return forth_float_push(session, DBL_MAX)
+            && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "#LOCALS") == 0) {
+        return forth_data_push(session, FORTH_LOCAL_MAX)
+            && forth_data_push(session, -1);
+    }
+    if (strcmp(name, "WORDLISTS") == 0) {
+        return forth_data_push(session, FORTH_WORDLIST_MAX)
+            && forth_data_push(session, -1);
     }
     return forth_data_push(session, 0);
 }
@@ -3360,34 +5825,64 @@ static bool forth_host_does(ForthSession *session) {
     ForthNt nt;
     ForthHeader *header;
     ForthXt child;
-    uint8_t code[128];
+    uint8_t code[256];
     uint32_t off = 0;
     NvmModule *mod;
-    NvmFunctionEntry *fn;
+    NvmFunctionEntry fn;
     NvmVerifyResult verified;
+    uint32_t before;
 
     if (!forth_data_pop(session, &does_xt)) return false;
-    nt = forth_latest(session);
+    nt = session->does_child_nt ? session->does_child_nt : forth_latest(session);
     header = header_at(session, nt);
     if (!header) return false;
-    child = header->xt;
     mod = session->module;
     if ((uint32_t)does_xt >= mod->function_count) return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)nt))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_CALL, session->dpush_fn))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64,
+                   (int64_t)FORTH_HOST_DOES_ENTER))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_CALL_EXTERN, session->runtime_import))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_POP)) return false;
     if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)header->data_addr))
         return false;
     if (!wrap_emit(code, &off, sizeof(code), OP_CALL, session->dpush_fn))
         return false;
     if (!wrap_emit(code, &off, sizeof(code), OP_CALL, (uint32_t)does_xt))
         return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64, (int64_t)0))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_CALL, session->dpush_fn))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_PUSH_I64,
+                   (int64_t)FORTH_HOST_DOES_ENTER))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_CALL_EXTERN, session->runtime_import))
+        return false;
+    if (!wrap_emit(code, &off, sizeof(code), OP_POP)) return false;
     if (!wrap_emit(code, &off, sizeof(code), OP_RET)) return false;
-    fn = &mod->functions[child];
-    fn->code_offset = nvm_append_code(mod, code, off);
-    fn->code_length = off;
-    fn->local_count = 0;
-    fn->result_tag = TAG_VOID;
-    fn->result_count = 0;
+    memset(&fn, 0, sizeof(fn));
+    fn.name_idx = nvm_add_string(mod, "nl_forth_does_run", 17);
+    fn.arity = 0;
+    fn.code_offset = nvm_append_code(mod, code, off);
+    fn.code_length = off;
+    fn.local_count = 0;
+    fn.result_tag = TAG_VOID;
+    fn.result_count = 0;
+    before = mod->function_count;
+    child = nvm_add_function(mod, &fn);
+    if (mod->function_count != before + 1) return false;
     verified = nvm_verify_function(mod, child);
     if (!verified.ok) return false;
+    header->xt = child;
+    if (session->vm_exec_depth != 0) {
+        session->does_rebuild_pending = true;
+        return vm_sync_new_functions(&session->vm, session->module);
+    }
     return forth_session_rebuild(session);
 }
 
@@ -3433,7 +5928,7 @@ static bool forth_host_named_colon(ForthSession *session, int64_t literal,
     return true;
 }
 
-static bool forth_colon_host_runtime(ForthSession *session, uint8_t host) {
+static bool forth_colon_host_runtime(ForthSession *session, uint16_t host) {
     if (!session || !session->colon_open) return false;
     if (!colon_emit(session, OP_PUSH_I64, (int64_t)host)) return false;
     if (!colon_emit(session, OP_CALL_EXTERN, session->runtime_import)) return false;
@@ -3553,12 +6048,7 @@ static int forth_host_abort_quote(ForthSession *session, int64_t state) {
     if (!forth_data_pop(session, &flag)) return -1;
     if (flag == 0) return 1;
     if (!forth_type_range(session, src, wlen)) return -1;
-    while (forth_data_depth(session) > 0) {
-        int64_t drop = 0;
-        forth_data_pop(session, &drop);
-    }
-    forth_store_cell(session, session->throw_code_addr, -2);
-    return -1;
+    return forth_throw_now(session, -2) ? 1 : -1;
 }
 
 static int forth_host_key(ForthSession *session) {
@@ -3566,7 +6056,14 @@ static int forth_host_key(ForthSession *session) {
     uint64_t u = 0;
     int64_t to_in = 0;
     uint8_t ch = 0;
+    int got;
 
+    if (forth_source_id(session) != 0) {
+        if (!isatty(STDIN_FILENO)) return -1;
+        got = getchar();
+        if (got == EOF) return -1;
+        return forth_data_push(session, (int64_t)(uint8_t)got) ? 1 : -1;
+    }
     if (!forth_source(session, &caddr, &u)) return -1;
     if (!forth_fetch_cell(session, session->sysvars, &to_in)) return -1;
     if (to_in < 0 || (uint64_t)to_in >= u) return -1;
@@ -3586,6 +6083,18 @@ static int forth_host_accept(ForthSession *session) {
 
     if (!forth_data_pop(session, &n1) || n1 < 0) return -1;
     if (!forth_data_pop(session, &dest)) return -1;
+    if (forth_source_id(session) != 0) {
+        if (!isatty(STDIN_FILENO))
+            return forth_data_push(session, 0) ? 1 : -1;
+        while (n2 < (uint32_t)n1) {
+            int got = getchar();
+            if (got == EOF || got == '\n' || got == '\r') break;
+            if (!forth_store_byte(session, (uint64_t)dest + n2, (uint8_t)got))
+                return -1;
+            n2++;
+        }
+        return forth_data_push(session, (int64_t)n2) ? 1 : -1;
+    }
     if (!forth_source(session, &caddr, &u)) return -1;
     if (!forth_fetch_cell(session, session->sysvars, &to_in)) return -1;
     if (to_in < 0) return -1;
@@ -3610,7 +6119,1687 @@ static int forth_host_quit(ForthSession *session) {
     return 1;
 }
 
-static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
+static bool forth_plusloop_step(ForthSession *session) {
+    int64_t n = 0;
+    int64_t index = 0;
+    int64_t limit = 0;
+    uint64_t uold;
+    uint64_t unew;
+    uint64_t ulimit;
+    bool done;
+
+    if (!forth_data_pop(session, &n)) return false;
+    if (!forth_return_pop(session, &index)) return false;
+    if (!forth_return_pop(session, &limit)) return false;
+    uold = (uint64_t)index;
+    unew = uold + (uint64_t)n;
+    ulimit = (uint64_t)limit;
+    if (n == 0) {
+        done = false;
+    } else if (n > 0) {
+        if (unew > uold)
+            done = (ulimit > uold && ulimit <= unew);
+        else
+            done = (ulimit > uold || ulimit <= unew);
+    } else if (unew < uold) {
+        done = (ulimit <= uold && ulimit > unew);
+    } else {
+        done = (ulimit <= uold || ulimit > unew);
+    }
+    if (!done) {
+        if (!forth_return_push(session, limit)) return false;
+        if (!forth_return_push(session, (int64_t)unew)) return false;
+        return forth_data_push(session, (int64_t)-1);
+    }
+    return forth_data_push(session, (int64_t)0);
+}
+
+static bool source_next_char(ForthSession *session, uint8_t *ch, bool *have) {
+    uint64_t caddr = 0;
+    uint64_t u = 0;
+    int64_t to_in = 0;
+
+    if (!ch || !have) return false;
+    if (!forth_source(session, &caddr, &u)) return false;
+    if (!forth_fetch_cell(session, session->sysvars, &to_in)) return false;
+    if (to_in < 0 || (uint64_t)to_in >= u) {
+        *have = false;
+        return true;
+    }
+    if (!forth_fetch_byte(session, caddr + (uint64_t)to_in, ch)) return false;
+    to_in++;
+    if (!forth_store_cell(session, session->sysvars, to_in)) return false;
+    *have = true;
+    return true;
+}
+
+static int forth_hex_nibble(uint8_t ch) {
+    int digit = forth_digit_value(ch);
+    if (digit < 0 || digit > 15) return -1;
+    return digit;
+}
+
+static int forth_host_parse_name(ForthSession *session) {
+    uint64_t src = 0;
+    uint32_t wlen = 0;
+    if (!forth_parse_delimited(session, (uint8_t)' ', true, &src, &wlen))
+        return -1;
+    if (!forth_data_push(session, (int64_t)src)) return -1;
+    return forth_data_push(session, (int64_t)wlen) ? 1 : -1;
+}
+
+static int forth_host_value(ForthSession *session) {
+    uint8_t def[FORTH_NAME_MAX];
+    uint32_t deflen = 0;
+    ForthNt published = 0;
+    ForthHeader *header;
+    uint64_t addr;
+    int64_t init = 0;
+    int got;
+
+    if (!forth_data_pop(session, &init)) return -1;
+    got = forth_take_word(session, def, &deflen);
+    if (got <= 0) return -1;
+    if (!forth_dict_align(session)) return -1;
+    addr = session->bump;
+    if (!forth_dict_allot(session, (int64_t)FORTH_CELL_BYTES)) return -1;
+    if (!forth_store_cell(session, addr, init)) return -1;
+    if (!forth_colon_begin(session, (const char *)def, deflen)) return -1;
+    if (!forth_colon_literal(session, (int64_t)addr)) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    if (!colon_call_named(session, "@")) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    if (!forth_colon_finish(session, &published)) return -1;
+    header = header_at(session, published);
+    if (!header) return -1;
+    header->data_addr = addr;
+    header->body_cells = 1;
+    return 1;
+}
+
+static int forth_host_two_value(ForthSession *session) {
+    uint8_t def[FORTH_NAME_MAX];
+    uint32_t deflen = 0;
+    ForthNt published = 0;
+    ForthHeader *header;
+    uint64_t addr;
+    int64_t x1 = 0;
+    int64_t x2 = 0;
+    int got;
+
+    if (!forth_data_pop(session, &x2) || !forth_data_pop(session, &x1)) return -1;
+    got = forth_take_word(session, def, &deflen);
+    if (got <= 0) return -1;
+    if (!forth_dict_align(session)) return -1;
+    addr = session->bump;
+    if (!forth_dict_allot(session, (int64_t)(FORTH_CELL_BYTES * 2))) return -1;
+    if (!forth_store_cell(session, addr, x2)) return -1;
+    if (!forth_store_cell(session, addr + FORTH_CELL_BYTES, x1)) return -1;
+    if (!forth_colon_begin(session, (const char *)def, deflen)) return -1;
+    if (!forth_colon_literal(session, (int64_t)addr)) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    if (!colon_call_named(session, "2@")) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    if (!forth_colon_finish(session, &published)) return -1;
+    header = header_at(session, published);
+    if (!header) return -1;
+    header->data_addr = addr;
+    header->body_cells = 2;
+    return 1;
+}
+
+static int forth_host_body_op(ForthSession *session, int64_t state, bool fetch) {
+    uint8_t name[FORTH_NAME_MAX];
+    uint32_t nlen = 0;
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    bool immediate = false;
+    ForthHeader *header;
+    int got;
+    int64_t cell = 0;
+    int slot;
+
+    got = forth_take_word(session, name, &nlen);
+    if (got <= 0) return -1;
+    slot = forth_local_slot(session, name, nlen);
+    if (slot >= 0) {
+        if (fetch) return -1;
+        if (state == 0) return -1;
+        return forth_colon_local_store(session, slot) ? 1 : -1;
+    }
+    if (!forth_find(session, (const char *)name, nlen, &nt, &xt, &immediate))
+        return -1;
+    header = header_at(session, nt);
+    if (!header || header->data_addr == 0) return -1;
+    if (header->body_cells == 2) {
+        if (fetch) {
+            if (state != 0) {
+                if (!forth_colon_literal(session, (int64_t)header->data_addr))
+                    return -1;
+                return colon_call_named(session, "2@") ? 1 : -1;
+            }
+            if (!forth_fetch_cell(session, header->data_addr + FORTH_CELL_BYTES,
+                                  &cell))
+                return -1;
+            if (!forth_data_push(session, cell)) return -1;
+            if (!forth_fetch_cell(session, header->data_addr, &cell)) return -1;
+            return forth_data_push(session, cell) ? 1 : -1;
+        }
+        if (state != 0) {
+            if (!forth_colon_literal(session, (int64_t)header->data_addr)) return -1;
+            return colon_call_named(session, "2!") ? 1 : -1;
+        }
+        if (!forth_data_pop(session, &cell)) return -1;
+        if (!forth_store_cell(session, header->data_addr, cell)) return -1;
+        if (!forth_data_pop(session, &cell)) return -1;
+        return forth_store_cell(session, header->data_addr + FORTH_CELL_BYTES,
+                                cell) ? 1 : -1;
+    }
+    if (fetch) {
+        if (state != 0) {
+            if (!forth_colon_literal(session, (int64_t)header->data_addr))
+                return -1;
+            return colon_call_named(session, "@") ? 1 : -1;
+        }
+        if (!forth_fetch_cell(session, header->data_addr, &cell)) return -1;
+        return forth_data_push(session, cell) ? 1 : -1;
+    }
+    if (state != 0) {
+        if (!forth_colon_literal(session, (int64_t)header->data_addr)) return -1;
+        return colon_call_named(session, "!") ? 1 : -1;
+    }
+    if (!forth_data_pop(session, &cell)) return -1;
+    return forth_store_cell(session, header->data_addr, cell) ? 1 : -1;
+}
+
+static int forth_host_marker(ForthSession *session) {
+    uint8_t def[FORTH_NAME_MAX];
+    uint32_t deflen = 0;
+    ForthNt published = 0;
+    int64_t save_count;
+    int64_t save_bump;
+    int64_t save_latest;
+    int got;
+
+    got = forth_take_word(session, def, &deflen);
+    if (got <= 0) return -1;
+    save_count = (int64_t)session->header_count;
+    save_bump = (int64_t)session->bump;
+    save_latest = (int64_t)session->latest;
+    if (!forth_colon_begin(session, (const char *)def, deflen)) return -1;
+    if (!forth_colon_literal(session, save_count)) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    if (!forth_colon_literal(session, save_bump)) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    if (!forth_colon_literal(session, save_latest)) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    if (!forth_colon_host_runtime(session, FORTH_HOST_MARKER_RUN)) {
+        forth_colon_abort(session);
+        return -1;
+    }
+    return forth_colon_finish(session, &published) ? 1 : -1;
+}
+
+static int forth_host_marker_run(ForthSession *session) {
+    int64_t save_latest = 0;
+    int64_t save_bump = 0;
+    int64_t save_count = 0;
+    uint32_t i;
+
+    if (!forth_data_pop(session, &save_latest)) return -1;
+    if (!forth_data_pop(session, &save_bump)) return -1;
+    if (!forth_data_pop(session, &save_count)) return -1;
+    if (save_count < 0 || save_latest < 0 || save_bump < 0) return -1;
+    if ((uint32_t)save_count > session->header_count) return -1;
+    for (i = (uint32_t)save_count; i < session->header_count; i++)
+        session->headers[i].used = false;
+    session->header_count = (uint32_t)save_count;
+    session->latest = (ForthNt)save_latest;
+    session->bump = (uint64_t)save_bump;
+    return forth_store_cell(session, session->here_cell_addr, save_bump) ? 1 : -1;
+}
+
+static int forth_host_case(ForthSession *session) {
+    if (!session->colon_open) return -1;
+    return forth_control_push(session, FORTH_CTRL_CASE, 0) ? 1 : -1;
+}
+
+static int forth_host_of(ForthSession *session) {
+    if (!session->colon_open) return -1;
+    if (!colon_call_named(session, "OVER")) return -1;
+    if (!colon_call_named(session, "=")) return -1;
+    if (!forth_colon_if(session)) return -1;
+    return colon_call_named(session, "DROP") ? 1 : -1;
+}
+
+static int forth_host_endof(ForthSession *session) {
+    return forth_colon_else(session) ? 1 : -1;
+}
+
+static int forth_host_endcase(ForthSession *session) {
+    ForthCtrlKind kind = FORTH_CTRL_ORIG;
+    uint32_t value = 0;
+
+    if (!session->colon_open) return -1;
+    if (!colon_call_named(session, "DROP")) return -1;
+    for (;;) {
+        if (!forth_control_pop(session, &kind, &value)) return -1;
+        if (kind == FORTH_CTRL_ORIG) {
+            if (!colon_patch_jump(session, value, session->colon_code_len))
+                return -1;
+            continue;
+        }
+        if (kind == FORTH_CTRL_CASE) return 1;
+        return -1;
+    }
+}
+
+static int forth_host_c_quote(ForthSession *session, int64_t state) {
+    uint64_t src = 0;
+    uint32_t wlen = 0;
+    uint64_t dest;
+    uint32_t i;
+    uint8_t ch = 0;
+
+    if (state == 0) return -1;
+    if (!forth_skip_blanks(session)) return -1;
+    if (!forth_parse_delimited(session, (uint8_t)'"', false, &src, &wlen))
+        return -1;
+    if (wlen > 255) return -1;
+    dest = session->bump;
+    if (!forth_dict_allot(session, (int64_t)(wlen + 1))) return -1;
+    if (!forth_store_byte(session, dest, (uint8_t)wlen)) return -1;
+    for (i = 0; i < wlen; i++) {
+        if (!forth_fetch_byte(session, src + i, &ch)) return -1;
+        if (!forth_store_byte(session, dest + 1 + i, ch)) return -1;
+    }
+    return forth_colon_literal(session, (int64_t)dest) ? 1 : -1;
+}
+
+static int forth_host_s_backslash(ForthSession *session, int64_t state) {
+    uint8_t buf[FORTH_TIB_SIZE];
+    uint32_t n = 0;
+    uint64_t dest;
+    uint32_t i;
+    bool have = false;
+    uint8_t ch = 0;
+
+    if (!forth_skip_blanks(session)) return -1;
+    for (;;) {
+        if (!source_next_char(session, &ch, &have)) return -1;
+        if (!have) return -1;
+        if (ch == (uint8_t)'"') break;
+        if (ch != (uint8_t)'\\') {
+            if (n >= FORTH_TIB_SIZE) return -1;
+            buf[n++] = ch;
+            continue;
+        }
+        if (!source_next_char(session, &ch, &have) || !have) return -1;
+        {
+            uint8_t out[2];
+            uint32_t outn = 1;
+            int hi;
+            int lo;
+            switch (ch) {
+            case 'a': out[0] = 7; break;
+            case 'b': out[0] = 8; break;
+            case 'e': out[0] = 27; break;
+            case 'f': out[0] = 12; break;
+            case 'l': out[0] = 10; break;
+            case 'm':
+                out[0] = 13;
+                out[1] = 10;
+                outn = 2;
+                break;
+            case 'n': out[0] = 10; break;
+            case 'q': out[0] = 34; break;
+            case 'r': out[0] = 13; break;
+            case 't': out[0] = 9; break;
+            case 'v': out[0] = 11; break;
+            case 'z': out[0] = 0; break;
+            case '"': out[0] = 34; break;
+            case '\\': out[0] = 92; break;
+            case 'x':
+                if (!source_next_char(session, &ch, &have) || !have) return -1;
+                hi = forth_hex_nibble(ch);
+                if (hi < 0) {
+                    out[0] = 0;
+                    if (n >= FORTH_TIB_SIZE) return -1;
+                    buf[n++] = 0;
+                    if (n >= FORTH_TIB_SIZE) return -1;
+                    buf[n++] = ch;
+                    continue;
+                }
+                lo = -1;
+                {
+                    uint64_t caddr = 0;
+                    uint64_t u = 0;
+                    int64_t to_in = 0;
+                    uint8_t peek = 0;
+                    if (!forth_source(session, &caddr, &u)) return -1;
+                    if (!forth_fetch_cell(session, session->sysvars, &to_in))
+                        return -1;
+                    if (to_in >= 0 && (uint64_t)to_in < u) {
+                        if (!forth_fetch_byte(session, caddr + (uint64_t)to_in,
+                                              &peek))
+                            return -1;
+                        lo = forth_hex_nibble(peek);
+                        if (lo >= 0) {
+                            to_in++;
+                            if (!forth_store_cell(session, session->sysvars, to_in))
+                                return -1;
+                        }
+                    }
+                }
+                if (lo >= 0) out[0] = (uint8_t)((hi << 4) | lo);
+                else out[0] = (uint8_t)hi;
+                break;
+            default:
+                out[0] = ch;
+                break;
+            }
+            if (n + outn > FORTH_TIB_SIZE) return -1;
+            for (i = 0; i < outn; i++) buf[n++] = out[i];
+        }
+    }
+    if (state == 0) {
+        uint64_t addr = 0;
+        if (!forth_store_s_quote(session, 0, n, buf, &addr)) return -1;
+        if (!forth_data_push(session, (int64_t)addr)) return -1;
+        return forth_data_push(session, (int64_t)n) ? 1 : -1;
+    }
+    dest = session->bump;
+    if (!forth_dict_allot(session, (int64_t)n)) return -1;
+    for (i = 0; i < n; i++) {
+        if (!forth_store_byte(session, dest + i, buf[i])) return -1;
+    }
+    if (!forth_colon_literal(session, (int64_t)dest)) return -1;
+    return forth_colon_literal(session, (int64_t)n) ? 1 : -1;
+}
+
+static int forth_print_aligned(ForthSession *session, int64_t cell, bool is_unsigned,
+                               int64_t width) {
+    uint64_t mag;
+    bool sign = false;
+    int64_t u = 0;
+    int64_t caddr = 0;
+    int64_t pad;
+    int64_t i;
+
+    if (!is_unsigned && cell < 0) {
+        sign = true;
+        mag = (uint64_t)(-(cell + 1)) + 1u;
+    } else {
+        mag = (uint64_t)cell;
+    }
+    if (!forth_data_push(session, (int64_t)mag)) return -1;
+    if (!forth_data_push(session, 0)) return -1;
+    if (!forth_pict_reset(session)) return -1;
+    for (;;) {
+        int64_t hi = 0;
+        int64_t lo = 0;
+        if (!forth_pict_hash(session)) return -1;
+        if (!forth_data_pop(session, &hi)) return -1;
+        if (!forth_data_pop(session, &lo)) return -1;
+        if (hi == 0 && lo == 0) break;
+        if (!forth_data_push(session, lo) || !forth_data_push(session, hi))
+            return -1;
+    }
+    if (!forth_data_push(session, 0) || !forth_data_push(session, 0)) return -1;
+    if (!forth_pict_end(session)) return -1;
+    if (!forth_data_pop(session, &u) || !forth_data_pop(session, &caddr))
+        return -1;
+    pad = width - u - (sign ? 1 : 0);
+    for (i = 0; i < pad; i++) {
+        if (!forth_emit_char(session, (uint8_t)' ')) return -1;
+    }
+    if (sign && !forth_emit_char(session, (uint8_t)'-')) return -1;
+    return forth_type_range(session, (uint64_t)caddr, (uint32_t)u) ? 1 : -1;
+}
+
+static int forth_host_holds(ForthSession *session) {
+    int64_t u = 0;
+    int64_t caddr = 0;
+    int64_t i;
+    uint8_t ch = 0;
+
+    if (!forth_data_pop(session, &u) || u < 0) return -1;
+    if (!forth_data_pop(session, &caddr)) return -1;
+    for (i = u; i > 0; i--) {
+        if (!forth_fetch_byte(session, (uint64_t)caddr + (uint64_t)(i - 1), &ch))
+            return -1;
+        if (!forth_pict_hold(session, ch)) return -1;
+    }
+    return 1;
+}
+
+static int forth_host_save_input(ForthSession *session) {
+    const ForthSourceFrame *frame = source_top_const(session);
+    int64_t to_in = 0;
+    if (!frame) return -1;
+    if (!forth_fetch_cell(session, session->sysvars, &to_in)) return -1;
+    if (frame->kind == FORTH_SRC_FILE) {
+        if (!forth_data_push(session, to_in)) return -1;
+        if (!forth_data_push(session, frame->source_id)) return -1;
+        if (!forth_data_push(session, frame->file_pos)) return -1;
+        return forth_data_push(session, 3) ? 1 : -1;
+    }
+    if (frame->kind == FORTH_SRC_BLOCK) {
+        if (!forth_data_push(session, to_in)) return -1;
+        if (!forth_data_push(session, frame->blk)) return -1;
+        return forth_data_push(session, 2) ? 1 : -1;
+    }
+    if (!forth_data_push(session, to_in)) return -1;
+    if (!forth_data_push(session, frame->source_id)) return -1;
+    if (!forth_data_push(session, (int64_t)frame->caddr)) return -1;
+    if (!forth_data_push(session, (int64_t)frame->u)) return -1;
+    return forth_data_push(session, 4) ? 1 : -1;
+}
+
+static int forth_host_restore_input(ForthSession *session) {
+    int64_t n = 0;
+    int64_t u = 0;
+    int64_t caddr = 0;
+    int64_t sid = 0;
+    int64_t to_in = 0;
+    int64_t file_pos = 0;
+    int64_t drop;
+    ForthSourceFrame *frame;
+    int64_t i;
+
+    if (!forth_data_pop(session, &n)) return -1;
+    if (n == 2) {
+        int64_t blk = 0;
+        if (!forth_data_pop(session, &blk) || !forth_data_pop(session, &to_in))
+            return -1;
+        frame = source_top(session);
+        if (!frame || frame->kind != FORTH_SRC_BLOCK || blk < 0
+                || !forth_block_in_range((uint32_t)blk) || to_in < 0)
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (!forth_block_assign(session, (uint32_t)blk, true)) return -1;
+        frame->blk = blk;
+        frame->caddr = forth_block_cache(session, (uint32_t)blk);
+        frame->u = FORTH_BLOCK_SIZE;
+        if ((uint64_t)to_in > frame->u)
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (!forth_store_cell(session, session->sysvars, to_in)) return -1;
+        if (!forth_store_cell(session, session->sysvars + FORTH_CELL_BYTES, blk))
+            return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    }
+    if (n == 3) {
+        uint32_t slot;
+        FILE *fp;
+        if (!forth_data_pop(session, &file_pos) || !forth_data_pop(session, &sid)
+                || !forth_data_pop(session, &to_in))
+            return -1;
+        frame = source_top(session);
+        if (!frame || frame->kind != FORTH_SRC_FILE || frame->source_id != sid)
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (!decode_fileid(session, frame->fileid, &slot))
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        fp = session->files[slot].fp;
+        if (!fp || fseek(fp, (long)file_pos, SEEK_SET) != 0)
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (!refill_file_line(session, frame))
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (to_in < 0 || (uint64_t)to_in > frame->u)
+            return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+        if (!forth_store_cell(session, session->sysvars, to_in)) return -1;
+        return forth_data_push(session, 0) ? 1 : -1;
+    }
+    if (n != 4) {
+        for (i = 0; i < n && i < 16; i++) {
+            if (!forth_data_pop(session, &drop)) break;
+        }
+        return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+    }
+    if (!forth_data_pop(session, &u)) return -1;
+    if (!forth_data_pop(session, &caddr)) return -1;
+    if (!forth_data_pop(session, &sid)) return -1;
+    if (!forth_data_pop(session, &to_in)) return -1;
+    frame = source_top(session);
+    if (!frame || frame->source_id != sid || (int64_t)frame->caddr != caddr
+            || (int64_t)frame->u != u || to_in < 0
+            || (uint64_t)to_in > frame->u) {
+        return forth_data_push(session, (int64_t)-1) ? 1 : -1;
+    }
+    if (!forth_store_cell(session, session->sysvars, to_in)) return -1;
+    return forth_data_push(session, 0) ? 1 : -1;
+}
+
+static int forth_host_refill_word(ForthSession *session) {
+    const ForthSourceFrame *frame = source_top_const(session);
+    bool ok;
+    if (!frame) return -1;
+    if (frame->kind != FORTH_SRC_FILE && frame->kind != FORTH_SRC_BLOCK)
+        return forth_data_push(session, 0) ? 1 : -1;
+    ok = forth_refill(session);
+    return forth_data_push(session, ok ? (int64_t)-1 : 0) ? 1 : -1;
+}
+
+static int forth_host_locals_brace(ForthSession *session) {
+    uint8_t name[FORTH_NAME_MAX];
+    uint32_t nlen = 0;
+    int mode = 0;
+    int got;
+
+    if (!session->colon_open) return -1;
+    for (;;) {
+        got = forth_take_word(session, name, &nlen);
+        if (got <= 0) return -1;
+        if (nlen == 2 && name[0] == ':' && name[1] == '}')
+            return forth_locals_close(session) ? 1 : -1;
+        if (mode == 2) continue;
+        if (nlen == 1 && name[0] == '|' && mode == 0) {
+            mode = 1;
+            continue;
+        }
+        if (nlen == 2 && name[0] == '-' && name[1] == '-' && mode < 2) {
+            mode = 2;
+            continue;
+        }
+        if (!forth_add_colon_local(session, name, nlen, mode == 0, false))
+            return -1;
+    }
+}
+
+static int forth_host_paren_local(ForthSession *session) {
+    int64_t u = 0;
+    int64_t caddr = 0;
+    uint8_t name[FORTH_NAME_MAX];
+    uint32_t i;
+
+    if (!session->colon_open) return -1;
+    if (!forth_data_pop(session, &u) || !forth_data_pop(session, &caddr))
+        return -1;
+    if (u == 0) return forth_locals_close(session) ? 1 : -1;
+    if (u < 0 || (uint64_t)u > FORTH_NAME_MAX) return -1;
+    for (i = 0; i < (uint32_t)u; i++) {
+        if (!forth_fetch_byte(session, (uint64_t)caddr + i, &name[i]))
+            return -1;
+    }
+    return forth_add_colon_local(session, name, (uint32_t)u, true, true) ? 1 : -1;
+}
+
+static int forth_host_dot_s(ForthSession *session) {
+    uint32_t depth = forth_data_depth(session);
+    uint32_t i;
+
+    for (i = 0; i < depth; i++) {
+        int64_t cell = 0;
+        uint64_t addr = session->data_stack_addr
+            + (uint64_t)i * FORTH_CELL_BYTES;
+        char buf[32];
+        int n;
+        int k;
+        if (!forth_fetch_cell(session, addr, &cell)) return -1;
+        n = snprintf(buf, sizeof(buf), "%lld ", (long long)cell);
+        if (n < 0) return -1;
+        for (k = 0; k < n; k++) {
+            if (!forth_emit_char(session, (uint8_t)buf[k])) return -1;
+        }
+    }
+    return forth_emit_char(session, (uint8_t)'\n') ? 1 : -1;
+}
+
+static bool word_named(const uint8_t *name, uint32_t nlen, const char *lit) {
+    return names_equal(name, nlen, (const uint8_t *)lit, (uint32_t)strlen(lit));
+}
+
+static int forth_host_bracket_else(ForthSession *session) {
+    int64_t level = 1;
+    uint8_t name[FORTH_NAME_MAX];
+    uint32_t nlen = 0;
+
+    for (;;) {
+        int got = forth_take_word(session, name, &nlen);
+        if (got < 0) return -1;
+        if (got == 0) {
+            if (!forth_refill(session)) return -1;
+            continue;
+        }
+        if (word_named(name, nlen, "[IF]")) {
+            level++;
+        } else if (word_named(name, nlen, "[ELSE]")) {
+            level--;
+            if (level != 0) level++;
+        } else if (word_named(name, nlen, "[THEN]")) {
+            level--;
+        }
+        if (level == 0) return 1;
+    }
+}
+
+static int forth_host_bracket_if(ForthSession *session) {
+    int64_t flag = 0;
+    if (!forth_data_pop(session, &flag)) return -1;
+    if (flag == 0) return forth_host_bracket_else(session);
+    return 1;
+}
+
+static int forth_host_cs_pick(ForthSession *session) {
+    int64_t u = 0;
+    uint32_t avail;
+    uint32_t idx;
+    ForthCtrlItem item;
+
+    if (!session->colon_open) return -1;
+    if (!forth_data_pop(session, &u) || u < 0) return -1;
+    if (session->control_depth <= session->colon_saved_control_depth) return -1;
+    avail = session->control_depth - session->colon_saved_control_depth;
+    if ((uint64_t)u >= (uint64_t)avail) return -1;
+    idx = session->control_depth - 1u - (uint32_t)u;
+    if (session->control_depth >= FORTH_CONTROL_STACK_CELLS) return -1;
+    item = session->control[idx];
+    session->control[session->control_depth++] = item;
+    return 1;
+}
+
+static int forth_host_cs_roll(ForthSession *session) {
+    int64_t u = 0;
+    uint32_t avail;
+    uint32_t idx;
+    uint32_t i;
+    ForthCtrlItem item;
+
+    if (!session->colon_open) return -1;
+    if (!forth_data_pop(session, &u) || u < 0) return -1;
+    if (session->control_depth <= session->colon_saved_control_depth) return -1;
+    avail = session->control_depth - session->colon_saved_control_depth;
+    if ((uint64_t)u >= (uint64_t)avail) return -1;
+    if (u == 0) return 1;
+    idx = session->control_depth - 1u - (uint32_t)u;
+    item = session->control[idx];
+    for (i = idx; i + 1 < session->control_depth; i++)
+        session->control[i] = session->control[i + 1];
+    session->control[session->control_depth - 1] = item;
+    return 1;
+}
+
+static int forth_host_defined(ForthSession *session, bool want_defined) {
+    uint8_t name[FORTH_NAME_MAX];
+    uint32_t nlen = 0;
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    bool immediate = false;
+    int got;
+    int64_t flag;
+
+    got = forth_take_word(session, name, &nlen);
+    if (got < 0) return -1;
+    flag = 0;
+    if (got > 0 && forth_find(session, (const char *)name, nlen, &nt, &xt, &immediate))
+        flag = -1;
+    if (!want_defined) flag = flag ? 0 : -1;
+    return forth_data_push(session, flag) ? 1 : -1;
+}
+
+static int forth_host_n_to_r(ForthSession *session) {
+    int64_t n = 0;
+    int64_t cells[FORTH_STACK_CELLS];
+    int64_t i;
+
+    if (!forth_data_pop(session, &n) || n < 0) return -1;
+    if (n > (int64_t)FORTH_STACK_CELLS) return -1;
+    for (i = 0; i < n; i++) {
+        if (!forth_data_pop(session, &cells[i])) return -1;
+    }
+    for (i = n - 1; i >= 0; i--) {
+        if (!forth_return_push(session, cells[i])) return -1;
+    }
+    return forth_return_push(session, n) ? 1 : -1;
+}
+
+static int forth_host_nr_from(ForthSession *session) {
+    int64_t n = 0;
+    int64_t cells[FORTH_STACK_CELLS];
+    int64_t i;
+
+    if (!forth_return_pop(session, &n) || n < 0) return -1;
+    if (n > (int64_t)FORTH_STACK_CELLS) return -1;
+    for (i = 0; i < n; i++) {
+        if (!forth_return_pop(session, &cells[i])) return -1;
+    }
+    for (i = n - 1; i >= 0; i--) {
+        if (!forth_data_push(session, cells[i])) return -1;
+    }
+    return forth_data_push(session, n) ? 1 : -1;
+}
+
+static int forth_host_synonym(ForthSession *session) {
+    uint8_t neu[FORTH_NAME_MAX];
+    uint8_t alt[FORTH_NAME_MAX];
+    uint32_t nnew = 0;
+    uint32_t nold = 0;
+    ForthNt old_nt = 0;
+    ForthNt new_nt = 0;
+    ForthXt xt = 0;
+    bool imm = false;
+    ForthHeader *oldh;
+    ForthHeader *newh;
+
+    if (forth_take_word(session, neu, &nnew) <= 0) return -1;
+    if (forth_take_word(session, alt, &nold) <= 0) return -1;
+    if (!forth_find(session, (const char *)alt, nold, &old_nt, &xt, &imm))
+        return -1;
+    oldh = header_at(session, old_nt);
+    if (!oldh) return -1;
+    if (!forth_define(session, (const char *)neu, nnew, oldh->xt, oldh->immediate,
+                      false, &new_nt))
+        return -1;
+    newh = header_at(session, new_nt);
+    if (!newh) return -1;
+    newh->compile_only = oldh->compile_only;
+    newh->host_kind = oldh->host_kind;
+    newh->data_addr = oldh->data_addr;
+    newh->body_cells = oldh->body_cells;
+    return 1;
+}
+
+static int forth_host_traverse_wordlist(ForthSession *session) {
+    int64_t wid = 0;
+    int64_t xtc = 0;
+    int64_t flag = 0;
+    uint32_t start;
+    uint32_t i;
+    ForthXt xt;
+
+    if (!forth_data_pop(session, &wid) || !forth_data_pop(session, &xtc))
+        return -1;
+    if (wid <= 0 || xtc < 0) return -1;
+    if (!valid_wid(session, (ForthWid)wid)) return -1;
+    xt = (ForthXt)xtc;
+    start = session->header_count;
+    for (i = start; i > 0; i--) {
+        const ForthHeader *header = &session->headers[i - 1];
+        if (!header->used || header->hidden || header->wid != (ForthWid)wid)
+            continue;
+        if (!forth_data_push(session, (int64_t)i)) return -1;
+        if (forth_invoke_nested(session, xt) != VM_OK) return -1;
+        if (!forth_data_pop(session, &flag)) return -1;
+        if (flag == 0) return 1;
+    }
+    return 1;
+}
+
+static int forth_host_name_to_compile(ForthSession *session) {
+    int64_t ntc = 0;
+    ForthHeader *header;
+    ForthNt helper_nt = 0;
+    ForthXt helper_xt = 0;
+    bool helper_imm = false;
+    const char *helper;
+
+    if (!forth_data_pop(session, &ntc) || ntc <= 0) return -1;
+    header = header_at(session, (ForthNt)ntc);
+    if (!header) return -1;
+    helper = header->immediate ? "EXECUTE" : "COMPILE,";
+    if (!forth_find(session, helper, (uint32_t)strlen(helper),
+                    &helper_nt, &helper_xt, &helper_imm))
+        return -1;
+    if (!forth_data_push(session, (int64_t)header->xt)) return -1;
+    return forth_data_push(session, (int64_t)helper_xt) ? 1 : -1;
+}
+
+static int forth_host_name_to_interpret(ForthSession *session) {
+    int64_t ntc = 0;
+    ForthHeader *header;
+
+    if (!forth_data_pop(session, &ntc) || ntc <= 0) return -1;
+    header = header_at(session, (ForthNt)ntc);
+    if (!header) return -1;
+    if (header->compile_only)
+        return forth_data_push(session, 0) ? 1 : -1;
+    return forth_data_push(session, (int64_t)header->xt) ? 1 : -1;
+}
+
+static int forth_host_name_to_string(ForthSession *session) {
+    int64_t ntc = 0;
+    ForthHeader *header;
+
+    if (!forth_data_pop(session, &ntc) || ntc <= 0) return -1;
+    header = header_at(session, (ForthNt)ntc);
+    if (!header) return -1;
+    if (!forth_data_push(session, (int64_t)header->name_addr)) return -1;
+    return forth_data_push(session, (int64_t)header->name_len) ? 1 : -1;
+}
+
+static bool forth_mem_write(ForthSession *session, uint64_t addr,
+                            const void *src, uint32_t n) {
+    const uint8_t *bytes = (const uint8_t *)src;
+    uint32_t i;
+    for (i = 0; i < n; i++) {
+        if (!forth_store_byte(session, addr + i, bytes[i])) return false;
+    }
+    return true;
+}
+
+static bool forth_mem_read(ForthSession *session, uint64_t addr, void *dest,
+                           uint32_t n) {
+    uint8_t *bytes = (uint8_t *)dest;
+    uint32_t i;
+    for (i = 0; i < n; i++) {
+        if (!forth_fetch_byte(session, addr + i, &bytes[i])) return false;
+    }
+    return true;
+}
+
+static bool forth_compile_float(ForthSession *session, double r) {
+    union {
+        double d;
+        int64_t i;
+    } bits;
+    bits.d = r;
+    if (!forth_colon_literal(session, bits.i)) return false;
+    return forth_colon_host_runtime(session, FORTH_HOST_F_LIT_BITS);
+}
+
+static int forth_fp_flag(ForthSession *session, bool value) {
+    return forth_data_push(session, value ? (int64_t)-1 : 0) ? 1 : -1;
+}
+
+static int forth_fp_unop(ForthSession *session, double (*fn)(double)) {
+    double x = 0.0;
+    if (!forth_float_pop(session, &x)) return -1;
+    return forth_float_push(session, fn(x)) ? 1 : -1;
+}
+
+static int forth_fp_binop(ForthSession *session, double (*fn)(double, double)) {
+    double y = 0.0;
+    double x = 0.0;
+    if (!forth_float_pop(session, &y) || !forth_float_pop(session, &x))
+        return -1;
+    return forth_float_push(session, fn(x, y)) ? 1 : -1;
+}
+
+static double forth_fp_sub(double x, double y) { return x - y; }
+static double forth_fp_div(double x, double y) { return x / y; }
+static double forth_fp_add(double x, double y) { return x + y; }
+static double forth_fp_mul(double x, double y) { return x * y; }
+static double forth_fp_neg(double x) { return -x; }
+static double forth_fp_alog(double x) { return pow(10.0, x); }
+static double forth_fp_floor0(double x) {
+    if (x == 0.0) return copysign(0.0, x);
+    return floor(x);
+}
+static double forth_fp_max(double x, double y) { return fmax(x, y); }
+static double forth_fp_min(double x, double y) { return fmin(x, y); }
+static double forth_fp_abs(double x) { return fabs(x); }
+static double forth_fp_round(double x) { return round(x); }
+static double forth_fp_sqrt(double x) { return sqrt(x); }
+static double forth_fp_sin(double x) { return sin(x); }
+static double forth_fp_cos(double x) { return cos(x); }
+static double forth_fp_tan(double x) { return tan(x); }
+static double forth_fp_asin(double x) { return asin(x); }
+static double forth_fp_acos(double x) { return acos(x); }
+static double forth_fp_atan(double x) { return atan(x); }
+static double forth_fp_exp(double x) { return exp(x); }
+static double forth_fp_expm1(double x) { return expm1(x); }
+static double forth_fp_ln(double x) { return log(x); }
+static double forth_fp_log10(double x) { return log10(x); }
+static double forth_fp_lnp1(double x) { return log1p(x); }
+static double forth_fp_pow(double x, double y) { return pow(x, y); }
+static double forth_fp_sinh(double x) { return sinh(x); }
+static double forth_fp_cosh(double x) { return cosh(x); }
+static double forth_fp_tanh(double x) { return tanh(x); }
+static double forth_fp_asinh(double x) { return asinh(x); }
+static double forth_fp_acosh(double x) { return acosh(x); }
+static double forth_fp_atanh(double x) { return atanh(x); }
+
+static int forth_fp_emit_text(ForthSession *session, const char *text) {
+    size_t i;
+    size_t n;
+    if (!text) return -1;
+    n = strlen(text);
+    for (i = 0; i < n; i++) {
+        if (!forth_emit_char(session, (uint8_t)text[i])) return -1;
+    }
+    return forth_emit_char(session, (uint8_t)' ') ? 1 : -1;
+}
+
+static int forth_fp_print(ForthSession *session, uint16_t host) {
+    double r = 0.0;
+    char buf[160];
+    int prec;
+    int expn;
+    double mantissa;
+
+    if (!forth_float_pop(session, &r)) return -1;
+    prec = (int)session->fprecision;
+    if (prec < 1) prec = 1;
+    if (prec > 17) prec = 17;
+    if (host == FORTH_HOST_FS_DOT) {
+        snprintf(buf, sizeof(buf), "%.*E", prec - 1, r);
+        return forth_fp_emit_text(session, buf);
+    }
+    if (host == FORTH_HOST_FE_DOT) {
+        if (r == 0.0) {
+            snprintf(buf, sizeof(buf), "%.*fE0", prec - 1, r);
+            return forth_fp_emit_text(session, buf);
+        }
+        expn = (int)floor(log10(fabs(r)));
+        expn -= ((expn % 3) + 3) % 3;
+        mantissa = r / pow(10.0, (double)expn);
+        snprintf(buf, sizeof(buf), "%.*fE%d", prec - 1, mantissa, expn);
+        return forth_fp_emit_text(session, buf);
+    }
+    snprintf(buf, sizeof(buf), "%.*f", prec, r);
+    return forth_fp_emit_text(session, buf);
+}
+
+static int forth_fp_represent(ForthSession *session) {
+    int64_t u = 0;
+    int64_t caddr = 0;
+    double r = 0.0;
+    int64_t n = 0;
+    int64_t sign_flag = 0;
+    int64_t valid = -1;
+    uint32_t i;
+    unsigned long long ival = 0;
+    unsigned long long limit = 1;
+
+    if (!forth_data_pop(session, &u) || u < 0) return -1;
+    if (!forth_data_pop(session, &caddr)) return -1;
+    if (!forth_float_pop(session, &r)) return -1;
+    if (signbit(r)) sign_flag = -1;
+    r = fabs(r);
+    if (!isfinite(r)) {
+        valid = 0;
+        r = 0.0;
+    }
+    if (u > 64) u = 64;
+    if (r == 0.0) {
+        n = 0;
+    } else {
+        n = (int64_t)floor(log10(r)) + 1;
+        ival = (unsigned long long)floor(r * pow(10.0, (double)((int)u - n))
+                                         + 0.5);
+        for (i = 0; i < (uint32_t)u; i++) limit *= 10ULL;
+        if (limit > 0 && ival >= limit) {
+            ival /= 10ULL;
+            n++;
+        }
+    }
+    for (i = 0; i < (uint32_t)u; i++) {
+        unsigned long long div = 1;
+        uint32_t j;
+        uint8_t dig;
+        for (j = i + 1; j < (uint32_t)u; j++) div *= 10ULL;
+        dig = (uint8_t)((ival / div) % 10ULL);
+        if (!forth_store_byte(session, (uint64_t)caddr + i,
+                              (uint8_t)('0' + dig)))
+            return -1;
+    }
+    if (!forth_data_push(session, n)) return -1;
+    if (!forth_data_push(session, sign_flag)) return -1;
+    return forth_data_push(session, valid) ? 1 : -1;
+}
+
+static int forth_host_fp(ForthSession *session, uint16_t host) {
+    double a = 0.0;
+    double b = 0.0;
+    double c = 0.0;
+    int64_t cell = 0;
+    int64_t addr = 0;
+    int64_t lo = 0;
+    int64_t hi = 0;
+    union {
+        double d;
+        float f;
+        int64_t i;
+    } bits;
+
+    switch (host) {
+    case FORTH_HOST_D_TO_F:
+        if (!forth_dpop(session, &lo, &hi)) return -1;
+        return forth_float_push(session, (double)forth_pack_d(lo, hi)) ? 1 : -1;
+    case FORTH_HOST_F_TO_D:
+        if (!forth_float_pop(session, &a)) return -1;
+        forth_unpack_d((__int128)a, &lo, &hi);
+        return forth_dpush(session, lo, hi) ? 1 : -1;
+    case FORTH_HOST_FDEPTH:
+        return forth_data_push(session, (int64_t)forth_float_depth(session))
+            ? 1 : -1;
+    case FORTH_HOST_FDROP:
+        return forth_float_pop(session, &a) ? 1 : -1;
+    case FORTH_HOST_FDUP:
+        if (!forth_float_pop(session, &a)) return -1;
+        return (forth_float_push(session, a) && forth_float_push(session, a))
+            ? 1 : -1;
+    case FORTH_HOST_FSWAP:
+        if (!forth_float_pop(session, &b) || !forth_float_pop(session, &a))
+            return -1;
+        return (forth_float_push(session, b) && forth_float_push(session, a))
+            ? 1 : -1;
+    case FORTH_HOST_FOVER:
+        if (!forth_float_pop(session, &b) || !forth_float_pop(session, &a))
+            return -1;
+        return (forth_float_push(session, a) && forth_float_push(session, b)
+                && forth_float_push(session, a)) ? 1 : -1;
+    case FORTH_HOST_FROT:
+        if (!forth_float_pop(session, &c) || !forth_float_pop(session, &b)
+                || !forth_float_pop(session, &a))
+            return -1;
+        return (forth_float_push(session, b) && forth_float_push(session, c)
+                && forth_float_push(session, a)) ? 1 : -1;
+    case FORTH_HOST_FPLUS:
+        return forth_fp_binop(session, forth_fp_add);
+    case FORTH_HOST_FMINUS:
+        return forth_fp_binop(session, forth_fp_sub);
+    case FORTH_HOST_FSTAR:
+        return forth_fp_binop(session, forth_fp_mul);
+    case FORTH_HOST_FSLASH:
+        return forth_fp_binop(session, forth_fp_div);
+    case FORTH_HOST_FNEGATE:
+        return forth_fp_unop(session, forth_fp_neg);
+    case FORTH_HOST_FZERO_LESS:
+        if (!forth_float_pop(session, &a)) return -1;
+        return forth_fp_flag(session, a < 0.0);
+    case FORTH_HOST_FZERO_EQUAL:
+        if (!forth_float_pop(session, &a)) return -1;
+        return forth_fp_flag(session, a == 0.0);
+    case FORTH_HOST_FLESS:
+        if (!forth_float_pop(session, &b) || !forth_float_pop(session, &a))
+            return -1;
+        return forth_fp_flag(session, a < b);
+    case FORTH_HOST_FABS:
+        return forth_fp_unop(session, forth_fp_abs);
+    case FORTH_HOST_FMAX:
+        return forth_fp_binop(session, forth_fp_max);
+    case FORTH_HOST_FMIN:
+        return forth_fp_binop(session, forth_fp_min);
+    case FORTH_HOST_FTILDE:
+        if (!forth_float_pop(session, &c) || !forth_float_pop(session, &b)
+                || !forth_float_pop(session, &a))
+            return -1;
+        if (c > 0.0)
+            return forth_fp_flag(session, fabs(a - b) < c);
+        if (c == 0.0)
+            return forth_fp_flag(session, a == b);
+        return forth_fp_flag(session, fabs(a - b) < fabs(c) * (fabs(a) + fabs(b)));
+    case FORTH_HOST_FSTORE:
+    case FORTH_HOST_DFSTORE:
+        if (!forth_data_pop(session, &addr) || !forth_float_pop(session, &a))
+            return -1;
+        bits.d = a;
+        return forth_mem_write(session, (uint64_t)addr, &bits.d, 8) ? 1 : -1;
+    case FORTH_HOST_FFETCH:
+    case FORTH_HOST_DFFETCH:
+        if (!forth_data_pop(session, &addr)) return -1;
+        bits.d = 0.0;
+        if (!forth_mem_read(session, (uint64_t)addr, &bits.d, 8)) return -1;
+        return forth_float_push(session, bits.d) ? 1 : -1;
+    case FORTH_HOST_SFSTORE:
+        if (!forth_data_pop(session, &addr) || !forth_float_pop(session, &a))
+            return -1;
+        bits.f = (float)a;
+        return forth_mem_write(session, (uint64_t)addr, &bits.f, 4) ? 1 : -1;
+    case FORTH_HOST_SFFETCH:
+        if (!forth_data_pop(session, &addr)) return -1;
+        bits.f = 0.0f;
+        if (!forth_mem_read(session, (uint64_t)addr, &bits.f, 4)) return -1;
+        return forth_float_push(session, (double)bits.f) ? 1 : -1;
+    case FORTH_HOST_FLITERAL:
+        if (!session->colon_open) return -1;
+        if (!forth_float_pop(session, &a)) return -1;
+        return forth_compile_float(session, a) ? 1 : -1;
+    case FORTH_HOST_F_LIT_BITS:
+        if (!forth_data_pop(session, &cell)) return -1;
+        bits.i = cell;
+        return forth_float_push(session, bits.d) ? 1 : -1;
+    case FORTH_HOST_FLOATS:
+    case FORTH_HOST_DFLOATS:
+        if (!forth_data_pop(session, &cell)) return -1;
+        return forth_data_push(session, cell * 8) ? 1 : -1;
+    case FORTH_HOST_SFLOATS:
+        if (!forth_data_pop(session, &cell)) return -1;
+        return forth_data_push(session, cell * 4) ? 1 : -1;
+    case FORTH_HOST_TO_FLOAT:
+        {
+            int64_t u = 0;
+            uint8_t buf[FORTH_WORD_MAX];
+            uint32_t n;
+            uint32_t i;
+            if (!forth_data_pop(session, &u) || u < 0) return -1;
+            if (!forth_data_pop(session, &addr)) return -1;
+            n = u > (int64_t)(FORTH_WORD_MAX - 1) ? (FORTH_WORD_MAX - 1)
+                                                  : (uint32_t)u;
+            for (i = 0; i < n; i++) {
+                if (!forth_fetch_byte(session, (uint64_t)addr + i, &buf[i]))
+                    return -1;
+            }
+            if (forth_parse_to_float(buf, n, true, &a)) {
+                if (!forth_float_push(session, a)) return -1;
+                return forth_data_push(session, -1) ? 1 : -1;
+            }
+            return forth_data_push(session, 0) ? 1 : -1;
+        }
+    case FORTH_HOST_FLOOR:
+        return forth_fp_unop(session, forth_fp_floor0);
+    case FORTH_HOST_FROUND:
+        return forth_fp_unop(session, forth_fp_round);
+    case FORTH_HOST_FSQRT:
+        return forth_fp_unop(session, forth_fp_sqrt);
+    case FORTH_HOST_FSIN:
+        return forth_fp_unop(session, forth_fp_sin);
+    case FORTH_HOST_FCOS:
+        return forth_fp_unop(session, forth_fp_cos);
+    case FORTH_HOST_FTAN:
+        return forth_fp_unop(session, forth_fp_tan);
+    case FORTH_HOST_FASIN:
+        return forth_fp_unop(session, forth_fp_asin);
+    case FORTH_HOST_FACOS:
+        return forth_fp_unop(session, forth_fp_acos);
+    case FORTH_HOST_FATAN:
+        return forth_fp_unop(session, forth_fp_atan);
+    case FORTH_HOST_FATAN2:
+        if (!forth_float_pop(session, &b) || !forth_float_pop(session, &a))
+            return -1;
+        return forth_float_push(session, atan2(a, b)) ? 1 : -1;
+    case FORTH_HOST_FSINCOS:
+        if (!forth_float_pop(session, &a)) return -1;
+        return (forth_float_push(session, sin(a))
+                && forth_float_push(session, cos(a))) ? 1 : -1;
+    case FORTH_HOST_FEXP:
+        return forth_fp_unop(session, forth_fp_exp);
+    case FORTH_HOST_FEXPM1:
+        return forth_fp_unop(session, forth_fp_expm1);
+    case FORTH_HOST_FLN:
+        return forth_fp_unop(session, forth_fp_ln);
+    case FORTH_HOST_FLOG:
+        return forth_fp_unop(session, forth_fp_log10);
+    case FORTH_HOST_FLNP1:
+        return forth_fp_unop(session, forth_fp_lnp1);
+    case FORTH_HOST_FSTAR_STAR:
+        return forth_fp_binop(session, forth_fp_pow);
+    case FORTH_HOST_FALOG:
+        return forth_fp_unop(session, forth_fp_alog);
+    case FORTH_HOST_FSINH:
+        return forth_fp_unop(session, forth_fp_sinh);
+    case FORTH_HOST_FCOSH:
+        return forth_fp_unop(session, forth_fp_cosh);
+    case FORTH_HOST_FTANH:
+        return forth_fp_unop(session, forth_fp_tanh);
+    case FORTH_HOST_FASINH:
+        return forth_fp_unop(session, forth_fp_asinh);
+    case FORTH_HOST_FACOSH:
+        return forth_fp_unop(session, forth_fp_acosh);
+    case FORTH_HOST_FATANH:
+        return forth_fp_unop(session, forth_fp_atanh);
+    case FORTH_HOST_REPRESENT:
+        return forth_fp_represent(session);
+    case FORTH_HOST_PRECISION:
+        return forth_data_push(session, (int64_t)session->fprecision) ? 1 : -1;
+    case FORTH_HOST_SET_PRECISION:
+        if (!forth_data_pop(session, &cell) || cell < 1) return -1;
+        session->fprecision = (uint32_t)cell;
+        return 1;
+    case FORTH_HOST_FS_DOT:
+    case FORTH_HOST_FE_DOT:
+    case FORTH_HOST_F_DOT:
+        return forth_fp_print(session, host);
+    default:
+        return -1;
+    }
+}
+
+static uint32_t forth_utf8_len(uint8_t lead) {
+    if (lead < 0x80u) return 1;
+    if ((lead & 0xE0u) == 0xC0u) return 2;
+    if ((lead & 0xF0u) == 0xE0u) return 3;
+    if ((lead & 0xF8u) == 0xF0u) return 4;
+    return 1;
+}
+
+static bool forth_utf8_decode_bytes(const uint8_t *p, uint32_t len, uint32_t *cp,
+                                    uint32_t *n) {
+    uint32_t need;
+    uint32_t acc;
+    uint32_t i;
+
+    if (!p || !cp || !n || len == 0) return false;
+    need = forth_utf8_len(p[0]);
+    if (need > len) {
+        *cp = p[0];
+        *n = 1;
+        return true;
+    }
+    if (need == 1) {
+        *cp = p[0];
+        *n = 1;
+        return true;
+    }
+    acc = p[0] & ((need == 2) ? 0x1Fu : (need == 3) ? 0x0Fu : 0x07u);
+    for (i = 1; i < need; i++) {
+        if ((p[i] & 0xC0u) != 0x80u) {
+            *cp = p[0];
+            *n = 1;
+            return true;
+        }
+        acc = (acc << 6) | (uint32_t)(p[i] & 0x3Fu);
+    }
+    *cp = acc;
+    *n = need;
+    return true;
+}
+
+static bool forth_utf8_encode(uint32_t cp, uint8_t out[4], uint32_t *n) {
+    if (!out || !n) return false;
+    if (cp > 0x10FFFFu || (cp >= 0xD800u && cp <= 0xDFFFu)) return false;
+    if (cp < 0x80u) {
+        out[0] = (uint8_t)cp;
+        *n = 1;
+    } else if (cp < 0x800u) {
+        out[0] = (uint8_t)(0xC0u | (cp >> 6));
+        out[1] = (uint8_t)(0x80u | (cp & 0x3Fu));
+        *n = 2;
+    } else if (cp < 0x10000u) {
+        out[0] = (uint8_t)(0xE0u | (cp >> 12));
+        out[1] = (uint8_t)(0x80u | ((cp >> 6) & 0x3Fu));
+        out[2] = (uint8_t)(0x80u | (cp & 0x3Fu));
+        *n = 3;
+    } else {
+        out[0] = (uint8_t)(0xF0u | (cp >> 18));
+        out[1] = (uint8_t)(0x80u | ((cp >> 12) & 0x3Fu));
+        out[2] = (uint8_t)(0x80u | ((cp >> 6) & 0x3Fu));
+        out[3] = (uint8_t)(0x80u | (cp & 0x3Fu));
+        *n = 4;
+    }
+    return true;
+}
+
+static bool forth_utf8_decode_addr(ForthSession *session, uint64_t addr,
+                                   uint32_t avail, uint32_t *cp, uint32_t *n) {
+    uint8_t buf[4];
+    uint32_t i;
+    uint32_t take;
+
+    if (!session || !cp || !n || avail == 0) return false;
+    if (!forth_fetch_byte(session, addr, &buf[0])) return false;
+    take = forth_utf8_len(buf[0]);
+    if (take > avail) take = 1;
+    for (i = 1; i < take; i++) {
+        if (!forth_fetch_byte(session, addr + i, &buf[i])) return false;
+    }
+    return forth_utf8_decode_bytes(buf, take, cp, n);
+}
+
+static int64_t forth_xc_width(uint32_t cp) {
+    if (cp == 0) return 0;
+    if (cp < 0x20u || (cp >= 0x7Fu && cp < 0xA0u)) return 0;
+    if (cp >= 0x300u && cp <= 0x36Fu) return 0;
+    if (cp >= 0x1100u && cp <= 0x115Fu) return 2;
+    if (cp >= 0x2E80u && cp <= 0xA4CFu) return 2;
+    if (cp >= 0xAC00u && cp <= 0xD7A3u) return 2;
+    if (cp >= 0xF900u && cp <= 0xFAFFu) return 2;
+    if (cp >= 0xFE10u && cp <= 0xFE6Fu) return 2;
+    if (cp >= 0xFF00u && cp <= 0xFF60u) return 2;
+    if (cp >= 0xFFE0u && cp <= 0xFFE6u) return 2;
+    if (cp >= 0x20000u) return 2;
+    return 1;
+}
+
+static bool forth_mem_copy(ForthSession *session, uint64_t dest, uint64_t src,
+                           uint32_t n) {
+    uint32_t i;
+    uint8_t b = 0;
+    for (i = 0; i < n; i++) {
+        if (!forth_fetch_byte(session, src + i, &b)) return false;
+        if (!forth_store_byte(session, dest + i, b)) return false;
+    }
+    return true;
+}
+
+static uint64_t forth_block_disk(const ForthSession *session, uint32_t blk) {
+    return session->blocks_addr + (uint64_t)blk * FORTH_BLOCK_SIZE;
+}
+
+static uint64_t forth_block_cache(const ForthSession *session, uint32_t blk) {
+    return session->block_cache_addr + (uint64_t)blk * FORTH_BLOCK_SIZE;
+}
+
+static bool forth_block_in_range(uint32_t blk) {
+    return blk < FORTH_BLOCK_COUNT;
+}
+
+static bool forth_block_assign(ForthSession *session, uint32_t blk, bool load) {
+    if (!session || !forth_block_in_range(blk)) return false;
+    if (!session->block_assigned[blk]) {
+        if (load) {
+            if (!forth_mem_copy(session, forth_block_cache(session, blk),
+                                forth_block_disk(session, blk), FORTH_BLOCK_SIZE))
+                return false;
+        }
+        session->block_assigned[blk] = true;
+    }
+    session->block_current = (int32_t)blk;
+    return true;
+}
+
+static bool forth_block_save_all(ForthSession *session) {
+    uint32_t i;
+    for (i = 0; i < FORTH_BLOCK_COUNT; i++) {
+        if (!session->block_dirty[i]) continue;
+        if (!forth_mem_copy(session, forth_block_disk(session, i),
+                            forth_block_cache(session, i), FORTH_BLOCK_SIZE))
+            return false;
+        session->block_dirty[i] = false;
+    }
+    return true;
+}
+
+static void forth_block_empty(ForthSession *session) {
+    uint32_t i;
+    for (i = 0; i < FORTH_BLOCK_COUNT; i++) {
+        session->block_assigned[i] = false;
+        session->block_dirty[i] = false;
+    }
+    session->block_current = -1;
+}
+
+static int forth_host_xchar(ForthSession *session, uint16_t host) {
+    int64_t a = 0;
+    int64_t b = 0;
+    int64_t u = 0;
+    uint32_t cp = 0;
+    uint32_t n = 0;
+    uint8_t enc[4];
+    uint32_t i;
+
+    switch (host) {
+    case FORTH_HOST_XC_FETCH_PLUS:
+        if (!forth_data_pop(session, &a)) return -1;
+        if (!forth_utf8_decode_addr(session, (uint64_t)a, 4, &cp, &n)) return -1;
+        if (!forth_data_push(session, a + (int64_t)n)) return -1;
+        return forth_data_push(session, (int64_t)cp) ? 1 : -1;
+    case FORTH_HOST_XCHAR_PLUS:
+        if (!forth_data_pop(session, &a)) return -1;
+        if (!forth_utf8_decode_addr(session, (uint64_t)a, 4, &cp, &n)) return -1;
+        return forth_data_push(session, a + (int64_t)n) ? 1 : -1;
+    case FORTH_HOST_XCHAR_MINUS:
+        if (!forth_data_pop(session, &a) || a <= 0) return -1;
+        do {
+            uint8_t ch = 0;
+            a--;
+            if (!forth_fetch_byte(session, (uint64_t)a, &ch)) return -1;
+            if ((ch & 0xC0u) != 0x80u) break;
+        } while (a > 0);
+        return forth_data_push(session, a) ? 1 : -1;
+    case FORTH_HOST_XC_SIZE:
+        if (!forth_data_pop(session, &a) || a < 0) return -1;
+        if (!forth_utf8_encode((uint32_t)a, enc, &n)) return -1;
+        return forth_data_push(session, (int64_t)n) ? 1 : -1;
+    case FORTH_HOST_X_SIZE:
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &a)) return -1;
+        if (u == 0) return forth_data_push(session, 0) ? 1 : -1;
+        if (!forth_utf8_decode_addr(session, (uint64_t)a, (uint32_t)u, &cp, &n))
+            return -1;
+        return forth_data_push(session, (int64_t)n) ? 1 : -1;
+    case FORTH_HOST_XC_STORE_PLUS:
+        if (!forth_data_pop(session, &a) || !forth_data_pop(session, &b))
+            return -1;
+        if (!forth_utf8_encode((uint32_t)b, enc, &n)) return -1;
+        if (!forth_mem_write(session, (uint64_t)a, enc, n)) return -1;
+        return forth_data_push(session, a + (int64_t)n) ? 1 : -1;
+    case FORTH_HOST_XC_STORE_PLUS_Q:
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &a) || !forth_data_pop(session, &b))
+            return -1;
+        if (!forth_utf8_encode((uint32_t)b, enc, &n)) return -1;
+        if ((int64_t)n > u) {
+            if (!forth_data_push(session, a) || !forth_data_push(session, u))
+                return -1;
+            return forth_data_push(session, 0) ? 1 : -1;
+        }
+        if (!forth_mem_write(session, (uint64_t)a, enc, n)) return -1;
+        if (!forth_data_push(session, a + (int64_t)n)) return -1;
+        if (!forth_data_push(session, u - (int64_t)n)) return -1;
+        return forth_data_push(session, -1) ? 1 : -1;
+    case FORTH_HOST_XC_COMMA:
+        if (!forth_data_pop(session, &b) || b < 0) return -1;
+        if (!forth_utf8_encode((uint32_t)b, enc, &n)) return -1;
+        a = (int64_t)session->bump;
+        if (!forth_dict_allot(session, (int64_t)n)) return -1;
+        return forth_mem_write(session, (uint64_t)a, enc, n) ? 1 : -1;
+    case FORTH_HOST_XEMIT:
+        if (!forth_data_pop(session, &b) || b < 0) return -1;
+        if (!forth_utf8_encode((uint32_t)b, enc, &n)) return -1;
+        for (i = 0; i < n; i++) {
+            if (!forth_emit_char(session, enc[i])) return -1;
+        }
+        return 1;
+    case FORTH_HOST_XHOLD:
+        if (!forth_data_pop(session, &b) || b < 0) return -1;
+        if (!forth_utf8_encode((uint32_t)b, enc, &n)) return -1;
+        for (i = n; i > 0; i--) {
+            if (!forth_pict_hold(session, enc[i - 1])) return -1;
+        }
+        return 1;
+    case FORTH_HOST_PLUS_XSTRING:
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &a)) return -1;
+        if (u == 0) {
+            if (!forth_data_push(session, a)) return -1;
+            return forth_data_push(session, 0) ? 1 : -1;
+        }
+        if (!forth_utf8_decode_addr(session, (uint64_t)a, (uint32_t)u, &cp, &n))
+            return -1;
+        if (!forth_data_push(session, a + (int64_t)n)) return -1;
+        return forth_data_push(session, u - (int64_t)n) ? 1 : -1;
+    case FORTH_HOST_X_STRING_MINUS:
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &a)) return -1;
+        if (u == 0) {
+            if (!forth_data_push(session, a)) return -1;
+            return forth_data_push(session, 0) ? 1 : -1;
+        }
+        b = a + u;
+        do {
+            uint8_t ch = 0;
+            b--;
+            if (!forth_fetch_byte(session, (uint64_t)b, &ch)) return -1;
+            if ((ch & 0xC0u) != 0x80u) break;
+        } while (b > a);
+        if (!forth_data_push(session, a)) return -1;
+        return forth_data_push(session, b - a) ? 1 : -1;
+    case FORTH_HOST_TRAILING_GARBAGE:
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &a)) return -1;
+        {
+            int64_t used = 0;
+            while (used < u) {
+                if (!forth_utf8_decode_addr(session, (uint64_t)(a + used),
+                                            (uint32_t)(u - used), &cp, &n))
+                    return -1;
+                if (used + (int64_t)n > u) break;
+                if (n == 1) {
+                    uint8_t lead = 0;
+                    if (!forth_fetch_byte(session, (uint64_t)(a + used), &lead))
+                        return -1;
+                    if (forth_utf8_len(lead) > 1) break;
+                }
+                used += (int64_t)n;
+            }
+            if (!forth_data_push(session, a)) return -1;
+            return forth_data_push(session, used) ? 1 : -1;
+        }
+    case FORTH_HOST_XC_WIDTH:
+        if (!forth_data_pop(session, &b) || b < 0) return -1;
+        return forth_data_push(session, forth_xc_width((uint32_t)b)) ? 1 : -1;
+    case FORTH_HOST_X_WIDTH:
+        if (!forth_data_pop(session, &u) || u < 0) return -1;
+        if (!forth_data_pop(session, &a)) return -1;
+        {
+            int64_t width = 0;
+            int64_t used = 0;
+            while (used < u) {
+                if (!forth_utf8_decode_addr(session, (uint64_t)(a + used),
+                                            (uint32_t)(u - used), &cp, &n))
+                    return -1;
+                width += forth_xc_width(cp);
+                used += (int64_t)n;
+            }
+            return forth_data_push(session, width) ? 1 : -1;
+        }
+    case FORTH_HOST_EKEY_TO_XCHAR:
+        if (!forth_data_pop(session, &b)) return -1;
+        if (b < 0 || b > 0x10FFFF || (b >= 0xD800 && b <= 0xDFFF))
+            return forth_data_push(session, 0) ? 1 : -1;
+        if (!forth_data_push(session, b)) return -1;
+        return forth_data_push(session, -1) ? 1 : -1;
+    case FORTH_HOST_XKEY: {
+        uint8_t buf[4];
+        uint64_t caddr = 0;
+        uint64_t su = 0;
+        int64_t to_in = 0;
+        uint32_t have = 0;
+        if (forth_source_id(session) != 0) {
+            int got;
+            if (!isatty(STDIN_FILENO)) return -1;
+            got = getchar();
+            if (got == EOF) return -1;
+            buf[0] = (uint8_t)got;
+            n = forth_utf8_len(buf[0]);
+            for (i = 1; i < n; i++) {
+                got = getchar();
+                if (got == EOF) break;
+                buf[i] = (uint8_t)got;
+            }
+            if (!forth_utf8_decode_bytes(buf, i < n ? i : n, &cp, &n)) return -1;
+            return forth_data_push(session, (int64_t)cp) ? 1 : -1;
+        }
+        if (!forth_source(session, &caddr, &su)) return -1;
+        if (!forth_fetch_cell(session, session->sysvars, &to_in)) return -1;
+        if (to_in < 0 || (uint64_t)to_in >= su) return -1;
+        have = (uint32_t)(su - (uint64_t)to_in);
+        if (have > 4) have = 4;
+        for (i = 0; i < have; i++) {
+            if (!forth_fetch_byte(session, caddr + (uint64_t)to_in + i, &buf[i]))
+                return -1;
+        }
+        if (!forth_utf8_decode_bytes(buf, have, &cp, &n)) return -1;
+        to_in += (int64_t)n;
+        if (!forth_store_cell(session, session->sysvars, to_in)) return -1;
+        return forth_data_push(session, (int64_t)cp) ? 1 : -1;
+    }
+    case FORTH_HOST_XKEY_Q: {
+        uint64_t caddr = 0;
+        uint64_t su = 0;
+        int64_t to_in = 0;
+        if (forth_source_id(session) != 0)
+            return forth_data_push(session, 0) ? 1 : -1;
+        if (!forth_source(session, &caddr, &su)) return -1;
+        if (!forth_fetch_cell(session, session->sysvars, &to_in)) return -1;
+        return forth_data_push(session,
+                               (to_in >= 0 && (uint64_t)to_in < su) ? (int64_t)-1
+                                                                    : 0)
+            ? 1 : -1;
+    }
+    default:
+        return -1;
+    }
+}
+
+static int forth_host_block(ForthSession *session, uint16_t host) {
+    int64_t u = 0;
+    int64_t v = 0;
+    uint32_t blk;
+    uint32_t i;
+    ForthNt nt = 0;
+    ForthXt xt = 0;
+    bool imm = false;
+
+    switch (host) {
+    case FORTH_HOST_BLOCK:
+        if (!forth_data_pop(session, &u) || u < 0 || !forth_block_in_range((uint32_t)u))
+            return -1;
+        blk = (uint32_t)u;
+        if (!forth_block_assign(session, blk, true)) return -1;
+        return forth_data_push(session, (int64_t)forth_block_cache(session, blk))
+            ? 1 : -1;
+    case FORTH_HOST_BUFFER:
+        if (!forth_data_pop(session, &u) || u < 0 || !forth_block_in_range((uint32_t)u))
+            return -1;
+        blk = (uint32_t)u;
+        if (!forth_block_assign(session, blk, false)) return -1;
+        return forth_data_push(session, (int64_t)forth_block_cache(session, blk))
+            ? 1 : -1;
+    case FORTH_HOST_UPDATE:
+        if (session->block_current < 0) return 1;
+        session->block_dirty[session->block_current] = true;
+        return 1;
+    case FORTH_HOST_SAVE_BUFFERS:
+        return forth_block_save_all(session) ? 1 : -1;
+    case FORTH_HOST_EMPTY_BUFFERS:
+        forth_block_empty(session);
+        return 1;
+    case FORTH_HOST_FLUSH:
+        if (!forth_block_save_all(session)) return -1;
+        forth_block_empty(session);
+        return 1;
+    case FORTH_HOST_LOAD:
+        if (!forth_data_pop(session, &u) || u < 0 || !forth_block_in_range((uint32_t)u))
+            return -1;
+        blk = (uint32_t)u;
+        if (!forth_block_assign(session, blk, true)) return -1;
+        if (!forth_source_push_block(session, blk)) return -1;
+        if (!forth_interpret_loop(session)) {
+            forth_source_pop(session);
+            return -1;
+        }
+        if (!forth_source_pop(session)) return -1;
+        return 1;
+    case FORTH_HOST_LIST: {
+        ForthHeader *scr;
+        if (!forth_data_pop(session, &u) || u < 0 || !forth_block_in_range((uint32_t)u))
+            return -1;
+        blk = (uint32_t)u;
+        if (!forth_block_assign(session, blk, true)) return -1;
+        if (!forth_find(session, "SCR", 3, &nt, &xt, &imm)) return -1;
+        (void)xt;
+        (void)imm;
+        scr = header_at(session, nt);
+        if (!scr || !forth_store_cell(session, scr->data_addr, u)) return -1;
+        for (i = 0; i < 16; i++) {
+            uint64_t line = forth_block_cache(session, blk)
+                + (uint64_t)i * 64u;
+            if (!forth_type_range(session, line, 64)) return -1;
+            if (!forth_emit_char(session, (uint8_t)'\n')) return -1;
+        }
+        return 1;
+    }
+    case FORTH_HOST_THRU:
+        if (!forth_data_pop(session, &v) || !forth_data_pop(session, &u))
+            return -1;
+        if (u < 0 || v < 0) return -1;
+        while (u <= v) {
+            if (!forth_data_push(session, u)) return -1;
+            if (forth_host_block(session, FORTH_HOST_LOAD) < 0) return -1;
+            u++;
+        }
+        return 1;
+    default:
+        return -1;
+    }
+}
+
+static int forth_run_host(ForthSession *session, uint16_t host, int64_t state) {
     uint8_t name[FORTH_NAME_MAX];
     uint32_t nlen = 0;
     ForthNt nt = 0;
@@ -3631,6 +7820,11 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
         if (!forth_colon_begin(session, (const char *)name, nlen)) return -1;
         if (!forth_store_cell(session, forth_state_addr(session), 1)) return -1;
         return 1;
+    case FORTH_HOST_NONAME:
+        if (forth_colon_is_open(session)) return -1;
+        if (!forth_colon_begin_noname(session)) return -1;
+        if (!forth_store_cell(session, forth_state_addr(session), 1)) return -1;
+        return 1;
     case FORTH_HOST_SEMI:
         if (!forth_colon_is_open(session)) return -1;
         if (!forth_colon_finish(session, &published)) return -1;
@@ -3642,6 +7836,8 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
         return forth_colon_else(session) ? 1 : -1;
     case FORTH_HOST_THEN:
         return forth_colon_then(session) ? 1 : -1;
+    case FORTH_HOST_AHEAD:
+        return forth_colon_ahead(session) ? 1 : -1;
     case FORTH_HOST_BEGIN:
         return forth_colon_cs_begin(session) ? 1 : -1;
     case FORTH_HOST_UNTIL:
@@ -3666,9 +7862,18 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
         if (!forth_colon_is_open(session)) return -1;
         return forth_store_cell(session, forth_state_addr(session), 1) ? 1 : -1;
     case FORTH_HOST_LITERAL:
-        if (state == 0) return -1;
+        if (!forth_colon_is_open(session)) return -1;
         if (!forth_data_pop(session, &cell)) return -1;
         return forth_colon_literal(session, cell) ? 1 : -1;
+    case FORTH_HOST_TWO_LITERAL:
+        if (!forth_colon_is_open(session)) return -1;
+        {
+            int64_t lo = 0;
+            int64_t hi = 0;
+            if (!forth_dpop(session, &lo, &hi)) return -1;
+            if (!forth_colon_literal(session, lo)) return -1;
+            return forth_colon_literal(session, hi) ? 1 : -1;
+        }
     case FORTH_HOST_IMMEDIATE:
         if (forth_latest(session) == 0) return -1;
         return forth_mark_immediate(session, forth_latest(session)) ? 1 : -1;
@@ -3691,12 +7896,22 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
         if (state != 0) return 0;
         got = forth_take_word(session, name, &nlen);
         if (got <= 0 || nlen == 0) return -1;
-        return forth_data_push(session, (int64_t)name[0]) ? 1 : -1;
+        {
+            uint32_t cp = 0;
+            uint32_t n = 0;
+            if (!forth_utf8_decode_bytes(name, nlen, &cp, &n)) return -1;
+            return forth_data_push(session, (int64_t)cp) ? 1 : -1;
+        }
     case FORTH_HOST_BRACKET_CHAR:
         if (state == 0) return -1;
         got = forth_take_word(session, name, &nlen);
         if (got <= 0 || nlen == 0) return -1;
-        return forth_colon_literal(session, (int64_t)name[0]) ? 1 : -1;
+        {
+            uint32_t cp = 0;
+            uint32_t n = 0;
+            if (!forth_utf8_decode_bytes(name, nlen, &cp, &n)) return -1;
+            return forth_colon_literal(session, (int64_t)cp) ? 1 : -1;
+        }
     case FORTH_HOST_CONSTANT:
         if (state != 0) return 0;
         if (!forth_data_pop(session, &cell)) return -1;
@@ -3730,10 +7945,42 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
             if (exec_hdr && exec_hdr->compile_only) return -1;
         }
         return forth_invoke_nested(session, xt) == VM_OK ? 1 : -1;
-    case FORTH_HOST_BACKSLASH:
+    case FORTH_HOST_BACKSLASH: {
+        ForthSourceFrame *frame = source_top(session);
+        if (frame && frame->kind == FORTH_SRC_BLOCK) {
+            int64_t to_in = 0;
+            if (!forth_fetch_cell(session, session->sysvars, &to_in)) return -1;
+            if (to_in < 0) return -1;
+            to_in = ((to_in / 64) + 1) * 64;
+            if ((uint64_t)to_in > frame->u) to_in = (int64_t)frame->u;
+            return forth_store_cell(session, session->sysvars, to_in) ? 1 : -1;
+        }
         return forth_skip_until(session, 0, true) ? 1 : -1;
-    case FORTH_HOST_PAREN:
-        return forth_skip_until(session, (uint8_t)')', false) ? 1 : -1;
+    }
+    case FORTH_HOST_PAREN: {
+        for (;;) {
+            uint64_t caddr = 0;
+            uint64_t u = 0;
+            int64_t to_in = 0;
+            ForthSourceFrame *frame;
+            if (!forth_source(session, &caddr, &u)) return -1;
+            if (!forth_fetch_cell(session, session->sysvars, &to_in)) return -1;
+            while ((uint64_t)to_in < u) {
+                uint8_t ch = 0;
+                if (!forth_fetch_byte(session, caddr + (uint64_t)to_in, &ch))
+                    return -1;
+                to_in++;
+                if (ch == (uint8_t)')') {
+                    return forth_store_cell(session, session->sysvars, to_in)
+                        ? 1 : -1;
+                }
+            }
+            if (!forth_store_cell(session, session->sysvars, to_in)) return -1;
+            frame = source_top(session);
+            if (!frame || frame->kind != FORTH_SRC_FILE) return 1;
+            if (!forth_refill(session)) return 1;
+        }
+    }
     case FORTH_HOST_QDO:
         return forth_colon_qdo(session) ? 1 : -1;
     case FORTH_HOST_LEAVE:
@@ -3746,11 +7993,25 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
         return forth_host_create(session) ? 1 : -1;
     case FORTH_HOST_DOES:
         if (state != 0) {
-            session->colon_does_pending = true;
-            session->colon_does_off = session->colon_code_len;
+            if (!forth_locals_close(session)) return -1;
+            if (!session->colon_does_pending) {
+                session->colon_parent_local_count = session->colon_local_count;
+                forth_reset_colon_locals(session);
+                session->colon_does_pending = true;
+                session->colon_does_off = session->colon_code_len;
+                return 1;
+            }
+            if (session->colon_does_chain_off != 0) return -1;
+            session->colon_does_a_local_count = session->colon_local_count;
+            forth_reset_colon_locals(session);
+            session->colon_does_chain_off = session->colon_code_len;
             return 1;
         }
         return forth_host_does(session) ? 1 : -1;
+    case FORTH_HOST_DOES_ENTER:
+        if (!forth_data_pop(session, &cell) || cell < 0) return -1;
+        session->does_child_nt = (cell == 0) ? 0 : (ForthNt)cell;
+        return 1;
     case FORTH_HOST_SOURCE:
         if (state != 0) return 0;
         {
@@ -3842,8 +8103,8 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
                 if (!forth_colon_literal(session, (int64_t)dest)) return -1;
                 return forth_colon_literal(session, (int64_t)wlen) ? 1 : -1;
             }
-            if (!forth_copy_to_word(session, src, wlen, false)) return -1;
-            if (!forth_data_push(session, (int64_t)session->word_addr)) return -1;
+            if (!forth_store_s_quote(session, src, wlen, NULL, &dest)) return -1;
+            if (!forth_data_push(session, (int64_t)dest)) return -1;
             return forth_data_push(session, (int64_t)wlen) ? 1 : -1;
         }
     case FORTH_HOST_DOT_QUOTE:
@@ -3873,6 +8134,15 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
             }
             return forth_type_range(session, src, wlen) ? 1 : -1;
         }
+    case FORTH_HOST_DOT_PAREN:
+        {
+            uint64_t src = 0;
+            uint32_t wlen = 0;
+            if (!forth_skip_blanks(session)) return -1;
+            if (!forth_parse_delimited(session, (uint8_t)')', false, &src, &wlen))
+                return -1;
+            return forth_type_range(session, src, wlen) ? 1 : -1;
+        }
     case FORTH_HOST_EMIT:
         if (state != 0) return 0;
         if (!forth_data_pop(session, &cell)) return -1;
@@ -3900,12 +8170,7 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
         }
     case FORTH_HOST_ABORT:
         if (state != 0) return 0;
-        while (forth_data_depth(session) > 0) {
-            int64_t drop = 0;
-            forth_data_pop(session, &drop);
-        }
-        forth_store_cell(session, session->throw_code_addr, -1);
-        return -1;
+        return forth_throw_now(session, -1) ? 1 : -1;
     case FORTH_HOST_CATCH:
         if (state != 0) return 0;
         if (!forth_data_pop(session, &cell)) return -1;
@@ -3954,9 +8219,9 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
             int64_t src = 0;
             int64_t i;
             if (!forth_data_pop(session, &u) || u < 0) return -1;
-            if (u == 0) return 1;
             if (!forth_data_pop(session, &dest)) return -1;
             if (!forth_data_pop(session, &src)) return -1;
+            if (u == 0) return 1;
             if ((uint64_t)dest < (uint64_t)src) {
                 for (i = 0; i < u; i++) {
                     uint8_t ch = 0;
@@ -4146,6 +8411,284 @@ static int forth_run_host(ForthSession *session, uint8_t host, int64_t state) {
     case FORTH_HOST_QUIT:
         if (state != 0) return 0;
         return forth_host_quit(session);
+    case FORTH_HOST_PLUSLOOP:
+        return forth_plusloop_step(session) ? 1 : -1;
+    case FORTH_HOST_SOURCE_ID:
+        if (state != 0) return 0;
+        return forth_data_push(session, forth_source_id(session)) ? 1 : -1;
+    case FORTH_HOST_REFILL:
+        if (state != 0) return 0;
+        return forth_host_refill_word(session);
+    case FORTH_HOST_PARSE_NAME:
+        if (state != 0) return 0;
+        return forth_host_parse_name(session);
+    case FORTH_HOST_VALUE:
+        if (state != 0) return 0;
+        return forth_host_value(session);
+    case FORTH_HOST_TWO_VALUE:
+        if (state != 0) return 0;
+        return forth_host_two_value(session);
+    case FORTH_HOST_TO:
+        return forth_host_body_op(session, state, false);
+    case FORTH_HOST_IS:
+        return forth_host_body_op(session, state, false);
+    case FORTH_HOST_ACTION_OF:
+        return forth_host_body_op(session, state, true);
+    case FORTH_HOST_MARKER:
+        if (state != 0) return 0;
+        return forth_host_marker(session);
+    case FORTH_HOST_MARKER_RUN:
+        if (state != 0) return 0;
+        return forth_host_marker_run(session);
+    case FORTH_HOST_CASE:
+        if (state == 0) return -1;
+        return forth_host_case(session);
+    case FORTH_HOST_OF:
+        if (state == 0) return -1;
+        return forth_host_of(session);
+    case FORTH_HOST_ENDOF:
+        if (state == 0) return -1;
+        return forth_host_endof(session);
+    case FORTH_HOST_ENDCASE:
+        if (state == 0) return -1;
+        return forth_host_endcase(session);
+    case FORTH_HOST_C_QUOTE:
+        return forth_host_c_quote(session, state);
+    case FORTH_HOST_S_BACKSLASH:
+        return forth_host_s_backslash(session, state);
+    case FORTH_HOST_DOT_R:
+        if (state != 0) return 0;
+        {
+            int64_t width = 0;
+            if (!forth_data_pop(session, &width)) return -1;
+            if (!forth_data_pop(session, &cell)) return -1;
+            return forth_print_aligned(session, cell, false, width);
+        }
+    case FORTH_HOST_UDOT_R:
+        if (state != 0) return 0;
+        {
+            int64_t width = 0;
+            if (!forth_data_pop(session, &width)) return -1;
+            if (!forth_data_pop(session, &cell)) return -1;
+            return forth_print_aligned(session, cell, true, width);
+        }
+    case FORTH_HOST_HOLDS:
+        if (state != 0) return 0;
+        return forth_host_holds(session);
+    case FORTH_HOST_UNUSED:
+        if (state != 0) return 0;
+        return forth_data_push(session,
+                               (int64_t)(FORTH_ADDR_MAX - session->bump)) ? 1 : -1;
+    case FORTH_HOST_SAVE_INPUT:
+        if (state != 0) return 0;
+        return forth_host_save_input(session);
+    case FORTH_HOST_RESTORE_INPUT:
+        if (state != 0) return 0;
+        return forth_host_restore_input(session);
+    case FORTH_HOST_DPLUS:
+    case FORTH_HOST_DMINUS:
+    case FORTH_HOST_DNEGATE:
+    case FORTH_HOST_DTWO_STAR:
+    case FORTH_HOST_DTWO_SLASH:
+    case FORTH_HOST_DLESS:
+    case FORTH_HOST_DEQUAL:
+    case FORTH_HOST_DABS:
+    case FORTH_HOST_DMAX:
+    case FORTH_HOST_DMIN:
+    case FORTH_HOST_MPLUS:
+    case FORTH_HOST_DULESS:
+    case FORTH_HOST_M_STAR_SLASH:
+        if (state != 0) return 0;
+        return forth_host_dmath(session, host);
+    case FORTH_HOST_TRAILING:
+    case FORTH_HOST_CMOVE:
+    case FORTH_HOST_CMOVE_UP:
+    case FORTH_HOST_COMPARE:
+    case FORTH_HOST_SEARCH:
+    case FORTH_HOST_UNESCAPE:
+    case FORTH_HOST_REPLACES:
+    case FORTH_HOST_SUBSTITUTE:
+        if (state != 0) return 0;
+        return forth_host_string(session, host);
+    case FORTH_HOST_SLITERAL:
+        return forth_host_sliteral(session);
+    case FORTH_HOST_WORDLIST:
+    case FORTH_HOST_GET_ORDER:
+    case FORTH_HOST_SET_ORDER:
+    case FORTH_HOST_GET_CURRENT:
+    case FORTH_HOST_SET_CURRENT:
+    case FORTH_HOST_FORTH_WORDLIST:
+    case FORTH_HOST_ALSO:
+    case FORTH_HOST_PREVIOUS:
+    case FORTH_HOST_ONLY:
+    case FORTH_HOST_FORTH:
+    case FORTH_HOST_DEFINITIONS:
+    case FORTH_HOST_SEARCH_WORDLIST:
+    case FORTH_HOST_ORDER:
+        if (state != 0) return 0;
+        return forth_host_search_order(session, host);
+    case FORTH_HOST_BIN:
+    case FORTH_HOST_OPEN_FILE:
+    case FORTH_HOST_CREATE_FILE:
+    case FORTH_HOST_CLOSE_FILE:
+    case FORTH_HOST_DELETE_FILE:
+    case FORTH_HOST_READ_FILE:
+    case FORTH_HOST_READ_LINE:
+    case FORTH_HOST_WRITE_FILE:
+    case FORTH_HOST_WRITE_LINE:
+    case FORTH_HOST_FILE_POSITION:
+    case FORTH_HOST_FILE_SIZE:
+    case FORTH_HOST_REPOSITION_FILE:
+    case FORTH_HOST_RESIZE_FILE:
+    case FORTH_HOST_FLUSH_FILE:
+    case FORTH_HOST_RENAME_FILE:
+    case FORTH_HOST_FILE_STATUS:
+    case FORTH_HOST_INCLUDED:
+    case FORTH_HOST_INCLUDE:
+    case FORTH_HOST_INCLUDE_FILE:
+    case FORTH_HOST_REQUIRED:
+    case FORTH_HOST_REQUIRE:
+        if (state != 0) return 0;
+        return forth_host_file(session, host);
+    case FORTH_HOST_ALLOCATE:
+    case FORTH_HOST_MEM_FREE:
+    case FORTH_HOST_MEM_RESIZE:
+        if (state != 0) return 0;
+        return forth_host_mem(session, host);
+    case FORTH_HOST_LOCALS_BRACE:
+        return forth_host_locals_brace(session);
+    case FORTH_HOST_LOCAL:
+        return forth_host_paren_local(session);
+    case FORTH_HOST_DOT_S:
+        if (state != 0) return 0;
+        return forth_host_dot_s(session);
+    case FORTH_HOST_BRACKET_IF:
+        return forth_host_bracket_if(session);
+    case FORTH_HOST_BRACKET_ELSE:
+        return forth_host_bracket_else(session);
+    case FORTH_HOST_BRACKET_THEN:
+        return 1;
+    case FORTH_HOST_CS_PICK:
+        return forth_host_cs_pick(session);
+    case FORTH_HOST_CS_ROLL:
+        return forth_host_cs_roll(session);
+    case FORTH_HOST_DEFINED:
+        return forth_host_defined(session, true);
+    case FORTH_HOST_UNDEFINED:
+        return forth_host_defined(session, false);
+    case FORTH_HOST_N_TO_R:
+        if (state != 0) return 0;
+        return forth_host_n_to_r(session);
+    case FORTH_HOST_NR_FROM:
+        if (state != 0) return 0;
+        return forth_host_nr_from(session);
+    case FORTH_HOST_SYNONYM:
+        if (state != 0) return 0;
+        return forth_host_synonym(session);
+    case FORTH_HOST_TRAVERSE_WORDLIST:
+        if (state != 0) return 0;
+        return forth_host_traverse_wordlist(session);
+    case FORTH_HOST_NAME_TO_COMPILE:
+        if (state != 0) return 0;
+        return forth_host_name_to_compile(session);
+    case FORTH_HOST_NAME_TO_INTERPRET:
+        if (state != 0) return 0;
+        return forth_host_name_to_interpret(session);
+    case FORTH_HOST_NAME_TO_STRING:
+        if (state != 0) return 0;
+        return forth_host_name_to_string(session);
+    case FORTH_HOST_D_TO_F:
+    case FORTH_HOST_F_TO_D:
+    case FORTH_HOST_FDEPTH:
+    case FORTH_HOST_FDROP:
+    case FORTH_HOST_FDUP:
+    case FORTH_HOST_FSWAP:
+    case FORTH_HOST_FOVER:
+    case FORTH_HOST_FROT:
+    case FORTH_HOST_FPLUS:
+    case FORTH_HOST_FMINUS:
+    case FORTH_HOST_FSTAR:
+    case FORTH_HOST_FSLASH:
+    case FORTH_HOST_FNEGATE:
+    case FORTH_HOST_FZERO_LESS:
+    case FORTH_HOST_FZERO_EQUAL:
+    case FORTH_HOST_FLESS:
+    case FORTH_HOST_FABS:
+    case FORTH_HOST_FMAX:
+    case FORTH_HOST_FMIN:
+    case FORTH_HOST_FTILDE:
+    case FORTH_HOST_FFETCH:
+    case FORTH_HOST_FSTORE:
+    case FORTH_HOST_SFFETCH:
+    case FORTH_HOST_SFSTORE:
+    case FORTH_HOST_DFFETCH:
+    case FORTH_HOST_DFSTORE:
+    case FORTH_HOST_FLITERAL:
+    case FORTH_HOST_F_LIT_BITS:
+    case FORTH_HOST_FLOATS:
+    case FORTH_HOST_SFLOATS:
+    case FORTH_HOST_DFLOATS:
+    case FORTH_HOST_TO_FLOAT:
+    case FORTH_HOST_FLOOR:
+    case FORTH_HOST_FROUND:
+    case FORTH_HOST_FSQRT:
+    case FORTH_HOST_FSIN:
+    case FORTH_HOST_FCOS:
+    case FORTH_HOST_FTAN:
+    case FORTH_HOST_FASIN:
+    case FORTH_HOST_FACOS:
+    case FORTH_HOST_FATAN:
+    case FORTH_HOST_FATAN2:
+    case FORTH_HOST_FSINCOS:
+    case FORTH_HOST_FEXP:
+    case FORTH_HOST_FEXPM1:
+    case FORTH_HOST_FLN:
+    case FORTH_HOST_FLOG:
+    case FORTH_HOST_FLNP1:
+    case FORTH_HOST_FSTAR_STAR:
+    case FORTH_HOST_FALOG:
+    case FORTH_HOST_FSINH:
+    case FORTH_HOST_FCOSH:
+    case FORTH_HOST_FTANH:
+    case FORTH_HOST_FASINH:
+    case FORTH_HOST_FACOSH:
+    case FORTH_HOST_FATANH:
+    case FORTH_HOST_REPRESENT:
+    case FORTH_HOST_PRECISION:
+    case FORTH_HOST_SET_PRECISION:
+    case FORTH_HOST_FS_DOT:
+    case FORTH_HOST_FE_DOT:
+    case FORTH_HOST_F_DOT:
+        return forth_host_fp(session, host);
+    case FORTH_HOST_XCHAR_PLUS:
+    case FORTH_HOST_XCHAR_MINUS:
+    case FORTH_HOST_XC_FETCH_PLUS:
+    case FORTH_HOST_XC_STORE_PLUS:
+    case FORTH_HOST_XC_STORE_PLUS_Q:
+    case FORTH_HOST_XC_SIZE:
+    case FORTH_HOST_X_SIZE:
+    case FORTH_HOST_XC_COMMA:
+    case FORTH_HOST_XEMIT:
+    case FORTH_HOST_XKEY:
+    case FORTH_HOST_XKEY_Q:
+    case FORTH_HOST_PLUS_XSTRING:
+    case FORTH_HOST_X_STRING_MINUS:
+    case FORTH_HOST_TRAILING_GARBAGE:
+    case FORTH_HOST_X_WIDTH:
+    case FORTH_HOST_XC_WIDTH:
+    case FORTH_HOST_XHOLD:
+    case FORTH_HOST_EKEY_TO_XCHAR:
+        return forth_host_xchar(session, host);
+    case FORTH_HOST_BLOCK:
+    case FORTH_HOST_BUFFER:
+    case FORTH_HOST_UPDATE:
+    case FORTH_HOST_FLUSH:
+    case FORTH_HOST_SAVE_BUFFERS:
+    case FORTH_HOST_EMPTY_BUFFERS:
+    case FORTH_HOST_LOAD:
+    case FORTH_HOST_LIST:
+    case FORTH_HOST_THRU:
+        return forth_host_block(session, host);
     default:
         return -1;
     }
@@ -4158,7 +8701,16 @@ static bool forth_throw_pending(ForthSession *session) {
     return thrown != 0;
 }
 
-static bool forth_interpret_loop(ForthSession *session) {
+static bool forth_throw_now(ForthSession *session, int64_t code) {
+    if (!session) return false;
+    if (code == 0) return true;
+    if (!forth_store_cell(session, session->throw_code_addr, code)) return false;
+    if (session->vm.frame_count != 0)
+        vm_request_halt(&session->vm);
+    return false;
+}
+
+bool forth_interpret_loop(ForthSession *session) {
     uint8_t name[FORTH_NAME_MAX];
     uint32_t nlen = 0;
 
@@ -4166,7 +8718,7 @@ static bool forth_interpret_loop(ForthSession *session) {
         ForthNt nt = 0;
         ForthXt xt = 0;
         bool immediate = false;
-        int64_t number = 0;
+        ForthParsedNumber number;
         int64_t state = 0;
         int got;
         int host_rc;
@@ -4178,8 +8730,19 @@ static bool forth_interpret_loop(ForthSession *session) {
         if (got == 0) return true;
         if (!forth_fetch_cell(session, forth_state_addr(session), &state))
             return false;
+        if (state != 0) {
+            int slot = forth_local_slot(session, name, nlen);
+            if (slot >= 0) {
+                if (!forth_colon_local_fetch(session, slot)) return false;
+                continue;
+            }
+        }
         if (forth_find(session, (const char *)name, nlen, &nt, &xt, &immediate)) {
             header = header_at(session, nt);
+            if (state != 0 && !immediate) {
+                if (!forth_colon_call(session, xt)) return false;
+                continue;
+            }
             host_rc = forth_run_host(session,
                                      header ? header->host_kind : FORTH_HOST_NONE,
                                      state);
@@ -4189,21 +8752,35 @@ static bool forth_interpret_loop(ForthSession *session) {
                     && state == 0)
                 return false;
             if (host_rc > 0) continue;
-            if (state != 0 && !immediate) {
-                if (!forth_colon_call(session, xt)) return false;
+            if (header && header->compile_only && state == 0) return false;
+            if (session->vm.frame_count != 0) {
+                ran = forth_invoke_nested(session, xt);
             } else {
-                if (header && header->compile_only && state == 0) return false;
                 ran = forth_session_invoke(session, xt, NULL, 0, NULL);
-                if (ran != VM_OK) return false;
-                if (session->exit_requested || session->quit_requested) return true;
-                if (forth_throw_pending(session)) return false;
+            }
+            if (ran != VM_OK) return false;
+            if (session->exit_requested || session->quit_requested) return true;
+            if (forth_throw_pending(session)) return false;
+            continue;
+        }
+        if (!forth_parse_number(session, name, nlen, &number)) {
+            double fvalue = 0.0;
+            if (!forth_parse_to_float(name, nlen, false, &fvalue))
+                return forth_throw_now(session, -13);
+            if (state != 0) {
+                if (!forth_compile_float(session, fvalue)) return false;
+            } else if (!forth_float_push(session, fvalue)) {
+                return false;
             }
             continue;
         }
-        if (!forth_parse_number(session, name, nlen, &number)) return false;
         if (state != 0) {
-            if (!forth_colon_literal(session, number)) return false;
-        } else if (!forth_data_push(session, number)) {
+            if (!forth_colon_literal(session, number.lo)) return false;
+            if (number.is_double && !forth_colon_literal(session, number.hi))
+                return false;
+        } else if (!forth_data_push(session, number.lo)) {
+            return false;
+        } else if (number.is_double && !forth_data_push(session, number.hi)) {
             return false;
         }
     }
@@ -4224,5 +8801,44 @@ bool forth_interpret(ForthSession *session, const uint8_t *text, uint32_t len) {
     g_forth = session;
     ok = forth_interpret_loop(session);
     g_forth = prev;
+    if (ok && forth_colon_is_open(session)) ok = false;
+    if (!ok && forth_colon_is_open(session)) forth_colon_abort(session);
+    return ok;
+}
+
+bool forth_interpret_file(ForthSession *session, const char *path) {
+    uint32_t fileid = 0;
+    ForthSession *prev;
+    bool ok = true;
+
+    if (!session || !path || path[0] == '\0') return false;
+    if (!forth_file_open(session, path, "r", &fileid)) return false;
+    if (!forth_source_push_file(session, fileid)) {
+        forth_file_close(session, fileid);
+        return false;
+    }
+    if (!forth_store_cell(session, session->throw_code_addr, 0)) {
+        forth_source_pop(session);
+        forth_file_close(session, fileid);
+        return false;
+    }
+    session->quit_requested = false;
+    prev = g_forth;
+    g_forth = session;
+    while (forth_refill(session)) {
+        if (!forth_interpret_loop(session)) {
+            ok = false;
+            break;
+        }
+        if (session->exit_requested) break;
+        if (session->quit_requested) {
+            session->quit_requested = false;
+            break;
+        }
+    }
+    g_forth = prev;
+    if (ok && forth_colon_is_open(session)) ok = false;
+    forth_source_pop(session);
+    forth_file_close(session, fileid);
     return ok;
 }

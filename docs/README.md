@@ -92,18 +92,35 @@ How I am built:
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
 
+10.0. **[NanoLang 4.4](RELEASE_4.4.md)** - Current release notes
+    - [LinkedIn draft](LINKEDIN_4.4.md) covering changes since `v4.0.0`
+    - [Developer overview](presentation/README.md)
+
 10.1. **[Forth 2012 Pins](FORTH_2012.md)** - My Forth 4.1 pins
     - Frozen Forth 2012 document, not later Forth 200x proposals
-    - Jackson v0.15.0 and forth200x snapshot, not yet vendored
+    - Jackson v0.15.0 Core and Core Ext suites vendored; `INCLUDED` remains a recorded gap
     - Gforth 0.7.3 differential on `pi.fs`
     - Environmental contract; session runtime compiles colon words to verified NanoISA
-    - I do not claim a Standard System yet
+    - I do not claim a Standard System
 
 10.2. **[Async Primitives](ASYNC_PRIMITIVES.md)** - My async/await model
     - Source-level `async fn` / `await`
     - Cooperative CPS/coroutine execution model
     - VM trap boundary for suspension/resumption integration
     - libdispatch-backed queue integrations where available
+
+10.4. **[Nano Service Interface](NSI.md)** - My v0 service contracts
+    - Interface, method, type, error, capability, and parameter ids
+    - Direction, ownership, lifetime, mutability, optionality, streaming
+    - Records, variants, arrays, strings, binary, resources, callbacks, async
+    - Document compatibility (`nl_nsi_compat`) and session hello
+    - Generated NanoLang/Forth/Python/Rust/C++ bindings and NanoISA imports
+    - Module `nsi` manifests, inventory, in-process/mock/local-process adapters
+    - [Trusted computing base](NSI_TCB.md) per deployment mode
+    - [Capability runtime and service fabric](NSI_FABRIC.md) (4.4)
+    - [Nano Emacs: live frame and isolated walker](NANO_EMACS.md)
+    - Names are not identity; ABI inference and malformed frames fail closed
+    - I do not claim a kernel or GNU Emacs compatibility
 
 10.5. **[Formal Verification](../formal/README.md)** - My proofs in Coq
     - Type soundness (preservation and progress)

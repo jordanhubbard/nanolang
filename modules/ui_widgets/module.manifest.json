@@ -8,15 +8,58 @@
     "User says 'button', 'slider', 'text input', 'ui controls'",
     "User is building an interactive application"
   ],
-  "avoid_when": ["User wants terminal UI (use ncurses)"],
-  "capabilities": ["buttons", "sliders", "text_input", "labels", "ui_state"],
-  "keywords": ["ui", "widgets", "gui", "controls", "interface"],
-  "examples": ["examples/graphics/sdl_ui_widgets_extended.nano"],
+  "avoid_when": [
+    "User wants terminal UI (use ncurses)"
+  ],
+  "capabilities": [
+    "buttons",
+    "sliders",
+    "text_input",
+    "labels",
+    "ui_state"
+  ],
+  "keywords": [
+    "ui",
+    "widgets",
+    "gui",
+    "controls",
+    "interface"
+  ],
+  "examples": [
+    "examples/graphics/sdl_ui_widgets_extended.nano"
+  ],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["sdl", "sdl_ttf"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "sdl",
+      "sdl_ttf"
+    ],
     "system": []
   },
-  "io_surfaces": ["window"],
-  "alternatives": [{"when": "terminal UI", "module": "ncurses"}]
+  "io_surfaces": [
+    "window"
+  ],
+  "alternatives": [
+    {
+      "when": "terminal UI",
+      "module": "ncurses"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/graphics",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/graphics.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/graphics.present"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

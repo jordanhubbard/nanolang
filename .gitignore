@@ -51,6 +51,9 @@ __pycache__/
 # Dependency directories
 node_modules/
 vendor/
+# Jackson Forth-2012 suite is pinned under tests/forth/vendor/
+!tests/forth/vendor/
+!tests/forth/vendor/**
 .nanolang/
 
 # Debug files
@@ -146,3 +149,20 @@ site/
 # Generated artifacts belong in the repository; the interpreter that built them
 # does not.
 /_build/
+
+# Jackson File Access tests create these in the current directory.
+/fatest1.txt
+/FATEST2.TXT
+/fatest3.txt
+
+# Compiled Forth C helpers built next to their sources.
+/tests/forth/test_forth_include_gap
+/tests/forth/test_forth_core_load
+/tests/test_nsi
+/tests/test_nsi_gen
+/tests/test_nsi_runtime
+/tests/test_nsi_manifest
+/tests/test_nsi_cap
+/tests/test_nsi_shm
+/tests/test_nsi_fabric
+/tests/nsi_client_bin

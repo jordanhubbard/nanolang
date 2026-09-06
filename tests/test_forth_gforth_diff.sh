@@ -54,10 +54,10 @@ for needle in needles:
 if "I am not a Forth 2012 Standard System" not in doc:
     errors.append("docs/FORTH_2012.md dropped the non-conformance sentence")
 
-if pins["test_suites"]["gerryjackson"].get("vendor") is not False:
-    errors.append("gerryjackson.vendor must stay false until the compiler exists")
+if pins["test_suites"]["gerryjackson"].get("vendor") is not True:
+    errors.append("gerryjackson.vendor must be true; the suite is vendored")
 if pins["test_suites"]["forth200x"].get("vendor") is not False:
-    errors.append("forth200x.vendor must stay false until a per-file inventory exists")
+    errors.append("forth200x.vendor must stay false; see docs/FORTH_200X_INVENTORY.md")
 if pins["gforth"].get("vendor") is not False:
     errors.append("gforth.vendor must stay false; do not vendor GPL Gforth")
 

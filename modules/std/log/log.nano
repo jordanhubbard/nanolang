@@ -47,6 +47,7 @@ extern fn nl_log_set_output_mode(mode: int) -> void
 extern fn nl_log_get_output_mode() -> int
 extern fn nl_log_set_file(path: string) -> void
 extern fn nl_log_write(level: int, message: string) -> void
+extern fn nl_log_write_event(level: int, event_id: string, message: string) -> void
 extern fn nl_log_trace_enter(fn_name: string) -> int
 extern fn nl_log_trace_exit(trace_id: int, fn_name: string) -> void
 extern fn nl_log_trace_event(name: string, data: string) -> void
@@ -169,13 +170,23 @@ shadow should_log {
     (set_log_level LOG_LEVEL_INFO)  /* Reset */
 }
 
-pub fn log_write(level: int, message: string) -> void {
+pub fn log_write_event(level: int, event_id: string, message: string) -> void {
     if (should_log level) {
-        /* Let the C backend apply output mode formatting and file routing. */
         unsafe {
-            (nl_log_write level message)
+            (nl_log_write_event level event_id message)
         }
     }
+}
+
+shadow log_write_event {
+    (set_log_level LOG_LEVEL_DEBUG)
+    (log_write_event LOG_LEVEL_INFO "LOG01" "test")
+    (set_log_level LOG_LEVEL_INFO)
+    assert true
+}
+
+pub fn log_write(level: int, message: string) -> void {
+    (log_write_event level "LOG01" message)
 }
 
 shadow log_write {

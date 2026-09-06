@@ -98,14 +98,14 @@ T{ 2 2/ -> 1 }T
 T{ 4 2/ -> 2 }T
 T{ -2 2/ -> -1 }T
 
-testing fm/mod (floored: same as /mod)
-T{ 7 2 fm/mod -> 1 3 }T
-T{ -7 2 fm/mod -> 1 -4 }T
+testing fm/mod (d n -- rem quot, floored)
+T{ 7 s>d 2 fm/mod -> 1 3 }T
+T{ -7 s>d 2 fm/mod -> 1 -4 }T
 
-testing sm/rem (symmetric: truncated toward zero)
-T{ 7 2 sm/rem -> 1 3 }T
-T{ -7 2 sm/rem -> -1 -3 }T
-T{ 7 -2 sm/rem -> 1 -3 }T
+testing sm/rem (d n -- rem quot, symmetric)
+T{ 7 s>d 2 sm/rem -> 1 3 }T
+T{ -7 s>d 2 sm/rem -> -1 -3 }T
+T{ 7 s>d -2 sm/rem -> 1 -3 }T
 
 testing m*
 T{ 0 0 m* -> 0 0 }T

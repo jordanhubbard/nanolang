@@ -10,6 +10,10 @@
 #include "toon_output.h"
 #include "nanocore_subset.h"
 #include "nanocore_export.h"
+#include "locale.h"
+#include "utf8.h"
+#include "diag_id.h"
+#include "catalog.h"
 #include "ptx_backend.h"
 #include "opencl_backend.h"
 #include "c_backend.h"
@@ -31,6 +35,28 @@
 /* Global argc/argv for runtime access by transpiled programs */
 int g_argc = 0;
 char **g_argv = NULL;
+
+static NlResolvedLocale g_process_locale;
+
+static int collect_locale_cli(int argc, char **argv, const char **cli_tag,
+                              int *print_locale) {
+    int i;
+    *cli_tag = NULL;
+    *print_locale = 0;
+    for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--print-locale") == 0) {
+            *print_locale = 1;
+        } else if (strcmp(argv[i], "--locale") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "nanoc: --locale requires a BCP 47 tag\n");
+                return -1;
+            }
+            i++;
+            *cli_tag = argv[i];
+        }
+    }
+    return 0;
+}
 
 /* Structured JSON diagnostics (implemented in json_diagnostics.c).  Declared
  * here rather than including json_diagnostics.h because that header defines a
@@ -120,8 +146,14 @@ static void resolve_project_root(const char *argv0) {
             *slash = '\0';
         }
     }
-    strncpy(g_project_root, exe_path, sizeof(g_project_root) - 1);
-    g_project_root[sizeof(g_project_root) - 1] = '\0';
+    {
+        size_t n = strlen(exe_path);
+        if (n >= sizeof(g_project_root)) {
+            n = sizeof(g_project_root) - 1;
+        }
+        memcpy(g_project_root, exe_path, n);
+        g_project_root[n] = '\0';
+    }
 }
 
 static void json_escape(FILE *out, const char *s) {
@@ -241,12 +273,41 @@ static void diags_push_simple(List_CompilerDiagnostic *diags, int phase, int sev
     CompilerDiagnostic d;
     d.phase = phase;
     d.severity = severity;
-    d.code = (char*)(code ? code : "C0000");
-    d.message = (char*)(message ? message : "");
+    d.code = (char*)nl_utf8_cstr_or_marker(code ? code : "C0000");
+    d.message = (char*)nl_utf8_cstr_or_marker(message);
     d.location.file = (char*)"";
     d.location.line = 0;
     d.location.column = 0;
     nl_list_CompilerDiagnostic_push(diags, d);
+}
+
+static void diags_push_id(List_CompilerDiagnostic *diags, int phase, int severity, const char *id) {
+    const char *en = nl_diag_en(id);
+    /* JSON/TOON stay English. Human stderr uses nl_catalog_text. */
+    diags_push_simple(diags, phase, severity, id, en ? en : id);
+}
+
+static void human_diag(const char *id) {
+    fprintf(stderr, "%s\n", nl_catalog_text(id));
+}
+
+static void load_process_catalogs(const char *argv0) {
+    const char *env = getenv("NANO_CATALOG_DIR");
+    char path[4096];
+    const char *slash;
+
+    if (env && env[0] && nl_catalog_load_locale(&g_process_locale, env)) return;
+    if (nl_catalog_load_locale(&g_process_locale, "catalogs/messages")) return;
+    if (!argv0) return;
+    slash = strrchr(argv0, '/');
+    if (slash) {
+        size_t n = (size_t)(slash - argv0);
+        if (n + 32 < sizeof path) {
+            memcpy(path, argv0, n);
+            snprintf(path + n, sizeof path - n, "/../catalogs/messages");
+            nl_catalog_load_locale(&g_process_locale, path);
+        }
+    }
 }
 
 static bool deterministic_outputs_enabled(void) {
@@ -315,10 +376,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     List_CompilerDiagnostic *diags = nl_list_CompilerDiagnostic_new();
 
     /* Read source file */
-    FILE *file = fopen(input_file, "r");
+    FILE *file = fopen(input_file, "rb");
     if (!file) {
-        fprintf(stderr, "Error: Could not open file '%s'\n", input_file);
-        diags_push_simple(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, "CIO01", "Could not open input file");
+        fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_IO_OPEN),
+                nl_utf8_cstr_or_marker(input_file));
+        diags_push_id(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IO_OPEN);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
@@ -328,6 +390,16 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fseek(file, 0, SEEK_END);
     long size = ftell(file);
     fseek(file, 0, SEEK_SET);
+    if (size < 0) {
+        fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_IO_OPEN),
+                nl_utf8_cstr_or_marker(input_file));
+        fclose(file);
+        diags_push_id(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IO_OPEN);
+        llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+        llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
+        nl_list_CompilerDiagnostic_free(diags);
+        return 1;
+    }
 
     char *source = malloc(size + 1);
 #pragma GCC diagnostic push
@@ -337,14 +409,30 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     source[size] = '\0';
     fclose(file);
 
+    {
+        size_t utf8_off = 0;
+        if (!nl_utf8_validate(source, (size_t)size, &utf8_off)) {
+            fprintf(stderr, "%s: %s (byte offset %zu)\n",
+                    nl_catalog_text(NL_DIAG_SRC_UTF8),
+                    nl_utf8_cstr_or_marker(input_file), utf8_off);
+            diags_push_id(diags, CompilerPhase_PHASE_LEXER,
+                          DiagnosticSeverity_DIAG_ERROR, NL_DIAG_SRC_UTF8);
+            free(source);
+            llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
+            llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
+            nl_list_CompilerDiagnostic_free(diags);
+            return 1;
+        }
+    }
+
     if (opts->verbose) printf("Compiling %s...\n", input_file);
 
     /* Phase 1: Lexing */
     int token_count = 0;
     Token *tokens = tokenize(source, &token_count);
     if (!tokens) {
-        fprintf(stderr, "Lexing failed\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, "CLEX01", "Lexing failed");
+        human_diag(lexer_last_error_id());
+        diags_push_id(diags, CompilerPhase_PHASE_LEXER, DiagnosticSeverity_DIAG_ERROR, lexer_last_error_id());
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
@@ -356,8 +444,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Phase 2: Parsing */
     ASTNode *program = parse_program(tokens, token_count);
     if (!program) {
-        fprintf(stderr, "Parsing failed\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, "CPARSE01", "Parsing failed");
+        human_diag(parser_last_error_id());
+        diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, parser_last_error_id());
         free_tokens(tokens, token_count);
         free(source);
         llm_emit_diags_json(opts->llm_diags_json_path, input_file, output_file, 1, diags);
@@ -389,8 +477,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, input_file)) {
-        fprintf(stderr, "Module loading failed\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, "CIMPORT01", "Module loading failed");
+        human_diag(NL_DIAG_IMPORT_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IMPORT_FAILED);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -427,8 +515,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         type_check(program, env);
     
     if (!typecheck_success) {
-        fprintf(stderr, "Type checking failed\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_TYPECHECK, DiagnosticSeverity_DIAG_ERROR, "CTYPE01", "Type checking failed");
+        human_diag(NL_DIAG_TYPE_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_TYPECHECK, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TYPE_FAILED);
         if (opts->json_errors) {
             json_diagnostics_output();
             json_diagnostics_cleanup();
@@ -813,7 +901,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                              module_compile_flags, sizeof(module_compile_flags),
                              opts->verbose)) {
             fprintf(stderr, "Error: Failed to compile modules\n");
-            diags_push_simple(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, "CMOD01", "Failed to compile imported modules");
+            diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_MOD_COMPILE);
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
@@ -866,8 +954,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         unsetenv("NANO_LLM_SHADOW_JSON");
     }
     if (!run_shadow_tests(program, env, opts->verbose)) {
-        fprintf(stderr, "Shadow tests failed\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, "CSHADOW01", "Shadow tests failed");
+        human_diag(NL_DIAG_SHADOW_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_SHADOW_FAILED);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -907,8 +995,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (opts->verbose) printf("Transpiling to C...\n");
     char *c_code = transpile_to_c(program, env, input_file);
     if (!c_code) {
-        fprintf(stderr, "Transpilation failed\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CTRANS01", "Transpilation failed");
+        human_diag(NL_DIAG_TRANS_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -967,8 +1055,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     FILE *c_file = fopen(temp_c_file, "w");
     if (!c_file) {
-        fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
-        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CC01", "Could not create temporary C file");
+        fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_C_TEMP),
+                nl_utf8_cstr_or_marker(temp_c_file));
+        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1279,7 +1368,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         strncpy(type_upper, type_name, sizeof(type_upper) - 1);
                         type_upper[sizeof(type_upper) - 1] = '\0';
                         for (char *p = type_upper; *p; p++) {
-                            *p = (char)toupper((unsigned char)*p);
+                            *p = (char)nl_ascii_toupper((unsigned char)*p);
                         }
                         fprintf(wrapper, "\n/* Guard macro set - typedef already defined above */\n");
                         fprintf(wrapper, "#define NL_%s_DEFINED\n\n", type_upper);
@@ -1338,6 +1427,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         "runtime/list_ASTTupleLiteral.c", "runtime/list_ASTTupleIndex.c",
         "runtime/token_helpers.c", "runtime/gc.c", "runtime/dyn_array.c",
         "runtime/gc_struct.c", "runtime/nl_string.c", "runtime/cli.c", "runtime/regex.c",
+        "utf8.c",
         "coroutine.c",
         NULL
     };
@@ -1394,9 +1484,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     
     if (cmd_len >= (int)sizeof(compile_cmd)) {
+        human_diag(NL_DIAG_CC_CMD);
         fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CCC02", "C compile command too long");
+        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
         free(c_code);
         free_ast(program);
         free_tokens(tokens, token_count);
@@ -1424,8 +1515,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
-        fprintf(stderr, "C compilation failed\n");
-        diags_push_simple(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, "CCC01", "C compilation failed");
+        human_diag(NL_DIAG_CC_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
         free(c_code);
         free_ast(program);
@@ -1486,7 +1577,8 @@ int main(int argc, char *argv[]) {
     /* Handle --help */
     if (argc >= 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) {
         printf("nanoc - Compiler for the nanolang programming language\n\n");
-        printf("Usage: %s <input.nano> [OPTIONS]\n\n", argv[0]);
+        printf("Usage: %s [OPTIONS] <input.nano>\n", argv[0]);
+        printf("       %s --print-locale [--locale <tag>]\n\n", argv[0]);
         printf("Options:\n");
         printf("  -o <file>      Specify output file (default: $TMPDIR/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
@@ -1538,6 +1630,8 @@ int main(int argc, char *argv[]) {
         printf("                 Example: nanoc add gpu-math@^1.0.0\n");
         printf("  --version, -v  Show version information\n");
         printf("  --help, -h     Show this help message\n");
+        printf("  --locale <tag> BCP 47 language tag (overrides NANO_LOCALE, LC_ALL, LANG)\n");
+        printf("  --print-locale Print resolved locale axes and exit (no compile)\n");
         printf("\nVerification Options:\n");
         printf("  --trust-report         Show formal verification trust levels for all functions\n");
         printf("  --reference-eval       Cross-check verified functions with Coq-extracted interpreter\n");
@@ -1603,13 +1697,31 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    {
+        const char *cli_tag = NULL;
+        int print_locale = 0;
+        char locale_buf[1024];
+        if (collect_locale_cli(argc, argv, &cli_tag, &print_locale) != 0)
+            return 1;
+        if (!nl_locale_resolve(cli_tag, &g_process_locale)) {
+            fprintf(stderr, "nanoc: invalid locale tag\n");
+            return 1;
+        }
+        if (print_locale) {
+            nl_locale_format(&g_process_locale, locale_buf, sizeof locale_buf);
+            fputs(locale_buf, stdout);
+            return 0;
+        }
+        load_process_catalogs(argv[0]);
+    }
+
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s <input.nano> [OPTIONS]\n", argv[0]);
+        fprintf(stderr, "Usage: %s [OPTIONS] <input.nano>\n", argv[0]);
         fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
         return 1;
     }
 
-    const char *input_file = argv[1];
+    const char *input_file = NULL;
     /* Default output to TMPDIR (or /tmp) to avoid polluting project dir */
     char default_output[512];
     snprintf(default_output, sizeof(default_output), "%s/nanoc_a.out", get_tmp_dir());
@@ -1658,8 +1770,20 @@ int main(int argc, char *argv[]) {
     int library_path_count = 0;
     int library_count = 0;
 
-    /* Parse command-line options */
-    for (int i = 2; i < argc; i++) {
+    /* Parse command-line options. Flags may precede the input file. */
+    for (int i = 1; i < argc; i++) {
+        if (argv[i][0] != '-') {
+            if (input_file) {
+                fprintf(stderr, "Unknown option: %s\n", argv[i]);
+                fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+                free(include_paths);
+                free(library_paths);
+                free(libraries);
+                return 1;
+            }
+            input_file = argv[i];
+            continue;
+        }
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output_file = argv[i + 1];
             i++;
@@ -1771,6 +1895,10 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--doc-md") == 0 ||
                    strcmp(argv[i], "-dm") == 0) {
             opts.doc_md = true;
+        } else if (strcmp(argv[i], "--locale") == 0 && i + 1 < argc) {
+            i++;
+        } else if (strcmp(argv[i], "--print-locale") == 0) {
+            /* handled before compile */
         } else {
             fprintf(stderr, "Unknown option: %s\n", argv[i]);
             fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
@@ -1779,6 +1907,15 @@ int main(int argc, char *argv[]) {
             free(libraries);
             return 1;
         }
+    }
+
+    if (!input_file) {
+        fprintf(stderr, "Usage: %s [OPTIONS] <input.nano>\n", argv[0]);
+        fprintf(stderr, "Try '%s --help' for more information.\n", argv[0]);
+        free(include_paths);
+        free(library_paths);
+        free(libraries);
+        return 1;
     }
     
     /* Set parsed flags in options */

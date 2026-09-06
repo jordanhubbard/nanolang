@@ -1,5 +1,6 @@
 #include "nanolang.h"
 #include "colors.h"
+#include "diag_id.h"
 #include <stdarg.h>
 #include <stdint.h>
 
@@ -10,6 +11,12 @@
 static bool g_parse_repl_mode = false;
 
 #define MAX_PARSER_ERRORS 20
+
+static const char *s_parser_last_id = NULL;
+
+const char *parser_last_error_id(void) {
+    return s_parser_last_id ? s_parser_last_id : NL_DIAG_PARSE_FAILED;
+}
 
 /* Forward declarations */
 static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, char **type_param_name_out, FunctionSignature **fn_sig_out, TypeInfo **type_info_out);
@@ -26,6 +33,7 @@ static void parser_error(Stage1Parser *p, int line, int column, const char *fmt,
     p->last_error_line = line;
     p->last_error_column = column;
     p->last_error_message = fmt;
+    s_parser_last_id = NL_DIAG_PARSE_EVENT;
     if (p->error_count > MAX_PARSER_ERRORS) {
         fprintf(stderr, "... stopping after %d errors\n", MAX_PARSER_ERRORS);
         return;
@@ -5293,6 +5301,7 @@ static ASTNode *parse_shadow(Stage1Parser *p) {
 ASTNode *parse_program(Token *tokens, int token_count) {
     if (!tokens || token_count <= 0) {
         fprintf(stderr, "Error: Invalid token array\n");
+        s_parser_last_id = NL_DIAG_PARSE_TOKENS;
         return NULL;
     }
     
@@ -5308,6 +5317,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
     parser.lambda_functions = malloc(sizeof(ASTNode*) * 8);
     parser.lambda_count = 0;
     parser.lambda_capacity = 8;
+    s_parser_last_id = NULL;
 
     int capacity = 16;
     int count = 0;

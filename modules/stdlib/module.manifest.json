@@ -3,15 +3,45 @@
   "version": "1.0.0",
   "stability": "stable",
   "summary": "Extended standard library utilities (deprecated, use std).",
-  "use_when": ["User has legacy code using stdlib"],
-  "avoid_when": ["New code (use std module)"],
-  "capabilities": ["legacy_utils"],
-  "keywords": ["stdlib", "legacy", "utilities"],
+  "use_when": [
+    "User has legacy code using stdlib"
+  ],
+  "avoid_when": [
+    "New code (use std module)"
+  ],
+  "capabilities": [
+    "legacy_utils"
+  ],
+  "keywords": [
+    "stdlib",
+    "legacy",
+    "utilities"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
+    "nanolang": [
+      "core>=1.0"
+    ],
     "system": []
   },
   "io_surfaces": [],
-  "alternatives": [{"when": "new code", "module": "std"}]
+  "alternatives": [
+    {
+      "when": "new code",
+      "module": "std"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/pure",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/pure.nsi.json",
+    "required_capabilities": [],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

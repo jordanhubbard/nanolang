@@ -1,14 +1,17 @@
 \ test_control.fs — Control flow tests
 
 testing if then
-T{ 1 if 42 then -> 42 }T
-T{ 0 if 42 then -> }T
-T{ -1 if 99 then -> 99 }T
+: if-42  if 42 then ;
+T{ 1 if-42 -> 42 }T
+T{ 0 if-42 -> }T
+: if-99  if 99 then ;
+T{ -1 if-99 -> 99 }T
 
 testing if else then
-T{ 1 if 1 else 2 then -> 1 }T
-T{ 0 if 1 else 2 then -> 2 }T
-T{ -1 if 1 else 2 then -> 1 }T
+: ie-12  if 1 else 2 then ;
+T{ 1 ie-12 -> 1 }T
+T{ 0 ie-12 -> 2 }T
+T{ -1 ie-12 -> 1 }T
 
 testing begin until
 : bu-test  0 begin 1+ dup 5 = until ;
@@ -55,7 +58,7 @@ T{ 1 exit-test -> 1 1 }T
 T{ -1 exit-test -> -1 }T
 
 testing recurse (factorial)
-: fact  dup 1 > if dup 1 - fact * then ;
+: fact  dup 1 > if dup 1 - recurse * then ;
 T{ 0 fact -> 0 }T
 T{ 1 fact -> 1 }T
 T{ 5 fact -> 120 }T

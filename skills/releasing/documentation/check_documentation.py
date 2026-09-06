@@ -41,10 +41,15 @@ WATCHES = [
             "docs/NANOISA_MEASUREMENTS.md",
             "tests/*fuzz*",
             "tests/test_verify_all_programs.sh",
+            "src/nsi.c",
+            "src/nsi_cap.c",
+            "src/nsi_fabric.c",
+            "modules/nano_eval/nano_emacs_worker.c",
         ],
         why="CONTRIBUTING states the rules a contributor is held to. In 4.0 the "
         "verifier, the optimization policy and the fuzzing surfaces all "
-        "changed and it was never opened -- the case this watch exists for.",
+        "changed and it was never opened -- the case this watch exists for. "
+        "4.4 added NSI, capabilities, fabric, and the isolated editor walker.",
     ),
     Watch(
         document="userguide/",

@@ -41,5 +41,20 @@
       "when": "direct audio",
       "module": "sdl_mixer"
     }
-  ]
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/audio",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/audio.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/audio.write_frame"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

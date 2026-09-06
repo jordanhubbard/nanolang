@@ -22,6 +22,7 @@ void nl_log_set_file(const char *path);
 
 /* Logging */
 void nl_log_write(int64_t level, const char *message);
+void nl_log_write_event(int64_t level, const char *event_id, const char *message);
 
 /* Tracing */
 int64_t nl_log_trace_enter(const char *fn_name);

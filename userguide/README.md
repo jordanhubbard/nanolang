@@ -5,10 +5,11 @@ reference pages are built from current repository data.
 
 ## Local workflow
 
-- Build and validate HTML: `make -C userguide html`
+- Build and validate HTML (six language editions): `make -C userguide html`
 - Run snippet checks: `make userguide-check` (or `make -C userguide check`)
 - Serve locally: `make -C userguide serve` (then browse http://localhost:3000)
 - Local server behavior matches GitHub Pages and serves `index.html` for `/`.
+- Translation drafts: `userguide/i18n/` (`README.md` there is the contributor workflow).
 
 ### Build options
 

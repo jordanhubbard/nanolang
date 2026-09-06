@@ -19,7 +19,9 @@ I transpile to C when you need native performance. I also provide my own virtual
 - [NanoISA VM Architecture](docs/NANOISA.md) - How my virtual machine is structured.
 - [Formal Verification](formal/README.md) - My Coq proof suite.
 - [Performance Monitoring and LLM Optimization](docs/PERFORMANCE_MONITORING.md) - `-pg` JSON, OS collectors, and a measured optimization loop.
-- [NanoLang 3.5 release presentation](docs/RELEASE_3.5.md) - What I shipped, what I measured, and where 4.0 begins.
+- [NanoLang 4.4](docs/RELEASE_4.4.md) - Forth Core evidence, NSI, POSIX capability fabric, isolated Nano Emacs. Last Git tag before this was `v4.0.0`.
+- [NanoLang 4.0](docs/RELEASE_4.0.md) - NanoISA v2, the verifier, and measured dispatch.
+- [Developer overview](docs/presentation/README.md) - Slides and narrative for the current release.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
 
 ## Quick Start
@@ -58,8 +60,8 @@ EOF
 ## My Features
 
 - **Formally Proved Semantics** - I have proved type soundness, progress, and determinism in Coq with no `Axiom` declarations. The big-step ↔ small-step equivalence proof is complete and `Admitted`-free (including tuple value reconstruction in `formal/Equivalence.v`).
-- **NanoISA Virtual Machine** - I include a stack-based VM with ~94 defined opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon.
-- **Automatic Memory Management** - I use reference counting so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic. Note: reference *cycles* are not automatically reclaimed (there is no tracing cycle collector yet) — break cycles manually to avoid leaks.
+- **NanoISA Virtual Machine** - I include a stack-based VM with 161 portable opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon. Bytecode is verified before it runs.
+- **Automatic Memory Management** - I use reference counting so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic. NanoVM also collects reference cycles (`src/nanovm/heap_cycles.c`); generated C already did.
 - **Machine-Led Optimization** - I run constant folding and dead-code elimination before code generation. I also support profile-guided inlining on my native C path.
 - **Shared IR** - I lower NanoLang and Nano Forth to NanoISA. C remains my production native path. Future LLVM, WebAssembly, JVM, and other general targets translate from NanoISA so every frontend shares one typed and verified boundary. PTX, OpenCL, and RISC-V remain direct experimental targets during that migration.
 - **Algebraic Effects** - I support typed, resumable effects with `effect`, `perform`, and `handle`. Side effects are explicit and composable.
@@ -70,6 +72,10 @@ EOF
 - **Type Inference** - I infer types where unambiguous so you can write `let x = 42` without an annotation. Inference is local and bidirectional, not full Hindley-Milner — explicit annotations are required at function boundaries.
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
+- **Nano Service Interface** - NSI v0 contracts, generated stubs, unforgeable capabilities, and a POSIX service fabric (`docs/NSI.md`, `docs/NSI_FABRIC.md`). I do not claim a kernel.
+- **Forth session** - Colon definitions compile to verified NanoISA. Jackson Core/Core Ext suites are vendored evidence. I do not claim a Standard System (`docs/FORTH_2012.md`).
+- **Message catalogs** - Six-language catalogs and machine-draft user guides. JSON/TOON stay English. I do not call the system internationalized.
+- **Nano Emacs** - An SDL frame whose walker runs in `bin/nano_emacs_worker`. I do not claim GNU Emacs (`docs/NANO_EMACS.md`).
 - **VS Code Extension** - I ship a Language Server, a Debug Adapter Protocol server, and a VS Code extension source tree (`editors/vscode/`) with semantic tokens. Run `vsce package` to build a `.vsix`.
 - **Web Playground** - I include a browser-based CodeMirror 6 editor with share permalink and live evaluation.
 

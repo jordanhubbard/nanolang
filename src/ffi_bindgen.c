@@ -1,8 +1,8 @@
 #include "nanolang.h"
+#include "utf8.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 /* FFI Binding Generator
  * Generates nanolang module files from C header files
@@ -31,7 +31,7 @@ typedef struct {
 static char *next_token(CTokenizer *t) {
     /* Skip whitespace and comments */
     while (t->source[t->pos] != '\0') {
-        if (isspace(t->source[t->pos])) {
+        if (nl_ascii_isspace((unsigned char)t->source[t->pos])) {
             if (t->source[t->pos] == '\n') t->line++;
             t->pos++;
             continue;
@@ -67,14 +67,14 @@ static char *next_token(CTokenizer *t) {
     int start = t->pos;
     
     /* Identifier or keyword */
-    if (isalpha(t->source[t->pos]) || t->source[t->pos] == '_') {
-        while (isalnum(t->source[t->pos]) || t->source[t->pos] == '_') {
+    if (nl_ascii_isalpha((unsigned char)t->source[t->pos]) || t->source[t->pos] == '_') {
+        while (nl_ascii_isalnum((unsigned char)t->source[t->pos]) || t->source[t->pos] == '_') {
             t->pos++;
         }
     }
     /* Number */
-    else if (isdigit(t->source[t->pos])) {
-        while (isdigit(t->source[t->pos]) || t->source[t->pos] == '.' || 
+    else if (nl_ascii_isdigit((unsigned char)t->source[t->pos])) {
+        while (nl_ascii_isdigit((unsigned char)t->source[t->pos]) || t->source[t->pos] == '.' || 
                t->source[t->pos] == 'e' || t->source[t->pos] == 'E' ||
                t->source[t->pos] == '+' || t->source[t->pos] == '-') {
             t->pos++;
@@ -237,7 +237,7 @@ static bool parse_function_declaration(CTokenizer *t, FILE *out) {
                 }
                 free(token);
                 token = next_token(t);
-            } else if ((isalpha(token[0]) || token[0] == '_') && strlen(param_type) > 0) {
+            } else if ((nl_ascii_isalpha((unsigned char)token[0]) || token[0] == '_') && strlen(param_type) > 0) {
                 /* If we already have a type, this is likely the parameter name */
                 /* But check if it might be a struct/enum name first */
                 /* For now, assume it's the parameter name if we have a base type */
@@ -248,7 +248,7 @@ static bool parse_function_declaration(CTokenizer *t, FILE *out) {
             } else {
                 /* Unknown - might be struct name or parameter name */
                 /* If it looks like an identifier and we don't have a type yet, it might be a struct name */
-                if (isalpha(token[0]) || token[0] == '_') {
+                if (nl_ascii_isalpha((unsigned char)token[0]) || token[0] == '_') {
                     size_t pt2_len = strlen(param_type);
                     snprintf(param_type + pt2_len, sizeof(param_type) - pt2_len, " %s", token);
                     free(token);

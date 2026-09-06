@@ -1,6 +1,7 @@
 /* json_diagnostics.c - Structured JSON error output implementation */
 
 #include "json_diagnostics.h"
+#include "utf8.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -58,12 +59,12 @@ void json_diagnostics_add(DiagnosticSeverity severity, const char *code,
     /* Add diagnostic */
     Diagnostic *diag = &g_diagnostics[g_diagnostic_count++];
     diag->severity = severity;
-    diag->code = strdup_safe(code);
-    diag->message = strdup_safe(message);
-    diag->file = strdup_safe(file);
+    diag->code = strdup_safe(nl_utf8_cstr_or_marker(code));
+    diag->message = strdup_safe(nl_utf8_cstr_or_marker(message));
+    diag->file = strdup_safe(nl_utf8_cstr_or_marker(file));
     diag->line = line;
     diag->column = column;
-    diag->suggestion = strdup_safe(suggestion);
+    diag->suggestion = suggestion ? strdup_safe(nl_utf8_cstr_or_marker(suggestion)) : NULL;
 }
 
 /* Escape string for JSON */

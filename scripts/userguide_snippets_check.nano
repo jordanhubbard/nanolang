@@ -26,6 +26,22 @@ shadow str_starts_with { assert (str_starts_with "hello" "he") }
 shadow str_ends_with { assert (str_ends_with "hello" "lo") }
 shadow str_index_of { assert (== (str_index_of "hello" "ll") 2) }
 
+fn is_published_guide_md(path: string) -> bool {
+    if (not (str_ends_with path ".md")) {
+        return false
+    }
+    if (str_contains path "userguide/i18n/") {
+        return false
+    }
+    return true
+}
+
+shadow is_published_guide_md {
+    assert (is_published_guide_md "userguide/index.md")
+    assert (not (is_published_guide_md "userguide/i18n/zh/index.md"))
+    assert (not (is_published_guide_md "userguide/index.txt"))
+}
+
 fn char_is_space(c: int) -> bool {
     return (or (== c 32) (or (== c 9) (or (== c 10) (== c 13))))
 }
@@ -482,7 +498,7 @@ fn main() -> int {
     let mut i: int = 0
     while (< i m_len) {
         let p: string = (at md_files i)
-        if (str_ends_with p ".md") { set markdowns (array_push markdowns p) }
+        if (is_published_guide_md p) { set markdowns (array_push markdowns p) }
         set i (+ i 1)
     }
     if (== (array_length markdowns) 0) {

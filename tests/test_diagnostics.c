@@ -147,6 +147,17 @@ void test_json_capacity_expansion(void) {
     g_json_output_enabled = false;
 }
 
+void test_json_invalid_utf8_replaced(void) {
+    json_diagnostics_init();
+    json_diagnostics_enable();
+    char junk[] = { 'b', 'a', 'd', (char)0xFF, 0 };
+    json_error("E001", junk, "f.nano", 1, 1, NULL);
+    ASSERT_EQ(json_diag_count(), 1);
+    ASSERT_STR_EQ(json_diag_message(0), "<invalid UTF-8>");
+    json_diagnostics_cleanup();
+    g_json_output_enabled = false;
+}
+
 void test_json_null_suggestion(void) {
     json_diagnostics_init();
     json_diagnostics_enable();
@@ -257,6 +268,19 @@ void test_toon_special_char_escaping(void) {
     toon_diagnostics_cleanup();
 }
 
+void test_toon_invalid_utf8_replaced(void) {
+    char junk[] = { 'b', 'a', 'd', (char)0xFF, 0 };
+    toon_diagnostics_add("error", "E001", junk, "f.nano", 1, 1);
+
+    const char *path = make_tmp_path("utf8.toon");
+    toon_diagnostics_output_to_file(path, "f.nano", "out", 1);
+    const char *content = read_file(path);
+    remove(path);
+
+    ASSERT_CONTAINS(content, "<invalid UTF-8>");
+    toon_diagnostics_cleanup();
+}
+
 void test_toon_max_diagnostics_no_overflow(void) {
     /* Fill up close to MAX_TOON_DIAGNOSTICS (256) without exceeding */
     for (int i = 0; i < 50; i++) {
@@ -289,6 +313,7 @@ int main(void) {
     TEST(json_out_of_bounds_accessors);
     TEST(json_capacity_expansion);
     TEST(json_null_suggestion);
+    TEST(json_invalid_utf8_replaced);
     TEST(json_add_before_init);
 
     printf("\n=== TOON Output Tests ===\n");
@@ -298,6 +323,7 @@ int main(void) {
     TEST(toon_null_path_returns_false);
     TEST(toon_empty_output);
     TEST(toon_special_char_escaping);
+    TEST(toon_invalid_utf8_replaced);
     TEST(toon_max_diagnostics_no_overflow);
 
     printf("\n✓ All diagnostics tests passed!\n");

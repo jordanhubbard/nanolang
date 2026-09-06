@@ -8,14 +8,40 @@
     "User says 'events', 'pub-sub', 'observer', 'listeners'",
     "User wants decoupled communication"
   ],
-  "avoid_when": ["User wants direct function calls (simpler)"],
-  "capabilities": ["event_emit", "event_listen", "pub_sub"],
-  "keywords": ["events", "pubsub", "observer", "listeners"],
+  "avoid_when": [
+    "User wants direct function calls (simpler)"
+  ],
+  "capabilities": [
+    "event_emit",
+    "event_listen",
+    "pub_sub"
+  ],
+  "keywords": [
+    "events",
+    "pubsub",
+    "observer",
+    "listeners"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
+    "nanolang": [
+      "core>=1.0"
+    ],
     "system": []
   },
   "io_surfaces": [],
-  "alternatives": []
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/pure",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/pure.nsi.json",
+    "required_capabilities": [],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

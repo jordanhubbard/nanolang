@@ -170,6 +170,8 @@ typedef struct VmState {
 
     /* FFI isolation: if true, use co-process for extern calls */
     bool isolate_ffi;
+    /* Host FFI may request the current invoke to stop as OP_HALT would. */
+    bool halt_requested;
 
     /* Original pipe fds (used for INIT/SHUTDOWN and large-payload fallback) */
     int cop_in_fd;            /* Pipe to co-process stdin (-1 if none) */
@@ -310,6 +312,13 @@ void vm_invalidate_decoded_module(VmState *vm, const NvmModule *module);
 /* Atomically decode a module again after mutation. Returns false on malformed code. */
 bool vm_rebuild_module(VmState *vm, const NvmModule *module);
 VmResult vm_rebuild_decoded_module(VmState *vm, const NvmModule *module);
+
+/* Decode and dispatch-build functions added after the last decode without
+ * freeing existing decoded instructions. Safe while a caller is executing. */
+bool vm_sync_new_functions(VmState *vm, const NvmModule *module);
+
+/* Stop the current invoke after the active OP_CALL_EXTERN returns, as OP_HALT. */
+void vm_request_halt(VmState *vm);
 
 /* Resize linear memory, preserving existing bytes and zeroing new storage. */
 bool vm_memory_resize(VmState *vm, uint64_t size);

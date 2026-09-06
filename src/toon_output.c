@@ -15,6 +15,7 @@
  */
 
 #include "toon_output.h"
+#include "utf8.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -62,10 +63,10 @@ void toon_diagnostics_add(const char *severity, const char *code,
     if (g_toon_diagnostic_count >= MAX_TOON_DIAGNOSTICS) return;
 
     ToonDiagnostic *d = &g_toon_diagnostics[g_toon_diagnostic_count++];
-    d->severity = toon_strdup(severity);
-    d->code = toon_strdup(code);
-    d->message = toon_strdup(message);
-    d->file = toon_strdup(file);
+    d->severity = toon_strdup(nl_utf8_cstr_or_marker(severity));
+    d->code = toon_strdup(nl_utf8_cstr_or_marker(code));
+    d->message = toon_strdup(nl_utf8_cstr_or_marker(message));
+    d->file = toon_strdup(nl_utf8_cstr_or_marker(file));
     d->line = line;
     d->column = column;
 }

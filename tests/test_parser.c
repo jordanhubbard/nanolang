@@ -781,6 +781,18 @@ void test_free_ast_complex(void) {
  * Error case tests — programs that fail to parse
  * ============================================================================ */
 
+void test_parse_ascii_identifiers_only(void) {
+    ASTNode *ok = parse_ok("fn cafe() -> int { return 0 }");
+    ASSERT_NOT_NULL(ok);
+    free_ast(ok);
+
+    int count = 0;
+    suppress_stderr();
+    Token *tokens = tokenize("fn caf\xc3\xa9() -> int { return 0 }", &count);
+    restore_stderr();
+    ASSERT_NULL(tokens);
+}
+
 void test_parse_err_unclosed_paren(void) {
     /* Use EOF-terminated input so error recovery exits cleanly */
     suppress_stderr();
@@ -948,6 +960,7 @@ int main(void) {
     TEST(free_ast_complex);
 
     printf("\n--- Error cases ---\n");
+    TEST(parse_ascii_identifiers_only);
     TEST(parse_err_unclosed_paren);
     TEST(parse_err_missing_return_type);
     TEST(parse_err_invalid_token);

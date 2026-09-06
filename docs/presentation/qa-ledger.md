@@ -1,5 +1,18 @@
 # NanoLang presentation QA ledger
 
+## 4.4 developer edition
+
+- Rebuilt the deck and narrative from NanoLang source, `docs/PERSONA.md`,
+  `docs/NANOISA.md`, `docs/NSI.md`, `docs/NSI_FABRIC.md`, `docs/NANO_EMACS.md`,
+  `docs/ROADMAP.md`, `docs/RELEASE_4.4.md`, `docs/NANOISA_MEASUREMENTS.md`,
+  and current tests on the 4.4 product branch.
+- Kept 15 slides. Slide 1 and 14 name 4.4. Slide 7 still shows the 4.0
+  verifier failure; that lesson did not expire.
+- Local PowerPoint and Word artifacts regenerated. Google publication uses
+  the existing file ids and happens after the `v4.4.0` tag.
+- I do not claim a Forth Standard System, GNU Emacs, a kernel, or that the
+  system is internationalized.
+
 ## 4.0 developer edition
 
 - Rebuilt the deck and narrative from NanoLang source, `docs/PERSONA.md`,

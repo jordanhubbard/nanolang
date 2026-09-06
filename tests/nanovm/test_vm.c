@@ -344,6 +344,47 @@ static void test_predecode_mutation_lifecycle(void) {
     nvm_module_free(mod);
 }
 
+static void test_sync_new_functions_keeps_existing_decode(void) {
+    uint8_t code[16];
+    uint32_t off = 0;
+    uint8_t extra[16];
+    uint32_t extra_off = 0;
+    uint32_t extra_idx;
+    const VmDecodedInstruction *old_instr;
+    NvmModule *mod;
+    VmState vm;
+    NanoValue result = val_void();
+
+    off += emit(code + off, OP_PUSH_I64, (int64_t)1);
+    off += emit(code + off, OP_RET);
+    mod = make_module(code, off, 0, 0);
+    vm_init(&vm, mod);
+    ASSERT(vm.decoded_module_valid, "initial module is decoded");
+    old_instr = vm.decoded_module.functions[0].instructions;
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "existing function executes before append");
+    ASSERT_EQ_INT(result.as.i64, 1, "existing operand is retained");
+
+    extra_off += emit(extra + extra_off, OP_PUSH_I64, (int64_t)99);
+    extra_off += emit(extra + extra_off, OP_RET);
+    extra_idx = add_fn(mod, "extra", extra, extra_off, 0, 0);
+    ASSERT(vm_sync_new_functions(&vm, mod), "append decode succeeds");
+    ASSERT(vm.decoded_module.functions[0].instructions == old_instr,
+           "existing decode arrays are not freed");
+    ASSERT_EQ_INT(vm.decoded_module.function_count, extra_idx + 1,
+                  "decoded function count includes the new function");
+    ASSERT(vm_sync_new_functions(&vm, mod), "sync with no new functions succeeds");
+    ASSERT_EQ_INT(vm_invoke(&vm, extra_idx, NULL, 0, &result), VM_OK,
+                  "appended function executes without full rebuild");
+    ASSERT_EQ_INT(result.as.i64, 99, "appended operand is visible");
+    ASSERT_EQ_INT(vm_invoke(&vm, 0, NULL, 0, &result), VM_OK,
+                  "existing function still executes after append");
+    ASSERT_EQ_INT(result.as.i64, 1, "existing operand is unchanged");
+
+    vm_destroy(&vm);
+    nvm_module_free(mod);
+}
+
 static void test_predecode_rejects_malformed_code(void) {
     uint8_t truncated[] = { OP_PUSH_I64, 1 };
     NvmModule *mod = make_module(truncated, sizeof(truncated), 0, 0);
@@ -4771,6 +4812,7 @@ int main(void) {
     RUN_TEST(test_call_extern_arg_limit_is_error_not_truncation);
     RUN_TEST(test_persistent_invoke);
     RUN_TEST(test_predecode_mutation_lifecycle);
+    RUN_TEST(test_sync_new_functions_keeps_existing_decode);
     RUN_TEST(test_predecode_rejects_malformed_code);
     RUN_TEST(test_predecode_trap_resume_offset);
     RUN_TEST(test_result_signature_enforcement);

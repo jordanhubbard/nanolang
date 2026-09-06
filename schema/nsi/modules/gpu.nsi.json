@@ -1,0 +1,58 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/gpu",
+    "name": "gpu"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/gpu#submit",
+      "name": "submit",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/gpu#submit.queue",
+          "name": "queue",
+          "type": "nsi:core/int",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/gpu#submit.handle",
+          "name": "handle",
+          "type": "nsi:nanolang/gpu#Device",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/gpu#Device",
+      "name": "Device",
+      "kind": "resource"
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/gpu#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/gpu.submit",
+      "name": "submit"
+    }
+  ]
+}

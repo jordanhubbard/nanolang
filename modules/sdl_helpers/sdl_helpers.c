@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include "../../src/utf8.h"
 
 #define NL_SDL_EVENT_BUF_CAP 256
 
@@ -419,9 +420,10 @@ int64_t nl_sdl_render_text_solid(int64_t renderer_ptr, int64_t font_ptr,
     TTF_Font *font = (TTF_Font*)font_ptr;
     
     if (!font) return -1;
+    if (!nl_utf8_ok_cstr(text)) return -1;
     
     SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a};
-    SDL_Surface *surface = TTF_RenderText_Solid(font, text, color);
+    SDL_Surface *surface = TTF_RenderUTF8_Solid(font, text, color);
     if (!surface) return -1;
     
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -449,9 +451,10 @@ int64_t nl_sdl_render_text_blended(int64_t renderer_ptr, int64_t font_ptr,
     TTF_Font *font = (TTF_Font*)font_ptr;
     
     if (!font) return -1;
+    if (!nl_utf8_ok_cstr(text)) return -1;
     
     SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a};
-    SDL_Surface *surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, text, color);
     if (!surface) return -1;
     
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);

@@ -19,7 +19,14 @@ nano_virt (compiler)
   |       +---> nano_vmd (VM daemon, optional)
   |
   +---> native binary (default)
-          embeds .nvm + VM runtime
+  |       embeds .nvm + VM runtime (wrapper_gen; still a VM process)
+  |
+  +---> nvm2c (spike, not the default): structured C11 from .nvm
+          cc → native binary with no nano_vm / nano_cop in-process
+
+5.0 makes `.nvm` the only compiler product and treats C/LLVM/Wasm as
+translators of that module. Contract: [`docs/NANOISA_ONLY.md`](NANOISA_ONLY.md).
+That rewrite is not 4.x work. `nano_virt -o` remains a packaged interpreter.
 ```
 
 ## Binaries

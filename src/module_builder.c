@@ -3,6 +3,7 @@
 
 #include "module_builder.h"
 #include "runtime/module_build_dir.h"
+#include "utf8.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1405,7 +1406,7 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     }
 
     // Read file
-    FILE *fp = fopen(path, "r");
+    FILE *fp = fopen(path, "rb");
     if (!fp) {
         fprintf(stderr, "Error: Could not open %s\n", path);
         return NULL;
@@ -1414,8 +1415,13 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
+    if (size < 0) {
+        fprintf(stderr, "Error: Could not read %s\n", path);
+        fclose(fp);
+        return NULL;
+    }
 
-    char *content = malloc(size + 1);
+    char *content = malloc((size_t)size + 1);
     if (!content) {
         fclose(fp);
         return NULL;
@@ -1423,10 +1429,16 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-result"
-    fread(content, 1, size, fp);
+    fread(content, 1, (size_t)size, fp);
 #pragma GCC diagnostic pop
     content[size] = '\0';
     fclose(fp);
+
+    if (!nl_utf8_validate(content, (size_t)size, NULL)) {
+        fprintf(stderr, "Error: %s is not valid UTF-8\n", path);
+        free(content);
+        return NULL;
+    }
 
     // Parse JSON
     cJSON *json = cJSON_Parse(content);
@@ -2221,7 +2233,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                                cc, shared_lib);
             #else
             lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               "%s -shared -fPIC -o %s", cc, shared_lib);
+                               "%s -shared -fPIC -Wl,--allow-shlib-undefined -o %s",
+                               cc, shared_lib);
             #endif
             
             /* Link the shared library from the module object (supports multi-source modules) */

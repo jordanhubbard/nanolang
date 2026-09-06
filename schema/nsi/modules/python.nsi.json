@@ -1,0 +1,58 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/python",
+    "name": "python"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/python#eval",
+      "name": "eval",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/python#eval.source",
+          "name": "source",
+          "type": "nsi:core/string",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/python#eval.handle",
+          "name": "handle",
+          "type": "nsi:nanolang/python#Interp",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/python#Interp",
+      "name": "Interp",
+      "kind": "resource"
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/python#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/python.eval",
+      "name": "eval"
+    }
+  ]
+}

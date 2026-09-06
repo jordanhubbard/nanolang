@@ -66,6 +66,24 @@ def iter_markdown_files(repo_root: Path):
                 yield Path(root) / name
 
 
+def i18n_generated_fallback(repo_root: Path, rel_md_path: Path, target: str) -> bool:
+    """i18n drafts keep English relative links to generated/*.md.
+
+    Those pages live under userguide/generated/, not under each language
+    directory. Rewriting the markdown to ../../generated/ would break
+    translation-memory identity with the English sources. Accept the
+    English generated file as the target instead.
+    """
+    parts = rel_md_path.parts
+    if len(parts) < 3 or parts[0] != "userguide" or parts[1] != "i18n":
+        return False
+    target_path = Path(target)
+    if "generated" not in target_path.parts:
+        return False
+    fallback = (repo_root / "userguide" / "generated" / target_path.name).resolve()
+    return fallback.exists()
+
+
 def find_broken_links_in_file(repo_root: Path, md_path: Path) -> list[BrokenLink]:
     rel_md_path = md_path.relative_to(repo_root)
     content = md_path.read_text(encoding="utf-8", errors="replace")
@@ -112,6 +130,8 @@ def find_broken_links_in_file(repo_root: Path, md_path: Path) -> list[BrokenLink
                     md_abs_target = (md_path.parent / md_target).resolve()
                 if md_abs_target.exists():
                     continue  # .md file exists, .html will be generated
+            if i18n_generated_fallback(repo_root, rel_md_path, target):
+                continue
             broken.append(BrokenLink(str(rel_md_path), target))
 
     return broken

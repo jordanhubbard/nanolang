@@ -1,0 +1,54 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/log",
+    "name": "log"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/log#write",
+      "name": "write",
+      "params": [
+        {
+          "id": "nsi:nanolang/log#write.level",
+          "name": "level",
+          "type": "nsi:nanolang/log#Level",
+          "direction": "in",
+          "ownership": "copy",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/log#write.message",
+          "name": "message",
+          "type": "nsi:core/string",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    },
+    { "id": "nsi:nanolang/log#write_event", "name": "write_event", "idempotent": true, "params": [] }
+  ],
+  "types": [
+    { "id": "nsi:nanolang/log#Level", "name": "Level", "kind": "variant",
+      "cases": [
+        { "id": "nsi:nanolang/log#Level.debug", "name": "debug" },
+        { "id": "nsi:nanolang/log#Level.info", "name": "info" },
+        { "id": "nsi:nanolang/log#Level.warn", "name": "warn" },
+        { "id": "nsi:nanolang/log#Level.error", "name": "error" }
+      ]
+    }
+  ],
+  "errors": [
+    { "id": "nsi:nanolang/log#io", "name": "io", "version": "1" }
+  ],
+  "capabilities": [
+    { "id": "cap:nanolang/log.write", "name": "write" }
+  ]
+}

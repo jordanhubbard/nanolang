@@ -815,6 +815,8 @@ typedef struct {
 Token *tokenize(const char *source, int *token_count);
 void free_tokens(Token *tokens, int count);
 const char *token_type_name(TokenType type);
+const char *lexer_last_error_id(void);
+const char *parser_last_error_id(void);
 
 /* Parser */
 typedef struct {

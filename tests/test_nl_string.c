@@ -78,6 +78,17 @@ void test_equality() {
  * UTF-8 Tests
  * ============================================================================ */
 
+void test_utf8_overlong_and_surrogate(void) {
+    unsigned char overlong[] = {0xC0, 0x80};
+    unsigned char surrogate[] = {0xED, 0xA0, 0x80};
+    nl_string_t *a = nl_string_new_binary(overlong, 2);
+    nl_string_t *b = nl_string_new_binary(surrogate, 3);
+    ASSERT(!nl_string_validate_utf8(a));
+    ASSERT(!nl_string_validate_utf8(b));
+    nl_string_free(a);
+    nl_string_free(b);
+}
+
 void test_utf8_validation() {
     // Valid UTF-8
     nl_string_t *valid = nl_string_new("Hello 世界 🌍");
@@ -326,6 +337,7 @@ int main() {
     
     printf("\nUTF-8 Operations:\n");
     TEST(utf8_validation);
+    TEST(utf8_overlong_and_surrogate);
     TEST(utf8_length);
     TEST(utf8_char_at);
     TEST(utf8_substring);

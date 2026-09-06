@@ -1,0 +1,58 @@
+{
+  "nsi_version": 0,
+  "interface": {
+    "id": "nsi:nanolang/net",
+    "name": "net"
+  },
+  "methods": [
+    {
+      "id": "nsi:nanolang/net#connect",
+      "name": "connect",
+      "idempotent": false,
+      "params": [
+        {
+          "id": "nsi:nanolang/net#connect.endpoint",
+          "name": "endpoint",
+          "type": "nsi:core/string",
+          "direction": "in",
+          "ownership": "borrow",
+          "lifetime": "call",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        },
+        {
+          "id": "nsi:nanolang/net#connect.handle",
+          "name": "handle",
+          "type": "nsi:nanolang/net#Conn",
+          "direction": "return",
+          "ownership": "transfer",
+          "lifetime": "resource",
+          "mutability": "immutable",
+          "optional": false,
+          "streaming": "none"
+        }
+      ]
+    }
+  ],
+  "types": [
+    {
+      "id": "nsi:nanolang/net#Conn",
+      "name": "Conn",
+      "kind": "resource"
+    }
+  ],
+  "errors": [
+    {
+      "id": "nsi:nanolang/net#io",
+      "name": "io",
+      "version": "1"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap:nanolang/net.connect",
+      "name": "connect"
+    }
+  ]
+}

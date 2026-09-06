@@ -387,8 +387,13 @@ ALL_EXAMPLES = \
 
 # Library modules imported by other examples. They define no `main`, so neither
 # the native build nor the VM build compiles them on their own.
+# emacs_buffer, emacs_keys, and init.nano are imported by nano_emacs.nano;
+# they are not standalone programs. Leave them out of vm-examples.
 VM_LIBRARY_SOURCES := \
 	advanced/math_helper.nano \
+	emacs/emacs_buffer.nano \
+	emacs/emacs_keys.nano \
+	emacs/init.nano \
 	$(wildcard lib/*.nano) \
 	$(wildcard large_project/src/*.nano) \
 	opl/opl_ast.nano \
@@ -687,8 +692,8 @@ forth-ide: $(COMPILER) $(BIN_DIR)/forth $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(B
 	@cd .. && ./bin/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 
 $(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT): emacs/nano_emacs.nano emacs/emacs_keys.nano emacs/emacs_buffer.nano emacs/init.nano $(COMPILER)
-	@echo "Building libnano-session and $@..."
-	$(MAKE) -C .. libnano-session
+	@echo "Building nano_emacs_worker and $@..."
+	$(MAKE) -C .. nano_emacs_worker
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 nano-emacs: $(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)

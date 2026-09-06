@@ -26,3 +26,9 @@ extern fn nl_str_normalize(_s: string, _form: int) -> string
 extern fn nl_str_is_ascii(_s: string) -> bool
 extern fn nl_str_is_valid_utf8(_s: string) -> bool
 
+/* Case folding is not to_lowercase: ß becomes "ss". */
+extern fn nl_str_casefold(_s: string) -> string
+
+/* East Asian Width / combining-mark display columns. */
+extern fn nl_str_display_width(_s: string) -> int
+

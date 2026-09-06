@@ -8,15 +8,50 @@
     "User says 'config', 'preferences', 'settings', 'save state'",
     "User wants to store/load application configuration"
   ],
-  "avoid_when": ["User wants database storage (use sqlite)"],
-  "capabilities": ["save_prefs", "load_prefs", "config_storage"],
-  "keywords": ["config", "preferences", "settings", "storage"],
+  "avoid_when": [
+    "User wants database storage (use sqlite)"
+  ],
+  "capabilities": [
+    "save_prefs",
+    "load_prefs",
+    "config_storage"
+  ],
+  "keywords": [
+    "config",
+    "preferences",
+    "settings",
+    "storage"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["std"],
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "std"
+    ],
     "system": []
   },
-  "io_surfaces": ["files"],
-  "alternatives": [{"when": "structured data", "module": "sqlite"}]
+  "io_surfaces": [
+    "files"
+  ],
+  "alternatives": [
+    {
+      "when": "structured data",
+      "module": "sqlite"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/pure",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/pure.nsi.json",
+    "required_capabilities": [],
+    "isolation": "in-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "inproc"
+  }
 }

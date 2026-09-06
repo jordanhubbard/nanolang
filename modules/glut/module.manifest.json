@@ -8,15 +8,61 @@
     "User says 'glut', 'freeglut', 'legacy opengl'",
     "User porting GLUT applications"
   ],
-  "avoid_when": ["User wants modern OpenGL workflow (use glfw)"],
-  "capabilities": ["create_window", "input_basic", "opengl_context"],
-  "keywords": ["opengl", "glut", "window", "legacy"],
+  "avoid_when": [
+    "User wants modern OpenGL workflow (use glfw)"
+  ],
+  "capabilities": [
+    "create_window",
+    "input_basic",
+    "opengl_context"
+  ],
+  "keywords": [
+    "opengl",
+    "glut",
+    "window",
+    "legacy"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["opengl"],
-    "system": [{"id": "glut", "install": {"apt": "freeglut3-dev", "dnf": "freeglut-devel", "macos": "system GLUT.framework"}}]
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "opengl"
+    ],
+    "system": [
+      {
+        "id": "glut",
+        "install": {
+          "apt": "freeglut3-dev",
+          "dnf": "freeglut-devel",
+          "macos": "system GLUT.framework"
+        }
+      }
+    ]
   },
-  "io_surfaces": ["window"],
-  "alternatives": [{"when": "modern OpenGL", "module": "glfw"}]
+  "io_surfaces": [
+    "window"
+  ],
+  "alternatives": [
+    {
+      "when": "modern OpenGL",
+      "module": "glfw"
+    }
+  ],
+  "nsi": {
+    "interface_id": "nsi:nanolang/graphics",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/graphics.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/graphics.present"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }

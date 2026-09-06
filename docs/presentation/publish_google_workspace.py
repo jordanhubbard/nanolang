@@ -275,7 +275,7 @@ def main() -> int:
         parents = [str(item) for item in (slides_meta.get("parents") or []) if item]
     else:
         updated_slides = _resumable_create(
-            token, name="NanoLang Developer Overview (4.0 edition)", parents=[],
+            token, name="NanoLang Developer Overview (4.4 edition)", parents=[],
             source_mime=PPTX_MIME, google_mime=SLIDES_GOOGLE, path=pptx,
         )
         slides_id = str(updated_slides.get("id") or "")
@@ -295,14 +295,14 @@ def main() -> int:
             token,
             "PATCH",
             f"{DRIVE}/files/{urllib.parse.quote(doc_id)}?supportsAllDrives=true",
-            {"name": "NanoLang Developer Narrative (4.0 edition)"},
+            {"name": "NanoLang Developer Narrative (4.4 edition)"},
         )
         if renamed.get("name"):
             updated_doc["name"] = renamed["name"]
     else:
         updated_doc = _resumable_create(
             token,
-            name="NanoLang Developer Narrative (4.0 edition)",
+            name="NanoLang Developer Narrative (4.4 edition)",
             parents=parents,
             source_mime=DOCX_MIME,
             google_mime=DOCS_GOOGLE,

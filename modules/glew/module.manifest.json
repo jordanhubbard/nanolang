@@ -8,15 +8,52 @@
     "User says 'glew', 'opengl extensions', 'modern opengl'",
     "User wants OpenGL 3.0+ features"
   ],
-  "avoid_when": ["User using legacy OpenGL 1.x/2.x only"],
-  "capabilities": ["load_gl_extensions", "gl_version_check"],
-  "keywords": ["opengl", "extensions", "glew", "modern opengl"],
+  "avoid_when": [
+    "User using legacy OpenGL 1.x/2.x only"
+  ],
+  "capabilities": [
+    "load_gl_extensions",
+    "gl_version_check"
+  ],
+  "keywords": [
+    "opengl",
+    "extensions",
+    "glew",
+    "modern opengl"
+  ],
   "examples": [],
   "dependencies": {
-    "nanolang": ["core>=1.0"],
-    "modules": ["opengl"],
-    "system": [{"id": "glew", "install": {"apt": "libglew-dev", "brew": "glew"}}]
+    "nanolang": [
+      "core>=1.0"
+    ],
+    "modules": [
+      "opengl"
+    ],
+    "system": [
+      {
+        "id": "glew",
+        "install": {
+          "apt": "libglew-dev",
+          "brew": "glew"
+        }
+      }
+    ]
   },
   "io_surfaces": [],
-  "alternatives": []
+  "alternatives": [],
+  "nsi": {
+    "interface_id": "nsi:nanolang/gpu",
+    "interface_version": "0",
+    "schema": "schema/nsi/modules/gpu.nsi.json",
+    "required_capabilities": [
+      "cap:nanolang/gpu.submit"
+    ],
+    "isolation": "local-process",
+    "resource_budgets": {
+      "queue": 8,
+      "memory_bytes": 65536
+    },
+    "restart": "never",
+    "adapter": "local"
+  }
 }
