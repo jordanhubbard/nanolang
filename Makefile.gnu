@@ -1513,6 +1513,56 @@ test-ringbuf:
 	@rm -f tests/test_ringbuf_bin
 	@echo "ringbuf tests passed."
 
+# Jackson word-set REFILL reloads Core for every set. Under gcov
+# (-fprofile-arcs) that exceeds TEST_TIMEOUT. Build and Test already
+# runs the suites. Pin and INCLUDE-gap still run under coverage.
+FORTH_WORDSET_SKIP := $(if $(or $(findstring -fprofile-arcs,$(CFLAGS)),$(findstring --coverage,$(CFLAGS))),1,)
+
+# Optional Jackson word sets plus Core evidence. Not a Standard System.
+.PHONY: test-forth-wordsets
+test-forth-wordsets:
+	@echo "Checking Jackson Core evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-core
+	@echo ""
+	@echo "Checking Jackson Core Ext evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-coreext
+	@echo ""
+	@echo "Checking Jackson Exception evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-exception
+	@echo ""
+	@echo "Checking Jackson Double evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-double
+	@echo ""
+	@echo "Checking Jackson String evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-string
+	@echo ""
+	@echo "Checking Jackson Search Order evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-searchorder
+	@echo ""
+	@echo "Checking Jackson File Access evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-file
+	@echo ""
+	@echo "Checking Jackson Memory-Allocation evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-memory
+	@echo ""
+	@echo "Checking Jackson Locals evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-locals
+	@echo ""
+	@echo "Checking Jackson Facility evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-facility
+	@echo ""
+	@echo "Checking Jackson Programming Tools evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-tools
+	@echo ""
+	@echo "Checking Jackson Floating-Point evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-float
+	@echo ""
+	@echo "Checking Jackson Block evidence via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-block
+	@echo ""
+	@echo "Checking 280 example T{ cases via C file-source REFILL..."
+	@$(MAKE) --no-print-directory test-forth-examples
+
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
@@ -1571,50 +1621,19 @@ test-impl: test-units
 	@echo "Checking Forth 2012 pins and Gforth differential runs..."
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@echo ""
+	@echo "Checking Jackson word-set skip under coverage flags..."
+	@chmod +x tests/test_forth_wordset_coverage_skip.sh
+	@bash tests/test_forth_wordset_coverage_skip.sh
+	@echo ""
 	@echo "Checking Jackson Forth-2012 vendor pin and INCLUDE gap..."
 	@$(MAKE) --no-print-directory test-forth-jackson
 	@echo ""
-	@echo "Checking Jackson Core evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-core
-	@echo ""
-	@echo "Checking Jackson Core Ext evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-coreext
-	@echo ""
-	@echo "Checking Jackson Exception evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-exception
-	@echo ""
-	@echo "Checking Jackson Double evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-double
-	@echo ""
-	@echo "Checking Jackson String evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-string
-	@echo ""
-	@echo "Checking Jackson Search Order evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-searchorder
-	@echo ""
-	@echo "Checking Jackson File Access evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-file
-	@echo ""
-	@echo "Checking Jackson Memory-Allocation evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-memory
-	@echo ""
-	@echo "Checking Jackson Locals evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-locals
-	@echo ""
-	@echo "Checking Jackson Facility evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-facility
-	@echo ""
-	@echo "Checking Jackson Programming Tools evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-tools
-	@echo ""
-	@echo "Checking Jackson Floating-Point evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-float
-	@echo ""
-	@echo "Checking Jackson Block evidence via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-block
-	@echo ""
-	@echo "Checking 280 example T{ cases via C file-source REFILL..."
-	@$(MAKE) --no-print-directory test-forth-examples
+ifeq ($(FORTH_WORDSET_SKIP),1)
+	@echo "Skipping Jackson word-set REFILL under coverage instrumentation."
+	@echo "Build and Test already ran those suites. Pin and INCLUDE-gap still ran."
+else
+	@$(MAKE) --no-print-directory test-forth-wordsets
+endif
 	@echo ""
 	@echo "Checking Forth IDE PTY interpreter liveness..."
 	@$(MAKE) --no-print-directory test-forth-pty
@@ -1949,20 +1968,11 @@ test-quick: build
 	@$(MAKE) --no-print-directory check-stdlib-docs
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@$(MAKE) --no-print-directory test-forth-jackson
-	@$(MAKE) --no-print-directory test-forth-core
-	@$(MAKE) --no-print-directory test-forth-coreext
-	@$(MAKE) --no-print-directory test-forth-exception
-	@$(MAKE) --no-print-directory test-forth-double
-	@$(MAKE) --no-print-directory test-forth-string
-	@$(MAKE) --no-print-directory test-forth-searchorder
-	@$(MAKE) --no-print-directory test-forth-file
-	@$(MAKE) --no-print-directory test-forth-memory
-	@$(MAKE) --no-print-directory test-forth-locals
-	@$(MAKE) --no-print-directory test-forth-facility
-	@$(MAKE) --no-print-directory test-forth-tools
-	@$(MAKE) --no-print-directory test-forth-float
-	@$(MAKE) --no-print-directory test-forth-block
-	@$(MAKE) --no-print-directory test-forth-examples
+ifeq ($(FORTH_WORDSET_SKIP),1)
+	@echo "Skipping Jackson word-set REFILL under coverage instrumentation."
+else
+	@$(MAKE) --no-print-directory test-forth-wordsets
+endif
 	@$(MAKE) --no-print-directory test-forth-pty
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
 	@$(MAKE) --no-print-directory test-interpreter-examples
@@ -2954,6 +2964,7 @@ help:
 	@echo "  make test-units        - Run C unit tests (ISA + VM + codegen)"
 	@echo "  make test-forth-gforth-diff - Forth 2012 pins and Gforth pi.fs differential"
 	@echo "  make test-forth-jackson - Jackson v0.15.0 vendor pin and INCLUDE/file-access gap"
+	@echo "  make test-forth-wordsets - Jackson Core plus optional word-set REFILL (skipped under gcov)"
 	@echo "  make test-forth-core    - Jackson Core evidence via C file-source REFILL"
 	@echo "  make test-forth-coreext - Jackson Core Ext via C file-source REFILL"
 	@echo "  make test-forth-exception - Jackson Exception via C file-source REFILL"

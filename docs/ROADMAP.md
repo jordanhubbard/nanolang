@@ -65,6 +65,12 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
 - [x] **4.4 release.** YAML in `.github/workflows/ci.yml` had two `run:`
       keys on the sanitizer install step, so GitHub never started CI on
       `ab2bf349`. Restore the AddressSanitizer step.
+- [ ] **4.4 release.** Code Coverage `make test` hits `TEST_TIMEOUT` (1800s)
+      during Jackson word-set REFILL under `-fprofile-arcs`. Build and Test
+      and Memory Sanitizers already passed on `ef6dbb3c`. Skip the word-set
+      REFILL suites under coverage instrumentation; keep the Jackson pin /
+      INCLUDE-gap test.
+      MAC `task_d10e63b263724e4ab4ae75dd4a281529`.
 - [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
       `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
       uses extern SDL/term calls outside `unsafe`. `make examples` still
