@@ -66,10 +66,11 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       keys on the sanitizer install step, so GitHub never started CI on
       `ab2bf349`. Restore the AddressSanitizer step.
 - [ ] **4.4 release.** Code Coverage `make test` hits `TEST_TIMEOUT` (1800s)
-      during Jackson word-set REFILL under `-fprofile-arcs`. Build and Test
-      and Memory Sanitizers already passed on `ef6dbb3c`. Skip the word-set
-      REFILL suites under coverage instrumentation; keep the Jackson pin /
-      INCLUDE-gap test.
+      during Jackson word-set REFILL under `-fprofile-arcs`, then Forth PTY
+      liveness fails (`banner/prompt never appeared`) because gcov stalls
+      the REPL. Build and Test and Memory Sanitizers already passed those
+      suites. Skip word-set REFILL, PTY, and IDE smoke under coverage;
+      keep the Jackson pin / INCLUDE-gap test.
       MAC `task_d10e63b263724e4ab4ae75dd4a281529`.
 - [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
       `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and

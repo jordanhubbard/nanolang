@@ -1629,17 +1629,17 @@ test-impl: test-units
 	@$(MAKE) --no-print-directory test-forth-jackson
 	@echo ""
 ifeq ($(FORTH_WORDSET_SKIP),1)
-	@echo "Skipping Jackson word-set REFILL under coverage instrumentation."
+	@echo "Skipping Jackson word-set REFILL, Forth PTY, and IDE smoke under coverage instrumentation."
 	@echo "Build and Test already ran those suites. Pin and INCLUDE-gap still ran."
 else
 	@$(MAKE) --no-print-directory test-forth-wordsets
-endif
 	@echo ""
 	@echo "Checking Forth IDE PTY interpreter liveness..."
 	@$(MAKE) --no-print-directory test-forth-pty
 	@echo ""
 	@echo "Checking Forth IDE build and graphical smoke..."
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
+endif
 	@echo ""
 	@echo "Testing language examples under the tree-walking interpreter..."
 	@$(MAKE) --no-print-directory test-interpreter-examples
@@ -1969,12 +1969,12 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@$(MAKE) --no-print-directory test-forth-jackson
 ifeq ($(FORTH_WORDSET_SKIP),1)
-	@echo "Skipping Jackson word-set REFILL under coverage instrumentation."
+	@echo "Skipping Jackson word-set REFILL, Forth PTY, and IDE smoke under coverage instrumentation."
 else
 	@$(MAKE) --no-print-directory test-forth-wordsets
-endif
 	@$(MAKE) --no-print-directory test-forth-pty
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
+endif
 	@$(MAKE) --no-print-directory test-interpreter-examples
 	@$(MAKE) --no-print-directory test-nanoc-bench
 	@$(MAKE) --no-print-directory test-bench
