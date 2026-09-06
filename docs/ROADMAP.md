@@ -49,6 +49,12 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       source and destination are both `FORTH_PATH_MAX`. Copy with an explicit
       length. `make test-forth-session` passed on Ubuntu GCC 15 (`ubuntu.local`).
       MAC `task_5e86f861c17e44859bc371a8d0c4b27d`.
+- [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
+      `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
+      uses extern SDL/term calls outside `unsafe`. `make examples` still
+      succeeds. Fix the MVP (or skip it until it matches current unsafe
+      rules) so every module MVP compiles.
+      MAC `task_d35028a1b27f45948ffccb351fc7bd4a`.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
