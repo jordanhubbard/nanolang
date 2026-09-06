@@ -47,7 +47,10 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -Isrc -D_GNU_SOURCE
+# -fPIC is required on Linux: module .so files and libnano_session.so link
+# COMMON_OBJECTS, and transpiler.o carries TLS that ld rejects without PIC
+# (R_X86_64_TPOFF32). Darwin dylibs hid this until Ubuntu CI built examples.
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
@@ -2233,6 +2236,10 @@ $(COMPILER_C): $(COMPILER_OBJECTS) | $(BIN_DIR)
 	@echo "✓ C Compiler: $(COMPILER_C)"
 
 # Default compiler target - link to nanoc_c initially (bootstrap will update to nanoc_stage2)
+# `make nanoc` must work: the CI bench job invokes that name, not bin/nanoc.
+.PHONY: nanoc
+nanoc: $(COMPILER)
+
 $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		ln -sf nanoc_stage2 $(COMPILER); \
@@ -2996,6 +3003,7 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "Component Build (Stage Targets):"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  make nanoc       - Alias for bin/nanoc (CI bench job uses this name)"
 	@echo "  make stage1      - C reference compiler"
 	@echo "  make stage2      - Self-hosted components"
 	@echo "  make stage3      - Component validation"
@@ -3113,7 +3121,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list nanoc
 
 # ============================================================================
 # AGENTFS PUBLISH
@@ -3168,7 +3176,7 @@ release-docs-check:
 # check fails now rather than at the next release.
 .PHONY: test-release-gates
 test-release-gates:
-	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates
+	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates tests.test_check_markdown_links
 
 release:
 	@echo "Creating patch release..."

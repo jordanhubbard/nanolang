@@ -4,14 +4,12 @@
 
 Explain NanoLang to software developers and compiler engineers. Show the
 language contract, the compiler pipeline, NanoISA, NanoVM, tests, diagnostics,
-and what my 4.0 verifier actually proves.
+what my 4.0 verifier actually proves, and what 4.4 added on top of that.
 
-**4.0 edition.** The 3.5 edition ended at the boundary between measurement and
-a verified v2. That boundary is now behind me, so the deck's job changes: it
-must show what the verifier proves, it must be honest that the previous
-verifier proved less than it appeared to, and it must show the hardening
-underneath the verifier rather than presenting the verifier as the whole of my
-defence.
+**4.4 edition.** 4.0 made bytecode verified rather than merely well-formed.
+4.4 keeps that contract and adds Forth Core evidence, NSI, a POSIX capability
+fabric, and an isolated editor walker. The deck must not promote those as a
+Standard System, GNU Emacs, a kernel, or an internationalized product.
 
 The deck is also read by people who have never encountered me. It must
 introduce what I am before it argues about what I prove.
@@ -29,15 +27,13 @@ and require executable evidence before I call a change complete. My C
 transpiler, NanoVM, FFI boundary, and formal core are different trust surfaces;
 the deck must show where each one begins and ends.
 
-For 4.0 the message sharpens: a check that cannot say what it failed to check
-is not a check. My verifier skipped every instruction whose stack effect it did
-not know -- and skipped its successors, so it stopped early and still returned
-ok. The deck presents that as the central engineering lesson of the release,
-because the fix is what makes every other 4.0 claim mean something.
+For 4.4 the message keeps the 4.0 lesson and adds a second one: a service
+fabric on POSIX is not a kernel, a Forth suite that passes is not a Standard
+System, and six catalog languages are not an internationalized compiler.
 
 ## Slide sequence
 
-1. I am NanoLang 4.0.
+1. I am NanoLang 4.4.
 2. My design refuses ambiguity.
 3. One source language, two execution paths.
 4. NanoISA is readable bytecode, not a hidden intermediate.
@@ -50,7 +46,7 @@ because the fix is what makes every other 4.0 claim mean something.
 11. FFI is an explicit unsafe boundary and can be isolated.
 12. I collect cycles, so my two backends agree about leaks.
 13. What I measured, and what I declined because of it.
-14. What 4.0 shipped, and what I have not done.
+14. What 4.4 shipped, and what I have not done.
 15. Start with the code, then run the gates.
 
 Slide 1 must say what I am before it says what I prove. A reader may never

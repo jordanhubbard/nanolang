@@ -47,7 +47,6 @@ jobs:
             valgrind \
             pkg-config \
             libssl-dev \
-            libutf8proc-dev \
             libsdl2-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
@@ -62,7 +61,6 @@ jobs:
             gcc \
             pkg-config \
             openssl \
-            utf8proc \
             sdl2 \
             sdl2_mixer \
             sdl2_ttf \
@@ -190,7 +188,6 @@ jobs:
             build-essential \
             pkg-config \
             libssl-dev \
-            libutf8proc-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
@@ -209,7 +206,6 @@ jobs:
             gcc \
             pkg-config \
             openssl \
-            utf8proc \
             sdl2 \
             sdl2_image \
             sdl2_mixer \
@@ -323,7 +319,6 @@ jobs:
             build-essential \
             pkg-config \
             libssl-dev \
-            libutf8proc-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
@@ -399,7 +394,6 @@ jobs:
             bc \
             pkg-config \
             libssl-dev \
-            libutf8proc-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
@@ -704,7 +698,7 @@ jobs:
 
       - name: Install clang / build deps
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh clang lld
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev
 
       - name: Build nanoc
         run: make nanoc

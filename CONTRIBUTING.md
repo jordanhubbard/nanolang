@@ -300,6 +300,19 @@ specification is the source of truth for the instruction set; the assembler,
 disassembler, and metadata are generated from it, so do not edit them to agree
 with a change you made somewhere else.
 
+If you touched NSI, capabilities, the POSIX fabric, or Nano Emacs, also run:
+
+```bash
+make test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest
+make test-nsi-cap test-nsi-shm test-nsi-fabric
+make test-nano-eval test-nano-emacs-worker
+```
+
+Capabilities are unforgeable tokens, not integers or host pointers. The SDL
+editor does not `dlopen` the interpreter; eval goes through
+`bin/nano_emacs_worker`. I do not claim a Forth Standard System, GNU Emacs
+compatibility, a kernel, or that the system is internationalized.
+
 ### 4. PR Description
 I expect your description to follow this format:
 ```markdown

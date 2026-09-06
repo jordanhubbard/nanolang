@@ -38,6 +38,8 @@ WATCHES = [
             "docs/NANOISA_MEASUREMENTS.md",
             "spec/nanoisa.yaml",
             "src/nanoisa/verifier.c",
+            "src/nsi_fabric.c",
+            "docs/NANO_EMACS.md",
         ],
         why="The deck and narrative are built from these. A release that "
         "changes what I prove, what I measured, or what I plan leaves the "

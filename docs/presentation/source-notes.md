@@ -16,11 +16,22 @@
 - `docs/NANOISA_MEASUREMENTS.md` is the performance authority.
 - `tests/nanoisa/`, `tests/nanovm/`, and `tests/nanovirt/` are executable evidence.
 
+- `docs/NSI.md`, `docs/NSI_FABRIC.md`, `docs/NSI_TCB.md`, and `src/nsi*.c`
+  are the NSI and fabric authorities.
+- `docs/NANO_EMACS.md` and `modules/nano_eval/nano_emacs_worker.c` are the
+  isolated editor walker.
+- `docs/FORTH_2012.md` pins Forth 2012; Jackson suites are evidence, not a
+  Standard System claim.
+- `catalogs/messages/` and `userguide/i18n/` are catalogs and machine drafts.
+  JSON/TOON stay English.
+
 ## Release evidence
 
-Release `v4.0.0` is tagged at the repository history. The release summary is
-`docs/RELEASE_4.0.md`. The verified local counts at that tag are 2,632 NanoISA
-tests, 621 NanoVM tests, 63 NanoVirt tests, and 93 verifier tests.
+Release `v4.0.0` is tagged. Release `v4.4.0` is the next product tag and
+covers 4.1–4.4 on one branch. The 4.4 summary is `docs/RELEASE_4.4.md`.
+The verified local counts at `v4.0.0` were 2,632 NanoISA tests, 621
+NanoVM tests, 63 NanoVirt tests, and 93 verifier tests. 4.4 adds NSI,
+fabric, catalog, Forth, and `nano_emacs_worker` suites on top of that.
 
 The NanoISA benchmark covers seven workloads plus cold startup and the
 co-process boundary. Each workload is timed twice per sample -- once with a
@@ -46,7 +57,9 @@ Phase 12 is complete: 78 of 78 items. The NanoISA v2 verifier, module format,
 dispatch, ownership and measurement work is shipped, not roadmap.
 
 What remains is later work and is labelled as such. Module signing is 5.0.
-LLVM and WebAssembly return only as NanoISA translators, which is Phase 14.
+LLVM and WebAssembly return only as NanoISA translators. I do not claim a
+Forth Standard System, GNU Emacs, a kernel, or that the system is
+internationalized.
 `Makefile.gnu` tracks no header dependencies, so a struct change makes an
 incremental build untrustworthy; that is filed as issue #211 and is a known
 defect rather than a claim.

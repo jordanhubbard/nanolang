@@ -92,12 +92,16 @@ How I am built:
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
 
+10.0. **[NanoLang 4.4](RELEASE_4.4.md)** - Current release notes
+    - [LinkedIn draft](LINKEDIN_4.4.md) covering changes since `v4.0.0`
+    - [Developer overview](presentation/README.md)
+
 10.1. **[Forth 2012 Pins](FORTH_2012.md)** - My Forth 4.1 pins
     - Frozen Forth 2012 document, not later Forth 200x proposals
-    - Jackson v0.15.0 and forth200x snapshot, not yet vendored
+    - Jackson v0.15.0 Core and Core Ext suites vendored; `INCLUDED` remains a recorded gap
     - Gforth 0.7.3 differential on `pi.fs`
     - Environmental contract; session runtime compiles colon words to verified NanoISA
-    - I do not claim a Standard System yet
+    - I do not claim a Standard System
 
 10.2. **[Async Primitives](ASYNC_PRIMITIVES.md)** - My async/await model
     - Source-level `async fn` / `await`

@@ -100,15 +100,15 @@ def build() -> Path:
     s = slide(INK)
     s.shapes.add_picture(str(mascot), Inches(8.0), Inches(0.0), width=Inches(5.33), height=Inches(7.5))
     box(s, 0, 0, 9.1, H, INK)
-    text(s, "NANOLANG 4.0", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
+    text(s, "NANOLANG 4.4", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
     text(s, "I say what I mean.\nI compile myself.\nI show my evidence.", 0.7, 1.55, 7.0, 2.5, 34, FOG, True)
     # Someone meeting this deck cold needs to know what I am before being told
     # what I prove. The previous subtitle assumed both.
     text(s, "A small language designed to be written by machines and audited by humans.\n"
-            "A developer's view of my syntax, compiler, NanoISA, NanoVM, and what my verifier proves.",
+            "A developer's view of my syntax, compiler, NanoISA, NanoVM, NSI, and what my verifier proves.",
          0.75, 4.35, 7.5, 1.2, 16, BLUE)
-    text(s, "NanoISA v2 · NanoVM v2 · bytecode that is verified, not merely well-formed", 0.75, 6.55, 7.2, 0.3, 13, ORANGE, True)
-    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.0.md.",
+    text(s, "Verified bytecode · Forth evidence · NSI fabric · isolated editor walker", 0.75, 6.55, 7.2, 0.3, 13, ORANGE, True)
+    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.4.md.",
               "I describe tested behavior. Work I have not done is labelled as such."])
 
     # 2 — syntax
@@ -251,20 +251,20 @@ def build() -> Path:
               "It could not have detected an interpreter change of any size, which is why these questions stayed open."])
 
     # 14 — boundary
-    s = slide(INK); title(s, "4.0 shipped. Here is what I have not done.", "107 commits since 3.5, and more new test code than new source. A known defect is not an unknown one.", 14)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "4.0 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
-    text(s, "v2 module format\nstack and type verification\nreturn, depth, ownership\nfuzzed parsing surfaces\ncycle collection\nhonest measurement", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
+    s = slide(INK); title(s, "4.4 shipped. Here is what I have not done.", "One tag from v4.0.0. Product phases 4.1–4.4, not four Git tags.", 14)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "4.4 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    text(s, "verified NanoISA v2 (4.0)\nForth Core evidence\nNSI v0 + POSIX fabric\nunforgeable capabilities\nisolated editor walker\nsix-language catalogs", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
     box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "NOT DONE", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
-    text(s, "header dependencies (#211)\nmodule signing → 5.0\nLLVM and Wasm as\n  NanoISA translators\nForth 2012 → 4.1", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
-    notes(s, ["Authority: docs/RELEASE_4.0.md, docs/ROADMAP.md, the open issue list, and git log v3.5.0..v4.0.0.",
-              "For a reader arriving from 3.5, the one-line delta is that my bytecode used to be well-formed and is now verified.",
-              "Phase 12 is 78 of 78. The right column is scope or filed defect, not vagueness."])
+    text(s, "Standard System / INCLUDED\ninternationalized compiler\nGNU Emacs / a kernel\nCUDA or CPython wrap\nheader deps (#211)\n5.0 One IR", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
+    notes(s, ["Authority: docs/RELEASE_4.4.md, docs/ROADMAP.md, docs/FORTH_2012.md, docs/NSI_FABRIC.md, docs/NANO_EMACS.md.",
+              "Catalogs and machine-draft guides exist. JSON/TOON stay English.",
+              "The live editor uses bin/nano_emacs_worker, not dlopen."])
 
     # 15 — closing
     s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7))
     text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True)
     text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True)
-    text(s, "docs/RELEASE_4.0.md · docs/ROADMAP.md · docs/NANOISA_MEASUREMENTS.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
+    text(s, "docs/RELEASE_4.4.md · docs/ROADMAP.md · docs/NSI_FABRIC.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
     notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md."])
     footer(s, 15)
 

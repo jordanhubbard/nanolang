@@ -23,6 +23,21 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
 
 ## Active Execution Queue
 
+- [ ] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
+      to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
+      System / conflicting Forth-IDE work unmerged. I do not merge MAC lease
+      branches that are already contained in the product branch.
+      MAC `task_7b6e8957be5b4abf8b0ea4751fd9b635`.
+- [ ] **4.4 release.** I run the release test pipeline (`make test`, CI on the
+      release PR, `make release-docs-check`) and tag `v4.4.0`. Last Git tag is
+      `v4.0.0`; 4.1–4.3 were product phases on the same branch, not separate
+      tags.
+- [ ] **4.4 release.** I update README, CONTRIBUTING, the user-facing indexes,
+      `docs/RELEASE_4.4.md`, and the developer deck/narrative for 4.4. I write
+      a LinkedIn post covering the key changes since `v4.0.0`. I do not claim
+      a Forth Standard System, GNU Emacs compatibility, a kernel, or that the
+      system is internationalized.
+
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
   indirect calls, FFI, and the current Forth interpreter. Compiled Forth, its

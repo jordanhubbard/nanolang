@@ -1,6 +1,6 @@
 #!/bin/bash
 # Automated release script for NanoLang
-# Usage: ./scripts/release.sh [major|minor|patch]
+# Usage: ./scripts/release.sh [major|minor|patch|X.Y.Z]
 
 set -euo pipefail
 
@@ -347,14 +347,18 @@ main() {
         info "Current version: v$CURRENT_VERSION"
     fi
     
-    # Determine bump type
-    BUMP_TYPE=${1:-patch}
-    if [[ ! "$BUMP_TYPE" =~ ^(major|minor|patch)$ ]]; then
-        error "Invalid argument: $BUMP_TYPE (use major, minor, or patch)"
+    # Determine bump type or an explicit X.Y.Z (needed when product phases
+    # 4.1–4.4 ship as one tag instead of four minor bumps from v4.0.0).
+    ARG=${1:-patch}
+    if [[ "$ARG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        NEXT_VERSION="$ARG"
+        BUMP_TYPE="explicit"
+    elif [[ "$ARG" =~ ^(major|minor|patch)$ ]]; then
+        BUMP_TYPE="$ARG"
+        NEXT_VERSION=$(calculate_next_version "$CURRENT_VERSION" "$BUMP_TYPE")
+    else
+        error "Invalid argument: $ARG (use major, minor, patch, or X.Y.Z)"
     fi
-    
-    # Calculate next version
-    NEXT_VERSION=$(calculate_next_version "$CURRENT_VERSION" "$BUMP_TYPE")
     check_release_github_work "$NEXT_VERSION"
     
     echo ""

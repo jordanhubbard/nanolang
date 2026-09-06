@@ -5,7 +5,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Linux shared objects and `libnano_session.so` now compile with `-fPIC` so
+  TLS in `transpiler.o` links on Ubuntu. i18n user-guide drafts keep
+  English relative links to `generated/*.md`; the markdown link checker
+  accepts `userguide/generated/` as the target instead of requiring copies
+  under each language directory.
+
 ### Added
+- Release tooling accepts an explicit `X.Y.Z` version so product phases
+  4.1–4.4 can ship as `v4.4.0` instead of four minor bumps from `v4.0.0`
+  (`./scripts/release.sh 4.4.0`). `make nanoc` aliases `bin/nanoc` for
+  the CI bench job.
 - NSI v0: stable interface, method, type, error, capability, and
   parameter ids (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`,
   `docs/NSI.md`). Parameter direction, ownership, lifetime, mutability,

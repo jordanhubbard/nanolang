@@ -1,7 +1,7 @@
 # Current NanoLang deliverables
 
-- Native Google Slides, 4.0 edition: [NanoLang Developer Overview (4.0 edition)](https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview)
-- Native Google Doc, 4.0 edition: [NanoLang Developer Narrative (4.0 edition)](https://docs.google.com/document/d/1AHbhUecsOx2QHG4fTMlFDA7l4xZR9IhhgV80NmdiCb8/preview)
+- Native Google Slides, 4.4 edition: [NanoLang Developer Overview (4.4 edition)](https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview)
+- Native Google Doc, 4.4 edition: [NanoLang Developer Narrative (4.4 edition)](https://docs.google.com/document/d/1AHbhUecsOx2QHG4fTMlFDA7l4xZR9IhhgV80NmdiCb8/preview)
 - Local PowerPoint: [nanolang-developer-overview.pptx](nanolang-developer-overview.pptx)
 - Local Word narrative: [nanolang-developer-overview.docx](nanolang-developer-overview.docx)
 

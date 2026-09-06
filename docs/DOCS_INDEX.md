@@ -29,7 +29,9 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 
 ### Modules / FFI
 - [Module System](MODULE_SYSTEM.md)
-- [Nano Service Interface](NSI.md) - v0 identifiers only; I do not generate bindings yet
+- [Nano Service Interface](NSI.md) - v0 contracts, generated stubs, and POSIX fabric (`NSI_FABRIC.md`). I do not claim a kernel.
+- [NanoLang 4.4](RELEASE_4.4.md) - Current release. Last Git tag before it was `v4.0.0`.
+- [LinkedIn post for 4.4](LINKEDIN_4.4.md) - Draft covering changes since `v4.0.0`.
 - [Extern FFI](EXTERN_FFI.md)
 
 ### Contributing / Maintainers
