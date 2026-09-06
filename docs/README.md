@@ -114,6 +114,7 @@ How I am built:
     - Module `nsi` manifests, inventory, in-process/mock/local-process adapters
     - [Trusted computing base](NSI_TCB.md) per deployment mode
     - [Capability runtime and service fabric](NSI_FABRIC.md) (4.4)
+    - [Nano Emacs: live frame and isolated walker](NANO_EMACS.md)
     - Names are not identity; ABI inference and malformed frames fail closed
     - I do not claim a kernel or GNU Emacs compatibility
 

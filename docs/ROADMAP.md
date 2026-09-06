@@ -17,8 +17,9 @@ system internationalized. JSON/TOON and catalog fallback still use English;
 guide drafts are machine-generated. **4.4 capability fabric** is in
 (`docs/NSI_FABRIC.md`). 4.5 effects and replay are next. 4.1 Forth word-set
 evidence is in; the Standard System label stays open. The SDL editor
-astronaut stays parked. The NanoISA-only compiler rewrite is **5.0**,
-not 4.x: see `docs/NANOISA_ONLY.md`.
+astronaut (`docs/NANO_EMACS.md`, `bin/nano_emacs_worker`) is in. The
+NanoISA-only compiler rewrite is **5.0**, not 4.x: see
+`docs/NANOISA_ONLY.md`.
 
 ## Active Execution Queue
 
@@ -92,25 +93,32 @@ not 4.x: see `docs/NANOISA_ONLY.md`.
   workloads, emit non-zero ns/op, and enable the CI `bench` job without
   `if: false` or `|| true`. The job fails on a benchmark error or a zero
   measurement; it does not claim a 2× baseline comparison until I store one.
-- [ ] Side-quest after 4.1: I isolate the SDL editor walker in
+- [x] Side-quest after 4.1: I isolate the SDL editor walker in
   `bin/nano_emacs_worker` with a length-prefixed pipe protocol (create/destroy,
   bind buffer, eval string, drain `ed_*` commands, crash detection and restart).
   I do not overload `COP_MSG_FFI_REQ` as eval. The frame does not `dlopen` the
-  interpreter.
-- [ ] Side-quest after 4.1: I keep the editor's `nano_eval_*` C API and make
+  interpreter. (`make nano_emacs_worker`, `docs/NANO_EMACS.md`,
+  `make test-nano-emacs-worker`)
+- [x] Side-quest after 4.1: I keep the editor's `nano_eval_*` C API and make
   the bridge an RPC client of that worker. A walker crash echoes an error,
   restarts the worker, and keeps buffers. The child never re-enters SDL.
-- [ ] Side-quest after 4.1: I add freeze-defun (`C-x C-z` / `M-x freeze-defun`):
+  (`modules/nano_eval/nano_eval_bridge.c`, `make test-nano-emacs-worker`)
+- [x] Side-quest after 4.1: I add freeze-defun (`C-x C-z` / `M-x freeze-defun`):
   extract the current top-level `fn`, timeout-compile it to `.nvm`, and run
   `nano_vm` as a grandchild. `C-x C-e` stays walker eval. Frozen v1 is pure
   (result or error echo only; no `ed_*` inside the `.nvm`). A freeze-child
-  crash does not kill the frame.
-- [ ] Side-quest after 4.1: I test killing the worker mid-eval (parent survives
+  crash does not kill the frame. (`modules/nano_eval/nano_eval_freeze.c`,
+  `examples/emacs/emacs_keys.nano`, `make test-nano-emacs-worker`)
+- [x] Side-quest after 4.1: I test killing the worker mid-eval (parent survives
   and can restart), freeze of a pure function, and timeout compile of
   `nano_emacs`. In-process `make test-nano-eval` remains. I document a live
   editor plus an isolated worker. I do not claim GNU Emacs compatibility.
   Capability-supervised isolation of the same children is 4.4 work, not this
-  cut.
+  cut. (`make test-nano-emacs-worker`, `make test-nano-eval`,
+  `make test-nano-emacs`, `docs/NANO_EMACS.md`)
+  (`task_d36c571fef9a4dcca2d2a1a845040b27`)
+- [x] freeze-frame isolation test reads the eval result before destroy so the
+  string is not a dangling pointer (`tests/test_nano_emacs_worker.c`).
 - [x] I recorded the 5.0 One IR rewrite (`docs/NANOISA_ONLY.md`, Phase 20;
       `task_87bcff8dad43407884c4dc9e06837f98`). Frontends twice, one verified
       `.nvm`, translators as host tools, bootstrap that compares `.nvm`,
@@ -186,7 +194,8 @@ not 4.x: see `docs/NANOISA_ONLY.md`.
       remote cap denial, and the editor as a fabric client of walker/freeze
       (`src/nsi_fabric.c`, `docs/NSI_FABRIC.md`, `make test-nsi-fabric`).
       I do not claim a kernel, GNU Emacs compatibility, or a CUDA/CPython wrap.
-      The parked 4.1 astronaut side-quest stays parked.
+      The 4.1 astronaut dedicated-pipe worker is `bin/nano_emacs_worker`
+      (`docs/NANO_EMACS.md`); 4.4 keeps fabric stand-ins for walker/freeze.
       (`task_7afc6b4fc32546459fd9c16f83b3d4d8`)
 
 ## Release Map
@@ -361,7 +370,8 @@ Documentation and acceptance:
 Goal: I will implement a standards-oriented Forth system whose colon words are
 verified NanoISA functions and whose typed library words use the same import and
 co-process machinery as NanoLang. This phase is the primary remaining 4.1
-goal. The SDL editor astronaut is a side-quest after this phase closes.
+goal. The SDL editor astronaut is a side-quest after this phase
+(`docs/NANO_EMACS.md`, `bin/nano_emacs_worker`).
 
 Foundation:
 - [x] I selected Forth 2012 Core and every optional word set as the target.
@@ -820,8 +830,9 @@ Resource governance:
   time/memory/queue budgets apply, cancellation aborts a hung eval, and a
   restarted worker invalidates stale session handles
   (`editor.walker` / `editor.freeze` in `src/nsi_fabric.c`, `make test-nsi-fabric`).
-  These are fabric-supervised stand-ins. I do not isolate `bin/nano_emacs_worker`
-  (parked 4.1) and I do not claim GNU Emacs compatibility.
+  These are fabric-supervised stand-ins. Isolation of `bin/nano_emacs_worker`
+  is the 4.1 astronaut side-quest (`docs/NANO_EMACS.md`). I do not claim GNU
+  Emacs compatibility.
 
 ### Phase 18 - Portable Service Fabric and Supervision (4.4)
 
@@ -855,15 +866,16 @@ Service migration milestones:
 - [x] I will migrate GPU access with device, queue, memory, shader, and synchronization capabilities (`gpu` typed fabric service, not a CUDA wrap).
 - [x] I will migrate Python integration into a typed language-service adapter with no direct Python-object leakage (`python` rejects `PyObject` / host pointers; not a CPython wrap).
 
-Live editor as a fabric client (option C; depends on the parked astronaut
-side-quest after 4.1, not on starting that work now):
+Live editor as a fabric client (option C; the dedicated-pipe astronaut is
+`docs/NANO_EMACS.md`, not these fabric stand-ins):
 - [x] I will stop treating `bin/nano_emacs_worker` as a special-case pipe
-  daemon. The SDL frame is a client. The walker and freeze-ISA processes are
-  supervised services with startup, readiness, restart, and replacement
-  policies. I still do not host the walker or NanoISA inside the frame, and I
-  still do not route editor eval through the NanoVM FFI co-process protocol
-  (`editor.walker` / `editor.freeze`, `docs/NSI_FABRIC.md`, `make test-nsi-fabric`).
-  The parked astronaut pipe-isolation side-quest stays parked.
+  daemon in the fabric. The SDL frame is a client. The walker and freeze-ISA
+  processes are supervised services with startup, readiness, restart, and
+  replacement policies. I still do not host the walker or NanoISA inside the
+  frame, and I still do not route editor eval through the NanoVM FFI
+  co-process protocol (`editor.walker` / `editor.freeze`, `docs/NSI_FABRIC.md`,
+  `make test-nsi-fabric`). The dedicated-pipe worker is the 4.1 astronaut
+  (`docs/NANO_EMACS.md`).
 - [x] I will grant the walker only the editor capabilities it needs (bound
   buffer copy, queued chrome commands, echo). I will grant freeze-ISA a
   narrower set: compile/run a module and return a result or error, with no

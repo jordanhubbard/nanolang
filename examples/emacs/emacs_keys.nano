@@ -33,6 +33,7 @@ let CMD_PAGE_UP: int = 19
 let CMD_M_X: int = 20
 let CMD_EVAL_EXPR: int = 21
 let CMD_NEWLINE: int = 22
+let CMD_FREEZE_DEFUN: int = 23
 
 let SC_A: int = 4
 let SC_B: int = 5
@@ -47,6 +48,7 @@ let SC_P: int = 19
 let SC_S: int = 22
 let SC_V: int = 25
 let SC_X: int = 27
+let SC_Z: int = 29
 let SC_1: int = 30
 let SC_2: int = 31
 let SC_RETURN: int = 40
@@ -98,6 +100,9 @@ pub fn keymap_dispatch(prefix: int, scancode: int, ctrl: int, meta: int) -> int 
         }
         if (or (and (== ctrl 1) (== scancode SC_E)) (== scancode SC_E)) {
             return (keymap_pack CMD_EVAL_SEXP KM_NONE)
+        }
+        if (or (and (== ctrl 1) (== scancode SC_Z)) (== scancode SC_Z)) {
+            return (keymap_pack CMD_FREEZE_DEFUN KM_NONE)
         }
         if (or (and (== ctrl 1) (== scancode SC_C)) (== scancode SC_C)) {
             return (keymap_pack CMD_QUIT KM_NONE)
@@ -176,6 +181,7 @@ shadow keymap_dispatch {
     assert (== (keymap_cmd (keymap_dispatch KM_CX SC_F 1 0)) CMD_FIND_FILE)
     assert (== (keymap_cmd (keymap_dispatch KM_CX SC_S 1 0)) CMD_SAVE)
     assert (== (keymap_cmd (keymap_dispatch KM_CX SC_E 1 0)) CMD_EVAL_SEXP)
+    assert (== (keymap_cmd (keymap_dispatch KM_CX SC_Z 1 0)) CMD_FREEZE_DEFUN)
     assert (== (keymap_cmd (keymap_dispatch KM_CX SC_2 0 0)) CMD_SPLIT)
     assert (== (keymap_cmd (keymap_dispatch 0 SC_X 0 1)) CMD_M_X)
     assert (== (keymap_cmd (keymap_dispatch 0 SC_N 1 0)) CMD_NEXT_LINE)

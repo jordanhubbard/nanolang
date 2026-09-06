@@ -21,6 +21,8 @@ int64_t nano_eval_cmd_count(int64_t session);
 int64_t nano_eval_cmd_kind(int64_t session, int64_t index);
 const char *nano_eval_cmd_arg(int64_t session, int64_t index);
 void nano_eval_cmd_clear(int64_t session);
+int64_t nano_eval_worker_pid(int64_t session);
+const char *nano_eval_freeze(const char *source, int64_t point);
 
 int64_t ed_message(const char *text);
 int64_t ed_insert(const char *text);

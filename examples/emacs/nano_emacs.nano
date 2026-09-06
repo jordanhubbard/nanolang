@@ -10,9 +10,11 @@
 # Tags: graphical, editor, native-only
 # Expected Output: graphical
 #
-# I edit text in a native window. C-x C-e evaluates NanoLang in a persistent
-# tree-walker session. Host primitives (ed_insert, ed_message, ...) queue
-# work that I apply after eval returns. I am not GNU Emacs.
+# I edit text in a native window. C-x C-e evaluates NanoLang in an isolated
+# walker process (bin/nano_emacs_worker). C-x C-z freeze-defun timeout-compiles
+# the current top-level fn and runs nano_vm as a grandchild. Host primitives
+# (ed_insert, ed_message, ...) queue work that I apply after eval returns.
+# I am not GNU Emacs.
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
@@ -134,6 +136,23 @@ shadow mx_is_eval {
     assert (mx_is_eval "eval-last-sexp")
 }
 
+fn mx_is_freeze(name: string) -> bool {
+    return (== name "freeze-defun")
+}
+
+shadow mx_is_freeze {
+    assert (mx_is_freeze "freeze-defun")
+    assert (not (mx_is_freeze "eval-last-sexp"))
+}
+
+fn freeze_echo(ed: EditorState) -> string {
+    return (nano_eval_freeze (editor_get_content ed) (editor_point ed))
+}
+
+shadow freeze_echo {
+    assert true
+}
+
 fn wrap_call(name: string) -> string {
     return (+ "(" (+ name ")"))
 }
@@ -234,7 +253,7 @@ fn main() -> int {
 
     let session: int = (nano_eval_create)
     if (== session 0) {
-        (println "I cannot start the NanoLang eval session. Build libnano-session first.")
+        (println "I cannot start the NanoLang eval session. Build bin/nano_emacs_worker first.")
         return 1
     }
 
@@ -257,7 +276,7 @@ fn main() -> int {
     let mut prefix: int = KM_NONE
     let mut mini_mode: int = MINI_NONE
     let mut mini: string = ""
-    let mut echo: string = "C-x C-f find, C-x C-s save, C-x C-e eval, M-x, C-x C-c quit"
+    let mut echo: string = "C-x C-f find, C-x C-s save, C-x C-e eval, C-x C-z freeze, M-x, C-x C-c quit"
     let mut running: bool = true
 
     while running {
@@ -345,18 +364,24 @@ fn main() -> int {
                                 set mini_mode MINI_NONE
                                 set mini ""
                             } else {
-                                if (mx_is_eval mini) {
-                                    let ev2: EvalResult = (eval_source session ed (current_line ed))
-                                    set ed ev2.ed
-                                    set echo (eval_echo ev2)
+                                if (mx_is_freeze mini) {
+                                    set echo (freeze_echo ed)
                                     set mini_mode MINI_NONE
                                     set mini ""
                                 } else {
-                                    let ev3: EvalResult = (eval_source session ed (wrap_call mini))
-                                    set ed ev3.ed
-                                    set echo (eval_echo ev3)
-                                    set mini_mode MINI_NONE
-                                    set mini ""
+                                    if (mx_is_eval mini) {
+                                        let ev2: EvalResult = (eval_source session ed (current_line ed))
+                                        set ed ev2.ed
+                                        set echo (eval_echo ev2)
+                                        set mini_mode MINI_NONE
+                                        set mini ""
+                                    } else {
+                                        let ev3: EvalResult = (eval_source session ed (wrap_call mini))
+                                        set ed ev3.ed
+                                        set echo (eval_echo ev3)
+                                        set mini_mode MINI_NONE
+                                        set mini ""
+                                    }
                                 }
                             }
                         }
@@ -386,6 +411,9 @@ fn main() -> int {
                     let evs: EvalResult = (eval_source session ed (current_line ed))
                     set ed evs.ed
                     set echo (eval_echo evs)
+                }
+                if (== cmd CMD_FREEZE_DEFUN) {
+                    set echo (freeze_echo ed)
                 }
                 if (== cmd CMD_SPLIT) { set splits 2 set ed2 ed set echo "Split" }
                 if (== cmd CMD_ONLY) { set splits 1 set focus 0 set echo "One window" }

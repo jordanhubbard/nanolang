@@ -22,6 +22,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `src/nsi_runtime.c` invokes by method id over in-process, mock, and
   local-process adapters with hello, queues, idempotence, auth, and typed
   handles (`make test-nsi-runtime`, `docs/NSI_TCB.md`). `make test-nsi`.
+- Isolated SDL editor walker (`bin/nano_emacs_worker`): length-prefixed
+  pipe protocol, crash-restart that keeps buffers, freeze-defun via
+  `nano_vm` grandchild (`docs/NANO_EMACS.md`, `make test-nano-emacs-worker`).
+  The frame does not `dlopen` the interpreter. I do not claim GNU Emacs
+  compatibility.
 - Capability runtime and POSIX service fabric (4.4): unforgeable `NlCap`
   tokens, rights attenuation, transfer, revocation, generation bump
   (`src/nsi_cap.c`, `make test-nsi-cap`). Capability-scoped shared

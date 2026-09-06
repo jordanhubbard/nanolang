@@ -687,8 +687,8 @@ forth-ide: $(COMPILER) $(BIN_DIR)/forth $(BIN_DIR)/sdl_forth_ide$(BIN_SUFFIX)$(B
 	@cd .. && ./bin/sdl_forth_ide$(BIN_SUFFIX)$(BIN_EXT)
 
 $(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT): emacs/nano_emacs.nano emacs/emacs_keys.nano emacs/emacs_buffer.nano emacs/init.nano $(COMPILER)
-	@echo "Building libnano-session and $@..."
-	$(MAKE) -C .. libnano-session
+	@echo "Building nano_emacs_worker and $@..."
+	$(MAKE) -C .. nano_emacs_worker
 	$(COMPILER) $< $(COMPILER_FLAGS) -o $(BIN_DIR)/$(notdir $@)
 
 nano-emacs: $(BIN_DIR)/nano_emacs$(BIN_SUFFIX)$(BIN_EXT)

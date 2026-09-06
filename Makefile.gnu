@@ -642,6 +642,18 @@ NANO_SESSION_LIB = $(BIN_DIR)/libnano_session.so
 NANO_SESSION_LINKFLAGS = -shared
 endif
 
+.PHONY: nano_emacs_worker
+nano_emacs_worker: $(BIN_DIR)/nano_emacs_worker
+
+$(BIN_DIR)/nano_emacs_worker: modules/nano_eval/nano_emacs_worker.c \
+		modules/nano_eval/nano_eval_ipc.c modules/nano_eval/nano_eval.c \
+		modules/nano_eval/nano_eval_stubs.c modules/nano_eval/nano_eval.h \
+		modules/nano_eval/nano_eval_ipc.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) -Imodules/nano_eval -o $@ \
+		modules/nano_eval/nano_emacs_worker.c modules/nano_eval/nano_eval_ipc.c \
+		modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_stubs.c \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) $(NANO_EVAL_EXPORT)
+
 .PHONY: test-nano-eval
 test-nano-eval: stage1
 	@echo "Running NanoLang editor eval-session tests..."
@@ -659,8 +671,22 @@ $(NANO_SESSION_LIB): modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_s
 		modules/nano_eval/nano_eval.c modules/nano_eval/nano_eval_stubs.c \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 
+.PHONY: test-nano-emacs-worker
+test-nano-emacs-worker: stage1 $(BIN_DIR)/nano_emacs_worker nano_virt nano_vm
+	@echo "Running isolated nano_emacs_worker tests..."
+	@grep -q dlopen modules/nano_eval/nano_eval_bridge.c && { echo "FAIL: frame still dlopens"; exit 1; } || true
+	$(CC) $(CFLAGS) -Imodules/nano_eval -o tests/test_nano_emacs_worker \
+		tests/test_nano_emacs_worker.c modules/nano_eval/nano_eval_bridge.c \
+		modules/nano_eval/nano_eval_ipc.c modules/nano_eval/nano_eval_freeze.c \
+		$(LDFLAGS) -lpthread
+	NANO_EMACS_WORKER="$(CURDIR)/bin/nano_emacs_worker" \
+		NANO_VIRT="$(CURDIR)/bin/nano_virt" \
+		NANO_VM="$(CURDIR)/bin/nano_vm" \
+		./tests/test_nano_emacs_worker
+	@rm -f tests/test_nano_emacs_worker
+
 .PHONY: test-nano-emacs
-test-nano-emacs: stage1 libnano-session
+test-nano-emacs: stage1 $(BIN_DIR)/nano_emacs_worker
 	@echo "Compiling Nano Emacs (timeout 120s)..."
 	perl -e 'alarm 120; exec @ARGV' ./bin/nanoc_c examples/emacs/nano_emacs.nano -o bin/nano_emacs
 	@test -x bin/nano_emacs
@@ -1101,7 +1127,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -2092,7 +2118,7 @@ forth: $(BIN_DIR)/forth
 forth-ide: $(COMPILER_C) check-deps-sdl $(BIN_DIR)/forth
 	@$(MAKE) -C examples forth-ide COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
-nano-emacs: $(COMPILER_C) check-deps-sdl libnano-session
+nano-emacs: $(COMPILER_C) check-deps-sdl $(BIN_DIR)/nano_emacs_worker
 	@$(MAKE) -C examples nano-emacs COMPILER=../bin/nanoc_c EXAMPLES_BACKEND=c NANO_MODULE_PATH="$(NANO_MODULES_ABS)"
 
 # Build every example as sandboxed NanoVM bytecode (bin/vm_<name>.nvm), run by
@@ -2952,8 +2978,10 @@ help:
 	@echo "  make test-nanoc-bench  - nanoc --bench writes non-zero ns/op"
 	@echo "  make test-bench        - bench_native_run calls the interpreter"
 	@echo "  make nano_forth        - Build bin/forth (NanoISA session REPL for the IDE)"
-	@echo "  make test-nano-eval    - SDL editor NanoLang eval session (C-x C-e host)"
-	@echo "  make libnano-session   - Tree-walker dylib for Nano Emacs (dlopen)"
+	@echo "  make test-nano-eval    - In-process SDL editor NanoLang eval session"
+	@echo "  make nano_emacs_worker - Isolated walker for Nano Emacs (no dlopen in the frame)"
+	@echo "  make test-nano-emacs-worker - Pipe protocol, crash-restart, freeze-defun"
+	@echo "  make libnano-session   - Optional in-process walker dylib (tests only)"
 	@echo "  make test-nano-emacs   - Compile examples/emacs/nano_emacs.nano with timeout"
 	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"

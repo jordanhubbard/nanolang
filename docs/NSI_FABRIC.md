@@ -55,7 +55,8 @@ identical call results across those hosts.
 
 Isolated services get an `AF_UNIX` `socketpair`. That is the strongest
 practical isolation primitive I apply in 4.4. I do not fork
-`bin/nano_emacs_worker` here. That binary is a parked 4.1 side-quest.
+`bin/nano_emacs_worker` in these fabric tests. That binary is the 4.1
+astronaut (`docs/NANO_EMACS.md`).
 
 Remote services also get an IPC endpoint. I refuse to send a local
 capability to a remote service (`nl_fabric_send_cap_remote` returns
@@ -117,8 +118,8 @@ Large bind uses the shared-memory plane, with copy fallback when
 mappings are forced or unavailable.
 
 These tests use fabric-supervised stand-ins (`make test-nsi-fabric`).
-They do not isolate `bin/nano_emacs_worker`. I do not claim GNU Emacs
-compatibility.
+They do not isolate `bin/nano_emacs_worker`. The dedicated-pipe worker
+is `docs/NANO_EMACS.md`. I do not claim GNU Emacs compatibility.
 
 ## TCB additions
 

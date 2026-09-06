@@ -1,5 +1,6 @@
 # Persistent NanoLang eval session for the SDL editor.
-# The compiled editor talks to a tree-walker Environment through these externs.
+# The compiled editor talks to bin/nano_emacs_worker through these externs.
+# make test-nano-eval still links the in-process walker directly.
 
 extern fn nano_eval_create() -> int
 extern fn nano_eval_destroy(_session: int) -> void
@@ -12,6 +13,7 @@ extern fn nano_eval_cmd_count(_session: int) -> int
 extern fn nano_eval_cmd_kind(_session: int, _index: int) -> int
 extern fn nano_eval_cmd_arg(_session: int, _index: int) -> string
 extern fn nano_eval_cmd_clear(_session: int) -> void
+extern fn nano_eval_freeze(_source: string, _point: int) -> string
 
 let NANO_EVAL_CMD_MESSAGE: int = 1
 let NANO_EVAL_CMD_FIND_FILE: int = 2
