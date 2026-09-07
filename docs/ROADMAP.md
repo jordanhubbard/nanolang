@@ -23,10 +23,12 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
 
 ## Active Execution Queue
 
-- [ ] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
+- [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
       System / conflicting Forth-IDE work unmerged. I do not merge MAC lease
       branches that are already contained in the product branch.
+      Squash-merged as PR #243 (`3c28a3cf`). Closed #237, #238, #240, #241,
+      #244, #245. Left #242 (NanoISA 5.0 side quest) open.
       MAC `task_b19f5e408d373ec2bf1efa6d54e4d366` (supersedes failed
       `task_7b6e8957be5b4abf8b0ea4751fd9b635`).
 - [ ] **4.4 release.** I run the release test pipeline (`make test`, CI on the
@@ -65,12 +67,13 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
 - [x] **4.4 release.** YAML in `.github/workflows/ci.yml` had two `run:`
       keys on the sanitizer install step, so GitHub never started CI on
       `ab2bf349`. Restore the AddressSanitizer step.
-- [ ] **4.4 release.** Code Coverage `make test` hits `TEST_TIMEOUT` (1800s)
+- [x] **4.4 release.** Code Coverage `make test` hits `TEST_TIMEOUT` (1800s)
       during Jackson word-set REFILL under `-fprofile-arcs`, then Forth PTY
       liveness fails (`banner/prompt never appeared`) because gcov stalls
       the REPL. Build and Test and Memory Sanitizers already passed those
       suites. Skip word-set REFILL, PTY, and IDE smoke under coverage;
-      keep the Jackson pin / INCLUDE-gap test.
+      keep the Jackson pin / INCLUDE-gap test. Coverage job succeeded on
+      `10e97f12` in PR #243.
       MAC `task_d10e63b263724e4ab4ae75dd4a281529`.
 - [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
       `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
