@@ -32,11 +32,12 @@ release evidence without turning future roadmap items into current features.
    6.1. What I shipped
    6.2. What the verifier used to miss
    6.3. What I measured
-7. Release 4.4
+7. Release 4.1–4.5
    7.1. Forth Core evidence
    7.2. Catalogs and guide drafts
    7.3. NSI, capabilities, and POSIX fabric
    7.4. Isolated Nano Emacs walker
+   7.5. Effects, policy, journal, and provenance
 8. What I have not done
 9. How to work on me
    9.1. Read the source and roadmap

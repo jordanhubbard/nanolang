@@ -1,7 +1,11 @@
 # Features
 
-**Version:** 0.2.0  
-**Status:** Alpha - I am feature-complete and approaching production-readiness.
+**Current public boundary:** [NanoLang 4.5](RELEASE_4.5.md) (`v4.5.0`, covering 4.1–4.5). Last public GitHub Release was `v4.0.0`.
+
+This page is a feature catalog. Some examples still use legacy `import` forms; new code uses `module` as in the user guide. The 4.x secure runtime (NSI, capabilities, POSIX fabric, effects-to-policy, trap journal) is documented in [NSI.md](NSI.md), [NSI_FABRIC.md](NSI_FABRIC.md), [NSI_EFFECTS.md](NSI_EFFECTS.md), and the user guide [Secure Runtime](../userguide/guide/08_secure_runtime.md) chapter.
+
+**Version:** 4.5  
+**Status:** Public cut covering 4.1–4.5. I do not claim a Forth Standard System, GNU Emacs, a kernel, or that the system is internationalized.
 
 ---
 

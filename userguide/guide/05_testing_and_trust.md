@@ -45,6 +45,8 @@ Use the trust report to inspect the boundary:
 
 Say **proved** only for a checked theorem in its stated model, **tested** only for behavior exercised by a named test, and **assumed** for unchecked platform or foreign behavior.
 
+NSI, the POSIX fabric, effects-to-policy, and the trap journal are **tested** libraries. They are not in the Coq NanoCore subset. The journal API is not hooked into every NanoVM trap in 4.5. See [Secure Runtime](08_secure_runtime.md).
+
 ## Useful Checks
 
 ```bash

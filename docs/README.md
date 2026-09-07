@@ -92,9 +92,11 @@ How I am built:
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
 
-10.0. **[NanoLang 4.4](RELEASE_4.4.md)** - Current release notes
-    - [LinkedIn draft](LINKEDIN_4.4.md) covering changes since `v4.0.0`
+10.0. **[NanoLang 4.5](RELEASE_4.5.md)** - Current public release notes (`v4.5.0`, covering 4.1–4.5; last public GitHub Release was `v4.0.0`)
+    - [4.4 product page](RELEASE_4.4.md) — landed on `main` without a public tag
+    - [LinkedIn draft](LINKEDIN_4.5.md) covering changes since `v4.0.0`
     - [Developer overview](presentation/README.md)
+    - User guide: [Secure Runtime](../userguide/guide/08_secure_runtime.md)
 
 10.1. **[Forth 2012 Pins](FORTH_2012.md)** - My Forth 4.1 pins
     - Frozen Forth 2012 document, not later Forth 200x proposals

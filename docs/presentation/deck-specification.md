@@ -4,11 +4,12 @@
 
 Explain NanoLang to software developers and compiler engineers. Show the
 language contract, the compiler pipeline, NanoISA, NanoVM, tests, diagnostics,
-what my 4.0 verifier actually proves, and what 4.4 added on top of that.
+what my 4.0 verifier actually proves, and what 4.1–4.5 added on top of that.
 
-**4.4 edition.** 4.0 made bytecode verified rather than merely well-formed.
-4.4 keeps that contract and adds Forth Core evidence, NSI, a POSIX capability
-fabric, and an isolated editor walker. The deck must not promote those as a
+**4.5 edition.** 4.0 made bytecode verified rather than merely well-formed.
+4.5 keeps that contract and adds Forth Core evidence, NSI, a POSIX capability
+fabric, an isolated editor walker, effects-to-policy, and a trap journal.
+I am a language and a secure runtime. The deck must not promote those as a
 Standard System, GNU Emacs, a kernel, or an internationalized product.
 
 The deck is also read by people who have never encountered me. It must
@@ -27,13 +28,14 @@ and require executable evidence before I call a change complete. My C
 transpiler, NanoVM, FFI boundary, and formal core are different trust surfaces;
 the deck must show where each one begins and ends.
 
-For 4.4 the message keeps the 4.0 lesson and adds a second one: a service
+For 4.5 the message keeps the 4.0 lesson and adds a second one: a service
 fabric on POSIX is not a kernel, a Forth suite that passes is not a Standard
-System, and six catalog languages are not an internationalized compiler.
+System, six catalog languages are not an internationalized compiler, and a
+trap journal library is not a hook on every VM trap.
 
 ## Slide sequence
 
-1. I am NanoLang 4.4.
+1. I am NanoLang 4.5: a language and a secure runtime.
 2. My design refuses ambiguity.
 3. One source language, two execution paths.
 4. NanoISA is readable bytecode, not a hidden intermediate.
@@ -46,8 +48,9 @@ System, and six catalog languages are not an internationalized compiler.
 11. FFI is an explicit unsafe boundary and can be isolated.
 12. I collect cycles, so my two backends agree about leaks.
 13. What I measured, and what I declined because of it.
-14. What 4.4 shipped, and what I have not done.
-15. Start with the code, then run the gates.
+14. The secure runtime: contracts, capabilities, fabric, journal.
+15. What 4.1–4.5 shipped, and what I have not done.
+16. Start with the code, then run the gates.
 
 Slide 1 must say what I am before it says what I prove. A reader may never
 have heard of me, and a reader who has will have met me at 3.5; neither is
@@ -67,6 +70,14 @@ Slide 7 is the one that must not be softened. It shows the six-instruction
 program that passed verification, and it names the count: effects declared for
 32 of 161 instructions. A deck that presents only the fix teaches less than one
 that presents the failure and the fix together.
+
+Slide 14 is the runtime mechanism. Five named layers — source effect, module
+requirement, NanoISA trap, NSI method, capability — and a journal that records
+at the trap boundary. Do not collapse them into one word. POSIX is the host.
+
+Slide 15 names the 4.1–4.5 product and the claims I refuse. Slide 7 still shows
+the six-instruction program that passed verification; that lesson did not
+expire.
 
 Slide 12 must show a noise band beside every number. A measurement without its
 spread is the thing the 4.0 benchmark work exists to stop.

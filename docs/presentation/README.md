@@ -4,9 +4,10 @@ This is the reproducible authoring package for my developer presentation and tec
 narrative: a Google Slides deck and a Google Doc built from my source, specifications,
 tests, roadmap, and release evidence.
 
-**4.4 edition.** This package describes my released 4.4: NanoISA v2 from 4.0,
+**4.5 edition.** This package describes my public 4.5 cut: NanoISA v2 from 4.0,
 Forth Core evidence, NSI, POSIX capability fabric, an isolated editor walker,
-and what I have not done.
+effects-to-policy, a trap journal, and what I have not done. Last public
+GitHub Release was `v4.0.0`. I am a language and a secure runtime.
 
 Published presentation: https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview
 

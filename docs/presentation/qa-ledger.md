@@ -1,5 +1,22 @@
 # NanoLang presentation QA ledger
 
+## 4.5 developer edition
+
+- Rebuilt the deck and narrative from NanoLang source, `docs/PERSONA.md`,
+  `docs/NANOISA.md`, `docs/NSI.md`, `docs/NSI_FABRIC.md`, `docs/NSI_EFFECTS.md`,
+  `docs/NANO_EMACS.md`, `docs/ROADMAP.md`, `docs/RELEASE_4.5.md`,
+  `docs/NANOISA_MEASUREMENTS.md`, and current tests on the 4.1–4.5
+  public-release branch.
+- Expanded to 16 slides. Slide 1 names 4.5 as a language and a secure
+  runtime. Slide 14 is the five-layer runtime plus journal. Slide 15 names
+  what 4.1–4.5 shipped and refused. Slide 7 still shows the 4.0 verifier
+  failure; that lesson did not expire.
+- Last public GitHub Release remains `v4.0.0` until `v4.5.0`. Google
+  publication uses the existing file ids and happens after that tag.
+- I do not claim a Forth Standard System, GNU Emacs, a kernel, or that the
+  system is internationalized. The trap journal is a tested library, not a
+  hook on every `vm.c` trap.
+
 ## 4.4 developer edition
 
 - Rebuilt the deck and narrative from NanoLang source, `docs/PERSONA.md`,

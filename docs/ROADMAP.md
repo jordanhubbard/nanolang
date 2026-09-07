@@ -12,15 +12,14 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**Public release waits on leftover 4.1, the 4.4 sdl_term follow-up, and
-all of Phase 19 (4.5).** I do not tag a public GitHub Release or publish
-LinkedIn until those items are verified. 4.2 catalogs and 4.3 NSI v0 are
-in. 4.4 capability fabric is in (`docs/NSI_FABRIC.md`). I do not call the
+**Public release is one GitHub cut covering 4.1–4.5 as `v4.5.0`.** The
+last public GitHub Release is `v4.0.0`. Leftover 4.1, sdl_term, and
+Phase 19 are in. Documentation, the developer deck, and the user guide
+are the primary deliverables and land before the tag. I do not call the
 system internationalized. JSON/TOON and catalog fallback still use English;
 guide drafts are machine-generated. I do not claim a Forth Standard System,
-GNU Emacs, a kernel, CUDA, or a CPython wrap. The SDL editor astronaut
-(`docs/NANO_EMACS.md`, `bin/nano_emacs_worker`) is in. **4.6 and 5.0 are
-out of this bar.** The NanoISA-only compiler rewrite is **5.0**: see
+GNU Emacs, a kernel, CUDA, or a CPython wrap. **4.6 and 5.0 are out of
+this bar.** The NanoISA-only compiler rewrite is **5.0**: see
 `docs/NANOISA_ONLY.md`.
 
 ## Active Execution Queue
@@ -83,17 +82,19 @@ out of this bar.** The NanoISA-only compiler rewrite is **5.0**: see
       keep the Jackson pin / INCLUDE-gap test. Coverage job succeeded on
       `10e97f12` in PR #243.
       MAC `task_d10e63b263724e4ab4ae75dd4a281529`.
-- [ ] **Public release (held).** I run `make test`, CI, and
-      `make release-docs-check`, then tag one public cut covering 4.1–4.5.
-      Last Git tag is `v4.0.0`. Leftover 4.1, sdl_term, and Phase 19 are in.
-      Notes cover 4.1–4.5, not 4.4 alone. I do not start 4.6 or 5.0.
-      MAC `task_f3049ae5d8389ecc96ff28754e52b31b`.
-- [ ] **Public release (held).** I update README, CONTRIBUTING, the indexes,
-      `docs/RELEASE_4.4.md`, and the developer deck for the 4.1–4.5 bar.
-      I write a LinkedIn post covering changes since `v4.0.0`. I do not
-      claim a Forth Standard System, GNU Emacs, a kernel, or that the
-      system is internationalized.
+- [ ] **Public release — docs, deck, user guide.** I update README,
+      CONTRIBUTING, PERSONA, indexes, `docs/RELEASE_4.5.md`, the user
+      guide (including a Secure Runtime chapter), and the developer deck
+      for the 4.1–4.5 bar. Last public GitHub Release is `v4.0.0`. I am
+      a language and a secure runtime. I do not claim a Forth Standard
+      System, GNU Emacs, a kernel, or that the system is
+      internationalized. Google publication waits on the tag.
       MAC `task_d2f80f3c3ca6ee5f81070545a5a2ac5f`.
+- [ ] **Public release — test pipeline and tag `v4.5.0`.** After the
+      docs/deck/guide land, I run `make test`, CI, and
+      `make release-docs-check`, then tag one public cut covering 4.1–4.5.
+      `./scripts/release.sh 4.5.0`. I do not start 4.6 or 5.0.
+      MAC `task_f3049ae5d8389ecc96ff28754e52b31b`.
 - [ ] **4.6 / Phase 21 (out of this bar).** Shared NanoISA frontend contract,
       then Scheme, ML, Actor, Dataflow, Object, Shell, Logic, then the
       frontend matrix. After 4.5. NanoLang stays my native language.
@@ -1719,6 +1720,6 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: Leftover 4.1, sdl_term MVP, and Phase 19 (4.5) are in. Public GitHub Release and LinkedIn wait. 4.6 and 5.0 are out of this bar.
-Next Major Milestone: One public cut covering 4.1–4.5 (`make test`, `make release-docs-check`, then tag). Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
+Current Phase: Leftover 4.1, sdl_term MVP, and Phase 19 (4.5) are in. Public docs, deck, and user guide for v4.5.0 are the remaining bar. 4.6 and 5.0 are out of this bar.
+Next Major Milestone: Land docs/deck/guide, then `make test` + `make release-docs-check`, then tag `v4.5.0` covering 4.1–4.5 (last public GitHub Release is `v4.0.0`). Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
 Next Review: after a named human reviewer accepts a translated guide page

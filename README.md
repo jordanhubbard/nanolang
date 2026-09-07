@@ -4,9 +4,9 @@
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Bootstrap](https://img.shields.io/badge/bootstrap-self--hosting%20in%20progress-yellow.svg)
 
-**I am a minimal programming language designed for machines to write and humans to read. I require tests, I use unambiguous syntax, and my core is formally proved.**
+**I am a programming language designed for machines to write and humans to read, and a secure runtime that hosts least-privilege services on an ordinary kernel.** I require tests, I use unambiguous syntax, and my core is formally proved.
 
-I transpile to C when you need native performance. I also provide my own virtual machine, NanoISA, which isolates dangerous external calls in a separate process. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
+I transpile to C when you need native performance. NanoISA is my verified bytecode VM; it isolates dangerous external calls in a separate process. After 4.0 I added versioned service contracts, unforgeable capabilities, a POSIX fabric, and a trap journal. I do not claim a kernel. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
 
 ## Documentation
 
@@ -19,7 +19,7 @@ I transpile to C when you need native performance. I also provide my own virtual
 - [NanoISA VM Architecture](docs/NANOISA.md) - How my virtual machine is structured.
 - [Formal Verification](formal/README.md) - My Coq proof suite.
 - [Performance Monitoring and LLM Optimization](docs/PERFORMANCE_MONITORING.md) - `-pg` JSON, OS collectors, and a measured optimization loop.
-- [NanoLang 4.4](docs/RELEASE_4.4.md) - Forth Core evidence, NSI, POSIX capability fabric, isolated Nano Emacs. Last Git tag before this was `v4.0.0`.
+- [NanoLang 4.5](docs/RELEASE_4.5.md) - Public cut covering 4.1–4.5. Last public GitHub Release was `v4.0.0`. Language plus secure runtime: Forth evidence, NSI, capabilities, POSIX fabric, isolated Nano Emacs, effects-to-policy, trap journal.
 - [NanoLang 4.0](docs/RELEASE_4.0.md) - NanoISA v2, the verifier, and measured dispatch.
 - [Developer overview](docs/presentation/README.md) - Slides and narrative for the current release.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
@@ -72,8 +72,8 @@ EOF
 - **Type Inference** - I infer types where unambiguous so you can write `let x = 42` without an annotation. Inference is local and bidirectional, not full Hindley-Milner — explicit annotations are required at function boundaries.
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
-- **Nano Service Interface** - NSI v0 contracts, generated stubs, unforgeable capabilities, and a POSIX service fabric (`docs/NSI.md`, `docs/NSI_FABRIC.md`). I do not claim a kernel.
-- **Forth session** - Colon definitions compile to verified NanoISA. Jackson Core/Core Ext suites are vendored evidence. I do not claim a Standard System (`docs/FORTH_2012.md`).
+- **Secure Runtime** - NSI v0 contracts, unforgeable capabilities, a POSIX service fabric, effects-to-policy, and a trap journal (`docs/NSI.md`, `docs/NSI_FABRIC.md`, `docs/NSI_EFFECTS.md`). I host services on an ordinary kernel. I do not claim a kernel, AES, or PKI. The journal is a tested library; it is not hooked into every VM trap in 4.5.
+- **Forth session** - Colon definitions compile to verified NanoISA. Jackson Core/Core Ext suites are vendored evidence. I do not claim a Standard System (`docs/FORTH_2012.md`, `docs/FORTH_STANDARD_SYSTEM.md`).
 - **Message catalogs** - Six-language catalogs and machine-draft user guides. JSON/TOON stay English. I do not call the system internationalized.
 - **Nano Emacs** - An SDL frame whose walker runs in `bin/nano_emacs_worker`. I do not claim GNU Emacs (`docs/NANO_EMACS.md`).
 - **VS Code Extension** - I ship a Language Server, a Debug Adapter Protocol server, and a VS Code extension source tree (`editors/vscode/`) with semantic tokens. Run `vsce package` to build a `.vsix`.

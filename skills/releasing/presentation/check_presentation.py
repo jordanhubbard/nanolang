@@ -39,6 +39,9 @@ WATCHES = [
             "spec/nanoisa.yaml",
             "src/nanoisa/verifier.c",
             "src/nsi_fabric.c",
+            "src/nsi_policy.c",
+            "src/nsi_journal.c",
+            "docs/NSI_EFFECTS.md",
             "docs/NANO_EMACS.md",
         ],
         why="The deck and narrative are built from these. A release that "

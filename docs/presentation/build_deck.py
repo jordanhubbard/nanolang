@@ -100,15 +100,16 @@ def build() -> Path:
     s = slide(INK)
     s.shapes.add_picture(str(mascot), Inches(8.0), Inches(0.0), width=Inches(5.33), height=Inches(7.5))
     box(s, 0, 0, 9.1, H, INK)
-    text(s, "NANOLANG 4.4", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
+    text(s, "NANOLANG 4.5", 0.7, 0.6, 3.0, 0.3, 13, GREEN, True)
     text(s, "I say what I mean.\nI compile myself.\nI show my evidence.", 0.7, 1.55, 7.0, 2.5, 34, FOG, True)
     # Someone meeting this deck cold needs to know what I am before being told
     # what I prove. The previous subtitle assumed both.
     text(s, "A small language designed to be written by machines and audited by humans.\n"
-            "A developer's view of my syntax, compiler, NanoISA, NanoVM, NSI, and what my verifier proves.",
+            "A developer's view of my syntax, compiler, NanoISA, and the secure runtime I host on POSIX.",
          0.75, 4.35, 7.5, 1.2, 16, BLUE)
-    text(s, "Verified bytecode · Forth evidence · NSI fabric · isolated editor walker", 0.75, 6.55, 7.2, 0.3, 13, ORANGE, True)
-    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.4.md.",
+    text(s, "Verified bytecode · NSI · capabilities · fabric · trap journal", 0.75, 6.55, 7.2, 0.3, 13, ORANGE, True)
+    notes(s, ["Authority: docs/PERSONA.md, README.md, docs/RELEASE_4.5.md.",
+              "I am a language and a secure runtime. I do not claim a kernel.",
               "I describe tested behavior. Work I have not done is labelled as such."])
 
     # 2 — syntax
@@ -250,23 +251,41 @@ def build() -> Path:
               "Before 4.0 the suite timed one process per sample, so every workload took about 17 ms whether it retired 78 instructions or 32,082.",
               "It could not have detected an interpreter change of any size, which is why these questions stayed open."])
 
-    # 14 — boundary
-    s = slide(INK); title(s, "4.4 shipped. Here is what I have not done.", "One tag from v4.0.0. Product phases 4.1–4.4, not four Git tags.", 14)
-    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "4.4 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
-    text(s, "verified NanoISA v2 (4.0)\nForth Core evidence\nNSI v0 + POSIX fabric\nunforgeable capabilities\nisolated editor walker\nsix-language catalogs", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
+    # 14 — secure runtime
+    s = slide(); title(s, "I host a secure runtime on an ordinary kernel.", "Contracts, capabilities, a POSIX fabric, and a journal. Five layers. Not synonyms.", 14)
+    layers = [("EFFECT", "source row"), ("MANIFEST", "required caps"), ("TRAP", "NanoISA"), ("NSI", "method id"), ("CAP", "unforgeable")]
+    for i, (head, body_) in enumerate(layers):
+        x = 0.55 + i * 2.5
+        box(s, x, 2.15, 2.3, 1.7, PANEL, True)
+        text(s, head, x + .12, 2.4, 2.05, .35, 14, GREEN, True, mono=True)
+        text(s, body_, x + .12, 2.9, 2.05, .55, 14, FOG)
+    box(s, .55, 4.15, 12.2, 2.15, INK, True)
+    text(s, "JOURNAL", 0.85, 4.4, 2.2, .3, 14, ORANGE, True)
+    text(s, "Record at the trap. Replay the recorded result. Do not call the original service.\n"
+            "SHA-256 + HMAC with a deployment key. Sequence checkpoints, not heap snapshots.\n"
+            "Tested C library in 4.5. Not a hook on every vm.c trap. POSIX is the host.",
+         0.85, 4.85, 11.5, 1.2, 15, FOG)
+    notes(s, ["Authority: docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, schema/nsi/effect_map.v0.json.",
+              "State has no host cap. Err maps to TRAP_ERROR and invents no NSI method.",
+              "I do not claim a kernel, AES, PKI, or that the journal is wired into every trap."])
+
+    # 15 — boundary
+    s = slide(INK); title(s, "4.1–4.5 shipped. Here is what I have not done.", "One public tag from v4.0.0. Five product phases, not five GitHub Releases.", 15)
+    box(s, .8, 2.0, 5.65, 3.9, PANEL, True); text(s, "4.5 SHIPPED", 1.1, 2.35, 4.9, .3, 15, GREEN, True)
+    text(s, "verified NanoISA v2 (4.0)\nForth Core evidence\nNSI v0 + POSIX fabric\nunforgeable capabilities\nisolated editor walker\neffects → policy + journal", 1.1, 2.9, 4.7, 2.6, 18, FOG, True)
     box(s, 6.9, 2.0, 5.65, 3.9, INK, True); text(s, "NOT DONE", 7.2, 2.35, 4.9, .3, 15, ORANGE, True)
-    text(s, "Standard System / INCLUDED\ninternationalized compiler\nGNU Emacs / a kernel\nCUDA or CPython wrap\nheader deps (#211)\n5.0 One IR", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
-    notes(s, ["Authority: docs/RELEASE_4.4.md, docs/ROADMAP.md, docs/FORTH_2012.md, docs/NSI_FABRIC.md, docs/NANO_EMACS.md.",
+    text(s, "Standard System / INCLUDED\ninternationalized compiler\nGNU Emacs / a kernel\nCUDA or CPython wrap\njournal on every trap\n5.0 One IR", 7.2, 2.9, 4.7, 2.6, 18, FOG, True)
+    notes(s, ["Authority: docs/RELEASE_4.5.md, docs/ROADMAP.md, docs/FORTH_STANDARD_SYSTEM.md, docs/NSI_EFFECTS.md.",
               "Catalogs and machine-draft guides exist. JSON/TOON stay English.",
               "The live editor uses bin/nano_emacs_worker, not dlopen."])
 
-    # 15 — closing
+    # 16 — closing
     s = slide(INK); s.shapes.add_picture(str(mascot), Inches(8.7), Inches(.8), width=Inches(3.8), height=Inches(5.7))
     text(s, "Start with the code.\nThen run the gates.", .75, 1.7, 7.4, 1.4, 34, FOG, True)
     text(s, "read · change · shadow-test · verify · measure", .8, 4.0, 7.5, .4, 18, ORANGE, True, mono=True)
-    text(s, "docs/RELEASE_4.4.md · docs/ROADMAP.md · docs/NSI_FABRIC.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
-    notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md."])
-    footer(s, 15)
+    text(s, "docs/RELEASE_4.5.md · userguide/guide/08_secure_runtime.md", .8, 5.25, 7.6, .4, 12, BLUE, mono=True)
+    notes(s, ["Authority: CONTRIBUTING.md, docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md."])
+    footer(s, 16)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(OUT))

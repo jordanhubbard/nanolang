@@ -6,5 +6,6 @@
   "guide/04_modules_and_ffi.md": "ef8831faf28c0f4ec3939f3c41ae3f96b8f3ab12c9f79cb28cf3f87893ba2448",
   "guide/05_testing_and_trust.md": "130583eae11a919653c05628f8fa2422d1c03755617c9d645c18118e9e741650",
   "guide/06_tools_and_backends.md": "0bc1445aa0b929877de8b5416c1d19bb46aea1c84729e9237dd75bea1af326ca",
-  "guide/07_performance_profiling.md": "ce4a53efbf253280f81a815400b4dcfddc07d7193dc691c5af071787bea342f5"
+  "guide/07_performance_profiling.md": "ce4a53efbf253280f81a815400b4dcfddc07d7193dc691c5af071787bea342f5",
+  "guide/08_secure_runtime.md": "472bff5a677c3160da1d38d918e11e5fbc9e81ae2606b3b33728b1f77cded054"
 }

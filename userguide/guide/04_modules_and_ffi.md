@@ -49,7 +49,7 @@ fn close_fd(fd: int) -> int {
 }
 ```
 
-Keep unsafe regions narrow. Validate foreign values at the boundary and expose a typed wrapper when one can honestly be provided.
+Keep unsafe regions narrow. Validate foreign values at the boundary and expose a typed wrapper when one can honestly be provided. Direct `extern` is not the only host boundary: NSI method ids, unforgeable capabilities, and the POSIX fabric are the 4.x runtime path. See [Secure Runtime](08_secure_runtime.md).
 
 ## Resource Types
 
@@ -73,4 +73,4 @@ Three files serve different jobs:
 | `module.json` | Native build sources, flags, packages, and ownership metadata |
 | `module.manifest.json` | Discovery metadata, stability, capabilities, and examples |
 
-Pure modules do not always need native build metadata. See the generated [module inventory](../generated/modules.md) for what exists now.
+`module.json` stays build metadata. Isolation, restart, budgets, and required capabilities live on `module.manifest.json` in a portable `nsi` block. See [Secure Runtime](08_secure_runtime.md) and the generated [module inventory](../generated/modules.md) for what exists now.

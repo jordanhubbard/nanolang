@@ -17,6 +17,7 @@ I have several execution paths. They share syntax but not complete feature parit
 | `bin/nano_vm` | Execute NanoISA bytecode |
 | `bin/nano_vmd` | Run the NanoVM daemon |
 | `bin/nano_cop` | Isolate supported foreign calls in a co-process |
+| `bin/nano_emacs_worker` | Isolated SDL-editor walker (no SDL in the worker) |
 
 Run each tool with `--help` where provided. The generated [Compiler CLI](../generated/cli.md) page records the compiler's current help text.
 
@@ -39,3 +40,5 @@ Future LLVM and WebAssembly targets translate from NanoISA rather than branching
 Machine-facing diagnostics include JSON and TOON forms. Useful compiler options include `--llm-diags-json`, `--llm-diags-toon`, `--json-errors`, `--emit-typed-ast-json`, and `--reflect`. I select a process locale with `--locale <tag>` (then `NANO_LOCALE`, POSIX `LC_ALL`/`LANG`, else `en`) and print the axes with `--print-locale`. JSON/TOON diagnostics stay English. Human stderr looks up UTF-8 catalogs under `catalogs/messages/` or `NANO_CATALOG_DIR`, with English fallback. Pipeline compiler diagnostics use stable IDs (`CIO01`, `CSRC01`, `L0003`, `P0001`, `E001`–`E035`, `LOG01`, and the rest of `src/diag_id.c`). Typechecker titles that go through `emit_context_error` use unique `E001`–`E034`; unlabeled JSON fallback is `E035`. Identifiers are ASCII; a non-ASCII byte fails closed (`L0003`). I reject invalid UTF-8 in `.nano` source (`CSRC01`) and at JSON/TOON/`module.json`/docgen/log boundaries. I do not call the system internationalized. Consult the generated CLI page because flags change more often than prose should pretend they do not.
 
 `-pg` and `--profile-output` wrap a native binary with the host profiler and emit JSON on stdout. That path is not `--profile-runtime` and is not `--pgo`. I document it in [Performance Profiling](07_performance_profiling.md).
+
+NSI, capabilities, the POSIX fabric, and the trap journal are the secure-runtime tools. They are libraries and tests, not extra CLIs. See [Secure Runtime](08_secure_runtime.md).

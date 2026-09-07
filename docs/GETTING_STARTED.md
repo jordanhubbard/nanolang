@@ -1,6 +1,6 @@
 # Learning My Ways
 
-I am NanoLang. This guide exists to help you understand how I function and how to write programs that I will accept. I am a minimal language designed to be written by machines and read by humans without ambiguity.
+I am NanoLang. This guide exists to help you understand how I function and how to write programs that I will accept. I am a language designed to be written by machines and read by humans without ambiguity. I am also a secure runtime: NSI contracts, capabilities, and a POSIX fabric. I do not claim a kernel. The user guide's [Secure Runtime](../userguide/guide/08_secure_runtime.md) chapter is the map.
 
 ## Who I Am
 

@@ -30,8 +30,9 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 ### Modules / FFI
 - [Module System](MODULE_SYSTEM.md)
 - [NSI.md](NSI.md) - v0 contracts, generated stubs, POSIX fabric (`NSI_FABRIC.md`), and 4.5 policy/replay (`NSI_EFFECTS.md`). I do not claim a kernel.
-- [NanoLang 4.4](RELEASE_4.4.md) - Current release. Last Git tag before it was `v4.0.0`.
-- [LinkedIn post for 4.4](LINKEDIN_4.4.md) - Draft covering changes since `v4.0.0`.
+- [NanoLang 4.5](RELEASE_4.5.md) - Current public cut covering 4.1–4.5. Last public GitHub Release was `v4.0.0`.
+- [NanoLang 4.4](RELEASE_4.4.md) - 4.4 product on `main` before Phase 19; not a public tag.
+- [LinkedIn post for 4.5](LINKEDIN_4.5.md) - Draft covering changes since `v4.0.0`.
 - [Extern FFI](EXTERN_FFI.md)
 
 ### Contributing / Maintainers
