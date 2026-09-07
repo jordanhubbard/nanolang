@@ -15,3 +15,10 @@ reference pages are built from current repository data.
 
 - `USERGUIDE_TIMEOUT=600` sets the HTML build timeout (seconds).
 - Generated output is written to `build/userguide/html` and is not committed.
+
+### Example evidence
+
+I keep declared output in each runnable example header. `make -C examples test`
+compiles the language and verified catalogs, runs finite examples, and checks
+their declared output. A platform-gated example that prints `SKIP:` is not a
+portable success claim; it records the unavailable boundary.

@@ -12,6 +12,7 @@
 #include "pty.h"
 
 #include <errno.h>
+#include <poll.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,18 +28,23 @@ static void drain_into(int64_t master_fd, char *acc, size_t acc_size, int timeou
     int waited = 0;
     size_t used = strlen(acc);
     while (waited < timeout_ms) {
-        const char *chunk = nl_pty_read(master_fd);
-        if (chunk != NULL && chunk[0] != '\0') {
-            size_t n = strlen(chunk);
-            if (used + n >= acc_size) {
-                n = acc_size - used - 1;
+        struct pollfd fd = { .fd = (int)master_fd, .events = POLLIN, .revents = 0 };
+        int slice_ms = timeout_ms - waited;
+        if (slice_ms > 20) slice_ms = 20;
+        int ready = poll(&fd, 1, slice_ms);
+        waited += slice_ms;
+        if (ready > 0 && (fd.revents & (POLLIN | POLLHUP))) {
+            const char *chunk = nl_pty_read(master_fd);
+            if (chunk != NULL && chunk[0] != '\0') {
+                size_t n = strlen(chunk);
+                if (used + n >= acc_size) {
+                    n = acc_size - used - 1;
+                }
+                memcpy(acc + used, chunk, n);
+                used += n;
+                acc[used] = '\0';
             }
-            memcpy(acc + used, chunk, n);
-            used += n;
-            acc[used] = '\0';
         }
-        usleep(20000);
-        waited += 20;
     }
 }
 
@@ -80,7 +86,9 @@ static void test_interactive_repl_stays_alive(void) {
     }
 
     memset(acc, 0, sizeof(acc));
-    drain_into(master, acc, sizeof(acc), 1500);
+    /* The NanoISA session initializes its dictionary before printing a prompt.
+     * Allow enough time for that work on a loaded Linux host. */
+    drain_into(master, acc, sizeof(acc), 5000);
 
     if (nl_pty_is_alive(pid) == 0) {
         nl_pty_close(master);

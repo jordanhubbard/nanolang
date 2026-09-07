@@ -4,7 +4,7 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: nl_hello, nl_functions, nl_advanced_math, nl_pi_calculator
-# Expected Output: (blank line)
+# Expected Output: ╔════════════════════════════════════════╗
 
 # High-Precision Pi Calculator using Machin's Formula
 #
@@ -244,7 +244,6 @@ shadow run_pi_calculation {
 }
 
 fn main() -> int {
-    (println "")
     (println "╔════════════════════════════════════════╗")
     (println "║   High-Precision π Calculator          ║")
     (println "╔════════════════════════════════════════╗")

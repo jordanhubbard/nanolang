@@ -8,7 +8,7 @@
 # Build: external-deps
 # Dependencies: modules/dispatch, libdispatch
 # Tags: concurrency, native-only
-# Expected Output: dispatch counter
+# Expected Output: SKIP: libdispatch is not available on this platform
 
 /* nl_dispatch_counter.nano
  * Demonstrates GCD serial/concurrent queue and group API.

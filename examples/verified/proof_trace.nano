@@ -4,7 +4,7 @@
 # Difficulty: Advanced
 # Category: verified
 # Prerequisites: none
-# Expected Output: three illustrative evaluations and their evidence boundary
+# Expected Output: Illustrative semantics walkthrough
 
 /*
  * This is a hand-written walkthrough aligned with names in my formal model.

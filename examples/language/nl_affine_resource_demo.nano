@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: resource, affine, shadow-tested
-# Expected Output: resource closed
+# Expected Output: audit.log
 
 resource struct FileHandle {
     fd: int

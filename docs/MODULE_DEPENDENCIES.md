@@ -106,6 +106,16 @@ sudo apt-get install -y \
   libbullet-dev
 ```
 
+**Arch Linux:**
+
+```bash
+sudo pacman -S --needed \
+  base-devel pkgconf python-yaml \
+  sdl2 sdl2_image sdl2_mixer sdl2_ttf \
+  mesa glew glfw freeglut ncurses readline sqlite \
+  curl libuv bullet
+```
+
 ### Minimal Dependencies (Core Only)
 
 For just the core compiler and standard library:

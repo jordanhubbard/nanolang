@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: modules/std/peg2
 # Tags: parser, peg2
-# Expected Output: expression parse
+# Expected Output: === peg2 Arithmetic Expression Parser ===
 
 /*
  * nl_peg2_expr.nano — Parse arithmetic expressions using peg2

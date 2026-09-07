@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: verified
 # Prerequisites: none
-# Expected Output: no output; shadow tests validate the checksum functions
+# Expected Output:
 
 /* =============================================================================
  * Verified Data Integrity / Checksum Validator

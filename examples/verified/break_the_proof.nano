@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: verified-subset, adversarial-tests, shadow-tested
-# Expected Output: a summary of proved, tested, and assumed claims
+# Expected Output: Proof boundary report
 
 /*
  * My Coq theorems apply to functions classified [verified] by --trust-report.

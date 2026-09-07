@@ -47,6 +47,10 @@ SHELL := /usr/bin/env bash
 .SHELLFLAGS := -e -o pipefail -c
 
 CC = cc
+# Schema generation needs PyYAML. Prefer the active python3 when it provides
+# it, then use the system interpreter when a version manager shadows it with
+# an environment that does not. Callers may still override this explicitly.
+PYTHON_WITH_YAML ?= $(shell if python3 -c 'import yaml' >/dev/null 2>&1; then command -v python3; elif [ -x /usr/bin/python3 ] && /usr/bin/python3 -c 'import yaml' >/dev/null 2>&1; then printf '%s' /usr/bin/python3; else command -v python3; fi)
 # -fPIC is required on Linux: module .so files and libnano_session.so link
 # COMMON_OBJECTS, and transpiler.o carries TLS that ld rejects without PIC
 # (R_X86_64_TPOFF32). Darwin dylibs hid this until Ubuntu CI built examples.
@@ -207,8 +211,8 @@ schema: $(SCHEMA_STAMP)
 
 schema-check:
 	@$(TIMEOUT_CMD) ./scripts/check_compiler_schema.sh
-	@$(TIMEOUT_CMD) python3 scripts/gen_nanoisa_schema.py --check
-	@$(TIMEOUT_CMD) python3 -m unittest tests.test_nanoisa_schema
+	@$(TIMEOUT_CMD) $(PYTHON_WITH_YAML) scripts/gen_nanoisa_schema.py --check
+	@$(TIMEOUT_CMD) $(PYTHON_WITH_YAML) -m unittest tests.test_nanoisa_schema
 
 # Schema generation: Use NanoLang if compiler exists, fallback to Python for bootstrap
 bin/gen_compiler_schema: scripts/gen_compiler_schema.nano
@@ -232,7 +236,7 @@ $(SCHEMA_STAMP): $(SCHEMA_JSON) scripts/gen_compiler_schema.py scripts/gen_compi
 	@touch $(SCHEMA_STAMP)
 
 src/nanoisa/generated_schema.h: spec/nanoisa.yaml scripts/gen_nanoisa_schema.py
-	@python3 scripts/gen_nanoisa_schema.py
+	@$(PYTHON_WITH_YAML) scripts/gen_nanoisa_schema.py
 
 src/nanovm/ffi_dispatch_generated.h: scripts/gen_ffi_dispatch.py
 	@python3 scripts/gen_ffi_dispatch.py
