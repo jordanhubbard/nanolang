@@ -1186,14 +1186,26 @@ not collect syntax for its own sake. Each frontend must expose a distinct
 architectural weakness or prove a distinct capability.
 
 Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
-- [ ] I will define a frontend interface for source locations, typed functions, layouts, constants, imports, effects, capabilities, and diagnostics.
-- [ ] I will require every frontend to emit the same versioned NanoISA module format and pass the same verifier.
-- [ ] I will give every frontend access to the same service contracts, capability model, FFI isolation, debugger metadata, profiler, and target translators.
-- [ ] I will separate language-specific desugaring and type analysis from language-neutral NanoISA optimization.
-- [ ] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
-- [ ] I will define bounded implementation and test goals before starting each frontend.
-- [ ] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
-- [ ] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
+- [x] I define the shared input, output, source-location, typed-function,
+      layout, constant, import, effect, capability, diagnostic, and metadata
+      interface in `docs/FRONTEND_CONTRACT.md`.
+- [x] I require every frontend to emit the same versioned NanoISA module,
+      round-trip it through the shared serializer, and pass the same verifier.
+- [x] I give every frontend the same typed route to service contracts,
+      capabilities, isolated FFI, debugger metadata, profiling, and target
+      translators.
+- [x] I put language-specific parsing, desugaring, and type analysis before the
+      module boundary and language-neutral verification and optimization after
+      it.
+- [x] I preserve purity, exhaustiveness, ownership, inferred-type, and effect
+      facts as optional namespaced metadata that cannot define behavior.
+- [x] I require a bounded feature subset, architectural pressure, exclusions,
+      tests, shared fixture, and completion claim before a frontend starts.
+- [x] I reject frontend-specific opcodes unless a reviewed proposal defines a
+      reusable primitive and its behavior across every shared NanoISA tool.
+- [x] I define the cross-frontend conformance harness: equivalent programs use
+      shared NanoISA libraries and versioned services, with explicit exclusions
+      for fixtures outside a bounded language subset.
 
 Nano Scheme (MAC `task_6647a64cc76edac6e3d0f62c228d98c4`):
 - [ ] I will implement a small Scheme frontend as the first post-Forth language experiment.
