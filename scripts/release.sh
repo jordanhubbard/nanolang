@@ -297,6 +297,21 @@ Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.g
         --body "Prepare the v$version release.")
 
     info "Waiting for release PR checks..."
+    # `gh pr checks --watch` exits 1 with "no checks reported" if it runs
+    # before GitHub has created check runs for the new branch. Wait until
+    # at least one check exists, then watch.
+    local i
+    local checks_ready=0
+    for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+        if gh pr checks "$pr_url" >/dev/null 2>&1; then
+            checks_ready=1
+            break
+        fi
+        sleep 10
+    done
+    if [[ "$checks_ready" -ne 1 ]]; then
+        error "Release PR checks did not appear."
+    fi
     gh pr checks "$pr_url" --watch --fail-fast
 
     info "Merging release PR..."
@@ -304,8 +319,11 @@ Co-authored-by: factory-droid[bot] <138933559+factory-droid[bot]@users.noreply.g
 
     # The protected branch may use squash or merge commits. Tag the commit
     # that actually landed instead of the now-obsolete release-branch commit.
+    # Local main still has the pre-squash release commit, so fast-forward
+    # cannot work. Reset to the landed squash commit.
+    git fetch origin
     git switch main
-    git pull --ff-only origin main
+    git reset --hard origin/main
     info "Creating git tag v$version..."
     git tag -a "v$version" -m "Release v$version"
     git push origin "v$version"
