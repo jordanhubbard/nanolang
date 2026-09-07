@@ -37,12 +37,12 @@ def build() -> Path:
     section.left_margin = section.right_margin = Inches(0.9)
     document.core_properties.title = "NanoLang: the language, compiler, and VM"
     document.core_properties.author = "NanoLang"
-    document.core_properties.subject = "NanoLang 4.4 developer narrative"
+    document.core_properties.subject = "NanoLang 4.5 developer narrative"
 
     heading(document, 1, "NanoLang: the language, compiler, and VM")
     heading(document, 2, "What I am")
-    paragraph(document, "I am NanoLang. This is my developer narrative for release 4.4. It explains my language contract, compiler paths, NanoISA bytecode, NanoVM execution, foreign-function boundary, Nano Service Interface, tests, diagnostics, and the work I have not done.")
-    paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_4.4.md, and the current test suites.")
+    paragraph(document, "I am NanoLang. This is my developer narrative for release 4.5. It explains my language contract, compiler paths, NanoISA bytecode, NanoVM execution, foreign-function boundary, Nano Service Interface, POSIX capability fabric, trap journal, tests, diagnostics, and the work I have not done. I am a language and a secure runtime. I do not claim a kernel.")
+    paragraph(document, "Authority: docs/PERSONA.md, README.md, docs/NANOISA.md, docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_EFFECTS.md, docs/NANO_EMACS.md, docs/ROADMAP.md, spec/nanoisa.yaml, docs/RELEASE_4.5.md, and the current test suites.")
     heading(document, 2, "Who this is for")
     paragraph(document, "Software developers and compiler engineers who need the technical account behind the companion deck. I describe tested behavior. Roadmap work is labelled as such.")
 
@@ -76,7 +76,7 @@ def build() -> Path:
 
     heading(document, 1, "Evidence and diagnostics")
     heading(document, 2, "Tests")
-    paragraph(document, "4.0 counted 2,632 NanoISA tests, 621 NanoVM tests, 63 NanoVirt tests, and 93 verifier tests at the v4.0.0 tag. 4.4 adds NSI, fabric, catalog, Forth, and nano_emacs_worker suites on top of that. CI exercises x64, arm64, sanitizers, coverage, documentation, benchmarks, and security checks.")
+    paragraph(document, "4.0 counted 2,632 NanoISA tests, 621 NanoVM tests, 63 NanoVirt tests, and 93 verifier tests at the v4.0.0 tag. 4.1–4.5 add NSI, fabric, catalog, Forth, nano_emacs_worker, policy, journal, and observability suites on top of that. CI exercises x64, arm64, sanitizers, coverage, documentation, benchmarks, and security checks.")
     heading(document, 2, "NanoISA profiles and opcode traces")
     paragraph(document, "--profile-isa writes structured counters for retired instructions, opcode sequences, branches, calls, stack and frame depth, traps, heap traffic, and FFI traffic. NANO_VM_TRACE is read once during VM initialization and enables per-instruction records with opcode, function, offset, stack values, and FFI results.")
     heading(document, 2, "Generated-C profiling")
@@ -90,24 +90,26 @@ def build() -> Path:
     heading(document, 2, "What I measured")
     paragraph(document, "The benchmark harness times each workload once and with many iterations behind one process startup so the per-iteration cost is the difference. docs/NANOISA_MEASUREMENTS.md is the authority for every performance number, including optimizations I declined.")
 
-    heading(document, 1, "Release 4.4")
+    heading(document, 1, "Release 4.1–4.5")
     heading(document, 2, "Forth Core evidence")
-    paragraph(document, "A NanoISA Forth session compiles colon definitions to verified bytecode. Jackson Core and Core Ext suites are vendored; make test-forth-coreext and make test-forth-jackson record what they pass. INCLUDED remains a recorded gap. I do not claim a Standard System. Authority: docs/FORTH_2012.md.")
+    paragraph(document, "A NanoISA Forth session compiles colon definitions to verified bytecode. Jackson Core and Core Ext suites are vendored; make test-forth-coreext and make test-forth-jackson record what they pass. INCLUDED remains a recorded gap. I do not claim a Standard System. Authority: docs/FORTH_2012.md, docs/FORTH_STANDARD_SYSTEM.md.")
     heading(document, 2, "Catalogs and guide drafts")
     paragraph(document, "UTF-8 message catalogs exist for en, zh, hi, es, ar, and fr. Human stderr can follow the process locale. JSON and TOON stay English. User-guide drafts under userguide/i18n/ are machine-generated. I do not call the system internationalized.")
     heading(document, 2, "NSI, capabilities, and POSIX fabric")
     paragraph(document, "NSI v0 is a fail-closed document of ids, payloads, and compatibility. Generators emit NanoLang, Forth, Python, Rust, and C++ stubs. Unforgeable NlCap tokens, capability-scoped shared memory, and a POSIX supervisor host services on an ordinary kernel. I do not claim a kernel, or a CUDA or CPython wrap. Authority: docs/NSI.md, docs/NSI_FABRIC.md, docs/NSI_TCB.md.")
     heading(document, 2, "Isolated Nano Emacs walker")
     paragraph(document, "The SDL frame does not dlopen the interpreter. Eval goes to bin/nano_emacs_worker over a length-prefixed pipe. Crash-restart keeps buffers. freeze-defun runs nano_vm as a grandchild. I do not claim GNU Emacs. Authority: docs/NANO_EMACS.md.")
+    heading(document, 2, "Effects, policy, journal, and provenance")
+    paragraph(document, "schema/nsi/effect_map.v0.json maps source effects, NanoISA traps, NSI methods, and capabilities. I emit an inventory, generate a deployment manifest, and reject uncovered grants. A versioned journal records trap-boundary events and replays the recorded result without calling the original service. HMAC-SHA256 authenticates a journal with a deployment key; that is not PKI. Checkpoints are sequence numbers, not heap snapshots. The journal is a tested C library in this tag and is not hooked into every vm.c trap. Authority: docs/NSI_EFFECTS.md.")
 
     heading(document, 1, "What I have not done")
-    paragraph(document, "I have not claimed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, Makefile header dependencies (GitHub issue #211), or the 5.0 one-IR rewrite. 4.5 effects and replay are next. See docs/RELEASE_4.4.md and docs/ROADMAP.md.")
+    paragraph(document, "I have not claimed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, Makefile header dependencies (GitHub issue #211), or the 5.0 one-IR rewrite. See docs/RELEASE_4.5.md and docs/ROADMAP.md.")
 
     heading(document, 1, "How to work on me")
     heading(document, 2, "Read the source and roadmap")
-    paragraph(document, "Start with docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.4.md, the relevant source symbols, and the matching tests. Do not turn a roadmap sentence into a feature claim.")
+    paragraph(document, "Start with docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md, userguide/guide/08_secure_runtime.md, the relevant source symbols, and the matching tests. Do not turn a roadmap sentence into a feature claim.")
     heading(document, 2, "Run the gates")
-    paragraph(document, "make test\nmake test-nsi test-nsi-cap test-nsi-fabric\nmake test-nano-emacs-worker\nmake release-docs-check", code=True)
+    paragraph(document, "make test\nmake test-nsi test-nsi-cap test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs\nmake test-nano-emacs-worker\nmake release-docs-check", code=True)
     paragraph(document, "I say what I mean, I show what I tested, and I leave the unproved boundary visible.")
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -121,7 +123,7 @@ def main() -> None:
         raise SystemExit(f"presentation artifact missing: {PPTX}")
     manifest = Path(os.environ.get("OBJ_DIR", str(REPO / "_build"))) / "nanolang-developer-overview" / "capability-manifest.json"
     manifest.parent.mkdir(parents=True, exist_ok=True)
-    manifest.write_text(json.dumps({"schema": "nanolang/developer-document-pair@1", "slides": 15, "narrative": str(output)}, indent=2) + "\n")
+    manifest.write_text(json.dumps({"schema": "nanolang/developer-document-pair@1", "slides": 16, "narrative": str(output)}, indent=2) + "\n")
     print(f"built narrative -> {output}")
 
 

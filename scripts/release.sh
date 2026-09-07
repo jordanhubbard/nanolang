@@ -348,7 +348,7 @@ main() {
     fi
     
     # Determine bump type or an explicit X.Y.Z (needed when product phases
-    # 4.1–4.4 ship as one tag instead of four minor bumps from v4.0.0).
+    # 4.1–4.5 ship as one tag instead of five minor bumps from v4.0.0).
     ARG=${1:-patch}
     if [[ "$ARG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         NEXT_VERSION="$ARG"

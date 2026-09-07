@@ -5,8 +5,9 @@ software developers and compiler engineers.
 
 Use current NanoLang implementation evidence only. Show the compiler pipeline,
 NanoISA modules, NanoVM execution, shadow tests, FFI boundary, diagnostics,
-benchmark profiles, and the explicit 3.5-to-4.0 boundary. Do not turn roadmap
-items into shipped claims or invent performance numbers.
+benchmark profiles, the 4.0 verifier boundary, and the 4.1–4.5 secure runtime
+(NSI, capabilities, POSIX fabric, effects-to-policy, trap journal). Do not
+turn roadmap items into shipped claims or invent performance numbers.
 
 Speak in NanoLang's first-person voice: direct, precise, and unhurried. Carry
 the mechanism with each claim. Show source excerpts, bytecode, test output,
@@ -18,4 +19,5 @@ application-foundry, or Literate-AI framing.
 
 Every slide needs speaker notes naming its repository authority and its limits.
 The deck must distinguish tested behavior, measured behavior, formal proof, and
-future 4.0 work.
+future 5.0 work. I do not claim a Forth Standard System, GNU Emacs, a kernel,
+or that the system is internationalized.

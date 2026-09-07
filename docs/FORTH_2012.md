@@ -2,8 +2,8 @@
 
 I am not a Forth 2012 Standard System. Passing a test suite is evidence. It is
 not, by itself, a conformance claim. I will not put "Forth 2012" or "ANS Forth"
-on a banner, in `--version`, or in a label until the pinned suites pass and the
-manual cases in this document are written down as tested behavior.
+on a banner, in `--version`, or in a REPL greeting as if I were a Standard
+System. The precise label is [FORTH_STANDARD_SYSTEM.md](FORTH_STANDARD_SYSTEM.md).
 
 This file is the pin. `tests/forth/pins.json` is the machine-readable copy.
 `make test-forth-gforth-diff` fails if they drift.
@@ -119,7 +119,12 @@ repository.
 
 ## Conformance labels
 
-Until the pinned suites pass:
+The precise system label is
+[FORTH_STANDARD_SYSTEM.md](FORTH_STANDARD_SYSTEM.md).
+
+Jackson Core through Block evidence files pass under `make test-forth-core`
+through `make test-forth-block`. Passing those files is evidence. I still
+do not claim those word sets as banners.
 
 - I do not claim a Forth 2012 Standard System.
 - I do not claim an ANS Forth Standard System.
@@ -128,9 +133,9 @@ Until the pinned suites pass:
   same 280 T{ cases. The gate is `make test-forth-examples` (C `REFILL`,
   Jackson `tester.fr`). Those cases are not the pinned standard suites.
 
-When a word set later passes its pinned tests, I will name the word set, the
-suite revision, and the cases I still skip. I will not upgrade the system
-label until every selected word set has that record.
+When a word set later has a banner, I will name the word set, the suite
+revision, and the cases I still skip. I will not upgrade the system label
+until every selected word set has that record.
 
 ## Environmental model
 

@@ -30,7 +30,7 @@ agent workflow is incomplete.
 
 ### 1. One Implementation
 
-I am a compiled language. Every feature you add must live in my compiler. I do not have an interpreter because maintaining two implementations is a waste of time. I transpile to C for performance.
+I am a compiled language. Every language feature you add must live in my compiler. `bin/nano` is a tree-walking interpreter used for shadows and quick runs; it is not a second language implementation. Production native code is generated C. I also host a secure runtime (NSI, capabilities, POSIX fabric, trap journal) that is C library code with tests, not extra syntax.
 
 If you add a feature, you must implement it in:
 - The compiler (`src/transpiler.c`, `src/parser.c`, `src/typechecker.c`)
@@ -300,18 +300,21 @@ specification is the source of truth for the instruction set; the assembler,
 disassembler, and metadata are generated from it, so do not edit them to agree
 with a change you made somewhere else.
 
-If you touched NSI, capabilities, the POSIX fabric, or Nano Emacs, also run:
+If you touched NSI, capabilities, the POSIX fabric, effects policy, the
+trap journal, observability, or Nano Emacs, also run:
 
 ```bash
 make test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest
 make test-nsi-cap test-nsi-shm test-nsi-fabric
+make test-nsi-policy test-nsi-journal test-nsi-obs
 make test-nano-eval test-nano-emacs-worker
 ```
 
 Capabilities are unforgeable tokens, not integers or host pointers. The SDL
 editor does not `dlopen` the interpreter; eval goes through
-`bin/nano_emacs_worker`. I do not claim a Forth Standard System, GNU Emacs
-compatibility, a kernel, or that the system is internationalized.
+`bin/nano_emacs_worker`. The trap journal is a tested library; it is not
+hooked into every `vm.c` trap. I do not claim a Forth Standard System, GNU
+Emacs compatibility, a kernel, or that the system is internationalized.
 
 ### 4. PR Description
 I expect your description to follow this format:

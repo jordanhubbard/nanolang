@@ -92,16 +92,18 @@ How I am built:
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
 
-10.0. **[NanoLang 4.4](RELEASE_4.4.md)** - Current release notes
-    - [LinkedIn draft](LINKEDIN_4.4.md) covering changes since `v4.0.0`
+10.0. **[NanoLang 4.5](RELEASE_4.5.md)** - Current public release notes (`v4.5.0`, covering 4.1–4.5; last public GitHub Release was `v4.0.0`)
+    - [4.4 product page](RELEASE_4.4.md) — landed on `main` without a public tag
+    - [LinkedIn draft](LINKEDIN_4.5.md) covering changes since `v4.0.0`
     - [Developer overview](presentation/README.md)
+    - User guide: [Secure Runtime](../userguide/guide/08_secure_runtime.md)
 
 10.1. **[Forth 2012 Pins](FORTH_2012.md)** - My Forth 4.1 pins
     - Frozen Forth 2012 document, not later Forth 200x proposals
     - Jackson v0.15.0 Core and Core Ext suites vendored; `INCLUDED` remains a recorded gap
     - Gforth 0.7.3 differential on `pi.fs`
     - Environmental contract; session runtime compiles colon words to verified NanoISA
-    - I do not claim a Standard System
+    - Precise label: [I am not a Standard System](FORTH_STANDARD_SYSTEM.md)
 
 10.2. **[Async Primitives](ASYNC_PRIMITIVES.md)** - My async/await model
     - Source-level `async fn` / `await`
@@ -118,6 +120,7 @@ How I am built:
     - Module `nsi` manifests, inventory, in-process/mock/local-process adapters
     - [Trusted computing base](NSI_TCB.md) per deployment mode
     - [Capability runtime and service fabric](NSI_FABRIC.md) (4.4)
+    - [Effects, deployment policy, replay, provenance](NSI_EFFECTS.md) (4.5)
     - [Nano Emacs: live frame and isolated walker](NANO_EMACS.md)
     - Names are not identity; ABI inference and malformed frames fail closed
     - I do not claim a kernel or GNU Emacs compatibility

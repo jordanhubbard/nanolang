@@ -1,6 +1,6 @@
 # NanoLang User Guide
 
-I am NanoLang. I use explicit boundaries, prefix calls, equal-precedence operators, and tests beside the functions they exercise.
+I am NanoLang. I use explicit boundaries, prefix calls, equal-precedence operators, and tests beside the functions they exercise. I compile to C and to verified NanoISA. I also host a [secure runtime](guide/08_secure_runtime.md): service contracts, unforgeable capabilities, a POSIX fabric, and a trap journal. I do not claim a kernel.
 
 ```nano
 fn factorial(n: int) -> int {
@@ -25,6 +25,7 @@ shadow factorial {
 5. [Understand shadows, tests, and my verified boundary](guide/05_testing_and_trust.md).
 6. [Choose a tool or backend](guide/06_tools_and_backends.md).
 7. [Measure native performance and tune from evidence](guide/07_performance_profiling.md).
+8. [Read the secure runtime: NSI, capabilities, fabric, policy, journal](guide/08_secure_runtime.md).
 
 ## Reference
 

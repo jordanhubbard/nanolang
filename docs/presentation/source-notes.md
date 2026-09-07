@@ -16,8 +16,9 @@
 - `docs/NANOISA_MEASUREMENTS.md` is the performance authority.
 - `tests/nanoisa/`, `tests/nanovm/`, and `tests/nanovirt/` are executable evidence.
 
-- `docs/NSI.md`, `docs/NSI_FABRIC.md`, `docs/NSI_TCB.md`, and `src/nsi*.c`
-  are the NSI and fabric authorities.
+- `docs/NSI.md`, `docs/NSI_FABRIC.md`, `docs/NSI_EFFECTS.md`, `docs/NSI_TCB.md`,
+  and `src/nsi*.c` are the NSI, fabric, policy, journal, and observability
+  authorities.
 - `docs/NANO_EMACS.md` and `modules/nano_eval/nano_emacs_worker.c` are the
   isolated editor walker.
 - `docs/FORTH_2012.md` pins Forth 2012; Jackson suites are evidence, not a
@@ -27,11 +28,14 @@
 
 ## Release evidence
 
-Release `v4.0.0` is tagged. Release `v4.4.0` is the next product tag and
-covers 4.1–4.4 on one branch. The 4.4 summary is `docs/RELEASE_4.4.md`.
+Release `v4.0.0` is tagged and remains the last public GitHub Release until
+`v4.5.0`. There was no public `v4.4.0` tag. `docs/RELEASE_4.5.md` is the
+public summary covering 4.1–4.5. `docs/RELEASE_4.4.md` is the 4.4 product
+page as it stood on `main` before Phase 19.
 The verified local counts at `v4.0.0` were 2,632 NanoISA tests, 621
-NanoVM tests, 63 NanoVirt tests, and 93 verifier tests. 4.4 adds NSI,
-fabric, catalog, Forth, and `nano_emacs_worker` suites on top of that.
+NanoVM tests, 63 NanoVirt tests, and 93 verifier tests. 4.1–4.5 add Forth,
+catalog, NSI, fabric, `nano_emacs_worker`, policy, journal, and
+observability suites on top of that.
 
 The NanoISA benchmark covers seven workloads plus cold startup and the
 co-process boundary. Each workload is timed twice per sample -- once with a
@@ -59,7 +63,8 @@ dispatch, ownership and measurement work is shipped, not roadmap.
 What remains is later work and is labelled as such. Module signing is 5.0.
 LLVM and WebAssembly return only as NanoISA translators. I do not claim a
 Forth Standard System, GNU Emacs, a kernel, or that the system is
-internationalized.
+internationalized. The trap journal is a tested library, not a hook on
+every `vm.c` trap.
 `Makefile.gnu` tracks no header dependencies, so a struct change makes an
 incremental build untrustworthy; that is filed as issue #211 and is a known
 defect rather than a claim.

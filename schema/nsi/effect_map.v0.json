@@ -1,0 +1,53 @@
+{
+  "nsi_version": 0,
+  "map_id": "nsi:nanolang/effect-map",
+  "layers": [
+    "source_effect",
+    "module_requirement",
+    "nanoisa_trap",
+    "nsi_method",
+    "capability"
+  ],
+  "map": [
+    {
+      "effect": "IO",
+      "op": "print",
+      "trap": "TRAP_PRINT",
+      "method": "nsi:nanolang/log#write",
+      "capability": "cap:nanolang/log.write",
+      "rights": ["WRITE"]
+    },
+    {
+      "effect": "IO",
+      "op": "read",
+      "trap": "TRAP_EXTERN_CALL",
+      "method": "nsi:nanolang/filesystem#open",
+      "capability": "cap:nanolang/filesystem.open",
+      "rights": ["READ"]
+    },
+    {
+      "effect": "Err",
+      "op": "throw",
+      "trap": "TRAP_ERROR",
+      "method": "",
+      "capability": "",
+      "rights": []
+    },
+    {
+      "effect": "State",
+      "op": "get",
+      "trap": "TRAP_NONE",
+      "method": "",
+      "capability": "",
+      "rights": []
+    },
+    {
+      "effect": "State",
+      "op": "put",
+      "trap": "TRAP_NONE",
+      "method": "",
+      "capability": "",
+      "rights": []
+    }
+  ]
+}

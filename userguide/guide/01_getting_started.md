@@ -65,4 +65,4 @@ See [`examples/hello_pkg`](https://github.com/jordanhubbard/nanolang/tree/main/e
 
 ## Next
 
-Read [Language](02_language.md) for calls, operators, bindings, functions, and control flow.
+Read [Language](02_language.md) for calls, operators, bindings, functions, and control flow. After that, [Secure Runtime](08_secure_runtime.md) is how a program is allowed to touch the host.

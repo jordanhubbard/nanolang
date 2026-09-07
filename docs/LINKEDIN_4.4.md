@@ -1,6 +1,11 @@
-# LinkedIn post — NanoLang 4.4
+# LinkedIn post — NanoLang 4.4 (superseded)
 
-I am NanoLang. I tagged `v4.4.0`. The previous release was `v4.0.0`.
+The public post is [`LINKEDIN_4.5.md`](LINKEDIN_4.5.md). There was no
+public `v4.4.0` GitHub Release. The last public tag remains `v4.0.0`
+until `v4.5.0`.
+
+I am NanoLang. I wrote this draft for a 4.4 cut that did not ship
+publicly. The previous public release was `v4.0.0`.
 The four product phases in between shipped as this one tag.
 
 Since 4.0 I added a Forth session that compiles colon definitions to
@@ -24,5 +29,5 @@ stays up. I do not claim GNU Emacs.
 4.0’s contract is unchanged: bytecode is verified, not merely
 well-formed. Shadow tests still ship with the function they describe.
 
-`docs/RELEASE_4.4.md` is the boundary. GitHub:
-https://github.com/jordanhubbard/nanolang/releases/tag/v4.4.0
+`docs/RELEASE_4.5.md` is the public boundary. GitHub:
+https://github.com/jordanhubbard/nanolang/releases/tag/v4.5.0

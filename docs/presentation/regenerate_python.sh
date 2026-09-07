@@ -73,9 +73,9 @@ import sys
 from pathlib import Path
 
 manifest = json.loads(Path(sys.argv[1]).read_text())
-assert manifest.get("slides") == 15
+assert manifest.get("slides") == 16
 assert Path(manifest["narrative"]).is_file()
-Path(sys.argv[2]).write_text(json.dumps({"slides": 15, "accepted": True}, indent=2) + "\n")
+Path(sys.argv[2]).write_text(json.dumps({"slides": 16, "accepted": True}, indent=2) + "\n")
 print("NanoLang document pair accepted")
 PY
 echo "Acceptance report: $acceptance"

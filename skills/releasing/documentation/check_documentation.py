@@ -44,12 +44,16 @@ WATCHES = [
             "src/nsi.c",
             "src/nsi_cap.c",
             "src/nsi_fabric.c",
+            "src/nsi_policy.c",
+            "src/nsi_journal.c",
+            "src/nsi_obs.c",
             "modules/nano_eval/nano_emacs_worker.c",
         ],
         why="CONTRIBUTING states the rules a contributor is held to. In 4.0 the "
         "verifier, the optimization policy and the fuzzing surfaces all "
         "changed and it was never opened -- the case this watch exists for. "
-        "4.4 added NSI, capabilities, fabric, and the isolated editor walker.",
+        "4.4 added NSI, capabilities, fabric, and the isolated editor walker. "
+        "4.5 added policy, journal, and observability.",
     ),
     Watch(
         document="userguide/",
@@ -58,6 +62,10 @@ WATCHES = [
             "src/typechecker.c",
             "src/lexer.c",
             "examples/language/",
+            "src/nsi_fabric.c",
+            "src/nsi_policy.c",
+            "docs/NSI.md",
+            "docs/NSI_EFFECTS.md",
         ],
         why="The user guide teaches the surface language. A change to how "
         "source is parsed, typed, or exemplified can strand a lesson.",

@@ -1,18 +1,22 @@
-# NanoLang 4.4 (product on main, not a public tag)
+# NanoLang 4.5
 
-The last public GitHub Release is `v4.0.0`. 4.1–4.4 landed on `main`
-without a public cut. The public notes covering 4.1–4.5 are
-[`RELEASE_4.5.md`](RELEASE_4.5.md). This page is the 4.4 product
-boundary as it stood before Phase 19.
+I am NanoLang 4.5. This tag is `v4.5.0`. The last public GitHub Release
+before it is `v4.0.0`. Product work for 4.1, 4.2, 4.3, 4.4, and 4.5
+landed on one branch and ships as one release. I did not cut public
+tags for 4.1–4.4. `docs/RELEASE_4.4.md` is the 4.4 product boundary as
+it stood on `main` before Phase 19, not a GitHub Release.
 
-I am NanoLang 4.4. Product work for 4.1, 4.2, 4.3, and 4.4 landed on
-one branch. I did not cut intermediate public tags.
-
-I compiled to C. I still compile to C. NanoISA v2 and NanoVM v2 from 4.0
+I compile to C. I still compile to C. NanoISA v2 and NanoVM v2 from 4.0
 remain the verified bytecode path. What I added after that is a Forth
-session with Core evidence, message catalogs and six-language guide drafts,
-a Nano Service Interface, a POSIX capability fabric, and an SDL editor
-whose walker runs in a child process.
+session with Core evidence, message catalogs and six-language guide
+drafts, a Nano Service Interface, unforgeable capabilities, a POSIX
+service fabric, an SDL editor whose walker runs in a child process, and
+a v0 library that maps effects to deployment policy and records traps
+for replay.
+
+I am a language. I am also a secure runtime: contracts, capabilities,
+supervision, and a journal sit between a program and the host. I host
+that runtime on an ordinary POSIX kernel.
 
 **I do not claim a Forth Standard System, GNU Emacs compatibility, a
 kernel, a CUDA or CPython wrap, or that the system is internationalized.**
@@ -27,6 +31,7 @@ kernel, a CUDA or CPython wrap, or that the system is internationalized.**
   and `make test-forth-jackson` record what passes.
 - Passing a suite is evidence for those tests. I still do not claim Core,
   Core Ext, or a Standard System as a banner.
+- The precise label is `docs/FORTH_STANDARD_SYSTEM.md`.
 - `INCLUDED` / file-access is a recorded gap, not a silent skip. See
   `docs/FORTH_2012.md`.
 
@@ -74,6 +79,34 @@ kernel, a CUDA or CPython wrap, or that the system is internationalized.**
   worker does not link SDL. Crash-restart keeps buffers. `C-x C-z`
   freeze-defun runs `nano_vm` as a grandchild (`docs/NANO_EMACS.md`,
   `make test-nano-eval`, `make test-nano-emacs-worker`).
+- `modules/sdl_term/mvp.nano` is a compile-only smoke: externs live in
+  `unsafe`. `make test-sdl-term-mvp`.
+
+### 4.5 — Effects to policy, trap journal, observability
+
+- A versioned effect map (`schema/nsi/effect_map.v0.json`) connects
+  source effect rows, NanoISA traps, NSI methods, and capabilities.
+  `State` has no host capability. `Err` maps to `TRAP_ERROR` and does
+  not invent an NSI method.
+- I emit an inventory from declared effects, generate a reviewable
+  deployment manifest, reject uncovered grants, and count unused grants.
+  An administrator override deploys anyway and does not widen the source
+  declaration (`src/nsi_policy.c`, `make test-nsi-policy`).
+- A versioned trap journal records time, entropy, file, network,
+  user-input, process, GPU, audio, and service events. Replay returns the
+  recorded result and does not call the original service. Mocks and fault
+  injection are explicit. Checkpoints are sequence numbers, not heap
+  snapshots (`src/nsi_journal.c`, `make test-nsi-journal`).
+- SHA-256 hashes a journal. HMAC-SHA256 with a deployment key
+  authenticates it. That is not a PKI claim. Redacted export replaces
+  payloads with hashes. Repeating-key XOR can seal remaining bytes for a
+  local key; that is not AES.
+- Traces copy across NanoVM, router, service, and host spans. Provenance
+  records source, module, interface, implementation, policy, and output.
+  Localized log text does not change audit fields (`src/nsi_obs.c`,
+  `make test-nsi-obs`).
+- The journal and policy APIs are a tested C library. They are not
+  hooked into every `vm.c` trap in this tag. Authority: `docs/NSI_EFFECTS.md`.
 
 ### Still true from 4.0
 
@@ -103,10 +136,16 @@ I distinguish proved (Coq NanoCore), tested (these suites), and assumed
 - A kernel. POSIX is the host.
 - GNU Emacs. The SDL frame is Emacs-shaped, not compatible.
 - CUDA or CPython as wrapped runtimes. Those names are fabric slots.
+- Wiring the trap journal into every NanoVM trap in `vm.c`.
+- Heap snapshots as checkpoints. Sequence numbers only.
+- AES, PKI, or module signing.
 - Header-file dependencies in `Makefile.gnu` (GitHub issue #211).
-- 5.0: one verified `.nvm` as the only compilation contract
-  (`docs/NANOISA_ONLY.md`). Module signing is 5.0. LLVM and Wasm return
-  only as NanoISA translators.
+- 4.6 frontends. 5.0: one verified `.nvm` as the only compilation
+  contract (`docs/NANOISA_ONLY.md`). LLVM and Wasm return only as
+  NanoISA translators.
 
-4.5 effects, policy, and replay shipped after this page. See
-`docs/RELEASE_4.5.md`.
+## Where to read next
+
+- User guide: [Secure Runtime](../userguide/guide/08_secure_runtime.md)
+- Developer overview: [docs/presentation/README.md](presentation/README.md)
+- LinkedIn draft: [LINKEDIN_4.5.md](LINKEDIN_4.5.md)

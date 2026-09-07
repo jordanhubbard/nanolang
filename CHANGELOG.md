@@ -13,9 +13,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   under each language directory.
 
 ### Added
+- 4.5 effects-to-policy, trap journal, and observability library
+  (`src/nsi_policy.c`, `src/nsi_journal.c`, `src/nsi_obs.c`,
+  `schema/nsi/effect_map.v0.json`, `docs/NSI_EFFECTS.md`). Inventory and
+  deployment manifest from declared effects; reject uncovered grants.
+  Journal record/replay/mock/fault with SHA-256 and HMAC-SHA256. Trace
+  and provenance across NanoVM, router, service, and host. The journal
+  is a tested library, not a hook on every `vm.c` trap.
+  `make test-nsi-policy test-nsi-journal test-nsi-obs`.
 - Release tooling accepts an explicit `X.Y.Z` version so product phases
-  4.1–4.4 can ship as `v4.4.0` instead of four minor bumps from `v4.0.0`
-  (`./scripts/release.sh 4.4.0`). `make nanoc` aliases `bin/nanoc` for
+  4.1–4.5 can ship as `v4.5.0` instead of five minor bumps from `v4.0.0`
+  (`./scripts/release.sh 4.5.0`). `make nanoc` aliases `bin/nanoc` for
   the CI bench job.
 - NSI v0: stable interface, method, type, error, capability, and
   parameter ids (`schema/nsi/examples/log.nsi.json`, `src/nsi.c`,

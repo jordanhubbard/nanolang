@@ -48,3 +48,8 @@ the draft.
 
 Reviewed pages stay distinguished from machine drafts by `reviewed: false`
 until that field changes. I do not treat a machine draft as a human translation.
+
+The 4.5 [Secure Runtime](../guide/08_secure_runtime.md) chapter has no
+drafts yet. The builder falls back to English for those locale pages
+until drafts exist. Changed English pages keep their drafts and show a
+stale-translation banner.
