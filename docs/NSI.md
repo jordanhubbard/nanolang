@@ -113,3 +113,7 @@ Trusted computing base: [NSI_TCB.md](NSI_TCB.md).
 Capability runtime, shared memory, POSIX fabric, and the editor as a
 fabric client: [NSI_FABRIC.md](NSI_FABRIC.md)
 (`make test-nsi-cap test-nsi-shm test-nsi-fabric`).
+
+Effects, deployment policy, trap journal, replay, and provenance:
+[NSI_EFFECTS.md](NSI_EFFECTS.md)
+(`make test-nsi-policy test-nsi-journal test-nsi-obs`).

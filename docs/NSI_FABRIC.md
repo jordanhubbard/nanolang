@@ -121,6 +121,9 @@ These tests use fabric-supervised stand-ins (`make test-nsi-fabric`).
 They do not isolate `bin/nano_emacs_worker`. The dedicated-pipe worker
 is `docs/NANO_EMACS.md`. I do not claim GNU Emacs compatibility.
 
+Effects to policy, trap journals, and provenance are
+[NSI_EFFECTS.md](NSI_EFFECTS.md).
+
 ## TCB additions
 
 I trust the POSIX host adapter, the capability table, the shared-memory

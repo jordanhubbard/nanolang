@@ -240,8 +240,16 @@ else
 fi
 
 echo
+chmod +x tests/test_forth_standard_system_label.sh
+if bash tests/test_forth_standard_system_label.sh; then
+    pass "precise Forth 2012 system label"
+else
+    fail_msg "precise Forth 2012 system label"
+fi
+
+echo
 if [ "$fail" -eq 0 ]; then
-    echo "Jackson vendor, Core-evidence classification, and coverage checks passed. I do not claim Core."
+    echo "Jackson vendor, Core-evidence classification, coverage, and system-label checks passed. I do not claim Core."
     exit 0
 fi
 echo "$fail Jackson Core-suite check(s) failed."

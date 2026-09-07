@@ -133,4 +133,7 @@ int nl_fabric_set_hung(NlFabric *f, const char *name, int hung);
 int nl_fabric_walker_alive(NlFabric *f);
 int nl_fabric_freeze_alive(NlFabric *f);
 
+const char *nl_fabric_last_trace(NlFabric *f, const char *name);
+const char *nl_fabric_last_audit(NlFabric *f, const char *name);
+
 #endif

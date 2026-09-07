@@ -856,6 +856,40 @@ test-nsi-fabric:
 	@./tests/test_nsi_fabric
 	@rm -f tests/test_nsi_fabric
 
+.PHONY: test-nsi-policy
+test-nsi-policy:
+	@echo "Running NSI effect-map and deployment-policy tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_policy tests/test_nsi_policy.c \
+		$(SRC_DIR)/nsi_policy.c $(SRC_DIR)/utf8.c $(SRC_DIR)/cJSON.c
+	@./tests/test_nsi_policy
+	@rm -f tests/test_nsi_policy
+
+.PHONY: test-nsi-journal
+test-nsi-journal:
+	@echo "Running NSI trap-journal record/replay tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_journal tests/test_nsi_journal.c \
+		$(SRC_DIR)/nsi_journal.c $(SRC_DIR)/cJSON.c
+	@./tests/test_nsi_journal
+	@rm -f tests/test_nsi_journal
+
+.PHONY: test-nsi-obs
+test-nsi-obs:
+	@echo "Running NSI observability and provenance tests..."
+	$(CC) $(CFLAGS) -o tests/test_nsi_obs tests/test_nsi_obs.c \
+		$(SRC_DIR)/nsi_obs.c $(SRC_DIR)/nsi_fabric.c $(SRC_DIR)/nsi_shm.c \
+		$(SRC_DIR)/nsi_cap.c $(SRC_DIR)/nsi.c $(SRC_DIR)/utf8.c \
+		$(SRC_DIR)/cJSON.c $(NSI_FABRIC_LIBS)
+	@./tests/test_nsi_obs
+	@rm -f tests/test_nsi_obs
+
+.PHONY: test-sdl-term-mvp
+test-sdl-term-mvp: $(COMPILER_C)
+	@echo "Compiling sdl_term module MVP..."
+	@mkdir -p build/module_self_tests
+	@if grep -nE '\(SDL_KeyCode' modules/sdl_term/mvp.nano >/dev/null; then \
+		echo "sdl_term MVP still calls SDL_KeyCode"; exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoc_c modules/sdl_term/mvp.nano -o build/module_self_tests/sdl_term
+
 .PHONY: test-log-utf8
 test-log-utf8:
 	@echo "Running log UTF-8 and event-id tests..."
@@ -1136,7 +1170,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -1625,8 +1659,11 @@ test-impl: test-units
 	@chmod +x tests/test_forth_wordset_coverage_skip.sh
 	@bash tests/test_forth_wordset_coverage_skip.sh
 	@echo ""
-	@echo "Checking Jackson Forth-2012 vendor pin and INCLUDE gap..."
+	@echo "Checking Jackson Forth-2012 vendor pin, INCLUDE gap, and system label..."
 	@$(MAKE) --no-print-directory test-forth-jackson
+	@echo ""
+	@echo "Compiling sdl_term module MVP..."
+	@$(MAKE) --no-print-directory test-sdl-term-mvp
 	@echo ""
 ifeq ($(FORTH_WORDSET_SKIP),1)
 	@echo "Skipping Jackson word-set REFILL, Forth PTY, and IDE smoke under coverage instrumentation."
@@ -2993,6 +3030,10 @@ help:
 	@echo "  make test-nsi-cap     - NSI unforgeable capabilities, attenuation, audit"
 	@echo "  make test-nsi-shm     - NSI capability-scoped shared memory and copy fallback"
 	@echo "  make test-nsi-fabric  - NSI supervisor, POSIX host, editor as fabric client"
+	@echo "  make test-nsi-policy  - effect map, inventory, deployment grants"
+	@echo "  make test-nsi-journal - trap journal record, replay, HMAC, redact"
+	@echo "  make test-nsi-obs     - traces, metrics, provenance, locale-stable audits"
+	@echo "  make test-sdl-term-mvp - compile modules/sdl_term/mvp.nano"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"
 	@echo "  make test-locale-catalog - six-language catalog stderr vs English JSON"

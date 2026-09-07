@@ -749,3 +749,13 @@ int nl_fabric_walker_alive(NlFabric *f) {
 int nl_fabric_freeze_alive(NlFabric *f) {
     return f && f->freeze_idx >= 0 && f->slot[f->freeze_idx].alive ? 1 : 0;
 }
+
+const char *nl_fabric_last_trace(NlFabric *f, const char *name) {
+    NlFabSlot *s = find(f, name);
+    return s ? s->last_trace : "";
+}
+
+const char *nl_fabric_last_audit(NlFabric *f, const char *name) {
+    NlFabSlot *s = find(f, name);
+    return s ? s->last_audit : "";
+}

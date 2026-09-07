@@ -101,7 +101,7 @@ How I am built:
     - Jackson v0.15.0 Core and Core Ext suites vendored; `INCLUDED` remains a recorded gap
     - Gforth 0.7.3 differential on `pi.fs`
     - Environmental contract; session runtime compiles colon words to verified NanoISA
-    - I do not claim a Standard System
+    - Precise label: [I am not a Standard System](FORTH_STANDARD_SYSTEM.md)
 
 10.2. **[Async Primitives](ASYNC_PRIMITIVES.md)** - My async/await model
     - Source-level `async fn` / `await`
@@ -118,6 +118,7 @@ How I am built:
     - Module `nsi` manifests, inventory, in-process/mock/local-process adapters
     - [Trusted computing base](NSI_TCB.md) per deployment mode
     - [Capability runtime and service fabric](NSI_FABRIC.md) (4.4)
+    - [Effects, deployment policy, replay, provenance](NSI_EFFECTS.md) (4.5)
     - [Nano Emacs: live frame and isolated walker](NANO_EMACS.md)
     - Names are not identity; ABI inference and malformed frames fail closed
     - I do not claim a kernel or GNU Emacs compatibility

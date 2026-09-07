@@ -12,13 +12,15 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**4.2 internationalization evidence is in Phase 15.** I do not call the
+**Public release waits on leftover 4.1, the 4.4 sdl_term follow-up, and
+all of Phase 19 (4.5).** I do not tag a public GitHub Release or publish
+LinkedIn until those items are verified. 4.2 catalogs and 4.3 NSI v0 are
+in. 4.4 capability fabric is in (`docs/NSI_FABRIC.md`). I do not call the
 system internationalized. JSON/TOON and catalog fallback still use English;
-guide drafts are machine-generated. **4.4 capability fabric** is in
-(`docs/NSI_FABRIC.md`). 4.5 effects and replay are next. 4.1 Forth word-set
-evidence is in; the Standard System label stays open. The SDL editor
-astronaut (`docs/NANO_EMACS.md`, `bin/nano_emacs_worker`) is in. The
-NanoISA-only compiler rewrite is **5.0**, not 4.x: see
+guide drafts are machine-generated. I do not claim a Forth Standard System,
+GNU Emacs, a kernel, CUDA, or a CPython wrap. The SDL editor astronaut
+(`docs/NANO_EMACS.md`, `bin/nano_emacs_worker`) is in. **4.6 and 5.0 are
+out of this bar.** The NanoISA-only compiler rewrite is **5.0**: see
 `docs/NANOISA_ONLY.md`.
 
 ## Active Execution Queue
@@ -31,17 +33,23 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       #244, #245. Left #242 (NanoISA 5.0 side quest) open.
       MAC `task_b19f5e408d373ec2bf1efa6d54e4d366` (supersedes failed
       `task_7b6e8957be5b4abf8b0ea4751fd9b635`).
-- [ ] **4.4 release.** I run the release test pipeline (`make test`, CI on the
-      release PR, `make release-docs-check`) and tag `v4.4.0`. Last Git tag is
-      `v4.0.0`; 4.1–4.3 were product phases on the same branch, not separate
-      tags.
-      MAC `task_f3049ae5d8389ecc96ff28754e52b31b`.
-- [ ] **4.4 release.** I update README, CONTRIBUTING, the user-facing indexes,
-      `docs/RELEASE_4.4.md`, and the developer deck/narrative for 4.4. I write
-      a LinkedIn post covering the key changes since `v4.0.0`. I do not claim
-      a Forth Standard System, GNU Emacs compatibility, a kernel, or that the
-      system is internationalized.
-      MAC `task_d2f80f3c3ca6ee5f81070545a5a2ac5f`.
+- [x] **4.1 leftover.** I publish the precise Forth 2012 system label. Passing
+      Jackson files is evidence, not a Standard System or Core banner.
+      `docs/FORTH_STANDARD_SYSTEM.md`, `make test-forth-jackson`.
+      MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
+- [x] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
+      `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
+      uses extern SDL/term calls outside `unsafe`. `make examples` still
+      succeeds. Fix the MVP so every module MVP compiles.
+      Compile-only smoke with externs in `unsafe`. `make test-sdl-term-mvp`.
+      MAC `task_d35028a1b27f45948ffccb351fc7bd4a`.
+- [x] **4.5 / Phase 19.** Effects to deployment policy, trap journal and
+      deterministic replay, then observability and provenance. This is part
+      of the public-release bar, not work after a 4.4 tag.
+      `docs/NSI_EFFECTS.md`, `make test-nsi-policy test-nsi-journal test-nsi-obs`.
+      MAC `task_2bd5c3128983683b78134ad9257b7d3b`,
+      `task_36c1ce545c4d12a0a2c520dd146ea5f1`,
+      `task_860edd8c08843bf90ad9559d0b821cef`.
 - [x] **4.4 release.** `test_interpret_file_refill` called `mkstemp` twice on
       one buffer. The first call consumes the `XXXXXX` template; Linux then
       returns `EINVAL` (`FAIL: mkstemp unknown`). Restore the template before
@@ -75,24 +83,20 @@ NanoISA-only compiler rewrite is **5.0**, not 4.x: see
       keep the Jackson pin / INCLUDE-gap test. Coverage job succeeded on
       `10e97f12` in PR #243.
       MAC `task_d10e63b263724e4ab4ae75dd4a281529`.
-- [ ] **4.4 follow-up.** `make module-self-test` on Ubuntu GCC 15 stops at
-      `modules/sdl_term/mvp.nano`: it calls `SDL_KeyCode` as a function and
-      uses extern SDL/term calls outside `unsafe`. `make examples` still
-      succeeds. Fix the MVP (or skip it until it matches current unsafe
-      rules) so every module MVP compiles.
-      MAC `task_d35028a1b27f45948ffccb351fc7bd4a`.
-- [ ] **4.1 leftover.** I publish the precise Forth 2012 Standard System
-      label only after tests and required documentation support it. Passing
-      Jackson files is not that label.
-      MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
-- [ ] **4.5 / Phase 19.** Effects to deployment policy, trap journal and
-      deterministic replay, then observability and provenance. After `v4.4.0`.
-      MAC `task_2bd5c3128983683b78134ad9257b7d3b`,
-      `task_36c1ce545c4d12a0a2c520dd146ea5f1`,
-      `task_860edd8c08843bf90ad9559d0b821cef`.
-- [ ] **4.6 / Phase 21.** Shared NanoISA frontend contract, then Scheme, ML,
-      Actor, Dataflow, Object, Shell, Logic, then the frontend matrix. After
-      4.5. NanoLang stays my native language.
+- [ ] **Public release (held).** I run `make test`, CI, and
+      `make release-docs-check`, then tag one public cut covering 4.1–4.5.
+      Last Git tag is `v4.0.0`. Leftover 4.1, sdl_term, and Phase 19 are in.
+      Notes cover 4.1–4.5, not 4.4 alone. I do not start 4.6 or 5.0.
+      MAC `task_f3049ae5d8389ecc96ff28754e52b31b`.
+- [ ] **Public release (held).** I update README, CONTRIBUTING, the indexes,
+      `docs/RELEASE_4.4.md`, and the developer deck for the 4.1–4.5 bar.
+      I write a LinkedIn post covering changes since `v4.0.0`. I do not
+      claim a Forth Standard System, GNU Emacs, a kernel, or that the
+      system is internationalized.
+      MAC `task_d2f80f3c3ca6ee5f81070545a5a2ac5f`.
+- [ ] **4.6 / Phase 21 (out of this bar).** Shared NanoISA frontend contract,
+      then Scheme, ML, Actor, Dataflow, Object, Shell, Logic, then the
+      frontend matrix. After 4.5. NanoLang stays my native language.
       MAC `task_e62d1cd35b49296604012df95de7911b` (contract),
       `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
       `task_3eed929292a80ed58dd3a8db1ed701b6` (ML),
@@ -644,7 +648,10 @@ Tests, examples, and SDL IDE:
 - [x] I will add build, PTY, file-loading, interpreter-liveness, and graphical smoke coverage.
       `make test-forth-pty`, `make test-forth-ide-smoke`, C `REFILL` file
       loads, and `bin/forth` as the IDE child.
-- [ ] I will publish the precise standard-system label only after tests and required documentation support it.
+- [x] I will publish the precise standard-system label only after tests and required documentation support it.
+      The label is `docs/FORTH_STANDARD_SYSTEM.md`: I am not a Forth 2012
+      Standard System. Jackson evidence is not that banner.
+      `make test-forth-jackson`.
       MAC `task_6087b948f1c9a7672420b4e1ea72bd35`.
 
 ### Phase 14 - NanoISA-Centered Backends (4.0 spike; rewrite is 5.0)
@@ -981,28 +988,46 @@ Goal: I will connect declared program effects to deployable least-privilege
 policy and make nondeterministic execution recordable, replayable, and auditable.
 
 Effects to policy (MAC `task_2bd5c3128983683b78134ad9257b7d3b`):
-- [ ] I will define the relationship between source effects, module requirements, NanoISA traps, service methods, and capabilities.
-- [ ] I will emit a complete effect and capability inventory for each program.
-- [ ] I will generate a reviewable deployment manifest from that inventory.
-- [ ] I will reject deployments whose granted capabilities do not cover declared effects.
-- [ ] I will report unused grants so policy can converge toward least privilege.
-- [ ] I will support explicit administrator overrides without silently widening source declarations.
+- [x] I will define the relationship between source effects, module requirements, NanoISA traps, service methods, and capabilities.
+      `docs/NSI_EFFECTS.md`, `schema/nsi/effect_map.v0.json`, `make test-nsi-policy`.
+- [x] I will emit a complete effect and capability inventory for each program.
+      `nl_effect_inventory_from_rows`, `make test-nsi-policy`.
+- [x] I will generate a reviewable deployment manifest from that inventory.
+      `nl_deploy_manifest_json`, `make test-nsi-policy`.
+- [x] I will reject deployments whose granted capabilities do not cover declared effects.
+      `nl_deploy_check`, `make test-nsi-policy`.
+- [x] I will report unused grants so policy can converge toward least privilege.
+      `nl_deploy_unused_count`, `make test-nsi-policy`.
+- [x] I will support explicit administrator overrides without silently widening source declarations.
+      Override deploys; `source_declarations_widened` stays false. `make test-nsi-policy`.
 
 Record and replay (MAC `task_36c1ce545c4d12a0a2c520dd146ea5f1`):
-- [ ] I will define a versioned trap journal containing sequence, capability, method, arguments or hashes, result, timing, service generation, and implementation version.
-- [ ] I will record time, entropy, file, network, user-input, process, GPU, audio, and service nondeterminism at the boundary where it enters a NanoVM.
-- [ ] I will replay a NanoVM without invoking original services when the journal contains all required events.
-- [ ] I will validate replay order, argument identity, capability identity, and result schema.
-- [ ] I will support deterministic service mocks and configurable fault injection.
-- [ ] I will expose replay checkpoints for debugger reverse navigation where state capture permits it.
-- [ ] I will sign and hash journals when they are used as audit evidence.
-- [ ] I will define redaction and encryption so replayability does not require publishing sensitive payloads.
+- [x] I will define a versioned trap journal containing sequence, capability, method, arguments or hashes, result, timing, service generation, and implementation version.
+      Journal version 0. `make test-nsi-journal`.
+- [x] I will record time, entropy, file, network, user-input, process, GPU, audio, and service nondeterminism at the boundary where it enters a NanoVM.
+      `NlJournalKind`, `nl_journal_record`, `make test-nsi-journal`.
+- [x] I will replay a NanoVM without invoking original services when the journal contains all required events.
+      `nl_journal_replay`, `make test-nsi-journal`.
+- [x] I will validate replay order, argument identity, capability identity, and result schema.
+      `nl_journal_validate`, `make test-nsi-journal`.
+- [x] I will support deterministic service mocks and configurable fault injection.
+      `nl_journal_mock`, `nl_journal_inject_fault`, `make test-nsi-journal`.
+- [x] I will expose replay checkpoints for debugger reverse navigation where state capture permits it.
+      Sequence checkpoints (`nl_journal_checkpoint`, `nl_journal_seek`). I do not snapshot full VM heaps.
+- [x] I will sign and hash journals when they are used as audit evidence.
+      SHA-256 content hash and HMAC-SHA256 with a deployment key. Not PKI. `make test-nsi-journal`.
+- [x] I will define redaction and encryption so replayability does not require publishing sensitive payloads.
+      Redacted export drops payloads and keeps hashes. Repeating-key XOR can seal remaining payloads. Not AES.
 
 Observability and provenance (MAC `task_860edd8c08843bf90ad9559d0b821cef`):
-- [ ] I will assign trace IDs across NanoVM, router, service, and kernel-adapter boundaries.
-- [ ] I will emit structured metrics and traces through an implementation-neutral telemetry interface.
-- [ ] I will record source, NanoISA module, interface, service implementation, policy, and output provenance.
-- [ ] I will test that localized logs do not alter stable audit fields or replay behavior.
+- [x] I will assign trace IDs across NanoVM, router, service, and kernel-adapter boundaries.
+      `nl_obs_record_span`, `nl_fabric_last_trace`. Host adapter, not a kernel. `make test-nsi-obs`.
+- [x] I will emit structured metrics and traces through an implementation-neutral telemetry interface.
+      `nl_obs_emit`, `make test-nsi-obs`.
+- [x] I will record source, NanoISA module, interface, service implementation, policy, and output provenance.
+      `nl_obs_provenance`, `make test-nsi-obs`.
+- [x] I will test that localized logs do not alter stable audit fields or replay behavior.
+      `nl_obs_localize_log`, `make test-nsi-obs`.
 
 ### Phase 20 - One IR: NanoISA-only compilation (5.0)
 
@@ -1693,7 +1718,7 @@ I aim to be:
 
 ---
 
-Last Updated: September 6, 2026
-Current Phase: 4.4 Phase 17–18 capability runtime, shared memory, POSIX fabric, and live editor as fabric client are in (`make test-nsi-cap test-nsi-shm test-nsi-fabric`, `docs/NSI_FABRIC.md`). Remaining 4.x: tag `v4.4.0`, then 4.5 / Phase 19, then 4.6 / Phase 21. 5.0 One IR is recorded, not started.
-Next Major Milestone: 4.4 tag, then 4.5 effects, deployment policy, and deterministic replay, then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`)
+Last Updated: September 7, 2026
+Current Phase: Leftover 4.1, sdl_term MVP, and Phase 19 (4.5) are in. Public GitHub Release and LinkedIn wait. 4.6 and 5.0 are out of this bar.
+Next Major Milestone: One public cut covering 4.1–4.5 (`make test`, `make release-docs-check`, then tag). Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
 Next Review: after a named human reviewer accepts a translated guide page
