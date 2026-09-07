@@ -629,6 +629,14 @@ Standard word sets, in dependency order:
       Block as a banner.
 
 Tests, examples, and SDL IDE:
+- [ ] I will make the noninteractive example runner pass its declared output
+      checks for `nl_affine_resource_demo.nano` and `nl_array_infer.nano`, then
+      exclude or bound graphical event loops such as `nl_boids.nano` so the
+      automated runner terminates. `make -C examples test` is the acceptance
+      gate.
+- [ ] I will declare or provision the Python `yaml` dependency required by
+      `scripts/gen_nanoisa_schema.py`, so `make test` reaches the test suite on
+      a clean supported Linux host.
 - [x] I will retain the existing 280 cases as regression tests while replacing their nonstandard harness assumptions.
       `make test-forth-examples` loads Jackson `tester.fr` and the nine
       `examples/language/forth/test_*.fs` files through C `REFILL`.
