@@ -89,7 +89,7 @@ static void test_goals_published_before_implementation(void) {
     CHECK(nl_frontend_implemented(NL_FE_NANOLANG), "NanoLang is implemented");
     CHECK(nl_frontend_implemented(NL_FE_FORTH), "Forth is implemented");
     CHECK(nl_frontend_implemented(NL_FE_SCHEME), "Scheme is implemented");
-    CHECK(!nl_frontend_implemented(NL_FE_ML), "ML is not started");
+    CHECK(nl_frontend_implemented(NL_FE_ML), "ML is implemented");
     CHECK(!nl_frontend_implemented(NL_FE_ACTOR), "Actor is not started");
     CHECK(!nl_frontend_implemented(NL_FE_DATAFLOW), "Dataflow is not started");
     CHECK(!nl_frontend_implemented(NL_FE_OBJECT), "Object is not started");
@@ -186,7 +186,7 @@ static void test_scheme_accepts_when_implemented(void) {
     nvm_module_free(m);
 }
 
-static void test_ml_refused_until_implemented(void) {
+static void test_ml_accepts_when_implemented(void) {
     NvmModule *m = assemble_ok(k_add, "ml add");
     NlFrontendFacts f;
     NlFrontendResult r;
@@ -194,9 +194,22 @@ static void test_ml_refused_until_implemented(void) {
     attach_debug(m);
     f = facts_for(NL_FE_ML, "add.sml");
     r = nl_frontend_accept(m, &f);
-    CHECK(!r.ok, "ML is not implemented");
+    CHECK(r.ok, "ML accepts a verified module");
+    if (!r.ok) printf("    %s\n", r.error);
+    nvm_module_free(m);
+}
+
+static void test_actor_refused_until_implemented(void) {
+    NvmModule *m = assemble_ok(k_add, "actor add");
+    NlFrontendFacts f;
+    NlFrontendResult r;
+    if (!m) return;
+    attach_debug(m);
+    f = facts_for(NL_FE_ACTOR, "add.act");
+    r = nl_frontend_accept(m, &f);
+    CHECK(!r.ok, "Actor is not implemented");
     CHECK(strstr(r.error, "not implemented") != NULL,
-          "ML error names the unpublished implementation");
+          "Actor error names the unpublished implementation");
     nvm_module_free(m);
 }
 
@@ -299,7 +312,8 @@ int main(void) {
     test_opcodes_are_shared();
     test_nanolang_and_forth_accept_same_module_shape();
     test_scheme_accepts_when_implemented();
-    test_ml_refused_until_implemented();
+    test_ml_accepts_when_implemented();
+    test_actor_refused_until_implemented();
     test_requires_locations_types_and_shared_diags();
     test_cross_frontend_shared_library();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);

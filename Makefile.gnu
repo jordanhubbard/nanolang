@@ -1184,6 +1184,26 @@ test-scheme: $(SCHEME_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJ
 	@$(TIMEOUT_CMD) ./tests/scheme/test_scheme
 	@rm -f tests/scheme/test_scheme
 
+# Nano ML laboratory frontend (bounded subset → verified NanoISA)
+ML_DIR = $(SRC_DIR)/ml
+ML_SOURCES = $(ML_DIR)/ml.c
+ML_OBJECTS = $(patsubst $(ML_DIR)/%.c,$(OBJ_DIR)/ml/%.o,$(ML_SOURCES))
+
+$(OBJ_DIR)/ml/%.o: $(ML_DIR)/%.c $(ML_DIR)/ml.h | $(OBJ_DIR)/ml
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/ml:
+	mkdir -p $(OBJ_DIR)/ml
+
+.PHONY: test-ml
+test-ml: $(ML_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano ML laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/ml/test_ml \
+		tests/ml/test_ml.c $(ML_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/ml/test_ml
+	@rm -f tests/ml/test_ml
+
 .PHONY: test-forth-pty
 test-forth-pty: $(BIN_DIR)/forth
 	@echo "Running Forth PTY REPL liveness tests..."
@@ -1199,7 +1219,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -2035,6 +2055,7 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@$(MAKE) --no-print-directory test-forth-jackson
 	@$(MAKE) --no-print-directory test-scheme
+	@$(MAKE) --no-print-directory test-ml
 ifeq ($(FORTH_WORDSET_SKIP),1)
 	@echo "Skipping Jackson word-set REFILL, Forth PTY, and IDE smoke under coverage instrumentation."
 else
@@ -3065,6 +3086,7 @@ help:
 	@echo "  make test-nsi-obs     - traces, metrics, provenance, locale-stable audits"
 	@echo "  make test-frontend-contract - 4.6 shared NanoISA frontend contract"
 	@echo "  make test-scheme     - 4.6 Nano Scheme laboratory frontend"
+	@echo "  make test-ml         - 4.6 Nano ML laboratory frontend"
 	@echo "  make test-sdl-term-mvp - compile modules/sdl_term/mvp.nano"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"

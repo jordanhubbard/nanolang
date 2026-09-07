@@ -86,6 +86,7 @@ How I am built:
 10. **[NanoISA Virtual Machine](NANOISA.md)** - My VM backend
     - [Frontend contract](NANOISA_FRONTEND.md) — 4.6 shared `.nvm` gate for every language
     - [Nano Scheme](SCHEME.md) — bounded laboratory frontend (`make test-scheme`)
+    - [Nano ML](ML.md) — bounded laboratory frontend (`make test-ml`)
     - 178-opcode stack machine ISA
     - .nvm binary format specification
     - Co-process FFI isolation: shared-memory mailbox fast path (2 syscalls/call) with pipe fallback

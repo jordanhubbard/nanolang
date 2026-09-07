@@ -71,12 +71,12 @@ NanoLang and Nano Forth are implemented. Forth is in the laboratory
 because it is a language, an assembler, and a compiler in one design —
 a proof of NanoISA, not a product direction back to 1970.
 
-Nano Scheme is implemented as a bounded laboratory frontend
-(`docs/SCHEME.md`, `make test-scheme`). ML, Actor, Dataflow, Object,
-Shell, and Logic have published bounded goals in `nl_frontend_goal`.
-They are not implemented. Emitting a module labeled as one of them
-fails closed until that frontend's checkboxes in `docs/ROADMAP.md`
-Phase 21 are done.
+Nano Scheme and Nano ML are implemented as bounded laboratory frontends
+(`docs/SCHEME.md`, `make test-scheme`; `docs/ML.md`, `make test-ml`).
+Actor, Dataflow, Object, Shell, and Logic have published bounded goals
+in `nl_frontend_goal`. They are not implemented. Emitting a module
+labeled as one of them fails closed until that frontend's checkboxes in
+`docs/ROADMAP.md` Phase 21 are done.
 
 ## Cross-frontend programs
 
@@ -90,6 +90,7 @@ linking story.
 - `src/nanoisa/frontend.h`, `src/nanoisa/frontend.c`
 - `make test-frontend-contract`
 - `src/scheme/scheme.c`, `docs/SCHEME.md`, `make test-scheme`
+- `src/ml/ml.c`, `docs/ML.md`, `make test-ml`
 - `docs/NANOISA.md` remains the ISA. This page is the language boundary.
 
 Authority for 5.0 compilation (`.nvm` as the only compiler product) is

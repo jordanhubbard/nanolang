@@ -10,6 +10,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   named tail calls, and session `define` compiled to verified NanoISA.
   Continuations, macros, and `set!` fail closed. `docs/SCHEME.md`,
   `make test-scheme`.
+- 4.6 Nano ML laboratory frontend: Hindley-Milner inference, ADTs,
+  exhaustive `case`, curried `fun`/`fn`, and `signature` compiled to
+  verified NanoISA. `ref`, `exception`, and `:=` fail closed.
+  `docs/ML.md`, `make test-ml`.
 
 ## [4.5.0] - 2026-09-07
 

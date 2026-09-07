@@ -115,10 +115,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       FFI isolation, debug, profiler, and `nvm2c`, and keeps language
       work in desugar/typecheck. Bounded goals are published before a
       language starts. Frontend-private opcodes fail closed. NanoLang
-      and Forth already accept a shared library. Scheme is implemented
-      as a bounded laboratory frontend; ML and later are not.
+      and Forth already accept a shared library. Scheme and ML are
+      implemented as bounded laboratory frontends; Actor and later are not.
       `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
-      `make test-frontend-contract`, `make test-scheme`.
+      `make test-frontend-contract`, `make test-scheme`, `make test-ml`.
       MAC `task_e62d1cd35b49296604012df95de7911b`.
 - [ ] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
       Dataflow, Object, Shell, Logic, then the frontend matrix.
@@ -1212,8 +1212,8 @@ Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [x] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
       Optional fields on `NlFrontendFacts`; unknown effects fail closed.
 - [x] I will define bounded implementation and test goals before starting each frontend.
-      `nl_frontend_goal`; Scheme is implemented (`make test-scheme`).
-      ML and later remain unimplemented.
+      `nl_frontend_goal`; Scheme and ML are implemented (`make test-scheme`,
+      `make test-ml`). Actor and later remain unimplemented.
 - [x] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
       `nl_frontend_opcode_allowed` is exactly `isa_get_info`.
 - [x] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
@@ -1233,10 +1233,14 @@ Nano Scheme (MAC `task_6647a64cc76edac6e3d0f62c228d98c4`):
       `tests/scheme/test_scheme.c`, `tests/scheme/r5rs_pin.scm`, `docs/SCHEME.md`.
 
 Nano ML (MAC `task_3eed929292a80ed58dd3a8db1ed701b6`):
-- [ ] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
-- [ ] I will use ML to test generic instantiation, aggregate layouts, exhaustive matching, closures, and module signatures.
-- [ ] I will preserve inferred type and exhaustiveness facts in NanoISA metadata where target-independent optimization can use them.
-- [ ] I will run shared aggregate and service-interface programs under both NanoLang and Nano ML.
+- [x] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
+      `src/ml/ml.c`, `docs/ML.md`, `make test-ml`.
+- [x] I will use ML to test generic instantiation, aggregate layouts, exhaustive matching, closures, and module signatures.
+      `id : a -> a`; pair `fst`; exhaustive `option`; `fn` / `fun` closures; `signature`.
+- [x] I will preserve inferred type and exhaustiveness facts in NanoISA metadata where target-independent optimization can use them.
+      Schemes interned in the module string pool; `NlFrontendFacts.exhaustiveness = 1`.
+- [x] I will run shared aggregate and service-interface programs under both NanoLang and Nano ML.
+      NanoLang-labeled assembler `CALL_MODULE` of `ml_fst`; `nl_frontend_accept_linked`.
 
 Nano Actor (MAC `task_0850b9adc62c593b8e4e180e070efcee`):
 - [ ] I will implement an Erlang, Elixir, and Gleam-inspired actor frontend.
@@ -1762,7 +1766,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: 4.6 laboratory languages (Scheme done; ML next), then 5.0.
+Current Phase: 4.6 laboratory languages (Scheme and ML done; Actor next), then 5.0.
 The next public GitHub Release is 5.0, covering 4.6 and 5.0.
 Next Major Milestone: remaining 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after `make test-scheme` and the next 4.6 language (Nano ML).
+Next Review: after `make test-ml` and the next 4.6 language (Nano Actor).

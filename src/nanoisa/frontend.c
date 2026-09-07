@@ -40,7 +40,7 @@ static const NlFrontendGoal k_goals[NL_FE_COUNT] = {
         "static inference, ADTs, pattern matching, immutable values, HOFs",
         "a full Standard ML or OCaml implementation",
         "shared aggregate and NSI programs with NanoLang",
-        0
+        1
     },
     {
         NL_FE_ACTOR, "Nano Actor",
