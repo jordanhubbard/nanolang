@@ -5,6 +5,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- 4.6 Nano Scheme laboratory frontend: lexical scope, closures, pairs,
+  named tail calls, and session `define` compiled to verified NanoISA.
+  Continuations, macros, and `set!` fail closed. `docs/SCHEME.md`,
+  `make test-scheme`.
+
 ## [4.5.0] - 2026-09-07
 
 ### Added

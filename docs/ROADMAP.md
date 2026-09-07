@@ -115,10 +115,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       FFI isolation, debug, profiler, and `nvm2c`, and keeps language
       work in desugar/typecheck. Bounded goals are published before a
       language starts. Frontend-private opcodes fail closed. NanoLang
-      and Forth already accept a shared library. Scheme and later are
-      not implemented.
+      and Forth already accept a shared library. Scheme is implemented
+      as a bounded laboratory frontend; ML and later are not.
       `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
-      `make test-frontend-contract` (362 checks).
+      `make test-frontend-contract`, `make test-scheme`.
       MAC `task_e62d1cd35b49296604012df95de7911b`.
 - [ ] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
       Dataflow, Object, Shell, Logic, then the frontend matrix.
@@ -1212,19 +1212,25 @@ Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [x] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
       Optional fields on `NlFrontendFacts`; unknown effects fail closed.
 - [x] I will define bounded implementation and test goals before starting each frontend.
-      `nl_frontend_goal`; Scheme and later remain unimplemented.
+      `nl_frontend_goal`; Scheme is implemented (`make test-scheme`).
+      ML and later remain unimplemented.
 - [x] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
       `nl_frontend_opcode_allowed` is exactly `isa_get_info`.
 - [x] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
       NanoLang and Forth callers of one library via `nl_frontend_accept_linked`.
 
 Nano Scheme (MAC `task_6647a64cc76edac6e3d0f62c228d98c4`):
-- [ ] I will implement a small Scheme frontend as the first post-Forth language experiment.
-- [ ] I will support lexical scope, closures, first-class procedures, recursive data, and interactive evaluation.
-- [ ] I will implement proper tail calls and verify constant frame depth under deep recursion.
-- [ ] I will evaluate continuations only after ordinary closure and exception semantics are stable.
-- [ ] I will use Scheme to stress allocation, callable representation, tail calls, dynamic values, and live code publication.
-- [ ] I will run a pinned subset of a recognized Scheme test suite and document intentional exclusions.
+- [x] I will implement a small Scheme frontend as the first post-Forth language experiment.
+      `src/scheme/scheme.c`, `docs/SCHEME.md`, `make test-scheme`.
+- [x] I will support lexical scope, closures, first-class procedures, recursive data, and interactive evaluation.
+- [x] I will implement proper tail calls and verify constant frame depth under deep recursion.
+      `(sum 10000 0)` at frame depth <= 3.
+- [x] I will evaluate continuations only after ordinary closure and exception semantics are stable.
+      Closures are tested; exceptions are not. `call/cc` fails closed.
+- [x] I will use Scheme to stress allocation, callable representation, tail calls, dynamic values, and live code publication.
+      1000-cons tail list, `CALL_INDIRECT` closures, session `define` replacement.
+- [x] I will run a pinned subset of a recognized Scheme test suite and document intentional exclusions.
+      `tests/scheme/test_scheme.c`, `tests/scheme/r5rs_pin.scm`, `docs/SCHEME.md`.
 
 Nano ML (MAC `task_3eed929292a80ed58dd3a8db1ed701b6`):
 - [ ] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
@@ -1756,7 +1762,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: 4.6 frontend contract, then the rest of 4.6, then 5.0.
+Current Phase: 4.6 laboratory languages (Scheme done; ML next), then 5.0.
 The next public GitHub Release is 5.0, covering 4.6 and 5.0.
-Next Major Milestone: 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after `make test-frontend-contract` and the first 4.6 language.
+Next Major Milestone: remaining 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
+Next Review: after `make test-scheme` and the next 4.6 language (Nano ML).

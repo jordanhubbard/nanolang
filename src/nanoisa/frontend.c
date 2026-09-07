@@ -32,7 +32,7 @@ static const NlFrontendGoal k_goals[NL_FE_COUNT] = {
         "interactive evaluation, proper tail calls with constant frame depth",
         "continuations until closures and exceptions are stable",
         "a pinned recognized Scheme subset with documented exclusions",
-        0
+        1
     },
     {
         NL_FE_ML, "Nano ML",
