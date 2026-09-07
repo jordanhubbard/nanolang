@@ -20,6 +20,7 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 
 ### Virtual Machine
 - [NanoISA Architecture](NANOISA.md) - I document my complete VM backend here, including my ISA, bytecode format, co-process FFI, and daemon.
+- [NanoISA frontend contract](NANOISA_FRONTEND.md) - 4.6 shared module gate. NanoLang stays native. I do not claim the laboratory languages are product compilers.
 - [Portable NanoISA vs. Runtime Representations](NANOISA_PORTABLE_ISA.md) - I document the portable ISA contract separately from the verified and optimized runtime representations my VM builds from it.
 - [How I Optimize NanoISA](NANOISA_OPTIMIZATION_POLICY.md) - I record the evidence and acceptance rules that govern changes to the optimized dispatch representation.
 - [Forth 2012 Pins](FORTH_2012.md) - I pin the standard revision, test suites, Gforth differential, licensing, and the environmental contract. The session runtime compiles colon definitions to verified NanoISA. The precise label is [FORTH_STANDARD_SYSTEM.md](FORTH_STANDARD_SYSTEM.md). I do not claim a Standard System.

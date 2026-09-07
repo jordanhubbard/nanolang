@@ -348,7 +348,8 @@ NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
 NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
-	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c
+	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c \
+	$(NANOISA_DIR)/frontend.c
 VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
 NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
@@ -381,6 +382,14 @@ test-nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c
 	@rm -f tests/nanoisa/test_nvm2c
+
+.PHONY: test-frontend-contract
+test-frontend-contract: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	@echo "Running NanoISA frontend contract tests..."
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_frontend_contract \
+		tests/nanoisa/test_frontend_contract.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_frontend_contract
+	@rm -f tests/nanoisa/test_frontend_contract
 
 .PHONY: test-nanoisa-module
 test-nanoisa-module: build
@@ -1170,7 +1179,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -3033,6 +3042,7 @@ help:
 	@echo "  make test-nsi-policy  - effect map, inventory, deployment grants"
 	@echo "  make test-nsi-journal - trap journal record, replay, HMAC, redact"
 	@echo "  make test-nsi-obs     - traces, metrics, provenance, locale-stable audits"
+	@echo "  make test-frontend-contract - 4.6 shared NanoISA frontend contract"
 	@echo "  make test-sdl-term-mvp - compile modules/sdl_term/mvp.nano"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"

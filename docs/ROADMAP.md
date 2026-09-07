@@ -18,8 +18,9 @@ Tagged `ef32c833` on 2026-09-07. Leftover 4.1, sdl_term, Phase 19, docs,
 deck, and user guide are in. I do not call the system internationalized.
 JSON/TOON and catalog fallback still use English; guide drafts are
 machine-generated. I do not claim a Forth Standard System, GNU Emacs, a
-kernel, CUDA, or a CPython wrap. **4.6 and 5.0 are out of this bar.**
-The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
+kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
+5.0.** It covers remaining 4.x (4.6 frontends) and 5.0 itself
+(`docs/NANOISA_ONLY.md`). 6.0 stays out of this bar.
 
 ## Active Execution Queue
 
@@ -104,15 +105,25 @@ The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
       `git pull --ff-only origin main` could not land. Retry until
       checks exist; `git reset --hard origin/main` before the tag.
       `tests/test_release_workflow.sh`.
-- [ ] **Public release — Google Workspace publish.** In-place update of
-      the existing Slides and Doc after `v4.5.0`. Human/authorized.
-      IDs in `docs/presentation/`. LinkedIn copy is `docs/LINKEDIN_4.5.md`.
+- [x] **Public release — Google Workspace publish.** In-place update of
+      the existing Slides and Doc after `v4.5.0`. Preview URLs are in
+      `docs/presentation/`. LinkedIn copy is `docs/LINKEDIN_4.5.md`.
       MAC `task_d0a1fe6953d749c195141ba921c5cc24`.
-- [ ] **4.6 / Phase 21 (out of this bar).** Shared NanoISA frontend contract,
-      then Scheme, ML, Actor, Dataflow, Object, Shell, Logic, then the
-      frontend matrix. After 4.5. NanoLang stays my native language.
-      MAC `task_e62d1cd35b49296604012df95de7911b` (contract),
-      `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
+      Recorded on `docs/record-4.5-google-publish`.
+- [x] **4.6 / Phase 21 — shared frontend contract.** Every frontend emits
+      verified `.nvm` v2, uses the same verifier, NSI, capabilities,
+      FFI isolation, debug, profiler, and `nvm2c`, and keeps language
+      work in desugar/typecheck. Bounded goals are published before a
+      language starts. Frontend-private opcodes fail closed. NanoLang
+      and Forth already accept a shared library. Scheme and later are
+      not implemented.
+      `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
+      `make test-frontend-contract` (362 checks).
+      MAC `task_e62d1cd35b49296604012df95de7911b`.
+- [ ] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
+      Dataflow, Object, Shell, Logic, then the frontend matrix.
+      NanoLang stays my native language.
+      MAC `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
       `task_3eed929292a80ed58dd3a8db1ed701b6` (ML),
       `task_0850b9adc62c593b8e4e180e070efcee` (Actor),
       `task_9cb85a523c197b9e2c80ddcffe9ed31a` (Dataflow),
@@ -120,6 +131,10 @@ The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
       `task_ee91ee94749200ab6309e6c05df3dd61` (Shell),
       `task_69fc7f6660a1976f10606a42d78fd264` (Logic),
       `task_92c497c72b7aa1fc993d666f66843759` (matrix).
+- [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
+      the only compiler product. Native AOT does not embed `nano_vm`.
+      Public GitHub Release `v5.0.0` after 4.6 and this phase close.
+      `docs/NANOISA_ONLY.md`.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
@@ -1186,14 +1201,22 @@ not collect syntax for its own sake. Each frontend must expose a distinct
 architectural weakness or prove a distinct capability.
 
 Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
-- [ ] I will define a frontend interface for source locations, typed functions, layouts, constants, imports, effects, capabilities, and diagnostics.
-- [ ] I will require every frontend to emit the same versioned NanoISA module format and pass the same verifier.
-- [ ] I will give every frontend access to the same service contracts, capability model, FFI isolation, debugger metadata, profiler, and target translators.
-- [ ] I will separate language-specific desugaring and type analysis from language-neutral NanoISA optimization.
-- [ ] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
-- [ ] I will define bounded implementation and test goals before starting each frontend.
-- [ ] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
-- [ ] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
+- [x] I will define a frontend interface for source locations, typed functions, layouts, constants, imports, effects, capabilities, and diagnostics.
+      `NlFrontendFacts`, `docs/NANOISA_FRONTEND.md`, `make test-frontend-contract`.
+- [x] I will require every frontend to emit the same versioned NanoISA module format and pass the same verifier.
+      `nl_frontend_accept` calls `nvm_verify`; format_version must be v2.
+- [x] I will give every frontend access to the same service contracts, capability model, FFI isolation, debugger metadata, profiler, and target translators.
+      `nl_frontend_toolchain`.
+- [x] I will separate language-specific desugaring and type analysis from language-neutral NanoISA optimization.
+      `nl_frontend_phase_is_language_specific`.
+- [x] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
+      Optional fields on `NlFrontendFacts`; unknown effects fail closed.
+- [x] I will define bounded implementation and test goals before starting each frontend.
+      `nl_frontend_goal`; Scheme and later remain unimplemented.
+- [x] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
+      `nl_frontend_opcode_allowed` is exactly `isa_get_info`.
+- [x] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
+      NanoLang and Forth callers of one library via `nl_frontend_accept_linked`.
 
 Nano Scheme (MAC `task_6647a64cc76edac6e3d0f62c228d98c4`):
 - [ ] I will implement a small Scheme frontend as the first post-Forth language experiment.
@@ -1733,6 +1756,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: Public GitHub Release `v4.5.0` is tagged. Google Workspace in-place publish of the deck and narrative is the remaining human step. 4.6 and 5.0 are out of this bar.
-Next Major Milestone: Publish the 4.5 deck and narrative to the existing Google files. Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after a named human reviewer accepts a translated guide page
+Current Phase: 4.6 frontend contract, then the rest of 4.6, then 5.0.
+The next public GitHub Release is 5.0, covering 4.6 and 5.0.
+Next Major Milestone: 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
+Next Review: after `make test-frontend-contract` and the first 4.6 language.
