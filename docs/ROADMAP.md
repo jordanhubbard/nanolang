@@ -12,15 +12,14 @@ document, I add a concrete checkbox here in dependency order before I continue.
 Chat is not the ledger. A defect I already fixed in the same session still gets
 an `[x]` item so it stays in product history.
 
-**Public release is one GitHub cut covering 4.1–4.5 as `v4.5.0`.** The
-last public GitHub Release is `v4.0.0`. Leftover 4.1, sdl_term, and
-Phase 19 are in. Documentation, the developer deck, and the user guide
-are the primary deliverables and land before the tag. I do not call the
-system internationalized. JSON/TOON and catalog fallback still use English;
-guide drafts are machine-generated. I do not claim a Forth Standard System,
-GNU Emacs, a kernel, CUDA, or a CPython wrap. **4.6 and 5.0 are out of
-this bar.** The NanoISA-only compiler rewrite is **5.0**: see
-`docs/NANOISA_ONLY.md`.
+**Public GitHub Release `v4.5.0` covers 4.1–4.5.**
+https://github.com/jordanhubbard/nanolang/releases/tag/v4.5.0
+Tagged `ef32c833` on 2026-09-07. Leftover 4.1, sdl_term, Phase 19, docs,
+deck, and user guide are in. I do not call the system internationalized.
+JSON/TOON and catalog fallback still use English; guide drafts are
+machine-generated. I do not claim a Forth Standard System, GNU Emacs, a
+kernel, CUDA, or a CPython wrap. **4.6 and 5.0 are out of this bar.**
+The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
 
 ## Active Execution Queue
 
@@ -82,19 +81,33 @@ this bar.** The NanoISA-only compiler rewrite is **5.0**: see
       keep the Jackson pin / INCLUDE-gap test. Coverage job succeeded on
       `10e97f12` in PR #243.
       MAC `task_d10e63b263724e4ab4ae75dd4a281529`.
-- [ ] **Public release — docs, deck, user guide.** I update README,
+- [x] **Public release — docs, deck, user guide.** I update README,
       CONTRIBUTING, PERSONA, indexes, `docs/RELEASE_4.5.md`, the user
       guide (including a Secure Runtime chapter), and the developer deck
-      for the 4.1–4.5 bar. Last public GitHub Release is `v4.0.0`. I am
+      for the 4.1–4.5 bar. Last public GitHub Release was `v4.0.0`. I am
       a language and a secure runtime. I do not claim a Forth Standard
       System, GNU Emacs, a kernel, or that the system is
-      internationalized. Google publication waits on the tag.
+      internationalized. Landed in PR #247 (`a96d24d3`).
       MAC `task_d2f80f3c3ca6ee5f81070545a5a2ac5f`.
-- [ ] **Public release — test pipeline and tag `v4.5.0`.** After the
+- [x] **Public release — test pipeline and tag `v4.5.0`.** After the
       docs/deck/guide land, I run `make test`, CI, and
       `make release-docs-check`, then tag one public cut covering 4.1–4.5.
-      `./scripts/release.sh 4.5.0`. I do not start 4.6 or 5.0.
+      `./scripts/release.sh 4.5.0`. Annotated tag `v4.5.0` on `ef32c833`
+      (PR #248). GitHub Release:
+      https://github.com/jordanhubbard/nanolang/releases/tag/v4.5.0
+      I do not start 4.6 or 5.0.
       MAC `task_f3049ae5d8389ecc96ff28754e52b31b`.
+- [x] **Public release — `release.sh` waits for checks and tags the
+      squash commit.** `gh pr checks --watch` exited 1 with "no checks
+      reported" on PR #248 before GitHub created runs. After squash,
+      local `main` still had the pre-squash commit, so
+      `git pull --ff-only origin main` could not land. Retry until
+      checks exist; `git reset --hard origin/main` before the tag.
+      `tests/test_release_workflow.sh`.
+- [ ] **Public release — Google Workspace publish.** In-place update of
+      the existing Slides and Doc after `v4.5.0`. Human/authorized.
+      IDs in `docs/presentation/`. LinkedIn copy is `docs/LINKEDIN_4.5.md`.
+      MAC `task_d0a1fe6953d749c195141ba921c5cc24`.
 - [ ] **4.6 / Phase 21 (out of this bar).** Shared NanoISA frontend contract,
       then Scheme, ML, Actor, Dataflow, Object, Shell, Logic, then the
       frontend matrix. After 4.5. NanoLang stays my native language.
@@ -1720,6 +1733,6 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: Leftover 4.1, sdl_term MVP, and Phase 19 (4.5) are in. Public docs, deck, and user guide for v4.5.0 are the remaining bar. 4.6 and 5.0 are out of this bar.
-Next Major Milestone: Land docs/deck/guide, then `make test` + `make release-docs-check`, then tag `v4.5.0` covering 4.1–4.5 (last public GitHub Release is `v4.0.0`). Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
+Current Phase: Public GitHub Release `v4.5.0` is tagged. Google Workspace in-place publish of the deck and narrative is the remaining human step. 4.6 and 5.0 are out of this bar.
+Next Major Milestone: Publish the 4.5 deck and narrative to the existing Google files. Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
 Next Review: after a named human reviewer accepts a translated guide page
