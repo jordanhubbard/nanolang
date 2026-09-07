@@ -104,9 +104,10 @@ The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
       `git pull --ff-only origin main` could not land. Retry until
       checks exist; `git reset --hard origin/main` before the tag.
       `tests/test_release_workflow.sh`.
-- [ ] **Public release — Google Workspace publish.** In-place update of
-      the existing Slides and Doc after `v4.5.0`. Human/authorized.
-      IDs in `docs/presentation/`. LinkedIn copy is `docs/LINKEDIN_4.5.md`.
+- [x] **Public release — Google Workspace publish.** In-place update of
+      the existing Slides and Doc after `v4.5.0`. Read-back: 16 slides,
+      16 notes, 34 headings. Preview URLs in `docs/presentation/`.
+      LinkedIn copy is `docs/LINKEDIN_4.5.md`.
       MAC `task_d0a1fe6953d749c195141ba921c5cc24`.
 - [ ] **4.6 / Phase 21 (out of this bar).** Shared NanoISA frontend contract,
       then Scheme, ML, Actor, Dataflow, Object, Shell, Logic, then the
@@ -1733,6 +1734,6 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: Public GitHub Release `v4.5.0` is tagged. Google Workspace in-place publish of the deck and narrative is the remaining human step. 4.6 and 5.0 are out of this bar.
-Next Major Milestone: Publish the 4.5 deck and narrative to the existing Google files. Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
+Current Phase: Public GitHub Release `v4.5.0` is tagged and the 4.5 deck/narrative are published in place. 4.6 and 5.0 are out of this bar.
+Next Major Milestone: 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
 Next Review: after a named human reviewer accepts a translated guide page
