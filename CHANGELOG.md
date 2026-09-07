@@ -5,6 +5,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.5.0] - 2026-09-07
+
+### Added
+- 4.1–4.5 public-release bar (docs, runtime, leftover 4.1) (#247)
+- 4.1–4.4 Forth evidence, catalogs, NSI, and POSIX fabric
+- close interpreter example failures and enable nanoc --bench
+- add a lit OpenGL atelier of high-polygon GLUT solids
+- replace the GPU ocean window with an animated Julia set
+- ship an SDL editor with a persistent NanoLang session
+- close Forth kernel defects and remaining Core words
+- compile Forth colon words to verified NanoISA
+- add Forth dictionary headers and nested input sources
+- add a Forth session runtime on NanoISA
+
+### Changed
+- record 4.4 product merge and coverage skip on main (#246)
+- fan out the Forth 2012 Core suite work
+- record the OpenGL atelier as an addition, not a change
+- pin Forth 2012 suites, licensing, and Gforth differentials
+- Refresh documentation before tagging, not after (#232)
+- Document the verification rules 4.0 added (#231)
+- Give the deck a thesis and cover the hardening it omitted (#230)
+- Publish the 4.0 deck and narrative with link sharing (#229)
+- regenerate the developer deck for 4.0 (#228)
+
 ### Fixed
 - Linux shared objects and `libnano_session.so` now compile with `-fPIC` so
   TLS in `transpiler.o` links on Ubuntu. i18n user-guide drafts keep
