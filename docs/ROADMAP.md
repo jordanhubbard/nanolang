@@ -1265,6 +1265,19 @@ Compiler product:
       to build the compiler.
       `make test-nanoisa-src-nano` (126 passed).
       MAC `task_56bb33e8636348b9a633cffcf423ace5`.
+- [x] Cut A i64 >=/<=: the same pin matches `in_az`
+      (`I64_GE_S` and `I64_LE_S`, not only `GT`/`LT`) and `via_az`
+      bytecode with the C seed. I still pretty-print C to build the
+      compiler.
+      `make test-nanoisa-src-nano` (130 passed).
+- [ ] Cut A enum values: the same pin matches `tag`
+      (`LexerTokenType`-style `Enum.Variant` as `ENUM_VAL`) bytecode
+      with the C seed. The self-hosted parser must keep variant
+      names and discriminants on `ASTEnum`. Nested unions stay
+      refused. I still pretty-print C to build the compiler.
+- [ ] I print `nisa_err` from `nanoisa_emit` when I refuse a program,
+      so the next Cut A hole is named rather than only "outside the
+      pinned subset".
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1406,6 +1419,11 @@ Compiler product:
       `List<LexerToken>`) without `nano_vm`. Nested records stay
       refused.
       `make test-nvm2c` (409 passed).
+- [x] `nvm2c` runs Cut A `via_az` (`I64_GE_S`/`I64_LE_S`) without
+      `nano_vm`.
+      `make test-nvm2c` (416 passed).
+- [ ] `nvm2c` translates `ENUM_VAL` to i64 without `nano_vm`. Cut A
+      `tag` exits the variant discriminant.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

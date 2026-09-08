@@ -2615,6 +2615,48 @@ static void test_via_one_lex_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_az: CALL of in_az (I64_GE_S / I64_LE_S / BOOL_AND). */
+static void test_via_az_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function in_az 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 65\n"
+        "  I64_GE_S\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 90\n"
+        "  I64_LE_S\n"
+        "  BOOL_AND\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 65\n"
+        "  CALL in_az\n"
+        "  JMP_FALSE else\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "else:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_az fixture");
+    CHECK(m != NULL, "via_az fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_az");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_az C does not name nano_vm");
+    CHECK(strstr(c, ">=") != NULL, "via_az C uses >=");
+    CHECK(strstr(c, "<=") != NULL, "via_az C uses <=");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_az C compiles and runs");
+    CHECK(status == 1, "via_az() exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2847,6 +2889,7 @@ int main(int argc, char **argv) {
     test_via_new_l_runs_without_nano_vm();
     test_via_one_t_runs_without_nano_vm();
     test_via_one_lex_runs_without_nano_vm();
+    test_via_az_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

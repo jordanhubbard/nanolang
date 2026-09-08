@@ -583,3 +583,26 @@ fn via_one_lex() -> int {
 shadow via_one_lex {
     assert (== (via_one_lex) 2)
 }
+
+fn in_az(c: int) -> bool {
+    return (and (>= c 65) (<= c 90))
+}
+
+shadow in_az {
+    assert (in_az 65)
+    assert (in_az 90)
+    assert (not (in_az 64))
+    assert (not (in_az 91))
+}
+
+fn via_az() -> int {
+    if (in_az 65) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow via_az {
+    assert (== (via_az) 1)
+}

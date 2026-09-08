@@ -48,7 +48,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
   `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
   `via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
-  `via_new_l`, `one_t`, `via_one_t`, `one_lex`, and `via_one_lex`.
+  `via_new_l`, `one_t`, `via_one_t`, `one_lex`, `via_one_lex`,
+  `in_az`, and `via_az`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -75,7 +76,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`make_tok` / `via_tok`), and array results as ISA tag `array`
   (`ones` / `via_ones`), and `List<int>` results (`new_l` /
   `via_new_l`), and `List<Tok>` results (`one_t` / `via_one_t`),
-  and `List<LexerToken>` results (`one_lex` / `via_one_lex`). `STR_SPLIT`
+  and `List<LexerToken>` results (`one_lex` / `via_one_lex`), and
+  i64 `>=`/`<=` (`in_az` / `via_az`). `STR_SPLIT`
   and `STR_REPLACE`
   stay refused. String operands
   are compared by content. I still pretty-print C to build the
@@ -140,8 +142,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   stay refused. Empty `List<Tok>` `CALL` (`ARR_NEW 1` then `RET`,
   no `ARR_PUSH`) staying `narr_t` is a separate pin.
   `CALL` of a non-empty `List<LexerToken>` runs as native C:
-  `via_one_lex` exits 2.
-  `make test-nvm2c` (409 passed).
+  `via_one_lex` exits 2. `I64_GE_S`/`I64_LE_S` run as native C:
+  `via_az` exits 1.
+  `make test-nvm2c` (416 passed).
 
 ## [4.5.0] - 2026-09-07
 

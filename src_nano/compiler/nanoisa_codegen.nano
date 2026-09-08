@@ -200,6 +200,8 @@ shadow nisa_binop_mnemonic {
     assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_STAR) "I64_MUL")
     assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_AND) "BOOL_AND")
     assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_OR) "BOOL_OR")
+    assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_GE) "I64_GE_S")
+    assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_LE) "I64_LE_S")
     assert (== (nisa_binop_mnemonic 0) "")
 }
 
@@ -1962,6 +1964,23 @@ shadow nisa_emit_function {
     assert (str_contains via_one_lex_text "ARR_GET")
     assert (str_contains via_one_lex_text "AGG_GET 1")
     assert (str_contains via_one_lex_text "STR_LEN")
+    let src54: string = (+ "f" "n in_az(c: int) -> bool { return (and (>= c 65) (<= c 90)) } shadow in_az { assert true }")
+    let toks54: List<LexerToken> = (tokenize_string src54 "t.nano" diags)
+    let p54: Parser = (parse_program toks54 (list_LexerToken_length toks54) "t.nano")
+    let in_az_fn: ASTFunction = (parser_get_function p54 0)
+    let in_az_text: string = (nisa_emit_function p54 in_az_fn)
+    assert (str_contains in_az_text ".function in_az 1 1 0 bool 1")
+    assert (str_contains in_az_text "I64_GE_S")
+    assert (str_contains in_az_text "I64_LE_S")
+    assert (str_contains in_az_text "BOOL_AND")
+    let src55: string = (+ "f" "n in_az(c: int) -> bool { return (and (>= c 65) (<= c 90)) } " (+ "f" "n via_az() -> int { if (in_az 65) { return 1 } else { return 0 } } shadow in_az { assert true } shadow via_az { assert true }"))
+    let toks55: List<LexerToken> = (tokenize_string src55 "t.nano" diags)
+    let p55: Parser = (parse_program toks55 (list_LexerToken_length toks55) "t.nano")
+    let via_az_fn: ASTFunction = (parser_get_function p55 1)
+    let via_az_text: string = (nisa_emit_function p55 via_az_fn)
+    assert (str_contains via_az_text ".function via_az 0 0 0 int 1")
+    assert (str_contains via_az_text "CALL in_az")
+    assert (str_contains via_az_text "JMP_FALSE")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
