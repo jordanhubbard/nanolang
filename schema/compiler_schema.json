@@ -866,6 +866,10 @@
         [
           "field_types",
           "array<string>"
+        ],
+        [
+          "is_resource",
+          "bool"
         ]
       ],
       "emit_c": true

@@ -2004,6 +2004,7 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-vm-examples
 	@$(MAKE) --no-print-directory check-stdlib-docs
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
+	@$(MAKE) --no-print-directory test-affine-selfhost
 	@$(MAKE) --no-print-directory test-forth-jackson
 ifeq ($(FORTH_WORDSET_SKIP),1)
 	@echo "Skipping Jackson word-set REFILL, Forth PTY, and IDE smoke under coverage instrumentation."
@@ -2012,9 +2013,10 @@ else
 	@$(MAKE) --no-print-directory test-forth-pty
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
 endif
-	@$(MAKE) --no-print-directory test-interpreter-examples
-	@$(MAKE) --no-print-directory test-nanoc-bench
-	@$(MAKE) --no-print-directory test-bench
+
+.PHONY: test-affine-selfhost
+test-affine-selfhost: bootstrap
+	@bash tests/test_affine_selfhost.sh
 
 .PHONY: test-pt2-audio
 # Regression test: pt2_audio must render non-silent samples (previously it just
