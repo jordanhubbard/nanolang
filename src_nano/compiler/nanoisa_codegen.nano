@@ -1456,6 +1456,87 @@ shadow nisa_expr_is_string {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_expr_is_bool(parser: Parser, node_id: int, node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_BOOL) {
+        return true
+    } else {
+        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+            let id: ASTIdentifier = (parser_get_identifier parser node_id)
+            let slot: int = (nisa_local_find id.name)
+            if (< slot 0) {
+                return false
+            } else {
+                if (>= slot (array_length nisa_types)) {
+                    return false
+                } else {
+                    return (== (at nisa_types slot) "bool")
+                }
+            }
+        } else {
+            if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+                let ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
+                let fi: int = (nisa_struct_field_index parser ty fa.field_name)
+                if (< fi 0) {
+                    return false
+                } else {
+                    let sidx: int = (nisa_struct_index parser ty)
+                    let sd: ASTStruct = (parser_get_struct_def parser sidx)
+                    return (== (at sd.field_types fi) "bool")
+                }
+            } else {
+                if (== node_type ParseNodeType.PNODE_CALL) {
+                    let call: ASTCall = (parser_get_call parser node_id)
+                    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                    if (or (== func_id.name "map_has")
+                           (or (== func_id.name "hashmap_has")
+                               (or (== func_id.name "str_contains")
+                                   (or (== func_id.name "str_starts_with")
+                                       (== func_id.name "str_ends_with"))))) {
+                        return true
+                    } else {
+                        let fidx: int = (nisa_fn_index parser func_id.name)
+                        if (< fidx 0) {
+                            return false
+                        } else {
+                            let f: ASTFunction = (parser_get_function parser fidx)
+                            return (== f.return_type "bool")
+                        }
+                    }
+                } else {
+                    if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+                        let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                        return (or (== binop.op LexerTokenType.TOKEN_EQ)
+                                   (or (== binop.op LexerTokenType.TOKEN_NE)
+                                       (or (== binop.op LexerTokenType.TOKEN_LT)
+                                           (or (== binop.op LexerTokenType.TOKEN_LE)
+                                               (or (== binop.op LexerTokenType.TOKEN_GT)
+                                                   (or (== binop.op LexerTokenType.TOKEN_GE)
+                                                       (or (== binop.op LexerTokenType.TOKEN_AND)
+                                                           (== binop.op LexerTokenType.TOKEN_OR))))))))
+                    } else {
+                        return false
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_expr_is_bool {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n yes() -> bool { return true } shadow yes { assert (yes) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    assert (nisa_expr_is_bool p r.value r.value_type)
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
     let mut args: string = ""
     let mut i: int = 0
@@ -2186,6 +2267,19 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                         if (or left_s right_s) {
                             return (nisa_fail "string concat needs two strings")
                         } else {
+                            let left_b: bool = (nisa_expr_is_bool parser binop.left binop.left_type)
+                            let right_b: bool = (nisa_expr_is_bool parser binop.right binop.right_type)
+                            if (and (and left_b right_b)
+                                    (or (== binop.op LexerTokenType.TOKEN_EQ)
+                                        (== binop.op LexerTokenType.TOKEN_NE))) {
+                                let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                                let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                                if (== binop.op LexerTokenType.TOKEN_EQ) {
+                                    return (+ (+ left right) (nisa_line "EQ"))
+                                } else {
+                                    return (+ (+ left right) (nisa_line "NE"))
+                                }
+                            } else {
                             let mnemonic: string = (nisa_binop_mnemonic binop.op)
                             if (== mnemonic "") {
                                 return (nisa_fail "unsupported integer operator")
@@ -2193,6 +2287,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                 let left: string = (nisa_emit_expr parser binop.left binop.left_type)
                                 let right: string = (nisa_emit_expr parser binop.right binop.right_type)
                                 return (+ (+ left right) (nisa_line mnemonic))
+                            }
                             }
                         }
                     }

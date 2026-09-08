@@ -1407,9 +1407,16 @@ Compiler product:
       names `function[53] I64_EQ at offset 50 expects int but the operand is
       bool` (`env_get_type` compares a bool field with `I64_EQ`). I still
       pretty-print C to build the compiler.
-- [ ] Cut A bool `==`: `env_get_type` uses `(== sym.is_function true)`. The C
-      seed emits `EQ` for non-int `==`; I still emit `I64_EQ`, so the verifier
-      refuses bool operands. I still pretty-print C to build the compiler.
+- [x] Cut A bool `==`: `flag_is_ok` / `via_flag_is_ok` match the C seed
+      (`EQ` for bool field `== true`, not `I64_EQ`).
+      `make test-nanoisa-src-nano` (208 passed). `typecheck.nano` emits
+      401 functions and that nasm assembles; `nano_vm` exits 0. `nvm2c`
+      names `imports require a host ABI; nvm2c refuses CALL_EXTERN`.
+      `module_loader.nano` names `undefined function array_new`. I still
+      pretty-print C to build the compiler.
+- [ ] Cut A `array_new`: `module_loader.nano` uses `(array_new 0 "")`.
+      The C seed emits `ARR_NEW` with the int tag even for a string fill.
+      I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

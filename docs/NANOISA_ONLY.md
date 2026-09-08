@@ -335,9 +335,11 @@ match the C seed; empty `[]` is `ARR_LITERAL 1 0`), and Cut A HashMap
 `map_new` is `HM_NEW 5 1`), and Cut A `array<Sym>` params (`n_syms` /
 `via_n_syms` match the C seed; a pin record may have `array<pin-record>`
 fields), and Cut A interned string escapes (`quoted` / `via_quoted` match
-the C seed; `"a\"b"` is `.string` with `\"`). `typecheck.nano` emits 401
-functions. `nanoisa asm` still names `function[53] I64_EQ` on a bool
-field (`env_get_type`; labels reset per `.function`).
+the C seed; `"a\"b"` is `.string` with `\"`), and Cut A bool `==` as `EQ`
+(`flag_is_ok` / `via_flag_is_ok` match the C seed). `typecheck.nano`
+emits 401 functions and that nasm assembles; `nano_vm` exits 0. `nvm2c`
+still names `CALL_EXTERN`. `module_loader.nano` names
+`undefined function array_new`. Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

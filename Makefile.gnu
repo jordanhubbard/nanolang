@@ -460,12 +460,15 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_lexer.nasm \
 		-o /tmp/nanolang_cut_a_lexer.nvm
 	@test -s /tmp/nanolang_cut_a_lexer.nvm
-	@echo "Checking typecheck.nano emits..."
+	@echo "Checking typecheck.nano emits and assembles..."
 	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/typecheck.nano \
 		-o /tmp/nanolang_cut_a_typecheck.nasm
 	@test -s /tmp/nanolang_cut_a_typecheck.nasm
 	@grep -F ".function main" /tmp/nanolang_cut_a_typecheck.nasm >/dev/null
 	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_typecheck.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_typecheck.nasm \
+		-o /tmp/nanolang_cut_a_typecheck.nvm
+	@test -s /tmp/nanolang_cut_a_typecheck.nvm
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

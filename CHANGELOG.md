@@ -102,9 +102,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `POP`. Pin-record params of `array<Sym>` (`n_syms` / `via_n_syms`)
   match the C seed; a pin record may have `array<pin-record>` fields.
   Interned quotes (`quoted` / `via_quoted`) match the C seed; `.string`
-  payloads escape `"`, `\`, newline, tab, and CR. `typecheck.nano`
-  emits 401 functions. Labels reset per `.function`. `nanoisa asm` names
-  `I64_EQ` of a bool field in `env_get_type`.
+  payloads escape `"`, `\`, newline, tab, and CR. Bool `==` is `EQ`
+  (`flag_is_ok` / `via_flag_is_ok`). `typecheck.nano` emits 401 functions
+  and that nasm assembles. Labels reset per `.function`. `nvm2c` refuses
+  `CALL_EXTERN`. `module_loader.nano` names `undefined function array_new`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.
