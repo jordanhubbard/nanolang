@@ -43,7 +43,7 @@
             │                          │
             ▼                     ┌────┴────────────┐
      cc → native binary           │                 │
-                              nano_vm          nvm2c (spike)
+                              nano_vm          nvm2c (bin/nvm2c)
                               (+ optional cop)   structured C11 → cc
                               wrapper_gen still  no nano_vm / nano_cop
                               embeds VM in a     in the generated process
@@ -58,7 +58,7 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 
 **Backend A — C Transpiler:** AST → C source → `cc` → native binary  
 **Backend B — NanoISA VM:** AST → bytecode → `.nvm` → `nano_vm` (optional `nano_cop` / `nano_vmd`). `nano_virt -o` still embeds that VM.  
-**Backend C — NanoISA AOT (spike):** `.nvm` → `nvm2c` → structured C11 → `cc`. Closed i64 subset only (`make test-nvm2c`). Not a CLI. The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`), not 4.x.
+**Backend C — NanoISA AOT:** `.nvm` → `bin/nvm2c` → structured C11 → `cc`. Closed i64 subset including comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL` (`make test-nvm2c`, 65 passed). The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`). Cut A pin: `src_nano` emits `.nasm` for integer add/main/choose/loop_sum and string greeting/glue (`make test-nanoisa-src-nano`, 18 passed).
 
 ---
 
@@ -942,8 +942,11 @@ Forth stacks and input sources; NanoVM frames unwind through `vm_invoke`.
 
 ### 10.4b nvm2c (NanoISA → C11 spike) — `src/nanoisa/nvm2c.c`
 
-Closed subset: i64 arithmetic, locals, `CALL`, `RET`/`HALT`. Emits structured
-C, not a bytecode wrapper. `make test-nvm2c`. Refuses `CALL_EXTERN`.
+Closed subset: i64 arithmetic and comparisons, locals, `CALL`/`TAIL_CALL`,
+`JMP`/`JMP_FALSE`, `RET`/`HALT`. Temps are one C array so backward goto
+is valid. Emits structured C, not a bytecode wrapper. `bin/nvm2c`,
+`make test-nvm2c` (65 passed). Refuses `CALL_EXTERN`. Goto is the
+translator fallback; recovered `if`/`while` is not this subset.
 
 ### 10.5 NanoVirt (Bytecode Compiler) — `src/nanovirt/`
 
@@ -962,6 +965,8 @@ C, not a bytecode wrapper. `make test-nvm2c`. Refuses `CALL_EXTERN`.
 | `parser.nano` | Parser implementation |
 | `typecheck.nano` | Type checker |
 | `transpiler.nano` | C code generator |
+| `compiler/nanoisa_codegen.nano` | 5.0 Cut A: AST → `.nasm` (pinned i64 + string subset) |
+| `nanoisa_emit.nano` | Driver for that emitter |
 | `compiler/module_loader.nano` | Module loading/resolution |
 | `compiler/diagnostics.nano` | Diagnostic system |
 | `compiler/error_messages.nano` | Error message formatting |
@@ -1027,6 +1032,8 @@ modules/<name>/
 | Language tests | `tests/nl_*.nano`, `tests/test_*.nano` | `tests/run_all_tests.sh` |
 | C unit tests | `tests/test_transpiler.c` | `make test-units` |
 | NanoISA tests | `tests/nanoisa/test_nanoisa.c` (470 tests) | `make test-nanoisa` |
+| nvm2c AOT tests | `tests/nanoisa/test_nvm2c.c` | `make test-nvm2c` |
+| Cut A src_nano lowering | `tests/nanoisa/test_nanoisa_src_nano.c` | `make test-nanoisa-src-nano` |
 | NanoVM tests | `tests/nanovm/test_vm.c` (150 tests) | `make test-nanovm` |
 | Forth session tests | `tests/forth/test_forth_session.c` | `make test-forth-session` |
 | NanoVirt tests | `tests/nanovirt/test_codegen.c` (62 tests) | `make test-nanovirt` |
@@ -1051,6 +1058,8 @@ make test-bootstrap    # Tests with fully bootstrapped compiler
 make test-lang         # Core language tests (nl_* only)
 make test-docs         # User guide snippet tests
 make test-nanoisa      # NanoISA unit tests
+make test-nvm2c        # nvm2c structured C11 and CLI
+make test-nanoisa-src-nano # 5.0 Cut A: src_nano .nasm vs C-seed bytecode
 make test-nanovm       # NanoVM unit tests
 make test-nanovirt     # NanoVirt codegen tests
 make test-differential # Coq reference vs NanoVM

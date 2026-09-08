@@ -84,6 +84,15 @@ My philosophy on honesty and verification:
 How I am built:
 
 10. **[NanoISA Virtual Machine](NANOISA.md)** - My VM backend
+    - [Frontend contract](NANOISA_FRONTEND.md) — 4.6 shared `.nvm` gate for every language
+    - [Nano Scheme](SCHEME.md) — bounded laboratory frontend (`make test-scheme`)
+    - [Nano ML](ML.md) — bounded laboratory frontend (`make test-ml`)
+    - [Nano Actor](ACTOR.md) — bounded laboratory frontend (`make test-actor`)
+    - [Nano Dataflow](DATAFLOW.md) — bounded laboratory frontend (`make test-dataflow`)
+    - [Nano Object](OBJECT.md) — bounded laboratory frontend (`make test-object`)
+    - [Nano Shell](SHELL.md) — bounded laboratory frontend (`make test-shell`)
+    - [Nano Logic](LOGIC.md) — bounded laboratory frontend (`make test-logic`)
+    - [Frontend matrix](FRONTEND_MATRIX.md) — how each 4.6 language exercises NanoISA
     - 178-opcode stack machine ISA
     - .nvm binary format specification
     - Co-process FFI isolation: shared-memory mailbox fast path (2 syscalls/call) with pipe fallback
@@ -91,6 +100,7 @@ How I am built:
     - VM daemon for distributed execution
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
+    - [5.0 One IR](NANOISA_ONLY.md) — verified `.nvm` is the only compiler product; C11/LLVM/Wasm are translators. Cut A pin: `make test-nanoisa-src-nano`. I do not delete `transpiler.nano` yet.
 
 10.0. **[NanoLang 4.5](RELEASE_4.5.md)** - Current public release notes (`v4.5.0`, covering 4.1–4.5; last public GitHub Release was `v4.0.0`)
     - [4.4 product page](RELEASE_4.4.md) — landed on `main` without a public tag
