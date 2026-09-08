@@ -767,6 +767,11 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 return false;
             }
 
+            /* Labels and jump patches are per function. Drop the previous
+             * function's table so a compiler-sized module does not hit
+             * MAX_LABELS across 401 functions (reported as a duplicate). */
+            state->label_count = 0;
+            state->patch_count = 0;
             state->in_function = true;
             state->fn_code_size = 0;
 
@@ -913,8 +918,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 }
                 if (!add_label(state, ident, state->fn_code_size)) {
                     result->error = ASM_ERR_DUPLICATE_LABEL;
-                    snprintf(result->message, sizeof(result->message),
-                             "Duplicate label: %s", ident);
+                    if (state->label_count >= MAX_LABELS) {
+                        snprintf(result->message, sizeof(result->message),
+                                 "too many labels in one function: %s", ident);
+                    } else {
+                        snprintf(result->message, sizeof(result->message),
+                                 "Duplicate label: %s", ident);
+                    }
                     return false;
                 }
                 /* Check if there's an instruction on the same line after the label */

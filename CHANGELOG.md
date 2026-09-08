@@ -103,7 +103,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   match the C seed; a pin record may have `array<pin-record>` fields.
   Interned quotes (`quoted` / `via_quoted`) match the C seed; `.string`
   payloads escape `"`, `\`, newline, tab, and CR. `typecheck.nano`
-  emits 401 functions. `nanoisa asm` names `Duplicate label: L1024`.
+  emits 401 functions. Labels reset per `.function`. `nanoisa asm` names
+  `I64_EQ` of a bool field in `env_get_type`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

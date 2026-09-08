@@ -1402,9 +1402,14 @@ Compiler product:
       `typecheck.nano` emits 401 functions. `nanoisa asm` names
       `Duplicate label: L1024` (`MAX_LABELS` 1024; the module has 1557 labels).
       I still pretty-print C to build the compiler.
-- [ ] Cut A assembler label cap: `typecheck.nano` nasm has 1557 labels.
-      The C assembler `MAX_LABELS` is 1024, so `nanoisa asm` names
-      `Duplicate label: L1024`. I still pretty-print C to build the compiler.
+- [x] Cut A assembler label cap: labels and jump patches reset at each
+      `.function`. `typecheck.nano` emits 401 functions. `nanoisa asm` then
+      names `function[53] I64_EQ at offset 50 expects int but the operand is
+      bool` (`env_get_type` compares a bool field with `I64_EQ`). I still
+      pretty-print C to build the compiler.
+- [ ] Cut A bool `==`: `env_get_type` uses `(== sym.is_function true)`. The C
+      seed emits `EQ` for non-int `==`; I still emit `I64_EQ`, so the verifier
+      refuses bool operands. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
