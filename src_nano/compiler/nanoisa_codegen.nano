@@ -5,7 +5,8 @@
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
  * if/else, while, let, set, string literals, string concat, array<int>
  * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET),
- * and bool results (i64 0/1). Anything else fails closed. I do not emit C.
+ * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT), and
+ * and/or (BOOL_AND/BOOL_OR). Anything else fails closed. I do not emit C.
  * I do not delete transpiler.nano.
  */
 
@@ -165,7 +166,15 @@ fn nisa_binop_mnemonic(op: int) -> string {
                                             if (== op LexerTokenType.TOKEN_GE) {
                                                 return "I64_GE_S"
                                             } else {
-                                                return ""
+                                                if (== op LexerTokenType.TOKEN_AND) {
+                                                    return "BOOL_AND"
+                                                } else {
+                                                    if (== op LexerTokenType.TOKEN_OR) {
+                                                        return "BOOL_OR"
+                                                    } else {
+                                                        return ""
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -182,6 +191,8 @@ fn nisa_binop_mnemonic(op: int) -> string {
 shadow nisa_binop_mnemonic {
     assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_PLUS) "I64_ADD")
     assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_STAR) "I64_MUL")
+    assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_AND) "BOOL_AND")
+    assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_OR) "BOOL_OR")
     assert (== (nisa_binop_mnemonic 0) "")
 }
 
@@ -233,6 +244,16 @@ shadow nisa_is_arr_builtin {
     assert (nisa_is_arr_builtin "array_length")
     assert (nisa_is_arr_builtin "array_get")
     assert (not (nisa_is_arr_builtin "add"))
+}
+
+fn nisa_is_inline_call(name: string) -> bool {
+    return (or (nisa_is_arr_builtin name) (== name "not"))
+}
+
+shadow nisa_is_inline_call {
+    assert (nisa_is_inline_call "array_length")
+    assert (nisa_is_inline_call "not")
+    assert (not (nisa_is_inline_call "add"))
 }
 
 fn nisa_struct_index(parser: Parser, name: string) -> int {
@@ -592,10 +613,18 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                 return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_GET"))
             }
         } else {
-            if (< (nisa_fn_index parser func_id.name) 0) {
-                return (nisa_fail (+ "undefined function " func_id.name))
+            if (== func_id.name "not") {
+                if (!= call.arg_count 1) {
+                    return (nisa_fail "not needs 1 argument")
+                } else {
+                    return (+ (nisa_emit_call_args parser call) (nisa_line "BOOL_NOT"))
+                }
             } else {
-                return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                if (< (nisa_fn_index parser func_id.name) 0) {
+                    return (nisa_fail (+ "undefined function " func_id.name))
+                } else {
+                    return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                }
             }
         }
     }
@@ -677,7 +706,16 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                 if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                                     return (nisa_emit_field_access parser node_id)
                                 } else {
-                                    return (nisa_fail "expression outside the pinned subset")
+                                    if (== node_type ParseNodeType.PNODE_BOOL) {
+                                        let bval: ASTBool = (parser_get_bool parser node_id)
+                                        if bval.value {
+                                            return (nisa_line_imm "PUSH_BOOL" "1")
+                                        } else {
+                                            return (nisa_line_imm "PUSH_BOOL" "0")
+                                        }
+                                    } else {
+                                        return (nisa_fail "expression outside the pinned subset")
+                                    }
                                 }
                             }
                         }
@@ -855,7 +893,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (== r.value_type ParseNodeType.PNODE_CALL) {
             let call: ASTCall = (parser_get_call parser r.value)
             let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-            if (nisa_is_arr_builtin func_id.name) {
+            if (nisa_is_inline_call func_id.name) {
                 return (+ (nisa_emit_call parser call) (nisa_line "RET"))
             } else {
                 if (< (nisa_fn_index parser func_id.name) 0) {
@@ -902,7 +940,8 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
                                (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)
                                    (or (== stmt.node_type ParseNodeType.PNODE_BINARY_OP)
-                                       (== stmt.node_type ParseNodeType.PNODE_CALL)))) {
+                                       (or (== stmt.node_type ParseNodeType.PNODE_CALL)
+                                           (== stmt.node_type ParseNodeType.PNODE_BOOL))))) {
                             let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
                             return (+ expr (nisa_line "POP"))
                         } else {
@@ -1046,6 +1085,27 @@ shadow nisa_emit_function {
     let pos_text: string = (nisa_emit_function p6 pos_fn)
     assert (str_contains pos_text ".function is_pos 1 1 0 bool 1")
     assert (str_contains pos_text "I64_GT_S")
+    let src7: string = (+ "f" "n yes() -> bool { return true } shadow yes { assert true }")
+    let toks7: List<LexerToken> = (tokenize_string src7 "t.nano" diags)
+    let p7: Parser = (parse_program toks7 (list_LexerToken_length toks7) "t.nano")
+    let yes_fn: ASTFunction = (parser_get_function p7 0)
+    let yes_text: string = (nisa_emit_function p7 yes_fn)
+    assert (str_contains yes_text ".function yes 0 0 0 bool 1")
+    assert (str_contains yes_text "PUSH_BOOL 1")
+    let src8: string = (+ "f" "n invert(b: bool) -> bool { return (not b) } shadow invert { assert true }")
+    let toks8: List<LexerToken> = (tokenize_string src8 "t.nano" diags)
+    let p8: Parser = (parse_program toks8 (list_LexerToken_length toks8) "t.nano")
+    let inv_fn: ASTFunction = (parser_get_function p8 0)
+    let inv_text: string = (nisa_emit_function p8 inv_fn)
+    assert (str_contains inv_text ".function invert 1 1 0 bool 1")
+    assert (str_contains inv_text "BOOL_NOT")
+    let src9: string = (+ "f" "n both(a: bool, b: bool) -> bool { return (and a b) } shadow both { assert true }")
+    let toks9: List<LexerToken> = (tokenize_string src9 "t.nano" diags)
+    let p9: Parser = (parse_program toks9 (list_LexerToken_length toks9) "t.nano")
+    let both_fn: ASTFunction = (parser_get_function p9 0)
+    let both_text: string = (nisa_emit_function p9 both_fn)
+    assert (str_contains both_text ".function both 2 2 0 bool 1")
+    assert (str_contains both_text "BOOL_AND")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

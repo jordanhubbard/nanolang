@@ -1107,6 +1107,11 @@ Compiler product:
       bytecode with the C seed. I still pretty-print C to build the
       compiler. `bool` is i64 0/1 in NanoISA. Option types are not this pin.
       `make test-nanoisa-src-nano` (26 passed).
+- [x] Cut A bool ops: the same pin matches `yes`/`no` (`PUSH_BOOL`),
+      `invert` (`BOOL_NOT`), `both` (`BOOL_AND`), and `either`
+      (`BOOL_OR`) bytecode with the C seed. I still pretty-print C to
+      build the compiler. Short-circuit evaluation is not this pin.
+      `make test-nanoisa-src-nano` (36 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1150,6 +1155,10 @@ Compiler product:
 - [x] `nvm2c` translates `bool` results as i64 0/1. `is_pos` from the
       Cut A pin compiles and runs without `nano_vm`.
       `make test-nvm2c` (120 passed).
+- [x] `nvm2c` translates `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, and
+      `BOOL_OR` as i64 0/1. `yes`, `invert`, `both`, and `either` from
+      the Cut A pin compile and run without `nano_vm`.
+      `make test-nvm2c` (145 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

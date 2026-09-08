@@ -541,6 +541,176 @@ static void test_is_pos_else_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_yes_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function yes 0 0 0 bool 1\n"
+        "  PUSH_BOOL 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL yes\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "yes fixture");
+    CHECK(m != NULL, "yes fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for yes");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "yes C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "yes C compiles and runs");
+    CHECK(status == 1, "yes() then-arm exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_no_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function no 0 0 0 bool 1\n"
+        "  PUSH_BOOL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL no\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "no fixture");
+    CHECK(m != NULL, "no fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for no");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "no C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "no C compiles and runs");
+    CHECK(status == 0, "no() else-arm exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_invert_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function invert 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  BOOL_NOT\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_BOOL 1\n"
+        "  CALL invert\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "invert fixture");
+    CHECK(m != NULL, "invert fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for invert");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "invert C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "invert C compiles and runs");
+    CHECK(status == 0, "invert(true) else-arm exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_both_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function both 2 2 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  BOOL_AND\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_BOOL 1\n"
+        "  PUSH_BOOL 1\n"
+        "  CALL both\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "both fixture");
+    CHECK(m != NULL, "both fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for both");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "both C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "both C compiles and runs");
+    CHECK(status == 1, "both(true, true) then-arm exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_either_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function either 2 2 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  BOOL_OR\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_BOOL 0\n"
+        "  PUSH_BOOL 0\n"
+        "  CALL either\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "either fixture");
+    CHECK(m != NULL, "either fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for either");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "either C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "either C compiles and runs");
+    CHECK(status == 0, "either(false, false) else-arm exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -858,6 +1028,11 @@ int main(int argc, char **argv) {
     test_getx_runs_without_nano_vm();
     test_is_pos_then_runs_without_nano_vm();
     test_is_pos_else_runs_without_nano_vm();
+    test_yes_runs_without_nano_vm();
+    test_no_runs_without_nano_vm();
+    test_invert_runs_without_nano_vm();
+    test_both_runs_without_nano_vm();
+    test_either_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

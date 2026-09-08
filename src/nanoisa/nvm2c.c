@@ -244,6 +244,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_JMP:
             break;
         case OP_PUSH_I64:
+        case OP_PUSH_BOOL:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         case OP_PUSH_STR:
@@ -316,7 +317,9 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_I64_LT_S:
         case OP_I64_LE_S:
         case OP_I64_GT_S:
-        case OP_I64_GE_S: {
+        case OP_I64_GE_S:
+        case OP_BOOL_AND:
+        case OP_BOOL_OR: {
             Nvm2cSimSlot rhs, lhs;
             if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
@@ -326,7 +329,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_NEG:
-        case OP_I64_NEG: {
+        case OP_I64_NEG:
+        case OP_BOOL_NOT: {
             Nvm2cSimSlot x;
             if (!sim_pop(b, idx, stk, &sp, &x)) return 0;
             (void)x;
@@ -780,6 +784,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_temp(b, &st, rhs);
             break;
         }
+        case OP_PUSH_BOOL: {
+            char rhs[8];
+            snprintf(rhs, sizeof rhs, "%dLL", ins.operands[0].u8 ? 1 : 0);
+            stack_push_temp(b, &st, rhs);
+            break;
+        }
         case OP_PUSH_STR: {
             uint32_t sidx = ins.operands[0].u32;
             const char *lit = nvm_get_string(mod, sidx);
@@ -928,6 +938,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_I64_NEG:
             emit_unop(b, &st, "-");
             break;
+        case OP_BOOL_NOT:
+            emit_unop(b, &st, "!");
+            break;
         case OP_I64_EQ:
             emit_binop(b, &st, "==");
             break;
@@ -945,6 +958,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         case OP_I64_GE_S:
             emit_binop(b, &st, ">=");
+            break;
+        case OP_BOOL_AND:
+            emit_binop(b, &st, "&&");
+            break;
+        case OP_BOOL_OR:
+            emit_binop(b, &st, "||");
             break;
         case OP_STR_LEN: {
             int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_LEN");

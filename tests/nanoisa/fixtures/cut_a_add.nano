@@ -97,3 +97,46 @@ shadow is_pos {
     assert (is_pos 3)
     assert (not (is_pos 0))
 }
+
+fn yes() -> bool {
+    return true
+}
+
+shadow yes {
+    assert (yes)
+}
+
+fn no() -> bool {
+    return false
+}
+
+shadow no {
+    assert (not (no))
+}
+
+fn invert(b: bool) -> bool {
+    return (not b)
+}
+
+shadow invert {
+    assert (not (invert true))
+    assert (invert false)
+}
+
+fn both(a: bool, b: bool) -> bool {
+    return (and a b)
+}
+
+shadow both {
+    assert (both true true)
+    assert (not (both true false))
+}
+
+fn either(a: bool, b: bool) -> bool {
+    return (or a b)
+}
+
+shadow either {
+    assert (either false true)
+    assert (not (either false false))
+}
