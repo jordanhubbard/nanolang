@@ -16,8 +16,9 @@
  * and Enum.Variant as ENUM_VAL (local first, then direct import),
  * and one-level nested pin-record field types, and imported
  * functions as CALL/TAIL_CALL (C seed pass 2b), unsafe blocks as
- * inner statements, and getcwd as CALL_EXTERN vm_getcwd.
- * Nested AGG_PACK stays refused. Anything else fails closed.
+ * inner statements, getcwd as CALL_EXTERN vm_getcwd, and nested
+ * pin-record literals as inner AGG_PACK then outer AGG_PACK.
+ * Parser results stay refused. Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
 
@@ -1281,10 +1282,11 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
                 if (== (at lit.field_names j) fname) {
                     let vid: int = (at lit.field_value_ids j)
                     let vty: int = (at lit.field_value_types j)
-                    if (== vty ParseNodeType.PNODE_STRUCT_LITERAL) {
-                        return (nisa_fail "nested records are not in the pinned subset")
+                    let piece: string = (nisa_emit_expr parser vid vty)
+                    if (not nisa_ok) {
+                        return piece
                     } else {
-                        set out (+ out (nisa_emit_expr parser vid vty))
+                        set out (+ out piece)
                         set found true
                         set j lit.field_count
                     }
@@ -1341,6 +1343,18 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text3 "PUSH_I64 2")
     assert (str_contains text3 "PUSH_I64 3")
     assert (str_contains text3 "AGG_PACK 0 0 0 4")
+    let _n: int = (nisa_reset)
+    let srcn: string = (+ "struct Loc { file: string, line: int } struct Nest { inner: Loc, tag: int } " (+ "f" "n nest_d() -> Nest { return Nest { inner: Loc { file: \"f\", line: 7 }, tag: 1 } } shadow nest_d { assert true }"))
+    let toksn: List<LexerToken> = (tokenize_string srcn "t.nano" diags)
+    let pn: Parser = (parse_program toksn (list_LexerToken_length toksn) "t.nano")
+    let funcn: ASTFunction = (parser_get_function pn 0)
+    let blockn: ASTBlock = (parser_get_block pn funcn.body)
+    let stmtn: ASTStmtRef = (list_ASTStmtRef_get blockn.statements 0)
+    let rn: ASTReturn = (parser_get_return pn stmtn.node_id)
+    let textn: string = (nisa_emit_struct_literal pn rn.value)
+    assert (str_contains textn "PUSH_I64 7")
+    assert (str_contains textn "PUSH_I64 1")
+    assert (str_contains textn "AGG_PACK")
     let _2: int = (nisa_reset)
 }
 

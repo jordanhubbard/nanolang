@@ -84,8 +84,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   One-level nested pin-record field types so `List<CompilerDiagnostic>`
   parameters type-check. Imported functions (`imp_add` / `via_imp_add`)
   `CALL`/`TAIL_CALL` by name. `unsafe` blocks emit inner statements
-  (`via_raw`). `getcwd` is `CALL_EXTERN` `vm_getcwd` (`via_cwd`).
-  Nested `AGG_PACK` stays refused.
+  (`via_raw`).   `getcwd` is `CALL_EXTERN` `vm_getcwd` (`via_cwd`).
+  Nested pin-record literals (`nest_d` / `via_nest`) match the C seed.
+  `nvm2c` still refuses nested records. `Parser` results stay
+  refused.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

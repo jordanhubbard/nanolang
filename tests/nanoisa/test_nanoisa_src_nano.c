@@ -234,6 +234,10 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_via_raw;
     const NvmFunctionEntry *c_via_cwd;
     const NvmFunctionEntry *s_via_cwd;
+    const NvmFunctionEntry *c_nest_d;
+    const NvmFunctionEntry *s_nest_d;
+    const NvmFunctionEntry *c_via_nest;
+    const NvmFunctionEntry *s_via_nest;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -259,8 +263,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 70, "C seed emitted add through via_cwd");
-    CHECK(s_mod->function_count >= 70, "src_nano emitted add through via_cwd");
+    CHECK(c_mod->function_count >= 72, "C seed emitted add through via_nest");
+    CHECK(s_mod->function_count >= 72, "src_nano emitted add through via_nest");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -402,6 +406,10 @@ int main(int argc, char **argv) {
     s_via_raw = fn_by_name(s_mod, "via_raw");
     c_via_cwd = fn_by_name(c_mod, "via_cwd");
     s_via_cwd = fn_by_name(s_mod, "via_cwd");
+    c_nest_d = fn_by_name(c_mod, "nest_d");
+    s_nest_d = fn_by_name(s_mod, "nest_d");
+    c_via_nest = fn_by_name(c_mod, "via_nest");
+    s_via_nest = fn_by_name(s_mod, "via_nest");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -472,6 +480,8 @@ int main(int argc, char **argv) {
     CHECK(c_via_imp_add != NULL && s_via_imp_add != NULL, "both modules have via_imp_add");
     CHECK(c_via_raw != NULL && s_via_raw != NULL, "both modules have via_raw");
     CHECK(c_via_cwd != NULL && s_via_cwd != NULL, "both modules have via_cwd");
+    CHECK(c_nest_d != NULL && s_nest_d != NULL, "both modules have nest_d");
+    CHECK(c_via_nest != NULL && s_via_nest != NULL, "both modules have via_nest");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -612,6 +622,10 @@ int main(int argc, char **argv) {
           "via_raw bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_cwd, s_mod, s_via_cwd),
           "via_cwd bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_nest_d, s_mod, s_nest_d),
+          "nest_d bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_nest, s_mod, s_via_nest),
+          "via_nest bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -823,6 +837,12 @@ int main(int argc, char **argv) {
         printf("    C via_cwd locals=%u len=%u  src via_cwd locals=%u len=%u\n",
                c_via_cwd ? c_via_cwd->local_count : 0, c_via_cwd ? c_via_cwd->code_length : 0,
                s_via_cwd ? s_via_cwd->local_count : 0, s_via_cwd ? s_via_cwd->code_length : 0);
+        printf("    C nest_d locals=%u len=%u  src nest_d locals=%u len=%u\n",
+               c_nest_d ? c_nest_d->local_count : 0, c_nest_d ? c_nest_d->code_length : 0,
+               s_nest_d ? s_nest_d->local_count : 0, s_nest_d ? s_nest_d->code_length : 0);
+        printf("    C via_nest locals=%u len=%u  src via_nest locals=%u len=%u\n",
+               c_via_nest ? c_via_nest->local_count : 0, c_via_nest ? c_via_nest->code_length : 0,
+               s_via_nest ? s_via_nest->local_count : 0, s_via_nest ? s_via_nest->code_length : 0);
     }
 
     nvm_module_free(c_mod);

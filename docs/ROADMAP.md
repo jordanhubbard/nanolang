@@ -1350,13 +1350,15 @@ Compiler product:
       `nanoisa asm` of `cut_a_no_main.nano` and `lexer.nano` nasm
       writes verified `.nvm`. `make test-nanoisa` (2635 passed).
       `make test-nanoisa-src-nano` (146 passed).
-- [ ] Cut A nested `AGG_PACK`: nested record literals are still refused
-      when a field value is itself a struct literal. I still pretty-print
-      C to build the compiler.
+- [x] Cut A nested `AGG_PACK`: `nest_d` packs a pin-record field
+      (`Loc` inside `Nest`) then the outer record. `via_nest` reads
+      the inner field through a local. Bytecode matches the C seed.
+      `nvm2c` still refuses nested records. `Parser` results stay
+      refused. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (150 passed).
 - [ ] Cut A `Parser` results: `parser.nano` names `unsupported result type Parser`.
       `Parser` is an extern struct with list fields, not a pin-record.
-      Nested `AGG_PACK` stays refused. I still pretty-print C to build
-      the compiler.
+      I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1513,6 +1515,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_raw` (`unsafe { return 7 }` as `PUSH_I64 7`
       then `RET`) without `nano_vm`.
       `make test-nvm2c` (440 passed).
+- [ ] `nvm2c` runs Cut A `via_nest` (nested `AGG_PACK` of pin records).
+      Nested records stay outside the closed subset. The assembler
+      accepts the bytecode; `nvm2c` still refuses it.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

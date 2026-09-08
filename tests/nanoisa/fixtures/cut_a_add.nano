@@ -675,3 +675,32 @@ fn via_cwd() -> string {
 shadow via_cwd {
     assert (> (str_length (via_cwd)) 0)
 }
+
+struct Loc {
+    file: string,
+    line: int
+}
+
+struct Nest {
+    inner: Loc,
+    tag: int
+}
+
+fn nest_d() -> Nest {
+    return Nest { inner: Loc { file: "f", line: 7 }, tag: 1 }
+}
+
+shadow nest_d {
+    let n: Nest = (nest_d)
+    assert (== n.tag 1)
+}
+
+fn via_nest() -> int {
+    let n: Nest = (nest_d)
+    let loc: Loc = n.inner
+    return loc.line
+}
+
+shadow via_nest {
+    assert (== (via_nest) 7)
+}
