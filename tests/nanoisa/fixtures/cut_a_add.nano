@@ -705,6 +705,23 @@ shadow via_nest {
     assert (== (via_nest) 7)
 }
 
+fn nest_line() -> int {
+    let n: Nest = (nest_d)
+    return n.inner.line
+}
+
+shadow nest_line {
+    assert (== (nest_line) 7)
+}
+
+fn via_nest_line() -> int {
+    return (nest_line)
+}
+
+shadow via_nest_line {
+    assert (== (via_nest_line) 7)
+}
+
 struct Flag {
     ok: bool
 }

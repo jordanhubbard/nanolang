@@ -1365,11 +1365,15 @@ Compiler product:
       `make test-nanoisa-src-nano` (170 passed).
 - [x] Cut A `string_to_int`: `parse_n` / `via_parse_n` match the C seed
       (`CAST_INT`). `make test-nanoisa-src-nano` (174 passed).
-      `parser.nano` names `record field access needs a local`.
       I still pretty-print C to build the compiler.
-- [ ] Cut A nested field access: `parser.nano` names `record field access needs a local`.
-      The object of `.` is not an identifier. `via_nest` still reads the inner
-      field through a local. I still pretty-print C to build the compiler.
+- [x] Cut A nested field access: `nest_line` / `via_nest_line` match the C
+      seed (`n.inner.line` as chained `AGG_GET`). `make test-nanoisa-src-nano`
+      (178 passed). `parser.nano` names `expression outside the pinned subset 38`
+      (`PNODE_MODULE_QUALIFIED_CALL`). I still pretty-print C to build the
+      compiler.
+- [ ] Cut A module-qualified call: `parser.nano` names
+      `expression outside the pinned subset 38` (`PNODE_MODULE_QUALIFIED_CALL`).
+      I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

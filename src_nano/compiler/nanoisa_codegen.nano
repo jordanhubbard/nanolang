@@ -21,7 +21,8 @@
  * fields, List<int> fields, string `+` of a string field or
  * `int_to_string`, and `str_concat` as `STR_CONCAT` (C seed builtin;
  * I still write `(+ a b)` in new code), and `string_to_int` as
- * `CAST_INT` (C seed builtin).
+ * `CAST_INT` (C seed builtin), and nested pin-record field access as
+ * chained `AGG_GET` (C seed `infer_expr_struct_type`).
  * Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -410,6 +411,93 @@ shadow nisa_struct_index {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_struct_index p "Point") 0)
     assert (== (nisa_struct_index p "Nope") (- 0 1))
+}
+
+fn nisa_struct_field_index(parser: Parser, type_name: string, field_name: string) -> int {
+    let sidx: int = (nisa_struct_index parser type_name)
+    if (< sidx 0) {
+        return (- 0 1)
+    } else {
+        let sd: ASTStruct = (parser_get_struct_def parser sidx)
+        let mut i: int = 0
+        while (< i sd.field_count) {
+            if (== (at sd.field_names i) field_name) {
+                return i
+            } else {
+                set i (+ i 1)
+            }
+        }
+        return (- 0 1)
+    }
+}
+
+shadow nisa_struct_field_index {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Loc { file: string, line: int } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_struct_field_index p "Loc" "file") 0)
+    assert (== (nisa_struct_field_index p "Loc" "line") 1)
+    assert (== (nisa_struct_field_index p "Loc" "nope") (- 0 1))
+}
+
+fn nisa_expr_struct_type(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+        let id: ASTIdentifier = (parser_get_identifier parser node_id)
+        let slot: int = (nisa_local_find id.name)
+        if (or (< slot 0) (>= slot (array_length nisa_types))) {
+            return ""
+        } else {
+            return (at nisa_types slot)
+        }
+    } else {
+        if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+            let lit: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+            return lit.struct_name
+        } else {
+            if (== node_type ParseNodeType.PNODE_CALL) {
+                let call: ASTCall = (parser_get_call parser node_id)
+                let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                let fidx: int = (nisa_fn_index parser func_id.name)
+                if (< fidx 0) {
+                    return ""
+                } else {
+                    let f: ASTFunction = (parser_get_function parser fidx)
+                    return f.return_type
+                }
+            } else {
+                if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                    let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+                    let obj_ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
+                    let fi: int = (nisa_struct_field_index parser obj_ty fa.field_name)
+                    if (< fi 0) {
+                        return ""
+                    } else {
+                        let sidx: int = (nisa_struct_index parser obj_ty)
+                        let sd: ASTStruct = (parser_get_struct_def parser sidx)
+                        return (at sd.field_types fi)
+                    }
+                } else {
+                    return ""
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_expr_struct_type {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Loc { file: string, line: int } struct Nest { inner: Loc, tag: int } " (+ "f" "n nest_d() -> Nest { return Nest { inner: Loc { file: \"f\", line: 7 }, tag: 1 } } shadow nest_d { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    assert (== (nisa_expr_struct_type p r.value r.value_type) "Nest")
+    let _2: int = (nisa_reset)
 }
 
 fn nisa_dirname(path: string) -> string {
@@ -1200,31 +1288,14 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                 } else {
                     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                         let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
-                        if (!= fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                        let ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
+                        let fi: int = (nisa_struct_field_index parser ty fa.field_name)
+                        if (< fi 0) {
                             return false
                         } else {
-                            let id: ASTIdentifier = (parser_get_identifier parser fa.object)
-                            let slot: int = (nisa_local_find id.name)
-                            if (or (< slot 0) (>= slot (array_length nisa_types))) {
-                                return false
-                            } else {
-                                let ty: string = (at nisa_types slot)
-                                let sidx: int = (nisa_struct_index parser ty)
-                                if (< sidx 0) {
-                                    return false
-                                } else {
-                                    let sd: ASTStruct = (parser_get_struct_def parser sidx)
-                                    let mut i: int = 0
-                                    while (< i sd.field_count) {
-                                        if (== (at sd.field_names i) fa.field_name) {
-                                            return (== (at sd.field_types i) "string")
-                                        } else {
-                                            set i (+ i 1)
-                                        }
-                                    }
-                                    return false
-                                }
-                            }
+                            let sidx: int = (nisa_struct_index parser ty)
+                            let sd: ASTStruct = (parser_get_struct_def parser sidx)
+                            return (== (at sd.field_types fi) "string")
                         }
                     } else {
                     return false
@@ -1415,7 +1486,14 @@ shadow nisa_emit_struct_literal {
 fn nisa_emit_field_access(parser: Parser, node_id: int) -> string {
     let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
     if (!= fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
-        return (nisa_fail "record field access needs a local")
+        let ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
+        let fi: int = (nisa_struct_field_index parser ty fa.field_name)
+        if (< fi 0) {
+            return (nisa_fail "record field access needs a local")
+        } else {
+            let obj: string = (nisa_emit_expr parser fa.object fa.object_type)
+            return (+ obj (nisa_line_imm "AGG_GET" (int_to_string fi)))
+        }
     } else {
         let id: ASTIdentifier = (parser_get_identifier parser fa.object)
         let eidx: int = (nisa_enum_index parser id.name)
@@ -1513,6 +1591,18 @@ shadow nisa_emit_field_access {
     let text3: string = (nisa_emit_field_access p3 r3.value)
     assert (str_contains text3 "ENUM_VAL 0 19")
     let _3: int = (nisa_reset)
+    let src4: string = (+ "struct Loc { file: string, line: int } struct Nest { inner: Loc, tag: int } " (+ "f" "n nest_d() -> Nest { return Nest { inner: Loc { file: \"f\", line: 7 }, tag: 1 } } " (+ "f" "n nest_line() -> int { return (nest_d).inner.line } shadow nest_d { assert true } shadow nest_line { assert true }")))
+    let toks4: List<LexerToken> = (tokenize_string src4 "t.nano" diags)
+    let p4: Parser = (parse_program toks4 (list_LexerToken_length toks4) "t.nano")
+    let func4: ASTFunction = (parser_get_function p4 1)
+    let block4: ASTBlock = (parser_get_block p4 func4.body)
+    let stmt4: ASTStmtRef = (list_ASTStmtRef_get block4.statements 0)
+    let r4: ASTReturn = (parser_get_return p4 stmt4.node_id)
+    let text4: string = (nisa_emit_field_access p4 r4.value)
+    assert (str_contains text4 "CALL nest_d")
+    assert (str_contains text4 "AGG_GET 0")
+    assert (str_contains text4 "AGG_GET 1")
+    let _4: int = (nisa_reset)
 }
 
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
@@ -1778,7 +1868,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                                     return (nisa_emit_expr parser st.node_id st.node_type)
                                                 }
                                             } else {
-                                                return (nisa_fail "expression outside the pinned subset")
+                                                return (nisa_fail (+ "expression outside the pinned subset " (int_to_string node_type)))
                                             }
                                         }
                                     }

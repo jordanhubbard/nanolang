@@ -91,7 +91,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   C seed. String `+` of a field or `int_to_string` (`glue_field` /
   `glue_digits`) and `str_concat` as `STR_CONCAT` (`glue_sc`) match
   the C seed. `string_to_int` is `CAST_INT` (`parse_n` /
-  `via_parse_n`). `parser.nano` names `record field access needs a local`.
+  `via_parse_n`). Nested field access is chained `AGG_GET`
+  (`nest_line` / `via_nest_line`). `parser.nano` names
+  `expression outside the pinned subset 38` (`PNODE_MODULE_QUALIFIED_CALL`).
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.
