@@ -1293,9 +1293,8 @@ Compiler product:
       `nanoisa_emit` of `lexer.nano` must not refuse `cannot read import std/fs.nano`.
       Transitive imports and imported functions stay refused. I still
       pretty-print C to build the compiler.
-      `make test-nanoisa-src-nano` names `undefined local LexerTokenType`
-      on `lexer.nano` (direct `ir.nano` has no enum; `LexerTokenType`
-      lives in a transitive import).
+      `make test-nanoisa-src-nano` (138 passed; `lexer.nano` no longer
+      names `cannot read import std/fs.nano`).
 - [x] Cut A transitive imported enums: ingest `ASTEnum` from a direct
       import's imports (`ir.nano` → `compiler_schema.nano`).
       `nanoisa_emit` of `lexer.nano` must not refuse
