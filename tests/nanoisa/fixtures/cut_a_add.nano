@@ -484,3 +484,22 @@ fn via_o() -> int {
 shadow via_o {
     assert (== (via_o) 1)
 }
+
+fn make_tok() -> Tok {
+    return Tok { t: 1, s: "hi" }
+}
+
+shadow make_tok {
+    let k: Tok = (make_tok)
+    assert (== k.t 1)
+    assert (== k.s "hi")
+}
+
+fn via_tok() -> int {
+    let k: Tok = (make_tok)
+    return (str_length k.s)
+}
+
+shadow via_tok {
+    assert (== (via_tok) 2)
+}

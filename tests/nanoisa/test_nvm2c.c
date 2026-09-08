@@ -2417,6 +2417,42 @@ static void test_via_o_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_tok: CALL of a mixed int/string record, then AGG_GET of the string. */
+static void test_via_tok_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function make_tok 0 0 0 struct 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  CALL make_tok\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_tok fixture");
+    CHECK(m != NULL, "via_tok fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_tok");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_tok C does not name nano_vm");
+    CHECK(strstr(c, "nrec_t") != NULL, "via_tok C has a record result");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_tok C compiles and runs");
+    CHECK(status == 2, "via_tok() exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2644,6 +2680,7 @@ int main(int argc, char **argv) {
     test_upto_runs_without_nano_vm();
     test_via_quiet_runs_without_nano_vm();
     test_via_o_runs_without_nano_vm();
+    test_via_tok_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

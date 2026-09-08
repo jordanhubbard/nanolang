@@ -47,7 +47,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, `get_s`,
   `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
   `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
-  and `via_o`.
+  `via_o`, `make_tok`, and `via_tok`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -70,7 +70,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `list_string_set` as `ARR_SET` then `POP`, `for` over
   `array<int>` as `LT`, and `void` as `RET` with no value
   (`CALL quiet` does not `POP`), and pin-record results as ISA tag
-  `struct` (`origin` / `via_o`). `STR_SPLIT`
+  `struct` (`origin` / `via_o`), and mixed int/string record results
+  (`make_tok` / `via_tok`). `STR_SPLIT`
   and `STR_REPLACE`
   stay refused. String operands
   are compared by content. I still pretty-print C to build the
@@ -127,8 +128,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   string list runs as native C: `put_s` length is 2. Generic `LT`
   from `for` runs as native C: `upto` exits 6. `CALL` of `void`
   runs as native C: `via_quiet` exits 0. `CALL` of a pin record
-  runs as native C: `via_o` exits 1.
-  `make test-nvm2c` (377 passed).
+  runs as native C: `via_o` exits 1. `CALL` of a mixed int/string
+  record runs as native C: `via_tok` exits 2.
+  `make test-nvm2c` (383 passed).
 
 ## [4.5.0] - 2026-09-07
 

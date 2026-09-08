@@ -1863,6 +1863,22 @@ shadow nisa_emit_function {
     assert (str_contains via_o_text ".function via_o 0 1 0 int 1")
     assert (str_contains via_o_text "CALL origin")
     assert (str_contains via_o_text "AGG_GET 1")
+    let src44: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n make_tok() -> Tok { return Tok { t: 1, s: \"hi\" } } shadow make_tok { assert true }"))
+    let toks44: List<LexerToken> = (tokenize_string src44 "t.nano" diags)
+    let p44: Parser = (parse_program toks44 (list_LexerToken_length toks44) "t.nano")
+    let make_tok_fn: ASTFunction = (parser_get_function p44 0)
+    let make_tok_text: string = (nisa_emit_function p44 make_tok_fn)
+    assert (str_contains make_tok_text ".function make_tok 0 0 0 struct 1")
+    assert (str_contains make_tok_text "AGG_PACK")
+    let src45: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n make_tok() -> Tok { return Tok { t: 1, s: \"hi\" } } " (+ "f" "n via_tok() -> int { let k: Tok = (make_tok) return (str_length k.s) } shadow make_tok { assert true } shadow via_tok { assert true }")))
+    let toks45: List<LexerToken> = (tokenize_string src45 "t.nano" diags)
+    let p45: Parser = (parse_program toks45 (list_LexerToken_length toks45) "t.nano")
+    let via_tok_fn: ASTFunction = (parser_get_function p45 1)
+    let via_tok_text: string = (nisa_emit_function p45 via_tok_fn)
+    assert (str_contains via_tok_text ".function via_tok 0 1 0 int 1")
+    assert (str_contains via_tok_text "CALL make_tok")
+    assert (str_contains via_tok_text "AGG_GET 1")
+    assert (str_contains via_tok_text "STR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

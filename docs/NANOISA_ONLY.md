@@ -212,8 +212,8 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, `get_s`,
 `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
 `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
-and `via_o`
-(`make test-nanoisa-src-nano`, 106 passed).
+`via_o`, `make_tok`, and `via_tok`
+(`make test-nanoisa-src-nano`, 110 passed).
 Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
@@ -234,7 +234,8 @@ then `POP`, `list_Tok_set` as `ARR_SET` then `POP`,
 `list_string_set` as `ARR_SET` then `POP`, `for` over
 `array<int>` as `LT`, and `void` as `RET` with no value
 (`CALL quiet` does not `POP`), and pin-record results as ISA tag
-`struct` (`origin` / `via_o`). `STR_SPLIT`
+`struct` (`origin` / `via_o`), and mixed int/string record results
+(`make_tok` / `via_tok`). `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands
 are compared by content, not pool index. I still pretty-print C to
@@ -286,7 +287,8 @@ suffix tests (`STR_STARTS_WITH`/`STR_ENDS_WITH`; `has_pre` and
 native C), and Cut A `for` (`LT`; `upto` runs as native C), and Cut A
 `void` (`quiet` / `via_quiet` run as native C), and Cut A pin-record
 results (`origin` / `via_o` run as native C; nested records stay
-refused). Nested arrays,
+refused), and Cut A mixed int/string record results (`make_tok` /
+`via_tok` run as native C). Nested arrays,
 nested records, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
