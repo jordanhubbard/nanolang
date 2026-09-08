@@ -337,13 +337,15 @@ shadow nisa_local_type_ok {
 fn nisa_is_arr_builtin(name: string) -> bool {
     return (or (== name "array_length")
                (or (== name "array_get")
-                   (or (== name "array_push") (== name "at"))))
+                   (or (== name "array_push")
+                       (or (== name "array_new") (== name "at")))))
 }
 
 shadow nisa_is_arr_builtin {
     assert (nisa_is_arr_builtin "array_length")
     assert (nisa_is_arr_builtin "array_get")
     assert (nisa_is_arr_builtin "array_push")
+    assert (nisa_is_arr_builtin "array_new")
     assert (nisa_is_arr_builtin "at")
     assert (not (nisa_is_arr_builtin "add"))
 }
@@ -474,6 +476,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "map_new")
     assert (nisa_is_inline_call "map_put")
     assert (nisa_is_inline_call "map_has")
+    assert (nisa_is_inline_call "array_new")
     assert (not (nisa_is_inline_call "add"))
 }
 
@@ -2060,8 +2063,81 @@ shadow nisa_emit_hm_call {
     assert (str_contains text "HM_NEW 5 1")
 }
 
+fn nisa_emit_array_new(parser: Parser, call: ASTCall) -> string {
+    if (== call.arg_count 1) {
+        return (+ (nisa_emit_call_args parser call) (+ (nisa_line "POP") (nisa_line_imm "ARR_NEW" "1")))
+    } else {
+        if (!= call.arg_count 2) {
+            return (nisa_fail "array_new needs 1 or 2 arguments")
+        } else {
+            let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+            let a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+            let mut out: string = (nisa_emit_expr parser a0.node_id a0.node_type)
+            set nisa_names (array_push nisa_names "__anew_sz__")
+            set nisa_types (array_push nisa_types "int")
+            let sz_slot: int = (- (array_length nisa_names) 1)
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string sz_slot)))
+            set out (+ out (nisa_emit_expr parser a1.node_id a1.node_type))
+            set nisa_names (array_push nisa_names "__anew_fill__")
+            set nisa_types (array_push nisa_types "int")
+            let fill_slot: int = (- (array_length nisa_names) 1)
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string fill_slot)))
+            set out (+ out (nisa_line_imm "ARR_NEW" "1"))
+            set nisa_names (array_push nisa_names "__anew_arr__")
+            set nisa_types (array_push nisa_types "array<int>")
+            let arr_slot: int = (- (array_length nisa_names) 1)
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string arr_slot)))
+            set out (+ out (nisa_line_imm "PUSH_I64" "0"))
+            set nisa_names (array_push nisa_names "__anew_i__")
+            set nisa_types (array_push nisa_types "int")
+            let i_slot: int = (- (array_length nisa_names) 1)
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string i_slot)))
+            let l_top: string = (nisa_fresh)
+            let l_end: string = (nisa_fresh)
+            set out (+ out (nisa_label_line l_top))
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string i_slot)))
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string sz_slot)))
+            set out (+ out (nisa_line "LT"))
+            set out (+ out (nisa_line_imm "JMP_FALSE" l_end))
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string arr_slot)))
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string fill_slot)))
+            set out (+ out (nisa_line "ARR_PUSH"))
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string arr_slot)))
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string i_slot)))
+            set out (+ out (nisa_line_imm "PUSH_I64" "1"))
+            set out (+ out (nisa_line "I64_ADD"))
+            set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string i_slot)))
+            set out (+ out (nisa_line_imm "JMP" l_top))
+            set out (+ out (nisa_label_line l_end))
+            set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string arr_slot)))
+            return out
+        }
+    }
+}
+
+shadow nisa_emit_array_new {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n blank_a() -> array<int> { return (array_new 0 0) } shadow blank_a { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let call: ASTCall = (parser_get_call p r.value)
+    let text: string = (nisa_emit_array_new p call)
+    assert (str_contains text "ARR_NEW 1")
+    assert (str_contains text "LT")
+    assert (str_contains text "ARR_PUSH")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+    if (== func_id.name "array_new") {
+        return (nisa_emit_array_new parser call)
+    } else {
     if (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_new")) {
         if (!= call.arg_count 0) {
             return (nisa_fail "list_T_new needs 0 arguments")
@@ -2199,6 +2275,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                 }
             }
         }
+    }
     }
     }
 }

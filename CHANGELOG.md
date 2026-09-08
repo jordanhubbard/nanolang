@@ -105,7 +105,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   payloads escape `"`, `\`, newline, tab, and CR. Bool `==` is `EQ`
   (`flag_is_ok` / `via_flag_is_ok`). `typecheck.nano` emits 401 functions
   and that nasm assembles. Labels reset per `.function`. `nvm2c` refuses
-  `CALL_EXTERN`. `module_loader.nano` names `undefined function array_new`.
+  `CALL_EXTERN`. `array_new` (`blank_a` / `via_blank_a`) matches the C seed
+  (`ARR_NEW 1` plus a fill loop). `module_loader.nano` names
+  `string concat needs two strings`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

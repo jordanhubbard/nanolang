@@ -1414,9 +1414,15 @@ Compiler product:
       names `imports require a host ABI; nvm2c refuses CALL_EXTERN`.
       `module_loader.nano` names `undefined function array_new`. I still
       pretty-print C to build the compiler.
-- [ ] Cut A `array_new`: `module_loader.nano` uses `(array_new 0 "")`.
-      The C seed emits `ARR_NEW` with the int tag even for a string fill.
-      I still pretty-print C to build the compiler.
+- [x] Cut A `array_new`: `blank_a` / `via_blank_a` match the C seed
+      (`(array_new 0 "")` is `ARR_NEW 1` plus a fill loop with `LT`;
+      the C seed uses the int tag even for a string fill).
+      `make test-nanoisa-src-nano` (212 passed). `module_loader.nano`
+      names `string concat needs two strings`. I still pretty-print C
+      to build the compiler.
+- [ ] Cut A string concat of a string-returning call: `module_loader.nano`
+      uses `(+ cand ".nano")` after `module_path_join`. I still pretty-print
+      C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
