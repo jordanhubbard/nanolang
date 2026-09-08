@@ -1,662 +1,330 @@
-# Affine Types: A Practical Guide
+# Affine Ownership Guide
 
-**Version:** 5.0 design draft
-**Status:** Target semantics; current implementation is partial
-**Difficulty:** Intermediate
+**Version:** 5.0 target
+**Status:** Normative examples for an incomplete implementation
 
----
+I keep resource ownership unique. Passing or assigning a resource by value
+moves it. Borrowing observes it for one call. A live resource must be moved to
+a new owner or passed to a consuming function on every exit.
 
-This guide is a proposal for my Phase 20 ownership contract. It is not a
-statement that every example works today. My C seed currently parses resource
-structs and performs basic identifier-state checks; `src_nano`, path-sensitive
-control flow, borrowing, nested ownership, and verified NanoISA metadata remain
-5.0 work. The task-backed plan is in `AFFINE_TYPES_DESIGN.md` and
-`ROADMAP.md`. Until that plan passes its acceptance matrix, I do not promise
-production resource safety.
+The C frontend currently implements only basic identifier tracking. The
+self-hosted frontend does not yet enforce this complete contract. The examples
+below define the 5.0 target; they are not claims about current compiler support.
+`AFFINE_TYPES_DESIGN.md` contains the complete rules and conformance matrix.
 
-## What Are My Affine Types?
-
-My 5.0 affine contract will keep ownership of resources, such as file handles,
-sockets, and database connections, unique. The completed checker will prevent:
-
-- Use-after-free: Reading from a closed file
-- Use-after-close: Sending data to a closed socket
-- Double-free: Closing the same resource twice
-- Resource leaks: Forgetting to close a resource
-
-I mark managed resources with `resource struct`. The current C-seed prototype
-tracks a subset of that lifecycle; the 5.0 work closes the gaps named above.
-
----
-
-## Why I Use Affine Types
-
-### The Problem
-
-```c
-// C code - runtime bug waiting to happen
-FILE *f = fopen("data.txt", "r");
-fread(buffer, 1, 100, f);
-fclose(f);
-fread(buffer, 1, 100, f);  // BUG: Use after close! 💥
-```
-
-### My Solution
-
-```nano
-# NanoLang - compile-time safety!
-resource struct FileHandle { fd: int }
-
-extern fn open_file(path: string) -> FileHandle
-extern fn read_file(f: &FileHandle) -> string
-extern fn close_file(f: FileHandle) -> void
-
-fn example() -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    let data: string = unsafe { (read_file &f) }
-    unsafe { (close_file f) }
-    # let more: string = unsafe { (read_file &f) }  # COMPILE ERROR
-    return 0
-}
-```
-
-This is the compile-time behavior I require for 5.0.
-
----
-
-## Quick Start
-
-### Step 1: Declare a Resource Struct
-
-Use my `resource` keyword before `struct`:
+## The Model
 
 ```nano
 resource struct FileHandle {
     fd: int
 }
 
-resource struct Socket {
-    id: int,
-    port: int
-}
-
-resource struct DatabaseConnection {
-    handle: int
-}
+fn open_file(path: string) -> FileHandle
+fn read_file(file: &FileHandle) -> string
+fn close_file(file: FileHandle) -> void
 ```
 
-Any struct I see declared with `resource` becomes subject to my affine type checking.
+- `FileHandle` marks an owned resource.
+- `FileHandle` as an argument is consuming: the call takes ownership.
+- `&FileHandle` is a shared, call-scoped borrow.
+- `&mut FileHandle` is an exclusive, call-scoped borrow.
+- Assignment and return move resource-bearing values.
+- `drop value` is explicit weakening for non-resource affine values. It does
+  not release a resource and is rejected for resource-bearing values.
+- There is no `discard` alias.
 
----
+Borrow syntax and `drop` remain target syntax until both frontends implement
+and test them.
 
-### Step 2: Define Resource Operations
-
-Declare external C functions that work with your resource:
+## Basic Use
 
 ```nano
-# Functions that CREATE resources
-extern fn open_file(path: string) -> FileHandle
-extern fn connect_socket(host: string, port: int) -> Socket
-
-# Functions that BORROW resources (non-consuming, proposed 5.0 syntax)
-extern fn read_file(f: &FileHandle) -> string
-extern fn send_data(s: &Socket, data: string) -> int
-
-# Functions that CONSUME resources (take ownership)
-extern fn close_file(f: FileHandle) -> void
-extern fn close_socket(s: Socket) -> void
-```
-
-When a function takes a resource by value, I consider ownership transferred.
-Repeated reads require the borrowing form. The 5.0 contract task must accept
-this syntax and define its aliasing limits before these examples become
-normative.
-
----
-
-### Step 3: Use Resources Safely
-
-```nano
-fn safe_file_usage() -> string {
-    # 1. Create the resource
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    
-    # 2. Use it multiple times (OK!)
-    let chunk1: string = unsafe { (read_file &f) }
-    let chunk2: string = unsafe { (read_file &f) }
-    let chunk3: string = unsafe { (read_file &f) }
-    
-    # 3. Consume it exactly once (REQUIRED!)
-    unsafe { (close_file f) }
-    
-    return (str_concat chunk1 (str_concat chunk2 chunk3))
-}
-
-shadow safe_file_usage {
-    let result: string = (safe_file_usage)
-    assert (>= (str_length result) 0)
-}
-```
-
----
-
-## Resource Lifecycle
-
-I track every resource through these states:
-
-```
-UNUSED → USED → CONSUMED
-  ↓       ↓        ↓
-Create  Use    Transfer ownership
-```
-
-### State 1: UNUSED
-
-The resource exists. You have not used it yet.
-
-```nano
-let f: FileHandle = unsafe { (open_file "file.txt") }
-# State: UNUSED
-```
-
-### State 2: USED
-
-You have borrowed the resource through non-consuming operations.
-
-```nano
-let data: string = unsafe { (read_file &f) }
-# State: USED (can still use it more)
-
-let more: string = unsafe { (read_file &f) }
-# State: USED (still OK)
-```
-
-### State 3: CONSUMED
-
-You have moved or transferred the resource. Its ownership is gone.
-
-```nano
-unsafe { (close_file f) }
-# State: CONSUMED (cannot use anymore)
-
-# let x: string = unsafe { (read_file &f) }  # COMPILE ERROR
-```
-
----
-
-## Common Patterns
-
-### Pattern 1: Simple Resource Usage
-
-```nano
-fn pattern_simple() -> int {
-    let r: FileHandle = unsafe { (open_file "data.txt") }
-    let data: string = unsafe { (read_file &r) }
-    unsafe { (close_file r) }
+fn file_size(path: string) -> int {
+    let file: FileHandle = (open_file path)
+    let data: string = (read_file &file)
+    (close_file file)
     return (str_length data)
 }
 
-shadow pattern_simple {
-    assert (>= (pattern_simple) 0)
+shadow file_size {
+    assert (>= (file_size "data.txt") 0)
 }
 ```
 
----
+The borrow ends when `read_file` returns. `close_file` then takes ownership.
+This is the positive by-value and borrow case.
 
-### Pattern 2: Multiple Resources
+The corresponding negative case is use after transfer:
 
 ```nano
-fn pattern_multiple() -> int {
-    # Open multiple resources
-    let f1: FileHandle = unsafe { (open_file "file1.txt") }
-    let f2: FileHandle = unsafe { (open_file "file2.txt") }
-    let s: Socket = unsafe { (connect_socket "localhost" 8080) }
-    
-    # Use them
-    let data1: string = unsafe { (read_file &f1) }
-    let data2: string = unsafe { (read_file &f2) }
-    let sent: int = unsafe { (send_data &s (str_concat data1 data2)) }
-    
-    # Close all resources
-    unsafe { (close_file f1) }
-    unsafe { (close_file f2) }
-    unsafe { (close_socket s) }
-    
-    return sent
-}
-
-shadow pattern_multiple {
-    assert (>= (pattern_multiple) 0)
+fn use_after_close(path: string) -> string {
+    let file: FileHandle = (open_file path)
+    (close_file file)
+    return (read_file &file) # rejected: file was moved
 }
 ```
 
----
-
-### Pattern 3: Conditional Resource Handling
+## Moving Ownership
 
 ```nano
-fn pattern_conditional(should_read: bool) -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    
-    if should_read {
-        let data: string = unsafe { (read_file &f) }
-        (println data)
-    } else {
-        (println "Skipping read")
-    }
-    
-    # Must close in ALL branches!
-    unsafe { (close_file f) }
-    return 0
+fn move_once(path: string) -> void {
+    let first: FileHandle = (open_file path)
+    let second: FileHandle = first
+    (close_file second)
 }
 
-shadow pattern_conditional {
-    assert (== (pattern_conditional true) 0)
-    assert (== (pattern_conditional false) 0)
+shadow move_once {
+    (move_once "data.txt")
 }
 ```
 
----
-
-### Pattern 4: Resource with Early Return
+`first` is unavailable after the initialization of `second`.
 
 ```nano
-fn pattern_early_return(should_abort: bool) -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    
-    if should_abort {
-        # Must close before early return!
-        unsafe { (close_file f) }
-        return (- 0 1)
-    }
-    
-    let data: string = unsafe { (read_file &f) }
-    unsafe { (close_file f) }
-    return (str_length data)
-}
-
-shadow pattern_early_return {
-    assert (== (pattern_early_return true) (- 0 1))
-    assert (>= (pattern_early_return false) 0)
+fn duplicate_owner(path: string) -> void {
+    let first: FileHandle = (open_file path)
+    let second: FileHandle = first
+    (close_file first)  # rejected: first was moved
+    (close_file second)
 }
 ```
 
----
+Overwriting a live owner is also rejected. Resolve the old value first.
 
-### Pattern 5: Resource in Helper Function
+## Explicit Drop
+
+Affine does not mean that operating-system handles may leak quietly. `drop`
+ends ownership only when no managed-resource obligation is present.
 
 ```nano
-fn helper_process(f: &FileHandle) -> string {
-    # I borrow the resource here
-    return unsafe { (read_file f) }
+fn close_or_drop(file: FileHandle) -> void {
+    (close_file file) # accepted
 }
 
-shadow helper_process {
-    let f: FileHandle = unsafe { (open_file "test.txt") }
-    let result: string = (helper_process &f)
-    unsafe { (close_file f) }
-    (println result)
-}
-
-fn pattern_helper() -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    let processed: string = (helper_process &f)
-    # f is still valid here because helper borrowed it
-    unsafe { (close_file f) }
-    return (str_length processed)
-}
-
-shadow pattern_helper {
-    assert (>= (pattern_helper) 0)
+fn leak(file: FileHandle) -> void {
+    drop file # rejected: FileHandle requires a consuming operation
 }
 ```
 
----
+I do not provide `discard` as another spelling. One operation is enough.
 
-### Pattern 6: Resource with Loops
+## Returning Resources
 
 ```nano
-fn pattern_loop() -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    
-    let mut total: int = 0
-    let mut i: int = 0
-    while (< i 5) {
-        let chunk: string = unsafe { (read_file &f) }
-        set total (+ total (str_length chunk))
-        set i (+ i 1)
-    }
-    
-    unsafe { (close_file f) }
-    return total
+fn reopen(path: string) -> FileHandle {
+    let file: FileHandle = (open_file path)
+    return file
 }
 
-shadow pattern_loop {
-    assert (>= (pattern_loop) 0)
+fn caller(path: string) -> void {
+    let file: FileHandle = (reopen path)
+    (close_file file)
+}
+
+shadow caller {
+    (caller "data.txt")
 }
 ```
 
----
+The return moves `file`; the caller receives its obligation. A return cannot
+strand another resource:
 
-### Pattern 7: Resource in Struct
+```nano
+fn leaking_return(a: string, b: string) -> FileHandle {
+    let first: FileHandle = (open_file a)
+    let second: FileHandle = (open_file b)
+    return first # rejected: second remains live
+}
+```
+
+Borrowed references cannot be returned or stored.
+
+## Nested Resources
 
 ```nano
 struct Connection {
     socket: Socket,
-    is_active: bool,
-    name: string
+    peer: string
 }
 
-fn pattern_struct() -> int {
-    let s: Socket = unsafe { (connect_socket "localhost" 9000) }
-    let conn: Connection = Connection {
-        socket: s,
-        is_active: true,
-        name: "main"
-    }
-    
-    if conn.is_active {
-        let sent: int = unsafe { (send_data &conn.socket "hello") }
-        (println "Message sent")
-    }
-    
-    # Must consume the socket from the struct
-    unsafe { (close_socket conn.socket) }
-    return 0
+fn inspect(connection: &Connection) -> int {
+    return (send_data &connection.socket "ping")
 }
 
-shadow pattern_struct {
-    assert (== (pattern_struct) 0)
+fn close_connection(connection: Connection) -> void {
+    # The consuming implementation resolves connection.socket.
+}
+
+fn use_connection(connection: Connection) -> void {
+    let sent: int = (inspect &connection)
+    (println sent)
+    (close_connection connection)
 }
 ```
 
----
-
-## Errors I Detect
-
-### Error 1: Use After Consume
+`Connection` is resource-bearing because `socket` is. The whole value moves.
+5.0 deliberately rejects partial moves:
 
 ```nano
-# ✗ WRONG
-let f: FileHandle = unsafe { (open_file "data.txt") }
-unsafe { (close_file f) }
-let data: string = unsafe { (read_file &f) }  # ERROR
-
-# ✓ CORRECT
-let f: FileHandle = unsafe { (open_file "data.txt") }
-let data: string = unsafe { (read_file &f) }  # Borrow before consume
-unsafe { (close_file f) }
-```
-
-My error message:
-```
-Error: Cannot use resource 'f' after it has been consumed
-```
-
----
-
-### Error 2: Double Consume
-
-```nano
-# ✗ WRONG
-let f: FileHandle = unsafe { (open_file "data.txt") }
-unsafe { (close_file f) }
-unsafe { (close_file f) }  # ERROR!
-
-# ✓ CORRECT
-let f: FileHandle = unsafe { (open_file "data.txt") }
-unsafe { (close_file f) }  # Consume exactly once
-```
-
-My error message:
-```
-Error: Cannot consume resource 'f' - already consumed
-```
-
----
-
-### Error 3: Resource Leak
-
-```nano
-# ✗ WRONG
-fn leaky() -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    let data: string = unsafe { (read_file &f) }
-    return (str_length data)
-    # ERROR: 'f' was not consumed!
-}
-
-# ✓ CORRECT
-fn safe() -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    let data: string = unsafe { (read_file &f) }
-    unsafe { (close_file f) }  # Always consume!
-    return (str_length data)
+fn partial(connection: Connection) -> void {
+    (close_socket connection.socket) # rejected: consume the aggregate
 }
 ```
 
-My error message:
-```
-Error: Resource 'f' was not consumed before end of scope
-```
+This rule leaves no partly initialized aggregate for later code to interpret.
 
----
+## Arrays and Collections
 
-### Error 4: Conditional Leak
+Resource-bearing elements are outside the 5.0 contract and are rejected:
 
 ```nano
-# ✗ WRONG
-fn conditional_leak(x: int) -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    if (> x 0) {
-        unsafe { (close_file f) }
-    }
-    # ERROR: 'f' not consumed in else branch!
-    return 0
-}
+let numbers: array<int> = [1, 2, 3]       # accepted
+let names: List<string> = (list_new)      # accepted
+let files: array<FileHandle> = []         # rejected
+let files: List<FileHandle> = (list_new)  # rejected
+```
 
-# ✓ CORRECT
-fn conditional_safe(x: int) -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    if (> x 0) {
-        (println "Positive")
+The same rejection applies to collections of structs, tuples, unions, or
+results that contain a resource. Element-level moves require a separate design.
+
+## Branches and Early Returns
+
+Every branch must produce the same ownership state at a join.
+
+```nano
+fn branch_read(file: FileHandle, verbose: bool) -> void {
+    if verbose {
+        let data: string = (read_file &file)
+        (println data)
     } else {
-        (println "Non-positive")
+        (println "quiet")
     }
-    # Consume in ALL paths
-    unsafe { (close_file f) }
+    (close_file file)
+}
+```
+
+Both arms retain `file`, so closing it after the join is accepted.
+
+```nano
+fn mismatched(file: FileHandle, close_now: bool) -> void {
+    if close_now {
+        (close_file file)
+    }
+    (close_file file) # rejected: file is moved on only one incoming path
+}
+```
+
+Resolve before every early return:
+
+```nano
+fn early(file: FileHandle, abort: bool) -> int {
+    if abort {
+        (close_file file)
+        return 1
+    }
+    (close_file file)
     return 0
 }
 ```
 
----
+Omitting the first `close_file` is the negative early-return case.
 
-## Things I Recommend
+## Loops
 
-### Consume Resources as Late as Possible
+An outer owner must have the same state at the start and end of each iteration.
+Borrowing it is valid; consuming it in the loop is not.
 
 ```nano
-fn good_practice() -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    let data1: string = unsafe { (read_file &f) }
-    let data2: string = unsafe { (read_file &f) }
-    let result: int = (+ (str_length data1) (str_length data2))
-    unsafe { (close_file f) }  # Close at the end
-    return result
+fn read_chunks(file: FileHandle, count: int) -> int {
+    let mut index: int = 0
+    let mut total: int = 0
+    while (< index count) {
+        let chunk: string = (read_file &file)
+        set total (+ total (str_length chunk))
+        set index (+ index 1)
+    }
+    (close_file file)
+    return total
 }
 ```
 
-### Use Multiple Variables for Multiple Resources
-
 ```nano
-fn good_multiple() -> int {
-    let f1: FileHandle = unsafe { (open_file "file1.txt") }
-    let f2: FileHandle = unsafe { (open_file "file2.txt") }
-    # Use both
-    unsafe { (close_file f1) }
-    unsafe { (close_file f2) }
-    return 0
-}
-```
-
-### Close in All Branches
-
-```nano
-fn good_branches(flag: bool) -> int {
-    let f: FileHandle = unsafe { (open_file "data.txt") }
-    if flag {
-        let data: string = unsafe { (read_file &f) }
-        unsafe { (close_file f) }
-        return (str_length data)
-    } else {
-        unsafe { (close_file f) }
-        return 0
+fn close_in_loop(file: FileHandle, ready: bool) -> void {
+    while ready {
+        (close_file file) # rejected: next iteration has no owner
     }
 }
 ```
 
-### Do Not Try to Clone or Copy Resources
+A resource created inside a loop must be resolved before the back edge and
+before every `break` or `continue`.
 
-Resources cannot be cloned. They represent unique ownership.
+## Results and Error Propagation
 
-```nano
-# ✗ This won't work
-let f1: FileHandle = unsafe { (open_file "data.txt") }
-let f2: FileHandle = f1  # ERROR: Resources cannot be copied!
-```
-
-### Treat Resource Collections as Unspecified in 5.0
-
-The current checker does not support resource-bearing arrays. Whether I reject
-them permanently or define element ownership is an explicit semantic-contract
-decision; code must not rely on them before that decision lands.
+A result containing a resource carries the obligation in its `Ok` payload.
+Matching transfers that payload into its arm.
 
 ```nano
-# Not accepted by the current contract
-let handles: array<FileHandle> = [...]
-```
-
----
-
-## Real-World Examples
-
-### Example 1: Configuration File Reader
-
-```nano
-resource struct FileHandle { fd: int }
-
-extern fn open_file(path: string) -> FileHandle
-extern fn read_file(f: &FileHandle) -> string
-extern fn close_file(f: FileHandle) -> void
-
-fn read_config(path: string) -> string {
-    let f: FileHandle = unsafe { (open_file path) }
-    let content: string = unsafe { (read_file &f) }
-    unsafe { (close_file f) }
-    return content
-}
-
-shadow read_config {
-    let config: string = (read_config "config.json")
-    assert (>= (str_length config) 0)
+fn consume_open(result: Result<FileHandle, string>) -> int {
+    match result {
+        Ok { value: file } => {
+            (close_file file)
+            return 0
+        },
+        Err { error: message } => {
+            (println message)
+            return 1
+        }
+    }
 }
 ```
 
-### Example 2: Network Client
+`or return` is accepted before another resource is acquired. It is rejected
+while an unrelated resource remains live:
 
 ```nano
-resource struct Socket { id: int }
-
-extern fn connect_socket(host: string, port: int) -> Socket
-extern fn send_data(s: &Socket, data: string) -> int
-extern fn receive_data(s: &Socket) -> string
-extern fn close_socket(s: Socket) -> void
-
-fn send_request(host: string, request: string) -> string {
-    let s: Socket = unsafe { (connect_socket host 80) }
-    let sent: int = unsafe { (send_data &s request) }
-    let response: string = unsafe { (receive_data &s) }
-    unsafe { (close_socket s) }
-    return response
-}
-
-shadow send_request {
-    let resp: string = (send_request "example.com" "GET / HTTP/1.0\r\n\r\n")
-    assert (>= (str_length resp) 0)
+fn unsafe_propagation(path: string) -> Result<int, string> {
+    let file: FileHandle = (open_file path)
+    let value: int = (operation) or return Err("failed")
+    # rejected: the propagated error path strands file
+    (close_file file)
+    return Ok(value)
 }
 ```
 
----
+Write an explicit match and resolve `file` in the error arm.
 
-## Advanced Topics
+## What Must Be Tested
 
-### Affine vs Linear Types
+Each rule has a positive and negative obligation:
 
-- Linear values must be used exactly once; implicit weakening is forbidden.
-- Affine ownership cannot be duplicated and may be transferred at most once.
+| Rule | Positive | Negative |
+|---|---|---|
+| By-value call | consume once | use or consume afterward |
+| Shared borrow | repeated read then close | mutate, consume, or escape borrow |
+| Exclusive borrow | call-scoped mutation | overlap or escape borrow |
+| Move | resolve destination | use source or overwrite live owner |
+| Drop | non-resource affine drop | resource-bearing drop |
+| Return | transfer sole resource | strand another resource |
+| Nested resource | borrow field, consume whole | partial move or field consume |
+| Collection | ordinary elements | resource-bearing elements |
+| Result | resolve every payload arm | ignore payload or leaking propagation |
+| Early return | resolve on each exit | one leaking exit |
+| Branch | equal state at join | different states at join |
+| Loop | borrow outer, resolve locals | consume outer or leak at an edge |
+| Scope | all resources resolved | unresolved resource |
 
-My proposed resource model combines affine no-copy ownership with a mandatory
-ownership-ending action on every reachable exit. An explicit `drop`, if the
-contract accepts it, is such an action; silently abandoning a live operating
-system handle is not. The contract task will settle the name and exact rule.
-
-### Relationship to Rust's Ownership
-
-If you know Rust, my affine types are similar to Rust's move semantics:
-
-| Rust | NanoLang (Me) |
-|------|----------|
-| `Drop` trait | Resource consumption |
-| Move semantics | Affine types |
-| `&` / `&mut` borrow | Proposed non-consuming use |
-| Lifetime `'a` | Implicit (function scope) |
-
-My target remains smaller than Rust's ownership system. I do not yet claim a
-working borrow checker or stable borrowing syntax.
-
----
-
-## FAQ
-
-**Can I return a resource from a function?**  
-That is the 5.0 target: the caller becomes responsible for consuming it.
-
-**What happens if I forget to close a resource?**  
-The 5.0 acceptance matrix requires a compile error on every reachable leaking
-exit. The current prototype does not yet prove that guarantee.
-
-**Can resources be optional (nullable)?**  
-Not yet. Consider using a union wrapper:
-```nano
-union MaybeFile {
-    Some { f: FileHandle },
-    None { }
-}
-```
-
-**Do I need affine types for all structs?**  
-No. Only for types that represent managed resources like files or sockets.
-
-**Can I use GC with affine types?**  
-Yes. Regular values are GC'd. Affine types only track explicit resource cleanup.
-
----
+The release suite must run both columns through both frontends. Existing
+`tests/test_affine_integration.nano`, `tests/test_resource_tracking.nano`, and
+`tests/negative/resource_errors/use_after_consume.nano` are partial C-frontend
+evidence only. They do not cover this table and do not establish production
+readiness.
 
 ## Summary
 
-- My 5.0 target prevents use-after-transfer, duplicate ownership, double
-  consume, and resource leaks at compile time.
-- `resource struct` marks values that participate in that ownership contract.
-- Borrowing observes; moving or passing by value transfers; cleanup or an
-  accepted explicit discard ends ownership.
-- I will claim all-path enforcement only after both frontends and the verified
-  `.nvm` pipeline pass the same acceptance matrix.
-- The design adds no required runtime ownership bookkeeping.
-
----
-
-For more details, see:
-- **MEMORY.md** - My language reference
-- **AFFINE_TYPES_DESIGN.md** - My 5.0 contract and task plan
-- **tests/test_affine_integration.nano** - Current C-seed examples, not the
-  complete 5.0 conformance suite
+I use affine no-copy ownership and require explicit resolution of managed
+resources. By-value calls, assignment, and return move. `&T` and `&mut T`
+borrow for one call. Nested resources make their aggregate affine. Resource
+collections and partial moves are rejected in 5.0. Every exit, branch, loop
+edge, and error path is checked. I will call this implemented when both
+frontends pass the same positive and negative conformance cases, not before.
