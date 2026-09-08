@@ -1082,8 +1082,13 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
 Compiler product:
 - [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
       `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
+- [x] Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits `.nasm` for
+      integer `add`/`main` (`tests/nanoisa/fixtures/cut_a_add.nano`).
+      Function bytecode matches the C seed (`make test-nanoisa-src-nano`,
+      10 passed). I still pretty-print C to build the compiler. The full
+      dual of `codegen.c` is not this pin.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
-      `src/nanovirt/codegen.c`. That dual does not exist today.
+      `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
       self-hosted emitter.
 - [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
@@ -1103,7 +1108,9 @@ Compiler product:
       emit a co-process client and call it AOT.
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
       in 5.0 documentation or CLI defaults.
-- [ ] I ship a `nvm2c` tool (seed in C). I may later write `nvm2c` in myself.
+- [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
+      `make test-nvm2c` runs the library and the CLI. Generated C does not
+      name `nano_vm`. I may later write `nvm2c` in myself.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

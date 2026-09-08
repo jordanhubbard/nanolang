@@ -203,12 +203,18 @@ Each cut has a test that can fail without stranding bootstrap.
 `src/nanovirt/codegen.c`. It emits `.nvm`. The C pretty-printer still
 builds the compiler. I compare `.nvm` from the C seed's NanoISA path
 and from `src_nano` on a pinned subset, not yet the whole compiler.
+Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
+`make test-nanoisa-src-nano` on integer `add`/`main` (10 passed; function
+bytecode matches the C seed). I still pretty-print C to build the
+compiler. The full dual of `codegen.c` is not this pin.
 
 **B — AOT covers the compiler subset.** `nvm2c` translates functions,
 structs, loops, arrays, strings, modules, and a declared host ABI.
 `CALL_EXTERN` maps to that ABI or the module is refused. I ship a
-`nvm2c` CLI. A generated process does not link `nano_vm`. A pinned
-suite matches on `nano_vm` and on AOT C.
+`nvm2c` CLI (`bin/nvm2c`, `make test-nvm2c`). The closed i64 subset
+already builds a process that does not link `nano_vm`. The compiler
+subset is still open. A pinned suite must match on `nano_vm` and on
+AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written

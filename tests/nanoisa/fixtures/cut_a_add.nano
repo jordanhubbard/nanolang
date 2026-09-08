@@ -1,0 +1,15 @@
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+fn main() -> int {
+    return (add 40 2)
+}
+
+shadow main {
+    assert (== (main) 42)
+}

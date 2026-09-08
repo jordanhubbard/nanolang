@@ -1,0 +1,399 @@
+/* =============================================================================
+ * NanoISA lowering (src_nano dual of src/nanovirt/codegen.c, pinned subset)
+ * =============================================================================
+ * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
+ * functions: literals, locals, +, -, *, /, %, calls, and return. Anything else
+ * fails closed. I do not emit C. I do not delete transpiler.nano.
+ */
+
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
+
+let mut nisa_names: array<string> = []
+let mut nisa_ok: bool = true
+let mut nisa_err: string = ""
+
+fn nisa_reset() -> int {
+    set nisa_names []
+    set nisa_ok true
+    set nisa_err ""
+    return 0
+}
+
+shadow nisa_reset {
+    let _: int = (nisa_reset)
+    assert nisa_ok
+    assert (== nisa_err "")
+}
+
+fn nisa_fail(msg: string) -> string {
+    set nisa_ok false
+    if (== nisa_err "") {
+        set nisa_err msg
+    } else {
+        (print "")
+    }
+    return ""
+}
+
+shadow nisa_fail {
+    let _: int = (nisa_reset)
+    let out: string = (nisa_fail "refused")
+    assert (== out "")
+    assert (not nisa_ok)
+    assert (== nisa_err "refused")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_local_find(name: string) -> int {
+    let mut i: int = 0
+    while (< i (array_length nisa_names)) {
+        if (== (at nisa_names i) name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+
+shadow nisa_local_find {
+    let _: int = (nisa_reset)
+    set nisa_names (array_push nisa_names "a")
+    set nisa_names (array_push nisa_names "b")
+    assert (== (nisa_local_find "a") 0)
+    assert (== (nisa_local_find "b") 1)
+    assert (== (nisa_local_find "z") (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_binop_mnemonic(op: int) -> string {
+    if (== op LexerTokenType.TOKEN_PLUS) {
+        return "I64_ADD"
+    } else {
+        if (== op LexerTokenType.TOKEN_MINUS) {
+            return "I64_SUB"
+        } else {
+            if (== op LexerTokenType.TOKEN_STAR) {
+                return "I64_MUL"
+            } else {
+                if (== op LexerTokenType.TOKEN_SLASH) {
+                    return "I64_DIV_S"
+                } else {
+                    if (== op LexerTokenType.TOKEN_PERCENT) {
+                        return "I64_REM_S"
+                    } else {
+                        if (== op LexerTokenType.TOKEN_EQ) {
+                            return "I64_EQ"
+                        } else {
+                            if (== op LexerTokenType.TOKEN_NE) {
+                                return "I64_NE"
+                            } else {
+                                if (== op LexerTokenType.TOKEN_LT) {
+                                    return "I64_LT_S"
+                                } else {
+                                    if (== op LexerTokenType.TOKEN_LE) {
+                                        return "I64_LE_S"
+                                    } else {
+                                        if (== op LexerTokenType.TOKEN_GT) {
+                                            return "I64_GT_S"
+                                        } else {
+                                            if (== op LexerTokenType.TOKEN_GE) {
+                                                return "I64_GE_S"
+                                            } else {
+                                                return ""
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_binop_mnemonic {
+    assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_PLUS) "I64_ADD")
+    assert (== (nisa_binop_mnemonic LexerTokenType.TOKEN_STAR) "I64_MUL")
+    assert (== (nisa_binop_mnemonic 0) "")
+}
+
+fn nisa_line(op: string) -> string {
+    return (+ (+ "  " op) "\n")
+}
+
+shadow nisa_line {
+    assert (== (nisa_line "RET") "  RET\n")
+}
+
+fn nisa_line_imm(op: string, imm: string) -> string {
+    return (+ (+ (+ (+ "  " op) " ") imm) "\n")
+}
+
+shadow nisa_line_imm {
+    assert (== (nisa_line_imm "PUSH_I64" "40") "  PUSH_I64 40\n")
+}
+
+fn nisa_fn_index(parser: Parser, name: string) -> int {
+    let n: int = (parser_get_function_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (== f.name name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+
+shadow nisa_fn_index {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert (== (add 1 1) 2) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_fn_index p "add") 0)
+    assert (== (nisa_fn_index p "nope") (- 0 1))
+}
+
+fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
+    let mut args: string = ""
+    let mut i: int = 0
+    while (< i call.arg_count) {
+        let a: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        set args (+ args (nisa_emit_expr parser a.node_id a.node_type))
+        set i (+ i 1)
+    }
+    return args
+}
+
+shadow nisa_emit_call_args {
+    assert true
+}
+
+fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_NUMBER) {
+        let num: ASTNumber = (parser_get_number parser node_id)
+        return (nisa_line_imm "PUSH_I64" num.value)
+    } else {
+        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+            let id: ASTIdentifier = (parser_get_identifier parser node_id)
+            let slot: int = (nisa_local_find id.name)
+            if (< slot 0) {
+                return (nisa_fail (+ "undefined local " id.name))
+            } else {
+                return (nisa_line_imm "LOAD_LOCAL" (int_to_string slot))
+            }
+        } else {
+            if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+                let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                let mnemonic: string = (nisa_binop_mnemonic binop.op)
+                if (== mnemonic "") {
+                    return (nisa_fail "unsupported integer operator")
+                } else {
+                    let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                    let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                    return (+ (+ left right) (nisa_line mnemonic))
+                }
+            } else {
+                if (== node_type ParseNodeType.PNODE_CALL) {
+                    let call: ASTCall = (parser_get_call parser node_id)
+                    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                    if (< (nisa_fn_index parser func_id.name) 0) {
+                        return (nisa_fail (+ "undefined function " func_id.name))
+                    } else {
+                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                    }
+                } else {
+                    return (nisa_fail "expression outside the i64 subset")
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_emit_expr {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n main() -> int { return 7 } shadow main { assert (== (main) 7) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let num: ASTNumber = (parser_get_number p 0)
+    let text: string = (nisa_emit_expr p 0 ParseNodeType.PNODE_NUMBER)
+    assert (str_contains text "PUSH_I64 7")
+    assert (== num.value "7")
+}
+
+fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
+    if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+        let r: ASTReturn = (parser_get_return parser stmt.node_id)
+        if (== r.value_type ParseNodeType.PNODE_CALL) {
+            let call: ASTCall = (parser_get_call parser r.value)
+            let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+            if (< (nisa_fn_index parser func_id.name) 0) {
+                return (nisa_fail (+ "undefined function " func_id.name))
+            } else {
+                return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+            }
+        } else {
+            let val: string = (nisa_emit_expr parser r.value r.value_type)
+            return (+ val (nisa_line "RET"))
+        }
+    } else {
+        if (== stmt.node_type ParseNodeType.PNODE_LET) {
+            let l: ASTLet = (parser_get_let parser stmt.node_id)
+            let val: string = (nisa_emit_expr parser l.value l.value_type)
+            set nisa_names (array_push nisa_names l.name)
+            let slot: int = (- (array_length nisa_names) 1)
+            return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+        } else {
+            if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
+                   (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)
+                       (or (== stmt.node_type ParseNodeType.PNODE_BINARY_OP)
+                           (== stmt.node_type ParseNodeType.PNODE_CALL)))) {
+                let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
+                return (+ expr (nisa_line "RET"))
+            } else {
+                return (nisa_fail "statement outside the i64 subset")
+            }
+        }
+    }
+}
+
+shadow nisa_emit_stmt {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n main() -> int { return 1 } shadow main { assert (== (main) 1) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let text: string = (nisa_emit_stmt p stmt)
+    assert (str_contains text "RET")
+}
+
+fn nisa_emit_block(parser: Parser, block_id: int) -> string {
+    if (< block_id 0) {
+        return (nisa_fail "missing function body")
+    } else {
+        let block: ASTBlock = (parser_get_block parser block_id)
+        let n: int = (list_ASTStmtRef_length block.statements)
+        let mut out: string = ""
+        let mut i: int = 0
+        while (< i n) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            set out (+ out (nisa_emit_stmt parser stmt))
+            set i (+ i 1)
+        }
+        return out
+    }
+}
+
+shadow nisa_emit_block {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n main() -> int { return 3 } shadow main { assert (== (main) 3) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let text: string = (nisa_emit_block p func.body)
+    assert (str_contains text "PUSH_I64 3")
+}
+
+fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
+    set nisa_names []
+    let mut i: int = 0
+    while (< i func.param_count) {
+        let plet: ASTLet = (parser_get_let parser (+ func.param_start i))
+        set nisa_names (array_push nisa_names plet.name)
+        set i (+ i 1)
+    }
+    let body: string = (nisa_emit_block parser func.body)
+    let locals: int = (array_length nisa_names)
+    let mut header: string = ".function "
+    set header (+ header func.name)
+    set header (+ header " ")
+    set header (+ header (int_to_string func.param_count))
+    set header (+ header " ")
+    set header (+ header (int_to_string locals))
+    set header (+ header " 0 int 1\n")
+    return (+ (+ header body) ".end\n")
+}
+
+shadow nisa_emit_function {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert (== (add 2 3) 5) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let text: string = (nisa_emit_function p func)
+    assert (str_contains text ".function add 2 2 0 int 1")
+    assert (str_contains text "I64_ADD")
+    assert (str_contains text "LOAD_LOCAL 0")
+    assert (str_contains text "LOAD_LOCAL 1")
+}
+
+pub fn nanoisa_emit_nasm(source: string) -> string {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let toks: List<LexerToken> = (tokenize_string source "cut_a.nano" diags)
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "cut_a.nano")
+    if (parser_has_error parser) {
+        let bad: string = (nisa_fail "parse failed")
+        return bad
+    } else {
+        let n: int = (parser_get_function_count parser)
+        let mut out: string = ""
+        let mut main_idx: int = (- 0 1)
+        let mut emitted: int = 0
+        let mut i: int = 0
+        while (< i n) {
+            let func: ASTFunction = (parser_get_function parser i)
+            if (< func.body 0) {
+                (print "")
+            } else {
+                if (== func.name "main") {
+                    set main_idx emitted
+                } else {
+                    (print "")
+                }
+                set out (+ out (nisa_emit_function parser func))
+                set out (+ out "\n")
+                set emitted (+ emitted 1)
+            }
+            set i (+ i 1)
+        }
+        if (< main_idx 0) {
+            let missing: string = (nisa_fail "no main")
+            return missing
+        } else {
+            if (not nisa_ok) {
+                return ""
+            } else {
+                let mut prelude: string = ".entry "
+                set prelude (+ prelude (int_to_string main_idx))
+                set prelude (+ prelude "\n\n")
+                return (+ prelude out)
+            }
+        }
+    }
+}
+
+shadow nanoisa_emit_nasm {
+    let src: string = (+ (+ "f" "n add(a: int, b: int) -> int { return (+ a b) }\n") (+ "f" "n main() -> int { return (add 40 2) }\nshadow add { assert (== (add 2 3) 5) }\nshadow main { assert (== (main) 42) }\n"))
+    let text: string = (nanoisa_emit_nasm src)
+    assert (str_contains text ".function add")
+    assert (str_contains text ".function main")
+    assert (str_contains text "TAIL_CALL add")
+    assert (str_contains text ".entry")
+}

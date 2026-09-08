@@ -20,6 +20,7 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 
 ### Virtual Machine
 - [NanoISA Architecture](NANOISA.md) - I document my complete VM backend here, including my ISA, bytecode format, co-process FFI, and daemon.
+- [5.0 One IR](NANOISA_ONLY.md) - NanoISA-only compilation contract. Not 4.x. I do not delete `transpiler.nano` until this contract has compiled me.
 - [NanoISA frontend contract](NANOISA_FRONTEND.md) - 4.6 shared module gate. NanoLang stays native. Scheme is a bounded laboratory frontend. I do not claim the laboratory languages are product compilers.
 - [Nano Scheme](SCHEME.md) - 4.6 lexical Scheme subset compiled to verified NanoISA. Not a Scheme report.
 - [Nano ML](ML.md) - 4.6 ML-family subset compiled to verified NanoISA. Not Standard ML or OCaml.

@@ -100,6 +100,7 @@ How I am built:
     - VM daemon for distributed execution
     - Trap model (pure-compute core and I/O handlers)
     - Native binary generation from bytecode
+    - [5.0 One IR](NANOISA_ONLY.md) — verified `.nvm` is the only compiler product; C11/LLVM/Wasm are translators. Cut A pin: `make test-nanoisa-src-nano`. I do not delete `transpiler.nano` yet.
 
 10.0. **[NanoLang 4.5](RELEASE_4.5.md)** - Current public release notes (`v4.5.0`, covering 4.1–4.5; last public GitHub Release was `v4.0.0`)
     - [4.4 product page](RELEASE_4.4.md) — landed on `main` without a public tag

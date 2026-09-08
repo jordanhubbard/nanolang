@@ -12,6 +12,7 @@
 #include "nvm2c.h"
 #include "isa.h"
 #include "nvm_format.h"
+#include "nanoisa.h"
 
 static int g_pass = 0, g_fail = 0;
 
@@ -204,13 +205,145 @@ static void test_null_module(void) {
     CHECK(err[0] != '\0', "null module sets an error");
 }
 
-int main(void) {
+static char *quote_path(const char *path) {
+    size_t len = strlen(path);
+    char *quoted = malloc(len + 3);
+    if (!quoted) return NULL;
+    quoted[0] = '\'';
+    memcpy(quoted + 1, path, len);
+    quoted[len + 1] = '\'';
+    quoted[len + 2] = '\0';
+    return quoted;
+}
+
+static int capture_cmd(const char *cmd, char *output, size_t output_size, int *status) {
+    FILE *pipe = popen(cmd, "r");
+    if (!pipe) return -1;
+    size_t used = 0;
+    while (used + 1 < output_size) {
+        size_t n = fread(output + used, 1, output_size - used - 1, pipe);
+        if (n == 0) break;
+        used += n;
+    }
+    output[used] = '\0';
+    int wait_status = pclose(pipe);
+    if (WIFEXITED(wait_status)) {
+        *status = WEXITSTATUS(wait_status);
+    } else {
+        *status = 127;
+    }
+    return 0;
+}
+
+static void test_cli_translates_add_and_does_not_name_nano_vm(const char *cli) {
+    const char *src =
+        ".entry 1\n"
+        ".function add 2 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 40\n"
+        "  PUSH_I64 2\n"
+        "  CALL add\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "cli add fixture");
+    CHECK(m != NULL, "cli add fixture assembles");
+    if (!m) return;
+
+    NanoisaErr err;
+    const char *nvm_path = "/tmp/nanolang_nvm2c_cli_add.nvm";
+    const char *c_path = "/tmp/nanolang_nvm2c_cli_add.c";
+    CHECK(nanoisa_save_file(m, nvm_path, &err) == NANOISA_OK, "cli fixture saves");
+    nvm_module_free(m);
+
+    char *qcli = quote_path(cli);
+    char cmd[512];
+    snprintf(cmd, sizeof cmd, "%s '%s' -o '%s'", qcli, nvm_path, c_path);
+    free(qcli);
+    char out[256];
+    int status = -1;
+    CHECK(capture_cmd(cmd, out, sizeof out, &status) == 0, "nvm2c CLI runs");
+    CHECK(status == 0, "nvm2c CLI exits 0 on the closed subset");
+
+    FILE *f = fopen(c_path, "r");
+    CHECK(f != NULL, "nvm2c wrote C");
+    if (!f) return;
+    char *c = malloc(65536);
+    CHECK(c != NULL, "C buffer allocates");
+    if (!c) {
+        fclose(f);
+        return;
+    }
+    size_t n = fread(c, 1, 65535, f);
+    c[n] = '\0';
+    fclose(f);
+
+    CHECK(strstr(c, "nano_vm") == NULL, "CLI C does not name nano_vm");
+    CHECK(strstr(c, "nvm_blob") == NULL, "CLI C is not a bytecode wrapper");
+    CHECK(strstr(c, " + ") != NULL, "CLI C contains integer addition");
+
+    int run_status = -1;
+    CHECK(compile_and_run(c, &run_status) == 0, "CLI C compiles");
+    CHECK(run_status == 42, "CLI native process exits 42 without linking nano_vm");
+    free(c);
+}
+
+static void test_cli_refuses_call_extern(const char *cli) {
+    NvmModule *m = nvm_module_new();
+    CHECK(m != NULL, "extern CLI module allocates");
+    if (!m) return;
+    uint32_t s_main = nvm_add_string(m, "main", 4);
+    uint32_t s_libc = nvm_add_string(m, "libc", 4);
+    uint32_t s_puts = nvm_add_string(m, "puts", 4);
+    uint8_t halt = OP_HALT;
+    nvm_append_code(m, &halt, 1);
+    NvmFunctionEntry f;
+    memset(&f, 0, sizeof f);
+    f.name_idx = s_main;
+    f.code_length = 1;
+    f.result_tag = TAG_INT;
+    f.result_count = 1;
+    nvm_add_function(m, &f);
+    uint8_t ptypes[1] = { TAG_STRING };
+    nvm_add_import(m, s_libc, s_puts, 1, TAG_INT, ptypes);
+    m->header.entry_point = 0;
+    m->header.flags = NVM_FLAG_HAS_MAIN | NVM_FLAG_NEEDS_EXTERN;
+
+    NanoisaErr err;
+    const char *nvm_path = "/tmp/nanolang_nvm2c_cli_extern.nvm";
+    CHECK(nanoisa_save_file(m, nvm_path, &err) == NANOISA_OK, "extern fixture saves");
+    nvm_module_free(m);
+
+    char *qcli = quote_path(cli);
+    char cmd[512];
+    snprintf(cmd, sizeof cmd, "%s '%s' 2>&1", qcli, nvm_path);
+    free(qcli);
+    char out[1024];
+    int status = -1;
+    CHECK(capture_cmd(cmd, out, sizeof out, &status) == 0, "nvm2c CLI runs on extern module");
+    CHECK(status != 0, "nvm2c CLI refuses CALL_EXTERN / imports");
+    CHECK(strstr(out, "CALL_EXTERN") != NULL || strstr(out, "import") != NULL,
+          "CLI refusal names the FFI path");
+}
+
+int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_call_extern_is_refused();
     test_push_str_is_refused();
     test_null_module();
+    if (argc >= 2 && argv[1] && argv[1][0]) {
+        test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
+        test_cli_refuses_call_extern(argv[1]);
+    } else {
+        g_fail++;
+        printf("  FAIL: nvm2c CLI path is required (bin/nvm2c)\n");
+    }
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }

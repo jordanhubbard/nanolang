@@ -38,10 +38,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Integer unification is `lg_unify` / `I64_EQ`. Choice points and
   tabling stay out. Policy is the restricted `grant`/`allow` profile.
   `docs/LOGIC.md`, `make test-logic`.
-- 4.6 frontend matrix: equivalent integer fixtures, one shared `add`
-  library from NanoLang/Forth/Scheme/ML, supervised Echo started from
-  Shell only after a Logic policy query, and published measurements.
-  `docs/FRONTEND_MATRIX.md`, `make test-frontend-matrix`.
+- 5.0 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits NanoISA
+  assembly for integer `add`/`main`. `make test-nanoisa-src-nano`
+  compares function bytecode with the C seed. I still pretty-print C
+  to build the compiler.
+- `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
+  host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
+  Generated C does not name `nano_vm`.
 
 ## [4.5.0] - 2026-09-07
 
