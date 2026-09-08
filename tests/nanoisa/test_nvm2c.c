@@ -74,6 +74,8 @@ static int compile_and_run(const char *c_src, int *status_out) {
     return 0;
 }
 
+static char *emit_or_fail(NvmModule *m, const char *label);
+
 static void test_add_is_structured_c_and_runs(void) {
     const char *src =
         ".entry 1\n"
@@ -178,23 +180,146 @@ static void test_call_extern_is_refused(void) {
     nvm_module_free(m);
 }
 
-static void test_push_str_is_refused(void) {
+static void test_str_substr_is_refused(void) {
     const char *src =
         ".string s \"hi\"\n"
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
         "  PUSH_STR s\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  STR_SUBSTR\n"
         "  POP\n"
         "  PUSH_I64 0\n"
         "  RET\n"
         ".end\n";
-    NvmModule *m = assemble_ok(src, "string fixture");
-    CHECK(m != NULL, "string fixture assembles");
+    NvmModule *m = assemble_ok(src, "substr fixture");
+    CHECK(m != NULL, "substr fixture assembles");
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "PUSH_STR is outside the closed subset");
-    CHECK(strstr(err, "PUSH_STR") != NULL, "error names PUSH_STR");
+    CHECK(c == NULL, "STR_SUBSTR stays outside the closed subset");
+    CHECK(strstr(err, "STR_SUBSTR") != NULL, "error names STR_SUBSTR");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_push_str_len_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "PUSH_STR STR_LEN fixture");
+    CHECK(m != NULL, "PUSH_STR STR_LEN fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for PUSH_STR/STR_LEN");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "PUSH_STR C does not name nano_vm");
+    CHECK(strstr(c, "nvm_blob") == NULL, "PUSH_STR C is not a bytecode blob wrapper");
+    CHECK(strstr(c, "\"hi\"") != NULL, "PUSH_STR becomes a C string literal");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "PUSH_STR/STR_LEN C compiles and runs");
+    CHECK(status == 2, "len(\"hi\") exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_concat_len_runs_without_nano_vm(void) {
+    const char *src =
+        ".string a \"a\"\n"
+        ".string b \"b\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR a\n"
+        "  PUSH_STR b\n"
+        "  STR_CONCAT\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "STR_CONCAT fixture");
+    CHECK(m != NULL, "STR_CONCAT fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_CONCAT");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_CONCAT C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_CONCAT C compiles and runs");
+    CHECK(status == 2, "len(\"a\"+\"b\") exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_greeting_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function greeting 0 0 0 string 1\n"
+        "  PUSH_STR hi\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL greeting\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "greeting fixture");
+    CHECK(m != NULL, "greeting fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for greeting");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "greeting C does not name nano_vm");
+    CHECK(strstr(c, "nl_greeting") != NULL, "greeting is a C function");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "greeting C compiles and runs");
+    CHECK(status == 2, "len(greeting()) exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_glue_runs_without_nano_vm(void) {
+    const char *src =
+        ".string a \"a\"\n"
+        ".string b \"b\"\n"
+        ".entry 1\n"
+        ".function glue 2 2 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  STR_CONCAT\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR a\n"
+        "  PUSH_STR b\n"
+        "  CALL glue\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "glue fixture");
+    CHECK(m != NULL, "glue fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for glue");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "glue C does not name nano_vm");
+    CHECK(strstr(c, "nl_glue") != NULL, "glue is a C function");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "glue C compiles and runs");
+    CHECK(status == 2, "len(glue(\"a\",\"b\")) exits 2 without a VM process");
     free(c);
     nvm_module_free(m);
 }
@@ -504,7 +629,11 @@ int main(int argc, char **argv) {
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_call_extern_is_refused();
-    test_push_str_is_refused();
+    test_str_substr_is_refused();
+    test_push_str_len_runs_without_nano_vm();
+    test_str_concat_len_runs_without_nano_vm();
+    test_greeting_runs_without_nano_vm();
+    test_glue_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

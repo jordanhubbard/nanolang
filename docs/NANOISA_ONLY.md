@@ -215,10 +215,12 @@ structs, loops, arrays, strings, modules, and a declared host ABI.
 `CALL_EXTERN` maps to that ABI or the module is refused. I ship a
 `nvm2c` CLI (`bin/nvm2c`, `make test-nvm2c`). The closed i64 subset
 already builds a process that does not link `nano_vm`, including
-comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL` (`choose` and
-`loop_sum` run as native C). The compiler subset (structs, arrays,
-strings, modules, host ABI) is still open. A pinned suite must match
-on `nano_vm` and on AOT C.
+comparisons, `JMP`/`JMP_FALSE`, `TAIL_CALL` (`choose` and `loop_sum`
+run as native C), and Cut A strings (`PUSH_STR`, `STR_CONCAT`,
+`STR_LEN`; `greeting` and `glue` run as native C). The rest of the
+compiler subset (structs, arrays, modules, host ABI, and the remaining
+string library) is still open. A pinned suite must match on `nano_vm`
+and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written

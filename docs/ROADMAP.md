@@ -1122,6 +1122,10 @@ Compiler product:
       `choose` and `loop_sum` from the Cut A pin compile and run without
       `nano_vm`. Goto is the translator fallback; recovered `if`/`while` is
       not this item. `make test-nvm2c` (65 passed).
+- [x] `nvm2c` translates `PUSH_STR`, `STR_CONCAT`, and `STR_LEN`.
+      `greeting` and `glue` from the Cut A pin compile and run without
+      `nano_vm`. I do not link `nano_vm`. Embedded NULs and the rest of
+      the string library stay refused. `make test-nvm2c` (89 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

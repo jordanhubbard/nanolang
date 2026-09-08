@@ -49,6 +49,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Generated C does not name `nano_vm`. The closed subset includes i64
   comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL`. `choose` and
   `loop_sum` run as native C. Goto is the translator fallback.
+  `PUSH_STR`, `STR_CONCAT`, and `STR_LEN` run as native C: `greeting`
+  and `glue` exit with string length and do not name `nano_vm`.
+  Embedded NULs and `STR_SUBSTR` stay refused.
 
 ## [4.5.0] - 2026-09-07
 
