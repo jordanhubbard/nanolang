@@ -351,8 +351,10 @@ match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `CALL_EXTERN` and `LOAD_GLOBAL`. Host `tmp_dir` (`via_tmp`) is
 `CALL_EXTERN` `vm_tmp_dir`. `file_read` / `file_write` / `file_exists`
 lower as `vm_file_*`. `file_io.nano` emits 3 functions and that nasm
-assembles. `nanoc_integrated.nano` names
-`expression outside the pinned subset -1`. Labels reset per `.function`.
+assembles. Bare void `return` (`via_bare`) is `RET` with no value.
+`nanoc_integrated.nano` names `unsupported result type Vector2D`.
+`compiler_modular.nano` names `system`. `nanoisa_codegen.nano` as a
+root names `parse failed`. Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

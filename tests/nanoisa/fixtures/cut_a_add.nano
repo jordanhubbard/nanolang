@@ -1105,3 +1105,12 @@ fn via_tmp() -> string {
 shadow via_tmp {
     assert (> (str_length (via_tmp)) 0)
 }
+
+fn via_bare() -> void {
+    return
+}
+
+shadow via_bare {
+    (via_bare)
+    assert true
+}

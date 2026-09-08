@@ -55,6 +55,7 @@ let mut nisa_ext_params: array<string> = []
 let mut nisa_fn_emitted: int = 0
 let mut nisa_g_names: array<string> = []
 let mut nisa_g_types: array<string> = []
+let mut nisa_cur_fn: string = ""
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -73,6 +74,7 @@ fn nisa_reset() -> int {
     set nisa_fn_emitted 0
     set nisa_g_names []
     set nisa_g_types []
+    set nisa_cur_fn ""
     return 0
 }
 
@@ -2745,7 +2747,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                                     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
                                                         return (nisa_emit_mqc parser node_id)
                                                     } else {
-                                                        return (nisa_fail (+ "expression outside the pinned subset " (int_to_string node_type)))
+                                                        return (nisa_fail (+ "expression outside the pinned subset " (+ (int_to_string node_type) (+ " in " nisa_cur_fn))))
                                                     }
                                                 }
                                             }
@@ -3040,6 +3042,9 @@ shadow nisa_emit_assert {
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
         let r: ASTReturn = (parser_get_return parser stmt.node_id)
+        if (< r.value 0) {
+            return (nisa_line "RET")
+        } else {
         if (== r.value_type ParseNodeType.PNODE_CALL) {
             let call: ASTCall = (parser_get_call parser r.value)
             let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
@@ -3069,6 +3074,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 let val: string = (nisa_emit_expr parser r.value r.value_type)
                 return (+ val (nisa_line "RET"))
             }
+        }
         }
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
@@ -3152,7 +3158,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                                 if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
                                     return (nisa_emit_unsafe parser stmt.node_id)
                                 } else {
-                                    return (nisa_fail (+ "statement outside the pinned subset " (int_to_string stmt.node_type)))
+                                    return (nisa_fail (+ "statement outside the pinned subset " (+ (int_to_string stmt.node_type) (+ " in " nisa_cur_fn))))
                                 }
                             }
                             }
@@ -3214,6 +3220,7 @@ shadow nisa_emit_block {
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
     set nisa_types []
+    set nisa_cur_fn func.name
     let tag: string = (nisa_result_tag parser func.return_type)
     if (== tag "") {
         return (nisa_fail (+ "unsupported result type " func.return_type))

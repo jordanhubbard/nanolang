@@ -1460,12 +1460,18 @@ Compiler product:
       `make test-nanoisa-src-nano` (234 passed). `std/fs.nano` already
       declares those names as extern, so the C typechecker does not
       also register them as builtins.
+- [x] Cut A bare void `return`: `via_bare` matches the C seed (`RET`
+      with no value). `nisa_cur_fn` names the function in a refuse.
+      `make test-nanoisa-src-nano` (236 passed). `compiler_modular.nano`
+      names `system`. `nanoc_integrated.nano` names
+      `unsupported result type Vector2D`.
 - [ ] Cut A `nanoc_integrated.nano` names
-      `expression outside the pinned subset -1`. `nanoisa_codegen.nano`
-      as a root names `parse failed`. Compiler drivers name `system`
-      and `get_argc`. `result.nano` names `unsupported result type
-      ResultInt`. `nvm2c` still names `LOAD_GLOBAL` and `CALL_EXTERN`.
-      I still pretty-print C to build the compiler.
+      `unsupported result type Vector2D`. `compiler_modular.nano` names
+      `system`. `nanoisa_codegen.nano` as a root names `parse failed`.
+      Compiler drivers name `get_argc`. `result.nano` names
+      `unsupported result type ResultInt`. `nvm2c` still names
+      `LOAD_GLOBAL` and `CALL_EXTERN`. I still pretty-print C to
+      build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
