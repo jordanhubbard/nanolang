@@ -371,6 +371,17 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_STR_SUBSTR: {
+            Nvm2cSimSlot len, start, s;
+            if (!sim_pop(b, idx, stk, &sp, &len)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &start)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
+            (void)len;
+            (void)start;
+            mark_str_origin(local_kind, nloc, s.origin);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            break;
+        }
         case OP_STR_CONTAINS: {
             Nvm2cSimSlot needle, hay;
             if (!sim_pop(b, idx, stk, &sp, &needle)) return 0;
@@ -1215,6 +1226,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_str(b, &st, expr);
             break;
         }
+        case OP_STR_SUBSTR: {
+            int len = stack_pop_expect(b, &st, NVM2C_VK_INT, "STR_SUBSTR length");
+            int start = stack_pop_expect(b, &st, NVM2C_VK_INT, "STR_SUBSTR start");
+            int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_SUBSTR");
+            if (b->failed) goto done;
+            char expr[96];
+            snprintf(expr, sizeof expr, "nstr_substr(s[%d], t[%d], t[%d])", s, start, len);
+            stack_push_str(b, &st, expr);
+            break;
+        }
         case OP_STR_CONTAINS: {
             int needle = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_CONTAINS needle");
             int hay = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_CONTAINS haystack");
@@ -1614,6 +1635,23 @@ static void emit_nstr_concat(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nstr_substr(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_substr(const char *s, int64_t start, int64_t len) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    int64_t slen = (int64_t)strlen(src);\n"
+        "    if (start < 0) start = 0;\n"
+        "    if (start >= slen || len <= 0) return \"\";\n"
+        "    if (len > slen - start) len = slen - start;\n"
+        "    if (nstr_used + (size_t)len + 1 > sizeof nstr_arena) abort();\n"
+        "    char *p = nstr_arena + nstr_used;\n"
+        "    memcpy(p, src + start, (size_t)len);\n"
+        "    p[len] = 0;\n"
+        "    nstr_used += (size_t)len + 1;\n"
+        "    return p;\n"
+        "}\n\n");
+}
+
 static void emit_nstr_from_i64(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_from_i64(int64_t v) {\n"
@@ -1760,7 +1798,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
         int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
-        int need_string = need_concat || need_cast || need_contains ||
+        int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
+        int need_string = need_concat || need_cast || need_contains || need_substr ||
             module_has_opcode(mod, OP_PUSH_STR) ||
             module_has_opcode(mod, OP_STR_LEN);
         int need_arr_lit = module_has_opcode(mod, OP_ARR_LITERAL);
@@ -1797,7 +1836,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_print || need_cast) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
-        if (need_concat || need_cast || need_arr_lit || need_arr_get ||
+        if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_agg_get || need_assert) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
@@ -1810,8 +1849,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_printf(&b,
             "typedef struct { int64_t f[%d]; uint16_t n; } nrec_t;\n\n",
             NVM2C_MAX_REC_FIELDS);
-        if (need_concat || need_cast) emit_nstr_arena(&b);
+        if (need_concat || need_cast || need_substr) emit_nstr_arena(&b);
         if (need_concat) emit_nstr_concat(&b);
+        if (need_substr) emit_nstr_substr(&b);
         if (need_cast) emit_nstr_from_i64(&b);
         if (need_iarr_lit || need_iarr_push) {
             emit_narr_arena(&b);

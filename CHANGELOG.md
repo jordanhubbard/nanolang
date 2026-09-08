@@ -43,7 +43,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
   `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
   `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
-  `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, and `slen`.
+  `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`, and
+  `slice`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -51,9 +52,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`, `BOOL_NOT`,
   `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP` with one `RET`,
   `PRINT`, `PRINTLN`, `ASSERT`, `STR_CONTAINS`, `CAST_STRING` of
-  i64, `EQ`/`NE` of strings, `at` as `ARR_GET`, and `str_length` as
-  `STR_LEN`. String operands are compared by content. I still
-  pretty-print C to build the compiler.
+  i64, `EQ`/`NE` of strings, `at` as `ARR_GET`, `str_length` as
+  `STR_LEN`, and `str_substring` as `STR_SUBSTR`. String operands
+  are compared by content. I still pretty-print C to build the
+  compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
@@ -61,7 +63,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `loop_sum` run as native C. Goto is the translator fallback.
   `PUSH_STR`, `STR_CONCAT`, and `STR_LEN` run as native C: `greeting`
   and `glue` exit with string length and do not name `nano_vm`.
-  Embedded NULs and `STR_SUBSTR` stay refused. `ARR_LITERAL`,
+  Embedded NULs and `STR_TRIM` stay refused. `ARR_LITERAL`,
   `ARR_GET`, and `ARR_LEN` run as native C: `len3` and `first` exit
   with length and the first element. Nested arrays and `ARR_SET`
   stay refused. `AGG_PACK` and `AGG_GET` run as native C: `getx`
@@ -85,7 +87,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   exits 0, and `diff("hi", "no")` exits 1. Array equality stays
   refused. `at` as `ARR_GET` and `str_length` as `STR_LEN` run as
   native C: `via_at` exits 7 and `slen("hi")` exits 2.
-  `make test-nvm2c` (253 passed).
+  `STR_SUBSTR` runs as native C: `slice("hi")` equals `"h"`.
+  Substring of arrays and `STR_TRIM` stay refused.
+  `make test-nvm2c` (261 passed).
 
 ## [4.5.0] - 2026-09-07
 

@@ -1148,6 +1148,10 @@ Compiler product:
       `ARR_GET`) and `slen` (`str_length` as `STR_LEN`) bytecode
       with the C seed. I still pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (64 passed).
+- [x] Cut A str_substring: the same pin matches `slice`
+      (`STR_SUBSTR`) bytecode with the C seed. I still pretty-print
+      C to build the compiler. `STR_TRIM` and the rest of the string
+      library are not this pin. `make test-nanoisa-src-nano` (66 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1217,6 +1221,8 @@ Compiler product:
       `make test-nvm2c` (243 passed).
 - [x] `nvm2c` runs Cut A `via_at` and `slen` without `nano_vm`.
       `make test-nvm2c` (253 passed).
+- [x] `nvm2c` runs Cut A `slice` (`STR_SUBSTR`) without `nano_vm`.
+      `STR_TRIM` stays refused. `make test-nvm2c` (261 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

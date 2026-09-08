@@ -236,26 +236,24 @@ static void test_call_extern_is_refused(void) {
     nvm_module_free(m);
 }
 
-static void test_str_substr_is_refused(void) {
+static void test_str_trim_is_refused(void) {
     const char *src =
         ".string s \"hi\"\n"
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
         "  PUSH_STR s\n"
-        "  PUSH_I64 0\n"
-        "  PUSH_I64 1\n"
-        "  STR_SUBSTR\n"
+        "  STR_TRIM\n"
         "  POP\n"
         "  PUSH_I64 0\n"
         "  RET\n"
         ".end\n";
-    NvmModule *m = assemble_ok(src, "substr fixture");
-    CHECK(m != NULL, "substr fixture assembles");
+    NvmModule *m = assemble_ok(src, "trim fixture");
+    CHECK(m != NULL, "trim fixture assembles");
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "STR_SUBSTR stays outside the closed subset");
-    CHECK(strstr(err, "STR_SUBSTR") != NULL, "error names STR_SUBSTR");
+    CHECK(c == NULL, "STR_TRIM stays outside the closed subset");
+    CHECK(strstr(err, "STR_TRIM") != NULL, "error names STR_TRIM");
     free(c);
     nvm_module_free(m);
 }
@@ -1447,6 +1445,65 @@ static void test_slen_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_slice_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string h \"h\"\n"
+        ".entry 1\n"
+        ".function slice 1 1 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  STR_SUBSTR\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  CALL slice\n"
+        "  PUSH_STR h\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "slice fixture");
+    CHECK(m != NULL, "slice fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for slice");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "slice C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "slice C compiles and runs");
+    CHECK(status == 1, "slice(\"hi\") equals \"h\" without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_substr_array_is_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  STR_SUBSTR\n"
+        "  POP\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "STR_SUBSTR array fixture");
+    CHECK(m != NULL, "STR_SUBSTR array fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "STR_SUBSTR of an array stays outside the closed subset");
+    CHECK(strstr(err, "STR_SUBSTR") != NULL, "error names STR_SUBSTR");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1752,7 +1809,7 @@ int main(int argc, char **argv) {
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_call_extern_is_refused();
-    test_str_substr_is_refused();
+    test_str_trim_is_refused();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();
@@ -1791,6 +1848,8 @@ int main(int argc, char **argv) {
     test_eq_array_is_refused();
     test_via_at_runs_without_nano_vm();
     test_slen_runs_without_nano_vm();
+    test_slice_runs_without_nano_vm();
+    test_str_substr_array_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

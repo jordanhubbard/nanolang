@@ -269,3 +269,11 @@ fn slen(s: string) -> int {
 shadow slen {
     assert (== (slen "hi") 2)
 }
+
+fn slice(s: string) -> string {
+    return (str_substring s 0 1)
+}
+
+shadow slice {
+    assert (== (slice "hi") "h")
+}

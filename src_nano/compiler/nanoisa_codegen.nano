@@ -268,7 +268,8 @@ fn nisa_is_inline_call(name: string) -> bool {
                (or (nisa_is_print_builtin name)
                    (or (== name "not")
                        (or (== name "str_contains")
-                           (or (== name "int_to_string") (== name "str_length"))))))
+                           (or (== name "int_to_string")
+                               (or (== name "str_length") (== name "str_substring")))))))
 }
 
 shadow nisa_is_inline_call {
@@ -278,6 +279,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "str_contains")
     assert (nisa_is_inline_call "int_to_string")
     assert (nisa_is_inline_call "str_length")
+    assert (nisa_is_inline_call "str_substring")
     assert (nisa_is_inline_call "at")
     assert (not (nisa_is_inline_call "add"))
 }
@@ -687,6 +689,13 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                 return (+ (nisa_emit_call_args parser call) (nisa_line "STR_LEN"))
                             }
                         } else {
+                            if (== func_id.name "str_substring") {
+                                if (!= call.arg_count 3) {
+                                    return (nisa_fail "str_substring needs 3 arguments")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "STR_SUBSTR"))
+                                }
+                            } else {
                             if (== func_id.name "not") {
                                 if (!= call.arg_count 1) {
                                     return (nisa_fail "not needs 1 argument")
@@ -711,6 +720,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
                                     }
                                 }
+                            }
                             }
                         }
                     }
@@ -1368,6 +1378,13 @@ shadow nisa_emit_function {
     let slen_text: string = (nisa_emit_function p22 slen_fn)
     assert (str_contains slen_text ".function slen 1 1 0 int 1")
     assert (str_contains slen_text "STR_LEN")
+    let src23: string = (+ "f" "n slice(s: string) -> string { return (str_substring s 0 1) } shadow slice { assert true }")
+    let toks23: List<LexerToken> = (tokenize_string src23 "t.nano" diags)
+    let p23: Parser = (parse_program toks23 (list_LexerToken_length toks23) "t.nano")
+    let slice_fn: ASTFunction = (parser_get_function p23 0)
+    let slice_text: string = (nisa_emit_function p23 slice_fn)
+    assert (str_contains slice_text ".function slice 1 1 0 string 1")
+    assert (str_contains slice_text "STR_SUBSTR")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
