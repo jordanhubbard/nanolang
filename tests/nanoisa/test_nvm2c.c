@@ -2354,6 +2354,35 @@ static void test_upto_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_quiet: CALL of an empty void function, then return 0. No POP. */
+static void test_via_quiet_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function quiet 0 0 0 void 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL quiet\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_quiet fixture");
+    CHECK(m != NULL, "via_quiet fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_quiet");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_quiet C does not name nano_vm");
+    CHECK(strstr(c, "void") != NULL, "via_quiet C has a void callee");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_quiet C compiles and runs");
+    CHECK(status == 0, "via_quiet() exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2579,6 +2608,7 @@ int main(int argc, char **argv) {
     test_choose_else_runs_without_nano_vm();
     test_loop_sum_runs_without_nano_vm();
     test_upto_runs_without_nano_vm();
+    test_via_quiet_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

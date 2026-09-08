@@ -9,7 +9,8 @@
  * (AGG_PACK/AGG_GET),
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
  * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
- * print (PRINT), println (PRINTLN), and assert (ASSERT).
+ * print (PRINT), println (PRINTLN), assert (ASSERT), and void
+ * functions (RET with no value; a statement CALL of void does not POP).
  * Anything else fails closed. I do not emit C. I do not delete
  * transpiler.nano.
  */
@@ -519,6 +520,27 @@ shadow nisa_fn_index {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_fn_index p "add") 0)
     assert (== (nisa_fn_index p "nope") (- 0 1))
+}
+
+fn nisa_fn_is_void(parser: Parser, name: string) -> bool {
+    let idx: int = (nisa_fn_index parser name)
+    if (< idx 0) {
+        return false
+    } else {
+        let func: ASTFunction = (parser_get_function parser idx)
+        return (== func.return_type "void")
+    }
+}
+
+shadow nisa_fn_is_void {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n quiet() -> void { } " (+ "f" "n via_quiet() -> int { (quiet) return 0 } shadow quiet { assert true } shadow via_quiet { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (nisa_fn_is_void p "quiet")
+    assert (not (nisa_fn_is_void p "via_quiet"))
+    assert (not (nisa_fn_is_void p "nope"))
 }
 
 fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
@@ -1368,8 +1390,12 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                             if (nisa_is_print_builtin func_id.name) {
                                 return (nisa_emit_call parser call)
                             } else {
-                                let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
-                                return (+ expr (nisa_line "POP"))
+                                if (nisa_fn_is_void parser func_id.name) {
+                                    return (nisa_emit_call parser call)
+                                } else {
+                                    let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
+                                    return (+ expr (nisa_line "POP"))
+                                }
                             }
                         } else {
                             if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
@@ -1439,7 +1465,7 @@ shadow nisa_emit_block {
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
     set nisa_types []
-    if (and (not (== func.return_type "int")) (and (not (== func.return_type "string")) (not (== func.return_type "bool")))) {
+    if (and (not (== func.return_type "int")) (and (not (== func.return_type "string")) (and (not (== func.return_type "bool")) (not (== func.return_type "void"))))) {
         return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {
         let mut i: int = 0
@@ -1468,7 +1494,11 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         set header (+ header (int_to_string locals))
         set header (+ header " 0 ")
         set header (+ header func.return_type)
-        set header (+ header " 1\n")
+        if (== func.return_type "void") {
+            set header (+ header " 0\n")
+        } else {
+            set header (+ header " 1\n")
+        }
         return (+ (+ header body) ".end\n")
     }
 }
@@ -1778,6 +1808,20 @@ shadow nisa_emit_function {
     assert (str_contains upto_text "LT")
     assert (str_contains upto_text "ARR_LEN")
     assert (str_contains upto_text "ARR_GET")
+    let src40: string = (+ "f" "n quiet() -> void { } shadow quiet { assert true }")
+    let toks40: List<LexerToken> = (tokenize_string src40 "t.nano" diags)
+    let p40: Parser = (parse_program toks40 (list_LexerToken_length toks40) "t.nano")
+    let quiet_fn: ASTFunction = (parser_get_function p40 0)
+    let quiet_text: string = (nisa_emit_function p40 quiet_fn)
+    assert (str_contains quiet_text ".function quiet 0 0 0 void 0")
+    assert (str_contains quiet_text "RET")
+    let src41: string = (+ "f" "n quiet() -> void { } " (+ "f" "n via_quiet() -> int { (quiet) return 0 } shadow quiet { assert true } shadow via_quiet { assert true }"))
+    let toks41: List<LexerToken> = (tokenize_string src41 "t.nano" diags)
+    let p41: Parser = (parse_program toks41 (list_LexerToken_length toks41) "t.nano")
+    let via_fn: ASTFunction = (parser_get_function p41 1)
+    let via_text: string = (nisa_emit_function p41 via_fn)
+    assert (str_contains via_text ".function via_quiet 0 0 0 int 1")
+    assert (str_contains via_text "CALL quiet")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

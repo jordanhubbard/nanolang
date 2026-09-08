@@ -165,6 +165,10 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_put_s;
     const NvmFunctionEntry *c_upto;
     const NvmFunctionEntry *s_upto;
+    const NvmFunctionEntry *c_quiet;
+    const NvmFunctionEntry *s_quiet;
+    const NvmFunctionEntry *c_via_quiet;
+    const NvmFunctionEntry *s_via_quiet;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -190,8 +194,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 46, "C seed emitted add through upto");
-    CHECK(s_mod->function_count >= 46, "src_nano emitted add through upto");
+    CHECK(c_mod->function_count >= 48, "C seed emitted add through via_quiet");
+    CHECK(s_mod->function_count >= 48, "src_nano emitted add through via_quiet");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -285,6 +289,10 @@ int main(int argc, char **argv) {
     s_put_s = fn_by_name(s_mod, "put_s");
     c_upto = fn_by_name(c_mod, "upto");
     s_upto = fn_by_name(s_mod, "upto");
+    c_quiet = fn_by_name(c_mod, "quiet");
+    s_quiet = fn_by_name(s_mod, "quiet");
+    c_via_quiet = fn_by_name(c_mod, "via_quiet");
+    s_via_quiet = fn_by_name(s_mod, "via_quiet");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -331,6 +339,8 @@ int main(int argc, char **argv) {
     CHECK(c_put_t != NULL && s_put_t != NULL, "both modules have put_t");
     CHECK(c_put_s != NULL && s_put_s != NULL, "both modules have put_s");
     CHECK(c_upto != NULL && s_upto != NULL, "both modules have upto");
+    CHECK(c_quiet != NULL && s_quiet != NULL, "both modules have quiet");
+    CHECK(c_via_quiet != NULL && s_via_quiet != NULL, "both modules have via_quiet");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -423,6 +433,10 @@ int main(int argc, char **argv) {
           "put_s bytecode matches C seed");
     CHECK(code_equal(c_mod, c_upto, s_mod, s_upto),
           "upto bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_quiet, s_mod, s_quiet),
+          "quiet bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_quiet, s_mod, s_via_quiet),
+          "via_quiet bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -562,6 +576,12 @@ int main(int argc, char **argv) {
         printf("    C upto locals=%u len=%u  src upto locals=%u len=%u\n",
                c_upto ? c_upto->local_count : 0, c_upto ? c_upto->code_length : 0,
                s_upto ? s_upto->local_count : 0, s_upto ? s_upto->code_length : 0);
+        printf("    C quiet locals=%u len=%u  src quiet locals=%u len=%u\n",
+               c_quiet ? c_quiet->local_count : 0, c_quiet ? c_quiet->code_length : 0,
+               s_quiet ? s_quiet->local_count : 0, s_quiet ? s_quiet->code_length : 0);
+        printf("    C via_quiet locals=%u len=%u  src via_quiet locals=%u len=%u\n",
+               c_via_quiet ? c_via_quiet->local_count : 0, c_via_quiet ? c_via_quiet->code_length : 0,
+               s_via_quiet ? s_via_quiet->local_count : 0, s_via_quiet ? s_via_quiet->code_length : 0);
     }
 
     nvm_module_free(c_mod);

@@ -22,7 +22,8 @@
  * are classified from the pushed value.
  * AGG_PACK, AGG_GET of int and string fields, bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
- * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT, STR_STARTS_WITH, STR_ENDS_WITH.
+ * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT, STR_STARTS_WITH, STR_ENDS_WITH,
+ * and void functions (RET with no value; CALL of void does not POP).
  * Anything else is refused with an error.
  * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
  * host C ABI. Embedded NULs, nested arrays, nested records, variants, tuples,

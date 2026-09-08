@@ -448,3 +448,20 @@ fn upto() -> int {
 shadow upto {
     assert (== (upto) 6)
 }
+
+fn quiet() -> void {
+}
+
+shadow quiet {
+    (quiet)
+    assert true
+}
+
+fn via_quiet() -> int {
+    (quiet)
+    return 0
+}
+
+shadow via_quiet {
+    assert (== (via_quiet) 0)
+}
