@@ -42,14 +42,15 @@ I use one ownership spelling:
 - `&mut T` is an exclusive borrow for the duration of one call. It cannot
   escape or overlap another borrow.
 - `let next: T = current` moves a resource-bearing value. It never copies it.
-- `drop value` explicitly abandons an owned value. It is permitted for affine
-  values that do not carry a resource obligation and rejected for a live
-  `resource struct` or an aggregate containing one.
-- `discard` is not ownership syntax. There is no second spelling for `drop`.
+- `let Aggregate { field, ... } = value` destructures an owned aggregate as one
+  consuming operation. It moves every field and makes `value` unavailable.
+- `drop` and `discard` are not ownership syntax in 5.0. Ordinary GC values need
+  no explicit terminal operation, and resource-bearing values must be moved or
+  passed to a consuming function.
 
-The current parsers do not establish support for `&T`, `&mut T`, or `drop`.
-Those spellings become language syntax only when both frontends pass the same
-conformance cases.
+The current parsers do not establish support for `&T`, `&mut T`, or owned
+destructuring. Those spellings become language syntax only when both frontends
+pass the same conformance cases.
 
 ## Ownership States
 
@@ -59,20 +60,24 @@ of its call. A consuming call, move, or return changes the source place to
 
 `resource struct` creates a cleanup obligation. A plain struct, tuple, union,
 or result containing a resource is resource-bearing and inherits that
-obligation recursively. GC still manages its ordinary fields.
+obligation recursively. These, and only these, are affine types in 5.0. All
+other values are ordinary GC values and remain copyable; 5.0 has no separate
+`affine` declaration. GC still manages ordinary fields inside an affine value.
 
 ## Normative Rules
 
 ### 1. Affine, Not Implicitly Linear
 
-Ownership cannot be duplicated. A non-resource affine value may be ended with
-`drop`; a resource obligation may not be silently weakened.
+Ownership of a resource-bearing value cannot be duplicated or silently
+abandoned. There are no non-resource affine types in 5.0 and no `drop`
+operation. Ordinary GC values may be copied and need no explicit resolution.
 
-Positive: move a resource once and close the new owner; borrow it repeatedly;
-explicitly drop an affine value with no managed resource.
+Positive: copy an ordinary GC value; move a resource once and close the new
+owner; borrow it repeatedly.
 
-Negative: copy a resource; use the source after a move; `drop` a live resource;
-leave a resource unresolved at scope exit.
+Negative: declare a non-resource `affine` type; use `drop` or `discard`; copy a
+resource; use the source after a move; leave a resource unresolved at scope
+exit.
 
 ### 2. Calls and Borrows
 
@@ -115,15 +120,33 @@ returning it on a reachable path; return `&file` or `&mut file`.
 
 An aggregate is resource-bearing when any field is resource-bearing. Moving or
 consuming the aggregate transfers all nested obligations. Shared and exclusive
-borrows may project nested fields. 5.0 does not support partial moves or direct
-consumption of a resource field from an owned aggregate; a consuming helper
-must take the whole aggregate. This avoids a hidden, partly initialized state.
+borrows may project nested fields. Ordinary partial moves and direct
+consumption of a resource field from a live aggregate are rejected.
 
-Positive: move a `Connection` containing a `Socket` into `close_connection`;
-borrow `&connection.socket` for a read.
+Owned whole-value destructuring is the terminal operation for an aggregate. It
+must bind every field in one pattern; `..`, omitted fields, and refutable
+patterns are rejected. The source aggregate becomes moved atomically, each
+resource-bearing binding receives its field's obligation, and ordinary fields
+remain GC values. The bindings must then be resolved under the normal rules.
+A consuming helper can therefore deterministically dismantle an aggregate:
 
-Negative: copy `Connection`; close `connection.socket` directly; move one
-resource field and then use the aggregate; exit with a nested resource live.
+```nano
+fn close_connection(connection: Connection) -> void {
+    let Connection { socket, peer } = connection
+    (close_socket socket)
+}
+```
+
+`peer` needs no action because it is an ordinary GC value. Nested aggregates
+may be destructured repeatedly until every resource reaches its consuming
+operation.
+
+Positive: borrow `&connection.socket` for a read; move `Connection` into
+`close_connection`, destructure all fields, and close `socket`.
+
+Negative: copy `Connection`; close `connection.socket` directly; destructure
+with an omitted field or `..`; destructure and leave `socket` live; use
+`connection` after destructuring.
 
 ### 6. Arrays and Collections
 
@@ -198,9 +221,10 @@ frontends. Passing only one frontend is not conformance.
 | Shared borrow | repeated reads, then close | consume or mutate through `&T` |
 | Exclusive borrow | call-scoped mutation, then close | overlap or escape `&mut T` |
 | Move | move then resolve destination | use source or duplicate owner |
-| Explicit drop | drop non-resource affine value | drop resource-bearing value |
+| Affine boundary | copy ordinary GC value | declare non-resource `affine` type |
+| Drop/discard | ordinary GC scope exit needs no operation | use `drop` or `discard` |
 | Return | transfer sole live resource | return with unrelated live resource |
-| Nested field | borrow field, consume aggregate | partial move or field consume |
+| Nested field | whole-destructure and resolve every field | partial or incomplete destructure |
 | Array | ordinary element array | resource-bearing element array |
 | Generic collection | ordinary element collection | resource-bearing collection |
 | Result match | resolve payload in every arm | ignore live payload in one arm |

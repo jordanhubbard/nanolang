@@ -29,12 +29,15 @@ fn close_file(file: FileHandle) -> void
 - `&FileHandle` is a shared, call-scoped borrow.
 - `&mut FileHandle` is an exclusive, call-scoped borrow.
 - Assignment and return move resource-bearing values.
-- `drop value` is explicit weakening for non-resource affine values. It does
-  not release a resource and is rejected for resource-bearing values.
-- There is no `discard` alias.
+- `let Aggregate { field, ... } = value` consumes a whole aggregate and moves
+  every field into a new binding.
+- `drop` and `discard` are rejected. Ordinary GC values need no terminal
+  operation; resource-bearing values must reach a consuming function.
 
-Borrow syntax and `drop` remain target syntax until both frontends implement
-and test them.
+Only `resource struct` and values that recursively contain one are affine in
+5.0. There is no non-resource `affine` declaration. All other values remain
+copyable GC values. Borrow and owned-destructuring syntax remain target syntax
+until both frontends implement and test them.
 
 ## Basic Use
 
@@ -91,22 +94,24 @@ fn duplicate_owner(path: string) -> void {
 
 Overwriting a live owner is also rejected. Resolve the old value first.
 
-## Explicit Drop
+## No Explicit Drop
 
-Affine does not mean that operating-system handles may leak quietly. `drop`
-ends ownership only when no managed-resource obligation is present.
+Affine does not mean that operating-system handles may leak quietly. I reject
+both `drop` and `discard` rather than give either spelling two meanings.
 
 ```nano
-fn close_or_drop(file: FileHandle) -> void {
+fn close_owned(file: FileHandle) -> void {
     (close_file file) # accepted
 }
 
 fn leak(file: FileHandle) -> void {
-    drop file # rejected: FileHandle requires a consuming operation
+    drop file # rejected: drop is not 5.0 syntax
 }
 ```
 
-I do not provide `discard` as another spelling. One operation is enough.
+An ordinary `string`, array, or plain struct needs no explicit operation before
+scope exit. It is GC-managed and is not affine. A type becomes affine only by
+containing a resource, in which case a consuming operation is mandatory.
 
 ## Returning Resources
 
@@ -152,7 +157,8 @@ fn inspect(connection: &Connection) -> int {
 }
 
 fn close_connection(connection: Connection) -> void {
-    # The consuming implementation resolves connection.socket.
+    let Connection { socket, peer } = connection
+    (close_socket socket)
 }
 
 fn use_connection(connection: Connection) -> void {
@@ -162,12 +168,20 @@ fn use_connection(connection: Connection) -> void {
 }
 ```
 
-`Connection` is resource-bearing because `socket` is. The whole value moves.
-5.0 deliberately rejects partial moves:
+`Connection` is resource-bearing because `socket` is. The whole-value pattern
+moves every field atomically and makes `connection` unavailable. `peer` is an
+ordinary GC value, so only `socket` has a remaining obligation. Nested
+aggregates can be destructured again until each resource reaches its consuming
+function. 5.0 deliberately rejects ordinary partial moves:
 
 ```nano
 fn partial(connection: Connection) -> void {
     (close_socket connection.socket) # rejected: consume the aggregate
+}
+
+fn incomplete(connection: Connection) -> void {
+    let Connection { socket, .. } = connection # rejected: every field required
+    (close_socket socket)
 }
 ```
 
@@ -304,9 +318,10 @@ Each rule has a positive and negative obligation:
 | Shared borrow | repeated read then close | mutate, consume, or escape borrow |
 | Exclusive borrow | call-scoped mutation | overlap or escape borrow |
 | Move | resolve destination | use source or overwrite live owner |
-| Drop | non-resource affine drop | resource-bearing drop |
+| Affine boundary | copy ordinary GC value | non-resource `affine` declaration |
+| Drop/discard | ordinary GC scope exit | either rejected spelling |
 | Return | transfer sole resource | strand another resource |
-| Nested resource | borrow field, consume whole | partial move or field consume |
+| Nested resource | destructure whole, resolve fields | partial or incomplete destructure |
 | Collection | ordinary elements | resource-bearing elements |
 | Result | resolve every payload arm | ignore payload or leaking propagation |
 | Early return | resolve on each exit | one leaking exit |
