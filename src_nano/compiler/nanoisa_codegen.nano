@@ -297,6 +297,7 @@ shadow nisa_is_list_call {
     assert (nisa_is_list_call "list_LexerToken_push")
     assert (nisa_is_list_call "list_LexerToken_get")
     assert (nisa_is_list_call "list_int_set")
+    assert (nisa_is_list_call "list_Tok_set")
     assert (not (nisa_is_list_call "list_int_pop"))
     assert (not (nisa_is_list_call "array_new"))
 }
@@ -1677,6 +1678,16 @@ shadow nisa_emit_function {
     assert (str_contains put_l_text "ARR_SET")
     assert (str_contains put_l_text "POP")
     assert (str_contains put_l_text "ARR_GET")
+    let src37: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n put_t() -> string { let xs: List<Tok> = (list_Tok_new) (list_Tok_push xs Tok { t: 1, s: \"hi\" }) (list_Tok_set xs 0 Tok { t: 2, s: \"no\" }) let p: Tok = (list_Tok_get xs 0) return p.s } shadow put_t { assert true }"))
+    let toks37: List<LexerToken> = (tokenize_string src37 "t.nano" diags)
+    let p37: Parser = (parse_program toks37 (list_LexerToken_length toks37) "t.nano")
+    let put_t_fn: ASTFunction = (parser_get_function p37 0)
+    let put_t_text: string = (nisa_emit_function p37 put_t_fn)
+    assert (str_contains put_t_text ".function put_t 0 2 0 string 1")
+    assert (str_contains put_t_text "ARR_SET")
+    assert (str_contains put_t_text "POP")
+    assert (str_contains put_t_text "AGG_PACK")
+    assert (str_contains put_t_text "ARR_GET")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

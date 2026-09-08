@@ -413,3 +413,15 @@ fn put_l() -> int {
 shadow put_l {
     assert (== (put_l) 9)
 }
+
+fn put_t() -> string {
+    let xs: List<Tok> = (list_Tok_new)
+    (list_Tok_push xs Tok { t: 1, s: "hi" })
+    (list_Tok_set xs 0 Tok { t: 2, s: "no" })
+    let p: Tok = (list_Tok_get xs 0)
+    return p.s
+}
+
+shadow put_t {
+    assert (== (put_t) "no")
+}

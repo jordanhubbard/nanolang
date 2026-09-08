@@ -1205,8 +1205,13 @@ Compiler product:
       seed. Nested arrays stay refused. I still pretty-print C to
       build the compiler.
       `make test-nanoisa-src-nano` (92 passed).
-- [ ] Cut A record list_T_set: the same pin matches `put_t`
+- [x] Cut A record list_T_set: the same pin matches `put_t`
       (`list_Tok_set` as `ARR_SET` then `POP`) bytecode with the C
+      seed. Nested arrays stay refused. I still pretty-print C to
+      build the compiler.
+      `make test-nanoisa-src-nano` (94 passed).
+- [ ] Cut A string list_T_set: the same pin matches `put_s`
+      (`list_string_set` as `ARR_SET` then `POP`) bytecode with the C
       seed. Nested arrays stay refused. I still pretty-print C to
       build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
@@ -1315,8 +1320,9 @@ Compiler product:
       `nano_vm`. Nested arrays stay refused. `ARR_SET` of strings
       stays refused.
       `make test-nvm2c` (349 passed).
-- [ ] `nvm2c` runs Cut A `put_t` (`ARR_SET` of a record list) without
+- [x] `nvm2c` runs Cut A `put_t` (`ARR_SET` of a record list) without
       `nano_vm`. Nested arrays stay refused.
+      `make test-nvm2c` (355 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

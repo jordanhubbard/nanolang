@@ -1975,6 +1975,57 @@ static void test_grow_t_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_put_t_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
+        ".entry 1\n"
+        ".function put_t 0 2 0 string 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 2\n"
+        "  PUSH_STR no\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_SET\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL put_t\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "put_t fixture");
+    CHECK(m != NULL, "put_t fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for put_t");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "put_t C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_set") != NULL, "put_t C mutates nrec_t slots in place");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "put_t C compiles and runs");
+    CHECK(status == 2, "put_t() length is 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_get_v_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -2442,6 +2493,7 @@ int main(int argc, char **argv) {
     test_get_s_runs_without_nano_vm();
     test_blank_t_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
+    test_put_t_runs_without_nano_vm();
     test_get_v_runs_without_nano_vm();
     test_grow_lex_runs_without_nano_vm();
     test_nested_record_pack_is_refused();
