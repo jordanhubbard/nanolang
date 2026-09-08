@@ -113,6 +113,37 @@ static void skip_whitespace(const char **p) {
     while (**p == ' ' || **p == '\t') (*p)++;
 }
 
+/* ';' and '#' start comments only outside quotes. `.string s "a; b"`
+ * keeps the semicolon. Escaped quotes stay inside the string. */
+static void strip_unquoted_comment(char *line) {
+    bool in_string = false;
+    bool escape = false;
+    for (char *p = line; *p != '\0'; p++) {
+        if (in_string) {
+            if (escape) {
+                escape = false;
+                continue;
+            }
+            if (*p == '\\') {
+                escape = true;
+                continue;
+            }
+            if (*p == '"') {
+                in_string = false;
+            }
+            continue;
+        }
+        if (*p == '"') {
+            in_string = true;
+            continue;
+        }
+        if (*p == ';' || *p == '#') {
+            *p = '\0';
+            return;
+        }
+    }
+}
+
 static bool require_line_end(const char *p, AsmResult *result) {
     skip_whitespace(&p);
     if (*p == '\0') return true;
@@ -1011,11 +1042,7 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
         memcpy(line_buf, line_start, line_len);
         line_buf[line_len] = '\0';
 
-        /* Strip trailing comment */
-        char *comment = strchr(line_buf, ';');
-        if (comment) *comment = '\0';
-        comment = strchr(line_buf, '#');
-        if (comment) *comment = '\0';
+        strip_unquoted_comment(line_buf);
 
         /* Strip trailing whitespace */
         size_t len = strlen(line_buf);

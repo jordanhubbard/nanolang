@@ -1341,13 +1341,22 @@ Compiler product:
       the compiler.
       `make test-nanoisa-src-nano` (146 passed; `lexer.nano` no longer
       names `undefined function getcwd`; it names `no main`).
-- [ ] Cut A library files without `main`: `lexer.nano` now emits the
-      pinned subset then names `no main`. The C seed emits library
-      modules. Nested record literals stay refused if a nested
-      `AGG_PACK` appears. I still pretty-print C to build the compiler.
+- [x] Cut A library files without `main`: I emit a synthetic `main`
+      (`PUSH_I64 0` then `RET`) the way the C seed does. `cut_a_no_main.nano`
+      and `lexer.nano` emit modules.
+      `make test-nanoisa-src-nano` (146 passed).
+- [x] Cut A `.string` comment chars: `;` and `#` inside a quoted
+      `.string` are payload. I do not strip them as comments.
+      `nanoisa asm` of `cut_a_no_main.nano` and `lexer.nano` nasm
+      writes verified `.nvm`. `make test-nanoisa` (2635 passed).
+      `make test-nanoisa-src-nano` (146 passed).
 - [ ] Cut A nested `AGG_PACK`: nested record literals are still refused
       when a field value is itself a struct literal. I still pretty-print
       C to build the compiler.
+- [ ] Cut A `Parser` results: `parser.nano` names `unsupported result type Parser`.
+      `Parser` is an extern struct with list fields, not a pin-record.
+      Nested `AGG_PACK` stays refused. I still pretty-print C to build
+      the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

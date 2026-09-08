@@ -1300,6 +1300,24 @@ static void test_asm_string_escapes(void) {
     nvm_module_free(mod);
 }
 
+static void test_asm_string_keeps_comment_chars(void) {
+    const char *src =
+        ".string s81 \"Unknown byte; identifiers are ASCII\"\n"
+        ".string hash \"a#b\"\n"
+        ".function main 0 0 0 void 0\n"
+        "  HALT\n"
+        ".end\n";
+
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod != NULL, "Quoted semicolon and hash assemble");
+    ASSERT_EQ_STR(nvm_get_string(mod, 0), "Unknown byte; identifiers are ASCII",
+                  "Semicolon inside .string is not a comment");
+    ASSERT_EQ_STR(nvm_get_string(mod, 1), "a#b",
+                  "Hash inside .string is not a comment");
+    nvm_module_free(mod);
+}
+
 static void test_asm_multiple_functions(void) {
     const char *src =
         ".function add 2 2 0 int 1\n"
@@ -1972,6 +1990,7 @@ int main(void) {
     RUN_TEST(test_asm_comments_and_whitespace);
     RUN_TEST(test_asm_trailing_backslash_rejected);
     RUN_TEST(test_asm_string_escapes);
+    RUN_TEST(test_asm_string_keeps_comment_chars);
     RUN_TEST(test_asm_multiple_functions);
     RUN_TEST(test_asm_symbolic_operands);
     RUN_TEST(test_asm_error_undefined_symbol);

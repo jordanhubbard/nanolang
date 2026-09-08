@@ -425,7 +425,7 @@ nanoisa_emit: $(COMPILER_C) | bin
 	$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
 
 .PHONY: test-nanoisa-src-nano
-test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running src_nano NanoISA Cut A comparison..."
 	$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_add.nano --emit-nvm --strip-debug \
 		-o /tmp/nanolang_cut_a_c.nvm
@@ -435,24 +435,31 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_src_nano \
 		/tmp/nanolang_cut_a_c.nvm /tmp/nanolang_cut_a_src.nasm
 	@rm -f tests/nanoisa/test_nanoisa_src_nano
-	@echo "Checking nanoisa_emit names the refuse hole..."
-	@rc=0; $(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_no_main.nano \
-		> /tmp/nanolang_cut_a_refuse.txt || rc=$$?; \
-	grep -F "I refused that program: no main" /tmp/nanolang_cut_a_refuse.txt >/dev/null; \
-	test $$rc -eq 1
-	@echo "Checking lexer.nano resolves std/fs.nano..."
-	@rc=0; $(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/lexer.nano \
-		> /tmp/nanolang_cut_a_lexer_refuse.txt || rc=$$?; \
-	test $$rc -eq 1; \
-	grep -F "I refused that program:" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; \
-	if grep -F "cannot read import std/fs.nano" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "undefined local LexerTokenType" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "unsupported param type List<LexerToken>" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "unsupported param type List<CompilerDiagnostic>" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "undefined function diag_lexer_error" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "unsupported result type CompilerSourceLocation" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "statement outside the pinned subset 37" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "undefined function getcwd" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi
+	@echo "Checking nanoisa_emit synthesizes main for a library file..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_no_main.nano \
+		-o /tmp/nanolang_cut_a_lib.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_lib.nasm >/dev/null
+	@grep -F "PUSH_I64 0" /tmp/nanolang_cut_a_lib.nasm >/dev/null
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_lib.nasm \
+		-o /tmp/nanolang_cut_a_lib.nvm
+	@test -s /tmp/nanolang_cut_a_lib.nvm
+	@echo "Checking lexer.nano emits and assembles the pinned subset..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/lexer.nano \
+		-o /tmp/nanolang_cut_a_lexer.nasm
+	@test -s /tmp/nanolang_cut_a_lexer.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_lexer.nasm >/dev/null
+	@if grep -F "cannot read import std/fs.nano" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "undefined local LexerTokenType" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "unsupported param type List<LexerToken>" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "unsupported param type List<CompilerDiagnostic>" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "undefined function diag_lexer_error" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "unsupported result type CompilerSourceLocation" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "statement outside the pinned subset 37" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "undefined function getcwd" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi; \
+	if grep -F "I refused that program:" /tmp/nanolang_cut_a_lexer.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_lexer.nasm \
+		-o /tmp/nanolang_cut_a_lexer.nvm
+	@test -s /tmp/nanolang_cut_a_lexer.nvm
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

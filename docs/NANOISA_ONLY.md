@@ -316,7 +316,10 @@ stays refused), and Cut A imported functions (`imp_add` / `via_imp_add`
 run as native C; `CALL`/`TAIL_CALL` compare by callee name), and Cut A
 `unsafe` blocks (`via_raw` run as native C; inner statements only), and Cut A host `CALL_EXTERN`
 (`via_cwd` matches the C seed by import symbol; `nvm2c` still refuses
-`CALL_EXTERN`). Nested arrays,
+`CALL_EXTERN`), and Cut A synthetic `main` for library files
+(`PUSH_I64 0` then `RET`, the way the C seed does), and Cut A `.string`
+payload that contains `;` or `#` (`lexer.nano` nasm assembles). `parser.nano`
+still names `unsupported result type Parser`. Nested arrays,
 nested record literals, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the

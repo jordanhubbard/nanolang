@@ -39,6 +39,7 @@ let mut nisa_imp_fn_rets: array<string> = []
 let mut nisa_ext_syms: array<string> = []
 let mut nisa_ext_rets: array<string> = []
 let mut nisa_ext_params: array<string> = []
+let mut nisa_fn_emitted: int = 0
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -54,6 +55,7 @@ fn nisa_reset() -> int {
     set nisa_ext_syms []
     set nisa_ext_rets []
     set nisa_ext_params []
+    set nisa_fn_emitted 0
     return 0
 }
 
@@ -2165,6 +2167,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         } else {
             set header (+ header " 1\n")
         }
+        set nisa_fn_emitted (+ nisa_fn_emitted 1)
         return (+ (+ header body) ".end\n")
     }
 }
@@ -2754,7 +2757,6 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
             let n: int = (parser_get_function_count parser2)
             let mut out: string = ""
             let mut main_idx: int = (- 0 1)
-            let mut emitted: int = 0
             let mut i: int = 0
             while (< i n) {
                 let func: ASTFunction = (parser_get_function parser2 i)
@@ -2762,13 +2764,12 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                     (print "")
                 } else {
                     if (== func.name "main") {
-                        set main_idx emitted
+                        set main_idx nisa_fn_emitted
                     } else {
                         (print "")
                     }
                     set out (+ out (nisa_emit_function parser2 func))
                     set out (+ out "\n")
-                    set emitted (+ emitted 1)
                 }
                 set i (+ i 1)
             }
@@ -2780,9 +2781,15 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                     return ""
                 } else {
                 if (< main_idx 0) {
-                    let missing: string = (nisa_fail "no main")
-                    return missing
+                    set main_idx nisa_fn_emitted
+                    set out (+ out ".function main 0 0 0 int 1\n")
+                    set out (+ out (nisa_line "PUSH_I64 0"))
+                    set out (+ out (nisa_line "RET"))
+                    set out (+ out ".end\n")
+                    set nisa_fn_emitted (+ nisa_fn_emitted 1)
                 } else {
+                    (print "")
+                }
                     let mut prelude: string = ".entry "
                     set prelude (+ prelude (int_to_string main_idx))
                     set prelude (+ prelude "\n\n")
@@ -2794,12 +2801,11 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                     }
                     set prelude (+ prelude (nisa_ext_prelude))
                     if (> (array_length nisa_ext_syms) 0) {
-                        set prelude (+ prelude "\n")
+                        set prelude (+ prelude ".flag needs_extern\n\n")
                     } else {
                         (print "")
                     }
                     return (+ prelude out)
-                }
                 }
             }
         }
@@ -2813,9 +2819,10 @@ shadow nanoisa_emit_nasm {
     assert (str_contains text ".function main")
     assert (str_contains text "TAIL_CALL add")
     assert (str_contains text ".entry")
-    let bad: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert true }")
-    let empty: string = (nanoisa_emit_nasm bad "t.nano")
-    assert (== empty "")
-    assert (== nisa_err "no main")
-    assert (== (nisa_refuse_line) "I refused that program: no main")
+    let lib: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert true }")
+    let lib_text: string = (nanoisa_emit_nasm lib "t.nano")
+    assert (str_contains lib_text ".function add")
+    assert (str_contains lib_text ".function main")
+    assert (str_contains lib_text "PUSH_I64 0")
+    assert nisa_ok
 }
