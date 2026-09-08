@@ -305,10 +305,12 @@ fn nisa_is_inline_call(name: string) -> bool {
                    (or (nisa_is_list_call name)
                        (or (== name "not")
                            (or (== name "str_contains")
-                               (or (== name "int_to_string")
-                                   (or (== name "str_length")
-                                       (or (== name "str_substring")
-                                           (or (== name "char_at") (== name "str_char_at"))))))))))
+                               (or (== name "str_starts_with")
+                                   (or (== name "str_ends_with")
+                                       (or (== name "int_to_string")
+                                           (or (== name "str_length")
+                                               (or (== name "str_substring")
+                                                   (or (== name "char_at") (== name "str_char_at"))))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -316,6 +318,8 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "not")
     assert (nisa_is_inline_call "print")
     assert (nisa_is_inline_call "str_contains")
+    assert (nisa_is_inline_call "str_starts_with")
+    assert (nisa_is_inline_call "str_ends_with")
     assert (nisa_is_inline_call "int_to_string")
     assert (nisa_is_inline_call "str_length")
     assert (nisa_is_inline_call "str_substring")
@@ -820,11 +824,21 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                     return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_PUSH"))
                 }
             } else {
-                if (== func_id.name "str_contains") {
+                if (or (== func_id.name "str_contains")
+                       (or (== func_id.name "str_starts_with")
+                           (== func_id.name "str_ends_with"))) {
                     if (!= call.arg_count 2) {
-                        return (nisa_fail "str_contains needs 2 arguments")
+                        return (nisa_fail "string prefix test needs 2 arguments")
                     } else {
-                        return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CONTAINS"))
+                        if (== func_id.name "str_contains") {
+                            return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CONTAINS"))
+                        } else {
+                            if (== func_id.name "str_starts_with") {
+                                return (+ (nisa_emit_call_args parser call) (nisa_line "STR_STARTS_WITH"))
+                            } else {
+                                return (+ (nisa_emit_call_args parser call) (nisa_line "STR_ENDS_WITH"))
+                            }
+                        }
                     }
                 } else {
                     if (== func_id.name "int_to_string") {
@@ -1629,6 +1643,20 @@ shadow nisa_emit_function {
     assert (str_contains grow_lex_text "ARR_GET")
     assert (str_contains grow_lex_text "AGG_PACK 0 0 0 4")
     assert (str_contains grow_lex_text "AGG_GET 1")
+    let src34: string = (+ "f" "n has_pre(s: string) -> bool { return (str_starts_with s \"hi\") } shadow has_pre { assert true }")
+    let toks34: List<LexerToken> = (tokenize_string src34 "t.nano" diags)
+    let p34: Parser = (parse_program toks34 (list_LexerToken_length toks34) "t.nano")
+    let has_pre_fn: ASTFunction = (parser_get_function p34 0)
+    let has_pre_text: string = (nisa_emit_function p34 has_pre_fn)
+    assert (str_contains has_pre_text ".function has_pre 1 1 0 bool 1")
+    assert (str_contains has_pre_text "STR_STARTS_WITH")
+    let src35: string = (+ "f" "n has_suf(s: string) -> bool { return (str_ends_with s \"hi\") } shadow has_suf { assert true }")
+    let toks35: List<LexerToken> = (tokenize_string src35 "t.nano" diags)
+    let p35: Parser = (parse_program toks35 (list_LexerToken_length toks35) "t.nano")
+    let has_suf_fn: ASTFunction = (parser_get_function p35 0)
+    let has_suf_text: string = (nisa_emit_function p35 has_suf_fn)
+    assert (str_contains has_suf_text ".function has_suf 1 1 0 bool 1")
+    assert (str_contains has_suf_text "STR_ENDS_WITH")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

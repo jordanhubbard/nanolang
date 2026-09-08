@@ -384,3 +384,21 @@ fn grow_lex() -> string {
 shadow grow_lex {
     assert (== (grow_lex) "hi")
 }
+
+fn has_pre(s: string) -> bool {
+    return (str_starts_with s "hi")
+}
+
+shadow has_pre {
+    assert (has_pre "hi")
+    assert (not (has_pre "no"))
+}
+
+fn has_suf(s: string) -> bool {
+    return (str_ends_with s "hi")
+}
+
+shadow has_suf {
+    assert (has_suf "hi")
+    assert (not (has_suf "no"))
+}

@@ -412,7 +412,9 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
-        case OP_STR_CONTAINS: {
+        case OP_STR_CONTAINS:
+        case OP_STR_STARTS_WITH:
+        case OP_STR_ENDS_WITH: {
             Nvm2cSimSlot needle, hay;
             if (!sim_pop(b, idx, stk, &sp, &needle)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &hay)) return 0;
@@ -1404,6 +1406,24 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_temp(b, &st, expr);
             break;
         }
+        case OP_STR_STARTS_WITH: {
+            int pre = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_STARTS_WITH prefix");
+            int hay = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_STARTS_WITH");
+            if (b->failed) goto done;
+            char expr[80];
+            snprintf(expr, sizeof expr, "nstr_starts_with(s[%d], s[%d])", hay, pre);
+            stack_push_temp(b, &st, expr);
+            break;
+        }
+        case OP_STR_ENDS_WITH: {
+            int suf = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_ENDS_WITH suffix");
+            int hay = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_ENDS_WITH");
+            if (b->failed) goto done;
+            char expr[80];
+            snprintf(expr, sizeof expr, "nstr_ends_with(s[%d], s[%d])", hay, suf);
+            stack_push_temp(b, &st, expr);
+            break;
+        }
         case OP_STR_CHAR_AT: {
             int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "STR_CHAR_AT index");
             int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_CHAR_AT");
@@ -1893,6 +1913,28 @@ static void emit_nstr_char_at(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nstr_starts_with(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static int64_t nstr_starts_with(const char *s, const char *pre) {\n"
+        "    const char *a = s ? s : \"\";\n"
+        "    const char *b = pre ? pre : \"\";\n"
+        "    size_t nb = strlen(b);\n"
+        "    return (int64_t)(strncmp(a, b, nb) == 0);\n"
+        "}\n\n");
+}
+
+static void emit_nstr_ends_with(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static int64_t nstr_ends_with(const char *s, const char *suf) {\n"
+        "    const char *a = s ? s : \"\";\n"
+        "    const char *b = suf ? suf : \"\";\n"
+        "    size_t na = strlen(a);\n"
+        "    size_t nb = strlen(b);\n"
+        "    if (nb > na) return 0;\n"
+        "    return (int64_t)(memcmp(a + (na - nb), b, nb) == 0);\n"
+        "}\n\n");
+}
+
 static void emit_nstr_from_i64(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_from_i64(int64_t v) {\n"
@@ -2104,9 +2146,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
         int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
+        int need_starts = module_has_opcode(mod, OP_STR_STARTS_WITH);
+        int need_ends = module_has_opcode(mod, OP_STR_ENDS_WITH);
         int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
         int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
-        int need_string = need_concat || need_cast || need_contains || need_substr ||
+        int need_string = need_concat || need_cast || need_contains || need_starts ||
+            need_ends || need_substr ||
             need_char_at ||
             module_has_opcode(mod, OP_PUSH_STR) ||
             module_has_opcode(mod, OP_STR_LEN);
@@ -2172,6 +2217,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
+        if (need_starts) emit_nstr_starts_with(&b);
+        if (need_ends) emit_nstr_ends_with(&b);
         if (need_cast) emit_nstr_from_i64(&b);
         if (need_iarr_lit || (need_iarr && need_iarr_new)) {
             emit_narr_new(&b);

@@ -1139,6 +1139,132 @@ static void test_has_hi_else_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_has_pre_then_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function has_pre 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR hi\n"
+        "  STR_STARTS_WITH\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  CALL has_pre\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "has_pre then fixture");
+    CHECK(m != NULL, "has_pre then fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for has_pre then");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "has_pre then C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "has_pre then C compiles and runs");
+    CHECK(status == 1, "has_pre(\"hi\") exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_has_pre_else_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
+        ".entry 1\n"
+        ".function has_pre 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR hi\n"
+        "  STR_STARTS_WITH\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR no\n"
+        "  CALL has_pre\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "has_pre else fixture");
+    CHECK(m != NULL, "has_pre else fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for has_pre else");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "has_pre else C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "has_pre else C compiles and runs");
+    CHECK(status == 0, "has_pre(\"no\") exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_has_suf_then_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function has_suf 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR hi\n"
+        "  STR_ENDS_WITH\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  CALL has_suf\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "has_suf then fixture");
+    CHECK(m != NULL, "has_suf then fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for has_suf then");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "has_suf then C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "has_suf then C compiles and runs");
+    CHECK(status == 1, "has_suf(\"hi\") exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_has_suf_else_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
+        ".entry 1\n"
+        ".function has_suf 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR hi\n"
+        "  STR_ENDS_WITH\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR no\n"
+        "  CALL has_suf\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "has_suf else fixture");
+    CHECK(m != NULL, "has_suf else fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for has_suf else");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "has_suf else C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "has_suf else C compiles and runs");
+    CHECK(status == 0, "has_suf(\"no\") exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_digits_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2247,6 +2373,10 @@ int main(int argc, char **argv) {
     test_arr_push_string_is_refused();
     test_has_hi_then_runs_without_nano_vm();
     test_has_hi_else_runs_without_nano_vm();
+    test_has_pre_then_runs_without_nano_vm();
+    test_has_pre_else_runs_without_nano_vm();
+    test_has_suf_then_runs_without_nano_vm();
+    test_has_suf_else_runs_without_nano_vm();
     test_digits_runs_without_nano_vm();
     test_cast_string_array_is_refused();
     test_names_runs_without_nano_vm();

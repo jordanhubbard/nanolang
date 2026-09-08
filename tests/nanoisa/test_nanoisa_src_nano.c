@@ -153,6 +153,10 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_get_v;
     const NvmFunctionEntry *c_grow_lex;
     const NvmFunctionEntry *s_grow_lex;
+    const NvmFunctionEntry *c_has_pre;
+    const NvmFunctionEntry *s_has_pre;
+    const NvmFunctionEntry *c_has_suf;
+    const NvmFunctionEntry *s_has_suf;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -178,8 +182,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 40, "C seed emitted add through grow_lex");
-    CHECK(s_mod->function_count >= 40, "src_nano emitted add through grow_lex");
+    CHECK(c_mod->function_count >= 42, "C seed emitted add through has_suf");
+    CHECK(s_mod->function_count >= 42, "src_nano emitted add through has_suf");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -261,6 +265,10 @@ int main(int argc, char **argv) {
     s_get_v = fn_by_name(s_mod, "get_v");
     c_grow_lex = fn_by_name(c_mod, "grow_lex");
     s_grow_lex = fn_by_name(s_mod, "grow_lex");
+    c_has_pre = fn_by_name(c_mod, "has_pre");
+    s_has_pre = fn_by_name(s_mod, "has_pre");
+    c_has_suf = fn_by_name(c_mod, "has_suf");
+    s_has_suf = fn_by_name(s_mod, "has_suf");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -301,6 +309,8 @@ int main(int argc, char **argv) {
     CHECK(c_grow_t != NULL && s_grow_t != NULL, "both modules have grow_t");
     CHECK(c_get_v != NULL && s_get_v != NULL, "both modules have get_v");
     CHECK(c_grow_lex != NULL && s_grow_lex != NULL, "both modules have grow_lex");
+    CHECK(c_has_pre != NULL && s_has_pre != NULL, "both modules have has_pre");
+    CHECK(c_has_suf != NULL && s_has_suf != NULL, "both modules have has_suf");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -381,6 +391,10 @@ int main(int argc, char **argv) {
           "get_v bytecode matches C seed");
     CHECK(code_equal(c_mod, c_grow_lex, s_mod, s_grow_lex),
           "grow_lex bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_has_pre, s_mod, s_has_pre),
+          "has_pre bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_has_suf, s_mod, s_has_suf),
+          "has_suf bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -502,6 +516,12 @@ int main(int argc, char **argv) {
         printf("    C grow_lex locals=%u len=%u  src grow_lex locals=%u len=%u\n",
                c_grow_lex ? c_grow_lex->local_count : 0, c_grow_lex ? c_grow_lex->code_length : 0,
                s_grow_lex ? s_grow_lex->local_count : 0, s_grow_lex ? s_grow_lex->code_length : 0);
+        printf("    C has_pre locals=%u len=%u  src has_pre locals=%u len=%u\n",
+               c_has_pre ? c_has_pre->local_count : 0, c_has_pre ? c_has_pre->code_length : 0,
+               s_has_pre ? s_has_pre->local_count : 0, s_has_pre ? s_has_pre->code_length : 0);
+        printf("    C has_suf locals=%u len=%u  src has_suf locals=%u len=%u\n",
+               c_has_suf ? c_has_suf->local_count : 0, c_has_suf ? c_has_suf->code_length : 0,
+               s_has_suf ? s_has_suf->local_count : 0, s_has_suf ? s_has_suf->code_length : 0);
     }
 
     nvm_module_free(c_mod);

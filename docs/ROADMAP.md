@@ -1195,6 +1195,15 @@ Compiler product:
       stay refused. `list_T_set` is not this pin. I still pretty-print
       C to build the compiler.
       `make test-nanoisa-src-nano` (86 passed).
+- [x] Cut A str_starts_with/str_ends_with: the same pin matches `has_pre`
+      (`STR_STARTS_WITH`) and `has_suf` (`STR_ENDS_WITH`) bytecode with
+      the C seed. `STR_SPLIT` and `STR_REPLACE` stay refused. I still
+      pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (90 passed).
+- [ ] Cut A list_T_set: the same pin matches `put_l`
+      (`list_int_set` as `ARR_SET` then `POP`) bytecode with the C
+      seed. Nested arrays stay refused. I still pretty-print C to
+      build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1294,6 +1303,11 @@ Compiler product:
       `List<LexerToken>`) without `nano_vm`. Nested records stay
       refused.
       `make test-nvm2c` (323 passed).
+- [x] `nvm2c` runs Cut A `has_pre` and `has_suf` (`STR_STARTS_WITH` /
+      `STR_ENDS_WITH`) without `nano_vm`. `STR_SPLIT` stays refused.
+      `make test-nvm2c` (343 passed).
+- [ ] `nvm2c` runs Cut A `put_l` (`ARR_SET` of `array<int>`) without
+      `nano_vm`. Nested arrays stay refused.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
