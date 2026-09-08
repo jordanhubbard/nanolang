@@ -401,6 +401,8 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_names", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "string" })
+    set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "variant_values", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "int" })
     set m (array_push m FieldMetadata { struct_name: "ASTEnum", field_name: "node_id", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
     /* ASTUnion fields (union definitions) */

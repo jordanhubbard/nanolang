@@ -653,6 +653,8 @@ typedef struct nl_ASTEnum {
     int column;
     const char * name;
     int variant_count;
+    DynArray * variant_names;
+    DynArray * variant_values;
 } nl_ASTEnum;
 typedef nl_ASTEnum ASTEnum;
 #endif

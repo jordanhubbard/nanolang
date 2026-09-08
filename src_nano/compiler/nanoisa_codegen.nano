@@ -373,6 +373,31 @@ shadow nisa_struct_index {
     assert (== (nisa_struct_index p "Nope") (- 0 1))
 }
 
+fn nisa_enum_index(parser: Parser, name: string) -> int {
+    let n: int = (parser_get_enum_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let e: ASTEnum = (parser_get_enum parser i)
+        if (== e.name name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+
+shadow nisa_enum_index {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "enum Kind { A = 19, B } " (+ "f" "n tag() -> int { return Kind.A } shadow tag { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_enum_index p "Kind") 0)
+    assert (== (nisa_enum_index p "Nope") (- 0 1))
+}
+
 fn nisa_is_int_record(parser: Parser, name: string) -> bool {
     let idx: int = (nisa_struct_index parser name)
     if (< idx 0) {
@@ -796,34 +821,55 @@ fn nisa_emit_field_access(parser: Parser, node_id: int) -> string {
         return (nisa_fail "record field access needs a local")
     } else {
         let id: ASTIdentifier = (parser_get_identifier parser fa.object)
-        let slot: int = (nisa_local_find id.name)
-        if (< slot 0) {
-            return (nisa_fail (+ "undefined local " id.name))
-        } else {
-            if (>= slot (array_length nisa_types)) {
-                return (nisa_fail (+ "untyped local " id.name))
-            } else {
-                let ty: string = (at nisa_types slot)
-                let sidx: int = (nisa_struct_index parser ty)
-                if (< sidx 0) {
-                    return (nisa_fail (+ "not a record local " id.name))
+        let eidx: int = (nisa_enum_index parser id.name)
+        if (>= eidx 0) {
+            let ed: ASTEnum = (parser_get_enum parser eidx)
+            let mut vi: int = (- 0 1)
+            let mut i: int = 0
+            while (< i ed.variant_count) {
+                if (== (at ed.variant_names i) fa.field_name) {
+                    set vi i
                 } else {
-                    let sd: ASTStruct = (parser_get_struct_def parser sidx)
-                    let mut fi: int = (- 0 1)
-                    let mut i: int = 0
-                    while (< i sd.field_count) {
-                        if (== (at sd.field_names i) fa.field_name) {
-                            set fi i
-                        } else {
-                            (print "")
-                        }
-                        set i (+ i 1)
-                    }
-                    if (< fi 0) {
-                        return (nisa_fail (+ "unknown field " fa.field_name))
+                    (print "")
+                }
+                set i (+ i 1)
+            }
+            if (< vi 0) {
+                return (nisa_fail (+ "unknown enum variant " fa.field_name))
+            } else {
+                let val: int = (at ed.variant_values vi)
+                return (nisa_line_imm "ENUM_VAL" (+ (int_to_string eidx) (+ " " (int_to_string val))))
+            }
+        } else {
+            let slot: int = (nisa_local_find id.name)
+            if (< slot 0) {
+                return (nisa_fail (+ "undefined local " id.name))
+            } else {
+                if (>= slot (array_length nisa_types)) {
+                    return (nisa_fail (+ "untyped local " id.name))
+                } else {
+                    let ty: string = (at nisa_types slot)
+                    let sidx: int = (nisa_struct_index parser ty)
+                    if (< sidx 0) {
+                        return (nisa_fail (+ "not a record local " id.name))
                     } else {
-                        let obj: string = (nisa_emit_expr parser fa.object fa.object_type)
-                        return (+ obj (nisa_line_imm "AGG_GET" (int_to_string fi)))
+                        let sd: ASTStruct = (parser_get_struct_def parser sidx)
+                        let mut fi: int = (- 0 1)
+                        let mut j: int = 0
+                        while (< j sd.field_count) {
+                            if (== (at sd.field_names j) fa.field_name) {
+                                set fi j
+                            } else {
+                                (print "")
+                            }
+                            set j (+ j 1)
+                        }
+                        if (< fi 0) {
+                            return (nisa_fail (+ "unknown field " fa.field_name))
+                        } else {
+                            let obj: string = (nisa_emit_expr parser fa.object fa.object_type)
+                            return (+ obj (nisa_line_imm "AGG_GET" (int_to_string fi)))
+                        }
                     }
                 }
             }
@@ -860,6 +906,16 @@ shadow nisa_emit_field_access {
     assert (str_contains text2 "LOAD_LOCAL 0")
     assert (str_contains text2 "AGG_GET 1")
     let _2: int = (nisa_reset)
+    let src3: string = (+ "enum Kind { A = 19, B } " (+ "f" "n tag() -> int { return Kind.A } shadow tag { assert true }"))
+    let toks3: List<LexerToken> = (tokenize_string src3 "t.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "t.nano")
+    let func3: ASTFunction = (parser_get_function p3 0)
+    let block3: ASTBlock = (parser_get_block p3 func3.body)
+    let stmt3: ASTStmtRef = (list_ASTStmtRef_get block3.statements 0)
+    let r3: ASTReturn = (parser_get_return p3 stmt3.node_id)
+    let text3: string = (nisa_emit_field_access p3 r3.value)
+    assert (str_contains text3 "ENUM_VAL 0 19")
+    let _3: int = (nisa_reset)
 }
 
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
@@ -1981,6 +2037,20 @@ shadow nisa_emit_function {
     assert (str_contains via_az_text ".function via_az 0 0 0 int 1")
     assert (str_contains via_az_text "CALL in_az")
     assert (str_contains via_az_text "JMP_FALSE")
+    let src56: string = (+ "enum Kind { A = 19, B } " (+ "f" "n tag() -> int { return Kind.A } shadow tag { assert true }"))
+    let toks56: List<LexerToken> = (tokenize_string src56 "t.nano" diags)
+    let p56: Parser = (parse_program toks56 (list_LexerToken_length toks56) "t.nano")
+    let tag_fn: ASTFunction = (parser_get_function p56 0)
+    let tag_text: string = (nisa_emit_function p56 tag_fn)
+    assert (str_contains tag_text ".function tag 0 0 0 int 1")
+    assert (str_contains tag_text "ENUM_VAL 0 19")
+    let src57: string = (+ "enum Kind { A = 19, B } " (+ "f" "n tag() -> int { return Kind.A } " (+ "f" "n via_tag() -> int { return (tag) } shadow tag { assert true } shadow via_tag { assert true }")))
+    let toks57: List<LexerToken> = (tokenize_string src57 "t.nano" diags)
+    let p57: Parser = (parse_program toks57 (list_LexerToken_length toks57) "t.nano")
+    let via_tag_fn: ASTFunction = (parser_get_function p57 1)
+    let via_tag_text: string = (nisa_emit_function p57 via_tag_fn)
+    assert (str_contains via_tag_text ".function via_tag 0 0 0 int 1")
+    assert (str_contains via_tag_text "CALL tag")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

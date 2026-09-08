@@ -237,7 +237,9 @@ extern struct ASTEnum {
     line: int,
     column: int,
     name: string,
-    variant_count: int
+    variant_count: int,
+    variant_names: array<string>,
+    variant_values: array<int>
 }
 
 extern struct ASTUnion {

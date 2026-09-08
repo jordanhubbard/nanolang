@@ -282,6 +282,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         case OP_PUSH_I64:
         case OP_PUSH_BOOL:
+        case OP_ENUM_VAL:
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         case OP_PUSH_STR:
@@ -1190,6 +1191,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_PUSH_I64: {
             char rhs[32];
             snprintf(rhs, sizeof rhs, "%lldLL", (long long)ins.operands[0].i64);
+            stack_push_temp(b, &st, rhs);
+            break;
+        }
+        case OP_ENUM_VAL: {
+            char rhs[32];
+            snprintf(rhs, sizeof rhs, "%lldLL", (long long)ins.operands[1].u16);
             stack_push_temp(b, &st, rhs);
             break;
         }

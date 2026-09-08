@@ -187,7 +187,9 @@ extern struct ASTEnum {
     line: int,
     column: int,
     name: string,
-    variant_count: int
+    variant_count: int,
+    variant_names: array<string>,
+    variant_values: array<int>
 }
 
 extern struct ASTUnion {
@@ -2761,12 +2763,16 @@ shadow parser_store_struct {
 
 /* Helper: Store enum definition node */
 fn parser_store_enum(p: Parser, name: string, variant_count: int, line: int, column: int) -> Parser {
+    let names: array<string> = []
+    let vals: array<int> = []
     let node: ASTEnum = ASTEnum {
         node_type: ParseNodeType.PNODE_ENUM,
         line: line,
         column: column,
         name: name,
-        variant_count: variant_count
+        variant_count: variant_count,
+        variant_names: names,
+        variant_values: vals
     }
     
     (list_ASTEnum_push p.enums node)

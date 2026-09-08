@@ -1270,11 +1270,12 @@ Compiler product:
       bytecode with the C seed. I still pretty-print C to build the
       compiler.
       `make test-nanoisa-src-nano` (130 passed).
-- [ ] Cut A enum values: the same pin matches `tag`
+- [x] Cut A enum values: the same pin matches `tag`
       (`LexerTokenType`-style `Enum.Variant` as `ENUM_VAL`) bytecode
-      with the C seed. The self-hosted parser must keep variant
+      with the C seed. The self-hosted parser keeps variant
       names and discriminants on `ASTEnum`. Nested unions stay
       refused. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (134 passed).
       MAC `task_e0d3eb53f3eb44b8b97c236e8c14e28a`.
 - [ ] I print `nisa_err` from `nanoisa_emit` when I refuse a program,
       so the next Cut A hole is named rather than only "outside the
@@ -1423,8 +1424,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_az` (`I64_GE_S`/`I64_LE_S`) without
       `nano_vm`.
       `make test-nvm2c` (416 passed).
-- [ ] `nvm2c` translates `ENUM_VAL` to i64 without `nano_vm`. Cut A
+- [x] `nvm2c` translates `ENUM_VAL` to i64 without `nano_vm`. Cut A
       `tag` exits the variant discriminant.
+      `make test-nvm2c` (422 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

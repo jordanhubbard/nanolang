@@ -214,8 +214,8 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
 `via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
 `via_new_l`, `one_t`, `via_one_t`, `one_lex`, `via_one_lex`,
-`in_az`, and `via_az`
-(`make test-nanoisa-src-nano`, 130 passed).
+`in_az`, `via_az`, `tag`, and `via_tag`
+(`make test-nanoisa-src-nano`, 134 passed).
 Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
@@ -241,7 +241,8 @@ then `POP`, `list_Tok_set` as `ARR_SET` then `POP`,
 (`ones` / `via_ones`), and `List<int>` results (`new_l` / `via_new_l`),
 and `List<Tok>` results (`one_t` / `via_one_t`), and
 `List<LexerToken>` results (`one_lex` / `via_one_lex`), and i64
-`>=`/`<=` (`in_az` / `via_az`).
+`>=`/`<=` (`in_az` / `via_az`), and `Enum.Variant` as `ENUM_VAL`
+(`tag` / `via_tag`).
 `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands
@@ -300,7 +301,9 @@ refused), and Cut A mixed int/string record results (`make_tok` /
 `via_new_l` run as native C), and Cut A `List<Tok>` results (`one_t` /
 `via_one_t` run as native C; nested records stay refused), and Cut A
 `List<LexerToken>` results (`one_lex` / `via_one_lex` run as native C),
-and Cut A i64 `>=`/`<=` (`in_az` / `via_az` run as native C). Nested arrays,
+and Cut A i64 `>=`/`<=` (`in_az` / `via_az` run as native C), and Cut A
+`ENUM_VAL` (`tag` / `via_tag` run as native C; nested unions stay
+refused). Nested arrays,
 nested records, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the

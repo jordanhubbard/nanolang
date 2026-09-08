@@ -2657,6 +2657,35 @@ static void test_via_az_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* tag / via_tag: ENUM_VAL discriminant as i64. */
+static void test_via_tag_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function tag 0 0 0 int 1\n"
+        "  ENUM_VAL 0 19\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL tag\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_tag fixture");
+    CHECK(m != NULL, "via_tag fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_tag");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_tag C does not name nano_vm");
+    CHECK(strstr(c, "19LL") != NULL, "via_tag C uses the discriminant 19");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_tag C compiles and runs");
+    CHECK(status == 19, "via_tag() exits 19 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2890,6 +2919,7 @@ int main(int argc, char **argv) {
     test_via_one_t_runs_without_nano_vm();
     test_via_one_lex_runs_without_nano_vm();
     test_via_az_runs_without_nano_vm();
+    test_via_tag_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

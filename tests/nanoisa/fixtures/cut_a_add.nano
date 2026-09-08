@@ -606,3 +606,24 @@ fn via_az() -> int {
 shadow via_az {
     assert (== (via_az) 1)
 }
+
+enum Kind {
+    A = 19,
+    B
+}
+
+fn tag() -> int {
+    return Kind.A
+}
+
+shadow tag {
+    assert (== (tag) 19)
+}
+
+fn via_tag() -> int {
+    return (tag)
+}
+
+shadow via_tag {
+    assert (== (via_tag) 19)
+}
