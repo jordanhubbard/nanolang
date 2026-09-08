@@ -627,3 +627,21 @@ fn via_tag() -> int {
 shadow via_tag {
     assert (== (via_tag) 19)
 }
+
+from "cut_a_kind_imp.nano" import ImpKind
+
+fn tok_mod() -> int {
+    return ImpKind.A
+}
+
+shadow tok_mod {
+    assert (== (tok_mod) 19)
+}
+
+fn via_tok_mod() -> int {
+    return (tok_mod)
+}
+
+shadow via_tok_mod {
+    assert (== (via_tok_mod) 19)
+}

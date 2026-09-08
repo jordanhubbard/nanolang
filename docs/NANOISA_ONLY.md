@@ -241,8 +241,9 @@ then `POP`, `list_Tok_set` as `ARR_SET` then `POP`,
 (`ones` / `via_ones`), and `List<int>` results (`new_l` / `via_new_l`),
 and `List<Tok>` results (`one_t` / `via_one_t`), and
 `List<LexerToken>` results (`one_lex` / `via_one_lex`), and i64
-`>=`/`<=` (`in_az` / `via_az`), and `Enum.Variant` as `ENUM_VAL`
-(`tag` / `via_tag`).
+`>=`/`<=` (`in_az` / `via_az`), `Enum.Variant` as `ENUM_VAL`
+(`tag` / `via_tag`), and imported `Enum.Variant` (`tok_mod` /
+`via_tok_mod`; local enums stay first in `def_idx`).
 `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands
@@ -305,6 +306,8 @@ refused), and Cut A mixed int/string record results (`make_tok` /
 `List<LexerToken>` results (`one_lex` / `via_one_lex` run as native C),
 and Cut A i64 `>=`/`<=` (`in_az` / `via_az` run as native C), and Cut A
 `ENUM_VAL` (`tag` / `via_tag` run as native C; nested unions stay
+refused), and Cut A imported `ENUM_VAL` (`tok_mod` / `via_tok_mod` run as
+native C; transitive imports and import-before-local-enum order stay
 refused). Nested arrays,
 nested records, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

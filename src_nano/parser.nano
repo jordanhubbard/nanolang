@@ -5444,7 +5444,7 @@ shadow parser_store_struct {
 /* Helper: Store enum definition node */
 
 /* Helper: Store enum node */
-fn parser_store_enum(p: Parser, name: string, variant_count: int, variant_names: array<string>, variant_values: array<int>, line: int, column: int) -> Parser {
+pub fn parser_store_enum(p: Parser, name: string, variant_count: int, variant_names: array<string>, variant_values: array<int>, line: int, column: int) -> Parser {
     let node: ASTEnum = ASTEnum {
         node_type: ParseNodeType.PNODE_ENUM,
         line: line,

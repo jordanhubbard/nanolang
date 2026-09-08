@@ -1281,6 +1281,18 @@ Compiler product:
       so the next Cut A hole is named rather than only "outside the
       pinned subset".
       `make test-nanoisa-src-nano` names `no main` on a library file.
+- [x] Cut A imported enums: the same pin matches `tok_mod`
+      (`from`/`import` of `ImpKind.A` as `ENUM_VAL`) bytecode with the
+      C seed. Local enums stay first in `def_idx`. Transitive imports
+      and import-before-local-enum order stay refused. I still
+      pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (138 passed).
+- [ ] Cut A `std/` import paths: `nisa_resolve_import` finds
+      `std/fs.nano` the way the C seed does (`modules/std/fs.nano`).
+      Direct `src_nano/` paths already resolve from the project root.
+      `nanoisa_emit` of `lexer.nano` must not refuse `cannot read import std/fs.nano`.
+      Transitive imports and imported functions stay refused. I still
+      pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1428,6 +1440,9 @@ Compiler product:
 - [x] `nvm2c` translates `ENUM_VAL` to i64 without `nano_vm`. Cut A
       `tag` exits the variant discriminant.
       `make test-nvm2c` (422 passed).
+- [x] `nvm2c` runs Cut A `via_tok_mod` (`CALL` of imported `ENUM_VAL`)
+      without `nano_vm`.
+      `make test-nvm2c` (428 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

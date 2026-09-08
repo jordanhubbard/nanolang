@@ -1,0 +1,4 @@
+enum ImpKind {
+    A = 19,
+    B
+}

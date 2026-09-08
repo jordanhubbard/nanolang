@@ -49,7 +49,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
   `via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
   `via_new_l`, `one_t`, `via_one_t`, `one_lex`, `via_one_lex`,
-  `in_az`, `via_az`, `tag`, and `via_tag`.
+  `in_az`, `via_az`, `tag`, `via_tag`, `tok_mod`, and `via_tok_mod`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -78,7 +78,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_new_l`), and `List<Tok>` results (`one_t` / `via_one_t`),
   and `List<LexerToken>` results (`one_lex` / `via_one_lex`), and
   i64 `>=`/`<=` (`in_az` / `via_az`), and `Enum.Variant` as
-  `ENUM_VAL` (`tag` / `via_tag`). `STR_SPLIT`
+  `ENUM_VAL` (`tag` / `via_tag`), and imported `Enum.Variant`
+  (`tok_mod` / `via_tok_mod`; local enums stay first in `def_idx`).
+  `STR_SPLIT`
   and `STR_REPLACE`
   stay refused. String operands
   are compared by content. I still pretty-print C to build the
@@ -146,8 +148,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `CALL` of a non-empty `List<LexerToken>` runs as native C:
   `via_one_lex` exits 2. `I64_GE_S`/`I64_LE_S` run as native C:
   `via_az` exits 1. `ENUM_VAL` runs as native C: `via_tag` exits
-  the discriminant 19.
-  `make test-nvm2c` (422 passed).
+  the discriminant 19. Imported `ENUM_VAL` runs as native C:
+  `via_tok_mod` exits 19.
+  `make test-nvm2c` (428 passed).
 
 ## [4.5.0] - 2026-09-07
 

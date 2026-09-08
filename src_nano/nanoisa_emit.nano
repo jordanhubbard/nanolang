@@ -56,7 +56,7 @@ fn main() -> int {
             return 1
         } else {
             let src: string = (file_read input)
-            let nasm: string = (nanoisa_emit_nasm src)
+            let nasm: string = (nanoisa_emit_nasm src input)
             if (== nasm "") {
                 (println (nisa_refuse_line))
                 return 1

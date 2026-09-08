@@ -2686,6 +2686,35 @@ static void test_via_tag_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* tok_mod / via_tok_mod: imported ENUM_VAL discriminant as i64. */
+static void test_via_tok_mod_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function tok_mod 0 0 0 int 1\n"
+        "  ENUM_VAL 1 19\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL tok_mod\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_tok_mod fixture");
+    CHECK(m != NULL, "via_tok_mod fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_tok_mod");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_tok_mod C does not name nano_vm");
+    CHECK(strstr(c, "19LL") != NULL, "via_tok_mod C uses the discriminant 19");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_tok_mod C compiles and runs");
+    CHECK(status == 19, "via_tok_mod() exits 19 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2920,6 +2949,7 @@ int main(int argc, char **argv) {
     test_via_one_lex_runs_without_nano_vm();
     test_via_az_runs_without_nano_vm();
     test_via_tag_runs_without_nano_vm();
+    test_via_tok_mod_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
