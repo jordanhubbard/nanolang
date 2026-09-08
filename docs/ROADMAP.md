@@ -1188,6 +1188,13 @@ Compiler product:
       seed. Nested records stay refused. `list_T_set` is not this pin.
       I still pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (82 passed).
+- [x] Cut A LexerToken: the same pin matches `get_v` (`AGG_PACK` of
+      four fields `token_type`/`value`/`line`/`column`) and `grow_lex`
+      (`list_LexerToken_new` as `ARR_NEW 1`, `list_LexerToken_push` as
+      `ARR_PUSH` then `POP`) bytecode with the C seed. Nested records
+      stay refused. `list_T_set` is not this pin. I still pretty-print
+      C to build the compiler.
+      `make test-nanoisa-src-nano` (86 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1283,6 +1290,10 @@ Compiler product:
       0. I classify `ARR_NEW 1` as a record list from the pushed
       value. Cut A `grow_t` length is 2 without `nano_vm`.
       `make test-nvm2c` (311 passed).
+- [x] `nvm2c` runs Cut A `get_v` and `grow_lex` (`LexerToken` and
+      `List<LexerToken>`) without `nano_vm`. Nested records stay
+      refused.
+      `make test-nvm2c` (323 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

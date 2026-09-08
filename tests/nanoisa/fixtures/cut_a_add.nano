@@ -357,3 +357,30 @@ fn grow_t() -> string {
 shadow grow_t {
     assert (== (grow_t) "hi")
 }
+
+struct LexerToken {
+    token_type: int,
+    value: string,
+    line: int,
+    column: int
+}
+
+fn get_v() -> string {
+    let t: LexerToken = LexerToken { token_type: 1, value: "hi", line: 2, column: 3 }
+    return t.value
+}
+
+shadow get_v {
+    assert (== (get_v) "hi")
+}
+
+fn grow_lex() -> string {
+    let xs: List<LexerToken> = (list_LexerToken_new)
+    (list_LexerToken_push xs LexerToken { token_type: 1, value: "hi", line: 2, column: 3 })
+    let t: LexerToken = (list_LexerToken_get xs 0)
+    return t.value
+}
+
+shadow grow_lex {
+    assert (== (grow_lex) "hi")
+}

@@ -45,7 +45,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
   `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
   `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, `get_s`,
-  `blank_t`, and `grow_t`.
+  `blank_t`, `grow_t`, `get_v`, and `grow_lex`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -59,8 +59,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `list_int_get` as `ARR_GET`, `char_at` as `STR_CHAR_AT`,
   `list_string_new` as `ARR_NEW 1`, void `list_string_push` as
   `ARR_PUSH` then `POP`, `list_string_get` as `ARR_GET`, mixed
-  int/string records as `AGG_PACK`/`AGG_GET`, and `List<Tok>` as
-  `ARR_NEW 1` / `ARR_PUSH` then `POP` / `ARR_GET`. String operands
+  int/string records as `AGG_PACK`/`AGG_GET`, `List<Tok>` as
+  `ARR_NEW 1` / `ARR_PUSH` then `POP` / `ARR_GET`, and `LexerToken`
+  (`token_type`/`value`/`line`/`column`) plus `List<LexerToken>` as
+  `get_v`/`grow_lex`. String operands
   are compared by content. I still pretty-print C to build the
   compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
@@ -106,7 +108,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   length is 2. Nested record fields stay refused. Lists of records
   run as native C: `blank_t` exits 0 and `grow_t` length is 2. I
   classify `ARR_NEW 1` as a record list from the pushed value.
-  `make test-nvm2c` (311 passed).
+  Four-field `LexerToken` records and `List<LexerToken>` run as native
+  C: `get_v` and `grow_lex` length are 2.
+  `make test-nvm2c` (323 passed).
 
 ## [4.5.0] - 2026-09-07
 

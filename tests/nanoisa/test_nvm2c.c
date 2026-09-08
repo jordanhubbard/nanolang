@@ -1806,6 +1806,88 @@ static void test_grow_t_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_get_v_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function get_v 0 1 0 string 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_I64 2\n"
+        "  PUSH_I64 3\n"
+        "  AGG_PACK 0 0 0 4\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL get_v\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "get_v fixture");
+    CHECK(m != NULL, "get_v fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for get_v");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "get_v C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "get_v C compiles and runs");
+    CHECK(status == 2, "len(get_v()) exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_grow_lex_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function grow_lex 0 2 0 string 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_I64 2\n"
+        "  PUSH_I64 3\n"
+        "  AGG_PACK 0 0 0 4\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow_lex\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow_lex fixture");
+    CHECK(m != NULL, "grow_lex fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for grow_lex");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "grow_lex C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_push") != NULL, "grow_lex C pushes nrec_t onto nrarr_t");
+    CHECK(strstr(c, "nrarr_get") != NULL, "grow_lex C loads nrec_t from nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow_lex C compiles and runs");
+    CHECK(status == 2, "grow_lex() length is 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_nested_record_pack_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -2186,6 +2268,8 @@ int main(int argc, char **argv) {
     test_get_s_runs_without_nano_vm();
     test_blank_t_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
+    test_get_v_runs_without_nano_vm();
+    test_grow_lex_runs_without_nano_vm();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
