@@ -19,6 +19,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   cancel, and hot replace compiled to verified NanoISA handlers.
   Remote spawn and `cap:` fail closed. Phase 18 transport is not
   wired. `docs/ACTOR.md`, `make test-actor`.
+- 4.6 Nano Dataflow laboratory frontend: typed nodes, bounded streams,
+  backpressure, explicit effects, interned feed journals, replay,
+  cancel, retry, and fifo/reverse determinism compiled to verified
+  NanoISA. `place remote` fails closed. Phase 18 transport is not
+  wired. `docs/DATAFLOW.md`, `make test-dataflow`.
 
 ## [4.5.0] - 2026-09-07
 

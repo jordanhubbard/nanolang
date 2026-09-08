@@ -115,11 +115,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       FFI isolation, debug, profiler, and `nvm2c`, and keeps language
       work in desugar/typecheck. Bounded goals are published before a
       language starts. Frontend-private opcodes fail closed. NanoLang
-      and Forth already accept a shared library. Scheme, ML, and Actor are
-      implemented as bounded laboratory frontends; Dataflow and later are not.
+      and Forth already accept a shared library. Scheme, ML, Actor, and Dataflow are
+      implemented as bounded laboratory frontends; Object and later are not.
       `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
       `make test-frontend-contract`, `make test-scheme`, `make test-ml`,
-      `make test-actor`.
+      `make test-actor`, `make test-dataflow`.
       MAC `task_e62d1cd35b49296604012df95de7911b`.
 - [ ] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
       Dataflow, Object, Shell, Logic, then the frontend matrix.
@@ -1213,8 +1213,9 @@ Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [x] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
       Optional fields on `NlFrontendFacts`; unknown effects fail closed.
 - [x] I will define bounded implementation and test goals before starting each frontend.
-      `nl_frontend_goal`; Scheme, ML, and Actor are implemented (`make test-scheme`,
-      `make test-ml`, `make test-actor`). Dataflow and later remain unimplemented.
+      `nl_frontend_goal`; Scheme, ML, Actor, and Dataflow are implemented
+      (`make test-scheme`, `make test-ml`, `make test-actor`,
+      `make test-dataflow`). Object and later remain unimplemented.
 - [x] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
       `nl_frontend_opcode_allowed` is exactly `isa_get_info`.
 - [x] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
@@ -1256,10 +1257,15 @@ Nano Actor (MAC `task_0850b9adc62c593b8e4e180e070efcee`):
       `tests/actor/test_actor.c`; `cap:` fails closed so capabilities do not cross restarts.
 
 Nano Dataflow (MAC `task_9cb85a523c197b9e2c80ddcffe9ed31a`):
-- [ ] I will implement a deterministic dataflow and workflow frontend with typed nodes, streams, backpressure, and explicit effects.
+- [x] I will implement a deterministic dataflow and workflow frontend with typed nodes, streams, backpressure, and explicit effects.
+      `src/dataflow/dataflow.c`, `docs/DATAFLOW.md`, `make test-dataflow`.
 - [ ] I will map graph dependencies to local, service-process, and remote scheduling without changing program semantics.
-- [ ] I will use dataflow programs to test shared-memory bulk transfer, provenance, replay, cancellation, retries, and parallel determinism.
-- [ ] I will record every external input required to reproduce a completed workflow.
+      `place local` is a no-op; `place remote` fails closed. Phase 18 transport is not wired.
+- [x] I will use dataflow programs to test shared-memory bulk transfer, provenance, replay, cancellation, retries, and parallel determinism.
+      Bounded integer bulk along edges (copy, not NSI shm maps); interned `feed` journal;
+      replay; `cancel`; `retry`; fifo vs reverse ready-set.
+- [x] I will record every external input required to reproduce a completed workflow.
+      Each `feed` is interned as `.string "feed <port> <value>"`.
 
 Nano Object (MAC `task_90023c92e9fb3841aab9fcc71d8cf90d`):
 - [ ] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
@@ -1772,7 +1778,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: 4.6 laboratory languages (Scheme, ML, and Actor done; Dataflow next), then 5.0.
+Current Phase: 4.6 laboratory languages (Scheme, ML, Actor, and Dataflow done; Object next), then 5.0.
 The next public GitHub Release is 5.0, covering 4.6 and 5.0.
 Next Major Milestone: remaining 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after `make test-actor` and the next 4.6 language (Nano Dataflow).
+Next Review: after `make test-dataflow` and the next 4.6 language (Nano Object).

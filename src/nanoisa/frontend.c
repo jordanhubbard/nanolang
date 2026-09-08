@@ -55,8 +55,8 @@ static const NlFrontendGoal k_goals[NL_FE_COUNT] = {
         "bulk transfer, provenance, replay, cancellation, parallel determinism",
         "typed nodes, streams, backpressure, explicit effects",
         "changing program semantics when the scheduler moves",
-        "record every external input needed to reproduce a run",
-        0
+        "make test-dataflow",
+        1
     },
     {
         NL_FE_OBJECT, "Nano Object",
