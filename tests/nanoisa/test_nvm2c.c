@@ -1264,6 +1264,126 @@ static void test_head_s_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_same_then_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function same 2 2 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_STR hi\n"
+        "  CALL same\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "same then fixture");
+    CHECK(m != NULL, "same then fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for same then");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "same then C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "same then C compiles and runs");
+    CHECK(status == 1, "same(\"hi\", \"hi\") exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_same_else_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
+        ".entry 1\n"
+        ".function same 2 2 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_STR no\n"
+        "  CALL same\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "same else fixture");
+    CHECK(m != NULL, "same else fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for same else");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "same else C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "same else C compiles and runs");
+    CHECK(status == 0, "same(\"hi\", \"no\") exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_diff_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
+        ".entry 1\n"
+        ".function diff 2 2 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  NE\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_STR no\n"
+        "  CALL diff\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "diff fixture");
+    CHECK(m != NULL, "diff fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for diff");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "diff C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "diff C compiles and runs");
+    CHECK(status == 1, "diff(\"hi\", \"no\") exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_eq_array_is_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "EQ array fixture");
+    CHECK(m != NULL, "EQ array fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "EQ of arrays stays outside the closed subset");
+    CHECK(strstr(err, "EQ") != NULL, "error names EQ");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1602,6 +1722,10 @@ int main(int argc, char **argv) {
     test_cast_string_array_is_refused();
     test_names_runs_without_nano_vm();
     test_head_s_runs_without_nano_vm();
+    test_same_then_runs_without_nano_vm();
+    test_same_else_runs_without_nano_vm();
+    test_diff_runs_without_nano_vm();
+    test_eq_array_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

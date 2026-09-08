@@ -234,3 +234,21 @@ fn head_s() -> string {
 shadow head_s {
     assert (== (head_s) "hi")
 }
+
+fn same(a: string, b: string) -> bool {
+    return (== a b)
+}
+
+shadow same {
+    assert (same "hi" "hi")
+    assert (not (same "hi" "no"))
+}
+
+fn diff(a: string, b: string) -> bool {
+    return (!= a b)
+}
+
+shadow diff {
+    assert (diff "hi" "no")
+    assert (not (diff "hi" "hi"))
+}

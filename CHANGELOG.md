@@ -43,15 +43,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
   `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
   `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
-  `digits`, `names`, and `head_s`. `make test-nanoisa-src-nano`
+  `digits`, `names`, `head_s`, `same`, and `diff`.
+  `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
   `ARR_GET`, `ARR_PUSH` of `array<int>` and `array<string>`,
   `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`, `BOOL_NOT`,
   `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP` with one `RET`,
-  `PRINT`, `PRINTLN`, `ASSERT`, `STR_CONTAINS`, and `CAST_STRING` of
-  i64. String operands are compared by content. I still pretty-print
-  C to build the compiler.
+  `PRINT`, `PRINTLN`, `ASSERT`, `STR_CONTAINS`, `CAST_STRING` of
+  i64, and `EQ`/`NE` of strings. String operands are compared by
+  content. I still pretty-print C to build the compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
@@ -73,13 +74,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   writes an empty string. Printing arrays stays refused. `ASSERT`
   runs as native C: `prove(true)` exits 0 and `prove(false)` aborts
   without a VM process. `ARR_PUSH` of `array<int>` runs as native C:
-  `grow` exits 2. String arrays stay refused. `STR_CONTAINS` runs as
+  `grow` exits 2. `STR_CONTAINS` runs as
   native C: `has_hi("hi")` exits 1 and `has_hi("no")` exits 0.
   `CAST_STRING` of i64 runs as native C: `digits(7)` has length 1.
   `ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_GET`, and `ARR_LEN` of
   `array<string>` run as native C: `names` exits 2 and `head_s`
-  returns `"hi"`. Nested arrays stay refused.
-  `make test-nvm2c` (225 passed).
+  returns `"hi"`. Nested arrays stay refused. `EQ`/`NE` of strings
+  run as native C: `same("hi", "hi")` exits 1, `same("hi", "no")`
+  exits 0, and `diff("hi", "no")` exits 1. Array equality stays
+  refused. `make test-nvm2c` (243 passed).
 
 ## [4.5.0] - 2026-09-07
 

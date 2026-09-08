@@ -1139,6 +1139,11 @@ Compiler product:
       (`ARR_GET` of `array<string>`) bytecode with the C seed.
       Nested arrays stay refused. I still pretty-print C to build
       the compiler. `make test-nanoisa-src-nano` (56 passed).
+- [x] Cut A string eq: the same pin matches `same` (`EQ` of two
+      strings) and `diff` (`NE` of two strings) bytecode with the
+      C seed. I still pretty-print C to build the compiler.
+      `STR_EQ` as a separate opcode is not this pin.
+      `make test-nanoisa-src-nano` (60 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1203,6 +1208,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `names` and `head_s` (`array<string>`)
       without `nano_vm`. Nested arrays stay refused.
       `make test-nvm2c` (225 passed).
+- [x] `nvm2c` runs Cut A `same` and `diff` (`EQ`/`NE` of strings)
+      without `nano_vm`. Array equality stays refused.
+      `make test-nvm2c` (243 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

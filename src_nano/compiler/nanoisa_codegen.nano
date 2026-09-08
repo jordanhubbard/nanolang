@@ -753,7 +753,19 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                             let right: string = (nisa_emit_expr parser binop.right binop.right_type)
                             return (+ (+ left right) (nisa_line "STR_CONCAT"))
                         } else {
-                            return (nisa_fail "unsupported string operator")
+                            if (== binop.op LexerTokenType.TOKEN_EQ) {
+                                let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                                let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                                return (+ (+ left right) (nisa_line "EQ"))
+                            } else {
+                                if (== binop.op LexerTokenType.TOKEN_NE) {
+                                    let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                                    let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                                    return (+ (+ left right) (nisa_line "NE"))
+                                } else {
+                                    return (nisa_fail "unsupported string operator")
+                                }
+                            }
                         }
                     } else {
                         if (or left_s right_s) {
@@ -1315,6 +1327,20 @@ shadow nisa_emit_function {
     let head_text: string = (nisa_emit_function p18 head_fn)
     assert (str_contains head_text ".function head_s 0 1 0 string 1")
     assert (str_contains head_text "ARR_GET")
+    let src19: string = (+ "f" "n same(a: string, b: string) -> bool { return (== a b) } shadow same { assert true }")
+    let toks19: List<LexerToken> = (tokenize_string src19 "t.nano" diags)
+    let p19: Parser = (parse_program toks19 (list_LexerToken_length toks19) "t.nano")
+    let same_fn: ASTFunction = (parser_get_function p19 0)
+    let same_text: string = (nisa_emit_function p19 same_fn)
+    assert (str_contains same_text ".function same 2 2 0 bool 1")
+    assert (str_contains same_text "EQ")
+    let src20: string = (+ "f" "n diff(a: string, b: string) -> bool { return (!= a b) } shadow diff { assert true }")
+    let toks20: List<LexerToken> = (tokenize_string src20 "t.nano" diags)
+    let p20: Parser = (parse_program toks20 (list_LexerToken_length toks20) "t.nano")
+    let diff_fn: ASTFunction = (parser_get_function p20 0)
+    let diff_text: string = (nisa_emit_function p20 diff_fn)
+    assert (str_contains diff_text ".function diff 2 2 0 bool 1")
+    assert (str_contains diff_text "NE")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

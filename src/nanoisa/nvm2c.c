@@ -387,6 +387,18 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_EQ:
+        case OP_NE: {
+            Nvm2cSimSlot rhs, lhs;
+            if (!sim_pop(b, idx, stk, &sp, &rhs)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &lhs)) return 0;
+            if (lhs.kind != NVM2C_VK_INT || rhs.kind != NVM2C_VK_INT) {
+                mark_str_origin(local_kind, nloc, lhs.origin);
+                mark_str_origin(local_kind, nloc, rhs.origin);
+            }
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
         case OP_ARR_LITERAL: {
             uint8_t tag = ins.operands[0].u8;
             uint16_t count = ins.operands[1].u16;
@@ -1141,6 +1153,30 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_I64_EQ:
             emit_binop(b, &st, "==");
             break;
+        case OP_EQ:
+        case OP_NE: {
+            uint8_t rk = NVM2C_VK_INT;
+            uint8_t lk = NVM2C_VK_INT;
+            int rhs = stack_pop_kind(b, &st, &rk);
+            int lhs = stack_pop_kind(b, &st, &lk);
+            if (b->failed) goto done;
+            if (lk == NVM2C_VK_INT && rk == NVM2C_VK_INT) {
+                char expr[64];
+                snprintf(expr, sizeof expr, "t[%d] %s t[%d]",
+                         lhs, ins.opcode == OP_EQ ? "==" : "!=", rhs);
+                stack_push_temp(b, &st, expr);
+            } else if (lk == NVM2C_VK_STR && rk == NVM2C_VK_STR) {
+                char expr[192];
+                snprintf(expr, sizeof expr,
+                         "(int64_t)(strcmp(s[%d] ? s[%d] : \"\", s[%d] ? s[%d] : \"\") %s 0)",
+                         lhs, lhs, rhs, rhs, ins.opcode == OP_EQ ? "==" : "!=");
+                stack_push_temp(b, &st, expr);
+            } else {
+                nvm2c_fail(b, "function %u: EQ/NE of mixed or non-string values is refused", idx);
+                goto done;
+            }
+            break;
+        }
         case OP_I64_NE:
             emit_binop(b, &st, "!=");
             break;
