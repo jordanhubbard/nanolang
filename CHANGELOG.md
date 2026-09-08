@@ -86,8 +86,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `CALL`/`TAIL_CALL` by name. `unsafe` blocks emit inner statements
   (`via_raw`).   `getcwd` is `CALL_EXTERN` `vm_getcwd` (`via_cwd`).
   Nested pin-record literals (`nest_d` / `via_nest`) match the C seed.
-  `nvm2c` still refuses nested records. `Parser` results stay
-  refused.
+  `nvm2c` still refuses nested records. Bool and `List<int>` record
+  fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`) match the
+  C seed. `parser.nano` names `string concat needs two strings`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

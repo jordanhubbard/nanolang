@@ -238,6 +238,14 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_nest_d;
     const NvmFunctionEntry *c_via_nest;
     const NvmFunctionEntry *s_via_nest;
+    const NvmFunctionEntry *c_flag_yes;
+    const NvmFunctionEntry *s_flag_yes;
+    const NvmFunctionEntry *c_via_flag;
+    const NvmFunctionEntry *s_via_flag;
+    const NvmFunctionEntry *c_empty_bag;
+    const NvmFunctionEntry *s_empty_bag;
+    const NvmFunctionEntry *c_via_bag;
+    const NvmFunctionEntry *s_via_bag;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -263,8 +271,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 72, "C seed emitted add through via_nest");
-    CHECK(s_mod->function_count >= 72, "src_nano emitted add through via_nest");
+    CHECK(c_mod->function_count >= 76, "C seed emitted add through via_bag");
+    CHECK(s_mod->function_count >= 76, "src_nano emitted add through via_bag");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -410,6 +418,14 @@ int main(int argc, char **argv) {
     s_nest_d = fn_by_name(s_mod, "nest_d");
     c_via_nest = fn_by_name(c_mod, "via_nest");
     s_via_nest = fn_by_name(s_mod, "via_nest");
+    c_flag_yes = fn_by_name(c_mod, "flag_yes");
+    s_flag_yes = fn_by_name(s_mod, "flag_yes");
+    c_via_flag = fn_by_name(c_mod, "via_flag");
+    s_via_flag = fn_by_name(s_mod, "via_flag");
+    c_empty_bag = fn_by_name(c_mod, "empty_bag");
+    s_empty_bag = fn_by_name(s_mod, "empty_bag");
+    c_via_bag = fn_by_name(c_mod, "via_bag");
+    s_via_bag = fn_by_name(s_mod, "via_bag");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -482,6 +498,10 @@ int main(int argc, char **argv) {
     CHECK(c_via_cwd != NULL && s_via_cwd != NULL, "both modules have via_cwd");
     CHECK(c_nest_d != NULL && s_nest_d != NULL, "both modules have nest_d");
     CHECK(c_via_nest != NULL && s_via_nest != NULL, "both modules have via_nest");
+    CHECK(c_flag_yes != NULL && s_flag_yes != NULL, "both modules have flag_yes");
+    CHECK(c_via_flag != NULL && s_via_flag != NULL, "both modules have via_flag");
+    CHECK(c_empty_bag != NULL && s_empty_bag != NULL, "both modules have empty_bag");
+    CHECK(c_via_bag != NULL && s_via_bag != NULL, "both modules have via_bag");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -626,6 +646,14 @@ int main(int argc, char **argv) {
           "nest_d bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_nest, s_mod, s_via_nest),
           "via_nest bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_flag_yes, s_mod, s_flag_yes),
+          "flag_yes bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_flag, s_mod, s_via_flag),
+          "via_flag bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_empty_bag, s_mod, s_empty_bag),
+          "empty_bag bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_bag, s_mod, s_via_bag),
+          "via_bag bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -843,6 +871,18 @@ int main(int argc, char **argv) {
         printf("    C via_nest locals=%u len=%u  src via_nest locals=%u len=%u\n",
                c_via_nest ? c_via_nest->local_count : 0, c_via_nest ? c_via_nest->code_length : 0,
                s_via_nest ? s_via_nest->local_count : 0, s_via_nest ? s_via_nest->code_length : 0);
+        printf("    C flag_yes locals=%u len=%u  src flag_yes locals=%u len=%u\n",
+               c_flag_yes ? c_flag_yes->local_count : 0, c_flag_yes ? c_flag_yes->code_length : 0,
+               s_flag_yes ? s_flag_yes->local_count : 0, s_flag_yes ? s_flag_yes->code_length : 0);
+        printf("    C via_flag locals=%u len=%u  src via_flag locals=%u len=%u\n",
+               c_via_flag ? c_via_flag->local_count : 0, c_via_flag ? c_via_flag->code_length : 0,
+               s_via_flag ? s_via_flag->local_count : 0, s_via_flag ? s_via_flag->code_length : 0);
+        printf("    C empty_bag locals=%u len=%u  src empty_bag locals=%u len=%u\n",
+               c_empty_bag ? c_empty_bag->local_count : 0, c_empty_bag ? c_empty_bag->code_length : 0,
+               s_empty_bag ? s_empty_bag->local_count : 0, s_empty_bag ? s_empty_bag->code_length : 0);
+        printf("    C via_bag locals=%u len=%u  src via_bag locals=%u len=%u\n",
+               c_via_bag ? c_via_bag->local_count : 0, c_via_bag ? c_via_bag->code_length : 0,
+               s_via_bag ? s_via_bag->local_count : 0, s_via_bag ? s_via_bag->code_length : 0);
     }
 
     nvm_module_free(c_mod);

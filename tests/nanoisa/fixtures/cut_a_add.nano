@@ -704,3 +704,51 @@ fn via_nest() -> int {
 shadow via_nest {
     assert (== (via_nest) 7)
 }
+
+struct Flag {
+    ok: bool
+}
+
+fn flag_yes() -> Flag {
+    return Flag { ok: true }
+}
+
+shadow flag_yes {
+    let f: Flag = (flag_yes)
+    assert f.ok
+}
+
+fn via_flag() -> int {
+    let f: Flag = (flag_yes)
+    if f.ok {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow via_flag {
+    assert (== (via_flag) 1)
+}
+
+struct Bag {
+    xs: List<int>
+}
+
+fn empty_bag() -> Bag {
+    return Bag { xs: (list_int_new) }
+}
+
+shadow empty_bag {
+    let b: Bag = (empty_bag)
+    assert (== (list_int_length b.xs) 0)
+}
+
+fn via_bag() -> int {
+    let b: Bag = (empty_bag)
+    return (list_int_length b.xs)
+}
+
+shadow via_bag {
+    assert (== (via_bag) 0)
+}

@@ -1356,9 +1356,13 @@ Compiler product:
       `nvm2c` still refuses nested records. `Parser` results stay
       refused. I still pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (150 passed).
-- [ ] Cut A `Parser` results: `parser.nano` names `unsupported result type Parser`.
-      `Parser` is an extern struct with list fields, not a pin-record.
-      I still pretty-print C to build the compiler.
+- [x] Cut A bool and `List<int>` record fields: `flag_yes` / `via_flag`
+      pack `bool`. `empty_bag` / `via_bag` pack `List<int>`. Bytecode
+      matches the C seed. `make test-nanoisa-src-nano` (158 passed).
+- [ ] Cut A `Parser` results: pin-record expansion accepts `Parser`,
+      then `parser.nano` names `string concat needs two strings`
+      (a string field or `int_to_string` as a `+` operand). I still
+      pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

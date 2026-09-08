@@ -320,8 +320,9 @@ run as native C; `CALL`/`TAIL_CALL` compare by callee name), and Cut A
 (`PUSH_I64 0` then `RET`, the way the C seed does), and Cut A `.string`
 payload that contains `;` or `#` (`lexer.nano` nasm assembles), and Cut A
 nested pin-record literals (`nest_d` / `via_nest` match the C seed;
-`nvm2c` still refuses nested records). `parser.nano`
-still names `unsupported result type Parser`. Nested arrays,
+`nvm2c` still refuses nested records), and Cut A bool and `List<int>`
+record fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`).
+`parser.nano` still names `string concat needs two strings`. Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
