@@ -908,7 +908,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
                         if (nisa_is_pin_record parser ft) {
                             set i (+ i 1)
                         } else {
-                            let inner: string = (nisa_list_inner ft)
+                            let inner: string = (nisa_seq_inner ft)
                             if (and (!= inner "") (nisa_is_pin_record parser inner)) {
                                 set i (+ i 1)
                             } else {
@@ -926,7 +926,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
 shadow nisa_is_pin_record {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct Bag { xs: List<int> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct Bag { xs: List<int> } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_pin_record p "Point")
@@ -935,6 +935,8 @@ shadow nisa_is_pin_record {
     assert (nisa_is_pin_record p "Diag")
     assert (nisa_is_pin_record p "Flag")
     assert (nisa_is_pin_record p "Bag")
+    assert (nisa_is_pin_record p "TypeRec")
+    assert (nisa_is_pin_record p "Sym")
     assert (not (nisa_is_pin_record p "Nope"))
     assert (not (nisa_is_int_record p "Tok"))
 }
@@ -1005,7 +1007,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
 shadow nisa_type_ok {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_type_ok p "int")
@@ -1017,6 +1019,8 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "array<Point>")
     assert (nisa_type_ok p "array<Tok>")
     assert (nisa_type_ok p "HashMap<string, string>")
+    assert (nisa_type_ok p "Sym")
+    assert (nisa_type_ok p "array<Sym>")
     assert (not (nisa_type_ok p "array<bool>"))
     assert (not (nisa_type_ok p "List<Nope>"))
 }
@@ -1322,7 +1326,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
 shadow nisa_result_tag {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct LexerToken { token_type: int, value: string, line: int, column: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct LexerToken { token_type: int, value: string, line: int, column: int } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "int") "int")
@@ -1334,6 +1338,8 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "array<Point>") "array")
     assert (== (nisa_result_tag p "array<Tok>") "array")
     assert (== (nisa_result_tag p "HashMap<string, string>") "hashmap")
+    assert (== (nisa_result_tag p "Sym") "struct")
+    assert (== (nisa_result_tag p "array<Sym>") "array")
     assert (== (nisa_result_tag p "Nope") "")
 }
 

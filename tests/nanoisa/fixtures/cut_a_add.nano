@@ -927,3 +927,32 @@ fn via_put_hm() -> int {
 shadow via_put_hm {
     assert (== (via_put_hm) 1)
 }
+
+struct TypeRec {
+    kind: int,
+    name: string
+}
+
+struct Sym {
+    name: string,
+    ty: TypeRec,
+    args: array<TypeRec>
+}
+
+fn n_syms(xs: array<Sym>) -> int {
+    return (array_length xs)
+}
+
+shadow n_syms {
+    let mut xs: array<Sym> = []
+    assert (== (n_syms xs) 0)
+}
+
+fn via_n_syms() -> int {
+    let mut xs: array<Sym> = []
+    return (n_syms xs)
+}
+
+shadow via_n_syms {
+    assert (== (via_n_syms) 0)
+}

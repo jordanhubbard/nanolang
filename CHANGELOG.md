@@ -99,8 +99,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_one_loc`) matches the C seed. HashMap results (`blank_hm` /
   `via_blank_hm` / `put_hm` / `via_put_hm`) match the C seed:
   `map_new` is `HM_NEW 5 1`, statement `map_put` is `HM_SET` then
-  `POP`. `typecheck.nano` names
-  `unsupported param type array<Symbol>`.
+  `POP`. Pin-record params of `array<Sym>` (`n_syms` / `via_n_syms`)
+  match the C seed; a pin record may have `array<pin-record>` fields.
+  `typecheck.nano` names
+  `string literal needs escaping I do not emit yet`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

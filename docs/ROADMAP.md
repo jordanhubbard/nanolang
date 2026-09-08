@@ -1391,9 +1391,15 @@ Compiler product:
       (196 passed). `nvm2c` does not translate `HM_*`. `typecheck.nano` names
       `unsupported param type array<Symbol>`. I still pretty-print C to build
       the compiler.
-- [ ] Cut A `array<Symbol>` param: `typecheck.nano` names
-      `unsupported param type array<Symbol>`. `Symbol` carries nested `NSType`
-      and `array<NSType>`. I still pretty-print C to build the compiler.
+- [x] Cut A `array<Symbol>` param: `n_syms` / `via_n_syms` match the C seed
+      (`array<Sym>` with nested `TypeRec` and `array<TypeRec>` fields). A pin
+      record may have `array<pin-record>` fields. `make test-nanoisa-src-nano`
+      (200 passed). `typecheck.nano` names
+      `string literal needs escaping I do not emit yet`. I still pretty-print C
+      to build the compiler.
+- [ ] Cut A interned string escapes: `nisa_intern` still refuses `"`, `\`, and
+      newlines. `typecheck.nano` names `string literal needs escaping I do not
+      emit yet`. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
