@@ -46,7 +46,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
   `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, `get_s`,
   `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
-  `put_l`, and `put_t`.
+  `put_l`, `put_t`, and `put_s`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -65,7 +65,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`token_type`/`value`/`line`/`column`) plus `List<LexerToken>` as
   `get_v`/`grow_lex`, `str_starts_with` as `STR_STARTS_WITH`, and
   `str_ends_with` as `STR_ENDS_WITH`, `list_int_set` as `ARR_SET`
-  then `POP`, and `list_Tok_set` as `ARR_SET` then `POP`. `STR_SPLIT`
+  then `POP`, `list_Tok_set` as `ARR_SET` then `POP`, and
+  `list_string_set` as `ARR_SET` then `POP`. `STR_SPLIT`
   and `STR_REPLACE`
   stay refused. String operands
   are compared by content. I still pretty-print C to build the
@@ -118,9 +119,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `STR_ENDS_WITH` run as native C: `has_pre("hi")` and `has_suf("hi")`
   exit 1, and `"no"` exits 0. `STR_SPLIT` stays refused. `ARR_SET` of
   `array<int>` runs as native C: `put_l` exits 9. `ARR_SET` of a
-  record list runs as native C: `put_t` length is 2. `ARR_SET` of
-  strings stays refused.
-  `make test-nvm2c` (355 passed).
+  record list runs as native C: `put_t` length is 2. `ARR_SET` of a
+  string list runs as native C: `put_s` length is 2.
+  `make test-nvm2c` (358 passed).
 
 ## [4.5.0] - 2026-09-07
 

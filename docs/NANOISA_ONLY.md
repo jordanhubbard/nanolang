@@ -211,8 +211,8 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
 `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, `get_s`,
 `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
-`put_l`, and `put_t`
-(`make test-nanoisa-src-nano`, 94 passed).
+`put_l`, `put_t`, and `put_s`
+(`make test-nanoisa-src-nano`, 96 passed).
 Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
@@ -229,7 +229,8 @@ as `ARR_GET`, `char_at` as `STR_CHAR_AT`, `list_string_new` as
 then `POP` / `ARR_GET`, and `LexerToken` plus `List<LexerToken>` as
 `get_v`/`grow_lex`, `str_starts_with` as `STR_STARTS_WITH`, and
 `str_ends_with` as `STR_ENDS_WITH`, `list_int_set` as `ARR_SET`
-then `POP`, and `list_Tok_set` as `ARR_SET` then `POP`). `STR_SPLIT`
+then `POP`, `list_Tok_set` as `ARR_SET` then `POP`, and
+`list_string_set` as `ARR_SET` then `POP`). `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands
 are compared by content, not pool index. I still pretty-print C to
@@ -276,8 +277,10 @@ records stay refused), and Cut A lists of records (`ARR_PUSH` of
 suffix tests (`STR_STARTS_WITH`/`STR_ENDS_WITH`; `has_pre` and
 `has_suf` run as native C), and Cut A `list_int_set` (`ARR_SET` of
 `array<int>`; `put_l` runs as native C), and Cut A `list_Tok_set`
-(`ARR_SET` of a record list; `put_t` runs as native C). Nested arrays,
-nested records, `ARR_SET` of strings, `AGG_SET`, variants, tuples, array
+(`ARR_SET` of a record list; `put_t` runs as native C), and Cut A
+`list_string_set` (`ARR_SET` of a string list; `put_s` runs as
+native C). Nested arrays,
+nested records, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
 compiler subset (modules, host ABI, and the remaining string

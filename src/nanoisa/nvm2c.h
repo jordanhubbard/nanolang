@@ -14,7 +14,8 @@
  * list as a heap object so ARR_PUSH then POP mutates the local the way the
  * VM does (void list_int_push / list_string_push / list_Tok_push). ARR_SET
  * of array<int> mutates in place and pushes the same heap object (void
- * list_int_set). ARR_SET of a record list mutates nrec_t slots in place
+ * list_int_set). ARR_SET of a string list mutates in place (void
+ * list_string_set). ARR_SET of a record list mutates nrec_t slots in place
  * (void list_Tok_set). The C
  * seed emits ARR_NEW tag 1 for every list_T_new; string and record lists
  * are classified from the pushed value.
@@ -24,8 +25,7 @@
  * Anything else is refused with an error.
  * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
  * host C ABI. Embedded NULs, nested arrays, nested records, variants, tuples,
- * printing arrays/records, array equality, STR_TRIM, ARR_SET of strings,
- * and the rest of the
+ * printing arrays/records, array equality, STR_TRIM, and the rest of the
  * string and array libraries stay refused.
  */
 

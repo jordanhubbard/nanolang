@@ -425,3 +425,14 @@ fn put_t() -> string {
 shadow put_t {
     assert (== (put_t) "no")
 }
+
+fn put_s() -> string {
+    let xs: List<string> = (list_string_new)
+    (list_string_push xs "hi")
+    (list_string_set xs 0 "no")
+    return (list_string_get xs 0)
+}
+
+shadow put_s {
+    assert (== (put_s) "no")
+}

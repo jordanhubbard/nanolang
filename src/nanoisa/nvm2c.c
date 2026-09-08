@@ -555,6 +555,9 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (arr.kind == NVM2C_VK_ARR && val.kind == NVM2C_VK_INT) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, arr.origin)) return 0;
+            } else if (arr.kind == NVM2C_VK_SARR && val.kind == NVM2C_VK_STR) {
+                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, arr.origin)) return 0;
             } else if (arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) {
                 Nvm2cSimSlot out;
                 memset(&out, 0, sizeof out);
@@ -568,7 +571,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 }
                 if (!sim_push_slot(b, idx, stk, &sp, out)) return 0;
             } else {
-                nvm2c_fail(b, "function %u: ARR_SET only supports int or record arrays", idx);
+                nvm2c_fail(b, "function %u: ARR_SET only supports int, string, or record arrays", idx);
                 return 0;
             }
             break;
@@ -1652,6 +1655,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[96];
                 snprintf(expr, sizeof expr, "narr_set(a[%d], t[%d], t[%d])", arr, ix, val);
                 stack_push_arr(b, &st, expr);
+            } else if (ak == NVM2C_VK_SARR && vk == NVM2C_VK_STR) {
+                char expr[96];
+                snprintf(expr, sizeof expr, "nsarr_set(sa[%d], t[%d], s[%d])", arr, ix, val);
+                stack_push_sarr(b, &st, expr);
             } else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) {
                 char expr[96];
                 int na;
@@ -1661,7 +1668,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     memcpy(st.rec_k_arr[na], st.rec_k[val], NVM2C_MAX_REC_FIELDS);
                 }
             } else {
-                nvm2c_fail(b, "function %u: ARR_SET only supports int or record arrays", idx);
+                nvm2c_fail(b, "function %u: ARR_SET only supports int, string, or record arrays", idx);
                 goto done;
             }
             break;
@@ -2127,6 +2134,15 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nsarr_set(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static nsarr_t nsarr_set(nsarr_t a, int64_t idx, const char *v) {\n"
+        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    a->data[idx] = v ? v : \"\";\n"
+        "    return a;\n"
+        "}\n\n");
+}
+
 static void emit_nrarr_arena(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nrec_t nrarr_arena[65536];\n"
@@ -2249,6 +2265,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_iarr_push = need_arr_push && need_iarr;
         int need_iarr_set = need_arr_set && need_iarr;
         int need_sarr_push = need_arr_push && need_sarr;
+        int need_sarr_set = need_arr_set && need_sarr;
         int need_sarr_new = need_sarr && module_has_opcode(mod, OP_ARR_NEW);
         int need_rarr = module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
         int need_rarr_get = need_arr_get && need_rarr;
@@ -2320,6 +2337,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
+        if (need_sarr_set) emit_nsarr_set(&b);
         if (need_rarr_new) emit_nrarr_new(&b);
         if (need_rarr_push) emit_nrarr_arena(&b);
         if (need_rarr_get) emit_nrarr_get(&b);
