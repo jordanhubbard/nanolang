@@ -1,13 +1,15 @@
 /*
- * Cut A: src_nano NanoISA lowering vs the C seed on a pinned i64 program.
+ * Cut A: src_nano NanoISA lowering vs the C seed on a pinned subset.
  *
  * argv[1] = C-seed .nvm (nano_virt --emit-nvm --strip-debug)
  * argv[2] = src_nano .nasm (bin/nanoisa_emit)
  *
- * I compare function bytecode, not string-pool extras. Debug is not the claim.
+ * I compare function bytecode. PUSH_STR operands are resolved through the
+ * string pool so intern order is not the claim. Debug is not the claim.
  */
 
 #include "assembler.h"
+#include "isa.h"
 #include "nanoisa.h"
 #include "nvm_format.h"
 
@@ -34,13 +36,36 @@ static const NvmFunctionEntry *fn_by_name(const NvmModule *m, const char *name) 
 
 static int code_equal(const NvmModule *a, const NvmFunctionEntry *fa,
                       const NvmModule *b, const NvmFunctionEntry *fb) {
+    size_t pa;
+    size_t pb;
     if (!fa || !fb) return 0;
-    if (fa->code_length != fb->code_length) return 0;
     if (fa->arity != fb->arity) return 0;
     if (fa->local_count != fb->local_count) return 0;
-    if (fa->code_length == 0) return 1;
-    return memcmp(a->code + fa->code_offset, b->code + fb->code_offset,
-                  fa->code_length) == 0;
+    if (fa->result_tag != fb->result_tag) return 0;
+    if (fa->result_count != fb->result_count) return 0;
+    pa = 0;
+    pb = 0;
+    while (pa < fa->code_length && pb < fb->code_length) {
+        DecodedInstruction ia;
+        DecodedInstruction ib;
+        uint32_t na = isa_decode(a->code + fa->code_offset + pa,
+                                 fa->code_length - pa, &ia);
+        uint32_t nb = isa_decode(b->code + fb->code_offset + pb,
+                                 fb->code_length - pb, &ib);
+        if (na == 0 || nb == 0 || ia.opcode != ib.opcode) return 0;
+        if (ia.opcode == OP_PUSH_STR) {
+            const char *sa = nvm_get_string(a, ia.operands[0].u32);
+            const char *sb = nvm_get_string(b, ib.operands[0].u32);
+            if (!sa || !sb || strcmp(sa, sb) != 0) return 0;
+        } else if (na != nb ||
+                   memcmp(a->code + fa->code_offset + pa,
+                          b->code + fb->code_offset + pb, na) != 0) {
+            return 0;
+        }
+        pa += na;
+        pb += nb;
+    }
+    return pa == fa->code_length && pb == fb->code_length;
 }
 
 int main(int argc, char **argv) {
@@ -56,8 +81,12 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_choose;
     const NvmFunctionEntry *c_loop;
     const NvmFunctionEntry *s_loop;
+    const NvmFunctionEntry *c_greet;
+    const NvmFunctionEntry *s_greet;
+    const NvmFunctionEntry *c_glue;
+    const NvmFunctionEntry *s_glue;
 
-    printf("\n[nanoisa src_nano] Cut A pinned i64 subset...\n\n");
+    printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
         printf("  FAIL: usage: test_nanoisa_src_nano <c.nvm> <src.nasm>\n");
         return 1;
@@ -81,8 +110,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 4, "C seed emitted add, main, choose, loop_sum");
-    CHECK(s_mod->function_count >= 4, "src_nano emitted add, main, choose, loop_sum");
+    CHECK(c_mod->function_count >= 6, "C seed emitted add, main, choose, loop_sum, greeting, glue");
+    CHECK(s_mod->function_count >= 6, "src_nano emitted add, main, choose, loop_sum, greeting, glue");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -92,10 +121,16 @@ int main(int argc, char **argv) {
     s_choose = fn_by_name(s_mod, "choose");
     c_loop = fn_by_name(c_mod, "loop_sum");
     s_loop = fn_by_name(s_mod, "loop_sum");
+    c_greet = fn_by_name(c_mod, "greeting");
+    s_greet = fn_by_name(s_mod, "greeting");
+    c_glue = fn_by_name(c_mod, "glue");
+    s_glue = fn_by_name(s_mod, "glue");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
     CHECK(c_loop != NULL && s_loop != NULL, "both modules have loop_sum");
+    CHECK(c_greet != NULL && s_greet != NULL, "both modules have greeting");
+    CHECK(c_glue != NULL && s_glue != NULL, "both modules have glue");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -104,6 +139,10 @@ int main(int argc, char **argv) {
           "choose bytecode matches C seed");
     CHECK(code_equal(c_mod, c_loop, s_mod, s_loop),
           "loop_sum bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_greet, s_mod, s_greet),
+          "greeting bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_glue, s_mod, s_glue),
+          "glue bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -120,6 +159,12 @@ int main(int argc, char **argv) {
         printf("    C loop_sum locals=%u len=%u  src loop_sum locals=%u len=%u\n",
                c_loop ? c_loop->local_count : 0, c_loop ? c_loop->code_length : 0,
                s_loop ? s_loop->local_count : 0, s_loop ? s_loop->code_length : 0);
+        printf("    C greeting locals=%u len=%u  src greeting locals=%u len=%u\n",
+               c_greet ? c_greet->local_count : 0, c_greet ? c_greet->code_length : 0,
+               s_greet ? s_greet->local_count : 0, s_greet ? s_greet->code_length : 0);
+        printf("    C glue locals=%u len=%u  src glue locals=%u len=%u\n",
+               c_glue ? c_glue->local_count : 0, c_glue ? c_glue->code_length : 0,
+               s_glue ? s_glue->local_count : 0, s_glue ? s_glue->code_length : 0);
     }
 
     nvm_module_free(c_mod);

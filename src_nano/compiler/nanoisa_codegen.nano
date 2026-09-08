@@ -3,8 +3,8 @@
  * =============================================================================
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
- * if/else, while, let, and set. Anything else fails closed. I do not emit C.
- * I do not delete transpiler.nano.
+ * if/else, while, let, set, string literals, and string concat. Anything else
+ * fails closed. I do not emit C. I do not delete transpiler.nano.
  */
 
 import "src_nano/parser.nano"
@@ -12,12 +12,18 @@ import "src_nano/compiler/lexer.nano"
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
 let mut nisa_names: array<string> = []
+let mut nisa_types: array<string> = []
+let mut nisa_str_vals: array<string> = []
+let mut nisa_str_names: array<string> = []
 let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
 
 fn nisa_reset() -> int {
     set nisa_names []
+    set nisa_types []
+    set nisa_str_vals []
+    set nisa_str_names []
     set nisa_ok true
     set nisa_err ""
     set nisa_label 0
@@ -69,6 +75,57 @@ shadow nisa_local_find {
     assert (== (nisa_local_find "a") 0)
     assert (== (nisa_local_find "b") 1)
     assert (== (nisa_local_find "z") (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_intern(lit: string) -> string {
+    if (or (str_contains lit "\"") (or (str_contains lit "\\") (str_contains lit "\n"))) {
+        return (nisa_fail "string literal needs escaping I do not emit yet")
+    } else {
+        let mut i: int = 0
+        while (< i (array_length nisa_str_vals)) {
+            if (== (at nisa_str_vals i) lit) {
+                return (at nisa_str_names i)
+            } else {
+                (print "")
+            }
+            set i (+ i 1)
+        }
+        let name: string = (+ "s" (int_to_string (array_length nisa_str_vals)))
+        set nisa_str_vals (array_push nisa_str_vals lit)
+        set nisa_str_names (array_push nisa_str_names name)
+        return name
+    }
+}
+
+shadow nisa_intern {
+    let _: int = (nisa_reset)
+    assert (== (nisa_intern "hi") "s0")
+    assert (== (nisa_intern "hi") "s0")
+    assert (== (nisa_intern "ab") "s1")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_str_prelude() -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (array_length nisa_str_names)) {
+        set out (+ out ".string ")
+        set out (+ out (at nisa_str_names i))
+        set out (+ out " \"")
+        set out (+ out (at nisa_str_vals i))
+        set out (+ out "\"\n")
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow nisa_str_prelude {
+    let _: int = (nisa_reset)
+    let name: string = (nisa_intern "hi")
+    let text: string = (nisa_str_prelude)
+    assert (== name "s0")
+    assert (str_contains text ".string s0 \"hi\"")
     let _2: int = (nisa_reset)
 }
 
@@ -188,6 +245,63 @@ shadow nisa_fn_index {
     assert (== (nisa_fn_index p "nope") (- 0 1))
 }
 
+fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_STRING) {
+        return true
+    } else {
+        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+            let id: ASTIdentifier = (parser_get_identifier parser node_id)
+            let slot: int = (nisa_local_find id.name)
+            if (< slot 0) {
+                return false
+            } else {
+                if (>= slot (array_length nisa_types)) {
+                    return false
+                } else {
+                    return (== (at nisa_types slot) "string")
+                }
+            }
+        } else {
+            if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+                let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                if (== binop.op LexerTokenType.TOKEN_PLUS) {
+                    return (and (nisa_expr_is_string parser binop.left binop.left_type) (nisa_expr_is_string parser binop.right binop.right_type))
+                } else {
+                    return false
+                }
+            } else {
+                if (== node_type ParseNodeType.PNODE_CALL) {
+                    let call: ASTCall = (parser_get_call parser node_id)
+                    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                    let fidx: int = (nisa_fn_index parser func_id.name)
+                    if (< fidx 0) {
+                        return false
+                    } else {
+                        let f: ASTFunction = (parser_get_function parser fidx)
+                        return (== f.return_type "string")
+                    }
+                } else {
+                    return false
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_expr_is_string {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n greeting() -> string { return \"hi\" } shadow greeting { assert (== (greeting) \"hi\") }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    assert (nisa_expr_is_string p r.value r.value_type)
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {
     let mut args: string = ""
     let mut i: int = 0
@@ -208,36 +322,58 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
         let num: ASTNumber = (parser_get_number parser node_id)
         return (nisa_line_imm "PUSH_I64" num.value)
     } else {
-        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
-            let id: ASTIdentifier = (parser_get_identifier parser node_id)
-            let slot: int = (nisa_local_find id.name)
-            if (< slot 0) {
-                return (nisa_fail (+ "undefined local " id.name))
-            } else {
-                return (nisa_line_imm "LOAD_LOCAL" (int_to_string slot))
-            }
+        if (== node_type ParseNodeType.PNODE_STRING) {
+            let s: ASTString = (parser_get_string parser node_id)
+            let name: string = (nisa_intern s.value)
+            return (nisa_line_imm "PUSH_STR" name)
         } else {
-            if (== node_type ParseNodeType.PNODE_BINARY_OP) {
-                let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
-                let mnemonic: string = (nisa_binop_mnemonic binop.op)
-                if (== mnemonic "") {
-                    return (nisa_fail "unsupported integer operator")
+            if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+                let id: ASTIdentifier = (parser_get_identifier parser node_id)
+                let slot: int = (nisa_local_find id.name)
+                if (< slot 0) {
+                    return (nisa_fail (+ "undefined local " id.name))
                 } else {
-                    let left: string = (nisa_emit_expr parser binop.left binop.left_type)
-                    let right: string = (nisa_emit_expr parser binop.right binop.right_type)
-                    return (+ (+ left right) (nisa_line mnemonic))
+                    return (nisa_line_imm "LOAD_LOCAL" (int_to_string slot))
                 }
             } else {
-                if (== node_type ParseNodeType.PNODE_CALL) {
-                    let call: ASTCall = (parser_get_call parser node_id)
-                    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                    if (< (nisa_fn_index parser func_id.name) 0) {
-                        return (nisa_fail (+ "undefined function " func_id.name))
+                if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+                    let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                    let left_s: bool = (nisa_expr_is_string parser binop.left binop.left_type)
+                    let right_s: bool = (nisa_expr_is_string parser binop.right binop.right_type)
+                    if (and left_s right_s) {
+                        if (== binop.op LexerTokenType.TOKEN_PLUS) {
+                            let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                            let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                            return (+ (+ left right) (nisa_line "STR_CONCAT"))
+                        } else {
+                            return (nisa_fail "unsupported string operator")
+                        }
                     } else {
-                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                        if (or left_s right_s) {
+                            return (nisa_fail "string concat needs two strings")
+                        } else {
+                            let mnemonic: string = (nisa_binop_mnemonic binop.op)
+                            if (== mnemonic "") {
+                                return (nisa_fail "unsupported integer operator")
+                            } else {
+                                let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                                let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                                return (+ (+ left right) (nisa_line mnemonic))
+                            }
+                        }
                     }
                 } else {
-                    return (nisa_fail "expression outside the i64 subset")
+                    if (== node_type ParseNodeType.PNODE_CALL) {
+                        let call: ASTCall = (parser_get_call parser node_id)
+                        let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                        if (< (nisa_fn_index parser func_id.name) 0) {
+                            return (nisa_fail (+ "undefined function " func_id.name))
+                        } else {
+                            return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                        }
+                    } else {
+                        return (nisa_fail "expression outside the pinned subset")
+                    }
                 }
             }
         }
@@ -424,9 +560,14 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let l: ASTLet = (parser_get_let parser stmt.node_id)
             let val: string = (nisa_emit_expr parser l.value l.value_type)
-            set nisa_names (array_push nisa_names l.name)
-            let slot: int = (- (array_length nisa_names) 1)
-            return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+            if (and (not (== l.var_type "int")) (not (== l.var_type "string"))) {
+                return (nisa_fail (+ "unsupported local type " l.var_type))
+            } else {
+                set nisa_names (array_push nisa_names l.name)
+                set nisa_types (array_push nisa_types l.var_type)
+                let slot: int = (- (array_length nisa_names) 1)
+                return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+            }
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_SET) {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)
@@ -453,7 +594,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                             let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
                             return (+ expr (nisa_line "POP"))
                         } else {
-                            return (nisa_fail "statement outside the i64 subset")
+                            return (nisa_fail "statement outside the pinned subset")
                         }
                     }
                 }
@@ -509,27 +650,39 @@ shadow nisa_emit_block {
 
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
-    let mut i: int = 0
-    while (< i func.param_count) {
-        let plet: ASTLet = (parser_get_let parser (+ func.param_start i))
-        set nisa_names (array_push nisa_names plet.name)
-        set i (+ i 1)
-    }
-    let mut body: string = (nisa_emit_block parser func.body)
-    if (nisa_block_falls_through parser func.body) {
-        set body (+ body (nisa_line "RET"))
+    set nisa_types []
+    if (and (not (== func.return_type "int")) (not (== func.return_type "string"))) {
+        return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {
-        (print "")
+        let mut i: int = 0
+        while (< i func.param_count) {
+            let plet: ASTLet = (parser_get_let parser (+ func.param_start i))
+            if (and (not (== plet.var_type "int")) (not (== plet.var_type "string"))) {
+                return (nisa_fail (+ "unsupported param type " plet.var_type))
+            } else {
+                set nisa_names (array_push nisa_names plet.name)
+                set nisa_types (array_push nisa_types plet.var_type)
+                set i (+ i 1)
+            }
+        }
+        let mut body: string = (nisa_emit_block parser func.body)
+        if (nisa_block_falls_through parser func.body) {
+            set body (+ body (nisa_line "RET"))
+        } else {
+            (print "")
+        }
+        let locals: int = (array_length nisa_names)
+        let mut header: string = ".function "
+        set header (+ header func.name)
+        set header (+ header " ")
+        set header (+ header (int_to_string func.param_count))
+        set header (+ header " ")
+        set header (+ header (int_to_string locals))
+        set header (+ header " 0 ")
+        set header (+ header func.return_type)
+        set header (+ header " 1\n")
+        return (+ (+ header body) ".end\n")
     }
-    let locals: int = (array_length nisa_names)
-    let mut header: string = ".function "
-    set header (+ header func.name)
-    set header (+ header " ")
-    set header (+ header (int_to_string func.param_count))
-    set header (+ header " ")
-    set header (+ header (int_to_string locals))
-    set header (+ header " 0 int 1\n")
-    return (+ (+ header body) ".end\n")
 }
 
 shadow nisa_emit_function {
@@ -544,6 +697,20 @@ shadow nisa_emit_function {
     assert (str_contains text "I64_ADD")
     assert (str_contains text "LOAD_LOCAL 0")
     assert (str_contains text "LOAD_LOCAL 1")
+    let src2: string = (+ "f" "n greeting() -> string { return \"hi\" } shadow greeting { assert true }")
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let gfn: ASTFunction = (parser_get_function p2 0)
+    let gtext: string = (nisa_emit_function p2 gfn)
+    assert (str_contains gtext ".function greeting 0 0 0 string 1")
+    assert (str_contains gtext "PUSH_STR s0")
+    let src3: string = (+ "f" "n glue(a: string, b: string) -> string { return (+ a b) } shadow glue { assert true }")
+    let toks3: List<LexerToken> = (tokenize_string src3 "t.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "t.nano")
+    let glue_fn: ASTFunction = (parser_get_function p3 0)
+    let glue_text: string = (nisa_emit_function p3 glue_fn)
+    assert (str_contains glue_text ".function glue 2 2 0 string 1")
+    assert (str_contains glue_text "STR_CONCAT")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
@@ -586,6 +753,12 @@ pub fn nanoisa_emit_nasm(source: string) -> string {
                 let mut prelude: string = ".entry "
                 set prelude (+ prelude (int_to_string main_idx))
                 set prelude (+ prelude "\n\n")
+                set prelude (+ prelude (nisa_str_prelude))
+                if (> (array_length nisa_str_names) 0) {
+                    set prelude (+ prelude "\n")
+                } else {
+                    (print "")
+                }
                 return (+ prelude out)
             }
         }

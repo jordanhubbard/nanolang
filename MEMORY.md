@@ -58,7 +58,7 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 
 **Backend A — C Transpiler:** AST → C source → `cc` → native binary  
 **Backend B — NanoISA VM:** AST → bytecode → `.nvm` → `nano_vm` (optional `nano_cop` / `nano_vmd`). `nano_virt -o` still embeds that VM.  
-**Backend C — NanoISA AOT:** `.nvm` → `bin/nvm2c` → structured C11 → `cc`. Closed i64 subset including comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL` (`make test-nvm2c`, 65 passed). The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`). Cut A pin: `src_nano` emits `.nasm` for integer add/main/choose/loop_sum (`make test-nanoisa-src-nano`, 14 passed).
+**Backend C — NanoISA AOT:** `.nvm` → `bin/nvm2c` → structured C11 → `cc`. Closed i64 subset including comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL` (`make test-nvm2c`, 65 passed). The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`). Cut A pin: `src_nano` emits `.nasm` for integer add/main/choose/loop_sum and string greeting/glue (`make test-nanoisa-src-nano`, 18 passed).
 
 ---
 
@@ -965,7 +965,7 @@ translator fallback; recovered `if`/`while` is not this subset.
 | `parser.nano` | Parser implementation |
 | `typecheck.nano` | Type checker |
 | `transpiler.nano` | C code generator |
-| `compiler/nanoisa_codegen.nano` | 5.0 Cut A: AST → `.nasm` (pinned i64 subset) |
+| `compiler/nanoisa_codegen.nano` | 5.0 Cut A: AST → `.nasm` (pinned i64 + string subset) |
 | `nanoisa_emit.nano` | Driver for that emitter |
 | `compiler/module_loader.nano` | Module loading/resolution |
 | `compiler/diagnostics.nano` | Diagnostic system |

@@ -1090,6 +1090,10 @@ Compiler product:
 - [x] Cut A control: the same pin matches `choose` (`if`) and `loop_sum`
       (`while`/`set`/`let mut`) bytecode with the C seed.
       `make test-nanoisa-src-nano` (14 passed).
+- [x] Cut A strings: the same pin matches `greeting` (`PUSH_STR`) and
+      `glue` (`STR_CONCAT`) bytecode with the C seed. Comparison resolves
+      string operands, not only pool indices. `make test-nanoisa-src-nano`
+      (18 passed). I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

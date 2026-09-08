@@ -13,7 +13,7 @@ extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 
 fn show_usage() -> void {
-    (println "I lower a pinned integer subset to NanoISA assembly.")
+    (println "I lower a pinned integer and string subset to NanoISA assembly.")
     (println "Usage: nanoisa_emit <file.nano> [-o out.nasm]")
 }
 
@@ -58,7 +58,7 @@ fn main() -> int {
             let src: string = (file_read input)
             let nasm: string = (nanoisa_emit_nasm src)
             if (== nasm "") {
-                (println "I refused that program: it is outside the i64 subset")
+                (println "I refused that program: it is outside the pinned subset")
                 return 1
             } else {
                 if (== output "") {

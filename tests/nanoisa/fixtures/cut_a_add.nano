@@ -40,3 +40,19 @@ fn loop_sum(n: int) -> int {
 shadow loop_sum {
     assert (== (loop_sum 4) 6)
 }
+
+fn greeting() -> string {
+    return "hi"
+}
+
+shadow greeting {
+    assert (== (greeting) "hi")
+}
+
+fn glue(a: string, b: string) -> string {
+    return (+ a b)
+}
+
+shadow glue {
+    assert (== (glue "a" "b") "ab")
+}

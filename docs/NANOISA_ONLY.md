@@ -205,9 +205,10 @@ builds the compiler. I compare `.nvm` from the C seed's NanoISA path
 and from `src_nano` on a pinned subset, not yet the whole compiler.
 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
 `make test-nanoisa-src-nano` on integer `add`/`main`/`choose`/`loop_sum`
-(14 passed; function bytecode matches the C seed, including `if` and
-`while`). I still pretty-print C to build the compiler. The full dual of
-`codegen.c` is not this pin.
+and string `greeting`/`glue` (18 passed; function bytecode matches the C
+seed, including `if`, `while`, `PUSH_STR`, and `STR_CONCAT`). String
+operands are compared by content, not pool index. I still pretty-print C
+to build the compiler. The full dual of `codegen.c` is not this pin.
 
 **B — AOT covers the compiler subset.** `nvm2c` translates functions,
 structs, loops, arrays, strings, modules, and a declared host ABI.
