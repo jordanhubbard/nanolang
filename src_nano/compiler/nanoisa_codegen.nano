@@ -569,7 +569,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
 shadow nisa_result_tag {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct LexerToken { token_type: int, value: string, line: int, column: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "int") "int")
@@ -577,6 +577,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "Point") "struct")
     assert (== (nisa_result_tag p "array<int>") "array")
     assert (== (nisa_result_tag p "List<Tok>") "array")
+    assert (== (nisa_result_tag p "List<LexerToken>") "array")
     assert (== (nisa_result_tag p "Nope") "")
 }
 
@@ -1941,6 +1942,26 @@ shadow nisa_emit_function {
     assert (str_contains via_one_t_text "ARR_GET")
     assert (str_contains via_one_t_text "AGG_GET 1")
     assert (str_contains via_one_t_text "STR_LEN")
+    let src52: string = (+ "struct LexerToken { token_type: int, value: string, line: int, column: int } " (+ "f" "n one_lex() -> List<LexerToken> { let xs: List<LexerToken> = (list_LexerToken_new) (list_LexerToken_push xs LexerToken { token_type: 1, value: \"hi\", line: 2, column: 3 }) return xs } shadow one_lex { assert true }"))
+    let toks52: List<LexerToken> = (tokenize_string src52 "t.nano" diags)
+    let p52: Parser = (parse_program toks52 (list_LexerToken_length toks52) "t.nano")
+    let one_lex_fn: ASTFunction = (parser_get_function p52 0)
+    let one_lex_text: string = (nisa_emit_function p52 one_lex_fn)
+    assert (str_contains one_lex_text ".function one_lex 0 1 0 array 1")
+    assert (str_contains one_lex_text "ARR_NEW")
+    assert (str_contains one_lex_text "ARR_PUSH")
+    assert (str_contains one_lex_text "AGG_PACK 0 0 0 4")
+    assert (str_contains one_lex_text "POP")
+    let src53: string = (+ "struct LexerToken { token_type: int, value: string, line: int, column: int } " (+ "f" "n one_lex() -> List<LexerToken> { let xs: List<LexerToken> = (list_LexerToken_new) (list_LexerToken_push xs LexerToken { token_type: 1, value: \"hi\", line: 2, column: 3 }) return xs } " (+ "f" "n via_one_lex() -> int { let xs: List<LexerToken> = (one_lex) let t: LexerToken = (list_LexerToken_get xs 0) return (str_length t.value) } shadow one_lex { assert true } shadow via_one_lex { assert true }")))
+    let toks53: List<LexerToken> = (tokenize_string src53 "t.nano" diags)
+    let p53: Parser = (parse_program toks53 (list_LexerToken_length toks53) "t.nano")
+    let via_one_lex_fn: ASTFunction = (parser_get_function p53 1)
+    let via_one_lex_text: string = (nisa_emit_function p53 via_one_lex_fn)
+    assert (str_contains via_one_lex_text ".function via_one_lex 0 2 0 int 1")
+    assert (str_contains via_one_lex_text "CALL one_lex")
+    assert (str_contains via_one_lex_text "ARR_GET")
+    assert (str_contains via_one_lex_text "AGG_GET 1")
+    assert (str_contains via_one_lex_text "STR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

@@ -561,3 +561,25 @@ fn via_one_t() -> int {
 shadow via_one_t {
     assert (== (via_one_t) 2)
 }
+
+fn one_lex() -> List<LexerToken> {
+    let xs: List<LexerToken> = (list_LexerToken_new)
+    (list_LexerToken_push xs LexerToken { token_type: 1, value: "hi", line: 2, column: 3 })
+    return xs
+}
+
+shadow one_lex {
+    let xs: List<LexerToken> = (one_lex)
+    let t: LexerToken = (list_LexerToken_get xs 0)
+    assert (== (str_length t.value) 2)
+}
+
+fn via_one_lex() -> int {
+    let xs: List<LexerToken> = (one_lex)
+    let t: LexerToken = (list_LexerToken_get xs 0)
+    return (str_length t.value)
+}
+
+shadow via_one_lex {
+    assert (== (via_one_lex) 2)
+}

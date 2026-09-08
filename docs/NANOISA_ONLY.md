@@ -213,8 +213,8 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
 `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
 `via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
-`via_new_l`, `one_t`, and `via_one_t`
-(`make test-nanoisa-src-nano`, 122 passed).
+`via_new_l`, `one_t`, `via_one_t`, `one_lex`, and `via_one_lex`
+(`make test-nanoisa-src-nano`, 126 passed).
 Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
@@ -238,7 +238,8 @@ then `POP`, `list_Tok_set` as `ARR_SET` then `POP`,
 `struct` (`origin` / `via_o`), and mixed int/string record results
 (`make_tok` / `via_tok`), and array results as ISA tag `array`
 (`ones` / `via_ones`), and `List<int>` results (`new_l` / `via_new_l`),
-and `List<Tok>` results (`one_t` / `via_one_t`).
+and `List<Tok>` results (`one_t` / `via_one_t`), and
+`List<LexerToken>` results (`one_lex` / `via_one_lex`).
 `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands
@@ -295,7 +296,8 @@ refused), and Cut A mixed int/string record results (`make_tok` /
 `via_tok` run as native C), and Cut A array results (`ones` /
 `via_ones` run as native C), and Cut A `List<int>` results (`new_l` /
 `via_new_l` run as native C), and Cut A `List<Tok>` results (`one_t` /
-`via_one_t` run as native C; nested records stay refused). Nested arrays,
+`via_one_t` run as native C; nested records stay refused), and Cut A
+`List<LexerToken>` results (`one_lex` / `via_one_lex` run as native C). Nested arrays,
 nested records, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
