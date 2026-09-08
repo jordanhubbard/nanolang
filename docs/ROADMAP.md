@@ -1371,9 +1371,16 @@ Compiler product:
       (178 passed). `parser.nano` names `expression outside the pinned subset 38`
       (`PNODE_MODULE_QUALIFIED_CALL`). I still pretty-print C to build the
       compiler.
-- [ ] Cut A module-qualified call: `parser.nano` names
-      `expression outside the pinned subset 38` (`PNODE_MODULE_QUALIFIED_CALL`).
+- [x] Cut A module-qualified call: `via_q_add` / `(ImpMod.imp_add 40 2)`
+      match the C seed (`TAIL_CALL imp_add`; qualified name first, then the
+      suffix after the last dot). `imp_add` is `pub` so the C typechecker
+      accepts the alias. `make test-nanoisa-src-nano` (180 passed).
+      `parser.nano` emits 297 functions and that nasm assembles.
+      `typecheck.nano` names `unsupported result type array<FieldMetadata>`.
       I still pretty-print C to build the compiler.
+- [ ] Cut A `array` of pin-records as a result type: `typecheck.nano` names
+      `unsupported result type array<FieldMetadata>`. I still pretty-print C
+      to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

@@ -22,7 +22,10 @@
  * `int_to_string`, and `str_concat` as `STR_CONCAT` (C seed builtin;
  * I still write `(+ a b)` in new code), and `string_to_int` as
  * `CAST_INT` (C seed builtin), and nested pin-record field access as
- * chained `AGG_GET` (C seed `infer_expr_struct_type`).
+ * chained `AGG_GET` (C seed `infer_expr_struct_type`), and
+ * module-qualified calls `(Alias.fn args)` as CALL/TAIL_CALL of the
+ * imported function (C seed AST_MODULE_QUALIFIED_CALL: qualified
+ * name first, then the suffix after the last dot).
  * Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -1335,6 +1338,192 @@ shadow nisa_emit_call_args {
     assert true
 }
 
+fn nisa_last_dot(name: string) -> int {
+    let mut i: int = (- (str_length name) 1)
+    while (>= i 0) {
+        if (== (char_at name i) 46) {
+            return i
+        } else {
+            set i (- i 1)
+        }
+    }
+    return (- 0 1)
+}
+
+shadow nisa_last_dot {
+    assert (== (nisa_last_dot "ImpMod.imp_add") 6)
+    assert (< (nisa_last_dot "imp_add") 0)
+}
+
+fn nisa_dot_suffix(name: string) -> string {
+    let idx: int = (nisa_last_dot name)
+    if (< idx 0) {
+        return name
+    } else {
+        let start: int = (+ idx 1)
+        let n: int = (str_length name)
+        let len: int = (- n start)
+        if (<= len 0) {
+            return name
+        } else {
+            return (str_substring name start len)
+        }
+    }
+}
+
+shadow nisa_dot_suffix {
+    assert (== (nisa_dot_suffix "imp_add") "imp_add")
+    assert (== (nisa_dot_suffix "ImpMod.imp_add") "imp_add")
+    assert (== (nisa_dot_suffix "Diagnostics.diag_location") "diag_location")
+}
+
+fn nisa_mqc_qualified(mqc: ASTModuleQualifiedCall) -> string {
+    if (!= mqc.module_name "") {
+        return (+ mqc.module_name (+ "." mqc.function_name))
+    } else {
+        return mqc.function_name
+    }
+}
+
+shadow nisa_mqc_qualified {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "import \"cut_a_fn_imp.nano\" as ImpMod " (+ "f" "n via_q_add() -> int { return (ImpMod.imp_add 40 2) } shadow via_q_add { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call p r.value)
+    assert (== (nisa_mqc_qualified mqc) "ImpMod.imp_add")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_mqc_unqualified(mqc: ASTModuleQualifiedCall) -> string {
+    if (!= mqc.module_name "") {
+        return mqc.function_name
+    } else {
+        return (nisa_dot_suffix mqc.function_name)
+    }
+}
+
+shadow nisa_mqc_unqualified {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "import \"cut_a_fn_imp.nano\" as ImpMod " (+ "f" "n via_q_add() -> int { return (ImpMod.imp_add 40 2) } shadow via_q_add { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call p r.value)
+    assert (== (nisa_mqc_unqualified mqc) "imp_add")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_mqc_callee(parser: Parser, mqc: ASTModuleQualifiedCall) -> string {
+    let q: string = (nisa_mqc_qualified mqc)
+    if (nisa_fn_defined parser q) {
+        return q
+    } else {
+        let u: string = (nisa_mqc_unqualified mqc)
+        if (nisa_fn_defined parser u) {
+            return u
+        } else {
+            if (nisa_is_host_call parser u) {
+                return u
+            } else {
+                if (nisa_is_host_call parser q) {
+                    return q
+                } else {
+                    return ""
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_mqc_callee {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "import \"cut_a_fn_imp.nano\" as ImpMod " (+ "f" "n via_q_add() -> int { return (ImpMod.imp_add 40 2) } shadow via_q_add { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p2: Parser = (nisa_ingest_imports p "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    let func: ASTFunction = (parser_get_function p2 0)
+    let block: ASTBlock = (parser_get_block p2 func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p2 stmt.node_id)
+    let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call p2 r.value)
+    assert (== (nisa_mqc_callee p2 mqc) "imp_add")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_emit_mqc_args(parser: Parser, mqc: ASTModuleQualifiedCall) -> string {
+    let mut args: string = ""
+    let mut i: int = 0
+    while (< i mqc.arg_count) {
+        let a: ASTStmtRef = (parser_get_call_arg parser (+ mqc.arg_start i))
+        set args (+ args (nisa_emit_expr parser a.node_id a.node_type))
+        set i (+ i 1)
+    }
+    return args
+}
+
+shadow nisa_emit_mqc_args {
+    assert true
+}
+
+fn nisa_emit_mqc(parser: Parser, node_id: int) -> string {
+    let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+    let callee: string = (nisa_mqc_callee parser mqc)
+    if (== callee "") {
+        return (nisa_fail (+ "undefined module function " (nisa_mqc_qualified mqc)))
+    } else {
+        if (nisa_is_host_call parser callee) {
+            return (nisa_fail (+ "host module call is not in the pinned subset " callee))
+        } else {
+            return (+ (nisa_emit_mqc_args parser mqc) (nisa_line_imm "CALL" callee))
+        }
+    }
+}
+
+shadow nisa_emit_mqc {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "import \"cut_a_fn_imp.nano\" as ImpMod " (+ "f" "n via_q_add() -> int { return (ImpMod.imp_add 40 2) } shadow via_q_add { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p2: Parser = (nisa_ingest_imports p "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    let func: ASTFunction = (parser_get_function p2 0)
+    let block: ASTBlock = (parser_get_block p2 func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p2 stmt.node_id)
+    let text: string = (nisa_emit_mqc p2 r.value)
+    assert (str_contains text "PUSH_I64 40")
+    assert (str_contains text "PUSH_I64 2")
+    assert (str_contains text "CALL imp_add")
+    let st_text: string = (nisa_emit_stmt p2 stmt)
+    assert (str_contains st_text "TAIL_CALL imp_add")
+    let _2: int = (nisa_reset)
+    let src2: string = (+ "import \"cut_a_fn_imp.nano\" as ImpMod " (+ "f" "n via_discard() -> int { (ImpMod.imp_add 1 2) return 0 } shadow via_discard { assert true }"))
+    let toks2: List<LexerToken> = (tokenize_string src2 "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p3: Parser = (parse_program toks2 (list_LexerToken_length toks2) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p4: Parser = (nisa_ingest_imports p3 "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    let func2: ASTFunction = (parser_get_function p4 0)
+    let block2: ASTBlock = (parser_get_block p4 func2.body)
+    let stmt2: ASTStmtRef = (list_ASTStmtRef_get block2.statements 0)
+    let disc: string = (nisa_emit_stmt p4 stmt2)
+    assert (str_contains disc "CALL imp_add")
+    assert (str_contains disc "POP")
+    let _3: int = (nisa_reset)
+}
+
 fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
     let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
     let mut out: string = ""
@@ -1858,19 +2047,23 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                                 set out (+ out (nisa_label_line l_end))
                                                 return out
                                             }
-                                        } else {
-                                            if (== node_type ParseNodeType.PNODE_BLOCK) {
-                                                let blk: ASTBlock = (parser_get_block parser node_id)
-                                                if (!= (list_ASTStmtRef_length blk.statements) 1) {
-                                                    return (nisa_fail "expression block needs 1 statement")
-                                                } else {
-                                                    let st: ASTStmtRef = (list_ASTStmtRef_get blk.statements 0)
-                                                    return (nisa_emit_expr parser st.node_id st.node_type)
-                                                }
                                             } else {
-                                                return (nisa_fail (+ "expression outside the pinned subset " (int_to_string node_type)))
+                                                if (== node_type ParseNodeType.PNODE_BLOCK) {
+                                                    let blk: ASTBlock = (parser_get_block parser node_id)
+                                                    if (!= (list_ASTStmtRef_length blk.statements) 1) {
+                                                        return (nisa_fail "expression block needs 1 statement")
+                                                    } else {
+                                                        let st: ASTStmtRef = (list_ASTStmtRef_get blk.statements 0)
+                                                        return (nisa_emit_expr parser st.node_id st.node_type)
+                                                    }
+                                                } else {
+                                                    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+                                                        return (nisa_emit_mqc parser node_id)
+                                                    } else {
+                                                        return (nisa_fail (+ "expression outside the pinned subset " (int_to_string node_type)))
+                                                    }
+                                                }
                                             }
-                                        }
                                     }
                                 }
                             }
@@ -2179,8 +2372,18 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 }
             }
         } else {
-            let val: string = (nisa_emit_expr parser r.value r.value_type)
-            return (+ val (nisa_line "RET"))
+            if (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+                let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser r.value)
+                let callee: string = (nisa_mqc_callee parser mqc)
+                if (== callee "") {
+                    return (nisa_fail (+ "undefined module function " (nisa_mqc_qualified mqc)))
+                } else {
+                    return (+ (nisa_emit_mqc_args parser mqc) (nisa_line_imm "TAIL_CALL" callee))
+                }
+            } else {
+                let val: string = (nisa_emit_expr parser r.value r.value_type)
+                return (+ val (nisa_line "RET"))
+            }
         }
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
@@ -2235,6 +2438,19 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                                 }
                             }
                         } else {
+                            if (== stmt.node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+                                let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser stmt.node_id)
+                                let callee: string = (nisa_mqc_callee parser mqc)
+                                if (== callee "") {
+                                    return (nisa_fail (+ "undefined module function " (nisa_mqc_qualified mqc)))
+                                } else {
+                                    if (nisa_fn_is_void parser callee) {
+                                        return (nisa_emit_mqc parser stmt.node_id)
+                                    } else {
+                                        return (+ (nisa_emit_mqc parser stmt.node_id) (nisa_line "POP"))
+                                    }
+                                }
+                            } else {
                             if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
                                    (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)
                                        (or (== stmt.node_type ParseNodeType.PNODE_BINARY_OP)
@@ -2247,6 +2463,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                                 } else {
                                     return (nisa_fail (+ "statement outside the pinned subset " (int_to_string stmt.node_type)))
                                 }
+                            }
                             }
                         }
                     }

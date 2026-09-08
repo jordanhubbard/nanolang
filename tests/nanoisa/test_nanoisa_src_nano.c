@@ -230,6 +230,8 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_imp_add;
     const NvmFunctionEntry *c_via_imp_add;
     const NvmFunctionEntry *s_via_imp_add;
+    const NvmFunctionEntry *c_via_q_add;
+    const NvmFunctionEntry *s_via_q_add;
     const NvmFunctionEntry *c_via_raw;
     const NvmFunctionEntry *s_via_raw;
     const NvmFunctionEntry *c_via_cwd;
@@ -291,8 +293,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 86, "C seed emitted add through via_nest_line");
-    CHECK(s_mod->function_count >= 86, "src_nano emitted add through via_nest_line");
+    CHECK(c_mod->function_count >= 87, "C seed emitted add through via_q_add");
+    CHECK(s_mod->function_count >= 87, "src_nano emitted add through via_q_add");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -430,6 +432,8 @@ int main(int argc, char **argv) {
     s_imp_add = fn_by_name(s_mod, "imp_add");
     c_via_imp_add = fn_by_name(c_mod, "via_imp_add");
     s_via_imp_add = fn_by_name(s_mod, "via_imp_add");
+    c_via_q_add = fn_by_name(c_mod, "via_q_add");
+    s_via_q_add = fn_by_name(s_mod, "via_q_add");
     c_via_raw = fn_by_name(c_mod, "via_raw");
     s_via_raw = fn_by_name(s_mod, "via_raw");
     c_via_cwd = fn_by_name(c_mod, "via_cwd");
@@ -534,6 +538,7 @@ int main(int argc, char **argv) {
     CHECK(c_via_tok_mod != NULL && s_via_tok_mod != NULL, "both modules have via_tok_mod");
     CHECK(c_imp_add != NULL && s_imp_add != NULL, "both modules have imp_add");
     CHECK(c_via_imp_add != NULL && s_via_imp_add != NULL, "both modules have via_imp_add");
+    CHECK(c_via_q_add != NULL && s_via_q_add != NULL, "both modules have via_q_add");
     CHECK(c_via_raw != NULL && s_via_raw != NULL, "both modules have via_raw");
     CHECK(c_via_cwd != NULL && s_via_cwd != NULL, "both modules have via_cwd");
     CHECK(c_nest_d != NULL && s_nest_d != NULL, "both modules have nest_d");
@@ -688,6 +693,8 @@ int main(int argc, char **argv) {
           "imp_add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_imp_add, s_mod, s_via_imp_add),
           "via_imp_add bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_q_add, s_mod, s_via_q_add),
+          "via_q_add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_raw, s_mod, s_via_raw),
           "via_raw bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_cwd, s_mod, s_via_cwd),
@@ -929,6 +936,9 @@ int main(int argc, char **argv) {
         printf("    C via_imp_add locals=%u len=%u  src via_imp_add locals=%u len=%u\n",
                c_via_imp_add ? c_via_imp_add->local_count : 0, c_via_imp_add ? c_via_imp_add->code_length : 0,
                s_via_imp_add ? s_via_imp_add->local_count : 0, s_via_imp_add ? s_via_imp_add->code_length : 0);
+        printf("    C via_q_add locals=%u len=%u  src via_q_add locals=%u len=%u\n",
+               c_via_q_add ? c_via_q_add->local_count : 0, c_via_q_add ? c_via_q_add->code_length : 0,
+               s_via_q_add ? s_via_q_add->local_count : 0, s_via_q_add ? s_via_q_add->code_length : 0);
         printf("    C via_raw locals=%u len=%u  src via_raw locals=%u len=%u\n",
                c_via_raw ? c_via_raw->local_count : 0, c_via_raw ? c_via_raw->code_length : 0,
                s_via_raw ? s_via_raw->local_count : 0, s_via_raw ? s_via_raw->code_length : 0);

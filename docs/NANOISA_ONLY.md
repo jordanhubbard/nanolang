@@ -326,9 +326,11 @@ string `+` of a field or `int_to_string` (`glue_field` / `glue_digits`) and
 `str_concat` as `STR_CONCAT` (`glue_sc`), and Cut A `string_to_int` as
 `CAST_INT` (`parse_n` / `via_parse_n` match the C seed; `nvm2c` runs
 `via_parse_n` without `nano_vm`), and Cut A nested field access as chained
-`AGG_GET` (`nest_line` / `via_nest_line` match the C seed).
-`parser.nano` still names `expression outside the pinned subset 38`
-(`PNODE_MODULE_QUALIFIED_CALL`). Nested arrays,
+`AGG_GET` (`nest_line` / `via_nest_line` match the C seed), and Cut A
+module-qualified call (`via_q_add` / `(ImpMod.imp_add 40 2)` match the C
+seed; `parser.nano` emits 297 functions and that nasm assembles).
+`typecheck.nano` still names `unsupported result type array<FieldMetadata>`.
+Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the

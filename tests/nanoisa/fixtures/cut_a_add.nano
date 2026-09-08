@@ -656,6 +656,16 @@ shadow via_imp_add {
     assert (== (via_imp_add) 42)
 }
 
+import "cut_a_fn_imp.nano" as ImpMod
+
+fn via_q_add() -> int {
+    return (ImpMod.imp_add 40 2)
+}
+
+shadow via_q_add {
+    assert (== (via_q_add) 42)
+}
+
 fn via_raw() -> int {
     unsafe {
         return 7
