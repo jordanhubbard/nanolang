@@ -1296,10 +1296,22 @@ Compiler product:
       `make test-nanoisa-src-nano` names `undefined local LexerTokenType`
       on `lexer.nano` (direct `ir.nano` has no enum; `LexerTokenType`
       lives in a transitive import).
-- [ ] Cut A transitive imported enums: ingest `ASTEnum` from a direct
+- [x] Cut A transitive imported enums: ingest `ASTEnum` from a direct
       import's imports (`ir.nano` → `compiler_schema.nano`).
       `nanoisa_emit` of `lexer.nano` must not refuse
       `undefined local LexerTokenType`. Imported functions stay
+      refused. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` names `unsupported param type List<CompilerDiagnostic>`
+      on `lexer.nano` (`List<LexerToken>` params already pass once
+      imported structs are on the parser).
+- [x] Cut A imported structs: ingest `ASTStruct` from the same import
+      walk as enums. `LexerToken` from `compiler_ast.nano` is a pin
+      record. Nested fields (`CompilerDiagnostic.location`) stay
+      refused. I still pretty-print C to build the compiler.
+- [ ] Cut A nested pin-records: `CompilerSourceLocation` fields inside
+      `CompilerDiagnostic` so `List<CompilerDiagnostic>` parameters
+      are in the pinned subset. Nested records were refused; the
+      compiler subset needs one level. Imported functions stay
       refused. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.

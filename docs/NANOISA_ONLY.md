@@ -244,7 +244,8 @@ and `List<Tok>` results (`one_t` / `via_one_t`), and
 `>=`/`<=` (`in_az` / `via_az`), `Enum.Variant` as `ENUM_VAL`
 (`tag` / `via_tag`), and imported `Enum.Variant` (`tok_mod` /
 `via_tok_mod`; local enums stay first in `def_idx`). `std/` import
-paths resolve through `modules/` like the C seed.
+paths resolve through `modules/` like the C seed. Transitive
+imports register enums and pin-record structs from imported files.
 `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands

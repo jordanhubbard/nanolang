@@ -81,6 +81,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `ENUM_VAL` (`tag` / `via_tag`), and imported `Enum.Variant`
   (`tok_mod` / `via_tok_mod`; local enums stay first in `def_idx`).
   `std/fs.nano` resolves through `modules/` like the C seed.
+  Transitive imports register `LexerTokenType` from
+  `compiler_schema.nano`. Imported structs register `LexerToken`.
   `STR_SPLIT`
   and `STR_REPLACE`
   stay refused. String operands

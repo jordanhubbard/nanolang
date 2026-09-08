@@ -1,0 +1,4 @@
+struct ImpTok {
+    t: int,
+    s: string
+}

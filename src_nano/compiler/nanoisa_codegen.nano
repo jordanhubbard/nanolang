@@ -30,6 +30,7 @@ let mut nisa_str_names: array<string> = []
 let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
+let mut nisa_seen: array<string> = []
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -39,6 +40,7 @@ fn nisa_reset() -> int {
     set nisa_ok true
     set nisa_err ""
     set nisa_label 0
+    set nisa_seen []
     return 0
 }
 
@@ -439,41 +441,100 @@ shadow nisa_resolve_import {
     assert (== (nisa_resolve_import "src_nano/compiler/lexer.nano" "src_nano/compiler/ir.nano") "src_nano/compiler/ir.nano")
 }
 
-fn nisa_ingest_imports(parser: Parser, file_name: string) -> Parser {
-    let mut p: Parser = parser
-    let n: int = (parser_get_import_count p)
+fn nisa_seen_has(path: string) -> bool {
+    let n: int = (array_length nisa_seen)
     let mut i: int = 0
     while (< i n) {
-        let imp: ASTImport = (parser_get_import p i)
+        if (== (at nisa_seen i) path) {
+            return true
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow nisa_seen_has {
+    let _: int = (nisa_reset)
+    assert (not (nisa_seen_has "a.nano"))
+    set nisa_seen (array_push nisa_seen "a.nano")
+    assert (nisa_seen_has "a.nano")
+    assert (not (nisa_seen_has "b.nano"))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_ingest_imports(parser: Parser, file_name: string) -> Parser {
+    let mut acc: Parser = parser
+    let mut queue: array<string> = []
+    let n: int = (parser_get_import_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let imp: ASTImport = (parser_get_import parser i)
         let path: string = (nisa_resolve_import file_name imp.module_path)
         if (== path "") {
             let _b: string = (nisa_fail (+ "cannot read import " imp.module_path))
-            return p
+            return acc
         } else {
+            set queue (array_push queue path)
+        }
+        set i (+ i 1)
+    }
+    let mut q: int = 0
+    while (< q (array_length queue)) {
+        let path: string = (at queue q)
+        if (nisa_seen_has path) {
+            (print "")
+        } else {
+            set nisa_seen (array_push nisa_seen path)
             let diags: List<CompilerDiagnostic> = (diag_list_new)
             let src: string = (read path)
             let toks: List<LexerToken> = (tokenize_string src path diags)
             let ip: Parser = (parse_program toks (list_LexerToken_length toks) path)
             if (parser_has_error ip) {
                 let _p: string = (nisa_fail (+ "parse failed " path))
-                return p
+                return acc
             } else {
                 let en: int = (parser_get_enum_count ip)
                 let mut j: int = 0
                 while (< j en) {
                     let ed: ASTEnum = (parser_get_enum ip j)
-                    if (>= (nisa_enum_index p ed.name) 0) {
+                    if (>= (nisa_enum_index acc ed.name) 0) {
                         (print "")
                     } else {
-                        set p (parser_store_enum p ed.name ed.variant_count ed.variant_names ed.variant_values ed.line ed.column)
+                        set acc (parser_store_enum acc ed.name ed.variant_count ed.variant_names ed.variant_values ed.line ed.column)
                     }
                     set j (+ j 1)
                 }
+                let sn: int = (parser_get_struct_def_count ip)
+                let mut sj: int = 0
+                while (< sj sn) {
+                    let sd: ASTStruct = (parser_get_struct_def ip sj)
+                    if (>= (nisa_struct_index acc sd.name) 0) {
+                        (print "")
+                    } else {
+                        set acc (parser_store_struct acc sd.name sd.field_count sd.field_names sd.field_types sd.line sd.column)
+                    }
+                    set sj (+ sj 1)
+                }
+                let m: int = (parser_get_import_count ip)
+                let mut k: int = 0
+                while (< k m) {
+                    let imp2: ASTImport = (parser_get_import ip k)
+                    let next: string = (nisa_resolve_import path imp2.module_path)
+                    if (== next "") {
+                        let _c: string = (nisa_fail (+ "cannot read import " imp2.module_path))
+                        return acc
+                    } else {
+                        set queue (array_push queue next)
+                    }
+                    set k (+ k 1)
+                }
             }
         }
-        set i (+ i 1)
+        set q (+ q 1)
     }
-    return p
+    return acc
 }
 
 shadow nisa_ingest_imports {
@@ -488,6 +549,24 @@ shadow nisa_ingest_imports {
     let ed: ASTEnum = (parser_get_enum p2 0)
     assert (== ed.name "ImpKind")
     assert (== (at ed.variant_values 0) 19)
+    let _r: int = (nisa_reset)
+    let src3: string = "from \"cut_a_kind_mid.nano\" import ImpKind"
+    let toks3: List<LexerToken> = (tokenize_string src3 "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p4: Parser = (nisa_ingest_imports p3 "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    assert (== (parser_get_enum_count p4) 1)
+    let ed4: ASTEnum = (parser_get_enum p4 0)
+    assert (== ed4.name "ImpKind")
+    let _r2: int = (nisa_reset)
+    let src5: string = "from \"cut_a_tok_imp.nano\" import ImpTok"
+    let toks5: List<LexerToken> = (tokenize_string src5 "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p5: Parser = (parse_program toks5 (list_LexerToken_length toks5) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p6: Parser = (nisa_ingest_imports p5 "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    assert (== (parser_get_struct_def_count p6) 1)
+    let sd6: ASTStruct = (parser_get_struct_def p6 0)
+    assert (== sd6.name "ImpTok")
     let _2: int = (nisa_reset)
 }
 
@@ -2241,12 +2320,12 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                 }
                 set i (+ i 1)
             }
-            if (< main_idx 0) {
-                let missing: string = (nisa_fail "no main")
-                return missing
+            if (not nisa_ok) {
+                return ""
             } else {
-                if (not nisa_ok) {
-                    return ""
+                if (< main_idx 0) {
+                    let missing: string = (nisa_fail "no main")
+                    return missing
                 } else {
                     let mut prelude: string = ".entry "
                     set prelude (+ prelude (int_to_string main_idx))

@@ -5345,7 +5345,7 @@ shadow parser_store_function {
 /* Helper: Store struct definition node */
 
 /* Helper: Store struct node */
-fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: array<string>, field_types: array<string>, line: int, column: int) -> Parser {
+pub fn parser_store_struct(p: Parser, name: string, field_count: int, field_names: array<string>, field_types: array<string>, line: int, column: int) -> Parser {
     let node: ASTStruct = ASTStruct {
         node_type: ParseNodeType.PNODE_STRUCT_DEF,
         line: line,
