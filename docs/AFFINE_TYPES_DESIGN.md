@@ -1,389 +1,249 @@
-# Affine Types for Resource Safety
+# Affine Ownership Contract
 
-**Status**: 5.0 design contract; the current C-seed MVP is partial
-**Roadmap**: Phase 20 in `ROADMAP.md`
-**Tasks**: contract `task_4ac22044ffda9f93b336a85573293bc2`, C seed
-`task_c4e2f078cef8c4e461f0de3711c8a2b9`, self-hosted frontend
-`task_20048de825616195b9f2bc492231a851`, NanoISA
-`task_ed70242ac4d83be7b2327da7ece387ad`, services
-`task_d03c232dc067e75cbc2fb2b7fb84ee46`, release gate
-`task_28f2fb4b1f3c8a5ce93df628bb569d76`
-**Direction**: affine ownership for resources + GC for ordinary values
+**Status:** Normative 5.0 design; not the current implementation
 
-This document describes my 5.0 target, not the behavior I can prove today.
-The C seed recognizes `resource struct` and has a basic per-identifier
-unused/used/consumed tracker. That prototype is not path-sensitive and does
-not prove moves, nested ownership, all exits, loops, or equivalent behavior in
-`src_nano`. Ownership metadata is not yet a verified `.nvm` contract. I will
-not call affine ownership production-ready until the task-backed acceptance
-matrix above passes.
+I use affine ownership with a mandatory resource-resolution obligation. An
+owner may move a value, but may not copy it. Every reachable exit must resolve
+each live resource by transferring it to another owner or passing it to a
+consuming operation. This is not a general linear type system: a value may be
+observed any number of times through a borrow, and ordinary values remain
+garbage collected.
 
-## Problem Statement
+## Current Boundary
 
-Prevent use-after-close errors at compile time:
+The C frontend currently recognizes `resource struct` and performs limited,
+per-identifier state tracking. It has isolated positive and negative tests.
+That does not establish path-sensitive ownership.
 
-```nano
-let file: FileHandle = (open "data.txt")
-(close file)
-let data: string = (read file)  // Should be compile error, not runtime error!
-```
+The self-hosted frontend does not yet implement this complete contract. Neither
+frontend currently demonstrates all of the cases in the conformance matrix
+below. Ownership metadata is not yet a verified NanoISA contract. I therefore
+make no production-readiness claim for affine ownership in the current release.
 
-## Design Decision
+Everything after this section is the 5.0 target. A target example is a
+specification, not evidence that either compiler accepts it today.
 
-**NOT** using:
-- ❌ Full borrow checker (too complex, months of work × 2 for dual impl)
-- ❌ Pure ARC (doesn't solve use-after-close, needs weak refs for cycles)
-
-**USING**:
-- ✅ Affine types for resources (use at most once)
-- ✅ Keep GC for strings, arrays, structs (99% of code)
-- ✅ Compile-time only checking (zero runtime overhead)
-
-## Core Concepts
-
-### Affine Types
-A type is **affine** if ownership cannot be duplicated and an owned value can
-be transferred at most once. Non-consuming observation, if I accept borrowing,
-does not transfer ownership. After a move, consuming call, or explicit discard,
-the previous owner cannot access the value.
-
-Managed resources add a cleanup obligation: every reachable exit must either
-transfer ownership or perform an ownership-ending operation. This obligation
-is closer to a linear lifecycle than plain affine weakening. The 5.0 semantic
-contract task will settle the terminology and exact `drop` behavior before I
-encode it in either compiler.
-
-### Resource Types
-Types marked as `resource` are affine and represent system resources that must be explicitly released:
+## Canonical Syntax
 
 ```nano
 resource struct FileHandle {
     fd: int
 }
 
-resource struct Socket {
-    sockfd: int
-}
-
-resource struct GpuBuffer {
-    handle: int
-}
+fn open_file(path: string) -> FileHandle
+fn read_file(file: &FileHandle) -> string
+fn close_file(file: FileHandle) -> void
 ```
 
-### Consuming Functions
-Functions that take ownership and consume a resource:
+I use one ownership spelling:
+
+- `T` in a parameter position is by value. Passing a resource transfers it.
+- `&T` is a shared borrow for the duration of one call. It cannot escape.
+- `&mut T` is an exclusive borrow for the duration of one call. It cannot
+  escape or overlap another borrow.
+- `let next: T = current` moves a resource-bearing value. It never copies it.
+- `let Aggregate { field, ... } = value` destructures an owned aggregate as one
+  consuming operation. It moves every field and makes `value` unavailable.
+- `drop` and `discard` are not ownership syntax in 5.0. Ordinary GC values need
+  no explicit terminal operation, and resource-bearing values must be moved or
+  passed to a consuming function.
+
+The current parsers do not establish support for `&T`, `&mut T`, or owned
+destructuring. Those spellings become language syntax only when both frontends
+pass the same conformance cases.
+
+## Ownership States
+
+For each place, I track `live`, `borrowed`, or `moved`. A borrow ends at the end
+of its call. A consuming call, move, or return changes the source place to
+`moved`. Reading, borrowing, moving, or consuming a moved place is an error.
+
+`resource struct` creates a cleanup obligation. A plain struct, tuple, union,
+or result containing a resource is resource-bearing and inherits that
+obligation recursively. These, and only these, are affine types in 5.0. All
+other values are ordinary GC values and remain copyable; 5.0 has no separate
+`affine` declaration. GC still manages ordinary fields inside an affine value.
+
+## Normative Rules
+
+### 1. Affine, Not Implicitly Linear
+
+Ownership of a resource-bearing value cannot be duplicated or silently
+abandoned. There are no non-resource affine types in 5.0 and no `drop`
+operation. Ordinary GC values may be copied and need no explicit resolution.
+
+Positive: copy an ordinary GC value; move a resource once and close the new
+owner; borrow it repeatedly.
+
+Negative: declare a non-resource `affine` type; use `drop` or `discard`; copy a
+resource; use the source after a move; leave a resource unresolved at scope
+exit.
+
+### 2. Calls and Borrows
+
+A by-value argument moves its resource-bearing argument before the callee
+starts. The callee owns the parameter and must resolve it on every exit. A
+shared borrow may read but not mutate, move, close, return, or store the value.
+An exclusive borrow may mutate but may not move, close, return, or store it.
+Borrows are call-scoped; 5.0 has no stored references or lifetime syntax.
+
+Positive: `(read_file &file)` followed by `(close_file file)`; pass `file` by
+value to a helper that closes it.
+
+Negative: use `file` after `(close_file file)`; close through `&file`; create an
+overlapping `&mut` and another borrow; return or store a borrowed reference.
+
+### 3. Moves and Assignment
+
+Initialization and assignment of a resource-bearing value move it. Assignment
+to a place with a live obligation is rejected; the old value must first be
+resolved. There is no clone operation for resources.
+
+Positive: `let second: FileHandle = first`, then close `second`.
+
+Negative: use `first` after that move; overwrite a live resource variable;
+initialize two owners from one source.
+
+### 4. Returns and Parameters
+
+Returning a resource moves it to the caller. A returned resource becomes the
+caller's obligation. Before any return, every other live resource owned by the
+function must be resolved. Returning a borrowed value is rejected.
+
+Positive: construct and return one handle with no other live resources; return
+an owned parameter unchanged and let the caller close it.
+
+Negative: return while a second local resource remains live; use a value after
+returning it on a reachable path; return `&file` or `&mut file`.
+
+### 5. Nested Resource Fields
+
+An aggregate is resource-bearing when any field is resource-bearing. Moving or
+consuming the aggregate transfers all nested obligations. Shared and exclusive
+borrows may project nested fields. Ordinary partial moves and direct
+consumption of a resource field from a live aggregate are rejected.
+
+Owned whole-value destructuring is the terminal operation for an aggregate. It
+must bind every field in one pattern; `..`, omitted fields, and refutable
+patterns are rejected. The source aggregate becomes moved atomically, each
+resource-bearing binding receives its field's obligation, and ordinary fields
+remain GC values. The bindings must then be resolved under the normal rules.
+A consuming helper can therefore deterministically dismantle an aggregate:
 
 ```nano
-/* This function consumes the FileHandle */
-fn close(f: FileHandle) -> void {
-    unsafe { (c_close f.fd) }
-}
-
-/* After calling close(f), f cannot be used again */
-```
-
-## Syntax
-
-### Declaring Resource Types
-
-```nano
-resource struct FileHandle {
-    fd: int
+fn close_connection(connection: Connection) -> void {
+    let Connection { socket, peer } = connection
+    (close_socket socket)
 }
 ```
 
-### Resource Functions
+`peer` needs no action because it is an ordinary GC value. Nested aggregates
+may be destructured repeatedly until every resource reaches its consuming
+operation.
 
-```nano
-/* Returns a resource - ownership transferred to caller */
-fn open(path: string) -> FileHandle {
-    let fd: int = unsafe { (c_open path 0) }
-    return FileHandle { fd: fd }
-}
+Positive: borrow `&connection.socket` for a read; move `Connection` into
+`close_connection`, destructure all fields, and close `socket`.
 
-/* Consumes a resource - takes ownership */
-fn close(f: FileHandle) -> void {
-    unsafe { (c_close f.fd) }
-}
+Negative: copy `Connection`; close `connection.socket` directly; destructure
+with an omitted field or `..`; destructure and leave `socket` live; use
+`connection` after destructuring.
 
-/* Borrows a resource - doesn't consume */
-fn read(f: &FileHandle, buf: array<int>) -> int {
-    return unsafe { (c_read f.fd buf) }
-}
-```
+### 6. Arrays and Collections
 
-`&` is proposed 5.0 syntax, not current implementation evidence. The contract
-task must either accept it and define its lifetime/aliasing limits or replace
-it consistently in this document and the guide. Passing a resource by value
-always transfers ownership.
+5.0 rejects resource-bearing element types in arrays and generic collections.
+Element extraction, replacement, iteration, and destruction need a separate
+place model; I do not pretend GC provides deterministic cleanup. Collections
+of ordinary GC values remain unchanged.
 
-## Compiler Rules
+Positive: `array<int>` and `List<string>` retain their current behavior.
 
-### Rule 1: Resources Must Be Used Exactly Once (or explicitly dropped)
+Negative: `array<FileHandle>`, `List<FileHandle>`, and collections of structs
+that contain `FileHandle` are type errors.
 
-```nano
-fn good() {
-    let f: FileHandle = (open "test.txt")
-    (close f)  // OK - consumed exactly once
-}
+### 7. Errors and Propagation
 
-fn bad1() {
-    let f: FileHandle = (open "test.txt")
-    // ERROR: f not consumed (resource leak)
-}
+`Result<Resource, E>` is resource-bearing only while it contains `Ok`. Pattern
+matching transfers the payload into the selected arm. Each arm must resolve
+the obligations it receives. `or return` and other propagation forms are
+rejected when the current function owns any unrelated live resource; cleanup
+must be written explicitly before returning.
 
-fn bad2() {
-    let f: FileHandle = (open "test.txt")
-    (close f)
-    (close f)  // ERROR: f already consumed
-}
-```
+Positive: match an open result, close the `Ok` handle, and return from both
+arms; propagate an error before acquiring another resource.
 
-### Rule 2: Resources Cannot Be Copied
+Negative: use `or return` while a local handle is live; ignore an `Ok` resource;
+move one result payload in one arm but leave it live in another.
 
-```nano
-fn bad() {
-    let f1: FileHandle = (open "test.txt")
-    let f2: FileHandle = f1  // ERROR: Cannot copy resource type
-    (close f1)
-}
-```
+### 8. Early Returns
 
-### Rule 3: Resources Move on Assignment
+Every `return` is checked independently. All resources owned at that program
+point must be resolved or be the returned value.
 
-```nano
-fn good() {
-    let f1: FileHandle = (open "test.txt")
-    let f2: FileHandle = f1  // OK - f1 moved to f2, f1 no longer accessible
-    (close f2)               // OK
-    // (close f1)            // ERROR: f1 was moved
-}
-```
+Positive: close a handle before each early return.
 
-### Rule 4: Resources in Structs
+Negative: close only on the final path; return early with a live nested
+resource; close a value and close it again after control-flow joins.
 
-```nano
-struct Config {
-    name: string       // GC'd - can copy
-    file: FileHandle   // Resource - cannot copy
-}
+### 9. Branches
 
-fn use_config() {
-    let c: Config = Config {
-        name: "test",
-        file: (open "config.txt")
-    }
-    // Config itself becomes affine because it contains a resource
-    // Must consume c.file before c goes out of scope
-    (close c.file)
-}
-```
+I analyze every reachable arm. At a join, each place must have the same
+ownership state in all arms. A branch may transfer ownership only if every arm
+performs the same transfer or terminates after resolving its obligations.
 
-## 5.0 Implementation Plan
+Positive: borrow in either arm and close after the join; close in every arm and
+do not use the value after the join.
 
-I execute this in dependency order; the MAC task ledger is canonical.
+Negative: close in one arm and retain in another; move to different surviving
+owners across arms; omit cleanup from an implicit `else` path.
 
-- [ ] Freeze one semantic contract and canonicalize both affine documents
-      (`task_4ac22044ffda9f93b336a85573293bc2`).
-- [ ] Implement path-sensitive checking in the C seed
-      (`task_c4e2f078cef8c4e461f0de3711c8a2b9`).
-- [ ] Implement the same syntax and ownership decisions in `src_nano`
-      (`task_20048de825616195b9f2bc492231a851`).
-- [ ] Emit, serialize, link, reconstruct, and verify affine facts in NanoISA v2
-      (`task_ed70242ac4d83be7b2327da7ece387ad`).
-- [ ] Migrate real standard-library and NSI service handles
-      (`task_d03c232dc067e75cbc2fb2b7fb84ee46`).
-- [ ] Pass the dual-frontend, NanoVM, and AOT C acceptance matrix
-      (`task_28f2fb4b1f3c8a5ce93df628bb569d76`).
+### 10. Loops
 
-The older week-based checklist mixed a parser prototype with a completed
-language guarantee and assumed the AST-to-C transpiler remained the product
-backend. Phase 20 instead requires both frontends to emit one verified `.nvm`
-product; translators cannot repair ownership facts discarded by a frontend.
+An iteration must restore every outer-owned place to its entry ownership state.
+It may borrow an outer resource, but may not move or consume it in the loop.
+Resources created in an iteration must be resolved before `continue`, `break`,
+or the back edge. Cleanup after the loop resolves outer resources.
 
-## Examples
+Positive: borrow an outer file on each iteration and close it after the loop;
+create and close an iteration-local resource before the back edge.
 
-### File I/O with Resource Safety
+Negative: close an outer resource conditionally in a loop; move it on one
+iteration; `break` or `continue` with an iteration-local resource live.
 
-```nano
-resource struct FileHandle {
-    fd: int
-}
+## Conformance Matrix
 
-fn open(path: string) -> FileHandle {
-    let fd: int = unsafe { (c_open path 0) }
-    return FileHandle { fd: fd }
-}
+Every row requires a positive and negative test in both the C and self-hosted
+frontends. Passing only one frontend is not conformance.
 
-fn close(f: FileHandle) -> void {
-    unsafe { (c_close f.fd) }
-}
+| Rule | Positive case | Negative case |
+|---|---|---|
+| Declaration | resource declaration and construction | invalid resource declaration |
+| By-value call | callee resolves moved argument | caller uses argument afterward |
+| Shared borrow | repeated reads, then close | consume or mutate through `&T` |
+| Exclusive borrow | call-scoped mutation, then close | overlap or escape `&mut T` |
+| Move | move then resolve destination | use source or duplicate owner |
+| Affine boundary | copy ordinary GC value | declare non-resource `affine` type |
+| Drop/discard | ordinary GC scope exit needs no operation | use `drop` or `discard` |
+| Return | transfer sole live resource | return with unrelated live resource |
+| Nested field | whole-destructure and resolve every field | partial or incomplete destructure |
+| Array | ordinary element array | resource-bearing element array |
+| Generic collection | ordinary element collection | resource-bearing collection |
+| Result match | resolve payload in every arm | ignore live payload in one arm |
+| Error propagation | propagate before acquisition | propagate with unrelated live resource |
+| Early return | resolve before every return | one leaking return path |
+| Branch | identical state at join | incompatible arm states |
+| Loop borrow | borrow outer value per iteration | consume outer value in loop |
+| Loop local | resolve before every edge | live value at back edge, break, or continue |
+| Double consume | one consuming operation | second consume |
+| Scope exit | all obligations resolved | live obligation at scope exit |
 
-fn read_file(path: string) -> string {
-    let f: FileHandle = (open path)
-    let mut data: string = ""
-    unsafe {
-        set data (c_read_all f.fd)
-    }
-    (close f)  // Must close before returning
-    return data
-}
-```
+For each row, the release suite must compile or reject the case with the C
+frontend, repeat the same expectation with `src_nano`, and compare ownership
+facts in their emitted NanoISA modules. Runtime tests may supplement these
+checks; they cannot replace compile-time rejection tests.
 
-### Socket with Resource Safety
+## Release Claim
 
-```nano
-resource struct Socket {
-    sockfd: int
-}
-
-fn connect(host: string, port: int) -> Socket {
-    let fd: int = unsafe { (c_connect host port) }
-    return Socket { sockfd: fd }
-}
-
-fn close_socket(s: Socket) -> void {
-    unsafe { (c_close s.sockfd) }
-}
-
-fn send_http_request(host: string) -> string {
-    let sock: Socket = (connect host 80)
-    unsafe { (c_send sock.sockfd "GET / HTTP/1.1\r\n\r\n") }
-    let mut response: string = ""
-    unsafe {
-        set response (c_recv sock.sockfd 4096)
-    }
-    (close_socket sock)
-    return response
-}
-```
-
-### Error Handling with Resources
-
-```nano
-/* Option 1: Manual error handling */
-fn safe_read_file(path: string) -> string {
-    let f: FileHandle = (open path)
-    if (== f.fd -1) {
-        /* open failed, but we still have a FileHandle to clean up */
-        (close f)
-        return ""
-    }
-    let mut data: string = ""
-    unsafe {
-        set data (c_read_all f.fd)
-    }
-    (close f)
-    return data
-}
-
-/* Option 2: Result type (future work) */
-fn safe_read_file_v2(path: string) -> Result<string, string> {
-    let f: FileHandle = (open path) or return Err("Failed to open")
-    let data: string = unsafe { (c_read_all f.fd) }
-    (close f)
-    return Ok(data)
-}
-```
-
-## Contract Decisions and Later Extensions
-
-### Borrowing (5.0 contract decision)
-Temporary access without consuming is required by the guide's repeated-read
-examples. It is therefore a contract decision, not an optional enhancement:
-
-```nano
-fn read_first_line(f: &FileHandle) -> string {
-    /* Borrows f, doesn't consume it */
-    return unsafe { (c_read_line f.fd) }
-}
-
-fn main() {
-    let f: FileHandle = (open "test.txt")
-    let line: string = (read_first_line &f)  // Borrow
-    (println line)
-    (close f)  // Can still close because we only borrowed
-}
-```
-
-### Explicit Drop (5.0 contract decision)
-If I permit affine weakening, explicit discard must still define what happens
-to the underlying resource. The contract must distinguish a cleanup operation
-from abandoning a live handle:
-
-```nano
-fn use_file() {
-    let f: FileHandle = (open "test.txt")
-    let data: string = (read_all f)
-    drop f  // Explicitly consume without calling close
-}
-```
-
-### Resource Pools (after container ownership is defined)
-Pools are outside the 5.0 affine release gate unless the semantic contract
-accepts resource-bearing collections and the verifier can represent their
-element ownership. This example is illustrative, not supported syntax:
-
-```nano
-resource struct Connection {
-    conn: int
-}
-
-struct Pool {
-    connections: array<Connection>  // Can store resources in collections
-}
-
-fn borrow_from_pool(pool: &mut Pool) -> Connection {
-    /* Remove and return a connection from pool */
-}
-
-fn return_to_pool(pool: &mut Pool, conn: Connection) {
-    /* Add connection back to pool */
-}
-```
-
-## Comparison with Other Approaches
-
-| Approach | Prevents use-after-close | Runtime overhead | Complexity | Handles cycles |
-|----------|-------------------------|------------------|------------|----------------|
-| **Affine Types** | ✅ Yes | ❌ None | ✅ Low | N/A (uses GC) |
-| Pure ARC | ❌ No | ⚠️ Inc/dec | ⚠️ Medium | ⚠️ Needs weak |
-| Borrow Checker | ✅ Yes | ❌ None | ❌ Very High | N/A (no GC) |
-| Manual (current) | ❌ No | ❌ None | ✅ Low | N/A (uses GC) |
-
-## Testing Strategy
-
-1. **Positive tests**: Valid resource usage compiles
-2. **Negative tests**: Invalid usage caught at compile time
-   - Use after close
-   - Double close
-   - Resource leak (not closed)
-   - Copy of resource
-3. **Integration tests**: Real file I/O with resources
-4. **Performance tests**: Verify zero runtime overhead
-
-## Migration Path
-
-Existing code continues to work - resource types are opt-in:
-
-```nano
-/* Old code - still works, runtime errors possible */
-extern fn open(path: string) -> int
-let fd: int = (open "test.txt")
-(close fd)
-(read fd)  // Runtime error
-
-/* New code - compile time safety */
-resource struct FileHandle { fd: int }
-fn open(path: string) -> FileHandle
-let f: FileHandle = (open "test.txt")
-(close f)
-// (read f)  // COMPILE ERROR: f already consumed
-```
-
-## References
-
-- Clean programming language (affine types)
-- Mercury language (linear/affine types)
-- Rust (ownership but full borrow checker)
-- Swift/Obj-C (ARC but no affine types)
+I may call this contract implemented only when all matrix rows have named tests
+in both frontends and those tests pass through the product pipeline. Until then,
+documentation must label examples as 5.0 target behavior and describe current
+tests as partial evidence.
