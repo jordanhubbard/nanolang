@@ -1114,10 +1114,10 @@ Compiler product:
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
       `make test-nvm2c` runs the library and the CLI. Generated C does not
       name `nano_vm`. I may later write `nvm2c` in myself.
-- [ ] `nvm2c` translates i64 comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL`.
+- [x] `nvm2c` translates i64 comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL`.
       `choose` and `loop_sum` from the Cut A pin compile and run without
       `nano_vm`. Goto is the translator fallback; recovered `if`/`while` is
-      not this item.
+      not this item. `make test-nvm2c` (65 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

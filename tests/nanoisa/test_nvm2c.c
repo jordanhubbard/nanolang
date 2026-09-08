@@ -56,6 +56,7 @@ static int compile_and_run(const char *c_src, int *status_out) {
              cc, bin_path, src_path);
     int rc = system(cmd);
     if (rc != 0) {
+        fprintf(stderr, "---- generated C (cc failed) ----\n%s\n----\n", c_src);
         unlink(src_path);
         rmdir(dir);
         return -2;
@@ -205,6 +206,174 @@ static void test_null_module(void) {
     CHECK(err[0] != '\0', "null module sets an error");
 }
 
+static char *emit_or_fail(NvmModule *m, const char *label) {
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c != NULL, label);
+    if (!c) {
+        printf("    nvm2c error: %s\n", err);
+    }
+    return c;
+}
+
+static void check_aot_c(const char *c) {
+    CHECK(strstr(c, "nano_vm") == NULL, "emitted C does not name nano_vm");
+    CHECK(strstr(c, "nvm_blob") == NULL, "emitted C is not a bytecode blob wrapper");
+    CHECK(strstr(c, "goto ") != NULL, "control uses goto as the translator fallback");
+}
+
+/* choose: if (> c 0) return 1 else return 0. Then-arm RET then else is extra
+ * bytecode after RET; nvm2c must keep translating the other arm. */
+static void test_choose_then_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function choose 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE else\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "else:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 3\n"
+        "  CALL choose\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "choose then fixture");
+    CHECK(m != NULL, "choose then fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for choose (then)");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "choose then C compiles and runs");
+    CHECK(status == 1, "choose(3) exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_choose_else_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function choose 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE else\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "else:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  CALL choose\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "choose else fixture");
+    CHECK(m != NULL, "choose else fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for choose (else)");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "choose else C compiles and runs");
+    CHECK(status == 0, "choose(0) exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* loop_sum: let mut i,s; while (< i n) { set s (+ s i); set i (+ i 1) }; return s.
+ * Backward JMP must be valid C (temps declared once, not mid-function). */
+static void test_loop_sum_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function loop_sum 1 3 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 2\n"
+        "loop_top:\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE loop_end\n"
+        "  LOAD_LOCAL 2\n"
+        "  LOAD_LOCAL 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop_top\n"
+        "loop_end:\n"
+        "  LOAD_LOCAL 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 4\n"
+        "  CALL loop_sum\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "loop_sum fixture");
+    CHECK(m != NULL, "loop_sum fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for loop_sum");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "loop_sum C compiles and runs");
+    CHECK(status == 6, "loop_sum(4) exits 6 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_tail_call_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function add 2 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 40\n"
+        "  PUSH_I64 2\n"
+        "  TAIL_CALL add\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "tail-call fixture");
+    CHECK(m != NULL, "tail-call fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for TAIL_CALL");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "TAIL_CALL C does not name nano_vm");
+    CHECK(strstr(c, "nl_add") != NULL, "TAIL_CALL becomes a C call");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "TAIL_CALL C compiles and runs");
+    CHECK(status == 42, "tail-call add(40, 2) exits 42 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static char *quote_path(const char *path) {
     size_t len = strlen(path);
     char *quoted = malloc(len + 3);
@@ -337,6 +506,10 @@ int main(int argc, char **argv) {
     test_call_extern_is_refused();
     test_push_str_is_refused();
     test_null_module();
+    test_choose_then_runs_without_nano_vm();
+    test_choose_else_runs_without_nano_vm();
+    test_loop_sum_runs_without_nano_vm();
+    test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);

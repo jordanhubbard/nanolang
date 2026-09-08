@@ -45,7 +45,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
-  Generated C does not name `nano_vm`.
+  Generated C does not name `nano_vm`. The closed subset includes i64
+  comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL`. `choose` and
+  `loop_sum` run as native C. Goto is the translator fallback.
 
 ## [4.5.0] - 2026-09-07
 

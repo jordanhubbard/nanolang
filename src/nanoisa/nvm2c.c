@@ -1,8 +1,8 @@
 /*
  * Structured C11 from a closed NanoISA subset.
  *
- * Temps are C locals. I64_ADD becomes `t = a + b`. The operand stack exists
- * only while translating; it is not a runtime array in the output.
+ * Temps are one C array so backward goto is valid C. I64_ADD becomes
+ * `t[i] = a + b`. The operand stack exists only while translating.
  */
 
 #include "nvm2c.h"
@@ -16,6 +16,7 @@
 
 #define NVM2C_MAX_STACK  64
 #define NVM2C_MAX_LOCALS 256
+#define NVM2C_MAX_TEMPS  256
 
 typedef struct {
     char *data;
@@ -161,8 +162,12 @@ static int stack_push_temp(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
         nvm2c_fail(b, "operand stack overflow");
         return -1;
     }
+    if (st->next_temp >= NVM2C_MAX_TEMPS) {
+        nvm2c_fail(b, "too many temporaries");
+        return -1;
+    }
     int t = st->next_temp++;
-    nvm2c_printf(b, "    int64_t t%d = %s;\n", t, rhs);
+    nvm2c_printf(b, "    t[%d] = %s;\n", t, rhs);
     st->slots[st->sp++] = t;
     return t;
 }
@@ -180,7 +185,7 @@ static void emit_binop(Nvm2cBuf *b, Nvm2cStack *st, const char *op) {
     int lhs = stack_pop(b, st);
     if (b->failed) return;
     char expr[80];
-    snprintf(expr, sizeof expr, "(t%d %s t%d)", lhs, op, rhs);
+    snprintf(expr, sizeof expr, "(t[%d] %s t[%d])", lhs, op, rhs);
     stack_push_temp(b, st, expr);
 }
 
@@ -188,8 +193,51 @@ static void emit_unop(Nvm2cBuf *b, Nvm2cStack *st, const char *prefix) {
     int x = stack_pop(b, st);
     if (b->failed) return;
     char expr[64];
-    snprintf(expr, sizeof expr, "(%s t%d)", prefix, x);
+    snprintf(expr, sizeof expr, "(%s t[%d])", prefix, x);
     stack_push_temp(b, st, expr);
+}
+
+static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
+                       size_t remaining, size_t *out) {
+    int64_t tgt = (int64_t)start + (int64_t)rel;
+    if (tgt < 0 || (uint64_t)tgt > (uint64_t)remaining) {
+        nvm2c_fail(b, "function %u: jump at offset %zu is out of range", idx, start);
+        return 0;
+    }
+    *out = (size_t)tgt;
+    return 1;
+}
+
+static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
+                             uint32_t idx, uint32_t callee, char *call, size_t call_sz) {
+    if (callee >= mod->function_count) {
+        nvm2c_fail(b, "function %u: CALL target %u is out of range", idx, callee);
+        return 0;
+    }
+    const NvmFunctionEntry *cf = &mod->functions[callee];
+    if (c_result_type(cf) == NULL) {
+        nvm2c_fail(b, "function %u: CALL target %u has an unsupported result", idx, callee);
+        return 0;
+    }
+    int args[NVM2C_MAX_LOCALS];
+    for (int i = (int)cf->arity - 1; i >= 0; i--) {
+        args[i] = stack_pop(b, st);
+        if (b->failed) return 0;
+    }
+    char cname[64];
+    fn_c_name(mod, callee, cname, sizeof cname);
+    size_t pos = 0;
+    pos += (size_t)snprintf(call + pos, call_sz - pos, "%s(", cname);
+    for (uint16_t i = 0; i < cf->arity; i++) {
+        if (i) pos += (size_t)snprintf(call + pos, call_sz - pos, ", ");
+        pos += (size_t)snprintf(call + pos, call_sz - pos, "t[%d]", args[i]);
+        if (pos >= call_sz) {
+            nvm2c_fail(b, "function %u: CALL argument list overflow", idx);
+            return 0;
+        }
+    }
+    snprintf(call + pos, call_sz - pos, ")");
+    return 1;
 }
 
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) {
@@ -218,6 +266,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
         }
         nvm2c_printf(b, "    (void)l%u;\n", (unsigned)i);
     }
+    nvm2c_printf(b, "    int64_t t[%d] = {0};\n", NVM2C_MAX_TEMPS);
+    nvm2c_puts(b, "    (void)t;\n");
 
     if (fn->code_offset > mod->code_size ||
         fn->code_length > mod->code_size - fn->code_offset) {
@@ -227,21 +277,58 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
 
     const uint8_t *code = mod->code + fn->code_offset;
     size_t remaining = fn->code_length;
+    uint8_t *is_start = calloc(remaining + 1, 1);
+    uint8_t *is_target = calloc(remaining + 1, 1);
+    if (!is_start || !is_target) {
+        nvm2c_fail(b, "out of memory");
+        goto done;
+    }
+
+    size_t scan = 0;
+    while (scan < remaining) {
+        is_start[scan] = 1;
+        DecodedInstruction look;
+        uint32_t n = isa_decode(code + scan, remaining - scan, &look);
+        if (n == 0) {
+            nvm2c_fail(b, "function %u: invalid instruction at offset %zu", idx, scan);
+            goto done;
+        }
+        if (look.opcode == OP_JMP || look.opcode == OP_JMP_FALSE) {
+            size_t tgt = 0;
+            if (!jump_target(b, idx, scan, look.operands[0].i32, remaining, &tgt)) {
+                goto done;
+            }
+            is_target[tgt] = 1;
+        }
+        scan += n;
+    }
+    is_start[remaining] = 1;
+    {
+        size_t off;
+        for (off = 0; off <= remaining; off++) {
+            if (is_target[off] && !is_start[off]) {
+                nvm2c_fail(b, "function %u: jump targets a non-instruction boundary at %zu",
+                           idx, off);
+                goto done;
+            }
+        }
+    }
+
     size_t pc = 0;
     Nvm2cStack st;
     memset(&st, 0, sizeof st);
     int terminated = 0;
 
     while (pc < remaining) {
-        if (terminated) {
-            nvm2c_fail(b, "function %u: extra bytecode after RET/HALT", idx);
-            return;
+        size_t start = pc;
+        if (is_target[start]) {
+            nvm2c_printf(b, "L_%zu: ;\n", start);
         }
         DecodedInstruction ins;
         uint32_t n = isa_decode(code + pc, remaining - pc, &ins);
         if (n == 0) {
             nvm2c_fail(b, "function %u: invalid instruction at offset %zu", idx, pc);
-            return;
+            goto done;
         }
         pc += n;
 
@@ -257,10 +344,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
         case OP_DUP: {
             if (st.sp <= 0) {
                 nvm2c_fail(b, "function %u: DUP on empty stack", idx);
-                return;
+                goto done;
             }
             char rhs[32];
-            snprintf(rhs, sizeof rhs, "t%d", st.slots[st.sp - 1]);
+            snprintf(rhs, sizeof rhs, "t[%d]", st.slots[st.sp - 1]);
             stack_push_temp(b, &st, rhs);
             break;
         }
@@ -270,7 +357,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
         case OP_SWAP: {
             int x = stack_pop(b, &st);
             int y = stack_pop(b, &st);
-            if (b->failed) return;
+            if (b->failed) goto done;
             st.slots[st.sp++] = x;
             st.slots[st.sp++] = y;
             break;
@@ -279,7 +366,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
             uint16_t slot = ins.operands[0].u16;
             if (slot >= fn->local_count) {
                 nvm2c_fail(b, "function %u: LOAD_LOCAL %u out of range", idx, slot);
-                return;
+                goto done;
             }
             char rhs[32];
             snprintf(rhs, sizeof rhs, "l%u", (unsigned)slot);
@@ -290,11 +377,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
             uint16_t slot = ins.operands[0].u16;
             if (slot >= fn->local_count) {
                 nvm2c_fail(b, "function %u: STORE_LOCAL %u out of range", idx, slot);
-                return;
+                goto done;
             }
             int t = stack_pop(b, &st);
-            if (b->failed) return;
-            nvm2c_printf(b, "    l%u = t%d;\n", (unsigned)slot, t);
+            if (b->failed) goto done;
+            nvm2c_printf(b, "    l%u = t[%d];\n", (unsigned)slot, t);
             break;
         }
         case OP_ADD:
@@ -313,9 +400,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
         case OP_I64_DIV_S: {
             int rhs = stack_pop(b, &st);
             int lhs = stack_pop(b, &st);
-            if (b->failed) return;
+            if (b->failed) goto done;
             char expr[96];
-            snprintf(expr, sizeof expr, "(t%d == 0 ? (int64_t)0 : t%d / t%d)", rhs, lhs, rhs);
+            snprintf(expr, sizeof expr, "(t[%d] == 0 ? (int64_t)0 : t[%d] / t[%d])",
+                     rhs, lhs, rhs);
             stack_push_temp(b, &st, expr);
             break;
         }
@@ -323,9 +411,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
         case OP_I64_REM_S: {
             int rhs = stack_pop(b, &st);
             int lhs = stack_pop(b, &st);
-            if (b->failed) return;
+            if (b->failed) goto done;
             char expr[96];
-            snprintf(expr, sizeof expr, "(t%d == 0 ? (int64_t)0 : t%d %% t%d)", rhs, lhs, rhs);
+            snprintf(expr, sizeof expr, "(t[%d] == 0 ? (int64_t)0 : t[%d] %% t[%d])",
+                     rhs, lhs, rhs);
             stack_push_temp(b, &st, expr);
             break;
         }
@@ -333,36 +422,31 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
         case OP_I64_NEG:
             emit_unop(b, &st, "-");
             break;
+        case OP_I64_EQ:
+            emit_binop(b, &st, "==");
+            break;
+        case OP_I64_NE:
+            emit_binop(b, &st, "!=");
+            break;
+        case OP_I64_LT_S:
+            emit_binop(b, &st, "<");
+            break;
+        case OP_I64_LE_S:
+            emit_binop(b, &st, "<=");
+            break;
+        case OP_I64_GT_S:
+            emit_binop(b, &st, ">");
+            break;
+        case OP_I64_GE_S:
+            emit_binop(b, &st, ">=");
+            break;
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
-            if (callee >= mod->function_count) {
-                nvm2c_fail(b, "function %u: CALL target %u is out of range", idx, callee);
-                return;
+            char call[768];
+            if (!build_direct_call(b, &st, mod, idx, callee, call, sizeof call)) {
+                goto done;
             }
             const NvmFunctionEntry *cf = &mod->functions[callee];
-            if (c_result_type(cf) == NULL) {
-                nvm2c_fail(b, "function %u: CALL target %u has an unsupported result", idx, callee);
-                return;
-            }
-            int args[NVM2C_MAX_LOCALS];
-            for (int i = (int)cf->arity - 1; i >= 0; i--) {
-                args[i] = stack_pop(b, &st);
-                if (b->failed) return;
-            }
-            char cname[64];
-            fn_c_name(mod, callee, cname, sizeof cname);
-            char call[768];
-            size_t pos = 0;
-            pos += (size_t)snprintf(call + pos, sizeof call - pos, "%s(", cname);
-            for (uint16_t i = 0; i < cf->arity; i++) {
-                if (i) pos += (size_t)snprintf(call + pos, sizeof call - pos, ", ");
-                pos += (size_t)snprintf(call + pos, sizeof call - pos, "t%d", args[i]);
-                if (pos >= sizeof call) {
-                    nvm2c_fail(b, "function %u: CALL argument list overflow", idx);
-                    return;
-                }
-            }
-            snprintf(call + pos, sizeof call - pos, ")");
             if (cf->result_count == 1 && cf->result_tag == TAG_INT) {
                 stack_push_temp(b, &st, call);
             } else {
@@ -370,19 +454,65 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
             }
             break;
         }
+        case OP_TAIL_CALL: {
+            uint32_t callee = ins.operands[0].u32;
+            if (callee >= mod->function_count) {
+                nvm2c_fail(b, "function %u: TAIL_CALL target %u is out of range", idx, callee);
+                goto done;
+            }
+            const NvmFunctionEntry *cf = &mod->functions[callee];
+            if (cf->result_count != fn->result_count || cf->result_tag != fn->result_tag) {
+                nvm2c_fail(b, "function %u: TAIL_CALL result signature mismatch", idx);
+                goto done;
+            }
+            char call[768];
+            if (!build_direct_call(b, &st, mod, idx, callee, call, sizeof call)) {
+                goto done;
+            }
+            if (st.sp != 0) {
+                nvm2c_fail(b, "function %u: TAIL_CALL leaves extra stack values", idx);
+                goto done;
+            }
+            if (fn->result_count == 1 && fn->result_tag == TAG_INT) {
+                nvm2c_printf(b, "    return %s;\n", call);
+            } else {
+                nvm2c_printf(b, "    %s;\n    return;\n", call);
+            }
+            terminated = 1;
+            break;
+        }
+        case OP_JMP: {
+            size_t tgt = 0;
+            if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &tgt)) {
+                goto done;
+            }
+            nvm2c_printf(b, "    goto L_%zu;\n", tgt);
+            terminated = 1;
+            break;
+        }
+        case OP_JMP_FALSE: {
+            int cond = stack_pop(b, &st);
+            if (b->failed) goto done;
+            size_t tgt = 0;
+            if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &tgt)) {
+                goto done;
+            }
+            nvm2c_printf(b, "    if (!t[%d]) goto L_%zu;\n", cond, tgt);
+            break;
+        }
         case OP_RET:
             if (fn->result_count == 1 && fn->result_tag == TAG_INT) {
                 int t = stack_pop(b, &st);
-                if (b->failed) return;
+                if (b->failed) goto done;
                 if (st.sp != 0) {
                     nvm2c_fail(b, "function %u: RET leaves extra stack values", idx);
-                    return;
+                    goto done;
                 }
-                nvm2c_printf(b, "    return t%d;\n", t);
+                nvm2c_printf(b, "    return t[%d];\n", t);
             } else {
                 if (st.sp != 0) {
                     nvm2c_fail(b, "function %u: void RET leaves extra stack values", idx);
-                    return;
+                    goto done;
                 }
                 nvm2c_puts(b, "    return;\n");
             }
@@ -390,35 +520,42 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) 
             break;
         case OP_HALT:
             if (fn->result_count == 1 && fn->result_tag == TAG_INT && st.sp == 1) {
-                nvm2c_printf(b, "    return t%d;\n", stack_pop(b, &st));
+                nvm2c_printf(b, "    return t[%d];\n", stack_pop(b, &st));
             } else if (st.sp == 0 && (fn->result_count == 0 || fn->result_tag == TAG_VOID)) {
                 nvm2c_puts(b, "    return;\n");
             } else if (st.sp == 0 && fn->result_count == 1 && fn->result_tag == TAG_INT) {
                 nvm2c_puts(b, "    return 0;\n");
             } else {
                 nvm2c_fail(b, "function %u: HALT with unexpected stack height %d", idx, st.sp);
-                return;
+                goto done;
             }
             terminated = 1;
             break;
         case OP_CALL_EXTERN:
             nvm2c_fail(b, "CALL_EXTERN is the VM FFI/co-process path; nvm2c does not emit it");
-            return;
+            goto done;
         default: {
             const InstructionInfo *info = isa_get_info(ins.opcode);
             nvm2c_fail(b, "unsupported opcode %s (0x%02X) in the nvm2c subset",
                        info ? info->name : "UNKNOWN", ins.opcode);
-            return;
+            goto done;
         }
         }
-        if (b->failed) return;
+        if (b->failed) goto done;
     }
 
+    if (is_target[remaining]) {
+        nvm2c_printf(b, "L_%zu: ;\n", remaining);
+    }
     if (!terminated) {
         nvm2c_fail(b, "function %u: falls off the end without RET or HALT", idx);
-        return;
+        goto done;
     }
     nvm2c_puts(b, "}\n\n");
+
+done:
+    free(is_start);
+    free(is_target);
 }
 
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {

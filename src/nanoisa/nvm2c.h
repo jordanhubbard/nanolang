@@ -7,9 +7,10 @@
  *
  * The generated process does not require nano_vm, nano_cop, or nano_vmd.
  *
- * Closed subset: i64 constants, locals, integer arithmetic, CALL, RET, HALT.
- * Anything else is refused with an error. CALL_EXTERN is refused because it
- * is the VM FFI / co-process path, not a host C ABI.
+ * Closed subset: i64 constants, locals, integer arithmetic and comparisons,
+ * CALL/TAIL_CALL, JMP/JMP_FALSE, RET, HALT. Anything else is refused with
+ * an error. CALL_EXTERN is refused because it is the VM FFI / co-process
+ * path, not a host C ABI.
  */
 
 #ifndef NANOISA_NVM2C_H

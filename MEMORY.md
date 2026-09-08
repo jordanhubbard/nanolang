@@ -58,7 +58,7 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 
 **Backend A — C Transpiler:** AST → C source → `cc` → native binary  
 **Backend B — NanoISA VM:** AST → bytecode → `.nvm` → `nano_vm` (optional `nano_cop` / `nano_vmd`). `nano_virt -o` still embeds that VM.  
-**Backend C — NanoISA AOT:** `.nvm` → `bin/nvm2c` → structured C11 → `cc`. Closed i64 subset (`make test-nvm2c`). The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`). Cut A pin: `src_nano` emits `.nasm` for integer add/main/choose/loop_sum (`make test-nanoisa-src-nano`, 14 passed).
+**Backend C — NanoISA AOT:** `.nvm` → `bin/nvm2c` → structured C11 → `cc`. Closed i64 subset including comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL` (`make test-nvm2c`, 65 passed). The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`). Cut A pin: `src_nano` emits `.nasm` for integer add/main/choose/loop_sum (`make test-nanoisa-src-nano`, 14 passed).
 
 ---
 
@@ -942,8 +942,11 @@ Forth stacks and input sources; NanoVM frames unwind through `vm_invoke`.
 
 ### 10.4b nvm2c (NanoISA → C11 spike) — `src/nanoisa/nvm2c.c`
 
-Closed subset: i64 arithmetic, locals, `CALL`, `RET`/`HALT`. Emits structured
-C, not a bytecode wrapper. `bin/nvm2c`, `make test-nvm2c`. Refuses `CALL_EXTERN`.
+Closed subset: i64 arithmetic and comparisons, locals, `CALL`/`TAIL_CALL`,
+`JMP`/`JMP_FALSE`, `RET`/`HALT`. Temps are one C array so backward goto
+is valid. Emits structured C, not a bytecode wrapper. `bin/nvm2c`,
+`make test-nvm2c` (65 passed). Refuses `CALL_EXTERN`. Goto is the
+translator fallback; recovered `if`/`while` is not this subset.
 
 ### 10.5 NanoVirt (Bytecode Compiler) — `src/nanovirt/`
 
