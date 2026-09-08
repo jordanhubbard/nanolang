@@ -209,9 +209,9 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
 `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
 `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
-`slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, and `grow_s`
-(76 passed; function
-bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
+`slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, and `get_s`
+(`make test-nanoisa-src-nano`, 78 passed).
+Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
 results as i64 0/1, `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`,
@@ -222,7 +222,8 @@ strings, `at` as `ARR_GET`, `str_length` as `STR_LEN`,
 void `list_int_push` as `ARR_PUSH` then `POP`, `list_int_get`
 as `ARR_GET`, `char_at` as `STR_CHAR_AT`, `list_string_new` as
 `ARR_NEW 1`, void `list_string_push` as `ARR_PUSH` then `POP`,
-and `list_string_get` as `ARR_GET`). String operands
+`list_string_get` as `ARR_GET`, and mixed int/string records as
+`AGG_PACK`/`AGG_GET`). String operands
 are compared by content, not pool index. I still pretty-print C to
 build the compiler. The full dual of `codegen.c` is not this pin.
 
@@ -258,7 +259,9 @@ void `list_int_push` (`ARR_PUSH` then `POP` keeps array identity;
 `ch` runs as native C; out of range is `-1`), and Cut A empty
 `List<string>` (`ARR_NEW` tag 1; `blank_s` runs as native C), and
 Cut A void `list_string_push` (`ARR_PUSH` then `POP` keeps string-array
-identity; `grow_s` runs as native C). Nested arrays,
+identity; `grow_s` runs as native C), and Cut A mixed int/string
+records (`AGG_PACK`/`AGG_GET`; `get_s` runs as native C; nested
+records stay refused). Nested arrays,
 nested records, `ARR_SET`, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, substring of arrays, and printing
 arrays/records stay refused. The rest of the

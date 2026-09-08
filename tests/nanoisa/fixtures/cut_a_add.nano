@@ -323,3 +323,17 @@ fn grow_s() -> string {
 shadow grow_s {
     assert (== (grow_s) "hi")
 }
+
+struct Tok {
+    t: int,
+    s: string
+}
+
+fn get_s() -> string {
+    let p: Tok = Tok { t: 1, s: "hi" }
+    return p.s
+}
+
+shadow get_s {
+    assert (== (get_s) "hi")
+}

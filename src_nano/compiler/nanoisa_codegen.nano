@@ -4,7 +4,8 @@
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
  * if/else, while, let, set, string literals, string concat, array<int>
- * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET),
+ * literals, array_length, array_get, int- and string-field records
+ * (AGG_PACK/AGG_GET),
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
  * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
  * print (PRINT), println (PRINTLN), and assert (ASSERT).
@@ -376,22 +377,54 @@ shadow nisa_is_int_record {
     assert (not (nisa_is_int_record p "Nope"))
 }
 
+fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
+    let idx: int = (nisa_struct_index parser name)
+    if (< idx 0) {
+        return false
+    } else {
+        let s: ASTStruct = (parser_get_struct_def parser idx)
+        let mut i: int = 0
+        while (< i s.field_count) {
+            let ft: string = (at s.field_types i)
+            if (and (!= ft "int") (!= ft "string")) {
+                return false
+            } else {
+                set i (+ i 1)
+            }
+        }
+        return true
+    }
+}
+
+shadow nisa_is_pin_record {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (nisa_is_pin_record p "Point")
+    assert (nisa_is_pin_record p "Tok")
+    assert (not (nisa_is_pin_record p "Nope"))
+    assert (not (nisa_is_int_record p "Tok"))
+}
+
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (nisa_local_type_ok t) {
         return true
     } else {
-        return (nisa_is_int_record parser t)
+        return (nisa_is_pin_record parser t)
     }
 }
 
 shadow nisa_type_ok {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_type_ok p "int")
     assert (nisa_type_ok p "Point")
+    assert (nisa_type_ok p "Tok")
     assert (nisa_type_ok p "array<string>")
     assert (nisa_type_ok p "List<string>")
     assert (not (nisa_type_ok p "array<bool>"))
@@ -572,7 +605,7 @@ shadow nisa_emit_array_literal {
 
 fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
     let lit: ASTStructLiteral = (parser_get_struct_literal parser node_id)
-    if (not (nisa_is_int_record parser lit.struct_name)) {
+    if (not (nisa_is_pin_record parser lit.struct_name)) {
         return (nisa_fail (+ "unsupported record " lit.struct_name))
     } else {
         let sidx: int = (nisa_struct_index parser lit.struct_name)
@@ -623,6 +656,17 @@ shadow nisa_emit_struct_literal {
     assert (str_contains text "PUSH_I64 3")
     assert (str_contains text "PUSH_I64 4")
     assert (str_contains text "AGG_PACK 0 0 0 2")
+    let src2: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n get_s() -> string { let p: Tok = Tok { t: 1, s: \"hi\" } return p.s } shadow get_s { assert true }"))
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let func2: ASTFunction = (parser_get_function p2 0)
+    let block2: ASTBlock = (parser_get_block p2 func2.body)
+    let stmt2: ASTStmtRef = (list_ASTStmtRef_get block2.statements 0)
+    let l2: ASTLet = (parser_get_let p2 stmt2.node_id)
+    let text2: string = (nisa_emit_struct_literal p2 l2.value)
+    assert (str_contains text2 "PUSH_I64 1")
+    assert (str_contains text2 "PUSH_STR")
+    assert (str_contains text2 "AGG_PACK 0 0 0 2")
     let _2: int = (nisa_reset)
 }
 
@@ -682,6 +726,19 @@ shadow nisa_emit_field_access {
     let text: string = (nisa_emit_field_access p r.value)
     assert (str_contains text "LOAD_LOCAL 0")
     assert (str_contains text "AGG_GET 0")
+    let _r: int = (nisa_reset)
+    let src2: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n get_s() -> string { let p: Tok = Tok { t: 1, s: \"hi\" } return p.s } shadow get_s { assert true }"))
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let func2: ASTFunction = (parser_get_function p2 0)
+    set nisa_names (array_push nisa_names "p")
+    set nisa_types (array_push nisa_types "Tok")
+    let block2: ASTBlock = (parser_get_block p2 func2.body)
+    let stmt2: ASTStmtRef = (list_ASTStmtRef_get block2.statements 1)
+    let r2: ASTReturn = (parser_get_return p2 stmt2.node_id)
+    let text2: string = (nisa_emit_field_access p2 r2.value)
+    assert (str_contains text2 "LOAD_LOCAL 0")
+    assert (str_contains text2 "AGG_GET 1")
     let _2: int = (nisa_reset)
 }
 
@@ -1481,6 +1538,14 @@ shadow nisa_emit_function {
     assert (str_contains grow_s_text ".function grow_s 0 1 0 string 1")
     assert (str_contains grow_s_text "ARR_PUSH")
     assert (str_contains grow_s_text "ARR_GET")
+    let src29: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n get_s() -> string { let p: Tok = Tok { t: 1, s: \"hi\" } return p.s } shadow get_s { assert true }"))
+    let toks29: List<LexerToken> = (tokenize_string src29 "t.nano" diags)
+    let p29: Parser = (parse_program toks29 (list_LexerToken_length toks29) "t.nano")
+    let get_s_fn: ASTFunction = (parser_get_function p29 0)
+    let get_s_text: string = (nisa_emit_function p29 get_s_fn)
+    assert (str_contains get_s_text ".function get_s 0 1 0 string 1")
+    assert (str_contains get_s_text "AGG_PACK")
+    assert (str_contains get_s_text "AGG_GET 1")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

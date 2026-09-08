@@ -44,7 +44,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
   `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
   `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
-  `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, and `grow_s`.
+  `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, and `get_s`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -57,7 +57,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `ARR_NEW 1`, void `list_int_push` as `ARR_PUSH` then `POP`,
   `list_int_get` as `ARR_GET`, `char_at` as `STR_CHAR_AT`,
   `list_string_new` as `ARR_NEW 1`, void `list_string_push` as
-  `ARR_PUSH` then `POP`, and `list_string_get` as `ARR_GET`. String operands
+  `ARR_PUSH` then `POP`, `list_string_get` as `ARR_GET`, and mixed
+  int/string records as `AGG_PACK`/`AGG_GET`. String operands
   are compared by content. I still pretty-print C to build the
   compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
@@ -99,8 +100,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   104 and an out-of-range index is `-1`. Void `list_string_push`
   (`ARR_PUSH` then `POP`) mutates the local: `blank_s` exits 0 and
   `grow_s` length is 2. I classify `ARR_NEW 1` as a string list from
-  the pushed value.
-  `make test-nvm2c` (291 passed).
+  the pushed value. Mixed int/string records run as native C: `get_s`
+  length is 2. Nested record fields stay refused.
+  `make test-nvm2c` (299 passed).
 
 ## [4.5.0] - 2026-09-07
 
