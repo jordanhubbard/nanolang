@@ -275,7 +275,9 @@ fn nisa_is_inline_call(name: string) -> bool {
                            (or (== name "int_to_string")
                                (or (== name "str_length")
                                    (or (== name "str_substring")
-                                       (or (== name "list_int_new") (== name "list_int_length")))))))))
+                                       (or (== name "list_int_new")
+                                           (or (== name "list_int_length")
+                                               (or (== name "list_int_push") (== name "list_int_get")))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -288,6 +290,8 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "str_substring")
     assert (nisa_is_inline_call "list_int_new")
     assert (nisa_is_inline_call "list_int_length")
+    assert (nisa_is_inline_call "list_int_push")
+    assert (nisa_is_inline_call "list_int_get")
     assert (nisa_is_inline_call "at")
     assert (not (nisa_is_inline_call "add"))
 }
@@ -669,14 +673,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_LEN"))
         }
     } else {
-        if (or (== func_id.name "array_get") (== func_id.name "at")) {
+        if (or (== func_id.name "array_get") (or (== func_id.name "at") (== func_id.name "list_int_get"))) {
             if (!= call.arg_count 2) {
                 return (nisa_fail "array_get needs 2 arguments")
             } else {
                 return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_GET"))
             }
         } else {
-            if (== func_id.name "array_push") {
+            if (or (== func_id.name "array_push") (== func_id.name "list_int_push")) {
                 if (!= call.arg_count 2) {
                     return (nisa_fail "array_push needs 2 arguments")
                 } else {
@@ -1409,6 +1413,15 @@ shadow nisa_emit_function {
     assert (str_contains blank_text ".function blank_l 0 1 0 int 1")
     assert (str_contains blank_text "ARR_NEW 1")
     assert (str_contains blank_text "ARR_LEN")
+    let src25: string = (+ "f" "n grow_l() -> int { let xs: List<int> = (list_int_new) (list_int_push xs 7) return (list_int_get xs 0) } shadow grow_l { assert true }")
+    let toks25: List<LexerToken> = (tokenize_string src25 "t.nano" diags)
+    let p25: Parser = (parse_program toks25 (list_LexerToken_length toks25) "t.nano")
+    let grow_l_fn: ASTFunction = (parser_get_function p25 0)
+    let grow_l_text: string = (nisa_emit_function p25 grow_l_fn)
+    assert (str_contains grow_l_text ".function grow_l 0 1 0 int 1")
+    assert (str_contains grow_l_text "ARR_PUSH")
+    assert (str_contains grow_l_text "POP")
+    assert (str_contains grow_l_text "ARR_GET")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

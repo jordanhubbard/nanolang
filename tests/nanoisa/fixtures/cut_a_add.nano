@@ -286,3 +286,13 @@ fn blank_l() -> int {
 shadow blank_l {
     assert (== (blank_l) 0)
 }
+
+fn grow_l() -> int {
+    let xs: List<int> = (list_int_new)
+    (list_int_push xs 7)
+    return (list_int_get xs 0)
+}
+
+shadow grow_l {
+    assert (== (grow_l) 7)
+}

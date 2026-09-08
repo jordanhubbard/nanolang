@@ -1270,7 +1270,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_ARR_NEW: {
             uint8_t tag = ins.operands[0].u8;
             if (tag == TAG_INT) {
-                stack_push_arr(b, &st, "(narr_t){0}");
+                stack_push_arr(b, &st, "narr_new()");
             } else if (tag == TAG_STRING) {
                 stack_push_sarr(b, &st, "(nsarr_t){0}");
             } else {
@@ -1345,7 +1345,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (b->failed) goto done;
             if (ak == NVM2C_VK_ARR) {
                 char expr[64];
-                snprintf(expr, sizeof expr, "(int64_t)a[%d].len", arr);
+                snprintf(expr, sizeof expr, "(int64_t)(a[%d] ? a[%d]->len : 0)", arr, arr);
                 stack_push_temp(b, &st, expr);
             } else if (ak == NVM2C_VK_SARR) {
                 char expr[64];
@@ -1605,7 +1605,7 @@ static int module_has_opcode(const NvmModule *mod, uint8_t op) {
     return 0;
 }
 
-static int module_has_arr_literal_tag(const NvmModule *mod, uint8_t tag) {
+static int module_has_arr_op_tag(const NvmModule *mod, uint8_t op, uint8_t tag) {
     uint32_t i;
     for (i = 0; i < mod->function_count; i++) {
         const NvmFunctionEntry *fn = &mod->functions[i];
@@ -1620,7 +1620,7 @@ static int module_has_arr_literal_tag(const NvmModule *mod, uint8_t tag) {
             DecodedInstruction ins;
             uint32_t n = isa_decode(code + pc, remaining - pc, &ins);
             if (n == 0) break;
-            if (ins.opcode == OP_ARR_LITERAL && ins.operands[0].u8 == tag) return 1;
+            if (ins.opcode == op && ins.operands[0].u8 == tag) return 1;
             pc += n;
         }
     }
@@ -1695,6 +1695,15 @@ static void emit_narr_arena(Nvm2cBuf *b) {
         "static size_t narr_used;\n");
 }
 
+static void emit_narr_new(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static narr_t narr_new(void) {\n"
+        "    narr_t a = (narr_t)calloc(1, sizeof(narr_s));\n"
+        "    if (!a) abort();\n"
+        "    return a;\n"
+        "}\n\n");
+}
+
 static void emit_narr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_lit(const int64_t *elems, size_t n) {\n"
@@ -1703,9 +1712,9 @@ static void emit_narr_lit(Nvm2cBuf *b) {
         "    int64_t *p = narr_arena + narr_used;\n"
         "    if (n) memcpy(p, elems, n * sizeof(int64_t));\n"
         "    narr_used += n;\n"
-        "    narr_t a;\n"
-        "    a.data = p;\n"
-        "    a.len = n;\n"
+        "    narr_t a = narr_new();\n"
+        "    a->data = p;\n"
+        "    a->len = n;\n"
         "    return a;\n"
         "}\n\n");
 }
@@ -1713,25 +1722,25 @@ static void emit_narr_lit(Nvm2cBuf *b) {
 static void emit_narr_get(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static int64_t narr_get(narr_t a, int64_t idx) {\n"
-        "    if (!a.data || idx < 0 || (size_t)idx >= a.len) abort();\n"
-        "    return a.data[idx];\n"
+        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    return a->data[idx];\n"
         "}\n\n");
 }
 
 static void emit_narr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static narr_t narr_push(narr_t a, int64_t v) {\n"
-        "    size_t n = a.len + 1;\n"
-        "    if (a.len && !a.data) abort();\n"
+        "    if (!a) abort();\n"
+        "    size_t n = a->len + 1;\n"
+        "    if (a->len && !a->data) abort();\n"
         "    if (narr_used + n > (sizeof narr_arena / sizeof narr_arena[0])) abort();\n"
         "    int64_t *p = narr_arena + narr_used;\n"
-        "    if (a.len) memcpy(p, a.data, a.len * sizeof(int64_t));\n"
-        "    p[a.len] = v;\n"
+        "    if (a->len) memcpy(p, a->data, a->len * sizeof(int64_t));\n"
+        "    p[a->len] = v;\n"
         "    narr_used += n;\n"
-        "    narr_t out;\n"
-        "    out.data = p;\n"
-        "    out.len = n;\n"
-        "    return out;\n"
+        "    a->data = p;\n"
+        "    a->len = n;\n"
+        "    return a;\n"
         "}\n\n");
 }
 
@@ -1829,8 +1838,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_arr_lit = module_has_opcode(mod, OP_ARR_LITERAL);
         int need_arr_get = module_has_opcode(mod, OP_ARR_GET);
         int need_arr_push = module_has_opcode(mod, OP_ARR_PUSH);
-        int need_iarr_lit = module_has_arr_literal_tag(mod, TAG_INT);
-        int need_sarr_lit = module_has_arr_literal_tag(mod, TAG_STRING);
+        int need_iarr_new = module_has_arr_op_tag(mod, OP_ARR_NEW, TAG_INT);
+        int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT);
+        int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
         int need_iarr = need_iarr_lit ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR);
         int need_sarr = need_sarr_lit ||
@@ -1861,14 +1871,15 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
-            need_arr_push || need_agg_get || need_assert) {
+            need_arr_push || need_iarr_new || need_agg_get || need_assert) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");
         }
         nvm2c_puts(&b,
             "\n"
-            "typedef struct { int64_t *data; size_t len; } narr_t;\n"
+            "typedef struct { int64_t *data; size_t len; } narr_s;\n"
+            "typedef narr_s *narr_t;\n"
             "typedef struct { const char **data; size_t len; } nsarr_t;\n");
         nvm2c_printf(&b,
             "typedef struct { int64_t f[%d]; uint16_t n; } nrec_t;\n\n",
@@ -1877,6 +1888,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_cast) emit_nstr_from_i64(&b);
+        if (need_iarr_new || need_iarr_lit) {
+            emit_narr_new(&b);
+        }
         if (need_iarr_lit || need_iarr_push) {
             emit_narr_arena(&b);
         }

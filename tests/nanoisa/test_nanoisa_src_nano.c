@@ -135,6 +135,8 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_slice;
     const NvmFunctionEntry *c_blank;
     const NvmFunctionEntry *s_blank;
+    const NvmFunctionEntry *c_grow_l;
+    const NvmFunctionEntry *s_grow_l;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -160,8 +162,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 31, "C seed emitted add through blank_l");
-    CHECK(s_mod->function_count >= 31, "src_nano emitted add through blank_l");
+    CHECK(c_mod->function_count >= 32, "C seed emitted add through grow_l");
+    CHECK(s_mod->function_count >= 32, "src_nano emitted add through grow_l");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -225,6 +227,8 @@ int main(int argc, char **argv) {
     s_slice = fn_by_name(s_mod, "slice");
     c_blank = fn_by_name(c_mod, "blank_l");
     s_blank = fn_by_name(s_mod, "blank_l");
+    c_grow_l = fn_by_name(c_mod, "grow_l");
+    s_grow_l = fn_by_name(s_mod, "grow_l");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -256,6 +260,7 @@ int main(int argc, char **argv) {
     CHECK(c_slen != NULL && s_slen != NULL, "both modules have slen");
     CHECK(c_slice != NULL && s_slice != NULL, "both modules have slice");
     CHECK(c_blank != NULL && s_blank != NULL, "both modules have blank_l");
+    CHECK(c_grow_l != NULL && s_grow_l != NULL, "both modules have grow_l");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -318,6 +323,8 @@ int main(int argc, char **argv) {
           "slice bytecode matches C seed");
     CHECK(code_equal(c_mod, c_blank, s_mod, s_blank),
           "blank_l bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_grow_l, s_mod, s_grow_l),
+          "grow_l bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -412,6 +419,9 @@ int main(int argc, char **argv) {
         printf("    C blank_l locals=%u len=%u  src blank_l locals=%u len=%u\n",
                c_blank ? c_blank->local_count : 0, c_blank ? c_blank->code_length : 0,
                s_blank ? s_blank->local_count : 0, s_blank ? s_blank->code_length : 0);
+        printf("    C grow_l locals=%u len=%u  src grow_l locals=%u len=%u\n",
+               c_grow_l ? c_grow_l->local_count : 0, c_grow_l ? c_grow_l->code_length : 0,
+               s_grow_l ? s_grow_l->local_count : 0, s_grow_l ? s_grow_l->code_length : 0);
     }
 
     nvm_module_free(c_mod);
