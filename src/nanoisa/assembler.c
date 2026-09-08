@@ -20,7 +20,7 @@
  * ======================================================================== */
 
 #define MAX_LABELS 1024
-#define MAX_SYMBOLS 2048
+#define MAX_SYMBOLS 8192
 
 typedef enum {
     SYMBOL_FUNCTION,
@@ -263,7 +263,8 @@ static int find_symbol(const AsmState *state, SymbolKind kind, const char *name)
 }
 
 static bool add_symbol(AsmState *state, SymbolKind kind, const char *name, uint32_t value) {
-    if (state->symbol_count >= MAX_SYMBOLS || find_symbol(state, kind, name) >= 0) return false;
+    if (state->symbol_count >= MAX_SYMBOLS) return false;
+    if (find_symbol(state, kind, name) >= 0) return false;
     Symbol *symbol = &state->symbols[state->symbol_count++];
     snprintf(symbol->name, sizeof(symbol->name), "%s", name);
     symbol->kind = kind;
@@ -628,8 +629,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             uint32_t index = nvm_add_string(state->mod, buf, len);
             if (named && !add_symbol(state, SYMBOL_CONSTANT, name, index)) {
                 result->error = ASM_ERR_DUPLICATE_SYMBOL;
-                snprintf(result->message, sizeof(result->message),
-                         "Duplicate constant symbol: %.200s", name);
+                if (state->symbol_count >= MAX_SYMBOLS) {
+                    snprintf(result->message, sizeof(result->message),
+                             "Symbol table full (%u)", MAX_SYMBOLS);
+                } else {
+                    snprintf(result->message, sizeof(result->message),
+                             "Duplicate constant symbol: %.200s", name);
+                }
                 return false;
             }
             return require_line_end(p, result);
@@ -998,8 +1004,13 @@ static bool collect_function_symbols(AsmState *state, const char *source, AsmRes
                 !add_symbol(state, SYMBOL_FUNCTION, name, function_index++)) {
                 result->error = ASM_ERR_DUPLICATE_SYMBOL;
                 result->line = line;
-                snprintf(result->message, sizeof(result->message),
-                         "Duplicate function symbol: %.200s", name);
+                if (state->symbol_count >= MAX_SYMBOLS) {
+                    snprintf(result->message, sizeof(result->message),
+                             "Symbol table full (%u)", MAX_SYMBOLS);
+                } else {
+                    snprintf(result->message, sizeof(result->message),
+                             "Duplicate function symbol: %.200s", name);
+                }
                 free(line_buf);
                 return false;
             }

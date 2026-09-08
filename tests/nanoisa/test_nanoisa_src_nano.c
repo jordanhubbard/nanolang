@@ -312,6 +312,14 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_via_g_set;
     const NvmFunctionEntry *c_init;
     const NvmFunctionEntry *s_init;
+    const NvmFunctionEntry *c_empty_fb;
+    const NvmFunctionEntry *s_empty_fb;
+    const NvmFunctionEntry *c_via_empty_fb;
+    const NvmFunctionEntry *s_via_empty_fb;
+    const NvmFunctionEntry *c_flag_n;
+    const NvmFunctionEntry *s_flag_n;
+    const NvmFunctionEntry *c_via_flag_n;
+    const NvmFunctionEntry *s_via_flag_n;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -337,8 +345,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 108, "C seed emitted add through via_g_set");
-    CHECK(s_mod->function_count >= 108, "src_nano emitted add through via_g_set");
+    CHECK(c_mod->function_count >= 112, "C seed emitted add through via_flag_n");
+    CHECK(s_mod->function_count >= 112, "src_nano emitted add through via_flag_n");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -558,6 +566,14 @@ int main(int argc, char **argv) {
     s_via_g_set = fn_by_name(s_mod, "via_g_set");
     c_init = fn_by_name(c_mod, "__init__");
     s_init = fn_by_name(s_mod, "__init__");
+    c_empty_fb = fn_by_name(c_mod, "empty_fb");
+    s_empty_fb = fn_by_name(s_mod, "empty_fb");
+    c_via_empty_fb = fn_by_name(c_mod, "via_empty_fb");
+    s_via_empty_fb = fn_by_name(s_mod, "via_empty_fb");
+    c_flag_n = fn_by_name(c_mod, "flag_n");
+    s_flag_n = fn_by_name(s_mod, "flag_n");
+    c_via_flag_n = fn_by_name(c_mod, "via_flag_n");
+    s_via_flag_n = fn_by_name(s_mod, "via_flag_n");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -667,6 +683,10 @@ int main(int argc, char **argv) {
     CHECK(c_via_g_len != NULL && s_via_g_len != NULL, "both modules have via_g_len");
     CHECK(c_via_g_set != NULL && s_via_g_set != NULL, "both modules have via_g_set");
     CHECK(c_init != NULL && s_init != NULL, "both modules have __init__");
+    CHECK(c_empty_fb != NULL && s_empty_fb != NULL, "both modules have empty_fb");
+    CHECK(c_via_empty_fb != NULL && s_via_empty_fb != NULL, "both modules have via_empty_fb");
+    CHECK(c_flag_n != NULL && s_flag_n != NULL, "both modules have flag_n");
+    CHECK(c_via_flag_n != NULL && s_via_flag_n != NULL, "both modules have via_flag_n");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -885,6 +905,14 @@ int main(int argc, char **argv) {
           "via_g_set bytecode matches C seed");
     CHECK(code_equal(c_mod, c_init, s_mod, s_init),
           "__init__ bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_empty_fb, s_mod, s_empty_fb),
+          "empty_fb bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_empty_fb, s_mod, s_via_empty_fb),
+          "via_empty_fb bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_flag_n, s_mod, s_flag_n),
+          "flag_n bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_flag_n, s_mod, s_via_flag_n),
+          "via_flag_n bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -1213,6 +1241,18 @@ int main(int argc, char **argv) {
         printf("    C __init__ locals=%u len=%u  src __init__ locals=%u len=%u\n",
                c_init ? c_init->local_count : 0, c_init ? c_init->code_length : 0,
                s_init ? s_init->local_count : 0, s_init ? s_init->code_length : 0);
+        printf("    C empty_fb locals=%u len=%u  src empty_fb locals=%u len=%u\n",
+               c_empty_fb ? c_empty_fb->local_count : 0, c_empty_fb ? c_empty_fb->code_length : 0,
+               s_empty_fb ? s_empty_fb->local_count : 0, s_empty_fb ? s_empty_fb->code_length : 0);
+        printf("    C via_empty_fb locals=%u len=%u  src via_empty_fb locals=%u len=%u\n",
+               c_via_empty_fb ? c_via_empty_fb->local_count : 0, c_via_empty_fb ? c_via_empty_fb->code_length : 0,
+               s_via_empty_fb ? s_via_empty_fb->local_count : 0, s_via_empty_fb ? s_via_empty_fb->code_length : 0);
+        printf("    C flag_n locals=%u len=%u  src flag_n locals=%u len=%u\n",
+               c_flag_n ? c_flag_n->local_count : 0, c_flag_n ? c_flag_n->code_length : 0,
+               s_flag_n ? s_flag_n->local_count : 0, s_flag_n ? s_flag_n->code_length : 0);
+        printf("    C via_flag_n locals=%u len=%u  src via_flag_n locals=%u len=%u\n",
+               c_via_flag_n ? c_via_flag_n->local_count : 0, c_via_flag_n ? c_via_flag_n->code_length : 0,
+               s_via_flag_n ? s_via_flag_n->local_count : 0, s_via_flag_n ? s_via_flag_n->code_length : 0);
     }
 
     nvm_module_free(c_mod);

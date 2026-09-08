@@ -110,8 +110,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`via_substr_concat`) and `EQ` of `at` of `array<string>` (`via_at_eq`)
   match the C seed. `getenv` is `CALL_EXTERN` `vm_getenv` (`via_env`).
   Module-level lets are `LOAD_GLOBAL` / `STORE_GLOBAL` with a void
-  `__init__` (`via_g_len` / `via_g_set`). `module_loader.nano` names
-  `unsupported param type GenEnv`.
+  `__init__` (`via_g_len` / `via_g_set`). Pin records may have
+  `array<bool>` fields (`empty_fb` / `flag_n`). Assembler `MAX_SYMBOLS`
+  is 8192. `module_loader.nano` emits 559 functions and that nasm
+  assembles. `transpiler.nano` emits 444 functions and that nasm
+  assembles. `nanoc_integrated.nano` names
+  `expression outside the pinned subset -1`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

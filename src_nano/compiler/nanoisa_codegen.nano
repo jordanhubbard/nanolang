@@ -454,9 +454,10 @@ fn nisa_local_type_ok(t: string) -> bool {
             } else {
                 return (or (== t "array<int>")
                            (or (== t "array<string>")
-                               (or (== t "List<int>")
-                                   (or (== t "list_int")
-                                       (or (== t "List<string>") (== t "list_string"))))))
+                               (or (== t "array<bool>")
+                                   (or (== t "List<int>")
+                                       (or (== t "list_int")
+                                           (or (== t "List<string>") (== t "list_string")))))))
             }
         }
     }
@@ -468,11 +469,11 @@ shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "bool")
     assert (nisa_local_type_ok "array<int>")
     assert (nisa_local_type_ok "array<string>")
+    assert (nisa_local_type_ok "array<bool>")
     assert (nisa_local_type_ok "List<int>")
     assert (nisa_local_type_ok "list_int")
     assert (nisa_local_type_ok "List<string>")
     assert (nisa_local_type_ok "list_string")
-    assert (not (nisa_local_type_ok "array<bool>"))
 }
 
 fn nisa_is_arr_builtin(name: string) -> bool {
@@ -1104,7 +1105,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
 shadow nisa_is_pin_record {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct Bag { xs: List<int> } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct Bag { xs: List<int> } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_pin_record p "Point")
@@ -1113,6 +1114,7 @@ shadow nisa_is_pin_record {
     assert (nisa_is_pin_record p "Diag")
     assert (nisa_is_pin_record p "Flag")
     assert (nisa_is_pin_record p "Bag")
+    assert (nisa_is_pin_record p "FlagBag")
     assert (nisa_is_pin_record p "TypeRec")
     assert (nisa_is_pin_record p "Sym")
     assert (not (nisa_is_pin_record p "Nope"))
@@ -1185,7 +1187,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
 shadow nisa_type_ok {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_type_ok p "int")
@@ -1193,13 +1195,14 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "Tok")
     assert (nisa_type_ok p "List<Tok>")
     assert (nisa_type_ok p "array<string>")
+    assert (nisa_type_ok p "array<bool>")
     assert (nisa_type_ok p "List<string>")
     assert (nisa_type_ok p "array<Point>")
     assert (nisa_type_ok p "array<Tok>")
     assert (nisa_type_ok p "HashMap<string, string>")
     assert (nisa_type_ok p "Sym")
     assert (nisa_type_ok p "array<Sym>")
-    assert (not (nisa_type_ok p "array<bool>"))
+    assert (nisa_type_ok p "FlagBag")
     assert (not (nisa_type_ok p "List<Nope>"))
 }
 

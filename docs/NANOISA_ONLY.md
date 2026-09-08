@@ -344,10 +344,12 @@ match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `array<string>` (`via_at_eq`), and Cut A host `getenv` (`via_env` is
 `CALL_EXTERN` `vm_getenv`), and Cut A module-level lets (`via_g_len` /
 `via_g_set` / `__init__` match the C seed; `LOAD_GLOBAL` /
-`STORE_GLOBAL`). `typecheck.nano` emits 401 functions and
-that nasm assembles; `nano_vm` exits 0. `nvm2c` still names
-`CALL_EXTERN` and `LOAD_GLOBAL`. `module_loader.nano` names
-`unsupported param type GenEnv` (`array<bool>` fields). Labels reset per `.function`.
+`STORE_GLOBAL`). Pin records may have `array<bool>` fields
+(`empty_fb` / `flag_n`). Assembler `MAX_SYMBOLS` is 8192.
+`module_loader.nano` emits 559 functions and that nasm assembles;
+`transpiler.nano` emits 444. `nano_vm` exits 0. `nvm2c` still names
+`CALL_EXTERN` and `LOAD_GLOBAL`. `nanoc_integrated.nano` names
+`expression outside the pinned subset -1`. Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

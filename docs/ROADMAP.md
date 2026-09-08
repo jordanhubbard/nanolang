@@ -1440,9 +1440,23 @@ Compiler product:
       `nvm2c` still names `LOAD_GLOBAL`. `module_loader.nano` names
       `unsupported param type GenEnv` (`array<bool>` fields in
       `transpiler.nano`). I still pretty-print C to build the compiler.
-- [ ] Cut A pin records with `array<bool>` fields: `GenEnv` has
-      `mut_flags` / `global_flags`. I still pretty-print C to build
-      the compiler.
+- [x] Cut A pin records with `array<bool>` fields: `empty_fb` /
+      `via_empty_fb` / `flag_n` / `via_flag_n` match the C seed.
+      `array<bool>` is a local type. `make test-nanoisa-src-nano`
+      (232 passed).
+- [x] Cut A assembler symbol table: `MAX_SYMBOLS` is 8192 so
+      `module_loader.nano` nasm assembles (1501 `.string` names plus
+      559 functions overflowed 2048). A full table names itself; it
+      does not claim a duplicate.
+- [x] `module_loader.nano` emits 559 functions and that nasm
+      assembles. `nano_vm` exits 0 (synthetic `main`).
+- [x] `transpiler.nano` emits 444 functions and that nasm assembles.
+      `nano_vm` exits 0 (synthetic `main`). I still pretty-print C to
+      build the compiler.
+- [ ] Cut A `nanoc_integrated.nano` names
+      `expression outside the pinned subset -1`. `nanoisa_codegen.nano`
+      as a root names `parse failed`. `nvm2c` still names `LOAD_GLOBAL`
+      and `CALL_EXTERN`. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
