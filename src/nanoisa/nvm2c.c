@@ -476,8 +476,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             Nvm2cSimSlot val, arr;
             if (!sim_pop(b, idx, stk, &sp, &val)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
-            (void)val;
-            if (arr.kind == NVM2C_VK_SARR) {
+            if (val.kind == NVM2C_VK_STR || arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
             } else {
@@ -1287,13 +1286,25 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         case OP_ARR_NEW: {
             uint8_t tag = ins.operands[0].u8;
-            if (tag == TAG_INT) {
-                stack_push_arr(b, &st, "narr_new()");
-            } else if (tag == TAG_STRING) {
-                stack_push_sarr(b, &st, "(nsarr_t){0}");
-            } else {
+            int as_sarr = (tag == TAG_STRING);
+            if (tag != TAG_INT && tag != TAG_STRING) {
                 nvm2c_fail(b, "function %u: ARR_NEW only supports int or string elements", idx);
                 goto done;
+            }
+            if (tag == TAG_INT) {
+                DecodedInstruction nxt;
+                uint32_t nn = isa_decode(code + pc, remaining - pc, &nxt);
+                if (nn != 0 && nxt.opcode == OP_STORE_LOCAL) {
+                    uint16_t slot = nxt.operands[0].u16;
+                    if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_SARR) {
+                        as_sarr = 1;
+                    }
+                }
+            }
+            if (as_sarr) {
+                stack_push_sarr(b, &st, "nsarr_new()");
+            } else {
+                stack_push_arr(b, &st, "narr_new()");
             }
             break;
         }
@@ -1367,7 +1378,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 stack_push_temp(b, &st, expr);
             } else if (ak == NVM2C_VK_SARR) {
                 char expr[64];
-                snprintf(expr, sizeof expr, "(int64_t)sa[%d].len", arr);
+                snprintf(expr, sizeof expr, "(int64_t)(sa[%d] ? sa[%d]->len : 0)", arr, arr);
                 stack_push_temp(b, &st, expr);
             } else {
                 nvm2c_fail(b, "function %u: ARR_LEN expected an array", idx);
@@ -1778,6 +1789,15 @@ static void emit_nsarr_arena(Nvm2cBuf *b) {
         "static size_t nsarr_used;\n");
 }
 
+static void emit_nsarr_new(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static nsarr_t nsarr_new(void) {\n"
+        "    nsarr_t a = (nsarr_t)calloc(1, sizeof(nsarr_s));\n"
+        "    if (!a) abort();\n"
+        "    return a;\n"
+        "}\n\n");
+}
+
 static void emit_nsarr_lit(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nsarr_t nsarr_lit(const char *const *elems, size_t n) {\n"
@@ -1786,9 +1806,9 @@ static void emit_nsarr_lit(Nvm2cBuf *b) {
         "    const char **p = nsarr_arena + nsarr_used;\n"
         "    if (n) memcpy(p, elems, n * sizeof(const char *));\n"
         "    nsarr_used += n;\n"
-        "    nsarr_t a;\n"
-        "    a.data = p;\n"
-        "    a.len = n;\n"
+        "    nsarr_t a = nsarr_new();\n"
+        "    a->data = p;\n"
+        "    a->len = n;\n"
         "    return a;\n"
         "}\n\n");
 }
@@ -1796,25 +1816,25 @@ static void emit_nsarr_lit(Nvm2cBuf *b) {
 static void emit_nsarr_get(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nsarr_get(nsarr_t a, int64_t idx) {\n"
-        "    if (!a.data || idx < 0 || (size_t)idx >= a.len) abort();\n"
-        "    return a.data[idx] ? a.data[idx] : \"\";\n"
+        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    return a->data[idx] ? a->data[idx] : \"\";\n"
         "}\n\n");
 }
 
 static void emit_nsarr_push(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static nsarr_t nsarr_push(nsarr_t a, const char *v) {\n"
-        "    size_t n = a.len + 1;\n"
-        "    if (a.len && !a.data) abort();\n"
+        "    if (!a) abort();\n"
+        "    size_t n = a->len + 1;\n"
+        "    if (a->len && !a->data) abort();\n"
         "    if (nsarr_used + n > (sizeof nsarr_arena / sizeof nsarr_arena[0])) abort();\n"
         "    const char **p = nsarr_arena + nsarr_used;\n"
-        "    if (a.len) memcpy(p, a.data, a.len * sizeof(const char *));\n"
-        "    p[a.len] = v ? v : \"\";\n"
+        "    if (a->len) memcpy(p, a->data, a->len * sizeof(const char *));\n"
+        "    p[a->len] = v ? v : \"\";\n"
         "    nsarr_used += n;\n"
-        "    nsarr_t out;\n"
-        "    out.data = p;\n"
-        "    out.len = n;\n"
-        "    return out;\n"
+        "    a->data = p;\n"
+        "    a->len = n;\n"
+        "    return a;\n"
         "}\n\n");
 }
 
@@ -1879,6 +1899,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
         int need_sarr_push = need_arr_push && need_sarr;
+        int need_sarr_new = need_sarr && module_has_opcode(mod, OP_ARR_NEW);
         int need_agg_get = module_has_opcode(mod, OP_AGG_GET);
         int need_print = module_has_opcode(mod, OP_PRINT) ||
             module_has_opcode(mod, OP_PRINTLN);
@@ -1901,7 +1922,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
-            need_arr_push || need_iarr_new || need_agg_get || need_assert) {
+            need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
+            need_assert) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");
@@ -1910,7 +1932,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "\n"
             "typedef struct { int64_t *data; size_t len; } narr_s;\n"
             "typedef narr_s *narr_t;\n"
-            "typedef struct { const char **data; size_t len; } nsarr_t;\n");
+            "typedef struct { const char **data; size_t len; } nsarr_s;\n"
+            "typedef nsarr_s *nsarr_t;\n");
         nvm2c_printf(&b,
             "typedef struct { int64_t f[%d]; uint16_t n; } nrec_t;\n\n",
             NVM2C_MAX_REC_FIELDS);
@@ -1919,7 +1942,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
         if (need_cast) emit_nstr_from_i64(&b);
-        if (need_iarr_new || need_iarr_lit) {
+        if (need_iarr_lit || (need_iarr && need_iarr_new)) {
             emit_narr_new(&b);
         }
         if (need_iarr_lit || need_iarr_push) {
@@ -1928,6 +1951,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_iarr_lit) emit_narr_lit(&b);
         if (need_iarr_get) emit_narr_get(&b);
         if (need_iarr_push) emit_narr_push(&b);
+        if (need_sarr_lit || need_sarr_new) {
+            emit_nsarr_new(&b);
+        }
         if (need_sarr_lit || need_sarr_push) {
             emit_nsarr_arena(&b);
         }

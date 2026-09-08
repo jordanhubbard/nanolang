@@ -1167,6 +1167,15 @@ Compiler product:
       to build the compiler. Out-of-range index is `-1`, matching the
       VM. `str_char_at` is the same opcode.
       `make test-nanoisa-src-nano` (72 passed).
+- [x] Cut A List<string> empty: the same pin matches `blank_s`
+      (`list_string_new` as `ARR_NEW 1`, `list_string_length` as
+      `ARR_LEN`) bytecode with the C seed. I still pretty-print C to
+      build the compiler. The C seed uses tag 1 for every `list_T_new`.
+      `make test-nanoisa-src-nano` (76 passed).
+- [x] Cut A List<string> push: the same pin matches `grow_s`
+      (`list_string_push` as `ARR_PUSH` then `POP`, `list_string_get`
+      as `ARR_GET`) bytecode with the C seed. I still pretty-print C to
+      build the compiler. Record lists and `list_T_set` are not this pin.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1247,6 +1256,13 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `ch` (`STR_CHAR_AT`) without `nano_vm`.
       Index 0 of `"hi"` exits 104. Out of range is `-1`.
       `make test-nvm2c` (281 passed).
+- [x] `nvm2c` runs Cut A `blank_s` (`ARR_NEW` of a string list) without
+      `nano_vm`. Empty length is 0.
+- [x] `nvm2c` preserves string-array identity across `ARR_PUSH` then
+      `POP` so void `list_string_push` mutates the local the way the VM
+      heap does. Cut A `grow_s` length is 2 without `nano_vm`. The C
+      seed still emits `ARR_NEW 1`; I classify by the pushed value.
+      `make test-nvm2c` (291 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

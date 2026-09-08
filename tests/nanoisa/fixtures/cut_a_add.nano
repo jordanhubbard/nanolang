@@ -304,3 +304,22 @@ fn ch() -> int {
 shadow ch {
     assert (== (ch) 104)
 }
+
+fn blank_s() -> int {
+    let xs: List<string> = (list_string_new)
+    return (list_string_length xs)
+}
+
+shadow blank_s {
+    assert (== (blank_s) 0)
+}
+
+fn grow_s() -> string {
+    let xs: List<string> = (list_string_new)
+    (list_string_push xs "hi")
+    return (list_string_get xs 0)
+}
+
+shadow grow_s {
+    assert (== (grow_s) "hi")
+}
