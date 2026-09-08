@@ -3,7 +3,8 @@
  * =============================================================================
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
- * if/else, while, let, set, string literals, string concat, array<int>
+ * if/else, while, for-in over array<int> (LT, not I64_LT_S), let, set,
+ * string literals, string concat, array<int>
  * literals, array_length, array_get, int- and string-field records
  * (AGG_PACK/AGG_GET),
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
@@ -1217,6 +1218,71 @@ shadow nisa_emit_while {
     assert (str_contains text "JMP L")
 }
 
+fn nisa_emit_for(parser: Parser, node: ASTFor) -> string {
+    let l_top: string = (nisa_fresh)
+    let l_end: string = (nisa_fresh)
+    let mut out: string = (nisa_emit_expr parser node.iterable node.iterable_type)
+    set nisa_names (array_push nisa_names "__for_arr__")
+    set nisa_types (array_push nisa_types "array<int>")
+    let arr_slot: int = (- (array_length nisa_names) 1)
+    set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string arr_slot)))
+    set out (+ out (nisa_line_imm "PUSH_I64" "0"))
+    set nisa_names (array_push nisa_names "__for_idx__")
+    set nisa_types (array_push nisa_types "int")
+    let idx_slot: int = (- (array_length nisa_names) 1)
+    set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string idx_slot)))
+    set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string arr_slot)))
+    set out (+ out (nisa_line "ARR_LEN"))
+    set nisa_names (array_push nisa_names "__for_len__")
+    set nisa_types (array_push nisa_types "int")
+    let len_slot: int = (- (array_length nisa_names) 1)
+    set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string len_slot)))
+    set out (+ out (nisa_label_line l_top))
+    set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string idx_slot)))
+    set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string len_slot)))
+    set out (+ out (nisa_line "LT"))
+    set out (+ out (nisa_line_imm "JMP_FALSE" l_end))
+    set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string arr_slot)))
+    set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string idx_slot)))
+    set out (+ out (nisa_line "ARR_GET"))
+    set nisa_names (array_push nisa_names node.var_name)
+    set nisa_types (array_push nisa_types "int")
+    let var_slot: int = (- (array_length nisa_names) 1)
+    set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string var_slot)))
+    set out (+ out (nisa_emit_block parser node.body))
+    if (nisa_block_falls_through parser node.body) {
+        set out (+ out (nisa_line_imm "LOAD_LOCAL" (int_to_string idx_slot)))
+        set out (+ out (nisa_line_imm "PUSH_I64" "1"))
+        set out (+ out (nisa_line "I64_ADD"))
+        set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string idx_slot)))
+        set out (+ out (nisa_line_imm "JMP" l_top))
+    } else {
+        (print "")
+    }
+    set out (+ out (nisa_label_line l_end))
+    return out
+}
+
+shadow nisa_emit_for {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n upto() -> int { let mut s: int = 0 for x in [1, 2, 3] { set s (+ s x) } return s } shadow upto { assert (== (upto) 6) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    set nisa_names (array_push nisa_names "s")
+    set nisa_types (array_push nisa_types "int")
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
+    let node: ASTFor = (parser_get_for p stmt.node_id)
+    let text: string = (nisa_emit_for p node)
+    assert (str_contains text "LT")
+    assert (str_contains text "ARR_LEN")
+    assert (str_contains text "ARR_GET")
+    assert (str_contains text "I64_ADD")
+    assert (str_contains text "JMP_FALSE")
+}
+
 fn nisa_emit_assert(parser: Parser, node: ASTAssert) -> string {
     let ok_text: string = (nisa_emit_expr parser node.condition node.condition_type)
     return (+ ok_text (nisa_line "ASSERT"))
@@ -1288,6 +1354,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         let w: ASTWhile = (parser_get_while parser stmt.node_id)
                         return (nisa_emit_while parser w)
                     } else {
+                        if (== stmt.node_type ParseNodeType.PNODE_FOR) {
+                            let for_node: ASTFor = (parser_get_for parser stmt.node_id)
+                            return (nisa_emit_for parser for_node)
+                        } else {
                         if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
                             let node: ASTAssert = (parser_get_assert parser stmt.node_id)
                             return (nisa_emit_assert parser node)
@@ -1312,6 +1382,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                                 return (nisa_fail "statement outside the pinned subset")
                             }
                         }
+                    }
                     }
                     }
                 }
@@ -1698,6 +1769,15 @@ shadow nisa_emit_function {
     assert (str_contains put_s_text "ARR_SET")
     assert (str_contains put_s_text "POP")
     assert (str_contains put_s_text "ARR_GET")
+    let src39: string = (+ "f" "n upto() -> int { let mut s: int = 0 for x in [1, 2, 3] { set s (+ s x) } return s } shadow upto { assert true }")
+    let toks39: List<LexerToken> = (tokenize_string src39 "t.nano" diags)
+    let p39: Parser = (parse_program toks39 (list_LexerToken_length toks39) "t.nano")
+    let upto_fn: ASTFunction = (parser_get_function p39 0)
+    let upto_text: string = (nisa_emit_function p39 upto_fn)
+    assert (str_contains upto_text ".function upto 0 5 0 int 1")
+    assert (str_contains upto_text "LT")
+    assert (str_contains upto_text "ARR_LEN")
+    assert (str_contains upto_text "ARR_GET")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

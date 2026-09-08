@@ -7,7 +7,8 @@
  *
  * The generated process does not require nano_vm, nano_cop, or nano_vmd.
  *
- * Closed subset: i64 constants, locals, integer arithmetic and comparisons,
+ * Closed subset: i64 constants, locals, integer arithmetic and comparisons
+ * (including generic LT from for-range, not only I64_LT_S),
  * CALL/TAIL_CALL, JMP/JMP_FALSE, RET, HALT, PUSH_STR, STR_CONCAT, STR_LEN,
  * ARR_LITERAL, ARR_GET, ARR_LEN, ARR_PUSH of array<int>, array<string>,
  * and lists of int/string records, ARR_NEW of array<int> or a string/record

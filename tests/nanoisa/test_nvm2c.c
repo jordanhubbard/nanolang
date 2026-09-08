@@ -2295,6 +2295,65 @@ static void test_loop_sum_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* upto: for x in [1, 2, 3] { set s (+ s x) }. Generic LT, not I64_LT_S. */
+static void test_upto_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function upto 0 5 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_I64 2\n"
+        "  PUSH_I64 3\n"
+        "  ARR_LITERAL 1 3\n"
+        "  STORE_LOCAL 1\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_LEN\n"
+        "  STORE_LOCAL 3\n"
+        "loop_top:\n"
+        "  LOAD_LOCAL 2\n"
+        "  LOAD_LOCAL 3\n"
+        "  LT\n"
+        "  JMP_FALSE loop_end\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 2\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 4\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 4\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 2\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 2\n"
+        "  JMP loop_top\n"
+        "loop_end:\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL upto\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "upto fixture");
+    CHECK(m != NULL, "upto fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for upto");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "upto C compiles and runs");
+    CHECK(status == 6, "upto() exits 6 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2519,6 +2578,7 @@ int main(int argc, char **argv) {
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
     test_loop_sum_runs_without_nano_vm();
+    test_upto_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

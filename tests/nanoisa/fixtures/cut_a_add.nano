@@ -436,3 +436,15 @@ fn put_s() -> string {
 shadow put_s {
     assert (== (put_s) "no")
 }
+
+fn upto() -> int {
+    let mut s: int = 0
+    for x in [1, 2, 3] {
+        set s (+ s x)
+    }
+    return s
+}
+
+shadow upto {
+    assert (== (upto) 6)
+}

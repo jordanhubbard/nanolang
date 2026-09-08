@@ -362,6 +362,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_I64_REM_S:
         case OP_I64_EQ:
         case OP_I64_NE:
+        case OP_LT:
         case OP_I64_LT_S:
         case OP_I64_LE_S:
         case OP_I64_GT_S:
@@ -1383,6 +1384,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_I64_NE:
             emit_binop(b, &st, "!=");
             break;
+        case OP_LT:
         case OP_I64_LT_S:
             emit_binop(b, &st, "<");
             break;

@@ -1215,9 +1215,10 @@ Compiler product:
       seed. Nested arrays stay refused. I still pretty-print C to
       build the compiler.
       `make test-nanoisa-src-nano` (96 passed).
-- [ ] Cut A for-range: the same pin matches `upto` (`for` lowered
+- [x] Cut A for-range: the same pin matches `upto` (`for` lowered
       with `LT`, not only `while`/`I64_LT_S`) bytecode with the C
       seed. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (98 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1330,7 +1331,8 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `put_s` (`ARR_SET` of a string list) without
       `nano_vm`. Nested arrays stay refused.
       `make test-nvm2c` (358 passed).
-- [ ] `nvm2c` runs Cut A `upto` (`LT` from `for`) without `nano_vm`.
+- [x] `nvm2c` runs Cut A `upto` (`LT` from `for`) without `nano_vm`.
+      `make test-nvm2c` (365 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
