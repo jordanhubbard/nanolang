@@ -207,14 +207,15 @@ Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
 `make test-nanoisa-src-nano` on integer `add`/`main`/`choose`/`loop_sum`,
 string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
-`pick`, `say`, `shout`, `mutter`, and `prove` (46 passed; function
-bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
-`STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `AGG_PACK`,
-`AGG_GET`, `bool` results as i64 0/1, `PUSH_BOOL`, `BOOL_NOT`,
-`BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP` with one `RET`,
-`PRINT`, `PRINTLN`, and `ASSERT`). String operands are compared by
-content, not pool index. I still pretty-print C to build the
-compiler. The full dual of `codegen.c` is not this pin.
+`pick`, `say`, `shout`, `mutter`, `prove`, and `grow` (48 passed;
+function bytecode matches the C seed, including `if`, `while`,
+`PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`,
+`ARR_PUSH` of `array<int>`, `AGG_PACK`, `AGG_GET`, `bool` results as
+i64 0/1, `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`, `cond` as
+`JMP_FALSE`/`JMP` with one `RET`, `PRINT`, `PRINTLN`, and `ASSERT`).
+String operands are compared by content, not pool index. I still
+pretty-print C to build the compiler. The full dual of `codegen.c`
+is not this pin.
 
 **B — AOT covers the compiler subset.** `nvm2c` translates functions,
 structs, loops, arrays, strings, modules, and a declared host ABI.
@@ -232,12 +233,13 @@ run as native C), Cut A int-field records (`AGG_PACK`, `AGG_GET`;
 `either` run as native C), Cut A `cond` (`pick` runs as native
 C; join copies temps so both arms share one `RET`), Cut A
 print (`PRINT`/`PRINTLN`; `say`, `shout`, and `mutter` run as
-native C), and Cut A assert (`ASSERT`; `prove(true)` exits 0 and
-`prove(false)` aborts). Nested arrays, nested records, `ARR_SET`, `AGG_SET`,
-variants, tuples, and printing arrays/records stay refused. The
-rest of the compiler subset (modules, host ABI, and the remaining
-string library) is still open. A pinned suite must match on
-`nano_vm` and on AOT C.
+native C), Cut A assert (`ASSERT`; `prove(true)` exits 0 and
+`prove(false)` aborts), and Cut A `array_push` (`ARR_PUSH` of
+`array<int>`; `grow` runs as native C). Nested arrays, nested
+records, `ARR_SET`, `AGG_SET`, variants, tuples, string arrays, and
+printing arrays/records stay refused. The rest of the compiler
+subset (modules, host ABI, and the remaining string library) is
+still open. A pinned suite must match on `nano_vm` and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written

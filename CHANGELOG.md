@@ -42,13 +42,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   assembly for integer `add`/`main`/`choose`/`loop_sum`, string
   `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
   `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
-  `pick`, `say`, `shout`, `mutter`, and `prove`. `make test-nanoisa-src-nano`
-  compares function bytecode with the C seed, including `if`,
-  `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
-  `ARR_GET`, `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`,
-  `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP`
-  with one `RET`, `PRINT`, `PRINTLN`, and `ASSERT`. String operands
-  are compared by content. I still pretty-print C to build the compiler.
+  `pick`, `say`, `shout`, `mutter`, `prove`, and `grow`.
+  `make test-nanoisa-src-nano` compares function bytecode with the
+  C seed, including `if`, `while`, `PUSH_STR`, `STR_CONCAT`,
+  `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of `array<int>`,
+  `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`, `BOOL_NOT`,
+  `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP` with one `RET`,
+  `PRINT`, `PRINTLN`, and `ASSERT`. String operands are compared by
+  content. I still pretty-print C to build the compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
@@ -69,7 +70,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `say` writes `7`, `shout` writes `7` with a newline, `mutter`
   writes an empty string. Printing arrays stays refused. `ASSERT`
   runs as native C: `prove(true)` exits 0 and `prove(false)` aborts
-  without a VM process. `make test-nvm2c` (188 passed).
+  without a VM process. `ARR_PUSH` of `array<int>` runs as native C:
+  `grow` exits 2. String arrays stay refused.
+  `make test-nvm2c` (196 passed).
 
 ## [4.5.0] - 2026-09-07
 

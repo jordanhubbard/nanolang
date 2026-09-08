@@ -239,12 +239,14 @@ shadow nisa_local_type_ok {
 }
 
 fn nisa_is_arr_builtin(name: string) -> bool {
-    return (or (== name "array_length") (== name "array_get"))
+    return (or (== name "array_length")
+               (or (== name "array_get") (== name "array_push")))
 }
 
 shadow nisa_is_arr_builtin {
     assert (nisa_is_arr_builtin "array_length")
     assert (nisa_is_arr_builtin "array_get")
+    assert (nisa_is_arr_builtin "array_push")
     assert (not (nisa_is_arr_builtin "add"))
 }
 
@@ -627,7 +629,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                 return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_GET"))
             }
         } else {
-            if (== func_id.name "not") {
+            if (== func_id.name "array_push") {
+                if (!= call.arg_count 2) {
+                    return (nisa_fail "array_push needs 2 arguments")
+                } else {
+                    return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_PUSH"))
+                }
+            } else {
+                if (== func_id.name "not") {
                 if (!= call.arg_count 1) {
                     return (nisa_fail "not needs 1 argument")
                 } else {
@@ -651,6 +660,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
                     }
                 }
+            }
             }
         }
     }
@@ -1227,6 +1237,14 @@ shadow nisa_emit_function {
     let prove_text: string = (nisa_emit_function p13 prove_fn)
     assert (str_contains prove_text ".function prove 1 1 0 int 1")
     assert (str_contains prove_text "ASSERT")
+    let src14: string = (+ "f" "n grow() -> int { let mut xs: array<int> = [1] set xs (array_push xs 2) return (array_length xs) } shadow grow { assert true }")
+    let toks14: List<LexerToken> = (tokenize_string src14 "t.nano" diags)
+    let p14: Parser = (parse_program toks14 (list_LexerToken_length toks14) "t.nano")
+    let grow_fn: ASTFunction = (parser_get_function p14 0)
+    let grow_text: string = (nisa_emit_function p14 grow_fn)
+    assert (str_contains grow_text ".function grow 0 1 0 int 1")
+    assert (str_contains grow_text "ARR_PUSH")
+    assert (str_contains grow_text "ARR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

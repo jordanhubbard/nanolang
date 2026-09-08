@@ -188,3 +188,13 @@ fn prove(b: bool) -> int {
 shadow prove {
     assert (== (prove true) 0)
 }
+
+fn grow() -> int {
+    let mut xs: array<int> = [1]
+    set xs (array_push xs 2)
+    return (array_length xs)
+}
+
+shadow grow {
+    assert (== (grow) 2)
+}

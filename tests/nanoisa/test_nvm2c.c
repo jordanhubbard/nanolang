@@ -1019,6 +1019,65 @@ static void test_prove_else_aborts_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_grow_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function grow 0 1 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 2\n"
+        "  ARR_PUSH\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow fixture");
+    CHECK(m != NULL, "grow fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for grow");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "grow C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow C compiles and runs");
+    CHECK(status == 2, "grow() exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_arr_push_string_is_refused(void) {
+    const char *src =
+        ".string empty \"\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_STR empty\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "ARR_PUSH string fixture");
+    CHECK(m != NULL, "ARR_PUSH string fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "ARR_PUSH of a string stays outside the closed subset");
+    CHECK(strstr(err, "ARR_PUSH") != NULL, "error names ARR_PUSH");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1349,6 +1408,8 @@ int main(int argc, char **argv) {
     test_print_array_is_refused();
     test_prove_then_runs_without_nano_vm();
     test_prove_else_aborts_without_nano_vm();
+    test_grow_runs_without_nano_vm();
+    test_arr_push_string_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
