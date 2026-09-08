@@ -207,13 +207,14 @@ Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
 `make test-nanoisa-src-nano` on integer `add`/`main`/`choose`/`loop_sum`,
 string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
-`pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`, and
-`digits` (52 passed; function bytecode matches the C seed, including
-`if`, `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
-`ARR_GET`, `ARR_PUSH` of `array<int>`, `AGG_PACK`, `AGG_GET`, `bool`
-results as i64 0/1, `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`,
-`cond` as `JMP_FALSE`/`JMP` with one `RET`, `PRINT`, `PRINTLN`,
-`ASSERT`, `STR_CONTAINS`, and `CAST_STRING` of i64). String operands
+`pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
+`digits`, `names`, and `head_s` (56 passed; function bytecode matches
+the C seed, including `if`, `while`, `PUSH_STR`, `STR_CONCAT`,
+`ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of `array<int>` and
+`array<string>`, `AGG_PACK`, `AGG_GET`, `bool` results as i64 0/1,
+`PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`, `cond` as
+`JMP_FALSE`/`JMP` with one `RET`, `PRINT`, `PRINTLN`, `ASSERT`,
+`STR_CONTAINS`, and `CAST_STRING` of i64). String operands
 are compared by content, not pool index. I still pretty-print C to
 build the compiler. The full dual of `codegen.c` is not this pin.
 
@@ -236,10 +237,12 @@ print (`PRINT`/`PRINTLN`; `say`, `shout`, and `mutter` run as
 native C), Cut A assert (`ASSERT`; `prove(true)` exits 0 and
 `prove(false)` aborts), Cut A `array_push` (`ARR_PUSH` of
 `array<int>`; `grow` runs as native C), Cut A `str_contains`
-(`has_hi` runs as native C), and Cut A `int_to_string`
-(`CAST_STRING` of i64; `digits` runs as native C). Nested arrays,
-nested records, `ARR_SET`, `AGG_SET`, variants, tuples, string
-arrays, and printing arrays/records stay refused. The rest of the
+(`has_hi` runs as native C), Cut A `int_to_string`
+(`CAST_STRING` of i64; `digits` runs as native C), and Cut A
+string arrays (`ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_GET`, `ARR_LEN`;
+`names` and `head_s` run as native C). Nested arrays,
+nested records, `ARR_SET`, `AGG_SET`, variants, tuples, and printing
+arrays/records stay refused. The rest of the
 compiler subset (modules, host ABI, and the remaining string
 library) is still open. A pinned suite must match on `nano_vm` and
 on AOT C.

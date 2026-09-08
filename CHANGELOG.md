@@ -42,10 +42,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   assembly for integer `add`/`main`/`choose`/`loop_sum`, string
   `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
   `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
-  `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`, and
-  `digits`. `make test-nanoisa-src-nano` compares function bytecode
-  with the C seed, including `if`, `while`, `PUSH_STR`, `STR_CONCAT`,
-  `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of `array<int>`,
+  `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
+  `digits`, `names`, and `head_s`. `make test-nanoisa-src-nano`
+  compares function bytecode with the C seed, including `if`,
+  `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
+  `ARR_GET`, `ARR_PUSH` of `array<int>` and `array<string>`,
   `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`, `BOOL_NOT`,
   `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP` with one `RET`,
   `PRINT`, `PRINTLN`, `ASSERT`, `STR_CONTAINS`, and `CAST_STRING` of
@@ -75,7 +76,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `grow` exits 2. String arrays stay refused. `STR_CONTAINS` runs as
   native C: `has_hi("hi")` exits 1 and `has_hi("no")` exits 0.
   `CAST_STRING` of i64 runs as native C: `digits(7)` has length 1.
-  `make test-nvm2c` (214 passed).
+  `ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_GET`, and `ARR_LEN` of
+  `array<string>` run as native C: `names` exits 2 and `head_s`
+  returns `"hi"`. Nested arrays stay refused.
+  `make test-nvm2c` (225 passed).
 
 ## [4.5.0] - 2026-09-07
 

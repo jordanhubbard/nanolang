@@ -224,7 +224,7 @@ fn nisa_local_type_ok(t: string) -> bool {
             if (== t "bool") {
                 return true
             } else {
-                return (== t "array<int>")
+                return (or (== t "array<int>") (== t "array<string>"))
             }
         }
     }
@@ -235,7 +235,8 @@ shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "string")
     assert (nisa_local_type_ok "bool")
     assert (nisa_local_type_ok "array<int>")
-    assert (not (nisa_local_type_ok "array<string>"))
+    assert (nisa_local_type_ok "array<string>")
+    assert (not (nisa_local_type_ok "array<bool>"))
 }
 
 fn nisa_is_arr_builtin(name: string) -> bool {
@@ -345,7 +346,8 @@ shadow nisa_type_ok {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_type_ok p "int")
     assert (nisa_type_ok p "Point")
-    assert (not (nisa_type_ok p "array<string>"))
+    assert (nisa_type_ok p "array<string>")
+    assert (not (nisa_type_ok p "array<bool>"))
 }
 
 fn nisa_fresh() -> string {
@@ -469,6 +471,7 @@ shadow nisa_emit_call_args {
 fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
     let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
     let mut out: string = ""
+    let mut tag: string = "1"
     let mut i: int = 0
     while (< i arr.element_count) {
         let el: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
@@ -476,14 +479,23 @@ fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
             return (nisa_fail "nested arrays are not in the pinned subset")
         } else {
             if (== el.node_type ParseNodeType.PNODE_STRING) {
-                return (nisa_fail "string arrays are not in the pinned subset")
+                if (and (!= i 0) (!= tag "5")) {
+                    return (nisa_fail "mixed array elements are not in the pinned subset")
+                } else {
+                    set tag "5"
+                }
             } else {
-                set out (+ out (nisa_emit_expr parser el.node_id el.node_type))
-                set i (+ i 1)
+                if (== tag "5") {
+                    return (nisa_fail "mixed array elements are not in the pinned subset")
+                } else {
+                    (print "")
+                }
             }
+            set out (+ out (nisa_emit_expr parser el.node_id el.node_type))
+            set i (+ i 1)
         }
     }
-    return (+ out (nisa_line_imm "ARR_LITERAL" (+ "1 " (int_to_string arr.element_count))))
+    return (+ out (nisa_line_imm "ARR_LITERAL" (+ tag (+ " " (int_to_string arr.element_count)))))
 }
 
 shadow nisa_emit_array_literal {
@@ -499,6 +511,15 @@ shadow nisa_emit_array_literal {
     let text: string = (nisa_emit_array_literal p l.value)
     assert (str_contains text "PUSH_I64 1")
     assert (str_contains text "ARR_LITERAL 1 3")
+    let src2: string = (+ "f" "n names() -> int { let xs: array<string> = [\"a\"] return (array_length xs) } shadow names { assert true }")
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let func2: ASTFunction = (parser_get_function p2 0)
+    let block2: ASTBlock = (parser_get_block p2 func2.body)
+    let stmt2: ASTStmtRef = (list_ASTStmtRef_get block2.statements 0)
+    let l2: ASTLet = (parser_get_let p2 stmt2.node_id)
+    let text2: string = (nisa_emit_array_literal p2 l2.value)
+    assert (str_contains text2 "ARR_LITERAL 5 1")
     let _2: int = (nisa_reset)
 }
 
@@ -1279,6 +1300,21 @@ shadow nisa_emit_function {
     let dig_text: string = (nisa_emit_function p16 dig_fn)
     assert (str_contains dig_text ".function digits 1 1 0 string 1")
     assert (str_contains dig_text "CAST_STRING")
+    let src17: string = (+ "f" "n names() -> int { let mut xs: array<string> = [\"a\"] set xs (array_push xs \"b\") return (array_length xs) } shadow names { assert true }")
+    let toks17: List<LexerToken> = (tokenize_string src17 "t.nano" diags)
+    let p17: Parser = (parse_program toks17 (list_LexerToken_length toks17) "t.nano")
+    let names_fn: ASTFunction = (parser_get_function p17 0)
+    let names_text: string = (nisa_emit_function p17 names_fn)
+    assert (str_contains names_text ".function names 0 1 0 int 1")
+    assert (str_contains names_text "ARR_LITERAL 5 1")
+    assert (str_contains names_text "ARR_PUSH")
+    let src18: string = (+ "f" "n head_s() -> string { let xs: array<string> = [\"hi\"] return (array_get xs 0) } shadow head_s { assert true }")
+    let toks18: List<LexerToken> = (tokenize_string src18 "t.nano" diags)
+    let p18: Parser = (parse_program toks18 (list_LexerToken_length toks18) "t.nano")
+    let head_fn: ASTFunction = (parser_get_function p18 0)
+    let head_text: string = (nisa_emit_function p18 head_fn)
+    assert (str_contains head_text ".function head_s 0 1 0 string 1")
+    assert (str_contains head_text "ARR_GET")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

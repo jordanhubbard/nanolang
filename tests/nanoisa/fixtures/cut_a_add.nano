@@ -215,3 +215,22 @@ fn digits(n: int) -> string {
 shadow digits {
     assert (== (digits 7) "7")
 }
+
+fn names() -> int {
+    let mut xs: array<string> = ["a"]
+    set xs (array_push xs "b")
+    return (array_length xs)
+}
+
+shadow names {
+    assert (== (names) 2)
+}
+
+fn head_s() -> string {
+    let xs: array<string> = ["hi"]
+    return (array_get xs 0)
+}
+
+shadow head_s {
+    assert (== (head_s) "hi")
+}
