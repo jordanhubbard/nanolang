@@ -15,7 +15,8 @@
  * and array/list results (ISA tag array),
  * and Enum.Variant as ENUM_VAL (local first, then direct import),
  * and one-level nested pin-record field types, and imported
- * functions as CALL/TAIL_CALL (C seed pass 2b).
+ * functions as CALL/TAIL_CALL (C seed pass 2b), unsafe blocks as
+ * inner statements, and getcwd as CALL_EXTERN vm_getcwd.
  * Nested AGG_PACK stays refused. Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -35,6 +36,9 @@ let mut nisa_label: int = 0
 let mut nisa_seen: array<string> = []
 let mut nisa_imp_fn_names: array<string> = []
 let mut nisa_imp_fn_rets: array<string> = []
+let mut nisa_ext_syms: array<string> = []
+let mut nisa_ext_rets: array<string> = []
+let mut nisa_ext_params: array<string> = []
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -47,6 +51,9 @@ fn nisa_reset() -> int {
     set nisa_seen []
     set nisa_imp_fn_names []
     set nisa_imp_fn_rets []
+    set nisa_ext_syms []
+    set nisa_ext_rets []
+    set nisa_ext_params []
     return 0
 }
 
@@ -912,6 +919,186 @@ shadow nisa_fn_is_void {
     assert (not (nisa_fn_is_void p "nope"))
 }
 
+fn nisa_os_sym(name: string) -> string {
+    if (== name "getcwd") {
+        return "vm_getcwd"
+    } else {
+        return ""
+    }
+}
+
+shadow nisa_os_sym {
+    assert (== (nisa_os_sym "getcwd") "vm_getcwd")
+    assert (== (nisa_os_sym "add") "")
+}
+
+fn nisa_ext_index(sym: string) -> int {
+    let n: int = (array_length nisa_ext_syms)
+    let mut i: int = 0
+    while (< i n) {
+        if (== (at nisa_ext_syms i) sym) {
+            return i
+        } else {
+            set i (+ i 1)
+        }
+    }
+    return (- 0 1)
+}
+
+shadow nisa_ext_index {
+    let _: int = (nisa_reset)
+    assert (== (nisa_ext_index "vm_getcwd") (- 0 1))
+}
+
+fn nisa_ensure_extern(sym: string, ret: string, params: string) -> int {
+    let idx: int = (nisa_ext_index sym)
+    if (>= idx 0) {
+        return idx
+    } else {
+        set nisa_ext_syms (array_push nisa_ext_syms sym)
+        set nisa_ext_rets (array_push nisa_ext_rets ret)
+        set nisa_ext_params (array_push nisa_ext_params params)
+        return (- (array_length nisa_ext_syms) 1)
+    }
+}
+
+shadow nisa_ensure_extern {
+    let _: int = (nisa_reset)
+    let a: int = (nisa_ensure_extern "vm_getcwd" "string" "")
+    let b: int = (nisa_ensure_extern "vm_getcwd" "string" "")
+    assert (== a 0)
+    assert (== b 0)
+}
+
+fn nisa_is_host_call(parser: Parser, name: string) -> bool {
+    if (!= (nisa_os_sym name) "") {
+        return true
+    } else {
+        let idx: int = (nisa_fn_index parser name)
+        if (< idx 0) {
+            return false
+        } else {
+            let fd: ASTFunction = (parser_get_function parser idx)
+            return (< fd.body 0)
+        }
+    }
+}
+
+shadow nisa_is_host_call {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (nisa_is_host_call p "getcwd")
+    assert (not (nisa_is_host_call p "add"))
+}
+
+fn nisa_host_param_tags(parser: Parser, fd: ASTFunction) -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i fd.param_count) {
+        let plet: ASTLet = (parser_get_let parser (+ fd.param_start i))
+        let tag: string = (nisa_result_tag parser plet.var_type)
+        if (== tag "") {
+            let _x: string = (nisa_fail (+ "unsupported param type " plet.var_type))
+            return ""
+        } else {
+            if (== i 0) {
+                set out tag
+            } else {
+                set out (+ out (+ " " tag))
+            }
+            set i (+ i 1)
+        }
+    }
+    return out
+}
+
+shadow nisa_host_param_tags {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let fd: ASTFunction = (parser_get_function p 0)
+    assert (== (nisa_host_param_tags p fd) "int int")
+}
+
+fn nisa_emit_host_call(parser: Parser, call: ASTCall) -> string {
+    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+    let os: string = (nisa_os_sym func_id.name)
+    if (!= os "") {
+        if (!= call.arg_count 0) {
+            return (nisa_fail "getcwd needs 0 arguments")
+        } else {
+            let idx: int = (nisa_ensure_extern os "string" "")
+            return (nisa_line_imm "CALL_EXTERN" (int_to_string idx))
+        }
+    } else {
+        let fidx: int = (nisa_fn_index parser func_id.name)
+        if (< fidx 0) {
+            return (nisa_fail (+ "undefined function " func_id.name))
+        } else {
+            let fd: ASTFunction = (parser_get_function parser fidx)
+            let ret: string = (nisa_result_tag parser fd.return_type)
+            if (== ret "") {
+                return (nisa_fail (+ "unsupported result type " fd.return_type))
+            } else {
+                if (!= call.arg_count fd.param_count) {
+                    return (nisa_fail (+ "wrong arity " func_id.name))
+                } else {
+                    let params: string = (nisa_host_param_tags parser fd)
+                    let idx: int = (nisa_ensure_extern fd.name ret params)
+                    return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string idx)))
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_emit_host_call {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n via_cwd() -> string { return (getcwd) } shadow via_cwd { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let call: ASTCall = (parser_get_call p r.value)
+    let text: string = (nisa_emit_host_call p call)
+    assert (str_contains text "CALL_EXTERN 0")
+}
+
+fn nisa_ext_prelude() -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (array_length nisa_ext_syms)) {
+        set out (+ out ".import \"\" \"")
+        set out (+ out (at nisa_ext_syms i))
+        set out (+ out "\" ")
+        set out (+ out (at nisa_ext_rets i))
+        let params: string = (at nisa_ext_params i)
+        if (!= params "") {
+            set out (+ out (+ " " params))
+        } else {
+            (print "")
+        }
+        set out (+ out "\n")
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow nisa_ext_prelude {
+    let _: int = (nisa_reset)
+    let _i: int = (nisa_ensure_extern "vm_getcwd" "string" "")
+    let text: string = (nisa_ext_prelude)
+    assert (str_contains text ".import \"\" \"vm_getcwd\" string")
+}
+
 fn nisa_result_tag(parser: Parser, t: string) -> string {
     if (or (== t "int") (or (== t "string") (or (== t "bool") (== t "void")))) {
         return t
@@ -1358,10 +1545,14 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                         }
                                     }
                                 } else {
+                                    if (nisa_is_host_call parser func_id.name) {
+                                        return (nisa_emit_host_call parser call)
+                                    } else {
                                     if (not (nisa_fn_defined parser func_id.name)) {
                                         return (nisa_fail (+ "undefined function " func_id.name))
                                     } else {
                                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                                    }
                                     }
                                 }
                             }
@@ -1801,10 +1992,14 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             if (nisa_is_inline_call func_id.name) {
                 return (+ (nisa_emit_call parser call) (nisa_line "RET"))
             } else {
+                if (nisa_is_host_call parser func_id.name) {
+                    return (+ (nisa_emit_host_call parser call) (nisa_line "RET"))
+                } else {
                 if (not (nisa_fn_defined parser func_id.name)) {
                     return (nisa_fail (+ "undefined function " func_id.name))
                 } else {
                     return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+                }
                 }
             }
         } else {
@@ -2593,6 +2788,12 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                     set prelude (+ prelude "\n\n")
                     set prelude (+ prelude (nisa_str_prelude))
                     if (> (array_length nisa_str_names) 0) {
+                        set prelude (+ prelude "\n")
+                    } else {
+                        (print "")
+                    }
+                    set prelude (+ prelude (nisa_ext_prelude))
+                    if (> (array_length nisa_ext_syms) 0) {
                         set prelude (+ prelude "\n")
                     } else {
                         (print "")

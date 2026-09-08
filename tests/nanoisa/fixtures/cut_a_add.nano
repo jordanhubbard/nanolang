@@ -665,3 +665,13 @@ fn via_raw() -> int {
 shadow via_raw {
     assert (== (via_raw) 7)
 }
+
+fn via_cwd() -> string {
+    unsafe {
+        return (getcwd)
+    }
+}
+
+shadow via_cwd {
+    assert (> (str_length (via_cwd)) 0)
+}

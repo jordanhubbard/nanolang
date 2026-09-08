@@ -1333,10 +1333,21 @@ Compiler product:
       `make test-nanoisa-src-nano` (144 passed; `lexer.nano` no longer
       names `statement outside the pinned subset 37`; it names
       `undefined function getcwd`).
-- [ ] Cut A nested `AGG_PACK` and remaining statements: `lexer.nano` still
-      names `undefined function getcwd` after `unsafe` is transparent.
-      Host FFI (`CALL_EXTERN`) and nested record literals are in that
-      bucket. I still pretty-print C to build the compiler.
+- [x] Cut A host `CALL_EXTERN`: `getcwd` is `vm_getcwd`. Declared
+      `extern` functions (body < 0) emit `CALL_EXTERN` too. `via_cwd`
+      bytecode matches the C seed by import symbol name. Import table
+      slot order is not the claim. `nvm2c` still refuses `CALL_EXTERN`.
+      Nested `AGG_PACK` stays refused. I still pretty-print C to build
+      the compiler.
+      `make test-nanoisa-src-nano` (146 passed; `lexer.nano` no longer
+      names `undefined function getcwd`; it names `no main`).
+- [ ] Cut A library files without `main`: `lexer.nano` now emits the
+      pinned subset then names `no main`. The C seed emits library
+      modules. Nested record literals stay refused if a nested
+      `AGG_PACK` appears. I still pretty-print C to build the compiler.
+- [ ] Cut A nested `AGG_PACK`: nested record literals are still refused
+      when a field value is itself a struct literal. I still pretty-print
+      C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
