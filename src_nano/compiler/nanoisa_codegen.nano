@@ -319,6 +319,47 @@ shadow nisa_is_print_builtin {
     assert (not (nisa_is_print_builtin "add"))
 }
 
+fn nisa_is_hm_void_call(name: string) -> bool {
+    return (or (== name "map_put")
+               (or (== name "map_set") (== name "hashmap_set")))
+}
+
+shadow nisa_is_hm_void_call {
+    assert (nisa_is_hm_void_call "map_put")
+    assert (nisa_is_hm_void_call "map_set")
+    assert (not (nisa_is_hm_void_call "map_new"))
+}
+
+fn nisa_is_hm_builtin(name: string) -> bool {
+    return (or (nisa_is_hm_void_call name)
+               (or (== name "map_new")
+                   (or (== name "hashmap_new")
+                       (or (== name "map_has")
+                           (or (== name "hashmap_has")
+                               (or (== name "map_get") (== name "hashmap_get")))))))
+}
+
+shadow nisa_is_hm_builtin {
+    assert (nisa_is_hm_builtin "map_new")
+    assert (nisa_is_hm_builtin "map_put")
+    assert (nisa_is_hm_builtin "map_has")
+    assert (nisa_is_hm_builtin "map_get")
+    assert (not (nisa_is_hm_builtin "add"))
+}
+
+fn nisa_is_hm_type(t: string) -> bool {
+    return (or (== t "HashMap<string, string>")
+               (or (== t "HashMap<string,string>")
+                   (or (== t "HashMap<string, int>")
+                       (== t "HashMap<string,int>"))))
+}
+
+shadow nisa_is_hm_type {
+    assert (nisa_is_hm_type "HashMap<string, string>")
+    assert (nisa_is_hm_type "HashMap<string,string>")
+    assert (not (nisa_is_hm_type "array<int>"))
+}
+
 fn nisa_is_list_call(name: string) -> bool {
     return (and (or (str_starts_with name "list_") (str_starts_with name "List_"))
                 (or (str_ends_with name "_new")
@@ -351,7 +392,8 @@ shadow nisa_is_list_call {
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
-    return (or (nisa_is_arr_builtin name)
+    return (or (nisa_is_hm_builtin name)
+               (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
                    (or (nisa_is_list_call name)
                        (or (== name "not")
@@ -363,7 +405,7 @@ fn nisa_is_inline_call(name: string) -> bool {
                                                (or (== name "str_substring")
                                                    (or (== name "char_at")
                                                        (or (== name "str_char_at")
-                                                           (or (== name "str_concat") (== name "string_to_int"))))))))))))))
+                                                           (or (== name "str_concat") (== name "string_to_int")))))))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -390,6 +432,9 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "string_to_int")
     assert (nisa_is_inline_call "str_char_at")
     assert (nisa_is_inline_call "at")
+    assert (nisa_is_inline_call "map_new")
+    assert (nisa_is_inline_call "map_put")
+    assert (nisa_is_inline_call "map_has")
     assert (not (nisa_is_inline_call "add"))
 }
 
@@ -949,7 +994,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
         } else {
             let inner: string = (nisa_seq_inner t)
             if (== inner "") {
-                return false
+                return (nisa_is_hm_type t)
             } else {
                 return (nisa_is_pin_record parser inner)
             }
@@ -971,6 +1016,7 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "List<string>")
     assert (nisa_type_ok p "array<Point>")
     assert (nisa_type_ok p "array<Tok>")
+    assert (nisa_type_ok p "HashMap<string, string>")
     assert (not (nisa_type_ok p "array<bool>"))
     assert (not (nisa_type_ok p "List<Nope>"))
 }
@@ -1255,6 +1301,9 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
         if (nisa_is_pin_record parser t) {
             return "struct"
         } else {
+            if (nisa_is_hm_type t) {
+                return "hashmap"
+            } else {
             if (nisa_local_type_ok t) {
                 return "array"
             } else {
@@ -1264,6 +1313,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
                 } else {
                     return ""
                 }
+            }
             }
         }
     }
@@ -1283,6 +1333,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "List<LexerToken>") "array")
     assert (== (nisa_result_tag p "array<Point>") "array")
     assert (== (nisa_result_tag p "array<Tok>") "array")
+    assert (== (nisa_result_tag p "HashMap<string, string>") "hashmap")
     assert (== (nisa_result_tag p "Nope") "")
 }
 
@@ -1831,6 +1882,58 @@ shadow nisa_emit_field_access {
     let _4: int = (nisa_reset)
 }
 
+fn nisa_emit_hm_call(parser: Parser, call: ASTCall) -> string {
+    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+    if (or (== func_id.name "map_new") (== func_id.name "hashmap_new")) {
+        if (!= call.arg_count 0) {
+            return (nisa_fail "map_new needs 0 arguments")
+        } else {
+            return (nisa_line_imm "HM_NEW" "5 1")
+        }
+    } else {
+        if (or (== func_id.name "map_has") (== func_id.name "hashmap_has")) {
+            if (!= call.arg_count 2) {
+                return (nisa_fail "map_has needs 2 arguments")
+            } else {
+                return (+ (nisa_emit_call_args parser call) (nisa_line "HM_HAS"))
+            }
+        } else {
+            if (or (== func_id.name "map_get") (== func_id.name "hashmap_get")) {
+                if (!= call.arg_count 2) {
+                    return (nisa_fail "map_get needs 2 arguments")
+                } else {
+                    return (+ (nisa_emit_call_args parser call) (nisa_line "HM_GET"))
+                }
+            } else {
+                if (nisa_is_hm_void_call func_id.name) {
+                    if (!= call.arg_count 3) {
+                        return (nisa_fail "map_put needs 3 arguments")
+                    } else {
+                        return (+ (nisa_emit_call_args parser call) (+ (nisa_line "HM_SET") (nisa_line "POP")))
+                    }
+                } else {
+                    return (nisa_fail (+ "unsupported hashmap call " func_id.name))
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_emit_hm_call {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n blank_hm() -> HashMap<string, string> { let m: HashMap<string, string> = (map_new) return m } shadow blank_hm { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let call: ASTCall = (parser_get_call p r.value)
+    let text: string = (nisa_emit_hm_call p call)
+    assert (str_contains text "HM_NEW 5 1")
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
     if (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_new")) {
@@ -1945,6 +2048,9 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                         }
                                     }
                                 } else {
+                                    if (nisa_is_hm_builtin func_id.name) {
+                                        return (nisa_emit_hm_call parser call)
+                                    } else {
                                     if (nisa_is_host_call parser func_id.name) {
                                         return (nisa_emit_host_call parser call)
                                     } else {
@@ -1952,6 +2058,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                         return (nisa_fail (+ "undefined function " func_id.name))
                                     } else {
                                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                                    }
                                     }
                                     }
                                 }
@@ -2464,7 +2571,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                             let call: ASTCall = (parser_get_call parser stmt.node_id)
                             let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                            if (nisa_is_print_builtin func_id.name) {
+                            if (or (nisa_is_print_builtin func_id.name) (nisa_is_hm_void_call func_id.name)) {
                                 return (nisa_emit_call parser call)
                             } else {
                                 if (nisa_fn_is_void parser func_id.name) {

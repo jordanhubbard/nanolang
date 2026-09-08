@@ -330,8 +330,10 @@ string `+` of a field or `int_to_string` (`glue_field` / `glue_digits`) and
 module-qualified call (`via_q_add` / `(ImpMod.imp_add 40 2)` match the C
 seed; `parser.nano` emits 297 functions and that nasm assembles), and Cut A
 `array<Loc>` (`empty_locs` / `via_empty_locs` / `one_loc` / `via_one_loc`
-match the C seed; empty `[]` is `ARR_LITERAL 1 0`).
-`typecheck.nano` still names `unsupported result type HashMap<string,string>`.
+match the C seed; empty `[]` is `ARR_LITERAL 1 0`), and Cut A HashMap
+(`blank_hm` / `via_blank_hm` / `put_hm` / `via_put_hm` match the C seed;
+`map_new` is `HM_NEW 5 1`). `typecheck.nano` still names
+`unsupported param type array<Symbol>`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

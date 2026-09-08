@@ -1384,9 +1384,16 @@ Compiler product:
       defaults the element tag). `make test-nanoisa-src-nano` (188 passed).
       `typecheck.nano` names `unsupported result type HashMap<string,string>`.
       I still pretty-print C to build the compiler.
-- [ ] Cut A HashMap result type: `typecheck.nano` names
-      `unsupported result type HashMap<string,string>`. I still pretty-print C
-      to build the compiler.
+- [x] Cut A HashMap result type: `blank_hm` / `via_blank_hm` / `put_hm` /
+      `via_put_hm` match the C seed (`HashMap<string, string>`; `map_new` is
+      `HM_NEW 5 1`, the way the C seed defaults the value tag to int).
+      Statement `map_put` is `HM_SET` then `POP`. `make test-nanoisa-src-nano`
+      (196 passed). `nvm2c` does not translate `HM_*`. `typecheck.nano` names
+      `unsupported param type array<Symbol>`. I still pretty-print C to build
+      the compiler.
+- [ ] Cut A `array<Symbol>` param: `typecheck.nano` names
+      `unsupported param type array<Symbol>`. `Symbol` carries nested `NSType`
+      and `array<NSType>`. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

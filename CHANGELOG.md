@@ -96,8 +96,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `(ImpMod.imp_add 40 2)` is `TAIL_CALL imp_add` (`via_q_add`).
   `parser.nano` emits 297 functions and that nasm assembles.
   `array<Loc>` (`empty_locs` / `via_empty_locs` / `one_loc` /
-  `via_one_loc`) matches the C seed. `typecheck.nano` names
-  `unsupported result type HashMap<string,string>`.
+  `via_one_loc`) matches the C seed. HashMap results (`blank_hm` /
+  `via_blank_hm` / `put_hm` / `via_put_hm`) match the C seed:
+  `map_new` is `HM_NEW 5 1`, statement `map_put` is `HM_SET` then
+  `POP`. `typecheck.nano` names
+  `unsupported param type array<Symbol>`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

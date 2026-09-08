@@ -882,3 +882,48 @@ fn via_one_loc() -> int {
 shadow via_one_loc {
     assert (== (via_one_loc) 1)
 }
+
+fn blank_hm() -> HashMap<string, string> {
+    let m: HashMap<string, string> = (map_new)
+    return m
+}
+
+shadow blank_hm {
+    assert (not (map_has (blank_hm) "k"))
+}
+
+fn via_blank_hm() -> int {
+    let m: HashMap<string, string> = (blank_hm)
+    if (map_has m "k") {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow via_blank_hm {
+    assert (== (via_blank_hm) 0)
+}
+
+fn put_hm() -> HashMap<string, string> {
+    let mut m: HashMap<string, string> = (map_new)
+    (map_put m "k" "v")
+    return m
+}
+
+shadow put_hm {
+    assert (map_has (put_hm) "k")
+}
+
+fn via_put_hm() -> int {
+    let m: HashMap<string, string> = (put_hm)
+    if (map_has m "k") {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow via_put_hm {
+    assert (== (via_put_hm) 1)
+}
