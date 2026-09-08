@@ -612,6 +612,52 @@ static void emit_unop(Nvm2cBuf *b, Nvm2cStack *st, const char *prefix) {
     stack_push_temp(b, st, expr);
 }
 
+static void stack_keep_high_water(Nvm2cStack *st, const Nvm2cStack *other) {
+    if (other->next_temp > st->next_temp) st->next_temp = other->next_temp;
+    if (other->next_str > st->next_str) st->next_str = other->next_str;
+    if (other->next_arr > st->next_arr) st->next_arr = other->next_arr;
+    if (other->next_rec > st->next_rec) st->next_rec = other->next_rec;
+}
+
+static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
+                       size_t tgt, const Nvm2cStack *st) {
+    int i;
+    if (!set[tgt]) {
+        joins[tgt] = *st;
+        set[tgt] = 1;
+        return 1;
+    }
+    if (joins[tgt].sp != st->sp) {
+        nvm2c_fail(b, "function %u: join at %zu has stack height %d, incoming %d",
+                   idx, tgt, joins[tgt].sp, st->sp);
+        return 0;
+    }
+    for (i = 0; i < st->sp; i++) {
+        if (joins[tgt].kinds[i] != st->kinds[i]) {
+            nvm2c_fail(b, "function %u: join at %zu has a value-kind mismatch", idx, tgt);
+            return 0;
+        }
+        if (joins[tgt].slots[i] == st->slots[i]) continue;
+        if (st->kinds[i] == NVM2C_VK_STR) {
+            nvm2c_printf(b, "    s[%d] = s[%d];\n", joins[tgt].slots[i], st->slots[i]);
+        } else if (st->kinds[i] == NVM2C_VK_ARR) {
+            nvm2c_printf(b, "    a[%d] = a[%d];\n", joins[tgt].slots[i], st->slots[i]);
+        } else if (st->kinds[i] == NVM2C_VK_REC) {
+            nvm2c_printf(b, "    r[%d] = r[%d];\n", joins[tgt].slots[i], st->slots[i]);
+        } else {
+            nvm2c_printf(b, "    t[%d] = t[%d];\n", joins[tgt].slots[i], st->slots[i]);
+        }
+    }
+    stack_keep_high_water(&joins[tgt], st);
+    return 1;
+}
+
+static void stack_restore_join(Nvm2cStack *st, const Nvm2cStack *join) {
+    Nvm2cStack cur = *st;
+    *st = *join;
+    stack_keep_high_water(st, &cur);
+}
+
 static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
                        size_t remaining, size_t *out) {
     int64_t tgt = (int64_t)start + (int64_t)rel;
@@ -722,6 +768,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     size_t remaining = fn->code_length;
     uint8_t *is_start = calloc(remaining + 1, 1);
     uint8_t *is_target = calloc(remaining + 1, 1);
+    Nvm2cStack *joins = NULL;
+    uint8_t *join_set = NULL;
     if (!is_start || !is_target) {
         nvm2c_fail(b, "out of memory");
         goto done;
@@ -757,6 +805,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
     }
 
+    joins = calloc(remaining + 1, sizeof(Nvm2cStack));
+    join_set = calloc(remaining + 1, 1);
+    if (!joins || !join_set) {
+        nvm2c_fail(b, "out of memory");
+        goto done;
+    }
+
     size_t pc = 0;
     Nvm2cStack st;
     memset(&st, 0, sizeof st);
@@ -764,14 +819,31 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 
     while (pc < remaining) {
         size_t start = pc;
-        if (is_target[start]) {
-            nvm2c_printf(b, "L_%zu: ;\n", start);
-        }
         DecodedInstruction ins;
         uint32_t n = isa_decode(code + pc, remaining - pc, &ins);
         if (n == 0) {
             nvm2c_fail(b, "function %u: invalid instruction at offset %zu", idx, pc);
             goto done;
+        }
+        if (terminated && !is_target[start]) {
+            pc += n;
+            continue;
+        }
+        if (is_target[start]) {
+            if (terminated) {
+                if (!join_set[start]) {
+                    nvm2c_fail(b, "function %u: label at %zu has no incoming stack",
+                               idx, start);
+                    goto done;
+                }
+                stack_restore_join(&st, &joins[start]);
+                terminated = 0;
+                nvm2c_printf(b, "L_%zu: ;\n", start);
+            } else {
+                if (!record_join(b, idx, joins, join_set, start, &st)) goto done;
+                stack_restore_join(&st, &joins[start]);
+                nvm2c_printf(b, "L_%zu: ;\n", start);
+            }
         }
         pc += n;
 
@@ -1138,6 +1210,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             nvm2c_printf(b, "    goto L_%zu;\n", tgt);
+            if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
             terminated = 1;
             break;
         }
@@ -1149,6 +1222,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             nvm2c_printf(b, "    if (!t[%d]) goto L_%zu;\n", cond, tgt);
+            if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
             break;
         }
         case OP_RET:
@@ -1216,6 +1290,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 done:
     free(is_start);
     free(is_target);
+    free(joins);
+    free(join_set);
 }
 
 static int module_has_opcode(const NvmModule *mod, uint8_t op) {

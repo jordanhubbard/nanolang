@@ -711,6 +711,78 @@ static void test_either_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_pick_then_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function pick 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  JMP L1\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "L1:\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 4\n"
+        "  CALL pick\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "pick then fixture");
+    CHECK(m != NULL, "pick then fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for pick then");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "pick then C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "pick then C compiles and runs");
+    CHECK(status == 1, "pick(4) exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_pick_else_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function pick 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  JMP L1\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "L1:\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  CALL pick\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "pick else fixture");
+    CHECK(m != NULL, "pick else fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for pick else");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "pick else C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "pick else C compiles and runs");
+    CHECK(status == 0, "pick(0) exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1033,6 +1105,8 @@ int main(int argc, char **argv) {
     test_invert_runs_without_nano_vm();
     test_both_runs_without_nano_vm();
     test_either_runs_without_nano_vm();
+    test_pick_then_runs_without_nano_vm();
+    test_pick_else_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

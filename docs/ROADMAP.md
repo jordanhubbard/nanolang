@@ -1112,6 +1112,14 @@ Compiler product:
       (`BOOL_OR`) bytecode with the C seed. I still pretty-print C to
       build the compiler. Short-circuit evaluation is not this pin.
       `make test-nanoisa-src-nano` (36 passed).
+- [x] Cut A cond: the same pin matches `pick` (`cond` as `JMP_FALSE`/`JMP`
+      with one `RET`) bytecode with the C seed. I still pretty-print C
+      to build the compiler. Statement `if` stays `choose`.
+      `make test-nanoisa-src-nano` (38 passed).
+- [ ] Cut A print: the same pin matches `say` (`PRINT` of i64), `shout`
+      (`PRINTLN` of i64), and `mutter` (`PRINT` of a string) bytecode
+      with the C seed. Print does not leave a value. I still
+      pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1159,6 +1167,11 @@ Compiler product:
       `BOOL_OR` as i64 0/1. `yes`, `invert`, `both`, and `either` from
       the Cut A pin compile and run without `nano_vm`.
       `make test-nvm2c` (145 passed).
+- [x] `nvm2c` runs Cut A `pick` (`cond` shape) without `nano_vm`.
+      Join points copy temps so both arms share one `RET`. Goto is
+      the translator fallback. `make test-nvm2c` (155 passed).
+- [ ] `nvm2c` runs Cut A `say`, `shout`, and `mutter` without `nano_vm`.
+      Printing arrays and records stays refused.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

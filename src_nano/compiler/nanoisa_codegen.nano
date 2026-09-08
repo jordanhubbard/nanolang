@@ -5,9 +5,10 @@
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
  * if/else, while, let, set, string literals, string concat, array<int>
  * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET),
- * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT), and
- * and/or (BOOL_AND/BOOL_OR). Anything else fails closed. I do not emit C.
- * I do not delete transpiler.nano.
+ * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
+ * and/or (BOOL_AND/BOOL_OR), and cond as an if-expression (JMP_FALSE/JMP).
+ * Anything else fails closed. I do not emit C. I do not delete
+ * transpiler.nano.
  */
 
 import "src_nano/parser.nano"
@@ -714,7 +715,37 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                             return (nisa_line_imm "PUSH_BOOL" "0")
                                         }
                                     } else {
-                                        return (nisa_fail "expression outside the pinned subset")
+                                        if (== node_type ParseNodeType.PNODE_IF) {
+                                            let inode: ASTIf = (parser_get_if parser node_id)
+                                            if (< inode.else_body 0) {
+                                                return (nisa_fail "if expression needs else")
+                                            } else {
+                                                let l_else: string = (nisa_fresh)
+                                                let l_end: string = (nisa_fresh)
+                                                let cnd_text: string = (nisa_emit_expr parser inode.condition inode.condition_type)
+                                                let then_text: string = (nisa_emit_expr parser inode.then_body ParseNodeType.PNODE_BLOCK)
+                                                let else_text: string = (nisa_emit_expr parser inode.else_body ParseNodeType.PNODE_BLOCK)
+                                                let mut out: string = (+ cnd_text (nisa_line_imm "JMP_FALSE" l_else))
+                                                set out (+ out then_text)
+                                                set out (+ out (nisa_line_imm "JMP" l_end))
+                                                set out (+ out (nisa_label_line l_else))
+                                                set out (+ out else_text)
+                                                set out (+ out (nisa_label_line l_end))
+                                                return out
+                                            }
+                                        } else {
+                                            if (== node_type ParseNodeType.PNODE_BLOCK) {
+                                                let blk: ASTBlock = (parser_get_block parser node_id)
+                                                if (!= (list_ASTStmtRef_length blk.statements) 1) {
+                                                    return (nisa_fail "expression block needs 1 statement")
+                                                } else {
+                                                    let st: ASTStmtRef = (list_ASTStmtRef_get blk.statements 0)
+                                                    return (nisa_emit_expr parser st.node_id st.node_type)
+                                                }
+                                            } else {
+                                                return (nisa_fail "expression outside the pinned subset")
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1106,6 +1137,14 @@ shadow nisa_emit_function {
     let both_text: string = (nisa_emit_function p9 both_fn)
     assert (str_contains both_text ".function both 2 2 0 bool 1")
     assert (str_contains both_text "BOOL_AND")
+    let src10: string = (+ "f" "n pick(c: int) -> int { return (cond ((> c 0) 1) (else 0)) } shadow pick { assert true }")
+    let toks10: List<LexerToken> = (tokenize_string src10 "t.nano" diags)
+    let p10: Parser = (parse_program toks10 (list_LexerToken_length toks10) "t.nano")
+    let pick_fn: ASTFunction = (parser_get_function p10 0)
+    let pick_text: string = (nisa_emit_function p10 pick_fn)
+    assert (str_contains pick_text ".function pick 1 1 0 int 1")
+    assert (str_contains pick_text "JMP_FALSE")
+    assert (str_contains pick_text "JMP L")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

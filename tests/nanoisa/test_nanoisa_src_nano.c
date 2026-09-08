@@ -103,6 +103,8 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_both;
     const NvmFunctionEntry *c_either;
     const NvmFunctionEntry *s_either;
+    const NvmFunctionEntry *c_pick;
+    const NvmFunctionEntry *s_pick;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -128,8 +130,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 15, "C seed emitted add through either");
-    CHECK(s_mod->function_count >= 15, "src_nano emitted add through either");
+    CHECK(c_mod->function_count >= 16, "C seed emitted add through pick");
+    CHECK(s_mod->function_count >= 16, "src_nano emitted add through pick");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -161,6 +163,8 @@ int main(int argc, char **argv) {
     s_both = fn_by_name(s_mod, "both");
     c_either = fn_by_name(c_mod, "either");
     s_either = fn_by_name(s_mod, "either");
+    c_pick = fn_by_name(c_mod, "pick");
+    s_pick = fn_by_name(s_mod, "pick");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -176,6 +180,7 @@ int main(int argc, char **argv) {
     CHECK(c_inv != NULL && s_inv != NULL, "both modules have invert");
     CHECK(c_both != NULL && s_both != NULL, "both modules have both");
     CHECK(c_either != NULL && s_either != NULL, "both modules have either");
+    CHECK(c_pick != NULL && s_pick != NULL, "both modules have pick");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -206,6 +211,8 @@ int main(int argc, char **argv) {
           "both bytecode matches C seed");
     CHECK(code_equal(c_mod, c_either, s_mod, s_either),
           "either bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_pick, s_mod, s_pick),
+          "pick bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -251,7 +258,10 @@ int main(int argc, char **argv) {
                s_both ? s_both->local_count : 0, s_both ? s_both->code_length : 0);
         printf("    C either locals=%u len=%u  src either locals=%u len=%u\n",
                c_either ? c_either->local_count : 0, c_either ? c_either->code_length : 0,
-               s_either ? s_either->local_count : 0, s_either ? s_either->code_length : 0);
+               s_either ? s_either->local_count : 0, s_either ? s_either->local_count : 0);
+        printf("    C pick locals=%u len=%u  src pick locals=%u len=%u\n",
+               c_pick ? c_pick->local_count : 0, c_pick ? c_pick->code_length : 0,
+               s_pick ? s_pick->local_count : 0, s_pick ? s_pick->code_length : 0);
     }
 
     nvm_module_free(c_mod);
