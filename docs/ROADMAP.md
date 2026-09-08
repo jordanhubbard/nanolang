@@ -1084,9 +1084,10 @@ Ownership and proposal closure:
       NanoISA eligibility metadata. Scheduler optimization, async I/O, SoA,
       and hardware speedup claims remain outside this task
       (`task_90b123edcc301b464a031c55e4ba1a11`).
-- [ ] I decide `ROW_POLYMORPHIC_RECORDS_DESIGN.md` through the RFC process and,
-      if accepted, require dual-frontend and `.nvm` lowering equivalence in
-      5.0 (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
+- [x] I postponed `ROW_POLYMORPHIC_RECORDS_DESIGN.md`: the C-seed prototype is
+      not a language contract without self-hosted parity, a stable ABI,
+      dual-frontend conformance, `.nvm` round trips, VM/AOT equivalence, and
+      performance evidence (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
 
 Compiler product:
 - [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
