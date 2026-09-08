@@ -1106,6 +1106,9 @@ Compiler product:
 - [ ] I make C11 the canonical ahead-of-time portability backend from NanoISA.
       A generated process does not require `nano_vm`, `nano_cop`, or
       `nano_vmd` to compute.
+- [x] My C seed emits `ARR_NEW TAG_STRUCT` for an empty `List<record>`, so its
+      NanoISA element kind does not depend on a later push
+      (`task_2ef5249b949443adab10c45e16a70c5b`, `make test-nanovirt`).
 - [ ] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
       strings, modules, and a declared host ABI for `extern`.
 - [ ] I map `CALL_EXTERN` to that host ABI or I refuse the module. I do not

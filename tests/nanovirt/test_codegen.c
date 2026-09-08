@@ -218,6 +218,48 @@ static void test_function_result_signatures(void) {
     nvm_module_free(tr.module);
 }
 
+static void test_empty_struct_list_result_keeps_element_tag(void) {
+    const char *source =
+        "struct Point { x: int }\n"
+        "fn make_points() -> List<Point> { return (list_Point_new) }\n"
+        "fn main() -> int {\n"
+        "    let points: List<Point> = (make_points)\n"
+        "    return (list_Point_length points)\n"
+        "}\n"
+        "shadow make_points { assert (== (list_Point_length (make_points)) 0) }\n"
+        "shadow main { assert (== (main) 0) }\n";
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, "empty struct list result compiles");
+    ASSERT(tr.vm_result == VM_OK, "empty struct list result executes");
+    ASSERT_INT(tr.result.as.i64, 0);
+
+    bool saw_make_points = false;
+    bool saw_struct_array = false;
+    for (uint32_t i = 0; i < tr.module->function_count; i++) {
+        NvmFunctionEntry *fn = &tr.module->functions[i];
+        const char *name = nvm_get_string(tr.module, fn->name_idx);
+        if (!name || strcmp(name, "make_points") != 0) continue;
+        saw_make_points = true;
+        ASSERT(fn->result_count == 1 && fn->result_tag == TAG_ARRAY,
+               "List<Point> function has one array result");
+        for (uint32_t pc = fn->code_offset; pc < fn->code_offset + fn->code_length;) {
+            DecodedInstruction instruction;
+            uint32_t width = isa_decode(tr.module->code + pc,
+                                        fn->code_offset + fn->code_length - pc,
+                                        &instruction);
+            ASSERT(width > 0, "empty struct list bytecode decodes");
+            if (instruction.opcode == OP_ARR_NEW &&
+                instruction.operands[0].u8 == TAG_STRUCT) {
+                saw_struct_array = true;
+            }
+            pc += width;
+        }
+    }
+    ASSERT(saw_make_points, "make_points function is present");
+    ASSERT(saw_struct_array, "empty List<Point> uses ARR_NEW TAG_STRUCT");
+    nvm_module_free(tr.module);
+}
+
 /* Helper: compile and call a specific function by name */
 static TestResult compile_and_call(const char *source, const char *fn_name,
                                     NanoValue *args, uint16_t argc) {
@@ -1448,6 +1490,7 @@ int main(void) {
     test_debug_metadata_is_not_executable();
     test_scalar_codegen_uses_typed_opcodes();
     test_function_result_signatures();
+    test_empty_struct_list_result_keeps_element_tag();
 
     fprintf(stderr, "\nInteger Arithmetic:\n");
     test_return_int();

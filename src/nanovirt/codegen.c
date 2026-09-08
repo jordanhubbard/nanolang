@@ -468,6 +468,34 @@ static uint8_t type_to_tag(Type t) {
     }
 }
 
+static uint8_t list_element_tag(CG *cg, const char *name, const char *suffix) {
+    const char *type_name = name + 5;
+    size_t type_name_len = (size_t)(suffix - type_name);
+
+    if ((type_name_len == 3 && strncmp(type_name, "int", 3) == 0) ||
+        (type_name_len == 5 && strncmp(type_name, "Token", 5) == 0)) {
+        return TAG_INT;
+    }
+    if (type_name_len == 2 && strncmp(type_name, "u8", 2) == 0) return TAG_U8;
+    if (type_name_len == 5 && strncmp(type_name, "float", 5) == 0) return TAG_FLOAT;
+    if (type_name_len == 4 && strncmp(type_name, "bool", 4) == 0) return TAG_BOOL;
+    if (type_name_len == 6 && strncmp(type_name, "string", 6) == 0) return TAG_STRING;
+
+    for (int i = 0; i < cg->struct_count; i++) {
+        if (strlen(cg->structs[i].name) == type_name_len &&
+            strncmp(cg->structs[i].name, type_name, type_name_len) == 0) {
+            return TAG_STRUCT;
+        }
+    }
+    for (int i = 0; i < cg->enum_count; i++) {
+        if (strlen(cg->enums[i].name) == type_name_len &&
+            strncmp(cg->enums[i].name, type_name, type_name_len) == 0) {
+            return TAG_ENUM;
+        }
+    }
+    return TAG_INT;
+}
+
 /* Register an extern function in the codegen extern table and NVM import table */
 static void register_extern(CG *cg, const char *name, const char *module_name,
                            uint16_t param_count, uint8_t return_tag,
@@ -1331,7 +1359,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         if (suffix) {
             if (strcmp(suffix, "_new") == 0 && argc == 0) {
                 /* list_T_new() -> create empty array */
-                emit_op(cg, OP_ARR_NEW, (int)TAG_INT);
+                emit_op(cg, OP_ARR_NEW, (int)list_element_tag(cg, name, suffix));
                 return true;
             }
             if (strcmp(suffix, "_push") == 0 && argc == 2) {
