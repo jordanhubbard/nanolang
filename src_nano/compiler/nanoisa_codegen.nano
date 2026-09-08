@@ -418,13 +418,25 @@ fn nisa_resolve_import(file_name: string, module_path: string) -> string {
         if (exists joined) {
             return joined
         } else {
-            return ""
+            let via_stdlib: string = (+ "stdlib/" module_path)
+            if (exists via_stdlib) {
+                return via_stdlib
+            } else {
+                let via_mod: string = (+ "modules/" module_path)
+                if (exists via_mod) {
+                    return via_mod
+                } else {
+                    return ""
+                }
+            }
         }
     }
 }
 
 shadow nisa_resolve_import {
     assert (== (nisa_resolve_import "tests/nanoisa/fixtures/cut_a_add.nano" "cut_a_kind_imp.nano") "tests/nanoisa/fixtures/cut_a_kind_imp.nano")
+    assert (== (nisa_resolve_import "src_nano/compiler/lexer.nano" "std/fs.nano") "modules/std/fs.nano")
+    assert (== (nisa_resolve_import "src_nano/compiler/lexer.nano" "src_nano/compiler/ir.nano") "src_nano/compiler/ir.nano")
 }
 
 fn nisa_ingest_imports(parser: Parser, file_name: string) -> Parser {

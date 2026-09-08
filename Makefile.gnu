@@ -440,6 +440,12 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 		> /tmp/nanolang_cut_a_refuse.txt || rc=$$?; \
 	grep -F "I refused that program: no main" /tmp/nanolang_cut_a_refuse.txt >/dev/null; \
 	test $$rc -eq 1
+	@echo "Checking lexer.nano resolves std/fs.nano..."
+	@rc=0; $(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/lexer.nano \
+		> /tmp/nanolang_cut_a_lexer_refuse.txt || rc=$$?; \
+	test $$rc -eq 1; \
+	grep -F "I refused that program:" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; \
+	if grep -F "cannot read import std/fs.nano" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

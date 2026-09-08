@@ -1287,12 +1287,20 @@ Compiler product:
       and import-before-local-enum order stay refused. I still
       pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (138 passed).
-- [ ] Cut A `std/` import paths: `nisa_resolve_import` finds
+- [x] Cut A `std/` import paths: `nisa_resolve_import` finds
       `std/fs.nano` the way the C seed does (`modules/std/fs.nano`).
       Direct `src_nano/` paths already resolve from the project root.
       `nanoisa_emit` of `lexer.nano` must not refuse `cannot read import std/fs.nano`.
       Transitive imports and imported functions stay refused. I still
       pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` names `undefined local LexerTokenType`
+      on `lexer.nano` (direct `ir.nano` has no enum; `LexerTokenType`
+      lives in a transitive import).
+- [ ] Cut A transitive imported enums: ingest `ASTEnum` from a direct
+      import's imports (`ir.nano` → `compiler_schema.nano`).
+      `nanoisa_emit` of `lexer.nano` must not refuse
+      `undefined local LexerTokenType`. Imported functions stay
+      refused. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

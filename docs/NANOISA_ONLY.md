@@ -243,7 +243,8 @@ and `List<Tok>` results (`one_t` / `via_one_t`), and
 `List<LexerToken>` results (`one_lex` / `via_one_lex`), and i64
 `>=`/`<=` (`in_az` / `via_az`), `Enum.Variant` as `ENUM_VAL`
 (`tag` / `via_tag`), and imported `Enum.Variant` (`tok_mod` /
-`via_tok_mod`; local enums stay first in `def_idx`).
+`via_tok_mod`; local enums stay first in `def_idx`). `std/` import
+paths resolve through `modules/` like the C seed.
 `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands
