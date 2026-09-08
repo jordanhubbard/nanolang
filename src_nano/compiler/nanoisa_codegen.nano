@@ -27,7 +27,9 @@
  * imported function (C seed AST_MODULE_QUALIFIED_CALL: qualified
  * name first, then the suffix after the last dot), and `array<R>`
  * of a pin-record as ISA tag array (empty `[]` is ARR_LITERAL 1 0,
- * the way the C seed defaults the element tag).
+ * the way the C seed defaults the element tag), and module-level
+ * lets as LOAD_GLOBAL/STORE_GLOBAL with a void `__init__` (C seed
+ * pass 1.5).
  * Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -51,6 +53,8 @@ let mut nisa_ext_syms: array<string> = []
 let mut nisa_ext_rets: array<string> = []
 let mut nisa_ext_params: array<string> = []
 let mut nisa_fn_emitted: int = 0
+let mut nisa_g_names: array<string> = []
+let mut nisa_g_types: array<string> = []
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -67,6 +71,8 @@ fn nisa_reset() -> int {
     set nisa_ext_rets []
     set nisa_ext_params []
     set nisa_fn_emitted 0
+    set nisa_g_names []
+    set nisa_g_types []
     return 0
 }
 
@@ -126,6 +132,141 @@ shadow nisa_local_find {
     assert (== (nisa_local_find "a") 0)
     assert (== (nisa_local_find "b") 1)
     assert (== (nisa_local_find "z") (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_global_find(name: string) -> int {
+    let mut i: int = 0
+    while (< i (array_length nisa_g_names)) {
+        if (== (at nisa_g_names i) name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+
+shadow nisa_global_find {
+    let _: int = (nisa_reset)
+    set nisa_g_names (array_push nisa_g_names "g")
+    assert (== (nisa_global_find "g") 0)
+    assert (== (nisa_global_find "z") (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_name_type(name: string) -> string {
+    let slot: int = (nisa_local_find name)
+    if (and (>= slot 0) (< slot (array_length nisa_types))) {
+        return (at nisa_types slot)
+    } else {
+        let gslot: int = (nisa_global_find name)
+        if (and (>= gslot 0) (< gslot (array_length nisa_g_types))) {
+            return (at nisa_g_types gslot)
+        } else {
+            return ""
+        }
+    }
+}
+
+shadow nisa_name_type {
+    let _: int = (nisa_reset)
+    set nisa_names (array_push nisa_names "x")
+    set nisa_types (array_push nisa_types "int")
+    set nisa_g_names (array_push nisa_g_names "g")
+    set nisa_g_types (array_push nisa_g_types "array<string>")
+    assert (== (nisa_name_type "x") "int")
+    assert (== (nisa_name_type "g") "array<string>")
+    assert (== (nisa_name_type "z") "")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_let_is_param(parser: Parser, let_idx: int) -> bool {
+    let n: int = (parser_get_function_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let f: ASTFunction = (parser_get_function parser i)
+        if (and (>= let_idx f.param_start) (< let_idx (+ f.param_start f.param_count))) {
+            return true
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return false
+}
+
+shadow nisa_let_is_param {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let f: ASTFunction = (parser_get_function p 0)
+    assert (nisa_let_is_param p f.param_start)
+    assert (not (nisa_let_is_param p 99))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_let_in_blocks(parser: Parser, let_idx: int) -> bool {
+    let n: int = (parser_get_block_count parser)
+    let mut b: int = 0
+    while (< b n) {
+        let block: ASTBlock = (parser_get_block parser b)
+        let ns: int = (list_ASTStmtRef_length block.statements)
+        let mut s: int = 0
+        while (< s ns) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements s)
+            if (and (== stmt.node_type ParseNodeType.PNODE_LET) (== stmt.node_id let_idx)) {
+                return true
+            } else {
+                (print "")
+            }
+            set s (+ s 1)
+        }
+        set b (+ b 1)
+    }
+    return false
+}
+
+shadow nisa_let_in_blocks {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n f() -> int { let x: int = 1 return x } shadow f { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    assert (nisa_let_in_blocks p stmt.node_id)
+    assert (not (nisa_let_in_blocks p 99))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_let_is_global(parser: Parser, let_idx: int) -> bool {
+    if (nisa_let_is_param parser let_idx) {
+        return false
+    } else {
+        if (nisa_let_in_blocks parser let_idx) {
+            return false
+        } else {
+            return true
+        }
+    }
+}
+
+shadow nisa_let_is_global {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "let mut g: array<string> = [] " (+ "f" "n f() -> int { let x: int = 1 return x } shadow f { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (nisa_let_is_global p 0)
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    assert (not (nisa_let_is_global p stmt.node_id))
     let _2: int = (nisa_reset)
 }
 
@@ -537,12 +678,7 @@ shadow nisa_struct_field_index {
 fn nisa_expr_struct_type(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id: ASTIdentifier = (parser_get_identifier parser node_id)
-        let slot: int = (nisa_local_find id.name)
-        if (or (< slot 0) (>= slot (array_length nisa_types))) {
-            return ""
-        } else {
-            return (at nisa_types slot)
-        }
+        return (nisa_name_type id.name)
     } else {
         if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
             let lit: ASTStructLiteral = (parser_get_struct_literal parser node_id)
@@ -1421,16 +1557,7 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
     } else {
         if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
-            let slot: int = (nisa_local_find id.name)
-            if (< slot 0) {
-                return false
-            } else {
-                if (>= slot (array_length nisa_types)) {
-                    return false
-                } else {
-                    return (== (at nisa_types slot) "string")
-                }
-            }
+            return (== (nisa_name_type id.name) "string")
         } else {
             if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                 let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
@@ -1499,16 +1626,7 @@ fn nisa_expr_is_bool(parser: Parser, node_id: int, node_type: int) -> bool {
     } else {
         if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
-            let slot: int = (nisa_local_find id.name)
-            if (< slot 0) {
-                return false
-            } else {
-                if (>= slot (array_length nisa_types)) {
-                    return false
-                } else {
-                    return (== (at nisa_types slot) "bool")
-                }
-            }
+            return (== (nisa_name_type id.name) "bool")
         } else {
             if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                 let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
@@ -2345,7 +2463,12 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                 let id: ASTIdentifier = (parser_get_identifier parser node_id)
                 let slot: int = (nisa_local_find id.name)
                 if (< slot 0) {
-                    return (nisa_fail (+ "undefined local " id.name))
+                    let gslot: int = (nisa_global_find id.name)
+                    if (< gslot 0) {
+                        return (nisa_fail (+ "undefined local " id.name))
+                    } else {
+                        return (nisa_line_imm "LOAD_GLOBAL" (int_to_string gslot))
+                    }
                 } else {
                     return (nisa_line_imm "LOAD_LOCAL" (int_to_string slot))
                 }
@@ -2793,7 +2916,13 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)
                 let slot: int = (nisa_local_find s.target)
                 if (< slot 0) {
-                    return (nisa_fail (+ "undefined local " s.target))
+                    let gslot: int = (nisa_global_find s.target)
+                    if (< gslot 0) {
+                        return (nisa_fail (+ "undefined local " s.target))
+                    } else {
+                        let gval: string = (nisa_emit_expr parser s.value s.value_type)
+                        return (+ gval (nisa_line_imm "STORE_GLOBAL" (int_to_string gslot)))
+                    }
                 } else {
                     let val: string = (nisa_emit_expr parser s.value s.value_type)
                     return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
@@ -3530,6 +3659,187 @@ shadow nisa_emit_imported_functions {
     assert (str_contains text "I64_ADD")
 }
 
+fn nisa_register_parser_globals(parser: Parser) -> int {
+    let n: int = (parser_get_let_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        if (not nisa_ok) {
+            set i n
+        } else {
+            if (nisa_let_is_global parser i) {
+                let l: ASTLet = (parser_get_let parser i)
+                if (>= (nisa_global_find l.name) 0) {
+                    (print "")
+                } else {
+                    if (not (nisa_type_ok parser l.var_type)) {
+                        let _x: string = (nisa_fail (+ "unsupported global type " l.var_type))
+                    } else {
+                        set nisa_g_names (array_push nisa_g_names l.name)
+                        set nisa_g_types (array_push nisa_g_types l.var_type)
+                    }
+                }
+            } else {
+                (print "")
+            }
+            set i (+ i 1)
+        }
+    }
+    return 0
+}
+
+shadow nisa_register_parser_globals {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "let mut g: array<string> = [] " (+ "f" "n f() -> int { return 0 } shadow f { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let _r: int = (nisa_register_parser_globals p)
+    assert nisa_ok
+    assert (== (nisa_global_find "g") 0)
+    assert (== (at nisa_g_types 0) "array<string>")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_collect_all_globals(parser: Parser) -> int {
+    let mut p: int = 0
+    while (< p (array_length nisa_seen)) {
+        if (not nisa_ok) {
+            set p (array_length nisa_seen)
+        } else {
+            let path: string = (at nisa_seen p)
+            let diags: List<CompilerDiagnostic> = (diag_list_new)
+            let src: string = (read path)
+            let toks: List<LexerToken> = (tokenize_string src path diags)
+            let ip: Parser = (parse_program toks (list_LexerToken_length toks) path)
+            if (parser_has_error ip) {
+                let _x: string = (nisa_fail (+ "parse failed " path))
+                set p (array_length nisa_seen)
+            } else {
+                let _r: int = (nisa_register_parser_globals ip)
+                set p (+ p 1)
+            }
+        }
+    }
+    if nisa_ok {
+        let _r2: int = (nisa_register_parser_globals parser)
+        return 0
+    } else {
+        return 0
+    }
+}
+
+shadow nisa_collect_all_globals {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "let mut g: array<string> = [] " (+ "f" "n f() -> int { return 0 } shadow f { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let _r: int = (nisa_collect_all_globals p)
+    assert nisa_ok
+    assert (== (nisa_global_find "g") 0)
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_emit_init_stores(parser: Parser) -> string {
+    let mut out: string = ""
+    let n: int = (parser_get_let_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        if (not nisa_ok) {
+            set i n
+        } else {
+            if (nisa_let_is_global parser i) {
+                let l: ASTLet = (parser_get_let parser i)
+                let gslot: int = (nisa_global_find l.name)
+                if (< gslot 0) {
+                    (print "")
+                } else {
+                    let val: string = (nisa_emit_expr parser l.value l.value_type)
+                    set out (+ out val)
+                    set out (+ out (nisa_line_imm "STORE_GLOBAL" (int_to_string gslot)))
+                }
+            } else {
+                (print "")
+            }
+            set i (+ i 1)
+        }
+    }
+    return out
+}
+
+shadow nisa_emit_init_stores {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "let mut g: array<string> = [] " (+ "f" "n f() -> int { return 0 } shadow f { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let _r: int = (nisa_register_parser_globals p)
+    let text: string = (nisa_emit_init_stores p)
+    assert (str_contains text "ARR_LITERAL")
+    assert (str_contains text "STORE_GLOBAL 0")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_emit_init(parser: Parser) -> string {
+    if (== (array_length nisa_g_names) 0) {
+        return ""
+    } else {
+        set nisa_names []
+        set nisa_types []
+        let mut body: string = ""
+        let mut p: int = 0
+        while (< p (array_length nisa_seen)) {
+            if (not nisa_ok) {
+                set p (array_length nisa_seen)
+            } else {
+                let path: string = (at nisa_seen p)
+                let diags: List<CompilerDiagnostic> = (diag_list_new)
+                let src: string = (read path)
+                let toks: List<LexerToken> = (tokenize_string src path diags)
+                let ip: Parser = (parse_program toks (list_LexerToken_length toks) path)
+                if (parser_has_error ip) {
+                    let _x: string = (nisa_fail (+ "parse failed " path))
+                    set p (array_length nisa_seen)
+                } else {
+                    let ip2: Parser = (nisa_copy_types ip parser)
+                    set body (+ body (nisa_emit_init_stores ip2))
+                    set p (+ p 1)
+                }
+            }
+        }
+        if (not nisa_ok) {
+            return ""
+        } else {
+            set body (+ body (nisa_emit_init_stores parser))
+            if (not nisa_ok) {
+                return ""
+            } else {
+                set body (+ body (nisa_line "RET"))
+                let locals: int = (array_length nisa_names)
+                let mut header: string = ".function __init__ 0 "
+                set header (+ header (int_to_string locals))
+                set header (+ header " 0 void 0\n")
+                set nisa_fn_emitted (+ nisa_fn_emitted 1)
+                return (+ (+ header body) ".end\n")
+            }
+        }
+    }
+}
+
+shadow nisa_emit_init {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "let mut g: array<string> = [] " (+ "f" "n f() -> int { return 0 } shadow f { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let _r: int = (nisa_register_parser_globals p)
+    let text: string = (nisa_emit_init p)
+    assert (str_contains text ".function __init__ 0 0 0 void 0")
+    assert (str_contains text "STORE_GLOBAL 0")
+    assert (str_contains text "RET")
+    let _2: int = (nisa_reset)
+}
+
 pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
@@ -3543,6 +3853,10 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
         if (not nisa_ok) {
             return ""
         } else {
+            let _g: int = (nisa_collect_all_globals parser2)
+            if (not nisa_ok) {
+                return ""
+            } else {
             let n: int = (parser_get_function_count parser2)
             let mut out: string = ""
             let mut main_idx: int = (- 0 1)
@@ -3566,6 +3880,10 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                 return ""
             } else {
                 set out (+ out (nisa_emit_imported_functions parser2))
+                if (not nisa_ok) {
+                    return ""
+                } else {
+                set out (+ out (nisa_emit_init parser2))
                 if (not nisa_ok) {
                     return ""
                 } else {
@@ -3596,6 +3914,8 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                     }
                     return (+ prelude out)
                 }
+                }
+            }
             }
         }
     }
@@ -3613,5 +3933,11 @@ shadow nanoisa_emit_nasm {
     assert (str_contains lib_text ".function add")
     assert (str_contains lib_text ".function main")
     assert (str_contains lib_text "PUSH_I64 0")
+    assert nisa_ok
+    let gsrc: string = (+ "let mut g: array<string> = [] " (+ "f" "n via_g_len() -> int { return (array_length g) } shadow via_g_len { assert true }"))
+    let gtext: string = (nanoisa_emit_nasm gsrc "t.nano")
+    assert (str_contains gtext ".function __init__")
+    assert (str_contains gtext "STORE_GLOBAL")
+    assert (str_contains gtext "LOAD_GLOBAL")
     assert nisa_ok
 }

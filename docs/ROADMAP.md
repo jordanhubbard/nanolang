@@ -1434,9 +1434,15 @@ Compiler product:
       `module_loader.nano` names `undefined local extern_func_names`
       (from ingested `transpiler.nano`). I still pretty-print C to build
       the compiler.
-- [ ] Cut A module-level locals: `transpiler.nano` names
-      `extern_func_names` at module scope. I still pretty-print C to
-      build the compiler.
+- [x] Cut A module-level locals: `via_g_len` / `via_g_set` / `__init__`
+      match the C seed (`LOAD_GLOBAL` / `STORE_GLOBAL`). Empty `[]` is
+      `ARR_LITERAL 1 0`. `make test-nanoisa-src-nano` (224 passed).
+      `nvm2c` still names `LOAD_GLOBAL`. `module_loader.nano` names
+      `unsupported param type GenEnv` (`array<bool>` fields in
+      `transpiler.nano`). I still pretty-print C to build the compiler.
+- [ ] Cut A pin records with `array<bool>` fields: `GenEnv` has
+      `mut_flags` / `global_flags`. I still pretty-print C to build
+      the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

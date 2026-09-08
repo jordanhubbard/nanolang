@@ -1037,3 +1037,22 @@ fn via_env() -> string {
 shadow via_env {
     assert (> (str_length (via_env)) 0)
 }
+
+let mut g_names: array<string> = []
+
+fn via_g_len() -> int {
+    return (array_length g_names)
+}
+
+shadow via_g_len {
+    assert (>= (via_g_len) 0)
+}
+
+fn via_g_set() -> int {
+    set g_names ["a"]
+    return (array_length g_names)
+}
+
+shadow via_g_set {
+    assert (>= (via_g_set) 0)
+}

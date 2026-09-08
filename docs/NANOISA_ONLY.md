@@ -342,10 +342,12 @@ still names `CALL_EXTERN`. Cut A `array_new` (`blank_a` / `via_blank_a`
 match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `str_substring` concat (`via_substr_concat`) and `EQ` of `at` of
 `array<string>` (`via_at_eq`), and Cut A host `getenv` (`via_env` is
-`CALL_EXTERN` `vm_getenv`). `typecheck.nano` emits 401 functions and
+`CALL_EXTERN` `vm_getenv`), and Cut A module-level lets (`via_g_len` /
+`via_g_set` / `__init__` match the C seed; `LOAD_GLOBAL` /
+`STORE_GLOBAL`). `typecheck.nano` emits 401 functions and
 that nasm assembles; `nano_vm` exits 0. `nvm2c` still names
-`CALL_EXTERN`. `module_loader.nano` names
-`undefined local extern_func_names`. Labels reset per `.function`.
+`CALL_EXTERN` and `LOAD_GLOBAL`. `module_loader.nano` names
+`unsupported param type GenEnv` (`array<bool>` fields). Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

@@ -109,7 +109,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`ARR_NEW 1` plus a fill loop). `str_substring` as a concat operand
   (`via_substr_concat`) and `EQ` of `at` of `array<string>` (`via_at_eq`)
   match the C seed. `getenv` is `CALL_EXTERN` `vm_getenv` (`via_env`).
-  `module_loader.nano` names `undefined local extern_func_names`.
+  Module-level lets are `LOAD_GLOBAL` / `STORE_GLOBAL` with a void
+  `__init__` (`via_g_len` / `via_g_set`). `module_loader.nano` names
+  `unsupported param type GenEnv`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.
