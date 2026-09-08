@@ -503,3 +503,21 @@ fn via_tok() -> int {
 shadow via_tok {
     assert (== (via_tok) 2)
 }
+
+fn ones() -> array<int> {
+    return [1, 1]
+}
+
+shadow ones {
+    let xs: array<int> = (ones)
+    assert (== (array_length xs) 2)
+}
+
+fn via_ones() -> int {
+    let xs: array<int> = (ones)
+    return (array_length xs)
+}
+
+shadow via_ones {
+    assert (== (via_ones) 2)
+}

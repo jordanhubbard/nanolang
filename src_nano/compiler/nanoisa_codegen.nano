@@ -11,7 +11,8 @@
  * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
  * print (PRINT), println (PRINTLN), assert (ASSERT), void
  * functions (RET with no value; a statement CALL of void does not POP),
- * and pin-record results (ISA tag struct, not the NanoLang name).
+ * and pin-record results (ISA tag struct, not the NanoLang name),
+ * and array/list results (ISA tag array).
  * Anything else fails closed. I do not emit C. I do not delete
  * transpiler.nano.
  */
@@ -551,7 +552,11 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
         if (nisa_is_pin_record parser t) {
             return "struct"
         } else {
-            return ""
+            if (nisa_local_type_ok t) {
+                return "array"
+            } else {
+                return ""
+            }
         }
     }
 }
@@ -565,6 +570,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "int") "int")
     assert (== (nisa_result_tag p "void") "void")
     assert (== (nisa_result_tag p "Point") "struct")
+    assert (== (nisa_result_tag p "array<int>") "array")
     assert (== (nisa_result_tag p "Nope") "")
 }
 
@@ -1879,6 +1885,21 @@ shadow nisa_emit_function {
     assert (str_contains via_tok_text "CALL make_tok")
     assert (str_contains via_tok_text "AGG_GET 1")
     assert (str_contains via_tok_text "STR_LEN")
+    let src46: string = (+ "f" "n ones() -> array<int> { return [1, 1] } shadow ones { assert true }")
+    let toks46: List<LexerToken> = (tokenize_string src46 "t.nano" diags)
+    let p46: Parser = (parse_program toks46 (list_LexerToken_length toks46) "t.nano")
+    let ones_fn: ASTFunction = (parser_get_function p46 0)
+    let ones_text: string = (nisa_emit_function p46 ones_fn)
+    assert (str_contains ones_text ".function ones 0 0 0 array 1")
+    assert (str_contains ones_text "ARR_LITERAL 1 2")
+    let src47: string = (+ "f" "n ones() -> array<int> { return [1, 1] } " (+ "f" "n via_ones() -> int { let xs: array<int> = (ones) return (array_length xs) } shadow ones { assert true } shadow via_ones { assert true }"))
+    let toks47: List<LexerToken> = (tokenize_string src47 "t.nano" diags)
+    let p47: Parser = (parse_program toks47 (list_LexerToken_length toks47) "t.nano")
+    let via_ones_fn: ASTFunction = (parser_get_function p47 1)
+    let via_ones_text: string = (nisa_emit_function p47 via_ones_fn)
+    assert (str_contains via_ones_text ".function via_ones 0 1 0 int 1")
+    assert (str_contains via_ones_text "CALL ones")
+    assert (str_contains via_ones_text "ARR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

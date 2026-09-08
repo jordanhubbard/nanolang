@@ -25,7 +25,8 @@
  * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT, STR_STARTS_WITH, STR_ENDS_WITH,
  * and void functions (RET with no value; CALL of void does not POP),
  * and pin-record results as nrec_t (CALL/RET of TAG_STRUCT, including
- * mixed int/string fields whose kinds come from the callee).
+ * mixed int/string fields whose kinds come from the callee),
+ * and array results as narr_t / nsarr_t / nrarr_t.
  * Anything else is refused with an error.
  * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
  * host C ABI. Embedded NULs, nested arrays, nested records, variants, tuples,
