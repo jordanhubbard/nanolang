@@ -26,6 +26,7 @@
 #define NVM2C_VK_ARR 3
 #define NVM2C_VK_REC 4
 #define NVM2C_VK_SARR 5
+#define NVM2C_VK_RARR 6
 
 typedef struct {
     char *data;
@@ -139,6 +140,7 @@ static const char *c_local_type(uint8_t kind) {
     if (kind == NVM2C_VK_ARR) return "narr_t";
     if (kind == NVM2C_VK_SARR) return "nsarr_t";
     if (kind == NVM2C_VK_REC) return "nrec_t";
+    if (kind == NVM2C_VK_RARR) return "nrarr_t";
     return "int64_t";
 }
 
@@ -310,7 +312,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             memset(&loaded, 0, sizeof loaded);
             loaded.kind = local_kind[slot];
             loaded.origin = (int)slot;
-            if (loaded.kind == NVM2C_VK_REC) {
+            if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR) {
                 memcpy(loaded.rec_k, rec_fields + (size_t)slot * NVM2C_MAX_REC_FIELDS,
                        NVM2C_MAX_REC_FIELDS);
             }
@@ -335,10 +337,15 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 local_kind[slot] = NVM2C_VK_REC;
                 memcpy(rec_fields + (size_t)slot * NVM2C_MAX_REC_FIELDS,
                        v.rec_k, NVM2C_MAX_REC_FIELDS);
+            } else if (v.kind == NVM2C_VK_RARR) {
+                local_kind[slot] = NVM2C_VK_RARR;
+                memcpy(rec_fields + (size_t)slot * NVM2C_MAX_REC_FIELDS,
+                       v.rec_k, NVM2C_MAX_REC_FIELDS);
             } else if (v.kind == NVM2C_VK_INT && local_kind[slot] != NVM2C_VK_STR
                        && local_kind[slot] != NVM2C_VK_ARR
-                       && local_kind[slot] != NVM2C_VK_SARR
-                       && local_kind[slot] != NVM2C_VK_REC) {
+                        && local_kind[slot] != NVM2C_VK_SARR
+                        && local_kind[slot] != NVM2C_VK_REC
+                        && local_kind[slot] != NVM2C_VK_RARR) {
                 local_kind[slot] = NVM2C_VK_INT;
             }
             break;
@@ -473,7 +480,9 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_ARR_LEN: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-            if (v.kind == NVM2C_VK_SARR) {
+            if (v.kind == NVM2C_VK_RARR) {
+                mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
+            } else if (v.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, v.origin, NVM2C_VK_SARR);
             } else {
                 mark_origin(local_kind, nloc, v.origin, NVM2C_VK_ARR);
@@ -486,7 +495,15 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             (void)ix;
-            if (arr.kind == NVM2C_VK_SARR) {
+            if (arr.kind == NVM2C_VK_RARR) {
+                Nvm2cSimSlot rec;
+                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
+                memset(&rec, 0, sizeof rec);
+                rec.kind = NVM2C_VK_REC;
+                rec.origin = -1;
+                memcpy(rec.rec_k, arr.rec_k, NVM2C_MAX_REC_FIELDS);
+                if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
+            } else if (arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             } else {
@@ -499,7 +516,18 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             Nvm2cSimSlot val, arr;
             if (!sim_pop(b, idx, stk, &sp, &val)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
-            if (val.kind == NVM2C_VK_STR || arr.kind == NVM2C_VK_SARR) {
+            if (val.kind == NVM2C_VK_REC) {
+                Nvm2cSimSlot pushed = arr;
+                mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
+                if (arr.origin >= 0 && (uint16_t)arr.origin < nloc) {
+                    memcpy(rec_fields + (size_t)arr.origin * NVM2C_MAX_REC_FIELDS,
+                           val.rec_k, NVM2C_MAX_REC_FIELDS);
+                }
+                pushed.kind = NVM2C_VK_RARR;
+                pushed.origin = -1;
+                memcpy(pushed.rec_k, val.rec_k, NVM2C_MAX_REC_FIELDS);
+                if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
+            } else if (val.kind == NVM2C_VK_STR || arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
             } else {
@@ -648,6 +676,7 @@ typedef struct {
     int next_arr;
     int next_sarr;
     int next_rec;
+    int next_rarr;
 } Nvm2cStack;
 
 static int stack_push_temp(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
@@ -735,6 +764,19 @@ static int stack_push_rec(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
     return r;
 }
 
+static int stack_push_rarr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
+    if (st->sp >= NVM2C_MAX_STACK || st->next_rarr >= NVM2C_MAX_TEMPS) {
+        nvm2c_fail(b, "too many record-array temporaries");
+        return -1;
+    }
+    int a = st->next_rarr++;
+    nvm2c_printf(b, "    ra[%d] = %s;\n", a, rhs);
+    st->slots[st->sp] = a;
+    st->kinds[st->sp] = NVM2C_VK_RARR;
+    st->sp++;
+    return a;
+}
+
 static int stack_pop_kind(Nvm2cBuf *b, Nvm2cStack *st, uint8_t *kind_out) {
     if (st->sp <= 0) {
         nvm2c_fail(b, "operand stack underflow");
@@ -759,6 +801,7 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
         else if (kind == NVM2C_VK_ARR) want = "array";
         else if (kind == NVM2C_VK_SARR) want = "string array";
         else if (kind == NVM2C_VK_REC) want = "record";
+        else if (kind == NVM2C_VK_RARR) want = "record array";
         nvm2c_fail(b, "%s: expected %s value", what, want);
         return -1;
     }
@@ -788,6 +831,7 @@ static void stack_keep_high_water(Nvm2cStack *st, const Nvm2cStack *other) {
     if (other->next_arr > st->next_arr) st->next_arr = other->next_arr;
     if (other->next_sarr > st->next_sarr) st->next_sarr = other->next_sarr;
     if (other->next_rec > st->next_rec) st->next_rec = other->next_rec;
+    if (other->next_rarr > st->next_rarr) st->next_rarr = other->next_rarr;
 }
 
 static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
@@ -817,6 +861,10 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
             nvm2c_printf(b, "    sa[%d] = sa[%d];\n", joins[tgt].slots[i], st->slots[i]);
         } else if (st->kinds[i] == NVM2C_VK_REC) {
             nvm2c_printf(b, "    r[%d] = r[%d];\n", joins[tgt].slots[i], st->slots[i]);
+            memcpy(joins[tgt].rec_k[joins[tgt].slots[i]],
+                    st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
+        } else if (st->kinds[i] == NVM2C_VK_RARR) {
+            nvm2c_printf(b, "    ra[%d] = ra[%d];\n", joins[tgt].slots[i], st->slots[i]);
             memcpy(joins[tgt].rec_k[joins[tgt].slots[i]],
                    st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
         } else {
@@ -879,6 +927,8 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
             pos += (size_t)snprintf(call + pos, call_sz - pos, "sa[%d]", args[a]);
         } else if (argk[a] == NVM2C_VK_REC) {
             pos += (size_t)snprintf(call + pos, call_sz - pos, "r[%d]", args[a]);
+        } else if (argk[a] == NVM2C_VK_RARR) {
+            pos += (size_t)snprintf(call + pos, call_sz - pos, "ra[%d]", args[a]);
         } else {
             pos += (size_t)snprintf(call + pos, call_sz - pos, "t[%d]", args[a]);
         }
@@ -923,6 +973,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_printf(b, "    nsarr_t l%u = {0};\n", (unsigned)i);
         } else if (lk == NVM2C_VK_REC) {
             nvm2c_printf(b, "    nrec_t l%u = {0};\n", (unsigned)i);
+        } else if (lk == NVM2C_VK_RARR) {
+            nvm2c_printf(b, "    nrarr_t l%u = {0};\n", (unsigned)i);
         } else {
             nvm2c_printf(b, "    int64_t l%u = 0;\n", (unsigned)i);
         }
@@ -938,6 +990,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     nvm2c_puts(b, "    (void)sa;\n");
     nvm2c_printf(b, "    nrec_t r[%d] = {0};\n", NVM2C_MAX_TEMPS);
     nvm2c_puts(b, "    (void)r;\n");
+    nvm2c_printf(b, "    nrarr_t ra[%d] = {0};\n", NVM2C_MAX_TEMPS);
+    nvm2c_puts(b, "    (void)ra;\n");
 
     if (fn->code_offset > mod->code_size ||
         fn->code_length > mod->code_size - fn->code_offset) {
@@ -1097,6 +1151,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                             memcpy(st.rec_k[nr], st.rec_k[src], NVM2C_MAX_REC_FIELDS);
                         }
                     }
+                } else if (k == NVM2C_VK_RARR) {
+                    snprintf(rhs, sizeof rhs, "ra[%d]", src);
+                    {
+                        int nr = stack_push_rarr(b, &st, rhs);
+                        if (nr >= 0) memcpy(st.rec_k[nr], st.rec_k[src], NVM2C_MAX_REC_FIELDS);
+                    }
                 } else {
                     snprintf(rhs, sizeof rhs, "t[%d]", src);
                     stack_push_temp(b, &st, rhs);
@@ -1168,6 +1228,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     memcpy(st.rec_k[r], fn_rec_k_const(rec_fields, idx, slot),
                            NVM2C_MAX_REC_FIELDS);
                 }
+            } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_RARR) {
+                int a = stack_push_rarr(b, &st, rhs);
+                if (a >= 0) {
+                    memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, idx, slot),
+                           NVM2C_MAX_REC_FIELDS);
+                }
             } else {
                 stack_push_temp(b, &st, rhs);
             }
@@ -1191,6 +1257,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    l%u = sa[%d];\n", (unsigned)slot, t);
                 } else if (expect == NVM2C_VK_REC) {
                     nvm2c_printf(b, "    l%u = r[%d];\n", (unsigned)slot, t);
+                } else if (expect == NVM2C_VK_RARR) {
+                    nvm2c_printf(b, "    l%u = ra[%d];\n", (unsigned)slot, t);
                 } else {
                     nvm2c_printf(b, "    l%u = t[%d];\n", (unsigned)slot, t);
                 }
@@ -1355,6 +1423,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     uint16_t slot = nxt.operands[0].u16;
                     if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_SARR) {
                         as_sarr = 1;
+                    } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_RARR) {
+                        int a = stack_push_rarr(b, &st, "nrarr_new()");
+                        if (a >= 0) {
+                            memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, idx, slot),
+                                   NVM2C_MAX_REC_FIELDS);
+                        }
+                        break;
                     }
                 }
             }
@@ -1437,6 +1512,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[64];
                 snprintf(expr, sizeof expr, "(int64_t)(sa[%d] ? sa[%d]->len : 0)", arr, arr);
                 stack_push_temp(b, &st, expr);
+            } else if (ak == NVM2C_VK_RARR) {
+                char expr[64];
+                snprintf(expr, sizeof expr, "(int64_t)(ra[%d] ? ra[%d]->len : 0)", arr, arr);
+                stack_push_temp(b, &st, expr);
             } else {
                 nvm2c_fail(b, "function %u: ARR_LEN expected an array", idx);
                 goto done;
@@ -1456,6 +1535,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[80];
                 snprintf(expr, sizeof expr, "nsarr_get(sa[%d], t[%d])", arr, ix);
                 stack_push_str(b, &st, expr);
+            } else if (ak == NVM2C_VK_RARR) {
+                char expr[80];
+                snprintf(expr, sizeof expr, "nrarr_get(ra[%d], t[%d])", arr, ix);
+                int r = stack_push_rec(b, &st, expr);
+                if (r >= 0) memcpy(st.rec_k[r], st.rec_k[arr], NVM2C_MAX_REC_FIELDS);
             } else {
                 nvm2c_fail(b, "function %u: ARR_GET expected an array", idx);
                 goto done;
@@ -1476,6 +1560,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[80];
                 snprintf(expr, sizeof expr, "nsarr_push(sa[%d], s[%d])", arr, val);
                 stack_push_sarr(b, &st, expr);
+            } else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) {
+                char expr[80];
+                snprintf(expr, sizeof expr, "nrarr_push(ra[%d], r[%d])", arr, val);
+                int a = stack_push_rarr(b, &st, expr);
+                if (a >= 0) memcpy(st.rec_k[a], st.rec_k[val], NVM2C_MAX_REC_FIELDS);
             } else {
                 nvm2c_fail(b, "function %u: ARR_PUSH type mismatch", idx);
                 goto done;
@@ -1912,6 +2001,24 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nrarr_helpers(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static nrarr_t nrarr_new(void) {\n"
+        "    nrarr_t a = (nrarr_t)calloc(1, sizeof(nrarr_s));\n"
+        "    if (!a) abort();\n"
+        "    return a;\n"
+        "}\n\n"
+        "static nrarr_t nrarr_push(nrarr_t a, nrec_t v) {\n"
+        "    if (!a || a->len >= NVM2C_RECORD_ARRAY_CAP) abort();\n"
+        "    a->data[a->len++] = v;\n"
+        "    return a;\n"
+        "}\n\n"
+        "static nrec_t nrarr_get(nrarr_t a, int64_t idx) {\n"
+        "    if (!a || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    return a->data[idx];\n"
+        "}\n\n");
+}
+
 char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     if (err && err_len) err[0] = '\0';
     if (!mod) {
@@ -1976,6 +2083,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR);
         int need_sarr = need_sarr_lit ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR);
+        int need_rarr = module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
@@ -2016,8 +2124,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef struct { const char **data; size_t len; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n");
         nvm2c_printf(&b,
-            "typedef struct { int64_t f[%d]; const char *s[%d]; uint16_t n; } nrec_t;\n\n",
+            "typedef struct { int64_t f[%d]; const char *s[%d]; uint16_t n; } nrec_t;\n",
             NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
+        nvm2c_puts(&b,
+            "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
+            "typedef struct { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; } nrarr_s;\n"
+            "typedef nrarr_s *nrarr_t;\n\n");
         if (need_concat || need_cast || need_substr) emit_nstr_arena(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
@@ -2041,6 +2153,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_lit) emit_nsarr_lit(&b);
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
+        if (need_rarr) emit_nrarr_helpers(&b);
     }
 
     {

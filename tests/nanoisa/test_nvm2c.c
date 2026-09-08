@@ -1545,6 +1545,9 @@ static void test_grow_l_runs_without_nano_vm(void) {
         "  ARR_PUSH\n"
         "  POP\n"
         "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
         "  PUSH_I64 0\n"
         "  ARR_GET\n"
         "  RET\n"
@@ -1728,6 +1731,51 @@ static void test_get_s_runs_without_nano_vm(void) {
     int status = -1;
     CHECK(compile_and_run(c, &status) == 0, "get_s C compiles and runs");
     CHECK(status == 2, "len(get_s()) exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_grow_t_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function grow_t 0 2 0 string 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow_t\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow_t fixture");
+    CHECK(m != NULL, "grow_t fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for grow_t");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "grow_t C does not name nano_vm");
+    CHECK(strstr(c, "nrec_t data[NVM2C_RECORD_ARRAY_CAP]") != NULL,
+          "grow_t C stores bounded record elements by value");
+    CHECK(strstr(c, "nrarr_push") != NULL, "grow_t C uses record-array helpers");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow_t C compiles and runs");
+    CHECK(status == 2, "len(grow_t()) exits 2 without a VM process");
     free(c);
     nvm_module_free(m);
 }
@@ -2110,6 +2158,7 @@ int main(int argc, char **argv) {
     test_blank_s_runs_without_nano_vm();
     test_grow_s_runs_without_nano_vm();
     test_get_s_runs_without_nano_vm();
+    test_grow_t_runs_without_nano_vm();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
