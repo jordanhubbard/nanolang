@@ -163,6 +163,7 @@ site/
 /tests/actor/test_actor
 /tests/dataflow/test_dataflow
 /tests/object/test_object
+/tests/shell/test_shell
 /tests/test_nsi
 /tests/test_nsi_gen
 /tests/test_nsi_runtime

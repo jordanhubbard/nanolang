@@ -72,7 +72,7 @@ static const NlFrontendGoal k_goals[NL_FE_COUNT] = {
         "processes, files, networks, services only through explicit caps",
         "text-only pipelines as the data model; admin use before policy exists",
         "typed values across pipelines; text parsing as an adapter",
-        0
+        1
     },
     {
         NL_FE_LOGIC, "Nano Logic",

@@ -28,6 +28,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   slots, `classof`/`slots`, live `replace`, `extend`, `handle`/`sendvia`,
   and a host inline cache compiled to verified NanoISA methods. No
   cache opcodes. `docs/OBJECT.md`, `make test-object`.
+- 4.6 Nano Shell laboratory frontend: typed i64 pipelines, `parse` as
+  the text adapter, `need` capabilities, and `cancel`. Granted caps
+  still refuse host files, processes, networks, services, streams, and
+  remote execution. I do not administer service graphs.
+  `docs/SHELL.md`, `make test-shell`.
 
 ## [4.5.0] - 2026-09-07
 
