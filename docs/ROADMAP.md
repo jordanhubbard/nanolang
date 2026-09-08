@@ -116,15 +116,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       work in desugar/typecheck. Bounded goals are published before a
       language starts. Frontend-private opcodes fail closed. NanoLang
       and Forth already accept a shared library. Scheme, ML, Actor, Dataflow, Object, Shell, and Logic are
-      implemented as bounded laboratory frontends; the frontend matrix remains.
+      implemented as bounded laboratory frontends. The frontend matrix is
+      `docs/FRONTEND_MATRIX.md` / `make test-frontend-matrix`.
       `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
       `make test-frontend-contract`, `make test-scheme`, `make test-ml`,
       `make test-actor`, `make test-dataflow`, `make test-object`,
       `make test-shell`, `make test-logic`.
       MAC `task_e62d1cd35b49296604012df95de7911b`.
-- [ ] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
+- [x] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
       Dataflow, Object, Shell, Logic, then the frontend matrix.
       NanoLang stays my native language.
+      `make test-scheme`, `make test-ml`, `make test-actor`,
+      `make test-dataflow`, `make test-object`, `make test-shell`,
+      `make test-logic`, `make test-frontend-matrix`.
+      `docs/FRONTEND_MATRIX.md`.
       MAC `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
       `task_3eed929292a80ed58dd3a8db1ed701b6` (ML),
       `task_0850b9adc62c593b8e4e180e070efcee` (Actor),
@@ -1297,13 +1302,20 @@ Nano Logic (MAC `task_69fc7f6660a1976f10606a42d78fd264`):
       Restricted profile: `grant`/`allow` as ordinary predicates; `query allow 7`. Not NSI documents.
 
 Frontend matrix and demonstrations (MAC `task_92c497c72b7aa1fc993d666f66843759`):
-- [ ] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
-- [ ] I will implement one shared service interface consumed from NanoLang, Nano Forth, Nano Scheme, and Nano ML.
-- [ ] I will implement one supervised service in Nano Actor and orchestrate it from Nano Shell.
-- [ ] I will apply Nano Logic policy to that service without embedding policy semantics in the application.
-- [ ] I will run equivalent computation fixtures across applicable frontends and compare their NanoISA behavior and results.
-- [ ] I will publish measured compile time, module size, instruction mix, allocation, call behavior, and execution time for each frontend.
-- [ ] I will keep NanoLang as my native language and describe the others as bounded architecture probes until their own conformance goals are met.
+- [x] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
+      `docs/FRONTEND_MATRIX.md`, `make test-frontend-matrix`.
+- [x] I will implement one shared service interface consumed from NanoLang, Nano Forth, Nano Scheme, and Nano ML.
+      Shared `add` library via `nl_frontend_accept_linked`.
+- [x] I will implement one supervised service in Nano Actor and orchestrate it from Nano Shell.
+      `need service` / `service 1` with `nl_shell_set_service` bound to supervised Echo.
+- [x] I will apply Nano Logic policy to that service without embedding policy semantics in the application.
+      `query allow 1` is evaluated before Shell starts Echo. Deny keeps Echo stopped.
+- [x] I will run equivalent computation fixtures across applicable frontends and compare their NanoISA behavior and results.
+      Integer 5 from add/plus/pipe/Ping across applicable frontends.
+- [x] I will publish measured compile time, module size, instruction mix, allocation, call behavior, and execution time for each frontend.
+      Matrix test prints compile_ns, eval_ns, code_size, fns, ins, calls, strings.
+- [x] I will keep NanoLang as my native language and describe the others as bounded architecture probes until their own conformance goals are met.
+      `nl_frontend_goal(NL_FE_NANOLANG)` pressure names native; docs/FRONTEND_MATRIX.md.
 
 ## Project Vision
 
@@ -1790,7 +1802,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: 4.6 laboratory languages (through Logic done; frontend matrix next), then 5.0.
+Current Phase: 4.6 complete; 5.0 / Phase 20 next (`docs/NANOISA_ONLY.md`).
 The next public GitHub Release is 5.0, covering 4.6 and 5.0.
-Next Major Milestone: remaining 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after `make test-logic` and the frontend matrix.
+Next Major Milestone: 5.0 NanoISA-only compilation, then public tag `v5.0.0`.
+Next Review: after `make test-frontend-matrix` and `docs/NANOISA_ONLY.md`.

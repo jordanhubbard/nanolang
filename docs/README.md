@@ -92,6 +92,7 @@ How I am built:
     - [Nano Object](OBJECT.md) — bounded laboratory frontend (`make test-object`)
     - [Nano Shell](SHELL.md) — bounded laboratory frontend (`make test-shell`)
     - [Nano Logic](LOGIC.md) — bounded laboratory frontend (`make test-logic`)
+    - [Frontend matrix](FRONTEND_MATRIX.md) — how each 4.6 language exercises NanoISA
     - 178-opcode stack machine ISA
     - .nvm binary format specification
     - Co-process FFI isolation: shared-memory mailbox fast path (2 syscalls/call) with pipe fallback

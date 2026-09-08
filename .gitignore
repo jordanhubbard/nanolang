@@ -165,6 +165,7 @@ site/
 /tests/object/test_object
 /tests/shell/test_shell
 /tests/logic/test_logic
+/tests/frontend/test_frontend_matrix
 /tests/test_nsi
 /tests/test_nsi_gen
 /tests/test_nsi_runtime

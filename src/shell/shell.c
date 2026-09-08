@@ -122,6 +122,12 @@ typedef struct {
     int fn_idx[SH_MAX];
 } Rt;
 
+static NlShellServiceFn g_service;
+
+void nl_shell_set_service(NlShellServiceFn fn) {
+    g_service = fn;
+}
+
 #ifdef __GNUC__
 __attribute__((format(printf, 2, 3)))
 #endif
@@ -667,9 +673,22 @@ static int eval_expr(Rt *rt, Expr *e, Val *out) {
     case E_CONNECT:
         if (eval_expr(rt, e->x, &a) < 0) return -1;
         return require_cap(rt, rt->cc->cap_net, "net", "network");
-    case E_SERVICE:
+    case E_SERVICE: {
+        int64_t id = 0, hv = 0;
+        char hookerr[NL_SH_ERR_SIZE];
         if (eval_expr(rt, e->x, &a) < 0) return -1;
-        return require_cap(rt, rt->cc->cap_service, "service", "service");
+        if (!rt->cc->cap_service)
+            return cc_fail(rt->cc, "I refuse service without cap:service");
+        if (!g_service)
+            return cc_fail(rt->cc, "I refuse a host service in this subset");
+        if (as_int(rt, a, &id) < 0) return -1;
+        hookerr[0] = '\0';
+        if (!g_service(id, &hv, hookerr, sizeof hookerr))
+            return cc_fail(rt->cc, "%s", hookerr[0] ? hookerr : "service failed");
+        out->kind = V_INT;
+        out->i = hv;
+        return 0;
+    }
     case E_STREAM:
         if (eval_expr(rt, e->x, &a) < 0) return -1;
         return require_cap(rt, rt->cc->cap_stream, "stream", "stream");

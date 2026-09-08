@@ -7,7 +7,10 @@ I am a 4.6 laboratory frontend: structured `int` values in pipes, an
 explicit `parse` adapter from text, and host effects only through
 `need` capabilities. Missing a capability fails closed. A granted
 capability still refuses real files, processes, networks, services,
-streams, and remote execution in this subset.
+streams, and remote execution in this subset. `need service` still
+refuses a host service unless a laboratory test binds
+`nl_shell_set_service`. That hook is how the frontend matrix starts a
+supervised Actor without making me an administrative shell.
 
 This is a C host (`src/shell/`), like `src/object/`. There is no
 `src_nano` twin. NanoLang stays my native language.

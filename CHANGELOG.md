@@ -38,6 +38,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Integer unification is `lg_unify` / `I64_EQ`. Choice points and
   tabling stay out. Policy is the restricted `grant`/`allow` profile.
   `docs/LOGIC.md`, `make test-logic`.
+- 4.6 frontend matrix: equivalent integer fixtures, one shared `add`
+  library from NanoLang/Forth/Scheme/ML, supervised Echo started from
+  Shell only after a Logic policy query, and published measurements.
+  `docs/FRONTEND_MATRIX.md`, `make test-frontend-matrix`.
 
 ## [4.5.0] - 2026-09-07
 

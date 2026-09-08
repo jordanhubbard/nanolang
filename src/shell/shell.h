@@ -27,4 +27,9 @@ NlFrontendResult nl_shell_accept(const NvmModule *mod, const char *path);
 int nl_shell_eval_i64(const char *src, int64_t *out,
                       char *err, size_t errlen);
 
+typedef int (*NlShellServiceFn)(int64_t id, int64_t *out,
+                                char *err, size_t errlen);
+
+void nl_shell_set_service(NlShellServiceFn fn);
+
 #endif
