@@ -1732,6 +1732,80 @@ static void test_get_s_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_blank_t_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function blank_t 0 1 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL blank_t\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "blank_t fixture");
+    CHECK(m != NULL, "blank_t fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for blank_t");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "blank_t C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "blank_t C compiles and runs");
+    CHECK(status == 0, "blank_t() exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_grow_t_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function grow_t 0 2 0 string 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow_t\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow_t fixture");
+    CHECK(m != NULL, "grow_t fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for grow_t");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "grow_t C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_push") != NULL, "grow_t C pushes nrec_t onto nrarr_t");
+    CHECK(strstr(c, "nrarr_get") != NULL, "grow_t C loads nrec_t from nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow_t C compiles and runs");
+    CHECK(status == 2, "grow_t() length is 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_nested_record_pack_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -2110,6 +2184,8 @@ int main(int argc, char **argv) {
     test_blank_s_runs_without_nano_vm();
     test_grow_s_runs_without_nano_vm();
     test_get_s_runs_without_nano_vm();
+    test_blank_t_runs_without_nano_vm();
+    test_grow_t_runs_without_nano_vm();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();

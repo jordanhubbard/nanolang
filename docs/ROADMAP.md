@@ -1182,10 +1182,12 @@ Compiler product:
       to build the compiler. Nested records and bool fields are not
       this pin. Lists of records are not this pin.
       `make test-nanoisa-src-nano` (78 passed).
-- [ ] Cut A record lists: the same pin matches a `List<Tok>` identity
+- [x] Cut A record lists: the same pin matches `blank_t`/`grow_t`
       (`list_Tok_new` as `ARR_NEW 1`, `list_Tok_push` as `ARR_PUSH`
-      then `POP`). Nested records stay refused. `list_T_set` is not
-      this pin. I still pretty-print C to build the compiler.
+      then `POP`, `list_Tok_get` as `ARR_GET`) bytecode with the C
+      seed. Nested records stay refused. `list_T_set` is not this pin.
+      I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (82 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1276,8 +1278,11 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `get_s` (string field of a record) without
       `nano_vm`. Nested records stay refused.
       `make test-nvm2c` (299 passed).
-- [ ] `nvm2c` runs a Cut A list of records (`ARR_PUSH` of `nrec_t`)
-      without `nano_vm`. Nested records stay refused.
+- [x] `nvm2c` runs a Cut A list of records (`ARR_PUSH` of `nrec_t`)
+      without `nano_vm`. Nested records stay refused. `blank_t` exits
+      0. I classify `ARR_NEW 1` as a record list from the pushed
+      value. Cut A `grow_t` length is 2 without `nano_vm`.
+      `make test-nvm2c` (311 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

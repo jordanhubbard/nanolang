@@ -337,3 +337,23 @@ fn get_s() -> string {
 shadow get_s {
     assert (== (get_s) "hi")
 }
+
+fn blank_t() -> int {
+    let xs: List<Tok> = (list_Tok_new)
+    return (list_Tok_length xs)
+}
+
+shadow blank_t {
+    assert (== (blank_t) 0)
+}
+
+fn grow_t() -> string {
+    let xs: List<Tok> = (list_Tok_new)
+    (list_Tok_push xs Tok { t: 1, s: "hi" })
+    let p: Tok = (list_Tok_get xs 0)
+    return p.s
+}
+
+shadow grow_t {
+    assert (== (grow_t) "hi")
+}

@@ -9,11 +9,12 @@
  *
  * Closed subset: i64 constants, locals, integer arithmetic and comparisons,
  * CALL/TAIL_CALL, JMP/JMP_FALSE, RET, HALT, PUSH_STR, STR_CONCAT, STR_LEN,
- * ARR_LITERAL, ARR_GET, ARR_LEN, ARR_PUSH of array<int> and array<string>,
- * ARR_NEW of array<int> or a string list as a heap object so ARR_PUSH then
- * POP mutates the local the way the VM does (void list_int_push /
- * list_string_push). The C seed emits ARR_NEW tag 1 for every list_T_new;
- * string lists are classified from the pushed value.
+ * ARR_LITERAL, ARR_GET, ARR_LEN, ARR_PUSH of array<int>, array<string>,
+ * and lists of int/string records, ARR_NEW of array<int> or a string/record
+ * list as a heap object so ARR_PUSH then POP mutates the local the way the
+ * VM does (void list_int_push / list_string_push / list_Tok_push). The C
+ * seed emits ARR_NEW tag 1 for every list_T_new; string and record lists
+ * are classified from the pushed value.
  * AGG_PACK, AGG_GET of int and string fields, bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
  * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT. Anything else is refused with an error.
