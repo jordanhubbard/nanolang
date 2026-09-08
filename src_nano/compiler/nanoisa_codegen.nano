@@ -1601,6 +1601,36 @@ shadow nisa_stmt_terminates {
     assert (nisa_stmt_terminates p stmt)
 }
 
+fn nisa_emit_unsafe(parser: Parser, node_id: int) -> string {
+    let ub: ASTUnsafeBlock = (parser_get_unsafe_block parser node_id)
+    let n: int = (list_ASTStmtRef_length ub.statements)
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i n) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get ub.statements i)
+        set out (+ out (nisa_emit_stmt parser stmt))
+        if (nisa_stmt_terminates parser stmt) {
+            set i n
+        } else {
+            set i (+ i 1)
+        }
+    }
+    return out
+}
+
+shadow nisa_emit_unsafe {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n via_raw() -> int { unsafe { return 7 } } shadow via_raw { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let text: string = (nisa_emit_function p func)
+    assert (str_contains text ".function via_raw 0 0 0 int 1")
+    assert (str_contains text "PUSH_I64 7")
+    assert (str_contains text "RET")
+}
+
 fn nisa_emit_if(parser: Parser, node: ASTIf) -> string {
     let l_else: string = (nisa_fresh)
     let cnd_text: string = (nisa_emit_expr parser node.condition node.condition_type)
@@ -1841,7 +1871,11 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                                 let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
                                 return (+ expr (nisa_line "POP"))
                             } else {
-                                return (nisa_fail "statement outside the pinned subset")
+                                if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
+                                    return (nisa_emit_unsafe parser stmt.node_id)
+                                } else {
+                                    return (nisa_fail (+ "statement outside the pinned subset " (int_to_string stmt.node_type)))
+                                }
                             }
                         }
                     }

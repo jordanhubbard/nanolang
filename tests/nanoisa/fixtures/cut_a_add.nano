@@ -655,3 +655,13 @@ fn via_imp_add() -> int {
 shadow via_imp_add {
     assert (== (via_imp_add) 42)
 }
+
+fn via_raw() -> int {
+    unsafe {
+        return 7
+    }
+}
+
+shadow via_raw {
+    assert (== (via_raw) 7)
+}

@@ -50,7 +50,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
   `via_new_l`, `one_t`, `via_one_t`, `one_lex`, `via_one_lex`,
   `in_az`, `via_az`, `tag`, `via_tag`, `tok_mod`, `via_tok_mod`,
-  `imp_add`, and `via_imp_add`.
+  `imp_add`, `via_imp_add`, and `via_raw`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -83,7 +83,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`tok_mod` / `via_tok_mod`; local enums stay first in `def_idx`).
   One-level nested pin-record field types so `List<CompilerDiagnostic>`
   parameters type-check. Imported functions (`imp_add` / `via_imp_add`)
-  `CALL`/`TAIL_CALL` by name. Nested `AGG_PACK` stays refused.
+  `CALL`/`TAIL_CALL` by name. `unsafe` blocks emit inner statements
+  (`via_raw`). Nested `AGG_PACK` stays refused.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.
@@ -156,8 +157,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_one_lex` exits 2. `I64_GE_S`/`I64_LE_S` run as native C:
   `via_az` exits 1. `ENUM_VAL` runs as native C: `via_tag` exits
   the discriminant 19. Imported `ENUM_VAL` runs as native C:
-  `via_tok_mod` exits 19. `via_imp_add` exits 42.
-  `make test-nvm2c` (434 passed).
+  `via_tok_mod` exits 19. `via_imp_add` exits 42. `via_raw` exits 7.
+  `make test-nvm2c` (440 passed).
 
 ## [4.5.0] - 2026-09-07
 

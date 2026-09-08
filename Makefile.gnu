@@ -450,7 +450,8 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	if grep -F "unsupported param type List<LexerToken>" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
 	if grep -F "unsupported param type List<CompilerDiagnostic>" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
 	if grep -F "undefined function diag_lexer_error" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "unsupported result type CompilerSourceLocation" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi
+	if grep -F "unsupported result type CompilerSourceLocation" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
+	if grep -F "statement outside the pinned subset 37" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

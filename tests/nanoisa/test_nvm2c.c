@@ -2747,6 +2747,31 @@ static void test_via_imp_add_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_raw: unsafe { return 7 } is the same bytecode as return 7. */
+static void test_via_raw_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_raw fixture");
+    CHECK(m != NULL, "via_raw fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_raw");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_raw C does not name nano_vm");
+    CHECK(strstr(c, "7LL") != NULL, "via_raw C uses 7");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_raw C compiles and runs");
+    CHECK(status == 7, "via_raw() exits 7 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2983,6 +3008,7 @@ int main(int argc, char **argv) {
     test_via_tag_runs_without_nano_vm();
     test_via_tok_mod_runs_without_nano_vm();
     test_via_imp_add_runs_without_nano_vm();
+    test_via_raw_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

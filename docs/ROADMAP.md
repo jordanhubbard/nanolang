@@ -1324,10 +1324,19 @@ Compiler product:
       `make test-nanoisa-src-nano` (142 passed; `lexer.nano` no longer
       names `undefined function diag_lexer_error`; it names
       `statement outside the pinned subset`).
+- [x] Cut A `unsafe` blocks: `nisa_emit_unsafe` emits inner statements
+      the way the C seed compiles `AST_UNSAFE_BLOCK`. `via_raw` bytecode
+      matches the C seed. The C seed still treats `unsafe` as falling
+      through at the function-body level. Nested `AGG_PACK` and host
+      `CALL_EXTERN` stay refused. I still pretty-print C to build the
+      compiler.
+      `make test-nanoisa-src-nano` (144 passed; `lexer.nano` no longer
+      names `statement outside the pinned subset 37`; it names
+      `undefined function getcwd`).
 - [ ] Cut A nested `AGG_PACK` and remaining statements: `lexer.nano` still
-      names `statement outside the pinned subset` after imported functions
-      type-check. Nested record literals and expression statements are
-      in that bucket. I still pretty-print C to build the compiler.
+      names `undefined function getcwd` after `unsafe` is transparent.
+      Host FFI (`CALL_EXTERN`) and nested record literals are in that
+      bucket. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1481,6 +1490,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_imp_add` (`TAIL_CALL` of imported `imp_add`)
       without `nano_vm`.
       `make test-nvm2c` (434 passed).
+- [x] `nvm2c` runs Cut A `via_raw` (`unsafe { return 7 }` as `PUSH_I64 7`
+      then `RET`) without `nano_vm`.
+      `make test-nvm2c` (440 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
