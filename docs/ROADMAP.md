@@ -1152,6 +1152,11 @@ Compiler product:
       (`STR_SUBSTR`) bytecode with the C seed. I still pretty-print
       C to build the compiler. `STR_TRIM` and the rest of the string
       library are not this pin. `make test-nanoisa-src-nano` (66 passed).
+- [x] Cut A List<int> empty: the same pin matches `blank_l`
+      (`list_int_new` as `ARR_NEW 1`, `list_int_length` as `ARR_LEN`)
+      bytecode with the C seed. I still pretty-print C to build the
+      compiler. `list_int_push` as a void statement is not this pin.
+      `make test-nanoisa-src-nano` (68 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1223,6 +1228,10 @@ Compiler product:
       `make test-nvm2c` (253 passed).
 - [x] `nvm2c` runs Cut A `slice` (`STR_SUBSTR`) without `nano_vm`.
       `STR_TRIM` stays refused. `make test-nvm2c` (261 passed).
+- [x] `nvm2c` runs Cut A `blank_l` (`ARR_NEW` of `array<int>`) without
+      `nano_vm`. `make test-nvm2c` (266 passed).
+- [ ] `nvm2c` preserves array identity across `ARR_PUSH` then `POP` so
+      void `list_int_push` mutates the local the way the VM heap does.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

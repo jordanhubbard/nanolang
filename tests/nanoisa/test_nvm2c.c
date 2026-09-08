@@ -1504,6 +1504,36 @@ static void test_str_substr_array_is_refused(void) {
     nvm_module_free(m);
 }
 
+static void test_blank_l_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function blank_l 0 1 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL blank_l\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "blank_l fixture");
+    CHECK(m != NULL, "blank_l fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for blank_l");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "blank_l C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "blank_l C compiles and runs");
+    CHECK(status == 0, "blank_l() exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1850,6 +1880,7 @@ int main(int argc, char **argv) {
     test_slen_runs_without_nano_vm();
     test_slice_runs_without_nano_vm();
     test_str_substr_array_is_refused();
+    test_blank_l_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

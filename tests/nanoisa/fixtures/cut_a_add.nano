@@ -277,3 +277,12 @@ fn slice(s: string) -> string {
 shadow slice {
     assert (== (slice "hi") "h")
 }
+
+fn blank_l() -> int {
+    let xs: List<int> = (list_int_new)
+    return (list_int_length xs)
+}
+
+shadow blank_l {
+    assert (== (blank_l) 0)
+}

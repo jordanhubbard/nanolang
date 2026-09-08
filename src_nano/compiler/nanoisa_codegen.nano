@@ -224,7 +224,9 @@ fn nisa_local_type_ok(t: string) -> bool {
             if (== t "bool") {
                 return true
             } else {
-                return (or (== t "array<int>") (== t "array<string>"))
+                return (or (== t "array<int>")
+                           (or (== t "array<string>")
+                               (or (== t "List<int>") (== t "list_int"))))
             }
         }
     }
@@ -236,6 +238,8 @@ shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "bool")
     assert (nisa_local_type_ok "array<int>")
     assert (nisa_local_type_ok "array<string>")
+    assert (nisa_local_type_ok "List<int>")
+    assert (nisa_local_type_ok "list_int")
     assert (not (nisa_local_type_ok "array<bool>"))
 }
 
@@ -269,7 +273,9 @@ fn nisa_is_inline_call(name: string) -> bool {
                    (or (== name "not")
                        (or (== name "str_contains")
                            (or (== name "int_to_string")
-                               (or (== name "str_length") (== name "str_substring")))))))
+                               (or (== name "str_length")
+                                   (or (== name "str_substring")
+                                       (or (== name "list_int_new") (== name "list_int_length")))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -280,6 +286,8 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "int_to_string")
     assert (nisa_is_inline_call "str_length")
     assert (nisa_is_inline_call "str_substring")
+    assert (nisa_is_inline_call "list_int_new")
+    assert (nisa_is_inline_call "list_int_length")
     assert (nisa_is_inline_call "at")
     assert (not (nisa_is_inline_call "add"))
 }
@@ -647,7 +655,14 @@ shadow nisa_emit_field_access {
 
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-    if (== func_id.name "array_length") {
+    if (== func_id.name "list_int_new") {
+        if (!= call.arg_count 0) {
+            return (nisa_fail "list_int_new needs 0 arguments")
+        } else {
+            return (nisa_line_imm "ARR_NEW" "1")
+        }
+    } else {
+    if (or (== func_id.name "array_length") (== func_id.name "list_int_length")) {
         if (!= call.arg_count 1) {
             return (nisa_fail "array_length needs 1 argument")
         } else {
@@ -727,6 +742,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                 }
             }
         }
+    }
     }
 }
 
@@ -1385,6 +1401,14 @@ shadow nisa_emit_function {
     let slice_text: string = (nisa_emit_function p23 slice_fn)
     assert (str_contains slice_text ".function slice 1 1 0 string 1")
     assert (str_contains slice_text "STR_SUBSTR")
+    let src24: string = (+ "f" "n blank_l() -> int { let xs: List<int> = (list_int_new) return (list_int_length xs) } shadow blank_l { assert true }")
+    let toks24: List<LexerToken> = (tokenize_string src24 "t.nano" diags)
+    let p24: Parser = (parse_program toks24 (list_LexerToken_length toks24) "t.nano")
+    let blank_fn: ASTFunction = (parser_get_function p24 0)
+    let blank_text: string = (nisa_emit_function p24 blank_fn)
+    assert (str_contains blank_text ".function blank_l 0 1 0 int 1")
+    assert (str_contains blank_text "ARR_NEW 1")
+    assert (str_contains blank_text "ARR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

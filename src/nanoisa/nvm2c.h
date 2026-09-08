@@ -10,6 +10,7 @@
  * Closed subset: i64 constants, locals, integer arithmetic and comparisons,
  * CALL/TAIL_CALL, JMP/JMP_FALSE, RET, HALT, PUSH_STR, STR_CONCAT, STR_LEN,
  * ARR_LITERAL, ARR_GET, ARR_LEN, ARR_PUSH of array<int> and array<string>,
+ * ARR_NEW of array<int>,
  * AGG_PACK, AGG_GET, bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
  * EQ/NE of strings, STR_SUBSTR. Anything else is refused with an error.

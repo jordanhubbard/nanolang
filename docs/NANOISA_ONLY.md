@@ -208,17 +208,17 @@ Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
 string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
 `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
-`digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`, and
-`slice`
-(66 passed; function
+`digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
+`slice`, and `blank_l`
+(68 passed; function
 bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
 results as i64 0/1, `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`,
 `cond` as `JMP_FALSE`/`JMP` with one `RET`, `PRINT`, `PRINTLN`,
 `ASSERT`, `STR_CONTAINS`, `CAST_STRING` of i64, `EQ`/`NE` of
-strings, `at` as `ARR_GET`, `str_length` as `STR_LEN`, and
-`str_substring` as `STR_SUBSTR`). String operands
+strings, `at` as `ARR_GET`, `str_length` as `STR_LEN`,
+`str_substring` as `STR_SUBSTR`, and `list_int_new` as `ARR_NEW 1`). String operands
 are compared by content, not pool index. I still pretty-print C to
 build the compiler. The full dual of `codegen.c` is not this pin.
 
@@ -247,7 +247,8 @@ string arrays (`ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_GET`, `ARR_LEN`;
 `names` and `head_s` run as native C), Cut A string equality
 (`EQ`/`NE`; `same` and `diff` run as native C), and Cut A
 `at`/`str_length` (`via_at` and `slen` run as native C), and Cut A
-`str_substring` (`STR_SUBSTR`; `slice` runs as native C). Nested arrays,
+`str_substring` (`STR_SUBSTR`; `slice` runs as native C), and Cut A
+empty `List<int>` (`ARR_NEW`; `blank_l` runs as native C). Nested arrays,
 nested records, `ARR_SET`, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, substring of arrays, and printing
 arrays/records stay refused. The rest of the

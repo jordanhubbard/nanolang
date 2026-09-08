@@ -426,6 +426,18 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_ARR_NEW: {
+            uint8_t tag = ins.operands[0].u8;
+            if (tag == TAG_STRING) {
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
+            } else if (tag == TAG_INT) {
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, -1)) return 0;
+            } else {
+                nvm2c_fail(b, "function %u: ARR_NEW only supports int or string elements", idx);
+                return 0;
+            }
+            break;
+        }
         case OP_ARR_LEN: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -1253,6 +1265,18 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             char expr[48];
             snprintf(expr, sizeof expr, "nstr_from_i64(t[%d])", v);
             stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_ARR_NEW: {
+            uint8_t tag = ins.operands[0].u8;
+            if (tag == TAG_INT) {
+                stack_push_arr(b, &st, "(narr_t){0}");
+            } else if (tag == TAG_STRING) {
+                stack_push_sarr(b, &st, "(nsarr_t){0}");
+            } else {
+                nvm2c_fail(b, "function %u: ARR_NEW only supports int or string elements", idx);
+                goto done;
+            }
             break;
         }
         case OP_ARR_LITERAL: {
