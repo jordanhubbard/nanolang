@@ -1420,9 +1420,23 @@ Compiler product:
       `make test-nanoisa-src-nano` (212 passed). `module_loader.nano`
       names `string concat needs two strings`. I still pretty-print C
       to build the compiler.
-- [ ] Cut A string concat of a string-returning call: `module_loader.nano`
-      uses `(+ cand ".nano")` after `module_path_join`. I still pretty-print
-      C to build the compiler.
+- [x] Cut A `str_substring` as a concat operand: `via_substr_concat`
+      matches the C seed (`STR_SUBSTR` then `STR_CONCAT`). A `+` with a
+      string on either side is `STR_CONCAT`. `make test-nanoisa-src-nano`
+      (214 passed).
+- [x] Cut A `EQ` when one side is a string: `via_at_eq` matches the C seed
+      (`(== (at xs 0) "a")` is `EQ`, not `I64_EQ`).
+      `make test-nanoisa-src-nano` (216 passed). `module_loader.nano` names
+      `undefined function getenv`. I still pretty-print C to build the
+      compiler.
+- [x] Cut A host `getenv`: `via_env` matches the C seed (`CALL_EXTERN`
+      `vm_getenv`). `make test-nanoisa-src-nano` (218 passed).
+      `module_loader.nano` names `undefined local extern_func_names`
+      (from ingested `transpiler.nano`). I still pretty-print C to build
+      the compiler.
+- [ ] Cut A module-level locals: `transpiler.nano` names
+      `extern_func_names` at module scope. I still pretty-print C to
+      build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

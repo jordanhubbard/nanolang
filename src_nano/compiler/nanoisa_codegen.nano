@@ -1164,13 +1164,36 @@ fn nisa_os_sym(name: string) -> string {
     if (== name "getcwd") {
         return "vm_getcwd"
     } else {
-        return ""
+        if (== name "getenv") {
+            return "vm_getenv"
+        } else {
+            return ""
+        }
     }
 }
 
 shadow nisa_os_sym {
     assert (== (nisa_os_sym "getcwd") "vm_getcwd")
+    assert (== (nisa_os_sym "getenv") "vm_getenv")
     assert (== (nisa_os_sym "add") "")
+}
+
+fn nisa_os_arity(name: string) -> int {
+    if (== name "getcwd") {
+        return 0
+    } else {
+        if (== name "getenv") {
+            return 1
+        } else {
+            return (- 0 1)
+        }
+    }
+}
+
+shadow nisa_os_arity {
+    assert (== (nisa_os_arity "getcwd") 0)
+    assert (== (nisa_os_arity "getenv") 1)
+    assert (== (nisa_os_arity "add") (- 0 1))
 }
 
 fn nisa_ext_index(sym: string) -> int {
@@ -1270,11 +1293,18 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall) -> string {
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
     let os: string = (nisa_os_sym func_id.name)
     if (!= os "") {
-        if (!= call.arg_count 0) {
-            return (nisa_fail "getcwd needs 0 arguments")
+        let arity: int = (nisa_os_arity func_id.name)
+        if (!= call.arg_count arity) {
+            return (nisa_fail (+ func_id.name " wrong arity"))
         } else {
-            let idx: int = (nisa_ensure_extern os "string" "")
-            return (nisa_line_imm "CALL_EXTERN" (int_to_string idx))
+            let mut params: string = ""
+            if (== arity 1) {
+                set params "string"
+            } else {
+                (print "")
+            }
+            let idx: int = (nisa_ensure_extern os "string" params)
+            return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string idx)))
         }
     } else {
         let fidx: int = (nisa_fn_index parser func_id.name)
@@ -1413,7 +1443,11 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     let call: ASTCall = (parser_get_call parser node_id)
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                    if (or (== func_id.name "int_to_string") (or (== func_id.name "getcwd") (== func_id.name "str_concat"))) {
+                    if (or (== func_id.name "int_to_string")
+                           (or (== func_id.name "getcwd")
+                               (or (== func_id.name "getenv")
+                                   (or (== func_id.name "str_concat")
+                                       (== func_id.name "str_substring"))))) {
                         return true
                     } else {
                     let fidx: int = (nisa_fn_index parser func_id.name)
@@ -2320,7 +2354,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                     let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
                     let left_s: bool = (nisa_expr_is_string parser binop.left binop.left_type)
                     let right_s: bool = (nisa_expr_is_string parser binop.right binop.right_type)
-                    if (and left_s right_s) {
+                    if (or left_s right_s) {
                         if (== binop.op LexerTokenType.TOKEN_PLUS) {
                             let left: string = (nisa_emit_expr parser binop.left binop.left_type)
                             let right: string = (nisa_emit_expr parser binop.right binop.right_type)
@@ -2341,9 +2375,6 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                             }
                         }
                     } else {
-                        if (or left_s right_s) {
-                            return (nisa_fail "string concat needs two strings")
-                        } else {
                             let left_b: bool = (nisa_expr_is_bool parser binop.left binop.left_type)
                             let right_b: bool = (nisa_expr_is_bool parser binop.right binop.right_type)
                             if (and (and left_b right_b)
@@ -2366,7 +2397,6 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                 return (+ (+ left right) (nisa_line mnemonic))
                             }
                             }
-                        }
                     }
                 } else {
                     if (== node_type ParseNodeType.PNODE_CALL) {

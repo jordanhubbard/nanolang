@@ -1010,3 +1010,30 @@ fn via_blank_a() -> int {
 shadow via_blank_a {
     assert (== (via_blank_a) 0)
 }
+
+fn via_substr_concat() -> string {
+    return (+ (str_substring "ab" 0 1) ".nano")
+}
+
+shadow via_substr_concat {
+    assert (== (via_substr_concat) "a.nano")
+}
+
+fn via_at_eq() -> bool {
+    let xs: array<string> = ["a"]
+    return (== (at xs 0) "a")
+}
+
+shadow via_at_eq {
+    assert (via_at_eq)
+}
+
+fn via_env() -> string {
+    unsafe {
+        return (getenv "PATH")
+    }
+}
+
+shadow via_env {
+    assert (> (str_length (via_env)) 0)
+}
