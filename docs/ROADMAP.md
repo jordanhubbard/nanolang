@@ -1275,6 +1275,7 @@ Compiler product:
       with the C seed. The self-hosted parser must keep variant
       names and discriminants on `ASTEnum`. Nested unions stay
       refused. I still pretty-print C to build the compiler.
+      MAC `task_e0d3eb53f3eb44b8b97c236e8c14e28a`.
 - [ ] I print `nisa_err` from `nanoisa_emit` when I refuse a program,
       so the next Cut A hole is named rather than only "outside the
       pinned subset".
