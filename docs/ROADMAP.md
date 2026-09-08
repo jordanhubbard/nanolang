@@ -1121,8 +1121,9 @@ Compiler product:
       with the C seed. Print does not leave a value. I still
       pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (44 passed).
-- [ ] Cut A assert: the same pin matches `prove` (`ASSERT`) bytecode
+- [x] Cut A assert: the same pin matches `prove` (`ASSERT`) bytecode
       with the C seed. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (46 passed).
 - [ ] Cut A array_push: the same pin matches `grow` (`ARR_PUSH` of
       `array<int>`) bytecode with the C seed. String arrays are not
       this pin. I still pretty-print C to build the compiler.
@@ -1185,8 +1186,8 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `say`, `shout`, and `mutter` without `nano_vm`.
       Printing arrays and records stays refused.
       `make test-nvm2c` (177 passed).
-- [ ] `nvm2c` runs Cut A `prove` (`ASSERT`) without `nano_vm`.
-      False asserts abort the process.
+- [x] `nvm2c` runs Cut A `prove` (`ASSERT`) without `nano_vm`.
+      False asserts abort the process. `make test-nvm2c` (188 passed).
 - [ ] `nvm2c` runs Cut A `grow` (`ARR_PUSH` of `array<int>`) without
       `nano_vm`. String arrays stay refused.
 - [ ] `nvm2c` runs Cut A `has_hi` (`STR_CONTAINS`) without `nano_vm`.

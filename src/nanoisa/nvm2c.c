@@ -271,6 +271,12 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             (void)dumped;
             break;
         }
+        case OP_ASSERT: {
+            Nvm2cSimSlot dumped;
+            if (!sim_pop(b, idx, stk, &sp, &dumped)) return 0;
+            (void)dumped;
+            break;
+        }
         case OP_SWAP: {
             Nvm2cSimSlot x, y;
             if (!sim_pop(b, idx, stk, &sp, &x)) return 0;
@@ -947,6 +953,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_puts(b, "    fflush(stdout);\n");
             break;
         }
+        case OP_ASSERT: {
+            int cond = stack_pop_expect(b, &st, NVM2C_VK_INT, "ASSERT");
+            if (b->failed) goto done;
+            nvm2c_printf(b, "    if (!t[%d]) abort();\n", cond);
+            break;
+        }
         case OP_SWAP: {
             uint8_t kx = 0, ky = 0;
             int x = stack_pop_kind(b, &st, &kx);
@@ -1438,6 +1450,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_agg_get = module_has_opcode(mod, OP_AGG_GET);
         int need_print = module_has_opcode(mod, OP_PRINT) ||
             module_has_opcode(mod, OP_PRINTLN);
+        int need_assert = module_has_opcode(mod, OP_ASSERT);
         uint32_t i;
         for (i = 0; i < mod->function_count && !need_string; i++) {
             const NvmFunctionEntry *fn = &mod->functions[i];
@@ -1455,7 +1468,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_print) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
-        if (need_concat || need_arr_lit || need_arr_get || need_agg_get) {
+        if (need_concat || need_arr_lit || need_arr_get || need_agg_get || need_assert) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");

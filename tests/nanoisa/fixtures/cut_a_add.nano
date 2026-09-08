@@ -179,3 +179,12 @@ fn mutter() -> int {
 shadow mutter {
     assert (== (mutter) 0)
 }
+
+fn prove(b: bool) -> int {
+    assert b
+    return 0
+}
+
+shadow prove {
+    assert (== (prove true) 0)
+}

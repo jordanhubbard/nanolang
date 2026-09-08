@@ -7,7 +7,7 @@
  * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET),
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
  * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
- * print (PRINT), and println (PRINTLN).
+ * print (PRINT), println (PRINTLN), and assert (ASSERT).
  * Anything else fails closed. I do not emit C. I do not delete
  * transpiler.nano.
  */
@@ -943,6 +943,27 @@ shadow nisa_emit_while {
     assert (str_contains text "JMP L")
 }
 
+fn nisa_emit_assert(parser: Parser, node: ASTAssert) -> string {
+    let ok_text: string = (nisa_emit_expr parser node.condition node.condition_type)
+    return (+ ok_text (nisa_line "ASSERT"))
+}
+
+shadow nisa_emit_assert {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n prove(b: bool) -> int { assert b return 0 } shadow prove { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    set nisa_names (array_push nisa_names "b")
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let node: ASTAssert = (parser_get_assert p stmt.node_id)
+    let text: string = (nisa_emit_assert p node)
+    assert (str_contains text "LOAD_LOCAL 0")
+    assert (str_contains text "ASSERT")
+}
+
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
         let r: ASTReturn = (parser_get_return parser stmt.node_id)
@@ -993,6 +1014,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         let w: ASTWhile = (parser_get_while parser stmt.node_id)
                         return (nisa_emit_while parser w)
                     } else {
+                        if (== stmt.node_type ParseNodeType.PNODE_ASSERT) {
+                            let node: ASTAssert = (parser_get_assert parser stmt.node_id)
+                            return (nisa_emit_assert parser node)
+                        } else {
                         if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                             let call: ASTCall = (parser_get_call parser stmt.node_id)
                             let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
@@ -1013,6 +1038,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                                 return (nisa_fail "statement outside the pinned subset")
                             }
                         }
+                    }
                     }
                 }
             }
@@ -1194,6 +1220,13 @@ shadow nisa_emit_function {
     let shout_fn: ASTFunction = (parser_get_function p12 0)
     let shout_text: string = (nisa_emit_function p12 shout_fn)
     assert (str_contains shout_text "PRINTLN")
+    let src13: string = (+ "f" "n prove(b: bool) -> int { assert b return 0 } shadow prove { assert true }")
+    let toks13: List<LexerToken> = (tokenize_string src13 "t.nano" diags)
+    let p13: Parser = (parse_program toks13 (list_LexerToken_length toks13) "t.nano")
+    let prove_fn: ASTFunction = (parser_get_function p13 0)
+    let prove_text: string = (nisa_emit_function p13 prove_fn)
+    assert (str_contains prove_text ".function prove 1 1 0 int 1")
+    assert (str_contains prove_text "ASSERT")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
