@@ -296,3 +296,11 @@ fn grow_l() -> int {
 shadow grow_l {
     assert (== (grow_l) 7)
 }
+
+fn ch() -> int {
+    return (char_at "hi" 0)
+}
+
+shadow ch {
+    assert (== (ch) 104)
+}

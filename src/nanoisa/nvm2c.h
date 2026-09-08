@@ -14,7 +14,7 @@
  * the local the way the VM does (void list_int_push),
  * AGG_PACK, AGG_GET, bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
- * EQ/NE of strings, STR_SUBSTR. Anything else is refused with an error.
+ * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT. Anything else is refused with an error.
  * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
  * host C ABI. Embedded NULs, nested arrays, nested records, variants, tuples,
  * printing arrays/records, array equality, STR_TRIM, and the rest of the

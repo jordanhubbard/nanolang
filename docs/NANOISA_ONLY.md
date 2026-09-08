@@ -209,8 +209,8 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
 `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
 `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
-`slice`, `blank_l`, and `grow_l`
-(70 passed; function
+`slice`, `blank_l`, `grow_l`, and `ch`
+(72 passed; function
 bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
@@ -219,8 +219,8 @@ results as i64 0/1, `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`,
 `ASSERT`, `STR_CONTAINS`, `CAST_STRING` of i64, `EQ`/`NE` of
 strings, `at` as `ARR_GET`, `str_length` as `STR_LEN`,
 `str_substring` as `STR_SUBSTR`, `list_int_new` as `ARR_NEW 1`,
-void `list_int_push` as `ARR_PUSH` then `POP`, and `list_int_get`
-as `ARR_GET`). String operands
+void `list_int_push` as `ARR_PUSH` then `POP`, `list_int_get`
+as `ARR_GET`, and `char_at` as `STR_CHAR_AT`). String operands
 are compared by content, not pool index. I still pretty-print C to
 build the compiler. The full dual of `codegen.c` is not this pin.
 
@@ -252,7 +252,8 @@ string arrays (`ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_GET`, `ARR_LEN`;
 `str_substring` (`STR_SUBSTR`; `slice` runs as native C), and Cut A
 empty `List<int>` (`ARR_NEW`; `blank_l` runs as native C), and Cut A
 void `list_int_push` (`ARR_PUSH` then `POP` keeps array identity;
-`grow_l` runs as native C). Nested arrays,
+`grow_l` runs as native C), and Cut A `char_at` (`STR_CHAR_AT`;
+`ch` runs as native C; out of range is `-1`). Nested arrays,
 nested records, `ARR_SET`, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, substring of arrays, and printing
 arrays/records stay refused. The rest of the

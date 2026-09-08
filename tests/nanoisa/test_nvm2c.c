@@ -1569,6 +1569,68 @@ static void test_grow_l_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_ch_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function ch 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_I64 0\n"
+        "  STR_CHAR_AT\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL ch\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "ch fixture");
+    CHECK(m != NULL, "ch fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for ch");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "ch C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "ch C compiles and runs");
+    CHECK(status == 104, "ch() exits 104 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_ch_oob_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function miss 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_I64 9\n"
+        "  STR_CHAR_AT\n"
+        "  PUSH_I64 0\n"
+        "  I64_LT_S\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL miss\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "STR_CHAR_AT oob fixture");
+    CHECK(m != NULL, "STR_CHAR_AT oob fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_CHAR_AT oob");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_CHAR_AT oob C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_CHAR_AT oob C compiles and runs");
+    CHECK(status == 1, "STR_CHAR_AT out of range is -1");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1917,6 +1979,8 @@ int main(int argc, char **argv) {
     test_str_substr_array_is_refused();
     test_blank_l_runs_without_nano_vm();
     test_grow_l_runs_without_nano_vm();
+    test_ch_runs_without_nano_vm();
+    test_ch_oob_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

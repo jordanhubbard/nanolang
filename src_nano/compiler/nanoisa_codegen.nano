@@ -267,17 +267,30 @@ shadow nisa_is_print_builtin {
     assert (not (nisa_is_print_builtin "add"))
 }
 
+fn nisa_is_list_int_call(name: string) -> bool {
+    return (or (== name "list_int_new")
+               (or (== name "list_int_length")
+                   (or (== name "list_int_push") (== name "list_int_get"))))
+}
+
+shadow nisa_is_list_int_call {
+    assert (nisa_is_list_int_call "list_int_new")
+    assert (nisa_is_list_int_call "list_int_length")
+    assert (nisa_is_list_int_call "list_int_push")
+    assert (nisa_is_list_int_call "list_int_get")
+    assert (not (nisa_is_list_int_call "list_string_new"))
+}
+
 fn nisa_is_inline_call(name: string) -> bool {
     return (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
-                   (or (== name "not")
-                       (or (== name "str_contains")
-                           (or (== name "int_to_string")
-                               (or (== name "str_length")
-                                   (or (== name "str_substring")
-                                       (or (== name "list_int_new")
-                                           (or (== name "list_int_length")
-                                               (or (== name "list_int_push") (== name "list_int_get")))))))))))
+                   (or (nisa_is_list_int_call name)
+                       (or (== name "not")
+                           (or (== name "str_contains")
+                               (or (== name "int_to_string")
+                                   (or (== name "str_length")
+                                       (or (== name "str_substring")
+                                           (or (== name "char_at") (== name "str_char_at"))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -292,6 +305,8 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "list_int_length")
     assert (nisa_is_inline_call "list_int_push")
     assert (nisa_is_inline_call "list_int_get")
+    assert (nisa_is_inline_call "char_at")
+    assert (nisa_is_inline_call "str_char_at")
     assert (nisa_is_inline_call "at")
     assert (not (nisa_is_inline_call "add"))
 }
@@ -715,6 +730,13 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                     return (+ (nisa_emit_call_args parser call) (nisa_line "STR_SUBSTR"))
                                 }
                             } else {
+                            if (or (== func_id.name "char_at") (== func_id.name "str_char_at")) {
+                                if (!= call.arg_count 2) {
+                                    return (nisa_fail "char_at needs 2 arguments")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CHAR_AT"))
+                                }
+                            } else {
                             if (== func_id.name "not") {
                                 if (!= call.arg_count 1) {
                                     return (nisa_fail "not needs 1 argument")
@@ -739,6 +761,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
                                     }
                                 }
+                            }
                             }
                             }
                         }
@@ -1422,6 +1445,13 @@ shadow nisa_emit_function {
     assert (str_contains grow_l_text "ARR_PUSH")
     assert (str_contains grow_l_text "POP")
     assert (str_contains grow_l_text "ARR_GET")
+    let src26: string = (+ "f" "n ch() -> int { return (char_at \"hi\" 0) } shadow ch { assert true }")
+    let toks26: List<LexerToken> = (tokenize_string src26 "t.nano" diags)
+    let p26: Parser = (parse_program toks26 (list_LexerToken_length toks26) "t.nano")
+    let ch_fn: ASTFunction = (parser_get_function p26 0)
+    let ch_text: string = (nisa_emit_function p26 ch_fn)
+    assert (str_contains ch_text ".function ch 0 0 0 int 1")
+    assert (str_contains ch_text "STR_CHAR_AT")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

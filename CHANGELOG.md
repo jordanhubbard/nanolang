@@ -44,7 +44,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
   `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
   `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
-  `slice`, `blank_l`, and `grow_l`.
+  `slice`, `blank_l`, `grow_l`, and `ch`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -54,8 +54,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `PRINT`, `PRINTLN`, `ASSERT`, `STR_CONTAINS`, `CAST_STRING` of
   i64, `EQ`/`NE` of strings, `at` as `ARR_GET`, `str_length` as
   `STR_LEN`, `str_substring` as `STR_SUBSTR`, `list_int_new` as
-  `ARR_NEW 1`, void `list_int_push` as `ARR_PUSH` then `POP`, and
-  `list_int_get` as `ARR_GET`. String operands
+  `ARR_NEW 1`, void `list_int_push` as `ARR_PUSH` then `POP`,
+  `list_int_get` as `ARR_GET`, and `char_at` as `STR_CHAR_AT`. String operands
   are compared by content. I still pretty-print C to build the
   compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
@@ -93,8 +93,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Substring of arrays and `STR_TRIM` stay refused. `ARR_NEW` of
   `array<int>` runs as native C: `blank_l` exits 0. Void
   `list_int_push` (`ARR_PUSH` then `POP`) mutates the local:
-  `grow_l` exits 7.
-  `make test-nvm2c` (271 passed).
+  `grow_l` exits 7. `STR_CHAR_AT` runs as native C: `ch` exits
+  104 and an out-of-range index is `-1`.
+  `make test-nvm2c` (281 passed).
 
 ## [4.5.0] - 2026-09-07
 

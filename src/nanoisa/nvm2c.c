@@ -391,6 +391,15 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
+        case OP_STR_CHAR_AT: {
+            Nvm2cSimSlot ix, s;
+            if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
+            (void)ix;
+            mark_str_origin(local_kind, nloc, s.origin);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
         case OP_CAST_STRING: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -1259,6 +1268,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_temp(b, &st, expr);
             break;
         }
+        case OP_STR_CHAR_AT: {
+            int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "STR_CHAR_AT index");
+            int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_CHAR_AT");
+            if (b->failed) goto done;
+            char expr[80];
+            snprintf(expr, sizeof expr, "nstr_char_at(s[%d], t[%d])", s, ix);
+            stack_push_temp(b, &st, expr);
+            break;
+        }
         case OP_CAST_STRING: {
             int v = stack_pop_expect(b, &st, NVM2C_VK_INT, "CAST_STRING");
             if (b->failed) goto done;
@@ -1676,6 +1694,16 @@ static void emit_nstr_substr(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nstr_char_at(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static int64_t nstr_char_at(const char *s, int64_t idx) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    size_t n = strlen(src);\n"
+        "    if (idx < 0 || (size_t)idx >= n) return -1;\n"
+        "    return (int64_t)(unsigned char)src[idx];\n"
+        "}\n\n");
+}
+
 static void emit_nstr_from_i64(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_from_i64(int64_t v) {\n"
@@ -1832,7 +1860,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
         int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
         int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
+        int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
         int need_string = need_concat || need_cast || need_contains || need_substr ||
+            need_char_at ||
             module_has_opcode(mod, OP_PUSH_STR) ||
             module_has_opcode(mod, OP_STR_LEN);
         int need_arr_lit = module_has_opcode(mod, OP_ARR_LITERAL);
@@ -1887,6 +1917,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_concat || need_cast || need_substr) emit_nstr_arena(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
+        if (need_char_at) emit_nstr_char_at(&b);
         if (need_cast) emit_nstr_from_i64(&b);
         if (need_iarr_new || need_iarr_lit) {
             emit_narr_new(&b);

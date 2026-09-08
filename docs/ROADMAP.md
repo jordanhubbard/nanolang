@@ -1162,6 +1162,11 @@ Compiler product:
       `ARR_GET`) bytecode with the C seed. I still pretty-print C to
       build the compiler. Typed lists other than `List<int>` are not
       this pin. `make test-nanoisa-src-nano` (70 passed).
+- [x] Cut A char_at: the same pin matches `ch` (`char_at` as
+      `STR_CHAR_AT`) bytecode with the C seed. I still pretty-print C
+      to build the compiler. Out-of-range index is `-1`, matching the
+      VM. `str_char_at` is the same opcode.
+      `make test-nanoisa-src-nano` (72 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1239,6 +1244,9 @@ Compiler product:
       void `list_int_push` mutates the local the way the VM heap does.
       Cut A `grow_l` exits 7 without `nano_vm`.
       `make test-nvm2c` (271 passed).
+- [x] `nvm2c` runs Cut A `ch` (`STR_CHAR_AT`) without `nano_vm`.
+      Index 0 of `"hi"` exits 104. Out of range is `-1`.
+      `make test-nvm2c` (281 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
