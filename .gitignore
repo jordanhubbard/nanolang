@@ -162,6 +162,7 @@ site/
 /tests/ml/test_ml
 /tests/actor/test_actor
 /tests/dataflow/test_dataflow
+/tests/object/test_object
 /tests/test_nsi
 /tests/test_nsi_gen
 /tests/test_nsi_runtime

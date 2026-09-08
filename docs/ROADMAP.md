@@ -115,11 +115,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       FFI isolation, debug, profiler, and `nvm2c`, and keeps language
       work in desugar/typecheck. Bounded goals are published before a
       language starts. Frontend-private opcodes fail closed. NanoLang
-      and Forth already accept a shared library. Scheme, ML, Actor, and Dataflow are
-      implemented as bounded laboratory frontends; Object and later are not.
+      and Forth already accept a shared library. Scheme, ML, Actor, Dataflow, and Object are
+      implemented as bounded laboratory frontends; Shell and later are not.
       `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
       `make test-frontend-contract`, `make test-scheme`, `make test-ml`,
-      `make test-actor`, `make test-dataflow`.
+      `make test-actor`, `make test-dataflow`, `make test-object`.
       MAC `task_e62d1cd35b49296604012df95de7911b`.
 - [ ] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
       Dataflow, Object, Shell, Logic, then the frontend matrix.
@@ -1213,9 +1213,9 @@ Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [x] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
       Optional fields on `NlFrontendFacts`; unknown effects fail closed.
 - [x] I will define bounded implementation and test goals before starting each frontend.
-      `nl_frontend_goal`; Scheme, ML, Actor, and Dataflow are implemented
+      `nl_frontend_goal`; Scheme, ML, Actor, Dataflow, and Object are implemented
       (`make test-scheme`, `make test-ml`, `make test-actor`,
-      `make test-dataflow`). Object and later remain unimplemented.
+      `make test-dataflow`, `make test-object`). Shell and later remain unimplemented.
 - [x] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
       `nl_frontend_opcode_allowed` is exactly `isa_get_info`.
 - [x] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
@@ -1268,9 +1268,12 @@ Nano Dataflow (MAC `task_9cb85a523c197b9e2c80ddcffe9ed31a`):
       Each `feed` is interned as `.string "feed <port> <value>"`.
 
 Nano Object (MAC `task_90023c92e9fb3841aab9fcc71d8cf90d`):
-- [ ] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
-- [ ] I will use it to test dynamic dispatch, inline caches, layout evolution, callable handles, image persistence, and debugger reflection.
-- [ ] I will measure specialization and quickening without exposing cache-specific operations in portable NanoISA.
+- [x] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
+      `src/object/object.c`, `docs/OBJECT.md`, `make test-object`.
+- [x] I will use it to test dynamic dispatch, inline caches, layout evolution, callable handles, image persistence, and debugger reflection.
+      Host IC per class+selector; `extend`; `handle`/`sendvia`; `nl_object_last_image`; `classof`/`slots`.
+- [x] I will measure specialization and quickening without exposing cache-specific operations in portable NanoISA.
+      `nl_object_last_ic_hits` / misses; no cache opcodes.
 
 Nano Shell (MAC `task_ee91ee94749200ab6309e6c05df3dd61`):
 - [ ] I will implement a capability-safe orchestration shell using structured values rather than text-only pipelines.
@@ -1778,7 +1781,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: 4.6 laboratory languages (Scheme, ML, Actor, and Dataflow done; Object next), then 5.0.
+Current Phase: 4.6 laboratory languages (through Object done; Shell next), then 5.0.
 The next public GitHub Release is 5.0, covering 4.6 and 5.0.
 Next Major Milestone: remaining 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after `make test-dataflow` and the next 4.6 language (Nano Object).
+Next Review: after `make test-object` and the next 4.6 language (Nano Shell).

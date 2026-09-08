@@ -76,10 +76,11 @@ Nano Scheme and Nano ML are implemented as bounded laboratory frontends
 Nano Actor is implemented as isolated NanoVM contexts in one host
 process (`docs/ACTOR.md`, `make test-actor`). Nano Dataflow is
 implemented as a deterministic in-process DAG (`docs/DATAFLOW.md`,
-`make test-dataflow`). Object, Shell, and Logic have published bounded
-goals in `nl_frontend_goal`. They are not implemented. Emitting a
-module labeled as one of them fails closed until that frontend's
-checkboxes in `docs/ROADMAP.md` Phase 21 are done.
+`make test-dataflow`). Nano Object is implemented as host dispatch with
+a host inline cache (`docs/OBJECT.md`, `make test-object`). Shell and
+Logic have published bounded goals in `nl_frontend_goal`. They are
+not implemented. Emitting a module labeled as one of them fails closed
+until that frontend's checkboxes in `docs/ROADMAP.md` Phase 21 are done.
 
 ## Cross-frontend programs
 
@@ -96,6 +97,7 @@ linking story.
 - `src/ml/ml.c`, `docs/ML.md`, `make test-ml`
 - `src/actor/actor.c`, `docs/ACTOR.md`, `make test-actor`
 - `src/dataflow/dataflow.c`, `docs/DATAFLOW.md`, `make test-dataflow`
+- `src/object/object.c`, `docs/OBJECT.md`, `make test-object`
 - `docs/NANOISA.md` remains the ISA. This page is the language boundary.
 
 Authority for 5.0 compilation (`.nvm` as the only compiler product) is

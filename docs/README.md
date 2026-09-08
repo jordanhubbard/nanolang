@@ -89,6 +89,7 @@ How I am built:
     - [Nano ML](ML.md) — bounded laboratory frontend (`make test-ml`)
     - [Nano Actor](ACTOR.md) — bounded laboratory frontend (`make test-actor`)
     - [Nano Dataflow](DATAFLOW.md) — bounded laboratory frontend (`make test-dataflow`)
+    - [Nano Object](OBJECT.md) — bounded laboratory frontend (`make test-object`)
     - 178-opcode stack machine ISA
     - .nvm binary format specification
     - Co-process FFI isolation: shared-memory mailbox fast path (2 syscalls/call) with pipe fallback

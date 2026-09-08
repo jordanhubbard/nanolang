@@ -92,7 +92,7 @@ static void test_goals_published_before_implementation(void) {
     CHECK(nl_frontend_implemented(NL_FE_ML), "ML is implemented");
     CHECK(nl_frontend_implemented(NL_FE_ACTOR), "Actor is implemented");
     CHECK(nl_frontend_implemented(NL_FE_DATAFLOW), "Dataflow is implemented");
-    CHECK(!nl_frontend_implemented(NL_FE_OBJECT), "Object is not started");
+    CHECK(nl_frontend_implemented(NL_FE_OBJECT), "Object is implemented");
     CHECK(!nl_frontend_implemented(NL_FE_SHELL), "Shell is not started");
     CHECK(!nl_frontend_implemented(NL_FE_LOGIC), "Logic is not started");
     CHECK(nl_frontend_goal(NL_FE_COUNT) == NULL, "out-of-range goal is refused");
@@ -225,7 +225,7 @@ static void test_dataflow_accepts_when_implemented(void) {
     nvm_module_free(m);
 }
 
-static void test_object_refused_until_implemented(void) {
+static void test_object_accepts_when_implemented(void) {
     NvmModule *m = assemble_ok(k_add, "object add");
     NlFrontendFacts f;
     NlFrontendResult r;
@@ -233,9 +233,22 @@ static void test_object_refused_until_implemented(void) {
     attach_debug(m);
     f = facts_for(NL_FE_OBJECT, "add.obj");
     r = nl_frontend_accept(m, &f);
-    CHECK(!r.ok, "Object is not implemented");
+    CHECK(r.ok, "Object accepts a verified module");
+    if (!r.ok) printf("    %s\n", r.error);
+    nvm_module_free(m);
+}
+
+static void test_shell_refused_until_implemented(void) {
+    NvmModule *m = assemble_ok(k_add, "shell add");
+    NlFrontendFacts f;
+    NlFrontendResult r;
+    if (!m) return;
+    attach_debug(m);
+    f = facts_for(NL_FE_SHELL, "add.sh");
+    r = nl_frontend_accept(m, &f);
+    CHECK(!r.ok, "Shell is not implemented");
     CHECK(strstr(r.error, "not implemented") != NULL,
-          "Object error names the unpublished implementation");
+          "Shell error names the unpublished implementation");
     nvm_module_free(m);
 }
 
@@ -341,7 +354,8 @@ int main(void) {
     test_ml_accepts_when_implemented();
     test_actor_accepts_when_implemented();
     test_dataflow_accepts_when_implemented();
-    test_object_refused_until_implemented();
+    test_object_accepts_when_implemented();
+    test_shell_refused_until_implemented();
     test_requires_locations_types_and_shared_diags();
     test_cross_frontend_shared_library();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);

@@ -24,6 +24,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   cancel, retry, and fifo/reverse determinism compiled to verified
   NanoISA. `place remote` fails closed. Phase 18 transport is not
   wired. `docs/DATAFLOW.md`, `make test-dataflow`.
+- 4.6 Nano Object laboratory frontend: message send, identity, mutable
+  slots, `classof`/`slots`, live `replace`, `extend`, `handle`/`sendvia`,
+  and a host inline cache compiled to verified NanoISA methods. No
+  cache opcodes. `docs/OBJECT.md`, `make test-object`.
 
 ## [4.5.0] - 2026-09-07
 

@@ -63,8 +63,8 @@ static const NlFrontendGoal k_goals[NL_FE_COUNT] = {
         "dynamic dispatch, inline caches, layout evolution, live methods",
         "message dispatch, object identity, mutable graphs, reflection",
         "cache-specific portable opcodes",
-        "measure specialization without exposing caches in NanoISA",
-        0
+        "make test-object",
+        1
     },
     {
         NL_FE_SHELL, "Nano Shell",
