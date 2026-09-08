@@ -160,6 +160,7 @@ site/
 /tests/forth/test_forth_core_load
 /tests/scheme/test_scheme
 /tests/ml/test_ml
+/tests/actor/test_actor
 /tests/test_nsi
 /tests/test_nsi_gen
 /tests/test_nsi_runtime

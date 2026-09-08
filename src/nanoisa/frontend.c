@@ -47,8 +47,8 @@ static const NlFrontendGoal k_goals[NL_FE_COUNT] = {
         "isolation, mailboxes, supervision, hot replacement, restart-safe caps",
         "isolated NanoVM contexts first, then Phase 18 process boundaries",
         "a new kernel; embedding policy in the actor language",
-        "crash containment, mailbox order, supervision, restart-safe caps",
-        0
+        "make test-actor",
+        1
     },
     {
         NL_FE_DATAFLOW, "Nano Dataflow",

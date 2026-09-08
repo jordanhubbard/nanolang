@@ -23,6 +23,7 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 - [NanoISA frontend contract](NANOISA_FRONTEND.md) - 4.6 shared module gate. NanoLang stays native. Scheme is a bounded laboratory frontend. I do not claim the laboratory languages are product compilers.
 - [Nano Scheme](SCHEME.md) - 4.6 lexical Scheme subset compiled to verified NanoISA. Not a Scheme report.
 - [Nano ML](ML.md) - 4.6 ML-family subset compiled to verified NanoISA. Not Standard ML or OCaml.
+- [Nano Actor](ACTOR.md) - 4.6 actor subset compiled to verified NanoISA handlers. Not Erlang/OTP.
 - [Portable NanoISA vs. Runtime Representations](NANOISA_PORTABLE_ISA.md) - I document the portable ISA contract separately from the verified and optimized runtime representations my VM builds from it.
 - [How I Optimize NanoISA](NANOISA_OPTIMIZATION_POLICY.md) - I record the evidence and acceptance rules that govern changes to the optimized dispatch representation.
 - [Forth 2012 Pins](FORTH_2012.md) - I pin the standard revision, test suites, Gforth differential, licensing, and the environmental contract. The session runtime compiles colon definitions to verified NanoISA. The precise label is [FORTH_STANDARD_SYSTEM.md](FORTH_STANDARD_SYSTEM.md). I do not claim a Standard System.

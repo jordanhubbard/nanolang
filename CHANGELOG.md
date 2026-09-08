@@ -14,6 +14,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   exhaustive `case`, curried `fun`/`fn`, and `signature` compiled to
   verified NanoISA. `ref`, `exception`, and `:=` fail closed.
   `docs/ML.md`, `make test-ml`.
+- 4.6 Nano Actor laboratory frontend: isolated NanoVM contexts, typed
+  mailboxes, monitors, links, one_for_one supervision, `after 0`,
+  cancel, and hot replace compiled to verified NanoISA handlers.
+  Remote spawn and `cap:` fail closed. Phase 18 transport is not
+  wired. `docs/ACTOR.md`, `make test-actor`.
 
 ## [4.5.0] - 2026-09-07
 
