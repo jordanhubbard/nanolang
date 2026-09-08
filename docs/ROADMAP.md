@@ -115,12 +115,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       FFI isolation, debug, profiler, and `nvm2c`, and keeps language
       work in desugar/typecheck. Bounded goals are published before a
       language starts. Frontend-private opcodes fail closed. NanoLang
-      and Forth already accept a shared library. Scheme, ML, Actor, Dataflow, Object, and Shell are
-      implemented as bounded laboratory frontends; Logic and later are not.
+      and Forth already accept a shared library. Scheme, ML, Actor, Dataflow, Object, Shell, and Logic are
+      implemented as bounded laboratory frontends; the frontend matrix remains.
       `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
       `make test-frontend-contract`, `make test-scheme`, `make test-ml`,
       `make test-actor`, `make test-dataflow`, `make test-object`,
-      `make test-shell`.
+      `make test-shell`, `make test-logic`.
       MAC `task_e62d1cd35b49296604012df95de7911b`.
 - [ ] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
       Dataflow, Object, Shell, Logic, then the frontend matrix.
@@ -1214,10 +1214,10 @@ Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [x] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
       Optional fields on `NlFrontendFacts`; unknown effects fail closed.
 - [x] I will define bounded implementation and test goals before starting each frontend.
-      `nl_frontend_goal`; Scheme, ML, Actor, Dataflow, Object, and Shell are
-      implemented (`make test-scheme`, `make test-ml`, `make test-actor`,
-      `make test-dataflow`, `make test-object`, `make test-shell`). Logic
-      remains unimplemented.
+      `nl_frontend_goal`; Scheme, ML, Actor, Dataflow, Object, Shell, and Logic
+      are implemented (`make test-scheme`, `make test-ml`, `make test-actor`,
+      `make test-dataflow`, `make test-object`, `make test-shell`,
+      `make test-logic`).
 - [x] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
       `nl_frontend_opcode_allowed` is exactly `isa_get_info`.
 - [x] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
@@ -1287,10 +1287,14 @@ Nano Shell (MAC `task_ee91ee94749200ab6309e6c05df3dd61`):
 - [ ] I will use Nano Shell as the administrative language for service graphs only after capability and policy enforcement are complete.
 
 Nano Logic (MAC `task_69fc7f6660a1976f10606a42d78fd264`):
-- [ ] I will implement a bounded Datalog or logic frontend for declarative authorization, dependency, and policy rules.
-- [ ] I will support facts, rules, unification appropriate to the selected subset, queries, and deterministic fixed-point evaluation.
-- [ ] I will use it to test choice points or tabling only when those mechanisms are justified by the selected language subset.
-- [ ] I will compile deployment and capability policy queries to verified NanoISA or a documented restricted profile.
+- [x] I will implement a bounded Datalog or logic frontend for declarative authorization, dependency, and policy rules.
+      `src/logic/logic.c`, `docs/LOGIC.md`, `make test-logic`.
+- [x] I will support facts, rules, unification appropriate to the selected subset, queries, and deterministic fixed-point evaluation.
+      Ground int facts; Horn rules; `lg_unify` / `I64_EQ`; naive least fixed-point.
+- [x] I will use it to test choice points or tabling only when those mechanisms are justified by the selected language subset.
+      They are not justified. Naive iteration over a finite EDB is enough.
+- [x] I will compile deployment and capability policy queries to verified NanoISA or a documented restricted profile.
+      Restricted profile: `grant`/`allow` as ordinary predicates; `query allow 7`. Not NSI documents.
 
 Frontend matrix and demonstrations (MAC `task_92c497c72b7aa1fc993d666f66843759`):
 - [ ] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
@@ -1786,7 +1790,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: 4.6 laboratory languages (through Shell done; Logic next), then 5.0.
+Current Phase: 4.6 laboratory languages (through Logic done; frontend matrix next), then 5.0.
 The next public GitHub Release is 5.0, covering 4.6 and 5.0.
 Next Major Milestone: remaining 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after `make test-shell` and the next 4.6 language (Nano Logic).
+Next Review: after `make test-logic` and the frontend matrix.

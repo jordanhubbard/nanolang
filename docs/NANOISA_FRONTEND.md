@@ -79,10 +79,10 @@ implemented as a deterministic in-process DAG (`docs/DATAFLOW.md`,
 `make test-dataflow`). Nano Object is implemented as host dispatch with
 a host inline cache (`docs/OBJECT.md`, `make test-object`). Nano Shell is
 implemented as typed i64 pipelines with explicit `need` capabilities
-(`docs/SHELL.md`, `make test-shell`). Logic has published bounded goals
-in `nl_frontend_goal`. It is not implemented. Emitting a module labeled
-as Logic fails closed until that frontend's checkboxes in
-`docs/ROADMAP.md` Phase 21 are done.
+(`docs/SHELL.md`, `make test-shell`). Nano Logic is implemented as
+bounded Datalog with compiled integer unification (`docs/LOGIC.md`,
+`make test-logic`). Every published frontend now has an implementation.
+The remaining 4.6 work is the frontend matrix, not another language id.
 
 ## Cross-frontend programs
 
@@ -101,6 +101,7 @@ linking story.
 - `src/dataflow/dataflow.c`, `docs/DATAFLOW.md`, `make test-dataflow`
 - `src/object/object.c`, `docs/OBJECT.md`, `make test-object`
 - `src/shell/shell.c`, `docs/SHELL.md`, `make test-shell`
+- `src/logic/logic.c`, `docs/LOGIC.md`, `make test-logic`
 - `docs/NANOISA.md` remains the ISA. This page is the language boundary.
 
 Authority for 5.0 compilation (`.nvm` as the only compiler product) is

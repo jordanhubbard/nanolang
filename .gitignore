@@ -164,6 +164,7 @@ site/
 /tests/dataflow/test_dataflow
 /tests/object/test_object
 /tests/shell/test_shell
+/tests/logic/test_logic
 /tests/test_nsi
 /tests/test_nsi_gen
 /tests/test_nsi_runtime

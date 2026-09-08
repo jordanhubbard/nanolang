@@ -80,7 +80,7 @@ static const NlFrontendGoal k_goals[NL_FE_COUNT] = {
         "bounded Datalog: facts, rules, queries, deterministic fixed-point",
         "choice points or tabling unless the subset needs them",
         "policy queries compiled to NanoISA or a documented restricted profile",
-        0
+        1
     }
 };
 

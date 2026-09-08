@@ -27,6 +27,7 @@ My canonical documentation map is located at **[docs/README.md](README.md)**.
 - [Nano Dataflow](DATAFLOW.md) - 4.6 dataflow subset compiled to verified NanoISA nodes. Not a workflow product.
 - [Nano Object](OBJECT.md) - 4.6 Smalltalk-like subset compiled to verified NanoISA methods. Not Smalltalk.
 - [Nano Shell](SHELL.md) - 4.6 capability-safe typed pipelines compiled to verified NanoISA functions. Not a POSIX shell.
+- [Nano Logic](LOGIC.md) - 4.6 bounded Datalog compiled to verified NanoISA unification. Not Prolog.
 - [Portable NanoISA vs. Runtime Representations](NANOISA_PORTABLE_ISA.md) - I document the portable ISA contract separately from the verified and optimized runtime representations my VM builds from it.
 - [How I Optimize NanoISA](NANOISA_OPTIMIZATION_POLICY.md) - I record the evidence and acceptance rules that govern changes to the optimized dispatch representation.
 - [Forth 2012 Pins](FORTH_2012.md) - I pin the standard revision, test suites, Gforth differential, licensing, and the environmental contract. The session runtime compiles colon definitions to verified NanoISA. The precise label is [FORTH_STANDARD_SYSTEM.md](FORTH_STANDARD_SYSTEM.md). I do not claim a Standard System.

@@ -1284,6 +1284,26 @@ test-shell: $(SHELL_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJEC
 	@$(TIMEOUT_CMD) ./tests/shell/test_shell
 	@rm -f tests/shell/test_shell
 
+# Nano Logic laboratory frontend (bounded Datalog → verified NanoISA)
+LOGIC_DIR = $(SRC_DIR)/logic
+LOGIC_SOURCES = $(LOGIC_DIR)/logic.c
+LOGIC_OBJECTS = $(patsubst $(LOGIC_DIR)/%.c,$(OBJ_DIR)/logic/%.o,$(LOGIC_SOURCES))
+
+$(OBJ_DIR)/logic/%.o: $(LOGIC_DIR)/%.c $(LOGIC_DIR)/logic.h | $(OBJ_DIR)/logic
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/logic:
+	mkdir -p $(OBJ_DIR)/logic
+
+.PHONY: test-logic
+test-logic: $(LOGIC_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano Logic laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/logic/test_logic \
+		tests/logic/test_logic.c $(LOGIC_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/logic/test_logic
+	@rm -f tests/logic/test_logic
+
 .PHONY: test-forth-pty
 test-forth-pty: $(BIN_DIR)/forth
 	@echo "Running Forth PTY REPL liveness tests..."
@@ -1299,7 +1319,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-actor test-dataflow test-object test-shell test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-actor test-dataflow test-object test-shell test-logic test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -2140,6 +2160,7 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-dataflow
 	@$(MAKE) --no-print-directory test-object
 	@$(MAKE) --no-print-directory test-shell
+	@$(MAKE) --no-print-directory test-logic
 ifeq ($(FORTH_WORDSET_SKIP),1)
 	@echo "Skipping Jackson word-set REFILL, Forth PTY, and IDE smoke under coverage instrumentation."
 else
@@ -3175,6 +3196,7 @@ help:
 	@echo "  make test-dataflow   - 4.6 Nano Dataflow laboratory frontend"
 	@echo "  make test-object     - 4.6 Nano Object laboratory frontend"
 	@echo "  make test-shell      - 4.6 Nano Shell laboratory frontend"
+	@echo "  make test-logic      - 4.6 Nano Logic laboratory frontend"
 	@echo "  make test-sdl-term-mvp - compile modules/sdl_term/mvp.nano"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"

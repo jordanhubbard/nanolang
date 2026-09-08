@@ -33,6 +33,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   still refuse host files, processes, networks, services, streams, and
   remote execution. I do not administer service graphs.
   `docs/SHELL.md`, `make test-shell`.
+- 4.6 Nano Logic laboratory frontend: bounded Datalog facts, Horn
+  rules, ground queries, and a deterministic least fixed-point.
+  Integer unification is `lg_unify` / `I64_EQ`. Choice points and
+  tabling stay out. Policy is the restricted `grant`/`allow` profile.
+  `docs/LOGIC.md`, `make test-logic`.
 
 ## [4.5.0] - 2026-09-07
 
