@@ -91,6 +91,8 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_first;
     const NvmFunctionEntry *c_getx;
     const NvmFunctionEntry *s_getx;
+    const NvmFunctionEntry *c_pos;
+    const NvmFunctionEntry *s_pos;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -116,8 +118,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 9, "C seed emitted add, main, choose, loop_sum, greeting, glue, len3, first, getx");
-    CHECK(s_mod->function_count >= 9, "src_nano emitted add, main, choose, loop_sum, greeting, glue, len3, first, getx");
+    CHECK(c_mod->function_count >= 10, "C seed emitted add through is_pos");
+    CHECK(s_mod->function_count >= 10, "src_nano emitted add through is_pos");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -137,6 +139,8 @@ int main(int argc, char **argv) {
     s_first = fn_by_name(s_mod, "first");
     c_getx = fn_by_name(c_mod, "getx");
     s_getx = fn_by_name(s_mod, "getx");
+    c_pos = fn_by_name(c_mod, "is_pos");
+    s_pos = fn_by_name(s_mod, "is_pos");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -146,6 +150,7 @@ int main(int argc, char **argv) {
     CHECK(c_len3 != NULL && s_len3 != NULL, "both modules have len3");
     CHECK(c_first != NULL && s_first != NULL, "both modules have first");
     CHECK(c_getx != NULL && s_getx != NULL, "both modules have getx");
+    CHECK(c_pos != NULL && s_pos != NULL, "both modules have is_pos");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -164,6 +169,8 @@ int main(int argc, char **argv) {
           "first bytecode matches C seed");
     CHECK(code_equal(c_mod, c_getx, s_mod, s_getx),
           "getx bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_pos, s_mod, s_pos),
+          "is_pos bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -195,6 +202,9 @@ int main(int argc, char **argv) {
         printf("    C getx locals=%u len=%u  src getx locals=%u len=%u\n",
                c_getx ? c_getx->local_count : 0, c_getx ? c_getx->code_length : 0,
                s_getx ? s_getx->local_count : 0, s_getx ? s_getx->code_length : 0);
+        printf("    C is_pos locals=%u len=%u  src is_pos locals=%u len=%u\n",
+               c_pos ? c_pos->local_count : 0, c_pos ? c_pos->code_length : 0,
+               s_pos ? s_pos->local_count : 0, s_pos ? s_pos->code_length : 0);
     }
 
     nvm_module_free(c_mod);

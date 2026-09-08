@@ -123,9 +123,14 @@ static void fn_c_name(const NvmModule *mod, uint32_t idx, char *out, size_t n) {
 static const char *c_result_type(const NvmFunctionEntry *fn) {
     if (fn->result_count == 0 || fn->result_tag == TAG_VOID) return "void";
     if (fn->result_count != 1) return NULL;
-    if (fn->result_tag == TAG_INT) return "int64_t";
+    if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL) return "int64_t";
     if (fn->result_tag == TAG_STRING) return "const char *";
     return NULL;
+}
+
+static int result_is_i64(const NvmFunctionEntry *fn) {
+    return fn->result_count == 1 &&
+           (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL);
 }
 
 static const char *c_local_type(uint8_t kind) {
@@ -405,7 +410,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (ins.opcode == OP_CALL) {
                 if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
-                } else if (cf->result_count == 1 && cf->result_tag == TAG_INT) {
+                } else if (result_is_i64(cf)) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
                 }
             }
@@ -420,7 +425,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_RET:
         case OP_HALT: {
             if (fn->result_count == 1 &&
-                (fn->result_tag == TAG_INT || fn->result_tag == TAG_STRING) &&
+                (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL ||
+                 fn->result_tag == TAG_STRING) &&
                 sp > 0) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -1070,7 +1076,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             const NvmFunctionEntry *cf = &mod->functions[callee];
-            if (cf->result_count == 1 && cf->result_tag == TAG_INT) {
+            if (result_is_i64(cf)) {
                 stack_push_temp(b, &st, call);
             } else if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                 stack_push_str(b, &st, call);
@@ -1099,7 +1105,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             if (fn->result_count == 1 &&
-                (fn->result_tag == TAG_INT || fn->result_tag == TAG_STRING)) {
+                (result_is_i64(fn) || fn->result_tag == TAG_STRING)) {
                 nvm2c_printf(b, "    return %s;\n", call);
             } else {
                 nvm2c_printf(b, "    %s;\n    return;\n", call);
@@ -1127,7 +1133,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_RET:
-            if (fn->result_count == 1 && fn->result_tag == TAG_INT) {
+            if (result_is_i64(fn)) {
                 int t = stack_pop_expect(b, &st, NVM2C_VK_INT, "RET");
                 if (b->failed) goto done;
                 if (st.sp != 0) {
@@ -1153,12 +1159,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             terminated = 1;
             break;
         case OP_HALT:
-            if (fn->result_count == 1 && fn->result_tag == TAG_INT && st.sp == 1) {
+            if (result_is_i64(fn) && st.sp == 1) {
                 nvm2c_printf(b, "    return t[%d];\n",
                              stack_pop_expect(b, &st, NVM2C_VK_INT, "HALT"));
             } else if (st.sp == 0 && (fn->result_count == 0 || fn->result_tag == TAG_VOID)) {
                 nvm2c_puts(b, "    return;\n");
-            } else if (st.sp == 0 && fn->result_count == 1 && fn->result_tag == TAG_INT) {
+            } else if (st.sp == 0 && result_is_i64(fn)) {
                 nvm2c_puts(b, "    return 0;\n");
             } else {
                 nvm2c_fail(b, "function %u: HALT with unexpected stack height %d", idx, st.sp);

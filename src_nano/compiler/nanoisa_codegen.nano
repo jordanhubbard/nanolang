@@ -4,9 +4,9 @@
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
  * if/else, while, let, set, string literals, string concat, array<int>
- * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET).
- * Anything else fails closed. I do not emit C. I do not delete
- * transpiler.nano.
+ * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET),
+ * and bool results (i64 0/1). Anything else fails closed. I do not emit C.
+ * I do not delete transpiler.nano.
  */
 
 import "src_nano/parser.nano"
@@ -208,7 +208,11 @@ fn nisa_local_type_ok(t: string) -> bool {
         if (== t "string") {
             return true
         } else {
-            return (== t "array<int>")
+            if (== t "bool") {
+                return true
+            } else {
+                return (== t "array<int>")
+            }
         }
     }
 }
@@ -216,6 +220,7 @@ fn nisa_local_type_ok(t: string) -> bool {
 shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "int")
     assert (nisa_local_type_ok "string")
+    assert (nisa_local_type_ok "bool")
     assert (nisa_local_type_ok "array<int>")
     assert (not (nisa_local_type_ok "array<string>"))
 }
@@ -958,7 +963,7 @@ shadow nisa_emit_block {
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
     set nisa_types []
-    if (and (not (== func.return_type "int")) (not (== func.return_type "string"))) {
+    if (and (not (== func.return_type "int")) (and (not (== func.return_type "string")) (not (== func.return_type "bool")))) {
         return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {
         let mut i: int = 0
@@ -1034,6 +1039,13 @@ shadow nisa_emit_function {
     assert (str_contains gx_text ".function getx 0 1 0 int 1")
     assert (str_contains gx_text "AGG_PACK 0 0 0 2")
     assert (str_contains gx_text "AGG_GET 0")
+    let src6: string = (+ "f" "n is_pos(c: int) -> bool { return (> c 0) } shadow is_pos { assert true }")
+    let toks6: List<LexerToken> = (tokenize_string src6 "t.nano" diags)
+    let p6: Parser = (parse_program toks6 (list_LexerToken_length toks6) "t.nano")
+    let pos_fn: ASTFunction = (parser_get_function p6 0)
+    let pos_text: string = (nisa_emit_function p6 pos_fn)
+    assert (str_contains pos_text ".function is_pos 1 1 0 bool 1")
+    assert (str_contains pos_text "I64_GT_S")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

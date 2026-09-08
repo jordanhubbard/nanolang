@@ -1103,6 +1103,10 @@ Compiler product:
       pretty-print C to build the compiler. Nested records, string
       fields, `AGG_SET`, and unions are not this pin.
       `make test-nanoisa-src-nano` (24 passed).
+- [x] Cut A bool: the same pin matches `is_pos` (`bool` result, `I64_GT_S`)
+      bytecode with the C seed. I still pretty-print C to build the
+      compiler. `bool` is i64 0/1 in NanoISA. Option types are not this pin.
+      `make test-nanoisa-src-nano` (26 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1143,6 +1147,9 @@ Compiler product:
       `getx` from the Cut A pin compiles and runs without `nano_vm`.
       Nested records, string fields, `AGG_SET`, variants, and tuples
       stay refused. `make test-nvm2c` (110 passed).
+- [x] `nvm2c` translates `bool` results as i64 0/1. `is_pos` from the
+      Cut A pin compiles and runs without `nano_vm`.
+      `make test-nvm2c` (120 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

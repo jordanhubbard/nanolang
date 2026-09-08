@@ -205,12 +205,13 @@ builds the compiler. I compare `.nvm` from the C seed's NanoISA path
 and from `src_nano` on a pinned subset, not yet the whole compiler.
 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
 `make test-nanoisa-src-nano` on integer `add`/`main`/`choose`/`loop_sum`,
-string `greeting`/`glue`, array `len3`/`first`, and record `getx`
-(24 passed; function bytecode matches the C seed, including `if`,
-`while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`,
-`AGG_PACK`, and `AGG_GET`). String operands are compared by content,
-not pool index. I still pretty-print C to build the compiler. The full
-dual of `codegen.c` is not this pin.
+string `greeting`/`glue`, array `len3`/`first`, record `getx`, and bool
+`is_pos` (26 passed; function bytecode matches the C seed, including
+`if`, `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
+`ARR_GET`, `AGG_PACK`, `AGG_GET`, and `bool` results as i64 0/1).
+String operands are compared by content, not pool index. I still
+pretty-print C to build the compiler. The full dual of `codegen.c` is
+not this pin.
 
 **B — AOT covers the compiler subset.** `nvm2c` translates functions,
 structs, loops, arrays, strings, modules, and a declared host ABI.
@@ -221,8 +222,9 @@ comparisons, `JMP`/`JMP_FALSE`, `TAIL_CALL` (`choose` and `loop_sum`
 run as native C), Cut A strings (`PUSH_STR`, `STR_CONCAT`,
 `STR_LEN`; `greeting` and `glue` run as native C), Cut A
 `array<int>` (`ARR_LITERAL`, `ARR_GET`, `ARR_LEN`; `len3` and `first`
-run as native C), and Cut A int-field records (`AGG_PACK`, `AGG_GET`;
-`getx` runs as native C). Nested arrays, nested records, `ARR_SET`,
+run as native C), Cut A int-field records (`AGG_PACK`, `AGG_GET`;
+`getx` runs as native C), and Cut A bool (`bool` results as i64 0/1;
+`is_pos` runs as native C). Nested arrays, nested records, `ARR_SET`,
 `AGG_SET`, variants, and tuples stay refused. The rest of the compiler
 subset (modules, host ABI, and the remaining string library) is still
 open. A pinned suite must match on `nano_vm` and on AOT C.

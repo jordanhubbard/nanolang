@@ -471,6 +471,76 @@ static void test_getx_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_is_pos_then_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function is_pos 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 4\n"
+        "  CALL is_pos\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "is_pos then fixture");
+    CHECK(m != NULL, "is_pos then fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for is_pos then");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "is_pos then C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "is_pos then C compiles and runs");
+    CHECK(status == 1, "is_pos(4) then-arm exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_is_pos_else_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function is_pos 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  CALL is_pos\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "is_pos else fixture");
+    CHECK(m != NULL, "is_pos else fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for is_pos else");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "is_pos else C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "is_pos else C compiles and runs");
+    CHECK(status == 0, "is_pos(0) else-arm exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -786,6 +856,8 @@ int main(int argc, char **argv) {
     test_first_runs_without_nano_vm();
     test_agg_set_is_refused();
     test_getx_runs_without_nano_vm();
+    test_is_pos_then_runs_without_nano_vm();
+    test_is_pos_else_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

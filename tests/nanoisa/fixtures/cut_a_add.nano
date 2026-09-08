@@ -88,3 +88,12 @@ fn getx() -> int {
 shadow getx {
     assert (== (getx) 3)
 }
+
+fn is_pos(c: int) -> bool {
+    return (> c 0)
+}
+
+shadow is_pos {
+    assert (is_pos 3)
+    assert (not (is_pos 0))
+}
