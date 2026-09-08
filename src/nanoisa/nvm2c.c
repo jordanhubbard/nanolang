@@ -127,6 +127,7 @@ static const char *c_result_type(const NvmFunctionEntry *fn) {
     if (fn->result_count != 1) return NULL;
     if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL) return "int64_t";
     if (fn->result_tag == TAG_STRING) return "const char *";
+    if (fn->result_tag == TAG_ARRAY) return "nrarr_t";
     return NULL;
 }
 
@@ -592,6 +593,8 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (ins.opcode == OP_CALL) {
                 if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+                } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
+                    if (!sim_push(b, idx, stk, &sp, NVM2C_VK_RARR, -1)) return 0;
                 } else if (result_is_i64(cf)) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
                 }
@@ -608,12 +611,14 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_HALT: {
             if (fn->result_count == 1 &&
                 (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL ||
-                 fn->result_tag == TAG_STRING) &&
+                 fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY) &&
                 sp > 0) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
                 if (fn->result_tag == TAG_STRING) {
                     mark_str_origin(local_kind, nloc, v.origin);
+                } else if (fn->result_tag == TAG_ARRAY) {
+                    mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
                 }
             }
             break;
@@ -635,7 +640,7 @@ static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     const NvmFunctionEntry *fn = &mod->functions[idx];
     const char *rt = c_result_type(fn);
     if (!rt) {
-        nvm2c_fail(b, "function %u: only void, a single int, or a single string result is supported",
+        nvm2c_fail(b, "function %u: only void or a single supported value result is supported",
                    idx);
         return;
     }
@@ -1652,6 +1657,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 stack_push_temp(b, &st, call);
             } else if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
                 stack_push_str(b, &st, call);
+            } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
+                stack_push_rarr(b, &st, call);
             } else {
                 nvm2c_printf(b, "    %s;\n", call);
             }
@@ -1677,7 +1684,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             if (fn->result_count == 1 &&
-                (result_is_i64(fn) || fn->result_tag == TAG_STRING)) {
+                (result_is_i64(fn) || fn->result_tag == TAG_STRING ||
+                 fn->result_tag == TAG_ARRAY)) {
                 nvm2c_printf(b, "    return %s;\n", call);
             } else {
                 nvm2c_printf(b, "    %s;\n    return;\n", call);
@@ -1723,6 +1731,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     goto done;
                 }
                 nvm2c_printf(b, "    return s[%d];\n", s);
+            } else if (fn->result_count == 1 && fn->result_tag == TAG_ARRAY) {
+                int a = stack_pop_expect(b, &st, NVM2C_VK_RARR, "RET");
+                if (b->failed) goto done;
+                if (st.sp != 0) {
+                    nvm2c_fail(b, "function %u: RET leaves extra stack values", idx);
+                    goto done;
+                }
+                nvm2c_printf(b, "    return ra[%d];\n", a);
             } else {
                 if (st.sp != 0) {
                     nvm2c_fail(b, "function %u: void RET leaves extra stack values", idx);

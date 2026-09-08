@@ -1780,6 +1780,48 @@ static void test_grow_t_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_one_t_result_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function one_t 0 1 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  CALL one_t\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "one_t result fixture");
+    CHECK(m != NULL, "one_t result fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for one_t result");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "static nrarr_t nl_one_t") != NULL,
+          "one_t result is emitted as a record array");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "one_t result C compiles and runs");
+    CHECK(status == 7, "via one_t result exits 7 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_nested_record_pack_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -2159,6 +2201,7 @@ int main(int argc, char **argv) {
     test_grow_s_runs_without_nano_vm();
     test_get_s_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
+    test_one_t_result_runs_without_nano_vm();
     test_nested_record_pack_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();

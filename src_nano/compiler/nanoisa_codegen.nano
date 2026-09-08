@@ -1297,10 +1297,38 @@ shadow nisa_emit_block {
     assert (str_contains text "PUSH_I64 3")
 }
 
+fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (or (== t "int") (or (== t "string") (== t "bool"))) {
+        return t
+    } else {
+        if (and (str_starts_with t "List<") (str_ends_with t ">")) {
+            let inner: string = (str_substring t 5 (- (str_length t) 6))
+            if (nisa_is_pin_record parser inner) {
+                return "array"
+            } else {
+                return ""
+            }
+        } else {
+            return ""
+        }
+    }
+}
+
+shadow nisa_result_tag {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Tok { t: int, s: string } struct Box { p: Tok } " (+ "f" "n main() -> int { return 0 } shadow main { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_result_tag p "List<Tok>") "array")
+    assert (== (nisa_result_tag p "List<Box>") "")
+}
+
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
     set nisa_types []
-    if (and (not (== func.return_type "int")) (and (not (== func.return_type "string")) (not (== func.return_type "bool")))) {
+    let result_tag: string = (nisa_result_tag parser func.return_type)
+    if (== result_tag "") {
         return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {
         let mut i: int = 0
@@ -1328,7 +1356,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         set header (+ header " ")
         set header (+ header (int_to_string locals))
         set header (+ header " 0 ")
-        set header (+ header func.return_type)
+        set header (+ header result_tag)
         set header (+ header " 1\n")
         return (+ (+ header body) ".end\n")
     }
@@ -1564,6 +1592,12 @@ shadow nisa_emit_function {
     assert (str_contains grow_t_text "POP")
     assert (str_contains grow_t_text "ARR_GET")
     assert (str_contains grow_t_text "AGG_GET 1")
+    let src31: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n one_t() -> List<Tok> { let xs: List<Tok> = (list_Tok_new) (list_Tok_push xs Tok { t: 1, s: \"hi\" }) return xs } shadow one_t { assert true }"))
+    let toks31: List<LexerToken> = (tokenize_string src31 "t.nano" diags)
+    let p31: Parser = (parse_program toks31 (list_LexerToken_length toks31) "t.nano")
+    let one_t_fn: ASTFunction = (parser_get_function p31 0)
+    let one_t_text: string = (nisa_emit_function p31 one_t_fn)
+    assert (str_contains one_t_text ".function one_t 0 1 0 array 1")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
