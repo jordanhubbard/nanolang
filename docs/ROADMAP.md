@@ -1248,6 +1248,21 @@ Compiler product:
       bytecode with the C seed. Nested arrays stay refused. I still
       pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (118 passed).
+- [x] Cut A record-list results: the same pin matches `one_t`
+      (`-> List<Tok>` as `.function one_t ... array 1` and
+      `ARR_PUSH` of `nrec_t` before `RET`) and `via_one_t`
+      (`CALL one_t` then `ARR_GET`/`AGG_GET`) bytecode with the C
+      seed. Nested records stay refused. Empty `List<Tok>` `CALL`
+      is a separate pin. I still pretty-print C to build the
+      compiler.
+      `make test-nanoisa-src-nano` (122 passed).
+      MAC `task_e0b431fbcca04d8e9e47f4e1885e6279`.
+- [ ] Cut A LexerToken-list results: the same pin matches `one_lex`
+      (`-> List<LexerToken>` as ISA tag `array` and `ARR_PUSH` of
+      a four-field record before `RET`) and `via_one_lex`
+      (`CALL one_lex` then `ARR_GET`/`AGG_GET`) bytecode with the
+      C seed. Nested records stay refused. I still pretty-print C
+      to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1377,6 +1392,17 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_new_l` (`CALL` of `List<int>`) without
       `nano_vm`. Nested arrays stay refused.
       `make test-nvm2c` (395 passed).
+- [x] `nvm2c` runs Cut A `via_one_t` (`CALL` of a non-empty
+      `List<Tok>`) without `nano_vm`. Nested records stay refused.
+      `make test-nvm2c` (402 passed).
+- [ ] `nvm2c` classifies an empty `List<Tok>` result (`ARR_NEW 1`
+      then `RET`, no `ARR_PUSH`) as `nrarr_t`, not `narr_t`. The C
+      seed still emits `ARR_NEW 1` for every `list_T_new`. Chat is
+      not the ledger.
+      MAC `task_2ef5249b949443adab10c45e16a70c5b`.
+- [ ] `nvm2c` runs Cut A `via_one_lex` (`CALL` of a non-empty
+      `List<LexerToken>`) without `nano_vm`. Nested records stay
+      refused.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

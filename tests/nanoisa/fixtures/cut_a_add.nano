@@ -539,3 +539,25 @@ fn via_new_l() -> int {
 shadow via_new_l {
     assert (== (via_new_l) 0)
 }
+
+fn one_t() -> List<Tok> {
+    let xs: List<Tok> = (list_Tok_new)
+    (list_Tok_push xs Tok { t: 1, s: "hi" })
+    return xs
+}
+
+shadow one_t {
+    let xs: List<Tok> = (one_t)
+    let p: Tok = (list_Tok_get xs 0)
+    assert (== (str_length p.s) 2)
+}
+
+fn via_one_t() -> int {
+    let xs: List<Tok> = (one_t)
+    let p: Tok = (list_Tok_get xs 0)
+    return (str_length p.s)
+}
+
+shadow via_one_t {
+    assert (== (via_one_t) 2)
+}

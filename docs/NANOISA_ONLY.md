@@ -212,9 +212,9 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, `get_s`,
 `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
 `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
-`via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`, and
-`via_new_l`
-(`make test-nanoisa-src-nano`, 118 passed).
+`via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
+`via_new_l`, `one_t`, and `via_one_t`
+(`make test-nanoisa-src-nano`, 122 passed).
 Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
 `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
 `array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
@@ -237,7 +237,8 @@ then `POP`, `list_Tok_set` as `ARR_SET` then `POP`,
 (`CALL quiet` does not `POP`), and pin-record results as ISA tag
 `struct` (`origin` / `via_o`), and mixed int/string record results
 (`make_tok` / `via_tok`), and array results as ISA tag `array`
-(`ones` / `via_ones`), and `List<int>` results (`new_l` / `via_new_l`).
+(`ones` / `via_ones`), and `List<int>` results (`new_l` / `via_new_l`),
+and `List<Tok>` results (`one_t` / `via_one_t`).
 `STR_SPLIT`
 and `STR_REPLACE`
 stay refused. String operands
@@ -293,7 +294,8 @@ results (`origin` / `via_o` run as native C; nested records stay
 refused), and Cut A mixed int/string record results (`make_tok` /
 `via_tok` run as native C), and Cut A array results (`ones` /
 `via_ones` run as native C), and Cut A `List<int>` results (`new_l` /
-`via_new_l` run as native C). Nested arrays,
+`via_new_l` run as native C), and Cut A `List<Tok>` results (`one_t` /
+`via_one_t` run as native C; nested records stay refused). Nested arrays,
 nested records, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the

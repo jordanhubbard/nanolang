@@ -2519,6 +2519,53 @@ static void test_via_new_l_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_one_t: CALL of List<Tok> (ARR_PUSH of nrec_t before RET), then ARR_GET. */
+static void test_via_one_t_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function one_t 0 1 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  CALL one_t\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_one_t fixture");
+    CHECK(m != NULL, "via_one_t fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_one_t");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_one_t C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_t") != NULL, "via_one_t C has a record-array result");
+    CHECK(strstr(c, "nrarr_get") != NULL, "via_one_t C loads nrec_t from nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_one_t C compiles and runs");
+    CHECK(status == 2, "via_one_t() exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2749,6 +2796,7 @@ int main(int argc, char **argv) {
     test_via_tok_runs_without_nano_vm();
     test_via_ones_runs_without_nano_vm();
     test_via_new_l_runs_without_nano_vm();
+    test_via_one_t_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

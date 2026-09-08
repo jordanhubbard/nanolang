@@ -555,7 +555,12 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
             if (nisa_local_type_ok t) {
                 return "array"
             } else {
-                return ""
+                let inner: string = (nisa_list_inner t)
+                if (and (!= inner "") (nisa_is_pin_record parser inner)) {
+                    return "array"
+                } else {
+                    return ""
+                }
             }
         }
     }
@@ -564,13 +569,14 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
 shadow nisa_result_tag {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "int") "int")
     assert (== (nisa_result_tag p "void") "void")
     assert (== (nisa_result_tag p "Point") "struct")
     assert (== (nisa_result_tag p "array<int>") "array")
+    assert (== (nisa_result_tag p "List<Tok>") "array")
     assert (== (nisa_result_tag p "Nope") "")
 }
 
@@ -1915,6 +1921,26 @@ shadow nisa_emit_function {
     assert (str_contains via_new_l_text ".function via_new_l 0 1 0 int 1")
     assert (str_contains via_new_l_text "CALL new_l")
     assert (str_contains via_new_l_text "ARR_LEN")
+    let src50: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n one_t() -> List<Tok> { let xs: List<Tok> = (list_Tok_new) (list_Tok_push xs Tok { t: 1, s: \"hi\" }) return xs } shadow one_t { assert true }"))
+    let toks50: List<LexerToken> = (tokenize_string src50 "t.nano" diags)
+    let p50: Parser = (parse_program toks50 (list_LexerToken_length toks50) "t.nano")
+    let one_t_fn: ASTFunction = (parser_get_function p50 0)
+    let one_t_text: string = (nisa_emit_function p50 one_t_fn)
+    assert (str_contains one_t_text ".function one_t 0 1 0 array 1")
+    assert (str_contains one_t_text "ARR_NEW")
+    assert (str_contains one_t_text "ARR_PUSH")
+    assert (str_contains one_t_text "POP")
+    assert (str_contains one_t_text "RET")
+    let src51: string = (+ "struct Tok { t: int, s: string } " (+ "f" "n one_t() -> List<Tok> { let xs: List<Tok> = (list_Tok_new) (list_Tok_push xs Tok { t: 1, s: \"hi\" }) return xs } " (+ "f" "n via_one_t() -> int { let xs: List<Tok> = (one_t) let p: Tok = (list_Tok_get xs 0) return (str_length p.s) } shadow one_t { assert true } shadow via_one_t { assert true }")))
+    let toks51: List<LexerToken> = (tokenize_string src51 "t.nano" diags)
+    let p51: Parser = (parse_program toks51 (list_LexerToken_length toks51) "t.nano")
+    let via_one_t_fn: ASTFunction = (parser_get_function p51 1)
+    let via_one_t_text: string = (nisa_emit_function p51 via_one_t_fn)
+    assert (str_contains via_one_t_text ".function via_one_t 0 2 0 int 1")
+    assert (str_contains via_one_t_text "CALL one_t")
+    assert (str_contains via_one_t_text "ARR_GET")
+    assert (str_contains via_one_t_text "AGG_GET 1")
+    assert (str_contains via_one_t_text "STR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {
