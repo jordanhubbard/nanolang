@@ -198,3 +198,20 @@ fn grow() -> int {
 shadow grow {
     assert (== (grow) 2)
 }
+
+fn has_hi(s: string) -> bool {
+    return (str_contains s "hi")
+}
+
+shadow has_hi {
+    assert (has_hi "hi")
+    assert (not (has_hi "no"))
+}
+
+fn digits(n: int) -> string {
+    return (int_to_string n)
+}
+
+shadow digits {
+    assert (== (digits 7) "7")
+}

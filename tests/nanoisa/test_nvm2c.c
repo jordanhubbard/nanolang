@@ -1078,6 +1078,120 @@ static void test_arr_push_string_is_refused(void) {
     nvm_module_free(m);
 }
 
+static void test_has_hi_then_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function has_hi 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR hi\n"
+        "  STR_CONTAINS\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  CALL has_hi\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "has_hi then fixture");
+    CHECK(m != NULL, "has_hi then fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for has_hi then");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "has_hi then C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "has_hi then C compiles and runs");
+    CHECK(status == 1, "has_hi(\"hi\") exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_has_hi_else_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
+        ".entry 1\n"
+        ".function has_hi 1 1 0 bool 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR hi\n"
+        "  STR_CONTAINS\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR no\n"
+        "  CALL has_hi\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "has_hi else fixture");
+    CHECK(m != NULL, "has_hi else fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for has_hi else");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "has_hi else C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "has_hi else C compiles and runs");
+    CHECK(status == 0, "has_hi(\"no\") exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_digits_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function digits 1 1 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  CAST_STRING\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  CALL digits\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "digits fixture");
+    CHECK(m != NULL, "digits fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for digits");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "digits C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "digits C compiles and runs");
+    CHECK(status == 1, "digits(7) has length 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_cast_string_array_is_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  CAST_STRING\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "CAST_STRING array fixture");
+    CHECK(m != NULL, "CAST_STRING array fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "CAST_STRING of an array stays outside the closed subset");
+    CHECK(strstr(err, "CAST_STRING") != NULL, "error names CAST_STRING");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1410,6 +1524,10 @@ int main(int argc, char **argv) {
     test_prove_else_aborts_without_nano_vm();
     test_grow_runs_without_nano_vm();
     test_arr_push_string_is_refused();
+    test_has_hi_then_runs_without_nano_vm();
+    test_has_hi_else_runs_without_nano_vm();
+    test_digits_runs_without_nano_vm();
+    test_cast_string_array_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

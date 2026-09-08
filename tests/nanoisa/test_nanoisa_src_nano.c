@@ -115,6 +115,10 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_prove;
     const NvmFunctionEntry *c_grow;
     const NvmFunctionEntry *s_grow;
+    const NvmFunctionEntry *c_has;
+    const NvmFunctionEntry *s_has;
+    const NvmFunctionEntry *c_digits;
+    const NvmFunctionEntry *s_digits;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -140,8 +144,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 21, "C seed emitted add through grow");
-    CHECK(s_mod->function_count >= 21, "src_nano emitted add through grow");
+    CHECK(c_mod->function_count >= 23, "C seed emitted add through digits");
+    CHECK(s_mod->function_count >= 23, "src_nano emitted add through digits");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -185,6 +189,10 @@ int main(int argc, char **argv) {
     s_prove = fn_by_name(s_mod, "prove");
     c_grow = fn_by_name(c_mod, "grow");
     s_grow = fn_by_name(s_mod, "grow");
+    c_has = fn_by_name(c_mod, "has_hi");
+    s_has = fn_by_name(s_mod, "has_hi");
+    c_digits = fn_by_name(c_mod, "digits");
+    s_digits = fn_by_name(s_mod, "digits");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -206,6 +214,8 @@ int main(int argc, char **argv) {
     CHECK(c_mutter != NULL && s_mutter != NULL, "both modules have mutter");
     CHECK(c_prove != NULL && s_prove != NULL, "both modules have prove");
     CHECK(c_grow != NULL && s_grow != NULL, "both modules have grow");
+    CHECK(c_has != NULL && s_has != NULL, "both modules have has_hi");
+    CHECK(c_digits != NULL && s_digits != NULL, "both modules have digits");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -248,6 +258,10 @@ int main(int argc, char **argv) {
           "prove bytecode matches C seed");
     CHECK(code_equal(c_mod, c_grow, s_mod, s_grow),
           "grow bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_has, s_mod, s_has),
+          "has_hi bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_digits, s_mod, s_digits),
+          "digits bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -312,6 +326,12 @@ int main(int argc, char **argv) {
         printf("    C grow locals=%u len=%u  src grow locals=%u len=%u\n",
                c_grow ? c_grow->local_count : 0, c_grow ? c_grow->code_length : 0,
                s_grow ? s_grow->local_count : 0, s_grow ? s_grow->code_length : 0);
+        printf("    C has_hi locals=%u len=%u  src has_hi locals=%u len=%u\n",
+               c_has ? c_has->local_count : 0, c_has ? c_has->code_length : 0,
+               s_has ? s_has->local_count : 0, s_has ? s_has->code_length : 0);
+        printf("    C digits locals=%u len=%u  src digits locals=%u len=%u\n",
+               c_digits ? c_digits->local_count : 0, c_digits ? c_digits->code_length : 0,
+               s_digits ? s_digits->local_count : 0, s_digits ? s_digits->code_length : 0);
     }
 
     nvm_module_free(c_mod);

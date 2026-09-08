@@ -1128,12 +1128,12 @@ Compiler product:
       `array<int>`) bytecode with the C seed. String arrays are not
       this pin. I still pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (48 passed).
-- [ ] Cut A str_contains: the same pin matches `has_hi`
+- [x] Cut A str_contains: the same pin matches `has_hi`
       (`STR_CONTAINS`) bytecode with the C seed. I still pretty-print
       C to build the compiler.
-- [ ] Cut A int_to_string: the same pin matches `digits`
+- [x] Cut A int_to_string: the same pin matches `digits`
       (`CAST_STRING`) bytecode with the C seed. I still pretty-print
-      C to build the compiler.
+      C to build the compiler. `make test-nanoisa-src-nano` (52 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1192,8 +1192,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `grow` (`ARR_PUSH` of `array<int>`) without
       `nano_vm`. String arrays stay refused.
       `make test-nvm2c` (196 passed).
-- [ ] `nvm2c` runs Cut A `has_hi` (`STR_CONTAINS`) without `nano_vm`.
-- [ ] `nvm2c` runs Cut A `digits` (`CAST_STRING`) without `nano_vm`.
+- [x] `nvm2c` runs Cut A `has_hi` (`STR_CONTAINS`) without `nano_vm`.
+- [x] `nvm2c` runs Cut A `digits` (`CAST_STRING`) without `nano_vm`.
+      Casting arrays stays refused. `make test-nvm2c` (214 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
