@@ -276,7 +276,8 @@ fn nisa_is_list_call(name: string) -> bool {
     return (and (or (str_starts_with name "list_") (str_starts_with name "List_"))
                 (or (str_ends_with name "_new")
                     (or (str_ends_with name "_length")
-                        (or (str_ends_with name "_push") (str_ends_with name "_get")))))
+                        (or (str_ends_with name "_push")
+                            (or (str_ends_with name "_get") (str_ends_with name "_set"))))))
 }
 
 shadow nisa_is_list_call {
@@ -295,7 +296,8 @@ shadow nisa_is_list_call {
     assert (nisa_is_list_call "list_LexerToken_new")
     assert (nisa_is_list_call "list_LexerToken_push")
     assert (nisa_is_list_call "list_LexerToken_get")
-    assert (not (nisa_is_list_call "list_string_set"))
+    assert (nisa_is_list_call "list_int_set")
+    assert (not (nisa_is_list_call "list_int_pop"))
     assert (not (nisa_is_list_call "array_new"))
 }
 
@@ -327,6 +329,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "list_int_length")
     assert (nisa_is_inline_call "list_int_push")
     assert (nisa_is_inline_call "list_int_get")
+    assert (nisa_is_inline_call "list_int_set")
     assert (nisa_is_inline_call "list_string_new")
     assert (nisa_is_inline_call "list_string_push")
     assert (nisa_is_inline_call "list_Tok_new")
@@ -824,6 +827,13 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                     return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_PUSH"))
                 }
             } else {
+                if (or (== func_id.name "array_set") (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_set"))) {
+                    if (!= call.arg_count 3) {
+                        return (nisa_fail "array_set needs 3 arguments")
+                    } else {
+                        return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_SET"))
+                    }
+                } else {
                 if (or (== func_id.name "str_contains")
                        (or (== func_id.name "str_starts_with")
                            (== func_id.name "str_ends_with"))) {
@@ -898,6 +908,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             }
                         }
                     }
+                }
                 }
             }
         }
@@ -1657,6 +1668,15 @@ shadow nisa_emit_function {
     let has_suf_text: string = (nisa_emit_function p35 has_suf_fn)
     assert (str_contains has_suf_text ".function has_suf 1 1 0 bool 1")
     assert (str_contains has_suf_text "STR_ENDS_WITH")
+    let src36: string = (+ "f" "n put_l() -> int { let xs: List<int> = (list_int_new) (list_int_push xs 7) (list_int_set xs 0 9) return (list_int_get xs 0) } shadow put_l { assert true }")
+    let toks36: List<LexerToken> = (tokenize_string src36 "t.nano" diags)
+    let p36: Parser = (parse_program toks36 (list_LexerToken_length toks36) "t.nano")
+    let put_l_fn: ASTFunction = (parser_get_function p36 0)
+    let put_l_text: string = (nisa_emit_function p36 put_l_fn)
+    assert (str_contains put_l_text ".function put_l 0 1 0 int 1")
+    assert (str_contains put_l_text "ARR_SET")
+    assert (str_contains put_l_text "POP")
+    assert (str_contains put_l_text "ARR_GET")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

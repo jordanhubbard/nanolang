@@ -402,3 +402,14 @@ shadow has_suf {
     assert (has_suf "hi")
     assert (not (has_suf "no"))
 }
+
+fn put_l() -> int {
+    let xs: List<int> = (list_int_new)
+    (list_int_push xs 7)
+    (list_int_set xs 0 9)
+    return (list_int_get xs 0)
+}
+
+shadow put_l {
+    assert (== (put_l) 9)
+}

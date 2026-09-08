@@ -1200,8 +1200,13 @@ Compiler product:
       the C seed. `STR_SPLIT` and `STR_REPLACE` stay refused. I still
       pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (90 passed).
-- [ ] Cut A list_T_set: the same pin matches `put_l`
+- [x] Cut A list_T_set: the same pin matches `put_l`
       (`list_int_set` as `ARR_SET` then `POP`) bytecode with the C
+      seed. Nested arrays stay refused. I still pretty-print C to
+      build the compiler.
+      `make test-nanoisa-src-nano` (92 passed).
+- [ ] Cut A record list_T_set: the same pin matches `put_t`
+      (`list_Tok_set` as `ARR_SET` then `POP`) bytecode with the C
       seed. Nested arrays stay refused. I still pretty-print C to
       build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
@@ -1306,7 +1311,11 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `has_pre` and `has_suf` (`STR_STARTS_WITH` /
       `STR_ENDS_WITH`) without `nano_vm`. `STR_SPLIT` stays refused.
       `make test-nvm2c` (343 passed).
-- [ ] `nvm2c` runs Cut A `put_l` (`ARR_SET` of `array<int>`) without
+- [x] `nvm2c` runs Cut A `put_l` (`ARR_SET` of `array<int>`) without
+      `nano_vm`. Nested arrays stay refused. `ARR_SET` of strings
+      stays refused.
+      `make test-nvm2c` (349 passed).
+- [ ] `nvm2c` runs Cut A `put_t` (`ARR_SET` of a record list) without
       `nano_vm`. Nested arrays stay refused.
 
 Module richness:

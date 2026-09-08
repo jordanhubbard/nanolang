@@ -543,6 +543,23 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_ARR_SET: {
+            Nvm2cSimSlot val, ix, arr;
+            if (!sim_pop(b, idx, stk, &sp, &val)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
+            if (ix.kind != NVM2C_VK_INT) {
+                nvm2c_fail(b, "function %u: ARR_SET index must be int", idx);
+                return 0;
+            }
+            if (arr.kind != NVM2C_VK_ARR || val.kind != NVM2C_VK_INT) {
+                nvm2c_fail(b, "function %u: ARR_SET only supports int arrays", idx);
+                return 0;
+            }
+            mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_ARR);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, arr.origin)) return 0;
+            break;
+        }
         case OP_AGG_PACK: {
             uint16_t count = ins.operands[3].u16;
             Nvm2cSimSlot packed;
@@ -1606,6 +1623,28 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_ARR_SET: {
+            uint8_t vk = NVM2C_VK_INT;
+            uint8_t ik = NVM2C_VK_INT;
+            uint8_t ak = NVM2C_VK_INT;
+            int val = stack_pop_kind(b, &st, &vk);
+            int ix = stack_pop_kind(b, &st, &ik);
+            int arr = stack_pop_kind(b, &st, &ak);
+            if (b->failed) goto done;
+            if (ik != NVM2C_VK_INT) {
+                nvm2c_fail(b, "function %u: ARR_SET index must be int", idx);
+                goto done;
+            }
+            if (ak == NVM2C_VK_ARR && vk == NVM2C_VK_INT) {
+                char expr[96];
+                snprintf(expr, sizeof expr, "narr_set(a[%d], t[%d], t[%d])", arr, ix, val);
+                stack_push_arr(b, &st, expr);
+            } else {
+                nvm2c_fail(b, "function %u: ARR_SET only supports int arrays", idx);
+                goto done;
+            }
+            break;
+        }
         case OP_AGG_PACK: {
             uint8_t kind = ins.operands[0].u8;
             uint16_t count = ins.operands[3].u16;
@@ -2003,6 +2042,15 @@ static void emit_narr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_narr_set(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static narr_t narr_set(narr_t a, int64_t idx, int64_t v) {\n"
+        "    if (!a || !a->data || idx < 0 || (size_t)idx >= a->len) abort();\n"
+        "    a->data[idx] = v;\n"
+        "    return a;\n"
+        "}\n\n");
+}
+
 static void emit_nsarr_arena(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nsarr_arena[65536];\n"
@@ -2158,6 +2206,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_arr_lit = module_has_opcode(mod, OP_ARR_LITERAL);
         int need_arr_get = module_has_opcode(mod, OP_ARR_GET);
         int need_arr_push = module_has_opcode(mod, OP_ARR_PUSH);
+        int need_arr_set = module_has_opcode(mod, OP_ARR_SET);
         int need_iarr_new = module_has_arr_op_tag(mod, OP_ARR_NEW, TAG_INT);
         int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT);
         int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
@@ -2168,6 +2217,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
+        int need_iarr_set = need_arr_set && need_iarr;
         int need_sarr_push = need_arr_push && need_sarr;
         int need_sarr_new = need_sarr && module_has_opcode(mod, OP_ARR_NEW);
         int need_rarr = module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
@@ -2196,7 +2246,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
-            need_arr_push || need_iarr_new || need_sarr_new || need_rarr_new ||
+            need_arr_push || need_arr_set || need_iarr_new || need_sarr_new || need_rarr_new ||
             need_agg_get || need_assert) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
@@ -2229,6 +2279,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_iarr_lit) emit_narr_lit(&b);
         if (need_iarr_get) emit_narr_get(&b);
         if (need_iarr_push) emit_narr_push(&b);
+        if (need_iarr_set) emit_narr_set(&b);
         if (need_sarr_lit || need_sarr_new) {
             emit_nsarr_new(&b);
         }

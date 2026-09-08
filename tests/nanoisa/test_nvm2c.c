@@ -378,25 +378,27 @@ static void test_glue_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_arr_set_is_refused(void) {
+static void test_arr_set_string_is_refused(void) {
     const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
-        "  PUSH_I64 1\n"
-        "  ARR_LITERAL 1 1\n"
+        "  PUSH_STR hi\n"
+        "  ARR_LITERAL 5 1\n"
         "  PUSH_I64 0\n"
-        "  PUSH_I64 9\n"
+        "  PUSH_STR no\n"
         "  ARR_SET\n"
         "  POP\n"
         "  PUSH_I64 0\n"
         "  RET\n"
         ".end\n";
-    NvmModule *m = assemble_ok(src, "ARR_SET fixture");
-    CHECK(m != NULL, "ARR_SET fixture assembles");
+    NvmModule *m = assemble_ok(src, "ARR_SET string fixture");
+    CHECK(m != NULL, "ARR_SET string fixture assembles");
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "ARR_SET stays outside the closed subset");
+    CHECK(c == NULL, "ARR_SET of a string array stays outside the closed subset");
     CHECK(strstr(err, "ARR_SET") != NULL, "error names ARR_SET");
     free(c);
     nvm_module_free(m);
@@ -1695,6 +1697,47 @@ static void test_grow_l_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_put_l_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function put_l 0 1 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 9\n"
+        "  ARR_SET\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL put_l\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "put_l fixture");
+    CHECK(m != NULL, "put_l fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for put_l");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "put_l C does not name nano_vm");
+    CHECK(strstr(c, "narr_set") != NULL, "put_l C mutates the int array in place");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "put_l C compiles and runs");
+    CHECK(status == 9, "put_l() exits 9 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_ch_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -2349,7 +2392,7 @@ int main(int argc, char **argv) {
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();
     test_glue_runs_without_nano_vm();
-    test_arr_set_is_refused();
+    test_arr_set_string_is_refused();
     test_len3_runs_without_nano_vm();
     test_first_runs_without_nano_vm();
     test_agg_set_is_refused();
@@ -2391,6 +2434,7 @@ int main(int argc, char **argv) {
     test_str_substr_array_is_refused();
     test_blank_l_runs_without_nano_vm();
     test_grow_l_runs_without_nano_vm();
+    test_put_l_runs_without_nano_vm();
     test_ch_runs_without_nano_vm();
     test_ch_oob_runs_without_nano_vm();
     test_blank_s_runs_without_nano_vm();
