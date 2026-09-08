@@ -613,6 +613,7 @@ typedef struct nl_ASTStruct {
     int field_count;
     DynArray * field_names;
     DynArray * field_types;
+    bool is_resource;
 } nl_ASTStruct;
 typedef nl_ASTStruct ASTStruct;
 #endif

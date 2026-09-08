@@ -1059,7 +1059,7 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
 
 Ownership and proposal closure:
 
-- [ ] I freeze one affine ownership contract before extending either compiler
+- [x] I freeze one affine ownership contract before extending either compiler
       (`task_4ac22044ffda9f93b336a85573293bc2`). It resolves the current
       contradictions around at-most-once use versus mandatory cleanup,
       by-value consumption versus borrowing, moves, explicit discard, nested
@@ -1070,6 +1070,10 @@ Ownership and proposal closure:
 - [ ] I implement the same resource syntax, analysis, and diagnostics in
       `src_nano`; the self-hosted compiler does not inherit correctness from
       the C seed (`task_20048de825616195b9f2bc492231a851`).
+      I first pin declaration, move, consuming-call, use-after-move, and
+      unresolved-scope decisions across the C seed and bootstrap stages in
+      `make test-affine-selfhost`; path-sensitive control flow follows the C
+      seed conformance corpus above rather than inventing a second contract.
 - [ ] I encode and verify ownership facts in `.nvm` v2, preserving them through
       serialization, linking, reconstruction, `nvm2c`, and every shipped
       translator (`task_ed70242ac4d83be7b2327da7ece387ad`).

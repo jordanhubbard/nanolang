@@ -1,0 +1,21 @@
+resource struct FileHandle {
+    fd: int
+}
+
+fn close_file(file: FileHandle) -> int {
+    return file.fd
+}
+
+shadow close_file {
+    assert (== (main) 42)
+}
+
+fn main() -> int {
+    let first: FileHandle = FileHandle { fd: 42 }
+    let second: FileHandle = first
+    return (close_file second)
+}
+
+shadow main {
+    assert (== (main) 42)
+}
