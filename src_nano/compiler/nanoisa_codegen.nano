@@ -1900,6 +1900,21 @@ shadow nisa_emit_function {
     assert (str_contains via_ones_text ".function via_ones 0 1 0 int 1")
     assert (str_contains via_ones_text "CALL ones")
     assert (str_contains via_ones_text "ARR_LEN")
+    let src48: string = (+ "f" "n new_l() -> List<int> { return (list_int_new) } shadow new_l { assert true }")
+    let toks48: List<LexerToken> = (tokenize_string src48 "t.nano" diags)
+    let p48: Parser = (parse_program toks48 (list_LexerToken_length toks48) "t.nano")
+    let new_l_fn: ASTFunction = (parser_get_function p48 0)
+    let new_l_text: string = (nisa_emit_function p48 new_l_fn)
+    assert (str_contains new_l_text ".function new_l 0 0 0 array 1")
+    assert (str_contains new_l_text "ARR_NEW")
+    let src49: string = (+ "f" "n new_l() -> List<int> { return (list_int_new) } " (+ "f" "n via_new_l() -> int { let xs: List<int> = (new_l) return (list_int_length xs) } shadow new_l { assert true } shadow via_new_l { assert true }"))
+    let toks49: List<LexerToken> = (tokenize_string src49 "t.nano" diags)
+    let p49: Parser = (parse_program toks49 (list_LexerToken_length toks49) "t.nano")
+    let via_new_l_fn: ASTFunction = (parser_get_function p49 1)
+    let via_new_l_text: string = (nisa_emit_function p49 via_new_l_fn)
+    assert (str_contains via_new_l_text ".function via_new_l 0 1 0 int 1")
+    assert (str_contains via_new_l_text "CALL new_l")
+    assert (str_contains via_new_l_text "ARR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

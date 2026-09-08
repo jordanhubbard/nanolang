@@ -1242,6 +1242,12 @@ Compiler product:
       seed. Nested arrays stay refused. I still pretty-print C to
       build the compiler.
       `make test-nanoisa-src-nano` (114 passed).
+- [x] Cut A list results: the same pin matches `new_l`
+      (`-> List<int>` as `.function new_l 0 0 0 array 1` and
+      `ARR_NEW`) and `via_new_l` (`CALL new_l` then `ARR_LEN`)
+      bytecode with the C seed. Nested arrays stay refused. I still
+      pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (118 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1368,6 +1374,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_ones` (`CALL` of `array<int>`) without
       `nano_vm`. Nested arrays stay refused.
       `make test-nvm2c` (389 passed).
+- [x] `nvm2c` runs Cut A `via_new_l` (`CALL` of `List<int>`) without
+      `nano_vm`. Nested arrays stay refused.
+      `make test-nvm2c` (395 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

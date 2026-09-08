@@ -2487,6 +2487,38 @@ static void test_via_ones_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_new_l: CALL of List<int> (ARR_NEW), then ARR_LEN. */
+static void test_via_new_l_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function new_l 0 0 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  CALL new_l\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_new_l fixture");
+    CHECK(m != NULL, "via_new_l fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_new_l");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_new_l C does not name nano_vm");
+    CHECK(strstr(c, "narr_t") != NULL, "via_new_l C has an array result");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_new_l C compiles and runs");
+    CHECK(status == 0, "via_new_l() exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2716,6 +2748,7 @@ int main(int argc, char **argv) {
     test_via_o_runs_without_nano_vm();
     test_via_tok_runs_without_nano_vm();
     test_via_ones_runs_without_nano_vm();
+    test_via_new_l_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

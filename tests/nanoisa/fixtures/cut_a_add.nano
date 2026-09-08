@@ -521,3 +521,21 @@ fn via_ones() -> int {
 shadow via_ones {
     assert (== (via_ones) 2)
 }
+
+fn new_l() -> List<int> {
+    return (list_int_new)
+}
+
+shadow new_l {
+    let xs: List<int> = (new_l)
+    assert (== (list_int_length xs) 0)
+}
+
+fn via_new_l() -> int {
+    let xs: List<int> = (new_l)
+    return (list_int_length xs)
+}
+
+shadow via_new_l {
+    assert (== (via_new_l) 0)
+}
