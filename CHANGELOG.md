@@ -90,7 +90,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`) match the
   C seed. String `+` of a field or `int_to_string` (`glue_field` /
   `glue_digits`) and `str_concat` as `STR_CONCAT` (`glue_sc`) match
-  the C seed. `parser.nano` names `undefined function string_to_int`.
+  the C seed. `string_to_int` is `CAST_INT` (`parse_n` /
+  `via_parse_n`). `parser.nano` names `record field access needs a local`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.
@@ -166,7 +167,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_az` exits 1. `ENUM_VAL` runs as native C: `via_tag` exits
   the discriminant 19. Imported `ENUM_VAL` runs as native C:
   `via_tok_mod` exits 19. `via_imp_add` exits 42. `via_raw` exits 7.
-  `make test-nvm2c` (440 passed).
+  `CAST_INT` of a string runs as native C: `via_parse_n` exits 7.
+  Casting arrays stays refused. `make test-nvm2c` (449 passed).
 
 ## [4.5.0] - 2026-09-07
 

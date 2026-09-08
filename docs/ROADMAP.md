@@ -1363,8 +1363,13 @@ Compiler product:
       `glue_digits` match the C seed. `str_concat` is `STR_CONCAT` like
       the C seed (`glue_sc`). New code still uses `(+ a b)`.
       `make test-nanoisa-src-nano` (170 passed).
-- [ ] Cut A `string_to_int`: `parser.nano` names `undefined function string_to_int`.
+- [x] Cut A `string_to_int`: `parse_n` / `via_parse_n` match the C seed
+      (`CAST_INT`). `make test-nanoisa-src-nano` (174 passed).
+      `parser.nano` names `record field access needs a local`.
       I still pretty-print C to build the compiler.
+- [ ] Cut A nested field access: `parser.nano` names `record field access needs a local`.
+      The object of `.` is not an identifier. `via_nest` still reads the inner
+      field through a local. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1521,6 +1526,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_raw` (`unsafe { return 7 }` as `PUSH_I64 7`
       then `RET`) without `nano_vm`.
       `make test-nvm2c` (440 passed).
+- [x] `nvm2c` runs Cut A `via_parse_n` (`CAST_INT` of a string) without
+      `nano_vm`. Casting arrays stays refused.
+      `make test-nvm2c` (449 passed).
 - [ ] `nvm2c` runs Cut A `via_nest` (nested `AGG_PACK` of pin records).
       Nested records stay outside the closed subset. The assembler
       accepts the bytecode; `nvm2c` still refuses it.

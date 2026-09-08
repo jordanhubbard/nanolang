@@ -258,6 +258,10 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_glue_sc;
     const NvmFunctionEntry *c_via_glue_sc;
     const NvmFunctionEntry *s_via_glue_sc;
+    const NvmFunctionEntry *c_parse_n;
+    const NvmFunctionEntry *s_parse_n;
+    const NvmFunctionEntry *c_via_parse_n;
+    const NvmFunctionEntry *s_via_parse_n;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -283,8 +287,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 82, "C seed emitted add through via_glue_sc");
-    CHECK(s_mod->function_count >= 82, "src_nano emitted add through via_glue_sc");
+    CHECK(c_mod->function_count >= 84, "C seed emitted add through via_parse_n");
+    CHECK(s_mod->function_count >= 84, "src_nano emitted add through via_parse_n");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -450,6 +454,10 @@ int main(int argc, char **argv) {
     s_glue_sc = fn_by_name(s_mod, "glue_sc");
     c_via_glue_sc = fn_by_name(c_mod, "via_glue_sc");
     s_via_glue_sc = fn_by_name(s_mod, "via_glue_sc");
+    c_parse_n = fn_by_name(c_mod, "parse_n");
+    s_parse_n = fn_by_name(s_mod, "parse_n");
+    c_via_parse_n = fn_by_name(c_mod, "via_parse_n");
+    s_via_parse_n = fn_by_name(s_mod, "via_parse_n");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -532,6 +540,8 @@ int main(int argc, char **argv) {
     CHECK(c_via_glue_digits != NULL && s_via_glue_digits != NULL, "both modules have via_glue_digits");
     CHECK(c_glue_sc != NULL && s_glue_sc != NULL, "both modules have glue_sc");
     CHECK(c_via_glue_sc != NULL && s_via_glue_sc != NULL, "both modules have via_glue_sc");
+    CHECK(c_parse_n != NULL && s_parse_n != NULL, "both modules have parse_n");
+    CHECK(c_via_parse_n != NULL && s_via_parse_n != NULL, "both modules have via_parse_n");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -696,6 +706,10 @@ int main(int argc, char **argv) {
           "glue_sc bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_glue_sc, s_mod, s_via_glue_sc),
           "via_glue_sc bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_parse_n, s_mod, s_parse_n),
+          "parse_n bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_parse_n, s_mod, s_via_parse_n),
+          "via_parse_n bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -943,6 +957,12 @@ int main(int argc, char **argv) {
         printf("    C via_glue_sc locals=%u len=%u  src via_glue_sc locals=%u len=%u\n",
                c_via_glue_sc ? c_via_glue_sc->local_count : 0, c_via_glue_sc ? c_via_glue_sc->code_length : 0,
                s_via_glue_sc ? s_via_glue_sc->local_count : 0, s_via_glue_sc ? s_via_glue_sc->code_length : 0);
+        printf("    C parse_n locals=%u len=%u  src parse_n locals=%u len=%u\n",
+               c_parse_n ? c_parse_n->local_count : 0, c_parse_n ? c_parse_n->code_length : 0,
+               s_parse_n ? s_parse_n->local_count : 0, s_parse_n ? s_parse_n->code_length : 0);
+        printf("    C via_parse_n locals=%u len=%u  src via_parse_n locals=%u len=%u\n",
+               c_via_parse_n ? c_via_parse_n->local_count : 0, c_via_parse_n ? c_via_parse_n->code_length : 0,
+               s_via_parse_n ? s_via_parse_n->local_count : 0, s_via_parse_n ? s_via_parse_n->code_length : 0);
     }
 
     nvm_module_free(c_mod);

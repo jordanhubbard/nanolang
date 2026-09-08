@@ -461,6 +461,16 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_CAST_INT: {
+            Nvm2cSimSlot v;
+            if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+            if (v.kind != NVM2C_VK_STR && v.kind != NVM2C_VK_INT) {
+                nvm2c_fail(b, "CAST_INT only supports int or string");
+                return 0;
+            }
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
         case OP_EQ:
         case OP_NE: {
             Nvm2cSimSlot rhs, lhs;
@@ -1539,6 +1549,24 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_str(b, &st, expr);
             break;
         }
+        case OP_CAST_INT: {
+            uint8_t vk = NVM2C_VK_INT;
+            int v = stack_pop_kind(b, &st, &vk);
+            if (b->failed) goto done;
+            if (vk == NVM2C_VK_STR) {
+                char expr[48];
+                snprintf(expr, sizeof expr, "nstr_to_i64(s[%d])", v);
+                stack_push_temp(b, &st, expr);
+            } else if (vk == NVM2C_VK_INT) {
+                char expr[32];
+                snprintf(expr, sizeof expr, "t[%d]", v);
+                stack_push_temp(b, &st, expr);
+            } else {
+                nvm2c_fail(b, "CAST_INT only supports int or string");
+                goto done;
+            }
+            break;
+        }
         case OP_ARR_NEW: {
             uint8_t tag = ins.operands[0].u8;
             int as_sarr = (tag == TAG_STRING);
@@ -2136,6 +2164,13 @@ static void emit_nstr_from_i64(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nstr_to_i64(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static int64_t nstr_to_i64(const char *s) {\n"
+        "    return s ? (int64_t)strtoll(s, NULL, 10) : 0;\n"
+        "}\n\n");
+}
+
 static void emit_narr_arena(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static int64_t narr_arena[65536];\n"
@@ -2368,12 +2403,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
+        int need_cast_int = module_has_opcode(mod, OP_CAST_INT);
         int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
         int need_starts = module_has_opcode(mod, OP_STR_STARTS_WITH);
         int need_ends = module_has_opcode(mod, OP_STR_ENDS_WITH);
         int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
         int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
-        int need_string = need_concat || need_cast || need_contains || need_starts ||
+        int need_string = need_concat || need_cast || need_cast_int || need_contains || need_starts ||
             need_ends || need_substr ||
             need_char_at ||
             module_has_opcode(mod, OP_PUSH_STR) ||
@@ -2422,7 +2458,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_print || need_cast) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
-        if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
+        if (need_concat || need_cast || need_cast_int || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_arr_set || need_iarr_new || need_sarr_new || need_rarr_new ||
             need_agg_get || need_assert) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
@@ -2447,6 +2483,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_starts) emit_nstr_starts_with(&b);
         if (need_ends) emit_nstr_ends_with(&b);
         if (need_cast) emit_nstr_from_i64(&b);
+        if (need_cast_int) emit_nstr_to_i64(&b);
         if (need_iarr_lit || (need_iarr && need_iarr_new)) {
             emit_narr_new(&b);
         }

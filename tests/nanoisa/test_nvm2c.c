@@ -2772,6 +2772,56 @@ static void test_via_raw_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_via_parse_n_runs_without_nano_vm(void) {
+    const char *src =
+        ".string seven \"7\"\n"
+        ".entry 1\n"
+        ".function parse_n 0 0 0 int 1\n"
+        "  PUSH_STR seven\n"
+        "  CAST_INT\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL parse_n\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_parse_n fixture");
+    CHECK(m != NULL, "via_parse_n fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_parse_n");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_parse_n C does not name nano_vm");
+    CHECK(strstr(c, "nstr_to_i64") != NULL, "via_parse_n C parses the string");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_parse_n C compiles and runs");
+    CHECK(status == 7, "via_parse_n() exits 7 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_cast_int_array_is_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  CAST_INT\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "CAST_INT array fixture");
+    CHECK(m != NULL, "CAST_INT array fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "CAST_INT of an array stays outside the closed subset");
+    CHECK(strstr(err, "CAST_INT") != NULL, "error names CAST_INT");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -3009,6 +3059,8 @@ int main(int argc, char **argv) {
     test_via_tok_mod_runs_without_nano_vm();
     test_via_imp_add_runs_without_nano_vm();
     test_via_raw_runs_without_nano_vm();
+    test_via_parse_n_runs_without_nano_vm();
+    test_cast_int_array_is_refused();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

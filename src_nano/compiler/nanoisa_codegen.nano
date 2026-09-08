@@ -20,8 +20,8 @@
  * pin-record literals as inner AGG_PACK then outer AGG_PACK, bool
  * fields, List<int> fields, string `+` of a string field or
  * `int_to_string`, and `str_concat` as `STR_CONCAT` (C seed builtin;
- * I still write `(+ a b)` in new code).
- * `parser.nano` names `undefined function string_to_int`.
+ * I still write `(+ a b)` in new code), and `string_to_int` as
+ * `CAST_INT` (C seed builtin).
  * Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -356,7 +356,8 @@ fn nisa_is_inline_call(name: string) -> bool {
                                            (or (== name "str_length")
                                                (or (== name "str_substring")
                                                    (or (== name "char_at")
-                                                       (or (== name "str_char_at") (== name "str_concat")))))))))))))
+                                                       (or (== name "str_char_at")
+                                                           (or (== name "str_concat") (== name "string_to_int"))))))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -380,6 +381,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "list_Tok_push")
     assert (nisa_is_inline_call "char_at")
     assert (nisa_is_inline_call "str_concat")
+    assert (nisa_is_inline_call "string_to_int")
     assert (nisa_is_inline_call "str_char_at")
     assert (nisa_is_inline_call "at")
     assert (not (nisa_is_inline_call "add"))
@@ -1581,6 +1583,13 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
                         }
                     } else {
+                    if (== func_id.name "string_to_int") {
+                        if (!= call.arg_count 1) {
+                            return (nisa_fail "string_to_int needs 1 argument")
+                        } else {
+                            return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_INT"))
+                        }
+                    } else {
                         if (== func_id.name "str_length") {
                             if (!= call.arg_count 1) {
                                 return (nisa_fail "str_length needs 1 argument")
@@ -1634,6 +1643,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             }
                             }
                         }
+                    }
                     }
                     }
                 }
@@ -2367,6 +2377,13 @@ shadow nisa_emit_function {
     let dig_text: string = (nisa_emit_function p16 dig_fn)
     assert (str_contains dig_text ".function digits 1 1 0 string 1")
     assert (str_contains dig_text "CAST_STRING")
+    let src16b: string = (+ "f" "n parse_n() -> int { return (string_to_int \"7\") } shadow parse_n { assert true }")
+    let toks16b: List<LexerToken> = (tokenize_string src16b "t.nano" diags)
+    let p16b: Parser = (parse_program toks16b (list_LexerToken_length toks16b) "t.nano")
+    let parse_fn: ASTFunction = (parser_get_function p16b 0)
+    let parse_text: string = (nisa_emit_function p16b parse_fn)
+    assert (str_contains parse_text ".function parse_n 0 0 0 int 1")
+    assert (str_contains parse_text "CAST_INT")
     let src17: string = (+ "f" "n names() -> int { let mut xs: array<string> = [\"a\"] set xs (array_push xs \"b\") return (array_length xs) } shadow names { assert true }")
     let toks17: List<LexerToken> = (tokenize_string src17 "t.nano" diags)
     let p17: Parser = (parse_program toks17 (list_LexerToken_length toks17) "t.nano")

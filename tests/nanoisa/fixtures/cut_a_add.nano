@@ -801,3 +801,19 @@ fn via_glue_sc() -> int {
 shadow via_glue_sc {
     assert (== (via_glue_sc) 2)
 }
+
+fn parse_n() -> int {
+    return (string_to_int "7")
+}
+
+shadow parse_n {
+    assert (== (parse_n) 7)
+}
+
+fn via_parse_n() -> int {
+    return (parse_n)
+}
+
+shadow via_parse_n {
+    assert (== (via_parse_n) 7)
+}

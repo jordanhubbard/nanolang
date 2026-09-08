@@ -323,8 +323,10 @@ nested pin-record literals (`nest_d` / `via_nest` match the C seed;
 `nvm2c` still refuses nested records), and Cut A bool and `List<int>`
 record fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`), and Cut A
 string `+` of a field or `int_to_string` (`glue_field` / `glue_digits`) and
-`str_concat` as `STR_CONCAT` (`glue_sc`).
-`parser.nano` still names `undefined function string_to_int`. Nested arrays,
+`str_concat` as `STR_CONCAT` (`glue_sc`), and Cut A `string_to_int` as
+`CAST_INT` (`parse_n` / `via_parse_n` match the C seed; `nvm2c` runs
+`via_parse_n` without `nano_vm`).
+`parser.nano` still names `record field access needs a local`. Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
