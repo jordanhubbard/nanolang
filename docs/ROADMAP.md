@@ -1323,6 +1323,8 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `put_t` (`ARR_SET` of a record list) without
       `nano_vm`. Nested arrays stay refused.
       `make test-nvm2c` (355 passed).
+- [ ] `nvm2c` runs Cut A `put_s` (`ARR_SET` of a string list) without
+      `nano_vm`. Nested arrays stay refused.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
