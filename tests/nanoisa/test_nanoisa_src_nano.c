@@ -105,6 +105,12 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_either;
     const NvmFunctionEntry *c_pick;
     const NvmFunctionEntry *s_pick;
+    const NvmFunctionEntry *c_say;
+    const NvmFunctionEntry *s_say;
+    const NvmFunctionEntry *c_shout;
+    const NvmFunctionEntry *s_shout;
+    const NvmFunctionEntry *c_mutter;
+    const NvmFunctionEntry *s_mutter;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -130,8 +136,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 16, "C seed emitted add through pick");
-    CHECK(s_mod->function_count >= 16, "src_nano emitted add through pick");
+    CHECK(c_mod->function_count >= 19, "C seed emitted add through mutter");
+    CHECK(s_mod->function_count >= 19, "src_nano emitted add through mutter");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -165,6 +171,12 @@ int main(int argc, char **argv) {
     s_either = fn_by_name(s_mod, "either");
     c_pick = fn_by_name(c_mod, "pick");
     s_pick = fn_by_name(s_mod, "pick");
+    c_say = fn_by_name(c_mod, "say");
+    s_say = fn_by_name(s_mod, "say");
+    c_shout = fn_by_name(c_mod, "shout");
+    s_shout = fn_by_name(s_mod, "shout");
+    c_mutter = fn_by_name(c_mod, "mutter");
+    s_mutter = fn_by_name(s_mod, "mutter");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -181,6 +193,9 @@ int main(int argc, char **argv) {
     CHECK(c_both != NULL && s_both != NULL, "both modules have both");
     CHECK(c_either != NULL && s_either != NULL, "both modules have either");
     CHECK(c_pick != NULL && s_pick != NULL, "both modules have pick");
+    CHECK(c_say != NULL && s_say != NULL, "both modules have say");
+    CHECK(c_shout != NULL && s_shout != NULL, "both modules have shout");
+    CHECK(c_mutter != NULL && s_mutter != NULL, "both modules have mutter");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -213,6 +228,12 @@ int main(int argc, char **argv) {
           "either bytecode matches C seed");
     CHECK(code_equal(c_mod, c_pick, s_mod, s_pick),
           "pick bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_say, s_mod, s_say),
+          "say bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_shout, s_mod, s_shout),
+          "shout bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_mutter, s_mod, s_mutter),
+          "mutter bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -262,6 +283,15 @@ int main(int argc, char **argv) {
         printf("    C pick locals=%u len=%u  src pick locals=%u len=%u\n",
                c_pick ? c_pick->local_count : 0, c_pick ? c_pick->code_length : 0,
                s_pick ? s_pick->local_count : 0, s_pick ? s_pick->code_length : 0);
+        printf("    C say locals=%u len=%u  src say locals=%u len=%u\n",
+               c_say ? c_say->local_count : 0, c_say ? c_say->code_length : 0,
+               s_say ? s_say->local_count : 0, s_say ? s_say->code_length : 0);
+        printf("    C shout locals=%u len=%u  src shout locals=%u len=%u\n",
+               c_shout ? c_shout->local_count : 0, c_shout ? c_shout->code_length : 0,
+               s_shout ? s_shout->local_count : 0, s_shout ? s_shout->code_length : 0);
+        printf("    C mutter locals=%u len=%u  src mutter locals=%u len=%u\n",
+               c_mutter ? c_mutter->local_count : 0, c_mutter ? c_mutter->code_length : 0,
+               s_mutter ? s_mutter->local_count : 0, s_mutter ? s_mutter->code_length : 0);
     }
 
     nvm_module_free(c_mod);

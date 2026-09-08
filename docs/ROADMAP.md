@@ -1116,10 +1116,22 @@ Compiler product:
       with one `RET`) bytecode with the C seed. I still pretty-print C
       to build the compiler. Statement `if` stays `choose`.
       `make test-nanoisa-src-nano` (38 passed).
-- [ ] Cut A print: the same pin matches `say` (`PRINT` of i64), `shout`
+- [x] Cut A print: the same pin matches `say` (`PRINT` of i64), `shout`
       (`PRINTLN` of i64), and `mutter` (`PRINT` of a string) bytecode
       with the C seed. Print does not leave a value. I still
       pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (44 passed).
+- [ ] Cut A assert: the same pin matches `prove` (`ASSERT`) bytecode
+      with the C seed. I still pretty-print C to build the compiler.
+- [ ] Cut A array_push: the same pin matches `grow` (`ARR_PUSH` of
+      `array<int>`) bytecode with the C seed. String arrays are not
+      this pin. I still pretty-print C to build the compiler.
+- [ ] Cut A str_contains: the same pin matches `has_hi`
+      (`STR_CONTAINS`) bytecode with the C seed. I still pretty-print
+      C to build the compiler.
+- [ ] Cut A int_to_string: the same pin matches `digits`
+      (`CAST_STRING`) bytecode with the C seed. I still pretty-print
+      C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1170,8 +1182,15 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `pick` (`cond` shape) without `nano_vm`.
       Join points copy temps so both arms share one `RET`. Goto is
       the translator fallback. `make test-nvm2c` (155 passed).
-- [ ] `nvm2c` runs Cut A `say`, `shout`, and `mutter` without `nano_vm`.
+- [x] `nvm2c` runs Cut A `say`, `shout`, and `mutter` without `nano_vm`.
       Printing arrays and records stays refused.
+      `make test-nvm2c` (177 passed).
+- [ ] `nvm2c` runs Cut A `prove` (`ASSERT`) without `nano_vm`.
+      False asserts abort the process.
+- [ ] `nvm2c` runs Cut A `grow` (`ARR_PUSH` of `array<int>`) without
+      `nano_vm`. String arrays stay refused.
+- [ ] `nvm2c` runs Cut A `has_hi` (`STR_CONTAINS`) without `nano_vm`.
+- [ ] `nvm2c` runs Cut A `digits` (`CAST_STRING`) without `nano_vm`.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

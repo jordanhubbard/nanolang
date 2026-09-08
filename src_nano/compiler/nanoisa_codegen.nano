@@ -6,7 +6,8 @@
  * if/else, while, let, set, string literals, string concat, array<int>
  * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET),
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
- * and/or (BOOL_AND/BOOL_OR), and cond as an if-expression (JMP_FALSE/JMP).
+ * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
+ * print (PRINT), and println (PRINTLN).
  * Anything else fails closed. I do not emit C. I do not delete
  * transpiler.nano.
  */
@@ -247,13 +248,25 @@ shadow nisa_is_arr_builtin {
     assert (not (nisa_is_arr_builtin "add"))
 }
 
+fn nisa_is_print_builtin(name: string) -> bool {
+    return (or (== name "print") (== name "println"))
+}
+
+shadow nisa_is_print_builtin {
+    assert (nisa_is_print_builtin "print")
+    assert (nisa_is_print_builtin "println")
+    assert (not (nisa_is_print_builtin "add"))
+}
+
 fn nisa_is_inline_call(name: string) -> bool {
-    return (or (nisa_is_arr_builtin name) (== name "not"))
+    return (or (nisa_is_arr_builtin name)
+               (or (== name "not") (nisa_is_print_builtin name)))
 }
 
 shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "array_length")
     assert (nisa_is_inline_call "not")
+    assert (nisa_is_inline_call "print")
     assert (not (nisa_is_inline_call "add"))
 }
 
@@ -621,10 +634,22 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                     return (+ (nisa_emit_call_args parser call) (nisa_line "BOOL_NOT"))
                 }
             } else {
-                if (< (nisa_fn_index parser func_id.name) 0) {
-                    return (nisa_fail (+ "undefined function " func_id.name))
+                if (nisa_is_print_builtin func_id.name) {
+                    if (!= call.arg_count 1) {
+                        return (nisa_fail "print needs 1 argument")
+                    } else {
+                        if (== func_id.name "println") {
+                            return (+ (nisa_emit_call_args parser call) (nisa_line "PRINTLN"))
+                        } else {
+                            return (+ (nisa_emit_call_args parser call) (nisa_line "PRINT"))
+                        }
+                    }
                 } else {
-                    return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                    if (< (nisa_fn_index parser func_id.name) 0) {
+                        return (nisa_fail (+ "undefined function " func_id.name))
+                    } else {
+                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                    }
                 }
             }
         }
@@ -968,15 +993,25 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         let w: ASTWhile = (parser_get_while parser stmt.node_id)
                         return (nisa_emit_while parser w)
                     } else {
-                        if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
-                               (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)
-                                   (or (== stmt.node_type ParseNodeType.PNODE_BINARY_OP)
-                                       (or (== stmt.node_type ParseNodeType.PNODE_CALL)
-                                           (== stmt.node_type ParseNodeType.PNODE_BOOL))))) {
-                            let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
-                            return (+ expr (nisa_line "POP"))
+                        if (== stmt.node_type ParseNodeType.PNODE_CALL) {
+                            let call: ASTCall = (parser_get_call parser stmt.node_id)
+                            let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                            if (nisa_is_print_builtin func_id.name) {
+                                return (nisa_emit_call parser call)
+                            } else {
+                                let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
+                                return (+ expr (nisa_line "POP"))
+                            }
                         } else {
-                            return (nisa_fail "statement outside the pinned subset")
+                            if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
+                                   (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)
+                                       (or (== stmt.node_type ParseNodeType.PNODE_BINARY_OP)
+                                           (== stmt.node_type ParseNodeType.PNODE_BOOL)))) {
+                                let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
+                                return (+ expr (nisa_line "POP"))
+                            } else {
+                                return (nisa_fail "statement outside the pinned subset")
+                            }
                         }
                     }
                 }
@@ -1145,6 +1180,20 @@ shadow nisa_emit_function {
     assert (str_contains pick_text ".function pick 1 1 0 int 1")
     assert (str_contains pick_text "JMP_FALSE")
     assert (str_contains pick_text "JMP L")
+    let src11: string = (+ "f" "n say() -> int { (print 7) return 0 } shadow say { assert true }")
+    let toks11: List<LexerToken> = (tokenize_string src11 "t.nano" diags)
+    let p11: Parser = (parse_program toks11 (list_LexerToken_length toks11) "t.nano")
+    let say_fn: ASTFunction = (parser_get_function p11 0)
+    let say_text: string = (nisa_emit_function p11 say_fn)
+    assert (str_contains say_text ".function say 0 0 0 int 1")
+    assert (str_contains say_text "PRINT")
+    assert (not (str_contains say_text "POP"))
+    let src12: string = (+ "f" "n shout() -> int { (println 7) return 0 } shadow shout { assert true }")
+    let toks12: List<LexerToken> = (tokenize_string src12 "t.nano" diags)
+    let p12: Parser = (parse_program toks12 (list_LexerToken_length toks12) "t.nano")
+    let shout_fn: ASTFunction = (parser_get_function p12 0)
+    let shout_text: string = (nisa_emit_function p12 shout_fn)
+    assert (str_contains shout_text "PRINTLN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

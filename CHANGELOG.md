@@ -41,13 +41,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - 5.0 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits NanoISA
   assembly for integer `add`/`main`/`choose`/`loop_sum`, string
   `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
-  `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`, and
-  `pick`. `make test-nanoisa-src-nano` compares function bytecode with
-  the C seed, including `if`, `while`, `PUSH_STR`, `STR_CONCAT`,
-  `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `AGG_PACK`, `AGG_GET`, `bool`
-  results, `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`, and `cond`
-  as `JMP_FALSE`/`JMP` with one `RET`. String operands are compared
-  by content. I still pretty-print C to build the compiler.
+  `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
+  `pick`, `say`, `shout`, and `mutter`. `make test-nanoisa-src-nano`
+  compares function bytecode with the C seed, including `if`,
+  `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
+  `ARR_GET`, `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`,
+  `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP`
+  with one `RET`, `PRINT`, and `PRINTLN`. String operands are
+  compared by content. I still pretty-print C to build the compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
@@ -64,7 +65,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `is_pos` runs as native C. `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, and
   `BOOL_OR` run as native C: `yes`, `invert`, `both`, and `either`
   exit without a VM process. `pick` (`cond` join) runs as native C:
-  both arms share one `RET`. `make test-nvm2c` (155 passed).
+  both arms share one `RET`. `PRINT` and `PRINTLN` run as native C:
+  `say` writes `7`, `shout` writes `7` with a newline, `mutter`
+  writes an empty string. Printing arrays stays refused.
+  `make test-nvm2c` (177 passed).
 
 ## [4.5.0] - 2026-09-07
 

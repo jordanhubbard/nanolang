@@ -74,6 +74,62 @@ static int compile_and_run(const char *c_src, int *status_out) {
     return 0;
 }
 
+static int compile_and_run_capture(const char *c_src, int *status_out,
+                                   char *captured, size_t cap) {
+    char dir[] = "/tmp/nvm2cXXXXXX";
+    if (!mkdtemp(dir)) return -1;
+    char src_path[128];
+    char bin_path[128];
+    char out_path[128];
+    snprintf(src_path, sizeof src_path, "%s/out.c", dir);
+    snprintf(bin_path, sizeof bin_path, "%s/out", dir);
+    snprintf(out_path, sizeof out_path, "%s/stdout.txt", dir);
+
+    FILE *f = fopen(src_path, "w");
+    if (!f) {
+        rmdir(dir);
+        return -1;
+    }
+    fputs(c_src, f);
+    fclose(f);
+
+    const char *cc = getenv("CC");
+    if (!cc || !cc[0]) cc = "cc";
+    char cmd[768];
+    snprintf(cmd, sizeof cmd,
+             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -Wall -Wextra -Werror -o %s %s",
+             cc, bin_path, src_path);
+    int rc = system(cmd);
+    if (rc != 0) {
+        fprintf(stderr, "---- generated C (cc failed) ----\n%s\n----\n", c_src);
+        unlink(src_path);
+        rmdir(dir);
+        return -2;
+    }
+
+    snprintf(cmd, sizeof cmd, "perl -e 'alarm 30; exec @ARGV' %s > %s", bin_path, out_path);
+    rc = system(cmd);
+    int status = -1;
+    if (WIFEXITED(rc)) status = WEXITSTATUS(rc);
+    *status_out = status;
+
+    if (captured && cap > 0) {
+        captured[0] = '\0';
+        FILE *o = fopen(out_path, "rb");
+        if (o) {
+            size_t n = fread(captured, 1, cap - 1, o);
+            captured[n] = '\0';
+            fclose(o);
+        }
+    }
+
+    unlink(src_path);
+    unlink(bin_path);
+    unlink(out_path);
+    rmdir(dir);
+    return 0;
+}
+
 static char *emit_or_fail(NvmModule *m, const char *label);
 
 static void test_add_is_structured_c_and_runs(void) {
@@ -783,6 +839,125 @@ static void test_pick_else_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_say_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function say 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PRINT\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL say\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "say fixture");
+    CHECK(m != NULL, "say fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for say");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "say C does not name nano_vm");
+    CHECK(strstr(c, "printf") != NULL, "say C prints with printf");
+    int status = -1;
+    char out[32];
+    CHECK(compile_and_run_capture(c, &status, out, sizeof out) == 0,
+          "say C compiles and runs");
+    CHECK(status == 0, "say exits 0 without a VM process");
+    CHECK(strcmp(out, "7") == 0, "say writes 7 without a newline");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_shout_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function shout 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PRINTLN\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL shout\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "shout fixture");
+    CHECK(m != NULL, "shout fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for shout");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "shout C does not name nano_vm");
+    int status = -1;
+    char out[32];
+    CHECK(compile_and_run_capture(c, &status, out, sizeof out) == 0,
+          "shout C compiles and runs");
+    CHECK(status == 0, "shout exits 0 without a VM process");
+    CHECK(strcmp(out, "7\n") == 0, "shout writes 7 with a newline");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_mutter_runs_without_nano_vm(void) {
+    const char *src =
+        ".string empty \"\"\n"
+        ".entry 1\n"
+        ".function mutter 0 0 0 int 1\n"
+        "  PUSH_STR empty\n"
+        "  PRINT\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL mutter\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "mutter fixture");
+    CHECK(m != NULL, "mutter fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for mutter");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "mutter C does not name nano_vm");
+    int status = -1;
+    char out[32];
+    CHECK(compile_and_run_capture(c, &status, out, sizeof out) == 0,
+          "mutter C compiles and runs");
+    CHECK(status == 0, "mutter exits 0 without a VM process");
+    CHECK(strcmp(out, "") == 0, "mutter writes an empty string");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_print_array_is_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PRINT\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "PRINT array fixture");
+    CHECK(m != NULL, "PRINT array fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "PRINT of arrays stays outside the closed subset");
+    CHECK(strstr(err, "PRINT") != NULL, "error names PRINT");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -1107,6 +1282,10 @@ int main(int argc, char **argv) {
     test_either_runs_without_nano_vm();
     test_pick_then_runs_without_nano_vm();
     test_pick_else_runs_without_nano_vm();
+    test_say_runs_without_nano_vm();
+    test_shout_runs_without_nano_vm();
+    test_mutter_runs_without_nano_vm();
+    test_print_array_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
