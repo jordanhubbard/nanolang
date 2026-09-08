@@ -1453,10 +1453,19 @@ Compiler product:
 - [x] `transpiler.nano` emits 444 functions and that nasm assembles.
       `nano_vm` exits 0 (synthetic `main`). I still pretty-print C to
       build the compiler.
+- [x] Cut A host `tmp_dir`: `via_tmp` matches the C seed (`CALL_EXTERN`
+      `vm_tmp_dir`). `file_read` / `file_write` / `file_exists` lower
+      as `vm_file_read` / `vm_file_write` / `vm_file_exists`.
+      `file_io.nano` emits 3 functions and that nasm assembles.
+      `make test-nanoisa-src-nano` (234 passed). `std/fs.nano` already
+      declares those names as extern, so the C typechecker does not
+      also register them as builtins.
 - [ ] Cut A `nanoc_integrated.nano` names
       `expression outside the pinned subset -1`. `nanoisa_codegen.nano`
-      as a root names `parse failed`. `nvm2c` still names `LOAD_GLOBAL`
-      and `CALL_EXTERN`. I still pretty-print C to build the compiler.
+      as a root names `parse failed`. Compiler drivers name `system`
+      and `get_argc`. `result.nano` names `unsupported result type
+      ResultInt`. `nvm2c` still names `LOAD_GLOBAL` and `CALL_EXTERN`.
+      I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

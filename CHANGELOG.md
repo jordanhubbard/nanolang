@@ -115,7 +115,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   is 8192. `module_loader.nano` emits 559 functions and that nasm
   assembles. `transpiler.nano` emits 444 functions and that nasm
   assembles. `nanoc_integrated.nano` names
-  `expression outside the pinned subset -1`.
+  `expression outside the pinned subset -1`. Host `tmp_dir` is
+  `CALL_EXTERN` `vm_tmp_dir` (`via_tmp`). `file_read` / `file_write` /
+  `file_exists` lower as `vm_file_read` / `vm_file_write` /
+  `vm_file_exists`. `file_io.nano` emits 3 functions and that nasm
+  assembles. Compiler drivers name `system` and `get_argc`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

@@ -1302,37 +1302,198 @@ shadow nisa_fn_is_void {
 fn nisa_os_sym(name: string) -> string {
     if (== name "getcwd") {
         return "vm_getcwd"
-    } else {
-        if (== name "getenv") {
-            return "vm_getenv"
-        } else {
-            return ""
-        }
     }
+    if (== name "chdir") {
+        return "vm_chdir"
+    }
+    if (== name "file_read") {
+        return "vm_file_read"
+    }
+    if (== name "file_write") {
+        return "vm_file_write"
+    }
+    if (== name "file_exists") {
+        return "vm_file_exists"
+    }
+    if (== name "dir_exists") {
+        return "vm_dir_exists"
+    }
+    if (== name "dir_create") {
+        return "vm_dir_create"
+    }
+    if (== name "dir_list") {
+        return "vm_dir_list"
+    }
+    if (== name "tmp_dir") {
+        return "vm_tmp_dir"
+    }
+    if (== name "mktemp") {
+        return "vm_mktemp"
+    }
+    if (== name "mktemp_dir") {
+        return "vm_mktemp_dir"
+    }
+    if (== name "getenv") {
+        return "vm_getenv"
+    }
+    if (== name "setenv") {
+        return "vm_setenv"
+    }
+    if (== name "str_index_of") {
+        return "vm_str_index_of"
+    }
+    if (== name "process_run") {
+        return "vm_process_run"
+    }
+    return ""
 }
 
 shadow nisa_os_sym {
     assert (== (nisa_os_sym "getcwd") "vm_getcwd")
     assert (== (nisa_os_sym "getenv") "vm_getenv")
+    assert (== (nisa_os_sym "file_read") "vm_file_read")
+    assert (== (nisa_os_sym "file_write") "vm_file_write")
+    assert (== (nisa_os_sym "file_exists") "vm_file_exists")
+    assert (== (nisa_os_sym "tmp_dir") "vm_tmp_dir")
     assert (== (nisa_os_sym "add") "")
 }
 
 fn nisa_os_arity(name: string) -> int {
     if (== name "getcwd") {
         return 0
-    } else {
-        if (== name "getenv") {
-            return 1
-        } else {
-            return (- 0 1)
-        }
     }
+    if (== name "tmp_dir") {
+        return 0
+    }
+    if (== name "chdir") {
+        return 1
+    }
+    if (== name "file_read") {
+        return 1
+    }
+    if (== name "file_exists") {
+        return 1
+    }
+    if (== name "dir_exists") {
+        return 1
+    }
+    if (== name "dir_create") {
+        return 1
+    }
+    if (== name "dir_list") {
+        return 1
+    }
+    if (== name "mktemp") {
+        return 1
+    }
+    if (== name "mktemp_dir") {
+        return 1
+    }
+    if (== name "getenv") {
+        return 1
+    }
+    if (== name "process_run") {
+        return 1
+    }
+    if (== name "file_write") {
+        return 2
+    }
+    if (== name "setenv") {
+        return 2
+    }
+    if (== name "str_index_of") {
+        return 2
+    }
+    return (- 0 1)
 }
 
 shadow nisa_os_arity {
     assert (== (nisa_os_arity "getcwd") 0)
+    assert (== (nisa_os_arity "tmp_dir") 0)
     assert (== (nisa_os_arity "getenv") 1)
+    assert (== (nisa_os_arity "file_read") 1)
+    assert (== (nisa_os_arity "file_exists") 1)
+    assert (== (nisa_os_arity "file_write") 2)
     assert (== (nisa_os_arity "add") (- 0 1))
+}
+
+fn nisa_os_ret(name: string) -> string {
+    if (== name "getcwd") {
+        return "string"
+    }
+    if (== name "file_read") {
+        return "string"
+    }
+    if (== name "tmp_dir") {
+        return "string"
+    }
+    if (== name "mktemp") {
+        return "string"
+    }
+    if (== name "mktemp_dir") {
+        return "string"
+    }
+    if (== name "getenv") {
+        return "string"
+    }
+    if (== name "file_exists") {
+        return "bool"
+    }
+    if (== name "dir_exists") {
+        return "bool"
+    }
+    if (== name "chdir") {
+        return "int"
+    }
+    if (== name "file_write") {
+        return "int"
+    }
+    if (== name "dir_create") {
+        return "int"
+    }
+    if (== name "setenv") {
+        return "int"
+    }
+    if (== name "str_index_of") {
+        return "int"
+    }
+    if (== name "dir_list") {
+        return "array"
+    }
+    if (== name "process_run") {
+        return "array"
+    }
+    return ""
+}
+
+shadow nisa_os_ret {
+    assert (== (nisa_os_ret "getcwd") "string")
+    assert (== (nisa_os_ret "file_read") "string")
+    assert (== (nisa_os_ret "tmp_dir") "string")
+    assert (== (nisa_os_ret "getenv") "string")
+    assert (== (nisa_os_ret "file_exists") "bool")
+    assert (== (nisa_os_ret "file_write") "int")
+    assert (== (nisa_os_ret "add") "")
+}
+
+fn nisa_os_params(arity: int) -> string {
+    if (== arity 0) {
+        return ""
+    }
+    if (== arity 1) {
+        return "string"
+    }
+    if (== arity 2) {
+        return "string string"
+    }
+    return ""
+}
+
+shadow nisa_os_params {
+    assert (== (nisa_os_params 0) "")
+    assert (== (nisa_os_params 1) "string")
+    assert (== (nisa_os_params 2) "string string")
+    assert (== (nisa_os_params 3) "")
 }
 
 fn nisa_ext_index(sym: string) -> int {
@@ -1394,6 +1555,9 @@ shadow nisa_is_host_call {
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_host_call p "getcwd")
+    assert (nisa_is_host_call p "file_exists")
+    assert (nisa_is_host_call p "tmp_dir")
+    assert (nisa_is_host_call p "file_read")
     assert (not (nisa_is_host_call p "add"))
 }
 
@@ -1436,14 +1600,14 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall) -> string {
         if (!= call.arg_count arity) {
             return (nisa_fail (+ func_id.name " wrong arity"))
         } else {
-            let mut params: string = ""
-            if (== arity 1) {
-                set params "string"
+            let ret: string = (nisa_os_ret func_id.name)
+            if (== ret "") {
+                return (nisa_fail (+ "unsupported host result " func_id.name))
             } else {
-                (print "")
+                let params: string = (nisa_os_params arity)
+                let idx: int = (nisa_ensure_extern os ret params)
+                return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string idx)))
             }
-            let idx: int = (nisa_ensure_extern os "string" params)
-            return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string idx)))
         }
     } else {
         let fidx: int = (nisa_fn_index parser func_id.name)
@@ -1576,8 +1740,10 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                     if (or (== func_id.name "int_to_string")
                            (or (== func_id.name "getcwd")
                                (or (== func_id.name "getenv")
-                                   (or (== func_id.name "str_concat")
-                                       (== func_id.name "str_substring"))))) {
+                                   (or (== func_id.name "file_read")
+                                       (or (== func_id.name "tmp_dir")
+                                           (or (== func_id.name "str_concat")
+                                               (== func_id.name "str_substring"))))))) {
                         return true
                     } else {
                     let fidx: int = (nisa_fn_index parser func_id.name)
@@ -1650,7 +1816,9 @@ fn nisa_expr_is_bool(parser: Parser, node_id: int, node_type: int) -> bool {
                            (or (== func_id.name "hashmap_has")
                                (or (== func_id.name "str_contains")
                                    (or (== func_id.name "str_starts_with")
-                                       (== func_id.name "str_ends_with"))))) {
+                                       (or (== func_id.name "str_ends_with")
+                                           (or (== func_id.name "file_exists")
+                                               (== func_id.name "dir_exists"))))))) {
                         return true
                     } else {
                         let fidx: int = (nisa_fn_index parser func_id.name)

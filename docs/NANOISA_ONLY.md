@@ -348,7 +348,10 @@ match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 (`empty_fb` / `flag_n`). Assembler `MAX_SYMBOLS` is 8192.
 `module_loader.nano` emits 559 functions and that nasm assembles;
 `transpiler.nano` emits 444. `nano_vm` exits 0. `nvm2c` still names
-`CALL_EXTERN` and `LOAD_GLOBAL`. `nanoc_integrated.nano` names
+`CALL_EXTERN` and `LOAD_GLOBAL`. Host `tmp_dir` (`via_tmp`) is
+`CALL_EXTERN` `vm_tmp_dir`. `file_read` / `file_write` / `file_exists`
+lower as `vm_file_*`. `file_io.nano` emits 3 functions and that nasm
+assembles. `nanoc_integrated.nano` names
 `expression outside the pinned subset -1`. Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array

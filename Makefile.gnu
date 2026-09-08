@@ -487,6 +487,15 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_transpiler.nasm \
 		-o /tmp/nanolang_cut_a_transpiler.nvm
 	@test -s /tmp/nanolang_cut_a_transpiler.nvm
+	@echo "Checking file_io.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/file_io.nano \
+		-o /tmp/nanolang_cut_a_file_io.nasm
+	@test -s /tmp/nanolang_cut_a_file_io.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_file_io.nasm >/dev/null
+	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_file_io.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_file_io.nasm \
+		-o /tmp/nanolang_cut_a_file_io.nvm
+	@test -s /tmp/nanolang_cut_a_file_io.nvm
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

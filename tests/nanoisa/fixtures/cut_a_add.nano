@@ -1095,3 +1095,13 @@ fn via_flag_n() -> int {
 shadow via_flag_n {
     assert (== (via_flag_n) 0)
 }
+
+fn via_tmp() -> string {
+    unsafe {
+        return (tmp_dir)
+    }
+}
+
+shadow via_tmp {
+    assert (> (str_length (via_tmp)) 0)
+}
