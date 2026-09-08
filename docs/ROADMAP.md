@@ -1144,6 +1144,10 @@ Compiler product:
       C seed. I still pretty-print C to build the compiler.
       `STR_EQ` as a separate opcode is not this pin.
       `make test-nanoisa-src-nano` (60 passed).
+- [x] Cut A at/str_length: the same pin matches `via_at` (`at` as
+      `ARR_GET`) and `slen` (`str_length` as `STR_LEN`) bytecode
+      with the C seed. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (64 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1211,6 +1215,8 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `same` and `diff` (`EQ`/`NE` of strings)
       without `nano_vm`. Array equality stays refused.
       `make test-nvm2c` (243 passed).
+- [x] `nvm2c` runs Cut A `via_at` and `slen` without `nano_vm`.
+      `make test-nvm2c` (253 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

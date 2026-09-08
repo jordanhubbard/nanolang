@@ -252,3 +252,20 @@ shadow diff {
     assert (diff "hi" "no")
     assert (not (diff "hi" "hi"))
 }
+
+fn via_at() -> int {
+    let xs: array<int> = [7, 8]
+    return (at xs 0)
+}
+
+shadow via_at {
+    assert (== (via_at) 7)
+}
+
+fn slen(s: string) -> int {
+    return (str_length s)
+}
+
+shadow slen {
+    assert (== (slen "hi") 2)
+}

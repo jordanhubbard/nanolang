@@ -241,13 +241,15 @@ shadow nisa_local_type_ok {
 
 fn nisa_is_arr_builtin(name: string) -> bool {
     return (or (== name "array_length")
-               (or (== name "array_get") (== name "array_push")))
+               (or (== name "array_get")
+                   (or (== name "array_push") (== name "at"))))
 }
 
 shadow nisa_is_arr_builtin {
     assert (nisa_is_arr_builtin "array_length")
     assert (nisa_is_arr_builtin "array_get")
     assert (nisa_is_arr_builtin "array_push")
+    assert (nisa_is_arr_builtin "at")
     assert (not (nisa_is_arr_builtin "add"))
 }
 
@@ -265,7 +267,8 @@ fn nisa_is_inline_call(name: string) -> bool {
     return (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
                    (or (== name "not")
-                       (or (== name "str_contains") (== name "int_to_string")))))
+                       (or (== name "str_contains")
+                           (or (== name "int_to_string") (== name "str_length"))))))
 }
 
 shadow nisa_is_inline_call {
@@ -274,6 +277,8 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "print")
     assert (nisa_is_inline_call "str_contains")
     assert (nisa_is_inline_call "int_to_string")
+    assert (nisa_is_inline_call "str_length")
+    assert (nisa_is_inline_call "at")
     assert (not (nisa_is_inline_call "add"))
 }
 
@@ -647,7 +652,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_LEN"))
         }
     } else {
-        if (== func_id.name "array_get") {
+        if (or (== func_id.name "array_get") (== func_id.name "at")) {
             if (!= call.arg_count 2) {
                 return (nisa_fail "array_get needs 2 arguments")
             } else {
@@ -675,28 +680,36 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
                         }
                     } else {
-                        if (== func_id.name "not") {
+                        if (== func_id.name "str_length") {
                             if (!= call.arg_count 1) {
-                                return (nisa_fail "not needs 1 argument")
+                                return (nisa_fail "str_length needs 1 argument")
                             } else {
-                                return (+ (nisa_emit_call_args parser call) (nisa_line "BOOL_NOT"))
+                                return (+ (nisa_emit_call_args parser call) (nisa_line "STR_LEN"))
                             }
                         } else {
-                            if (nisa_is_print_builtin func_id.name) {
+                            if (== func_id.name "not") {
                                 if (!= call.arg_count 1) {
-                                    return (nisa_fail "print needs 1 argument")
+                                    return (nisa_fail "not needs 1 argument")
                                 } else {
-                                    if (== func_id.name "println") {
-                                        return (+ (nisa_emit_call_args parser call) (nisa_line "PRINTLN"))
-                                    } else {
-                                        return (+ (nisa_emit_call_args parser call) (nisa_line "PRINT"))
-                                    }
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "BOOL_NOT"))
                                 }
                             } else {
-                                if (< (nisa_fn_index parser func_id.name) 0) {
-                                    return (nisa_fail (+ "undefined function " func_id.name))
+                                if (nisa_is_print_builtin func_id.name) {
+                                    if (!= call.arg_count 1) {
+                                        return (nisa_fail "print needs 1 argument")
+                                    } else {
+                                        if (== func_id.name "println") {
+                                            return (+ (nisa_emit_call_args parser call) (nisa_line "PRINTLN"))
+                                        } else {
+                                            return (+ (nisa_emit_call_args parser call) (nisa_line "PRINT"))
+                                        }
+                                    }
                                 } else {
-                                    return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                                    if (< (nisa_fn_index parser func_id.name) 0) {
+                                        return (nisa_fail (+ "undefined function " func_id.name))
+                                    } else {
+                                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                                    }
                                 }
                             }
                         }
@@ -1341,6 +1354,20 @@ shadow nisa_emit_function {
     let diff_text: string = (nisa_emit_function p20 diff_fn)
     assert (str_contains diff_text ".function diff 2 2 0 bool 1")
     assert (str_contains diff_text "NE")
+    let src21: string = (+ "f" "n via_at() -> int { let xs: array<int> = [7, 8] return (at xs 0) } shadow via_at { assert true }")
+    let toks21: List<LexerToken> = (tokenize_string src21 "t.nano" diags)
+    let p21: Parser = (parse_program toks21 (list_LexerToken_length toks21) "t.nano")
+    let at_fn: ASTFunction = (parser_get_function p21 0)
+    let at_text: string = (nisa_emit_function p21 at_fn)
+    assert (str_contains at_text ".function via_at 0 1 0 int 1")
+    assert (str_contains at_text "ARR_GET")
+    let src22: string = (+ "f" "n slen(s: string) -> int { return (str_length s) } shadow slen { assert true }")
+    let toks22: List<LexerToken> = (tokenize_string src22 "t.nano" diags)
+    let p22: Parser = (parse_program toks22 (list_LexerToken_length toks22) "t.nano")
+    let slen_fn: ASTFunction = (parser_get_function p22 0)
+    let slen_text: string = (nisa_emit_function p22 slen_fn)
+    assert (str_contains slen_text ".function slen 1 1 0 int 1")
+    assert (str_contains slen_text "STR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

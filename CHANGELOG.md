@@ -43,7 +43,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
   `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
   `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
-  `digits`, `names`, `head_s`, `same`, and `diff`.
+  `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, and `slen`.
   `make test-nanoisa-src-nano`
   compares function bytecode with the C seed, including `if`,
   `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
@@ -51,8 +51,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`, `BOOL_NOT`,
   `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP` with one `RET`,
   `PRINT`, `PRINTLN`, `ASSERT`, `STR_CONTAINS`, `CAST_STRING` of
-  i64, and `EQ`/`NE` of strings. String operands are compared by
-  content. I still pretty-print C to build the compiler.
+  i64, `EQ`/`NE` of strings, `at` as `ARR_GET`, and `str_length` as
+  `STR_LEN`. String operands are compared by content. I still
+  pretty-print C to build the compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
@@ -82,7 +83,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   returns `"hi"`. Nested arrays stay refused. `EQ`/`NE` of strings
   run as native C: `same("hi", "hi")` exits 1, `same("hi", "no")`
   exits 0, and `diff("hi", "no")` exits 1. Array equality stays
-  refused. `make test-nvm2c` (243 passed).
+  refused. `at` as `ARR_GET` and `str_length` as `STR_LEN` run as
+  native C: `via_at` exits 7 and `slen("hi")` exits 2.
+  `make test-nvm2c` (253 passed).
 
 ## [4.5.0] - 2026-09-07
 
