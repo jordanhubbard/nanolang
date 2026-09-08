@@ -13,3 +13,30 @@ fn main() -> int {
 shadow main {
     assert (== (main) 42)
 }
+
+fn choose(c: int) -> int {
+    if (> c 0) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow choose {
+    assert (== (choose 3) 1)
+    assert (== (choose 0) 0)
+}
+
+fn loop_sum(n: int) -> int {
+    let mut i: int = 0
+    let mut s: int = 0
+    while (< i n) {
+        set s (+ s i)
+        set i (+ i 1)
+    }
+    return s
+}
+
+shadow loop_sum {
+    assert (== (loop_sum 4) 6)
+}

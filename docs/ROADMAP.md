@@ -1087,6 +1087,9 @@ Compiler product:
       Function bytecode matches the C seed (`make test-nanoisa-src-nano`,
       10 passed). I still pretty-print C to build the compiler. The full
       dual of `codegen.c` is not this pin.
+- [x] Cut A control: the same pin matches `choose` (`if`) and `loop_sum`
+      (`while`/`set`/`let mut`) bytecode with the C seed.
+      `make test-nanoisa-src-nano` (14 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1111,6 +1114,10 @@ Compiler product:
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
       `make test-nvm2c` runs the library and the CLI. Generated C does not
       name `nano_vm`. I may later write `nvm2c` in myself.
+- [ ] `nvm2c` translates i64 comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL`.
+      `choose` and `loop_sum` from the Cut A pin compile and run without
+      `nano_vm`. Goto is the translator fallback; recovered `if`/`while` is
+      not this item.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

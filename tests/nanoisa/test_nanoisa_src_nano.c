@@ -52,6 +52,10 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_add;
     const NvmFunctionEntry *c_main;
     const NvmFunctionEntry *s_main;
+    const NvmFunctionEntry *c_choose;
+    const NvmFunctionEntry *s_choose;
+    const NvmFunctionEntry *c_loop;
+    const NvmFunctionEntry *s_loop;
 
     printf("\n[nanoisa src_nano] Cut A pinned i64 subset...\n\n");
     if (argc < 3) {
@@ -77,19 +81,29 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 2, "C seed emitted add and main");
-    CHECK(s_mod->function_count >= 2, "src_nano emitted add and main");
+    CHECK(c_mod->function_count >= 4, "C seed emitted add, main, choose, loop_sum");
+    CHECK(s_mod->function_count >= 4, "src_nano emitted add, main, choose, loop_sum");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
     c_main = fn_by_name(c_mod, "main");
     s_main = fn_by_name(s_mod, "main");
+    c_choose = fn_by_name(c_mod, "choose");
+    s_choose = fn_by_name(s_mod, "choose");
+    c_loop = fn_by_name(c_mod, "loop_sum");
+    s_loop = fn_by_name(s_mod, "loop_sum");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
+    CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
+    CHECK(c_loop != NULL && s_loop != NULL, "both modules have loop_sum");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
           "main bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_choose, s_mod, s_choose),
+          "choose bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_loop, s_mod, s_loop),
+          "loop_sum bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -100,6 +114,12 @@ int main(int argc, char **argv) {
         printf("    C main locals=%u len=%u  src main locals=%u len=%u\n",
                c_main ? c_main->local_count : 0, c_main ? c_main->code_length : 0,
                s_main ? s_main->local_count : 0, s_main ? s_main->code_length : 0);
+        printf("    C choose locals=%u len=%u  src choose locals=%u len=%u\n",
+               c_choose ? c_choose->local_count : 0, c_choose ? c_choose->code_length : 0,
+               s_choose ? s_choose->local_count : 0, s_choose ? s_choose->code_length : 0);
+        printf("    C loop_sum locals=%u len=%u  src loop_sum locals=%u len=%u\n",
+               c_loop ? c_loop->local_count : 0, c_loop ? c_loop->code_length : 0,
+               s_loop ? s_loop->local_count : 0, s_loop ? s_loop->code_length : 0);
     }
 
     nvm_module_free(c_mod);

@@ -58,7 +58,7 @@ Source .nano → Lexer (tokenize) → Parser (AST) → TypeChecker (validate) �
 
 **Backend A — C Transpiler:** AST → C source → `cc` → native binary  
 **Backend B — NanoISA VM:** AST → bytecode → `.nvm` → `nano_vm` (optional `nano_cop` / `nano_vmd`). `nano_virt -o` still embeds that VM.  
-**Backend C — NanoISA AOT:** `.nvm` → `bin/nvm2c` → structured C11 → `cc`. Closed i64 subset (`make test-nvm2c`). The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`). Cut A pin: `src_nano` emits `.nasm` for integer add/main (`make test-nanoisa-src-nano`, 10 passed).
+**Backend C — NanoISA AOT:** `.nvm` → `bin/nvm2c` → structured C11 → `cc`. Closed i64 subset (`make test-nvm2c`). The NanoISA-only compiler rewrite is **5.0** (`docs/NANOISA_ONLY.md`). Cut A pin: `src_nano` emits `.nasm` for integer add/main/choose/loop_sum (`make test-nanoisa-src-nano`, 14 passed).
 
 ---
 
@@ -1029,6 +1029,8 @@ modules/<name>/
 | Language tests | `tests/nl_*.nano`, `tests/test_*.nano` | `tests/run_all_tests.sh` |
 | C unit tests | `tests/test_transpiler.c` | `make test-units` |
 | NanoISA tests | `tests/nanoisa/test_nanoisa.c` (470 tests) | `make test-nanoisa` |
+| nvm2c AOT tests | `tests/nanoisa/test_nvm2c.c` | `make test-nvm2c` |
+| Cut A src_nano lowering | `tests/nanoisa/test_nanoisa_src_nano.c` | `make test-nanoisa-src-nano` |
 | NanoVM tests | `tests/nanovm/test_vm.c` (150 tests) | `make test-nanovm` |
 | Forth session tests | `tests/forth/test_forth_session.c` | `make test-forth-session` |
 | NanoVirt tests | `tests/nanovirt/test_codegen.c` (62 tests) | `make test-nanovirt` |

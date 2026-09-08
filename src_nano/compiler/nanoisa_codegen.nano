@@ -2,8 +2,9 @@
  * NanoISA lowering (src_nano dual of src/nanovirt/codegen.c, pinned subset)
  * =============================================================================
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
- * functions: literals, locals, +, -, *, /, %, calls, and return. Anything else
- * fails closed. I do not emit C. I do not delete transpiler.nano.
+ * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
+ * if/else, while, let, and set. Anything else fails closed. I do not emit C.
+ * I do not delete transpiler.nano.
  */
 
 import "src_nano/parser.nano"
@@ -13,11 +14,13 @@ from "src_nano/compiler/diagnostics.nano" import diag_list_new
 let mut nisa_names: array<string> = []
 let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
+let mut nisa_label: int = 0
 
 fn nisa_reset() -> int {
     set nisa_names []
     set nisa_ok true
     set nisa_err ""
+    set nisa_label 0
     return 0
 }
 
@@ -139,6 +142,27 @@ shadow nisa_line_imm {
     assert (== (nisa_line_imm "PUSH_I64" "40") "  PUSH_I64 40\n")
 }
 
+fn nisa_fresh() -> string {
+    let n: int = nisa_label
+    set nisa_label (+ nisa_label 1)
+    return (+ "L" (int_to_string n))
+}
+
+shadow nisa_fresh {
+    let _: int = (nisa_reset)
+    assert (== (nisa_fresh) "L0")
+    assert (== (nisa_fresh) "L1")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_label_line(name: string) -> string {
+    return (+ name ":\n")
+}
+
+shadow nisa_label_line {
+    assert (== (nisa_label_line "L0") "L0:\n")
+}
+
 fn nisa_fn_index(parser: Parser, name: string) -> int {
     let n: int = (parser_get_function_count parser)
     let mut i: int = 0
@@ -232,6 +256,155 @@ shadow nisa_emit_expr {
     assert (== num.value "7")
 }
 
+fn nisa_block_falls_through(parser: Parser, block_id: int) -> bool {
+    if (< block_id 0) {
+        return true
+    } else {
+        let block: ASTBlock = (parser_get_block parser block_id)
+        let n: int = (list_ASTStmtRef_length block.statements)
+        let mut i: int = 0
+        while (< i n) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+                return false
+            } else {
+                if (== stmt.node_type ParseNodeType.PNODE_IF) {
+                    let node: ASTIf = (parser_get_if parser stmt.node_id)
+                    if (< node.else_body 0) {
+                        (print "")
+                    } else {
+                        if (and (not (nisa_block_falls_through parser node.then_body))
+                                (not (nisa_block_falls_through parser node.else_body))) {
+                            return false
+                        } else {
+                            (print "")
+                        }
+                    }
+                } else {
+                    (print "")
+                }
+            }
+            set i (+ i 1)
+        }
+        return true
+    }
+}
+
+shadow nisa_block_falls_through {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n main() -> int { return 1 } shadow main { assert (== (main) 1) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    assert (not (nisa_block_falls_through p func.body))
+}
+
+fn nisa_stmt_terminates(parser: Parser, stmt: ASTStmtRef) -> bool {
+    if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
+        return true
+    } else {
+        if (== stmt.node_type ParseNodeType.PNODE_IF) {
+            let node: ASTIf = (parser_get_if parser stmt.node_id)
+            if (< node.else_body 0) {
+                return false
+            } else {
+                return (and (not (nisa_block_falls_through parser node.then_body))
+                            (not (nisa_block_falls_through parser node.else_body)))
+            }
+        } else {
+            return false
+        }
+    }
+}
+
+shadow nisa_stmt_terminates {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n main() -> int { return 1 } shadow main { assert (== (main) 1) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    assert (nisa_stmt_terminates p stmt)
+}
+
+fn nisa_emit_if(parser: Parser, node: ASTIf) -> string {
+    let l_else: string = (nisa_fresh)
+    let cnd_text: string = (nisa_emit_expr parser node.condition node.condition_type)
+    let then_ft: bool = (nisa_block_falls_through parser node.then_body)
+    let mut out: string = (+ cnd_text (nisa_line_imm "JMP_FALSE" l_else))
+    set out (+ out (nisa_emit_block parser node.then_body))
+    if (>= node.else_body 0) {
+        if (== then_ft true) {
+            let l_end: string = (nisa_fresh)
+            set out (+ out (nisa_line_imm "JMP" l_end))
+            set out (+ out (nisa_label_line l_else))
+            set out (+ out (nisa_emit_block parser node.else_body))
+            set out (+ out (nisa_label_line l_end))
+            return out
+        } else {
+            set out (+ out (nisa_label_line l_else))
+            set out (+ out (nisa_emit_block parser node.else_body))
+            return out
+        }
+    } else {
+        set out (+ out (nisa_label_line l_else))
+        return out
+    }
+}
+
+shadow nisa_emit_if {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n choose(c: int) -> int { if (> c 0) { return 1 } else { return 0 } } shadow choose { assert (== (choose 1) 1) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    set nisa_names (array_push nisa_names "c")
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let node: ASTIf = (parser_get_if p stmt.node_id)
+    let text: string = (nisa_emit_if p node)
+    assert (str_contains text "I64_GT_S")
+    assert (str_contains text "JMP_FALSE")
+}
+
+fn nisa_emit_while(parser: Parser, w: ASTWhile) -> string {
+    let l_top: string = (nisa_fresh)
+    let l_end: string = (nisa_fresh)
+    let mut out: string = (nisa_label_line l_top)
+    set out (+ out (nisa_emit_expr parser w.condition w.condition_type))
+    set out (+ out (nisa_line_imm "JMP_FALSE" l_end))
+    set out (+ out (nisa_emit_block parser w.body))
+    if (nisa_block_falls_through parser w.body) {
+        set out (+ out (nisa_line_imm "JMP" l_top))
+    } else {
+        (print "")
+    }
+    set out (+ out (nisa_label_line l_end))
+    return out
+}
+
+shadow nisa_emit_while {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n loop_sum(n: int) -> int { let mut i: int = 0 while (< i n) { set i (+ i 1) } return i } shadow loop_sum { assert (== (loop_sum 1) 1) }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    set nisa_names (array_push nisa_names "n")
+    set nisa_names (array_push nisa_names "i")
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
+    let w: ASTWhile = (parser_get_while p stmt.node_id)
+    let text: string = (nisa_emit_while p w)
+    assert (str_contains text "I64_LT_S")
+    assert (str_contains text "JMP_FALSE")
+    assert (str_contains text "JMP L")
+}
+
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     if (== stmt.node_type ParseNodeType.PNODE_RETURN) {
         let r: ASTReturn = (parser_get_return parser stmt.node_id)
@@ -255,14 +428,35 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             let slot: int = (- (array_length nisa_names) 1)
             return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
         } else {
-            if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
-                   (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)
-                       (or (== stmt.node_type ParseNodeType.PNODE_BINARY_OP)
-                           (== stmt.node_type ParseNodeType.PNODE_CALL)))) {
-                let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
-                return (+ expr (nisa_line "RET"))
+            if (== stmt.node_type ParseNodeType.PNODE_SET) {
+                let s: ASTSet = (parser_get_set parser stmt.node_id)
+                let slot: int = (nisa_local_find s.target)
+                if (< slot 0) {
+                    return (nisa_fail (+ "undefined local " s.target))
+                } else {
+                    let val: string = (nisa_emit_expr parser s.value s.value_type)
+                    return (+ val (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+                }
             } else {
-                return (nisa_fail "statement outside the i64 subset")
+                if (== stmt.node_type ParseNodeType.PNODE_IF) {
+                    let node: ASTIf = (parser_get_if parser stmt.node_id)
+                    return (nisa_emit_if parser node)
+                } else {
+                    if (== stmt.node_type ParseNodeType.PNODE_WHILE) {
+                        let w: ASTWhile = (parser_get_while parser stmt.node_id)
+                        return (nisa_emit_while parser w)
+                    } else {
+                        if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
+                               (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)
+                                   (or (== stmt.node_type ParseNodeType.PNODE_BINARY_OP)
+                                       (== stmt.node_type ParseNodeType.PNODE_CALL)))) {
+                            let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
+                            return (+ expr (nisa_line "POP"))
+                        } else {
+                            return (nisa_fail "statement outside the i64 subset")
+                        }
+                    }
+                }
             }
         }
     }
@@ -292,7 +486,11 @@ fn nisa_emit_block(parser: Parser, block_id: int) -> string {
         while (< i n) {
             let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
             set out (+ out (nisa_emit_stmt parser stmt))
-            set i (+ i 1)
+            if (nisa_stmt_terminates parser stmt) {
+                break
+            } else {
+                set i (+ i 1)
+            }
         }
         return out
     }
@@ -317,7 +515,12 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         set nisa_names (array_push nisa_names plet.name)
         set i (+ i 1)
     }
-    let body: string = (nisa_emit_block parser func.body)
+    let mut body: string = (nisa_emit_block parser func.body)
+    if (nisa_block_falls_through parser func.body) {
+        set body (+ body (nisa_line "RET"))
+    } else {
+        (print "")
+    }
     let locals: int = (array_length nisa_names)
     let mut header: string = ".function "
     set header (+ header func.name)
