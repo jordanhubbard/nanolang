@@ -95,7 +95,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`nest_line` / `via_nest_line`). Module-qualified call
   `(ImpMod.imp_add 40 2)` is `TAIL_CALL imp_add` (`via_q_add`).
   `parser.nano` emits 297 functions and that nasm assembles.
-  `typecheck.nano` names `unsupported result type array<FieldMetadata>`.
+  `array<Loc>` (`empty_locs` / `via_empty_locs` / `one_loc` /
+  `via_one_loc`) matches the C seed. `typecheck.nano` names
+  `unsupported result type HashMap<string,string>`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

@@ -844,3 +844,41 @@ fn via_parse_n() -> int {
 shadow via_parse_n {
     assert (== (via_parse_n) 7)
 }
+
+fn empty_locs() -> array<Loc> {
+    let mut xs: array<Loc> = []
+    return xs
+}
+
+shadow empty_locs {
+    assert (== (array_length (empty_locs)) 0)
+}
+
+fn via_empty_locs() -> int {
+    let xs: array<Loc> = (empty_locs)
+    return (array_length xs)
+}
+
+shadow via_empty_locs {
+    assert (== (via_empty_locs) 0)
+}
+
+fn one_loc() -> array<Loc> {
+    let mut xs: array<Loc> = []
+    set xs (array_push xs Loc { file: "f", line: 7 })
+    return xs
+}
+
+shadow one_loc {
+    let xs: array<Loc> = (one_loc)
+    assert (== (array_length xs) 1)
+}
+
+fn via_one_loc() -> int {
+    let xs: array<Loc> = (one_loc)
+    return (array_length xs)
+}
+
+shadow via_one_loc {
+    assert (== (via_one_loc) 1)
+}

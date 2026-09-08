@@ -268,6 +268,14 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_nest_line;
     const NvmFunctionEntry *c_via_nest_line;
     const NvmFunctionEntry *s_via_nest_line;
+    const NvmFunctionEntry *c_empty_locs;
+    const NvmFunctionEntry *s_empty_locs;
+    const NvmFunctionEntry *c_via_empty_locs;
+    const NvmFunctionEntry *s_via_empty_locs;
+    const NvmFunctionEntry *c_one_loc;
+    const NvmFunctionEntry *s_one_loc;
+    const NvmFunctionEntry *c_via_one_loc;
+    const NvmFunctionEntry *s_via_one_loc;
 
     printf("\n[nanoisa src_nano] Cut A pinned subset...\n\n");
     if (argc < 3) {
@@ -293,8 +301,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 87, "C seed emitted add through via_q_add");
-    CHECK(s_mod->function_count >= 87, "src_nano emitted add through via_q_add");
+    CHECK(c_mod->function_count >= 91, "C seed emitted add through via_one_loc");
+    CHECK(s_mod->function_count >= 91, "src_nano emitted add through via_one_loc");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -470,6 +478,14 @@ int main(int argc, char **argv) {
     s_nest_line = fn_by_name(s_mod, "nest_line");
     c_via_nest_line = fn_by_name(c_mod, "via_nest_line");
     s_via_nest_line = fn_by_name(s_mod, "via_nest_line");
+    c_empty_locs = fn_by_name(c_mod, "empty_locs");
+    s_empty_locs = fn_by_name(s_mod, "empty_locs");
+    c_via_empty_locs = fn_by_name(c_mod, "via_empty_locs");
+    s_via_empty_locs = fn_by_name(s_mod, "via_empty_locs");
+    c_one_loc = fn_by_name(c_mod, "one_loc");
+    s_one_loc = fn_by_name(s_mod, "one_loc");
+    c_via_one_loc = fn_by_name(c_mod, "via_one_loc");
+    s_via_one_loc = fn_by_name(s_mod, "via_one_loc");
     CHECK(c_add != NULL && s_add != NULL, "both modules have add");
     CHECK(c_main != NULL && s_main != NULL, "both modules have main");
     CHECK(c_choose != NULL && s_choose != NULL, "both modules have choose");
@@ -557,6 +573,10 @@ int main(int argc, char **argv) {
     CHECK(c_via_parse_n != NULL && s_via_parse_n != NULL, "both modules have via_parse_n");
     CHECK(c_nest_line != NULL && s_nest_line != NULL, "both modules have nest_line");
     CHECK(c_via_nest_line != NULL && s_via_nest_line != NULL, "both modules have via_nest_line");
+    CHECK(c_empty_locs != NULL && s_empty_locs != NULL, "both modules have empty_locs");
+    CHECK(c_via_empty_locs != NULL && s_via_empty_locs != NULL, "both modules have via_empty_locs");
+    CHECK(c_one_loc != NULL && s_one_loc != NULL, "both modules have one_loc");
+    CHECK(c_via_one_loc != NULL && s_via_one_loc != NULL, "both modules have via_one_loc");
     CHECK(code_equal(c_mod, c_add, s_mod, s_add),
           "add bytecode matches C seed");
     CHECK(code_equal(c_mod, c_main, s_mod, s_main),
@@ -731,6 +751,14 @@ int main(int argc, char **argv) {
           "nest_line bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_nest_line, s_mod, s_via_nest_line),
           "via_nest_line bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_empty_locs, s_mod, s_empty_locs),
+          "empty_locs bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_empty_locs, s_mod, s_via_empty_locs),
+          "via_empty_locs bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_one_loc, s_mod, s_one_loc),
+          "one_loc bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_one_loc, s_mod, s_via_one_loc),
+          "via_one_loc bytecode matches C seed");
     CHECK((c_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "C seed has_main");
     CHECK((s_mod->header.flags & NVM_FLAG_HAS_MAIN) != 0, "src_nano has_main");
 
@@ -993,6 +1021,18 @@ int main(int argc, char **argv) {
         printf("    C via_nest_line locals=%u len=%u  src via_nest_line locals=%u len=%u\n",
                c_via_nest_line ? c_via_nest_line->local_count : 0, c_via_nest_line ? c_via_nest_line->code_length : 0,
                s_via_nest_line ? s_via_nest_line->local_count : 0, s_via_nest_line ? s_via_nest_line->code_length : 0);
+        printf("    C empty_locs locals=%u len=%u  src empty_locs locals=%u len=%u\n",
+               c_empty_locs ? c_empty_locs->local_count : 0, c_empty_locs ? c_empty_locs->code_length : 0,
+               s_empty_locs ? s_empty_locs->local_count : 0, s_empty_locs ? s_empty_locs->code_length : 0);
+        printf("    C via_empty_locs locals=%u len=%u  src via_empty_locs locals=%u len=%u\n",
+               c_via_empty_locs ? c_via_empty_locs->local_count : 0, c_via_empty_locs ? c_via_empty_locs->code_length : 0,
+               s_via_empty_locs ? s_via_empty_locs->local_count : 0, s_via_empty_locs ? s_via_empty_locs->code_length : 0);
+        printf("    C one_loc locals=%u len=%u  src one_loc locals=%u len=%u\n",
+               c_one_loc ? c_one_loc->local_count : 0, c_one_loc ? c_one_loc->code_length : 0,
+               s_one_loc ? s_one_loc->local_count : 0, s_one_loc ? s_one_loc->code_length : 0);
+        printf("    C via_one_loc locals=%u len=%u  src via_one_loc locals=%u len=%u\n",
+               c_via_one_loc ? c_via_one_loc->local_count : 0, c_via_one_loc ? c_via_one_loc->code_length : 0,
+               s_via_one_loc ? s_via_one_loc->local_count : 0, s_via_one_loc ? s_via_one_loc->code_length : 0);
     }
 
     nvm_module_free(c_mod);

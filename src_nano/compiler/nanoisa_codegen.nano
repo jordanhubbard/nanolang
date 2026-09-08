@@ -25,7 +25,9 @@
  * chained `AGG_GET` (C seed `infer_expr_struct_type`), and
  * module-qualified calls `(Alias.fn args)` as CALL/TAIL_CALL of the
  * imported function (C seed AST_MODULE_QUALIFIED_CALL: qualified
- * name first, then the suffix after the last dot).
+ * name first, then the suffix after the last dot), and `array<R>`
+ * of a pin-record as ISA tag array (empty `[]` is ARR_LITERAL 1 0,
+ * the way the C seed defaults the element tag).
  * Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -907,6 +909,37 @@ shadow nisa_list_inner {
     assert (== (nisa_list_inner "int") "")
 }
 
+fn nisa_array_inner(t: string) -> string {
+    if (and (str_starts_with t "array<") (str_ends_with t ">")) {
+        let n: int = (str_length t)
+        return (str_substring t 6 (- n 7))
+    } else {
+        return ""
+    }
+}
+
+shadow nisa_array_inner {
+    assert (== (nisa_array_inner "array<Loc>") "Loc")
+    assert (== (nisa_array_inner "array<int>") "int")
+    assert (== (nisa_array_inner "List<Loc>") "")
+    assert (== (nisa_array_inner "Loc") "")
+}
+
+fn nisa_seq_inner(t: string) -> string {
+    let list_i: string = (nisa_list_inner t)
+    if (!= list_i "") {
+        return list_i
+    } else {
+        return (nisa_array_inner t)
+    }
+}
+
+shadow nisa_seq_inner {
+    assert (== (nisa_seq_inner "List<Tok>") "Tok")
+    assert (== (nisa_seq_inner "array<Loc>") "Loc")
+    assert (== (nisa_seq_inner "int") "")
+}
+
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (nisa_local_type_ok t) {
         return true
@@ -914,7 +947,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
         if (nisa_is_pin_record parser t) {
             return true
         } else {
-            let inner: string = (nisa_list_inner t)
+            let inner: string = (nisa_seq_inner t)
             if (== inner "") {
                 return false
             } else {
@@ -936,6 +969,8 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "List<Tok>")
     assert (nisa_type_ok p "array<string>")
     assert (nisa_type_ok p "List<string>")
+    assert (nisa_type_ok p "array<Point>")
+    assert (nisa_type_ok p "array<Tok>")
     assert (not (nisa_type_ok p "array<bool>"))
     assert (not (nisa_type_ok p "List<Nope>"))
 }
@@ -1223,7 +1258,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
             if (nisa_local_type_ok t) {
                 return "array"
             } else {
-                let inner: string = (nisa_list_inner t)
+                let inner: string = (nisa_seq_inner t)
                 if (and (!= inner "") (nisa_is_pin_record parser inner)) {
                     return "array"
                 } else {
@@ -1246,6 +1281,8 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "array<int>") "array")
     assert (== (nisa_result_tag p "List<Tok>") "array")
     assert (== (nisa_result_tag p "List<LexerToken>") "array")
+    assert (== (nisa_result_tag p "array<Point>") "array")
+    assert (== (nisa_result_tag p "array<Tok>") "array")
     assert (== (nisa_result_tag p "Nope") "")
 }
 

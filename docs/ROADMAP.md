@@ -1378,8 +1378,14 @@ Compiler product:
       `parser.nano` emits 297 functions and that nasm assembles.
       `typecheck.nano` names `unsupported result type array<FieldMetadata>`.
       I still pretty-print C to build the compiler.
-- [ ] Cut A `array` of pin-records as a result type: `typecheck.nano` names
-      `unsupported result type array<FieldMetadata>`. I still pretty-print C
+- [x] Cut A `array` of pin-records as a result type: `empty_locs` /
+      `via_empty_locs` / `one_loc` / `via_one_loc` match the C seed
+      (`array<Loc>`; empty `[]` is `ARR_LITERAL 1 0`, the way the C seed
+      defaults the element tag). `make test-nanoisa-src-nano` (188 passed).
+      `typecheck.nano` names `unsupported result type HashMap<string,string>`.
+      I still pretty-print C to build the compiler.
+- [ ] Cut A HashMap result type: `typecheck.nano` names
+      `unsupported result type HashMap<string,string>`. I still pretty-print C
       to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
