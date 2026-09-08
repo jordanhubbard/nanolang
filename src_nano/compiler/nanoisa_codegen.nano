@@ -65,6 +65,17 @@ shadow nisa_fail {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_refuse_line() -> string {
+    return (+ "I refused that program: " nisa_err)
+}
+
+shadow nisa_refuse_line {
+    let _: int = (nisa_reset)
+    let _f: string = (nisa_fail "no main")
+    assert (== (nisa_refuse_line) "I refused that program: no main")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_local_find(name: string) -> int {
     let mut i: int = 0
     while (< i (array_length nisa_names)) {
@@ -2112,4 +2123,9 @@ shadow nanoisa_emit_nasm {
     assert (str_contains text ".function main")
     assert (str_contains text "TAIL_CALL add")
     assert (str_contains text ".entry")
+    let bad: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert true }")
+    let empty: string = (nanoisa_emit_nasm bad)
+    assert (== empty "")
+    assert (== nisa_err "no main")
+    assert (== (nisa_refuse_line) "I refused that program: no main")
 }

@@ -1277,9 +1277,10 @@ Compiler product:
       refused. I still pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (134 passed).
       MAC `task_e0d3eb53f3eb44b8b97c236e8c14e28a`.
-- [ ] I print `nisa_err` from `nanoisa_emit` when I refuse a program,
+- [x] I print `nisa_err` from `nanoisa_emit` when I refuse a program,
       so the next Cut A hole is named rather than only "outside the
       pinned subset".
+      `make test-nanoisa-src-nano` names `no main` on a library file.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

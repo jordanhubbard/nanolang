@@ -247,7 +247,9 @@ and `List<Tok>` results (`one_t` / `via_one_t`), and
 and `STR_REPLACE`
 stay refused. String operands
 are compared by content, not pool index. I still pretty-print C to
-build the compiler. The full dual of `codegen.c` is not this pin.
+build the compiler. When I refuse a program, `nanoisa_emit` prints
+`nisa_err` so the next hole is named. The full dual of `codegen.c` is
+not this pin.
 
 **B — AOT covers the compiler subset.** `nvm2c` translates functions,
 structs, loops, arrays, strings, modules, and a declared host ABI.

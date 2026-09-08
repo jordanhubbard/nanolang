@@ -435,6 +435,11 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_src_nano \
 		/tmp/nanolang_cut_a_c.nvm /tmp/nanolang_cut_a_src.nasm
 	@rm -f tests/nanoisa/test_nanoisa_src_nano
+	@echo "Checking nanoisa_emit names the refuse hole..."
+	@rc=0; $(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_no_main.nano \
+		> /tmp/nanolang_cut_a_refuse.txt || rc=$$?; \
+	grep -F "I refused that program: no main" /tmp/nanolang_cut_a_refuse.txt >/dev/null; \
+	test $$rc -eq 1
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

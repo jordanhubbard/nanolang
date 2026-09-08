@@ -82,7 +82,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   and `STR_REPLACE`
   stay refused. String operands
   are compared by content. I still pretty-print C to build the
-  compiler.
+  compiler. When I refuse a program, `nanoisa_emit` prints `nisa_err`
+  (a library file names `no main`).
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
