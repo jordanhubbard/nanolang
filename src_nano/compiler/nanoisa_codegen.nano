@@ -9,8 +9,9 @@
  * (AGG_PACK/AGG_GET),
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
  * and/or (BOOL_AND/BOOL_OR), cond as an if-expression (JMP_FALSE/JMP),
- * print (PRINT), println (PRINTLN), assert (ASSERT), and void
- * functions (RET with no value; a statement CALL of void does not POP).
+ * print (PRINT), println (PRINTLN), assert (ASSERT), void
+ * functions (RET with no value; a statement CALL of void does not POP),
+ * and pin-record results (ISA tag struct, not the NanoLang name).
  * Anything else fails closed. I do not emit C. I do not delete
  * transpiler.nano.
  */
@@ -541,6 +542,30 @@ shadow nisa_fn_is_void {
     assert (nisa_fn_is_void p "quiet")
     assert (not (nisa_fn_is_void p "via_quiet"))
     assert (not (nisa_fn_is_void p "nope"))
+}
+
+fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (or (== t "int") (or (== t "string") (or (== t "bool") (== t "void")))) {
+        return t
+    } else {
+        if (nisa_is_pin_record parser t) {
+            return "struct"
+        } else {
+            return ""
+        }
+    }
+}
+
+shadow nisa_result_tag {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_result_tag p "int") "int")
+    assert (== (nisa_result_tag p "void") "void")
+    assert (== (nisa_result_tag p "Point") "struct")
+    assert (== (nisa_result_tag p "Nope") "")
 }
 
 fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
@@ -1465,7 +1490,8 @@ shadow nisa_emit_block {
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_names []
     set nisa_types []
-    if (and (not (== func.return_type "int")) (and (not (== func.return_type "string")) (and (not (== func.return_type "bool")) (not (== func.return_type "void"))))) {
+    let tag: string = (nisa_result_tag parser func.return_type)
+    if (== tag "") {
         return (nisa_fail (+ "unsupported result type " func.return_type))
     } else {
         let mut i: int = 0
@@ -1493,8 +1519,8 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         set header (+ header " ")
         set header (+ header (int_to_string locals))
         set header (+ header " 0 ")
-        set header (+ header func.return_type)
-        if (== func.return_type "void") {
+        set header (+ header tag)
+        if (== tag "void") {
             set header (+ header " 0\n")
         } else {
             set header (+ header " 1\n")
@@ -1822,6 +1848,21 @@ shadow nisa_emit_function {
     let via_text: string = (nisa_emit_function p41 via_fn)
     assert (str_contains via_text ".function via_quiet 0 0 0 int 1")
     assert (str_contains via_text "CALL quiet")
+    let src42: string = (+ "struct Point { x: int, y: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
+    let toks42: List<LexerToken> = (tokenize_string src42 "t.nano" diags)
+    let p42: Parser = (parse_program toks42 (list_LexerToken_length toks42) "t.nano")
+    let origin_fn: ASTFunction = (parser_get_function p42 0)
+    let origin_text: string = (nisa_emit_function p42 origin_fn)
+    assert (str_contains origin_text ".function origin 0 0 0 struct 1")
+    assert (str_contains origin_text "AGG_PACK")
+    let src43: string = (+ "struct Point { x: int, y: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } " (+ "f" "n via_o() -> int { let p: Point = (origin) return p.y } shadow origin { assert true } shadow via_o { assert true }")))
+    let toks43: List<LexerToken> = (tokenize_string src43 "t.nano" diags)
+    let p43: Parser = (parse_program toks43 (list_LexerToken_length toks43) "t.nano")
+    let via_o_fn: ASTFunction = (parser_get_function p43 1)
+    let via_o_text: string = (nisa_emit_function p43 via_o_fn)
+    assert (str_contains via_o_text ".function via_o 0 1 0 int 1")
+    assert (str_contains via_o_text "CALL origin")
+    assert (str_contains via_o_text "AGG_GET 1")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

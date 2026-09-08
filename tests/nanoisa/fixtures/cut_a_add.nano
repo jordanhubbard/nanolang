@@ -465,3 +465,22 @@ fn via_quiet() -> int {
 shadow via_quiet {
     assert (== (via_quiet) 0)
 }
+
+fn origin() -> Point {
+    return Point { x: 0, y: 1 }
+}
+
+shadow origin {
+    let p: Point = (origin)
+    assert (== p.x 0)
+    assert (== p.y 1)
+}
+
+fn via_o() -> int {
+    let p: Point = (origin)
+    return p.y
+}
+
+shadow via_o {
+    assert (== (via_o) 1)
+}

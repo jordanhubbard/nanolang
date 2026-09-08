@@ -2383,6 +2383,40 @@ static void test_via_quiet_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_o: CALL of a pin record (TAG_STRUCT / nrec_t), then AGG_GET y. */
+static void test_via_o_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function origin 0 0 0 struct 1\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  CALL origin\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_o fixture");
+    CHECK(m != NULL, "via_o fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_o");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_o C does not name nano_vm");
+    CHECK(strstr(c, "nrec_t") != NULL, "via_o C has a record result");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_o C compiles and runs");
+    CHECK(status == 1, "via_o() exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2609,6 +2643,7 @@ int main(int argc, char **argv) {
     test_loop_sum_runs_without_nano_vm();
     test_upto_runs_without_nano_vm();
     test_via_quiet_runs_without_nano_vm();
+    test_via_o_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);

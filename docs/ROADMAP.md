@@ -1224,6 +1224,12 @@ Compiler product:
       (`CALL quiet` with no `POP`) bytecode with the C seed. I still
       pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (102 passed).
+- [x] Cut A record results: the same pin matches `origin`
+      (`-> Point` as `.function origin 0 0 0 struct 1`) and `via_o`
+      (`CALL origin` then `AGG_GET`) bytecode with the C seed. Nested
+      records stay refused. I still pretty-print C to build the
+      compiler.
+      `make test-nanoisa-src-nano` (106 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1341,6 +1347,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_quiet` (`CALL` of `void`) without
       `nano_vm`. Empty `void` is `RET` with no value.
       `make test-nvm2c` (371 passed).
+- [x] `nvm2c` runs Cut A `via_o` (`CALL` of a pin record) without
+      `nano_vm`. Nested records stay refused.
+      `make test-nvm2c` (377 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
