@@ -106,8 +106,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`flag_is_ok` / `via_flag_is_ok`). `typecheck.nano` emits 401 functions
   and that nasm assembles. Labels reset per `.function`. `nvm2c` refuses
   `CALL_EXTERN`. `array_new` (`blank_a` / `via_blank_a`) matches the C seed
-  (`ARR_NEW 1` plus a fill loop). `module_loader.nano` names
-  `string concat needs two strings`.
+  (`ARR_NEW 1` plus a fill loop). `str_substring` as a concat operand
+  (`via_substr_concat`) and `EQ` of `at` of `array<string>` (`via_at_eq`)
+  match the C seed. `getenv` is `CALL_EXTERN` `vm_getenv` (`via_env`).
+  `module_loader.nano` names `undefined local extern_func_names`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.
