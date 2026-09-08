@@ -1397,9 +1397,14 @@ Compiler product:
       (200 passed). `typecheck.nano` names
       `string literal needs escaping I do not emit yet`. I still pretty-print C
       to build the compiler.
-- [ ] Cut A interned string escapes: `nisa_intern` still refuses `"`, `\`, and
-      newlines. `typecheck.nano` names `string literal needs escaping I do not
-      emit yet`. I still pretty-print C to build the compiler.
+- [x] Cut A interned string escapes: `quoted` / `via_quoted` match the C seed
+      (`"a\"b"` as `.string` with `\"`). `make test-nanoisa-src-nano` (204 passed).
+      `typecheck.nano` emits 401 functions. `nanoisa asm` names
+      `Duplicate label: L1024` (`MAX_LABELS` 1024; the module has 1557 labels).
+      I still pretty-print C to build the compiler.
+- [ ] Cut A assembler label cap: `typecheck.nano` nasm has 1557 labels.
+      The C assembler `MAX_LABELS` is 1024, so `nanoisa asm` names
+      `Duplicate label: L1024`. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

@@ -334,8 +334,10 @@ match the C seed; empty `[]` is `ARR_LITERAL 1 0`), and Cut A HashMap
 (`blank_hm` / `via_blank_hm` / `put_hm` / `via_put_hm` match the C seed;
 `map_new` is `HM_NEW 5 1`), and Cut A `array<Sym>` params (`n_syms` /
 `via_n_syms` match the C seed; a pin record may have `array<pin-record>`
-fields). `typecheck.nano` still names
-`string literal needs escaping I do not emit yet`.
+fields), and Cut A interned string escapes (`quoted` / `via_quoted` match
+the C seed; `"a\"b"` is `.string` with `\"`). `typecheck.nano` emits 401
+functions. `nanoisa asm` still names `Duplicate label: L1024`
+(`MAX_LABELS` 1024).
 Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

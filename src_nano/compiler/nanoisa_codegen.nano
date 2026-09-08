@@ -129,24 +129,58 @@ shadow nisa_local_find {
     let _2: int = (nisa_reset)
 }
 
-fn nisa_intern(lit: string) -> string {
-    if (or (str_contains lit "\"") (or (str_contains lit "\\") (str_contains lit "\n"))) {
-        return (nisa_fail "string literal needs escaping I do not emit yet")
-    } else {
-        let mut i: int = 0
-        while (< i (array_length nisa_str_vals)) {
-            if (== (at nisa_str_vals i) lit) {
-                return (at nisa_str_names i)
+fn nisa_str_escape(lit: string) -> string {
+    let mut out: string = ""
+    let n: int = (str_length lit)
+    let mut i: int = 0
+    while (< i n) {
+        let ch: string = (str_substring lit i 1)
+        if (== ch "\\") {
+            set out (+ out "\\\\")
+        } else {
+            if (== ch "\"") {
+                set out (+ out "\\\"")
             } else {
-                (print "")
+                if (== ch "\n") {
+                    set out (+ out "\\n")
+                } else {
+                    if (== ch "\t") {
+                        set out (+ out "\\t")
+                    } else {
+                        if (== ch "\r") {
+                            set out (+ out "\\r")
+                        } else {
+                            set out (+ out ch)
+                        }
+                    }
+                }
             }
-            set i (+ i 1)
         }
-        let name: string = (+ "s" (int_to_string (array_length nisa_str_vals)))
-        set nisa_str_vals (array_push nisa_str_vals lit)
-        set nisa_str_names (array_push nisa_str_names name)
-        return name
+        set i (+ i 1)
     }
+    return out
+}
+
+shadow nisa_str_escape {
+    assert (== (nisa_str_escape "hi") "hi")
+    assert (== (nisa_str_escape "a\"b") "a\\\"b")
+    assert (== (nisa_str_escape "\\") "\\\\")
+}
+
+fn nisa_intern(lit: string) -> string {
+    let mut i: int = 0
+    while (< i (array_length nisa_str_vals)) {
+        if (== (at nisa_str_vals i) lit) {
+            return (at nisa_str_names i)
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    let name: string = (+ "s" (int_to_string (array_length nisa_str_vals)))
+    set nisa_str_vals (array_push nisa_str_vals lit)
+    set nisa_str_names (array_push nisa_str_names name)
+    return name
 }
 
 shadow nisa_intern {
@@ -154,6 +188,7 @@ shadow nisa_intern {
     assert (== (nisa_intern "hi") "s0")
     assert (== (nisa_intern "hi") "s0")
     assert (== (nisa_intern "ab") "s1")
+    assert (== (nisa_intern "a\"b") "s2")
     let _2: int = (nisa_reset)
 }
 
@@ -164,7 +199,7 @@ fn nisa_str_prelude() -> string {
         set out (+ out ".string ")
         set out (+ out (at nisa_str_names i))
         set out (+ out " \"")
-        set out (+ out (at nisa_str_vals i))
+        set out (+ out (nisa_str_escape (at nisa_str_vals i)))
         set out (+ out "\"\n")
         set i (+ i 1)
     }
@@ -177,6 +212,10 @@ shadow nisa_str_prelude {
     let text: string = (nisa_str_prelude)
     assert (== name "s0")
     assert (str_contains text ".string s0 \"hi\"")
+    let qn: string = (nisa_intern "a\"b")
+    let qtext: string = (nisa_str_prelude)
+    assert (== qn "s1")
+    assert (str_contains qtext "a\\\"b")
     let _2: int = (nisa_reset)
 }
 

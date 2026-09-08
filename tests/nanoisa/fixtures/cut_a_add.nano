@@ -956,3 +956,19 @@ fn via_n_syms() -> int {
 shadow via_n_syms {
     assert (== (via_n_syms) 0)
 }
+
+fn quoted() -> int {
+    return (str_length "a\"b")
+}
+
+shadow quoted {
+    assert (== (quoted) 3)
+}
+
+fn via_quoted() -> int {
+    return (quoted)
+}
+
+shadow via_quoted {
+    assert (== (via_quoted) 3)
+}

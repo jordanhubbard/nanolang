@@ -101,8 +101,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `map_new` is `HM_NEW 5 1`, statement `map_put` is `HM_SET` then
   `POP`. Pin-record params of `array<Sym>` (`n_syms` / `via_n_syms`)
   match the C seed; a pin record may have `array<pin-record>` fields.
-  `typecheck.nano` names
-  `string literal needs escaping I do not emit yet`.
+  Interned quotes (`quoted` / `via_quoted`) match the C seed; `.string`
+  payloads escape `"`, `\`, newline, tab, and CR. `typecheck.nano`
+  emits 401 functions. `nanoisa asm` names `Duplicate label: L1024`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.
