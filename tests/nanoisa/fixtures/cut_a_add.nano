@@ -74,3 +74,17 @@ fn first() -> int {
 shadow first {
     assert (== (first) 7)
 }
+
+struct Point {
+    x: int,
+    y: int
+}
+
+fn getx() -> int {
+    let p: Point = Point { x: 3, y: 4 }
+    return p.x
+}
+
+shadow getx {
+    assert (== (getx) 3)
+}

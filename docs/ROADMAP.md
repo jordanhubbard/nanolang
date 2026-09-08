@@ -1098,6 +1098,11 @@ Compiler product:
       and `first` (`ARR_GET`) bytecode with the C seed. I still pretty-print
       C to build the compiler. Nested arrays, `array_set`, and `array_push`
       are not this pin. `make test-nanoisa-src-nano` (22 passed).
+- [x] Cut A structs: the same pin matches `getx` (`AGG_PACK`/`AGG_GET`)
+      bytecode with the C seed for an `int`-field record. I still
+      pretty-print C to build the compiler. Nested records, string
+      fields, `AGG_SET`, and unions are not this pin.
+      `make test-nanoisa-src-nano` (24 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1134,6 +1139,10 @@ Compiler product:
       `array<int>`. `len3` and `first` from the Cut A pin compile and run
       without `nano_vm`. Nested arrays and the rest of the array library
       stay refused. `make test-nvm2c` (102 passed).
+- [x] `nvm2c` translates `AGG_PACK` and `AGG_GET` for `int`-field records.
+      `getx` from the Cut A pin compiles and runs without `nano_vm`.
+      Nested records, string fields, `AGG_SET`, variants, and tuples
+      stay refused. `make test-nvm2c` (110 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

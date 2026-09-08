@@ -4,8 +4,9 @@
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
  * if/else, while, let, set, string literals, string concat, array<int>
- * literals, array_length, and array_get. Anything else fails closed.
- * fails closed. I do not emit C. I do not delete transpiler.nano.
+ * literals, array_length, array_get, int-field records (AGG_PACK/AGG_GET).
+ * Anything else fails closed. I do not emit C. I do not delete
+ * transpiler.nano.
  */
 
 import "src_nano/parser.nano"
@@ -229,6 +230,78 @@ shadow nisa_is_arr_builtin {
     assert (not (nisa_is_arr_builtin "add"))
 }
 
+fn nisa_struct_index(parser: Parser, name: string) -> int {
+    let n: int = (parser_get_struct_def_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let s: ASTStruct = (parser_get_struct_def parser i)
+        if (== s.name name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+
+shadow nisa_struct_index {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_struct_index p "Point") 0)
+    assert (== (nisa_struct_index p "Nope") (- 0 1))
+}
+
+fn nisa_is_int_record(parser: Parser, name: string) -> bool {
+    let idx: int = (nisa_struct_index parser name)
+    if (< idx 0) {
+        return false
+    } else {
+        let s: ASTStruct = (parser_get_struct_def parser idx)
+        let mut i: int = 0
+        while (< i s.field_count) {
+            if (!= (at s.field_types i) "int") {
+                return false
+            } else {
+                set i (+ i 1)
+            }
+        }
+        return true
+    }
+}
+
+shadow nisa_is_int_record {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (nisa_is_int_record p "Point")
+    assert (not (nisa_is_int_record p "Nope"))
+}
+
+fn nisa_type_ok(parser: Parser, t: string) -> bool {
+    if (nisa_local_type_ok t) {
+        return true
+    } else {
+        return (nisa_is_int_record parser t)
+    }
+}
+
+shadow nisa_type_ok {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (nisa_type_ok p "int")
+    assert (nisa_type_ok p "Point")
+    assert (not (nisa_type_ok p "array<string>"))
+}
+
 fn nisa_fresh() -> string {
     let n: int = nisa_label
     set nisa_label (+ nisa_label 1)
@@ -383,6 +456,121 @@ shadow nisa_emit_array_literal {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
+    let lit: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+    if (not (nisa_is_int_record parser lit.struct_name)) {
+        return (nisa_fail (+ "unsupported record " lit.struct_name))
+    } else {
+        let sidx: int = (nisa_struct_index parser lit.struct_name)
+        let sd: ASTStruct = (parser_get_struct_def parser sidx)
+        let mut out: string = ""
+        let mut i: int = 0
+        while (< i sd.field_count) {
+            let fname: string = (at sd.field_names i)
+            let mut found: bool = false
+            let mut j: int = 0
+            while (< j lit.field_count) {
+                if (== (at lit.field_names j) fname) {
+                    let vid: int = (at lit.field_value_ids j)
+                    let vty: int = (at lit.field_value_types j)
+                    if (== vty ParseNodeType.PNODE_STRUCT_LITERAL) {
+                        return (nisa_fail "nested records are not in the pinned subset")
+                    } else {
+                        set out (+ out (nisa_emit_expr parser vid vty))
+                        set found true
+                        set j lit.field_count
+                    }
+                } else {
+                    set j (+ j 1)
+                }
+            }
+            if (not found) {
+                return (nisa_fail (+ "missing record field " fname))
+            } else {
+                set i (+ i 1)
+            }
+        }
+        let imm: string = (+ "0 " (+ (int_to_string sidx) (+ " 0 " (int_to_string sd.field_count))))
+        return (+ out (nisa_line_imm "AGG_PACK" imm))
+    }
+}
+
+shadow nisa_emit_struct_literal {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { let p: Point = Point { x: 3, y: 4 } return p.x } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let l: ASTLet = (parser_get_let p stmt.node_id)
+    let text: string = (nisa_emit_struct_literal p l.value)
+    assert (str_contains text "PUSH_I64 3")
+    assert (str_contains text "PUSH_I64 4")
+    assert (str_contains text "AGG_PACK 0 0 0 2")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_emit_field_access(parser: Parser, node_id: int) -> string {
+    let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+    if (!= fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+        return (nisa_fail "record field access needs a local")
+    } else {
+        let id: ASTIdentifier = (parser_get_identifier parser fa.object)
+        let slot: int = (nisa_local_find id.name)
+        if (< slot 0) {
+            return (nisa_fail (+ "undefined local " id.name))
+        } else {
+            if (>= slot (array_length nisa_types)) {
+                return (nisa_fail (+ "untyped local " id.name))
+            } else {
+                let ty: string = (at nisa_types slot)
+                let sidx: int = (nisa_struct_index parser ty)
+                if (< sidx 0) {
+                    return (nisa_fail (+ "not a record local " id.name))
+                } else {
+                    let sd: ASTStruct = (parser_get_struct_def parser sidx)
+                    let mut fi: int = (- 0 1)
+                    let mut i: int = 0
+                    while (< i sd.field_count) {
+                        if (== (at sd.field_names i) fa.field_name) {
+                            set fi i
+                        } else {
+                            (print "")
+                        }
+                        set i (+ i 1)
+                    }
+                    if (< fi 0) {
+                        return (nisa_fail (+ "unknown field " fa.field_name))
+                    } else {
+                        let obj: string = (nisa_emit_expr parser fa.object fa.object_type)
+                        return (+ obj (nisa_line_imm "AGG_GET" (int_to_string fi)))
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_emit_field_access {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { let p: Point = Point { x: 3, y: 4 } return p.x } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    set nisa_names (array_push nisa_names "p")
+    set nisa_types (array_push nisa_types "Point")
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let text: string = (nisa_emit_field_access p r.value)
+    assert (str_contains text "LOAD_LOCAL 0")
+    assert (str_contains text "AGG_GET 0")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
     if (== func_id.name "array_length") {
@@ -478,7 +666,15 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                         if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
                             return (nisa_emit_array_literal parser node_id)
                         } else {
-                            return (nisa_fail "expression outside the pinned subset")
+                            if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
+                                return (nisa_emit_struct_literal parser node_id)
+                            } else {
+                                if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                                    return (nisa_emit_field_access parser node_id)
+                                } else {
+                                    return (nisa_fail "expression outside the pinned subset")
+                                }
+                            }
                         }
                     }
                 }
@@ -671,7 +867,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let l: ASTLet = (parser_get_let parser stmt.node_id)
             let val: string = (nisa_emit_expr parser l.value l.value_type)
-            if (not (nisa_local_type_ok l.var_type)) {
+            if (not (nisa_type_ok parser l.var_type)) {
                 return (nisa_fail (+ "unsupported local type " l.var_type))
             } else {
                 set nisa_names (array_push nisa_names l.name)
@@ -768,7 +964,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         let mut i: int = 0
         while (< i func.param_count) {
             let plet: ASTLet = (parser_get_let parser (+ func.param_start i))
-            if (not (nisa_local_type_ok plet.var_type)) {
+            if (not (nisa_type_ok parser plet.var_type)) {
                 return (nisa_fail (+ "unsupported param type " plet.var_type))
             } else {
                 set nisa_names (array_push nisa_names plet.name)
@@ -830,6 +1026,14 @@ shadow nisa_emit_function {
     assert (str_contains len_text ".function len3 0 1 0 int 1")
     assert (str_contains len_text "ARR_LITERAL 1 3")
     assert (str_contains len_text "ARR_LEN")
+    let src5: string = (+ "struct Point { x: int, y: int } " (+ "f" "n getx() -> int { let p: Point = Point { x: 3, y: 4 } return p.x } shadow getx { assert true }"))
+    let toks5: List<LexerToken> = (tokenize_string src5 "t.nano" diags)
+    let p5: Parser = (parse_program toks5 (list_LexerToken_length toks5) "t.nano")
+    let gx: ASTFunction = (parser_get_function p5 0)
+    let gx_text: string = (nisa_emit_function p5 gx)
+    assert (str_contains gx_text ".function getx 0 1 0 int 1")
+    assert (str_contains gx_text "AGG_PACK 0 0 0 2")
+    assert (str_contains gx_text "AGG_GET 0")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

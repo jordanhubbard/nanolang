@@ -40,11 +40,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `docs/LOGIC.md`, `make test-logic`.
 - 5.0 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits NanoISA
   assembly for integer `add`/`main`/`choose`/`loop_sum`, string
-  `greeting`/`glue`, and array `len3`/`first`.
+  `greeting`/`glue`, array `len3`/`first`, and record `getx`.
   `make test-nanoisa-src-nano` compares function bytecode with the C
   seed, including `if`, `while`, `PUSH_STR`, `STR_CONCAT`,
-  `ARR_LITERAL`, `ARR_LEN`, and `ARR_GET`. String operands are compared
-  by content. I still pretty-print C to build the compiler.
+  `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `AGG_PACK`, and `AGG_GET`.
+  String operands are compared by content. I still pretty-print C to
+  build the compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
@@ -55,7 +56,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Embedded NULs and `STR_SUBSTR` stay refused. `ARR_LITERAL`,
   `ARR_GET`, and `ARR_LEN` run as native C: `len3` and `first` exit
   with length and the first element. Nested arrays and `ARR_SET`
-  stay refused. `make test-nvm2c` (102 passed).
+  stay refused. `AGG_PACK` and `AGG_GET` run as native C: `getx`
+  exits with field 0 of an `int` record. Nested records, variants,
+  tuples, and `AGG_SET` stay refused. `make test-nvm2c` (110 passed).
 
 ## [4.5.0] - 2026-09-07
 
