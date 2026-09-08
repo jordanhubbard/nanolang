@@ -645,3 +645,13 @@ fn via_tok_mod() -> int {
 shadow via_tok_mod {
     assert (== (via_tok_mod) 19)
 }
+
+from "cut_a_fn_imp.nano" import imp_add
+
+fn via_imp_add() -> int {
+    return (imp_add 40 2)
+}
+
+shadow via_imp_add {
+    assert (== (via_imp_add) 42)
+}

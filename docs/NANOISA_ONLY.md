@@ -310,8 +310,11 @@ and Cut A i64 `>=`/`<=` (`in_az` / `via_az` run as native C), and Cut A
 `ENUM_VAL` (`tag` / `via_tag` run as native C; nested unions stay
 refused), and Cut A imported `ENUM_VAL` (`tok_mod` / `via_tok_mod` run as
 native C; transitive imports and import-before-local-enum order stay
-refused). Nested arrays,
-nested records, `AGG_SET`, variants, tuples, array
+refused), and Cut A one-level nested pin-record field types
+(`List<CompilerDiagnostic>` parameters type-check; nested `AGG_PACK`
+stays refused), and Cut A imported functions (`imp_add` / `via_imp_add`
+run as native C; `CALL`/`TAIL_CALL` compare by callee name). Nested arrays,
+nested record literals, `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
 compiler subset (modules, host ABI, and the remaining string

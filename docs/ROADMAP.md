@@ -1305,13 +1305,29 @@ Compiler product:
       imported structs are on the parser).
 - [x] Cut A imported structs: ingest `ASTStruct` from the same import
       walk as enums. `LexerToken` from `compiler_ast.nano` is a pin
-      record. Nested fields (`CompilerDiagnostic.location`) stay
-      refused. I still pretty-print C to build the compiler.
-- [ ] Cut A nested pin-records: `CompilerSourceLocation` fields inside
-      `CompilerDiagnostic` so `List<CompilerDiagnostic>` parameters
-      are in the pinned subset. Nested records were refused; the
-      compiler subset needs one level. Imported functions stay
-      refused. I still pretty-print C to build the compiler.
+      record. Nested field types are the nested pin-records item.
+      Nested `AGG_PACK` stays refused. I still pretty-print C to build
+      the compiler.
+- [x] Cut A nested pin-records: a pin record may have fields that are
+      themselves leaf pin-records (`int`/`string` only). `CompilerDiagnostic.location`
+      is `CompilerSourceLocation`, so `List<CompilerDiagnostic>` parameters
+      type-check. Nested `AGG_PACK` stays refused. I still pretty-print C
+      to build the compiler.
+      `make test-nanoisa-src-nano` (142 passed; `lexer.nano` no longer
+      names `unsupported param type List<CompilerDiagnostic>`).
+- [x] Cut A imported functions: ingest function names from the import
+      graph and emit their bodies after locals (C seed pass 2b). `imp_add`
+      / `via_imp_add` `TAIL_CALL` matches the C seed by callee name.
+      Table slot order of imported functions is not the claim. Nested
+      `AGG_PACK` and other statements stay refused. I still pretty-print C
+      to build the compiler.
+      `make test-nanoisa-src-nano` (142 passed; `lexer.nano` no longer
+      names `undefined function diag_lexer_error`; it names
+      `statement outside the pinned subset`).
+- [ ] Cut A nested `AGG_PACK` and remaining statements: `lexer.nano` still
+      names `statement outside the pinned subset` after imported functions
+      type-check. Nested record literals and expression statements are
+      in that bucket. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1462,6 +1478,9 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_tok_mod` (`CALL` of imported `ENUM_VAL`)
       without `nano_vm`.
       `make test-nvm2c` (428 passed).
+- [x] `nvm2c` runs Cut A `via_imp_add` (`TAIL_CALL` of imported `imp_add`)
+      without `nano_vm`.
+      `make test-nvm2c` (434 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

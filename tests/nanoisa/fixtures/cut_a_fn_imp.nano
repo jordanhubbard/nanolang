@@ -1,0 +1,7 @@
+fn imp_add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow imp_add {
+    assert (== (imp_add 2 3) 5)
+}

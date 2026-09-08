@@ -447,7 +447,10 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	grep -F "I refused that program:" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; \
 	if grep -F "cannot read import std/fs.nano" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
 	if grep -F "undefined local LexerTokenType" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
-	if grep -F "unsupported param type List<LexerToken>" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi
+	if grep -F "unsupported param type List<LexerToken>" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
+	if grep -F "unsupported param type List<CompilerDiagnostic>" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
+	if grep -F "undefined function diag_lexer_error" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi; \
+	if grep -F "unsupported result type CompilerSourceLocation" /tmp/nanolang_cut_a_lexer_refuse.txt >/dev/null; then exit 1; fi
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

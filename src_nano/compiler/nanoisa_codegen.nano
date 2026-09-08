@@ -13,9 +13,11 @@
  * functions (RET with no value; a statement CALL of void does not POP),
  * and pin-record results (ISA tag struct, not the NanoLang name),
  * and array/list results (ISA tag array),
- * and Enum.Variant as ENUM_VAL (local first, then direct import).
- * Anything else fails closed. I do not emit C. I do not delete
- * transpiler.nano.
+ * and Enum.Variant as ENUM_VAL (local first, then direct import),
+ * and one-level nested pin-record field types, and imported
+ * functions as CALL/TAIL_CALL (C seed pass 2b).
+ * Nested AGG_PACK stays refused. Anything else fails closed.
+ * I do not emit C. I do not delete transpiler.nano.
  */
 
 import "src_nano/parser.nano"
@@ -31,6 +33,8 @@ let mut nisa_ok: bool = true
 let mut nisa_err: string = ""
 let mut nisa_label: int = 0
 let mut nisa_seen: array<string> = []
+let mut nisa_imp_fn_names: array<string> = []
+let mut nisa_imp_fn_rets: array<string> = []
 
 fn nisa_reset() -> int {
     set nisa_names []
@@ -41,6 +45,8 @@ fn nisa_reset() -> int {
     set nisa_err ""
     set nisa_label 0
     set nisa_seen []
+    set nisa_imp_fn_names []
+    set nisa_imp_fn_rets []
     return 0
 }
 
@@ -464,6 +470,29 @@ shadow nisa_seen_has {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_imp_fn_index(name: string) -> int {
+    let n: int = (array_length nisa_imp_fn_names)
+    let mut i: int = 0
+    while (< i n) {
+        if (== (at nisa_imp_fn_names i) name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+
+shadow nisa_imp_fn_index {
+    let _: int = (nisa_reset)
+    assert (< (nisa_imp_fn_index "imp_add") 0)
+    set nisa_imp_fn_names (array_push nisa_imp_fn_names "imp_add")
+    set nisa_imp_fn_rets (array_push nisa_imp_fn_rets "int")
+    assert (== (nisa_imp_fn_index "imp_add") 0)
+    assert (< (nisa_imp_fn_index "nope") 0)
+}
+
 fn nisa_ingest_imports(parser: Parser, file_name: string) -> Parser {
     let mut acc: Parser = parser
     let mut queue: array<string> = []
@@ -517,6 +546,26 @@ fn nisa_ingest_imports(parser: Parser, file_name: string) -> Parser {
                     }
                     set sj (+ sj 1)
                 }
+                let nfn: int = (parser_get_function_count ip)
+                let mut fi: int = 0
+                while (< fi nfn) {
+                    let fd: ASTFunction = (parser_get_function ip fi)
+                    if (< fd.body 0) {
+                        (print "")
+                    } else {
+                        if (>= (nisa_fn_index acc fd.name) 0) {
+                            (print "")
+                        } else {
+                            if (>= (nisa_imp_fn_index fd.name) 0) {
+                                (print "")
+                            } else {
+                                set nisa_imp_fn_names (array_push nisa_imp_fn_names fd.name)
+                                set nisa_imp_fn_rets (array_push nisa_imp_fn_rets fd.return_type)
+                            }
+                        }
+                    }
+                    set fi (+ fi 1)
+                }
                 let m: int = (parser_get_import_count ip)
                 let mut k: int = 0
                 while (< k m) {
@@ -567,6 +616,14 @@ shadow nisa_ingest_imports {
     assert (== (parser_get_struct_def_count p6) 1)
     let sd6: ASTStruct = (parser_get_struct_def p6 0)
     assert (== sd6.name "ImpTok")
+    let _r3: int = (nisa_reset)
+    let src7: string = "from \"cut_a_fn_imp.nano\" import imp_add"
+    let toks7: List<LexerToken> = (tokenize_string src7 "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p7: Parser = (parse_program toks7 (list_LexerToken_length toks7) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p8: Parser = (nisa_ingest_imports p7 "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    assert (== (nisa_imp_fn_index "imp_add") 0)
+    assert (== (at nisa_imp_fn_rets 0) "int")
     let _2: int = (nisa_reset)
 }
 
@@ -615,6 +672,36 @@ shadow nisa_enum_index {
     assert (== (nisa_enum_index p "Nope") (- 0 1))
 }
 
+fn nisa_is_leaf_record(parser: Parser, name: string) -> bool {
+    let idx: int = (nisa_struct_index parser name)
+    if (< idx 0) {
+        return false
+    } else {
+        let s: ASTStruct = (parser_get_struct_def parser idx)
+        let mut i: int = 0
+        while (< i s.field_count) {
+            let ft: string = (at s.field_types i)
+            if (and (!= ft "int") (!= ft "string")) {
+                return false
+            } else {
+                set i (+ i 1)
+            }
+        }
+        return true
+    }
+}
+
+shadow nisa_is_leaf_record {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (nisa_is_leaf_record p "Loc")
+    assert (not (nisa_is_leaf_record p "Diag"))
+    assert (not (nisa_is_leaf_record p "Nope"))
+}
+
 fn nisa_is_int_record(parser: Parser, name: string) -> bool {
     let idx: int = (nisa_struct_index parser name)
     if (< idx 0) {
@@ -652,10 +739,18 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
         let mut i: int = 0
         while (< i s.field_count) {
             let ft: string = (at s.field_types i)
-            if (and (!= ft "int") (!= ft "string")) {
-                return false
-            } else {
+            if (== ft "int") {
                 set i (+ i 1)
+            } else {
+                if (== ft "string") {
+                    set i (+ i 1)
+                } else {
+                    if (nisa_is_leaf_record parser ft) {
+                        set i (+ i 1)
+                    } else {
+                        return false
+                    }
+                }
             }
         }
         return true
@@ -665,11 +760,13 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
 shadow nisa_is_pin_record {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_pin_record p "Point")
     assert (nisa_is_pin_record p "Tok")
+    assert (nisa_is_pin_record p "Loc")
+    assert (nisa_is_pin_record p "Diag")
     assert (not (nisa_is_pin_record p "Nope"))
     assert (not (nisa_is_int_record p "Tok"))
 }
@@ -768,13 +865,39 @@ shadow nisa_fn_index {
     assert (== (nisa_fn_index p "nope") (- 0 1))
 }
 
+fn nisa_fn_defined(parser: Parser, name: string) -> bool {
+    if (>= (nisa_fn_index parser name) 0) {
+        return true
+    } else {
+        return (>= (nisa_imp_fn_index name) 0)
+    }
+}
+
+shadow nisa_fn_defined {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "from \"cut_a_fn_imp.nano\" import imp_add " (+ "f" "n via_imp_add() -> int { return (imp_add 40 2) } shadow via_imp_add { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p2: Parser = (nisa_ingest_imports p "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    assert (nisa_fn_defined p2 "via_imp_add")
+    assert (nisa_fn_defined p2 "imp_add")
+    assert (not (nisa_fn_defined p2 "nope"))
+}
+
 fn nisa_fn_is_void(parser: Parser, name: string) -> bool {
     let idx: int = (nisa_fn_index parser name)
-    if (< idx 0) {
-        return false
-    } else {
+    if (>= idx 0) {
         let func: ASTFunction = (parser_get_function parser idx)
         return (== func.return_type "void")
+    } else {
+        let iidx: int = (nisa_imp_fn_index name)
+        if (< iidx 0) {
+            return false
+        } else {
+            return (== (at nisa_imp_fn_rets iidx) "void")
+        }
     }
 }
 
@@ -1235,7 +1358,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                         }
                                     }
                                 } else {
-                                    if (< (nisa_fn_index parser func_id.name) 0) {
+                                    if (not (nisa_fn_defined parser func_id.name)) {
                                         return (nisa_fail (+ "undefined function " func_id.name))
                                     } else {
                                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
@@ -1648,7 +1771,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             if (nisa_is_inline_call func_id.name) {
                 return (+ (nisa_emit_call parser call) (nisa_line "RET"))
             } else {
-                if (< (nisa_fn_index parser func_id.name) 0) {
+                if (not (nisa_fn_defined parser func_id.name)) {
                     return (nisa_fail (+ "undefined function " func_id.name))
                 } else {
                     return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
@@ -2286,6 +2409,106 @@ shadow nisa_emit_function {
     assert (str_contains tok_mod_text2 "ENUM_VAL 1 19")
 }
 
+fn nisa_copy_types(dst: Parser, src: Parser) -> Parser {
+    let mut acc: Parser = dst
+    let en: int = (parser_get_enum_count src)
+    let mut i: int = 0
+    while (< i en) {
+        let ed: ASTEnum = (parser_get_enum src i)
+        if (>= (nisa_enum_index acc ed.name) 0) {
+            (print "")
+        } else {
+            set acc (parser_store_enum acc ed.name ed.variant_count ed.variant_names ed.variant_values ed.line ed.column)
+        }
+        set i (+ i 1)
+    }
+    let sn: int = (parser_get_struct_def_count src)
+    let mut j: int = 0
+    while (< j sn) {
+        let sd: ASTStruct = (parser_get_struct_def src j)
+        if (>= (nisa_struct_index acc sd.name) 0) {
+            (print "")
+        } else {
+            set acc (parser_store_struct acc sd.name sd.field_count sd.field_names sd.field_types sd.line sd.column)
+        }
+        set j (+ j 1)
+    }
+    return acc
+}
+
+shadow nisa_copy_types {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = "from \"cut_a_tok_imp.nano\" import ImpTok"
+    let toks: List<LexerToken> = (tokenize_string src "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p2: Parser = (nisa_ingest_imports p "tests/nanoisa/fixtures/cut_a_add.nano")
+    let empty_src: string = (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }")
+    let empty_toks: List<LexerToken> = (tokenize_string empty_src "t.nano" diags)
+    let empty_p: Parser = (parse_program empty_toks (list_LexerToken_length empty_toks) "t.nano")
+    let filled: Parser = (nisa_copy_types empty_p p2)
+    assert (== (parser_get_struct_def_count filled) 1)
+    let sd: ASTStruct = (parser_get_struct_def filled 0)
+    assert (== sd.name "ImpTok")
+}
+
+fn nisa_emit_imported_functions(parser: Parser) -> string {
+    let mut out: string = ""
+    let mut p: int = 0
+    while (< p (array_length nisa_seen)) {
+        if (not nisa_ok) {
+            set p (array_length nisa_seen)
+        } else {
+            let path: string = (at nisa_seen p)
+            let diags: List<CompilerDiagnostic> = (diag_list_new)
+            let src: string = (read path)
+            let toks: List<LexerToken> = (tokenize_string src path diags)
+            let ip: Parser = (parse_program toks (list_LexerToken_length toks) path)
+            if (parser_has_error ip) {
+                let _x: string = (nisa_fail (+ "parse failed " path))
+                set p (array_length nisa_seen)
+            } else {
+                let ip2: Parser = (nisa_copy_types ip parser)
+                let nfn: int = (parser_get_function_count ip2)
+                let mut fi: int = 0
+                while (< fi nfn) {
+                    if (not nisa_ok) {
+                        set fi nfn
+                    } else {
+                        let fd: ASTFunction = (parser_get_function ip2 fi)
+                        if (< fd.body 0) {
+                            (print "")
+                        } else {
+                            if (>= (nisa_fn_index parser fd.name) 0) {
+                                (print "")
+                            } else {
+                                set out (+ out (nisa_emit_function ip2 fd))
+                                set out (+ out "\n")
+                            }
+                        }
+                        set fi (+ fi 1)
+                    }
+                }
+                set p (+ p 1)
+            }
+        }
+    }
+    return out
+}
+
+shadow nisa_emit_imported_functions {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "from \"cut_a_fn_imp.nano\" import imp_add " (+ "f" "n main() -> int { return (imp_add 40 2) } shadow main { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let p2: Parser = (nisa_ingest_imports p "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    let text: string = (nisa_emit_imported_functions p2)
+    assert (str_contains text ".function imp_add 2 2 0 int 1")
+    assert (str_contains text "I64_ADD")
+}
+
 pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
@@ -2323,6 +2546,10 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
             if (not nisa_ok) {
                 return ""
             } else {
+                set out (+ out (nisa_emit_imported_functions parser2))
+                if (not nisa_ok) {
+                    return ""
+                } else {
                 if (< main_idx 0) {
                     let missing: string = (nisa_fail "no main")
                     return missing
@@ -2337,6 +2564,7 @@ pub fn nanoisa_emit_nasm(source: string, file_name: string) -> string {
                         (print "")
                     }
                     return (+ prelude out)
+                }
                 }
             }
         }

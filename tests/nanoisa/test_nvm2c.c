@@ -2715,6 +2715,38 @@ static void test_via_tok_mod_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_imp_add: CALL/TAIL_CALL of an imported i64 function. */
+static void test_via_imp_add_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function imp_add 2 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 40\n"
+        "  PUSH_I64 2\n"
+        "  TAIL_CALL imp_add\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_imp_add fixture");
+    CHECK(m != NULL, "via_imp_add fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_imp_add");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_imp_add C does not name nano_vm");
+    CHECK(strstr(c, "nl_imp_add") != NULL, "via_imp_add C calls the imported function");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_imp_add C compiles and runs");
+    CHECK(status == 42, "via_imp_add() exits 42 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_tail_call_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -2950,6 +2982,7 @@ int main(int argc, char **argv) {
     test_via_az_runs_without_nano_vm();
     test_via_tag_runs_without_nano_vm();
     test_via_tok_mod_runs_without_nano_vm();
+    test_via_imp_add_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
