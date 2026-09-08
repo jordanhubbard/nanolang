@@ -56,3 +56,21 @@ fn glue(a: string, b: string) -> string {
 shadow glue {
     assert (== (glue "a" "b") "ab")
 }
+
+fn len3() -> int {
+    let xs: array<int> = [1, 2, 3]
+    return (array_length xs)
+}
+
+shadow len3 {
+    assert (== (len3) 3)
+}
+
+fn first() -> int {
+    let xs: array<int> = [7, 8, 9]
+    return (array_get xs 0)
+}
+
+shadow first {
+    assert (== (first) 7)
+}

@@ -204,11 +204,12 @@ Each cut has a test that can fail without stranding bootstrap.
 builds the compiler. I compare `.nvm` from the C seed's NanoISA path
 and from `src_nano` on a pinned subset, not yet the whole compiler.
 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
-`make test-nanoisa-src-nano` on integer `add`/`main`/`choose`/`loop_sum`
-and string `greeting`/`glue` (18 passed; function bytecode matches the C
-seed, including `if`, `while`, `PUSH_STR`, and `STR_CONCAT`). String
-operands are compared by content, not pool index. I still pretty-print C
-to build the compiler. The full dual of `codegen.c` is not this pin.
+`make test-nanoisa-src-nano` on integer `add`/`main`/`choose`/`loop_sum`,
+string `greeting`/`glue`, and array `len3`/`first` (22 passed; function
+bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
+`STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, and `ARR_GET`). String operands
+are compared by content, not pool index. I still pretty-print C to build
+the compiler. The full dual of `codegen.c` is not this pin.
 
 **B — AOT covers the compiler subset.** `nvm2c` translates functions,
 structs, loops, arrays, strings, modules, and a declared host ABI.
@@ -216,11 +217,13 @@ structs, loops, arrays, strings, modules, and a declared host ABI.
 `nvm2c` CLI (`bin/nvm2c`, `make test-nvm2c`). The closed i64 subset
 already builds a process that does not link `nano_vm`, including
 comparisons, `JMP`/`JMP_FALSE`, `TAIL_CALL` (`choose` and `loop_sum`
-run as native C), and Cut A strings (`PUSH_STR`, `STR_CONCAT`,
-`STR_LEN`; `greeting` and `glue` run as native C). The rest of the
-compiler subset (structs, arrays, modules, host ABI, and the remaining
-string library) is still open. A pinned suite must match on `nano_vm`
-and on AOT C.
+run as native C), Cut A strings (`PUSH_STR`, `STR_CONCAT`,
+`STR_LEN`; `greeting` and `glue` run as native C), and Cut A
+`array<int>` (`ARR_LITERAL`, `ARR_GET`, `ARR_LEN`; `len3` and `first`
+run as native C). Nested arrays, `ARR_SET`, and the rest of the array
+library stay refused. The rest of the compiler subset (structs,
+modules, host ABI, and the remaining string library) is still open. A
+pinned suite must match on `nano_vm` and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written

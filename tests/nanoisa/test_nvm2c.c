@@ -324,6 +324,97 @@ static void test_glue_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_arr_set_is_refused(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  ARR_LITERAL 1 1\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 9\n"
+        "  ARR_SET\n"
+        "  POP\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "ARR_SET fixture");
+    CHECK(m != NULL, "ARR_SET fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "ARR_SET stays outside the closed subset");
+    CHECK(strstr(err, "ARR_SET") != NULL, "error names ARR_SET");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_len3_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function len3 0 1 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_I64 2\n"
+        "  PUSH_I64 3\n"
+        "  ARR_LITERAL 1 3\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL len3\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "len3 fixture");
+    CHECK(m != NULL, "len3 fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for len3");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "len3 C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "len3 C compiles and runs");
+    CHECK(status == 3, "len3() exits 3 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_first_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function first 0 1 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_I64 8\n"
+        "  PUSH_I64 9\n"
+        "  ARR_LITERAL 1 3\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL first\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "first fixture");
+    CHECK(m != NULL, "first fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for first");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "first C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "first C compiles and runs");
+    CHECK(status == 7, "first() exits 7 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -634,6 +725,9 @@ int main(int argc, char **argv) {
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();
     test_glue_runs_without_nano_vm();
+    test_arr_set_is_refused();
+    test_len3_runs_without_nano_vm();
+    test_first_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();

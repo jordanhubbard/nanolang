@@ -39,11 +39,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   tabling stay out. Policy is the restricted `grant`/`allow` profile.
   `docs/LOGIC.md`, `make test-logic`.
 - 5.0 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits NanoISA
-  assembly for integer `add`/`main`/`choose`/`loop_sum` and string
-  `greeting`/`glue`. `make test-nanoisa-src-nano` compares function
-  bytecode with the C seed, including `if`, `while`, `PUSH_STR`, and
-  `STR_CONCAT`. String operands are compared by content. I still
-  pretty-print C to build the compiler.
+  assembly for integer `add`/`main`/`choose`/`loop_sum`, string
+  `greeting`/`glue`, and array `len3`/`first`.
+  `make test-nanoisa-src-nano` compares function bytecode with the C
+  seed, including `if`, `while`, `PUSH_STR`, `STR_CONCAT`,
+  `ARR_LITERAL`, `ARR_LEN`, and `ARR_GET`. String operands are compared
+  by content. I still pretty-print C to build the compiler.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64
@@ -51,7 +52,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `loop_sum` run as native C. Goto is the translator fallback.
   `PUSH_STR`, `STR_CONCAT`, and `STR_LEN` run as native C: `greeting`
   and `glue` exit with string length and do not name `nano_vm`.
-  Embedded NULs and `STR_SUBSTR` stay refused.
+  Embedded NULs and `STR_SUBSTR` stay refused. `ARR_LITERAL`,
+  `ARR_GET`, and `ARR_LEN` run as native C: `len3` and `first` exit
+  with length and the first element. Nested arrays and `ARR_SET`
+  stay refused. `make test-nvm2c` (102 passed).
 
 ## [4.5.0] - 2026-09-07
 

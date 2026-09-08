@@ -3,7 +3,8 @@
  * =============================================================================
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
- * if/else, while, let, set, string literals, and string concat. Anything else
+ * if/else, while, let, set, string literals, string concat, array<int>
+ * literals, array_length, and array_get. Anything else fails closed.
  * fails closed. I do not emit C. I do not delete transpiler.nano.
  */
 
@@ -199,6 +200,35 @@ shadow nisa_line_imm {
     assert (== (nisa_line_imm "PUSH_I64" "40") "  PUSH_I64 40\n")
 }
 
+fn nisa_local_type_ok(t: string) -> bool {
+    if (== t "int") {
+        return true
+    } else {
+        if (== t "string") {
+            return true
+        } else {
+            return (== t "array<int>")
+        }
+    }
+}
+
+shadow nisa_local_type_ok {
+    assert (nisa_local_type_ok "int")
+    assert (nisa_local_type_ok "string")
+    assert (nisa_local_type_ok "array<int>")
+    assert (not (nisa_local_type_ok "array<string>"))
+}
+
+fn nisa_is_arr_builtin(name: string) -> bool {
+    return (or (== name "array_length") (== name "array_get"))
+}
+
+shadow nisa_is_arr_builtin {
+    assert (nisa_is_arr_builtin "array_length")
+    assert (nisa_is_arr_builtin "array_get")
+    assert (not (nisa_is_arr_builtin "add"))
+}
+
 fn nisa_fresh() -> string {
     let n: int = nisa_label
     set nisa_label (+ nisa_label 1)
@@ -317,6 +347,84 @@ shadow nisa_emit_call_args {
     assert true
 }
 
+fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
+    let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i arr.element_count) {
+        let el: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
+        if (== el.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+            return (nisa_fail "nested arrays are not in the pinned subset")
+        } else {
+            if (== el.node_type ParseNodeType.PNODE_STRING) {
+                return (nisa_fail "string arrays are not in the pinned subset")
+            } else {
+                set out (+ out (nisa_emit_expr parser el.node_id el.node_type))
+                set i (+ i 1)
+            }
+        }
+    }
+    return (+ out (nisa_line_imm "ARR_LITERAL" (+ "1 " (int_to_string arr.element_count))))
+}
+
+shadow nisa_emit_array_literal {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n len3() -> int { let xs: array<int> = [1, 2, 3] return (array_length xs) } shadow len3 { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let l: ASTLet = (parser_get_let p stmt.node_id)
+    let text: string = (nisa_emit_array_literal p l.value)
+    assert (str_contains text "PUSH_I64 1")
+    assert (str_contains text "ARR_LITERAL 1 3")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
+    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+    if (== func_id.name "array_length") {
+        if (!= call.arg_count 1) {
+            return (nisa_fail "array_length needs 1 argument")
+        } else {
+            return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_LEN"))
+        }
+    } else {
+        if (== func_id.name "array_get") {
+            if (!= call.arg_count 2) {
+                return (nisa_fail "array_get needs 2 arguments")
+            } else {
+                return (+ (nisa_emit_call_args parser call) (nisa_line "ARR_GET"))
+            }
+        } else {
+            if (< (nisa_fn_index parser func_id.name) 0) {
+                return (nisa_fail (+ "undefined function " func_id.name))
+            } else {
+                return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+            }
+        }
+    }
+}
+
+shadow nisa_emit_call {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n len3() -> int { let xs: array<int> = [1, 2, 3] return (array_length xs) } shadow len3 { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let call: ASTCall = (parser_get_call p r.value)
+    let text: string = (nisa_emit_call p call)
+    assert (str_contains text "ARR_LEN")
+    assert (str_contains text "LOAD_LOCAL 0")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
     if (== node_type ParseNodeType.PNODE_NUMBER) {
         let num: ASTNumber = (parser_get_number parser node_id)
@@ -365,14 +473,13 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                 } else {
                     if (== node_type ParseNodeType.PNODE_CALL) {
                         let call: ASTCall = (parser_get_call parser node_id)
-                        let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                        if (< (nisa_fn_index parser func_id.name) 0) {
-                            return (nisa_fail (+ "undefined function " func_id.name))
-                        } else {
-                            return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
-                        }
+                        return (nisa_emit_call parser call)
                     } else {
-                        return (nisa_fail "expression outside the pinned subset")
+                        if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                            return (nisa_emit_array_literal parser node_id)
+                        } else {
+                            return (nisa_fail "expression outside the pinned subset")
+                        }
                     }
                 }
             }
@@ -547,10 +654,14 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (== r.value_type ParseNodeType.PNODE_CALL) {
             let call: ASTCall = (parser_get_call parser r.value)
             let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-            if (< (nisa_fn_index parser func_id.name) 0) {
-                return (nisa_fail (+ "undefined function " func_id.name))
+            if (nisa_is_arr_builtin func_id.name) {
+                return (+ (nisa_emit_call parser call) (nisa_line "RET"))
             } else {
-                return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+                if (< (nisa_fn_index parser func_id.name) 0) {
+                    return (nisa_fail (+ "undefined function " func_id.name))
+                } else {
+                    return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+                }
             }
         } else {
             let val: string = (nisa_emit_expr parser r.value r.value_type)
@@ -560,7 +671,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let l: ASTLet = (parser_get_let parser stmt.node_id)
             let val: string = (nisa_emit_expr parser l.value l.value_type)
-            if (and (not (== l.var_type "int")) (not (== l.var_type "string"))) {
+            if (not (nisa_local_type_ok l.var_type)) {
                 return (nisa_fail (+ "unsupported local type " l.var_type))
             } else {
                 set nisa_names (array_push nisa_names l.name)
@@ -657,7 +768,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         let mut i: int = 0
         while (< i func.param_count) {
             let plet: ASTLet = (parser_get_let parser (+ func.param_start i))
-            if (and (not (== plet.var_type "int")) (not (== plet.var_type "string"))) {
+            if (not (nisa_local_type_ok plet.var_type)) {
                 return (nisa_fail (+ "unsupported param type " plet.var_type))
             } else {
                 set nisa_names (array_push nisa_names plet.name)
@@ -711,6 +822,14 @@ shadow nisa_emit_function {
     let glue_text: string = (nisa_emit_function p3 glue_fn)
     assert (str_contains glue_text ".function glue 2 2 0 string 1")
     assert (str_contains glue_text "STR_CONCAT")
+    let src4: string = (+ "f" "n len3() -> int { let xs: array<int> = [1, 2, 3] return (array_length xs) } shadow len3 { assert true }")
+    let toks4: List<LexerToken> = (tokenize_string src4 "t.nano" diags)
+    let p4: Parser = (parse_program toks4 (list_LexerToken_length toks4) "t.nano")
+    let len_fn: ASTFunction = (parser_get_function p4 0)
+    let len_text: string = (nisa_emit_function p4 len_fn)
+    assert (str_contains len_text ".function len3 0 1 0 int 1")
+    assert (str_contains len_text "ARR_LITERAL 1 3")
+    assert (str_contains len_text "ARR_LEN")
 }
 
 pub fn nanoisa_emit_nasm(source: string) -> string {

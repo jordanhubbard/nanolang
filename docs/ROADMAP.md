@@ -1094,6 +1094,10 @@ Compiler product:
       `glue` (`STR_CONCAT`) bytecode with the C seed. Comparison resolves
       string operands, not only pool indices. `make test-nanoisa-src-nano`
       (18 passed). I still pretty-print C to build the compiler.
+- [x] Cut A arrays: the same pin matches `len3` (`ARR_LITERAL`/`ARR_LEN`)
+      and `first` (`ARR_GET`) bytecode with the C seed. I still pretty-print
+      C to build the compiler. Nested arrays, `array_set`, and `array_push`
+      are not this pin. `make test-nanoisa-src-nano` (22 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
@@ -1126,6 +1130,10 @@ Compiler product:
       `greeting` and `glue` from the Cut A pin compile and run without
       `nano_vm`. I do not link `nano_vm`. Embedded NULs and the rest of
       the string library stay refused. `make test-nvm2c` (89 passed).
+- [x] `nvm2c` translates `ARR_LITERAL`, `ARR_GET`, and `ARR_LEN` for
+      `array<int>`. `len3` and `first` from the Cut A pin compile and run
+      without `nano_vm`. Nested arrays and the rest of the array library
+      stay refused. `make test-nvm2c` (102 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
