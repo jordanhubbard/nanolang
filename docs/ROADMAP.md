@@ -1057,6 +1057,37 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
       comparing `.nvm`, host ABI distinct from `CALL_EXTERN` / `nano_cop`.
       Walk, file fate, linking, debug, and equivalence are in that document.
 
+Ownership and proposal closure:
+
+- [ ] I freeze one affine ownership contract before extending either compiler
+      (`task_4ac22044ffda9f93b336a85573293bc2`). It resolves the current
+      contradictions around at-most-once use versus mandatory cleanup,
+      by-value consumption versus borrowing, moves, explicit discard, nested
+      resources, collections, branches, loops, returns, and error paths.
+- [ ] I replace the C seed's identifier-state prototype with path-sensitive
+      ownership analysis and a rule-by-rule conformance corpus
+      (`task_c4e2f078cef8c4e461f0de3711c8a2b9`).
+- [ ] I implement the same resource syntax, analysis, and diagnostics in
+      `src_nano`; the self-hosted compiler does not inherit correctness from
+      the C seed (`task_20048de825616195b9f2bc492231a851`).
+- [ ] I encode and verify ownership facts in `.nvm` v2, preserving them through
+      serialization, linking, reconstruction, `nvm2c`, and every shipped
+      translator (`task_ed70242ac4d83be7b2327da7ece387ad`).
+- [ ] I migrate real file, socket, GPU, and capability/service handles only
+      after that contract and IR are enforceable
+      (`task_d03c232dc067e75cbc2fb2b7fb84ee46`).
+- [ ] I gate 5.0 on one affine acceptance matrix across both frontends,
+      NanoISA, NanoVM, and AOT C
+      (`task_28f2fb4b1f3c8a5ce93df628bb569d76`).
+- [ ] I take the bounded One-IR slice of `PASSIVE_PARALLELISM_DESIGN.md` into
+      5.0: verified purity/independence, deterministic serial semantics, and
+      NanoISA eligibility metadata. Scheduler optimization, async I/O, SoA,
+      and hardware speedup claims remain outside this task
+      (`task_90b123edcc301b464a031c55e4ba1a11`).
+- [ ] I decide `ROW_POLYMORPHIC_RECORDS_DESIGN.md` through the RFC process and,
+      if accepted, require dual-frontend and `.nvm` lowering equivalence in
+      5.0 (`task_a39aac00600aa77b55ad92ac70a2d1bf`).
+
 Compiler product:
 - [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
       `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
@@ -1551,7 +1582,9 @@ Target Completion: Q1 2026
 - [x] Generics - I have monomorphized generic types (December 2025).
 - [x] Tuples - I have heterogeneous tuples (December 2025).
 - [x] First-Class Functions - I treat functions as values (December 2025).
-- [x] Affine Types - I use these for resource management (December 2025).
+- [x] Affine Types MVP - I parse `resource struct` and perform basic
+      identifier-state checks in the C seed (December 2025).
+      Path-sensitive, dual-frontend, One-IR ownership is a 5.0 release gate.
 
 ## Future Enhancements
 

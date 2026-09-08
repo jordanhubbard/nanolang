@@ -1,10 +1,17 @@
 # Row-Polymorphic Record Types for NanoLang
 
-**Status:** Design proposal (2026-03-31)  
+**Status:** 5.0 RFC decision and One-IR lowering candidate (2026-03-31)
 **Author:** Rocky / Natasha (Natasha idea: wq-NAT-idea-1774933699352-NANO-RECORDS)  
+**Task:** `task_a39aac00600aa77b55ad92ac70a2d1bf`
 **Motivation:** Typed agent message schemas for agentOS — agents need to exchange records
 with different capability sets while the type system enforces required fields without
 rejecting extended records.
+
+The 5.0 commitment is to decide this proposal through the RFC process and, if
+accepted, carry one canonical record contract through both frontends and
+NanoISA serialization, verification, NanoVM, and AOT C. The document is not an
+implementation claim; rejected or deferred semantics do not enter 5.0 merely
+because they appear below.
 
 ---
 

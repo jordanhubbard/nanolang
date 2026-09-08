@@ -1,8 +1,22 @@
 # Affine Types for Resource Safety
 
-**Status**: Implementation in progress  
-**Issue**: nanolang-683j  
-**Decision**: Affine types for resources + GC for everything else  
+**Status**: 5.0 design contract; the current C-seed MVP is partial
+**Roadmap**: Phase 20 in `ROADMAP.md`
+**Tasks**: contract `task_4ac22044ffda9f93b336a85573293bc2`, C seed
+`task_c4e2f078cef8c4e461f0de3711c8a2b9`, self-hosted frontend
+`task_20048de825616195b9f2bc492231a851`, NanoISA
+`task_ed70242ac4d83be7b2327da7ece387ad`, services
+`task_d03c232dc067e75cbc2fb2b7fb84ee46`, release gate
+`task_28f2fb4b1f3c8a5ce93df628bb569d76`
+**Direction**: affine ownership for resources + GC for ordinary values
+
+This document describes my 5.0 target, not the behavior I can prove today.
+The C seed recognizes `resource struct` and has a basic per-identifier
+unused/used/consumed tracker. That prototype is not path-sensitive and does
+not prove moves, nested ownership, all exits, loops, or equivalent behavior in
+`src_nano`. Ownership metadata is not yet a verified `.nvm` contract. I will
+not call affine ownership production-ready until the task-backed acceptance
+matrix above passes.
 
 ## Problem Statement
 
@@ -28,7 +42,16 @@ let data: string = (read file)  // Should be compile error, not runtime error!
 ## Core Concepts
 
 ### Affine Types
-A type is **affine** if values can be used **at most once**. After use, the value is "consumed" and cannot be accessed again.
+A type is **affine** if ownership cannot be duplicated and an owned value can
+be transferred at most once. Non-consuming observation, if I accept borrowing,
+does not transfer ownership. After a move, consuming call, or explicit discard,
+the previous owner cannot access the value.
+
+Managed resources add a cleanup obligation: every reachable exit must either
+transfer ownership or perform an ownership-ending operation. This obligation
+is closer to a linear lifecycle than plain affine weakening. The 5.0 semantic
+contract task will settle the terminology and exact `drop` behavior before I
+encode it in either compiler.
 
 ### Resource Types
 Types marked as `resource` are affine and represent system resources that must be explicitly released:
@@ -89,7 +112,10 @@ fn read(f: &FileHandle, buf: array<int>) -> int {
 }
 ```
 
-Note: `&` syntax for borrowing is optional for MVP. Start with move-only semantics.
+`&` is proposed 5.0 syntax, not current implementation evidence. The contract
+task must either accept it and define its lifetime/aliasing limits or replace
+it consistently in this document and the guide. Passing a resource by value
+always transfers ownership.
 
 ## Compiler Rules
 
@@ -153,48 +179,27 @@ fn use_config() {
 }
 ```
 
-## Implementation Plan
+## 5.0 Implementation Plan
 
-### Phase 1: Parser Changes (Week 1)
-- [ ] Add `resource` keyword to lexer (TOKEN_RESOURCE)
-- [ ] Parse `resource struct` declarations
-- [ ] Add `resource` flag to AST_STRUCT node
-- [ ] Tests: Parse resource struct declarations
+I execute this in dependency order; the MAC task ledger is canonical.
 
-### Phase 2: Type System (Week 2)
-- [ ] Add `is_resource` flag to Type and StructInfo
-- [ ] Track resource usage in Environment/TypeChecker
-- [ ] Implement use-tracking per variable
-  - unused, used, consumed states
-- [ ] Error on double-use of consumed resources
-- [ ] Error on unused resources (resource leak)
-- [ ] Tests: Type checking resource usage
+- [ ] Freeze one semantic contract and canonicalize both affine documents
+      (`task_4ac22044ffda9f93b336a85573293bc2`).
+- [ ] Implement path-sensitive checking in the C seed
+      (`task_c4e2f078cef8c4e461f0de3711c8a2b9`).
+- [ ] Implement the same syntax and ownership decisions in `src_nano`
+      (`task_20048de825616195b9f2bc492231a851`).
+- [ ] Emit, serialize, link, reconstruct, and verify affine facts in NanoISA v2
+      (`task_ed70242ac4d83be7b2327da7ece387ad`).
+- [ ] Migrate real standard-library and NSI service handles
+      (`task_d03c232dc067e75cbc2fb2b7fb84ee46`).
+- [ ] Pass the dual-frontend, NanoVM, and AOT C acceptance matrix
+      (`task_28f2fb4b1f3c8a5ce93df628bb569d76`).
 
-### Phase 3: Function Analysis (Week 3)
-- [ ] Detect consuming functions (take resource by value)
-- [ ] Detect borrowing functions (take resource by reference - optional)
-- [ ] Track resource flow through function calls
-- [ ] Error on returning consumed resources
-- [ ] Tests: Resource flow through functions
-
-### Phase 4: Control Flow (Week 4)
-- [ ] Track resource usage in if/else branches
-- [ ] Ensure resources consumed on all paths
-- [ ] Track resources in while loops
-- [ ] Error on potential leaks in conditional code
-- [ ] Tests: Conditional resource usage
-
-### Phase 5: Transpiler (Week 5)
-- [ ] Transpile resource types as regular structs (no special handling)
-- [ ] Emit warnings in generated C for consumed resources
-- [ ] Tests: Generated C compiles and runs
-
-### Phase 6: Standard Library (Week 6)
-- [ ] Define FileHandle as resource type
-- [ ] Define Socket as resource type
-- [ ] Update fs module to use resource types
-- [ ] Add examples showing resource safety
-- [ ] Documentation and examples
+The older week-based checklist mixed a parser prototype with a completed
+language guarantee and assumed the AST-to-C transpiler remained the product
+backend. Phase 20 instead requires both frontends to emit one verified `.nvm`
+product; translators cannot repair ownership facts discarded by a frontend.
 
 ## Examples
 
@@ -281,10 +286,11 @@ fn safe_read_file_v2(path: string) -> Result<string, string> {
 }
 ```
 
-## Future Enhancements
+## Contract Decisions and Later Extensions
 
-### Borrowing (Phase 7 - Optional)
-Allow temporary access without consuming:
+### Borrowing (5.0 contract decision)
+Temporary access without consuming is required by the guide's repeated-read
+examples. It is therefore a contract decision, not an optional enhancement:
 
 ```nano
 fn read_first_line(f: &FileHandle) -> string {
@@ -300,8 +306,10 @@ fn main() {
 }
 ```
 
-### Explicit Drop
-Allow early resource release:
+### Explicit Drop (5.0 contract decision)
+If I permit affine weakening, explicit discard must still define what happens
+to the underlying resource. The contract must distinguish a cleanup operation
+from abandoning a live handle:
 
 ```nano
 fn use_file() {
@@ -311,8 +319,10 @@ fn use_file() {
 }
 ```
 
-### Resource Pools
-For reusable resources:
+### Resource Pools (after container ownership is defined)
+Pools are outside the 5.0 affine release gate unless the semantic contract
+accepts resource-bearing collections and the verifier can represent their
+element ownership. This example is illustrative, not supported syntax:
 
 ```nano
 resource struct Connection {
@@ -377,4 +387,3 @@ let f: FileHandle = (open "test.txt")
 - Mercury language (linear/affine types)
 - Rust (ownership but full borrow checker)
 - Swift/Obj-C (ARC but no affine types)
-

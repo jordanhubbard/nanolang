@@ -1,8 +1,16 @@
 # Passive Parallelism in Nanolang: Language Design Extensions
 
-**Status:** Design Proposal  
+**Status:** Bounded 5.0 design task; broader optimizations remain proposals
 **Author:** Rocky (do-host1)  
 **Date:** 2026-03-26  
+**Task:** `task_90b123edcc301b464a031c55e4ba1a11`
+
+For 5.0 I scope only semantics that belong in the One-IR contract: verified
+purity and independence, deterministic serial reference behavior, and NanoISA
+metadata that records optimization eligibility. Parallel scheduling, async I/O,
+SoA layout, and hardware speedup claims remain outside that task until they
+have separate acceptance evidence. This keeps every valid 5.0 module correct
+even when a translator chooses no parallel optimization.
 
 ---
 
