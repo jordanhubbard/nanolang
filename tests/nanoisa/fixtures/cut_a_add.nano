@@ -1114,3 +1114,36 @@ shadow via_bare {
     (via_bare)
     assert true
 }
+
+fn via_brk() -> int {
+    let mut i: int = 0
+    while (< i 10) {
+        set i (+ i 1)
+        if (> i 2) {
+            break
+        }
+    }
+    return i
+}
+
+shadow via_brk {
+    assert (== (via_brk) 3)
+}
+
+fn via_cont() -> int {
+    let mut i: int = 0
+    let mut s: int = 0
+    while (< i 4) {
+        set i (+ i 1)
+        if (== i 2) {
+            continue
+        } else {
+            set s (+ s i)
+        }
+    }
+    return s
+}
+
+shadow via_cont {
+    assert (== (via_cont) 8)
+}

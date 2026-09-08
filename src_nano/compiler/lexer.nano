@@ -96,6 +96,8 @@ pure fn keyword_group2(s: string) -> int {
                                     if (== s "for") { return LexerTokenType.TOKEN_FOR } else {
                                         if (== s "in") { return LexerTokenType.TOKEN_IN } else {
                                             if (== s "return") { return LexerTokenType.TOKEN_RETURN } else {
+                                            if (== s "break") { return LexerTokenType.TOKEN_BREAK } else {
+                                            if (== s "continue") { return LexerTokenType.TOKEN_CONTINUE } else {
                                                 if (== s "assert") { return LexerTokenType.TOKEN_ASSERT } else {
                                                     if (== s "shadow") { return LexerTokenType.TOKEN_SHADOW } else {
                                 if (== s "requires") { return LexerTokenType.TOKEN_REQUIRES } else {
@@ -129,6 +131,8 @@ pure fn keyword_group2(s: string) -> int {
                                                     }
                                                 }
                                             }
+                                            }
+                                            }
                                         }
                                     }
                                 }
@@ -147,6 +151,8 @@ shadow keyword_group2 {
     assert (== (keyword_group2 "let") 25)      /* TOKEN_LET */
     assert (== (keyword_group2 "if") 28)       /* TOKEN_IF */
     assert (== (keyword_group2 "return") 34)   /* TOKEN_RETURN */
+    assert (== (keyword_group2 "break") 35)    /* TOKEN_BREAK */
+    assert (== (keyword_group2 "continue") 36) /* TOKEN_CONTINUE */
     assert (== (keyword_group2 "struct") 43)   /* TOKEN_STRUCT */
     assert (== (keyword_group2 "pure") 87)     /* TOKEN_PURE */
     assert (== (keyword_group2 "true") 5)      /* TOKEN_TRUE */

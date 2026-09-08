@@ -496,6 +496,22 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_file_io.nasm \
 		-o /tmp/nanolang_cut_a_file_io.nvm
 	@test -s /tmp/nanolang_cut_a_file_io.nvm
+	@echo "Checking nanoisa_codegen.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/nanoisa_codegen.nano \
+		-o /tmp/nanolang_cut_a_codegen.nasm
+	@test -s /tmp/nanolang_cut_a_codegen.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_codegen.nasm >/dev/null
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_codegen.nasm \
+		-o /tmp/nanolang_cut_a_codegen.nvm
+	@test -s /tmp/nanolang_cut_a_codegen.nvm
+	@echo "Checking nanoisa_emit.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/nanoisa_emit.nano \
+		-o /tmp/nanolang_cut_a_emit.nasm
+	@test -s /tmp/nanolang_cut_a_emit.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_emit.nasm >/dev/null
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_emit.nasm \
+		-o /tmp/nanolang_cut_a_emit.nvm
+	@test -s /tmp/nanolang_cut_a_emit.nvm
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

@@ -1465,13 +1465,22 @@ Compiler product:
       `make test-nanoisa-src-nano` (236 passed). `compiler_modular.nano`
       names `system`. `nanoc_integrated.nano` names
       `unsupported result type Vector2D`.
-- [ ] Cut A `nanoc_integrated.nano` names
-      `unsupported result type Vector2D`. `compiler_modular.nano` names
-      `system`. `nanoisa_codegen.nano` as a root names `parse failed`.
-      Compiler drivers name `get_argc`. `result.nano` names
-      `unsupported result type ResultInt`. `nvm2c` still names
-      `LOAD_GLOBAL` and `CALL_EXTERN`. I still pretty-print C to
-      build the compiler.
+- [x] Cut A prefix `+` in shadows is binary. I nest `(+ a (+ b c))`.
+      I do not parse n-ary `(+ a b c)`. Self-hosted parse of
+      `nanoisa_codegen.nano` as a root succeeds.
+- [x] Cut A `break` / `continue`: `via_brk` / `via_cont` match the C
+      seed (`JMP` to the innermost loop end / top). Lexer keywords
+      `break` and `continue`. Parser stores `PNODE_BREAK` /
+      `PNODE_CONTINUE` with no extra payload. `make test-nanoisa-src-nano`
+      (240 passed).
+- [x] `nanoisa_codegen.nano` emits 397 functions and that nasm
+      assembles. `nanoisa_emit.nano` emits 398 functions and that nasm
+      assembles. `parser.nano` emits 302 functions.
+- [ ] Cut A `nanoc_integrated.nano` names `unsupported result type
+      Vector2D`. `compiler_modular.nano` names `system`. Compiler
+      drivers name `get_argc`. `driver.nano` names `unsupported result
+      type ResultArgs`. `nvm2c` still names `LOAD_GLOBAL` and
+      `CALL_EXTERN`. I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

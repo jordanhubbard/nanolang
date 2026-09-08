@@ -361,6 +361,94 @@ shadow parser_with_position {
     assert (== moved.next_node_id 0)
 }
 
+fn parser_with_last_expr(p: Parser, node_id: int, node_type: int) -> Parser {
+    return Parser {
+        tokens: p.tokens, file_name: p.file_name,
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        diagnostics: p.diagnostics,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        unsafe_blocks: p.unsafe_blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        unsafe_blocks_count: p.unsafe_blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: p.next_node_id,
+        last_expr_node_id: node_id,
+        last_expr_node_type: node_type
+    }
+}
+
+shadow parser_with_last_expr {
+    let empty_tokens: List<LexerToken> = (list_LexerToken_new)
+    let p: Parser = (parser_new empty_tokens 0 "last.nano")
+    let marked: Parser = (parser_with_last_expr p -1 ParseNodeType.PNODE_BREAK)
+    assert (== marked.last_expr_node_id -1)
+    assert (== marked.last_expr_node_type ParseNodeType.PNODE_BREAK)
+    assert (== marked.position 0)
+}
+
 /* Advance parser to next token - returns new parser with advanced position */
 fn parser_advance(p: Parser) -> Parser {
     if (not (parser_is_at_end p)) {
@@ -643,6 +731,12 @@ shadow token_while { assert (== (token_while) LexerTokenType.TOKEN_WHILE) }
 
 fn token_return() -> int { return LexerTokenType.TOKEN_RETURN }
 shadow token_return { assert (== (token_return) LexerTokenType.TOKEN_RETURN) }
+
+fn token_break() -> int { return LexerTokenType.TOKEN_BREAK }
+shadow token_break { assert (== (token_break) LexerTokenType.TOKEN_BREAK) }
+
+fn token_continue() -> int { return LexerTokenType.TOKEN_CONTINUE }
+shadow token_continue { assert (== (token_continue) LexerTokenType.TOKEN_CONTINUE) }
 
 fn token_colon() -> int { return LexerTokenType.TOKEN_COLON }
 shadow token_colon { assert (== (token_colon) LexerTokenType.TOKEN_COLON) }
@@ -5088,6 +5182,56 @@ shadow parse_return_statement {
     assert (== 1 1)
 }
 
+fn parse_break_statement(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexerToken = (parser_current p)
+        if (== tok.token_type (token_break)) {
+            let p1: Parser = (parser_advance p)
+            return (parser_with_last_expr p1 -1 ParseNodeType.PNODE_BREAK)
+        } else {
+            return (parser_with_error p true)
+        }
+    }
+}
+
+shadow parse_break_statement {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n via_brk() -> int { let mut i: int = 0 while (< i 3) { set i (+ i 1) if (> i 1) { break } } return i } shadow via_brk { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (not (parser_has_error p))
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let wref: ASTStmtRef = (list_ASTStmtRef_get block.statements 1)
+    assert (== wref.node_type ParseNodeType.PNODE_WHILE)
+}
+
+fn parse_continue_statement(p: Parser) -> Parser {
+    if (parser_is_at_end p) {
+        return (parser_with_error p true)
+    } else {
+        let tok: LexerToken = (parser_current p)
+        if (== tok.token_type (token_continue)) {
+            let p1: Parser = (parser_advance p)
+            return (parser_with_last_expr p1 -1 ParseNodeType.PNODE_CONTINUE)
+        } else {
+            return (parser_with_error p true)
+        }
+    }
+}
+
+shadow parse_continue_statement {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n via_cont() -> int { let mut i: int = 0 let mut s: int = 0 while (< i 3) { set i (+ i 1) if (== i 1) { continue } else { set s (+ s i) } } return s } shadow via_cont { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (not (parser_has_error p))
+    let func: ASTFunction = (parser_get_function p 0)
+    assert (== func.name "via_cont")
+}
+
 /* Parse assert statement: assert expression */
 fn parse_assert_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
@@ -5217,6 +5361,12 @@ fn parse_statement(p: Parser) -> Parser {
                             if (== tok.token_type (token_return)) {
                                 return (parse_return_statement p)
                             } else {
+                                if (== tok.token_type (token_break)) {
+                                    return (parse_break_statement p)
+                                } else {
+                                if (== tok.token_type (token_continue)) {
+                                    return (parse_continue_statement p)
+                                } else {
                                 if (== tok.token_type (token_assert)) {
                                     return (parse_assert_statement p)
                                 } else {
@@ -5227,6 +5377,8 @@ fn parse_statement(p: Parser) -> Parser {
                                         let p1: Parser = (parse_expression p)
                                         return p1
                                     }
+                                }
+                                }
                                 }
                             }
                         }

@@ -352,9 +352,12 @@ match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `CALL_EXTERN` `vm_tmp_dir`. `file_read` / `file_write` / `file_exists`
 lower as `vm_file_*`. `file_io.nano` emits 3 functions and that nasm
 assembles. Bare void `return` (`via_bare`) is `RET` with no value.
-`nanoc_integrated.nano` names `unsupported result type Vector2D`.
-`compiler_modular.nano` names `system`. `nanoisa_codegen.nano` as a
-root names `parse failed`. Labels reset per `.function`.
+`break` / `continue` (`via_brk` / `via_cont`) are `JMP` to the
+innermost loop end / top. `nanoisa_codegen.nano` emits 397 functions
+and that nasm assembles. `nanoisa_emit.nano` emits 398. `parser.nano`
+emits 302. `nanoc_integrated.nano` names `unsupported result type Vector2D`.
+`compiler_modular.nano` names `system`. Compiler drivers name `get_argc`.
+Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing

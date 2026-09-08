@@ -119,6 +119,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `file_exists` lower as `vm_file_read` / `vm_file_write` /
   `vm_file_exists`. `file_io.nano` emits 3 functions and that nasm
   assembles. Bare void `return` is `RET` (`via_bare`).
+  `break` / `continue` are `JMP` to the innermost loop end / top
+  (`via_brk` / `via_cont`). `make test-nanoisa-src-nano` (240 passed).
+  `nanoisa_codegen.nano` emits 397 functions and that nasm assembles.
+  `nanoisa_emit.nano` emits 398 functions and that nasm assembles.
+  `parser.nano` emits 302 functions.
   `nanoc_integrated.nano` names `unsupported result type Vector2D`.
   Compiler drivers name `system` and `get_argc`.
   `std/fs.nano` resolves through `modules/` like the C seed.
