@@ -752,3 +752,52 @@ fn via_bag() -> int {
 shadow via_bag {
     assert (== (via_bag) 0)
 }
+
+fn glue_field() -> string {
+    let p: Tok = Tok { t: 1, s: "hi" }
+    return (+ "x" p.s)
+}
+
+shadow glue_field {
+    assert (== (glue_field) "xhi")
+}
+
+fn via_glue_field() -> int {
+    return (str_length (glue_field))
+}
+
+shadow via_glue_field {
+    assert (== (via_glue_field) 3)
+}
+
+fn glue_digits() -> string {
+    return (+ "n" (int_to_string 7))
+}
+
+shadow glue_digits {
+    assert (== (glue_digits) "n7")
+}
+
+fn via_glue_digits() -> int {
+    return (str_length (glue_digits))
+}
+
+shadow via_glue_digits {
+    assert (== (via_glue_digits) 2)
+}
+
+fn glue_sc() -> string {
+    return (str_concat "a" "b")
+}
+
+shadow glue_sc {
+    assert (== (glue_sc) "ab")
+}
+
+fn via_glue_sc() -> int {
+    return (str_length (glue_sc))
+}
+
+shadow via_glue_sc {
+    assert (== (via_glue_sc) 2)
+}

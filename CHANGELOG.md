@@ -88,7 +88,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Nested pin-record literals (`nest_d` / `via_nest`) match the C seed.
   `nvm2c` still refuses nested records. Bool and `List<int>` record
   fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`) match the
-  C seed. `parser.nano` names `string concat needs two strings`.
+  C seed. String `+` of a field or `int_to_string` (`glue_field` /
+  `glue_digits`) and `str_concat` as `STR_CONCAT` (`glue_sc`) match
+  the C seed. `parser.nano` names `undefined function string_to_int`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

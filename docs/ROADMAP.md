@@ -1359,10 +1359,12 @@ Compiler product:
 - [x] Cut A bool and `List<int>` record fields: `flag_yes` / `via_flag`
       pack `bool`. `empty_bag` / `via_bag` pack `List<int>`. Bytecode
       matches the C seed. `make test-nanoisa-src-nano` (158 passed).
-- [ ] Cut A `Parser` results: pin-record expansion accepts `Parser`,
-      then `parser.nano` names `string concat needs two strings`
-      (a string field or `int_to_string` as a `+` operand). I still
-      pretty-print C to build the compiler.
+- [x] Cut A string `+` of a field or `int_to_string`: `glue_field` and
+      `glue_digits` match the C seed. `str_concat` is `STR_CONCAT` like
+      the C seed (`glue_sc`). New code still uses `(+ a b)`.
+      `make test-nanoisa-src-nano` (170 passed).
+- [ ] Cut A `string_to_int`: `parser.nano` names `undefined function string_to_int`.
+      I still pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

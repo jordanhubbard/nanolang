@@ -18,8 +18,10 @@
  * functions as CALL/TAIL_CALL (C seed pass 2b), unsafe blocks as
  * inner statements, getcwd as CALL_EXTERN vm_getcwd, and nested
  * pin-record literals as inner AGG_PACK then outer AGG_PACK, bool
- * fields, and List<int> fields on pin records.
- * Parser results stay refused until every Parser field type is a pin.
+ * fields, List<int> fields, string `+` of a string field or
+ * `int_to_string`, and `str_concat` as `STR_CONCAT` (C seed builtin;
+ * I still write `(+ a b)` in new code).
+ * `parser.nano` names `undefined function string_to_int`.
  * Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -353,7 +355,8 @@ fn nisa_is_inline_call(name: string) -> bool {
                                        (or (== name "int_to_string")
                                            (or (== name "str_length")
                                                (or (== name "str_substring")
-                                                   (or (== name "char_at") (== name "str_char_at"))))))))))))
+                                                   (or (== name "char_at")
+                                                       (or (== name "str_char_at") (== name "str_concat")))))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -376,6 +379,7 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "list_Tok_new")
     assert (nisa_is_inline_call "list_Tok_push")
     assert (nisa_is_inline_call "char_at")
+    assert (nisa_is_inline_call "str_concat")
     assert (nisa_is_inline_call "str_char_at")
     assert (nisa_is_inline_call "at")
     assert (not (nisa_is_inline_call "add"))
@@ -1180,6 +1184,9 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     let call: ASTCall = (parser_get_call parser node_id)
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                    if (or (== func_id.name "int_to_string") (or (== func_id.name "getcwd") (== func_id.name "str_concat"))) {
+                        return true
+                    } else {
                     let fidx: int = (nisa_fn_index parser func_id.name)
                     if (< fidx 0) {
                         return false
@@ -1187,8 +1194,39 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                         let f: ASTFunction = (parser_get_function parser fidx)
                         return (== f.return_type "string")
                     }
+                    }
                 } else {
+                    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                        let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+                        if (!= fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
+                            return false
+                        } else {
+                            let id: ASTIdentifier = (parser_get_identifier parser fa.object)
+                            let slot: int = (nisa_local_find id.name)
+                            if (or (< slot 0) (>= slot (array_length nisa_types))) {
+                                return false
+                            } else {
+                                let ty: string = (at nisa_types slot)
+                                let sidx: int = (nisa_struct_index parser ty)
+                                if (< sidx 0) {
+                                    return false
+                                } else {
+                                    let sd: ASTStruct = (parser_get_struct_def parser sidx)
+                                    let mut i: int = 0
+                                    while (< i sd.field_count) {
+                                        if (== (at sd.field_names i) fa.field_name) {
+                                            return (== (at sd.field_types i) "string")
+                                        } else {
+                                            set i (+ i 1)
+                                        }
+                                    }
+                                    return false
+                                }
+                            }
+                        }
+                    } else {
                     return false
+                    }
                 }
             }
         }
@@ -1529,6 +1567,13 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                         }
                     }
                 } else {
+                    if (== func_id.name "str_concat") {
+                        if (!= call.arg_count 2) {
+                            return (nisa_fail "str_concat needs 2 arguments")
+                        } else {
+                            return (+ (nisa_emit_call_args parser call) (nisa_line "STR_CONCAT"))
+                        }
+                    } else {
                     if (== func_id.name "int_to_string") {
                         if (!= call.arg_count 1) {
                             return (nisa_fail "int_to_string needs 1 argument")
@@ -1589,6 +1634,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                             }
                             }
                         }
+                    }
                     }
                 }
                 }
