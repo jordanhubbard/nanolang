@@ -576,6 +576,36 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_nanoc_v06.nasm \
 		-o /tmp/nanolang_cut_a_nanoc_v06.nvm
 	@test -s /tmp/nanolang_cut_a_nanoc_v06.nvm
+	@for src in \
+		src_nano/driver.nano \
+		src_nano/lexer_main.nano \
+		src_nano/driver_minimal.nano \
+		src_nano/ast_shared.nano \
+		src_nano/nanoc_modular.nano \
+		src_nano/nanoc_selfhost.nano \
+		src_nano/nanoc_stage0.nano \
+		src_nano/nanoc_stage1.nano \
+		src_nano/typecheck_driver.nano \
+		src_nano/transpiler_driver.nano \
+		src_nano/parser_driver.nano \
+		src_nano/compiler/diagnostics.nano \
+		src_nano/compiler/serialize.nano \
+		src_nano/compiler/result.nano \
+		src_nano/compiler/ir.nano \
+		src_nano/compiler/error_messages.nano \
+		src_nano/generated/compiler_ast.nano \
+		src_nano/generated/compiler_schema.nano \
+		src_nano/generated/compiler_contracts.nano; do \
+		echo "Checking $$src emits and assembles..."; \
+		base=`basename $$src .nano`; \
+		nasm=/tmp/nanolang_cut_a_$$base.nasm; \
+		$(TIMEOUT_CMD) ./bin/nanoisa_emit $$src -o $$nasm; \
+		test -s $$nasm; \
+		grep -F ".function main" $$nasm >/dev/null; \
+		if grep -F "I refused that program:" $$nasm >/dev/null; then exit 1; fi; \
+		$(TIMEOUT_CMD) ./bin/nanoisa asm $$nasm -o /tmp/nanolang_cut_a_$$base.nvm; \
+		test -s /tmp/nanolang_cut_a_$$base.nvm; \
+	done
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin

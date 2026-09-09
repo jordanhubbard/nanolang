@@ -858,7 +858,12 @@ fn nisa_expr_struct_type(parser: Parser, node_id: int, node_type: int) -> string
                     let obj_ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
                     let fi: int = (nisa_struct_field_index parser obj_ty fa.field_name)
                     if (< fi 0) {
-                        return ""
+                        let uidx: int = (nisa_union_index parser obj_ty)
+                        if (< uidx 0) {
+                            return ""
+                        } else {
+                            return (nisa_union_named_field_type parser uidx fa.field_name)
+                        }
                     } else {
                         let sidx: int = (nisa_struct_index parser obj_ty)
                         let sd: ASTStruct = (parser_get_struct_def parser sidx)
@@ -1249,6 +1254,38 @@ shadow nisa_union_field_index {
     assert (== (nisa_union_field_index p "value") 0)
     assert (== (nisa_union_field_index p "error") 0)
     assert (== (nisa_union_field_index p "Nope") (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_union_named_field_type(parser: Parser, uidx: int, field: string) -> string {
+    let u: ASTUnion = (parser_get_union parser uidx)
+    let mut off: int = 0
+    let mut vi: int = 0
+    while (< vi u.variant_count) {
+        let fc: int = (at u.variant_field_counts vi)
+        let mut fi: int = 0
+        while (< fi fc) {
+            if (== (at u.variant_field_names (+ off fi)) field) {
+                return (at u.variant_field_types (+ off fi))
+            } else {
+                set fi (+ fi 1)
+            }
+        }
+        set off (+ off fc)
+        set vi (+ vi 1)
+    }
+    return ""
+}
+
+shadow nisa_union_named_field_type {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "union ResultI { Ok { value: int }, Err { error: string } } " (+ "f" "n via_ok() -> ResultI { return ResultI.Ok { value: 42 } } shadow via_ok { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_union_named_field_type p 0 "value") "int")
+    assert (== (nisa_union_named_field_type p 0 "error") "string")
+    assert (== (nisa_union_named_field_type p 0 "Nope") "")
     let _2: int = (nisa_reset)
 }
 
@@ -2860,13 +2897,27 @@ shadow nisa_emit_union_construct {
 fn nisa_emit_field_access(parser: Parser, node_id: int) -> string {
     let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
     if (!= fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
-        let ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
-        let fi: int = (nisa_struct_field_index parser ty fa.field_name)
-        if (< fi 0) {
-            return (nisa_fail "record field access needs a local")
+        let obj: string = (nisa_emit_expr parser fa.object fa.object_type)
+        if (not nisa_ok) {
+            return obj
         } else {
-            let obj: string = (nisa_emit_expr parser fa.object fa.object_type)
-            return (+ obj (nisa_line_imm "AGG_GET" (int_to_string fi)))
+            let ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
+            let mut fi: int = (nisa_struct_field_index parser ty fa.field_name)
+            if (< fi 0) {
+                set fi (nisa_any_struct_field_index parser fa.field_name)
+            } else {
+                (print "")
+            }
+            if (< fi 0) {
+                set fi (nisa_union_field_index parser fa.field_name)
+            } else {
+                (print "")
+            }
+            if (< fi 0) {
+                return (nisa_fail "record field access needs a local")
+            } else {
+                return (+ obj (nisa_line_imm "AGG_GET" (int_to_string fi)))
+            }
         }
     } else {
         let id: ASTIdentifier = (parser_get_identifier parser fa.object)
@@ -2989,6 +3040,15 @@ shadow nisa_emit_field_access {
     assert (str_contains text4 "AGG_GET 0")
     assert (str_contains text4 "AGG_GET 1")
     let _4: int = (nisa_reset)
+    let src5: string = (+ "struct ChainInner { path: string, lineno: int } struct ChainOut { inner: ChainInner, flag: int } union ChainBox { Packed { output: ChainOut }, Miss { note: string } } " (+ (+ "f" "n origin_chain() -> ChainBox { return ChainBox.Packed { output: ChainOut { inner: ChainInner { path: \"f\", lineno: 7 }, flag: 1 } } } shadow origin_chain { assert true } ") (+ "f" "n via_chain() -> int { let b: ChainBox = (origin_chain) match b { Packed(w) => { return w.output.inner.lineno } Miss(e) => { return 0 } } } shadow via_chain { assert true }")))
+    let toks5: List<LexerToken> = (tokenize_string src5 "t.nano" diags)
+    let p5: Parser = (parse_program toks5 (list_LexerToken_length toks5) "t.nano")
+    let func5: ASTFunction = (parser_get_function p5 1)
+    let text5: string = (nisa_emit_function p5 func5)
+    assert (str_contains text5 "AGG_GET 0")
+    assert (str_contains text5 "AGG_GET 1")
+    assert (not (str_contains text5 "record field access needs a local"))
+    let _5: int = (nisa_reset)
 }
 
 fn nisa_emit_hm_call(parser: Parser, call: ASTCall) -> string {

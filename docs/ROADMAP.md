@@ -1516,12 +1516,39 @@ Compiler product:
       (`CALL_EXTERN` `vm_string_from_char`, `int` in, `string` out).
       `make test-nanoisa-src-nano` (262 passed).
 - [x] `nanoc_v06.nano` emits 598 functions and that nasm assembles.
-- [ ] Cut A remaining compiler files: `driver.nano` names
-      `unsupported result type ResultArgs` (a union).
-      `nanoc_v04.nano` names `undefined module function Math.add`
-      (that file has no `import` of `Math`). `nvm2c` still names
-      `LOAD_GLOBAL` and `CALL_EXTERN`. I still pretty-print C to
-      build the compiler.
+- [x] Cut A leaf union construct: `via_ok` / `via_err` match the C
+      seed (`AGG_PACK` kind 1, layout, variant, field count).
+      Union results use ISA tag `struct`. I still pretty-print C
+      to build the compiler. `make test-nanoisa-src-nano` (266 passed).
+- [x] Cut A match: `via_m_ok` matches the C seed (`DUP`/`AGG_TAG`/`EQ`,
+      statement `POP`, `PUSH_VOID` after a block arm). Field lookup
+      searches structs before union variant fields. I still
+      pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (268 passed).
+- [x] Cut A chained field access: `via_chain` matches the C seed
+      (`AGG_GET` of a union payload, then nested record fields).
+      A non-identifier object emits the object, then `AGG_GET`.
+      I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (270 passed).
+- [x] Cut A `driver.nano` and remaining compiler files that emit:
+      `driver.nano` emits 567 functions and that nasm assembles.
+      `lexer_main.nano` (75), `driver_minimal.nano` (75),
+      `ast_shared.nano` (1), `nanoc_modular.nano` (4),
+      `nanoc_selfhost.nano` (31), `nanoc_stage0.nano` (1),
+      `nanoc_stage1.nano` (4), `typecheck_driver.nano` (406),
+      `transpiler_driver.nano` (449), `parser_driver.nano` (302),
+      `diagnostics.nano` (35), `serialize.nano` (12),
+      `result.nano` (59), `ir.nano` (1), `error_messages.nano` (61),
+      and generated `compiler_ast` / `compiler_schema` /
+      `compiler_contracts` (1 each) emit and assemble.
+- [ ] Cut A remaining named refuses: `nanoc_v04.nano` names
+      `undefined module function Math.add` (that file has no
+      `import` of `Math`). `compiler_simple.nano` names
+      `cannot read import test_modules/math_helper.nano`.
+      `typecheck_nanoc.nano` / `parse_nanoc.nano` name
+      `undefined function tokenize_file_result`. `nvm2c` still
+      names `LOAD_GLOBAL` and `CALL_EXTERN`. I still pretty-print
+      C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

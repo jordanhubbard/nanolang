@@ -135,8 +135,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_neg`). Pin records may have `HashMap` fields (`origin_hm` /
   `via_hm`). Host `string_from_char` is `CALL_EXTERN`
   `vm_string_from_char` (`via_chstr`). `nanoc_v06.nano` emits 598
-  functions and that nasm assembles. `driver.nano` names
-  `unsupported result type ResultArgs`.
+  functions and that nasm assembles. Leaf union construct
+  (`via_ok` / `via_err`; `AGG_PACK` kind 1) and statement `match`
+  (`via_m_ok`; `DUP`/`AGG_TAG`/`EQ`) match the C seed. Chained
+  field access of a union payload (`via_chain`; `AGG_GET` then
+  nested `AGG_GET`) matches the C seed.
+  `make test-nanoisa-src-nano` (270 passed).
+  `driver.nano` emits 567 functions and that nasm assembles.
+  `nanoc_v04.nano` still names `undefined module function Math.add`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

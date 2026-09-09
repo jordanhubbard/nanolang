@@ -1295,3 +1295,42 @@ fn via_m_ok() -> int {
 shadow via_m_ok {
     assert (== (via_m_ok) 42)
 }
+
+struct ChainInner {
+    path: string,
+    lineno: int
+}
+
+struct ChainOut {
+    inner: ChainInner,
+    flag: int
+}
+
+union ChainBox {
+    Packed { output: ChainOut },
+    Miss { note: string }
+}
+
+fn origin_chain() -> ChainBox {
+    return ChainBox.Packed { output: ChainOut { inner: ChainInner { path: "f", lineno: 7 }, flag: 1 } }
+}
+
+shadow origin_chain {
+    assert true
+}
+
+fn via_chain() -> int {
+    let b: ChainBox = (origin_chain)
+    match b {
+        Packed(w) => {
+            return w.output.inner.lineno
+        }
+        Miss(e) => {
+            return 0
+        }
+    }
+}
+
+shadow via_chain {
+    assert (== (via_chain) 7)
+}

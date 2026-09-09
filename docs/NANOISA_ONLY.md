@@ -365,15 +365,19 @@ Unary `(- x)` is `I64_NEG` / `F64_NEG` (`via_ineg` / `via_neg`).
 Pin records may have `HashMap` fields (`origin_hm` / `via_hm`).
 Host `string_from_char` is `CALL_EXTERN` `vm_string_from_char`
 (`via_chstr`). `nanoc_v06.nano` emits 598 functions and that nasm
-assembles. `driver.nano` names `unsupported result type ResultArgs`.
+assembles. Leaf union construct (`via_ok` / `via_err`) and
+statement `match` (`via_m_ok`) match the C seed. Chained field
+access of a union payload (`via_chain`) matches the C seed.
+`driver.nano` emits 567 functions and that nasm assembles.
+`nanoc_v04.nano` names `undefined module function Math.add`.
 Labels reset per `.function`.
 Nested arrays,
-`AGG_SET`, variants, tuples, array
+`AGG_SET`, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
-compiler subset (modules, host ABI, and the remaining string
-library) is still open. A pinned suite must match on `nano_vm` and
-on AOT C.
+compiler subset (host ABI, `nvm2c` of `LOAD_GLOBAL` / `CALL_EXTERN`
+/ `HM_*`, and the remaining string library) is still open. A pinned
+suite must match on `nano_vm` and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written
