@@ -699,6 +699,15 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@test -s /tmp/nanolang_cut_a_empty_str_arr.nasm
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
 		/tmp/nanolang_cseed_empty_str_arr.nvm /tmp/nanolang_cut_a_empty_str_arr.nasm
+	@$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_minus_one.nano \
+		--emit-nvm --strip-debug -o /tmp/nanolang_cseed_minus_one.nvm \
+		>/tmp/nanolang_cseed_minus_one.err 2>&1
+	@test -s /tmp/nanolang_cseed_minus_one.nvm
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_minus_one.nano \
+		-o /tmp/nanolang_cut_a_minus_one.nasm
+	@test -s /tmp/nanolang_cut_a_minus_one.nasm
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
+		/tmp/nanolang_cseed_minus_one.nvm /tmp/nanolang_cut_a_minus_one.nasm
 	@for pair in \
 		file_io \
 		cli_args \
@@ -723,7 +732,10 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 		nanoc_v04 \
 		result \
 		serialize \
-		tokenize_result; do \
+		tokenize_result \
+		parser \
+		parse_nanoc \
+		parser_driver; do \
 		echo "  dual $$pair"; \
 		$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
 			/tmp/nanolang_cseed_$$pair.nvm /tmp/nanolang_cut_a_$$pair.nasm \

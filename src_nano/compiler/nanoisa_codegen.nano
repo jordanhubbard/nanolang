@@ -503,9 +503,48 @@ fn nisa_binop_is_unary_minus(parser: Parser, binop: ASTBinaryOp) -> bool {
             return false
         } else {
             let n: ASTNumber = (parser_get_number parser binop.left)
-            return (== n.value "0")
+            if (!= n.value "0") {
+                return false
+            } else {
+                return (and (== n.line binop.line) (== n.column binop.column))
+            }
         }
     }
+}
+
+shadow nisa_binop_is_unary_minus {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n n() -> int { return (- 5) } shadow n { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let binop: ASTBinaryOp = (parser_get_binary_op p r.value)
+    assert (nisa_binop_is_unary_minus p binop)
+    let _2: int = (nisa_reset)
+    let src2: string = (+ "f" "n s() -> int { return (- 1 2) } shadow s { assert true }")
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let func2: ASTFunction = (parser_get_function p2 0)
+    let block2: ASTBlock = (parser_get_block p2 func2.body)
+    let stmt2: ASTStmtRef = (list_ASTStmtRef_get block2.statements 0)
+    let r2: ASTReturn = (parser_get_return p2 stmt2.node_id)
+    let binop2: ASTBinaryOp = (parser_get_binary_op p2 r2.value)
+    assert (not (nisa_binop_is_unary_minus p2 binop2))
+    let _3: int = (nisa_reset)
+    let src3: string = (+ "f" "n z() -> int { return (- 0 1) } shadow z { assert true }")
+    let toks3: List<LexerToken> = (tokenize_string src3 "t.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "t.nano")
+    let func3: ASTFunction = (parser_get_function p3 0)
+    let block3: ASTBlock = (parser_get_block p3 func3.body)
+    let stmt3: ASTStmtRef = (list_ASTStmtRef_get block3.statements 0)
+    let r3: ASTReturn = (parser_get_return p3 stmt3.node_id)
+    let binop3: ASTBinaryOp = (parser_get_binary_op p3 r3.value)
+    assert (not (nisa_binop_is_unary_minus p3 binop3))
+    let _4: int = (nisa_reset)
 }
 
 shadow nisa_binop_is_unary_minus {

@@ -1612,6 +1612,9 @@ Compiler product:
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
       MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the
       three named-refuse tasks). Held `--no-dispatch`.
+- [x] Self-hosted `(- 0 1)` is `PUSH_I64 0` / `PUSH_I64 1` / `I64_SUB`,
+      matching the C seed. Synthetic unary `(- x)` still uses `I64_NEG`.
+      `cut_a_minus_one.nano`. `make test-nanoisa-src-nano`.
 - [x] Self-hosted empty `array<string> = []` is `ARR_LITERAL 5 0`,
       matching C seed `TYPE_STRING`. Empty pin-record arrays stay
       `ARR_LITERAL 1 0`. `cut_a_empty_str_arr.nano` and `std/fs.nano`
@@ -1637,22 +1640,24 @@ Compiler product:
       `nanoc_v04.nano`, `result.nano`, `serialize.nano`, and
       `tokenize_result.nano` match the C seed.
       `make test-nanoisa-src-nano`.
+- [x] Compiler subset dual, parser files: `parser.nano`,
+      `parse_nanoc.nano`, and `parser_driver.nano` match the C seed
+      after `(- 0 1)` is binary subtract. `make test-nanoisa-src-nano`.
 - [ ] Compiler subset dual, remaining `src_nano` files in
-      `test-nanoisa-src-nano` match the C seed: `parser.nano`,
-      `parse_nanoc.nano`, `parser_driver.nano`, `typecheck.nano`,
+      `test-nanoisa-src-nano` match the C seed: `typecheck.nano`,
       `typecheck_driver.nano`, `typecheck_nanoc.nano`,
       `transpiler.nano`, `transpiler_driver.nano`, `module_loader.nano`,
       `compiler_modular.nano`, `driver.nano`, `nanoc_v06.nano`,
       `nanoisa_codegen.nano`, and `nanoisa_emit.nano`. Gaps include
-      `EQ` vs `I64_EQ`, `(- 0 1)` as two pushes, and `+` as
-      `I64_ADD` vs `STR_CONCAT`.
+      `EQ` vs `I64_EQ` when the C seed has a non-int type, and `+`
+      as `I64_ADD` vs `STR_CONCAT`.
 - [x] Cut A union result tag is `union` (`TAG_UNION`), not `struct`.
       `via_ok` / `via_err` match the C seed after type_check_module
       reclassifies a Result return. `make test-nanoisa-src-nano`.
 - [x] I compile `src_nano` to `.nvm` with the C seed (38 files in
       `test-nanoisa-src-nano`), then with the self-hosted emitter.
-      Bytecode match is the Cut A pin plus 24 compiler-subset files
-      in the dual loop; 14 files still differ.
+      Bytecode match is the Cut A pin plus 27 compiler-subset files
+      in the dual loop; 11 files still differ.
       `make test-typechecker`. C seed `--emit-nvm` writes `.nvm`
       for each of those files.
       MAC `task_4f67d2fb851bf739b0376b9f53174483`.

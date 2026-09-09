@@ -1,0 +1,15 @@
+fn minus_one() -> int {
+    return (- 0 1)
+}
+
+shadow minus_one {
+    assert (== (minus_one) (- 0 1))
+}
+
+fn main() -> int {
+    return (minus_one)
+}
+
+shadow main {
+    assert (== (main) (- 0 1))
+}
