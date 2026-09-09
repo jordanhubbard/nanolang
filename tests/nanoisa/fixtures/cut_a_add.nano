@@ -1279,3 +1279,19 @@ fn via_err() -> ResultI {
 shadow via_err {
     assert true
 }
+
+fn via_m_ok() -> int {
+    let r: ResultI = (via_ok)
+    match r {
+        Ok(v) => {
+            return v.value
+        }
+        Err(e) => {
+            return 0
+        }
+    }
+}
+
+shadow via_m_ok {
+    assert (== (via_m_ok) 42)
+}
