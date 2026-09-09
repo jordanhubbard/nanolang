@@ -164,8 +164,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `nanoc_v06.nano` writes `.nvm`. C seed type_check_module
   reclassifies a Result union return (`tokenize_result.nano`,
   `driver.nano`, `parse_nanoc.nano`, `typecheck_nanoc.nano`,
-  `compiler/result.nano` write `.nvm`). `file_read` in the C seed
-  still fails.
+  `compiler/result.nano` write `.nvm`). C seed registers
+  `file_read` / `file_write` / `file_exists`. `file_io.nano`
+  writes `.nvm`. `nanoc_integrated.nano` still requires `unsafe`
+  around `list_LexerToken_push`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

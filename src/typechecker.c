@@ -5269,6 +5269,38 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
 
+    /* file_read / file_write / file_exists — host I/O, same ABI as eval.c
+     * and codegen CALL_EXTERN vm_file_*. file_io.nano calls these by name. */
+    func.name = "file_read";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "file_write";
+    func.params = NULL;
+    func.param_count = 2;
+    func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "file_exists";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
     /* Temp helpers */
     func.name = "tmp_dir";
     func.params = NULL;

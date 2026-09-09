@@ -1596,13 +1596,17 @@ Compiler product:
       `compiler/result.nano` write `.nvm`.
       `make test-typechecker`.
       MAC `task_46e71e542a33fd0401885580f0bc3714`.
+- [ ] C seed `nanoc_modular.nano` typechecks assignment to `cmd`.
+      C seed still reports an immutable `set`.
 - [ ] C seed `nanoc_integrated.nano` typechecks `list_LexerToken_push`
       the way the self-hosted emitter does. C seed still requires
       `unsafe` around those host list calls.
       MAC `task_e70f59261fa4603c9fd5de17757c2948`. Held `--no-dispatch`.
-- [ ] C seed registers `file_read` / `file_write` the way the
-      self-hosted emitter does. `file_io.nano` still fails E027.
-      MAC `task_7b30ff72a17269fe1c420431ef6993d4`. Held `--no-dispatch`.
+- [x] C seed registers `file_read` / `file_write` / `file_exists` the
+      way `getcwd` is registered. `file_io.nano`, `compiler.nano`,
+      `nanoc_stage0.nano`, and `nanoc_stage1.nano` write `.nvm`.
+      `make test-typechecker`.
+      MAC `task_7b30ff72a17269fe1c420431ef6993d4`.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
       MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the

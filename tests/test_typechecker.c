@@ -396,6 +396,16 @@ void test_tc_module_union_result(void) {
         "}\n"));
 }
 
+void test_tc_module_file_read_write(void) {
+    ASSERT(tc_module_passes(
+        "fn read_file(path: string) -> string {\n"
+        "    return (file_read path)\n"
+        "}\n"
+        "fn write_file(path: string, content: string) -> int {\n"
+        "    return (file_write path content)\n"
+        "}\n"));
+}
+
 void test_tc_constants(void) {
     ASSERT(tc_passes(
         "let PI: float = 3.14159\n"
@@ -821,6 +831,7 @@ int main(void) {
     TEST(tc_module_extern_restates_host_builtin);
     TEST(tc_module_extern_wrong_host_arity_fails);
     TEST(tc_module_union_result);
+    TEST(tc_module_file_read_write);
     TEST(tc_constants);
     TEST(tc_cond_expr);
     TEST(tc_nested_functions);

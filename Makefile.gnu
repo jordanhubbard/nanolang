@@ -457,6 +457,11 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 		--emit-nvm --strip-debug -o /tmp/nanolang_cut_a_c_tokres.nvm \
 		>/tmp/nanolang_cut_a_c_tokres.err 2>&1
 	@test -s /tmp/nanolang_cut_a_c_tokres.nvm
+	@echo "Checking C seed --emit-nvm of file_io.nano..."
+	@$(TIMEOUT_CMD) ./bin/nano_virt src_nano/file_io.nano \
+		--emit-nvm --strip-debug -o /tmp/nanolang_cut_a_c_file_io.nvm \
+		>/tmp/nanolang_cut_a_c_file_io.err 2>&1
+	@test -s /tmp/nanolang_cut_a_c_file_io.nvm
 	@echo "Checking lexer.nano emits and assembles the pinned subset..."
 	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/lexer.nano \
 		-o /tmp/nanolang_cut_a_lexer.nasm
