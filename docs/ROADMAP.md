@@ -1082,6 +1082,8 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
 Compiler product:
 - [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
       `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
+      MAC `task_5225909dcdf8cc952608b9ebb2c2476d` (depends on compile
+      `src_nano` to `.nvm`). Held `--no-dispatch`.
 - [x] Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits `.nasm` for
       integer `add`/`main` (`tests/nanoisa/fixtures/cut_a_add.nano`).
       Function bytecode matches the C seed (`make test-nanoisa-src-nano`,
@@ -1569,10 +1571,19 @@ Compiler product:
       `typecheck_nanoc.nano` / `parse_nanoc.nano` name
       `undefined function tokenize_file_result`. I still pretty-print
       C to build the compiler.
+      MAC `task_2b6af621e460d135597d195253428719` (`nanoc_v04` /
+      `Math.add`), `task_5931b8ec42ce12e1671021282dd1235a`
+      (`compiler_simple` / `math_helper`),
+      `task_28a815533c566637ae0371271bfe9b0c`
+      (`tokenize_file_result`). Held `--no-dispatch`.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
+      MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the
+      three named-refuse tasks). Held `--no-dispatch`.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
       self-hosted emitter.
+      MAC `task_4f67d2fb851bf739b0376b9f53174483` (depends on the
+      `codegen.c` dual). Held `--no-dispatch`.
 - [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
       binaries from `nvm2c`+`cc` is a translator test, kept separate.
 - [ ] I freeze `transpiler.nano` as bootstrap-only once the emitter compiles
