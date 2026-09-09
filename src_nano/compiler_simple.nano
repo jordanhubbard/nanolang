@@ -3,7 +3,7 @@
  * Demonstrates import aliases working for TRUE self-hosting!
  */
 
-import "test_modules/math_helper.nano" as Math
+import "examples/advanced/math_helper.nano" as Math
 
 fn main() -> int {
     (println "")

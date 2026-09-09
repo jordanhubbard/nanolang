@@ -383,7 +383,12 @@ assembles. Leaf union construct (`via_ok` / `via_err`) and
 statement `match` (`via_m_ok`) match the C seed. Chained field
 access of a union payload (`via_chain`) matches the C seed.
 `driver.nano` emits 567 functions and that nasm assembles.
-`nanoc_v04.nano` names `undefined module function Math.add`.
+`nanoc_v04.nano` imports `examples/advanced/math_helper.nano` as
+`Math` and emits 7 functions. `compiler_simple.nano` resolves that
+same helper and emits 4. `tokenize_file_result` lives in
+`src_nano/compiler/tokenize_result.nano` (74 functions).
+`parse_nanoc.nano` emits 304. `typecheck_nanoc.nano` emits 408.
+Those nasm files assemble. Ingest copies imported unions.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, nested tuples, array

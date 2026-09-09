@@ -595,7 +595,12 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 		src_nano/compiler/error_messages.nano \
 		src_nano/generated/compiler_ast.nano \
 		src_nano/generated/compiler_schema.nano \
-		src_nano/generated/compiler_contracts.nano; do \
+		src_nano/generated/compiler_contracts.nano \
+		src_nano/compiler/tokenize_result.nano \
+		src_nano/nanoc_v04.nano \
+		src_nano/compiler_simple.nano \
+		src_nano/parse_nanoc.nano \
+		src_nano/typecheck_nanoc.nano; do \
 		echo "Checking $$src emits and assembles..."; \
 		base=`basename $$src .nano`; \
 		nasm=/tmp/nanolang_cut_a_$$base.nasm; \

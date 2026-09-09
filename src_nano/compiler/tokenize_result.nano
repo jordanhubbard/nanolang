@@ -1,0 +1,32 @@
+/* Result-returning tokenize_file for parse_nanoc / typecheck_nanoc. */
+
+import "src_nano/compiler/lexer.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_list_new, diag_list_get, diag_list_has_errors
+
+union ResultTokenList {
+    Ok { value: List<LexerToken> },
+    Err { error: string }
+}
+
+pub fn tokenize_file_result(path: string) -> ResultTokenList {
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let toks: List<LexerToken> = (tokenize_file path diags)
+    if (diag_list_has_errors diags) {
+        let d: CompilerDiagnostic = (diag_list_get diags 0)
+        return ResultTokenList.Err { error: d.message }
+    } else {
+        return ResultTokenList.Ok { value: toks }
+    }
+}
+
+shadow tokenize_file_result {
+    let r: ResultTokenList = (tokenize_file_result "examples/language/nl_hello.nano")
+    match r {
+        Ok(v) => {
+            assert (> (list_LexerToken_length v.value) 0)
+        }
+        Err(e) => {
+            assert false
+        }
+    }
+}

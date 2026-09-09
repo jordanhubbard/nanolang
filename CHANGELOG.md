@@ -152,7 +152,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   nested `AGG_GET`) matches the C seed.
   `make test-nanoisa-src-nano` (270 passed).
   `driver.nano` emits 567 functions and that nasm assembles.
-  `nanoc_v04.nano` still names `undefined module function Math.add`.
+  `nanoc_v04.nano` imports `examples/advanced/math_helper.nano` as
+  `Math` and emits 7 functions. `compiler_simple.nano` resolves that
+  same helper and emits 4. `tokenize_file_result` lives in
+  `src_nano/compiler/tokenize_result.nano` (74 functions).
+  `parse_nanoc.nano` emits 304. `typecheck_nanoc.nano` emits 408.
+  Those nasm files assemble. Ingest copies imported unions.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

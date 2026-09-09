@@ -5694,7 +5694,7 @@ shadow parser_store_enum {
 /* Helper: Store union definition node */
 
 /* Helper: Store union node */
-fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, column: int, variant_names: array<string>, variant_field_counts: array<int>, variant_field_names: array<string>, variant_field_types: array<string>, generic_params: array<string>, generic_param_count: int) -> Parser {
+pub fn parser_store_union(p: Parser, name: string, variant_count: int, line: int, column: int, variant_names: array<string>, variant_field_counts: array<int>, variant_field_names: array<string>, variant_field_types: array<string>, generic_params: array<string>, generic_param_count: int) -> Parser {
     let node: ASTUnion = ASTUnion {
         node_type: ParseNodeType.PNODE_UNION_DEF,
         line: line,

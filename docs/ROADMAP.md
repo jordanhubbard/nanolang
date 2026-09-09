@@ -1564,18 +1564,20 @@ Compiler product:
       C seed. Nested records stay refused. I still pretty-print C to
       build the compiler.
       `make test-nanoisa-src-nano` (298 passed).
-- [ ] Cut A remaining named refuses: `nanoc_v04.nano` names
-      `undefined module function Math.add` (that file has no
-      `import` of `Math`). `compiler_simple.nano` names
-      `cannot read import test_modules/math_helper.nano`.
-      `typecheck_nanoc.nano` / `parse_nanoc.nano` name
-      `undefined function tokenize_file_result`. I still pretty-print
-      C to build the compiler.
+- [x] Cut A remaining named refuses: `nanoc_v04.nano` imports
+      `examples/advanced/math_helper.nano` as `Math` (`CALL add`).
+      `compiler_simple.nano` resolves that same helper.
+      `tokenize_file_result` in `src_nano/compiler/tokenize_result.nano`
+      returns `ResultTokenList` (`Ok` is `List<LexerToken>`).
+      `parse_nanoc.nano` and `typecheck_nanoc.nano` emit and assemble.
+      Ingest copies imported unions. I still pretty-print C to build
+      the compiler.
+      `make test-nanoisa-src-nano` (298 passed).
       MAC `task_2b6af621e460d135597d195253428719` (`nanoc_v04` /
       `Math.add`), `task_5931b8ec42ce12e1671021282dd1235a`
       (`compiler_simple` / `math_helper`),
       `task_28a815533c566637ae0371271bfe9b0c`
-      (`tokenize_file_result`). Held `--no-dispatch`.
+      (`tokenize_file_result`).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
       MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the

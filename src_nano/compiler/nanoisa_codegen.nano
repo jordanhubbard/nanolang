@@ -1056,6 +1056,17 @@ fn nisa_ingest_imports(parser: Parser, file_name: string) -> Parser {
                     }
                     set sj (+ sj 1)
                 }
+                let un: int = (parser_get_union_count ip)
+                let mut uj: int = 0
+                while (< uj un) {
+                    let ud: ASTUnion = (parser_get_union ip uj)
+                    if (>= (nisa_union_index acc ud.name) 0) {
+                        (print "")
+                    } else {
+                        set acc (parser_store_union acc ud.name ud.variant_count ud.line ud.column ud.variant_names ud.variant_field_counts ud.variant_field_names ud.variant_field_types ud.generic_params ud.generic_param_count)
+                    }
+                    set uj (+ uj 1)
+                }
                 let nfn: int = (parser_get_function_count ip)
                 let mut fi: int = 0
                 while (< fi nfn) {
@@ -1134,6 +1145,15 @@ shadow nisa_ingest_imports {
     assert nisa_ok
     assert (== (nisa_imp_fn_index "imp_add") 0)
     assert (== (at nisa_imp_fn_rets 0) "int")
+    let _r4: int = (nisa_reset)
+    let srcu: string = "from \"cut_a_union_imp.nano\" import ImpRes"
+    let toksu: List<LexerToken> = (tokenize_string srcu "tests/nanoisa/fixtures/cut_a_add.nano" diags)
+    let pu: Parser = (parse_program toksu (list_LexerToken_length toksu) "tests/nanoisa/fixtures/cut_a_add.nano")
+    let pu2: Parser = (nisa_ingest_imports pu "tests/nanoisa/fixtures/cut_a_add.nano")
+    assert nisa_ok
+    assert (== (parser_get_union_count pu2) 1)
+    let udu: ASTUnion = (parser_get_union pu2 0)
+    assert (== udu.name "ImpRes")
     let _2: int = (nisa_reset)
 }
 
@@ -4935,6 +4955,17 @@ fn nisa_copy_types(dst: Parser, src: Parser) -> Parser {
         }
         set j (+ j 1)
     }
+    let un: int = (parser_get_union_count src)
+    let mut ui: int = 0
+    while (< ui un) {
+        let ud: ASTUnion = (parser_get_union src ui)
+        if (>= (nisa_union_index acc ud.name) 0) {
+            (print "")
+        } else {
+            set acc (parser_store_union acc ud.name ud.variant_count ud.line ud.column ud.variant_names ud.variant_field_counts ud.variant_field_names ud.variant_field_types ud.generic_params ud.generic_param_count)
+        }
+        set ui (+ ui 1)
+    }
     return acc
 }
 
@@ -4952,6 +4983,13 @@ shadow nisa_copy_types {
     assert (== (parser_get_struct_def_count filled) 1)
     let sd: ASTStruct = (parser_get_struct_def filled 0)
     assert (== sd.name "ImpTok")
+    let usrc: string = (+ "union ImpRes { Ok { value: int }, Err { error: string } } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let utoks: List<LexerToken> = (tokenize_string usrc "t.nano" diags)
+    let up: Parser = (parse_program utoks (list_LexerToken_length utoks) "t.nano")
+    let filled_u: Parser = (nisa_copy_types empty_p up)
+    assert (== (parser_get_union_count filled_u) 1)
+    let ud: ASTUnion = (parser_get_union filled_u 0)
+    assert (== ud.name "ImpRes")
 }
 
 fn nisa_emit_imported_functions(parser: Parser) -> string {

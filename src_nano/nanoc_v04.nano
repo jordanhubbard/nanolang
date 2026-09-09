@@ -11,10 +11,12 @@
  * - Shows true modular architecture
  * 
  * This demonstrates TRUE SELF-HOSTING:
- * - Compiler logic: Written in NanoLang ✅
- * - Modular design: Clean imports with aliases ✅
- * - Proven working: Compiles real programs ✅
+ * - Compiler logic: Written in NanoLang
+ * - Modular design: Clean imports with aliases
+ * - Proven working: Compiles real programs
  */
+
+import "examples/advanced/math_helper.nano" as Math
 
 struct CompilerConfig {
     input_file: string,

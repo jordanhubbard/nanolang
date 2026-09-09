@@ -1,0 +1,4 @@
+union ImpRes {
+    Ok { value: int },
+    Err { error: string }
+}
