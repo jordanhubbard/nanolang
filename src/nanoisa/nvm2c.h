@@ -19,7 +19,9 @@
  * list_string_set). ARR_SET of a record list mutates nrec_t slots in place
  * (void list_Tok_set). The C
  * seed emits ARR_NEW tag 1 for every list_T_new; string and record lists
- * are classified from the pushed value.
+ * are classified from the pushed value. An empty List<Tok> result
+ * (ARR_NEW 1 then RET) is nrarr_t when a caller ARR_PUSHes a record onto
+ * that CALL result. Empty List<int> stays narr_t.
  * AGG_PACK, AGG_GET of int, string, and nested record fields, bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
  * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT, STR_STARTS_WITH, STR_ENDS_WITH,

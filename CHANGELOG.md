@@ -48,7 +48,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
   `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
   `via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
-  `via_new_l`, `one_t`, `via_one_t`, `one_lex`, `via_one_lex`,
+  `via_new_l`, `one_t`, `via_one_t`, `empty_t`, `via_empty_t`,
+  `one_lex`, `via_one_lex`,
   `in_az`, `via_az`, `tag`, `via_tag`, `tok_mod`, `via_tok_mod`,
   `imp_add`, `via_imp_add`, `via_raw`, and `via_cwd`.
   `make test-nanoisa-src-nano`
@@ -77,6 +78,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`make_tok` / `via_tok`), and array results as ISA tag `array`
   (`ones` / `via_ones`), and `List<int>` results (`new_l` /
   `via_new_l`), and `List<Tok>` results (`one_t` / `via_one_t`),
+  and empty `List<Tok>` results (`empty_t` / `via_empty_t`),
   and `List<LexerToken>` results (`one_lex` / `via_one_lex`), and
   i64 `>=`/`<=` (`in_az` / `via_az`), and `Enum.Variant` as
   `ENUM_VAL` (`tag` / `via_tag`), and imported `Enum.Variant`
@@ -220,7 +222,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   runs as native C: `via_new_l` exits 0. `CALL` of a non-empty
   `List<Tok>` runs as native C: `via_one_t` exits 2. Nested records
   stay refused. Empty `List<Tok>` `CALL` (`ARR_NEW 1` then `RET`,
-  no `ARR_PUSH`) staying `narr_t` is a separate pin.
+  no `ARR_PUSH`) is `nrarr_t`: `via_empty_t` exits 2. Empty
+  `List<int>` stays `narr_t`.
   `CALL` of a non-empty `List<LexerToken>` runs as native C:
   `via_one_lex` exits 2. `I64_GE_S`/`I64_LE_S` run as native C:
   `via_az` exits 1. `ENUM_VAL` runs as native C: `via_tag` exits
@@ -241,8 +244,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `lowered("Hi")` equals `"hi"`, `raised("Hi")` equals `"HI"`.
   ASCII A–Z / a–z. Cut A tuples run as native C: `pair` is
   `AGG_PACK 2 0 0 2`, `via_pair` exits 3, `via_snd` exits 4.
-  Nested tuples stay refused.
-  `make test-nvm2c` (597 passed). `make test-nanoisa-src-nano` (294 passed).
+  Nested tuples stay refused. Empty `List<Tok>` runs as native C:
+  `via_empty_t` exits 2. Empty `List<int>` stays `narr_t`.
+  `make test-nvm2c` (607 passed). `make test-nanoisa-src-nano` (298 passed).
 
 ## [4.5.0] - 2026-09-07
 

@@ -213,7 +213,8 @@ string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
 `blank_t`, `grow_t`, `get_v`, `grow_lex`, `has_pre`, `has_suf`,
 `put_l`, `put_t`, `put_s`, `upto`, `quiet`, `via_quiet`, `origin`,
 `via_o`, `make_tok`, `via_tok`, `ones`, `via_ones`, `new_l`,
-`via_new_l`, `one_t`, `via_one_t`, `one_lex`, `via_one_lex`,
+`via_new_l`, `one_t`, `via_one_t`, `empty_t`, `via_empty_t`,
+`one_lex`, `via_one_lex`,
 `in_az`, `via_az`, `tag`, and `via_tag`
 (`make test-nanoisa-src-nano`, 134 passed).
 Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
@@ -239,7 +240,8 @@ then `POP`, `list_Tok_set` as `ARR_SET` then `POP`,
 `struct` (`origin` / `via_o`), and mixed int/string record results
 (`make_tok` / `via_tok`), and array results as ISA tag `array`
 (`ones` / `via_ones`), and `List<int>` results (`new_l` / `via_new_l`),
-and `List<Tok>` results (`one_t` / `via_one_t`), and
+and `List<Tok>` results (`one_t` / `via_one_t`), and empty
+`List<Tok>` results (`empty_t` / `via_empty_t`), and
 `List<LexerToken>` results (`one_lex` / `via_one_lex`), and i64
 `>=`/`<=` (`in_az` / `via_az`), `Enum.Variant` as `ENUM_VAL`
 (`tag` / `via_tag`), and imported `Enum.Variant` (`tok_mod` /
@@ -307,7 +309,9 @@ results (`origin` / `via_o` run as native C; nested pin records run as
 `via_tok` run as native C), and Cut A array results (`ones` /
 `via_ones` run as native C), and Cut A `List<int>` results (`new_l` /
 `via_new_l` run as native C), and Cut A `List<Tok>` results (`one_t` /
-`via_one_t` run as native C), and Cut A
+`via_one_t` run as native C), and Cut A empty `List<Tok>` results
+(`empty_t` / `via_empty_t` run as native C; I classify `ARR_NEW 1`
+then `RET` as `nrarr_t` from a caller that pushes a record), and Cut A
 `List<LexerToken>` results (`one_lex` / `via_one_lex` run as native C),
 and Cut A i64 `>=`/`<=` (`in_az` / `via_az` run as native C), and Cut A
 `ENUM_VAL` (`tag` / `via_tag` run as native C; nested unions stay
@@ -348,7 +352,8 @@ Cut A `STR_TRIM` / `STR_REPLACE` / `STR_SPLIT` without `nano_vm`
 (`clipped` / `via_trim` / `swapped` / `via_repl` / `parts`). `nvm2c`
 runs Cut A `STR_TO_LOWER` / `STR_TO_UPPER` without `nano_vm`
 (`lowered` / `via_low` / `raised` / `via_up`). `nvm2c` runs Cut A
-tuples without `nano_vm` (`pair` / `via_pair`). Cut A `array_new` (`blank_a` / `via_blank_a`
+tuples without `nano_vm` (`pair` / `via_pair`). `nvm2c` classifies
+empty `List<Tok>` as `nrarr_t` (`empty_t` / `via_empty_t`). Cut A `array_new` (`blank_a` / `via_blank_a`
 match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `str_substring` concat (`via_substr_concat`) and `EQ` of `at` of
 `array<string>` (`via_at_eq`), and Cut A host `getenv` (`via_env` is
@@ -384,7 +389,7 @@ Nested arrays,
 `AGG_SET`, nested tuples, array
 equality, substring of arrays, and printing
 arrays/records stay refused. The rest of the
-compiler subset (empty `List<Tok>` classification, and compiling
+compiler subset (compiling
 `src_nano` to `.nvm`) is still open. A pinned
 suite must match on `nano_vm` and on AOT C.
 

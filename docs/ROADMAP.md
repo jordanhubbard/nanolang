@@ -1556,6 +1556,12 @@ Compiler product:
       (`AGG_PACK` kind 2, `AGG_GET` of a tuple index, ISA tag
       `tuple`). I still pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (294 passed).
+- [x] Cut A empty List<Tok> results: the same pin matches `empty_t`
+      (`ARR_NEW 1` then `RET`, no `ARR_PUSH`) and `via_empty_t`
+      (`CALL empty_t` then `ARR_PUSH` of `nrec_t`) bytecode with the
+      C seed. Nested records stay refused. I still pretty-print C to
+      build the compiler.
+      `make test-nanoisa-src-nano` (298 passed).
 - [ ] Cut A remaining named refuses: `nanoc_v04.nano` names
       `undefined module function Math.add` (that file has no
       `import` of `Math`). `compiler_simple.nano` names
@@ -1713,10 +1719,11 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_one_t` (`CALL` of a non-empty
       `List<Tok>`) without `nano_vm`. Nested records stay refused.
       `make test-nvm2c` (402 passed).
-- [ ] `nvm2c` classifies an empty `List<Tok>` result (`ARR_NEW 1`
+- [x] `nvm2c` classifies an empty `List<Tok>` result (`ARR_NEW 1`
       then `RET`, no `ARR_PUSH`) as `nrarr_t`, not `narr_t`. The C
       seed still emits `ARR_NEW 1` for every `list_T_new`. Chat is
       not the ledger.
+      `make test-nvm2c` (607 passed).
       MAC `task_2ef5249b949443adab10c45e16a70c5b`.
 - [x] `nvm2c` runs Cut A `via_one_lex` (`CALL` of a non-empty
       `List<LexerToken>`) without `nano_vm`. Nested records stay

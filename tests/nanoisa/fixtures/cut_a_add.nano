@@ -662,6 +662,26 @@ shadow via_one_t {
     assert (== (via_one_t) 2)
 }
 
+fn empty_t() -> List<Tok> {
+    return (list_Tok_new)
+}
+
+shadow empty_t {
+    let xs: List<Tok> = (empty_t)
+    assert (== (list_Tok_length xs) 0)
+}
+
+fn via_empty_t() -> int {
+    let xs: List<Tok> = (empty_t)
+    (list_Tok_push xs Tok { t: 1, s: "hi" })
+    let p: Tok = (list_Tok_get xs 0)
+    return (str_length p.s)
+}
+
+shadow via_empty_t {
+    assert (== (via_empty_t) 2)
+}
+
 fn one_lex() -> List<LexerToken> {
     let xs: List<LexerToken> = (list_LexerToken_new)
     (list_LexerToken_push xs LexerToken { token_type: 1, value: "hi", line: 2, column: 3 })

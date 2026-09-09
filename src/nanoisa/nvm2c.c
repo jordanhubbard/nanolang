@@ -264,6 +264,7 @@ static void emit_c_string_lit(Nvm2cBuf *b, const char *s, uint32_t len) {
 typedef struct {
     uint8_t kind;
     int origin;
+    int from_fn;
     uint8_t rec_k[NVM2C_MAX_REC_FIELDS];
 } Nvm2cSimSlot;
 
@@ -284,6 +285,7 @@ static int sim_push(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
     memset(&slot, 0, sizeof slot);
     slot.kind = kind;
     slot.origin = origin;
+    slot.from_fn = -1;
     return sim_push_slot(b, idx, stk, sp, slot);
 }
 
@@ -322,7 +324,11 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
     uint16_t i;
+    int local_from_fn[NVM2C_MAX_LOCALS];
     memset(local_kind, NVM2C_VK_UNK, nloc);
+    for (i = 0; i < nloc; i++) {
+        local_from_fn[i] = -1;
+    }
 
     if (fn->code_offset > mod->code_size ||
         fn->code_length > mod->code_size - fn->code_offset) {
@@ -402,6 +408,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             memset(&loaded, 0, sizeof loaded);
             loaded.kind = local_kind[slot];
             loaded.origin = (int)slot;
+            loaded.from_fn = local_from_fn[slot];
             if (loaded.kind == NVM2C_VK_REC || loaded.kind == NVM2C_VK_RARR) {
                 memcpy(loaded.rec_k, rec_fields + (size_t)slot * NVM2C_MAX_REC_FIELDS,
                        NVM2C_MAX_REC_FIELDS);
@@ -419,6 +426,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             memset(&gloaded, 0, sizeof gloaded);
             gloaded.kind = global_kind[gi];
             gloaded.origin = -1;
+            gloaded.from_fn = -1;
             if (gloaded.kind == NVM2C_VK_REC || gloaded.kind == NVM2C_VK_RARR) {
                 memcpy(gloaded.rec_k, global_rec_k + (size_t)gi * NVM2C_MAX_REC_FIELDS,
                        NVM2C_MAX_REC_FIELDS);
@@ -492,6 +500,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                        && local_kind[slot] != NVM2C_VK_HM) {
                 local_kind[slot] = NVM2C_VK_INT;
             }
+            local_from_fn[slot] = v.from_fn;
             break;
         }
         case OP_ADD:
@@ -695,6 +704,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 memset(&rec, 0, sizeof rec);
                 rec.kind = NVM2C_VK_REC;
                 rec.origin = -1;
+                rec.from_fn = -1;
                 memcpy(rec.rec_k, arr.rec_k, NVM2C_MAX_REC_FIELDS);
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
                 if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
@@ -713,6 +723,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 memset(&out, 0, sizeof out);
                 out.kind = NVM2C_VK_RARR;
                 out.origin = arr.origin;
+                out.from_fn = arr.from_fn;
                 if (val.kind == NVM2C_VK_REC) {
                     memcpy(out.rec_k, val.rec_k, NVM2C_MAX_REC_FIELDS);
                 } else {
@@ -721,6 +732,11 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
                 if (arr.origin >= 0 && (uint16_t)arr.origin < nloc) {
                     memcpy(rec_fields + (size_t)arr.origin * NVM2C_MAX_REC_FIELDS,
+                           out.rec_k, NVM2C_MAX_REC_FIELDS);
+                }
+                if (arr.from_fn >= 0 && (uint32_t)arr.from_fn < mod->function_count) {
+                    result_arr_k[arr.from_fn] = NVM2C_VK_RARR;
+                    memcpy(result_rec_k + (size_t)arr.from_fn * NVM2C_MAX_REC_FIELDS,
                            out.rec_k, NVM2C_MAX_REC_FIELDS);
                 }
                 if (!sim_push_slot(b, idx, stk, &sp, out)) return 0;
@@ -862,6 +878,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     memset(&rec, 0, sizeof rec);
                     rec.kind = NVM2C_VK_REC;
                     rec.origin = -1;
+                    rec.from_fn = -1;
                     memcpy(rec.rec_k, fn_result_rec_k(result_rec_k, callee),
                            NVM2C_MAX_REC_FIELDS);
                     if (!sim_push_slot(b, idx, stk, &sp, rec)) return 0;
@@ -874,11 +891,17 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                         memset(&arr, 0, sizeof arr);
                         arr.kind = NVM2C_VK_RARR;
                         arr.origin = -1;
+                        arr.from_fn = (int)callee;
                         memcpy(arr.rec_k, fn_result_rec_k(result_rec_k, callee),
                                NVM2C_MAX_REC_FIELDS);
                         if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;
                     } else if (ak == NVM2C_VK_ARR) {
-                        if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, -1)) return 0;
+                        Nvm2cSimSlot arr;
+                        memset(&arr, 0, sizeof arr);
+                        arr.kind = NVM2C_VK_ARR;
+                        arr.origin = -1;
+                        arr.from_fn = (int)callee;
+                        if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;
                     }
                 } else if (result_is_hm(cf)) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_HM, -1)) return 0;
@@ -933,7 +956,9 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     mark_origin(local_kind, nloc, v.origin, NVM2C_VK_HM);
                 } else if (fn->result_tag == TAG_ARRAY) {
                     mark_origin(local_kind, nloc, v.origin, v.kind);
-                    result_arr_k[idx] = v.kind;
+                    if (result_arr_k[idx] != NVM2C_VK_RARR) {
+                        result_arr_k[idx] = v.kind;
+                    }
                     if (v.kind == NVM2C_VK_RARR) {
                         memcpy(result_rec_k + (size_t)idx * NVM2C_MAX_REC_FIELDS,
                                v.rec_k, NVM2C_MAX_REC_FIELDS);
@@ -1951,6 +1976,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_RARR) {
                         as_sarr = 2;
                     }
+                }
+                if (as_sarr == 0 && result_arr_k[idx] == NVM2C_VK_RARR) {
+                    as_sarr = 2;
                 }
             }
             if (as_sarr == 1) {

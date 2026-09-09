@@ -2940,6 +2940,55 @@ static void test_via_one_t_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* empty List<Tok>: ARR_NEW 1 then RET, no ARR_PUSH. A caller that
+ * ARR_PUSHes a record must classify the callee as nrarr_t, not narr_t. */
+static void test_via_empty_t_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function empty_t 0 0 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  CALL empty_t\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_empty_t fixture");
+    CHECK(m != NULL, "via_empty_t fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_empty_t");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_empty_t C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_t") != NULL, "empty List<Tok> is nrarr_t");
+    CHECK(strstr(c, "nrarr_new") != NULL, "empty List<Tok> allocates nrarr_t");
+    CHECK(strstr(c, "narr_new") == NULL, "empty List<Tok> is not narr_t");
+    CHECK(strstr(c, "nrarr_push") != NULL, "via_empty_t C pushes nrec_t onto nrarr_t");
+    CHECK(strstr(c, "nrarr_get") != NULL, "via_empty_t C loads nrec_t from nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_empty_t C compiles and runs");
+    CHECK(status == 2, "via_empty_t() exits 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 /* via_one_lex: CALL of List<LexerToken> (four-field AGG_PACK before RET). */
 static void test_via_one_lex_runs_without_nano_vm(void) {
     const char *src =
@@ -3972,6 +4021,7 @@ int main(int argc, char **argv) {
     test_via_ones_runs_without_nano_vm();
     test_via_new_l_runs_without_nano_vm();
     test_via_one_t_runs_without_nano_vm();
+    test_via_empty_t_runs_without_nano_vm();
     test_via_one_lex_runs_without_nano_vm();
     test_via_az_runs_without_nano_vm();
     test_via_tag_runs_without_nano_vm();
