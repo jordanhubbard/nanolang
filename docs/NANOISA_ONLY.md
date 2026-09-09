@@ -392,8 +392,11 @@ Those nasm files assemble. Ingest copies imported unions.
 C seed `--emit-nvm` typechecks a library (`type_check_module`).
 `cut_a_no_main.nano` writes `.nvm`. `extern` may restate
 `get_argc` / `get_argv`. Function table is 8192; locals 1024.
-`nanoc_v06.nano` writes `.nvm`. Result unions and `file_read` in
-the C seed still fail. I still pretty-print C to build the compiler.
+`nanoc_v06.nano` writes `.nvm`. C seed type_check_module
+reclassifies a Result union return (`tokenize_result.nano`,
+`driver.nano`, `parse_nanoc.nano`, `typecheck_nanoc.nano`,
+`compiler/result.nano` write `.nvm`). `file_read` in the C seed
+still fails. I still pretty-print C to build the compiler.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, nested tuples, array

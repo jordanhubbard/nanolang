@@ -376,6 +376,26 @@ void test_tc_module_extern_wrong_host_arity_fails(void) {
         "fn uses_argc() -> int { return 0 }"));
 }
 
+void test_tc_module_union_result(void) {
+    /* tokenize_result.nano / parse_nanoc.nano return Result unions.
+     * Parser records the name as TYPE_STRUCT; type_check_module must
+     * reclassify it to TYPE_UNION the way type_check does. */
+    ASSERT(tc_module_passes(
+        "union ResultInt {\n"
+        "    Ok { value: int },\n"
+        "    Err { error: string }\n"
+        "}\n"
+        "fn ok_one() -> ResultInt {\n"
+        "    return ResultInt.Ok { value: 1 }\n"
+        "}\n"
+        "fn take(r: ResultInt) -> int {\n"
+        "    match r {\n"
+        "        Ok(v) => { return v.value }\n"
+        "        Err(e) => { return 0 }\n"
+        "    }\n"
+        "}\n"));
+}
+
 void test_tc_constants(void) {
     ASSERT(tc_passes(
         "let PI: float = 3.14159\n"
@@ -800,6 +820,7 @@ int main(void) {
     TEST(tc_module_level);
     TEST(tc_module_extern_restates_host_builtin);
     TEST(tc_module_extern_wrong_host_arity_fails);
+    TEST(tc_module_union_result);
     TEST(tc_constants);
     TEST(tc_cond_expr);
     TEST(tc_nested_functions);

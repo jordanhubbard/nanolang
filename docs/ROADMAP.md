@@ -1589,11 +1589,17 @@ Compiler product:
       u16). `nvm2c` locals match. `nanoc_v06.nano` writes `.nvm`.
       `make test-nanovirt` (300 chained lets). I still pretty-print
       C to build the compiler.
-- [ ] C seed type_check_module accepts a Result union as a result
-      type (`Ok`/`Err` construct, `match`). `tokenize_result.nano`,
+- [x] C seed type_check_module accepts a Result union as a result
+      type (`Ok`/`Err` construct, `match`). Parser names stay
+      `TYPE_STRUCT` until I reclassify them. `tokenize_result.nano`,
       `parse_nanoc.nano`, `typecheck_nanoc.nano`, `driver.nano`, and
-      `compiler/result.nano` still fail (`got union, expected struct`).
-      MAC `task_46e71e542a33fd0401885580f0bc3714`. Held `--no-dispatch`.
+      `compiler/result.nano` write `.nvm`.
+      `make test-typechecker`.
+      MAC `task_46e71e542a33fd0401885580f0bc3714`.
+- [ ] C seed `nanoc_integrated.nano` typechecks `list_LexerToken_push`
+      the way the self-hosted emitter does. C seed still requires
+      `unsafe` around those host list calls.
+      MAC `task_e70f59261fa4603c9fd5de17757c2948`. Held `--no-dispatch`.
 - [ ] C seed registers `file_read` / `file_write` the way the
       self-hosted emitter does. `file_io.nano` still fails E027.
       MAC `task_7b30ff72a17269fe1c420431ef6993d4`. Held `--no-dispatch`.

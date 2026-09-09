@@ -6743,6 +6743,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
     tc.warnings_enabled = true;
     tc.in_unsafe_block = false;  /* Start outside unsafe blocks */
     tc.loop_depth = 0;           /* Start outside loops */
+    tc.current_function_return_type = TYPE_VOID;
+    tc.current_function_return_struct_name = NULL;
 
     /* Register built-in functions */
     register_builtin_functions(env);
@@ -7074,6 +7076,29 @@ register_function_pass2:;
                 continue;
             }
             
+            /* Parser records union/enum names as TYPE_STRUCT. Reclassify
+             * the way type_check does, or Result returns fail as
+             * "got union, expected struct". */
+            for (int j = 0; j < item->as.function.param_count; j++) {
+                if (item->as.function.params[j].type == TYPE_STRUCT &&
+                    item->as.function.params[j].struct_type_name) {
+                    if (env_get_union(env, item->as.function.params[j].struct_type_name)) {
+                        item->as.function.params[j].type = TYPE_UNION;
+                    } else if (env_get_enum(env, item->as.function.params[j].struct_type_name)) {
+                        item->as.function.params[j].type = TYPE_INT;
+                    }
+                }
+            }
+            Type return_type = item->as.function.return_type;
+            if (return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+                if (env_get_union(env, item->as.function.return_struct_type_name)) {
+                    return_type = TYPE_UNION;
+                } else if (env_get_enum(env, item->as.function.return_struct_type_name)) {
+                    return_type = TYPE_INT;
+                }
+            }
+            item->as.function.return_type = return_type;
+
             /* Register function signature */
             Function f = (Function){0};
             f.name = strdup(func_name);
@@ -7087,7 +7112,7 @@ register_function_pass2:;
                 f.params[j].element_type = item->as.function.params[j].element_type;
                 f.params[j].fn_sig = item->as.function.params[j].fn_sig;
             }
-            f.return_type = item->as.function.return_type;
+            f.return_type = return_type;
             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
                 strdup(item->as.function.return_struct_type_name) : NULL;
             f.return_fn_sig = item->as.function.return_fn_sig;
@@ -7212,7 +7237,10 @@ register_function_pass2:;
             int saved_symbol_count = env->symbol_count;
             
             /* Set current function return type for return statement checking */
-            tc.current_function_return_type = item->as.function.return_type;
+            Function *func_def = env_get_function(env, item->as.function.name);
+            tc.current_function_return_type = func_def ? func_def->return_type : item->as.function.return_type;
+            tc.current_function_return_struct_name = func_def ? func_def->return_struct_type_name
+                : item->as.function.return_struct_type_name;
 
             /* Register generic union instantiation for function return type */
             if (item->as.function.return_type == TYPE_UNION &&
