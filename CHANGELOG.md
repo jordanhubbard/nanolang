@@ -239,8 +239,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_trim` / `swapped` / `via_repl` match, `parts` length is 2.
   Cut A `STR_TO_LOWER` / `STR_TO_UPPER` run as native C:
   `lowered("Hi")` equals `"hi"`, `raised("Hi")` equals `"HI"`.
-  ASCII A–Z / a–z. Tuples stay refused.
-  `make test-nvm2c` (582 passed). `make test-nanoisa-src-nano` (290 passed).
+  ASCII A–Z / a–z. Cut A tuples run as native C: `pair` is
+  `AGG_PACK 2 0 0 2`, `via_pair` exits 3, `via_snd` exits 4.
+  Nested tuples stay refused.
+  `make test-nvm2c` (597 passed). `make test-nanoisa-src-nano` (294 passed).
 
 ## [4.5.0] - 2026-09-07
 

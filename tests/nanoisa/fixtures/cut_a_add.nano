@@ -360,6 +360,24 @@ shadow via_up {
     assert (via_up)
 }
 
+fn pair() -> (int, int) {
+    return (3, 4)
+}
+
+shadow pair {
+    let p: (int, int) = (pair)
+    assert (== p.0 3)
+}
+
+fn via_pair() -> int {
+    let p: (int, int) = (pair)
+    return p.0
+}
+
+shadow via_pair {
+    assert (== (via_pair) 3)
+}
+
 fn blank_l() -> int {
     let xs: List<int> = (list_int_new)
     return (list_int_length xs)

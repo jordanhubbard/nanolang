@@ -174,6 +174,10 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_raised;
     const NvmFunctionEntry *c_via_up;
     const NvmFunctionEntry *s_via_up;
+    const NvmFunctionEntry *c_pair;
+    const NvmFunctionEntry *s_pair;
+    const NvmFunctionEntry *c_via_pair;
+    const NvmFunctionEntry *s_via_pair;
     const NvmFunctionEntry *c_blank;
     const NvmFunctionEntry *s_blank;
     const NvmFunctionEntry *c_grow_l;
@@ -403,8 +407,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 142, "C seed emitted add through via_up");
-    CHECK(s_mod->function_count >= 142, "src_nano emitted add through via_up");
+    CHECK(c_mod->function_count >= 144, "C seed emitted add through via_pair");
+    CHECK(s_mod->function_count >= 144, "src_nano emitted add through via_pair");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -486,6 +490,10 @@ int main(int argc, char **argv) {
     s_raised = fn_by_name(s_mod, "raised");
     c_via_up = fn_by_name(c_mod, "via_up");
     s_via_up = fn_by_name(s_mod, "via_up");
+    c_pair = fn_by_name(c_mod, "pair");
+    s_pair = fn_by_name(s_mod, "pair");
+    c_via_pair = fn_by_name(c_mod, "via_pair");
+    s_via_pair = fn_by_name(s_mod, "via_pair");
     c_blank = fn_by_name(c_mod, "blank_l");
     s_blank = fn_by_name(s_mod, "blank_l");
     c_grow_l = fn_by_name(c_mod, "grow_l");
@@ -730,6 +738,8 @@ int main(int argc, char **argv) {
     CHECK(c_via_low != NULL && s_via_low != NULL, "both modules have via_low");
     CHECK(c_raised != NULL && s_raised != NULL, "both modules have raised");
     CHECK(c_via_up != NULL && s_via_up != NULL, "both modules have via_up");
+    CHECK(c_pair != NULL && s_pair != NULL, "both modules have pair");
+    CHECK(c_via_pair != NULL && s_via_pair != NULL, "both modules have via_pair");
     CHECK(c_blank != NULL && s_blank != NULL, "both modules have blank_l");
     CHECK(c_grow_l != NULL && s_grow_l != NULL, "both modules have grow_l");
     CHECK(c_ch != NULL && s_ch != NULL, "both modules have ch");
@@ -912,6 +922,10 @@ int main(int argc, char **argv) {
           "raised bytecode matches C seed");
     CHECK(code_equal(c_mod, c_via_up, s_mod, s_via_up),
           "via_up bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_pair, s_mod, s_pair),
+          "pair bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_pair, s_mod, s_via_pair),
+          "via_pair bytecode matches C seed");
     CHECK(code_equal(c_mod, c_blank, s_mod, s_blank),
           "blank_l bytecode matches C seed");
     CHECK(code_equal(c_mod, c_grow_l, s_mod, s_grow_l),

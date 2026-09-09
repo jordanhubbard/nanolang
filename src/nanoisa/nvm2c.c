@@ -130,7 +130,7 @@ static const char *c_result_type(const NvmFunctionEntry *fn, uint8_t arr_k) {
     if (fn->result_count != 1) return NULL;
     if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL) return "int64_t";
     if (fn->result_tag == TAG_STRING) return "const char *";
-    if (fn->result_tag == TAG_STRUCT) return "nrec_t";
+    if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_TUPLE) return "nrec_t";
     if (fn->result_tag == TAG_HASHMAP) return "nhm_t";
     if (fn->result_tag == TAG_ARRAY) {
         if (arr_k == NVM2C_VK_ARR) return "narr_t";
@@ -147,7 +147,8 @@ static int result_is_i64(const NvmFunctionEntry *fn) {
 }
 
 static int result_is_rec(const NvmFunctionEntry *fn) {
-    return fn->result_count == 1 && fn->result_tag == TAG_STRUCT;
+    return fn->result_count == 1 &&
+           (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_TUPLE);
 }
 
 static int result_is_hm(const NvmFunctionEntry *fn) {
@@ -917,13 +918,14 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (fn->result_count == 1 &&
                 (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL ||
                  fn->result_tag == TAG_STRING || fn->result_tag == TAG_STRUCT ||
+                 fn->result_tag == TAG_TUPLE ||
                  fn->result_tag == TAG_ARRAY || fn->result_tag == TAG_HASHMAP) &&
                 sp > 0) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
                 if (fn->result_tag == TAG_STRING) {
                     mark_str_origin(local_kind, nloc, v.origin);
-                } else if (fn->result_tag == TAG_STRUCT) {
+                } else if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_TUPLE) {
                     mark_origin(local_kind, nloc, v.origin, NVM2C_VK_REC);
                     memcpy(result_rec_k + (size_t)idx * NVM2C_MAX_REC_FIELDS,
                            v.rec_k, NVM2C_MAX_REC_FIELDS);
@@ -2137,8 +2139,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int elems[NVM2C_MAX_REC_FIELDS];
             uint8_t fkind[NVM2C_MAX_REC_FIELDS];
             int ei;
-            if (kind != AGG_RECORD) {
-                nvm2c_fail(b, "function %u: AGG_PACK only supports record aggregates", idx);
+            if (kind != AGG_RECORD && kind != AGG_TUPLE) {
+                nvm2c_fail(b, "function %u: AGG_PACK only supports record or tuple aggregates", idx);
                 goto done;
             }
             if (count > NVM2C_MAX_REC_FIELDS) {

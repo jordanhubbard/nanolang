@@ -34,9 +34,11 @@
  * a co-process client. Unknown imports stay refused.
  * STR_TRIM, STR_REPLACE, STR_SPLIT (array<string>), STR_TO_LOWER, and
  * STR_TO_UPPER run as native C.
+ * Cut A tuples run as nrec_t: AGG_PACK kind AGG_TUPLE and AGG_GET
+ * of a tuple index, including TAG_TUPLE results.
  * Anything else is refused with an error.
  * CALL_EXTERN of an unmapped import is refused because it is the VM FFI /
- * co-process path, not a host C ABI. Embedded NULs, nested arrays, variants, tuples,
+ * co-process path, not a host C ABI. Embedded NULs, nested arrays, variants,
  * printing arrays/records, array equality, HM_GET / HM_DELETE /
  * HM_KEYS / HM_VALUES / HM_LEN, and the rest of the
  * string and array libraries stay refused. Nested pin records (a record

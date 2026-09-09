@@ -249,7 +249,9 @@ imports register enums and pin-record structs from imported files.
 `clipped` / `via_trim` (`STR_TRIM`), `swapped` / `via_repl`
 (`STR_REPLACE`), and `parts` / `via_parts` (`STR_SPLIT`) match the
 C seed. `lowered` / `via_low` (`STR_TO_LOWER`) and `raised` /
-`via_up` (`STR_TO_UPPER`) match the C seed. String operands
+`via_up` (`STR_TO_UPPER`) match the C seed. `pair` / `via_pair`
+(`AGG_PACK` kind 2, `AGG_GET` of a tuple index, ISA tag `tuple`)
+match the C seed. String operands
 are compared by content, not pool index. I still pretty-print C to
 build the compiler. When I refuse a program, `nanoisa_emit` prints
 `nisa_err` so the next hole is named. The full dual of `codegen.c` is
@@ -345,7 +347,8 @@ refuses unmapped imports. `nvm2c` runs Cut A HashMap without `nano_vm`
 Cut A `STR_TRIM` / `STR_REPLACE` / `STR_SPLIT` without `nano_vm`
 (`clipped` / `via_trim` / `swapped` / `via_repl` / `parts`). `nvm2c`
 runs Cut A `STR_TO_LOWER` / `STR_TO_UPPER` without `nano_vm`
-(`lowered` / `via_low` / `raised` / `via_up`). Cut A `array_new` (`blank_a` / `via_blank_a`
+(`lowered` / `via_low` / `raised` / `via_up`). `nvm2c` runs Cut A
+tuples without `nano_vm` (`pair` / `via_pair`). Cut A `array_new` (`blank_a` / `via_blank_a`
 match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `str_substring` concat (`via_substr_concat`) and `EQ` of `at` of
 `array<string>` (`via_at_eq`), and Cut A host `getenv` (`via_env` is
@@ -378,10 +381,10 @@ access of a union payload (`via_chain`) matches the C seed.
 `nanoc_v04.nano` names `undefined module function Math.add`.
 Labels reset per `.function`.
 Nested arrays,
-`AGG_SET`, tuples, array
+`AGG_SET`, nested tuples, array
 equality, substring of arrays, and printing
 arrays/records stay refused. The rest of the
-compiler subset (tuples, empty `List<Tok>` classification, and compiling
+compiler subset (empty `List<Tok>` classification, and compiling
 `src_nano` to `.nvm`) is still open. A pinned
 suite must match on `nano_vm` and on AOT C.
 

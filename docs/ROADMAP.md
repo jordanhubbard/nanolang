@@ -1552,6 +1552,10 @@ Compiler product:
       match the C seed. ASCII A–Z / a–z. I still pretty-print C
       to build the compiler.
       `make test-nanoisa-src-nano` (290 passed).
+- [x] Cut A tuples: `pair` / `via_pair` match the C seed
+      (`AGG_PACK` kind 2, `AGG_GET` of a tuple index, ISA tag
+      `tuple`). I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (294 passed).
 - [ ] Cut A remaining named refuses: `nanoc_v04.nano` names
       `undefined module function Math.add` (that file has no
       `import` of `Math`). `compiler_simple.nano` names
@@ -1591,6 +1595,11 @@ Compiler product:
       `lowered("Hi")` equals `"hi"`. `raised("Hi")` equals `"HI"`.
       ASCII A–Z / a–z. I do not link `nano_vm`.
       `make test-nvm2c` (582 passed).
+- [x] `nvm2c` translates Cut A tuples. `AGG_PACK` kind `AGG_TUPLE`
+      and `AGG_GET` of a tuple index run as `nrec_t`. `via_pair`
+      exits 3, `via_snd` exits 4, `CALL` of a `tuple` result then
+      `AGG_GET 0` exits 3. Nested tuples stay refused.
+      `make test-nvm2c` (597 passed).
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
       in 5.0 documentation or CLI defaults.
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
@@ -1761,6 +1770,10 @@ Compiler product:
       without `nano_vm`. `lowered("Hi")` equals `"hi"`.
       `raised("Hi")` equals `"HI"`.
       `make test-nvm2c` (582 passed).
+- [x] `nvm2c` translates Cut A tuples without `nano_vm`.
+      `pair` is `AGG_PACK 2 0 0 2`. `via_pair` exits 3.
+      `via_snd` exits 4. Nested tuples stay refused.
+      `make test-nvm2c` (597 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

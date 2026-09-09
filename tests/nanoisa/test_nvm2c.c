@@ -767,6 +767,102 @@ static void test_getx_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_tuple_pack_get_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function via_pair 0 0 0 int 1\n"
+        "  PUSH_I64 3\n"
+        "  PUSH_I64 4\n"
+        "  AGG_PACK 2 0 0 2\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_pair\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "tuple pack fixture");
+    CHECK(m != NULL, "tuple pack fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for AGG_TUPLE");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "tuple C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "tuple pack C compiles and runs");
+    CHECK(status == 3, "via_pair() exits 3 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_tuple_get_1_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function via_snd 0 0 0 int 1\n"
+        "  PUSH_I64 3\n"
+        "  PUSH_I64 4\n"
+        "  AGG_PACK 2 0 0 2\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_snd\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "tuple get 1 fixture");
+    CHECK(m != NULL, "tuple get 1 fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for AGG_GET 1 of a tuple");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "tuple get 1 C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "tuple get 1 C compiles and runs");
+    CHECK(status == 4, "via_snd() exits 4 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_tuple_result_call_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 2\n"
+        ".function pair 0 0 0 tuple 1\n"
+        "  PUSH_I64 3\n"
+        "  PUSH_I64 4\n"
+        "  AGG_PACK 2 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function via_pair 0 1 0 int 1\n"
+        "  CALL pair\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_pair\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "tuple result fixture");
+    CHECK(m != NULL, "tuple result fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for TAG_TUPLE CALL");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "tuple result C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "tuple result C compiles and runs");
+    CHECK(status == 3, "CALL pair then AGG_GET 0 exits 3 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_is_pos_then_runs_without_nano_vm(void) {
     const char *src =
         ".entry 1\n"
@@ -3812,6 +3908,9 @@ int main(int argc, char **argv) {
     test_first_runs_without_nano_vm();
     test_agg_set_is_refused();
     test_getx_runs_without_nano_vm();
+    test_tuple_pack_get_runs_without_nano_vm();
+    test_tuple_get_1_runs_without_nano_vm();
+    test_tuple_result_call_runs_without_nano_vm();
     test_is_pos_then_runs_without_nano_vm();
     test_is_pos_else_runs_without_nano_vm();
     test_yes_runs_without_nano_vm();

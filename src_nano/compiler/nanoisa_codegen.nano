@@ -30,7 +30,9 @@
  * the way the C seed defaults the element tag), and module-level
  * lets as LOAD_GLOBAL/STORE_GLOBAL with a void `__init__` (C seed
  * pass 1.5), and `break`/`continue` as `JMP` to the innermost loop
- * end/top (C seed `AST_BREAK` / `AST_CONTINUE`).
+ * end/top (C seed `AST_BREAK` / `AST_CONTINUE`), and tuples as
+ * `AGG_PACK` kind 2 / `AGG_GET` (C seed `AST_TUPLE_LITERAL` /
+ * `AST_TUPLE_INDEX`; ISA tag `tuple`).
  * Anything else fails closed.
  * I do not emit C. I do not delete transpiler.nano.
  */
@@ -1463,6 +1465,26 @@ shadow nisa_seq_inner {
     assert (== (nisa_seq_inner "int") "")
 }
 
+fn nisa_is_tuple_type(t: string) -> bool {
+    if (str_starts_with t "(") {
+        if (str_ends_with t ")") {
+            return (str_contains t ",")
+        } else {
+            return false
+        }
+    } else {
+        return false
+    }
+}
+
+shadow nisa_is_tuple_type {
+    assert (nisa_is_tuple_type "(int,int)")
+    assert (nisa_is_tuple_type "(int,string)")
+    assert (not (nisa_is_tuple_type "int"))
+    assert (not (nisa_is_tuple_type "Point"))
+    assert (not (nisa_is_tuple_type "fn(int,int)->int"))
+}
+
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
     if (nisa_local_type_ok t) {
         return true
@@ -1473,11 +1495,15 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
             if (>= (nisa_union_index parser t) 0) {
                 return true
             } else {
+                if (nisa_is_tuple_type t) {
+                    return true
+                } else {
                 let inner: string = (nisa_seq_inner t)
                 if (== inner "") {
                     return (nisa_is_hm_type t)
                 } else {
                     return (nisa_is_pin_record parser inner)
+                }
                 }
             }
         }
@@ -1505,6 +1531,7 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "array<Sym>")
     assert (nisa_type_ok p "FlagBag")
     assert (nisa_type_ok p "ResultI")
+    assert (nisa_type_ok p "(int,int)")
     assert (not (nisa_type_ok p "List<Nope>"))
 }
 
@@ -2239,6 +2266,9 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
             if (>= (nisa_union_index parser t) 0) {
                 return "struct"
             } else {
+            if (nisa_is_tuple_type t) {
+                return "tuple"
+            } else {
             if (nisa_is_hm_type t) {
                 return "hashmap"
             } else {
@@ -2251,6 +2281,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
                 } else {
                     return ""
                 }
+            }
             }
             }
             }
@@ -2278,6 +2309,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "array<Sym>") "array")
     assert (== (nisa_result_tag p "BagHM") "struct")
     assert (== (nisa_result_tag p "ResultI") "struct")
+    assert (== (nisa_result_tag p "(int,int)") "tuple")
     assert (== (nisa_result_tag p "Nope") "")
 }
 
@@ -2906,6 +2938,64 @@ shadow nisa_emit_union_construct {
     let text2: string = (nisa_emit_union_construct p2 r2.value)
     assert (str_contains text2 "PUSH_STR")
     assert (str_contains text2 "AGG_PACK 1 0 1 1")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_emit_tuple_literal(parser: Parser, node_id: int) -> string {
+    let tl: ASTTupleLiteral = (parser_get_tuple_literal parser node_id)
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i tl.element_count) {
+        let vid: int = (at tl.element_ids i)
+        let vty: int = (at tl.element_types i)
+        let piece: string = (nisa_emit_expr parser vid vty)
+        if (not nisa_ok) {
+            return piece
+        } else {
+            set out (+ out piece)
+            set i (+ i 1)
+        }
+    }
+    let imm: string = (+ "2 0 0 " (int_to_string tl.element_count))
+    return (+ out (nisa_line_imm "AGG_PACK" imm))
+}
+
+shadow nisa_emit_tuple_literal {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n pair() -> (int, int) { return (3, 4) } shadow pair { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let text: string = (nisa_emit_tuple_literal p r.value)
+    assert (str_contains text "PUSH_I64 3")
+    assert (str_contains text "PUSH_I64 4")
+    assert (str_contains text "AGG_PACK 2 0 0 2")
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_emit_tuple_index(parser: Parser, node_id: int) -> string {
+    let ti: ASTTupleIndex = (parser_get_tuple_index parser node_id)
+    let obj: string = (nisa_emit_expr parser ti.tuple ti.tuple_type)
+    return (+ obj (nisa_line_imm "AGG_GET" (int_to_string ti.index)))
+}
+
+shadow nisa_emit_tuple_index {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n via_pair() -> int { return (3, 4).0 } shadow via_pair { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let text: string = (nisa_emit_tuple_index p r.value)
+    assert (str_contains text "AGG_PACK 2 0 0 2")
+    assert (str_contains text "AGG_GET 0")
     let _2: int = (nisa_reset)
 }
 
@@ -3551,7 +3641,15 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                                         if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
                                                             return (nisa_emit_union_construct parser node_id)
                                                         } else {
+                                                            if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) {
+                                                                return (nisa_emit_tuple_literal parser node_id)
+                                                            } else {
+                                                                if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) {
+                                                                    return (nisa_emit_tuple_index parser node_id)
+                                                                } else {
                                                             return (nisa_fail (+ "expression outside the pinned subset " (+ (int_to_string node_type) (+ " in " nisa_cur_fn))))
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -4482,6 +4580,21 @@ shadow nisa_emit_function {
     let raised_text: string = (nisa_emit_function p23f raised_fn)
     assert (str_contains raised_text ".function raised 1 1 0 string 1")
     assert (str_contains raised_text "STR_TO_UPPER")
+    let src23g: string = (+ "f" "n pair() -> (int, int) { return (3, 4) } shadow pair { assert true }")
+    let toks23g: List<LexerToken> = (tokenize_string src23g "t.nano" diags)
+    let p23g: Parser = (parse_program toks23g (list_LexerToken_length toks23g) "t.nano")
+    let pair_fn: ASTFunction = (parser_get_function p23g 0)
+    let pair_text: string = (nisa_emit_function p23g pair_fn)
+    assert (str_contains pair_text ".function pair 0 0 0 tuple 1")
+    assert (str_contains pair_text "AGG_PACK 2 0 0 2")
+    let src23h: string = (+ (+ "f" "n pair() -> (int, int) { return (3, 4) } ") (+ "f" "n via_pair() -> int { let p: (int, int) = (pair) return p.0 } shadow pair { assert true } shadow via_pair { assert true }"))
+    let toks23h: List<LexerToken> = (tokenize_string src23h "t.nano" diags)
+    let p23h: Parser = (parse_program toks23h (list_LexerToken_length toks23h) "t.nano")
+    let via_pair_fn: ASTFunction = (parser_get_function p23h 1)
+    let via_pair_text: string = (nisa_emit_function p23h via_pair_fn)
+    assert (str_contains via_pair_text ".function via_pair 0 1 0 int 1")
+    assert (str_contains via_pair_text "CALL pair")
+    assert (str_contains via_pair_text "AGG_GET 0")
     let src24: string = (+ "f" "n blank_l() -> int { let xs: List<int> = (list_int_new) return (list_int_length xs) } shadow blank_l { assert true }")
     let toks24: List<LexerToken> = (tokenize_string src24 "t.nano" diags)
     let p24: Parser = (parse_program toks24 (list_LexerToken_length toks24) "t.nano")
