@@ -123,14 +123,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`via_brk` / `via_cont`). Host `system` / `get_argc` / `get_argv`
   (`via_sys` / `via_argc` / `via_argv`). Float-field records
   (`origin_f` / `via_vec`; `PUSH_F64` / `F64_ADD`).
-  `make test-nanoisa-src-nano` (250 passed).
+  `make test-nanoisa-src-nano` (256 passed).
   `nanoisa_codegen.nano` emits the pinned subset and that nasm
   assembles. `nanoisa_emit.nano` and `parser.nano` assemble.
   `compiler.nano`, `nanoc.nano`, and `cli_args.nano` emit and
   assemble. `compiler_modular.nano` emits 563 functions and that nasm
-  assembles. `nanoisa_codegen.nano` emits 401. `nanoisa_emit.nano`
-  emits 402. `nanoc_integrated.nano` names `undefined function sqrt`.
-  `driver.nano` names `unsupported result type ResultArgs`.
+  assembles. `nanoisa_codegen.nano` emits 404. `nanoisa_emit.nano`
+  emits 405. `nanoc_integrated.nano` emits 226 functions and that
+  nasm assembles. Statement `list_*_push` as `extern ... -> void`
+  still `POP`s. Unary `(- x)` is `I64_NEG` / `F64_NEG` (`via_ineg` /
+  `via_neg`). `driver.nano` names `unsupported result type ResultArgs`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

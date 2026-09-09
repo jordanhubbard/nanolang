@@ -488,6 +488,44 @@ shadow nisa_f64_binop_mnemonic {
     assert (== (nisa_f64_binop_mnemonic 0) "")
 }
 
+fn nisa_binop_is_unary_minus(parser: Parser, binop: ASTBinaryOp) -> bool {
+    if (!= binop.op LexerTokenType.TOKEN_MINUS) {
+        return false
+    } else {
+        if (!= binop.left_type ParseNodeType.PNODE_NUMBER) {
+            return false
+        } else {
+            let n: ASTNumber = (parser_get_number parser binop.left)
+            return (== n.value "0")
+        }
+    }
+}
+
+shadow nisa_binop_is_unary_minus {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n n() -> int { return (- 5) } shadow n { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let binop: ASTBinaryOp = (parser_get_binary_op p r.value)
+    assert (nisa_binop_is_unary_minus p binop)
+    let _2: int = (nisa_reset)
+    let src2: string = (+ "f" "n s() -> int { return (- 1 2) } shadow s { assert true }")
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let func2: ASTFunction = (parser_get_function p2 0)
+    let block2: ASTBlock = (parser_get_block p2 func2.body)
+    let stmt2: ASTStmtRef = (list_ASTStmtRef_get block2.statements 0)
+    let r2: ASTReturn = (parser_get_return p2 stmt2.node_id)
+    let binop2: ASTBinaryOp = (parser_get_binary_op p2 r2.value)
+    assert (not (nisa_binop_is_unary_minus p2 binop2))
+    let _3: int = (nisa_reset)
+}
+
 fn nisa_line(op: string) -> string {
     return (+ (+ "  " op) "\n")
 }
@@ -639,6 +677,28 @@ shadow nisa_is_list_call {
     assert (nisa_is_list_call "list_string_set")
     assert (not (nisa_is_list_call "list_int_pop"))
     assert (not (nisa_is_list_call "array_new"))
+}
+
+fn nisa_is_mut_arr_stmt(name: string) -> bool {
+    if (or (== name "array_push") (== name "array_set")) {
+        return true
+    } else {
+        if (not (nisa_is_list_call name)) {
+            return false
+        } else {
+            return (or (str_ends_with name "_push") (str_ends_with name "_set"))
+        }
+    }
+}
+
+shadow nisa_is_mut_arr_stmt {
+    assert (nisa_is_mut_arr_stmt "array_push")
+    assert (nisa_is_mut_arr_stmt "array_set")
+    assert (nisa_is_mut_arr_stmt "list_int_push")
+    assert (nisa_is_mut_arr_stmt "list_LexerToken_push")
+    assert (nisa_is_mut_arr_stmt "list_int_set")
+    assert (not (nisa_is_mut_arr_stmt "list_int_get"))
+    assert (not (nisa_is_mut_arr_stmt "list_int_new"))
 }
 
 fn nisa_is_inline_call(name: string) -> bool {
@@ -1761,12 +1821,16 @@ fn nisa_is_host_call(parser: Parser, name: string) -> bool {
     if (!= (nisa_os_sym name) "") {
         return true
     } else {
+        if (!= (nisa_math_arity name) 0) {
+            return true
+        } else {
         let idx: int = (nisa_fn_index parser name)
         if (< idx 0) {
             return false
         } else {
             let fd: ASTFunction = (parser_get_function parser idx)
             return (< fd.body 0)
+        }
         }
     }
 }
@@ -1784,7 +1848,71 @@ shadow nisa_is_host_call {
     assert (nisa_is_host_call p "system")
     assert (nisa_is_host_call p "get_argc")
     assert (nisa_is_host_call p "get_argv")
+    assert (nisa_is_host_call p "sqrt")
+    assert (nisa_is_host_call p "pow")
     assert (not (nisa_is_host_call p "add"))
+}
+
+fn nisa_math_arity(name: string) -> int {
+    if (== name "sqrt") {
+        return 1
+    }
+    if (== name "sin") {
+        return 1
+    }
+    if (== name "cos") {
+        return 1
+    }
+    if (== name "tan") {
+        return 1
+    }
+    if (== name "asin") {
+        return 1
+    }
+    if (== name "acos") {
+        return 1
+    }
+    if (== name "atan") {
+        return 1
+    }
+    if (== name "floor") {
+        return 1
+    }
+    if (== name "ceil") {
+        return 1
+    }
+    if (== name "round") {
+        return 1
+    }
+    if (== name "log") {
+        return 1
+    }
+    if (== name "log2") {
+        return 1
+    }
+    if (== name "log10") {
+        return 1
+    }
+    if (== name "exp") {
+        return 1
+    }
+    if (== name "pow") {
+        return 2
+    }
+    if (== name "atan2") {
+        return 2
+    }
+    if (== name "fmod") {
+        return 2
+    }
+    return 0
+}
+
+shadow nisa_math_arity {
+    assert (== (nisa_math_arity "sqrt") 1)
+    assert (== (nisa_math_arity "pow") 2)
+    assert (== (nisa_math_arity "fmod") 2)
+    assert (== (nisa_math_arity "add") 0)
 }
 
 fn nisa_host_param_tags(parser: Parser, fd: ASTFunction) -> string {
@@ -1820,6 +1948,21 @@ shadow nisa_host_param_tags {
 
 fn nisa_emit_host_call(parser: Parser, call: ASTCall) -> string {
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+    let math_n: int = (nisa_math_arity func_id.name)
+    if (!= math_n 0) {
+        if (!= call.arg_count math_n) {
+            return (nisa_fail (+ func_id.name " wrong arity"))
+        } else {
+            let mut params: string = "float"
+            if (== math_n 2) {
+                set params "float float"
+            } else {
+                (print "")
+            }
+            let idx: int = (nisa_ensure_extern func_id.name "float" params)
+            return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string idx)))
+        }
+    } else {
     let os: string = (nisa_os_sym func_id.name)
     if (!= os "") {
         let arity: int = (nisa_os_arity func_id.name)
@@ -1854,6 +1997,7 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall) -> string {
                 }
             }
         }
+    }
     }
 }
 
@@ -2113,12 +2257,16 @@ fn nisa_expr_is_float(parser: Parser, node_id: int, node_type: int) -> bool {
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     let call: ASTCall = (parser_get_call parser node_id)
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                    if (!= (nisa_math_arity func_id.name) 0) {
+                        return true
+                    } else {
                     let fidx: int = (nisa_fn_index parser func_id.name)
                     if (< fidx 0) {
                         return false
                     } else {
                         let f: ASTFunction = (parser_get_function parser fidx)
                         return (== f.return_type "float")
+                    }
                     }
                 } else {
                     if (== node_type ParseNodeType.PNODE_BINARY_OP) {
@@ -2952,6 +3100,14 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
             } else {
                 if (== node_type ParseNodeType.PNODE_BINARY_OP) {
                     let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                    if (nisa_binop_is_unary_minus parser binop) {
+                        let rhs: string = (nisa_emit_expr parser binop.right binop.right_type)
+                        if (nisa_expr_is_float parser binop.right binop.right_type) {
+                            return (+ rhs (nisa_line "F64_NEG"))
+                        } else {
+                            return (+ rhs (nisa_line "I64_NEG"))
+                        }
+                    } else {
                     let left_s: bool = (nisa_expr_is_string parser binop.left binop.left_type)
                     let right_s: bool = (nisa_expr_is_string parser binop.right binop.right_type)
                     if (or left_s right_s) {
@@ -3010,6 +3166,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                             }
                             }
                             }
+                    }
                     }
                 } else {
                     if (== node_type ParseNodeType.PNODE_CALL) {
@@ -3491,11 +3648,15 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                             if (or (nisa_is_print_builtin func_id.name) (nisa_is_hm_void_call func_id.name)) {
                                 return (nisa_emit_call parser call)
                             } else {
+                                if (nisa_is_mut_arr_stmt func_id.name) {
+                                    return (+ (nisa_emit_call parser call) (nisa_line "POP"))
+                                } else {
                                 if (nisa_fn_is_void parser func_id.name) {
                                     return (nisa_emit_call parser call)
                                 } else {
                                     let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
                                     return (+ expr (nisa_line "POP"))
+                                }
                                 }
                             }
                         } else {

@@ -1201,3 +1201,28 @@ fn via_vec() -> float {
 shadow via_vec {
     assert (== (via_vec) 1.0)
 }
+
+fn via_sqrt() -> float {
+    return (sqrt 4.0)
+}
+
+shadow via_sqrt {
+    assert (== (via_sqrt) 2.0)
+}
+
+fn via_ineg() -> int {
+    return (- 5)
+}
+
+shadow via_ineg {
+    assert (== (via_ineg) -5)
+}
+
+fn via_neg() -> float {
+    let v: VecF = VecF { x: 1.0, y: 4.0 }
+    return (- v.y)
+}
+
+shadow via_neg {
+    assert (== (via_neg) -4.0)
+}

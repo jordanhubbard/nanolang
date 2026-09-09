@@ -358,8 +358,10 @@ innermost loop end / top. Host `system` / `get_argc` / `get_argv`
 (`origin_f` / `via_vec`; `PUSH_F64` / `F64_ADD`). `compiler.nano`,
 `nanoc.nano`, and `cli_args.nano` emit and assemble.
 `compiler_modular.nano` emits 563 functions and that nasm assembles.
-`nanoisa_codegen.nano` emits 401. `nanoisa_emit.nano` emits 402.
-`nanoc_integrated.nano` names `undefined function sqrt`.
+`nanoisa_codegen.nano` emits 404. `nanoisa_emit.nano` emits 405.
+`nanoc_integrated.nano` emits 226 functions and that nasm assembles.
+Statement `list_*_push` as `extern ... -> void` still `POP`s.
+Unary `(- x)` is `I64_NEG` / `F64_NEG` (`via_ineg` / `via_neg`).
 `driver.nano` names `unsupported result type ResultArgs`.
 Labels reset per `.function`.
 Nested arrays,

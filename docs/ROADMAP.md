@@ -1486,23 +1486,37 @@ Compiler product:
       A pin record may have `float` fields. `Vector2D` is that
       record. `make test-nanoisa-src-nano` (250 passed).
       I still pretty-print C to build the compiler.
+- [x] Cut A math FFI: `via_sqrt` matches the C seed (`CALL_EXTERN`
+      `sqrt`, float in and out). `sin`/`cos`/`pow` and the rest of the
+      C-seed math table lower the same way. `make test-nanoisa-src-nano`
+      (252 passed). I still pretty-print C to build the compiler.
 - [x] Cut A CALL arity: I refuse `wrong arity name` at emit when the
       call-site argument count does not match the callee. I do not
       emit a `CALL` the verifier would reject. `compiler_modular.nano`
       passes `input` into `parse_phase_run` / `typecheck_phase` /
       `transpile_phase`. `compiler_modular.nano` emits 563 functions
       and that nasm assembles.
-- [x] `nanoisa_codegen.nano` emits 401 functions and that nasm
-      assembles. `nanoisa_emit.nano` emits 402. `parser.nano` emits
+- [x] Cut A statement `list_*_push` / `list_*_set`: when the name is
+      also `extern ... -> void`, I still `POP` after `ARR_PUSH` /
+      `ARR_SET`. `process_string` in `nanoc_integrated.nano` verifies.
+- [x] Cut A unary minus: `via_ineg` / `via_neg` match the C seed
+      (`I64_NEG` / `F64_NEG`). The self-hosted parser desugars `(- x)`
+      to `(- 0 x)`; I emit `NEG`, not `SUB` of int `0`.
+      `make test-nanoisa-src-nano` (256 passed).
+- [x] `nanoisa_codegen.nano` emits 404 functions and that nasm
+      assembles. `nanoisa_emit.nano` emits 405. `parser.nano` emits
       302. `compiler.nano` emits 7. `nanoc.nano` emits 2.
-      `cli_args.nano` emits 1.
-- [ ] Cut A remaining compiler files: `nanoc_integrated.nano` names
-      `undefined function sqrt`. `driver.nano` names
+      `cli_args.nano` emits 1. `compiler_modular.nano` emits 563.
+      `nanoc_integrated.nano` emits 226 functions and that nasm
+      assembles.
+- [ ] Cut A remaining compiler files: `driver.nano` names
       `unsupported result type ResultArgs` (a union).
-      `nanoc_v04.nano` names `undefined module function Math.add`.
-      `nanoc_v06.nano` names `unsupported result type CollectResult`.
-      `nvm2c` still names `LOAD_GLOBAL` and `CALL_EXTERN`. I still
-      pretty-print C to build the compiler.
+      `nanoc_v04.nano` names `undefined module function Math.add`
+      (that file has no `import` of `Math`). `nanoc_v06.nano` names
+      `unsupported result type CollectResult` (a struct with a
+      `HashMap` field, not a union). `nvm2c` still names
+      `LOAD_GLOBAL` and `CALL_EXTERN`. I still pretty-print C to
+      build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

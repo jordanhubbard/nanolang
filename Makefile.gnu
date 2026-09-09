@@ -558,6 +558,15 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_compiler_modular.nasm \
 		-o /tmp/nanolang_cut_a_compiler_modular.nvm
 	@test -s /tmp/nanolang_cut_a_compiler_modular.nvm
+	@echo "Checking nanoc_integrated.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/nanoc_integrated.nano \
+		-o /tmp/nanolang_cut_a_nanoc_integrated.nasm
+	@test -s /tmp/nanolang_cut_a_nanoc_integrated.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_nanoc_integrated.nasm >/dev/null
+	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_nanoc_integrated.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_nanoc_integrated.nasm \
+		-o /tmp/nanolang_cut_a_nanoc_integrated.nvm
+	@test -s /tmp/nanolang_cut_a_nanoc_integrated.nvm
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
