@@ -1206,7 +1206,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
             if (or (== ft "int") (or (== ft "string") (or (== ft "bool") (== ft "float")))) {
                 set i (+ i 1)
             } else {
-                if (nisa_local_type_ok ft) {
+                if (or (nisa_local_type_ok ft) (nisa_is_hm_type ft)) {
                     set i (+ i 1)
                 } else {
                     if (nisa_is_leaf_record parser ft) {
@@ -1233,7 +1233,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
 shadow nisa_is_pin_record {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct VecF { x: float, y: float } struct Bag { xs: List<int> } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct VecF { x: float, y: float } struct Bag { xs: List<int> } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } struct BagHM { m: HashMap<string, int>, n: int } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_pin_record p "Point")
@@ -1246,6 +1246,7 @@ shadow nisa_is_pin_record {
     assert (nisa_is_pin_record p "FlagBag")
     assert (nisa_is_pin_record p "TypeRec")
     assert (nisa_is_pin_record p "Sym")
+    assert (nisa_is_pin_record p "BagHM")
     assert (not (nisa_is_pin_record p "Nope"))
     assert (not (nisa_is_int_record p "Tok"))
 }
@@ -1585,6 +1586,9 @@ fn nisa_os_sym(name: string) -> string {
     if (== name "get_argv") {
         return "get_argv"
     }
+    if (== name "string_from_char") {
+        return "vm_string_from_char"
+    }
     return ""
 }
 
@@ -1598,6 +1602,7 @@ shadow nisa_os_sym {
     assert (== (nisa_os_sym "system") "vm_system")
     assert (== (nisa_os_sym "get_argc") "get_argc")
     assert (== (nisa_os_sym "get_argv") "get_argv")
+    assert (== (nisa_os_sym "string_from_char") "vm_string_from_char")
     assert (== (nisa_os_sym "add") "")
 }
 
@@ -1647,6 +1652,9 @@ fn nisa_os_arity(name: string) -> int {
     if (== name "get_argv") {
         return 1
     }
+    if (== name "string_from_char") {
+        return 1
+    }
     if (== name "file_write") {
         return 2
     }
@@ -1665,6 +1673,7 @@ shadow nisa_os_arity {
     assert (== (nisa_os_arity "get_argc") 0)
     assert (== (nisa_os_arity "system") 1)
     assert (== (nisa_os_arity "get_argv") 1)
+    assert (== (nisa_os_arity "string_from_char") 1)
     assert (== (nisa_os_arity "getenv") 1)
     assert (== (nisa_os_arity "file_read") 1)
     assert (== (nisa_os_arity "file_exists") 1)
@@ -1727,6 +1736,9 @@ fn nisa_os_ret(name: string) -> string {
     if (== name "get_argv") {
         return "string"
     }
+    if (== name "string_from_char") {
+        return "string"
+    }
     return ""
 }
 
@@ -1740,6 +1752,7 @@ shadow nisa_os_ret {
     assert (== (nisa_os_ret "system") "int")
     assert (== (nisa_os_ret "get_argc") "int")
     assert (== (nisa_os_ret "get_argv") "string")
+    assert (== (nisa_os_ret "string_from_char") "string")
     assert (== (nisa_os_ret "add") "")
 }
 
@@ -1764,7 +1777,7 @@ shadow nisa_os_params {
 }
 
 fn nisa_os_param_tags(name: string) -> string {
-    if (== name "get_argv") {
+    if (or (== name "get_argv") (== name "string_from_char")) {
         return "int"
     } else {
         return (nisa_os_params (nisa_os_arity name))
@@ -1776,6 +1789,7 @@ shadow nisa_os_param_tags {
     assert (== (nisa_os_param_tags "get_argc") "")
     assert (== (nisa_os_param_tags "system") "string")
     assert (== (nisa_os_param_tags "get_argv") "int")
+    assert (== (nisa_os_param_tags "string_from_char") "int")
     assert (== (nisa_os_param_tags "getenv") "string")
 }
 
@@ -1849,6 +1863,7 @@ shadow nisa_is_host_call {
     assert (nisa_is_host_call p "get_argc")
     assert (nisa_is_host_call p "get_argv")
     assert (nisa_is_host_call p "sqrt")
+    assert (nisa_is_host_call p "string_from_char")
     assert (nisa_is_host_call p "pow")
     assert (not (nisa_is_host_call p "add"))
 }
@@ -2071,7 +2086,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
 shadow nisa_result_tag {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct LexerToken { token_type: int, value: string, line: int, column: int } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct LexerToken { token_type: int, value: string, line: int, column: int } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } struct BagHM { m: HashMap<string, int>, n: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "int") "int")
@@ -2086,6 +2101,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "HashMap<string, string>") "hashmap")
     assert (== (nisa_result_tag p "Sym") "struct")
     assert (== (nisa_result_tag p "array<Sym>") "array")
+    assert (== (nisa_result_tag p "BagHM") "struct")
     assert (== (nisa_result_tag p "Nope") "")
 }
 
@@ -2114,7 +2130,8 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                                    (or (== func_id.name "file_read")
                                        (or (== func_id.name "tmp_dir")
                                            (or (== func_id.name "str_concat")
-                                               (== func_id.name "str_substring"))))))) {
+                                               (or (== func_id.name "str_substring")
+                                                   (== func_id.name "string_from_char")))))))) {
                         return true
                     } else {
                     let fidx: int = (nisa_fn_index parser func_id.name)

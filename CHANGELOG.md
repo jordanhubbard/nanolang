@@ -123,7 +123,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`via_brk` / `via_cont`). Host `system` / `get_argc` / `get_argv`
   (`via_sys` / `via_argc` / `via_argv`). Float-field records
   (`origin_f` / `via_vec`; `PUSH_F64` / `F64_ADD`).
-  `make test-nanoisa-src-nano` (256 passed).
+  `make test-nanoisa-src-nano` (262 passed).
   `nanoisa_codegen.nano` emits the pinned subset and that nasm
   assembles. `nanoisa_emit.nano` and `parser.nano` assemble.
   `compiler.nano`, `nanoc.nano`, and `cli_args.nano` emit and
@@ -132,7 +132,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   emits 405. `nanoc_integrated.nano` emits 226 functions and that
   nasm assembles. Statement `list_*_push` as `extern ... -> void`
   still `POP`s. Unary `(- x)` is `I64_NEG` / `F64_NEG` (`via_ineg` /
-  `via_neg`). `driver.nano` names `unsupported result type ResultArgs`.
+  `via_neg`). Pin records may have `HashMap` fields (`origin_hm` /
+  `via_hm`). Host `string_from_char` is `CALL_EXTERN`
+  `vm_string_from_char` (`via_chstr`). `nanoc_v06.nano` emits 598
+  functions and that nasm assembles. `driver.nano` names
+  `unsupported result type ResultArgs`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

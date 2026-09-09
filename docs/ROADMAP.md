@@ -1509,12 +1509,17 @@ Compiler product:
       `cli_args.nano` emits 1. `compiler_modular.nano` emits 563.
       `nanoc_integrated.nano` emits 226 functions and that nasm
       assembles.
+- [x] Cut A HashMap record fields: `origin_hm` / `via_hm` match the C
+      seed. A pin record may have a `HashMap` field.
+      `CollectResult` is that record.
+- [x] Cut A host `string_from_char`: `via_chstr` matches the C seed
+      (`CALL_EXTERN` `vm_string_from_char`, `int` in, `string` out).
+      `make test-nanoisa-src-nano` (262 passed).
+- [x] `nanoc_v06.nano` emits 598 functions and that nasm assembles.
 - [ ] Cut A remaining compiler files: `driver.nano` names
       `unsupported result type ResultArgs` (a union).
       `nanoc_v04.nano` names `undefined module function Math.add`
-      (that file has no `import` of `Math`). `nanoc_v06.nano` names
-      `unsupported result type CollectResult` (a struct with a
-      `HashMap` field, not a union). `nvm2c` still names
+      (that file has no `import` of `Math`). `nvm2c` still names
       `LOAD_GLOBAL` and `CALL_EXTERN`. I still pretty-print C to
       build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of

@@ -1226,3 +1226,35 @@ fn via_neg() -> float {
 shadow via_neg {
     assert (== (via_neg) -4.0)
 }
+
+struct BagHM {
+    m: HashMap<string, int>,
+    n: int
+}
+
+fn origin_hm() -> BagHM {
+    let m: HashMap<string, int> = (map_new)
+    return BagHM { m: m, n: 1 }
+}
+
+shadow origin_hm {
+    let b: BagHM = (origin_hm)
+    assert (== b.n 1)
+}
+
+fn via_hm() -> int {
+    let b: BagHM = (origin_hm)
+    return b.n
+}
+
+shadow via_hm {
+    assert (== (via_hm) 1)
+}
+
+fn via_chstr() -> string {
+    return (string_from_char 65)
+}
+
+shadow via_chstr {
+    assert (== (via_chstr) "A")
+}

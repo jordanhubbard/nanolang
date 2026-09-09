@@ -362,7 +362,10 @@ innermost loop end / top. Host `system` / `get_argc` / `get_argv`
 `nanoc_integrated.nano` emits 226 functions and that nasm assembles.
 Statement `list_*_push` as `extern ... -> void` still `POP`s.
 Unary `(- x)` is `I64_NEG` / `F64_NEG` (`via_ineg` / `via_neg`).
-`driver.nano` names `unsupported result type ResultArgs`.
+Pin records may have `HashMap` fields (`origin_hm` / `via_hm`).
+Host `string_from_char` is `CALL_EXTERN` `vm_string_from_char`
+(`via_chstr`). `nanoc_v06.nano` emits 598 functions and that nasm
+assembles. `driver.nano` names `unsupported result type ResultArgs`.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
