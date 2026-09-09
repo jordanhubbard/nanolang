@@ -1134,6 +1134,57 @@ shadow nisa_enum_index {
     assert (== (nisa_enum_index p "Nope") (- 0 1))
 }
 
+fn nisa_union_index(parser: Parser, name: string) -> int {
+    let n: int = (parser_get_union_count parser)
+    let mut i: int = 0
+    while (< i n) {
+        let u: ASTUnion = (parser_get_union parser i)
+        if (== u.name name) {
+            return i
+        } else {
+            (print "")
+        }
+        set i (+ i 1)
+    }
+    return (- 0 1)
+}
+
+shadow nisa_union_index {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "union ResultI { Ok { value: int }, Err { error: string } } " (+ "f" "n via_ok() -> ResultI { return ResultI.Ok { value: 42 } } shadow via_ok { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_union_index p "ResultI") 0)
+    assert (== (nisa_union_index p "Nope") (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_union_variant_index(parser: Parser, uidx: int, vname: string) -> int {
+    let u: ASTUnion = (parser_get_union parser uidx)
+    let mut i: int = 0
+    while (< i u.variant_count) {
+        if (== (at u.variant_names i) vname) {
+            return i
+        } else {
+            set i (+ i 1)
+        }
+    }
+    return (- 0 1)
+}
+
+shadow nisa_union_variant_index {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "union ResultI { Ok { value: int }, Err { error: string } } " (+ "f" "n via_ok() -> ResultI { return ResultI.Ok { value: 42 } } shadow via_ok { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_union_variant_index p 0 "Ok") 0)
+    assert (== (nisa_union_variant_index p 0 "Err") 1)
+    assert (== (nisa_union_variant_index p 0 "Nope") (- 0 1))
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_is_leaf_record(parser: Parser, name: string) -> bool {
     let idx: int = (nisa_struct_index parser name)
     if (< idx 0) {
@@ -1304,11 +1355,15 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
         if (nisa_is_pin_record parser t) {
             return true
         } else {
-            let inner: string = (nisa_seq_inner t)
-            if (== inner "") {
-                return (nisa_is_hm_type t)
+            if (>= (nisa_union_index parser t) 0) {
+                return true
             } else {
-                return (nisa_is_pin_record parser inner)
+                let inner: string = (nisa_seq_inner t)
+                if (== inner "") {
+                    return (nisa_is_hm_type t)
+                } else {
+                    return (nisa_is_pin_record parser inner)
+                }
             }
         }
     }
@@ -1317,7 +1372,7 @@ fn nisa_type_ok(parser: Parser, t: string) -> bool {
 shadow nisa_type_ok {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } union ResultI { Ok { value: int }, Err { error: string } } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_type_ok p "int")
@@ -1334,6 +1389,7 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "Sym")
     assert (nisa_type_ok p "array<Sym>")
     assert (nisa_type_ok p "FlagBag")
+    assert (nisa_type_ok p "ResultI")
     assert (not (nisa_type_ok p "List<Nope>"))
 }
 
@@ -2065,6 +2121,9 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
         if (nisa_is_pin_record parser t) {
             return "struct"
         } else {
+            if (>= (nisa_union_index parser t) 0) {
+                return "struct"
+            } else {
             if (nisa_is_hm_type t) {
                 return "hashmap"
             } else {
@@ -2079,6 +2138,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
                 }
             }
             }
+            }
         }
     }
 }
@@ -2086,7 +2146,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
 shadow nisa_result_tag {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct LexerToken { token_type: int, value: string, line: int, column: int } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } struct BagHM { m: HashMap<string, int>, n: int } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct LexerToken { token_type: int, value: string, line: int, column: int } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } struct BagHM { m: HashMap<string, int>, n: int } union ResultI { Ok { value: int }, Err { error: string } } " (+ "f" "n origin() -> Point { return Point { x: 0, y: 1 } } shadow origin { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "int") "int")
@@ -2102,6 +2162,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "Sym") "struct")
     assert (== (nisa_result_tag p "array<Sym>") "array")
     assert (== (nisa_result_tag p "BagHM") "struct")
+    assert (== (nisa_result_tag p "ResultI") "struct")
     assert (== (nisa_result_tag p "Nope") "")
 }
 
@@ -2674,6 +2735,61 @@ shadow nisa_emit_struct_literal {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_emit_union_construct(parser: Parser, node_id: int) -> string {
+    let uc: ASTUnionConstruct = (parser_get_union_construct parser node_id)
+    let uidx: int = (nisa_union_index parser uc.union_name)
+    if (< uidx 0) {
+        return (nisa_fail (+ "undefined union " uc.union_name))
+    } else {
+        let vi: int = (nisa_union_variant_index parser uidx uc.variant_name)
+        if (< vi 0) {
+            return (nisa_fail (+ "unknown variant " (+ uc.union_name (+ "." uc.variant_name))))
+        } else {
+            let mut out: string = ""
+            let mut i: int = 0
+            while (< i uc.field_count) {
+                let vid: int = (at uc.field_value_ids i)
+                let vty: int = (at uc.field_value_types i)
+                let piece: string = (nisa_emit_expr parser vid vty)
+                if (not nisa_ok) {
+                    return piece
+                } else {
+                    set out (+ out piece)
+                    set i (+ i 1)
+                }
+            }
+            let imm: string = (+ "1 " (+ (int_to_string uidx) (+ " " (+ (int_to_string vi) (+ " " (int_to_string uc.field_count))))))
+            return (+ out (nisa_line_imm "AGG_PACK" imm))
+        }
+    }
+}
+
+shadow nisa_emit_union_construct {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "union ResultI { Ok { value: int }, Err { error: string } } " (+ "f" "n via_ok() -> ResultI { return ResultI.Ok { value: 42 } } shadow via_ok { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    let text: string = (nisa_emit_union_construct p r.value)
+    assert (str_contains text "PUSH_I64 42")
+    assert (str_contains text "AGG_PACK 1 0 0 1")
+    let src2: string = (+ "union ResultI { Ok { value: int }, Err { error: string } } " (+ "f" "n via_err() -> ResultI { return ResultI.Err { error: \"no\" } } shadow via_err { assert true }"))
+    let toks2: List<LexerToken> = (tokenize_string src2 "t.nano" diags)
+    let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
+    let func2: ASTFunction = (parser_get_function p2 0)
+    let block2: ASTBlock = (parser_get_block p2 func2.body)
+    let stmt2: ASTStmtRef = (list_ASTStmtRef_get block2.statements 0)
+    let r2: ASTReturn = (parser_get_return p2 stmt2.node_id)
+    let text2: string = (nisa_emit_union_construct p2 r2.value)
+    assert (str_contains text2 "PUSH_STR")
+    assert (str_contains text2 "AGG_PACK 1 0 1 1")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_emit_field_access(parser: Parser, node_id: int) -> string {
     let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
     if (!= fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
@@ -3238,7 +3354,11 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                                     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
                                                         return (nisa_emit_mqc parser node_id)
                                                     } else {
-                                                        return (nisa_fail (+ "expression outside the pinned subset " (+ (int_to_string node_type) (+ " in " nisa_cur_fn))))
+                                                        if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+                                                            return (nisa_emit_union_construct parser node_id)
+                                                        } else {
+                                                            return (nisa_fail (+ "expression outside the pinned subset " (+ (int_to_string node_type) (+ " in " nisa_cur_fn))))
+                                                        }
                                                     }
                                                 }
                                             }

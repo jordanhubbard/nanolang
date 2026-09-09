@@ -1258,3 +1258,24 @@ fn via_chstr() -> string {
 shadow via_chstr {
     assert (== (via_chstr) "A")
 }
+
+union ResultI {
+    Ok { value: int },
+    Err { error: string }
+}
+
+fn via_ok() -> ResultI {
+    return ResultI.Ok { value: 42 }
+}
+
+shadow via_ok {
+    assert true
+}
+
+fn via_err() -> ResultI {
+    return ResultI.Err { error: "no" }
+}
+
+shadow via_err {
+    assert true
+}
