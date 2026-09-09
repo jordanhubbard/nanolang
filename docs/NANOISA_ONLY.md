@@ -288,7 +288,7 @@ void `list_int_push` (`ARR_PUSH` then `POP` keeps array identity;
 Cut A void `list_string_push` (`ARR_PUSH` then `POP` keeps string-array
 identity; `grow_s` runs as native C), and Cut A mixed int/string
 records (`AGG_PACK`/`AGG_GET`; `get_s` runs as native C; nested
-records stay refused), and Cut A lists of records (`ARR_PUSH` of
+pin records run as `via_nest`), and Cut A lists of records (`ARR_PUSH` of
 `nrec_t`; `blank_t` and `grow_t` run as native C; I classify
 `ARR_NEW 1` from the pushed record), and Cut A `LexerToken` lists
 (`get_v` and `grow_lex` run as native C), and Cut A prefix and
@@ -299,12 +299,12 @@ suffix tests (`STR_STARTS_WITH`/`STR_ENDS_WITH`; `has_pre` and
 `list_string_set` (`ARR_SET` of a string list; `put_s` runs as
 native C), and Cut A `for` (`LT`; `upto` runs as native C), and Cut A
 `void` (`quiet` / `via_quiet` run as native C), and Cut A pin-record
-results (`origin` / `via_o` run as native C; nested records stay
-refused), and Cut A mixed int/string record results (`make_tok` /
+results (`origin` / `via_o` run as native C; nested pin records run as
+`via_nest`), and Cut A mixed int/string record results (`make_tok` /
 `via_tok` run as native C), and Cut A array results (`ones` /
 `via_ones` run as native C), and Cut A `List<int>` results (`new_l` /
 `via_new_l` run as native C), and Cut A `List<Tok>` results (`one_t` /
-`via_one_t` run as native C; nested records stay refused), and Cut A
+`via_one_t` run as native C), and Cut A
 `List<LexerToken>` results (`one_lex` / `via_one_lex` run as native C),
 and Cut A i64 `>=`/`<=` (`in_az` / `via_az` run as native C), and Cut A
 `ENUM_VAL` (`tag` / `via_tag` run as native C; nested unions stay
@@ -320,7 +320,7 @@ run as native C; `CALL`/`TAIL_CALL` compare by callee name), and Cut A
 (`PUSH_I64 0` then `RET`, the way the C seed does), and Cut A `.string`
 payload that contains `;` or `#` (`lexer.nano` nasm assembles), and Cut A
 nested pin-record literals (`nest_d` / `via_nest` match the C seed;
-`nvm2c` still refuses nested records), and Cut A bool and `List<int>`
+`nvm2c` runs `via_nest` without `nano_vm`), and Cut A bool and `List<int>`
 record fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`), and Cut A
 string `+` of a field or `int_to_string` (`glue_field` / `glue_digits`) and
 `str_concat` as `STR_CONCAT` (`glue_sc`), and Cut A `string_to_int` as
@@ -348,7 +348,7 @@ match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 (`empty_fb` / `flag_n`). Assembler `MAX_SYMBOLS` is 8192.
 `module_loader.nano` emits 559 functions and that nasm assembles;
 `transpiler.nano` emits 444. `nano_vm` exits 0. `nvm2c` still names
-`CALL_EXTERN` and `LOAD_GLOBAL`. Host `tmp_dir` (`via_tmp`) is
+`CALL_EXTERN`. Host `tmp_dir` (`via_tmp`) is
 `CALL_EXTERN` `vm_tmp_dir`. `file_read` / `file_write` / `file_exists`
 lower as `vm_file_*`. `file_io.nano` emits 3 functions and that nasm
 assembles. Bare void `return` (`via_bare`) is `RET` with no value.
@@ -375,7 +375,7 @@ Nested arrays,
 `AGG_SET`, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
-compiler subset (host ABI, `nvm2c` of `LOAD_GLOBAL` / `CALL_EXTERN`
+compiler subset (host ABI, `nvm2c` of `CALL_EXTERN`
 / `HM_*`, and the remaining string library) is still open. A pinned
 suite must match on `nano_vm` and on AOT C.
 

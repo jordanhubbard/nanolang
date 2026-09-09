@@ -2126,10 +2126,10 @@ static void test_grow_lex_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_nested_record_pack_is_refused(void) {
+static void test_nested_record_pack_runs_without_nano_vm(void) {
     const char *src =
         ".entry 0\n"
-        ".function main 0 1 0 int 1\n"
+        ".function main 0 2 0 int 1\n"
         "  PUSH_I64 1\n"
         "  PUSH_I64 2\n"
         "  AGG_PACK 0 0 0 2\n"
@@ -2138,6 +2138,9 @@ static void test_nested_record_pack_is_refused(void) {
         "  STORE_LOCAL 0\n"
         "  LOAD_LOCAL 0\n"
         "  AGG_GET 0\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
         "  RET\n"
         ".end\n";
     NvmModule *m = assemble_ok(src, "nested record fixture");
@@ -2145,8 +2148,17 @@ static void test_nested_record_pack_is_refused(void) {
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "nested records stay outside the closed subset");
-    CHECK(strstr(err, "int or string") != NULL, "error names int or string fields");
+    CHECK(c != NULL, "nvm2c emits C for nested records");
+    if (!c) {
+        fprintf(stderr, "nvm2c nested record: %s\n", err);
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "nested record C does not name nano_vm");
+    CHECK(strstr(c, "nrec_store") != NULL, "nested record C stores inner nrec_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "nested record C compiles and runs");
+    CHECK(status == 2, "nested AGG_GET of inner field 1 exits 2 without a VM process");
     free(c);
     nvm_module_free(m);
 }
@@ -2802,6 +2814,125 @@ static void test_via_parse_n_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_nest: nested AGG_PACK (Loc string+int inside Nest), then GET inner.line. */
+static void test_via_nest_runs_without_nano_vm(void) {
+    const char *src =
+        ".string f \"f\"\n"
+        ".entry 2\n"
+        ".function nest_d 0 0 0 struct 1\n"
+        "  PUSH_STR f\n"
+        "  PUSH_I64 7\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function via_nest 0 2 0 int 1\n"
+        "  CALL nest_d\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_nest\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_nest fixture");
+    CHECK(m != NULL, "via_nest fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_nest");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_nest C does not name nano_vm");
+    CHECK(strstr(c, "nrec_store") != NULL, "via_nest C stores the inner Loc");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_nest C compiles and runs");
+    CHECK(status == 7, "via_nest() exits 7 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* via_g_len: LOAD_GLOBAL of an empty string array stored by void __init__. */
+static void test_via_g_len_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 2\n"
+        ".function __init__ 0 0 0 void 0\n"
+        "  ARR_LITERAL 1 0\n"
+        "  STORE_GLOBAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function via_g_len 0 0 0 int 1\n"
+        "  LOAD_GLOBAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_g_len\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_g_len fixture");
+    CHECK(m != NULL, "via_g_len fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_g_len");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_g_len C does not name nano_vm");
+    CHECK(strstr(c, "nl___init__") != NULL, "via_g_len C calls void __init__");
+    CHECK(strstr(c, "LOAD_GLOBAL") == NULL, "via_g_len C does not name LOAD_GLOBAL");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_g_len C compiles and runs");
+    CHECK(status == 0, "via_g_len() exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* via_g_set: STORE_GLOBAL of ["a"] then ARR_LEN. */
+static void test_via_g_set_runs_without_nano_vm(void) {
+    const char *src =
+        ".string a \"a\"\n"
+        ".entry 2\n"
+        ".function __init__ 0 0 0 void 0\n"
+        "  ARR_LITERAL 5 0\n"
+        "  STORE_GLOBAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function via_g_set 0 0 0 int 1\n"
+        "  PUSH_STR a\n"
+        "  ARR_LITERAL 5 1\n"
+        "  STORE_GLOBAL 0\n"
+        "  LOAD_GLOBAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_g_set\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_g_set fixture");
+    CHECK(m != NULL, "via_g_set fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_g_set");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_g_set C does not name nano_vm");
+    CHECK(strstr(c, "STORE_GLOBAL") == NULL, "via_g_set C does not name STORE_GLOBAL");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_g_set C compiles and runs");
+    CHECK(status == 1, "via_g_set() exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_cast_int_array_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -3041,7 +3172,7 @@ int main(int argc, char **argv) {
     test_put_t_runs_without_nano_vm();
     test_get_v_runs_without_nano_vm();
     test_grow_lex_runs_without_nano_vm();
-    test_nested_record_pack_is_refused();
+    test_nested_record_pack_runs_without_nano_vm();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
@@ -3060,6 +3191,9 @@ int main(int argc, char **argv) {
     test_via_imp_add_runs_without_nano_vm();
     test_via_raw_runs_without_nano_vm();
     test_via_parse_n_runs_without_nano_vm();
+    test_via_nest_runs_without_nano_vm();
+    test_via_g_len_runs_without_nano_vm();
+    test_via_g_set_runs_without_nano_vm();
     test_cast_int_array_is_refused();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {

@@ -86,7 +86,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `CALL`/`TAIL_CALL` by name. `unsafe` blocks emit inner statements
   (`via_raw`).   `getcwd` is `CALL_EXTERN` `vm_getcwd` (`via_cwd`).
   Nested pin-record literals (`nest_d` / `via_nest`) match the C seed.
-  `nvm2c` still refuses nested records. Bool and `List<int>` record
+  `nvm2c` runs nested pin records without `nano_vm` (`via_nest` exits 7).
+  Module-level lets run as native C (`via_g_len` exits 0, `via_g_set`
+  exits 1; generated `main` calls `__init__`).
+  Bool and `List<int>` record
   fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`) match the
   C seed. String `+` of a field or `int_to_string` (`glue_field` /
   `glue_digits`) and `str_concat` as `STR_CONCAT` (`glue_sc`) match
@@ -219,7 +222,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   the discriminant 19. Imported `ENUM_VAL` runs as native C:
   `via_tok_mod` exits 19. `via_imp_add` exits 42. `via_raw` exits 7.
   `CAST_INT` of a string runs as native C: `via_parse_n` exits 7.
-  Casting arrays stays refused. `make test-nvm2c` (449 passed).
+  Casting arrays stays refused. Nested pin records run as native C:
+  `via_nest` exits 7. `LOAD_GLOBAL` / `STORE_GLOBAL` run as native C:
+  `via_g_len` exits 0, `via_g_set` exits 1. `make test-nvm2c` (471 passed).
 
 ## [4.5.0] - 2026-09-07
 

@@ -1708,9 +1708,19 @@ Compiler product:
 - [x] `nvm2c` runs Cut A `via_parse_n` (`CAST_INT` of a string) without
       `nano_vm`. Casting arrays stays refused.
       `make test-nvm2c` (449 passed).
-- [ ] `nvm2c` runs Cut A `via_nest` (nested `AGG_PACK` of pin records).
-      Nested records stay outside the closed subset. The assembler
-      accepts the bytecode; `nvm2c` still refuses it.
+- [x] `nvm2c` runs Cut A `via_nest` (nested `AGG_PACK` of pin records).
+      Inner Loc is string+int; outer Nest holds that record. `nrec_t`
+      stores nested records through an arena. `AGG_SET`, unions, and
+      tuples stay refused.
+      `make test-nvm2c` (458 passed).
+- [x] `nvm2c` runs Cut A `via_g_len` / `via_g_set` (`LOAD_GLOBAL` /
+      `STORE_GLOBAL` and void `__init__`) without `nano_vm`. Generated
+      `main` calls `__init__` first. Empty `array<string>` in `via_g_set`
+      is `ARR_LITERAL 5 0`; mixed int-tagged empty and string stores to
+      one global stay refused.
+      `make test-nvm2c` (471 passed).
+- [ ] `nvm2c` translates Cut A `HM_*` (`map_new` as `HM_NEW`) or I
+      refuse the module honestly.
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
@@ -2408,7 +2418,7 @@ I aim to be:
 
 ---
 
-Last Updated: September 7, 2026
+Last Updated: September 8, 2026
 Current Phase: 4.6 complete; 5.0 / Phase 20 next (`docs/NANOISA_ONLY.md`).
 The next public GitHub Release is 5.0, covering 4.6 and 5.0.
 Next Major Milestone: 5.0 NanoISA-only compilation, then public tag `v5.0.0`.
