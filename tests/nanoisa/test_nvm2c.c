@@ -429,6 +429,74 @@ static void test_str_split_get_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_str_to_lower_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"Hi\"\n"
+        ".string lo \"hi\"\n"
+        ".entry 1\n"
+        ".function lowered 1 1 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  STR_TO_LOWER\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  CALL lowered\n"
+        "  PUSH_STR lo\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "lowered fixture");
+    CHECK(m != NULL, "lowered fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_TO_LOWER");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_TO_LOWER C does not name nano_vm");
+    CHECK(strstr(c, "nstr_to_lower") != NULL, "STR_TO_LOWER C calls nstr_to_lower");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_TO_LOWER C compiles and runs");
+    CHECK(status == 1, "to_lower(\"Hi\") equals \"hi\" without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_to_upper_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"Hi\"\n"
+        ".string up \"HI\"\n"
+        ".entry 1\n"
+        ".function raised 1 1 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  STR_TO_UPPER\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  CALL raised\n"
+        "  PUSH_STR up\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "raised fixture");
+    CHECK(m != NULL, "raised fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_TO_UPPER");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_TO_UPPER C does not name nano_vm");
+    CHECK(strstr(c, "nstr_to_upper") != NULL, "STR_TO_UPPER C calls nstr_to_upper");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_TO_UPPER C compiles and runs");
+    CHECK(status == 1, "to_upper(\"Hi\") equals \"HI\" without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_str_split_empty_delim_is_chars(void) {
     const char *src =
         ".string ab \"ab\"\n"
@@ -3734,6 +3802,8 @@ int main(int argc, char **argv) {
     test_str_split_len_runs_without_nano_vm();
     test_str_split_get_runs_without_nano_vm();
     test_str_split_empty_delim_is_chars();
+    test_str_to_lower_runs_without_nano_vm();
+    test_str_to_upper_runs_without_nano_vm();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();

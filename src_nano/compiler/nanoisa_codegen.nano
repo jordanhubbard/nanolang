@@ -719,7 +719,9 @@ fn nisa_is_inline_call(name: string) -> bool {
                                                                (or (== name "string_to_int")
                                                                    (or (== name "str_trim")
                                                                        (or (== name "str_split")
-                                                                           (== name "str_replace"))))))))))))))))))
+                                                                           (or (== name "str_replace")
+                                                                               (or (== name "str_to_lower")
+                                                                                   (== name "str_to_upper"))))))))))))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -735,6 +737,8 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "str_trim")
     assert (nisa_is_inline_call "str_split")
     assert (nisa_is_inline_call "str_replace")
+    assert (nisa_is_inline_call "str_to_lower")
+    assert (nisa_is_inline_call "str_to_upper")
     assert (nisa_is_inline_call "list_int_new")
     assert (nisa_is_inline_call "list_int_length")
     assert (nisa_is_inline_call "list_int_push")
@@ -2305,7 +2309,9 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                                                (or (== func_id.name "str_substring")
                                                    (or (== func_id.name "str_trim")
                                                        (or (== func_id.name "str_replace")
-                                                           (== func_id.name "string_from_char")))))))))) {
+                                                           (or (== func_id.name "str_to_lower")
+                                                               (or (== func_id.name "str_to_upper")
+                                                                   (== func_id.name "string_from_char")))))))))))) {
                         return true
                     } else {
                     let fidx: int = (nisa_fn_index parser func_id.name)
@@ -3295,6 +3301,20 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                     return (+ (nisa_emit_call_args parser call) (nisa_line "STR_REPLACE"))
                                 }
                             } else {
+                            if (== func_id.name "str_to_lower") {
+                                if (!= call.arg_count 1) {
+                                    return (nisa_fail "str_to_lower needs 1 argument")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "STR_TO_LOWER"))
+                                }
+                            } else {
+                            if (== func_id.name "str_to_upper") {
+                                if (!= call.arg_count 1) {
+                                    return (nisa_fail "str_to_upper needs 1 argument")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "STR_TO_UPPER"))
+                                }
+                            } else {
                             if (or (== func_id.name "char_at") (== func_id.name "str_char_at")) {
                                 if (!= call.arg_count 2) {
                                     return (nisa_fail "char_at needs 2 arguments")
@@ -3339,6 +3359,8 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                     }
                                     }
                                 }
+                            }
+                            }
                             }
                             }
                             }
@@ -4446,6 +4468,20 @@ shadow nisa_emit_function {
     let parts_text: string = (nisa_emit_function p23d parts_fn)
     assert (str_contains parts_text ".function parts 1 1 0 array 1")
     assert (str_contains parts_text "STR_SPLIT")
+    let src23e: string = (+ "f" "n lowered(s: string) -> string { return (str_to_lower s) } shadow lowered { assert true }")
+    let toks23e: List<LexerToken> = (tokenize_string src23e "t.nano" diags)
+    let p23e: Parser = (parse_program toks23e (list_LexerToken_length toks23e) "t.nano")
+    let lowered_fn: ASTFunction = (parser_get_function p23e 0)
+    let lowered_text: string = (nisa_emit_function p23e lowered_fn)
+    assert (str_contains lowered_text ".function lowered 1 1 0 string 1")
+    assert (str_contains lowered_text "STR_TO_LOWER")
+    let src23f: string = (+ "f" "n raised(s: string) -> string { return (str_to_upper s) } shadow raised { assert true }")
+    let toks23f: List<LexerToken> = (tokenize_string src23f "t.nano" diags)
+    let p23f: Parser = (parse_program toks23f (list_LexerToken_length toks23f) "t.nano")
+    let raised_fn: ASTFunction = (parser_get_function p23f 0)
+    let raised_text: string = (nisa_emit_function p23f raised_fn)
+    assert (str_contains raised_text ".function raised 1 1 0 string 1")
+    assert (str_contains raised_text "STR_TO_UPPER")
     let src24: string = (+ "f" "n blank_l() -> int { let xs: List<int> = (list_int_new) return (list_int_length xs) } shadow blank_l { assert true }")
     let toks24: List<LexerToken> = (tokenize_string src24 "t.nano" diags)
     let p24: Parser = (parse_program toks24 (list_LexerToken_length toks24) "t.nano")

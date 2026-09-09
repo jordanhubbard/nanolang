@@ -248,7 +248,8 @@ paths resolve through `modules/` like the C seed. Transitive
 imports register enums and pin-record structs from imported files.
 `clipped` / `via_trim` (`STR_TRIM`), `swapped` / `via_repl`
 (`STR_REPLACE`), and `parts` / `via_parts` (`STR_SPLIT`) match the
-C seed. `STR_TO_LOWER` / `STR_TO_UPPER` stay refused. String operands
+C seed. `lowered` / `via_low` (`STR_TO_LOWER`) and `raised` /
+`via_up` (`STR_TO_UPPER`) match the C seed. String operands
 are compared by content, not pool index. I still pretty-print C to
 build the compiler. When I refuse a program, `nanoisa_emit` prints
 `nisa_err` so the next hole is named. The full dual of `codegen.c` is
@@ -342,7 +343,9 @@ maps Cut A host `CALL_EXTERN` to C (`nhost_getcwd` and kin) and still
 refuses unmapped imports. `nvm2c` runs Cut A HashMap without `nano_vm`
 (`via_blank_hm` exits 0, `via_put_hm` / `via_hm` exit 1). `nvm2c` runs
 Cut A `STR_TRIM` / `STR_REPLACE` / `STR_SPLIT` without `nano_vm`
-(`clipped` / `via_trim` / `swapped` / `via_repl` / `parts`). Cut A `array_new` (`blank_a` / `via_blank_a`
+(`clipped` / `via_trim` / `swapped` / `via_repl` / `parts`). `nvm2c`
+runs Cut A `STR_TO_LOWER` / `STR_TO_UPPER` without `nano_vm`
+(`lowered` / `via_low` / `raised` / `via_up`). Cut A `array_new` (`blank_a` / `via_blank_a`
 match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `str_substring` concat (`via_substr_concat`) and `EQ` of `at` of
 `array<string>` (`via_at_eq`), and Cut A host `getenv` (`via_env` is
@@ -376,7 +379,7 @@ access of a union payload (`via_chain`) matches the C seed.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, tuples, array
-equality, `STR_TO_LOWER`, `STR_TO_UPPER`, substring of arrays, and printing
+equality, substring of arrays, and printing
 arrays/records stay refused. The rest of the
 compiler subset (tuples, empty `List<Tok>` classification, and compiling
 `src_nano` to `.nvm`) is still open. A pinned

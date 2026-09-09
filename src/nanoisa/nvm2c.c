@@ -563,6 +563,14 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_STR_TO_LOWER:
+        case OP_STR_TO_UPPER: {
+            Nvm2cSimSlot s;
+            if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
+            mark_str_origin(local_kind, nloc, s.origin);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            break;
+        }
         case OP_STR_REPLACE: {
             Nvm2cSimSlot neu, old, s;
             if (!sim_pop(b, idx, stk, &sp, &neu)) return 0;
@@ -1825,6 +1833,22 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_str(b, &st, expr);
             break;
         }
+        case OP_STR_TO_LOWER: {
+            int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_TO_LOWER");
+            if (b->failed) goto done;
+            char expr[48];
+            snprintf(expr, sizeof expr, "nstr_to_lower(s[%d])", s);
+            stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_STR_TO_UPPER: {
+            int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_TO_UPPER");
+            if (b->failed) goto done;
+            char expr[48];
+            snprintf(expr, sizeof expr, "nstr_to_upper(s[%d])", s);
+            stack_push_str(b, &st, expr);
+            break;
+        }
         case OP_STR_REPLACE: {
             int neu = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE new");
             int old = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE old");
@@ -2745,6 +2769,44 @@ static void emit_nstr_trim(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nstr_to_lower(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_to_lower(const char *s) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    size_t n = strlen(src);\n"
+        "    size_t i;\n"
+        "    char *p;\n"
+        "    if (nstr_used + n + 1 > sizeof nstr_arena) abort();\n"
+        "    p = nstr_arena + nstr_used;\n"
+        "    for (i = 0; i < n; i++) {\n"
+        "        unsigned char c = (unsigned char)src[i];\n"
+        "        p[i] = (c >= 'A' && c <= 'Z') ? (char)(c + 32) : (char)c;\n"
+        "    }\n"
+        "    p[n] = 0;\n"
+        "    nstr_used += n + 1;\n"
+        "    return p;\n"
+        "}\n\n");
+}
+
+static void emit_nstr_to_upper(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_to_upper(const char *s) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    size_t n = strlen(src);\n"
+        "    size_t i;\n"
+        "    char *p;\n"
+        "    if (nstr_used + n + 1 > sizeof nstr_arena) abort();\n"
+        "    p = nstr_arena + nstr_used;\n"
+        "    for (i = 0; i < n; i++) {\n"
+        "        unsigned char c = (unsigned char)src[i];\n"
+        "        p[i] = (c >= 'a' && c <= 'z') ? (char)(c - 32) : (char)c;\n"
+        "    }\n"
+        "    p[n] = 0;\n"
+        "    nstr_used += n + 1;\n"
+        "    return p;\n"
+        "}\n\n");
+}
+
 static void emit_nstr_replace(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static const char *nstr_replace(const char *s, const char *old_s, const char *new_s) {\n"
@@ -3216,12 +3278,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_ends = module_has_opcode(mod, OP_STR_ENDS_WITH);
         int need_substr_op = module_has_opcode(mod, OP_STR_SUBSTR);
         int need_trim = module_has_opcode(mod, OP_STR_TRIM);
+        int need_lower = module_has_opcode(mod, OP_STR_TO_LOWER);
+        int need_upper = module_has_opcode(mod, OP_STR_TO_UPPER);
         int need_replace = module_has_opcode(mod, OP_STR_REPLACE);
         int need_split = module_has_opcode(mod, OP_STR_SPLIT);
         int need_substr = need_substr_op || need_trim || need_split;
         int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
         int need_string = need_concat || need_cast || need_cast_int || need_contains || need_starts ||
-            need_ends || need_substr || need_trim || need_replace || need_split ||
+            need_ends || need_substr || need_trim || need_lower || need_upper || need_replace || need_split ||
             need_char_at ||
             module_has_opcode(mod, OP_PUSH_STR) ||
             module_has_opcode(mod, OP_STR_LEN);
@@ -3304,7 +3368,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_print || need_cast) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
-        if (need_concat || need_cast || need_cast_int || need_substr || need_trim || need_replace ||
+        if (need_concat || need_cast || need_cast_int || need_substr || need_trim || need_lower ||
+            need_upper || need_replace ||
             need_split || need_arr_lit || need_arr_get ||
             need_arr_push || need_arr_set || need_iarr_new || need_sarr_new || need_rarr_new ||
             need_agg_get || need_nested || need_assert || need_hm_new || need_hm_set || need_hm_has ||
@@ -3344,11 +3409,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             NVM2C_HM_CAP, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS,
             NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
         if (need_nested) emit_nrec_store(&b);
-        if (need_concat || need_cast || need_substr || need_replace || need_host_copy) emit_nstr_arena(&b);
+        if (need_concat || need_cast || need_substr || need_replace || need_lower || need_upper ||
+            need_host_copy) emit_nstr_arena(&b);
         if (need_host_copy) emit_nstr_copy(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_trim) emit_nstr_trim(&b);
+        if (need_lower) emit_nstr_to_lower(&b);
+        if (need_upper) emit_nstr_to_upper(&b);
         if (need_replace) emit_nstr_replace(&b);
         if (need_char_at) emit_nstr_char_at(&b);
         if (need_starts) emit_nstr_starts_with(&b);

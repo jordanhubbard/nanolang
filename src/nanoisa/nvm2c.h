@@ -32,7 +32,8 @@
  * Cut A host CALL_EXTERN maps to a declared C ABI (getcwd, getenv,
  * tmp_dir, system, string_from_char, get_argc, get_argv) rather than
  * a co-process client. Unknown imports stay refused.
- * STR_TRIM, STR_REPLACE, and STR_SPLIT (array<string>) run as native C.
+ * STR_TRIM, STR_REPLACE, STR_SPLIT (array<string>), STR_TO_LOWER, and
+ * STR_TO_UPPER run as native C.
  * Anything else is refused with an error.
  * CALL_EXTERN of an unmapped import is refused because it is the VM FFI /
  * co-process path, not a host C ABI. Embedded NULs, nested arrays, variants, tuples,

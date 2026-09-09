@@ -1547,6 +1547,11 @@ Compiler product:
       `STR_TO_LOWER` / `STR_TO_UPPER` are not this pin. I still
       pretty-print C to build the compiler.
       `make test-nanoisa-src-nano` (282 passed).
+- [x] Cut A str_to_lower/str_to_upper: `lowered` / `via_low`
+      (`STR_TO_LOWER`) and `raised` / `via_up` (`STR_TO_UPPER`)
+      match the C seed. ASCII A–Z / a–z. I still pretty-print C
+      to build the compiler.
+      `make test-nanoisa-src-nano` (290 passed).
 - [ ] Cut A remaining named refuses: `nanoc_v04.nano` names
       `undefined module function Math.add` (that file has no
       `import` of `Math`). `compiler_simple.nano` names
@@ -1582,6 +1587,10 @@ Compiler product:
       `parts` length is 2, empty-needle replace is unchanged, empty
       delimiter splits into characters. `STR_TO_LOWER` / `STR_TO_UPPER`
       stay refused. `make test-nvm2c` (570 passed).
+- [x] `nvm2c` translates Cut A `STR_TO_LOWER` and `STR_TO_UPPER`.
+      `lowered("Hi")` equals `"hi"`. `raised("Hi")` equals `"HI"`.
+      ASCII A–Z / a–z. I do not link `nano_vm`.
+      `make test-nvm2c` (582 passed).
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
       in 5.0 documentation or CLI defaults.
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
@@ -1748,6 +1757,10 @@ Compiler product:
       equals `"xb"`. `parts("a,b")` length is 2. Empty-needle replace is
       unchanged. `STR_TO_LOWER` / `STR_TO_UPPER` stay refused.
       `make test-nvm2c` (570 passed).
+- [x] `nvm2c` translates Cut A `STR_TO_LOWER` and `STR_TO_UPPER`
+      without `nano_vm`. `lowered("Hi")` equals `"hi"`.
+      `raised("Hi")` equals `"HI"`.
+      `make test-nvm2c` (582 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

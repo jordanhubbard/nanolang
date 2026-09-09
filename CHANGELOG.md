@@ -237,8 +237,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   exit 0. Unmapped imports stay refused. Cut A `STR_TRIM` /
   `STR_REPLACE` / `STR_SPLIT` run as native C: `clipped` /
   `via_trim` / `swapped` / `via_repl` match, `parts` length is 2.
-  `STR_TO_LOWER` / `STR_TO_UPPER` stay refused.
-  `make test-nvm2c` (570 passed). `make test-nanoisa-src-nano` (282 passed).
+  Cut A `STR_TO_LOWER` / `STR_TO_UPPER` run as native C:
+  `lowered("Hi")` equals `"hi"`, `raised("Hi")` equals `"HI"`.
+  ASCII A–Z / a–z. Tuples stay refused.
+  `make test-nvm2c` (582 passed). `make test-nanoisa-src-nano` (290 passed).
 
 ## [4.5.0] - 2026-09-07
 

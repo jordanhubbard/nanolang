@@ -328,6 +328,38 @@ shadow via_parts {
     assert (== (via_parts) 2)
 }
 
+fn lowered(s: string) -> string {
+    return (str_to_lower s)
+}
+
+shadow lowered {
+    assert (== (lowered "Hi") "hi")
+}
+
+fn via_low() -> bool {
+    return (== (lowered "Hi") "hi")
+}
+
+shadow via_low {
+    assert (via_low)
+}
+
+fn raised(s: string) -> string {
+    return (str_to_upper s)
+}
+
+shadow raised {
+    assert (== (raised "Hi") "HI")
+}
+
+fn via_up() -> bool {
+    return (== (raised "Hi") "HI")
+}
+
+shadow via_up {
+    assert (via_up)
+}
+
 fn blank_l() -> int {
     let xs: List<int> = (list_int_new)
     return (list_int_length xs)
