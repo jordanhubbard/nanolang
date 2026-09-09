@@ -2933,6 +2933,161 @@ static void test_via_g_set_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* via_blank_hm: HM_NEW then map_has "k" is false. */
+static void test_via_blank_hm_runs_without_nano_vm(void) {
+    const char *src =
+        ".string k \"k\"\n"
+        ".entry 2\n"
+        ".function blank_hm 0 0 0 hashmap 1\n"
+        "  HM_NEW 5 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function via_blank_hm 0 1 0 int 1\n"
+        "  CALL blank_hm\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR k\n"
+        "  HM_HAS\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_blank_hm\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_blank_hm fixture");
+    CHECK(m != NULL, "via_blank_hm fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_blank_hm");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_blank_hm C does not name nano_vm");
+    CHECK(strstr(c, "nhm_new") != NULL, "via_blank_hm C allocates a hashmap");
+    CHECK(strstr(c, "nhm_has") != NULL, "via_blank_hm C tests membership");
+    CHECK(strstr(c, "HM_NEW") == NULL, "via_blank_hm C does not name HM_NEW");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_blank_hm C compiles and runs");
+    CHECK(status == 0, "via_blank_hm() exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* via_put_hm: HM_SET then POP, then map_has "k" is true. */
+static void test_via_put_hm_runs_without_nano_vm(void) {
+    const char *src =
+        ".string k \"k\"\n"
+        ".string v \"v\"\n"
+        ".entry 2\n"
+        ".function put_hm 0 1 0 hashmap 1\n"
+        "  HM_NEW 5 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR k\n"
+        "  PUSH_STR v\n"
+        "  HM_SET\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function via_put_hm 0 1 0 int 1\n"
+        "  CALL put_hm\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR k\n"
+        "  HM_HAS\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_put_hm\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_put_hm fixture");
+    CHECK(m != NULL, "via_put_hm fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_put_hm");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_put_hm C does not name nano_vm");
+    CHECK(strstr(c, "nhm_set") != NULL, "via_put_hm C mutates the map in place");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_put_hm C compiles and runs");
+    CHECK(status == 1, "via_put_hm() exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* via_hm: BagHM packs an HM field then GET of the int field. */
+static void test_via_hm_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 2\n"
+        ".function origin_hm 0 0 0 struct 1\n"
+        "  HM_NEW 5 1\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function via_hm 0 1 0 int 1\n"
+        "  CALL origin_hm\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_hm\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_hm fixture");
+    CHECK(m != NULL, "via_hm fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_hm");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_hm C does not name nano_vm");
+    CHECK(strstr(c, "nhm_new") != NULL, "via_hm C packs a hashmap field");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_hm C compiles and runs");
+    CHECK(status == 1, "via_hm() exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_hm_get_is_refused(void) {
+    const char *src =
+        ".string k \"k\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  HM_NEW 5 1\n"
+        "  PUSH_STR k\n"
+        "  HM_GET\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "HM_GET fixture");
+    CHECK(m != NULL, "HM_GET fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "HM_GET stays outside the Cut A nvm2c subset");
+    CHECK(strstr(err, "HM_GET") != NULL, "error names HM_GET");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_cast_int_array_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -3194,6 +3349,10 @@ int main(int argc, char **argv) {
     test_via_nest_runs_without_nano_vm();
     test_via_g_len_runs_without_nano_vm();
     test_via_g_set_runs_without_nano_vm();
+    test_via_blank_hm_runs_without_nano_vm();
+    test_via_put_hm_runs_without_nano_vm();
+    test_via_hm_runs_without_nano_vm();
+    test_hm_get_is_refused();
     test_cast_int_array_is_refused();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {

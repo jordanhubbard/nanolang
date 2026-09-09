@@ -1719,8 +1719,13 @@ Compiler product:
       is `ARR_LITERAL 5 0`; mixed int-tagged empty and string stores to
       one global stay refused.
       `make test-nvm2c` (471 passed).
-- [ ] `nvm2c` translates Cut A `HM_*` (`map_new` as `HM_NEW`) or I
-      refuse the module honestly.
+- [x] `nvm2c` translates Cut A `HM_*` (`map_new` as `HM_NEW`).
+      `HM_NEW` / `HM_SET` / `HM_HAS` run as native C: `via_blank_hm`
+      exits 0, `via_put_hm` exits 1, `via_hm` (HashMap record field)
+      exits 1. Statement `map_put` is `HM_SET` then `POP`; the C
+      helper mutates in place. `HM_GET`, `HM_DELETE`, `HM_KEYS`,
+      `HM_VALUES`, and `HM_LEN` stay refused.
+      `make test-nvm2c` (494 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

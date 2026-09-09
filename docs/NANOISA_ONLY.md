@@ -338,7 +338,8 @@ fields), and Cut A interned string escapes (`quoted` / `via_quoted` match
 the C seed; `"a\"b"` is `.string` with `\"`), and Cut A bool `==` as `EQ`
 (`flag_is_ok` / `via_flag_is_ok` match the C seed). `typecheck.nano`
 emits 401 functions and that nasm assembles; `nano_vm` exits 0. `nvm2c`
-still names `CALL_EXTERN`. Cut A `array_new` (`blank_a` / `via_blank_a`
+still names `CALL_EXTERN`. `nvm2c` runs Cut A HashMap without `nano_vm`
+(`via_blank_hm` exits 0, `via_put_hm` / `via_hm` exit 1). Cut A `array_new` (`blank_a` / `via_blank_a`
 match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `str_substring` concat (`via_substr_concat`) and `EQ` of `at` of
 `array<string>` (`via_at_eq`), and Cut A host `getenv` (`via_env` is
@@ -375,8 +376,8 @@ Nested arrays,
 `AGG_SET`, tuples, array
 equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
-compiler subset (host ABI, `nvm2c` of `CALL_EXTERN`
-/ `HM_*`, and the remaining string library) is still open. A pinned
+compiler subset (host ABI, `nvm2c` of `CALL_EXTERN`,
+and the remaining string library) is still open. A pinned
 suite must match on `nano_vm` and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`

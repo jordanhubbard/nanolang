@@ -27,11 +27,13 @@
  * and pin-record results as nrec_t (CALL/RET of TAG_STRUCT, including
  * mixed int/string fields whose kinds come from the callee),
  * nested pin records, LOAD_GLOBAL/STORE_GLOBAL with void __init__,
- * and array results as narr_t / nsarr_t / nrarr_t.
+ * array results as narr_t / nsarr_t / nrarr_t, and Cut A HashMap
+ * (HM_NEW / HM_SET / HM_HAS, hashmap results, hashmap record fields).
  * Anything else is refused with an error.
  * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
  * host C ABI. Embedded NULs, nested arrays, variants, tuples,
- * printing arrays/records, array equality, STR_TRIM, and the rest of the
+ * printing arrays/records, array equality, STR_TRIM, HM_GET / HM_DELETE /
+ * HM_KEYS / HM_VALUES / HM_LEN, and the rest of the
  * string and array libraries stay refused. Nested pin records (a record
  * field that is itself a pin record of int/string) are in.
  */
