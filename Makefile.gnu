@@ -513,6 +513,52 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 		-o /tmp/nanolang_cut_a_emit.nvm
 	@test -s /tmp/nanolang_cut_a_emit.nvm
 
+	@echo "Checking parser.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/parser.nano \
+		-o /tmp/nanolang_cut_a_parser.nasm
+	@test -s /tmp/nanolang_cut_a_parser.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_parser.nasm >/dev/null
+	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_parser.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_parser.nasm \
+		-o /tmp/nanolang_cut_a_parser.nvm
+	@test -s /tmp/nanolang_cut_a_parser.nvm
+	@echo "Checking compiler.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler.nano \
+		-o /tmp/nanolang_cut_a_compiler.nasm
+	@test -s /tmp/nanolang_cut_a_compiler.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_compiler.nasm >/dev/null
+	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_compiler.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_compiler.nasm \
+		-o /tmp/nanolang_cut_a_compiler.nvm
+	@test -s /tmp/nanolang_cut_a_compiler.nvm
+	@echo "Checking nanoc.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/nanoc.nano \
+		-o /tmp/nanolang_cut_a_nanoc.nasm
+	@test -s /tmp/nanolang_cut_a_nanoc.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_nanoc.nasm >/dev/null
+	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_nanoc.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_nanoc.nasm \
+		-o /tmp/nanolang_cut_a_nanoc.nvm
+	@test -s /tmp/nanolang_cut_a_nanoc.nvm
+	@echo "Checking cli_args.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/cli_args.nano \
+		-o /tmp/nanolang_cut_a_cli_args.nasm
+	@test -s /tmp/nanolang_cut_a_cli_args.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_cli_args.nasm >/dev/null
+	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_cli_args.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_cli_args.nasm \
+		-o /tmp/nanolang_cut_a_cli_args.nvm
+	@test -s /tmp/nanolang_cut_a_cli_args.nvm
+	@echo "Checking compiler_modular.nano emits and assembles..."
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler_modular.nano \
+		-o /tmp/nanolang_cut_a_compiler_modular.nasm
+	@test -s /tmp/nanolang_cut_a_compiler_modular.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_compiler_modular.nasm >/dev/null
+	@if grep -F "I refused that program:" /tmp/nanolang_cut_a_compiler_modular.nasm >/dev/null; then exit 1; fi
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_compiler_modular.nasm \
+		-o /tmp/nanolang_cut_a_compiler_modular.nvm
+	@test -s /tmp/nanolang_cut_a_compiler_modular.nvm
+
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
 	$(CC) $(CFLAGS) -o bin/nanoisa $(NANOISA_DUMP_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)

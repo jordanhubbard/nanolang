@@ -1147,3 +1147,57 @@ fn via_cont() -> int {
 shadow via_cont {
     assert (== (via_cont) 8)
 }
+
+fn via_sys() -> int {
+    unsafe {
+        return (system "true")
+    }
+}
+
+shadow via_sys {
+    assert (== (via_sys) 0)
+}
+
+fn via_argc() -> int {
+    unsafe {
+        return (get_argc)
+    }
+}
+
+shadow via_argc {
+    assert (>= (via_argc) 0)
+}
+
+fn via_argv() -> string {
+    unsafe {
+        return (get_argv 0)
+    }
+}
+
+shadow via_argv {
+    assert (>= (str_length (via_argv)) 0)
+}
+
+struct VecF {
+    x: float,
+    y: float
+}
+
+fn origin_f() -> VecF {
+    return VecF { x: 0.0, y: 1.0 }
+}
+
+shadow origin_f {
+    let v: VecF = (origin_f)
+    assert (== v.x 0.0)
+    assert (== v.y 1.0)
+}
+
+fn via_vec() -> float {
+    let v: VecF = (origin_f)
+    return (+ v.x v.y)
+}
+
+shadow via_vec {
+    assert (== (via_vec) 1.0)
+}

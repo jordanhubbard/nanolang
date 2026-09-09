@@ -169,7 +169,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     if verbose {
         (println "Parsing...")
     }
-    let parse_output: ParsePhaseOutput = (Parser.parse_phase_run lex_output)
+    let parse_output: ParsePhaseOutput = (Parser.parse_phase_run lex_output input)
     let parser_state: Parser = parse_output.parser
     if verbose {
         (print "  Functions: ")
@@ -183,7 +183,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     if verbose {
         (println "NSType checking...")
     }
-    let type_output: TypecheckPhaseOutput = (TypeCheck.typecheck_phase parser_state)
+    let type_output: TypecheckPhaseOutput = (TypeCheck.typecheck_phase parser_state input)
     if verbose {
         (println "  NSType check complete")
     }
@@ -196,7 +196,7 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
         (println "Generating C code...")
     }
     let c_file: string = (+ output ".c")
-    let transpile_output: TranspilePhaseOutput = (Transpile.transpile_phase parser_state c_file)
+    let transpile_output: TranspilePhaseOutput = (Transpile.transpile_phase parser_state c_file input)
     if (phase_failed "Transpiler" transpile_output.had_error transpile_output.diagnostics) {
         return 1
     }
@@ -247,6 +247,10 @@ fn compile_file(input: string, output: string, keep_c: bool, verbose: bool) -> i
     }
     
     return 0
+}
+
+shadow compile_file {
+    assert true
 }
 
 fn main() -> int {

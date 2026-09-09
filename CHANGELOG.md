@@ -120,12 +120,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `vm_file_exists`. `file_io.nano` emits 3 functions and that nasm
   assembles. Bare void `return` is `RET` (`via_bare`).
   `break` / `continue` are `JMP` to the innermost loop end / top
-  (`via_brk` / `via_cont`). `make test-nanoisa-src-nano` (240 passed).
-  `nanoisa_codegen.nano` emits 397 functions and that nasm assembles.
-  `nanoisa_emit.nano` emits 398 functions and that nasm assembles.
-  `parser.nano` emits 302 functions.
-  `nanoc_integrated.nano` names `unsupported result type Vector2D`.
-  Compiler drivers name `system` and `get_argc`.
+  (`via_brk` / `via_cont`). Host `system` / `get_argc` / `get_argv`
+  (`via_sys` / `via_argc` / `via_argv`). Float-field records
+  (`origin_f` / `via_vec`; `PUSH_F64` / `F64_ADD`).
+  `make test-nanoisa-src-nano` (250 passed).
+  `nanoisa_codegen.nano` emits the pinned subset and that nasm
+  assembles. `nanoisa_emit.nano` and `parser.nano` assemble.
+  `compiler.nano`, `nanoc.nano`, and `cli_args.nano` emit and
+  assemble. `compiler_modular.nano` emits 563 functions and that nasm
+  assembles. `nanoisa_codegen.nano` emits 401. `nanoisa_emit.nano`
+  emits 402. `nanoc_integrated.nano` names `undefined function sqrt`.
+  `driver.nano` names `unsupported result type ResultArgs`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

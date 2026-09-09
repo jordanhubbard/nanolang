@@ -1545,23 +1545,33 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
 
     /* OS/IO builtins - map nanolang names to vm_* C functions */
     {
-        static const struct { const char *nano_name; const char *c_name; int arity; uint8_t ret_tag; } os_builtins[] = {
-            {"getcwd",     "vm_getcwd",      0, TAG_STRING},
-            {"chdir",      "vm_chdir",       1, TAG_INT},
-            {"file_read",  "vm_file_read",   1, TAG_STRING},
-            {"file_write", "vm_file_write",  2, TAG_INT},
-            {"file_exists","vm_file_exists",  1, TAG_BOOL},
-            {"dir_exists", "vm_dir_exists",   1, TAG_BOOL},
-            {"dir_create", "vm_dir_create",   1, TAG_INT},
-            {"dir_list",   "vm_dir_list",     1, TAG_ARRAY},
-            {"tmp_dir",    "vm_tmp_dir",      0, TAG_STRING},
-            {"mktemp",     "vm_mktemp",       1, TAG_STRING},
-            {"mktemp_dir", "vm_mktemp_dir",   1, TAG_STRING},
-            {"getenv",     "vm_getenv",       1, TAG_STRING},
-            {"setenv",     "vm_setenv",       2, TAG_INT},
-            {"str_index_of","vm_str_index_of",2, TAG_INT},
-            {"process_run","vm_process_run",  1, TAG_ARRAY},
-            {NULL, NULL, 0, 0}
+        static const struct {
+            const char *nano_name;
+            const char *c_name;
+            int arity;
+            uint8_t ret_tag;
+            uint8_t ptag0;
+            uint8_t ptag1;
+        } os_builtins[] = {
+            {"getcwd",     "vm_getcwd",      0, TAG_STRING, 0, 0},
+            {"chdir",      "vm_chdir",       1, TAG_INT, TAG_STRING, 0},
+            {"file_read",  "vm_file_read",   1, TAG_STRING, TAG_STRING, 0},
+            {"file_write", "vm_file_write",  2, TAG_INT, TAG_STRING, TAG_STRING},
+            {"file_exists","vm_file_exists",  1, TAG_BOOL, TAG_STRING, 0},
+            {"dir_exists", "vm_dir_exists",   1, TAG_BOOL, TAG_STRING, 0},
+            {"dir_create", "vm_dir_create",   1, TAG_INT, TAG_STRING, 0},
+            {"dir_list",   "vm_dir_list",     1, TAG_ARRAY, TAG_STRING, 0},
+            {"tmp_dir",    "vm_tmp_dir",      0, TAG_STRING, 0, 0},
+            {"mktemp",     "vm_mktemp",       1, TAG_STRING, TAG_STRING, 0},
+            {"mktemp_dir", "vm_mktemp_dir",   1, TAG_STRING, TAG_STRING, 0},
+            {"getenv",     "vm_getenv",       1, TAG_STRING, TAG_STRING, 0},
+            {"setenv",     "vm_setenv",       2, TAG_INT, TAG_STRING, TAG_STRING},
+            {"str_index_of","vm_str_index_of",2, TAG_INT, TAG_STRING, TAG_STRING},
+            {"process_run","vm_process_run",  1, TAG_ARRAY, TAG_STRING, 0},
+            {"system",     "vm_system",       1, TAG_INT, TAG_STRING, 0},
+            {"get_argc",   "get_argc",        0, TAG_INT, 0, 0},
+            {"get_argv",   "get_argv",        1, TAG_STRING, TAG_INT, 0},
+            {NULL, NULL, 0, 0, 0, 0}
         };
         for (int bi = 0; os_builtins[bi].nano_name; bi++) {
             if (strcmp(name, os_builtins[bi].nano_name) == 0 &&
@@ -1570,7 +1580,11 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
                 /* Register the C function name as extern */
                 int32_t ext_idx = extern_find(cg, os_builtins[bi].c_name);
                 if (ext_idx < 0) {
-                    uint8_t ptags[4] = {TAG_STRING, TAG_STRING, TAG_STRING, TAG_STRING};
+                    uint8_t ptags[4] = {
+                        os_builtins[bi].ptag0,
+                        os_builtins[bi].ptag1,
+                        0, 0
+                    };
                     register_extern(cg, os_builtins[bi].c_name, "",
                                    (uint16_t)os_builtins[bi].arity,
                                    os_builtins[bi].ret_tag, ptags);

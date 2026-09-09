@@ -4672,7 +4672,7 @@ static const char *builtin_function_names[] = {
     /* Higher-order array functions */
     "map", "reduce",
     /* OS */
-    "getcwd", "getenv", "exit",
+    "getcwd", "getenv", "exit", "get_argc", "get_argv",
     /* File I/O (stdlib functions) */
     "file_read", "file_read_bytes", "file_write", "file_append", "file_remove", "file_rename",
     "file_exists", "file_size",
@@ -5229,6 +5229,40 @@ static void register_builtin_functions(Environment *env) {
     func.params = NULL;
     func.param_count = 1;
     func.return_type = TYPE_ARRAY;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* system(command: string) -> int
+     * Registered so bytecode/VM programs lower (system cmd) to vm_system. */
+    func.name = "system";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    /* get_argc() -> int / get_argv(index: int) -> string
+     * Same host ABI as runtime/cli.c and eval.c. */
+    func.name = "get_argc";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "get_argv";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_STRING;
     func.return_type_info = NULL;
     func.body = NULL;
     func.shadow_test = NULL;

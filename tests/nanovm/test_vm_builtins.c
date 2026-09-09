@@ -172,6 +172,13 @@ static void test_vm_bstr_utf8(void) {
     PASS(test_name);
 }
 
+static void test_vm_system(void) {
+    const char *test_name = "vm_system: true exits 0";
+    int64_t rc = vm_system("true");
+    ASSERT(rc == 0, "true should exit 0");
+    PASS(test_name);
+}
+
 static void test_vm_process_run(void) {
     const char *test_name = "vm_process_run: echo command";
     DynArray *result = vm_process_run("echo hello");
@@ -208,6 +215,7 @@ int main(void) {
     test_vm_bytes_roundtrip();
     test_vm_bstr_utf8();
     test_vm_process_run();
+    test_vm_system();
     test_vm_file_write_null();
 
     printf("\n");

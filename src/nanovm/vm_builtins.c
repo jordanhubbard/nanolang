@@ -312,3 +312,8 @@ DynArray *vm_process_run(const char *cmd) {
     free(stderr_content);
     return result;
 }
+
+int64_t vm_system(const char *cmd) {
+    if (!cmd) return -1;
+    return (int64_t)system(cmd);
+}

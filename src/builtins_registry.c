@@ -202,6 +202,8 @@ const BuiltinEntry builtin_registry[] = {
     {"path_dirname",    "nl_os_path_dirname",  1, {S,U,U,U}, S, OP_NOP, BUILTIN_PURE | BUILTIN_FFI},
     {"path_normalize",  "nl_os_path_normalize",1, {S,U,U,U}, S, OP_NOP, BUILTIN_PURE | BUILTIN_FFI},
     {"system",          "nl_os_system",      1, {S,U,U,U}, I, OP_NOP, BUILTIN_IO | BUILTIN_FFI},
+    {"get_argc",        "get_argc",          0, {U,U,U,U}, I, OP_NOP, BUILTIN_IO | BUILTIN_FFI},
+    {"get_argv",        "get_argv",          1, {I,U,U,U}, S, OP_NOP, BUILTIN_IO | BUILTIN_FFI},
     {"exit",            "nl_os_exit",        1, {I,U,U,U}, V, OP_NOP, BUILTIN_IO | BUILTIN_FFI},
     {"getenv",          "nl_os_getenv",      1, {S,U,U,U}, S, OP_NOP, BUILTIN_IO | BUILTIN_FFI},
     {"setenv",          "nl_os_setenv",      2, {S,S,U,U}, I, OP_NOP, BUILTIN_IO | BUILTIN_FFI},

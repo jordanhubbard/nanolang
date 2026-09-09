@@ -1476,11 +1476,33 @@ Compiler product:
 - [x] `nanoisa_codegen.nano` emits 397 functions and that nasm
       assembles. `nanoisa_emit.nano` emits 398 functions and that nasm
       assembles. `parser.nano` emits 302 functions.
-- [ ] Cut A `nanoc_integrated.nano` names `unsupported result type
-      Vector2D`. `compiler_modular.nano` names `system`. Compiler
-      drivers name `get_argc`. `driver.nano` names `unsupported result
-      type ResultArgs`. `nvm2c` still names `LOAD_GLOBAL` and
-      `CALL_EXTERN`. I still pretty-print C to build the compiler.
+- [x] Cut A host `system` / `get_argc` / `get_argv`: `via_sys` /
+      `via_argc` / `via_argv` match the C seed (`CALL_EXTERN`
+      `vm_system` / `get_argc` / `get_argv`). `get_argv` takes an
+      `int`. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (246 passed).
+- [x] Cut A float leaves: `origin_f` / `via_vec` match the C seed
+      (`PUSH_F64`, float-field `AGG_PACK`/`AGG_GET`, `F64_ADD`).
+      A pin record may have `float` fields. `Vector2D` is that
+      record. `make test-nanoisa-src-nano` (250 passed).
+      I still pretty-print C to build the compiler.
+- [x] Cut A CALL arity: I refuse `wrong arity name` at emit when the
+      call-site argument count does not match the callee. I do not
+      emit a `CALL` the verifier would reject. `compiler_modular.nano`
+      passes `input` into `parse_phase_run` / `typecheck_phase` /
+      `transpile_phase`. `compiler_modular.nano` emits 563 functions
+      and that nasm assembles.
+- [x] `nanoisa_codegen.nano` emits 401 functions and that nasm
+      assembles. `nanoisa_emit.nano` emits 402. `parser.nano` emits
+      302. `compiler.nano` emits 7. `nanoc.nano` emits 2.
+      `cli_args.nano` emits 1.
+- [ ] Cut A remaining compiler files: `nanoc_integrated.nano` names
+      `undefined function sqrt`. `driver.nano` names
+      `unsupported result type ResultArgs` (a union).
+      `nanoc_v04.nano` names `undefined module function Math.add`.
+      `nanoc_v06.nano` names `unsupported result type CollectResult`.
+      `nvm2c` still names `LOAD_GLOBAL` and `CALL_EXTERN`. I still
+      pretty-print C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the

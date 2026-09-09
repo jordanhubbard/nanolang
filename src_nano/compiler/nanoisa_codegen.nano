@@ -435,6 +435,59 @@ shadow nisa_binop_mnemonic {
     assert (== (nisa_binop_mnemonic 0) "")
 }
 
+fn nisa_f64_binop_mnemonic(op: int) -> string {
+    if (== op LexerTokenType.TOKEN_PLUS) {
+        return "F64_ADD"
+    } else {
+        if (== op LexerTokenType.TOKEN_MINUS) {
+            return "F64_SUB"
+        } else {
+            if (== op LexerTokenType.TOKEN_STAR) {
+                return "F64_MUL"
+            } else {
+                if (== op LexerTokenType.TOKEN_SLASH) {
+                    return "F64_DIV"
+                } else {
+                    if (== op LexerTokenType.TOKEN_EQ) {
+                        return "F64_EQ"
+                    } else {
+                        if (== op LexerTokenType.TOKEN_NE) {
+                            return "F64_NE"
+                        } else {
+                            if (== op LexerTokenType.TOKEN_LT) {
+                                return "F64_LT"
+                            } else {
+                                if (== op LexerTokenType.TOKEN_LE) {
+                                    return "F64_LE"
+                                } else {
+                                    if (== op LexerTokenType.TOKEN_GT) {
+                                        return "F64_GT"
+                                    } else {
+                                        if (== op LexerTokenType.TOKEN_GE) {
+                                            return "F64_GE"
+                                        } else {
+                                            return ""
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_f64_binop_mnemonic {
+    assert (== (nisa_f64_binop_mnemonic LexerTokenType.TOKEN_PLUS) "F64_ADD")
+    assert (== (nisa_f64_binop_mnemonic LexerTokenType.TOKEN_STAR) "F64_MUL")
+    assert (== (nisa_f64_binop_mnemonic LexerTokenType.TOKEN_EQ) "F64_EQ")
+    assert (== (nisa_f64_binop_mnemonic LexerTokenType.TOKEN_GE) "F64_GE")
+    assert (== (nisa_f64_binop_mnemonic LexerTokenType.TOKEN_PERCENT) "")
+    assert (== (nisa_f64_binop_mnemonic 0) "")
+}
+
 fn nisa_line(op: string) -> string {
     return (+ (+ "  " op) "\n")
 }
@@ -461,12 +514,16 @@ fn nisa_local_type_ok(t: string) -> bool {
             if (== t "bool") {
                 return true
             } else {
+                if (== t "float") {
+                    return true
+                } else {
                 return (or (== t "array<int>")
                            (or (== t "array<string>")
                                (or (== t "array<bool>")
                                    (or (== t "List<int>")
                                        (or (== t "list_int")
                                            (or (== t "List<string>") (== t "list_string")))))))
+                }
             }
         }
     }
@@ -476,6 +533,7 @@ shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "int")
     assert (nisa_local_type_ok "string")
     assert (nisa_local_type_ok "bool")
+    assert (nisa_local_type_ok "float")
     assert (nisa_local_type_ok "array<int>")
     assert (nisa_local_type_ok "array<string>")
     assert (nisa_local_type_ok "array<bool>")
@@ -1025,7 +1083,7 @@ fn nisa_is_leaf_record(parser: Parser, name: string) -> bool {
         let mut i: int = 0
         while (< i s.field_count) {
             let ft: string = (at s.field_types i)
-            if (and (!= ft "int") (and (!= ft "string") (!= ft "bool"))) {
+            if (and (!= ft "int") (and (!= ft "string") (and (!= ft "bool") (!= ft "float")))) {
                 return false
             } else {
                 set i (+ i 1)
@@ -1038,11 +1096,12 @@ fn nisa_is_leaf_record(parser: Parser, name: string) -> bool {
 shadow nisa_is_leaf_record {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Loc { file: string, line: int } struct Flag { ok: bool } struct Diag { code: string, location: Loc } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Loc { file: string, line: int } struct Flag { ok: bool } struct VecF { x: float, y: float } struct Diag { code: string, location: Loc } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_leaf_record p "Loc")
     assert (nisa_is_leaf_record p "Flag")
+    assert (nisa_is_leaf_record p "VecF")
     assert (not (nisa_is_leaf_record p "Diag"))
     assert (not (nisa_is_leaf_record p "Nope"))
 }
@@ -1084,7 +1143,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
         let mut i: int = 0
         while (< i s.field_count) {
             let ft: string = (at s.field_types i)
-            if (or (== ft "int") (or (== ft "string") (== ft "bool"))) {
+            if (or (== ft "int") (or (== ft "string") (or (== ft "bool") (== ft "float")))) {
                 set i (+ i 1)
             } else {
                 if (nisa_local_type_ok ft) {
@@ -1114,7 +1173,7 @@ fn nisa_is_pin_record(parser: Parser, name: string) -> bool {
 shadow nisa_is_pin_record {
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
-    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct Bag { xs: List<int> } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
+    let src: string = (+ "struct Point { x: int, y: int } struct Tok { t: int, s: string } struct Loc { file: string, line: int } struct Diag { code: string, location: Loc } struct Flag { ok: bool } struct VecF { x: float, y: float } struct Bag { xs: List<int> } struct FlagBag { flags: array<bool>, name: string } struct TypeRec { kind: int, name: string } struct Sym { name: string, ty: TypeRec, args: array<TypeRec> } " (+ "f" "n getx() -> int { return 0 } shadow getx { assert true }"))
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_is_pin_record p "Point")
@@ -1122,6 +1181,7 @@ shadow nisa_is_pin_record {
     assert (nisa_is_pin_record p "Loc")
     assert (nisa_is_pin_record p "Diag")
     assert (nisa_is_pin_record p "Flag")
+    assert (nisa_is_pin_record p "VecF")
     assert (nisa_is_pin_record p "Bag")
     assert (nisa_is_pin_record p "FlagBag")
     assert (nisa_is_pin_record p "TypeRec")
@@ -1200,6 +1260,7 @@ shadow nisa_type_ok {
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (nisa_type_ok p "int")
+    assert (nisa_type_ok p "float")
     assert (nisa_type_ok p "Point")
     assert (nisa_type_ok p "Tok")
     assert (nisa_type_ok p "List<Tok>")
@@ -1380,6 +1441,35 @@ shadow nisa_fn_is_void {
     assert (not (nisa_fn_is_void p "nope"))
 }
 
+fn nisa_check_arity(parser: Parser, name: string, argc: int) -> string {
+    let idx: int = (nisa_fn_index parser name)
+    if (< idx 0) {
+        return ""
+    } else {
+        let fd: ASTFunction = (parser_get_function parser idx)
+        if (!= argc fd.param_count) {
+            return (nisa_fail (+ "wrong arity " name))
+        } else {
+            return ""
+        }
+    }
+}
+
+shadow nisa_check_arity {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_check_arity p "add" 2) "")
+    assert nisa_ok
+    let bad: string = (nisa_check_arity p "add" 1)
+    assert (== bad "")
+    assert (not nisa_ok)
+    assert (== nisa_err "wrong arity add")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_os_sym(name: string) -> string {
     if (== name "getcwd") {
         return "vm_getcwd"
@@ -1426,6 +1516,15 @@ fn nisa_os_sym(name: string) -> string {
     if (== name "process_run") {
         return "vm_process_run"
     }
+    if (== name "system") {
+        return "vm_system"
+    }
+    if (== name "get_argc") {
+        return "get_argc"
+    }
+    if (== name "get_argv") {
+        return "get_argv"
+    }
     return ""
 }
 
@@ -1436,6 +1535,9 @@ shadow nisa_os_sym {
     assert (== (nisa_os_sym "file_write") "vm_file_write")
     assert (== (nisa_os_sym "file_exists") "vm_file_exists")
     assert (== (nisa_os_sym "tmp_dir") "vm_tmp_dir")
+    assert (== (nisa_os_sym "system") "vm_system")
+    assert (== (nisa_os_sym "get_argc") "get_argc")
+    assert (== (nisa_os_sym "get_argv") "get_argv")
     assert (== (nisa_os_sym "add") "")
 }
 
@@ -1444,6 +1546,9 @@ fn nisa_os_arity(name: string) -> int {
         return 0
     }
     if (== name "tmp_dir") {
+        return 0
+    }
+    if (== name "get_argc") {
         return 0
     }
     if (== name "chdir") {
@@ -1476,6 +1581,12 @@ fn nisa_os_arity(name: string) -> int {
     if (== name "process_run") {
         return 1
     }
+    if (== name "system") {
+        return 1
+    }
+    if (== name "get_argv") {
+        return 1
+    }
     if (== name "file_write") {
         return 2
     }
@@ -1491,6 +1602,9 @@ fn nisa_os_arity(name: string) -> int {
 shadow nisa_os_arity {
     assert (== (nisa_os_arity "getcwd") 0)
     assert (== (nisa_os_arity "tmp_dir") 0)
+    assert (== (nisa_os_arity "get_argc") 0)
+    assert (== (nisa_os_arity "system") 1)
+    assert (== (nisa_os_arity "get_argv") 1)
     assert (== (nisa_os_arity "getenv") 1)
     assert (== (nisa_os_arity "file_read") 1)
     assert (== (nisa_os_arity "file_exists") 1)
@@ -1544,6 +1658,15 @@ fn nisa_os_ret(name: string) -> string {
     if (== name "process_run") {
         return "array"
     }
+    if (== name "system") {
+        return "int"
+    }
+    if (== name "get_argc") {
+        return "int"
+    }
+    if (== name "get_argv") {
+        return "string"
+    }
     return ""
 }
 
@@ -1554,6 +1677,9 @@ shadow nisa_os_ret {
     assert (== (nisa_os_ret "getenv") "string")
     assert (== (nisa_os_ret "file_exists") "bool")
     assert (== (nisa_os_ret "file_write") "int")
+    assert (== (nisa_os_ret "system") "int")
+    assert (== (nisa_os_ret "get_argc") "int")
+    assert (== (nisa_os_ret "get_argv") "string")
     assert (== (nisa_os_ret "add") "")
 }
 
@@ -1575,6 +1701,22 @@ shadow nisa_os_params {
     assert (== (nisa_os_params 1) "string")
     assert (== (nisa_os_params 2) "string string")
     assert (== (nisa_os_params 3) "")
+}
+
+fn nisa_os_param_tags(name: string) -> string {
+    if (== name "get_argv") {
+        return "int"
+    } else {
+        return (nisa_os_params (nisa_os_arity name))
+    }
+}
+
+shadow nisa_os_param_tags {
+    assert (== (nisa_os_param_tags "getcwd") "")
+    assert (== (nisa_os_param_tags "get_argc") "")
+    assert (== (nisa_os_param_tags "system") "string")
+    assert (== (nisa_os_param_tags "get_argv") "int")
+    assert (== (nisa_os_param_tags "getenv") "string")
 }
 
 fn nisa_ext_index(sym: string) -> int {
@@ -1639,6 +1781,9 @@ shadow nisa_is_host_call {
     assert (nisa_is_host_call p "file_exists")
     assert (nisa_is_host_call p "tmp_dir")
     assert (nisa_is_host_call p "file_read")
+    assert (nisa_is_host_call p "system")
+    assert (nisa_is_host_call p "get_argc")
+    assert (nisa_is_host_call p "get_argv")
     assert (not (nisa_is_host_call p "add"))
 }
 
@@ -1685,7 +1830,7 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall) -> string {
             if (== ret "") {
                 return (nisa_fail (+ "unsupported host result " func_id.name))
             } else {
-                let params: string = (nisa_os_params arity)
+                let params: string = (nisa_os_param_tags func_id.name)
                 let idx: int = (nisa_ensure_extern os ret params)
                 return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL_EXTERN" (int_to_string idx)))
             }
@@ -1755,7 +1900,7 @@ shadow nisa_ext_prelude {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
-    if (or (== t "int") (or (== t "string") (or (== t "bool") (== t "void")))) {
+    if (or (== t "int") (or (== t "string") (or (== t "bool") (or (== t "void") (== t "float"))))) {
         return t
     } else {
         if (nisa_is_pin_record parser t) {
@@ -1787,6 +1932,7 @@ shadow nisa_result_tag {
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (nisa_result_tag p "int") "int")
     assert (== (nisa_result_tag p "void") "void")
+    assert (== (nisa_result_tag p "float") "float")
     assert (== (nisa_result_tag p "Point") "struct")
     assert (== (nisa_result_tag p "array<int>") "array")
     assert (== (nisa_result_tag p "List<Tok>") "array")
@@ -1941,6 +2087,71 @@ shadow nisa_expr_is_bool {
     let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
     let r: ASTReturn = (parser_get_return p stmt.node_id)
     assert (nisa_expr_is_bool p r.value r.value_type)
+    let _2: int = (nisa_reset)
+}
+
+fn nisa_expr_is_float(parser: Parser, node_id: int, node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_FLOAT) {
+        return true
+    } else {
+        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+            let id: ASTIdentifier = (parser_get_identifier parser node_id)
+            return (== (nisa_name_type id.name) "float")
+        } else {
+            if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+                let fa: ASTFieldAccess = (parser_get_field_access parser node_id)
+                let ty: string = (nisa_expr_struct_type parser fa.object fa.object_type)
+                let fi: int = (nisa_struct_field_index parser ty fa.field_name)
+                if (< fi 0) {
+                    return false
+                } else {
+                    let sidx: int = (nisa_struct_index parser ty)
+                    let sd: ASTStruct = (parser_get_struct_def parser sidx)
+                    return (== (at sd.field_types fi) "float")
+                }
+            } else {
+                if (== node_type ParseNodeType.PNODE_CALL) {
+                    let call: ASTCall = (parser_get_call parser node_id)
+                    let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                    let fidx: int = (nisa_fn_index parser func_id.name)
+                    if (< fidx 0) {
+                        return false
+                    } else {
+                        let f: ASTFunction = (parser_get_function parser fidx)
+                        return (== f.return_type "float")
+                    }
+                } else {
+                    if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+                        let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
+                        if (or (== binop.op LexerTokenType.TOKEN_PLUS)
+                               (or (== binop.op LexerTokenType.TOKEN_MINUS)
+                                   (or (== binop.op LexerTokenType.TOKEN_STAR)
+                                       (== binop.op LexerTokenType.TOKEN_SLASH)))) {
+                            return (or (nisa_expr_is_float parser binop.left binop.left_type)
+                                       (nisa_expr_is_float parser binop.right binop.right_type))
+                        } else {
+                            return false
+                        }
+                    } else {
+                        return false
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_expr_is_float {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n fone() -> float { return 1.0 } shadow fone { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let r: ASTReturn = (parser_get_return p stmt.node_id)
+    assert (nisa_expr_is_float p r.value r.value_type)
     let _2: int = (nisa_reset)
 }
 
@@ -2107,7 +2318,12 @@ fn nisa_emit_mqc(parser: Parser, node_id: int) -> string {
         if (nisa_is_host_call parser callee) {
             return (nisa_fail (+ "host module call is not in the pinned subset " callee))
         } else {
+            let bad: string = (nisa_check_arity parser callee mqc.arg_count)
+            if (not nisa_ok) {
+                return bad
+            } else {
             return (+ (nisa_emit_mqc_args parser mqc) (nisa_line_imm "CALL" callee))
+            }
         }
     }
 }
@@ -2663,7 +2879,12 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                     if (not (nisa_fn_defined parser func_id.name)) {
                                         return (nisa_fail (+ "undefined function " func_id.name))
                                     } else {
+                                        let bad: string = (nisa_check_arity parser func_id.name call.arg_count)
+                                        if (not nisa_ok) {
+                                            return bad
+                                        } else {
                                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "CALL" func_id.name))
+                                        }
                                     }
                                     }
                                     }
@@ -2706,6 +2927,10 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
         let num: ASTNumber = (parser_get_number parser node_id)
         return (nisa_line_imm "PUSH_I64" num.value)
     } else {
+        if (== node_type ParseNodeType.PNODE_FLOAT) {
+            let fl: ASTFloat = (parser_get_float parser node_id)
+            return (nisa_line_imm "PUSH_F64" fl.value)
+        } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
             let name: string = (nisa_intern s.value)
@@ -2750,6 +2975,18 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                             }
                         }
                     } else {
+                            let left_f: bool = (nisa_expr_is_float parser binop.left binop.left_type)
+                            let right_f: bool = (nisa_expr_is_float parser binop.right binop.right_type)
+                            if (or left_f right_f) {
+                                let mnemonic: string = (nisa_f64_binop_mnemonic binop.op)
+                                if (== mnemonic "") {
+                                    return (nisa_fail "unsupported float operator")
+                                } else {
+                                    let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                                    let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                                    return (+ (+ left right) (nisa_line mnemonic))
+                                }
+                            } else {
                             let left_b: bool = (nisa_expr_is_bool parser binop.left binop.left_type)
                             let right_b: bool = (nisa_expr_is_bool parser binop.right binop.right_type)
                             if (and (and left_b right_b)
@@ -2770,6 +3007,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                                 let left: string = (nisa_emit_expr parser binop.left binop.left_type)
                                 let right: string = (nisa_emit_expr parser binop.right binop.right_type)
                                 return (+ (+ left right) (nisa_line mnemonic))
+                            }
                             }
                             }
                     }
@@ -2838,6 +3076,7 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                 }
             }
         }
+        }
     }
 }
 
@@ -2851,6 +3090,14 @@ shadow nisa_emit_expr {
     let text: string = (nisa_emit_expr p 0 ParseNodeType.PNODE_NUMBER)
     assert (str_contains text "PUSH_I64 7")
     assert (== num.value "7")
+    let srcf: string = (+ "f" "n fone() -> float { return 1.0 } shadow fone { assert true }")
+    let toksf: List<LexerToken> = (tokenize_string srcf "t.nano" diags)
+    let pf: Parser = (parse_program toksf (list_LexerToken_length toksf) "t.nano")
+    let fl: ASTFloat = (parser_get_float pf 0)
+    let textf: string = (nisa_emit_expr pf 0 ParseNodeType.PNODE_FLOAT)
+    assert (str_contains textf "PUSH_F64 1.0")
+    assert (== fl.value "1.0")
+    let _2: int = (nisa_reset)
 }
 
 fn nisa_block_falls_through(parser: Parser, block_id: int) -> bool {
@@ -3148,7 +3395,12 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 if (not (nisa_fn_defined parser func_id.name)) {
                     return (nisa_fail (+ "undefined function " func_id.name))
                 } else {
+                    let bad: string = (nisa_check_arity parser func_id.name call.arg_count)
+                    if (not nisa_ok) {
+                        return bad
+                    } else {
                     return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+                    }
                 }
                 }
             }
@@ -3159,7 +3411,12 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 if (== callee "") {
                     return (nisa_fail (+ "undefined module function " (nisa_mqc_qualified mqc)))
                 } else {
+                    let bad: string = (nisa_check_arity parser callee mqc.arg_count)
+                    if (not nisa_ok) {
+                        return bad
+                    } else {
                     return (+ (nisa_emit_mqc_args parser mqc) (nisa_line_imm "TAIL_CALL" callee))
+                    }
                 }
             } else {
                 let val: string = (nisa_emit_expr parser r.value r.value_type)

@@ -353,10 +353,14 @@ match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 lower as `vm_file_*`. `file_io.nano` emits 3 functions and that nasm
 assembles. Bare void `return` (`via_bare`) is `RET` with no value.
 `break` / `continue` (`via_brk` / `via_cont`) are `JMP` to the
-innermost loop end / top. `nanoisa_codegen.nano` emits 397 functions
-and that nasm assembles. `nanoisa_emit.nano` emits 398. `parser.nano`
-emits 302. `nanoc_integrated.nano` names `unsupported result type Vector2D`.
-`compiler_modular.nano` names `system`. Compiler drivers name `get_argc`.
+innermost loop end / top. Host `system` / `get_argc` / `get_argv`
+(`via_sys` / `via_argc` / `via_argv`). Float-field records
+(`origin_f` / `via_vec`; `PUSH_F64` / `F64_ADD`). `compiler.nano`,
+`nanoc.nano`, and `cli_args.nano` emit and assemble.
+`compiler_modular.nano` emits 563 functions and that nasm assembles.
+`nanoisa_codegen.nano` emits 401. `nanoisa_emit.nano` emits 402.
+`nanoc_integrated.nano` names `undefined function sqrt`.
+`driver.nano` names `unsupported result type ResultArgs`.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, variants, tuples, array
