@@ -406,6 +406,28 @@ void test_tc_module_file_read_write(void) {
         "}\n"));
 }
 
+void test_tc_module_extern_call_needs_unsafe(void) {
+    ASSERT(!tc_module_passes(
+        "extern fn host_push(x: int) -> void\n"
+        "fn grow() -> int {\n"
+        "    (host_push 1)\n"
+        "    return 0\n"
+        "}\n"));
+}
+
+void test_tc_module_unsafe_import_allows_extern(void) {
+    /* nanoc_integrated.nano uses unsafe module import so list_LexerToken_push
+     * does not need a per-call unsafe block. type_check_module must honor that
+     * the way type_check does. */
+    ASSERT(tc_module_passes(
+        "unsafe module \"modules/vector2d/vector2d.nano\"\n"
+        "extern fn host_push(x: int) -> void\n"
+        "fn grow() -> int {\n"
+        "    (host_push 1)\n"
+        "    return 0\n"
+        "}\n"));
+}
+
 void test_tc_constants(void) {
     ASSERT(tc_passes(
         "let PI: float = 3.14159\n"
@@ -832,6 +854,8 @@ int main(void) {
     TEST(tc_module_extern_wrong_host_arity_fails);
     TEST(tc_module_union_result);
     TEST(tc_module_file_read_write);
+    TEST(tc_module_extern_call_needs_unsafe);
+    TEST(tc_module_unsafe_import_allows_extern);
     TEST(tc_constants);
     TEST(tc_cond_expr);
     TEST(tc_nested_functions);

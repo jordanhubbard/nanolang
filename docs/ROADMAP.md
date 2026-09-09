@@ -1596,12 +1596,13 @@ Compiler product:
       `compiler/result.nano` write `.nvm`.
       `make test-typechecker`.
       MAC `task_46e71e542a33fd0401885580f0bc3714`.
-- [ ] C seed `nanoc_modular.nano` typechecks assignment to `cmd`.
-      C seed still reports an immutable `set`.
-- [ ] C seed `nanoc_integrated.nano` typechecks `list_LexerToken_push`
-      the way the self-hosted emitter does. C seed still requires
-      `unsafe` around those host list calls.
-      MAC `task_e70f59261fa4603c9fd5de17757c2948`. Held `--no-dispatch`.
+- [x] C seed `nanoc_modular.nano` typechecks assignment to `cmd`
+      (`let mut cmd`). C seed `--emit-nvm` writes `.nvm`.
+- [x] C seed `type_check_module` honors `unsafe module "path"` the
+      way `type_check` does. `nanoc_integrated.nano` writes `.nvm`
+      without a per-call `unsafe` around `list_LexerToken_push`.
+      `make test-typechecker`.
+      MAC `task_e70f59261fa4603c9fd5de17757c2948`.
 - [x] C seed registers `file_read` / `file_write` / `file_exists` the
       way `getcwd` is registered. `file_io.nano`, `compiler.nano`,
       `nanoc_stage0.nano`, and `nanoc_stage1.nano` write `.nvm`.
@@ -1611,10 +1612,16 @@ Compiler product:
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
       MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the
       three named-refuse tasks). Held `--no-dispatch`.
-- [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
-      self-hosted emitter.
-      MAC `task_4f67d2fb851bf739b0376b9f53174483` (depends on the
-      `codegen.c` dual). Held `--no-dispatch`.
+- [x] Cut A union result tag is `union` (`TAG_UNION`), not `struct`.
+      `via_ok` / `via_err` match the C seed after type_check_module
+      reclassifies a Result return. `make test-nanoisa-src-nano`.
+- [x] I compile `src_nano` to `.nvm` with the C seed (38 files in
+      `test-nanoisa-src-nano`), then with the self-hosted emitter.
+      Bytecode match is still only the Cut A pin, not the compiler
+      subset dual.
+      `make test-typechecker`. C seed `--emit-nvm` writes `.nvm`
+      for each of those files.
+      MAC `task_4f67d2fb851bf739b0376b9f53174483`.
 - [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
       binaries from `nvm2c`+`cc` is a translator test, kept separate.
 - [ ] I freeze `transpiler.nano` as bootstrap-only once the emitter compiles

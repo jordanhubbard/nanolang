@@ -5884,6 +5884,63 @@ static bool extern_restates_existing(ASTNode *item, Function *existing) {
     return existing->is_extern || existing->body == NULL;
 }
 
+/* Register imports for introspection and mark the unit unsafe when the
+ * source says `unsafe module "path"`. type_check and type_check_module
+ * both need this; skipping it in type_check_module made every extern
+ * call in nanoc_integrated.nano fail. */
+static void typecheck_register_imports(TypeChecker *tc, ASTNode *program) {
+    Environment *env = tc->env;
+
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+
+        if (item->type != AST_IMPORT) {
+            continue;
+        }
+
+        const char *path = item->as.import_stmt.module_path;
+        char *module_name = NULL;
+
+        if (!path) {
+            continue;
+        }
+
+        const char *last_slash = strrchr(path, '/');
+        const char *last_dot = strrchr(path, '.');
+
+        if (last_slash && last_dot && last_dot > last_slash) {
+            size_t name_len = (size_t)(last_dot - (last_slash + 1));
+            module_name = strndup(last_slash + 1, name_len);
+        } else if (last_slash) {
+            module_name = strdup(last_slash + 1);
+        } else if (last_dot) {
+            size_t name_len = (size_t)(last_dot - path);
+            module_name = strndup(path, name_len);
+        } else {
+            module_name = strdup(path);
+        }
+
+        env_register_module(env, module_name, path, item->as.import_stmt.is_unsafe);
+
+        if (item->as.import_stmt.is_unsafe) {
+            if (env->forbid_unsafe) {
+                fprintf(stderr, "Error at line %d, column %d: Unsafe module import forbidden: '%s'\n",
+                        item->line, item->column, path);
+                fprintf(stderr, "  Note: Compiled with --forbid-unsafe flag\n");
+                fprintf(stderr, "  Hint: Remove --forbid-unsafe or use safe modules only\n");
+                tc->has_error = true;
+            } else if (env->warn_unsafe_imports) {
+                fprintf(stderr, "Warning at line %d, column %d: Importing unsafe module: '%s'\n",
+                        item->line, item->column, path);
+                fprintf(stderr, "  Note: This module requires unsafe context for FFI calls\n");
+            }
+            env->current_module_is_unsafe = true;
+        }
+
+        free(module_name);
+    }
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
@@ -5905,62 +5962,7 @@ bool type_check(ASTNode *program, Environment *env) {
     register_builtin_functions(env);
 
     /* Pre-pass: Process imports and register modules for introspection */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_IMPORT) {
-            /* Extract module name from path (e.g., "modules/sdl/sdl.nano" -> "sdl") */
-            const char *path = item->as.import_stmt.module_path;
-            char *module_name = NULL;
-            
-            /* Find last '/' and last '.' */
-            const char *last_slash = strrchr(path, '/');
-            const char *last_dot = strrchr(path, '.');
-            
-            if (last_slash && last_dot && last_dot > last_slash) {
-                /* Extract between last slash and last dot */
-                size_t name_len = last_dot - (last_slash + 1);
-                module_name = strndup(last_slash + 1, name_len);
-            } else if (last_slash) {
-                /* No extension, use everything after last slash */
-                module_name = strdup(last_slash + 1);
-            } else if (last_dot) {
-                /* No slash, use everything before dot */
-                size_t name_len = last_dot - path;
-                module_name = strndup(path, name_len);
-            } else {
-                /* No slash or dot, use entire path */
-                module_name = strdup(path);
-            }
-            
-            /* Register module for introspection */
-            env_register_module(env, module_name, path, item->as.import_stmt.is_unsafe);
-            
-            /* Phase 3: Check warning flags for unsafe imports */
-            if (item->as.import_stmt.is_unsafe) {
-                if (env->forbid_unsafe) {
-                    /* --forbid-unsafe: Error on unsafe module imports */
-                    fprintf(stderr, "Error at line %d, column %d: Unsafe module import forbidden: '%s'\n",
-                            item->line, item->column, path);
-                    fprintf(stderr, "  Note: Compiled with --forbid-unsafe flag\n");
-                    fprintf(stderr, "  Hint: Remove --forbid-unsafe or use safe modules only\n");
-                    tc.has_error = true;
-                } else if (env->warn_unsafe_imports) {
-                    /* --warn-unsafe-imports: Warn on unsafe module imports */
-                    fprintf(stderr, "Warning at line %d, column %d: Importing unsafe module: '%s'\n",
-                            item->line, item->column, path);
-                    fprintf(stderr, "  Note: This module requires unsafe context for FFI calls\n");
-                }
-            }
-            
-            free(module_name);
-            
-            /* Mark current context as unsafe if we're importing unsafe modules */
-            if (item->as.import_stmt.is_unsafe) {
-                env->current_module_is_unsafe = true;
-            }
-        }
-    }
+    typecheck_register_imports(&tc, program);
 
     /* First pass: collect all struct, enum, and function definitions */
     for (int i = 0; i < program->as.program.count; i++) {
@@ -6780,6 +6782,8 @@ bool type_check_module(ASTNode *program, Environment *env) {
 
     /* Register built-in functions */
     register_builtin_functions(env);
+
+    typecheck_register_imports(&tc, program);
 
     /* First pass: collect all struct, enum, and function definitions */
     for (int i = 0; i < program->as.program.count; i++) {

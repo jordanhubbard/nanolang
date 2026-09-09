@@ -12,6 +12,8 @@
  * print (PRINT), println (PRINTLN), assert (ASSERT), void
  * functions (RET with no value; a statement CALL of void does not POP),
  * and pin-record results (ISA tag struct, not the NanoLang name),
+ * and union results (ISA tag union, the way the C seed uses
+ * TAG_UNION after type_check_module reclassifies a Result return),
  * and array/list results (ISA tag array),
  * and Enum.Variant as ENUM_VAL (local first, then direct import),
  * and one-level nested pin-record field types, and imported
@@ -2284,7 +2286,7 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
             return "struct"
         } else {
             if (>= (nisa_union_index parser t) 0) {
-                return "struct"
+                return "union"
             } else {
             if (nisa_is_tuple_type t) {
                 return "tuple"
@@ -2328,7 +2330,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "Sym") "struct")
     assert (== (nisa_result_tag p "array<Sym>") "array")
     assert (== (nisa_result_tag p "BagHM") "struct")
-    assert (== (nisa_result_tag p "ResultI") "struct")
+    assert (== (nisa_result_tag p "ResultI") "union")
     assert (== (nisa_result_tag p "(int,int)") "tuple")
     assert (== (nisa_result_tag p "Nope") "")
 }

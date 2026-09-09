@@ -462,6 +462,53 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 		--emit-nvm --strip-debug -o /tmp/nanolang_cut_a_c_file_io.nvm \
 		>/tmp/nanolang_cut_a_c_file_io.err 2>&1
 	@test -s /tmp/nanolang_cut_a_c_file_io.nvm
+	@echo "Checking C seed --emit-nvm of src_nano compiler files..."
+	@for src in \
+		src_nano/compiler/lexer.nano \
+		src_nano/typecheck.nano \
+		src_nano/compiler/module_loader.nano \
+		src_nano/transpiler.nano \
+		src_nano/file_io.nano \
+		src_nano/compiler/nanoisa_codegen.nano \
+		src_nano/nanoisa_emit.nano \
+		src_nano/parser.nano \
+		src_nano/compiler.nano \
+		src_nano/nanoc.nano \
+		src_nano/cli_args.nano \
+		src_nano/compiler_modular.nano \
+		src_nano/nanoc_integrated.nano \
+		src_nano/nanoc_v06.nano \
+		src_nano/driver.nano \
+		src_nano/lexer_main.nano \
+		src_nano/driver_minimal.nano \
+		src_nano/ast_shared.nano \
+		src_nano/nanoc_modular.nano \
+		src_nano/nanoc_selfhost.nano \
+		src_nano/nanoc_stage0.nano \
+		src_nano/nanoc_stage1.nano \
+		src_nano/typecheck_driver.nano \
+		src_nano/transpiler_driver.nano \
+		src_nano/parser_driver.nano \
+		src_nano/compiler/diagnostics.nano \
+		src_nano/compiler/serialize.nano \
+		src_nano/compiler/result.nano \
+		src_nano/compiler/ir.nano \
+		src_nano/compiler/error_messages.nano \
+		src_nano/generated/compiler_ast.nano \
+		src_nano/generated/compiler_schema.nano \
+		src_nano/generated/compiler_contracts.nano \
+		src_nano/compiler/tokenize_result.nano \
+		src_nano/nanoc_v04.nano \
+		src_nano/compiler_simple.nano \
+		src_nano/parse_nanoc.nano \
+		src_nano/typecheck_nanoc.nano; do \
+		echo "  C seed $$src"; \
+		base=`basename $$src .nano`; \
+		$(TIMEOUT_CMD) ./bin/nano_virt $$src --emit-nvm --strip-debug \
+			-o /tmp/nanolang_cseed_$$base.nvm \
+			>/tmp/nanolang_cseed_$$base.err 2>&1; \
+		test -s /tmp/nanolang_cseed_$$base.nvm || { echo "C seed --emit-nvm failed: $$src"; exit 1; }; \
+	done
 	@echo "Checking lexer.nano emits and assembles the pinned subset..."
 	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/lexer.nano \
 		-o /tmp/nanolang_cut_a_lexer.nasm
