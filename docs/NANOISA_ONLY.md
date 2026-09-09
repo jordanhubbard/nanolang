@@ -402,7 +402,8 @@ writes `.nvm`. C seed `type_check_module` honors
 `nanoc_modular.nano` uses `let mut cmd`. C seed `--emit-nvm`
 writes `.nvm` for the 38 `src_nano` files in
 `test-nanoisa-src-nano`. Compiler-subset dual matches all 38.
-I still pretty-print C to build the compiler.
+I still pretty-print C in Stage 0 to build the self-hosted driver.
+The driver itself does not pretty-print C as a backend.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, nested tuples, array
@@ -410,13 +411,17 @@ equality, substring of arrays, and printing
 arrays/records stay refused. Compiling `src_nano` to `.nvm` with
 the C seed and with the self-hosted emitter is done. Bytecode
 match is the Cut A pin plus the 38-file compiler subset dual.
+The self-hosted driver (`nanoc_v06.nano`) writes `.nvm` as its
+product: `nanoisa_emit` then `nanoisa asm`. `-o binary` is `nvm2c`
+then `cc`. I do not pretty-print C as that backend. Stage 0 still
+pretty-prints C to build the driver. `make test-nanoc-v06-nvm-backend`.
 A pinned
 suite must match on `nano_vm` and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written
 down in the driver, not a language phase. `CompilerPhase_PHASE_TRANSPILER`
-is renamed. `wrapper_gen` remains a packaged-interpreter flag, not the
+is not renamed yet. `wrapper_gen` remains a packaged-interpreter flag, not the
 default meaning of native.
 
 **D — Honest bootstrap.** Stage 1 and Stage 2 `.nvm` files match. I

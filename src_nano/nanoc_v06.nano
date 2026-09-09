@@ -8,16 +8,16 @@
  * 1. Lexer:       tokenize_file_result() -> Result<TokenList, Diagnostic>
  * 2. Parser:      parse_program() -> Parser
  * 3. Typechecker: typecheck_parser() -> int
- * 4. Transpiler:  transpile_parser() -> string (C code)
- * 5. C Compiler:  system("cc ...") -> int
- * 
- * This is TRUE SELF-HOSTING - no dependency on nanoc_c!
+ * 4. NanoISA:     bin/nanoisa_emit -> .nasm, then bin/nanoisa asm -> .nvm
+ * 5. Native:      nvm2c then cc (tool pipeline, not a language phase)
+ *
+ * --emit-nvm writes the verified module and stops. I do not pretty-print C
+ * as a compiler backend.
  */
 
 import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
-import "src_nano/transpiler.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
@@ -38,7 +38,6 @@ extern fn path_normalize(path: string) -> string
 /* System commands - wrapper to avoid stdlib.h system() conflict */
 extern fn nl_exec_shell(cmd: string) -> int
 extern fn nl_exec_capture(cmd: string) -> string
-extern fn nl_exec_capture(cmd: string) -> string
 
 /* =============================================================================
  * CLI ARGUMENT PARSING
@@ -51,7 +50,8 @@ struct CompileOptions {
     keep_c: bool,
     show_intermediate_code: bool,
     llm_diags_json_path: string,
-    show_help: bool
+    show_help: bool,
+    emit_nvm: bool
 }
 
 fn default_options() -> CompileOptions {
@@ -62,7 +62,8 @@ fn default_options() -> CompileOptions {
         keep_c: false,
         show_intermediate_code: false,
         llm_diags_json_path: "",
-        show_help: false
+        show_help: false,
+        emit_nvm: false
     }
 }
 
@@ -71,13 +72,13 @@ shadow default_options {
     assert (== opts.output_file "a.out")
     assert (not opts.verbose)
     assert (not opts.show_help)
+    assert (not opts.emit_nvm)
 }
 
 fn parse_args() -> CompileOptions {
     let argc: int = (get_argc)
     let mut opts: CompileOptions = (default_options)
     let mut i: int = 1
-    
     while (< i argc) {
         let arg: string = (get_argv i)
         
@@ -89,7 +90,8 @@ fn parse_args() -> CompileOptions {
                 keep_c: opts.keep_c,
                 show_intermediate_code: opts.show_intermediate_code,
                 llm_diags_json_path: opts.llm_diags_json_path,
-                show_help: true
+                show_help: true,
+                emit_nvm: opts.emit_nvm
             }
         } else {
             if (== arg "--help") {
@@ -100,7 +102,8 @@ fn parse_args() -> CompileOptions {
                     keep_c: opts.keep_c,
                     show_intermediate_code: opts.show_intermediate_code,
                     llm_diags_json_path: opts.llm_diags_json_path,
-                    show_help: true
+                    show_help: true,
+                    emit_nvm: opts.emit_nvm
                 }
             } else {
                 if (== arg "-v") {
@@ -111,7 +114,8 @@ fn parse_args() -> CompileOptions {
                         keep_c: opts.keep_c,
                         show_intermediate_code: opts.show_intermediate_code,
                         llm_diags_json_path: opts.llm_diags_json_path,
-                        show_help: opts.show_help
+                        show_help: opts.show_help,
+                        emit_nvm: opts.emit_nvm
                     }
                 } else {
                     if (== arg "--verbose") {
@@ -122,7 +126,8 @@ fn parse_args() -> CompileOptions {
                             keep_c: opts.keep_c,
                             show_intermediate_code: opts.show_intermediate_code,
                             llm_diags_json_path: opts.llm_diags_json_path,
-                            show_help: opts.show_help
+                            show_help: opts.show_help,
+                            emit_nvm: opts.emit_nvm
                         }
                     } else {
                         if (== arg "-k") {
@@ -133,7 +138,8 @@ fn parse_args() -> CompileOptions {
                                 keep_c: true,
                                 show_intermediate_code: opts.show_intermediate_code,
                                 llm_diags_json_path: opts.llm_diags_json_path,
-                                show_help: opts.show_help
+                                show_help: opts.show_help,
+                                emit_nvm: opts.emit_nvm
                             }
                         } else {
                             if (== arg "--keep-c") {
@@ -144,7 +150,8 @@ fn parse_args() -> CompileOptions {
                                     keep_c: true,
                                     show_intermediate_code: opts.show_intermediate_code,
                                     llm_diags_json_path: opts.llm_diags_json_path,
-                                    show_help: opts.show_help
+                                    show_help: opts.show_help,
+                                    emit_nvm: opts.emit_nvm
                                 }
                             } else {
                                 if (== arg "-fshow-intermediate-code") {
@@ -155,7 +162,8 @@ fn parse_args() -> CompileOptions {
                                         keep_c: opts.keep_c,
                                         show_intermediate_code: true,
                                         llm_diags_json_path: opts.llm_diags_json_path,
-                                        show_help: opts.show_help
+                                        show_help: opts.show_help,
+                                        emit_nvm: opts.emit_nvm
                                     }
                                 } else {
                                 if (== arg "--llm-diags-json") {
@@ -169,7 +177,8 @@ fn parse_args() -> CompileOptions {
                                             keep_c: opts.keep_c,
                                             show_intermediate_code: opts.show_intermediate_code,
                                             llm_diags_json_path: p,
-                                            show_help: opts.show_help
+                                            show_help: opts.show_help,
+                                            emit_nvm: opts.emit_nvm
                                         }
                                     } else { (print "") }
                                 } else {
@@ -184,12 +193,25 @@ fn parse_args() -> CompileOptions {
                                             keep_c: opts.keep_c,
                                             show_intermediate_code: opts.show_intermediate_code,
                                             llm_diags_json_path: opts.llm_diags_json_path,
-                                            show_help: opts.show_help
+                                            show_help: opts.show_help,
+                                            emit_nvm: opts.emit_nvm
                                         }
                                     } else {
                                         (print "")
                                     }
                                 } else {
+                                    if (== arg "--emit-nvm") {
+                                        set opts CompileOptions {
+                                            input_file: opts.input_file,
+                                            output_file: opts.output_file,
+                                            verbose: opts.verbose,
+                                            keep_c: opts.keep_c,
+                                            show_intermediate_code: opts.show_intermediate_code,
+                                            llm_diags_json_path: opts.llm_diags_json_path,
+                                            show_help: opts.show_help,
+                                            emit_nvm: true
+                                        }
+                                    } else {
                                     /* Assume it's the input file if no option prefix */
                                     if (== opts.input_file "") {
                                         set opts CompileOptions {
@@ -199,10 +221,12 @@ fn parse_args() -> CompileOptions {
                                             keep_c: opts.keep_c,
                                             show_intermediate_code: opts.show_intermediate_code,
                                             llm_diags_json_path: opts.llm_diags_json_path,
-                                            show_help: opts.show_help
+                                            show_help: opts.show_help,
+                                            emit_nvm: opts.emit_nvm
                                         }
                                     } else {
                                         (print "")
+                                    }
                                     }
                                 }
                                 }
@@ -297,6 +321,15 @@ shadow nlc_str_ends_with {
     assert (not (nlc_str_ends_with "hello" "world"))
     assert (nlc_str_ends_with "" "")
     assert (nlc_str_ends_with "a" "")
+}
+
+fn nisa_output_is_nvm(path: string) -> bool {
+    return (nlc_str_ends_with path ".nvm")
+}
+
+shadow nisa_output_is_nvm {
+    assert (nisa_output_is_nvm "out.nvm")
+    assert (not (nisa_output_is_nvm "a.out"))
 }
 
 fn nlc_str_index_of(s: string, needle: string) -> int {
@@ -443,6 +476,140 @@ shadow nl_path_join {
     assert (== (nl_path_join "/path/to" "file") "/path/to/file")
     assert (== (nl_path_join "/path/" "file") "/path/file")
     assert (== (nl_path_join "." "file") "file")
+}
+
+fn nisa_tool_path(repo_root: string, name: string) -> string {
+    let from_repo: string = (nl_path_join (nl_path_join repo_root "bin") name)
+    if (file_exists from_repo) {
+        return from_repo
+    } else {
+        let argv0: string = (get_argv 0)
+        let beside: string = (nl_path_join (nl_path_dirname argv0) name)
+        if (file_exists beside) {
+            return beside
+        } else {
+            return from_repo
+        }
+    }
+}
+
+shadow nisa_tool_path {
+    let p: string = (nisa_tool_path "/no-such-nanolang-root" "nanoisa")
+    assert (nlc_str_ends_with p "nanoisa")
+}
+
+fn nisa_backend_compile(repo_root: string, source_path: string, output_file: string, emit_nvm: bool, verbose: bool, keep_c: bool, show_intermediate_code: bool) -> int {
+    let emit_bin: string = (nisa_tool_path repo_root "nanoisa_emit")
+    let nanoisa: string = (nisa_tool_path repo_root "nanoisa")
+    if (not (file_exists emit_bin)) {
+        (print "I need ")
+        (println emit_bin)
+        return 1
+    } else {
+        (print "")
+    }
+    if (not (file_exists nanoisa)) {
+        (print "I need ")
+        (println nanoisa)
+        return 1
+    } else {
+        (print "")
+    }
+    let nasm_file: string = (+ (tmp_dir) "/nanolang_temp.nasm")
+    let emit_cmd: string = (+ emit_bin (+ " " (+ source_path (+ " -o " nasm_file))))
+    if verbose {
+        (print "  ")
+        (println emit_cmd)
+    } else {
+        (print "")
+    }
+    if (!= (nl_exec_shell emit_cmd) 0) {
+        (println "I could not lower that program to NanoISA.")
+        return 1
+    } else {
+        (print "")
+    }
+    if show_intermediate_code {
+        let nasm: string = (file_read nasm_file)
+        (print nasm)
+    } else {
+        (print "")
+    }
+    let mut nvm_file: string = output_file
+    if (not emit_nvm) {
+        set nvm_file (+ (tmp_dir) "/nanolang_temp.nvm")
+    } else {
+        (print "")
+    }
+    let asm_cmd: string = (+ nanoisa (+ " asm " (+ nasm_file (+ " -o " nvm_file))))
+    if verbose {
+        (print "  ")
+        (println asm_cmd)
+    } else {
+        (print "")
+    }
+    if (!= (nl_exec_shell asm_cmd) 0) {
+        (println "I could not assemble that module.")
+        return 1
+    } else {
+        (print "")
+    }
+    if emit_nvm {
+        return 0
+    } else {
+        let nvm2c: string = (nisa_tool_path repo_root "nvm2c")
+        if (not (file_exists nvm2c)) {
+            (print "I need ")
+            (println nvm2c)
+            return 1
+        } else {
+            (print "")
+        }
+        let c_file: string = (+ (tmp_dir) "/nanolang_temp.c")
+        let nvm2c_cmd: string = (+ nvm2c (+ " " (+ nvm_file (+ " -o " c_file))))
+        if verbose {
+            (print "  ")
+            (println nvm2c_cmd)
+        } else {
+            (print "")
+        }
+        if (!= (nl_exec_shell nvm2c_cmd) 0) {
+            (println "nvm2c refused that module.")
+            return 1
+        } else {
+            (print "")
+        }
+        let cc_bin: string = (resolve_cc_binary)
+        let cc_cmd: string = (+ cc_bin (+ " -std=c11 -Wall -Wextra -Werror -o " (+ output_file (+ " " c_file))))
+        if verbose {
+            (print "  ")
+            (println cc_cmd)
+        } else {
+            (print "")
+        }
+        if (!= (nl_exec_shell cc_cmd) 0) {
+            (println "cc refused the translated C.")
+            return 1
+        } else {
+            (print "")
+        }
+        if (not keep_c) {
+            let _rm: int = (nl_exec_shell (+ "rm -f " c_file))
+            return 0
+        } else {
+            if verbose {
+                (print "Kept C file: ")
+                (println c_file)
+            } else {
+                (print "")
+            }
+            return 0
+        }
+    }
+}
+
+shadow nisa_backend_compile {
+    assert (nisa_output_is_nvm "x.nvm")
 }
 
 fn parse_env_int(name: string, default_val: int) -> int {
@@ -1374,7 +1541,7 @@ fn llm_write_diags_json(path: string, input_file: string, output_file: string, e
     return (file_write path s)
 }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string) -> int {
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_nvm: bool) -> int {
     if verbose {
         (println "")
         (println "╔══════════════════════════════════════════════════════════════╗")
@@ -1420,9 +1587,12 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     } else {
         /* Imports resolved - use merged file */
         if verbose {
-            (print "  ✓ Merged source: ")
+            (print "  Merged source: ")
             (print (int_to_string (str_length merged_source)))
-            (println " bytes")
+            (print " bytes, ")
+            (print (int_to_string (array_length merged_files)))
+            (print " files, root ")
+            (println merge_repo_root)
         } else {
             (print "")
         }
@@ -1579,274 +1749,47 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 } else { (print "") }
             } else { (print "") }
 
-            /* Step 4: Transpiler - Generate C code */
+            /* Step 4-5: NanoISA module, then nvm2c then cc for a native binary */
             if verbose {
-                (println "[4/5] Generating C code...")
+                (println "[4/5] Lowering to NanoISA...")
             } else {
                 (print "")
             }
-
-            let c_code: string = (transpile_parser parser)
-            
-            if verbose {
-                (print "  ✓ Generated ")
-                (print (int_to_string (str_length c_code)))
-                (println " bytes of C code")
+            let mut emit_nvm_now: bool = emit_nvm
+            if (nisa_output_is_nvm output_file) {
+                set emit_nvm_now true
             } else {
                 (print "")
             }
-
-            if show_intermediate_code {
-                (print c_code)
-            } else { (print "") }
-            
-            /* Write C code to temporary file */
-            let c_file: string = (+ (tmp_dir) "/nanolang_temp.c")
-            let write_result: int = (file_write c_file c_code)
-            if (!= write_result 0) {
-                (println "Error: Failed to write C file")
+            let nisa_rc: int = (nisa_backend_compile repo_root input_file output_file emit_nvm_now verbose keep_c show_intermediate_code)
+            if (!= nisa_rc 0) {
                 if (not (== llm_diags_json_path "")) {
-                    let msg: string = "Failed to write temporary C file"
-                    let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile 0 0)
-                    let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "C0001" msg loc)
-                    (Diagnostics.diag_list_add diags diag)
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
                 } else { (print "") }
-                return 1
+                return nisa_rc
             } else {
                 (print "")
             }
-            
-            /* Step 5: C Compiler - Compile to executable */
-            /* Step 4.5: Collect module build flags (pkg-config, ldflags, etc.) */
             if verbose {
-                (println "[4.5/5] Collecting module build flags...")
-            } else { (print "") }
-            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files merge_repo_root verbose)
-
-            if verbose {
-                (println "[5/5] Compiling C to executable...")
-            } else {
-                (print "")
-            }
-            
-            /* Build C compiler command with runtime library files
-             * The transpiler generates calls to runtime functions (dyn_array_*, gc_*, etc.)
-             * We must link with the runtime C sources to provide these implementations.
-             * This matches what the C compiler does in src/main.c line 461.
-             */
-            let cc_bin: string = (resolve_cc_binary)
-            /* Use absolute paths for includes and runtime sources */
-            let include_src: string = (nl_path_join repo_root "src")
-            let include_modules: string = (nl_path_join repo_root "modules/std")
-            let mut cc_cmd: string = (+ cc_bin " -std=c99 -I")
-            set cc_cmd (+ cc_cmd include_src)
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd include_modules)
-            /* Module compile flags (include paths from pkg-config, module cflags) */
-            if (> (str_length mod_flags.compile_flags) 0) {
-                set cc_cmd (+ cc_cmd mod_flags.compile_flags)
-            } else { (print "") }
-            set cc_cmd (+ cc_cmd " ")
-            let extra_cflags: string = (getenv "NANO_CFLAGS")
-            if (!= extra_cflags "") {
-                set cc_cmd (+ cc_cmd extra_cflags)
-                set cc_cmd (+ cc_cmd " ")
-            } else {
-                (print "")
-            }
-            set cc_cmd (+ cc_cmd c_file)
-            set cc_cmd (+ cc_cmd " -o ")
-            set cc_cmd (+ cc_cmd output_file)
-            /* Add runtime library sources with absolute paths */
-            let runtime_dir: string = (nl_path_join repo_root "src/runtime")
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_int.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_string.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_LexerToken.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_token.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_CompilerDiagnostic.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_CompilerSourceLocation.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "token_helpers.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "gc.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "dyn_array.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "hashmap_bootstrap.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "gc_struct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "nl_string.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/utf8.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "cli.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "regex.c"))
-            /* Add AST list runtime sources for compiler support */
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTLet.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFunction.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTNumber.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFloat.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTString.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBool.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTIdentifier.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBinaryOp.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTCall.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTModuleQualifiedCall.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTArrayLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStmtRef.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBlock.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnsafeBlock.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTPrint.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTAssert.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFieldAccess.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTSet.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTIf.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTWhile.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFor.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTReturn.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTShadow.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStruct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStructLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTEnum.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnion.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnionConstruct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTMatch.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTImport.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTOpaqueType.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTTupleLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTTupleIndex.c"))
-
-            /* std/fs provides fs_walkdir + file_* used by modules/std/fs.nano */
-            let modules_std: string = (nl_path_join repo_root "modules/std")
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "fs.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "process.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections/collections.c"))
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json/json.c"))
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/cJSON.c"))
-            /* Conditionally link peg2.c if the program imports modules/std/peg2 */
-            let mut uses_peg2: bool = false
-            let mut peg2_fi: int = 0
-            while (< peg2_fi (array_length merged_files)) {
-                let peg2_f: string = (at merged_files peg2_fi)
-                if (> (nlc_str_index_of peg2_f "peg2") -1) { set uses_peg2 true } else { (print "") }
-                set peg2_fi (+ peg2_fi 1)
-            }
-            if uses_peg2 {
-                set cc_cmd (+ cc_cmd " ")
-                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2/peg2.c"))
-                set cc_cmd (+ cc_cmd " -I")
-                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2"))
-            } else { (print "") }
-            set cc_cmd (+ cc_cmd " -lm")
-            /* Module link flags (pkg-config --libs, -l, -framework, .o files) */
-            if (> (str_length mod_flags.link_flags) 0) {
-                set cc_cmd (+ cc_cmd mod_flags.link_flags)
-            } else { (print "") }
-            let extra_ldflags: string = (getenv "NANO_LDFLAGS")
-            if (!= extra_ldflags "") {
-                set cc_cmd (+ cc_cmd " ")
-                set cc_cmd (+ cc_cmd extra_ldflags)
-            } else {
-                (print "")
-            }
-            set cc_cmd (+ cc_cmd " 2>&1")
-            
-            if verbose {
-                (print "  Command: ")
-                (println cc_cmd)
-            } else {
-                (print "")
-            }
-            
-            let cc_result: int = (nl_exec_shell cc_cmd)
-            if (!= cc_result 0) {
-                (println "Error: C compilation failed")
-                return 1
-            } else {
-                (print "")
-            }
-            
-            if verbose {
-                (println "  ✓ Executable created")
-                (println "")
-                (println "╔══════════════════════════════════════════════════════════════╗")
-                (println "║  ✅ COMPILATION SUCCESSFUL (100% NanoLang Pipeline)         ║")
-                (println "╚══════════════════════════════════════════════════════════════╝")
-                (println "")
-            } else {
-                (print "")
-            }
-            
-            /* Clean up temp file unless --keep-c */
-            if (not keep_c) {
-                let rm_cmd: string = (+ "rm -f " c_file)
-                let _rm_result: int = (nl_exec_shell rm_cmd)
-            } else {
-                if verbose {
-                    (print "Kept C file: ")
-                    (println c_file)
+                if emit_nvm_now {
+                    (println "  Verified .nvm written")
                 } else {
-                    (print "")
+                    (println "  Native binary from nvm2c then cc")
                 }
+            } else {
+                (print "")
             }
-            
             if (not (== llm_diags_json_path "")) {
                 (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
             } else { (print "") }
 
             return 0
     }
+}
+
+shadow compile_program {
+    assert (nisa_output_is_nvm "out.nvm")
+    assert (not (nisa_output_is_nvm "a.out"))
 }
 
 /* =============================================================================
@@ -1862,15 +1805,16 @@ fn show_usage() -> int {
     (println "Usage: nanoc <input.nano> [-o output] [options]")
     (println "")
     (println "Options:")
-    (println "  -o <file>        Output executable (default: a.out)")
+    (println "  -o <file>        Output executable or .nvm (default: a.out)")
+    (println "  --emit-nvm       Write the verified .nvm and stop")
     (println "  -v, --verbose    Verbose compilation output")
-    (println "  -k, --keep-c     Keep generated C file")
-    (println "  -fshow-intermediate-code  Print generated C to stdout")
+    (println "  -k, --keep-c     Keep nvm2c C when compiling a native binary")
+    (println "  -fshow-intermediate-code  Print NanoISA assembly to stdout")
     (println "  -h, --help       Show this help")
     (println "  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)")
     (println "")
-    (println "This compiler is 100% written in NanoLang!")
-    (println "Pipeline: Lex → Parse → Typecheck → Transpile → Compile")
+    (println "I lower through NanoISA. Native binaries are nvm2c then cc.")
+    (println "Pipeline: Lex → Parse → Typecheck → NanoISA → (nvm2c → cc)")
     (println "")
     return 0
 }
@@ -1905,7 +1849,8 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path)
+    let emit_nvm: bool = (or opts.emit_nvm (nisa_output_is_nvm opts.output_file))
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path emit_nvm)
 }
 
 shadow main {

@@ -1080,10 +1080,19 @@ means structured AOT, not a bytecode blob plus `nano_vm`. Contract:
       Walk, file fate, linking, debug, and equivalence are in that document.
 
 Compiler product:
-- [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
+- [x] I make `--emit-nvm` the self-hosted compiler's only backend output.
       `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
-      MAC `task_5225909dcdf8cc952608b9ebb2c2476d` (depends on compile
-      `src_nano` to `.nvm`). Held `--no-dispatch`.
+      `nanoc_v06.nano` does not call `transpile_parser`. It shells
+      `bin/nanoisa_emit`, `bin/nanoisa asm`, then `bin/nvm2c` and `cc`
+      (`-std=c11 -Wall -Wextra -Werror`) without the runtime `list_*.c`
+      mountain. Stage 0 still pretty-prints C to *build* the driver.
+      `nl_hello` `--emit-nvm` writes `.nvm`; `-o` binary prints
+      `Hello from NanoLang!` and the nvm2c C does not mention `nano_vm`.
+      `make test-nanoc-v06-nvm-backend`. Dual of `nanoc_v06` is 601
+      functions, 0 failed. `make test-nanoisa-src-nano` Cut A 298
+      passed. MAC `task_5225909dcdf8cc952608b9ebb2c2476d`. Held
+      `--no-dispatch`. Compiling `nanoc_v06` itself through nvm2c is
+      the compiler-subset translator checkbox, not this one.
 - [x] Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits `.nasm` for
       integer `add`/`main` (`tests/nanoisa/fixtures/cut_a_add.nano`).
       Function bytecode matches the C seed (`make test-nanoisa-src-nano`,

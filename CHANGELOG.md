@@ -187,11 +187,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `STR_SPLIT`
   and `STR_REPLACE`
   stay refused. String operands
-  are compared by content. I still pretty-print C to build the
+  are compared by content.   I still pretty-print C to build the
   compiler. When I refuse a program, `nanoisa_emit` prints `nisa_err`.
   A library file gets a synthetic `main` (`PUSH_I64 0` then `RET`)
   like the C seed. `;` and `#` inside a quoted `.string` stay payload;
   `lexer.nano` nasm assembles.
+  Self-hosted `nanoc_v06` writes `.nvm` as its product (`--emit-nvm`).
+  `-o binary` is `nanoisa_emit` then `nanoisa asm` then `nvm2c` then
+  `cc`. I do not pretty-print C as that backend. Stage 0 still
+  pretty-prints C to build the driver. `nl_hello` AOT does not mention
+  `nano_vm`. `make test-nanoc-v06-nvm-backend`. Dual of `nanoc_v06`
+  is 601 functions.
 - `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
   host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
   Generated C does not name `nano_vm`. The closed subset includes i64

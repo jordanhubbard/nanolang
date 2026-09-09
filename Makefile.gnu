@@ -763,6 +763,12 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	done
 	@rm -f tests/nanoisa/test_nanoisa_compiler_dual
 
+.PHONY: test-nanoc-v06-nvm-backend
+test-nanoc-v06-nvm-backend: $(COMPILER_C) nanoisa_emit nanoisa_dump nvm2c
+	@echo "Running self-hosted nanoc_v06 NanoISA backend tests..."
+	@chmod +x tests/test_nanoc_v06_nvm_backend.sh
+	@$(TIMEOUT_CMD) bash tests/test_nanoc_v06_nvm_backend.sh $(COMPILER_C)
+
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
 	$(CC) $(CFLAGS) -o bin/nanoisa $(NANOISA_DUMP_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
@@ -1684,7 +1690,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-actor test-dataflow test-object test-shell test-logic test-frontend-matrix test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-nanoisa-src-nano test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-actor test-dataflow test-object test-shell test-logic test-frontend-matrix test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-nanoisa-src-nano test-nanoc-v06-nvm-backend test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -3048,7 +3054,7 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) nvm2c nanoisa_dump nanoisa_emit
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
@@ -3584,6 +3590,7 @@ help:
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"
 	@echo "  make test-nvm2c        - Run nvm2c structured-C and CLI tests"
 	@echo "  make test-nanoisa-src-nano - Cut A: src_nano .nasm vs C-seed bytecode"
+	@echo "  make test-nanoc-v06-nvm-backend - Self-hosted nanoc_v06 --emit-nvm and nvm2c AOT"
 	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"
 	@echo "  make test-nanovirt     - Run codegen unit tests (62 tests)"
 	@echo "  make test-glut-init    - Run GLUT initialization boundary tests (headless)"
@@ -3712,7 +3719,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump nvm2c nanoisa_emit test-nvm2c test-nanoisa-src-nano test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list nanoc
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump nvm2c nanoisa_emit test-nvm2c test-nanoisa-src-nano test-nanoc-v06-nvm-backend test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list nanoc
 
 # ============================================================================
 # AGENTFS PUBLISH
