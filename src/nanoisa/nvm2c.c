@@ -556,6 +556,33 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
             break;
         }
+        case OP_STR_TRIM: {
+            Nvm2cSimSlot s;
+            if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
+            mark_str_origin(local_kind, nloc, s.origin);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            break;
+        }
+        case OP_STR_REPLACE: {
+            Nvm2cSimSlot neu, old, s;
+            if (!sim_pop(b, idx, stk, &sp, &neu)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &old)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
+            mark_str_origin(local_kind, nloc, neu.origin);
+            mark_str_origin(local_kind, nloc, old.origin);
+            mark_str_origin(local_kind, nloc, s.origin);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            break;
+        }
+        case OP_STR_SPLIT: {
+            Nvm2cSimSlot delim, s;
+            if (!sim_pop(b, idx, stk, &sp, &delim)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &s)) return 0;
+            mark_str_origin(local_kind, nloc, delim.origin);
+            mark_str_origin(local_kind, nloc, s.origin);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
+            break;
+        }
         case OP_STR_CONTAINS:
         case OP_STR_STARTS_WITH:
         case OP_STR_ENDS_WITH: {
@@ -1790,6 +1817,33 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             stack_push_str(b, &st, expr);
             break;
         }
+        case OP_STR_TRIM: {
+            int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_TRIM");
+            if (b->failed) goto done;
+            char expr[48];
+            snprintf(expr, sizeof expr, "nstr_trim(s[%d])", s);
+            stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_STR_REPLACE: {
+            int neu = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE new");
+            int old = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE old");
+            int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_REPLACE");
+            if (b->failed) goto done;
+            char expr[80];
+            snprintf(expr, sizeof expr, "nstr_replace(s[%d], s[%d], s[%d])", s, old, neu);
+            stack_push_str(b, &st, expr);
+            break;
+        }
+        case OP_STR_SPLIT: {
+            int delim = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_SPLIT delim");
+            int s = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_SPLIT");
+            if (b->failed) goto done;
+            char expr[64];
+            snprintf(expr, sizeof expr, "nstr_split(s[%d], s[%d])", s, delim);
+            stack_push_sarr(b, &st, expr);
+            break;
+        }
         case OP_STR_CONTAINS: {
             int needle = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_CONTAINS needle");
             int hay = stack_pop_expect(b, &st, NVM2C_VK_STR, "STR_CONTAINS haystack");
@@ -2676,6 +2730,67 @@ static void emit_nstr_substr(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_nstr_trim(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_trim(const char *s) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    int64_t slen = (int64_t)strlen(src);\n"
+        "    int64_t start = 0;\n"
+        "    int64_t end = slen;\n"
+        "    while (start < slen && (src[start] == ' ' || src[start] == '\\t' ||\n"
+        "           src[start] == '\\n' || src[start] == '\\r')) start++;\n"
+        "    while (end > start && (src[end - 1] == ' ' || src[end - 1] == '\\t' ||\n"
+        "           src[end - 1] == '\\n' || src[end - 1] == '\\r')) end--;\n"
+        "    return nstr_substr(src, start, end - start);\n"
+        "}\n\n");
+}
+
+static void emit_nstr_replace(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_replace(const char *s, const char *old_s, const char *new_s) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    const char *oldv = old_s ? old_s : \"\";\n"
+        "    const char *newv = new_s ? new_s : \"\";\n"
+        "    size_t slen = strlen(src);\n"
+        "    size_t olen = strlen(oldv);\n"
+        "    size_t nlen = strlen(newv);\n"
+        "    size_t count = 0;\n"
+        "    const char *p;\n"
+        "    const char *found;\n"
+        "    char *out;\n"
+        "    char *dst;\n"
+        "    if (olen == 0) return src;\n"
+        "    p = src;\n"
+        "    while ((found = strstr(p, oldv)) != NULL) {\n"
+        "        count++;\n"
+        "        p = found + olen;\n"
+        "    }\n"
+        "    if (count == 0) return src;\n"
+        "    {\n"
+        "        long long out_len = (long long)slen +\n"
+        "            (long long)count * ((long long)nlen - (long long)olen);\n"
+        "        size_t n = out_len > 0 ? (size_t)out_len : 0;\n"
+        "        if (nstr_used + n + 1 > sizeof nstr_arena) abort();\n"
+        "        out = nstr_arena + nstr_used;\n"
+        "        dst = out;\n"
+        "        p = src;\n"
+        "        while ((found = strstr(p, oldv)) != NULL) {\n"
+        "            size_t seg = (size_t)(found - p);\n"
+        "            memcpy(dst, p, seg); dst += seg;\n"
+        "            memcpy(dst, newv, nlen); dst += nlen;\n"
+        "            p = found + olen;\n"
+        "        }\n"
+        "        {\n"
+        "            size_t rest = strlen(p);\n"
+        "            memcpy(dst, p, rest);\n"
+        "            dst[rest] = 0;\n"
+        "            nstr_used += n + 1;\n"
+        "            return out;\n"
+        "        }\n"
+        "    }\n"
+        "}\n\n");
+}
+
 static void emit_nstr_char_at(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static int64_t nstr_char_at(const char *s, int64_t idx) {\n"
@@ -2844,6 +2959,36 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "    a->data = p;\n"
         "    a->len = n;\n"
         "    return a;\n"
+        "}\n\n");
+}
+
+static void emit_nstr_split(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static nsarr_t nstr_split(const char *s, const char *delim) {\n"
+        "    const char *src = s ? s : \"\";\n"
+        "    const char *d = delim ? delim : \"\";\n"
+        "    nsarr_t a = nsarr_new();\n"
+        "    size_t slen = strlen(src);\n"
+        "    size_t dlen = strlen(d);\n"
+        "    if (dlen == 0) {\n"
+        "        size_t i;\n"
+        "        for (i = 0; i < slen; i++) {\n"
+        "            nsarr_push(a, nstr_substr(src, (int64_t)i, 1));\n"
+        "        }\n"
+        "        return a;\n"
+        "    }\n"
+        "    {\n"
+        "        const char *start = src;\n"
+        "        const char *found;\n"
+        "        while ((found = strstr(start, d)) != NULL) {\n"
+        "            nsarr_push(a, nstr_substr(src, (int64_t)(start - src),\n"
+        "                                     (int64_t)(found - start)));\n"
+        "            start = found + dlen;\n"
+        "        }\n"
+        "        nsarr_push(a, nstr_substr(src, (int64_t)(start - src),\n"
+        "                                 (int64_t)strlen(start)));\n"
+        "        return a;\n"
+        "    }\n"
         "}\n\n");
 }
 
@@ -3069,10 +3214,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_contains = module_has_opcode(mod, OP_STR_CONTAINS);
         int need_starts = module_has_opcode(mod, OP_STR_STARTS_WITH);
         int need_ends = module_has_opcode(mod, OP_STR_ENDS_WITH);
-        int need_substr = module_has_opcode(mod, OP_STR_SUBSTR);
+        int need_substr_op = module_has_opcode(mod, OP_STR_SUBSTR);
+        int need_trim = module_has_opcode(mod, OP_STR_TRIM);
+        int need_replace = module_has_opcode(mod, OP_STR_REPLACE);
+        int need_split = module_has_opcode(mod, OP_STR_SPLIT);
+        int need_substr = need_substr_op || need_trim || need_split;
         int need_char_at = module_has_opcode(mod, OP_STR_CHAR_AT);
         int need_string = need_concat || need_cast || need_cast_int || need_contains || need_starts ||
-            need_ends || need_substr ||
+            need_ends || need_substr || need_trim || need_replace || need_split ||
             need_char_at ||
             module_has_opcode(mod, OP_PUSH_STR) ||
             module_has_opcode(mod, OP_STR_LEN);
@@ -3086,16 +3235,16 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_iarr = need_iarr_lit ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR) ||
             module_has_global_kind(global_kind, gcount, NVM2C_VK_ARR);
-        int need_sarr = need_sarr_lit ||
+        int need_sarr = need_sarr_lit || need_split ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR) ||
             module_has_global_kind(global_kind, gcount, NVM2C_VK_SARR);
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
         int need_iarr_set = need_arr_set && need_iarr;
-        int need_sarr_push = need_arr_push && need_sarr;
+        int need_sarr_push = (need_arr_push && need_sarr) || need_split;
         int need_sarr_set = need_arr_set && need_sarr;
-        int need_sarr_new = need_sarr && module_has_opcode(mod, OP_ARR_NEW);
+        int need_sarr_new = (need_sarr && module_has_opcode(mod, OP_ARR_NEW)) || need_split;
         int need_rarr = module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR) ||
             module_has_global_kind(global_kind, gcount, NVM2C_VK_RARR);
         int need_rarr_get = need_arr_get && need_rarr;
@@ -3155,7 +3304,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_print || need_cast) {
             nvm2c_puts(&b, "#include <stdio.h>\n");
         }
-        if (need_concat || need_cast || need_cast_int || need_substr || need_arr_lit || need_arr_get ||
+        if (need_concat || need_cast || need_cast_int || need_substr || need_trim || need_replace ||
+            need_split || need_arr_lit || need_arr_get ||
             need_arr_push || need_arr_set || need_iarr_new || need_sarr_new || need_rarr_new ||
             need_agg_get || need_nested || need_assert || need_hm_new || need_hm_set || need_hm_has ||
             need_host_copy || need_host_system) {
@@ -3194,10 +3344,12 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             NVM2C_HM_CAP, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS,
             NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
         if (need_nested) emit_nrec_store(&b);
-        if (need_concat || need_cast || need_substr || need_host_copy) emit_nstr_arena(&b);
+        if (need_concat || need_cast || need_substr || need_replace || need_host_copy) emit_nstr_arena(&b);
         if (need_host_copy) emit_nstr_copy(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
+        if (need_trim) emit_nstr_trim(&b);
+        if (need_replace) emit_nstr_replace(&b);
         if (need_char_at) emit_nstr_char_at(&b);
         if (need_starts) emit_nstr_starts_with(&b);
         if (need_ends) emit_nstr_ends_with(&b);
@@ -3223,6 +3375,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_get) emit_nsarr_get(&b);
         if (need_sarr_push) emit_nsarr_push(&b);
         if (need_sarr_set) emit_nsarr_set(&b);
+        if (need_split) emit_nstr_split(&b);
         if (need_rarr_new) emit_nrarr_new(&b);
         if (need_rarr_push) emit_nrarr_arena(&b);
         if (need_rarr_get) emit_nrarr_get(&b);

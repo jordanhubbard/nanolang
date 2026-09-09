@@ -1541,13 +1541,18 @@ Compiler product:
       `result.nano` (59), `ir.nano` (1), `error_messages.nano` (61),
       and generated `compiler_ast` / `compiler_schema` /
       `compiler_contracts` (1 each) emit and assemble.
+- [x] Cut A str_trim/str_replace/str_split: `clipped` / `via_trim`
+      (`STR_TRIM`), `swapped` / `via_repl` (`STR_REPLACE`), and
+      `parts` / `via_parts` (`STR_SPLIT`) match the C seed.
+      `STR_TO_LOWER` / `STR_TO_UPPER` are not this pin. I still
+      pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (282 passed).
 - [ ] Cut A remaining named refuses: `nanoc_v04.nano` names
       `undefined module function Math.add` (that file has no
       `import` of `Math`). `compiler_simple.nano` names
       `cannot read import test_modules/math_helper.nano`.
       `typecheck_nanoc.nano` / `parse_nanoc.nano` name
-      `undefined function tokenize_file_result`. `nvm2c` still
-      names `LOAD_GLOBAL` and `CALL_EXTERN`. I still pretty-print
+      `undefined function tokenize_file_result`. I still pretty-print
       C to build the compiler.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
@@ -1571,7 +1576,12 @@ Compiler product:
       `get_argc`, and `get_argv` become `nhost_*` helpers, not a
       co-process client. Unknown imports (`libc` `puts`) stay refused.
       `via_cwd` / `via_env` / `via_tmp` / `via_chstr` / `via_argv` exit 1,
-      `via_sys` / `via_argc` exit 0. `make test-nvm2c` (539 passed).
+      `via_sys` / `via_argc` exit 0.       `make test-nvm2c` (539 passed).
+- [x] `nvm2c` translates Cut A `STR_TRIM`, `STR_REPLACE`, and `STR_SPLIT`.
+      `clipped` / `via_trim` exit 1, `swapped` / `via_repl` exit 1,
+      `parts` length is 2, empty-needle replace is unchanged, empty
+      delimiter splits into characters. `STR_TO_LOWER` / `STR_TO_UPPER`
+      stay refused. `make test-nvm2c` (570 passed).
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
       in 5.0 documentation or CLI defaults.
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
@@ -1733,6 +1743,11 @@ Compiler product:
 - [x] `nvm2c` maps Cut A host `CALL_EXTERN` to C (`nhost_getcwd` and
       kin). I do not emit `nano_cop`. Unmapped imports stay refused.
       `make test-nvm2c` (539 passed).
+- [x] `nvm2c` translates Cut A `STR_TRIM`, `STR_REPLACE`, and `STR_SPLIT`
+      without `nano_vm`. `clipped("  hi  ")` equals `"hi"`. `swapped("ab")`
+      equals `"xb"`. `parts("a,b")` length is 2. Empty-needle replace is
+      unchanged. `STR_TO_LOWER` / `STR_TO_UPPER` stay refused.
+      `make test-nvm2c` (570 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.

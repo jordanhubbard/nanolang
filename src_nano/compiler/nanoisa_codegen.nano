@@ -715,7 +715,11 @@ fn nisa_is_inline_call(name: string) -> bool {
                                                (or (== name "str_substring")
                                                    (or (== name "char_at")
                                                        (or (== name "str_char_at")
-                                                           (or (== name "str_concat") (== name "string_to_int")))))))))))))))
+                                                           (or (== name "str_concat")
+                                                               (or (== name "string_to_int")
+                                                                   (or (== name "str_trim")
+                                                                       (or (== name "str_split")
+                                                                           (== name "str_replace"))))))))))))))))))
 }
 
 shadow nisa_is_inline_call {
@@ -728,6 +732,9 @@ shadow nisa_is_inline_call {
     assert (nisa_is_inline_call "int_to_string")
     assert (nisa_is_inline_call "str_length")
     assert (nisa_is_inline_call "str_substring")
+    assert (nisa_is_inline_call "str_trim")
+    assert (nisa_is_inline_call "str_split")
+    assert (nisa_is_inline_call "str_replace")
     assert (nisa_is_inline_call "list_int_new")
     assert (nisa_is_inline_call "list_int_length")
     assert (nisa_is_inline_call "list_int_push")
@@ -2296,7 +2303,9 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
                                        (or (== func_id.name "tmp_dir")
                                            (or (== func_id.name "str_concat")
                                                (or (== func_id.name "str_substring")
-                                                   (== func_id.name "string_from_char")))))))) {
+                                                   (or (== func_id.name "str_trim")
+                                                       (or (== func_id.name "str_replace")
+                                                           (== func_id.name "string_from_char")))))))))) {
                         return true
                     } else {
                     let fidx: int = (nisa_fn_index parser func_id.name)
@@ -3265,6 +3274,27 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                     return (+ (nisa_emit_call_args parser call) (nisa_line "STR_SUBSTR"))
                                 }
                             } else {
+                            if (== func_id.name "str_trim") {
+                                if (!= call.arg_count 1) {
+                                    return (nisa_fail "str_trim needs 1 argument")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "STR_TRIM"))
+                                }
+                            } else {
+                            if (== func_id.name "str_split") {
+                                if (!= call.arg_count 2) {
+                                    return (nisa_fail "str_split needs 2 arguments")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "STR_SPLIT"))
+                                }
+                            } else {
+                            if (== func_id.name "str_replace") {
+                                if (!= call.arg_count 3) {
+                                    return (nisa_fail "str_replace needs 3 arguments")
+                                } else {
+                                    return (+ (nisa_emit_call_args parser call) (nisa_line "STR_REPLACE"))
+                                }
+                            } else {
                             if (or (== func_id.name "char_at") (== func_id.name "str_char_at")) {
                                 if (!= call.arg_count 2) {
                                     return (nisa_fail "char_at needs 2 arguments")
@@ -3309,6 +3339,9 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
                                     }
                                     }
                                 }
+                            }
+                            }
+                            }
                             }
                             }
                             }
@@ -4392,6 +4425,27 @@ shadow nisa_emit_function {
     let slice_text: string = (nisa_emit_function p23 slice_fn)
     assert (str_contains slice_text ".function slice 1 1 0 string 1")
     assert (str_contains slice_text "STR_SUBSTR")
+    let src23b: string = (+ "f" "n clipped(s: string) -> string { return (str_trim s) } shadow clipped { assert true }")
+    let toks23b: List<LexerToken> = (tokenize_string src23b "t.nano" diags)
+    let p23b: Parser = (parse_program toks23b (list_LexerToken_length toks23b) "t.nano")
+    let clipped_fn: ASTFunction = (parser_get_function p23b 0)
+    let clipped_text: string = (nisa_emit_function p23b clipped_fn)
+    assert (str_contains clipped_text ".function clipped 1 1 0 string 1")
+    assert (str_contains clipped_text "STR_TRIM")
+    let src23c: string = (+ "f" "n swapped(s: string) -> string { return (str_replace s \"a\" \"x\") } shadow swapped { assert true }")
+    let toks23c: List<LexerToken> = (tokenize_string src23c "t.nano" diags)
+    let p23c: Parser = (parse_program toks23c (list_LexerToken_length toks23c) "t.nano")
+    let swapped_fn: ASTFunction = (parser_get_function p23c 0)
+    let swapped_text: string = (nisa_emit_function p23c swapped_fn)
+    assert (str_contains swapped_text ".function swapped 1 1 0 string 1")
+    assert (str_contains swapped_text "STR_REPLACE")
+    let src23d: string = (+ "f" "n parts(s: string) -> array<string> { return (str_split s \",\") } shadow parts { assert true }")
+    let toks23d: List<LexerToken> = (tokenize_string src23d "t.nano" diags)
+    let p23d: Parser = (parse_program toks23d (list_LexerToken_length toks23d) "t.nano")
+    let parts_fn: ASTFunction = (parser_get_function p23d 0)
+    let parts_text: string = (nisa_emit_function p23d parts_fn)
+    assert (str_contains parts_text ".function parts 1 1 0 array 1")
+    assert (str_contains parts_text "STR_SPLIT")
     let src24: string = (+ "f" "n blank_l() -> int { let xs: List<int> = (list_int_new) return (list_int_length xs) } shadow blank_l { assert true }")
     let toks24: List<LexerToken> = (tokenize_string src24 "t.nano" diags)
     let p24: Parser = (parse_program toks24 (list_LexerToken_length toks24) "t.nano")

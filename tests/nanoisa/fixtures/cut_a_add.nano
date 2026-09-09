@@ -278,6 +278,56 @@ shadow slice {
     assert (== (slice "hi") "h")
 }
 
+fn clipped(s: string) -> string {
+    return (str_trim s)
+}
+
+shadow clipped {
+    assert (== (clipped "  hi  ") "hi")
+    assert (== (clipped "x") "x")
+    assert (== (clipped "") "")
+}
+
+fn via_trim() -> bool {
+    return (== (clipped "  hi  ") "hi")
+}
+
+shadow via_trim {
+    assert (via_trim)
+}
+
+fn swapped(s: string) -> string {
+    return (str_replace s "a" "x")
+}
+
+shadow swapped {
+    assert (== (swapped "ab") "xb")
+}
+
+fn via_repl() -> bool {
+    return (== (swapped "ab") "xb")
+}
+
+shadow via_repl {
+    assert (via_repl)
+}
+
+fn parts(s: string) -> array<string> {
+    return (str_split s ",")
+}
+
+shadow parts {
+    assert (== (array_length (parts "a,b")) 2)
+}
+
+fn via_parts() -> int {
+    return (array_length (parts "a,b"))
+}
+
+shadow via_parts {
+    assert (== (via_parts) 2)
+}
+
 fn blank_l() -> int {
     let xs: List<int> = (list_int_new)
     return (list_int_length xs)

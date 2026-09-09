@@ -246,9 +246,9 @@ and `List<Tok>` results (`one_t` / `via_one_t`), and
 `via_tok_mod`; local enums stay first in `def_idx`). `std/` import
 paths resolve through `modules/` like the C seed. Transitive
 imports register enums and pin-record structs from imported files.
-`STR_SPLIT`
-and `STR_REPLACE`
-stay refused. String operands
+`clipped` / `via_trim` (`STR_TRIM`), `swapped` / `via_repl`
+(`STR_REPLACE`), and `parts` / `via_parts` (`STR_SPLIT`) match the
+C seed. `STR_TO_LOWER` / `STR_TO_UPPER` stay refused. String operands
 are compared by content, not pool index. I still pretty-print C to
 build the compiler. When I refuse a program, `nanoisa_emit` prints
 `nisa_err` so the next hole is named. The full dual of `codegen.c` is
@@ -340,7 +340,9 @@ the C seed; `"a\"b"` is `.string` with `\"`), and Cut A bool `==` as `EQ`
 emits 401 functions and that nasm assembles; `nano_vm` exits 0. `nvm2c`
 maps Cut A host `CALL_EXTERN` to C (`nhost_getcwd` and kin) and still
 refuses unmapped imports. `nvm2c` runs Cut A HashMap without `nano_vm`
-(`via_blank_hm` exits 0, `via_put_hm` / `via_hm` exit 1). Cut A `array_new` (`blank_a` / `via_blank_a`
+(`via_blank_hm` exits 0, `via_put_hm` / `via_hm` exit 1). `nvm2c` runs
+Cut A `STR_TRIM` / `STR_REPLACE` / `STR_SPLIT` without `nano_vm`
+(`clipped` / `via_trim` / `swapped` / `via_repl` / `parts`). Cut A `array_new` (`blank_a` / `via_blank_a`
 match the C seed; `ARR_NEW 1` even for a string fill), and Cut A
 `str_substring` concat (`via_substr_concat`) and `EQ` of `at` of
 `array<string>` (`via_at_eq`), and Cut A host `getenv` (`via_env` is
@@ -374,10 +376,10 @@ access of a union payload (`via_chain`) matches the C seed.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, tuples, array
-equality, `STR_TRIM`, `STR_SPLIT`, substring of arrays, and printing
+equality, `STR_TO_LOWER`, `STR_TO_UPPER`, substring of arrays, and printing
 arrays/records stay refused. The rest of the
-compiler subset (remaining string library, tuples, empty `List<Tok>`
-classification, and compiling `src_nano` to `.nvm`) is still open. A pinned
+compiler subset (tuples, empty `List<Tok>` classification, and compiling
+`src_nano` to `.nvm`) is still open. A pinned
 suite must match on `nano_vm` and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`

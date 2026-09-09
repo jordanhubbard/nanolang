@@ -234,7 +234,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   exits 1. `HM_GET` stays refused. Cut A host `CALL_EXTERN` runs as
   native C (`nhost_*`, not `nano_cop`): `via_cwd` / `via_env` /
   `via_tmp` / `via_chstr` / `via_argv` exit 1, `via_sys` / `via_argc`
-  exit 0. Unmapped imports stay refused. `make test-nvm2c` (539 passed).
+  exit 0. Unmapped imports stay refused. Cut A `STR_TRIM` /
+  `STR_REPLACE` / `STR_SPLIT` run as native C: `clipped` /
+  `via_trim` / `swapped` / `via_repl` match, `parts` length is 2.
+  `STR_TO_LOWER` / `STR_TO_UPPER` stay refused.
+  `make test-nvm2c` (570 passed). `make test-nanoisa-src-nano` (282 passed).
 
 ## [4.5.0] - 2026-09-07
 

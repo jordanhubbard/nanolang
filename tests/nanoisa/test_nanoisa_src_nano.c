@@ -154,6 +154,18 @@ int main(int argc, char **argv) {
     const NvmFunctionEntry *s_slen;
     const NvmFunctionEntry *c_slice;
     const NvmFunctionEntry *s_slice;
+    const NvmFunctionEntry *c_clipped;
+    const NvmFunctionEntry *s_clipped;
+    const NvmFunctionEntry *c_via_trim;
+    const NvmFunctionEntry *s_via_trim;
+    const NvmFunctionEntry *c_swapped;
+    const NvmFunctionEntry *s_swapped;
+    const NvmFunctionEntry *c_via_repl;
+    const NvmFunctionEntry *s_via_repl;
+    const NvmFunctionEntry *c_parts;
+    const NvmFunctionEntry *s_parts;
+    const NvmFunctionEntry *c_via_parts;
+    const NvmFunctionEntry *s_via_parts;
     const NvmFunctionEntry *c_blank;
     const NvmFunctionEntry *s_blank;
     const NvmFunctionEntry *c_grow_l;
@@ -383,8 +395,8 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    CHECK(c_mod->function_count >= 132, "C seed emitted add through via_chain");
-    CHECK(s_mod->function_count >= 132, "src_nano emitted add through via_chain");
+    CHECK(c_mod->function_count >= 138, "C seed emitted add through via_parts");
+    CHECK(s_mod->function_count >= 138, "src_nano emitted add through via_parts");
 
     c_add = fn_by_name(c_mod, "add");
     s_add = fn_by_name(s_mod, "add");
@@ -446,6 +458,18 @@ int main(int argc, char **argv) {
     s_slen = fn_by_name(s_mod, "slen");
     c_slice = fn_by_name(c_mod, "slice");
     s_slice = fn_by_name(s_mod, "slice");
+    c_clipped = fn_by_name(c_mod, "clipped");
+    s_clipped = fn_by_name(s_mod, "clipped");
+    c_via_trim = fn_by_name(c_mod, "via_trim");
+    s_via_trim = fn_by_name(s_mod, "via_trim");
+    c_swapped = fn_by_name(c_mod, "swapped");
+    s_swapped = fn_by_name(s_mod, "swapped");
+    c_via_repl = fn_by_name(c_mod, "via_repl");
+    s_via_repl = fn_by_name(s_mod, "via_repl");
+    c_parts = fn_by_name(c_mod, "parts");
+    s_parts = fn_by_name(s_mod, "parts");
+    c_via_parts = fn_by_name(c_mod, "via_parts");
+    s_via_parts = fn_by_name(s_mod, "via_parts");
     c_blank = fn_by_name(c_mod, "blank_l");
     s_blank = fn_by_name(s_mod, "blank_l");
     c_grow_l = fn_by_name(c_mod, "grow_l");
@@ -680,6 +704,12 @@ int main(int argc, char **argv) {
     CHECK(c_at != NULL && s_at != NULL, "both modules have via_at");
     CHECK(c_slen != NULL && s_slen != NULL, "both modules have slen");
     CHECK(c_slice != NULL && s_slice != NULL, "both modules have slice");
+    CHECK(c_clipped != NULL && s_clipped != NULL, "both modules have clipped");
+    CHECK(c_via_trim != NULL && s_via_trim != NULL, "both modules have via_trim");
+    CHECK(c_swapped != NULL && s_swapped != NULL, "both modules have swapped");
+    CHECK(c_via_repl != NULL && s_via_repl != NULL, "both modules have via_repl");
+    CHECK(c_parts != NULL && s_parts != NULL, "both modules have parts");
+    CHECK(c_via_parts != NULL && s_via_parts != NULL, "both modules have via_parts");
     CHECK(c_blank != NULL && s_blank != NULL, "both modules have blank_l");
     CHECK(c_grow_l != NULL && s_grow_l != NULL, "both modules have grow_l");
     CHECK(c_ch != NULL && s_ch != NULL, "both modules have ch");
@@ -842,6 +872,18 @@ int main(int argc, char **argv) {
           "slen bytecode matches C seed");
     CHECK(code_equal(c_mod, c_slice, s_mod, s_slice),
           "slice bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_clipped, s_mod, s_clipped),
+          "clipped bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_trim, s_mod, s_via_trim),
+          "via_trim bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_swapped, s_mod, s_swapped),
+          "swapped bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_repl, s_mod, s_via_repl),
+          "via_repl bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_parts, s_mod, s_parts),
+          "parts bytecode matches C seed");
+    CHECK(code_equal(c_mod, c_via_parts, s_mod, s_via_parts),
+          "via_parts bytecode matches C seed");
     CHECK(code_equal(c_mod, c_blank, s_mod, s_blank),
           "blank_l bytecode matches C seed");
     CHECK(code_equal(c_mod, c_grow_l, s_mod, s_grow_l),

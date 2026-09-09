@@ -236,24 +236,222 @@ static void test_call_extern_is_refused(void) {
     nvm_module_free(m);
 }
 
-static void test_str_trim_is_refused(void) {
+static void test_str_trim_runs_without_nano_vm(void) {
     const char *src =
-        ".string s \"hi\"\n"
-        ".entry 0\n"
-        ".function main 0 0 0 int 1\n"
-        "  PUSH_STR s\n"
+        ".string padded \"  hi  \"\n"
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function clipped 1 1 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
         "  STR_TRIM\n"
-        "  POP\n"
-        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR padded\n"
+        "  CALL clipped\n"
+        "  PUSH_STR hi\n"
+        "  EQ\n"
         "  RET\n"
         ".end\n";
-    NvmModule *m = assemble_ok(src, "trim fixture");
-    CHECK(m != NULL, "trim fixture assembles");
+    NvmModule *m = assemble_ok(src, "clipped fixture");
+    CHECK(m != NULL, "clipped fixture assembles");
     if (!m) return;
-    char err[256];
-    char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "STR_TRIM stays outside the closed subset");
-    CHECK(strstr(err, "STR_TRIM") != NULL, "error names STR_TRIM");
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_TRIM");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_TRIM C does not name nano_vm");
+    CHECK(strstr(c, "nstr_trim") != NULL, "STR_TRIM C calls nstr_trim");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_TRIM C compiles and runs");
+    CHECK(status == 1, "trim(\"  hi  \") equals \"hi\" without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_trim_ws_len_is_zero(void) {
+    const char *src =
+        ".string ws \"    \"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR ws\n"
+        "  STR_TRIM\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "trim whitespace fixture");
+    CHECK(m != NULL, "trim whitespace fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for whitespace STR_TRIM");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "whitespace STR_TRIM C compiles and runs");
+    CHECK(status == 0, "trim of only whitespace is empty");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_replace_runs_without_nano_vm(void) {
+    const char *src =
+        ".string ab \"ab\"\n"
+        ".string a \"a\"\n"
+        ".string x \"x\"\n"
+        ".string xb \"xb\"\n"
+        ".entry 1\n"
+        ".function swapped 1 1 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR a\n"
+        "  PUSH_STR x\n"
+        "  STR_REPLACE\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR ab\n"
+        "  CALL swapped\n"
+        "  PUSH_STR xb\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "swapped fixture");
+    CHECK(m != NULL, "swapped fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_REPLACE");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_REPLACE C does not name nano_vm");
+    CHECK(strstr(c, "nstr_replace") != NULL, "STR_REPLACE C calls nstr_replace");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_REPLACE C compiles and runs");
+    CHECK(status == 1, "replace(\"ab\",\"a\",\"x\") equals \"xb\" without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_replace_empty_needle_is_unchanged(void) {
+    const char *src =
+        ".string ab \"ab\"\n"
+        ".string empty \"\"\n"
+        ".string x \"x\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR ab\n"
+        "  PUSH_STR empty\n"
+        "  PUSH_STR x\n"
+        "  STR_REPLACE\n"
+        "  PUSH_STR ab\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "empty-needle replace fixture");
+    CHECK(m != NULL, "empty-needle replace fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for empty-needle STR_REPLACE");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "empty-needle STR_REPLACE C compiles and runs");
+    CHECK(status == 1, "replace with an empty needle leaves the string unchanged");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_split_len_runs_without_nano_vm(void) {
+    const char *src =
+        ".string csv \"a,b\"\n"
+        ".string comma \",\"\n"
+        ".entry 1\n"
+        ".function parts 2 2 0 array 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  STR_SPLIT\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR csv\n"
+        "  PUSH_STR comma\n"
+        "  CALL parts\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "parts fixture");
+    CHECK(m != NULL, "parts fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_SPLIT");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_SPLIT C does not name nano_vm");
+    CHECK(strstr(c, "nstr_split") != NULL, "STR_SPLIT C calls nstr_split");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_SPLIT C compiles and runs");
+    CHECK(status == 2, "split(\"a,b\", \",\") length is 2 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_split_get_runs_without_nano_vm(void) {
+    const char *src =
+        ".string csv \"a,b\"\n"
+        ".string comma \",\"\n"
+        ".string a \"a\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR csv\n"
+        "  PUSH_STR comma\n"
+        "  STR_SPLIT\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  PUSH_STR a\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "split get fixture");
+    CHECK(m != NULL, "split get fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_SPLIT ARR_GET");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_SPLIT ARR_GET C compiles and runs");
+    CHECK(status == 1, "split(\"a,b\", \",\")[0] equals \"a\" without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_split_empty_delim_is_chars(void) {
+    const char *src =
+        ".string ab \"ab\"\n"
+        ".string empty \"\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR ab\n"
+        "  PUSH_STR empty\n"
+        "  STR_SPLIT\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "empty-delim split fixture");
+    CHECK(m != NULL, "empty-delim split fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for empty-delim STR_SPLIT");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "empty-delim STR_SPLIT C compiles and runs");
+    CHECK(status == 2, "split(\"ab\", \"\") length is 2 without a VM process");
     free(c);
     nvm_module_free(m);
 }
@@ -3529,7 +3727,13 @@ int main(int argc, char **argv) {
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_call_extern_is_refused();
-    test_str_trim_is_refused();
+    test_str_trim_runs_without_nano_vm();
+    test_str_trim_ws_len_is_zero();
+    test_str_replace_runs_without_nano_vm();
+    test_str_replace_empty_needle_is_unchanged();
+    test_str_split_len_runs_without_nano_vm();
+    test_str_split_get_runs_without_nano_vm();
+    test_str_split_empty_delim_is_chars();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();
