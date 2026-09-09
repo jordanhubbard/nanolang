@@ -5831,12 +5831,25 @@ static void register_builtin_functions(Environment *env) {
 static bool functions_match(Function *f1, Function *f2) {
     if (f1->param_count != f2->param_count) return false;
     if (f1->return_type != f2->return_type) return false;
-    
+    /* Host builtins may omit parameter records. Arity and return already match. */
+    if (!f1->params || !f2->params) return true;
+
     for (int i = 0; i < f1->param_count; i++) {
         if (f1->params[i].type != f2->params[i].type) return false;
     }
-    
+
     return true;
+}
+
+/* extern that restates another extern, or a body-less host builtin. */
+static bool extern_restates_existing(ASTNode *item, Function *existing) {
+    Function current = {0};
+    if (!item || !existing || !item->as.function.is_extern) return false;
+    current.param_count = item->as.function.param_count;
+    current.params = item->as.function.params;
+    current.return_type = item->as.function.return_type;
+    if (!functions_match(&current, existing)) return false;
+    return existing->is_extern || existing->body == NULL;
 }
 
 bool type_check(ASTNode *program, Environment *env) {
@@ -6279,18 +6292,8 @@ register_function_pass1:;
             /* Check if function is already defined */
             Function *existing = env_get_function(env, func_name);
             if (existing) {
-                /* If both are extern and signatures match, it's fine (idempotent) */
-                if (item->as.function.is_extern && existing->is_extern) {
-                    /* Create a temporary function object for matching */
-                    Function current = (Function){0};
-                    current.param_count = item->as.function.param_count;
-                    current.params = item->as.function.params;
-                    current.return_type = item->as.function.return_type;
-                    /* Note: return_struct_type_name match not fully implemented here */
-                    
-                    if (functions_match(&current, existing)) {
-                        continue; /* Skip registration, already there and matches */
-                    }
+                if (extern_restates_existing(item, existing)) {
+                    continue;
                 }
 
                 /* Extern functions cannot be redefined or shadowed */
@@ -7040,16 +7043,8 @@ register_function_pass2:;
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
             if (existing) {
-                /* If both are extern and signatures match, it's fine (idempotent) */
-                if (item->as.function.is_extern && existing->is_extern) {
-                    Function current;
-                    current.param_count = item->as.function.param_count;
-                    current.params = item->as.function.params;
-                    current.return_type = item->as.function.return_type;
-                    
-                    if (functions_match(&current, existing)) {
-                        continue; /* Skip registration, already there and matches */
-                    }
+                if (extern_restates_existing(item, existing)) {
+                    continue;
                 }
 
                 /* Extern functions cannot be redefined or shadowed */

@@ -1578,6 +1578,25 @@ Compiler product:
       (`compiler_simple` / `math_helper`),
       `task_28a815533c566637ae0371271bfe9b0c`
       (`tokenize_file_result`).
+- [x] C seed `--emit-nvm` typechecks a file without `main`
+      (`type_check_module`). `cut_a_no_main.nano` writes `.nvm`.
+      `nanoc` still requires `main` for a process image.
+      `make test-nanovirt`. `make test-nanoisa-src-nano` library check.
+- [x] C seed `extern` may restate a host builtin (`get_argc` /
+      `get_argv` with `body == NULL`). Wrong arity still fails.
+      `make test-typechecker`.
+- [x] C seed function table is 8192; locals 1024 (`LOAD_LOCAL` is
+      u16). `nvm2c` locals match. `nanoc_v06.nano` writes `.nvm`.
+      `make test-nanovirt` (300 chained lets). I still pretty-print
+      C to build the compiler.
+- [ ] C seed type_check_module accepts a Result union as a result
+      type (`Ok`/`Err` construct, `match`). `tokenize_result.nano`,
+      `parse_nanoc.nano`, `typecheck_nanoc.nano`, `driver.nano`, and
+      `compiler/result.nano` still fail (`got union, expected struct`).
+      MAC `task_46e71e542a33fd0401885580f0bc3714`. Held `--no-dispatch`.
+- [ ] C seed registers `file_read` / `file_write` the way the
+      self-hosted emitter does. `file_io.nano` still fails E027.
+      MAC `task_7b30ff72a17269fe1c420431ef6993d4`. Held `--no-dispatch`.
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
       MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the

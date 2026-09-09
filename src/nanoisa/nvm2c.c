@@ -16,7 +16,7 @@
 #include <string.h>
 
 #define NVM2C_MAX_STACK  64
-#define NVM2C_MAX_LOCALS 256
+#define NVM2C_MAX_LOCALS 1024
 #define NVM2C_MAX_GLOBALS 256
 #define NVM2C_MAX_TEMPS  256
 #define NVM2C_MAX_REC_FIELDS 8

@@ -443,6 +443,15 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_lib.nasm \
 		-o /tmp/nanolang_cut_a_lib.nvm
 	@test -s /tmp/nanolang_cut_a_lib.nvm
+	@echo "Checking C seed --emit-nvm of a library file..."
+	@$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_no_main.nano \
+		--emit-nvm --strip-debug -o /tmp/nanolang_cut_a_c_lib.nvm
+	@test -s /tmp/nanolang_cut_a_c_lib.nvm
+	@echo "Checking C seed --emit-nvm of nanoc_v06.nano..."
+	@$(TIMEOUT_CMD) ./bin/nano_virt src_nano/nanoc_v06.nano \
+		--emit-nvm --strip-debug -o /tmp/nanolang_cut_a_c_nanoc_v06.nvm \
+		>/tmp/nanolang_cut_a_c_nanoc_v06.err 2>&1
+	@test -s /tmp/nanolang_cut_a_c_nanoc_v06.nvm
 	@echo "Checking lexer.nano emits and assembles the pinned subset..."
 	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/lexer.nano \
 		-o /tmp/nanolang_cut_a_lexer.nasm

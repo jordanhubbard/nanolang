@@ -56,6 +56,7 @@ static void usage(const char *prog) {
     fprintf(stderr, "                     5.0 native AOT is bin/nvm2c, not this default\n");
     fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
+    fprintf(stderr, "                     A file without main gets a synthetic main\n");
     fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
@@ -146,9 +147,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    /* Type Checking */
+    /* Type check. Codegen synthesizes main for a library, so I use
+     * type_check_module rather than requiring main before emit. */
     typecheck_set_current_file(input);
-    if (!type_check(program, env)) {
+    if (!type_check_module(program, env)) {
         fprintf(stderr, "error: type check failed\n");
         free_ast(program);
         free_environment(env);

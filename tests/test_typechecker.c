@@ -361,6 +361,21 @@ void test_tc_module_level(void) {
         "fn mul(a: int, b: int) -> int { return (* a b) }"));
 }
 
+void test_tc_module_extern_restates_host_builtin(void) {
+    /* nanoc_v06.nano restates get_argc/get_argv as extern. The C seed
+     * already registered those as host builtins. */
+    ASSERT(tc_module_passes(
+        "extern fn get_argc() -> int\n"
+        "extern fn get_argv(index: int) -> string\n"
+        "fn uses_argc() -> int { return (get_argc) }"));
+}
+
+void test_tc_module_extern_wrong_host_arity_fails(void) {
+    ASSERT(!tc_module_passes(
+        "extern fn get_argc(x: int) -> int\n"
+        "fn uses_argc() -> int { return 0 }"));
+}
+
 void test_tc_constants(void) {
     ASSERT(tc_passes(
         "let PI: float = 3.14159\n"
@@ -783,6 +798,8 @@ int main(void) {
     TEST(tc_tuple_return);
     TEST(tc_break_continue);
     TEST(tc_module_level);
+    TEST(tc_module_extern_restates_host_builtin);
+    TEST(tc_module_extern_wrong_host_arity_fails);
     TEST(tc_constants);
     TEST(tc_cond_expr);
     TEST(tc_nested_functions);

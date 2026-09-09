@@ -158,6 +158,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `src_nano/compiler/tokenize_result.nano` (74 functions).
   `parse_nanoc.nano` emits 304. `typecheck_nanoc.nano` emits 408.
   Those nasm files assemble. Ingest copies imported unions.
+  C seed `--emit-nvm` typechecks a library (`type_check_module`).
+  `cut_a_no_main.nano` writes `.nvm`. `extern` may restate
+  `get_argc` / `get_argv`. Function table is 8192; locals 1024.
+  `nanoc_v06.nano` writes `.nvm`. Result unions and `file_read` in
+  the C seed still fail.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

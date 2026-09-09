@@ -1438,6 +1438,63 @@ static void test_closure_capture_local_var(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_function_with_many_locals(void) {
+    fprintf(stderr, "  many locals...");
+    char source[32768];
+    size_t n = 0;
+    n += (size_t)snprintf(source + n, sizeof(source) - n,
+                          "fn many() -> int {\n"
+                          " let x0: int = 0\n");
+    for (int i = 1; i < 300; i++) {
+        n += (size_t)snprintf(source + n, sizeof(source) - n,
+                              " let x%d: int = (+ x%d 1)\n", i, i - 1);
+    }
+    n += (size_t)snprintf(source + n, sizeof(source) - n,
+                          " return x299\n}\n"
+                          "shadow many { assert (== (many) 299) }\n"
+                          "fn main() -> int { return (many) }\n");
+    ASSERT(n < sizeof(source), "source fit");
+    TestResult tr = compile_and_run(source);
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 299);
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_library_without_main_gets_synthetic_main(void) {
+    fprintf(stderr, "  library without main...");
+    const char *source =
+        "fn add(a: int, b: int) -> int { return (+ a b) }\n"
+        "shadow add { assert (== (add 2 3) 5) }\n";
+    int token_count = 0;
+    Token *tokens = tokenize(source, &token_count);
+    ASSERT(tokens != NULL, "lexer failed");
+    ASTNode *program = parse_program(tokens, token_count);
+    ASSERT(program != NULL, "parser failed");
+    Environment *env = create_environment();
+    env->suppress_shadow_warnings = true;
+    ASSERT(type_check_module(program, env), "type_check_module of a library");
+    CodegenResult cg = codegen_compile(program, env, NULL, NULL);
+    ASSERT(cg.ok, "codegen of a library");
+    bool found_main = false;
+    for (uint32_t i = 0; i < cg.module->function_count; i++) {
+        const char *name = nvm_get_string(cg.module, cg.module->functions[i].name_idx);
+        if (name && strcmp(name, "main") == 0) {
+            found_main = true;
+            break;
+        }
+    }
+    ASSERT(found_main, "synthetic main");
+    nvm_module_free(cg.module);
+    free_ast(program);
+    free_environment(env);
+    free_tokens(tokens, token_count);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
@@ -1448,6 +1505,8 @@ int main(void) {
     test_debug_metadata_is_not_executable();
     test_scalar_codegen_uses_typed_opcodes();
     test_function_result_signatures();
+    test_library_without_main_gets_synthetic_main();
+    test_function_with_many_locals();
 
     fprintf(stderr, "\nInteger Arithmetic:\n");
     test_return_int();

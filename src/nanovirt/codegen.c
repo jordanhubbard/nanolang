@@ -23,8 +23,11 @@
 
 /* ── Limits ─────────────────────────────────────────────────────── */
 
-#define MAX_LOCALS      256
-#define MAX_FUNCTIONS   512
+/* Compiler files ingest imported functions into one module.
+ * lexer.nano is small; nanoc_v06.nano is hundreds of functions and
+ * some bodies have more than 256 lets. LOAD_LOCAL is u16. */
+#define MAX_LOCALS      1024
+#define MAX_FUNCTIONS   8192
 #define MAX_PATCHES     1024
 #define MAX_LOOP_DEPTH  32
 #define MAX_BREAKS      64
