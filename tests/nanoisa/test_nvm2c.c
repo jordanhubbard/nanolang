@@ -3088,6 +3088,266 @@ static void test_hm_get_is_refused(void) {
     nvm_module_free(m);
 }
 
+static void test_via_cwd_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_getcwd\" string\n"
+        ".entry 1\n"
+        ".function via_cwd 0 0 0 string 1\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_cwd\n"
+        "  STR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_cwd fixture");
+    CHECK(m != NULL, "via_cwd fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_cwd");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_cwd C does not name nano_vm");
+    CHECK(strstr(c, "nano_cop") == NULL, "via_cwd C is not a co-process client");
+    CHECK(strstr(c, "nhost_getcwd") != NULL, "via_cwd C calls the host getcwd ABI");
+    CHECK(strstr(c, "CALL_EXTERN") == NULL, "via_cwd C does not name CALL_EXTERN");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_cwd C compiles and runs");
+    CHECK(status == 1, "via_cwd() is a non-empty cwd without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_env_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_getenv\" string string\n"
+        ".string path \"PATH\"\n"
+        ".entry 1\n"
+        ".function via_env 0 0 0 string 1\n"
+        "  PUSH_STR path\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_env\n"
+        "  STR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_env fixture");
+    CHECK(m != NULL, "via_env fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_env");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_env C does not name nano_vm");
+    CHECK(strstr(c, "nhost_getenv") != NULL, "via_env C calls the host getenv ABI");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_env C compiles and runs");
+    CHECK(status == 1, "via_env(PATH) is non-empty without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_sys_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_system\" int string\n"
+        ".string cmd \"true\"\n"
+        ".entry 1\n"
+        ".function via_sys 0 0 0 int 1\n"
+        "  PUSH_STR cmd\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_sys\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_sys fixture");
+    CHECK(m != NULL, "via_sys fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_sys");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_sys C does not name nano_vm");
+    CHECK(strstr(c, "nhost_system") != NULL, "via_sys C calls the host system ABI");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_sys C compiles and runs");
+    CHECK(status == 0, "via_sys(true) exits 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_chstr_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_string_from_char\" string int\n"
+        ".string A \"A\"\n"
+        ".entry 1\n"
+        ".function via_chstr 0 0 0 string 1\n"
+        "  PUSH_I64 65\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_chstr\n"
+        "  PUSH_STR A\n"
+        "  EQ\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_chstr fixture");
+    CHECK(m != NULL, "via_chstr fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_chstr");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_chstr C does not name nano_vm");
+    CHECK(strstr(c, "nhost_from_char") != NULL, "via_chstr C calls the host char ABI");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_chstr C compiles and runs");
+    CHECK(status == 1, "via_chstr(65) equals A without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_argc_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"get_argc\" int\n"
+        ".entry 1\n"
+        ".function via_argc 0 0 0 int 1\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_argc\n"
+        "  PUSH_I64 0\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_argc fixture");
+    CHECK(m != NULL, "via_argc fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_argc");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_argc C does not name nano_vm");
+    CHECK(strstr(c, "nhost_argc") != NULL, "via_argc C reads host argc");
+    CHECK(strstr(c, "int main(int argc, char **argv)") != NULL,
+          "via_argc C main takes argc/argv");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_argc C compiles and runs");
+    CHECK(status == 0, "via_argc() is non-negative without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_tmp_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_tmp_dir\" string\n"
+        ".entry 1\n"
+        ".function via_tmp 0 0 0 string 1\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_tmp\n"
+        "  STR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_tmp fixture");
+    CHECK(m != NULL, "via_tmp fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_tmp");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_tmp C does not name nano_vm");
+    CHECK(strstr(c, "nhost_tmp_dir") != NULL, "via_tmp C calls the host tmp_dir ABI");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_tmp C compiles and runs");
+    CHECK(status == 1, "via_tmp() is a non-empty path without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_argv_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"get_argv\" string int\n"
+        ".entry 1\n"
+        ".function via_argv 0 0 0 string 1\n"
+        "  PUSH_I64 0\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_argv\n"
+        "  STR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_argv fixture");
+    CHECK(m != NULL, "via_argv fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_argv");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_argv C does not name nano_vm");
+    CHECK(strstr(c, "nhost_argv") != NULL, "via_argv C reads host argv");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_argv C compiles and runs");
+    CHECK(status == 1, "via_argv(0) is non-empty without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_cast_int_array_is_refused(void) {
     const char *src =
         ".entry 0\n"
@@ -3353,6 +3613,13 @@ int main(int argc, char **argv) {
     test_via_put_hm_runs_without_nano_vm();
     test_via_hm_runs_without_nano_vm();
     test_hm_get_is_refused();
+    test_via_cwd_runs_without_nano_vm();
+    test_via_env_runs_without_nano_vm();
+    test_via_sys_runs_without_nano_vm();
+    test_via_chstr_runs_without_nano_vm();
+    test_via_argc_runs_without_nano_vm();
+    test_via_tmp_runs_without_nano_vm();
+    test_via_argv_runs_without_nano_vm();
     test_cast_int_array_is_refused();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {

@@ -168,6 +168,64 @@ static const char *c_local_type(uint8_t kind) {
     return "int64_t";
 }
 
+typedef enum {
+    NVM2C_HOST_UNKNOWN = 0,
+    NVM2C_HOST_GETCWD,
+    NVM2C_HOST_GETENV,
+    NVM2C_HOST_TMP_DIR,
+    NVM2C_HOST_SYSTEM,
+    NVM2C_HOST_FROM_CHAR,
+    NVM2C_HOST_GET_ARGC,
+    NVM2C_HOST_GET_ARGV
+} Nvm2cHostKind;
+
+static Nvm2cHostKind nvm2c_host_kind(const char *name) {
+    if (!name) return NVM2C_HOST_UNKNOWN;
+    if (strcmp(name, "vm_getcwd") == 0) return NVM2C_HOST_GETCWD;
+    if (strcmp(name, "vm_getenv") == 0) return NVM2C_HOST_GETENV;
+    if (strcmp(name, "vm_tmp_dir") == 0) return NVM2C_HOST_TMP_DIR;
+    if (strcmp(name, "vm_system") == 0) return NVM2C_HOST_SYSTEM;
+    if (strcmp(name, "vm_string_from_char") == 0) return NVM2C_HOST_FROM_CHAR;
+    if (strcmp(name, "get_argc") == 0) return NVM2C_HOST_GET_ARGC;
+    if (strcmp(name, "get_argv") == 0) return NVM2C_HOST_GET_ARGV;
+    return NVM2C_HOST_UNKNOWN;
+}
+
+static int nvm2c_host_sig_ok(Nvm2cHostKind k, const NvmImportEntry *imp, const uint8_t *pt) {
+    switch (k) {
+    case NVM2C_HOST_GETCWD:
+    case NVM2C_HOST_TMP_DIR:
+        return imp->param_count == 0 && imp->return_type == TAG_STRING;
+    case NVM2C_HOST_GETENV:
+        return imp->param_count == 1 && imp->return_type == TAG_STRING && pt && pt[0] == TAG_STRING;
+    case NVM2C_HOST_SYSTEM:
+        return imp->param_count == 1 && (imp->return_type == TAG_INT || imp->return_type == TAG_BOOL)
+            && pt && pt[0] == TAG_STRING;
+    case NVM2C_HOST_FROM_CHAR:
+        return imp->param_count == 1 && imp->return_type == TAG_STRING && pt && pt[0] == TAG_INT;
+    case NVM2C_HOST_GET_ARGC:
+        return imp->param_count == 0 && (imp->return_type == TAG_INT || imp->return_type == TAG_BOOL);
+    case NVM2C_HOST_GET_ARGV:
+        return imp->param_count == 1 && imp->return_type == TAG_STRING && pt && pt[0] == TAG_INT;
+    default:
+        return 0;
+    }
+}
+
+static Nvm2cHostKind nvm2c_import_host(const NvmModule *mod, uint32_t idx) {
+    const NvmImportEntry *imp;
+    const char *name;
+    const uint8_t *pt;
+    Nvm2cHostKind k;
+    if (idx >= mod->import_count) return NVM2C_HOST_UNKNOWN;
+    imp = &mod->imports[idx];
+    name = nvm_get_string(mod, imp->function_name_idx);
+    k = nvm2c_host_kind(name);
+    pt = mod->import_param_types ? mod->import_param_types[idx] : NULL;
+    if (!nvm2c_host_sig_ok(k, imp, pt)) return NVM2C_HOST_UNKNOWN;
+    return k;
+}
+
 static uint8_t fn_local_kind(const uint8_t *kinds, uint32_t fn, uint16_t slot) {
     return kinds[(size_t)fn * NVM2C_MAX_LOCALS + slot];
 }
@@ -789,6 +847,27 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 } else if (result_is_hm(cf)) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_HM, -1)) return 0;
                 }
+            }
+            break;
+        }
+        case OP_CALL_EXTERN: {
+            uint32_t imp_idx = ins.operands[0].u32;
+            Nvm2cHostKind hk = nvm2c_import_host(mod, imp_idx);
+            uint16_t pi;
+            if (hk == NVM2C_HOST_UNKNOWN) {
+                nvm2c_fail(b, "function %u: CALL_EXTERN import %u has no host ABI", idx, imp_idx);
+                return 0;
+            }
+            for (pi = 0; pi < mod->imports[imp_idx].param_count; pi++) {
+                Nvm2cSimSlot arg;
+                if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
+                (void)arg;
+            }
+            if (mod->imports[imp_idx].return_type == TAG_STRING) {
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_STR, -1)) return 0;
+            } else if (mod->imports[imp_idx].return_type == TAG_INT
+                       || mod->imports[imp_idx].return_type == TAG_BOOL) {
+                if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             }
             break;
         }
@@ -2281,9 +2360,65 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                        idx, hm_info ? hm_info->name : "HM_*");
             goto done;
         }
-        case OP_CALL_EXTERN:
-            nvm2c_fail(b, "CALL_EXTERN is the VM FFI/co-process path; nvm2c does not emit it");
-            goto done;
+        case OP_CALL_EXTERN: {
+            uint32_t imp_idx = ins.operands[0].u32;
+            Nvm2cHostKind hk = nvm2c_import_host(mod, imp_idx);
+            if (hk == NVM2C_HOST_UNKNOWN) {
+                const char *nm = (imp_idx < mod->import_count)
+                    ? nvm_get_string(mod, mod->imports[imp_idx].function_name_idx)
+                    : NULL;
+                nvm2c_fail(b, "no host ABI for import %s; nvm2c refuses CALL_EXTERN",
+                           nm ? nm : "?");
+                goto done;
+            }
+            switch (hk) {
+            case NVM2C_HOST_GETCWD:
+                stack_push_str(b, &st, "nhost_getcwd()");
+                break;
+            case NVM2C_HOST_TMP_DIR:
+                stack_push_str(b, &st, "nhost_tmp_dir()");
+                break;
+            case NVM2C_HOST_GET_ARGC:
+                stack_push_temp(b, &st, "nhost_argc()");
+                break;
+            case NVM2C_HOST_GETENV: {
+                int name = stack_pop_expect(b, &st, NVM2C_VK_STR, "vm_getenv");
+                char expr[80];
+                if (b->failed) goto done;
+                snprintf(expr, sizeof expr, "nhost_getenv(s[%d])", name);
+                stack_push_str(b, &st, expr);
+                break;
+            }
+            case NVM2C_HOST_SYSTEM: {
+                int cmd = stack_pop_expect(b, &st, NVM2C_VK_STR, "vm_system");
+                char expr[80];
+                if (b->failed) goto done;
+                snprintf(expr, sizeof expr, "nhost_system(s[%d])", cmd);
+                stack_push_temp(b, &st, expr);
+                break;
+            }
+            case NVM2C_HOST_FROM_CHAR: {
+                int code = stack_pop_expect(b, &st, NVM2C_VK_INT, "vm_string_from_char");
+                char expr[80];
+                if (b->failed) goto done;
+                snprintf(expr, sizeof expr, "nhost_from_char(t[%d])", code);
+                stack_push_str(b, &st, expr);
+                break;
+            }
+            case NVM2C_HOST_GET_ARGV: {
+                int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "get_argv");
+                char expr[80];
+                if (b->failed) goto done;
+                snprintf(expr, sizeof expr, "nhost_argv(t[%d])", ix);
+                stack_push_str(b, &st, expr);
+                break;
+            }
+            default:
+                nvm2c_fail(b, "CALL_EXTERN host kind is missing an emitter");
+                goto done;
+            }
+            break;
+        }
         default: {
             const InstructionInfo *info = isa_get_info(ins.opcode);
             nvm2c_fail(b, "unsupported opcode %s (0x%02X) in the nvm2c subset",
@@ -2429,6 +2564,84 @@ static void emit_nstr_arena(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static char nstr_arena[65536];\n"
         "static size_t nstr_used;\n");
+}
+
+static void emit_nstr_copy(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nstr_copy(const char *s) {\n"
+        "    size_t n = strlen(s ? s : \"\");\n"
+        "    if (nstr_used + n + 1 > sizeof nstr_arena) abort();\n"
+        "    {\n"
+        "        char *p = nstr_arena + nstr_used;\n"
+        "        memcpy(p, s ? s : \"\", n + 1);\n"
+        "        nstr_used += n + 1;\n"
+        "        return p;\n"
+        "    }\n"
+        "}\n\n");
+}
+
+static void emit_nhost_getcwd(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nhost_getcwd(void) {\n"
+        "    char buf[1024];\n"
+        "    if (!getcwd(buf, sizeof buf)) return \"\";\n"
+        "    return nstr_copy(buf);\n"
+        "}\n\n");
+}
+
+static void emit_nhost_getenv(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nhost_getenv(const char *name) {\n"
+        "    const char *v = getenv(name ? name : \"\");\n"
+        "    return nstr_copy(v ? v : \"\");\n"
+        "}\n\n");
+}
+
+static void emit_nhost_tmp_dir(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nhost_tmp_dir(void) {\n"
+        "    const char *tmp = getenv(\"TMPDIR\");\n"
+        "    if (!tmp || !tmp[0]) tmp = \"/tmp\";\n"
+        "    return nstr_copy(tmp);\n"
+        "}\n\n");
+}
+
+static void emit_nhost_system(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static int64_t nhost_system(const char *cmd) {\n"
+        "    if (!cmd) return (int64_t)-1;\n"
+        "    return (int64_t)system(cmd);\n"
+        "}\n\n");
+}
+
+static void emit_nhost_from_char(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nhost_from_char(int64_t code) {\n"
+        "    char buf[2];\n"
+        "    buf[0] = (char)code;\n"
+        "    buf[1] = 0;\n"
+        "    return nstr_copy(buf);\n"
+        "}\n\n");
+}
+
+static void emit_nhost_cli_state(Nvm2cBuf *b, int need_argv) {
+    nvm2c_puts(b, "static int nvm2c_argc;\n");
+    if (need_argv) nvm2c_puts(b, "static char **nvm2c_argv;\n");
+}
+
+static void emit_nhost_argc(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static int64_t nhost_argc(void) {\n"
+        "    return (int64_t)nvm2c_argc;\n"
+        "}\n\n");
+}
+
+static void emit_nhost_argv(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static const char *nhost_argv(int64_t index) {\n"
+        "    if (index < 0 || index >= nvm2c_argc || !nvm2c_argv) return \"\";\n"
+        "    return nvm2c_argv[index] ? nvm2c_argv[index] : \"\";\n"
+        "}\n\n");
 }
 
 static void emit_nstr_concat(Nvm2cBuf *b) {
@@ -2784,11 +2997,19 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (err && err_len) snprintf(err, err_len, "module has no functions");
         return NULL;
     }
-    if (mod->import_count != 0) {
-        if (err && err_len) {
-            snprintf(err, err_len, "imports require a host ABI; nvm2c refuses CALL_EXTERN");
+    {
+        uint32_t i;
+        for (i = 0; i < mod->import_count; i++) {
+            const char *nm = nvm_get_string(mod, mod->imports[i].function_name_idx);
+            if (nvm2c_import_host(mod, i) == NVM2C_HOST_UNKNOWN) {
+                if (err && err_len) {
+                    snprintf(err, err_len,
+                             "no host ABI for import %s; nvm2c refuses CALL_EXTERN",
+                             nm ? nm : "?");
+                }
+                return NULL;
+            }
         }
-        return NULL;
     }
 
     Nvm2cBuf b;
@@ -2839,6 +3060,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         goto fail;
     }
 
+    int need_cli = 0;
+    int need_argv_main = 0;
     {
         int need_concat = module_has_opcode(mod, OP_STR_CONCAT);
         int need_cast = module_has_opcode(mod, OP_CAST_STRING);
@@ -2888,6 +3111,33 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_print = module_has_opcode(mod, OP_PRINT) ||
             module_has_opcode(mod, OP_PRINTLN);
         int need_assert = module_has_opcode(mod, OP_ASSERT);
+        int need_host_getcwd = 0;
+        int need_host_getenv = 0;
+        int need_host_tmp = 0;
+        int need_host_system = 0;
+        int need_host_from_char = 0;
+        int need_host_argc = 0;
+        int need_host_argv = 0;
+        int need_host_copy;
+        {
+            uint32_t hi;
+            for (hi = 0; hi < mod->import_count; hi++) {
+                switch (nvm2c_import_host(mod, hi)) {
+                case NVM2C_HOST_GETCWD: need_host_getcwd = 1; break;
+                case NVM2C_HOST_GETENV: need_host_getenv = 1; break;
+                case NVM2C_HOST_TMP_DIR: need_host_tmp = 1; break;
+                case NVM2C_HOST_SYSTEM: need_host_system = 1; break;
+                case NVM2C_HOST_FROM_CHAR: need_host_from_char = 1; break;
+                case NVM2C_HOST_GET_ARGC: need_host_argc = 1; break;
+                case NVM2C_HOST_GET_ARGV: need_host_argv = 1; break;
+                default: break;
+                }
+            }
+        }
+        need_host_copy = need_host_getcwd || need_host_getenv || need_host_tmp
+            || need_host_from_char;
+        need_cli = need_host_argc || need_host_argv;
+        need_argv_main = need_host_argv;
         uint32_t i;
         for (i = 0; i < mod->function_count && !need_string; i++) {
             const NvmFunctionEntry *fn = &mod->functions[i];
@@ -2907,10 +3157,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (need_concat || need_cast || need_cast_int || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_arr_set || need_iarr_new || need_sarr_new || need_rarr_new ||
-            need_agg_get || need_nested || need_assert || need_hm_new || need_hm_set || need_hm_has) {
+            need_agg_get || need_nested || need_assert || need_hm_new || need_hm_set || need_hm_has ||
+            need_host_copy || need_host_system) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");
+        }
+        if (need_host_getcwd) {
+            nvm2c_puts(&b, "#include <unistd.h>\n");
         }
         nvm2c_puts(&b,
             "\n"
@@ -2940,7 +3194,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             NVM2C_HM_CAP, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS,
             NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
         if (need_nested) emit_nrec_store(&b);
-        if (need_concat || need_cast || need_substr) emit_nstr_arena(&b);
+        if (need_concat || need_cast || need_substr || need_host_copy) emit_nstr_arena(&b);
+        if (need_host_copy) emit_nstr_copy(&b);
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
         if (need_char_at) emit_nstr_char_at(&b);
@@ -2976,6 +3231,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_hm_new) emit_nhm_new(&b);
         if (need_hm_has) emit_nhm_has(&b);
         if (need_hm_set) emit_nhm_set(&b);
+        if (need_cli) emit_nhost_cli_state(&b, need_host_argv);
+        if (need_host_argc) emit_nhost_argc(&b);
+        if (need_host_argv) emit_nhost_argv(&b);
+        if (need_host_getcwd) emit_nhost_getcwd(&b);
+        if (need_host_getenv) emit_nhost_getenv(&b);
+        if (need_host_tmp) emit_nhost_tmp_dir(&b);
+        if (need_host_system) emit_nhost_system(&b);
+        if (need_host_from_char) emit_nhost_from_char(&b);
     }
 
     emit_globals(&b, global_kind, gcount);
@@ -3016,7 +3279,17 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         char ename[64];
         int init_idx = find_fn_named(mod, "__init__");
         fn_c_name(mod, entry, ename, sizeof ename);
-        nvm2c_puts(&b, "int main(void) {\n");
+        if (need_cli) {
+            nvm2c_puts(&b, "int main(int argc, char **argv) {\n");
+            nvm2c_puts(&b, "    nvm2c_argc = argc;\n");
+            if (need_argv_main) {
+                nvm2c_puts(&b, "    nvm2c_argv = argv;\n");
+            } else {
+                nvm2c_puts(&b, "    (void)argv;\n");
+            }
+        } else {
+            nvm2c_puts(&b, "int main(void) {\n");
+        }
         if (init_idx >= 0 && (uint32_t)init_idx != entry) {
             char iname[64];
             fn_c_name(mod, (uint32_t)init_idx, iname, sizeof iname);

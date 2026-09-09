@@ -29,9 +29,12 @@
  * nested pin records, LOAD_GLOBAL/STORE_GLOBAL with void __init__,
  * array results as narr_t / nsarr_t / nrarr_t, and Cut A HashMap
  * (HM_NEW / HM_SET / HM_HAS, hashmap results, hashmap record fields).
+ * Cut A host CALL_EXTERN maps to a declared C ABI (getcwd, getenv,
+ * tmp_dir, system, string_from_char, get_argc, get_argv) rather than
+ * a co-process client. Unknown imports stay refused.
  * Anything else is refused with an error.
- * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
- * host C ABI. Embedded NULs, nested arrays, variants, tuples,
+ * CALL_EXTERN of an unmapped import is refused because it is the VM FFI /
+ * co-process path, not a host C ABI. Embedded NULs, nested arrays, variants, tuples,
  * printing arrays/records, array equality, STR_TRIM, HM_GET / HM_DELETE /
  * HM_KEYS / HM_VALUES / HM_LEN, and the rest of the
  * string and array libraries stay refused. Nested pin records (a record

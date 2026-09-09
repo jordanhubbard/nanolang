@@ -91,6 +91,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   exits 1; generated `main` calls `__init__`).
   `nvm2c` runs Cut A HashMap without `nano_vm` (`via_blank_hm` exits 0,
   `via_put_hm` / `via_hm` exit 1). `HM_GET` stays refused.
+  `nvm2c` maps Cut A host `CALL_EXTERN` to C (`via_cwd` / `via_env` /
+  `via_tmp` / `via_chstr` / `via_argv` exit 1, `via_sys` / `via_argc`
+  exit 0). Unmapped imports stay refused.
   Bool and `List<int>` record
   fields (`flag_yes` / `via_flag`, `empty_bag` / `via_bag`) match the
   C seed. String `+` of a field or `int_to_string` (`glue_field` /
@@ -228,7 +231,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `via_nest` exits 7. `LOAD_GLOBAL` / `STORE_GLOBAL` run as native C:
   `via_g_len` exits 0, `via_g_set` exits 1. Cut A HashMap runs as
   native C: `via_blank_hm` exits 0, `via_put_hm` exits 1, `via_hm`
-  exits 1. `HM_GET` stays refused. `make test-nvm2c` (494 passed).
+  exits 1. `HM_GET` stays refused. Cut A host `CALL_EXTERN` runs as
+  native C (`nhost_*`, not `nano_cop`): `via_cwd` / `via_env` /
+  `via_tmp` / `via_chstr` / `via_argv` exit 1, `via_sys` / `via_argc`
+  exit 0. Unmapped imports stay refused. `make test-nvm2c` (539 passed).
 
 ## [4.5.0] - 2026-09-07
 

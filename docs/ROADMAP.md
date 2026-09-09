@@ -1566,8 +1566,12 @@ Compiler product:
       `nano_vmd` to compute.
 - [ ] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
       strings, modules, and a declared host ABI for `extern`.
-- [ ] I map `CALL_EXTERN` to that host ABI or I refuse the module. I do not
-      emit a co-process client and call it AOT.
+- [x] I map Cut A `CALL_EXTERN` to a declared host C ABI. `vm_getcwd`,
+      `vm_getenv`, `vm_tmp_dir`, `vm_system`, `vm_string_from_char`,
+      `get_argc`, and `get_argv` become `nhost_*` helpers, not a
+      co-process client. Unknown imports (`libc` `puts`) stay refused.
+      `via_cwd` / `via_env` / `via_tmp` / `via_chstr` / `via_argv` exit 1,
+      `via_sys` / `via_argc` exit 0. `make test-nvm2c` (539 passed).
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
       in 5.0 documentation or CLI defaults.
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
@@ -1726,6 +1730,9 @@ Compiler product:
       helper mutates in place. `HM_GET`, `HM_DELETE`, `HM_KEYS`,
       `HM_VALUES`, and `HM_LEN` stay refused.
       `make test-nvm2c` (494 passed).
+- [x] `nvm2c` maps Cut A host `CALL_EXTERN` to C (`nhost_getcwd` and
+      kin). I do not emit `nano_cop`. Unmapped imports stay refused.
+      `make test-nvm2c` (539 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
