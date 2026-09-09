@@ -1,0 +1,23 @@
+struct EqTok {
+    token_type: int,
+    value: string
+}
+
+pub fn field_eq(x: EqTok) -> bool {
+    let t: EqTok = x
+    return (== t.token_type 1)
+}
+
+shadow field_eq {
+    let x: EqTok = EqTok { token_type: 1, value: "a" }
+    assert (field_eq x)
+}
+
+pub fn glue_local() -> string {
+    let s: string = "a"
+    return (+ s "b")
+}
+
+shadow glue_local {
+    assert (== (glue_local) "ab")
+}

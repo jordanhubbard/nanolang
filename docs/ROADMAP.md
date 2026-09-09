@@ -1608,8 +1608,12 @@ Compiler product:
       `nanoc_stage0.nano`, and `nanoc_stage1.nano` write `.nvm`.
       `make test-typechecker`.
       MAC `task_7b30ff72a17269fe1c420431ef6993d4`.
-- [ ] I implement NanoISA lowering in `src_nano` as the dual of
+- [x] I implement NanoISA lowering in `src_nano` as the dual of
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
+      Every function in the 38 `src_nano` files in
+      `test-nanoisa-src-nano` matches the C seed. I still pretty-print
+      C to build the compiler. Nested arrays, `AGG_SET`, and host
+      `file_read` in `nvm2c` are not this dual.
       MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the
       three named-refuse tasks). Held `--no-dispatch`.
 - [x] Self-hosted `(- 0 1)` is `PUSH_I64 0` / `PUSH_I64 1` / `I64_SUB`,
@@ -1643,21 +1647,26 @@ Compiler product:
 - [x] Compiler subset dual, parser files: `parser.nano`,
       `parse_nanoc.nano`, and `parser_driver.nano` match the C seed
       after `(- 0 1)` is binary subtract. `make test-nanoisa-src-nano`.
-- [ ] Compiler subset dual, remaining `src_nano` files in
+- [x] C seed `--emit-nvm` stamps `let` types into the environment the
+      way it already stamps parameters, so operator lowering does not
+      read leftover typecheck locals from another function. Integer
+      field `==` on a `let` is `I64_EQ`. String `+` on a `let` is
+      `STR_CONCAT`. `cut_a_let_field_eq.nano`.
+      `make test-nanovirt`. `make test-nanoisa-src-nano`.
+- [x] Compiler subset dual, remaining `src_nano` files in
       `test-nanoisa-src-nano` match the C seed: `typecheck.nano`,
       `typecheck_driver.nano`, `typecheck_nanoc.nano`,
       `transpiler.nano`, `transpiler_driver.nano`, `module_loader.nano`,
       `compiler_modular.nano`, `driver.nano`, `nanoc_v06.nano`,
-      `nanoisa_codegen.nano`, and `nanoisa_emit.nano`. Gaps include
-      `EQ` vs `I64_EQ` when the C seed has a non-int type, and `+`
-      as `I64_ADD` vs `STR_CONCAT`.
+      `nanoisa_codegen.nano`, and `nanoisa_emit.nano`.
+      `make test-nanoisa-src-nano`.
 - [x] Cut A union result tag is `union` (`TAG_UNION`), not `struct`.
       `via_ok` / `via_err` match the C seed after type_check_module
       reclassifies a Result return. `make test-nanoisa-src-nano`.
 - [x] I compile `src_nano` to `.nvm` with the C seed (38 files in
       `test-nanoisa-src-nano`), then with the self-hosted emitter.
-      Bytecode match is the Cut A pin plus 27 compiler-subset files
-      in the dual loop; 11 files still differ.
+      Bytecode match is the Cut A pin plus all 38 compiler-subset
+      files in the dual loop.
       `make test-typechecker`. C seed `--emit-nvm` writes `.nvm`
       for each of those files.
       MAC `task_4f67d2fb851bf739b0376b9f53174483`.

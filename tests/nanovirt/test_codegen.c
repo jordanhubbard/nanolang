@@ -1159,6 +1159,137 @@ static void test_struct_field_access(void) {
     fprintf(stderr, " ok\n");
 }
 
+static bool fn_code_has_opcode(const NvmModule *m, const char *name, uint8_t op) {
+    const NvmFunctionEntry *fn = NULL;
+    uint32_t i;
+    uint32_t end;
+    if (!m || !name) return false;
+    for (i = 0; i < m->function_count; i++) {
+        const char *n = nvm_get_string(m, m->functions[i].name_idx);
+        if (n && strcmp(n, name) == 0) {
+            fn = &m->functions[i];
+            break;
+        }
+    }
+    if (!fn) return false;
+    end = fn->code_offset + fn->code_length;
+    for (i = fn->code_offset; i < end; ) {
+        DecodedInstruction instruction;
+        uint32_t width = isa_decode(m->code + i, end - i, &instruction);
+        if (width == 0) return false;
+        if (instruction.opcode == op) return true;
+        i += width;
+    }
+    return false;
+}
+
+/* Operator lowering reads check_expression, which walks leftover typecheck
+ * locals. A later function named `t` / `s` must not change the opcode for
+ * an earlier function's annotated let. */
+static void test_let_field_eq_uses_typed_opcodes(void) {
+    fprintf(stderr, "  test_let_field_eq_uses_typed_opcodes...");
+    TestResult tr = compile_and_run(
+        "struct EqTok { token_type: int, value: string }\n"
+        "fn field_eq(x: EqTok) -> bool {\n"
+        "  let t: EqTok = x\n"
+        "  return (== t.token_type 1)\n"
+        "}\n"
+        "fn glue_local() -> string {\n"
+        "  let s: string = \"a\"\n"
+        "  return (+ s \"b\")\n"
+        "}\n"
+        "fn later() -> int {\n"
+        "  let t: string = \"no\"\n"
+        "  let s: int = 1\n"
+        "  return s\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  return (later)\n"
+        "}\n"
+    );
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT(fn_code_has_opcode(tr.module, "field_eq", OP_I64_EQ),
+           "annotated struct-field == is I64_EQ");
+    ASSERT(!fn_code_has_opcode(tr.module, "field_eq", OP_EQ),
+           "annotated struct-field == is not generic EQ");
+    ASSERT(fn_code_has_opcode(tr.module, "glue_local", OP_STR_CONCAT),
+           "annotated string + is STR_CONCAT");
+    ASSERT(!fn_code_has_opcode(tr.module, "glue_local", OP_I64_ADD),
+           "annotated string + is not I64_ADD");
+    nvm_module_free(tr.module);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static char *read_whole_file(const char *path) {
+    FILE *f;
+    long n;
+    char *buf;
+    f = fopen(path, "rb");
+    if (!f) return NULL;
+    if (fseek(f, 0, SEEK_END) != 0) { fclose(f); return NULL; }
+    n = ftell(f);
+    if (n < 0) { fclose(f); return NULL; }
+    if (fseek(f, 0, SEEK_SET) != 0) { fclose(f); return NULL; }
+    buf = malloc((size_t)n + 1);
+    if (!buf) { fclose(f); return NULL; }
+    if (fread(buf, 1, (size_t)n, f) != (size_t)n) {
+        free(buf);
+        fclose(f);
+        return NULL;
+    }
+    buf[n] = '\0';
+    fclose(f);
+    return buf;
+}
+
+/* Combined-module --emit-nvm: imported lets are not leftover typecheck
+ * symbols. Operator lowering must use the let's declared type. */
+static void test_imported_let_field_eq_uses_typed_opcodes(void) {
+    const char *path = "tests/nanoisa/fixtures/cut_a_let_field_eq.nano";
+    char *source;
+    int token_count = 0;
+    Token *tokens;
+    ASTNode *program;
+    Environment *env;
+    ModuleList *modules;
+    CodegenResult cg;
+    fprintf(stderr, "  test_imported_let_field_eq_uses_typed_opcodes...");
+    source = read_whole_file(path);
+    ASSERT(source != NULL, "read fixture");
+    tokens = tokenize(source, &token_count);
+    ASSERT(tokens != NULL, "lexer failed");
+    program = parse_program(tokens, token_count);
+    ASSERT(program != NULL, "parser failed");
+    clear_module_cache();
+    env = create_environment();
+    env->suppress_shadow_warnings = true;
+    modules = create_module_list();
+    ASSERT(process_imports(program, env, modules, path), "process_imports");
+    typecheck_set_current_file(path);
+    ASSERT(type_check_module(program, env), "type_check_module");
+    cg = codegen_compile(program, env, modules, path);
+    ASSERT(cg.ok, "codegen");
+    ASSERT(fn_code_has_opcode(cg.module, "field_eq", OP_I64_EQ),
+           "imported let field == is I64_EQ");
+    ASSERT(!fn_code_has_opcode(cg.module, "field_eq", OP_EQ),
+           "imported let field == is not generic EQ");
+    ASSERT(fn_code_has_opcode(cg.module, "glue_local", OP_STR_CONCAT),
+           "imported let string + is STR_CONCAT");
+    ASSERT(!fn_code_has_opcode(cg.module, "glue_local", OP_I64_ADD),
+           "imported let string + is not I64_ADD");
+    nvm_module_free(cg.module);
+    free_ast(program);
+    free_environment(env);
+    free_module_list(modules);
+    clear_module_cache();
+    free_tokens(tokens, token_count);
+    free(source);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 static void test_tuple_literal(void) {
     fprintf(stderr, "  test_tuple_literal...");
     TestResult tr = compile_and_run(
@@ -1583,6 +1714,8 @@ int main(void) {
     fprintf(stderr, "\nComplex Types - Structs:\n");
     test_struct_literal();
     test_struct_field_access();
+    test_let_field_eq_uses_typed_opcodes();
+    test_imported_let_field_eq_uses_typed_opcodes();
 
     fprintf(stderr, "\nComplex Types - Tuples:\n");
     test_tuple_literal();

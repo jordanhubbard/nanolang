@@ -564,20 +564,20 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@test -s /tmp/nanolang_cut_a_file_io.nvm
 	@echo "Checking nanoisa_codegen.nano emits and assembles..."
 	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/compiler/nanoisa_codegen.nano \
-		-o /tmp/nanolang_cut_a_codegen.nasm
-	@test -s /tmp/nanolang_cut_a_codegen.nasm
-	@grep -F ".function main" /tmp/nanolang_cut_a_codegen.nasm >/dev/null
-	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_codegen.nasm \
-		-o /tmp/nanolang_cut_a_codegen.nvm
-	@test -s /tmp/nanolang_cut_a_codegen.nvm
+		-o /tmp/nanolang_cut_a_nanoisa_codegen.nasm
+	@test -s /tmp/nanolang_cut_a_nanoisa_codegen.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_nanoisa_codegen.nasm >/dev/null
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_nanoisa_codegen.nasm \
+		-o /tmp/nanolang_cut_a_nanoisa_codegen.nvm
+	@test -s /tmp/nanolang_cut_a_nanoisa_codegen.nvm
 	@echo "Checking nanoisa_emit.nano emits and assembles..."
 	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/nanoisa_emit.nano \
-		-o /tmp/nanolang_cut_a_emit.nasm
-	@test -s /tmp/nanolang_cut_a_emit.nasm
-	@grep -F ".function main" /tmp/nanolang_cut_a_emit.nasm >/dev/null
-	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_emit.nasm \
-		-o /tmp/nanolang_cut_a_emit.nvm
-	@test -s /tmp/nanolang_cut_a_emit.nvm
+		-o /tmp/nanolang_cut_a_nanoisa_emit.nasm
+	@test -s /tmp/nanolang_cut_a_nanoisa_emit.nasm
+	@grep -F ".function main" /tmp/nanolang_cut_a_nanoisa_emit.nasm >/dev/null
+	@$(TIMEOUT_CMD) ./bin/nanoisa asm /tmp/nanolang_cut_a_nanoisa_emit.nasm \
+		-o /tmp/nanolang_cut_a_nanoisa_emit.nvm
+	@test -s /tmp/nanolang_cut_a_nanoisa_emit.nvm
 
 	@echo "Checking parser.nano emits and assembles..."
 	@$(TIMEOUT_CMD) ./bin/nanoisa_emit src_nano/parser.nano \
@@ -708,6 +708,15 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 	@test -s /tmp/nanolang_cut_a_minus_one.nasm
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
 		/tmp/nanolang_cseed_minus_one.nvm /tmp/nanolang_cut_a_minus_one.nasm
+	@$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_let_field_eq.nano \
+		--emit-nvm --strip-debug -o /tmp/nanolang_cseed_let_field_eq.nvm \
+		>/tmp/nanolang_cseed_let_field_eq.err 2>&1
+	@test -s /tmp/nanolang_cseed_let_field_eq.nvm
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_let_field_eq.nano \
+		-o /tmp/nanolang_cut_a_let_field_eq.nasm
+	@test -s /tmp/nanolang_cut_a_let_field_eq.nasm
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
+		/tmp/nanolang_cseed_let_field_eq.nvm /tmp/nanolang_cut_a_let_field_eq.nasm
 	@for pair in \
 		file_io \
 		cli_args \
@@ -735,7 +744,18 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 		tokenize_result \
 		parser \
 		parse_nanoc \
-		parser_driver; do \
+		parser_driver \
+		typecheck \
+		typecheck_driver \
+		typecheck_nanoc \
+		transpiler \
+		transpiler_driver \
+		module_loader \
+		compiler_modular \
+		driver \
+		nanoc_v06 \
+		nanoisa_codegen \
+		nanoisa_emit; do \
 		echo "  dual $$pair"; \
 		$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
 			/tmp/nanolang_cseed_$$pair.nvm /tmp/nanolang_cut_a_$$pair.nasm \

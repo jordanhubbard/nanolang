@@ -401,15 +401,15 @@ writes `.nvm`. C seed `type_check_module` honors
 `unsafe module "path"`. `nanoc_integrated.nano` writes `.nvm`.
 `nanoc_modular.nano` uses `let mut cmd`. C seed `--emit-nvm`
 writes `.nvm` for the 38 `src_nano` files in
-`test-nanoisa-src-nano`. Bytecode match is still only the Cut A
-pin. Cut A union result tag is `union`. I still pretty-print C to build the compiler.
+`test-nanoisa-src-nano`. Compiler-subset dual matches all 38.
+I still pretty-print C to build the compiler.
 Labels reset per `.function`.
 Nested arrays,
 `AGG_SET`, nested tuples, array
 equality, substring of arrays, and printing
 arrays/records stay refused. Compiling `src_nano` to `.nvm` with
 the C seed and with the self-hosted emitter is done. Bytecode
-match is still only the Cut A pin, not the compiler subset dual.
+match is the Cut A pin plus the 38-file compiler subset dual.
 A pinned
 suite must match on `nano_vm` and on AOT C.
 

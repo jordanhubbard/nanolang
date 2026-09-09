@@ -1,0 +1,19 @@
+from "cut_a_let_field_eq_lib.nano" import field_eq, glue_local
+
+fn later() -> int {
+    let t: string = "no"
+    let s: int = 1
+    return s
+}
+
+shadow later {
+    assert (== (later) 1)
+}
+
+fn main() -> int {
+    return (later)
+}
+
+shadow main {
+    assert (== (main) 1)
+}

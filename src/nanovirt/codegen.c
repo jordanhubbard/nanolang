@@ -257,6 +257,44 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
     return slot;
 }
 
+/* Put a local's declared type where check_expression can find it.
+ * Parameters already do this. Lets in imported function bodies are not
+ * leftover typecheck symbols, so without a stamp `t.token_type == 1`
+ * lowers as EQ and `s + "b"` as I64_ADD. */
+static void stamp_local_type(CG *cg, const char *name, Type type,
+                             Type element_type, TypeInfo *type_info,
+                             bool is_mut, const char *struct_type_name,
+                             int line, int column) {
+    Value unset = create_void();
+    Symbol *sym;
+    if (!cg->env || !name) return;
+    env_define_var_with_type_info(cg->env, name, type, element_type,
+                                  type_info, is_mut, unset);
+    sym = env_get_var(cg->env, name);
+    if (!sym) return;
+    sym->type = type;
+    sym->element_type = element_type;
+    sym->type_info = type_info;
+    sym->is_mut = is_mut;
+    sym->def_line = line;
+    sym->def_column = column > 0 ? column : 0;
+    /* Visibility is per-file. An in-place update of a leftover symbol from
+     * another module would keep that module's def_file and stay invisible
+     * to check_expression in this function. */
+    if (cg->env->current_file)
+        sym->def_file = cg->env->current_file;
+    if (struct_type_name) {
+        if (sym->struct_type_name
+                && strcmp(sym->struct_type_name, struct_type_name) != 0) {
+            free(sym->struct_type_name);
+            sym->struct_type_name = NULL;
+        }
+        if (!sym->struct_type_name)
+            sym->struct_type_name = strdup(struct_type_name);
+    }
+    sym->is_used = true;
+}
+
 /* Find the struct type name for a local variable (for field access resolution) */
 static const char *local_struct_type(CG *cg, const char *name) {
     for (int i = cg->local_count - 1; i >= 0; i--) {
@@ -2461,6 +2499,19 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         if (node->as.let.type_name) {
             cg->locals[slot].struct_type = node->as.let.type_name;
         }
+        {
+            Type lt = node->as.let.var_type;
+            const char *stn = node->as.let.type_name;
+            if (lt == TYPE_UNKNOWN) {
+                lt = check_expression(node->as.let.value, cg->env);
+            }
+            if (!stn) {
+                stn = infer_expr_struct_type(cg, node->as.let.value);
+            }
+            stamp_local_type(cg, node->as.let.name, lt,
+                             node->as.let.element_type, node->as.let.type_info,
+                             node->as.let.is_mut, stn, node->line, node->column);
+        }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
         break;
     }
@@ -2840,20 +2891,9 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
          * point. Two modules may both have a parameter named `a` without
          * either seeing the other's. */
         const Parameter *param = &fn_node->as.function.params[i];
-        Value unset = create_void();
-        env_define_var_with_type_info(cg->env, param->name, param->type,
-                                      param->element_type, param->type_info,
-                                      false, unset);
-        Symbol *psym = env_get_var(cg->env, param->name);
-        if (psym) {
-            psym->def_line = fn_node->line;
-            psym->def_column = 0;
-            /* The environment owns and frees this string, so it gets a copy
-             * rather than the AST's pointer. */
-            if (param->struct_type_name && !psym->struct_type_name)
-                psym->struct_type_name = strdup(param->struct_type_name);
-            psym->is_used = true;   /* a parameter is not an unused local */
-        }
+        stamp_local_type(cg, param->name, param->type, param->element_type,
+                         param->type_info, false, param->struct_type_name,
+                         fn_node->line, 0);
     }
 
     /* Compile function body */
