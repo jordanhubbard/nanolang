@@ -29,7 +29,8 @@
  * imported function (C seed AST_MODULE_QUALIFIED_CALL: qualified
  * name first, then the suffix after the last dot), and `array<R>`
  * of a pin-record as ISA tag array (empty `[]` is ARR_LITERAL 1 0,
- * the way the C seed defaults the element tag), and module-level
+ * the way the C seed defaults the element tag; empty `array<string>`
+ * is ARR_LITERAL 5 0 from the let annotation), and module-level
  * lets as LOAD_GLOBAL/STORE_GLOBAL with a void `__init__` (C seed
  * pass 1.5), and `break`/`continue` as `JMP` to the innermost loop
  * end/top (C seed `AST_BREAK` / `AST_CONTINUE`), and tuples as
@@ -126,14 +127,14 @@ shadow nisa_refuse_line {
 }
 
 fn nisa_local_find(name: string) -> int {
-    let mut i: int = 0
-    while (< i (array_length nisa_names)) {
+    let mut i: int = (array_length nisa_names)
+    while (> i 0) {
+        set i (- i 1)
         if (== (at nisa_names i) name) {
             return i
         } else {
             (print "")
         }
-        set i (+ i 1)
     }
     return (- 0 1)
 }
@@ -145,6 +146,8 @@ shadow nisa_local_find {
     assert (== (nisa_local_find "a") 0)
     assert (== (nisa_local_find "b") 1)
     assert (== (nisa_local_find "z") (- 0 1))
+    set nisa_names (array_push nisa_names "a")
+    assert (== (nisa_local_find "a") 2)
     let _2: int = (nisa_reset)
 }
 
@@ -1472,6 +1475,68 @@ shadow nisa_array_inner {
     assert (== (nisa_array_inner "Loc") "")
 }
 
+fn nisa_arr_literal_tag(elem: string) -> string {
+    let inner: string = (nisa_array_inner elem)
+    let mut name: string = elem
+    if (!= inner "") {
+        set name inner
+    } else {
+        (print "")
+    }
+    if (== name "string") {
+        return "5"
+    } else {
+        if (== name "bool") {
+            return "4"
+        } else {
+            if (== name "float") {
+                return "3"
+            } else {
+                return "1"
+            }
+        }
+    }
+}
+
+shadow nisa_arr_literal_tag {
+    assert (== (nisa_arr_literal_tag "string") "5")
+    assert (== (nisa_arr_literal_tag "array<string>") "5")
+    assert (== (nisa_arr_literal_tag "bool") "4")
+    assert (== (nisa_arr_literal_tag "array<bool>") "4")
+    assert (== (nisa_arr_literal_tag "float") "3")
+    assert (== (nisa_arr_literal_tag "int") "1")
+    assert (== (nisa_arr_literal_tag "array<int>") "1")
+    assert (== (nisa_arr_literal_tag "Loc") "1")
+    assert (== (nisa_arr_literal_tag "array<Loc>") "1")
+}
+
+fn nisa_hint_array_literal(parser: Parser, node_id: int, t: string) -> int {
+    let inner: string = (nisa_array_inner t)
+    if (!= inner "") {
+        let _p: Parser = (parser_set_array_literal_element_type parser node_id inner)
+        (print "")
+    } else {
+        (print "")
+    }
+    return 0
+}
+
+shadow nisa_hint_array_literal {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "f" "n empty_names() -> int { let xs: array<string> = [] return (array_length xs) } shadow empty_names { assert true }")
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    let func: ASTFunction = (parser_get_function p 0)
+    let block: ASTBlock = (parser_get_block p func.body)
+    let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+    let l: ASTLet = (parser_get_let p stmt.node_id)
+    let _h: int = (nisa_hint_array_literal p l.value l.var_type)
+    let arr: ASTArrayLiteral = (parser_get_array_literal p l.value)
+    assert (== arr.element_type "string")
+    let _2: int = (nisa_reset)
+}
+
 fn nisa_seq_inner(t: string) -> string {
     let list_i: string = (nisa_list_inner t)
     if (!= list_i "") {
@@ -2764,6 +2829,11 @@ fn nisa_emit_array_literal(parser: Parser, node_id: int) -> string {
     let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
     let mut out: string = ""
     let mut tag: string = "1"
+    if (!= arr.element_type "") {
+        set tag (nisa_arr_literal_tag arr.element_type)
+    } else {
+        (print "")
+    }
     let mut i: int = 0
     while (< i arr.element_count) {
         let el: ASTStmtRef = (parser_get_array_element parser (+ arr.element_start i))
@@ -2812,6 +2882,16 @@ shadow nisa_emit_array_literal {
     let l2: ASTLet = (parser_get_let p2 stmt2.node_id)
     let text2: string = (nisa_emit_array_literal p2 l2.value)
     assert (str_contains text2 "ARR_LITERAL 5 1")
+    let src3: string = (+ "f" "n empty_names() -> int { let xs: array<string> = [] return (array_length xs) } shadow empty_names { assert true }")
+    let toks3: List<LexerToken> = (tokenize_string src3 "t.nano" diags)
+    let p3: Parser = (parse_program toks3 (list_LexerToken_length toks3) "t.nano")
+    let func3: ASTFunction = (parser_get_function p3 0)
+    let block3: ASTBlock = (parser_get_block p3 func3.body)
+    let stmt3: ASTStmtRef = (list_ASTStmtRef_get block3.statements 0)
+    let l3: ASTLet = (parser_get_let p3 stmt3.node_id)
+    let _h3: int = (nisa_hint_array_literal p3 l3.value l3.var_type)
+    let text3: string = (nisa_emit_array_literal p3 l3.value)
+    assert (str_contains text3 "ARR_LITERAL 5 0")
     let _2: int = (nisa_reset)
 }
 
@@ -4181,6 +4261,12 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     } else {
         if (== stmt.node_type ParseNodeType.PNODE_LET) {
             let l: ASTLet = (parser_get_let parser stmt.node_id)
+            if (== l.value_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                let _h: int = (nisa_hint_array_literal parser l.value l.var_type)
+                (print "")
+            } else {
+                (print "")
+            }
             let val: string = (nisa_emit_expr parser l.value l.value_type)
             if (not (nisa_type_ok parser l.var_type)) {
                 return (nisa_fail (+ "unsupported local type " l.var_type))
@@ -4193,6 +4279,12 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_SET) {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)
+                if (== s.value_type ParseNodeType.PNODE_ARRAY_LITERAL) {
+                    let _hs: int = (nisa_hint_array_literal parser s.value (nisa_name_type s.target))
+                    (print "")
+                } else {
+                    (print "")
+                }
                 let slot: int = (nisa_local_find s.target)
                 if (< slot 0) {
                     let gslot: int = (nisa_global_find s.target)

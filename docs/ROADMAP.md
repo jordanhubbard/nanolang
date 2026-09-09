@@ -1612,13 +1612,47 @@ Compiler product:
       `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
       MAC `task_d94e620355f640d240d9c5dcbf8eaefc` (depends on the
       three named-refuse tasks). Held `--no-dispatch`.
+- [x] Self-hosted empty `array<string> = []` is `ARR_LITERAL 5 0`,
+      matching C seed `TYPE_STRING`. Empty pin-record arrays stay
+      `ARR_LITERAL 1 0`. `cut_a_empty_str_arr.nano` and `std/fs.nano`
+      `glob` match the C seed. `make test-nanoisa-src-nano`.
+- [x] Self-hosted `nisa_local_find` walks locals from the last slot,
+      matching C seed `local_find`. Nested `let` of the same name loads
+      the inner slot. `cut_a_shadow_local.nano` and `nanoc.nano` `main`
+      match the C seed. `make test-nanoisa-src-nano`.
+- [x] Compiler dual comparison treats `AGG_PACK` / `ENUM_VAL` /
+      `STRUCT_NEW` layout indices as intern order, the way `PUSH_STR`
+      treats string-pool indices. `LOAD_LOCAL` slots stay the claim.
+- [x] Compiler subset dual, thin files: every function in `file_io.nano`,
+      `cli_args.nano`, `compiler.nano`, `nanoc.nano`, `ast_shared.nano`,
+      `compiler/ir.nano`, and `generated/compiler_schema.nano` matches
+      the C seed. `make test-nanoisa-src-nano`.
+- [x] Compiler subset dual, lexer: every function in
+      `compiler/lexer.nano` matches the C seed.
+- [x] Compiler subset dual, additional files: `compiler_ast.nano`,
+      `compiler_contracts.nano`, `compiler_simple.nano`,
+      `diagnostics.nano`, `driver_minimal.nano`, `error_messages.nano`,
+      `lexer_main.nano`, `nanoc_integrated.nano`, `nanoc_modular.nano`,
+      `nanoc_selfhost.nano`, `nanoc_stage0.nano`, `nanoc_stage1.nano`,
+      `nanoc_v04.nano`, `result.nano`, `serialize.nano`, and
+      `tokenize_result.nano` match the C seed.
+      `make test-nanoisa-src-nano`.
+- [ ] Compiler subset dual, remaining `src_nano` files in
+      `test-nanoisa-src-nano` match the C seed: `parser.nano`,
+      `parse_nanoc.nano`, `parser_driver.nano`, `typecheck.nano`,
+      `typecheck_driver.nano`, `typecheck_nanoc.nano`,
+      `transpiler.nano`, `transpiler_driver.nano`, `module_loader.nano`,
+      `compiler_modular.nano`, `driver.nano`, `nanoc_v06.nano`,
+      `nanoisa_codegen.nano`, and `nanoisa_emit.nano`. Gaps include
+      `EQ` vs `I64_EQ`, `(- 0 1)` as two pushes, and `+` as
+      `I64_ADD` vs `STR_CONCAT`.
 - [x] Cut A union result tag is `union` (`TAG_UNION`), not `struct`.
       `via_ok` / `via_err` match the C seed after type_check_module
       reclassifies a Result return. `make test-nanoisa-src-nano`.
 - [x] I compile `src_nano` to `.nvm` with the C seed (38 files in
       `test-nanoisa-src-nano`), then with the self-hosted emitter.
-      Bytecode match is still only the Cut A pin, not the compiler
-      subset dual.
+      Bytecode match is the Cut A pin plus 24 compiler-subset files
+      in the dual loop; 14 files still differ.
       `make test-typechecker`. C seed `--emit-nvm` writes `.nvm`
       for each of those files.
       MAC `task_4f67d2fb851bf739b0376b9f53174483`.

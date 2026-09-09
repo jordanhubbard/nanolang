@@ -1,0 +1,23 @@
+fn pick(flag: int) -> int {
+    if (< flag 0) {
+        let x: int = 1
+        return x
+    } else {
+        let x: int = 2
+        let y: int = 3
+        return x
+    }
+}
+
+shadow pick {
+    assert (== (pick (- 0 1)) 1)
+    assert (== (pick 1) 2)
+}
+
+fn main() -> int {
+    return (pick 1)
+}
+
+shadow main {
+    assert (== (main) 2)
+}

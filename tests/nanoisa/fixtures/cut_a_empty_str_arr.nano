@@ -1,0 +1,16 @@
+fn empty_names() -> array<string> {
+    let mut out: array<string> = []
+    return out
+}
+
+shadow empty_names {
+    assert (== (array_length (empty_names)) 0)
+}
+
+fn main() -> int {
+    return (array_length (empty_names))
+}
+
+shadow main {
+    assert (== (main) 0)
+}

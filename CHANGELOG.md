@@ -170,8 +170,17 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `unsafe module "path"`. `nanoc_integrated.nano` writes `.nvm`.
   `nanoc_modular.nano` uses `let mut cmd`. C seed `--emit-nvm`
   writes `.nvm` for the 38 `src_nano` files in
-  `test-nanoisa-src-nano`. Bytecode match is still only the Cut A
-  pin. Cut A union result tag is `union`.
+  `test-nanoisa-src-nano`. Compiler-subset dual matches 24 of those
+  files (`make test-nanoisa-src-nano`): innermost `let` lookup,
+  empty `array<string>` as `ARR_LITERAL 5 0`, `AGG_PACK` layout intern
+  order, `file_io.nano`, `cli_args.nano`, `compiler.nano`,
+  `nanoc.nano`, `ast_shared.nano`, `compiler/ir.nano`,
+  `generated/compiler_schema.nano`, `compiler/lexer.nano`,
+  `nanoc_integrated.nano`, and the other passing units in that
+  Makefile loop. Bytecode match is still not the full 38-file set:
+  `EQ` vs `I64_EQ`, `(- 0 1)`, and string `+` remain on parser,
+  typecheck, transpiler, and the emitter itself. Cut A union result
+  tag is `union`.
   `std/fs.nano` resolves through `modules/` like the C seed.
   Transitive imports register `LexerTokenType` from
   `compiler_schema.nano`. Imported structs register `LexerToken`.

@@ -677,6 +677,59 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(
 		$(TIMEOUT_CMD) ./bin/nanoisa asm $$nasm -o /tmp/nanolang_cut_a_$$base.nvm; \
 		test -s /tmp/nanolang_cut_a_$$base.nvm; \
 	done
+	@echo "Checking compiler-subset dual..."
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) \
+		-o tests/nanoisa/test_nanoisa_compiler_dual \
+		tests/nanoisa/test_nanoisa_compiler_dual.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_shadow_local.nano \
+		--emit-nvm --strip-debug -o /tmp/nanolang_cseed_shadow_local.nvm \
+		>/tmp/nanolang_cseed_shadow_local.err 2>&1
+	@test -s /tmp/nanolang_cseed_shadow_local.nvm
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_shadow_local.nano \
+		-o /tmp/nanolang_cut_a_shadow_local.nasm
+	@test -s /tmp/nanolang_cut_a_shadow_local.nasm
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
+		/tmp/nanolang_cseed_shadow_local.nvm /tmp/nanolang_cut_a_shadow_local.nasm
+	@$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_empty_str_arr.nano \
+		--emit-nvm --strip-debug -o /tmp/nanolang_cseed_empty_str_arr.nvm \
+		>/tmp/nanolang_cseed_empty_str_arr.err 2>&1
+	@test -s /tmp/nanolang_cseed_empty_str_arr.nvm
+	@$(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_empty_str_arr.nano \
+		-o /tmp/nanolang_cut_a_empty_str_arr.nasm
+	@test -s /tmp/nanolang_cut_a_empty_str_arr.nasm
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
+		/tmp/nanolang_cseed_empty_str_arr.nvm /tmp/nanolang_cut_a_empty_str_arr.nasm
+	@for pair in \
+		file_io \
+		cli_args \
+		compiler \
+		nanoc \
+		ast_shared \
+		ir \
+		compiler_schema \
+		lexer \
+		compiler_ast \
+		compiler_contracts \
+		compiler_simple \
+		diagnostics \
+		driver_minimal \
+		error_messages \
+		lexer_main \
+		nanoc_integrated \
+		nanoc_modular \
+		nanoc_selfhost \
+		nanoc_stage0 \
+		nanoc_stage1 \
+		nanoc_v04 \
+		result \
+		serialize \
+		tokenize_result; do \
+		echo "  dual $$pair"; \
+		$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_compiler_dual \
+			/tmp/nanolang_cseed_$$pair.nvm /tmp/nanolang_cut_a_$$pair.nasm \
+			|| { echo "compiler dual failed: $$pair"; exit 1; }; \
+	done
+	@rm -f tests/nanoisa/test_nanoisa_compiler_dual
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
