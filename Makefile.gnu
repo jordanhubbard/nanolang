@@ -121,6 +121,7 @@ SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 # Bootstrap binaries
 NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
 NANOISA_EMIT_SOURCE = $(SRC_NANO_DIR)/nanoisa_emit.nano
+NANOISA_CODEGEN_SOURCE = $(SRC_NANO_DIR)/compiler/nanoisa_codegen.nano
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 BOOTSTRAP_DIR = build/bootstrap
@@ -443,7 +444,7 @@ $(BOOTSTRAP_DIR):
 .PHONY: nanoisa_emit
 nanoisa_emit: bin/nanoisa_emit
 
-bin/nanoisa_emit: nvm2c nano_virt $(NANOISA_EMIT_SOURCE) | bin $(BOOTSTRAP_DIR)
+bin/nanoisa_emit: nvm2c nano_virt $(NANOISA_EMIT_SOURCE) $(NANOISA_CODEGEN_SOURCE) | bin $(BOOTSTRAP_DIR)
 	@echo "AOT nanoisa_emit: C-seed --emit-nvm, nvm2c, cc"
 	$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(BIN_DIR)/nano_virt $(NANOISA_EMIT_SOURCE) --emit-nvm --strip-debug -o $(NANOISA_EMIT_NVM)
 	$(TIMEOUT_CMD) $(BIN_DIR)/nvm2c $(NANOISA_EMIT_NVM) -o $(NANOISA_EMIT_C)

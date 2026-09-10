@@ -1,0 +1,9 @@
+import "src_nano/compiler/lexer.nano"
+
+fn layout_root_main() -> int {
+    return 0
+}
+
+shadow layout_root_main {
+    assert (== (layout_root_main) 0)
+}

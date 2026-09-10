@@ -424,9 +424,12 @@ down in the driver, not a language phase. `CompilerPhase_PHASE_TRANSPILER`
 is not renamed yet. `wrapper_gen` remains a packaged-interpreter flag, not the
 default meaning of native.
 
-**D — Honest bootstrap.** Stage 1 and Stage 2 `.nvm` files match. I
-freeze `transpiler.nano` as bootstrap-only. Matching native binaries
-are a translator test, kept separate.
+**D — Honest bootstrap.** C-seed `--emit-nvm` of `nanoc_v06` now
+byte-matches AOT `nanoisa_emit` of the same file. Stage 1 and Stage 2
+`.nvm` matching is still not "I compiled myself": `nanoc_v06`
+re-invokes `bin/nanoisa_emit` on the source path. I freeze
+`transpiler.nano` as bootstrap-only after that lowering lives in the
+driver. Matching native binaries are a translator test, kept separate.
 
 **E — Pretty-printer leaves.** I delete `transpiler.nano` from the
 product compiler (git keeps it). Optional `nvm2llvm` / `nvm2wasm` /

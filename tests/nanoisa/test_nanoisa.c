@@ -1348,6 +1348,33 @@ static void test_asm_multiple_functions(void) {
     nvm_module_free(mod);
 }
 
+static void test_asm_function_table_index(void) {
+    /* Optional seventh .function field is the table slot. CODE still
+     * appends in appearance order, so intern order and compile order
+     * can differ the way C-seed --emit-nvm packs nanoc_v06. */
+    const char *src =
+        ".function later 0 0 0 int 1 1\n"
+        "  PUSH_I64 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function earlier 0 0 0 int 1 0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        ".end\n";
+
+    AsmResult result;
+    NvmModule *mod = asm_assemble(src, &result);
+    ASSERT(mod != NULL, "Explicit table index assembles");
+    ASSERT_EQ_INT(mod->function_count, 2, "2 functions");
+    ASSERT_EQ_STR(nvm_get_string(mod, mod->functions[0].name_idx), "earlier",
+                  "slot 0 is earlier");
+    ASSERT_EQ_STR(nvm_get_string(mod, mod->functions[1].name_idx), "later",
+                  "slot 1 is later");
+    ASSERT(mod->functions[1].code_offset < mod->functions[0].code_offset,
+           "later body packs first");
+    nvm_module_free(mod);
+}
+
 static void test_asm_symbolic_operands(void) {
     const char *src =
         ".string greeting \"hello\"\n"
@@ -1992,6 +2019,7 @@ int main(void) {
     RUN_TEST(test_asm_string_escapes);
     RUN_TEST(test_asm_string_keeps_comment_chars);
     RUN_TEST(test_asm_multiple_functions);
+    RUN_TEST(test_asm_function_table_index);
     RUN_TEST(test_asm_symbolic_operands);
     RUN_TEST(test_asm_error_undefined_symbol);
 

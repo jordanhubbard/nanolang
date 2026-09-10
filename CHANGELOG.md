@@ -16,10 +16,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Empty `List<CompilerDiagnostic>` packed into
   `TypeEnvironment.diagnostics` is `nrarr_t`. AOT nanoc prints
   E0001 on `return "x"` from `main` and exits 1. It does not abort.
+- C-seed `--emit-nvm --strip-debug` of `nanoc_v06` byte-matches
+  AOT `nanoisa_emit` of the same file (267916). Assembler `.function`
+  accepts an optional table index so CODE can pack in compile order.
+  `nanoc_v06` still re-invokes `bin/nanoisa_emit`; that is not Stage 3
+  self-compile. `make test-nanoisa-src-nano`.
 - Bootstrap Stage 1/2 write native `nanoc` with `nano_virt`/`nanoc_stage1
   --emit-nvm`, `nvm2c`, and `cc`. Pretty-printed C is not that path.
-  `bin/nanoisa_emit` is the same AOT pipeline. Stage 3 does not pass:
-  C-seed `--strip-debug` `.nvm` of `nanoc_v06` is not the AOT emit.
+  `bin/nanoisa_emit` is the same AOT pipeline.
 - NanoISA emit unescapes lexer-raw string literals the way eval does.
   `"\n"` is one byte. C-seed `--emit-nvm` of `nanoc_v06` no longer
   appends a two-character `\n` when merging sources, so AOT nanoc

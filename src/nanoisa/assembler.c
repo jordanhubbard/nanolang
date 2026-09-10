@@ -769,8 +769,17 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 ((result_count == 0) != (result_tag == TAG_VOID))) {
                 result->error = ASM_ERR_SYNTAX;
                 snprintf(result->message, sizeof(result->message),
-                         "Expected: .function name arity locals upvalues result-tag result-count");
+                         "Expected: .function name arity locals upvalues result-tag result-count [index]");
                 return false;
+            }
+            if (!at_line_end(p)) {
+                uint32_t table_idx;
+                if (!parse_uint32(&p, &table_idx) || !at_line_end(p)) {
+                    result->error = ASM_ERR_SYNTAX;
+                    snprintf(result->message, sizeof(result->message),
+                             "Expected: .function name arity locals upvalues result-tag result-count [index]");
+                    return false;
+                }
             }
 
             /* Labels and jump patches are per function. Drop the previous
@@ -781,6 +790,14 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             state->in_function = true;
             state->fn_code_size = 0;
 
+            int symbol = find_symbol(state, SYMBOL_FUNCTION, name);
+            if (symbol < 0) {
+                result->error = ASM_ERR_SYNTAX;
+                snprintf(result->message, sizeof(result->message),
+                         "Function symbol missing: %.200s", name);
+                return false;
+            }
+            uint32_t fn_idx = state->symbols[symbol].value;
             NvmFunctionEntry fn = {0};
             fn.name_idx = nvm_add_string(state->mod, name, (uint32_t)strlen(name));
             fn.arity = (uint16_t)arity_val;
@@ -788,16 +805,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             fn.upvalue_count = (uint16_t)upvalues_val;
             fn.result_tag = result_tag;
             fn.result_count = result_count;
-
-            state->current_function = nvm_add_function(state->mod, &fn);
-            int symbol = find_symbol(state, SYMBOL_FUNCTION, name);
-            if (symbol < 0 || state->symbols[symbol].value != state->current_function) {
-                result->error = ASM_ERR_DUPLICATE_SYMBOL;
-                snprintf(result->message, sizeof(result->message),
-                         "Duplicate function symbol: %.200s", name);
-                return false;
+            while (state->mod->function_count <= fn_idx) {
+                NvmFunctionEntry empty = {0};
+                nvm_add_function(state->mod, &empty);
             }
-            return require_line_end(p, result);
+            state->mod->functions[fn_idx] = fn;
+            state->current_function = fn_idx;
+            return true;
         }
 
         if (strcmp(directive, "end") == 0) {
@@ -1000,19 +1014,38 @@ static bool collect_function_symbols(AsmState *state, const char *source, AsmRes
             (cursor[9] == ' ' || cursor[9] == '\t')) {
             cursor += 9;
             char name[128];
-            if (parse_identifier(&cursor, name, sizeof(name)) &&
-                !add_symbol(state, SYMBOL_FUNCTION, name, function_index++)) {
-                result->error = ASM_ERR_DUPLICATE_SYMBOL;
-                result->line = line;
-                if (state->symbol_count >= MAX_SYMBOLS) {
-                    snprintf(result->message, sizeof(result->message),
-                             "Symbol table full (%u)", MAX_SYMBOLS);
+            if (parse_identifier(&cursor, name, sizeof(name))) {
+                uint32_t idx = function_index;
+                uint32_t arity_val, locals_val, upvalues_val, table_idx;
+                uint8_t result_tag, result_count;
+                const char *rest = cursor;
+                if (parse_uint32(&rest, &arity_val) &&
+                    parse_uint32(&rest, &locals_val) &&
+                    parse_uint32(&rest, &upvalues_val) &&
+                    parse_result_tag(&rest, &result_tag) &&
+                    parse_uint8(&rest, &result_count) &&
+                    parse_uint32(&rest, &table_idx) &&
+                    at_line_end(rest)) {
+                    idx = table_idx;
+                    if (table_idx + 1 > function_index) {
+                        function_index = table_idx + 1;
+                    }
                 } else {
-                    snprintf(result->message, sizeof(result->message),
-                             "Duplicate function symbol: %.200s", name);
+                    function_index++;
                 }
-                free(line_buf);
-                return false;
+                if (!add_symbol(state, SYMBOL_FUNCTION, name, idx)) {
+                    result->error = ASM_ERR_DUPLICATE_SYMBOL;
+                    result->line = line;
+                    if (state->symbol_count >= MAX_SYMBOLS) {
+                        snprintf(result->message, sizeof(result->message),
+                                 "Symbol table full (%u)", MAX_SYMBOLS);
+                    } else {
+                        snprintf(result->message, sizeof(result->message),
+                                 "Duplicate function symbol: %.200s", name);
+                    }
+                    free(line_buf);
+                    return false;
+                }
             }
         }
         free(line_buf);

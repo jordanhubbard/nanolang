@@ -1679,12 +1679,20 @@ Compiler product:
       `make test-typechecker`. C seed `--emit-nvm` writes `.nvm`
       for each of those files.
       MAC `task_4f67d2fb851bf739b0376b9f53174483`.
-- [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
-      binaries from `nvm2c`+`cc` is a translator test, kept separate.
-      C-seed `--emit-nvm --strip-debug` of `nanoc_v06` is 267916 bytes.
-      AOT `nanoisa_emit` of the same file is 267196 bytes. Pretty-printed
-      `nanoisa_emit` matches AOT emit, not the C seed. I do not cmp
-      equal files to fake this. Dumps differ in the `.string` pool.
+- [x] C-seed `--emit-nvm --strip-debug` of `src_nano/nanoc_v06.nano`
+      byte-matches AOT `bin/nanoisa_emit` of the same file (267916).
+      I do not reorder the C seed. Assembler `.function` takes an
+      optional table index so CODE packs in compile order while the
+      function table stays intern order. Layout registration follows
+      source order: local `Kind` before imported `ImpKind`, and
+      `compiler_contracts` before `LexerToken`. `cmp` exit 0.
+      `make test-nanoisa` (2640 passed).
+      `make test-nanoisa-src-nano` (Cut A 298; `nanoc_v06` dual 601).
+- [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm` as proof I
+      compiled myself. `nanoc_v06` still re-invokes `bin/nanoisa_emit`
+      on the source path. Matching those files today would prove the
+      emit tool ran, not that AOT nanoc lowered the AST. I do not
+      `make bootstrap3` to install that tautology.
       MAC `task_08be628e541bb2454b665995f8159b50`.
 - [ ] I freeze `transpiler.nano` as bootstrap-only once the emitter compiles
       the compiler, then I delete it from the product compiler. Git history
