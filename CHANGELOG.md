@@ -6,6 +6,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Fixed
+- `nvm2c` array push and interned strings no longer use a 64KiB
+  copy-on-push arena. AOT nanoc aborted in `nsarr_push` while
+  `split_lines` read `nanoc_v06.nano` during import merge. Heap
+  `realloc` grows `narr` / `nsarr` / `nrarr`. A packed `nstr_hdr`
+  makes `nstr_len` O(1). Self `TAIL_CALL` is `goto L_tco`. Records
+  are heap `nrec_t`. Hashmaps grow past 64 keys. A whole-record
+  CALL into an INT param stays `nrec_t`.
+- Empty `List<CompilerDiagnostic>` packed into
+  `TypeEnvironment.diagnostics` is `nrarr_t`. AOT nanoc prints
+  E0001 on `return "x"` from `main` and exits 1. It does not abort.
+- Bootstrap Stage 1/2 write native `nanoc` with `nano_virt`/`nanoc_stage1
+  --emit-nvm`, `nvm2c`, and `cc`. Pretty-printed C is not that path.
+  `bin/nanoisa_emit` is the same AOT pipeline. Stage 3 does not pass:
+  C-seed `--strip-debug` `.nvm` of `nanoc_v06` is not the AOT emit.
 - NanoISA emit unescapes lexer-raw string literals the way eval does.
   `"\n"` is one byte. C-seed `--emit-nvm` of `nanoc_v06` no longer
   appends a two-character `\n` when merging sources, so AOT nanoc
@@ -15,7 +29,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   identifier lists as `nrarr_t`. AOT nanoc parses, typechecks, and
   compiles `examples/language/nl_hello.nano` through nanoisa_emit /
   nvm2c / cc. The native binary prints `Hello from NanoLang!`.
-  `make test-nvm2c` (856 passed). `make test-nvm2c-compiler-subset`.
+  `make test-nvm2c` (911 passed). `make test-nvm2c-compiler-subset`.
 
 ### Added
 - `nvm2c` translates the C-seed `nanoc_v06` module to C11. `cc

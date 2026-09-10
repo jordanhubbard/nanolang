@@ -23,6 +23,7 @@ static int g_pass = 0, g_fail = 0;
 
 static void run_host_fixture(const char *src, const char *label, const char *abi_sym,
                              int expect);
+static void check_aot_c(const char *c);
 
 static NvmModule *assemble_ok(const char *src, const char *label) {
     AsmResult result;
@@ -2206,6 +2207,207 @@ static void test_grow_s_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* Copy-on-push into nsarr_arena[65536] aborts after ~361 pushes (triangular). */
+static void test_grow_s_many_runs_without_nano_vm(void) {
+    const char *src =
+        ".string x \"x\"\n"
+        ".entry 1\n"
+        ".function grow_s_many 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop_top:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 400\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE loop_end\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR x\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop_top\n"
+        "loop_end:\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 400\n"
+        "  I64_EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow_s_many\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow_s_many fixture");
+    CHECK(m != NULL, "grow_s_many fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for grow_s_many");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow_s_many C compiles and runs");
+    CHECK(status == 1, "grow_s_many length is 400 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_grow_l_many_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function grow_l_many 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop_top:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 400\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE loop_end\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop_top\n"
+        "loop_end:\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 400\n"
+        "  I64_EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow_l_many\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow_l_many fixture");
+    CHECK(m != NULL, "grow_l_many fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for grow_l_many");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow_l_many C compiles and runs");
+    CHECK(status == 1, "grow_l_many length is 400 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_grow_t_many_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function grow_t_many 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop_top:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 400\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE loop_end\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop_top\n"
+        "loop_end:\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 400\n"
+        "  I64_EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow_t_many\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow_t_many fixture");
+    CHECK(m != NULL, "grow_t_many fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for grow_t_many");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow_t_many C compiles and runs");
+    CHECK(status == 1, "grow_t_many length is 400 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* nstr_arena[65536] aborts after ~32k one-byte substr copies. */
+static void test_many_substr_runs_without_nano_vm(void) {
+    const char *src =
+        ".string blob \"abcdefghij\"\n"
+        ".entry 1\n"
+        ".function many_sub 0 2 0 int 1\n"
+        "  PUSH_STR blob\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop_top:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 40000\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE loop_end\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  STR_SUBSTR\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop_top\n"
+        "loop_end:\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL many_sub\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "many_sub fixture");
+    CHECK(m != NULL, "many_sub fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for many_sub");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    check_aot_c(c);
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "many_sub C compiles and runs");
+    CHECK(status == 1, "40000 one-byte substr copies run without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_put_s_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -3809,7 +4011,7 @@ static void test_empty_list_field_push_runs_without_nano_vm(void) {
           "empty list field PUSH C does not name nano_vm");
     CHECK(strstr(c, "nrarr_new") != NULL,
           "init allocates the empty list as nrarr_t");
-    CHECK(strstr(c, ".ra[0]") != NULL,
+    CHECK(strstr(c, "->ra[0]") != NULL,
           "init stores the empty list in ra[], not ia[]");
     CHECK(strstr(c, "nrarr_push") != NULL,
           "store pushes a record onto nrarr_t");
@@ -5321,6 +5523,205 @@ static void test_tail_call_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+static void test_self_tail_call_restarts_without_growing_stack(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function rec_count 2 2 0 struct 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 0\n"
+        "  I64_EQ\n"
+        "  JMP_FALSE cont\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        "cont:\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_SUB\n"
+        "  TAIL_CALL rec_count\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_I64 8\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  PUSH_I64 400\n"
+        "  CALL rec_count\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "self-tail fixture");
+    CHECK(m != NULL, "self-tail fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for self TAIL_CALL");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "self-tail C does not name nano_vm");
+    CHECK(strstr(c, "goto L_tco") != NULL, "self TAIL_CALL restarts with goto L_tco");
+    CHECK(strstr(c, "nrec_t l0") == NULL, "record locals live in heap r[] not C stack");
+    CHECK(strstr(c, "nvm2c_free_rec(_nt, nl_rec_count") == NULL,
+          "self TAIL_CALL is not a C call of nl_rec_count");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "self-tail C compiles and runs");
+    CHECK(status == 7, "rec_count(_, 400) exits 7 without growing the C stack");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_grow_hm_many_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function grow_hm 0 2 0 int 1\n"
+        "  HM_NEW 5 1\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 1\n"
+        "loop:\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 80\n"
+        "  I64_LT_S\n"
+        "  JMP_FALSE done\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  CAST_STRING\n"
+        "  LOAD_LOCAL 1\n"
+        "  HM_SET\n"
+        "  POP\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  STORE_LOCAL 1\n"
+        "  JMP loop\n"
+        "done:\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 79\n"
+        "  CAST_STRING\n"
+        "  HM_HAS\n"
+        "  JMP_FALSE no\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "no:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL grow_hm\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "grow-hm fixture");
+    CHECK(m != NULL, "grow-hm fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for growing hashmap");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "grow-hm C does not name nano_vm");
+    CHECK(strstr(c, "NVM2C_HM_CAP") == NULL, "hashmap is not a 64-slot array");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "grow-hm C compiles and runs");
+    CHECK(status == 1, "grow_hm 80 keys HAS 79 exits 1");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* ASTStmtRef is two ints. I64_EQ of a field must not demote the param to
+ * int64_t while the caller still passes nrec_t. */
+static void test_int_field_record_param_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function use_p 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 7\n"
+        "  I64_EQ\n"
+        "  JMP_FALSE no\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "no:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  CALL use_p\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "int-field record param fixture");
+    CHECK(m != NULL, "int-field record param fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for int-field record param");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "int-field record param C does not name nano_vm");
+    CHECK(strstr(c, "nrec_t a0") != NULL, "use_p takes nrec_t, not int64_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "int-field record param C compiles and runs");
+    CHECK(status == 1, "use_p({7,1}) field 0 == 7 exits 1");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* TypeEnvironment.diagnostics is List<CompilerDiagnostic>: empty list_new
+ * is ARR_NEW, packed into a record, then diag_list_add ARR_PUSHes a record.
+ * The packed field must be nrarr_t or nrarr_push gets NULL. */
+static void test_empty_record_list_field_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 3\n"
+        ".function list_new 0 1 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function list_add 2 2 0 void 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  RET\n"
+        ".end\n"
+        ".function env_new 0 1 0 struct 1\n"
+        "  PUSH_I64 0\n"
+        "  CALL list_new\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  CALL env_new\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  CALL list_add\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "empty record-list field fixture");
+    CHECK(m != NULL, "empty record-list field fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for empty record-list field");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "empty record-list field C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_t nl_list_new") != NULL, "list_new returns nrarr_t");
+    CHECK(strstr(c, "->ra[1]") != NULL, "env_new packs the list as ra[], not ia[]");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "empty record-list field C compiles and runs");
+    CHECK(status == 1, "env.diagnostics length after one push exits 1");
+    free(c);
+    nvm_module_free(m);
+}
+
 static char *quote_path(const char *path) {
     size_t len = strlen(path);
     char *quoted = malloc(len + 3);
@@ -5508,15 +5909,19 @@ int main(int argc, char **argv) {
     test_str_substr_array_is_refused();
     test_blank_l_runs_without_nano_vm();
     test_grow_l_runs_without_nano_vm();
+    test_grow_l_many_runs_without_nano_vm();
     test_put_l_runs_without_nano_vm();
     test_ch_runs_without_nano_vm();
     test_ch_oob_runs_without_nano_vm();
     test_blank_s_runs_without_nano_vm();
     test_grow_s_runs_without_nano_vm();
+    test_grow_s_many_runs_without_nano_vm();
+    test_many_substr_runs_without_nano_vm();
     test_put_s_runs_without_nano_vm();
     test_get_s_runs_without_nano_vm();
     test_blank_t_runs_without_nano_vm();
     test_grow_t_runs_without_nano_vm();
+    test_grow_t_many_runs_without_nano_vm();
     test_put_t_runs_without_nano_vm();
     test_get_v_runs_without_nano_vm();
     test_grow_lex_runs_without_nano_vm();
@@ -5601,6 +6006,10 @@ int main(int argc, char **argv) {
     test_unused_library_fn_compiles_without_nano_vm();
     test_cast_int_array_is_refused();
     test_tail_call_runs_without_nano_vm();
+    test_self_tail_call_restarts_without_growing_stack();
+    test_grow_hm_many_runs_without_nano_vm();
+    test_int_field_record_param_runs_without_nano_vm();
+    test_empty_record_list_field_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);

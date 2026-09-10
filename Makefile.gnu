@@ -120,8 +120,17 @@ SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 
 # Bootstrap binaries
 NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
+NANOISA_EMIT_SOURCE = $(SRC_NANO_DIR)/nanoisa_emit.nano
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
+BOOTSTRAP_DIR = build/bootstrap
+NANOC_STAGE1_NVM = $(BOOTSTRAP_DIR)/nanoc_stage1.nvm
+NANOC_STAGE2_NVM = $(BOOTSTRAP_DIR)/nanoc_stage2.nvm
+NANOC_STAGE1_C = $(BOOTSTRAP_DIR)/nanoc_stage1.c
+NANOC_STAGE2_C = $(BOOTSTRAP_DIR)/nanoc_stage2.c
+NANOISA_EMIT_NVM = $(BOOTSTRAP_DIR)/nanoisa_emit.nvm
+NANOISA_EMIT_C = $(BOOTSTRAP_DIR)/nanoisa_emit.c
+NVM2C_AOT_CFLAGS = -std=c11 -Wall -Wextra -Werror -O0
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
 VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 
@@ -426,9 +435,19 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | bin
 	$(CC) $(CFLAGS) -o bin/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
+$(BOOTSTRAP_DIR):
+	mkdir -p $(BOOTSTRAP_DIR)
+
+# C11 AOT of nanoisa_emit.nano. Self-hosted nanoc shells this binary;
+# pretty-printed C is not the 5.0 emit tool.
 .PHONY: nanoisa_emit
-nanoisa_emit: $(COMPILER_C) | bin
-	$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+nanoisa_emit: bin/nanoisa_emit
+
+bin/nanoisa_emit: nvm2c nano_virt $(NANOISA_EMIT_SOURCE) | bin $(BOOTSTRAP_DIR)
+	@echo "AOT nanoisa_emit: C-seed --emit-nvm, nvm2c, cc"
+	$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(BIN_DIR)/nano_virt $(NANOISA_EMIT_SOURCE) --emit-nvm --strip-debug -o $(NANOISA_EMIT_NVM)
+	$(TIMEOUT_CMD) $(BIN_DIR)/nvm2c $(NANOISA_EMIT_NVM) -o $(NANOISA_EMIT_C)
+	$(TIMEOUT_CMD) $(CC) $(NVM2C_AOT_CFLAGS) -o bin/nanoisa_emit $(NANOISA_EMIT_C)
 
 .PHONY: test-nanoisa-src-nano
 test-nanoisa-src-nano: nanoisa_emit nano_virt nanoisa_dump $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -3060,53 +3079,56 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) nvm2c nanoisa_dump nanoisa_emit
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) nvm2c nano_virt nanoisa_dump nanoisa_emit | $(BOOTSTRAP_DIR)
 	@echo ""
 	@echo "=========================================="
-	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
+	@echo "Bootstrap Stage 1: C-seed .nvm then nvm2c+cc"
 	@echo "=========================================="
-	@echo "Compiling nanoc_v06.nano with C compiler..."
-	@if [ -f $(NANOC_SOURCE) ]; then \
-		$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
-		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
-		echo "" && \
-		echo "Testing stage 1 compiler..." && \
-		if $(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test >/dev/null 2>&1; then \
-			echo "✓ Stage 1 compiler works!"; \
-			touch $(SENTINEL_BOOTSTRAP1); \
-		else \
-			echo "❌ Stage 1 compiler test failed"; \
-			exit 1; \
-		fi; \
+	@echo "I emit nanoc_v06 with nano_virt, then nvm2c, then cc."
+	@if [ ! -f $(NANOC_SOURCE) ]; then \
+		echo "Error: $(NANOC_SOURCE) not found"; \
+		exit 1; \
+	fi
+	$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(BIN_DIR)/nano_virt $(NANOC_SOURCE) --emit-nvm --strip-debug -o $(NANOC_STAGE1_NVM)
+	$(TIMEOUT_CMD) $(BIN_DIR)/nvm2c $(NANOC_STAGE1_NVM) -o $(NANOC_STAGE1_C)
+	$(TIMEOUT_CMD) $(CC) $(NVM2C_AOT_CFLAGS) -o $(NANOC_STAGE1) $(NANOC_STAGE1_C)
+	@echo "Stage 1 compiler created: $(NANOC_STAGE1)"
+	@echo ""
+	@echo "Testing stage 1 compiler on nl_hello.nano..."
+	@if $(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test >/dev/null 2>&1; then \
+		echo "Stage 1 compiler works"; \
+		touch $(SENTINEL_BOOTSTRAP1); \
 	else \
-		echo "❌ Error: $(NANOC_SOURCE) not found!"; \
+		echo "Stage 1 compiler test failed"; \
 		exit 1; \
 	fi
 
-# Bootstrap Stage 2: Recompile nanoc_v04.nano with stage 1 compiler
+# Bootstrap Stage 2: Recompile nanoc_v06.nano with stage 1 compiler
 bootstrap2:
 	@if [ -f $(SENTINEL_BOOTSTRAP2) ] && [ ! -f $(NANOC_STAGE2) ]; then \
-		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP2)"; \
+		echo "Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP2)"; \
 		rm -f $(SENTINEL_BOOTSTRAP2); \
 	fi
 	@$(MAKE) $(SENTINEL_BOOTSTRAP2)
 
 
-$(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
+$(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1) nvm2c nanoisa_emit | $(BOOTSTRAP_DIR)
 	@echo ""
 	@echo "=========================================="
-	@echo "Bootstrap Stage 2: Recompilation"
+	@echo "Bootstrap Stage 2: AOT nanoc --emit-nvm then nvm2c+cc"
 	@echo "=========================================="
-	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
-	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
+	@echo "I emit nanoc_v06 with stage 1, then nvm2c, then cc."
+	$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) --emit-nvm -o $(NANOC_STAGE2_NVM)
+	$(TIMEOUT_CMD) $(BIN_DIR)/nvm2c $(NANOC_STAGE2_NVM) -o $(NANOC_STAGE2_C)
+	$(TIMEOUT_CMD) $(CC) $(NVM2C_AOT_CFLAGS) -o $(NANOC_STAGE2) $(NANOC_STAGE2_C)
+	@echo "Stage 2 compiler created: $(NANOC_STAGE2)"
 	@echo ""
-	@echo "Testing stage 2 compiler..."
-	@if $(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test2 && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test2 >/dev/null 2>&1; then \
-		echo "✓ Stage 2 compiler works!"; \
+	@echo "Testing stage 2 compiler on nl_hello.nano..."
+	@if $(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test2 && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test2 >/dev/null 2>&1; then \
+		echo "Stage 2 compiler works"; \
 		touch $(SENTINEL_BOOTSTRAP2); \
 	else \
-		echo "❌ Stage 2 compiler test failed"; \
+		echo "Stage 2 compiler test failed"; \
 		exit 1; \
 	fi
 
@@ -3148,58 +3170,44 @@ bootstrap3:
 $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	@echo ""
 	@echo "=========================================="
-	@echo "Bootstrap Stage 3: Verification"
+	@echo "Bootstrap Stage 3: Compare stage1.nvm and stage2.nvm"
 	@echo "=========================================="
-	@echo "Comparing stage 1 and stage 2 binaries..."
+	@echo "Matching nvm2c+cc binaries is a translator test, kept separate."
 	@echo ""
-	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
+	@ls -lh $(NANOC_STAGE1_NVM) $(NANOC_STAGE2_NVM) $(NANOC_STAGE1) $(NANOC_STAGE2)
 	@echo ""
-	@if cmp -s $(NANOC_STAGE1) $(NANOC_STAGE2); then \
-		echo "✅ BOOTSTRAP VERIFIED: Binaries are identical!"; \
-		echo ""; \
-		echo "This proves reproducible builds - the compiler compiled"; \
-		echo "by the C compiler is IDENTICAL to the compiler compiled"; \
-		echo "by itself. This is TRUE SELF-HOSTING!"; \
-		echo ""; \
-	else \
-		if [ "$(BOOTSTRAP_DETERMINISTIC)" = "1" ]; then \
-			echo "❌ BOOTSTRAP FAILED: Expected identical binaries (BOOTSTRAP_DETERMINISTIC=1)"; \
-			exit 1; \
-		fi; \
-		echo "⚠️  Bootstrap verification: Binaries differ"; \
-		echo ""; \
-		echo "Stage 1 size: $$(stat -f%z $(NANOC_STAGE1) 2>/dev/null || stat -c%s $(NANOC_STAGE1))"; \
-		echo "Stage 2 size: $$(stat -f%z $(NANOC_STAGE2) 2>/dev/null || stat -c%s $(NANOC_STAGE2))"; \
-		echo ""; \
-		echo "This is expected if:"; \
-		echo "  - Timestamps are embedded in binary"; \
-		echo "  - Non-deterministic codegen"; \
-		echo "  - Different compiler optimizations"; \
-		echo ""; \
-		echo "Both compilers work correctly, which proves self-hosting!"; \
-		echo ""; \
-	fi; \
-	echo "==========================================";\
-	echo "Installing Self-Hosted Compiler"; \
-	echo "==========================================";\
-	echo "Updating bin/nanoc to use self-hosted compiler...";\
-	rm -f $(COMPILER); \
-	ln -sf nanoc_stage2 $(COMPILER); \
-	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
-	echo ""; \
-	echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."; \
-	if $(TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test >/dev/null 2>&1; then \
-		echo "✓ installed compiler works"; \
-	else \
-		echo "❌ installed compiler smoke test failed"; \
+	@if [ ! -f $(NANOC_STAGE1_NVM) ] || [ ! -f $(NANOC_STAGE2_NVM) ]; then \
+		echo "Stage 3 failed: missing $(NANOC_STAGE1_NVM) or $(NANOC_STAGE2_NVM)"; \
 		exit 1; \
-	fi; \
-	echo ""; \
-	echo "Verifying bin/nanoc does not depend on bin/nanoc_c..."; \
-	$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
-	echo ""; \
-	echo "All subsequent builds (test, examples) will use the self-hosted compiler!"; \
-	echo ""; \
+	fi
+	@if cmp -s $(NANOC_STAGE1_NVM) $(NANOC_STAGE2_NVM); then \
+		echo "Stage 3: stage1.nvm matches stage2.nvm"; \
+		echo ""; \
+	else \
+		echo "Stage 3 failed: stage1.nvm does not match stage2.nvm"; \
+		echo "Stage 1 nvm size: $$(stat -f%z $(NANOC_STAGE1_NVM) 2>/dev/null || stat -c%s $(NANOC_STAGE1_NVM))"; \
+		echo "Stage 2 nvm size: $$(stat -f%z $(NANOC_STAGE2_NVM) 2>/dev/null || stat -c%s $(NANOC_STAGE2_NVM))"; \
+		exit 1; \
+	fi
+	@echo "=========================================="
+	@echo "Installing Self-Hosted Compiler"
+	@echo "=========================================="
+	@echo "Updating bin/nanoc to use self-hosted compiler..."
+	rm -f $(COMPILER)
+	ln -sf nanoc_stage2 $(COMPILER)
+	@echo "bin/nanoc now points to nanoc_stage2"
+	@echo ""
+	@echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."
+	@if $(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test >/dev/null 2>&1; then \
+		echo "installed compiler works"; \
+	else \
+		echo "installed compiler smoke test failed"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "Verifying bin/nanoc does not depend on bin/nanoc_c..."
+	$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
+	@echo ""
 	touch $(SENTINEL_BOOTSTRAP3)
 
 # Show bootstrap status
@@ -3619,9 +3627,9 @@ help:
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  make bootstrap         - 3-stage bootstrap + auto-install nanoc_stage2"
 	@echo "  make bootstrap0        - Stage 0: C → nanoc"
-	@echo "  make bootstrap1        - Stage 1: nanoc → nanoc_stage1"
-	@echo "  make bootstrap2        - Stage 2: stage1 → nanoc_stage2"
-	@echo "  make bootstrap3        - Stage 3: Verify + install nanoc_stage2"
+	@echo "  make bootstrap1        - Stage 1: nano_virt --emit-nvm, nvm2c, cc → nanoc_stage1"
+	@echo "  make bootstrap2        - Stage 2: stage1 --emit-nvm, nvm2c, cc → nanoc_stage2"
+	@echo "  make bootstrap3        - Stage 3: cmp stage1.nvm stage2.nvm, install nanoc_stage2"
 	@echo "  make bootstrap-status  - Show bootstrap status"
 	@echo "  make verify-no-nanoc_c - Ensure self-hosted compiler never shells out to nanoc_c"
 	@echo ""

@@ -1681,22 +1681,31 @@ Compiler product:
       MAC `task_4f67d2fb851bf739b0376b9f53174483`.
 - [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
       binaries from `nvm2c`+`cc` is a translator test, kept separate.
+      C-seed `--emit-nvm --strip-debug` of `nanoc_v06` is 267916 bytes.
+      AOT `nanoisa_emit` of the same file is 267196 bytes. Pretty-printed
+      `nanoisa_emit` matches AOT emit, not the C seed. I do not cmp
+      equal files to fake this. Dumps differ in the `.string` pool.
+      MAC `task_08be628e541bb2454b665995f8159b50`.
 - [ ] I freeze `transpiler.nano` as bootstrap-only once the emitter compiles
       the compiler, then I delete it from the product compiler. Git history
       keeps it.
 - [ ] I rename `CompilerPhase_PHASE_TRANSPILER`; the pipeline ends at NanoISA.
 
 `nvm2c` as canonical AOT:
-- [ ] I make C11 the canonical ahead-of-time portability backend from NanoISA.
+- [x] I make C11 the canonical ahead-of-time portability backend from NanoISA.
       A generated process does not require `nano_vm`, `nano_cop`, or
-      `nano_vmd` to compute.
+      `nano_vmd` to compute. `make bootstrap1` is `nano_virt --emit-nvm
+      --strip-debug`, `nvm2c`, `cc`. `make bootstrap2` is `nanoc_stage1
+      --emit-nvm`, `nvm2c`, `cc`. `bin/nanoisa_emit` is AOT, not
+      pretty-printed C. Stage 3 is a separate item.
+      MAC `task_08be628e541bb2454b665995f8159b50`.
 - [x] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
       strings, modules, and a declared host ABI for `extern`.
       C-seed `--emit-nvm` of `src_nano/nanoc_v06.nano` translates.
       `cc -std=c11 -Wall -Wextra -Werror` writes a process that does not
       name `nano_vm`. `--help` prints usage. Temps live on the heap so
       `nrec_t r[1024]` does not overflow the C stack.
-      `make test-nvm2c` (856 passed).
+      `make test-nvm2c` (911 passed).
       `make test-nvm2c-compiler-subset`.
 - [x] NanoISA emit unescapes lexer-raw string literals the way eval does.
       `"\n"` is one byte, `"a\"b"` is three. C-seed `nanovirt/codegen.c`
@@ -1706,16 +1715,45 @@ Compiler product:
       callee `ARR_PUSH`es a record. `parser_init_ast_lists` emits
       `nrarr_new` and `.ra[10]` for identifiers. A wrapper that copies
       `init_parser.identifiers` (`parser_new`) reaches the inner init.
-      INT fields (`Parser.position`) stay int. `make test-nvm2c` (856 passed).
-- [ ] `parser_init_ast_lists` still packs `diagnostics` (field 5) as `narr_t`.
-      A failing parse that pushes `CompilerDiagnostic` may `abort()` on
-      NULL `nrarr_push`. Identifiers and the other AST lists are `nrarr_t`.
+      INT fields (`Parser.position`) stay int. `make test-nvm2c` (911 passed).
+- [x] Empty `List<CompilerDiagnostic>` (`ARR_NEW` then `RET`) packed into
+      `TypeEnvironment.diagnostics` is `nrarr_t`. AOT nanoc on
+      `return "x"` from `fn main() -> int` prints E0001 and exits 1.
+      It does not abort. `make test-nvm2c` (empty record-list field).
+      MAC `task_6516d9ad489a1f4daea7126e78fa0900`.
+- [ ] `parser_init_ast_lists` still packs `diagnostics` (field 5) and
+      `prints` (field 25) as `narr_t`. Parse errors use a separate
+      `nrarr_t` list in `parse_phase_run`, so a syntax error does not
+      abort. A push onto `Parser.diagnostics` may still `abort()`.
       MAC `task_350e6bbdff0a4a37b6e27a0331e655e3`.
 - [x] AOT `nanoc_v06` from `nvm2c` tokenizes `examples/language/nl_hello.nano`
       (`token_count` is 27) and compiles it through nanoisa_emit /
       nvm2c / cc. The native binary prints `Hello from NanoLang!`.
       `make test-nvm2c-compiler-subset`.
       MAC `task_16425cd8a2404735a5cb246db12c5f59`.
+- [x] `nvm2c` `ARR_PUSH` grows with heap `realloc` (`narr` / `nsarr` /
+      `nrarr` `cap`). AOT nanoc merges `nanoc_v06` (1 081 678 bytes,
+      14 files) and does not abort in `nsarr_push`. A 400-push int /
+      string / record loop and a 40000-cut substring loop run.
+      `make test-nvm2c` (911 passed).
+      MAC `task_8345272758c84bc1aa667c0f1c1a6dc6`.
+      MAC `task_707933e34e27f3bcd890a7664e21cf3e`.
+- [x] `nvm2c` packs `nstr_hdr { size_t n; }` before the payload.
+      `nstr_len` is O(1). AOT nanoc lexes 155760 tokens of that merge.
+      `make test-nvm2c`.
+      MAC `task_707933e34e27f3bcd890a7664e21cf3e`.
+- [x] Self `TAIL_CALL` restarts at `goto L_tco`. Cross-function
+      `TAIL_CALL` is still a C call. 400 self-tail iterations run.
+      `make test-nvm2c`.
+- [x] Records are heap `nrec_t` pointers (`nrec_new` is `calloc`).
+      AOT nanoc parses 624 functions in `nanoc_v06`.
+      `make test-nvm2c`.
+- [x] `nvm2c` hashmaps grow (`nhm_reserve`). 80 inserts run. AOT nanoc
+      typechecks `nanoc_v06` (624 functions).
+      `make test-nvm2c`.
+- [x] A CALL that passes a whole record into an INT/UNK param stays
+      `nrec_t` (`ASTStmtRef`). `force_int_operand` does not demote a
+      REC local. `make test-nvm2c`.
 - [x] I map Cut A `CALL_EXTERN` to a declared host C ABI. `vm_getcwd`,
       `vm_getenv`, `vm_tmp_dir`, `vm_system`, `vm_string_from_char`,
       `get_argc`, and `get_argv` become `nhost_*` helpers, not a
@@ -1941,7 +1979,10 @@ Other translators:
 
 Acceptance (from `docs/NANOISA_ONLY.md`):
 - [ ] `src_nano` emits `.nvm` as its only compiler product.
-- [ ] `nvm2c` builds a process that does not link `nano_vm`.
+- [x] `nvm2c` builds a process that does not link `nano_vm`.
+      AOT `nanoc_v06` and AOT `nanoisa_emit` are `cc -std=c11` of
+      translated C. `--help` runs. `make test-nvm2c` (911 passed).
+      `make bootstrap1`.
 - [ ] Stage 1 and Stage 2 `.nvm` files match.
 - [ ] A pinned suite matches on `nano_vm` and AOT C.
 - [ ] `transpiler.nano` is gone from the product compiler.
