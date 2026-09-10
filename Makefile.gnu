@@ -384,7 +384,7 @@ test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_nvm2c
 
 .PHONY: test-nvm2c-compiler-subset
-test-nvm2c-compiler-subset: nvm2c nano_virt
+test-nvm2c-compiler-subset: nvm2c nano_virt nanoisa_emit nanoisa_dump
 	@echo "Running nvm2c compiler-subset (nanoc_v06 AOT) tests..."
 	@chmod +x tests/test_nvm2c_compiler_subset.sh
 	@bash tests/test_nvm2c_compiler_subset.sh

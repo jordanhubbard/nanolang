@@ -63,4 +63,30 @@ case "$help_out" in
         ;;
 esac
 
+echo "nvm2c compiler subset (nanoc_v06): --help ok"
+
+need "$PROJECT_ROOT/bin/nanoisa_emit"
+need "$PROJECT_ROOT/bin/nanoisa"
+HELLO="$PROJECT_ROOT/examples/language/nl_hello.nano"
+if [ ! -f "$HELLO" ]; then
+    echo "ERROR: missing $HELLO" >&2
+    exit 1
+fi
+
+echo "AOT nanoc compiles nl_hello.nano..."
+(
+    cd "$PROJECT_ROOT"
+    perl -e 'alarm 60; exec @ARGV' "$WORK/nanoc.bin" "$HELLO" -o "$WORK/hello.bin"
+)
+need "$WORK/hello.bin"
+hello_out="$("$WORK/hello.bin")"
+case "$hello_out" in
+    *"Hello from NanoLang!"*) ;;
+    *)
+        echo "ERROR: AOT hello did not print Hello from NanoLang!" >&2
+        echo "$hello_out" >&2
+        exit 1
+        ;;
+esac
+
 echo "nvm2c compiler subset (nanoc_v06): ok"

@@ -5,6 +5,7 @@
 #include "../src/runtime/nl_string.h"
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
@@ -322,6 +323,29 @@ void test_binary_ensure_null_terminated_idempotent() {
     nl_string_free(str);
 }
 
+void test_cstr_unescape(void) {
+    char *nl = nl_cstr_unescape("\\n");
+    char *quoted = nl_cstr_unescape("a\\\"b");
+    char *plain = nl_cstr_unescape("hi");
+    char *dbl = nl_cstr_unescape("\\\\n");
+    ASSERT(nl != NULL);
+    ASSERT(quoted != NULL);
+    ASSERT(plain != NULL);
+    ASSERT(dbl != NULL);
+    ASSERT(strlen(nl) == 1);
+    ASSERT(nl[0] == '\n');
+    ASSERT(strlen(quoted) == 3);
+    ASSERT(strcmp(quoted, "a\"b") == 0);
+    ASSERT(strcmp(plain, "hi") == 0);
+    ASSERT(strlen(dbl) == 2);
+    ASSERT(dbl[0] == '\\');
+    ASSERT(dbl[1] == 'n');
+    free(nl);
+    free(quoted);
+    free(plain);
+    free(dbl);
+}
+
 /* ============================================================================
  * Main
  * ============================================================================ */
@@ -352,6 +376,9 @@ int main() {
     TEST(binary_embedded_nul_one_over_capacity_null_termination);
     TEST(binary_ensure_null_terminated_idempotent);
     
+    printf("\nC-string unescape:\n");
+    TEST(cstr_unescape);
+
     printf("\n✓ All tests passed!\n");
     return 0;
 }

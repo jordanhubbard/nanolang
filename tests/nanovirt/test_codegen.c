@@ -747,6 +747,34 @@ static void test_string_literal(void) {
     fprintf(stderr, " ok\n");
 }
 
+static void test_string_escape_newline_length(void) {
+    fprintf(stderr, "  test_string_escape_newline_length...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  return (str_length \"\\n\")\n"
+        "}");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "VM error");
+    ASSERT_INT(tr.result.as.i64, 1);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_string_escape_quoted_length(void) {
+    fprintf(stderr, "  test_string_escape_quoted_length...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  return (str_length \"a\\\"b\")\n"
+        "}");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "VM error");
+    ASSERT_INT(tr.result.as.i64, 3);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 /* ── Tests: Print ───────────────────────────────────────────────── */
 
 static void test_print_int(void) {
@@ -1681,6 +1709,8 @@ int main(void) {
 
     fprintf(stderr, "\nStrings:\n");
     test_string_literal();
+    test_string_escape_newline_length();
+    test_string_escape_quoted_length();
 
     fprintf(stderr, "\nPrint/Assert:\n");
     test_print_int();

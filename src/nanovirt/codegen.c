@@ -15,6 +15,7 @@
 #include "nanoisa/nvm_format.h"
 #include "nanovm/vm.h"
 #include "generated/compiler_schema.h"
+#include "runtime/nl_string.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1657,8 +1658,15 @@ static void compile_expr(CG *cg, ASTNode *node) {
         break;
 
     case AST_STRING: {
-        uint32_t idx = nvm_add_string(cg->module, node->as.string_val,
-                                       (uint32_t)strlen(node->as.string_val));
+        const char *raw = node->as.string_val ? node->as.string_val : "";
+        char *unescaped = nl_cstr_unescape(raw);
+        if (!unescaped) {
+            cg_error(cg, node->line, "out of memory unescaping string");
+            break;
+        }
+        uint32_t idx = nvm_add_string(cg->module, unescaped,
+                                       (uint32_t)strlen(unescaped));
+        free(unescaped);
         emit_op(cg, OP_PUSH_STR, idx);
         break;
     }

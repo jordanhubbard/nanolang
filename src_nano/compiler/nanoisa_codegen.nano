@@ -4,7 +4,8 @@
  * I walk the self-hosted parser AST and write .nasm. Cut A covers integer
  * functions: literals, locals, +, -, *, /, %, comparisons, calls, return,
  * if/else, while, for-in over array<int> (LT, not I64_LT_S), let, set,
- * string literals, string concat, array<int>
+ * string literals (I unescape `\\n`/`\\t`/`\\"` the way eval does
+ * before I intern `.string` values), string concat, array<int>
  * literals, array_length, array_get, int- and string-field records
  * (AGG_PACK/AGG_GET),
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
@@ -324,10 +325,65 @@ shadow nisa_str_escape {
     assert (== (nisa_str_escape "\\") "\\\\")
 }
 
+fn nisa_unescape(raw: string) -> string {
+    let mut out: string = ""
+    let n: int = (str_length raw)
+    let mut i: int = 0
+    while (< i n) {
+        let c: int = (char_at raw i)
+        if (and (== c 92) (< (+ i 1) n)) {
+            set i (+ i 1)
+            let e: int = (char_at raw i)
+            if (== e 110) {
+                set out (+ out (string_from_char 10))
+            } else {
+                if (== e 116) {
+                    set out (+ out (string_from_char 9))
+                } else {
+                    if (== e 114) {
+                        set out (+ out (string_from_char 13))
+                    } else {
+                        if (== e 48) {
+                            set out (+ out (string_from_char 0))
+                        } else {
+                            if (== e 92) {
+                                set out (+ out (string_from_char 92))
+                            } else {
+                                if (== e 39) {
+                                    set out (+ out (string_from_char 39))
+                                } else {
+                                    if (== e 34) {
+                                        set out (+ out (string_from_char 34))
+                                    } else {
+                                        set out (+ out (string_from_char 92))
+                                        set out (+ out (string_from_char e))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            set out (+ out (string_from_char c))
+        }
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow nisa_unescape {
+    assert (== (nisa_unescape "hi") "hi")
+    assert (== (str_length (nisa_unescape "\\n")) 1)
+    assert (== (char_at (nisa_unescape "\\n") 0) 10)
+    assert (== (str_length (nisa_unescape "a\\\"b")) 3)
+}
+
 fn nisa_intern(lit: string) -> string {
+    let decoded: string = (nisa_unescape lit)
     let mut i: int = 0
     while (< i (array_length nisa_str_vals)) {
-        if (== (at nisa_str_vals i) lit) {
+        if (== (at nisa_str_vals i) decoded) {
             return (at nisa_str_names i)
         } else {
             (print "")
@@ -335,7 +391,7 @@ fn nisa_intern(lit: string) -> string {
         set i (+ i 1)
     }
     let name: string = (+ "s" (int_to_string (array_length nisa_str_vals)))
-    set nisa_str_vals (array_push nisa_str_vals lit)
+    set nisa_str_vals (array_push nisa_str_vals decoded)
     set nisa_str_names (array_push nisa_str_names name)
     return name
 }
@@ -373,6 +429,10 @@ shadow nisa_str_prelude {
     let qtext: string = (nisa_str_prelude)
     assert (== qn "s1")
     assert (str_contains qtext "a\\\"b")
+    let nl: string = (nisa_intern "\\n")
+    let nltext: string = (nisa_str_prelude)
+    assert (== nl "s2")
+    assert (str_contains nltext "\\n")
     let _2: int = (nisa_reset)
 }
 

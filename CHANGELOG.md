@@ -5,15 +5,27 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- NanoISA emit unescapes lexer-raw string literals the way eval does.
+  `"\n"` is one byte. C-seed `--emit-nvm` of `nanoc_v06` no longer
+  appends a two-character `\n` when merging sources, so AOT nanoc
+  can tokenize `nl_hello.nano`.
+- `nvm2c` reverse-seeds empty `List` fields on a returned struct when
+  a callee pushes a record. `parser_init_ast_lists` allocates
+  identifier lists as `nrarr_t`. AOT nanoc parses, typechecks, and
+  compiles `examples/language/nl_hello.nano` through nanoisa_emit /
+  nvm2c / cc. The native binary prints `Hello from NanoLang!`.
+  `make test-nvm2c` (856 passed). `make test-nvm2c-compiler-subset`.
+
 ### Added
 - `nvm2c` translates the C-seed `nanoc_v06` module to C11. `cc
   -std=c11 -Wall -Wextra -Werror` writes a process that does not name
   `nano_vm`. `--help` runs. Operand temps are heap `nvm2c_fn_temps`
   so record arrays do not overflow the C stack. String-array leftover
   `[]`, hashmap string keys, and `ARR_GET` as a string CALL arg are in
-  the subset. `make test-nvm2c` (836 passed).
-  `make test-nvm2c-compiler-subset`. AOT nanoc still reports 0 tokens
-  on `nl_hello.nano`.
+  the subset. `make test-nvm2c` (856 passed).
+  `make test-nvm2c-compiler-subset`. AOT nanoc compiles
+  `nl_hello.nano`; the native binary prints `Hello from NanoLang!`.
 - 4.6 Nano Scheme laboratory frontend: lexical scope, closures, pairs,
   named tail calls, and session `define` compiled to verified NanoISA.
   Continuations, macros, and `set!` fail closed. `docs/SCHEME.md`,

@@ -573,6 +573,35 @@ static int nvm2c_merge_rec_k(uint8_t *dst, const uint8_t *src) {
     return changed;
 }
 
+/* Highest used field plus one. Overlay result_rec_k onto AGG_PACK only
+ * when the pack width matches this, so a 4-field ASTIdentifier pack
+ * inside a Parser-returning function does not inherit Parser field 0. */
+static uint16_t rec_k_width(const uint8_t *k) {
+    uint16_t n = 0;
+    uint16_t i;
+    for (i = 0; i < NVM2C_MAX_REC_FIELDS; i++) {
+        if (k[i] != NVM2C_VK_UNK) n = (uint16_t)(i + 1);
+    }
+    return n;
+}
+
+/* parser_new copies init_parser.identifiers. Upgrading that field to RARR
+ * must reach parser_init_ast_lists's result, or init still writes ia[]. */
+static void nvm2c_upgrade_producer_array_field(uint8_t *result_rec_k,
+                                              const NvmModule *mod,
+                                              int producer, int field_i,
+                                              uint8_t kind) {
+    uint8_t *rk;
+    if (producer < 0 || field_i < 0 || field_i >= NVM2C_MAX_REC_FIELDS) return;
+    if ((uint32_t)producer >= mod->function_count) return;
+    if (!result_is_rec(&mod->functions[producer])) return;
+    if (kind != NVM2C_VK_RARR && kind != NVM2C_VK_SARR) return;
+    rk = result_rec_k + (size_t)producer * NVM2C_MAX_REC_FIELDS + (size_t)field_i;
+    if (*rk == NVM2C_VK_ARR || *rk == NVM2C_VK_UNK) {
+        nvm2c_merge_field(rk, kind);
+    }
+}
+
 #define NVM2C_ELEM_CAP 131072
 #define NVM2C_ELEM_RESULT 0xFFFFu
 
@@ -1317,19 +1346,52 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_fail(b, "function %u: AGG_PACK has too many fields", idx);
                 return 0;
             }
-            for (ai = 0; ai < count; ai++) {
-                Nvm2cSimSlot v;
-                if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-                if (!nvm2c_packable_kind(v.kind)) {
-                    nvm2c_fail(b, "function %u: AGG_PACK fields must be int, string, record, hashmap, or array", idx);
-                    return 0;
-                }
-                if (v.kind != NVM2C_VK_UNK) {
-                    mark_origin(local_kind, nloc, v.origin, v.kind);
-                }
-                nvm2c_merge_field(&packed.rec_k[count - 1 - ai], v.kind);
-                if (v.kind == NVM2C_VK_RARR || v.kind == NVM2C_VK_REC) {
-                    nvm2c_merge_rec_k(packed.nest_k[count - 1 - ai], v.rec_k);
+            {
+                uint16_t ret_w = rec_k_width(fn_result_rec_k(result_rec_k, idx));
+                int overlay = result_is_rec(fn) && ret_w == count;
+                for (ai = 0; ai < count; ai++) {
+                    Nvm2cSimSlot v;
+                    uint16_t fi = (uint16_t)(count - 1 - ai);
+                    if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+                    if (!nvm2c_packable_kind(v.kind)) {
+                        nvm2c_fail(b, "function %u: AGG_PACK fields must be int, string, record, hashmap, or array", idx);
+                        return 0;
+                    }
+                    nvm2c_merge_field(&packed.rec_k[fi], v.kind);
+                    /* Overlay only upgrades empty [] (ARR/UNK) to RARR/SARR.
+                     * Merging the whole result_rec_k turned Parser.position
+                     * (INT field 2) into a record list. */
+                    if (overlay) {
+                        uint8_t want = fn_result_rec_k(result_rec_k, idx)[fi];
+                        if ((packed.rec_k[fi] == NVM2C_VK_ARR
+                             || packed.rec_k[fi] == NVM2C_VK_UNK)
+                            && (want == NVM2C_VK_RARR || want == NVM2C_VK_SARR)) {
+                            nvm2c_merge_field(&packed.rec_k[fi], want);
+                        }
+                    }
+                    if (packed.rec_k[fi] == NVM2C_VK_RARR
+                        || packed.rec_k[fi] == NVM2C_VK_SARR
+                        || packed.rec_k[fi] == NVM2C_VK_ARR) {
+                        mark_slot_container(local_kind, rec_fields, nloc, &v,
+                                            packed.rec_k[fi]);
+                    } else if (packed.rec_k[fi] != NVM2C_VK_UNK) {
+                        mark_origin(local_kind, nloc, v.origin, packed.rec_k[fi]);
+                    }
+                    if (packed.rec_k[fi] == NVM2C_VK_RARR
+                        || packed.rec_k[fi] == NVM2C_VK_SARR) {
+                        int prod = v.from_fn;
+                        int src_field = v.field_i >= 0 ? v.field_i : (int)fi;
+                        if (prod < 0 && v.origin >= 0
+                            && (uint16_t)v.origin < nloc) {
+                            prod = local_from_fn[v.origin];
+                        }
+                        nvm2c_upgrade_producer_array_field(result_rec_k, mod, prod,
+                                                           src_field,
+                                                           packed.rec_k[fi]);
+                    }
+                    if (v.kind == NVM2C_VK_RARR || v.kind == NVM2C_VK_REC) {
+                        nvm2c_merge_rec_k(packed.nest_k[fi], v.rec_k);
+                    }
                 }
             }
             if (!sim_push_slot(b, idx, stk, &sp, packed)) return 0;
@@ -1557,6 +1619,46 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                               + (size_t)arg.origin * NVM2C_MAX_REC_FIELDS);
                         }
                     }
+                    /* parser_init_ast_lists packs empty [] as ARR. A later
+                     * parser_store_identifier ARR_PUSHes a record onto that
+                     * field. Reverse-seed only those array fields so INT
+                     * slots (Parser.position) stay int. */
+                    if (arg.kind == NVM2C_VK_REC) {
+                        int producer = arg.from_fn;
+                        uint16_t fi;
+                        if (producer < 0 && arg.origin >= 0
+                            && (uint16_t)arg.origin < nloc) {
+                            producer = local_from_fn[arg.origin];
+                        }
+                        if (producer >= 0
+                            && (uint32_t)producer < mod->function_count
+                            && result_is_rec(&mod->functions[producer])) {
+                            uint8_t *rk = result_rec_k
+                                + (size_t)producer * NVM2C_MAX_REC_FIELDS;
+                            const uint8_t *src = cr
+                                + (size_t)slot * NVM2C_MAX_REC_FIELDS;
+                            for (fi = 0; fi < NVM2C_MAX_REC_FIELDS; fi++) {
+                                if ((rk[fi] == NVM2C_VK_ARR
+                                     || rk[fi] == NVM2C_VK_UNK)
+                                    && (src[fi] == NVM2C_VK_RARR
+                                        || src[fi] == NVM2C_VK_SARR)) {
+                                    nvm2c_merge_field(&rk[fi], src[fi]);
+                                }
+                            }
+                            if (arg.origin >= 0 && (uint16_t)arg.origin < nloc) {
+                                src = rec_fields
+                                    + (size_t)arg.origin * NVM2C_MAX_REC_FIELDS;
+                                for (fi = 0; fi < NVM2C_MAX_REC_FIELDS; fi++) {
+                                    if ((rk[fi] == NVM2C_VK_ARR
+                                         || rk[fi] == NVM2C_VK_UNK)
+                                        && (src[fi] == NVM2C_VK_RARR
+                                            || src[fi] == NVM2C_VK_SARR)) {
+                                        nvm2c_merge_field(&rk[fi], src[fi]);
+                                    }
+                                }
+                            }
+                        }
+                    }
                     }
                 }
             }
@@ -1589,7 +1691,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_slot_clear(&rec);
                     rec.kind = NVM2C_VK_REC;
                     rec.origin = -1;
-                    rec.from_fn = -1;
+                    rec.from_fn = (int)callee;
                     memcpy(rec.rec_k, fn_result_rec_k(result_rec_k, callee),
                            NVM2C_MAX_REC_FIELDS);
                     {
@@ -3038,7 +3140,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     } else if (fkind[ei] == NVM2C_VK_HM) {
                         nvm2c_printf(b, "    r[%d].h[%d] = h[%d];\n", r, ei, elems[ei]);
                     } else if (fkind[ei] == NVM2C_VK_ARR) {
-                        nvm2c_printf(b, "    r[%d].ia[%d] = a[%d];\n", r, ei, elems[ei]);
+                        uint16_t ret_w = rec_k_width(fn_result_rec_k(result_rec_k, idx));
+                        uint8_t want = fn_result_rec_k(result_rec_k, idx)[ei];
+                        if (result_is_rec(fn) && ret_w == count
+                            && want == NVM2C_VK_RARR) {
+                            nvm2c_printf(b, "    r[%d].ra[%d] = nrarr_from_narr(a[%d]);\n",
+                                         r, ei, elems[ei]);
+                            st.rec_k[r][ei] = NVM2C_VK_RARR;
+                        } else if (result_is_rec(fn) && ret_w == count
+                                   && want == NVM2C_VK_SARR) {
+                            nvm2c_printf(b, "    r[%d].sa[%d] = nsarr_from_narr(a[%d]);\n",
+                                         r, ei, elems[ei]);
+                            st.rec_k[r][ei] = NVM2C_VK_SARR;
+                        } else {
+                            nvm2c_printf(b, "    r[%d].ia[%d] = a[%d];\n", r, ei, elems[ei]);
+                        }
                     } else if (fkind[ei] == NVM2C_VK_SARR) {
                         nvm2c_printf(b, "    r[%d].sa[%d] = sa[%d];\n", r, ei, elems[ei]);
                     } else if (fkind[ei] == NVM2C_VK_RARR) {

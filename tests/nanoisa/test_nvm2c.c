@@ -3758,6 +3758,203 @@ static void test_via_empty_t_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* parser_init_ast_lists: ARR_NEW packed into a returned struct, no ARR_PUSH.
+ * parser_store_identifier: ARR_PUSH a record onto field 0. The empty list
+ * field must be nrarr_t in both functions, not a NULL ra[] next to ia[]. */
+static void test_empty_list_field_push_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 2\n"
+        ".function init 0 1 0 struct 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function store 1 3 0 struct 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 2\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  CALL init\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL store\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "empty list field PUSH fixture");
+    CHECK(m != NULL, "empty list field PUSH fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for empty list field PUSH");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL,
+          "empty list field PUSH C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_new") != NULL,
+          "init allocates the empty list as nrarr_t");
+    CHECK(strstr(c, ".ra[0]") != NULL,
+          "init stores the empty list in ra[], not ia[]");
+    CHECK(strstr(c, "nrarr_push") != NULL,
+          "store pushes a record onto nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0,
+          "empty list field PUSH C compiles and runs");
+    CHECK(status == 1, "empty list field PUSH exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* Parser.position (field 1) stays int when field 0 is an empty List
+ * reverse-seeded to nrarr_t. parser_is_at_end does I64_GE_S on fields 1 and 2. */
+static void test_empty_list_field_keeps_int_fields(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 3\n"
+        ".function init 0 1 0 struct 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 3\n"
+        "  RET\n"
+        ".end\n"
+        ".function store 1 3 0 struct 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 2\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 2\n"
+        "  AGG_PACK 0 0 0 3\n"
+        "  RET\n"
+        ".end\n"
+        ".function is_end 1 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 2\n"
+        "  I64_GE_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  CALL init\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL store\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL is_end\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "empty list field reverse-seed keeps int fields", NULL, 1);
+}
+
+/* parser_new copies init_parser.identifiers. The empty list must be
+ * nrarr_t in the inner init function, not only on the wrapper. */
+static void test_wrapped_empty_list_field_push(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 3\n"
+        ".function init 0 1 0 struct 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function wrap 0 1 0 struct 1\n"
+        "  CALL init\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function store 1 3 0 struct 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 2\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  CALL wrap\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL store\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "wrapped empty list field PUSH fixture");
+    CHECK(m != NULL, "wrapped empty list field PUSH fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for wrapped empty list field PUSH");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL,
+          "wrapped empty list field PUSH C does not name nano_vm");
+    CHECK(strstr(c, "nrarr_new") != NULL,
+          "inner init allocates the empty list as nrarr_t");
+    CHECK(strstr(c, "nrarr_push") != NULL,
+          "store pushes a record onto nrarr_t");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0,
+          "wrapped empty list field PUSH C compiles and runs");
+    CHECK(status == 1, "wrapped empty list field PUSH exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
 /* via_one_lex: CALL of List<LexerToken> (four-field AGG_PACK before RET). */
 static void test_via_one_lex_runs_without_nano_vm(void) {
     const char *src =
@@ -5360,6 +5557,9 @@ int main(int argc, char **argv) {
     test_arr_get_call_last_arg_str();
     test_int_list_get_in_struct_fn_runs_without_nano_vm();
     test_via_empty_t_runs_without_nano_vm();
+    test_empty_list_field_push_runs_without_nano_vm();
+    test_empty_list_field_keeps_int_fields();
+    test_wrapped_empty_list_field_push();
     test_via_one_lex_runs_without_nano_vm();
     test_via_az_runs_without_nano_vm();
     test_via_tag_runs_without_nano_vm();

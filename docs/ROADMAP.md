@@ -1696,12 +1696,25 @@ Compiler product:
       `cc -std=c11 -Wall -Wextra -Werror` writes a process that does not
       name `nano_vm`. `--help` prints usage. Temps live on the heap so
       `nrec_t r[1024]` does not overflow the C stack.
-      `make test-nvm2c` (836 passed).
+      `make test-nvm2c` (856 passed).
       `make test-nvm2c-compiler-subset`.
-- [ ] AOT `nanoc_v06` from `nvm2c` tokenizes `examples/language/nl_hello.nano`
-      (`token_count` > 0) and then compiles it through nanoisa_emit /
-      nvm2c / cc. Today it prints `Failed to tokenize input file` after
-      a successful import merge.
+- [x] NanoISA emit unescapes lexer-raw string literals the way eval does.
+      `"\n"` is one byte, `"a\"b"` is three. C-seed `nanovirt/codegen.c`
+      and `nisa_intern`. Merge of `nl_hello.nano` no longer appends a
+      two-character `\n`. `make test-nl-string`. `make test-nanovirt`.
+- [x] `nvm2c` reverse-seeds empty `List` fields on a returned struct when a
+      callee `ARR_PUSH`es a record. `parser_init_ast_lists` emits
+      `nrarr_new` and `.ra[10]` for identifiers. A wrapper that copies
+      `init_parser.identifiers` (`parser_new`) reaches the inner init.
+      INT fields (`Parser.position`) stay int. `make test-nvm2c` (856 passed).
+- [ ] `parser_init_ast_lists` still packs `diagnostics` (field 5) as `narr_t`.
+      A failing parse that pushes `CompilerDiagnostic` may `abort()` on
+      NULL `nrarr_push`. Identifiers and the other AST lists are `nrarr_t`.
+      MAC `task_350e6bbdff0a4a37b6e27a0331e655e3`.
+- [x] AOT `nanoc_v06` from `nvm2c` tokenizes `examples/language/nl_hello.nano`
+      (`token_count` is 27) and compiles it through nanoisa_emit /
+      nvm2c / cc. The native binary prints `Hello from NanoLang!`.
+      `make test-nvm2c-compiler-subset`.
       MAC `task_16425cd8a2404735a5cb246db12c5f59`.
 - [x] I map Cut A `CALL_EXTERN` to a declared host C ABI. `vm_getcwd`,
       `vm_getenv`, `vm_tmp_dir`, `vm_system`, `vm_string_from_char`,

@@ -423,3 +423,37 @@ char *nl_cstr_from_char(int64_t code) {
     buf[1] = '\0';
     return strdup(buf);
 }
+
+char *nl_cstr_unescape(const char *raw) {
+    size_t len;
+    size_t i;
+    size_t out;
+    char *buf;
+    if (!raw) raw = "";
+    len = strlen(raw);
+    buf = malloc(len + 1);
+    if (!buf) return NULL;
+    out = 0;
+    for (i = 0; i < len; i++) {
+        if (raw[i] == '\\' && i + 1 < len) {
+            i++;
+            switch (raw[i]) {
+                case 'n':  buf[out++] = '\n'; break;
+                case 't':  buf[out++] = '\t'; break;
+                case 'r':  buf[out++] = '\r'; break;
+                case '0':  buf[out++] = '\0'; break;
+                case '\\': buf[out++] = '\\'; break;
+                case '\'': buf[out++] = '\''; break;
+                case '"':  buf[out++] = '"';  break;
+                default:
+                    buf[out++] = '\\';
+                    buf[out++] = raw[i];
+                    break;
+            }
+        } else {
+            buf[out++] = raw[i];
+        }
+    }
+    buf[out] = '\0';
+    return buf;
+}

@@ -199,4 +199,7 @@ int64_t     nl_cstr_char_at(const char *s, int64_t index);
 /** Single-character string from ASCII code. Caller must free(). */
 char       *nl_cstr_from_char(int64_t code);
 
+/** Unescape a lexer-raw string (`\\n` → newline). Caller must free(). */
+char       *nl_cstr_unescape(const char *raw);
+
 #endif /* NL_STRING_H */
