@@ -30,10 +30,14 @@
  * mixed int/string fields whose kinds come from the callee),
  * nested pin records, LOAD_GLOBAL/STORE_GLOBAL with void __init__,
  * array results as narr_t / nsarr_t / nrarr_t, and Cut A HashMap
- * (HM_NEW / HM_SET / HM_HAS, hashmap results, hashmap record fields).
+ * (HM_NEW / HM_SET / HM_HAS / HM_GET, hashmap results, hashmap record fields).
  * Cut A host CALL_EXTERN maps to a declared C ABI (getcwd, getenv,
- * tmp_dir, system, string_from_char, get_argc, get_argv) rather than
- * a co-process client. Unknown imports stay refused.
+ * tmp_dir, system, string_from_char, get_argc, get_argv, file_read,
+ * file_write, file_exists, file_append, file_delete, file_copy,
+ * dir_copy, path_normalize, path_join, path_basename, path_dirname,
+ * path_relpath, fs_walkdir, fs_mkdir_p, nl_exec_shell, nl_exec_capture,
+ * nl_os_getenv) rather than a co-process client. Unknown
+ * imports stay refused.
  * STR_TRIM, STR_REPLACE, STR_SPLIT (array<string>), STR_TO_LOWER, and
  * STR_TO_UPPER run as native C.
  * Cut A tuples run as nrec_t: AGG_PACK kind AGG_TUPLE and AGG_GET
@@ -41,7 +45,7 @@
  * Anything else is refused with an error.
  * CALL_EXTERN of an unmapped import is refused because it is the VM FFI /
  * co-process path, not a host C ABI. Embedded NULs, nested arrays, variants,
- * printing arrays/records, array equality, HM_GET / HM_DELETE /
+ * printing arrays/records, array equality, HM_DELETE /
  * HM_KEYS / HM_VALUES / HM_LEN, and the rest of the
  * string and array libraries stay refused. Nested pin records (a record
  * field that is itself a pin record of int/string) are in.

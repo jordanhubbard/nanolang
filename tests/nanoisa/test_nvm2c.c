@@ -21,6 +21,9 @@ static int g_pass = 0, g_fail = 0;
     else { g_fail++; printf("  FAIL: %s  (%s:%d)\n", (what), __FILE__, __LINE__); } \
 } while (0)
 
+static void run_host_fixture(const char *src, const char *label, const char *abi_sym,
+                             int expect);
+
 static NvmModule *assemble_ok(const char *src, const char *label) {
     AsmResult result;
     memset(&result, 0, sizeof result);
@@ -2940,6 +2943,382 @@ static void test_via_one_t_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
+/* CALL of List<Tok>, ARR_GET into a local, AGG_GET, ARR_PUSH onto another list.
+ * Matches emit_fstring_part_tokens: the ARR_GET local must become nrec_t once
+ * the callee result is nrarr_t, including when that local was INT on an earlier
+ * classify pass. */
+static void test_via_fstring_parts_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function parts 0 1 0 array 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 5 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 2\n"
+        "  CALL parts\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  STORE_LOCAL 1\n"
+        "  PUSH_I64 0\n"
+        "  STORE_LOCAL 3\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 3\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 4\n"
+        "  LOAD_LOCAL 4\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_NE\n"
+        "  POP\n"
+        "  LOAD_LOCAL 2\n"
+        "  LOAD_LOCAL 4\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 2\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_fstring_parts fixture");
+    CHECK(m != NULL, "via_fstring_parts fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_fstring_parts");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_fstring_parts C does not name nano_vm");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_fstring_parts C compiles and runs");
+    CHECK(status == 1, "via_fstring_parts() exits 1 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+/* INT column stored, then passed to a callee that also takes a record list.
+ * Reverse-seed of the list param must not reclassify the column local. */
+static void test_int_local_not_reseeded_from_list_call(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function pack 3 3 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 2\n"
+        "  AGG_PACK 0 0 0 3\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 3 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  PUSH_I64 4\n"
+        "  PUSH_STR hi\n"
+        "  LOAD_LOCAL 1\n"
+        "  CALL pack\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 1\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "int local used as CALL arg stays int", NULL, 7);
+}
+
+/* parser_is_at_end: AGG_GET of Parser, then tokens[p.current]. The index is a
+ * record field; classifying it as INT must not wipe the Parser local. */
+static void test_parser_is_at_end_field_index_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function is_end 1 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 2\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 3\n"
+        "  I64_GE_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 2\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  AGG_PACK 0 0 0 4\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  CALL is_end\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "Parser field used as ARR_GET index stays a record", NULL, 0);
+}
+
+/* tok.line / tok.column passed into a callee that AGG_PACKs a list as field 3
+ * must not reclassify LexerToken.column as a record list. */
+static void test_token_column_call_not_block_field(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function clauses 3 5 0 int 1\n"
+        "  ENUM_VAL 0 17\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 2\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 4\n"
+        "  STORE_LOCAL 3\n"
+        "  LOAD_LOCAL 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_I64 2\n"
+        "  PUSH_I64 9\n"
+        "  AGG_PACK 0 0 0 4\n"
+        "  STORE_LOCAL 0\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 2\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 3\n"
+        "  CALL clauses\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "token column CALL arg stays int", NULL, 9);
+}
+
+/* C-seed empty array<string> is ARR_LITERAL TAG_INT 0. CALL into a string-array
+ * param must coerce the empty narr rather than fail emit. */
+static void test_empty_int_lit_call_as_sarr(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function take 1 1 0 int 1\n"
+        "  ARR_LITERAL 5 0\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  ARR_LITERAL 1 0\n"
+        "  CALL take\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "empty TAG_INT array CALL coerces to string array");
+    CHECK(m != NULL, "empty TAG_INT array CALL coerces to string array");
+    if (!m) return;
+    char *c = emit_or_fail(m, "empty TAG_INT array CALL coerces to string array");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "sarr-coerce C does not name nano_vm");
+    CHECK(strstr(c, "nsarr_from_narr") != NULL, "sarr-coerce C wraps empty narr");
+    {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "sarr-coerce C compiles and runs");
+        CHECK(status == 0, "empty TAG_INT array CALL coerces to string array");
+    }
+    free(c);
+    nvm_module_free(m);
+}
+
+/* p.identifiers.len must classify field 0 as an array without turning p into
+ * an array (mark_origin on a record parent is a no-op). */
+static void test_record_field_arr_len(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function count 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  CALL count\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "record field ARR_LEN stays an array field", NULL, 0);
+}
+
+/* lex_output.tokens passed into a List param must reverse-seed the field as
+ * an array. Forward-seeding INT from AGG_GET of an unclassified field must
+ * not poison the callee. */
+static void test_record_field_call_as_list(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function take_list 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 3\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 0\n"
+        "  CALL take_list\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "record list field CALL reverse-seeds the field", NULL, 0);
+}
+
+/* FieldMetadata.field_type_name is stored then EQ'd to "". The local is a
+ * string; the field must follow so AGG_GET does not stay a nested record. */
+static void test_store_string_field_eq(void) {
+    const char *src =
+        ".string x \"x\"\n"
+        ".entry 1\n"
+        ".function named 1 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_STR x\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_STR x\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  CALL named\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "STORE of string field then EQ keeps the field a string", NULL, 1);
+}
+
+/* (at s.field_types j) stored into a string local must be a string array get,
+ * even if the field was classified as a record list. */
+static void test_arr_get_store_str_is_sarr(void) {
+    const char *src =
+        ".string x \"x\"\n"
+        ".entry 1\n"
+        ".function take 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR x\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 3 0 int 1\n"
+        "  PUSH_STR x\n"
+        "  ARR_LITERAL 5 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 2\n"
+        "  CALL take\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "ARR_GET stored into a string local is a string array get", NULL, 1);
+}
+
+/* sym.is_function == true must compare as int, not stringify a nested record. */
+static void test_bool_field_eq_true(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function is_fn 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  PUSH_BOOL 1\n"
+        "  EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_BOOL 1\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  CALL is_fn\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "bool record field EQ true is an int compare", NULL, 1);
+}
+
+/* List<int> ARR_GET inside a struct-returning function must stay int, not
+ * become nrec_t just because the function returns a record. */
+static void test_int_list_get_in_struct_fn_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function inner 0 2 0 struct 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 7\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  PUSH_I64 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  CALL inner\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "int list ARR_GET in a struct-returning fn", NULL, 7);
+}
+
 /* empty List<Tok>: ARR_NEW 1 then RET, no ARR_PUSH. A caller that
  * ARR_PUSHes a record must classify the callee as nrarr_t, not narr_t. */
 static void test_via_empty_t_runs_without_nano_vm(void) {
@@ -3478,25 +3857,146 @@ static void test_via_hm_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_hm_get_is_refused(void) {
+static void test_hm_get_runs_without_nano_vm(void) {
     const char *src =
         ".string k \"k\"\n"
+        ".string v \"xy\"\n"
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
         "  HM_NEW 5 1\n"
         "  PUSH_STR k\n"
+        "  PUSH_STR v\n"
+        "  HM_SET\n"
+        "  PUSH_STR k\n"
         "  HM_GET\n"
+        "  STR_LEN\n"
         "  RET\n"
         ".end\n";
-    NvmModule *m = assemble_ok(src, "HM_GET fixture");
-    CHECK(m != NULL, "HM_GET fixture assembles");
-    if (!m) return;
-    char err[256];
-    char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "HM_GET stays outside the Cut A nvm2c subset");
-    CHECK(strstr(err, "HM_GET") != NULL, "error names HM_GET");
-    free(c);
-    nvm_module_free(m);
+    run_host_fixture(src, "HM_GET of a string value is length 2", "nhm_get_s", 2);
+}
+
+static void test_pack_string_param_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function pack_loc 3 3 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 2\n"
+        "  AGG_PACK 0 0 0 3\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_I64 2\n"
+        "  PUSH_I64 3\n"
+        "  CALL pack_loc\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "string param used only in AGG_PACK still classifies", NULL, 2);
+}
+
+static void test_list_get_record_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 2\n"
+        ".function pack_tok 2 2 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function list_get 2 2 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_GET\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_I64 3\n"
+        "  CALL pack_tok\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  CALL list_get\n"
+        "  AGG_GET 0\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "ARR_GET of a record list returns the record", NULL, 2);
+}
+
+static void test_record_list_field_set_runs_without_nano_vm(void) {
+    const char *src =
+        ".string aa \"aa\"\n"
+        ".string bb \"bb\"\n"
+        ".entry 3\n"
+        ".function pack_let 2 2 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function pack_parser 1 1 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function set_let 3 5 0 struct 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 3\n"
+        "  LOAD_LOCAL 3\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 2\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  STORE_LOCAL 4\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 4\n"
+        "  ARR_SET\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR aa\n"
+        "  PUSH_I64 1\n"
+        "  CALL pack_let\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL pack_parser\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_STR bb\n"
+        "  CALL set_let\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  AGG_GET 0\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "ARR_SET of a record list field on a param", NULL, 2);
 }
 
 static void test_via_cwd_runs_without_nano_vm(void) {
@@ -3719,6 +4219,430 @@ static void test_via_tmp_runs_without_nano_vm(void) {
     CHECK(status == 1, "via_tmp() is a non-empty path without a VM process");
     free(c);
     nvm_module_free(m);
+}
+
+static void test_via_exists_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_file_exists\" int string\n"
+        ".string missing \"/tmp/nanolang_nvm2c_no_such_file\"\n"
+        ".entry 1\n"
+        ".function via_exists 0 0 0 int 1\n"
+        "  PUSH_STR missing\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_exists\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_exists fixture");
+    CHECK(m != NULL, "via_exists fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_exists");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_exists C does not name nano_vm");
+    CHECK(strstr(c, "nhost_file_exists") != NULL, "via_exists C calls the host file_exists ABI");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_exists C compiles and runs");
+    CHECK(status == 0, "via_exists of a missing path is 0 without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_rw_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_file_write\" int string string\n"
+        ".import \"\" \"vm_file_read\" string string\n"
+        ".import \"\" \"vm_file_exists\" int string\n"
+        ".string rwpath \"/tmp/nanolang_nvm2c_host_rw.txt\"\n"
+        ".string payload \"hi\"\n"
+        ".entry 1\n"
+        ".function via_rw 0 0 0 int 1\n"
+        "  PUSH_STR rwpath\n"
+        "  PUSH_STR payload\n"
+        "  CALL_EXTERN 0\n"
+        "  POP\n"
+        "  PUSH_STR rwpath\n"
+        "  CALL_EXTERN 2\n"
+        "  JMP_FALSE Lfail\n"
+        "  PUSH_STR rwpath\n"
+        "  CALL_EXTERN 1\n"
+        "  PUSH_STR payload\n"
+        "  EQ\n"
+        "  JMP_FALSE Lfail\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "Lfail:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_rw\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "via_rw fixture");
+    CHECK(m != NULL, "via_rw fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for via_rw");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "via_rw C does not name nano_vm");
+    CHECK(strstr(c, "nhost_file_write") != NULL, "via_rw C calls the host file_write ABI");
+    CHECK(strstr(c, "nhost_file_read") != NULL, "via_rw C calls the host file_read ABI");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "via_rw C compiles and runs");
+    CHECK(status == 1, "via_rw write/read round-trip without a VM process");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void run_host_fixture(const char *src, const char *label, const char *abi_sym,
+                             int expect) {
+    NvmModule *m = assemble_ok(src, label);
+    CHECK(m != NULL, label);
+    if (!m) return;
+    char *c = emit_or_fail(m, label);
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "host fixture C does not name nano_vm");
+    if (abi_sym) {
+        CHECK(strstr(c, abi_sym) != NULL, "host fixture C calls the declared ABI");
+    }
+    {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "host fixture C compiles and runs");
+        CHECK(status == expect, label);
+    }
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_via_local_exists_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_file_exists\" int string\n"
+        ".string missing \"/tmp/nanolang_nvm2c_no_such_local_file\"\n"
+        ".entry 1\n"
+        ".function via_local_exists 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR missing\n"
+        "  CALL via_local_exists\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_local_exists of a missing path is 0",
+                     "nhost_file_exists", 0);
+}
+
+static void test_via_shell_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"nl_exec_shell\" int string\n"
+        ".string cmd \"true\"\n"
+        ".entry 1\n"
+        ".function via_shell 0 0 0 int 1\n"
+        "  PUSH_STR cmd\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_shell\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_shell true exits 0", "nhost_system", 0);
+}
+
+static void test_via_capture_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"nl_exec_capture\" string string\n"
+        ".string cmd \"echo hi\"\n"
+        ".entry 1\n"
+        ".function via_capture 0 0 0 string 1\n"
+        "  PUSH_STR cmd\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_capture\n"
+        "  STR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_capture echo is non-empty", "nhost_exec_capture", 1);
+}
+
+static void test_via_norm_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"path_normalize\" string string\n"
+        ".string raw \"/foo/./bar/../baz\"\n"
+        ".string want \"/foo/baz\"\n"
+        ".entry 1\n"
+        ".function via_norm 0 0 0 int 1\n"
+        "  PUSH_STR raw\n"
+        "  CALL_EXTERN 0\n"
+        "  PUSH_STR want\n"
+        "  EQ\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_norm\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_norm collapses dots", "nhost_path_normalize", 1);
+}
+
+static void test_via_append_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"vm_file_write\" int string string\n"
+        ".import \"\" \"file_append\" int string string\n"
+        ".import \"\" \"vm_file_read\" string string\n"
+        ".string apath \"/tmp/nanolang_nvm2c_host_append.txt\"\n"
+        ".string first \"ab\"\n"
+        ".string more \"cd\"\n"
+        ".string want \"abcd\"\n"
+        ".entry 1\n"
+        ".function via_append 0 0 0 int 1\n"
+        "  PUSH_STR apath\n"
+        "  PUSH_STR first\n"
+        "  CALL_EXTERN 0\n"
+        "  POP\n"
+        "  PUSH_STR apath\n"
+        "  PUSH_STR more\n"
+        "  CALL_EXTERN 1\n"
+        "  POP\n"
+        "  PUSH_STR apath\n"
+        "  CALL_EXTERN 2\n"
+        "  PUSH_STR want\n"
+        "  EQ\n"
+        "  JMP_FALSE Lfail\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "Lfail:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_append\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_append concatenates", "nhost_file_append", 1);
+}
+
+static void test_via_walk_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"fs_mkdir_p\" int string\n"
+        ".import \"\" \"vm_file_write\" int string string\n"
+        ".import \"\" \"fs_walkdir\" array string\n"
+        ".string dir \"/tmp/nanolang_nvm2c_walk\"\n"
+        ".string file \"/tmp/nanolang_nvm2c_walk/one.txt\"\n"
+        ".string payload \"x\"\n"
+        ".entry 1\n"
+        ".function via_walk 0 0 0 int 1\n"
+        "  PUSH_STR dir\n"
+        "  CALL_EXTERN 0\n"
+        "  POP\n"
+        "  PUSH_STR file\n"
+        "  PUSH_STR payload\n"
+        "  CALL_EXTERN 1\n"
+        "  POP\n"
+        "  PUSH_STR dir\n"
+        "  CALL_EXTERN 2\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_walk\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_walk of a one-file dir is non-empty", "nhost_walkdir", 1);
+}
+
+static void test_via_join_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"path_join\" string string string\n"
+        ".string a \"foo\"\n"
+        ".string b \"bar\"\n"
+        ".string want \"foo/bar\"\n"
+        ".entry 1\n"
+        ".function via_join 0 0 0 int 1\n"
+        "  PUSH_STR a\n"
+        "  PUSH_STR b\n"
+        "  CALL_EXTERN 0\n"
+        "  PUSH_STR want\n"
+        "  EQ\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_join\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_join foo/bar", "nhost_path_join", 1);
+}
+
+static void test_via_base_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"path_basename\" string string\n"
+        ".string p \"/foo/bar.txt\"\n"
+        ".string want \"bar.txt\"\n"
+        ".entry 1\n"
+        ".function via_base 0 0 0 int 1\n"
+        "  PUSH_STR p\n"
+        "  CALL_EXTERN 0\n"
+        "  PUSH_STR want\n"
+        "  EQ\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_base\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_base bar.txt", "nhost_path_basename", 1);
+}
+
+static void test_via_dirn_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"path_dirname\" string string\n"
+        ".string p \"/foo/bar.txt\"\n"
+        ".string want \"/foo\"\n"
+        ".entry 1\n"
+        ".function via_dirn 0 0 0 int 1\n"
+        "  PUSH_STR p\n"
+        "  CALL_EXTERN 0\n"
+        "  PUSH_STR want\n"
+        "  EQ\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_dirn\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_dirn /foo", "nhost_path_dirname", 1);
+}
+
+static void test_via_rel_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"path_relpath\" string string string\n"
+        ".string tgt \"/a/b/c\"\n"
+        ".string base \"/a\"\n"
+        ".string want \"b/c\"\n"
+        ".entry 1\n"
+        ".function via_rel 0 0 0 int 1\n"
+        "  PUSH_STR tgt\n"
+        "  PUSH_STR base\n"
+        "  CALL_EXTERN 0\n"
+        "  PUSH_STR want\n"
+        "  EQ\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_rel\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_rel b/c", "nhost_path_relpath", 1);
+}
+
+static void test_via_mkdir_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"fs_mkdir_p\" int string\n"
+        ".string d \"/tmp/nanolang_nvm2c_mkdir_p\"\n"
+        ".entry 1\n"
+        ".function via_mkdir 0 0 0 int 1\n"
+        "  PUSH_STR d\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_mkdir\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_mkdir_p exits 0", "nhost_mkdir_p", 0);
+}
+
+static void test_via_nl_env_runs_without_nano_vm(void) {
+    const char *src =
+        ".import \"\" \"nl_os_getenv\" string string\n"
+        ".string path \"PATH\"\n"
+        ".entry 1\n"
+        ".function via_nl_env 0 0 0 string 1\n"
+        "  PUSH_STR path\n"
+        "  CALL_EXTERN 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL via_nl_env\n"
+        "  STR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_GT_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 1\n"
+        "  RET\n"
+        "L0:\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "via_nl_env PATH is non-empty", "nhost_getenv", 1);
+}
+
+static void test_unused_library_fn_compiles_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function unused_add 2 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 7\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "unused library function still compiles under -Werror", NULL, 7);
 }
 
 static void test_via_argv_runs_without_nano_vm(void) {
@@ -4021,6 +4945,17 @@ int main(int argc, char **argv) {
     test_via_ones_runs_without_nano_vm();
     test_via_new_l_runs_without_nano_vm();
     test_via_one_t_runs_without_nano_vm();
+    test_via_fstring_parts_runs_without_nano_vm();
+    test_int_local_not_reseeded_from_list_call();
+    test_parser_is_at_end_field_index_runs_without_nano_vm();
+    test_token_column_call_not_block_field();
+    test_empty_int_lit_call_as_sarr();
+    test_record_field_arr_len();
+    test_record_field_call_as_list();
+    test_store_string_field_eq();
+    test_arr_get_store_str_is_sarr();
+    test_bool_field_eq_true();
+    test_int_list_get_in_struct_fn_runs_without_nano_vm();
     test_via_empty_t_runs_without_nano_vm();
     test_via_one_lex_runs_without_nano_vm();
     test_via_az_runs_without_nano_vm();
@@ -4035,14 +4970,32 @@ int main(int argc, char **argv) {
     test_via_blank_hm_runs_without_nano_vm();
     test_via_put_hm_runs_without_nano_vm();
     test_via_hm_runs_without_nano_vm();
-    test_hm_get_is_refused();
+    test_hm_get_runs_without_nano_vm();
+    test_pack_string_param_runs_without_nano_vm();
+    test_list_get_record_runs_without_nano_vm();
+    test_record_list_field_set_runs_without_nano_vm();
     test_via_cwd_runs_without_nano_vm();
     test_via_env_runs_without_nano_vm();
     test_via_sys_runs_without_nano_vm();
     test_via_chstr_runs_without_nano_vm();
     test_via_argc_runs_without_nano_vm();
     test_via_tmp_runs_without_nano_vm();
+    test_via_exists_runs_without_nano_vm();
+    test_via_rw_runs_without_nano_vm();
+    test_via_local_exists_runs_without_nano_vm();
+    test_via_shell_runs_without_nano_vm();
+    test_via_capture_runs_without_nano_vm();
+    test_via_norm_runs_without_nano_vm();
+    test_via_append_runs_without_nano_vm();
+    test_via_walk_runs_without_nano_vm();
+    test_via_join_runs_without_nano_vm();
+    test_via_base_runs_without_nano_vm();
+    test_via_dirn_runs_without_nano_vm();
+    test_via_rel_runs_without_nano_vm();
+    test_via_mkdir_runs_without_nano_vm();
+    test_via_nl_env_runs_without_nano_vm();
     test_via_argv_runs_without_nano_vm();
+    test_unused_library_fn_compiles_without_nano_vm();
     test_cast_int_array_is_refused();
     test_tail_call_runs_without_nano_vm();
     if (argc >= 2 && argv[1] && argv[1][0]) {
