@@ -3288,6 +3288,396 @@ static void test_bool_field_eq_true(void) {
     run_host_fixture(src, "bool record field EQ true is an int compare", NULL, 1);
 }
 
+/* `== node_type PNODE_NUMBER` is I64_EQ of an int (or intern-polluted record)
+ * local against ENUM_VAL. C-seed uses I64_EQ, not EQ. */
+static void test_i64_eq_int_field(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function is_num 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  ENUM_VAL 1 0\n"
+        "  I64_EQ\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  CALL is_num\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "I64_EQ of int record field vs ENUM_VAL", NULL, 1);
+}
+
+/* ASTTupleLiteral.element_types is array<int>. ARR_GET of that field must
+ * stay int (passed as node_type), not a nested record because the field
+ * lives on a struct. */
+static void test_int_array_field_get_as_int_arg(void) {
+    const char *src =
+        ".entry 2\n"
+        ".function take_int 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function walk 1 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  CALL take_int\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 9\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  CALL walk\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "int-array record field ARR_GET is an int CALL arg", NULL, 9);
+}
+
+/* Symbol.sym_type.kind is AGG_GET of a nested NSType, then AGG_GET of kind.
+ * Parser.file_name shares field index 1 as a string and must not win. */
+static void test_nested_type_field_kind(void) {
+    const char *src =
+        ".string n \"n\"\n"
+        ".string x \"x\"\n"
+        ".entry 1\n"
+        ".function kind_of 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 1\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  PUSH_STR n\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_STR x\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  CALL kind_of\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "nested record field AGG_GET kind stays a record", NULL, 7);
+}
+
+/* `sym.sym_type.kind` after ARR_GET of array<Symbol>: intern of the nested
+ * NSType must follow the array, not only a record local. */
+static void test_nested_type_field_via_array(void) {
+    const char *src =
+        ".string n \"n\"\n"
+        ".string x \"x\"\n"
+        ".entry 1\n"
+        ".function kind_of 1 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 1\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR n\n"
+        "  PUSH_I64 7\n"
+        "  PUSH_STR x\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL kind_of\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "nested record field via record-array ARR_GET", NULL, 7);
+}
+
+/* `return (typecheck_output env.diagnostics n true)`: AGG_GET of a List
+ * field must forward-seed the callee param as RARR, not leave it INT. */
+static void test_list_field_call_seeds_callee(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function take_list 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 2 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 9\n"
+        "  PUSH_I64 8\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_PACK 0 0 0 3\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 2\n"
+        "  CALL take_list\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "List field CALL seeds callee as record array", NULL, 1);
+}
+
+/* `diag.location.file` after list_get: nested REC at field 4 must not stay
+ * INT because nest_k was memset to 0 (INT cannot become REC). */
+static void test_diag_location_file_via_array(void) {
+    const char *src =
+        ".string f \"ab\"\n"
+        ".string c \"c\"\n"
+        ".string m \"m\"\n"
+        ".entry 1\n"
+        ".function get_file 1 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  AGG_GET 4\n"
+        "  AGG_GET 0\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  ARR_NEW 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_I64 0\n"
+        "  PUSH_STR c\n"
+        "  PUSH_STR m\n"
+        "  PUSH_STR f\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_I64 2\n"
+        "  AGG_PACK 0 0 0 3\n"
+        "  AGG_PACK 0 0 0 5\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  CALL get_file\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "nested location.file via diagnostic list ARR_GET", NULL, 2);
+}
+
+/* C-seed `array<string>` is ARR_LITERAL TAG_INT. ARR_GET stored into a
+ * string local (then passed to a string param) must coerce the array to
+ * SARR even when it was already classified ARR. */
+static void test_int_arr_get_store_str_coerces_sarr(void) {
+    const char *src =
+        ".string pre \"src/\"\n"
+        ".entry 2\n"
+        ".function has_pre 2 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  STR_STARTS_WITH\n"
+        "  RET\n"
+        ".end\n"
+        ".function walk 1 3 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  ARR_LEN\n"
+        "  PUSH_I64 0\n"
+        "  I64_LE_S\n"
+        "  JMP_FALSE L0\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        "L0:\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_STR pre\n"
+        "  CALL has_pre\n"
+        "  STORE_LOCAL 2\n"
+        "  LOAD_LOCAL 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  ARR_LITERAL 1 0\n"
+        "  CALL walk\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "TAG_INT array ARR_GET stored as string coerces SARR", NULL, 0);
+}
+
+/* (int_to_string diag.code) when code is already a string: CAST_STRING of
+ * STR is identity, not "expected int". */
+static void test_cast_string_of_string(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 1\n"
+        ".function ident 1 1 0 string 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  CAST_STRING\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  CALL ident\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "CAST_STRING of a string is identity", NULL, 2);
+}
+
+/* Nanoc diagnostics include UTF-8. Three-digit octal keeps C string
+ * literals well-formed. */
+static void test_utf8_push_str(void) {
+    const char *src =
+        ".string cafe \"caf\xc3\xa9\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR cafe\n"
+        "  STR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "UTF-8 PUSH_STR is in the nvm2c subset", NULL, 5);
+}
+
+/* __init__ stores TAG_INT empty [] into a global that register_extern_names
+ * stores as TAG_STRING []. The global must stay nsarr_t. */
+static void test_global_sarr_not_downgraded_by_int_empty(void) {
+    const char *src =
+        ".string x \"x\"\n"
+        ".entry 2\n"
+        ".function use 0 0 0 int 1\n"
+        "  ARR_LITERAL 5 0\n"
+        "  STORE_GLOBAL 0\n"
+        "  LOAD_GLOBAL 0\n"
+        "  PUSH_STR x\n"
+        "  ARR_PUSH\n"
+        "  STORE_GLOBAL 0\n"
+        "  LOAD_GLOBAL 0\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function __init__ 0 0 0 void 0\n"
+        "  ARR_LITERAL 1 0\n"
+        "  STORE_GLOBAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL use\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "string-array global is not downgraded by TAG_INT []", NULL, 1);
+}
+
+/* extract_type_args returns [] as TAG_INT when the type has no '<', and a
+ * TAG_STRING array on the happy path. RET of the empty leftover must coerce. */
+static void test_sarr_ret_coerces_int_empty(void) {
+    const char *src =
+        ".string x \"x\"\n"
+        ".entry 1\n"
+        ".function extract 1 1 0 array 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  I64_EQ\n"
+        "  JMP_FALSE L0\n"
+        "  ARR_LITERAL 1 0\n"
+        "  RET\n"
+        "L0:\n"
+        "  ARR_LITERAL 5 0\n"
+        "  PUSH_STR x\n"
+        "  ARR_PUSH\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  CALL extract\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "string-array RET coerces leftover TAG_INT []", NULL, 0);
+}
+
+/* hashset_has_string(map, key): HM_HAS of a string param, not an int. */
+static void test_hm_has_string_param(void) {
+    const char *src =
+        ".string k \"k\"\n"
+        ".entry 1\n"
+        ".function has 2 2 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  HM_HAS\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  HM_NEW 5 1\n"
+        "  STORE_LOCAL 0\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR k\n"
+        "  PUSH_I64 1\n"
+        "  HM_SET\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_STR k\n"
+        "  CALL has\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "HM_HAS string param is not an int", NULL, 1);
+}
+
+/* gen_call: ARR_GET of array<string> is the last arg of cg_append(parts, text). */
+static void test_arr_get_call_last_arg_str(void) {
+    const char *src =
+        ".string x \"x\"\n"
+        ".entry 2\n"
+        ".function append 2 2 0 array 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_PUSH\n"
+        "  POP\n"
+        "  LOAD_LOCAL 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function gen 1 3 0 int 1\n"
+        "  ARR_LITERAL 5 0\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  PUSH_STR x\n"
+        "  CALL append\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  PUSH_I64 0\n"
+        "  ARR_GET\n"
+        "  CALL append\n"
+        "  STORE_LOCAL 1\n"
+        "  LOAD_LOCAL 1\n"
+        "  ARR_LEN\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 1 0 int 1\n"
+        "  ARR_LITERAL 5 0\n"
+        "  PUSH_STR x\n"
+        "  ARR_PUSH\n"
+        "  CALL gen\n"
+        "  RET\n"
+        ".end\n";
+    run_host_fixture(src, "ARR_GET as last CALL arg is a string", NULL, 2);
+}
+
 /* List<int> ARR_GET inside a struct-returning function must stay int, not
  * become nrec_t just because the function returns a record. */
 static void test_int_list_get_in_struct_fn_runs_without_nano_vm(void) {
@@ -4955,6 +5345,19 @@ int main(int argc, char **argv) {
     test_store_string_field_eq();
     test_arr_get_store_str_is_sarr();
     test_bool_field_eq_true();
+    test_i64_eq_int_field();
+    test_int_array_field_get_as_int_arg();
+    test_nested_type_field_kind();
+    test_nested_type_field_via_array();
+    test_list_field_call_seeds_callee();
+    test_diag_location_file_via_array();
+    test_int_arr_get_store_str_coerces_sarr();
+    test_cast_string_of_string();
+    test_utf8_push_str();
+    test_global_sarr_not_downgraded_by_int_empty();
+    test_sarr_ret_coerces_int_empty();
+    test_hm_has_string_param();
+    test_arr_get_call_last_arg_str();
     test_int_list_get_in_struct_fn_runs_without_nano_vm();
     test_via_empty_t_runs_without_nano_vm();
     test_via_one_lex_runs_without_nano_vm();

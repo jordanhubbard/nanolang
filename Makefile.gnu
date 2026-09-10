@@ -383,6 +383,12 @@ test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c bin/nvm2c
 	@rm -f tests/nanoisa/test_nvm2c
 
+.PHONY: test-nvm2c-compiler-subset
+test-nvm2c-compiler-subset: nvm2c nano_virt
+	@echo "Running nvm2c compiler-subset (nanoc_v06 AOT) tests..."
+	@chmod +x tests/test_nvm2c_compiler_subset.sh
+	@bash tests/test_nvm2c_compiler_subset.sh
+
 .PHONY: test-frontend-contract
 test-frontend-contract: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA frontend contract tests..."
@@ -3589,6 +3595,7 @@ help:
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"
 	@echo "  make test-nvm2c        - Run nvm2c structured-C and CLI tests"
+	@echo "  make test-nvm2c-compiler-subset - nvm2c AOT of C-seed nanoc_v06"
 	@echo "  make test-nanoisa-src-nano - Cut A: src_nano .nasm vs C-seed bytecode"
 	@echo "  make test-nanoc-v06-nvm-backend - Self-hosted nanoc_v06 --emit-nvm and nvm2c AOT"
 	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"

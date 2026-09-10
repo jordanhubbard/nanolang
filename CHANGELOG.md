@@ -6,6 +6,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- `nvm2c` translates the C-seed `nanoc_v06` module to C11. `cc
+  -std=c11 -Wall -Wextra -Werror` writes a process that does not name
+  `nano_vm`. `--help` runs. Operand temps are heap `nvm2c_fn_temps`
+  so record arrays do not overflow the C stack. String-array leftover
+  `[]`, hashmap string keys, and `ARR_GET` as a string CALL arg are in
+  the subset. `make test-nvm2c` (836 passed).
+  `make test-nvm2c-compiler-subset`. AOT nanoc still reports 0 tokens
+  on `nl_hello.nano`.
 - 4.6 Nano Scheme laboratory frontend: lexical scope, closures, pairs,
   named tail calls, and session `define` compiled to verified NanoISA.
   Continuations, macros, and `set!` fail closed. `docs/SCHEME.md`,

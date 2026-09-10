@@ -1690,8 +1690,19 @@ Compiler product:
 - [ ] I make C11 the canonical ahead-of-time portability backend from NanoISA.
       A generated process does not require `nano_vm`, `nano_cop`, or
       `nano_vmd` to compute.
-- [ ] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
+- [x] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
       strings, modules, and a declared host ABI for `extern`.
+      C-seed `--emit-nvm` of `src_nano/nanoc_v06.nano` translates.
+      `cc -std=c11 -Wall -Wextra -Werror` writes a process that does not
+      name `nano_vm`. `--help` prints usage. Temps live on the heap so
+      `nrec_t r[1024]` does not overflow the C stack.
+      `make test-nvm2c` (836 passed).
+      `make test-nvm2c-compiler-subset`.
+- [ ] AOT `nanoc_v06` from `nvm2c` tokenizes `examples/language/nl_hello.nano`
+      (`token_count` > 0) and then compiles it through nanoisa_emit /
+      nvm2c / cc. Today it prints `Failed to tokenize input file` after
+      a successful import merge.
+      MAC `task_16425cd8a2404735a5cb246db12c5f59`.
 - [x] I map Cut A `CALL_EXTERN` to a declared host C ABI. `vm_getcwd`,
       `vm_getenv`, `vm_tmp_dir`, `vm_system`, `vm_string_from_char`,
       `get_argc`, and `get_argv` become `nhost_*` helpers, not a
