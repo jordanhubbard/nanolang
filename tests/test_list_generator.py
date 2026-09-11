@@ -42,6 +42,71 @@ class ListGenerator(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertEqual(list(Path(directory).iterdir()), [])
 
+    def test_generated_capacity_boundaries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            result = self.generate(path)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            driver = path / "capacity.c"
+            driver.write_text(r'''
+#include <assert.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+static void *checked_malloc(size_t size) {
+    assert(size != 0);
+    return malloc(size);
+}
+static void *checked_realloc(void *ptr, size_t size) {
+    if (size > 1048576) {
+        assert(size == sizeof(int) * ((size_t)INT_MAX / 2 + 2));
+        fputs("checked large growth\n", stderr);
+        exit(77);
+    }
+    return realloc(ptr, size);
+}
+#define malloc checked_malloc
+#define realloc checked_realloc
+#include "list_Point.c"
+#undef malloc
+#undef realloc
+int main(int argc, char **argv) {
+    assert(argc == 2);
+    int mode = atoi(argv[1]);
+    if (mode == 1) { nl_list_Point_with_capacity(-1); return 10; }
+    List_Point full = {NULL, INT_MAX, INT_MAX};
+    if (mode == 2) { nl_list_Point_push(&full, 1); return 10; }
+    if (mode == 3) { nl_list_Point_insert(&full, 0, 1); return 10; }
+    if (mode == 4) {
+        List_Point large = {NULL, 0, INT_MAX / 2 + 1};
+        ensure_capacity_Point(&large, INT_MAX / 2 + 2);
+        return 10;
+    }
+    List_Point *xs = nl_list_Point_with_capacity(0);
+    assert(xs && xs->data == NULL && xs->capacity == 0);
+    for (int i = 0; i < 33; i++) nl_list_Point_push(xs, i);
+    assert(xs->length == 33 && xs->capacity >= 33);
+    nl_list_Point_insert(xs, 0, 99);
+    assert(nl_list_Point_remove(xs, 0) == 99);
+    for (int i = 32; i >= 0; i--) assert(nl_list_Point_pop(xs) == i);
+    nl_list_Point_free(xs);
+    return 0;
+}
+''')
+            subprocess.run(["cc", "-std=c99", "-Wall", "-Wextra", "-Werror", "-O2",
+                            "-fsanitize=undefined", "-fno-sanitize-recover=undefined",
+                            str(driver), "-o", str(path / "capacity")],
+                           check=True, capture_output=True, timeout=20)
+            for mode, status, diagnostic in ((0, 0, ""), (1, 1, "capacity"),
+                                            (2, 1, "length"), (3, 1, "length"),
+                                            (4, 77, "checked large growth")):
+                with self.subTest(mode=mode):
+                    run = subprocess.run([str(path / "capacity"), str(mode)],
+                                         text=True, capture_output=True, timeout=10)
+                    self.assertEqual(run.returncode, status, run.stderr)
+                    self.assertIn(diagnostic, run.stderr)
+                    self.assertNotIn("runtime error:", run.stderr)
+
     def test_type_definition_is_not_a_sed_replacement_program(self):
         with tempfile.TemporaryDirectory() as directory:
             definition = "int /* & | \\ */"

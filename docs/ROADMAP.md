@@ -344,10 +344,21 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       metacharacters, failure preserving both previous files, and deterministic
       overlapping generators that never expose templates. The checks run in
       `test-impl`; shell syntax and six module-compiler tests pass (2026-09-11).
-- [ ] **5.0 generic-list runtime — capacity boundaries.** The generated C
-      doubles signed capacities without overflow checks and accepts negative
-      initial capacities. I must establish checked capacity arithmetic and
-      zero-capacity behavior separately from generator publication safety.
+- [x] **5.0 generic-list runtime — capacity boundaries.** My generator now
+      rejects negative/unrepresentable capacities, checks push/insert length
+      before addition, and clamps growth before signed or byte-size overflow.
+      Zero capacity starts with null data and grows on first insertion. I
+      preserve the existing fail-fast API rather than silently lose values.
+      Six generator tests pass, including compiled UBSan cases for negative
+      capacity, maximum-length push/insert, zero-capacity growth through 33
+      values, and a checked large allocation request intercepted without
+      allocating gigabytes (2026-09-11). This checks newly generated code,
+      not every checked-in runtime list implementation.
+- [ ] **5.0 runtime lists — checked-in capacity correspondence.** The
+      checked-in runtime list implementations also contain unchecked signed
+      doubling. I must reconcile their capacity and allocation boundaries
+      with the corrected generator, preserve their actual APIs, and exercise
+      them directly; testing newly generated code does not validate copies.
 - [x] **5.0 audit defect — typed filter dispatch.** My executable callback
       tests exposed float and string arrays routed to the integer filter
       helper. I select the helper from the array element type and retain
