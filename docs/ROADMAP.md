@@ -160,6 +160,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       decoding and execution, with differential tests against the VM and
       explicit ownership of the ISA source of truth. I retain useful existing
       proofs and adopt additional frameworks only with demonstrated benefit.
+- [ ] **5.0 audit defect — quick gate after bootstrap.** On 2026-09-11,
+      my three-stage build passes but `make test-quick` reports six language
+      passes and eight failures through the selected `bin/nanoc`: five parser
+      failures, a module-relative import failure, and two audio-example C
+      compilation failures with undeclared string/filesystem helpers. I
+      reproduce these against explicit compiler stages, repair their causes,
+      and rerun the full quick gate without skipping tests. Bootstrap success
+      is not evidence that the selected compiler passes my language corpus.
+      Explicit `nanoc_c` compilation passes for control flow, enums, and
+      module metadata; `bin/nanoc` selects the older `nanoc_stage2` binary.
+      MAC `task_b11b688543574e82a96c0fb4f782d234` tracks this repair.
 - [ ] **Formal audit — Sail adoption trial.** I record a sourced framework
       decision, run a pinned Sail toolchain on a NanoISA stack/constant slice,
       then extend it to schema-checked decoding and differential VM execution.
