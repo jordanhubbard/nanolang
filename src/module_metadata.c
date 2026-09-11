@@ -254,8 +254,6 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     
     APPEND("/* Module metadata - automatically generated */\n");
     char temp[2048];
-    snprintf(temp, sizeof(temp), "/* Module: %s */\n\n", meta->module_name);
-    APPEND(temp);
     APPEND("#include \"nanolang.h\"\n\n");
 
     /* Derive a C-safe, per-module identifier suffix so the exported metadata
@@ -451,8 +449,9 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     /* Export metadata accessor (per-module symbol name to avoid link clashes) */
     snprintf(temp, sizeof(temp), "ModuleMetadata _module_metadata_%s = {\n", module_ident);
     APPEND(temp);
-    snprintf(temp, sizeof(temp), "    .module_name = \"%s\",\n", meta->module_name);
-    APPEND(temp);
+    APPEND("    .module_name = ");
+    APPEND(module_c_literal(meta->module_name));
+    APPEND(",\n");
     snprintf(temp, sizeof(temp), "    .function_count = %d,\n", meta->function_count);
     APPEND(temp);
     APPEND("    .functions = _module_functions,\n");

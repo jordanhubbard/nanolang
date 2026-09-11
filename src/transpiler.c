@@ -2792,11 +2792,7 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         #endif
         
         /* Function: ___module_info_<NAME>() -> struct with module metadata */
-        sb_appendf(sb, "/* Module: %s (path: %s, unsafe: %s, has_ffi: %s) */\n",
-                  module_name, 
-                  mod->path ? mod->path : "unknown",
-                  mod->is_unsafe ? "yes" : "no",
-                  mod->has_ffi ? "yes" : "no");
+        sb_append(sb, "/* Module metadata entry. */\n");
         
         /* For now, generate simple metadata functions */
         /* These can be called from NanoLang to introspect modules at compile-time */
@@ -2813,12 +2809,12 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         
         /* Function: ___module_name_<NAME>() -> string */
         sb_appendf(sb, "static inline const char* ___module_name_%s(void) {\n", module_symbol);
-        sb_appendf(sb, "    return \"%s\";\n", module_name);
+        sb_appendf(sb, "    return %s;\n", module_c_literal(module_name));
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_path_<NAME>() -> string */
         sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_symbol);
-        sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
+        sb_appendf(sb, "    return %s;\n", module_c_literal(mod->path));
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_function_count_<NAME>() -> int */

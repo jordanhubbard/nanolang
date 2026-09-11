@@ -5,6 +5,33 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* I preserve bytes in NUL-terminated metadata, without C escape continuation
+ * or trigraph interpretation. Three-digit octal escapes have fixed width. */
+static inline const char *module_c_literal(const char *text) {
+    static _Thread_local char buffer[32768];
+    if (!text) text = "";
+    size_t length = strlen(text);
+    if (length > (sizeof(buffer) - 3) / 4) {
+        fprintf(stderr, "I cannot represent this metadata string.\n");
+        exit(1);
+    }
+    char *out = buffer;
+    *out++ = '"';
+    for (const unsigned char *p = (const unsigned char *)text; *p; p++) {
+        if (*p >= 32 && *p < 127 && *p != '"' && *p != '\\' && *p != '?') {
+            *out++ = (char)*p;
+        } else {
+            *out++ = '\\';
+            *out++ = (char)('0' + (*p >> 6));
+            *out++ = (char)('0' + ((*p >> 3) & 7));
+            *out++ = (char)('0' + (*p & 7));
+        }
+    }
+    *out++ = '"';
+    *out = '\0';
+    return buffer;
+}
+
 /* I preserve ordinary suffixes; the reserved prefix is itself encoded so
  * distinct byte strings cannot collide with a pre-encoded-looking name. */
 static inline const char *module_symbol_suffix(const char *name) {

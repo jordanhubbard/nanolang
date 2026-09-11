@@ -63,6 +63,9 @@ class ModuleCompileInvocation(unittest.TestCase):
             elif mode == "shell_output":
                 output_name = "program$(touch injected)"
             module_relative = "single_invocation_probe.nano"
+            if mode == "comment_path":
+                (path / "comment*").mkdir()
+                module_relative = "comment*/single_invocation_probe.nano"
             if mode == "encoded_metadata_call":
                 module_relative = "__nano_hex_single_invocation_probe.nano"
             if mode in ("quoted_filename", "shell_filename"):
@@ -77,7 +80,7 @@ class ModuleCompileInvocation(unittest.TestCase):
                 "pub fn answer() -> int { return 42 }\n"
                 "shadow answer { assert (== (answer) 42) }\n")
             (path / "main.nano").write_text(
-                f'module "{module_relative}" as probe\n' +
+                f'module {json.dumps(module_relative, ensure_ascii=False)} as probe\n' +
                 ("extern fn probe_value() -> int\n" if link_arguments else "") +
                 ("extern fn ___module_name___nano_hex_single_invocation_probe() -> string\n" if mode == "encoded_metadata_call" else "") +
                 "fn main() -> int { assert (== (probe.answer) 42) " +
@@ -165,7 +168,7 @@ class ModuleCompileInvocation(unittest.TestCase):
                 self.assertIn("I could not represent all module compiler arguments.", output)
                 return
             self.assertEqual(calls, ["compile"], output[-4000:])
-            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library", "quoted_root", "shell_root", "quoted_filename", "shell_filename", "encoded_metadata_call"):
+            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library", "quoted_root", "shell_root", "quoted_filename", "shell_filename", "encoded_metadata_call", "comment_path"):
                 self.assertEqual(process.returncode, 0, output[-4000:])
                 subprocess.run([str(path / output_name)], check=True, timeout=10)
             else:
@@ -233,6 +236,38 @@ class ModuleCompileInvocation(unittest.TestCase):
 
     def test_encoded_metadata_call_preserves_reported_name(self):
         self.check_compile("encoded_metadata_call")
+
+    def test_metadata_c_literal_byte_roundtrip(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            emitter = path / "emit.c"
+            emitter.write_text(r'''
+#include "module_symbol.h"
+int main(void) {
+    char bytes[256];
+    for (unsigned i = 1; i < 256; i++) bytes[i - 1] = (char)i;
+    bytes[255] = 0;
+    puts(module_c_literal(bytes));
+    return 0;
+}
+''')
+            flags = ["cc", "-std=c99", "-Wall", "-Wextra", "-Werror",
+                     "-fsanitize=undefined", "-fno-sanitize-recover=undefined"]
+            subprocess.run(flags + ["-I", str(ROOT / "src"), str(emitter),
+                                    "-o", str(path / "emit")], check=True, capture_output=True)
+            literal = subprocess.check_output([str(path / "emit")], text=True).strip()
+            consumer = path / "consume.c"
+            consumer.write_text("#include <assert.h>\nint main(void) {\n"
+                                "const unsigned char bytes[] = " + literal + ";\n"
+                                "assert(sizeof(bytes) == 256);\n"
+                                "for (unsigned i = 1; i < 256; i++) assert(bytes[i-1] == i);\n"
+                                "assert(bytes[255] == 0); return 0; }\n")
+            subprocess.run(flags + ["-trigraphs", str(consumer), "-o", str(path / "consume")],
+                           check=True, capture_output=True)
+            subprocess.run([str(path / "consume")], check=True, timeout=10)
+
+    def test_metadata_path_cannot_close_generated_comment(self):
+        self.check_compile("comment_path")
 
     def test_symbol_suffix_collisions_and_call_mapping(self):
         with tempfile.TemporaryDirectory() as directory:

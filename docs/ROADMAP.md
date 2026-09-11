@@ -383,11 +383,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       selection and parenthesized-parser gates pass; 17 metadata unit tests
       linked against rebuilt objects also pass (2026-09-11). This is tested
       C-backend behavior, not complete self-hosted/VM metadata parity.
-- [ ] **5.0 metadata — C literal and comment boundaries.** Generated module
-      metadata still interpolates names and paths into C string literals and
-      comments without a complete escaping contract. I must test quotes,
-      backslashes, newlines and comment delimiters independently of symbol
-      encoding; a safe identifier does not make its associated text safe C.
+- [x] **5.0 metadata — module name/path C text boundaries.** I encode module
+      names and paths with fixed-width octal escapes and omit their raw text
+      from generated comments. All 255 nonzero byte values survive a compiled
+      C round trip under UBSan; a module path containing `*/` compiles and runs.
+      All 22 module build regressions pass (2026-09-11). This covers my C-seed
+      module name/path metadata, not every serialized field or import syntax.
+      Module introspection, extern selection and parenthesized-parser gates
+      also pass; I did not run a full bootstrap for this change.
+- [ ] **5.0 imports — escaped path spelling.** My C-seed module lookup treats
+      escaped quotes, backslashes and newlines in an import string literally
+      instead of resolving the corresponding filename. I reproduced this
+      before C compilation. I must establish the path-string contract and
+      test parsing and lookup together; metadata escaping does not fix it.
 - [x] **5.0 generic-list generator — publication boundaries.** I stage both
       generated files privately before replacing either published file, reject
       type names that can escape the output directory, and test overlapping
