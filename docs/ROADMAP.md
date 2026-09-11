@@ -366,11 +366,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       was absent from the schema, it was absent from RUNTIME_SOURCES, and
       the old tests explicitly excluded it. Git preserves that unused pair.
       These checks establish tested capacity behavior, not full heap safety.
-- [ ] **5.0 runtime lists — string-copy allocation boundaries.** The
-      string-list operations call `strdup` without checking allocation failure.
-      I must preserve the existing ownership/API contract while preventing a
-      failed copy from silently publishing a null element or losing an old
-      value. Capacity checks do not cover element allocation.
+- [x] **5.0 runtime lists — string-copy allocation boundaries.** I check
+      string duplication before publishing an element or shifting insertion
+      slots, and copy replacements before freeing the old value. `set` now
+      accepts a value borrowed from itself or a substring without dangling
+      access. The API remains fail-fast, not recoverable allocation handling.
+      An ASan/UBSan harness intercepts that exit boundary and checks failed
+      push/insert/set, unchanged element pointers/content, successful aliased
+      updates, ownership transfer on removal/pop and zero remaining tracked
+      copies. All 39 list capacity cases also pass. The C seed rebuild and
+      normal 33 AST/six non-AST value tests against rebuilt runtime objects
+      pass (2026-09-11); I did not rerun the full bootstrap for this change.
 - [x] **5.0 audit defect — typed filter dispatch.** My executable callback
       tests exposed float and string arrays routed to the integer filter
       helper. I select the helper from the array element type and retain

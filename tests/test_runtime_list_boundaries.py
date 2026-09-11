@@ -9,6 +9,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class RuntimeListBoundaries(unittest.TestCase):
+    def test_string_copy_failure_and_aliasing(self):
+        with tempfile.TemporaryDirectory(prefix="nanolang-string-list-") as directory:
+            binary = str(Path(directory) / "test")
+            compile = subprocess.run([
+                "cc", "-std=c99", "-Wall", "-Wextra", "-Werror", "-O2",
+                "-fsanitize=address,undefined", "-fno-sanitize-recover=undefined",
+                str(ROOT / "tests/test_string_list_failure.c"), "-o", binary],
+                text=True, capture_output=True, timeout=30)
+            self.assertEqual(compile.returncode, 0, compile.stderr)
+            run = subprocess.run([binary], text=True, capture_output=True, timeout=10)
+            self.assertEqual(run.returncode, 0, run.stderr)
+
     def test_every_checked_in_list(self):
         sources = sorted((ROOT / "src/runtime").glob("list_*.c"))
         self.assertGreaterEqual(len(sources), 39)

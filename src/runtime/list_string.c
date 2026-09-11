@@ -49,10 +49,20 @@ List_string* list_string_with_capacity(int capacity) {
     return list;
 }
 
+/* I copy before publishing a value, retaining the existing fail-fast API. */
+static char *copy_string(const char *value) {
+    char *copy = value ? strdup(value) : NULL;
+    if (!copy) {
+        fprintf(stderr, "I could not copy the list string.\n");
+        exit(1);
+    }
+    return copy;
+}
+
 /* Append an element to the end of the list */
 void list_string_push(List_string *list, const char *value) {
     ensure_capacity(list, nl_list_next_length(list->length));
-    list->data[list->length] = strdup(value);  /* Copy the string */
+    list->data[list->length] = copy_string(value);
     list->length++;
 }
 
@@ -76,12 +86,13 @@ void list_string_insert(List_string *list, int index, const char *value) {
     }
     
     ensure_capacity(list, nl_list_next_length(list->length));
+    char *copy = copy_string(value);
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 
             sizeof(char*) * (list->length - index));
     
-    list->data[index] = strdup(value);  /* Copy the string */
+    list->data[index] = copy;
     list->length++;
 }
 
@@ -111,8 +122,9 @@ void list_string_set(List_string *list, int index, const char *value) {
         exit(1);
     }
     
-    free(list->data[index]);  /* Free old string */
-    list->data[index] = strdup(value);  /* Copy new string */
+    char *copy = copy_string(value); /* The input may alias the old string. */
+    free(list->data[index]);
+    list->data[index] = copy;
 }
 
 /* Get the value at the specified index */
