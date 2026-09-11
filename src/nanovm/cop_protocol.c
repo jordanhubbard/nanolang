@@ -138,6 +138,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
          * naive check, letting vm_string_new read out of bounds. */
         if (len > buf_size - pos) return 0;
         VmString *s = vm_string_new(heap, (const char *)(buf + pos), len);
+        if (!s) { *out = val_void(); return 0; }
         pos += len;
         *out = val_string(s);
         break;
@@ -162,13 +163,19 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
          * allocating, so a tiny hostile message can't request a ~64 GB alloc. */
         if (count > buf_size - pos) { *out = val_void(); return 0; }
         VmArray *arr = vm_array_new(heap, etype, count > 0 ? count : 4);
+        if (!arr) { *out = val_void(); return 0; }
         for (uint32_t i = 0; i < count; i++) {
             NanoValue elem;
             uint32_t n = cop_deserialize_value(buf + pos, buf_size - pos,
                                                 &elem, heap);
-            if (n == 0) { *out = val_void(); return 0; }
+            if (n == 0) {
+                vm_release(heap, val_array(arr));
+                *out = val_void();
+                return 0;
+            }
             pos += n;
             vm_array_push(heap, arr, elem);
+            vm_release(heap, elem); /* The preallocated array retains its own reference. */
         }
         *out = val_array(arr);
         break;

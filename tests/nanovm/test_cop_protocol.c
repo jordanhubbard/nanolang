@@ -360,6 +360,36 @@ TEST(deserialize_hostile_lengths) {
     vm_heap_destroy(&heap);
 }
 
+TEST(decode_nested_array_ownership) {
+    const uint8_t wire[] = {
+        TAG_ARRAY, TAG_ARRAY, 1, 0, 0, 0,
+        TAG_ARRAY, TAG_STRING, 2, 0, 0, 0,
+        TAG_STRING, 1, 0, 0, 0, 'a',
+        TAG_STRING, 1, 0, 0, 0, 'b'
+    };
+    VmHeap heap;
+    vm_heap_init(&heap);
+    for (size_t length = 0; length < sizeof(wire); length++) {
+        NanoValue out = val_void();
+        ASSERT(cop_deserialize_value(wire, (uint32_t)length, &out, &heap) == 0);
+        ASSERT(heap.stats.num_objects == 0);
+    }
+    NanoValue out = val_void();
+    ASSERT(cop_deserialize_value(wire, sizeof(wire), &out, &heap) == sizeof(wire));
+    ASSERT(out.tag == TAG_ARRAY && out.as.array->length == 1);
+    NanoValue inner = vm_array_get(out.as.array, 0);
+    ASSERT(inner.tag == TAG_ARRAY && inner.as.array->header.ref_count == 1);
+    ASSERT(inner.as.array->length == 2);
+    for (unsigned i = 0; i < 2; i++) {
+        NanoValue string = vm_array_get(inner.as.array, i);
+        ASSERT(string.tag == TAG_STRING && string.as.string->header.ref_count == 1);
+    }
+    vm_release(&heap, out);
+    vm_gc_collect_cycles(&heap);
+    ASSERT(heap.stats.num_objects == 0);
+    vm_heap_destroy(&heap);
+}
+
 TEST(serialize_array_roundtrip) {
     VmHeap heap = {0};
     vm_heap_init(&heap);
@@ -643,6 +673,7 @@ int main(void) {
     RUN(serialize_string_length_little_endian);
     RUN(deserialize_hostile_lengths);
     RUN(serialize_array_roundtrip);
+    RUN(decode_nested_array_ownership);
     RUN(batch_roundtrip_many_calls);
     RUN(batch_empty_is_noop);
     RUN(batch_bad_import_reports_error);

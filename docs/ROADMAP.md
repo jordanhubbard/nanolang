@@ -386,6 +386,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The first compilation rejects overloaded `++` as string concatenation
       under Sail's imports. I use explicit `List.app` and require a fresh
       proof-gate run; the theorem remains unchecked until that run succeeds.
+      The next run accepts the statement but rejects the case script's use
+      of `rest`. I explicitly destruct unit constructor payloads and stack
+      shapes in one case split; the revised proof still needs checking.
 - [x] **Formal audit defect — indexed and rotating stack boundaries.** I
       make `ROT3`, `PICK`, and `ROLL` check frame-relative operands before
       mutation. My tests cover insufficient operands with locals and caller
@@ -485,6 +488,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       decoded element without releasing its temporary owned reference. I
       require nested heap-value decode tests and truncated-later-element
       cleanup tests, with heap object/reference accounting.
+      Nested decode ownership is now repaired: the 32 protocol tests pass,
+      including every truncated prefix of a nested string-array message,
+      single-owner decoded references and zero live objects after release
+      and cycle collection. String/array allocation failures return failure.
+      Status-returning array append and its remaining caller migration are
+      still open; decoding preallocates the declared element capacity.
       Array arithmetic currently allocates `TAG_INT` result storage even for
       float/string elements. I must preserve result element types and release
       newly allocated string results after array insertion; passing numeric

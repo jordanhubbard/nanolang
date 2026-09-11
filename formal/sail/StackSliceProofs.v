@@ -46,12 +46,9 @@ Theorem execute_frame_extension instruction stack next suffix :
   execute instruction (List.app stack suffix) = Some (List.app next suffix).
 Proof.
   intro H.
-  destruct instruction; simpl in *;
-    try (inversion H; subst; reflexivity).
-  all: destruct stack as [|first rest]; simpl in *;
-    try discriminate; try (inversion H; subst; reflexivity).
-  destruct rest as [|second rest]; simpl in *; try discriminate.
-  inversion H; subst; reflexivity.
+  destruct instruction as [[] | value | [] | [] | []];
+    destruct stack as [|first [|second rest]]; simpl in *;
+    try discriminate; inversion H; subst; reflexivity.
 Qed.
 
 Print Assumptions execute_frame_extension.
