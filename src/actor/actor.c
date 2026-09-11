@@ -460,12 +460,17 @@ static int parse_program(Cc *cc) {
         }
         if (eat(cc, TK_ACTOR)) {
             ActorDef *a;
+            size_t actor_name_len;
             if (!have(cc, TK_ID)) return cc_fail(cc, "I expected an actor name");
             if (cc->nactor >= AC_MAX) return cc_fail(cc, "I refuse too many actors");
+            actor_name_len = strlen(cc->tok.name);
+            if (actor_name_len > AC_NAME - 5)
+                return cc_fail(cc, "I refuse an actor name longer than %d bytes", AC_NAME - 5);
             a = &cc->actors[cc->nactor++];
             memset(a, 0, sizeof *a);
             snprintf(a->name, sizeof a->name, "%s", cc->tok.name);
-            snprintf(a->asm_name, sizeof a->asm_name, "act_%s", cc->tok.name);
+            memcpy(a->asm_name, "act_", 4);
+            memcpy(a->asm_name + 4, cc->tok.name, actor_name_len + 1);
             lex(cc);
             if (!eat(cc, TK_LBRACE)) return cc_fail(cc, "I expected '{'");
             if (eat(cc, TK_STATE)) {
@@ -1069,15 +1074,16 @@ static int do_recv(Cc *cc, Sys *sy, Stmt *s, int64_t *out) {
 }
 
 static int run_sys(Cc *cc, NvmModule *mod, int64_t *out) {
-    Sys sy;
+    Sys *sy;
     int i;
     int64_t last = 0;
     int have_last = 0;
-    memset(&sy, 0, sizeof sy);
-    sy.cc = cc;
-    sy.mod = mod;
-    sy.nact = 1;
-    sy.acts[0].used = sy.acts[0].alive = 1;
+    sy = calloc(1, sizeof *sy);
+    if (!sy) return sys_fail(cc, "I ran out of memory while starting actors");
+    sy->cc = cc;
+    sy->mod = mod;
+    sy->nact = 1;
+    sy->acts[0].used = sy->acts[0].alive = 1;
     for (i = 0; i < cc->nactor; i++) {
         uint32_t f;
         cc->actors[i].fn_idx = -1;
@@ -1088,15 +1094,20 @@ static int run_sys(Cc *cc, NvmModule *mod, int64_t *out) {
                 break;
             }
         }
-        if (cc->actors[i].fn_idx < 0)
-            return sys_fail(cc, "I lost function %s", cc->actors[i].asm_name);
+        if (cc->actors[i].fn_idx < 0) {
+            sys_fail(cc, "I lost function %s", cc->actors[i].asm_name);
+            goto fail;
+        }
     }
     for (i = 0; i < cc->nstmt; i++) {
         Stmt *s = &cc->stmts[i];
-        int64_t pid, v = 0;
+        int64_t pid = 0, v = 0;
         if (s->kind == ST_SPAWN) {
-            if (spawn_actor(&sy, s->actor, &pid) < 0) return -1;
-            if (bind_local(&sy, s->name, pid) < 0) return sys_fail(cc, "too many names");
+            if (spawn_actor(sy, s->actor, &pid) < 0) goto fail;
+            if (bind_local(sy, s->name, pid) < 0) {
+                sys_fail(cc, "too many names");
+                goto fail;
+            }
             continue;
         }
         if (s->kind == ST_SEND) {
@@ -1104,52 +1115,79 @@ static int run_sys(Cc *cc, NvmModule *mod, int64_t *out) {
             int64_t pay = 0;
             ActorDef *d;
             Act *a;
-            if (eval_expr(cc, &sy, s->pid, &dest) < 0) return -1;
-            if (s->payload && eval_expr(cc, &sy, s->payload, &pay) < 0) return -1;
-            if (dest < 0 || dest >= sy.nact) return sys_fail(cc, "I do not know that pid");
-            a = &sy.acts[(int)dest];
-            if (a->cancelled) return sys_fail(cc, "I refuse send to a cancelled actor");
-            if (!a->alive) return sys_fail(cc, "I refuse send to a dead actor");
+            if (eval_expr(cc, sy, s->pid, &dest) < 0) goto fail;
+            if (s->payload && eval_expr(cc, sy, s->payload, &pay) < 0) goto fail;
+            if (dest < 0 || dest >= sy->nact) {
+                sys_fail(cc, "I do not know that pid");
+                goto fail;
+            }
+            a = &sy->acts[(int)dest];
+            if (a->cancelled) {
+                sys_fail(cc, "I refuse send to a cancelled actor");
+                goto fail;
+            }
+            if (!a->alive) {
+                sys_fail(cc, "I refuse send to a dead actor");
+                goto fail;
+            }
             if ((int)dest > 0) {
                 d = &cc->actors[a->def];
-                if (!d->handled[s->ctor])
-                    return sys_fail(cc, "I refuse a mailbox type that actor does not receive");
+                if (!d->handled[s->ctor]) {
+                    sys_fail(cc, "I refuse a mailbox type that actor does not receive");
+                    goto fail;
+                }
             }
-            if (enqueue(a, 0, s->ctor, pay) < 0)
-                return sys_fail(cc, "mailbox is full");
-            if (drain(&sy) < 0) return -1;
+            if (enqueue(a, 0, s->ctor, pay) < 0) {
+                sys_fail(cc, "mailbox is full");
+                goto fail;
+            }
+            if (drain(sy) < 0) goto fail;
             continue;
         }
         if (s->kind == ST_RECV) {
-            if (do_recv(cc, &sy, s, &v) < 0) return -1;
+            if (do_recv(cc, sy, s, &v) < 0) goto fail;
             last = v;
             have_last = 1;
-            if (s->name[0] && bind_local(&sy, s->name, v) < 0)
-                return sys_fail(cc, "too many names");
+            if (s->name[0] && bind_local(sy, s->name, v) < 0) {
+                sys_fail(cc, "too many names");
+                goto fail;
+            }
             continue;
         }
         if (s->kind == ST_CANCEL) {
-            if (eval_expr(cc, &sy, s->pid, &pid) < 0) return -1;
-            if (pid <= 0 || pid >= sy.nact) return sys_fail(cc, "I do not know that pid");
-            sy.acts[(int)pid].cancelled = 1;
-            sy.acts[(int)pid].alive = 0;
+            if (eval_expr(cc, sy, s->pid, &pid) < 0) goto fail;
+            if (pid <= 0 || pid >= sy->nact) {
+                sys_fail(cc, "I do not know that pid");
+                goto fail;
+            }
+            sy->acts[(int)pid].cancelled = 1;
+            sy->acts[(int)pid].alive = 0;
             continue;
         }
         if (s->kind == ST_MONITOR) {
-            if (eval_expr(cc, &sy, s->pid, &pid) < 0) return -1;
-            if (pid <= 0 || pid >= sy.nact) return sys_fail(cc, "I do not know that pid");
+            if (eval_expr(cc, sy, s->pid, &pid) < 0) goto fail;
+            if (pid <= 0 || pid >= sy->nact) {
+                sys_fail(cc, "I do not know that pid");
+                goto fail;
+            }
             {
-                Act *a = &sy.acts[(int)pid];
-                if (a->nmon >= 8) return sys_fail(cc, "too many monitors");
+                Act *a = &sy->acts[(int)pid];
+                if (a->nmon >= 8) {
+                    sys_fail(cc, "too many monitors");
+                    goto fail;
+                }
                 a->monitors[a->nmon++] = 0;
             }
             continue;
         }
         if (s->kind == ST_LINK) {
-            if (eval_expr(cc, &sy, s->pid, &pid) < 0) return -1;
-            if (pid <= 0 || pid >= sy.nact) return sys_fail(cc, "I do not know that pid");
+            if (eval_expr(cc, sy, s->pid, &pid) < 0) goto fail;
+            if (pid <= 0 || pid >= sy->nact) {
+                sys_fail(cc, "I do not know that pid");
+                goto fail;
+            }
             {
-                Act *a = &sy.acts[(int)pid];
+                Act *a = &sy->acts[(int)pid];
                 a->linked_from_main = 1;
                 if (a->nlink < 8) a->links[a->nlink++] = 0;
             }
@@ -1157,27 +1195,41 @@ static int run_sys(Cc *cc, NvmModule *mod, int64_t *out) {
         }
         if (s->kind == ST_REPLACE) {
             int def = actor_lookup(cc, s->actor);
-            if (eval_expr(cc, &sy, s->pid, &pid) < 0) return -1;
-            if (def < 0) return sys_fail(cc, "I do not know actor %s", s->actor);
-            if (pid <= 0 || pid >= sy.nact) return sys_fail(cc, "I do not know that pid");
-            sy.acts[(int)pid].def = def;
-            sy.acts[(int)pid].fn_idx = cc->actors[def].fn_idx;
+            if (eval_expr(cc, sy, s->pid, &pid) < 0) goto fail;
+            if (def < 0) {
+                sys_fail(cc, "I do not know actor %s", s->actor);
+                goto fail;
+            }
+            if (pid <= 0 || pid >= sy->nact) {
+                sys_fail(cc, "I do not know that pid");
+                goto fail;
+            }
+            sy->acts[(int)pid].def = def;
+            sy->acts[(int)pid].fn_idx = cc->actors[def].fn_idx;
             continue;
         }
     }
     if (cc->result) {
-        if (eval_expr(cc, &sy, cc->result, out) < 0) return -1;
+        if (eval_expr(cc, sy, cc->result, out) < 0) goto fail;
     } else if (have_last) {
         *out = last;
-    } else if (sy.nl > 0) {
-        *out = sy.locals[sy.nl - 1];
+    } else if (sy->nl > 0) {
+        *out = sy->locals[sy->nl - 1];
     } else {
         *out = 0;
     }
-    for (i = 1; i < sy.nact; i++) {
-        if (sy.acts[i].vm_on) vm_destroy(&sy.acts[i].vm);
+    for (i = 1; i < sy->nact; i++) {
+        if (sy->acts[i].vm_on) vm_destroy(&sy->acts[i].vm);
     }
+    free(sy);
     return 0;
+
+fail:
+    for (i = 1; i < sy->nact; i++) {
+        if (sy->acts[i].vm_on) vm_destroy(&sy->acts[i].vm);
+    }
+    free(sy);
+    return -1;
 }
 
 static void attach_debug(NvmModule *mod) {

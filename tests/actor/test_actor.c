@@ -262,6 +262,12 @@ static void test_exclusions(void) {
                 "actor Echo { receive | Ping n => reply (Pong n) }\n"
                 "main { e = spawn Echo\n  send e cap:x\n  0 }\n",
                 "cap");
+    expect_fail("actor name boundary",
+                "actor AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA {\n"
+                "  receive | _ => reply 0\n"
+                "}\n"
+                "main { 0 }\n",
+                "actor name");
 }
 
 static void test_frontend(void) {
