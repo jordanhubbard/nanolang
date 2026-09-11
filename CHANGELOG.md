@@ -5,6 +5,105 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- 4.6 Nano Scheme laboratory frontend: lexical scope, closures, pairs,
+  named tail calls, and session `define` compiled to verified NanoISA.
+  Continuations, macros, and `set!` fail closed. `docs/SCHEME.md`,
+  `make test-scheme`.
+- 4.6 Nano ML laboratory frontend: Hindley-Milner inference, ADTs,
+  exhaustive `case`, curried `fun`/`fn`, and `signature` compiled to
+  verified NanoISA. `ref`, `exception`, and `:=` fail closed.
+  `docs/ML.md`, `make test-ml`.
+- 4.6 Nano Actor laboratory frontend: isolated NanoVM contexts, typed
+  mailboxes, monitors, links, one_for_one supervision, `after 0`,
+  cancel, and hot replace compiled to verified NanoISA handlers.
+  Remote spawn and `cap:` fail closed. Phase 18 transport is not
+  wired. `docs/ACTOR.md`, `make test-actor`.
+- 4.6 Nano Dataflow laboratory frontend: typed nodes, bounded streams,
+  backpressure, explicit effects, interned feed journals, replay,
+  cancel, retry, and fifo/reverse determinism compiled to verified
+  NanoISA. `place remote` fails closed. Phase 18 transport is not
+  wired. `docs/DATAFLOW.md`, `make test-dataflow`.
+- 4.6 Nano Object laboratory frontend: message send, identity, mutable
+  slots, `classof`/`slots`, live `replace`, `extend`, `handle`/`sendvia`,
+  and a host inline cache compiled to verified NanoISA methods. No
+  cache opcodes. `docs/OBJECT.md`, `make test-object`.
+- 4.6 Nano Shell laboratory frontend: typed i64 pipelines, `parse` as
+  the text adapter, `need` capabilities, and `cancel`. Granted caps
+  still refuse host files, processes, networks, services, streams, and
+  remote execution. I do not administer service graphs.
+  `docs/SHELL.md`, `make test-shell`.
+- 4.6 Nano Logic laboratory frontend: bounded Datalog facts, Horn
+  rules, ground queries, and a deterministic least fixed-point.
+  Integer unification is `lg_unify` / `I64_EQ`. Choice points and
+  tabling stay out. Policy is the restricted `grant`/`allow` profile.
+  `docs/LOGIC.md`, `make test-logic`.
+- 5.0 Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits NanoISA
+  assembly for integer `add`/`main`/`choose`/`loop_sum`, string
+  `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
+  `is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
+  `pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
+  `digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
+  `slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, and `get_s`.
+  `make test-nanoisa-src-nano`
+  compares function bytecode with the C seed, including `if`,
+  `while`, `PUSH_STR`, `STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`,
+  `ARR_GET`, `ARR_PUSH` of `array<int>` and `array<string>`,
+  `AGG_PACK`, `AGG_GET`, `bool` results, `PUSH_BOOL`, `BOOL_NOT`,
+  `BOOL_AND`, `BOOL_OR`, `cond` as `JMP_FALSE`/`JMP` with one `RET`,
+  `PRINT`, `PRINTLN`, `ASSERT`, `STR_CONTAINS`, `CAST_STRING` of
+  i64, `EQ`/`NE` of strings, `at` as `ARR_GET`, `str_length` as
+  `STR_LEN`, `str_substring` as `STR_SUBSTR`, `list_int_new` as
+  `ARR_NEW 1`, void `list_int_push` as `ARR_PUSH` then `POP`,
+  `list_int_get` as `ARR_GET`, `char_at` as `STR_CHAR_AT`,
+  `list_string_new` as `ARR_NEW 1`, void `list_string_push` as
+  `ARR_PUSH` then `POP`, `list_string_get` as `ARR_GET`, and mixed
+  int/string records as `AGG_PACK`/`AGG_GET`. String operands
+  are compared by content. I still pretty-print C to build the
+  compiler.
+- `bin/nvm2c` translates a verified `.nvm` to structured C11. I am a
+  host tool, not a compiler phase. `make nvm2c`, `make test-nvm2c`.
+  Generated C does not name `nano_vm`. The closed subset includes i64
+  comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL`. `choose` and
+  `loop_sum` run as native C. Goto is the translator fallback.
+  `PUSH_STR`, `STR_CONCAT`, and `STR_LEN` run as native C: `greeting`
+  and `glue` exit with string length and do not name `nano_vm`.
+  Embedded NULs and `STR_TRIM` stay refused. `ARR_LITERAL`,
+  `ARR_GET`, and `ARR_LEN` run as native C: `len3` and `first` exit
+  with length and the first element. Nested arrays and `ARR_SET`
+  stay refused. `AGG_PACK` and `AGG_GET` run as native C: `getx`
+  exits with field 0 of an `int` record. Nested records, variants,
+  tuples, and `AGG_SET` stay refused. `bool` results are i64 0/1:
+  `is_pos` runs as native C. `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, and
+  `BOOL_OR` run as native C: `yes`, `invert`, `both`, and `either`
+  exit without a VM process. `pick` (`cond` join) runs as native C:
+  both arms share one `RET`. `PRINT` and `PRINTLN` run as native C:
+  `say` writes `7`, `shout` writes `7` with a newline, `mutter`
+  writes an empty string. Printing arrays stays refused. `ASSERT`
+  runs as native C: `prove(true)` exits 0 and `prove(false)` aborts
+  without a VM process. `ARR_PUSH` of `array<int>` runs as native C:
+  `grow` exits 2. `STR_CONTAINS` runs as
+  native C: `has_hi("hi")` exits 1 and `has_hi("no")` exits 0.
+  `CAST_STRING` of i64 runs as native C: `digits(7)` has length 1.
+  `ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_GET`, and `ARR_LEN` of
+  `array<string>` run as native C: `names` exits 2 and `head_s`
+  returns `"hi"`. Nested arrays stay refused. `EQ`/`NE` of strings
+  run as native C: `same("hi", "hi")` exits 1, `same("hi", "no")`
+  exits 0, and `diff("hi", "no")` exits 1. Array equality stays
+  refused. `at` as `ARR_GET` and `str_length` as `STR_LEN` run as
+  native C: `via_at` exits 7 and `slen("hi")` exits 2.
+  `STR_SUBSTR` runs as native C: `slice("hi")` equals `"h"`.
+  Substring of arrays and `STR_TRIM` stay refused. `ARR_NEW` of
+  `array<int>` runs as native C: `blank_l` exits 0. Void
+  `list_int_push` (`ARR_PUSH` then `POP`) mutates the local:
+  `grow_l` exits 7. `STR_CHAR_AT` runs as native C: `ch` exits
+  104 and an out-of-range index is `-1`. Void `list_string_push`
+  (`ARR_PUSH` then `POP`) mutates the local: `blank_s` exits 0 and
+  `grow_s` length is 2. I classify `ARR_NEW 1` as a string list from
+  the pushed value. Mixed int/string records run as native C: `get_s`
+  length is 2. Nested record fields stay refused.
+  `make test-nvm2c` (299 passed).
+
 ## [4.5.0] - 2026-09-07
 
 ### Added

@@ -203,12 +203,71 @@ Each cut has a test that can fail without stranding bootstrap.
 `src/nanovirt/codegen.c`. It emits `.nvm`. The C pretty-printer still
 builds the compiler. I compare `.nvm` from the C seed's NanoISA path
 and from `src_nano` on a pinned subset, not yet the whole compiler.
+Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` plus
+`make test-nanoisa-src-nano` on integer `add`/`main`/`choose`/`loop_sum`,
+string `greeting`/`glue`, array `len3`/`first`, record `getx`, bool
+`is_pos`, bool literals `yes`/`no`, `invert`, `both`, `either`,
+`pick`, `say`, `shout`, `mutter`, `prove`, `grow`, `has_hi`,
+`digits`, `names`, `head_s`, `same`, `diff`, `via_at`, `slen`,
+`slice`, `blank_l`, `grow_l`, `ch`, `blank_s`, `grow_s`, and `get_s`
+(`make test-nanoisa-src-nano`, 78 passed).
+Function bytecode matches the C seed, including `if`, `while`, `PUSH_STR`,
+`STR_CONCAT`, `ARR_LITERAL`, `ARR_LEN`, `ARR_GET`, `ARR_PUSH` of
+`array<int>` and `array<string>`, `AGG_PACK`, `AGG_GET`, `bool`
+results as i64 0/1, `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, `BOOL_OR`,
+`cond` as `JMP_FALSE`/`JMP` with one `RET`, `PRINT`, `PRINTLN`,
+`ASSERT`, `STR_CONTAINS`, `CAST_STRING` of i64, `EQ`/`NE` of
+strings, `at` as `ARR_GET`, `str_length` as `STR_LEN`,
+`str_substring` as `STR_SUBSTR`, `list_int_new` as `ARR_NEW 1`,
+void `list_int_push` as `ARR_PUSH` then `POP`, `list_int_get`
+as `ARR_GET`, `char_at` as `STR_CHAR_AT`, `list_string_new` as
+`ARR_NEW 1`, void `list_string_push` as `ARR_PUSH` then `POP`,
+`list_string_get` as `ARR_GET`, and mixed int/string records as
+`AGG_PACK`/`AGG_GET`). String operands
+are compared by content, not pool index. I still pretty-print C to
+build the compiler. The full dual of `codegen.c` is not this pin.
 
 **B — AOT covers the compiler subset.** `nvm2c` translates functions,
 structs, loops, arrays, strings, modules, and a declared host ABI.
 `CALL_EXTERN` maps to that ABI or the module is refused. I ship a
-`nvm2c` CLI. A generated process does not link `nano_vm`. A pinned
-suite matches on `nano_vm` and on AOT C.
+`nvm2c` CLI (`bin/nvm2c`, `make test-nvm2c`). The closed i64 subset
+already builds a process that does not link `nano_vm`, including
+comparisons, `JMP`/`JMP_FALSE`, `TAIL_CALL` (`choose` and `loop_sum`
+run as native C), Cut A strings (`PUSH_STR`, `STR_CONCAT`,
+`STR_LEN`; `greeting` and `glue` run as native C), Cut A
+`array<int>` (`ARR_LITERAL`, `ARR_GET`, `ARR_LEN`; `len3` and `first`
+run as native C), Cut A int-field records (`AGG_PACK`, `AGG_GET`;
+`getx` runs as native C), Cut A bool (`bool` results as i64 0/1;
+`is_pos` runs as native C), Cut A bool ops (`PUSH_BOOL`,
+`BOOL_NOT`, `BOOL_AND`, `BOOL_OR`; `yes`, `invert`, `both`, and
+`either` run as native C), Cut A `cond` (`pick` runs as native
+C; join copies temps so both arms share one `RET`), Cut A
+print (`PRINT`/`PRINTLN`; `say`, `shout`, and `mutter` run as
+native C), Cut A assert (`ASSERT`; `prove(true)` exits 0 and
+`prove(false)` aborts), Cut A `array_push` (`ARR_PUSH` of
+`array<int>`; `grow` runs as native C), Cut A `str_contains`
+(`has_hi` runs as native C), Cut A `int_to_string`
+(`CAST_STRING` of i64; `digits` runs as native C), and Cut A
+string arrays (`ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_GET`, `ARR_LEN`;
+`names` and `head_s` run as native C), Cut A string equality
+(`EQ`/`NE`; `same` and `diff` run as native C), and Cut A
+`at`/`str_length` (`via_at` and `slen` run as native C), and Cut A
+`str_substring` (`STR_SUBSTR`; `slice` runs as native C), and Cut A
+empty `List<int>` (`ARR_NEW`; `blank_l` runs as native C), and Cut A
+void `list_int_push` (`ARR_PUSH` then `POP` keeps array identity;
+`grow_l` runs as native C), and Cut A `char_at` (`STR_CHAR_AT`;
+`ch` runs as native C; out of range is `-1`), and Cut A empty
+`List<string>` (`ARR_NEW` tag 1; `blank_s` runs as native C), and
+Cut A void `list_string_push` (`ARR_PUSH` then `POP` keeps string-array
+identity; `grow_s` runs as native C), and Cut A mixed int/string
+records (`AGG_PACK`/`AGG_GET`; `get_s` runs as native C; nested
+records stay refused). Nested arrays,
+nested records, `ARR_SET`, `AGG_SET`, variants, tuples, array
+equality, `STR_TRIM`, substring of arrays, and printing
+arrays/records stay refused. The rest of the
+compiler subset (modules, host ABI, and the remaining string
+library) is still open. A pinned suite must match on `nano_vm` and
+on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written

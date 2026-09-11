@@ -1,0 +1,370 @@
+fn add(a: int, b: int) -> int {
+    return (+ a b)
+}
+
+shadow add {
+    assert (== (add 2 3) 5)
+}
+
+fn main() -> int {
+    return (add 40 2)
+}
+
+shadow main {
+    assert (== (main) 42)
+}
+
+fn choose(c: int) -> int {
+    if (> c 0) {
+        return 1
+    } else {
+        return 0
+    }
+}
+
+shadow choose {
+    assert (== (choose 3) 1)
+    assert (== (choose 0) 0)
+}
+
+fn loop_sum(n: int) -> int {
+    let mut i: int = 0
+    let mut s: int = 0
+    while (< i n) {
+        set s (+ s i)
+        set i (+ i 1)
+    }
+    return s
+}
+
+shadow loop_sum {
+    assert (== (loop_sum 4) 6)
+}
+
+fn greeting() -> string {
+    return "hi"
+}
+
+shadow greeting {
+    assert (== (greeting) "hi")
+}
+
+fn glue(a: string, b: string) -> string {
+    return (+ a b)
+}
+
+shadow glue {
+    assert (== (glue "a" "b") "ab")
+}
+
+fn len3() -> int {
+    let xs: array<int> = [1, 2, 3]
+    return (array_length xs)
+}
+
+shadow len3 {
+    assert (== (len3) 3)
+}
+
+fn first() -> int {
+    let xs: array<int> = [7, 8, 9]
+    return (array_get xs 0)
+}
+
+shadow first {
+    assert (== (first) 7)
+}
+
+struct Point {
+    x: int,
+    y: int
+}
+
+fn getx() -> int {
+    let p: Point = Point { x: 3, y: 4 }
+    return p.x
+}
+
+shadow getx {
+    assert (== (getx) 3)
+}
+
+fn is_pos(c: int) -> bool {
+    return (> c 0)
+}
+
+shadow is_pos {
+    assert (is_pos 3)
+    assert (not (is_pos 0))
+}
+
+fn yes() -> bool {
+    return true
+}
+
+shadow yes {
+    assert (yes)
+}
+
+fn no() -> bool {
+    return false
+}
+
+shadow no {
+    assert (not (no))
+}
+
+fn invert(b: bool) -> bool {
+    return (not b)
+}
+
+shadow invert {
+    assert (not (invert true))
+    assert (invert false)
+}
+
+fn both(a: bool, b: bool) -> bool {
+    return (and a b)
+}
+
+shadow both {
+    assert (both true true)
+    assert (not (both true false))
+}
+
+fn either(a: bool, b: bool) -> bool {
+    return (or a b)
+}
+
+shadow either {
+    assert (either false true)
+    assert (not (either false false))
+}
+
+fn pick(c: int) -> int {
+    return (cond
+        ((> c 0) 1)
+        (else 0)
+    )
+}
+
+shadow pick {
+    assert (== (pick 3) 1)
+    assert (== (pick 0) 0)
+}
+
+fn say() -> int {
+    (print 7)
+    return 0
+}
+
+shadow say {
+    assert (== (say) 0)
+}
+
+fn shout() -> int {
+    (println 7)
+    return 0
+}
+
+shadow shout {
+    assert (== (shout) 0)
+}
+
+fn mutter() -> int {
+    (print "")
+    return 0
+}
+
+shadow mutter {
+    assert (== (mutter) 0)
+}
+
+fn prove(b: bool) -> int {
+    assert b
+    return 0
+}
+
+shadow prove {
+    assert (== (prove true) 0)
+}
+
+fn grow() -> int {
+    let mut xs: array<int> = [1]
+    set xs (array_push xs 2)
+    return (array_length xs)
+}
+
+shadow grow {
+    assert (== (grow) 2)
+}
+
+fn has_hi(s: string) -> bool {
+    return (str_contains s "hi")
+}
+
+shadow has_hi {
+    assert (has_hi "hi")
+    assert (not (has_hi "no"))
+}
+
+fn digits(n: int) -> string {
+    return (int_to_string n)
+}
+
+shadow digits {
+    assert (== (digits 7) "7")
+}
+
+fn names() -> int {
+    let mut xs: array<string> = ["a"]
+    set xs (array_push xs "b")
+    return (array_length xs)
+}
+
+shadow names {
+    assert (== (names) 2)
+}
+
+fn head_s() -> string {
+    let xs: array<string> = ["hi"]
+    return (array_get xs 0)
+}
+
+shadow head_s {
+    assert (== (head_s) "hi")
+}
+
+fn same(a: string, b: string) -> bool {
+    return (== a b)
+}
+
+shadow same {
+    assert (same "hi" "hi")
+    assert (not (same "hi" "no"))
+}
+
+fn diff(a: string, b: string) -> bool {
+    return (!= a b)
+}
+
+shadow diff {
+    assert (diff "hi" "no")
+    assert (not (diff "hi" "hi"))
+}
+
+fn via_at() -> int {
+    let xs: array<int> = [7, 8]
+    return (at xs 0)
+}
+
+shadow via_at {
+    assert (== (via_at) 7)
+}
+
+fn slen(s: string) -> int {
+    return (str_length s)
+}
+
+shadow slen {
+    assert (== (slen "hi") 2)
+}
+
+fn slice(s: string) -> string {
+    return (str_substring s 0 1)
+}
+
+shadow slice {
+    assert (== (slice "hi") "h")
+}
+
+fn blank_l() -> int {
+    let xs: List<int> = (list_int_new)
+    return (list_int_length xs)
+}
+
+shadow blank_l {
+    assert (== (blank_l) 0)
+}
+
+fn grow_l() -> int {
+    let xs: List<int> = (list_int_new)
+    (list_int_push xs 7)
+    return (list_int_get xs 0)
+}
+
+shadow grow_l {
+    assert (== (grow_l) 7)
+}
+
+fn ch() -> int {
+    return (char_at "hi" 0)
+}
+
+shadow ch {
+    assert (== (ch) 104)
+}
+
+fn blank_s() -> int {
+    let xs: List<string> = (list_string_new)
+    return (list_string_length xs)
+}
+
+shadow blank_s {
+    assert (== (blank_s) 0)
+}
+
+fn grow_s() -> string {
+    let xs: List<string> = (list_string_new)
+    (list_string_push xs "hi")
+    return (list_string_get xs 0)
+}
+
+shadow grow_s {
+    assert (== (grow_s) "hi")
+}
+
+struct Tok {
+    t: int,
+    s: string
+}
+
+fn get_s() -> string {
+    let p: Tok = Tok { t: 1, s: "hi" }
+    return p.s
+}
+
+shadow get_s {
+    assert (== (get_s) "hi")
+}
+
+fn grow_t() -> string {
+    let xs: List<Tok> = (list_Tok_new)
+    (list_Tok_push xs Tok { t: 7, s: "hi" })
+    let p: Tok = (list_Tok_get xs 0)
+    return p.s
+}
+
+shadow grow_t {
+    assert (== (grow_t) "hi")
+}
+
+fn one_t() -> List<Tok> {
+    let xs: List<Tok> = (list_Tok_new)
+    (list_Tok_push xs Tok { t: 7, s: "hi" })
+    return xs
+}
+
+shadow one_t {
+    assert (== (list_Tok_length (one_t)) 1)
+}
+
+fn via_one_t() -> string {
+    let xs: List<Tok> = (one_t)
+    let p: Tok = (list_Tok_get xs 0)
+    return p.s
+}
+
+shadow via_one_t {
+    assert (== (via_one_t) "hi")
+}

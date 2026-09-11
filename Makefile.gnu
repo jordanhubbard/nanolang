@@ -324,9 +324,9 @@ build: schema modules-index $(SENTINEL_STAGE3) $(INTERPRETER) $(REPL_BINARY)
 all: build
 
 # Build NanoISA virtual machine backend (nano_virt compiler, nano_vm executor, co-process, daemon)
-vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump
+vm: nano_virt nano_vm nano_cop nano_vmd nanoisa_dump nvm2c
 	@echo ""
-	@echo "✅ VM backend built: bin/nano_virt bin/nano_vm bin/nano_cop bin/nano_vmd bin/nanoisa"
+	@echo "✅ VM backend built: bin/nano_virt bin/nano_vm bin/nano_cop bin/nano_vmd bin/nanoisa bin/nvm2c"
 
 # ============================================================================
 # Test Targets (Meta-Rule Pattern for Stage-Specific Testing)
@@ -348,7 +348,8 @@ NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
 NANOISA_SOURCES = $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
-	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c
+	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c \
+	$(NANOISA_DIR)/frontend.c
 VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
 NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
@@ -375,12 +376,20 @@ test-nanoisa: schema-check $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_nanoisa
 
 .PHONY: test-nvm2c
-test-nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nvm2c \
 		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
-	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c bin/nvm2c
 	@rm -f tests/nanoisa/test_nvm2c
+
+.PHONY: test-frontend-contract
+test-frontend-contract: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	@echo "Running NanoISA frontend contract tests..."
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_frontend_contract \
+		tests/nanoisa/test_frontend_contract.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_frontend_contract
+	@rm -f tests/nanoisa/test_frontend_contract
 
 .PHONY: test-nanoisa-module
 test-nanoisa-module: build
@@ -397,10 +406,35 @@ test-nanoisa-wrapper: nano_virt
 	@rm -f /tmp/nanolang_nanoisa_wrapper_test
 
 NANOISA_DUMP_OBJECT = $(OBJ_DIR)/nanoisa/dump_main.o
+NVM2C_MAIN_OBJECT = $(OBJ_DIR)/nanoisa/nvm2c_main.o
 
 $(NANOISA_DUMP_OBJECT): $(NANOISA_MODULE_DIR)/dump_main.c $(NANOISA_MODULE_DIR)/nanoisa.h \
 		| $(OBJ_DIR)/nanoisa
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
+
+$(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
+		$(NANOISA_MODULE_DIR)/nanoisa.h | $(OBJ_DIR)/nanoisa
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -c $< -o $@
+
+.PHONY: nvm2c
+nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) | bin
+	$(CC) $(CFLAGS) -o bin/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+
+.PHONY: nanoisa_emit
+nanoisa_emit: $(COMPILER_C) | bin
+	$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+
+.PHONY: test-nanoisa-src-nano
+test-nanoisa-src-nano: nanoisa_emit nano_virt $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	@echo "Running src_nano NanoISA Cut A comparison..."
+	$(TIMEOUT_CMD) ./bin/nano_virt tests/nanoisa/fixtures/cut_a_add.nano --emit-nvm --strip-debug \
+		-o /tmp/nanolang_cut_a_c.nvm
+	$(TIMEOUT_CMD) ./bin/nanoisa_emit tests/nanoisa/fixtures/cut_a_add.nano -o /tmp/nanolang_cut_a_src.nasm
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nanoisa_src_nano \
+		tests/nanoisa/test_nanoisa_src_nano.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nanoisa_src_nano \
+		/tmp/nanolang_cut_a_c.nvm /tmp/nanolang_cut_a_src.nasm
+	@rm -f tests/nanoisa/test_nanoisa_src_nano
 
 .PHONY: nanoisa_dump
 nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
@@ -1155,6 +1189,159 @@ test-forth-session: $(FORTH_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMM
 	@./tests/forth/test_forth_session
 	@rm -f tests/forth/test_forth_session
 
+# Nano Scheme laboratory frontend (bounded subset → verified NanoISA)
+SCHEME_DIR = $(SRC_DIR)/scheme
+SCHEME_SOURCES = $(SCHEME_DIR)/scheme.c
+SCHEME_OBJECTS = $(patsubst $(SCHEME_DIR)/%.c,$(OBJ_DIR)/scheme/%.o,$(SCHEME_SOURCES))
+
+$(OBJ_DIR)/scheme/%.o: $(SCHEME_DIR)/%.c $(SCHEME_DIR)/scheme.h | $(OBJ_DIR)/scheme
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/scheme:
+	mkdir -p $(OBJ_DIR)/scheme
+
+.PHONY: test-scheme
+test-scheme: $(SCHEME_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano Scheme laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/scheme/test_scheme \
+		tests/scheme/test_scheme.c $(SCHEME_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/scheme/test_scheme
+	@rm -f tests/scheme/test_scheme
+
+# Nano ML laboratory frontend (bounded subset → verified NanoISA)
+ML_DIR = $(SRC_DIR)/ml
+ML_SOURCES = $(ML_DIR)/ml.c
+ML_OBJECTS = $(patsubst $(ML_DIR)/%.c,$(OBJ_DIR)/ml/%.o,$(ML_SOURCES))
+
+$(OBJ_DIR)/ml/%.o: $(ML_DIR)/%.c $(ML_DIR)/ml.h | $(OBJ_DIR)/ml
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/ml:
+	mkdir -p $(OBJ_DIR)/ml
+
+.PHONY: test-ml
+test-ml: $(ML_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano ML laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/ml/test_ml \
+		tests/ml/test_ml.c $(ML_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/ml/test_ml
+	@rm -f tests/ml/test_ml
+
+# Nano Actor laboratory frontend (bounded subset → verified NanoISA)
+ACTOR_DIR = $(SRC_DIR)/actor
+ACTOR_SOURCES = $(ACTOR_DIR)/actor.c
+ACTOR_OBJECTS = $(patsubst $(ACTOR_DIR)/%.c,$(OBJ_DIR)/actor/%.o,$(ACTOR_SOURCES))
+
+$(OBJ_DIR)/actor/%.o: $(ACTOR_DIR)/%.c $(ACTOR_DIR)/actor.h | $(OBJ_DIR)/actor
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/actor:
+	mkdir -p $(OBJ_DIR)/actor
+
+.PHONY: test-actor
+test-actor: $(ACTOR_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano Actor laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/actor/test_actor \
+		tests/actor/test_actor.c $(ACTOR_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/actor/test_actor
+	@rm -f tests/actor/test_actor
+
+# Nano Dataflow laboratory frontend (bounded subset → verified NanoISA)
+DATAFLOW_DIR = $(SRC_DIR)/dataflow
+DATAFLOW_SOURCES = $(DATAFLOW_DIR)/dataflow.c
+DATAFLOW_OBJECTS = $(patsubst $(DATAFLOW_DIR)/%.c,$(OBJ_DIR)/dataflow/%.o,$(DATAFLOW_SOURCES))
+
+$(OBJ_DIR)/dataflow/%.o: $(DATAFLOW_DIR)/%.c $(DATAFLOW_DIR)/dataflow.h | $(OBJ_DIR)/dataflow
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/dataflow:
+	mkdir -p $(OBJ_DIR)/dataflow
+
+.PHONY: test-dataflow
+test-dataflow: $(DATAFLOW_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano Dataflow laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/dataflow/test_dataflow \
+		tests/dataflow/test_dataflow.c $(DATAFLOW_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/dataflow/test_dataflow
+	@rm -f tests/dataflow/test_dataflow
+
+# Nano Object laboratory frontend (bounded subset → verified NanoISA)
+OBJECT_DIR = $(SRC_DIR)/object
+OBJECT_SOURCES = $(OBJECT_DIR)/object.c
+OBJECT_OBJECTS = $(patsubst $(OBJECT_DIR)/%.c,$(OBJ_DIR)/object/%.o,$(OBJECT_SOURCES))
+
+$(OBJ_DIR)/object/%.o: $(OBJECT_DIR)/%.c $(OBJECT_DIR)/object.h | $(OBJ_DIR)/object
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/object:
+	mkdir -p $(OBJ_DIR)/object
+
+.PHONY: test-object
+test-object: $(OBJECT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano Object laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/object/test_object \
+		tests/object/test_object.c $(OBJECT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/object/test_object
+	@rm -f tests/object/test_object
+
+# Nano Shell laboratory frontend (bounded subset → verified NanoISA)
+SHELL_DIR = $(SRC_DIR)/shell
+SHELL_SOURCES = $(SHELL_DIR)/shell.c
+SHELL_OBJECTS = $(patsubst $(SHELL_DIR)/%.c,$(OBJ_DIR)/shell/%.o,$(SHELL_SOURCES))
+
+$(OBJ_DIR)/shell/%.o: $(SHELL_DIR)/%.c $(SHELL_DIR)/shell.h | $(OBJ_DIR)/shell
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/shell:
+	mkdir -p $(OBJ_DIR)/shell
+
+.PHONY: test-shell
+test-shell: $(SHELL_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano Shell laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/shell/test_shell \
+		tests/shell/test_shell.c $(SHELL_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/shell/test_shell
+	@rm -f tests/shell/test_shell
+
+# Nano Logic laboratory frontend (bounded Datalog → verified NanoISA)
+LOGIC_DIR = $(SRC_DIR)/logic
+LOGIC_SOURCES = $(LOGIC_DIR)/logic.c
+LOGIC_OBJECTS = $(patsubst $(LOGIC_DIR)/%.c,$(OBJ_DIR)/logic/%.o,$(LOGIC_SOURCES))
+
+$(OBJ_DIR)/logic/%.o: $(LOGIC_DIR)/%.c $(LOGIC_DIR)/logic.h | $(OBJ_DIR)/logic
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/logic:
+	mkdir -p $(OBJ_DIR)/logic
+
+.PHONY: test-logic
+test-logic: $(LOGIC_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running Nano Logic laboratory tests..."
+	$(CC) $(CFLAGS) -o tests/logic/test_logic \
+		tests/logic/test_logic.c $(LOGIC_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/logic/test_logic
+	@rm -f tests/logic/test_logic
+
+# 4.6 frontend matrix (shared library, equivalent fixtures, measurements)
+FRONTEND_MATRIX_OBJECTS = $(SCHEME_OBJECTS) $(ML_OBJECTS) $(ACTOR_OBJECTS) \
+	$(DATAFLOW_OBJECTS) $(OBJECT_OBJECTS) $(SHELL_OBJECTS) $(LOGIC_OBJECTS)
+
+.PHONY: test-frontend-matrix
+test-frontend-matrix: $(FRONTEND_MATRIX_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@echo "Running 4.6 frontend matrix tests..."
+	$(CC) $(CFLAGS) -o tests/frontend/test_frontend_matrix \
+		tests/frontend/test_frontend_matrix.c $(FRONTEND_MATRIX_OBJECTS) \
+		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(TIMEOUT_CMD) ./tests/frontend/test_frontend_matrix
+	@rm -f tests/frontend/test_frontend_matrix
+
 .PHONY: test-forth-pty
 test-forth-pty: $(BIN_DIR)/forth
 	@echo "Running Forth PTY REPL liveness tests..."
@@ -1170,7 +1357,7 @@ test-forth-ide-smoke: $(BIN_DIR)/forth
 	@bash tests/test_forth_ide_smoke.sh
 
 .PHONY: test-units
-test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
+test-units: test-nanoisa test-nanoisa-module test-nanoisa-dump test-nanovm test-nanovirt test-optimizer test-diagnostics test-module-metadata test-type-infer test-opt-passes test-eval test-bench test-nano-eval test-nano-emacs-worker test-coroutine-scheduler test-runtime-lists test-ffi test-effects test-typechecker test-env-scoping test-parser test-transpiler test-nl-string test-refcount-gc test-pgo-pass test-docgen test-fmt test-channel test-proptest-unit test-vm-builtins test-verifier test-value test-intern test-forth-session test-scheme test-ml test-actor test-dataflow test-object test-shell test-logic test-frontend-matrix test-dyn-array test-gc-struct test-cop-protocol test-cop-fuzz test-vm-ffi test-wrapper-gen test-nanocore test-ringbuf test-fuzz-malformed test-nvm-format-v2 test-nvm-v2-cursor test-nvm-v2-constants test-nvm-v2-signatures test-nvm-v2-layouts test-nvm-v2-functions test-nvm-v2-imports test-nvm-v2-module test-nvm-v2-convert test-nvm-v2-endtoend test-nvm2c test-nanoisa-src-nano test-frontend-contract test-disasm-roundtrip test-verify-all-programs test-asm-examples test-dispatch-equivalence test-release-gates test-bcp47 test-utf8 test-catalog test-nsi test-nsi-gen test-nsi-runtime test-nsi-manifest test-nsi-cap test-nsi-shm test-nsi-fabric test-nsi-policy test-nsi-journal test-nsi-obs test-log-utf8 test-unicode-ffi
 	@echo "Running C unit tests..."
 	@# Detect which instrumentation is present in object files
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -2006,6 +2193,14 @@ test-quick: build
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@$(MAKE) --no-print-directory test-affine-selfhost
 	@$(MAKE) --no-print-directory test-forth-jackson
+	@$(MAKE) --no-print-directory test-scheme
+	@$(MAKE) --no-print-directory test-ml
+	@$(MAKE) --no-print-directory test-actor
+	@$(MAKE) --no-print-directory test-dataflow
+	@$(MAKE) --no-print-directory test-object
+	@$(MAKE) --no-print-directory test-shell
+	@$(MAKE) --no-print-directory test-logic
+	@$(MAKE) --no-print-directory test-frontend-matrix
 ifeq ($(FORTH_WORDSET_SKIP),1)
 	@echo "Skipping Jackson word-set REFILL, Forth PTY, and IDE smoke under coverage instrumentation."
 else
@@ -2952,7 +3147,7 @@ help:
 	@echo "Main Targets:"
 	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 	@echo "  make build              - Build compiler (3-stage bootstrap)"
-	@echo "  make vm                 - Build NanoISA VM backend (nano_virt, nano_vm, nano_cop, nano_vmd)"
+	@echo "  make vm                 - Build NanoISA VM backend (nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c)"
 	@echo "  make bootstrap          - TRUE 3-stage bootstrap (GCC-style)"
 	@echo "  make test               - Build + run all tests (auto-detect best compiler)"
 	@echo "  make test-mac           - Run tests; on failures, auto-create/update mac tasks"
@@ -3035,6 +3230,15 @@ help:
 	@echo "  make test-nsi-policy  - effect map, inventory, deployment grants"
 	@echo "  make test-nsi-journal - trap journal record, replay, HMAC, redact"
 	@echo "  make test-nsi-obs     - traces, metrics, provenance, locale-stable audits"
+	@echo "  make test-frontend-contract - 4.6 shared NanoISA frontend contract"
+	@echo "  make test-scheme     - 4.6 Nano Scheme laboratory frontend"
+	@echo "  make test-ml         - 4.6 Nano ML laboratory frontend"
+	@echo "  make test-actor      - 4.6 Nano Actor laboratory frontend"
+	@echo "  make test-dataflow   - 4.6 Nano Dataflow laboratory frontend"
+	@echo "  make test-object     - 4.6 Nano Object laboratory frontend"
+	@echo "  make test-shell      - 4.6 Nano Shell laboratory frontend"
+	@echo "  make test-logic      - 4.6 Nano Logic laboratory frontend"
+	@echo "  make test-frontend-matrix - 4.6 frontend matrix and measurements"
 	@echo "  make test-sdl-term-mvp - compile modules/sdl_term/mvp.nano"
 	@echo "  make test-log-utf8    - log event ids and bidi/ANSI sanitize"
 	@echo "  make test-i18n-scripts - six-script example on C and NanoVM"
@@ -3053,6 +3257,8 @@ help:
 	@echo "  make test-performance-monitoring-docs - Assert -pg / LLM profiling docs"
 	@echo "  make test-nanoisa      - Run NanoISA unit tests (470 tests)"
 	@echo "  make test-nanoisa-dump - Run NanoISA dump CLI tests"
+	@echo "  make test-nvm2c        - Run nvm2c structured-C and CLI tests"
+	@echo "  make test-nanoisa-src-nano - Cut A: src_nano .nasm vs C-seed bytecode"
 	@echo "  make test-nanovm       - Run NanoVM unit tests (150 tests)"
 	@echo "  make test-nanovirt     - Run codegen unit tests (62 tests)"
 	@echo "  make test-glut-init    - Run GLUT initialization boundary tests (headless)"
@@ -3181,7 +3387,7 @@ $(BIN_DIR):
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list nanoc
+.PHONY: all build vm test test-selfhosted test-docs test-doc-md test-nanoisa test-nanoisa-dump test-nanovm test-nanovirt nano_vm nano_vmd nano_virt nano_cop nanoisa_dump nvm2c nanoisa_emit test-nvm2c test-nanoisa-src-nano test-nanovm-daemon test-nanovm-integration test-cop-lifecycle test-vm test-vm-examples test-daemon examples examples-core examples-c examples-full examples-stage1 examples-stage2 examples-stage3 examples-bootstrap-stage2 examples-bootstrap-stage3 examples-backend-c examples-nanoisa examples-vm examples-available launcher examples-no-sdl vm-examples examples-vm-build vm-launcher examples-vm-launcher vm-launcher-sdl examples-vm-launcher-sdl clean rebuild help status sanitize coverage coverage-report install install-deps uninstall valgrind stage1.5 bootstrap-status bootstrap-install modules module-self-test module-mvp module-package-audit release release-major release-minor package-json pkg-install pkg-publish pkg-update pkg-init pkg-list nanoc
 
 # ============================================================================
 # AGENTFS PUBLISH

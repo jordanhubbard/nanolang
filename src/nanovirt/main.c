@@ -51,7 +51,9 @@ static void usage(const char *prog) {
     fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--emit-nvm-v2] [--strip-debug] [--daemon-wrapper] [-v]\n", prog);
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -o <path>          Output file (native binary, or .nvm if --emit-nvm)\n");
+    fprintf(stderr, "  -o <path>          Packaged interpreter (wrapper_gen embeds nano_vm),\n");
+    fprintf(stderr, "                     or .nvm if --emit-nvm / the path ends in .nvm\n");
+    fprintf(stderr, "                     5.0 native AOT is bin/nvm2c, not this default\n");
     fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
     fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
