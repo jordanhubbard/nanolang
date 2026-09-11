@@ -160,6 +160,21 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       decoding and execution, with differential tests against the VM and
       explicit ownership of the ISA source of truth. I retain useful existing
       proofs and adopt additional frameworks only with demonstrated benefit.
+- [ ] **Formal audit defect — missing evaluator theorem.** My formal README
+      advertised `eval_fn_sound`, but `EvalFn.v` contains selected case lemmas
+      only. I correct the claim, prove the general theorem without adding
+      assumptions, and check the advertised theorem names and their assumptions
+      in a reproducible Rocq build. I include `Exhaustiveness.v`, currently
+      omitted from the default proof build. MAC
+      `task_2b291a75ca2840519d47e08bf991c021`.
+- [ ] **Formal audit defect — clean proof build fails.** A fresh Rocq 9.0.1
+      build found an unhandled empty-list case in `tuple_nth_type`, now
+      repaired without changing its statement; `Soundness.v` compiles.
+      `bash scripts/check_proofs_container.sh` next fails in
+      `Progress.v:405`, `step_tuple_form`. I repair the remaining proofs and
+      run the complete build and compiled-library checker before claiming a
+      checked proof suite. I preserve intended semantics and document any
+      necessary correction to a false theorem statement.
 - [ ] **5.0 audit — native runtime services.** I run a useful native
       NanoLang service in a separate worker through typed NSI calls, with
       scoped capabilities, restart supervision, tracing, and module packaging.

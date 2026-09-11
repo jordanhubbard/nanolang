@@ -6,11 +6,28 @@ formalized in the Rocq Prover (Coq). The development is **axiom-free**
 **`Admitted`-free**: every case of the big-step ↔ small-step equivalence
 proof (`Equivalence.v`), including the `E_TupleIndex` case where indexing a
 tuple of values yields the expected value expression, is fully discharged.
-Every result — type soundness, progress, determinism, the fuel-based
-evaluator's soundness, and semantic equivalence — is complete and
-`Admitted`-free.
+I provide theorem statements for preservation, progress, determinism, and
+semantic equivalence. Evaluator soundness is partial: `EvalFn.v` proves
+selected cases, several conditional on recursive soundness. It does not yet
+contain the general `eval_fn_sound` theorem. Absence of `Admitted` tokens
+does not establish that every advertised result has been implemented.
 
 ## What's proved
+
+Current build status: a fresh Rocq 9.0.1 build compiles `Soundness.v` but
+fails in `Progress.v`, in `step_tuple_form`. The theorem descriptions below
+record intended statements; I do not currently claim a successfully checked
+complete suite. Reproduce from the repository root with:
+
+```bash
+bash scripts/check_proofs_container.sh
+```
+
+I pin the container by digest, mount sources read-only, force recompilation
+in a temporary copy, and run `make check` with `rocq compile` and `rocq chk`.
+Once compilation succeeds, `Assumptions.v` prints dependencies of the named
+theorems and the checker rechecks the compiled libraries. Printed assumptions
+still require review; this target does not certify compiler correspondence.
 
 **Type soundness** via preservation + progress, **determinism**,
 and **semantic equivalence** between big-step and small-step semantics:
@@ -71,9 +88,9 @@ Theorem eval_to_multistep_gen : forall renv e renv' v,
   multi_step_equiv (close renv e) (val_to_expr v) /\ val_good v.
 ```
 
-**Computable Evaluator:** A fuel-based reference interpreter with a
-soundness proof linking it to the relational semantics, extractable
-to OCaml:
+**Computable Evaluator:** I implement a fuel-based interpreter extractable
+to OCaml. The following is a remaining proof obligation, not an existing
+theorem:
 
 ```
 Theorem eval_fn_sound : forall fuel renv e renv' v,
@@ -124,7 +141,7 @@ Theorem eval_fn_sound : forall fuel renv e renv' v,
 | `Progress.v` | 745 | Small-step semantics, substitution, progress theorem |
 | `Determinism.v` | 89 | Determinism of evaluation (eval is a partial function) |
 | `Equivalence.v` | 3,098 | Big-step / small-step semantic equivalence (133 lemmas, 0 axioms) |
-| `EvalFn.v` | 503 | Computable fuel-based evaluator with soundness proof |
+| `EvalFn.v` | 503 | Computable fuel-based evaluator with partial soundness lemmas |
 | `Extract.v` | 32 | OCaml extraction configuration for reference interpreter |
 
 ## Building
@@ -211,7 +228,7 @@ make nanocore-ref  # Build reference interpreter binary
   `subst y t e = e`, then `subst y t (subst x s e) = subst x s e`
 - **Fuel-based computable evaluator**: `eval_fn` uses standard decreasing
   fuel technique (as in CompCert/CertiCoq) with `Some/None` return type;
-  soundness proved by induction on fuel
+  selected soundness cases are proved; the general induction remains unfinished
 
 ## Phases
 
@@ -233,4 +250,4 @@ make nanocore-ref  # Build reference interpreter binary
   - Other: 5 (2%)
 - **Axioms:** 0 (fully axiom-free)
 - **Admitted:** 0 (fully `Admitted`-free)
-- **Main results:** Preservation, Progress, Determinism, Evaluator Soundness, and Semantic Equivalence (all complete and `Admitted`-free)
+- **Main theorem statements:** Preservation, Progress, Determinism, and Semantic Equivalence. General Evaluator Soundness remains unfinished.
