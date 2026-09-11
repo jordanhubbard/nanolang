@@ -459,6 +459,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       decoding, and test unchanged arrays and correct reference ownership.
       Preventing an out-of-bounds write does not justify reporting success
       after losing a value.
+      `cop_deserialize_value_impl` also returns from a failed array element
+      without releasing the partial array, and successful appends retain each
+      decoded element without releasing its temporary owned reference. I
+      require nested heap-value decode tests and truncated-later-element
+      cleanup tests, with heap object/reference accounting.
+      Array arithmetic currently allocates `TAG_INT` result storage even for
+      float/string elements. I must preserve result element types and release
+      newly allocated string results after array insertion; passing numeric
+      integer examples does not validate float/string vector behavior.
       ignore failed pushes still need preflight or
       ownership-safe failure propagation. Embedding arguments that alias VM
       stack storage follow the relocation/aliasing contract above.
