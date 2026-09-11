@@ -3,8 +3,8 @@
 set -euo pipefail
 mode=${1:---execute}
 case "$mode" in
-    --execute|--rocq-export-only) ;;
-    *) echo 'Usage: check_sail_container.sh [--execute|--rocq-export-only]' >&2; exit 2 ;;
+    --execute|--rocq-export-only|--rocq-check) ;;
+    *) echo 'Usage: check_sail_container.sh [--execute|--rocq-export-only|--rocq-check]' >&2; exit 2 ;;
 esac
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 sail_tmp=$(mktemp -d "${TMPDIR:-/tmp}/nanolang-sail.XXXXXX")
@@ -35,12 +35,23 @@ docker run --rm --platform linux/amd64 \
         set -euo pipefail
         cd /tmp
         sail --version
-        if [ "$SAIL_TRIAL_MODE" = --rocq-export-only ]; then
+        if [ "$SAIL_TRIAL_MODE" != --execute ]; then
             sail --no-memo-z3 --rocq --rocq-lib-style stdpp /source/stack_slice.sail -o stack_slice
             test -s stack_slice_types.v
             test -s stack_slice.v
-            cat stack_slice_types.v stack_slice.v
-            echo "I generated Rocq definitions; I have not checked them with Rocq."
+            if [ "$SAIL_TRIAL_MODE" = --rocq-export-only ]; then
+                cat stack_slice_types.v stack_slice.v
+                echo "I generated Rocq definitions; I have not checked them with Rocq."
+                exit 0
+            fi
+            opam install -y coq.9.0.1 coq-core.9.0.1 coq-stdlib.9.0.0 \
+                coq-sail-stdpp.0.20.2 coq-stdpp-bitvector.1.12.0 coq-stdpp.1.12.0
+            opam exec -- coqc stack_slice_types.v
+            opam exec -- coqc stack_slice.v
+            cp /source/StackSliceProofs.v .
+            opam exec -- coqc StackSliceProofs.v
+            opam exec -- coqchk StackSliceProofs
+            echo "I checked bounded stack-model lemmas, not VM refinement."
             exit 0
         fi
         sail --no-memo-z3 --just-check /source/stack_slice.sail /source/smoke.sail

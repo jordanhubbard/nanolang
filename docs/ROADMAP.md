@@ -164,7 +164,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       decoding and execution, with differential tests against the VM and
       explicit ownership of the ISA source of truth. I retain useful existing
       proofs and adopt additional frameworks only with demonstrated benefit.
-- [ ] **5.0 audit defect — quick gate after bootstrap.** On 2026-09-11,
+- [x] **5.0 audit defect — quick gate after bootstrap.** On 2026-09-11,
       my three-stage build passes but `make test-quick` reports six language
       passes and eight failures through the selected `bin/nanoc`: five parser
       failures, a module-relative import failure, and two audio-example C
@@ -188,6 +188,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       examples pass; metadata fails at link time on absent `___module_*`
       definitions. The installed stage-two compiler is still unchanged.
       MAC `task_b11b688543574e82a96c0fb4f782d234` tracks this repair.
+      Final verification on 2026-09-11: the dependency-aware `make test-quick`
+      rebuilds both compiler stages and all three components, then exits 0.
+      Selected `bin/nanoc` passes all 17 language programs, explicit native
+      parser/extern/introspection regressions, VM example coverage, frontend
+      checks, Jackson evidence and Forth PTY liveness. Gforth comparison skips
+      because Gforth is absent; GLUT interactive launch is not requested;
+      IDE graphical initialization skips without xvfb-run/timeout. This gate
+      is not the full release suite or proof of compiler correctness.
+      MAC rejected direct closure from `open`; I retain the verified evidence
+      and leave ledger closure to its normal claim/review workflow.
 - [x] **5.0 parser parity — grouped identifiers and tuple projections.**
       I no longer commit to a prefix call merely because `(` is followed
       by an identifier. Operator, comma, and tuple-projection continuations
@@ -251,7 +261,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and retain distinct native and interpreted evidence; running only the
       compiled assertions does not establish interpreter parity.
       MAC `task_e7a7395191d44cf793d684e21ea16a79`.
-- [ ] **5.0 audit defect — bootstrap source invalidation.** My stage-two
+- [x] **5.0 audit defect — bootstrap source invalidation.** My stage-two
       component and bootstrap-stage-one sentinels depend on prior-stage
       sentinels, not the NanoLang sources they compile. I add source dependency
       tracking and test that parser/import changes rebuild the affected
@@ -264,7 +274,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       state, changed sources/build rules, unrelated examples, and missing
       artifacts. Stage one rebuilds and passes its executable smoke test.
       Stage-two recompilation now succeeds and its smoke test passes. The
-      full selected-compiler gate remains unverified; I do not count
+      full selected-compiler `make test-quick` now exits 0 (2026-09-11),
+      with the optional-tool/display limits recorded above. I do not count
       dependency queries as compiler validation.
 - [x] **5.0 module introspection parity.** I derive module name/path,
       public function and struct inventories, unsafe status, and FFI status
@@ -338,6 +349,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       from its payload before matching it now permits actual Rocq export.
       The emitted decoder and executor import SailStdpp; generated definitions
       still need Rocq compilation, model lemmas, and assumption checking.
+      `--rocq-check` now provisions exact support-package versions in the
+      disposable proof container and attempts compilation, eight stack laws,
+      assumption reports, and independent `coqchk`. This check is running;
+      no successful Rocq result is recorded yet.
 - [x] **Formal audit defect — stack-slice underflow.** My unverified VM
       silently accepted insufficient operands for `DUP`, `POP`, and `SWAP`.
       These operations now trap without consuming locals or caller values.
