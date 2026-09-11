@@ -3746,13 +3746,46 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
     }
 }
 
+# I return an empty path for a NUL escape; callers must reject it.
+fn parser_decode_import_path(raw: string) -> string {
+    let mut out: string = ""
+    let mut i: int = 0
+    while (< i (str_length raw)) {
+        let mut part: string = (str_substring raw i 1)
+        if (and (== (char_at raw i) 92) (< (+ i 1) (str_length raw))) {
+            set i (+ i 1)
+            let code: int = (char_at raw i)
+            set part (str_substring raw i 1)
+            if (== code 48) { return "" }
+            if (== code 110) { set part "\n" }
+            else if (== code 116) { set part "\t" }
+            else if (== code 114) { set part "\r" }
+            else if (not (or (== code 92) (or (== code 34) (== code 39)))) {
+                set part (+ "\\" part)
+            }
+        }
+        set out (+ out part)
+        set i (+ i 1)
+    }
+    return out
+}
+
+shadow parser_decode_import_path {
+    assert (== (parser_decode_import_path "a\\nb\\t\\r\\\"\\\\\\'") "a\nb\t\r\"\\'")
+    assert (== (parser_decode_import_path "a\\qb") "a\\qb")
+    assert (== (parser_decode_import_path "a\\0b") "")
+    assert (== (parser_decode_import_path "a\\\\nb") "a\\nb")
+}
+
 /* Helper: Store import node */
 fn parser_store_import(p: Parser, module_path: string, module_name: string, is_unsafe: bool, is_selective: bool, is_wildcard: bool, import_symbols: array<string>, import_aliases: array<string>, import_symbol_count: int, line: int, column: int) -> Parser {
+    let decoded_path: string = (parser_decode_import_path module_path)
+    if (== decoded_path "") { return (parser_with_error p true) }
     let node: ASTImport = ASTImport {
         node_type: ParseNodeType.PNODE_IMPORT,
         line: line,
         column: column,
-        module_path: module_path,
+        module_path: decoded_path,
         module_name: module_name,
         is_unsafe: is_unsafe,
         is_selective: is_selective,
@@ -5213,6 +5246,92 @@ shadow parse_for_statement {
 }
 
 /* Parse statement (dispatcher) */
+fn parser_with_statement(p: Parser, kind: int) -> Parser {
+    return Parser {
+        tokens: p.tokens, file_name: p.file_name,
+
+        position: p.position,
+        token_count: p.token_count,
+        has_error: p.has_error,
+        diagnostics: p.diagnostics,
+        numbers: p.numbers,
+        floats: p.floats,
+        strings: p.strings,
+        bools: p.bools,
+        identifiers: p.identifiers,
+        binary_ops: p.binary_ops,
+        calls: p.calls,
+        module_qualified_calls: p.module_qualified_calls,
+        call_args: p.call_args,
+        array_elements: p.array_elements,
+        array_literals: p.array_literals,
+        lets: p.lets,
+        sets: p.sets,
+        ifs: p.ifs,
+        whiles: p.whiles,
+        fors: p.fors,
+        returns: p.returns,
+        blocks: p.blocks,
+        unsafe_blocks: p.unsafe_blocks,
+        prints: p.prints,
+        asserts: p.asserts,
+        functions: p.functions,
+        shadows: p.shadows,
+        structs: p.structs,
+        struct_literals: p.struct_literals,
+        field_accesses: p.field_accesses,
+        enums: p.enums,
+        unions: p.unions,
+        union_constructs: p.union_constructs,
+        matches: p.matches,
+        imports: p.imports,
+        opaque_types: p.opaque_types,
+        tuple_literals: p.tuple_literals,
+        tuple_indices: p.tuple_indices,
+        numbers_count: p.numbers_count,
+        floats_count: p.floats_count,
+        strings_count: p.strings_count,
+        bools_count: p.bools_count,
+        identifiers_count: p.identifiers_count,
+        binary_ops_count: p.binary_ops_count,
+        calls_count: p.calls_count,
+        module_qualified_calls_count: p.module_qualified_calls_count,
+        array_literals_count: p.array_literals_count,
+        lets_count: p.lets_count,
+        sets_count: p.sets_count,
+        ifs_count: p.ifs_count,
+        whiles_count: p.whiles_count,
+        fors_count: p.fors_count,
+        returns_count: p.returns_count,
+        blocks_count: p.blocks_count,
+        unsafe_blocks_count: p.unsafe_blocks_count,
+        prints_count: p.prints_count,
+        asserts_count: p.asserts_count,
+        functions_count: p.functions_count,
+        shadows_count: p.shadows_count,
+        structs_count: p.structs_count,
+        struct_literals_count: p.struct_literals_count,
+        field_accesses_count: p.field_accesses_count,
+        enums_count: p.enums_count,
+        unions_count: p.unions_count,
+        union_constructs_count: p.union_constructs_count,
+        matches_count: p.matches_count,
+        imports_count: p.imports_count,
+        opaque_types_count: p.opaque_types_count,
+        tuple_literals_count: p.tuple_literals_count,
+        tuple_indices_count: p.tuple_indices_count,
+        next_node_id: p.next_node_id,
+        last_expr_node_id: -1,
+        last_expr_node_type: kind
+    }
+}
+
+shadow parser_with_statement {
+    let p: Parser = (parser_with_statement (parser_init_ast_lists) ParseNodeType.PNODE_BREAK)
+    assert (== p.last_expr_node_type ParseNodeType.PNODE_BREAK)
+    assert (== p.last_expr_node_id -1)
+}
+
 fn parse_statement(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
@@ -5220,6 +5339,12 @@ fn parse_statement(p: Parser) -> Parser {
         let tok: LexerToken = (parser_current p)
         
         /* Dispatch based on token type */
+        if (== tok.token_type LexerTokenType.TOKEN_BREAK) {
+            return (parser_with_statement (parser_advance p) ParseNodeType.PNODE_BREAK)
+        }
+        if (== tok.token_type LexerTokenType.TOKEN_CONTINUE) {
+            return (parser_with_statement (parser_advance p) ParseNodeType.PNODE_CONTINUE)
+        }
         if (== tok.token_type (token_let)) {
             return (parse_let_statement p)
         } else {

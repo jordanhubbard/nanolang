@@ -65,6 +65,8 @@ shadow is_digit_char {
 }
 
 pure fn keyword_group1(s: string) -> int {
+    if (== s "break") { return LexerTokenType.TOKEN_BREAK }
+    if (== s "continue") { return LexerTokenType.TOKEN_CONTINUE }
     if (== s "module") { return LexerTokenType.TOKEN_MODULE } else {
         if (== s "pub") { return LexerTokenType.TOKEN_PUB } else {
             if (== s "from") { return LexerTokenType.TOKEN_FROM } else {
@@ -77,6 +79,8 @@ pure fn keyword_group1(s: string) -> int {
 }
 
 shadow keyword_group1 {
+    assert (== (keyword_group1 "break") LexerTokenType.TOKEN_BREAK)
+    assert (== (keyword_group1 "continue") LexerTokenType.TOKEN_CONTINUE)
     assert (== (keyword_group1 "module") 19)  /* TOKEN_MODULE */
     assert (== (keyword_group1 "pub") 20)     /* TOKEN_PUB */
     assert (== (keyword_group1 "from") 21)    /* TOKEN_FROM */

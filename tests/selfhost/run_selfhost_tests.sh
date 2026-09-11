@@ -23,6 +23,7 @@ test_arithmetic_ops.nano
 test_comparison_ops.nano
 test_logical_ops.nano
 test_while_loops.nano
+test_loop_control.nano
 test_recursion.nano
 test_function_calls.nano
 test_let_set.nano
@@ -87,7 +88,12 @@ done
 
 echo ""
 echo "========================================"
-echo "Results: $PASSED passed, $FAILED failed"
+if NANOLANG_SELFHOST_COMPILER="$NANOC" python3 tests/test_selfhost_import_paths.py; then
+    PASSED=$((PASSED + 1))
+else
+    FAILED=$((FAILED + 1))
+fi
+echo "Results: $PASSED passed, $FAILED failed (including the import-path suite)"
 echo "========================================"
 
 # Cleanup intermediate test binaries

@@ -526,10 +526,17 @@ fn parse_import_path_from_line(line: string) -> string {
 
     if (or (or has_import has_from) (or has_module has_unsafe_module)) {
         let first_q: int = (nlc_str_index_of line "\"")
-        let last_q: int = (nlc_str_last_index_of line "\"")
-        if (and (>= first_q 0) (> last_q first_q)) {
+        let line_length: int = (str_length line)
+        let mut last_q: int = (+ first_q 1)
+        while (< last_q line_length) {
+            let source_char: int = (char_at line last_q)
+            if (== source_char 34) { break }
+            if (== source_char 92) { set last_q (+ last_q 1) }
+            set last_q (+ last_q 1)
+        }
+        if (and (< last_q line_length) (and (>= first_q 0) (> last_q first_q))) {
             let result: string = (str_substring line (+ first_q 1) (- last_q (+ first_q 1)))
-            return result
+            return (parser_decode_import_path result)
         } else {
             return ""
         }
@@ -543,6 +550,9 @@ shadow parse_import_path_from_line {
     assert (== (parse_import_path_from_line "from \"modules/math\" import add") "modules/math")
     assert (== (parse_import_path_from_line "module \"mymod\"") "mymod")
     assert (== (parse_import_path_from_line "fn foo() -> int { return 0 }") "")
+    assert (== (parse_import_path_from_line "module \"a\\\"b\\\\n.nano\" # \"comment\"") "a\"b\\n.nano")
+    assert (== (parse_import_path_from_line "module \"bad\\0path\"") "")
+    assert (== (parse_import_path_from_line "module \"unterminated") "")
 }
 
 fn nlc_str_trim(s: string) -> string {
@@ -817,6 +827,12 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (println lines_scanned2)
             } else { (print "") }
             let imp: string = (parse_import_path_from_line (at lines i))
+            let import_line: string = (at lines i)
+            let quoted_import: bool = (or (or (nlc_str_starts_with import_line "module \"") (nlc_str_starts_with import_line "unsafe module \"")) (or (nlc_str_starts_with import_line "import \"") (nlc_str_starts_with import_line "from \"")))
+            if (and quoted_import (== imp "")) {
+                (println "I cannot use an empty, unterminated or NUL-containing import path.")
+                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
+            }
             if (!= imp "") {
                 let dep: string = (resolve_import_path norm_path imp repo_root)
                 if (== dep "") {

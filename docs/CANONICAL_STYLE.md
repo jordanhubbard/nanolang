@@ -151,10 +151,12 @@ explicit path is easier to audit. The parser still accepts legacy `import`,
 `from ... import ...`, wildcard imports, and `pub use`. Do not choose legacy
 syntax for new code merely because it still parses.
 
-My C-seed parser decodes `\n`, `\t`, `\r`, `\\`, `\"`, and `\'` in quoted
+My C-seed and self-hosted parsers decode `\n`, `\t`, `\r`, `\\`, `\"`, and `\'` in quoted
 import paths once, preserving unknown escapes as written. I reject `\0`:
 a filesystem path cannot contain a NUL byte. These are path bytes, not shell
-syntax. Self-hosted parsing and source-merger parity remain roadmap work.
+syntax. My self-hosted merger uses the same path decoder as its parser and
+ignores quotes after the path's closing quote. Its line-oriented import
+discovery is not a replacement for full syntax-aware module loading.
 
 **Policy:** import a module under a short, specific alias and qualify its public
 API. Use selective imports only when they materially improve a small file.

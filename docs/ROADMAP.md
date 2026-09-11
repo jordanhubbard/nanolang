@@ -396,6 +396,39 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       directives. Both C-seed boundaries are repaired below. I must carry the
       same path contract through self-hosted parsing and source merging, with
       executable parity tests; C-seed success does not establish that parity.
+      My line-based merger also chose the last quote (including comment text)
+      and could silently remove malformed module imports. I must scan escaped
+      closing quotes and fail dependency collection on invalid quoted paths.
+      The first Stage 2 run rejected plain paths because it dropped `break`;
+      the repair below passes five driver/helper tests on both Stage 1 and
+      Stage 2 after a fresh bootstrap (2026-09-11). The self-hosted runner now
+      includes these tests. Full syntax-aware discovery remains open.
+- [x] **5.0 self-hosted loop control — frontend nodes.** My lexer previously
+      treated `break` as an identifier and emitted no loop-control node, despite
+      existing C emitters. I connect break/continue keywords and parser nodes.
+      Compiled parser assertions and self-hosted execution of continue, break
+      and nested-loop break pass. The production path-helper regression now
+      executes correctly after Stage 1 compilation and the rebuilt Stage 2
+      passes all five import tests (2026-09-11).
+- [ ] **5.0 self-hosted loop control — context validation.** I must reject
+      break/continue outside loops in the language frontend and test nested
+      function boundaries. C compiler rejection is not a frontend diagnostic.
+- [ ] **5.0 self-hosted suite — remaining failures.** After the import/loop
+      repair, my full self-hosted runner reports 12 passing entries and two
+      compilation failures: `test_match_bindings.nano` emits `nl_unknown` for
+      a match result, and `test_infix_ops.nano` rejects `not` at line 47.
+      I reproduced both directly with the rebuilt Stage 2 (2026-09-11).
+      I must fix and rerun them; I have not established their baseline history.
+- [ ] **5.0 parser recovery — reserved local names.** During import-path work
+      I used `byte` (a type keyword) as a local name. My C seed diagnosed the
+      syntax error but then exited with a bus error while parsing the compiler
+      driver. I must reject malformed declarations without crashing, with a
+      minimized regression and sanitizer evidence.
+- [ ] **5.0 C lowering — string length result type.** A direct comparison
+      between an `int` index and `(str_length line)` lowers to signed `int64_t`
+      versus unsigned `strlen`, failing the driver's `-Werror` build. An
+      explicitly typed local restores this call site. I must make builtin
+      lowering honor the language result type consistently and test it.
 - [x] **5.0 C-seed imports — decoded paths and safe line directives.** I decode
       quoted import paths once, preserve unknown escapes as the evaluator does,
       and reject NUL escapes before lookup. I encode filenames in generated

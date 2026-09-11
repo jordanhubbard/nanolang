@@ -1,0 +1,27 @@
+# I execute both loop exits, including a break in a nested loop.
+fn main() -> int {
+    let mut i: int = 0
+    let mut total: int = 0
+    while (< i 10) {
+        set i (+ i 1)
+        if (== i 2) { continue }
+        if (== i 5) { break }
+        set total (+ total i)
+    }
+    assert (== i 5)
+    assert (== total 8)
+    let mut outer: int = 0
+    while (< outer 3) {
+        let mut inner: int = 0
+        while (< inner 3) {
+            set inner (+ inner 1)
+            break
+        }
+        assert (== inner 1)
+        set outer (+ outer 1)
+    }
+    assert (== outer 3)
+    return 0
+}
+
+shadow main { assert (== (main) 0) }
