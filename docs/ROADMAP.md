@@ -333,6 +333,21 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       command. I must preserve paths containing spaces or shell metacharacters
       as data and reject truncated arguments, with execution tests. Private
       staging and atomic object publication do not repair this boundary.
+- [x] **5.0 generic-list generator — publication boundaries.** I stage both
+      generated files privately before replacing either published file, reject
+      type names that can escape the output directory, and test overlapping
+      generation and executable output. Individual file replacement is not a
+      transaction across a header/source pair; compiler-private generation
+      directories remain required for distinct type definitions.
+      Five tests pass: executable generated C in a quoted/space-containing
+      directory, rejected path-like type names, literal substitution of sed
+      metacharacters, failure preserving both previous files, and deterministic
+      overlapping generators that never expose templates. The checks run in
+      `test-impl`; shell syntax and six module-compiler tests pass (2026-09-11).
+- [ ] **5.0 generic-list runtime — capacity boundaries.** The generated C
+      doubles signed capacities without overflow checks and accepts negative
+      initial capacities. I must establish checked capacity arithmetic and
+      zero-capacity behavior separately from generator publication safety.
 - [x] **5.0 audit defect — typed filter dispatch.** My executable callback
       tests exposed float and string arrays routed to the integer filter
       helper. I select the helper from the array element type and retain

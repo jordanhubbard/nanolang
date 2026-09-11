@@ -15,10 +15,18 @@ fi
 TYPE_NAME="$1"
 OUTPUT_DIR="$2"
 TYPE_DEF="${3:-$TYPE_NAME}"  # Default to TypeName if not provided
+if [[ ! "$TYPE_NAME" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+    echo 'I require a C identifier as the list type name.' >&2
+    exit 1
+fi
 TYPE_NAME_UPPER=$(echo "$TYPE_NAME" | tr '[:lower:]' '[:upper:]')
 
-HEADER_FILE="$OUTPUT_DIR/list_$TYPE_NAME.h"
-SOURCE_FILE="$OUTPUT_DIR/list_$TYPE_NAME.c"
+# I never expose an unfinished template or share sed backup files with another
+# generator. Each rename publishes one complete file, not a two-file transaction.
+list_stage=$(mktemp -d "$OUTPUT_DIR/.nanolang-list.XXXXXX")
+trap 'rm -rf -- "$list_stage"' EXIT
+HEADER_FILE="$list_stage/list_$TYPE_NAME.h"
+SOURCE_FILE="$list_stage/list_$TYPE_NAME.c"
 
 # Generate header file
 cat > "$HEADER_FILE" << EOF
@@ -251,9 +259,12 @@ EOF
 
 # Replace TYPENAME and TYPE_DEF with actual values
 sed -i.bak "s|TYPENAME|$TYPE_NAME|g" "$SOURCE_FILE"
-sed -i.bak "s|\$TYPE_DEF|$TYPE_DEF|g" "$SOURCE_FILE"
-sed -i.bak "s|\$TYPE_NAME|$TYPE_NAME|g" "$HEADER_FILE"
-sed -i.bak "s|\$TYPE_DEF|$TYPE_DEF|g" "$HEADER_FILE"
+type_replacement=${TYPE_DEF//\\/\\\\}
+type_replacement=${type_replacement//&/\\&}
+type_replacement=${type_replacement//|/\\|}
+sed -i.bak "s|\$TYPE_DEF|$type_replacement|g" "$SOURCE_FILE"
 rm -f "$SOURCE_FILE.bak" "$HEADER_FILE.bak"
+mv -f -- "$HEADER_FILE" "$OUTPUT_DIR/list_$TYPE_NAME.h"
+mv -f -- "$SOURCE_FILE" "$OUTPUT_DIR/list_$TYPE_NAME.c"
 
 echo "Generated list_$TYPE_NAME.h and list_$TYPE_NAME.c in $OUTPUT_DIR"
