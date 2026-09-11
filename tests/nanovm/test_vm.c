@@ -3536,6 +3536,156 @@ static void test_add_array_array(void) {
     nvm_module_free(mod);
 }
 
+static void test_array_arithmetic_values(void) {
+    const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
+                             OP_ARRAY_ADD, OP_ARRAY_SUB, OP_ARRAY_MUL, OP_ARRAY_DIV};
+    for (unsigned op = 0; op < 8; op++) {
+        for (unsigned shape = 0; shape < 3; shape++) {
+            for (unsigned kind = 0; kind < 5; kind++) {
+                uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                                  (uint8_t)ops[op], OP_RET};
+                NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+                mod->functions[0].result_tag = TAG_ARRAY;
+                VmState vm;
+                vm_init(&vm, mod);
+                uint64_t baseline = vm.heap.stats.num_objects;
+                /* int/int, float/float, int/float, float/int, boxed mixed. */
+                NanoValue x = (kind == 1 || kind == 3) ? val_float(7.5) : val_int(7);
+                NanoValue y = (kind == 1 || kind == 2) ? val_float(2.5) : val_int(2);
+                VmArray *left = vm_array_new(&vm.heap, kind == 4 ? TAG_VOID : x.tag, 2);
+                VmArray *right = vm_array_new(&vm.heap, kind == 4 ? TAG_VOID : y.tag, 2);
+                ASSERT(vm_array_push(&vm.heap, left, x), "left element");
+                ASSERT(vm_array_push(&vm.heap, right, y), "right element");
+                ASSERT(vm_array_push(&vm.heap, left, kind == 4 ? val_float(7.5) : x), "left second");
+                ASSERT(vm_array_push(&vm.heap, right, kind == 4 ? val_float(2.5) : y), "right second");
+                NanoValue args[] = {shape == 2 ? x : val_array(left),
+                                    shape == 1 ? y : val_array(right)};
+                NanoValue output = val_void();
+                ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "vector invocation");
+                ASSERT_EQ_INT(output.tag, TAG_ARRAY, "array result");
+                ASSERT_EQ_INT(output.as.array->length, 2, "vector result length");
+                ASSERT_EQ_INT(output.as.array->elem_type,
+                              kind == 4 ? TAG_VOID : kind == 0 ? TAG_INT : TAG_FLOAT,
+                              "result storage type");
+                for (unsigned i = 0; i < 2; i++) {
+                    bool floating = kind != 0 && (kind != 4 || i == 1);
+                    double a = kind == 4 && i == 1 && shape != 2 ? 7.5 :
+                               x.tag == TAG_FLOAT ? x.as.f64 : (double)x.as.i64;
+                    double b = kind == 4 && i == 1 && shape != 1 ? 2.5 :
+                               y.tag == TAG_FLOAT ? y.as.f64 : (double)y.as.i64;
+                    double expected = op % 4 == 0 ? a + b : op % 4 == 1 ? a - b :
+                                      op % 4 == 2 ? a * b : a / b;
+                    NanoValue actual = vm_array_get(output.as.array, i);
+                    ASSERT_EQ_INT(actual.tag, floating ? TAG_FLOAT : TAG_INT, "element tag");
+                    if (floating) ASSERT_EQ_F64(actual.as.f64, expected, "fractional result");
+                    else ASSERT_EQ_INT(actual.as.i64, (int64_t)expected, "integer result");
+                }
+                vm_release(&vm.heap, output);
+                vm_release(&vm.heap, val_array(left));
+                vm_release(&vm.heap, val_array(right));
+                vm_gc_collect_cycles(&vm.heap);
+                ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "numeric cleanup");
+                vm_destroy(&vm);
+                nvm_module_free(mod);
+            }
+        }
+    }
+}
+
+static void test_array_arithmetic_boundaries(void) {
+    const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
+                             OP_ARRAY_ADD, OP_ARRAY_SUB, OP_ARRAY_MUL, OP_ARRAY_DIV};
+    const int64_t pairs[][2] = {{INT64_MAX, 1}, {INT64_MIN, -1}, {9, 0}};
+    const int64_t expected[][4] = {
+        {INT64_MIN, INT64_MAX - 1, INT64_MAX, INT64_MAX},
+        {INT64_MAX, INT64_MIN + 1, INT64_MIN, INT64_MIN},
+        {9, 9, 0, 0}
+    };
+    for (unsigned op = 0; op < 8; op++) {
+        for (unsigned shape = 0; shape < 3; shape++) {
+            for (unsigned pair = 0; pair < 3; pair++) {
+                uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                                  (uint8_t)ops[op], OP_RET};
+                NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+                mod->functions[0].result_tag = TAG_ARRAY;
+                VmState vm;
+                vm_init(&vm, mod);
+                uint64_t baseline = vm.heap.stats.num_objects;
+                NanoValue x = val_int(pairs[pair][0]), y = val_int(pairs[pair][1]);
+                VmArray *left = vm_array_new(&vm.heap, TAG_INT, 2);
+                VmArray *right = vm_array_new(&vm.heap, TAG_INT, 1);
+                ASSERT(vm_array_push(&vm.heap, left, x), "boundary left");
+                ASSERT(vm_array_push(&vm.heap, right, y), "boundary right");
+                /* The shorter-array rule must not inspect an unused tail. */
+                if (shape == 0) ASSERT(vm_array_push(&vm.heap, left, x), "longer left");
+                NanoValue args[] = {shape == 2 ? x : val_array(left),
+                                    shape == 1 ? y : val_array(right)};
+                NanoValue output = val_void();
+                ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "boundary invocation");
+                ASSERT_EQ_INT(output.as.array->length, 1, "shorter length");
+                ASSERT_EQ_INT(vm_array_get(output.as.array, 0).as.i64,
+                              expected[pair][op % 4], "wrapping and total integer arithmetic");
+                vm_release(&vm.heap, output);
+                left->length = right->length = 0; /* Packed integers own no references. */
+                ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "empty invocation");
+                ASSERT_EQ_INT(output.as.array->length, 0, "empty result");
+                ASSERT_EQ_INT(output.as.array->elem_type, TAG_INT, "empty type preserved");
+                vm_release(&vm.heap, output);
+                vm_release(&vm.heap, val_array(left));
+                vm_release(&vm.heap, val_array(right));
+                vm_gc_collect_cycles(&vm.heap);
+                ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "boundary cleanup");
+                vm_destroy(&vm);
+                nvm_module_free(mod);
+            }
+        }
+    }
+}
+
+static void test_array_arithmetic_strings(void) {
+    for (unsigned dedicated = 0; dedicated < 2; dedicated++) {
+        for (unsigned shape = 0; shape < 3; shape++) {
+            uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                              dedicated ? OP_ARRAY_ADD : OP_ADD, OP_RET};
+            NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+            mod->functions[0].result_tag = TAG_ARRAY;
+            VmState vm;
+            vm_init(&vm, mod);
+            uint64_t baseline = vm.heap.stats.num_objects;
+            NanoValue x = val_string(vm_string_new(&vm.heap, "left", 4));
+            NanoValue y = val_string(vm_string_new(&vm.heap, "right", 5));
+            VmArray *left = vm_array_new(&vm.heap, TAG_STRING, 1);
+            VmArray *right = vm_array_new(&vm.heap, TAG_STRING, 1);
+            ASSERT(vm_array_push(&vm.heap, left, x), "left string");
+            ASSERT(vm_array_push(&vm.heap, right, y), "right string");
+            NanoValue args[] = {shape == 2 ? x : val_array(left),
+                                shape == 1 ? y : val_array(right)};
+            NanoValue output = val_void();
+            ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "string vector");
+            ASSERT_EQ_INT(output.as.array->elem_type, TAG_STRING, "boxed string type");
+            NanoValue element = vm_array_get(output.as.array, 0);
+            ASSERT_EQ_INT(element.tag, TAG_STRING, "string element tag");
+            ASSERT_EQ_STR(vmstring_cstr(element.as.string), "leftright", "ordered concatenation");
+            ASSERT_EQ_INT(element.as.string->header.ref_count, 1, "one result owner");
+            vm_release(&vm.heap, output);
+            /* A bad second pair must fail without converting pointer payloads. */
+            ASSERT(vm_array_push(&vm.heap, left, val_bool(true)), "boxed invalid element");
+            ASSERT(vm_array_push(&vm.heap, right, y), "second right string");
+            args[0] = val_array(left);
+            ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_ERR_TYPE_ERROR,
+                          "reject unsupported element pair");
+            vm_release(&vm.heap, x);
+            vm_release(&vm.heap, y);
+            vm_release(&vm.heap, val_array(left));
+            vm_release(&vm.heap, val_array(right));
+            vm_gc_collect_cycles(&vm.heap);
+            ASSERT_EQ_INT(vm.heap.stats.num_objects, baseline, "string cleanup");
+            vm_destroy(&vm);
+            nvm_module_free(mod);
+        }
+    }
+}
+
 static void test_add_array_scalar(void) {
     /* OP_ADD with array + scalar → broadcast add */
     uint8_t code[64];
@@ -5081,6 +5231,9 @@ int main(void) {
     RUN_TEST(test_add_strings);
     RUN_TEST(test_add_array_array);
     RUN_TEST(test_add_array_scalar);
+    RUN_TEST(test_array_arithmetic_values);
+    RUN_TEST(test_array_arithmetic_boundaries);
+    RUN_TEST(test_array_arithmetic_strings);
 
     printf("\n[vm_error_string]\n");
     RUN_TEST(test_vm_error_string);

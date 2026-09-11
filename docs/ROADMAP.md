@@ -487,36 +487,35 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       the baseline live-object count. NanoVM, 32 protocol, eight protocol-fuzz
       and 18 FFI tests pass (2026-09-11). Not every builder failure branch has
       a dedicated injection test. Typed arithmetic storage remains separate.
-- [ ] **Formal audit — allocation failure boundaries.** Handlers that
-      append arrays currently call `void vm_array_push`, which silently drops
-      an append when buffer growth fails. I must return an explicit status,
-      propagate failure through VM instructions, aggregate builders and FFI
-      decoding, and test unchanged arrays and correct reference ownership.
-      Preventing an out-of-bounds write does not justify reporting success
-      after losing a value.
-      `cop_deserialize_value_impl` also returns from a failed array element
-      without releasing the partial array, and successful appends retain each
-      decoded element without releasing its temporary owned reference. I
-      require nested heap-value decode tests and truncated-later-element
-      cleanup tests, with heap object/reference accounting.
-      Nested decode ownership is now repaired: the 32 protocol tests pass,
-      including every truncated prefix of a nested string-array message,
-      single-owner decoded references and zero live objects after release
-      and cycle collection. String/array allocation failures return failure.
-      Status-returning array append and its remaining caller migration are
-      still open; decoding preallocates the declared element capacity.
-      Array arithmetic currently allocates `TAG_INT` result storage even for
-      float/string elements. I must preserve result element types and release
-      newly allocated string results after array insertion; passing numeric
-      integer examples does not validate float/string vector behavior.
-      ignore failed pushes still need preflight or
-      ownership-safe failure propagation. Embedding arguments that alias VM
-      stack storage follow the relocation/aliasing contract above.
-      constructors dereference allocation results without checking them, and
-      many handlers ignore `stack_push` failure. I require deterministic
-      allocation-failure tests and correct ownership cleanup before claiming
-      recoverable memory exhaustion. I track this with the runtime boundary
-      task `task_0ba46839aee94135aaa99a9b7c207499`.
+- [x] **Formal audit defect — typed vector arithmetic.** I replaced eight
+      duplicated array/broadcast paths with one borrowed-input, owned-result
+      implementation. I validate participating element pairs before allocation,
+      preserve packed int/float results and boxed string/mixed results, release
+      temporary strings after insertion, and keep scalar operand order and the
+      shorter-array rule. Vector integer operations wrap without signed C
+      overflow; division is total at zero and `INT64_MIN / -1`.
+      Tests cover both opcode families, three operand shapes, five numeric
+      representations, strings and ownership, unsupported element pairs,
+      integer boundaries, empty results and injected allocation failure with
+      successful retry. `make test-nanovm` passes 272,125 assertions plus the
+      allocation-failure suites; all 18 FFI tests pass (2026-09-11).
+      This is tested implementation behavior, not a VM refinement proof.
+- [ ] **Formal audit — allocation failure boundaries.** I repaired explicit
+      array append failure and migrated production callers. Nested decode
+      ownership passes 32 protocol tests, including truncated nested messages,
+      single-owner decoded references and collection back to baseline.
+      Typed vector storage and temporary string ownership are repaired above.
+      Other constructors and handlers still need allocation-result checks,
+      preflight or ownership-safe failure propagation. Embedding arguments
+      follow the relocation/aliasing contract above. I require deterministic
+      failure tests before claiming recoverable memory exhaustion. I track
+      this with runtime boundary task
+      `task_0ba46839aee94135aaa99a9b7c207499`.
+- [ ] **Formal audit — remaining arithmetic boundaries.** Scalar dynamic
+      ADD/SUB/MUL still use signed C operations instead of explicit wrapping.
+      String concatenation adds two 32-bit lengths before allocation without
+      an overflow guard. I must test and repair these boundaries separately;
+      passing vector tests does not establish scalar or string-size safety.
 - [x] **Formal audit defect — call argument boundaries.** Direct, tail,
       linked-module, indirect and foreign calls check frame-relative operands
       before consuming arguments or changing frames. Indirect calls retain

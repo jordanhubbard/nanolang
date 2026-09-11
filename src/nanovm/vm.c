@@ -54,6 +54,100 @@ const char *vm_error_string(VmResult result) {
     return "Unknown error";
 }
 
+/* Vector arithmetic borrows operands and returns one owned array. Validate
+ * every participating pair before allocating; preserve the existing shorter-
+ * array rule and scalar operand order. Mixed result tags use boxed storage. */
+static uint8_t arithmetic_pair_tag(NanoOpcode op, NanoValue a, NanoValue b) {
+    if (a.tag == TAG_INT && b.tag == TAG_INT) return TAG_INT;
+    if ((a.tag == TAG_INT || a.tag == TAG_FLOAT) &&
+        (b.tag == TAG_INT || b.tag == TAG_FLOAT)) return TAG_FLOAT;
+    if (op == OP_ADD && a.tag == TAG_STRING && b.tag == TAG_STRING &&
+        a.as.string && b.as.string) return TAG_STRING;
+    return TAG_VOID;
+}
+
+static VmResult vm_array_arithmetic(VmState *vm, NanoOpcode op,
+                                    NanoValue a, NanoValue b, NanoValue *out) {
+    VmArray *left = a.tag == TAG_ARRAY ? a.as.array : NULL;
+    VmArray *right = b.tag == TAG_ARRAY ? b.as.array : NULL;
+    if ((a.tag == TAG_ARRAY && !left) || (b.tag == TAG_ARRAY && !right))
+        return VM_ERR_TYPE_ERROR;
+    if ((!left && a.tag != TAG_INT && a.tag != TAG_FLOAT &&
+         !(op == OP_ADD && a.tag == TAG_STRING && a.as.string)) ||
+        (!right && b.tag != TAG_INT && b.tag != TAG_FLOAT &&
+         !(op == OP_ADD && b.tag == TAG_STRING && b.as.string)) ||
+        (!left && !right))
+        return VM_ERR_TYPE_ERROR;
+    uint32_t len = left ? left->length : right->length;
+    if (left && right && right->length < len) len = right->length;
+    uint8_t result_tag = TAG_VOID;
+    bool mixed = false;
+    for (uint32_t i = 0; i < len; i++) {
+        NanoValue ea = left ? vm_array_get(left, i) : a;
+        NanoValue eb = right ? vm_array_get(right, i) : b;
+        uint8_t tag = arithmetic_pair_tag(op, ea, eb);
+        if (tag == TAG_VOID) return VM_ERR_TYPE_ERROR;
+        if (i == 0) result_tag = tag;
+        else if (tag != result_tag) mixed = true;
+    }
+    /* Empty typed numeric/string arrays still carry a useful result type. */
+    if (!len) {
+        NanoValue ea = left ? val_void() : a;
+        NanoValue eb = right ? val_void() : b;
+        if (left) ea.tag = left->elem_type;
+        if (right) eb.tag = right->elem_type;
+        if (ea.tag == TAG_STRING && eb.tag == TAG_STRING && op == OP_ADD)
+            result_tag = TAG_STRING;
+        else
+            result_tag = arithmetic_pair_tag(op, ea, eb);
+    }
+    VmArray *result = vm_array_new(&vm->heap, mixed ? TAG_VOID : result_tag, len);
+    if (!result) return VM_ERR_MEMORY;
+    for (uint32_t i = 0; i < len; i++) {
+        NanoValue ea = left ? vm_array_get(left, i) : a;
+        NanoValue eb = right ? vm_array_get(right, i) : b;
+        NanoValue value;
+        uint8_t tag = arithmetic_pair_tag(op, ea, eb);
+        if (tag == TAG_STRING) {
+            VmString *s = vm_string_concat(&vm->heap, ea.as.string, eb.as.string);
+            if (!s) {
+                vm_release(&vm->heap, val_array(result));
+                return VM_ERR_MEMORY;
+            }
+            value = val_string(s);
+        } else if (tag == TAG_INT) {
+            uint64_t x = (uint64_t)ea.as.i64, y = (uint64_t)eb.as.i64;
+            switch (op) {
+                case OP_ADD: value = val_int((int64_t)(x + y)); break;
+                case OP_SUB: value = val_int((int64_t)(x - y)); break;
+                case OP_MUL: value = val_int((int64_t)(x * y)); break;
+                default:
+                    value = val_int(eb.as.i64 == 0 ? 0 :
+                        (ea.as.i64 == INT64_MIN && eb.as.i64 == -1) ?
+                        INT64_MIN : ea.as.i64 / eb.as.i64);
+                    break;
+            }
+        } else {
+            double x = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
+            double y = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
+            switch (op) {
+                case OP_ADD: value = val_float(x + y); break;
+                case OP_SUB: value = val_float(x - y); break;
+                case OP_MUL: value = val_float(x * y); break;
+                default: value = val_float(y == 0.0 ? 0.0 : x / y); break;
+            }
+        }
+        bool appended = vm_array_push(&vm->heap, result, value);
+        vm_release(&vm->heap, value); /* The array retains heap values. */
+        if (!appended) {
+            vm_release(&vm->heap, val_array(result));
+            return VM_ERR_MEMORY;
+        }
+    }
+    *out = val_array(result);
+    return VM_OK;
+}
+
 /* ========================================================================
  * Init / Destroy
  * ======================================================================== */
@@ -1584,97 +1678,16 @@ dynamic_add:
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
                 stack_push(vm, val_string(s));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                /* Element-wise array addition (supports int, float, string) */
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_STRING && eb.tag == TAG_STRING) {
-                        VmString *s = vm_string_concat(&vm->heap, ea.as.string, eb.as.string);
-                        ev = val_string(s);
-                    } else if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 + eb.as.i64);
-                    else if (ea.tag == TAG_FLOAT && eb.tag == TAG_FLOAT)
-                        ev = val_float(ea.as.f64 + eb.as.f64);
-                    else if (ea.tag == TAG_FLOAT && eb.tag == TAG_INT)
-                        ev = val_float(ea.as.f64 + (double)eb.as.i64);
-                    else if (ea.tag == TAG_INT && eb.tag == TAG_FLOAT)
-                        ev = val_float((double)ea.as.i64 + eb.as.f64);
-                    else
-                        ev = val_int(ea.as.i64 + eb.as.i64);
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_ADD, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY &&
-                        (b.tag == TAG_INT || b.tag == TAG_FLOAT || b.tag == TAG_STRING)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT || a.tag == TAG_STRING) &&
-                        b.tag == TAG_ARRAY)) {
-                /* Scalar broadcast: array + scalar or scalar + array */
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_STRING && scalar.tag == TAG_STRING) {
-                        /* String concat broadcast */
-                        if (a.tag == TAG_ARRAY) {
-                            VmString *s = vm_string_concat(&vm->heap, ea.as.string, scalar.as.string);
-                            ev = val_string(s);
-                        } else {
-                            VmString *s = vm_string_concat(&vm->heap, scalar.as.string, ea.as.string);
-                            ev = val_string(s);
-                        }
-                    } else if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 + scalar.as.i64);
-                    else if (ea.tag == TAG_FLOAT || scalar.tag == TAG_FLOAT) {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                        ev = val_float(da + ds);
-                    } else
-                        ev = val_int(ea.as.i64 + scalar.as.i64);
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1705,79 +1718,16 @@ dynamic_sub:
                 stack_push(vm, val_float(a.as.f64 - (double)b.as.i64));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float((double)a.as.i64 - b.as.f64));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 - eb.as.i64);
-                    else if (ea.tag == TAG_FLOAT || eb.tag == TAG_FLOAT) {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
-                        ev = val_float(da - db);
-                    } else
-                        ev = val_int(ea.as.i64 - eb.as.i64);
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_SUB, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY && (b.tag == TAG_INT || b.tag == TAG_FLOAT)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT) && b.tag == TAG_ARRAY)) {
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                bool arr_is_left = (a.tag == TAG_ARRAY);
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                    double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                    double dr = arr_is_left ? da - ds : ds - da;
-                    if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
-                        ev = val_int(arr_is_left ? ea.as.i64 - scalar.as.i64 : scalar.as.i64 - ea.as.i64);
-                    else
-                        ev = val_float(dr);
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "SUB: type error");
             }
@@ -1805,78 +1755,16 @@ dynamic_mul:
                 stack_push(vm, val_float(a.as.f64 * (double)b.as.i64));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float((double)a.as.i64 * b.as.f64));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 * eb.as.i64);
-                    else if (ea.tag == TAG_FLOAT || eb.tag == TAG_FLOAT) {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
-                        ev = val_float(da * db);
-                    } else
-                        ev = val_int(ea.as.i64 * eb.as.i64);
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_MUL, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY && (b.tag == TAG_INT || b.tag == TAG_FLOAT)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT) && b.tag == TAG_ARRAY)) {
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 * scalar.as.i64);
-                    else {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                        ev = val_float(da * ds);
-                    }
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "MUL: type error");
             }
@@ -1911,83 +1799,16 @@ dynamic_div:
                 stack_push(vm, val_float(b.as.i64 == 0 ? 0.0 : a.as.f64 / (double)b.as.i64));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(b.as.f64 == 0.0 ? 0.0 : (double)a.as.i64 / b.as.f64));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(eb.as.i64 == 0 ? 0 : ea.as.i64 / eb.as.i64);
-                    else {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
-                        ev = val_float(db == 0.0 ? 0.0 : da / db);
-                    }
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_DIV, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY && (b.tag == TAG_INT || b.tag == TAG_FLOAT)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT) && b.tag == TAG_ARRAY)) {
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                bool arr_is_left = (a.tag == TAG_ARRAY);
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                if (!result) {
-                    vm_release(&vm->heap, a);
-                    vm_release(&vm->heap, b);
-                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
-                }
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                    double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                    if (ea.tag == TAG_INT && scalar.tag == TAG_INT) {
-                        if (arr_is_left)
-                            ev = val_int(scalar.as.i64 == 0 ? 0 : ea.as.i64 / scalar.as.i64);
-                        else
-                            ev = val_int(ea.as.i64 == 0 ? 0 : scalar.as.i64 / ea.as.i64);
-                    } else {
-                        double dr = arr_is_left ? (ds == 0.0 ? 0.0 : da / ds)
-                                                : (da == 0.0 ? 0.0 : ds / da);
-                        ev = val_float(dr);
-                    }
-                    if (!vm_array_push(&vm->heap, result, ev)) {
-                        vm_release(&vm->heap, ev);
-                        vm_release(&vm->heap, val_array(result));
-                        vm_release(&vm->heap, a);
-                        vm_release(&vm->heap, b);
-                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
-                    }
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "DIV: type error");
             }

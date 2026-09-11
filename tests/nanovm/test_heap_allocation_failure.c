@@ -30,6 +30,44 @@ static void *heap_test_realloc(void *pointer, size_t size) {
 int g_argc;
 char **g_argv;
 
+static void test_arithmetic_allocation_failure(void) {
+    const uint8_t ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
+                          OP_ARRAY_ADD, OP_ARRAY_SUB, OP_ARRAY_MUL, OP_ARRAY_DIV};
+    for (unsigned i = 0; i < sizeof(ops); i++) {
+        uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0, ops[i], OP_RET};
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.arity = 2, .local_count = 2,
+                               .result_count = 1, .result_tag = TAG_ARRAY};
+        fn.name_idx = nvm_add_string(module, "arithmetic", 10);
+        fn.code_offset = nvm_append_code(module, code, sizeof(code));
+        fn.code_length = sizeof(code);
+        nvm_add_function(module, &fn);
+        VmState vm;
+        vm_init(&vm, module);
+        uint64_t baseline = vm.heap.stats.num_objects;
+        VmArray *array = vm_array_new(&vm.heap, TAG_FLOAT, 1);
+        assert(vm_array_push(&vm.heap, array, val_float(4.5)));
+        for (unsigned shape = 0; shape < 3; shape++) {
+            NanoValue args[] = {shape == 2 ? val_float(2.5) : val_array(array),
+                                shape == 1 ? val_float(2.5) : val_array(array)};
+            NanoValue output = val_void();
+            reject_calloc = true;
+            assert(vm_invoke(&vm, 0, args, 2, &output) == VM_ERR_MEMORY);
+            reject_calloc = false;
+            assert(array->header.ref_count == 1 && array->length == 1);
+            assert(vm_array_get(array, 0).as.f64 == 4.5);
+            assert(vm_invoke(&vm, 0, args, 2, &output) == VM_OK);
+            assert(output.tag == TAG_ARRAY && output.as.array->elem_type == TAG_FLOAT);
+            vm_release(&vm.heap, output);
+        }
+        vm_release(&vm.heap, val_array(array));
+        vm_gc_collect_cycles(&vm.heap);
+        assert(vm.heap.stats.num_objects == baseline);
+        vm_destroy(&vm);
+        nvm_module_free(module);
+    }
+}
+
 static void test_append_failure(void) {
     uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0, OP_ARR_PUSH, OP_RET};
     NvmModule *module = nvm_module_new();
@@ -157,6 +195,7 @@ int main(void) {
     vm_heap_destroy(&heap);
     test_constructor_traps();
     test_append_failure();
+    test_arithmetic_allocation_failure();
     puts("I passed struct/union field-allocation failure and recovery checks.");
     return 0;
 }
