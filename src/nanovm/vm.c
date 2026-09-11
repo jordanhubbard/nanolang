@@ -1245,6 +1245,18 @@ vm_dispatch_top:
         if (vm->opcode_trace)
             vm_trace_instruction(vm, instr_start, &instr, stack_before);
 
+        /* Check the whole fixed input requirement before a handler mutates
+         * anything. A guarded pop alone cannot reject an operation atomically,
+         * and the caller's values and frame locals are not operands. */
+        if (!vm->verified) {
+            const InstructionInfo *info = isa_get_info(instr.opcode);
+            if (info && info->pop_count > 0
+                    && !stack_has_operands(vm, (uint32_t)info->pop_count))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need %d operands for %s.",
+                                  info->pop_count, info->name);
+        }
+
         /* Private superinstructions run before the portable opcode switch.
          * They are an internal fusion of already-verified steps, so they
          * reproduce the exact stack, heap, and ownership effects of the

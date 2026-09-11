@@ -340,7 +340,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       including 34 underflows and frames with locals (2026-09-11). Broader
       execution semantics and prover exports remain unverified; this trial
       is not a complete ISA model.
-- [ ] **Formal audit — Sail/Rocq export boundary.** I exercise the pinned
+- [x] **Formal audit — Sail/Rocq export boundary.** I exercise the pinned
       Sail Rocq backend on my actual stack model, inspect its definitions and
       required support-library imports, then pin that library and compile the
       generated development with Rocq. Generation alone does not complete
@@ -354,12 +354,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       `task_c692a020a81a4b11bea6d7c99f98689e` tracks export and proof checking.
       A whole-pattern annotation also fails. Separating the opcode byte
       from its payload before matching it now permits actual Rocq export.
-      The emitted decoder and executor import SailStdpp; generated definitions
-      still need Rocq compilation, model lemmas, and assumption checking.
+      The emitted decoder and executor import SailStdpp.
       `--rocq-check` now provisions exact support-package versions in the
       disposable proof container and attempts compilation, eight stack laws,
-      assumption reports, and independent `coqchk`. This check is running;
-      no successful Rocq result is recorded yet.
+      assumption reports, and independent `coqchk`.
       I also make the runner reject missing or axiom-bearing assumption
       reports, reusing the existing NanoCore checker with an explicit Sail
       theorem inventory; printing assumptions alone is not a proof gate.
@@ -368,6 +366,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       report also passed the shared checker. The outer shell failed after a
       live edit of its runner; I require an unchanged-script rerun before
       marking the end-to-end check complete. Twelve proof-gate tests pass.
+      The frozen rerun exited zero on 2026-09-11: generated definitions and
+      eight lemmas compiled, all eight named reports were closed and accepted
+      by the shared checker, and independent `coqchk` succeeded. Decoder
+      correctness and VM refinement remain separate, unproved obligations.
 - [x] **Formal audit defect — stack-slice underflow.** My unverified VM
       silently accepted insufficient operands for `DUP`, `POP`, and `SWAP`.
       These operations now trap without consuming locals or caller values.
@@ -381,7 +383,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       prefixes, including indexed depths zero and 65,535, and check that
       every surviving operand remains unchanged. `make test-nanovm` passes
       1,360 assertions (2026-09-11). This does not close the broader audit.
-- [ ] **Formal audit — remaining unchecked boundaries.** I audit the
+- [x] **Formal audit defect — fixed-effect operand preflight.** I check
+      fixed input requirements using existing ISA metadata before dispatch
+      of unverified instructions, before handlers can consume locals or caller
+      values. I test every operand-free primary instruction with a positive
+      fixed requirement on insufficient stacks, including preservation of
+      remaining operands. `make test-nanovm` passes 6,801 assertions
+      (2026-09-11). These tests rely on the declared metadata; they do not
+      prove that every handler agrees with it.
+- [ ] **Formal audit — remaining unchecked boundaries.** Dynamic-effect
+      handlers still require their own count and shape checks. I audit the
       remaining checked stack handlers, which still
       return void or skip operations on some insufficient-operand paths.
       I establish a consistent failure contract, preserve frame boundaries,

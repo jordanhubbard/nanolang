@@ -4690,11 +4690,21 @@ static void test_verified_flag_tracks_module_lifecycle(void) {
 
 /* I reject missing operands before touching locals or a caller's stack. */
 static void test_stack_slice_underflow(void) {
-    const NanoOpcode ops[] = {OP_DUP, OP_POP, OP_SWAP, OP_ROT3,
+    NanoOpcode ops[256] = {OP_DUP, OP_POP, OP_SWAP, OP_ROT3,
                               OP_PICK, OP_ROLL, OP_PICK, OP_ROLL,
                               OP_PICK, OP_ROLL};
-    const unsigned required[] = {1, 1, 2, 3, 3, 3, 1, 1, 65536, 65536};
-    for (size_t op = 0; op < sizeof(ops) / sizeof(ops[0]); op++) {
+    unsigned required[256] = {1, 1, 2, 3, 3, 3, 1, 1, 65536, 65536};
+    size_t count = 10;
+    for (unsigned opcode = 0; opcode < NANOISA_PRIMARY_OPCODE_LIMIT; opcode++) {
+        const InstructionInfo *info = isa_get_info((uint8_t)opcode);
+        if (!info || info->operand_count || info->pop_count <= 0) continue;
+        if (opcode == OP_DUP || opcode == OP_POP || opcode == OP_SWAP
+                || opcode == OP_ROT3) continue;
+        ops[count] = (NanoOpcode)opcode;
+        required[count++] = (unsigned)info->pop_count;
+    }
+    ASSERT(count > 50, "I exercise fixed-effect handler families, not just stack shuffles");
+    for (size_t op = 0; op < count; op++) {
         unsigned needed = required[op];
         for (unsigned depth = 0; depth < needed && depth <= 3; depth++) {
             for (unsigned locals = 0; locals <= 2; locals += 2) {

@@ -74,13 +74,17 @@ agreement with actual NanoVM integer stack execution, including 34 underflows
 and frame-local boundaries. This exposed and repaired silent underflow in
 three unverified VM handlers. This is not an ISA refinement proof.
 The next acceptance evidence is broader integer arithmetic, control flow,
-trap semantics, and a validated prover export.
+trap semantics, and implementation correspondence.
 An actual Rocq export attempt exposed a Sail 0.20.2 internal rewriting
 failure on my decoder's literal-byte list pattern. Splitting out the opcode
 byte before matching it permits export without upgrading Sail or narrowing
 the instruction slice. The export-only command and unsuccessful annotation
-experiments are recorded in the trial README. Generated definitions import
-SailStdpp; compiling them and checking useful lemmas and assumptions remain
-required before I claim a checked Rocq model.
+experiments are recorded in the trial README. On 2026-09-11 the pinned
+`--rocq-check` command exited zero: generated definitions compiled against
+versioned SailStdpp support, eight stack-model lemmas compiled with closed
+assumption reports, the named-inventory checker passed, and independent
+`coqchk` succeeded. This validates this bounded Rocq model development, not
+decoder correctness or refinement to my C VM. I retain Rocq rather than
+duplicating these proofs in another framework without a concrete need.
 The broader language contract, native service runtime, scoped FFI and release
 controls remain in [my roadmap](ROADMAP.md).

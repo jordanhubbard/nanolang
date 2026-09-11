@@ -61,9 +61,9 @@ recorded in my roadmap. These checks are not a general VM safety proof.
 I do not treat `None` for an unsupported opcode as proof that the opcode is
 invalid in NanoISA. Opcode constants remain manually declared, but their numbers
 and operand counts are checked against `spec/nanoisa.yaml` before each run.
-Broader execution semantics and prover exports remain mandatory
-before adoption. No Lean, Rocq, Isabelle, or HOL4 export has been
-validated for this model yet.
+Broader execution semantics remain mandatory before adoption. My Rocq export
+and eight bounded-model lemmas are checked below. I have not validated Lean,
+Isabelle, or HOL4 exports for this model.
 
 I can reproduce the Rocq export attempt independently of the native corpus:
 
@@ -88,7 +88,7 @@ agreement checks, not proofs of equivalence for all inputs.
 
 Sail's [Rocq support library](https://github.com/rems-project/coq-sail) is a
 separate dependency; my pinned NanoCore proof image does not contain it.
-I attempt the complete model check with:
+I reproduce the bounded model check with:
 
 ```sh
 bash scripts/check_sail_container.sh --rocq-check
@@ -101,12 +101,13 @@ inside the disposable container. It compiles the generated definitions and
 failure-rejecting checker as NanoCore, and runs independent `coqchk`.
 The lemmas concern identity, push/pop and dup/pop cancellation, swap reversal,
 and underflow in the generated model. They do not state VM refinement.
-On 2026-09-11 the generated files and eight lemmas compiled, all eight reports
-were closed under the global context, and independent `coqchk` reported that
-the modules were successfully checked. The shared assumption checker also
-accepted a fresh report in that prover environment. The outer runner then
-failed after its file was edited during execution; a clean, unchanged-runner
-rerun remains required before I record end-to-end gate success.
+On 2026-09-11 a clean run of this command exited zero: the generated files and
+eight lemmas compiled, all eight reports were closed under the global context,
+the shared assumption checker accepted the complete named inventory, and
+independent `coqchk` succeeded. This unchanged-runner execution supersedes an
+earlier run whose outer shell failed after its script was edited while running.
+The checked lemmas cover only the five-instruction integer-stack model. Decoder
+correctness for all inputs and refinement to my C VM remain unproved.
 I do not upgrade the model's proof claim because the C backend works.
 
 My [tooling decision](../../docs/FORMAL_TOOLING_DECISION.md) records what I
