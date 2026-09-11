@@ -453,6 +453,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       growth and invalid slices without ownership changes. `make test-nanovm`
       passes (2026-09-11).
 - [ ] **Formal audit — allocation failure boundaries.** Handlers that
+      append arrays currently call `void vm_array_push`, which silently drops
+      an append when buffer growth fails. I must return an explicit status,
+      propagate failure through VM instructions, aggregate builders and FFI
+      decoding, and test unchanged arrays and correct reference ownership.
+      Preventing an out-of-bounds write does not justify reporting success
+      after losing a value.
       ignore failed pushes still need preflight or
       ownership-safe failure propagation. Embedding arguments that alias VM
       stack storage follow the relocation/aliasing contract above.
