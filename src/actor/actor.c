@@ -460,12 +460,17 @@ static int parse_program(Cc *cc) {
         }
         if (eat(cc, TK_ACTOR)) {
             ActorDef *a;
+            size_t actor_name_len;
             if (!have(cc, TK_ID)) return cc_fail(cc, "I expected an actor name");
             if (cc->nactor >= AC_MAX) return cc_fail(cc, "I refuse too many actors");
+            actor_name_len = strlen(cc->tok.name);
+            if (actor_name_len > AC_NAME - 5)
+                return cc_fail(cc, "I refuse an actor name longer than %d bytes", AC_NAME - 5);
             a = &cc->actors[cc->nactor++];
             memset(a, 0, sizeof *a);
             snprintf(a->name, sizeof a->name, "%s", cc->tok.name);
-            snprintf(a->asm_name, sizeof a->asm_name, "act_%s", cc->tok.name);
+            memcpy(a->asm_name, "act_", 4);
+            memcpy(a->asm_name + 4, cc->tok.name, actor_name_len + 1);
             lex(cc);
             if (!eat(cc, TK_LBRACE)) return cc_fail(cc, "I expected '{'");
             if (eat(cc, TK_STATE)) {
@@ -1093,7 +1098,7 @@ static int run_sys(Cc *cc, NvmModule *mod, int64_t *out) {
     }
     for (i = 0; i < cc->nstmt; i++) {
         Stmt *s = &cc->stmts[i];
-        int64_t pid, v = 0;
+        int64_t pid = 0, v = 0;
         if (s->kind == ST_SPAWN) {
             if (spawn_actor(&sy, s->actor, &pid) < 0) return -1;
             if (bind_local(&sy, s->name, pid) < 0) return sys_fail(cc, "too many names");
