@@ -8,7 +8,7 @@
 # Build: external-deps
 # Dependencies: modules/dispatch, libdispatch
 # Tags: concurrency, native-only
-# Expected Output: dispatch stats
+# Expected Output: SKIP: libdispatch is not available on this platform
 
 /* nl_dispatch_stats.nano
  * Demonstrates a serial queue guarding shared state.

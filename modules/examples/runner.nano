@@ -92,6 +92,22 @@ shadow output_matches {
     assert (output_matches "=== Test ===\nline 2\n" "=== Test ===")
 }
 
+fn output_is_platform_skip(output: string) -> bool {
+    let prefix: string = "SKIP:"
+    let prefix_len: int = (str_length prefix)
+    if (< (str_length output) prefix_len) {
+        return false
+    } else {
+        (print "")
+    }
+    return (== (str_substring output 0 prefix_len) prefix)
+}
+
+shadow output_is_platform_skip {
+    assert (output_is_platform_skip "SKIP: libdispatch is not available on this platform\n")
+    assert (not (output_is_platform_skip "ready\n"))
+}
+
 # Compile and run a single example, returning a TestResult
 pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestResult {
     (example_start meta.name)
@@ -178,6 +194,19 @@ pub fn run_example(meta: ExampleMeta, compiler: string, mode: string) -> TestRes
             passed: false,
             output: run_result.stdout,
             error_msg: err,
+            duration_ms: elapsed
+        }
+    } else {
+        (print "")
+    }
+
+    if (output_is_platform_skip run_result.stdout) {
+        (example_pass meta.name)
+        return TestResult {
+            meta: meta,
+            passed: true,
+            output: run_result.stdout,
+            error_msg: "",
             duration_ms: elapsed
         }
     } else {

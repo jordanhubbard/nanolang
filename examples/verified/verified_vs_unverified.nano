@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: trust-report, verified-boundary, shadow-tested
-# Expected Output: a concise trust-boundary comparison
+# Expected Output: Trust report, not naming, decides the boundary:
 
 /*
  * The names below describe implementation style, not theorem results.

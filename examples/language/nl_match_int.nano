@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: match, shadow-tested
-# Expected Output: integer match
+# Expected Output: Sunday
 
 /* nl_match_int.nano
  * Demonstrates integer literal pattern matching in match expressions.

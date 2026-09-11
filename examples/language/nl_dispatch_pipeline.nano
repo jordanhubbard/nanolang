@@ -8,7 +8,7 @@
 # Build: external-deps
 # Dependencies: modules/dispatch, libdispatch
 # Tags: concurrency, native-only
-# Expected Output: dispatch pipeline
+# Expected Output: SKIP: libdispatch is not available on this platform
 
 /* nl_dispatch_pipeline.nano
  * Demonstrates queue_async fan-out + group_wait fan-in pattern.

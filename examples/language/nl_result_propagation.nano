@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: result, error-handling, shadow-tested
-# Expected Output: PASS
+# Expected Output: sqrt(100/4) = 5
 
 union Result {
     Ok { val: int },

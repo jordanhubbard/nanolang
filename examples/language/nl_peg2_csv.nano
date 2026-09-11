@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: modules/std/peg2
 # Tags: parser, peg2
-# Expected Output: CSV parse
+# Expected Output: === peg2 CSV Parser Demo ===
 
 /*
  * nl_peg2_csv.nano — Parse CSV using the intrinsic PEG grammar module

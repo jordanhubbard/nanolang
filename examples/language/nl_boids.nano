@@ -4,7 +4,11 @@
 # Difficulty: Advanced
 # Category: language
 # Prerequisites: nl_hello, nl_arrays, nl_structs, nl_floats
-# Expected Output: interactive
+# Track: showcase
+# Build: local
+# Dependencies: none
+# Tags: shadow-tested
+# Expected Output: ╔════════════════════════════════════╗
 
 from "std/math/vector2d.nano" import vec_new, vec_length
 
@@ -57,7 +61,7 @@ shadow float_to_string {
 }
 
 fn main() -> int {
-    (println "\n╔════════════════════════════════════╗")
+    (println "╔════════════════════════════════════╗")
     (println "║    BOIDS - Flocking Simulation    ║")
     (println "╚════════════════════════════════════╝\n")
     (println (+ "Configuration: " (+ (int_to_string NUM_BOIDS) (+ " boids, max speed " (float_to_string MAX_SPEED)))))
@@ -232,4 +236,3 @@ fn main() -> int {
 shadow main {
     assert (== (main) 0)
 }
-

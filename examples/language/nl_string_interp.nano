@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: strings, shadow-tested
-# Expected Output: string interpolation
+# Expected Output: Hello, world!
 
 # nl_string_interp.nano - demonstrates f-string interpolation
 #

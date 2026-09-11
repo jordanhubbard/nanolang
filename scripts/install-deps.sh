@@ -49,7 +49,7 @@ echo -e "Detected package manager: ${GREEN}$PKG_MGR${NC}"
 echo ""
 
 # Parse modules and collect packages to install
-PACKAGES_TO_INSTALL=$(python3 << 'PYTHON_SCRIPT'
+PACKAGES_TO_INSTALL=$(python3 - "$PKG_MGR" << 'PYTHON_SCRIPT'
 import json
 import sys
 import os
@@ -72,9 +72,12 @@ for module in data.get('modules', []):
 
     system_deps = deps.get('system', [])
     for dep in system_deps:
-        if 'install' in dep and pkg_mgr in dep['install']:
-            pkg_name = dep['install'][pkg_mgr]
-            packages.add(pkg_name)
+        install = dep.get('install', {})
+        if pkg_mgr in install:
+            packages.add(install[pkg_mgr])
+        elif pkg_mgr == 'pacman' and dep.get('id'):
+            # Arch package names normally match the pkg-config dependency id.
+            packages.add(dep['id'])
 
 # Method 2: Check individual module.json files for install field (new format)
 for module in data.get('modules', []):
@@ -94,9 +97,13 @@ for module in data.get('modules', []):
     install_info = mod_manifest.get('install', {})
 
     # Check for platform-specific install info
-    if 'linux' in install_info and pkg_mgr == 'apt':
-        if 'apt' in install_info['linux']:
-            packages.add(install_info['linux']['apt'])
+    if 'linux' in install_info and pkg_mgr in ('apt', 'pacman'):
+        linux_install = install_info['linux']
+        if pkg_mgr in linux_install:
+            packages.add(linux_install[pkg_mgr])
+        elif pkg_mgr == 'pacman':
+            for pkg_name in mod_manifest.get('system_packages', []):
+                packages.add(pkg_name)
     elif 'macos' in install_info and pkg_mgr == 'brew':
         if 'brew' in install_info['macos']:
             packages.add(install_info['macos']['brew'])
