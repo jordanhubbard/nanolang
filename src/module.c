@@ -1394,13 +1394,24 @@ bool compile_module_to_object(const char *module_path,
     snprintf(error_cmd, sizeof(error_cmd), "%s 2>&1", compile_cmd);
     FILE *pipe = popen(error_cmd, "r");
     char error_output[4096] = {0};
+    int result = -1;
     if (pipe) {
-        size_t bytes_read = fread(error_output, 1, sizeof(error_output) - 1, pipe);
-        error_output[bytes_read] = '\0';
-        pclose(pipe);
+        /* I retain a bounded diagnostic prefix but drain the entire pipe so
+         * a verbose child cannot block while I wait for its exit status. */
+        char chunk[4096];
+        size_t retained = 0;
+        size_t bytes_read;
+        while ((bytes_read = fread(chunk, 1, sizeof(chunk), pipe)) > 0) {
+            size_t available = sizeof(error_output) - 1 - retained;
+            size_t copied = bytes_read < available ? bytes_read : available;
+            memcpy(error_output + retained, chunk, copied);
+            retained += copied;
+        }
+        error_output[retained] = '\0';
+        bool read_failed = ferror(pipe) != 0;
+        result = pclose(pipe);
+        if (read_failed) result = -1;
     }
-    
-    int result = system(compile_cmd);
     
     if (result != 0) {
         fprintf(stderr, "Error: Failed to compile module '%s' to object file\n", module_path);

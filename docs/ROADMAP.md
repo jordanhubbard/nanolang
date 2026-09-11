@@ -230,15 +230,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       return types. Compiled trim/character and user-function equality and
       inequality cases pass on both compilers. The broader inference audit
       remains open under MAC `task_e7a7395191d44cf793d684e21ea16a79`.
-- [ ] **5.0 audit defect — string-call concatenation.** Stage-two bootstrap
+- [x] **5.0 audit defect — string-call concatenation.** Stage-two bootstrap
       emitted C pointer addition for `(mi_inventory ...) + (mi_inventory ...)`.
       I use semantic operand types for concatenation, retain a native
       string-returning-call regression, and rerun the actual bootstrap.
       The old stage one rejects the regression; the C seed passes it. With
       generated-text guesses removed, rebuilt stage one compiles and executes
       all 17 language programs, including nested concatenation and an
-      integer-returning function named `str_concat_count`. Actual stage-two
-      bootstrap is being rerun; that acceptance criterion remains open.
+      integer-returning function named `str_concat_count`. Actual stage two
+      now compiles successfully and passes its executable smoke test
+      (2026-09-11). This does not establish canonical artifact equality.
 - [ ] **5.0 audit defect — interpreted versus native codegen assertions.**
       Calling the extern-prototype regression's `main` from a C-seed shadow
       failed its three generated-text assertions, while the compiled entry
@@ -258,8 +259,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       implemented. Four isolated tests query the real make rules for clean
       state, changed sources/build rules, unrelated examples, and missing
       artifacts. Stage one rebuilds and passes its executable smoke test.
-      Stage-two recompilation and the full selected-compiler gate remain
-      unverified; I do not count dependency queries as compiler validation.
+      Stage-two recompilation now succeeds and its smoke test passes. The
+      full selected-compiler gate remains unverified; I do not count
+      dependency queries as compiler validation.
 - [x] **5.0 module introspection parity.** I derive module name/path,
       public function and struct inventories, unsafe status, and FFI status
       from each original module before import flattening. I emit the complete
@@ -285,6 +287,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The C seed also invokes each module C compilation twice: once via
       `popen` for diagnostics and again via `system` for status. I execute
       it once, drain diagnostics, and use that same invocation's exit status.
+- [x] **5.0 module build — one invocation, one status.** I execute the C
+      compiler once per module, drain all diagnostic output while retaining
+      a bounded prefix, and use that invocation's exit status. Three isolated
+      integration tests cover success, a first failure that a second call
+      would hide, and 32768 diagnostic lines. The old binary fails the
+      single-invocation checks; the rebuilt seed passes all three tests.
+      Shared intermediate paths and atomic publication remain open above.
 - [x] **5.0 audit defect — typed filter dispatch.** My executable callback
       tests exposed float and string arrays routed to the integer filter
       helper. I select the helper from the array element type and retain

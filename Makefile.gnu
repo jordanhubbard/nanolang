@@ -1814,6 +1814,7 @@ test-forth-wordsets:
 test-impl: test-units
 	@bash tests/test_make_header_dependencies.sh
 	@python3 tests/test_bootstrap_source_dependencies.py
+	@python3 tests/test_module_compile_invocation.py
 	@$(MAKE) --no-print-directory test-locale-cli
 	@$(MAKE) --no-print-directory test-src-utf8
 	@$(MAKE) --no-print-directory test-locale-catalog
