@@ -2284,7 +2284,7 @@ dynamic_div:
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
-            if (vm->stack_size < callee->arity) {
+            if (!stack_has_operands(vm, callee->arity)) {
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "Function %u needs %u arguments",
                                   callee_idx, callee->arity);
@@ -2329,7 +2329,7 @@ dynamic_div:
                     || callee->result_tag != cur_fn->result_tag)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "Tail-call result signature mismatch");
-            if (vm->stack_size < callee->arity)
+            if (!stack_has_operands(vm, callee->arity))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "Tail-call function %u needs %u arguments",
                                   callee_idx, callee->arity);
@@ -2374,7 +2374,10 @@ dynamic_div:
 
         VM_CASE(OP_CALL_INDIRECT) {
             if (vm->profile.enabled) vm->profile.indirect_calls++;
-            NanoValue fn_val = stack_pop(vm);
+            if (!stack_has_operands(vm, (uint32_t)instr.operands[0].u16 + 1))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need the callable and all indirect-call arguments.");
+            NanoValue fn_val = stack_peek(vm, 0);
             if (fn_val.tag == TAG_FUNCTION || fn_val.tag == TAG_CLOSURE) {
                 VmClosure *closure = NULL;
                 uint32_t callee_idx;
@@ -2408,12 +2411,14 @@ dynamic_div:
                 if (vm->frame_count >= VM_MAX_FRAMES) {
                     return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
                 }
-                if (vm->stack_size < callee->arity) {
+                if (!stack_has_operands(vm, (uint32_t)callee->arity + 1)) {
                     return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                       "Function %u needs %u arguments",
                                       callee_idx, callee->arity);
                 }
 
+                /* Transfer ownership only after every call validation passes. */
+                fn_val = stack_pop(vm);
                 uint32_t new_base = vm->stack_size - callee->arity;
                 for (uint16_t i = callee->arity; i < callee->local_count; i++) {
                     stack_push(vm, val_void());
@@ -2527,6 +2532,9 @@ dynamic_div:
 
             /* Pop arguments from stack (they were pushed left-to-right,
              * so pop in reverse to get them in order) */
+            if (!stack_has_operands(vm, (uint32_t)ext_argc))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need %d operands for the foreign call.", ext_argc);
             VmTrap t = { .type = TRAP_EXTERN_CALL };
             t.data.extern_call.import_idx = import_idx;
             t.data.extern_call.argc = ext_argc;
@@ -2562,7 +2570,7 @@ dynamic_div:
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
-            if (vm->stack_size < callee->arity) {
+            if (!stack_has_operands(vm, callee->arity)) {
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "Function %u needs %u arguments",
                                   fn_idx_m, callee->arity);

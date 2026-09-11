@@ -404,6 +404,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       allocation-failure tests and correct ownership cleanup before claiming
       recoverable memory exhaustion. I track this with the runtime boundary
       task `task_0ba46839aee94135aaa99a9b7c207499`.
+- [x] **Formal audit defect — call argument boundaries.** Direct, tail,
+      linked-module, indirect and foreign calls check frame-relative operands
+      before consuming arguments or changing frames. Indirect calls retain
+      the callable on the operand stack until validation succeeds. Forty
+      malformed-call cases check insufficient arguments with locals and caller
+      prefixes, unchanged frame counts and preserved arguments/callables.
+      `make test-nanovm` passes 269,805 assertions (2026-09-11); most assertions
+      remain capture-value checks, not distinct call scenarios.
 - [ ] **Formal audit — remaining unchecked boundaries.** Dynamic-effect call
       handlers still require their own count and shape checks. I audit the
       remaining checked stack handlers, which still

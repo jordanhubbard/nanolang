@@ -4762,6 +4762,67 @@ static void test_stack_slice_underflow(void) {
     }
 }
 
+static void test_call_operand_boundaries(void) {
+    const NanoOpcode ops[] = {OP_CALL, OP_TAIL_CALL, OP_CALL_INDIRECT,
+                              OP_CALL_EXTERN, OP_CALL_MODULE};
+    for (size_t op = 0; op < sizeof(ops) / sizeof(ops[0]); op++) {
+        for (unsigned depth = 0; depth < 2; depth++) {
+            for (unsigned locals = 0; locals <= 2; locals += 2) {
+                for (unsigned caller = 0; caller <= 2; caller += 2) {
+                    uint8_t code[64], body[8];
+                    uint32_t size = 0;
+                    for (unsigned i = 0; i < depth; i++)
+                        size += emit(code + size, OP_PUSH_I64, (int64_t)(42 + i));
+                    bool indirect = ops[op] == OP_CALL_INDIRECT;
+                    if (indirect) {
+                        size += emit(code + size, OP_FUNCREF, (uint32_t)1);
+                        size += emit(code + size, ops[op], 2, 1);
+                    } else if (ops[op] == OP_CALL_MODULE) {
+                        size += emit(code + size, ops[op], (uint32_t)0,
+                                     (uint32_t)0, 2, 1);
+                    } else {
+                        size += emit(code + size, ops[op],
+                                     (uint32_t)(ops[op] == OP_CALL_EXTERN ? 0 : 1));
+                    }
+                    size += emit(code + size, OP_HALT);
+                    NvmModule *mod = make_module(code, size, 0, (uint16_t)locals);
+                    uint32_t body_size = emit(body, OP_HALT);
+                    add_fn(mod, "callee", body, body_size, 2, 2);
+                    uint8_t params[] = {TAG_INT, TAG_INT};
+                    uint32_t module_name = nvm_add_string(mod, "foreign", 7);
+                    uint32_t function_name = nvm_add_string(mod, "call", 4);
+                    nvm_add_import(mod, module_name, function_name, 2, TAG_INT, params);
+                    NvmModule *linked = make_module(body, body_size, 2, 2);
+                    VmState vm;
+                    vm_init(&vm, mod);
+                    vm_link_module(&vm, linked);
+                    ASSERT(!vm.verified, "I keep malformed calls on the checked path");
+                    for (unsigned i = 0; i < caller; i++)
+                        vm.stack[vm.stack_size++] = val_int(100 + i);
+                    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_STACK_UNDERFLOW,
+                                  "I reject missing call arguments before frame changes");
+                    ASSERT_EQ_INT(vm.frame_count, 1, "I do not enter the callee");
+                    ASSERT_EQ_INT(vm.stack_size, caller + locals + depth + indirect,
+                                  "I preserve the call stack on argument failure");
+                    for (unsigned i = 0; i < caller; i++)
+                        ASSERT_EQ_INT(vm.stack[i].as.i64, 100 + i, "I preserve caller values");
+                    for (unsigned i = 0; i < locals; i++)
+                        ASSERT_EQ_INT(vm.stack[caller + i].tag, TAG_VOID, "I preserve locals");
+                    for (unsigned i = 0; i < depth; i++)
+                        ASSERT_EQ_INT(vm.stack[caller + locals + i].as.i64, 42 + i,
+                                      "I preserve existing arguments");
+                    if (indirect)
+                        ASSERT_EQ_INT(vm.stack[vm.stack_size - 1].tag, TAG_FUNCTION,
+                                      "I preserve the callable on failure");
+                    vm_destroy(&vm);
+                    nvm_module_free(mod);
+                    nvm_module_free(linked);
+                }
+            }
+        }
+    }
+}
+
 static void test_closure_large_capture_count(void) {
     const unsigned counts[] = {0, 32768, 32769, 65535};
     for (size_t c = 0; c < sizeof(counts) / sizeof(counts[0]); c++) {
@@ -4825,6 +4886,7 @@ int main(void) {
     printf("\n[Stack Operations]\n");
     RUN_TEST(test_dup);
     RUN_TEST(test_stack_slice_underflow);
+    RUN_TEST(test_call_operand_boundaries);
     RUN_TEST(test_closure_large_capture_count);
     RUN_TEST(test_swap);
     RUN_TEST(test_pop);
