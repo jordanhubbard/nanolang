@@ -1152,17 +1152,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Build library path flags */
     char lib_path_flags[2048] = "";
     for (int i = 0; i < opts->library_path_count; i++) {
-        char temp[512];
-        snprintf(temp, sizeof(temp), " -L%s", opts->library_paths[i]);
-        strncat(lib_path_flags, temp, sizeof(lib_path_flags) - strlen(lib_path_flags) - 1);
+        include_paths_valid = module_append_path_flag(lib_path_flags, sizeof(lib_path_flags), "-L", opts->library_paths[i]) && include_paths_valid;
     }
     
     /* Build library flags */
     char lib_flags[2048] = "-lm";
     for (int i = 0; i < opts->library_count; i++) {
-        char temp[512];
-        snprintf(temp, sizeof(temp), " -l%s", opts->libraries[i]);
-        strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
+        include_paths_valid = module_append_path_flag(lib_flags, sizeof(lib_flags), "-l", opts->libraries[i]) && include_paths_valid;
     }
     
     /* Detect and generate generic list types from the C code AND compiler_schema.h */
@@ -1484,9 +1480,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     const char *nano_cflags = getenv("NANO_CFLAGS");
     if (!nano_cflags) nano_cflags = "";
 
-    int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
+    char *quoted_output = module_quote_path(output_file);
+    char *quoted_temp_source = module_quote_path(temp_c_file);
+    int cmd_len = quoted_output && quoted_temp_source ? snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
-            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs, runtime_files, lib_path_flags, lib_flags) : -1;
+    free(quoted_output);
+    free(quoted_temp_source);
     
     if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
         human_diag(NL_DIAG_CC_CMD);

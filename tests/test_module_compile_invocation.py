@@ -46,6 +46,22 @@ class ModuleCompileInvocation(unittest.TestCase):
     def check_compile(self, mode):
         with tempfile.TemporaryDirectory(prefix="nanolang-module-invocation-") as directory:
             path = Path(directory)
+            link_arguments = []
+            if mode in ("quoted_library", "shell_library"):
+                library_name = "probe space's" if mode == "quoted_library" else "probe$(touch injected)"
+                library_dir = path / ("library space's" if mode == "quoted_library" else "library$(touch injected)")
+                library_dir.mkdir()
+                (path / "library.c").write_text("#include <stdint.h>\nint64_t probe_value(void) { return 42; }\n")
+                subprocess.run(["cc", "-c", str(path / "library.c"), "-o", str(path / "library.o")],
+                               check=True, capture_output=True, timeout=20)
+                subprocess.run(["ar", "rcs", str(library_dir / ("lib" + library_name + ".a")), str(path / "library.o")],
+                               check=True, capture_output=True, timeout=20)
+                link_arguments = ["-L", str(library_dir), "-l", library_name]
+            output_name = "program"
+            if mode == "quoted_output":
+                output_name = "program space's"
+            elif mode == "shell_output":
+                output_name = "program$(touch injected)"
             module_relative = "single_invocation_probe.nano"
             if mode in ("quoted_path", "shell_path"):
                 parent = "odd space's" if mode == "quoted_path" else "odd$(touch injected)"
@@ -56,9 +72,13 @@ class ModuleCompileInvocation(unittest.TestCase):
                 "pub fn answer() -> int { return 42 }\n"
                 "shadow answer { assert (== (answer) 42) }\n")
             (path / "main.nano").write_text(
-                f'module "{module_relative}" as probe\n'
-                "fn main() -> int { assert (== (probe.answer) 42) return 0 }\n"
-                "shadow main { assert (== (main) 0) }\n")
+                f'module "{module_relative}" as probe\n' +
+                ("extern fn probe_value() -> int\n" if link_arguments else "") +
+                "fn main() -> int { assert (== (probe.answer) 42) " +
+                ("unsafe { assert (== (probe_value) 42) } " if link_arguments else "") +
+                "return 0 }\n" +
+                ("shadow main { assert (== (probe.answer) 42) }\n" if link_arguments else
+                 "shadow main { assert (== (main) 0) }\n"))
             wrapper = path / "compiler.py"
             wrapper.write_text(WRAPPER)
             env = os.environ.copy()
@@ -66,6 +86,10 @@ class ModuleCompileInvocation(unittest.TestCase):
                        PROBE_MODE=mode, PROBE_REAL_CC=shutil.which("cc"), TMPDIR=directory)
             if mode == "long_command":
                 env["NANO_CC"] = " " * 5000 + env["NANO_CC"]
+            if mode == "quoted_tmp":
+                temporary = path / "temporary space's$(touch injected)"
+                temporary.mkdir()
+                env["TMPDIR"] = str(temporary)
             compiler = str(Path(os.environ.get("NANOLANG_COMPILER", str(ROOT / "bin/nanoc_c"))).resolve())
             if mode == "overlap":
                 processes = []
@@ -110,7 +134,7 @@ class ModuleCompileInvocation(unittest.TestCase):
                 cached.parent.mkdir(parents=True)
                 cached.write_bytes(b"previous object")
                 os.utime(cached, (1, 1))
-            process = subprocess.Popen([compiler, "main.nano", "-o", "program"], cwd=path,
+            process = subprocess.Popen([compiler, "main.nano", "-o", output_name] + link_arguments, cwd=path,
                                        env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                        text=True, start_new_session=True)
             try:
@@ -127,9 +151,9 @@ class ModuleCompileInvocation(unittest.TestCase):
                 self.assertIn("I could not represent all module compiler arguments.", output)
                 return
             self.assertEqual(calls, ["compile"], output[-4000:])
-            if mode in ("success", "quoted_path", "shell_path"):
+            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library"):
                 self.assertEqual(process.returncode, 0, output[-4000:])
-                subprocess.run([str(path / "program")], check=True, timeout=10)
+                subprocess.run([str(path / output_name)], check=True, timeout=10)
             else:
                 self.assertNotEqual(process.returncode, 0, output[-4000:])
                 self.assertIn("I could not publish the module object" if mode == "missing" else
@@ -165,6 +189,21 @@ class ModuleCompileInvocation(unittest.TestCase):
 
     def test_truncated_command_is_not_executed(self):
         self.check_compile("long_command")
+
+    def test_output_path_with_spaces_and_quote(self):
+        self.check_compile("quoted_output")
+
+    def test_output_path_cannot_execute_shell_substitution(self):
+        self.check_compile("shell_output")
+
+    def test_temporary_directory_remains_literal(self):
+        self.check_compile("quoted_tmp")
+
+    def test_library_names_and_directories_with_spaces_and_quotes(self):
+        self.check_compile("quoted_library")
+
+    def test_library_arguments_cannot_execute_shell_substitution(self):
+        self.check_compile("shell_library")
 
 
 if __name__ == "__main__":

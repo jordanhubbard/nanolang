@@ -28,12 +28,16 @@ static inline char *module_quote_path(const char *path) {
     return quoted;
 }
 
-static inline bool module_append_include(char *buffer, size_t capacity, const char *path) {
+static inline bool module_append_path_flag(char *buffer, size_t capacity, const char *prefix, const char *path) {
     char *quoted = module_quote_path(path);
     if (!quoted) return false;
     size_t used = strlen(buffer);
-    int written = snprintf(buffer + used, capacity - used, " -I%s", quoted);
+    int written = snprintf(buffer + used, capacity - used, " %s%s", prefix, quoted);
     free(quoted);
     return written >= 0 && (size_t)written < capacity - used;
+}
+
+static inline bool module_append_include(char *buffer, size_t capacity, const char *path) {
+    return module_append_path_flag(buffer, capacity, "-I", path);
 }
 #endif

@@ -334,8 +334,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       as data and reject truncated arguments, with execution tests. Private
       staging and atomic object publication do not repair this boundary.
       I now quote module object/source/include paths and top-level module
-      include paths, with executable import tests below. Top-level artifact,
-      runtime-source and library paths, generator invocations, and raw flag
+      include paths, with executable import tests below. Top-level artifact
+      and CLI library paths are repaired below. Runtime-source paths,
+      generator invocations, and raw flag
       fragments still require their own boundary audit; this item stays open.
 - [x] **5.0 module imports — literal shell paths.** I share one literal
       path-quoting helper between module compilation and top-level include
@@ -349,6 +350,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       covered. This does not make all compiler commands shell-free.
       Rebuilt C-seed module introspection, extern selection and compiled
       parenthesized-parser regressions also pass.
+- [x] **5.0 C output — literal artifact and CLI library paths.** I quote
+      the executable and temporary C paths in the final compile command and
+      append CLI `-L`/`-l` values as literal words with overflow rejection.
+      Fourteen module/build tests pass, including output names and TMPDIR with
+      spaces, apostrophes and shell-substitution syntax, plus library names
+      and directories with the same characters (2026-09-11). The native
+      library test calls a real function from its archive and verifies its
+      result; its compile-time shadow checks only the pure module assertion
+      because the evaluator cannot execute that linked archive. Marker files
+      must remain absent. This does not cover generated-list command paths,
+      runtime-source paths or all raw compiler/linker flag fragments.
 - [x] **5.0 generic-list generator — publication boundaries.** I stage both
       generated files privately before replacing either published file, reject
       type names that can escape the output directory, and test overlapping
