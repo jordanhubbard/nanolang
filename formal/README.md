@@ -14,8 +14,9 @@ does not establish that every advertised result has been implemented.
 
 ## What's proved
 
-Current build status: a fresh Rocq 9.0.1 build compiles `Soundness.v` but
-fails in `Progress.v`, in `step_tuple_form`. The theorem descriptions below
+Current build status: a fresh Rocq 9.0.1 build compiles `Soundness.v`,
+`Progress.v`, and `Determinism.v`, but fails in `Equivalence.v`, in
+`expr_equiv_is_value` (an unfinished proof). The theorem descriptions below
 record intended statements; I do not currently claim a successfully checked
 complete suite. Reproduce from the repository root with:
 

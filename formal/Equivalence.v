@@ -264,7 +264,6 @@ Proof.
   1: pure_chain.   (* E_ArraySet *)
   1: pure_chain.   (* E_ArrayPush *)
   1: pure_chain.   (* E_StrIndex *)
-  1: reflexivity.  (* E_TupleNil *)
   1: { pure_forall_inv. pure_chain.
        apply IHHeval2. constructor. assumption. }  (* E_TupleCons *)
   1: pure_chain.   (* E_TupleIndex *)

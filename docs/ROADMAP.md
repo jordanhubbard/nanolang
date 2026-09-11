@@ -171,7 +171,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       build found an unhandled empty-list case in `tuple_nth_type`, now
       repaired without changing its statement; `Soundness.v` compiles.
       `bash scripts/check_proofs_container.sh` next fails in
-      `Progress.v:405`, `step_tuple_form`. I repair the remaining proofs and
+      `Progress.v` now compiles after correcting the tuple-tail statement,
+      proving tuple-step target shape, and repairing tuple-index induction.
+      `Determinism.v` also compiles. I removed a stale empty-tuple tactic in
+      `Equivalence.v`; the fresh build next stops at `expr_equiv_is_value`
+      (line 359), whose proof leaves goals open. I repair the remaining proofs and
       run the complete build and compiled-library checker before claiming a
       checked proof suite. I preserve intended semantics and document any
       necessary correction to a false theorem statement.
