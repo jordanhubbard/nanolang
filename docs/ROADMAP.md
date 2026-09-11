@@ -398,6 +398,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       operands. My closure loop now uses a full-width index; tests inspect
       every capture at counts 0, 32,768, 32,769 and 65,535. `make test-nanovm`
       passes 269,537 assertions (mostly capture tags and values), 2026-09-11.
+- [x] **Formal audit defect — partial aggregate allocation.** Struct and
+      union helpers release their headers and return null when a nonempty
+      field allocation fails, without changing allocation statistics. An
+      isolated test compiles the actual heap implementation with a failing
+      allocator and checks cleanup, legal zero-field allocations and recovery.
+      `make test-nanovm` passes, including this failure test (2026-09-11).
+- [x] **Formal audit — VM boundary integration regression run.** After my
+      stack and call-boundary changes, `make test-nanovirt
+      test-frontend-matrix test-scheme test-ml test-actor test-dataflow
+      test-object test-shell test-logic` exits zero (2026-09-11). These are
+      current frontend laboratory checks, not production runtime guarantees.
 - [ ] **Formal audit — allocation failure boundaries.** Several aggregate
       constructors dereference allocation results without checking them, and
       many handlers ignore `stack_push` failure. I require deterministic

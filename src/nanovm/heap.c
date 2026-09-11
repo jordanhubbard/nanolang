@@ -622,6 +622,10 @@ VmStruct *vm_struct_new(VmHeap *heap, uint32_t def_idx, uint32_t field_count) {
     s->field_count = field_count;
     s->field_names = NULL;
     s->fields = calloc(field_count, sizeof(NanoValue));
+    if (field_count && !s->fields) {
+        free(s);
+        return NULL;
+    }
     heap->stats.allocated += sizeof(VmStruct) + field_count * sizeof(NanoValue);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
@@ -643,6 +647,10 @@ VmUnion *vm_union_new(VmHeap *heap, uint32_t def_idx, uint16_t variant, uint16_t
     u->variant = variant;
     u->field_count = field_count;
     u->fields = calloc(field_count, sizeof(NanoValue));
+    if (field_count && !u->fields) {
+        free(u);
+        return NULL;
+    }
     heap->stats.allocated += sizeof(VmUnion) + field_count * sizeof(NanoValue);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
