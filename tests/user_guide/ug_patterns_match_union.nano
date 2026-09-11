@@ -4,11 +4,10 @@ union SimpleResult {
 }
 
 fn unwrap_or_zero(r: SimpleResult) -> int {
-    let value: int = (match r {
+    match r {
         Ok(v) => { return v.value }
         Err(e) => { return 0 }
-    })
-    return value
+    }
 }
 
 shadow unwrap_or_zero {

@@ -1307,6 +1307,32 @@ fn func_returns_string(name: string) -> bool {
     return false
 }
 
+fn infer_binary_expr_type(op: int, left_type: string, right_type: string) -> string {
+    let is_comparison: bool = (or (or (== op LexerTokenType.TOKEN_EQ) (== op LexerTokenType.TOKEN_NE))
+                                  (or (or (== op LexerTokenType.TOKEN_LT) (== op LexerTokenType.TOKEN_GT))
+                                      (or (== op LexerTokenType.TOKEN_LE) (== op LexerTokenType.TOKEN_GE))))
+    if is_comparison { return "bool" } else { (print "") }
+    if (or (== op LexerTokenType.TOKEN_AND) (== op LexerTokenType.TOKEN_OR)) {
+        return "bool"
+    } else { (print "") }
+    if (and (== op LexerTokenType.TOKEN_PLUS)
+            (or (== left_type "string") (== right_type "string"))) {
+        return "string"
+    } else { (print "") }
+    if (or (== left_type "float") (== right_type "float")) {
+        return "float"
+    } else { (print "") }
+    return "int"
+}
+
+shadow infer_binary_expr_type {
+    assert (== (infer_binary_expr_type LexerTokenType.TOKEN_PLUS "int" "int") "int")
+    assert (== (infer_binary_expr_type LexerTokenType.TOKEN_STAR "float" "int") "float")
+    assert (== (infer_binary_expr_type LexerTokenType.TOKEN_PLUS "string" "int") "string")
+    assert (== (infer_binary_expr_type LexerTokenType.TOKEN_EQ "int" "int") "bool")
+    assert (== (infer_binary_expr_type LexerTokenType.TOKEN_AND "bool" "bool") "bool")
+}
+
 /* Infer the NanoLang type of a parsed expression node for interpolation.
    Returns "int", "float", "bool", "string", or "" (unknown). */
 fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) -> string {
@@ -1318,6 +1344,12 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
     if (== node_type ParseNodeType.PNODE_FLOAT) { return "float" } else { (print "") }
     if (== node_type ParseNodeType.PNODE_STRING) { return "string" } else { (print "") }
     if (== node_type ParseNodeType.PNODE_BOOL) { return "bool" } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) {
+        let ib: ASTBinaryOp = (parser_get_binary_op parser node_id)
+        let left_type: string = (infer_expr_type parser ib.left ib.left_type env)
+        let right_type: string = (infer_expr_type parser ib.right ib.right_type env)
+        return (infer_binary_expr_type ib.op left_type right_type)
+    } else { (print "") }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let ic: ASTCall = (parser_get_call parser node_id)
         let if_id: ASTIdentifier = (parser_get_identifier parser ic.function)
