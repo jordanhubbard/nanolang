@@ -1,0 +1,11 @@
+# I resolve a bare import path beside this file, not beside the repository root.
+module "test_modules/metadata_probe.nano" as probe
+
+fn main() -> int {
+    assert (== (probe.add 2 3) 5)
+    assert (== (probe.scale 21 2) 42)
+    (println "I resolved and executed the relative module.")
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

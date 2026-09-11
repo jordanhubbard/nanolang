@@ -2926,8 +2926,8 @@ shadow parse_primary {
     let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL]
     let mut i: int = 0
     while (< i (array_length sources)) {
-        let tokens: List<LexerToken> = (tokenize_string (at sources i))
-        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens)))
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "parser-test.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "parser-test.nano"))
         assert (not (parser_has_error parsed))
         assert (== parsed.last_expr_node_type (at kinds i))
         assert (parser_is_at_end parsed)
@@ -2940,8 +2940,8 @@ shadow parse_primary {
         }
         set i (+ i 1)
     }
-    let malformed: List<LexerToken> = (tokenize_string "(x +)")
-    let rejected: Parser = (parse_primary (parser_new malformed (list_LexerToken_length malformed)))
+    let malformed: List<LexerToken> = (tokenize_string "(x +)" "parser-test.nano" (list_CompilerDiagnostic_new))
+    let rejected: Parser = (parse_primary (parser_new malformed (list_LexerToken_length malformed) "parser-test.nano"))
     assert (parser_has_error rejected)
 }
 
@@ -2961,8 +2961,8 @@ shadow parenthesized_call_start {
     let expected: array<bool> = [true, true, true, false, false, false, false]
     let mut i: int = 0
     while (< i (array_length sources)) {
-        let tokens: List<LexerToken> = (tokenize_string (at sources i))
-        assert (== (parenthesized_call_start (parser_new tokens (list_LexerToken_length tokens))) (at expected i))
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "parser-test.nano" (list_CompilerDiagnostic_new))
+        assert (== (parenthesized_call_start (parser_new tokens (list_LexerToken_length tokens) "parser-test.nano")) (at expected i))
         set i (+ i 1)
     }
 }

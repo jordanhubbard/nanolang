@@ -728,6 +728,9 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
                 if (or (nlc_str_starts_with import_path "./") (nlc_str_starts_with import_path "../")) {
                     return (nl_path_join (nl_path_dirname current_file) import_path)
                 } else {
+                    /* I resolve bare paths beside their importer before repository fallback. */
+                    let relative: string = (nl_path_join (nl_path_dirname current_file) import_path)
+                    if (file_exists relative) { return relative }
                     if (!= repo_root "") {
                         return (nl_path_join repo_root import_path)
                     } else {
@@ -742,6 +745,10 @@ fn resolve_import_path(current_file: string, import_path: string, repo_root: str
 shadow resolve_import_path {
     let p1: string = (resolve_import_path "" "/abs" "")
     assert (== p1 "/abs")
+    assert (== (resolve_import_path "/project/tests/main.nano" "./local.nano" "/project") "/project/tests/./local.nano")
+    assert (== (resolve_import_path "/project/tests/main.nano" "../local.nano" "/project") "/project/tests/../local.nano")
+    assert (== (resolve_import_path "tests/main.nano" "test_modules/metadata_probe.nano" "/missing-root") "tests/test_modules/metadata_probe.nano")
+    assert (== (resolve_import_path "tests/main.nano" "missing_probe_211.nano" "/project") "/project/missing_probe_211.nano")
 }
 
 struct CollectResult {

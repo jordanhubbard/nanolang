@@ -175,16 +175,37 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       metadata and the two audio examples still fail. I can select a compiler
       explicitly with `NANOLANG_COMPILER` in `tests/run_all_tests.sh`; the
       default remains `bin/nanoc` and the runner prints the selected path.
+      After the relative-import repair, the candidate passes 12 of 15 tests
+      including the new import regression. Metadata now resolves its import
+      but fails on missing introspection declarations; both audio examples
+      still fail on missing generated-C declarations (2026-09-11).
       MAC `task_b11b688543574e82a96c0fb4f782d234` tracks this repair.
 - [x] **5.0 parser parity — grouped identifiers and tuple projections.**
       I no longer commit to a prefix call merely because `(` is followed
       by an identifier. Operator, comma, and tuple-projection continuations
       use the existing expression/tuple parser. Eight AST-shape cases,
       seven call-classification cases, equal-precedence left association,
-      and malformed grouping pass in the C-seed-built parser shadows.
+      and malformed grouping now execute in `make test-parser-parenthesized`.
+      I corrected the earlier evidence claim: the imported empty driver did
+      not establish shadow execution. The explicit test also exposed outdated
+      lexer/parser argument counts in those shadows, which I corrected.
       A fresh compiler candidate compiles and runs the five previously
       parse-failing language tests (2026-09-11). This does not establish
       complete compiler parity or install a new stage-two compiler.
+- [x] **5.0 audit defect — imported parser shadow evidence.** I run the
+      parenthesized-parser assertions explicitly from a compiled test entry
+      point. A successful importer build or empty driver run does not establish
+      that imported shadows ran; the C seed skips extern-dependent shadows.
+      `make test-parser-parenthesized` passes and is included in `test-quick`.
+- [ ] **5.0 audit — component test execution.** I audit remaining component
+      shadows and bootstrap validation claims, execute meaningful assertions
+      explicitly, and distinguish skipped from executed checks. MAC
+      `task_56a065134a6e4394ae5c307c05e9597d`.
+- [x] **5.0 import parity — bare relative paths.** I try a bare import path
+      beside its importing file before falling back to the repository root.
+      `tests/nl_functions_relative_import.nano` compiles and runs through both
+      the C seed and a fresh NanoLang compiler candidate. Module metadata
+      emission remains a separate failing case in the language gate.
 - [ ] **5.0 audit defect — bootstrap source invalidation.** My stage-two
       component and bootstrap-stage-one sentinels depend on prior-stage
       sentinels, not the NanoLang sources they compile. I add source dependency

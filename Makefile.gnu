@@ -2204,6 +2204,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@$(MAKE) --no-print-directory test-parser-parenthesized
 	@bash tests/test_make_header_dependencies.sh
 	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
@@ -2234,6 +2235,11 @@ else
 endif
 
 .PHONY: test-make-header-dependencies
+.PHONY: test-parser-parenthesized
+test-parser-parenthesized: $(COMPILER_C)
+	$(COMPILER_C) tests/parser_parenthesized.nano -o $(BIN_DIR)/parser_parenthesized_test
+	$(BIN_DIR)/parser_parenthesized_test
+
 test-make-header-dependencies:
 	@echo "Checking incremental C header dependencies..."
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
