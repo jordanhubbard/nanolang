@@ -316,6 +316,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       would hide, and 32768 diagnostic lines. The old binary fails the
       single-invocation checks; the rebuilt seed passes all three tests.
       Shared intermediate paths and atomic publication remain open above.
+- [x] **5.0 module build — private intermediates and atomic objects.** I
+      create a private build directory beside each destination object, compile
+      into it, and rename only a successful object into the cache. I test
+      overlapping module compilations and preserve an existing cached object
+      after a compiler writes partial output and fails. This does not complete
+      generic-list generation or self-hosted temporary-file isolation.
+      Six integration tests pass, including deterministic overlap, partial
+      output failure preserving cached bytes, and rejected success without an
+      output object. Private directories have mode 0700; successful normal
+      builds remove their intermediates. Failure retains only private C for
+      diagnosis. The rebuilt C seed also passes module introspection, extern
+      declaration selection and parenthesized-parser regressions (2026-09-11).
+- [ ] **5.0 module build — command argument boundaries.** My C-seed module
+      compiler still concatenates source/include paths and flags into a shell
+      command. I must preserve paths containing spaces or shell metacharacters
+      as data and reject truncated arguments, with execution tests. Private
+      staging and atomic object publication do not repair this boundary.
 - [x] **5.0 audit defect — typed filter dispatch.** My executable callback
       tests exposed float and string arrays routed to the integer filter
       helper. I select the helper from the array element type and retain

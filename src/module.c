@@ -1237,13 +1237,22 @@ bool compile_module_to_object(const char *module_path,
         free_module_metadata(meta);
     }
     
-    /* Write C code to temporary file */
-    char temp_c_file[512];
-    snprintf(temp_c_file, sizeof(temp_c_file), "%s.c", output_obj);
-    
-    FILE *c_file = fopen(temp_c_file, "w");
+    /* Private siblings keep concurrent builds separate and rename on the same
+     * filesystem. A failed compiler must not truncate a published object. */
+    char build_dir[1024];
+    int path_length = snprintf(build_dir, sizeof(build_dir), "%s.build.XXXXXX", output_obj);
+    bool have_build_dir = path_length >= 0 && (size_t)path_length < sizeof(build_dir) &&
+                          mkdtemp(build_dir) != NULL;
+    char temp_c_file[1040] = "";
+    char temp_obj_file[1040] = "";
+    if (have_build_dir) {
+        snprintf(temp_c_file, sizeof(temp_c_file), "%s/source.c", build_dir);
+        snprintf(temp_obj_file, sizeof(temp_obj_file), "%s/object.o", build_dir);
+    }
+    FILE *c_file = have_build_dir ? fopen(temp_c_file, "w") : NULL;
     if (!c_file) {
-        fprintf(stderr, "Error: Could not create C file '%s'\n", temp_c_file);
+        fprintf(stderr, "I could not create private module source for '%s'.\n", output_obj);
+        if (have_build_dir) rmdir(build_dir);
         free(c_code);
         /* Don't free AST - it's owned by the cache */
         clear_module_cache();
@@ -1252,8 +1261,18 @@ bool compile_module_to_object(const char *module_path,
         return false;
     }
     
-    fprintf(c_file, "%s", c_code);
-    fclose(c_file);
+    bool source_written = fputs(c_code, c_file) >= 0;
+    if (fclose(c_file) != 0) source_written = false;
+    if (!source_written) {
+        fprintf(stderr, "I could not finish writing module source '%s'.\n", temp_c_file);
+        remove(temp_c_file);
+        rmdir(build_dir);
+        free(c_code);
+        clear_module_cache();
+        module_cache = saved_cache;
+        free_environment(module_env);
+        return false;
+    }
     
     if (verbose) {
         printf("✓ Generated module C code: %s\n", temp_c_file);
@@ -1380,10 +1399,10 @@ bool compile_module_to_object(const char *module_path,
         free(mp_copy);
     }
 
-    snprintf(compile_cmd, sizeof(compile_cmd),
+    int command_length = snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -c -o %s %s",
             cc, root, root, root, root, root, root, root, root, root,
-            module_dir, sdl_flags, inherited_flags, output_obj, temp_c_file);
+            module_dir, sdl_flags, inherited_flags, temp_obj_file, temp_c_file);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
@@ -1392,7 +1411,8 @@ bool compile_module_to_object(const char *module_path,
     /* Compile and capture errors */
     char error_cmd[sizeof(compile_cmd) + sizeof(" 2>&1")];
     snprintf(error_cmd, sizeof(error_cmd), "%s 2>&1", compile_cmd);
-    FILE *pipe = popen(error_cmd, "r");
+    FILE *pipe = command_length >= 0 && (size_t)command_length < sizeof(compile_cmd) ?
+                 popen(error_cmd, "r") : NULL;
     char error_output[4096] = {0};
     int result = -1;
     if (pipe) {
@@ -1412,8 +1432,14 @@ bool compile_module_to_object(const char *module_path,
         result = pclose(pipe);
         if (read_failed) result = -1;
     }
+    if (result == 0 && rename(temp_obj_file, output_obj) != 0) {
+        snprintf(error_output, sizeof(error_output),
+                 "I could not publish the module object: %s", strerror(errno));
+        result = -1;
+    }
     
     if (result != 0) {
+        remove(temp_obj_file);
         fprintf(stderr, "Error: Failed to compile module '%s' to object file\n", module_path);
         assert(error_output != NULL);
         if (safe_strlen(error_output) > 0) {
@@ -1432,6 +1458,7 @@ bool compile_module_to_object(const char *module_path,
     /* Clean up temporary C file */
     if (!verbose) {
         remove(temp_c_file);
+        rmdir(build_dir);
     } else {
         printf("✓ Compiled module to object file: %s\n", output_obj);
         printf("  C source kept at: %s\n", temp_c_file);
