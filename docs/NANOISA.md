@@ -21,7 +21,7 @@ nano_virt (compiler)
   +---> native binary (default)
   |       embeds .nvm + VM runtime (wrapper_gen; still a VM process)
   |
-  +---> nvm2c (spike, not the default): structured C11 from .nvm
+  +---> nvm2c (`bin/nvm2c`): structured C11 from a closed .nvm subset
           cc → native binary with no nano_vm / nano_cop in-process
 
 5.0 makes `.nvm` the only compiler product and treats C/LLVM/Wasm as
@@ -37,6 +37,9 @@ That rewrite is not 4.x work. `nano_virt -o` remains a packaged interpreter.
 | `nano_vm` | My VM executor: loads and runs .nvm files |
 | `nano_cop` | My FFI co-process: isolates external function calls |
 | `nano_vmd` | My VM daemon: persistent VM process for reduced startup latency |
+| `bin/nanoisa` | Assemble `.nasm` and dump `.nvm` |
+| `bin/nvm2c` | Translate a closed NanoISA subset to structured C11 (no `nano_vm`) |
+| `bin/nanoisa_emit` | Cut A: `src_nano` AST → `.nasm` for the pinned i64 `add`/`main` subset |
 
 ### nano_virt (Compiler)
 
@@ -44,7 +47,7 @@ That rewrite is not 4.x work. `nano_virt -o` remains a packaged interpreter.
 nano_virt input.nano [-o output] [--run] [--emit-nvm] [--strip-debug] [--daemon-wrapper] [-v]
 ```
 
-- `-o <path>`: Output file (native binary or .nvm)
+- `-o <path>`: Packaged interpreter (wrapper_gen embeds `nano_vm`), or `.nvm` if `--emit-nvm` / the path ends in `.nvm`. 5.0 native AOT is `bin/nvm2c`, not this default.
 - `--run`: Execute immediately after compilation (in-process VM)
 - `--emit-nvm`: Write raw .nvm bytecode instead of native binary
 - `--strip-debug`: Remove debug/source-map data from emitted module

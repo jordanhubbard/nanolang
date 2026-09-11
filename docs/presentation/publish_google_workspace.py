@@ -272,6 +272,14 @@ def main() -> int:
             raise SystemExit("authenticated principal cannot edit the existing Slides resource")
         updated_slides = _resumable_update(token, args.slides_id, pptx, PPTX_MIME)
         slides_id = args.slides_id
+        renamed_slides = _json(
+            token,
+            "PATCH",
+            f"{DRIVE}/files/{urllib.parse.quote(slides_id)}?supportsAllDrives=true",
+            {"name": "NanoLang Developer Overview (4.5 edition)"},
+        )
+        if renamed_slides.get("name"):
+            updated_slides["name"] = renamed_slides["name"]
         parents = [str(item) for item in (slides_meta.get("parents") or []) if item]
     else:
         updated_slides = _resumable_create(

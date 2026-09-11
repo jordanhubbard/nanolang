@@ -8,7 +8,7 @@
 # Build: external-deps
 # Dependencies: libdispatch
 # Tags: concurrency, native-only
-# Expected Output: global counter
+# Expected Output: counter = 10
 
 # nl_global_counter.nano — demonstrates module-scope let mut with dispatch safety
 #

@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: modules/std/peg2
 # Tags: parser, peg2
-# Expected Output: JSON validation
+# Expected Output: === peg2 JSON Validator ===
 
 /*
  * nl_peg2_json.nano — Validate JSON structure using peg2

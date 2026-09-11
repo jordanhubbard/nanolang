@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: tracing, debugging, shadow-tested
-# Expected Output: trace records followed by total: 15
+# Expected Output: [DEBUG] LOG02 ENTER calculate_sum
 
 module "modules/std/log/log.nano" as log
 

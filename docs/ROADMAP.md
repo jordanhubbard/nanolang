@@ -18,8 +18,9 @@ Tagged `ef32c833` on 2026-09-07. Leftover 4.1, sdl_term, Phase 19, docs,
 deck, and user guide are in. I do not call the system internationalized.
 JSON/TOON and catalog fallback still use English; guide drafts are
 machine-generated. I do not claim a Forth Standard System, GNU Emacs, a
-kernel, CUDA, or a CPython wrap. **4.6 and 5.0 are out of this bar.**
-The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
+kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
+5.0.** It covers remaining 4.x (4.6 frontends) and 5.0 itself
+(`docs/NANOISA_ONLY.md`). 6.0 stays out of this bar.
 
 ## Active Execution Queue
 
@@ -104,15 +105,33 @@ The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
       `git pull --ff-only origin main` could not land. Retry until
       checks exist; `git reset --hard origin/main` before the tag.
       `tests/test_release_workflow.sh`.
-- [ ] **Public release — Google Workspace publish.** In-place update of
-      the existing Slides and Doc after `v4.5.0`. Human/authorized.
-      IDs in `docs/presentation/`. LinkedIn copy is `docs/LINKEDIN_4.5.md`.
+- [x] **Public release — Google Workspace publish.** In-place update of
+      the existing Slides and Doc after `v4.5.0`. Read-back: 16 slides,
+      16 notes, 34 headings. Preview URLs are in `docs/presentation/`.
+      LinkedIn copy is `docs/LINKEDIN_4.5.md`.
       MAC `task_d0a1fe6953d749c195141ba921c5cc24`.
-- [ ] **4.6 / Phase 21 (out of this bar).** Shared NanoISA frontend contract,
-      then Scheme, ML, Actor, Dataflow, Object, Shell, Logic, then the
-      frontend matrix. After 4.5. NanoLang stays my native language.
-      MAC `task_e62d1cd35b49296604012df95de7911b` (contract),
-      `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
+      Recorded on `docs/record-4.5-google-publish`.
+- [x] **4.6 / Phase 21 — shared frontend contract.** Every frontend emits
+      verified `.nvm` v2, uses the same verifier, NSI, capabilities,
+      FFI isolation, debug, profiler, and `nvm2c`, and keeps language
+      work in desugar/typecheck. Bounded goals are published before a
+      language starts. Frontend-private opcodes fail closed. NanoLang
+      and Forth already accept a shared library. Scheme, ML, Actor, Dataflow, Object, Shell, and Logic are
+      implemented as bounded laboratory frontends. The frontend matrix is
+      `docs/FRONTEND_MATRIX.md` / `make test-frontend-matrix`.
+      `docs/NANOISA_FRONTEND.md`, `src/nanoisa/frontend.c`,
+      `make test-frontend-contract`, `make test-scheme`, `make test-ml`,
+      `make test-actor`, `make test-dataflow`, `make test-object`,
+      `make test-shell`, `make test-logic`.
+      MAC `task_e62d1cd35b49296604012df95de7911b`.
+- [x] **4.6 / Phase 21 — laboratory languages.** Scheme, ML, Actor,
+      Dataflow, Object, Shell, Logic, then the frontend matrix.
+      NanoLang stays my native language.
+      `make test-scheme`, `make test-ml`, `make test-actor`,
+      `make test-dataflow`, `make test-object`, `make test-shell`,
+      `make test-logic`, `make test-frontend-matrix`.
+      `docs/FRONTEND_MATRIX.md`.
+      MAC `task_6647a64cc76edac6e3d0f62c228d98c4` (Scheme),
       `task_3eed929292a80ed58dd3a8db1ed701b6` (ML),
       `task_0850b9adc62c593b8e4e180e070efcee` (Actor),
       `task_9cb85a523c197b9e2c80ddcffe9ed31a` (Dataflow),
@@ -120,6 +139,10 @@ The NanoISA-only compiler rewrite is **5.0**: see `docs/NANOISA_ONLY.md`.
       `task_ee91ee94749200ab6309e6c05df3dd61` (Shell),
       `task_69fc7f6660a1976f10606a42d78fd264` (Logic),
       `task_92c497c72b7aa1fc993d666f66843759` (matrix).
+- [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
+      the only compiler product. Native AOT does not embed `nano_vm`.
+      Public GitHub Release `v5.0.0` after 4.6 and this phase close.
+      `docs/NANOISA_ONLY.md`.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
@@ -642,6 +665,23 @@ Standard word sets, in dependency order:
       Block as a banner.
 
 Tests, examples, and SDL IDE:
+- [x] I made the noninteractive example runner pass its declared output
+      checks for `nl_affine_resource_demo.nano`, `nl_array_infer.nano`, and
+      the finite `nl_boids.nano` simulation. `make -C examples test` passes
+      70 language and 9 verified examples.
+- [x] I record a successful `SKIP:` result from a platform-gated example
+      without disguising it as an output mismatch. The Linux libdispatch
+      examples remain skipped rather than claimed runnable.
+      `make -C examples test` exercises that boundary.
+- [x] I select a Python interpreter with the `yaml` dependency required by
+      `scripts/gen_nanoisa_schema.py`, so `make test` reaches the test suite on
+      a supported Linux host.
+- [x] I made `sudo make install-deps` select Arch package names from
+      module metadata, including Bullet, GLEW, and GLFW, then document the
+      full Arch dependency set.
+- [x] I made the Linux Forth IDE PTY liveness test wait for the NanoISA session
+      dictionary to initialize before it requires the banner and prompt.
+      `make test-forth-pty` passes.
 - [x] I will retain the existing 280 cases as regression tests while replacing their nonstandard harness assumptions.
       `make test-forth-examples` loads Jackson `tester.fr` and the nine
       `examples/language/forth/test_*.fs` files through C `REFILL`.
@@ -1096,8 +1136,113 @@ Ownership and proposal closure:
 Compiler product:
 - [ ] I make `--emit-nvm` the self-hosted compiler's only backend output.
       `-o binary` is `nvm2c` then `cc`, a tool pipeline, not a language phase.
+- [x] Cut A pin: `src_nano/compiler/nanoisa_codegen.nano` emits `.nasm` for
+      integer `add`/`main` (`tests/nanoisa/fixtures/cut_a_add.nano`).
+      Function bytecode matches the C seed (`make test-nanoisa-src-nano`,
+      10 passed). I still pretty-print C to build the compiler. The full
+      dual of `codegen.c` is not this pin.
+- [x] Cut A control: the same pin matches `choose` (`if`) and `loop_sum`
+      (`while`/`set`/`let mut`) bytecode with the C seed.
+      `make test-nanoisa-src-nano` (14 passed).
+- [x] Cut A strings: the same pin matches `greeting` (`PUSH_STR`) and
+      `glue` (`STR_CONCAT`) bytecode with the C seed. Comparison resolves
+      string operands, not only pool indices. `make test-nanoisa-src-nano`
+      (18 passed). I still pretty-print C to build the compiler.
+- [x] Cut A arrays: the same pin matches `len3` (`ARR_LITERAL`/`ARR_LEN`)
+      and `first` (`ARR_GET`) bytecode with the C seed. I still pretty-print
+      C to build the compiler. Nested arrays, `array_set`, and `array_push`
+      are not this pin. `make test-nanoisa-src-nano` (22 passed).
+- [x] Cut A structs: the same pin matches `getx` (`AGG_PACK`/`AGG_GET`)
+      bytecode with the C seed for an `int`-field record. I still
+      pretty-print C to build the compiler. Nested records, string
+      fields, `AGG_SET`, and unions are not this pin.
+      `make test-nanoisa-src-nano` (24 passed).
+- [x] Cut A bool: the same pin matches `is_pos` (`bool` result, `I64_GT_S`)
+      bytecode with the C seed. I still pretty-print C to build the
+      compiler. `bool` is i64 0/1 in NanoISA. Option types are not this pin.
+      `make test-nanoisa-src-nano` (26 passed).
+- [x] Cut A bool ops: the same pin matches `yes`/`no` (`PUSH_BOOL`),
+      `invert` (`BOOL_NOT`), `both` (`BOOL_AND`), and `either`
+      (`BOOL_OR`) bytecode with the C seed. I still pretty-print C to
+      build the compiler. Short-circuit evaluation is not this pin.
+      `make test-nanoisa-src-nano` (36 passed).
+- [x] Cut A cond: the same pin matches `pick` (`cond` as `JMP_FALSE`/`JMP`
+      with one `RET`) bytecode with the C seed. I still pretty-print C
+      to build the compiler. Statement `if` stays `choose`.
+      `make test-nanoisa-src-nano` (38 passed).
+- [x] Cut A print: the same pin matches `say` (`PRINT` of i64), `shout`
+      (`PRINTLN` of i64), and `mutter` (`PRINT` of a string) bytecode
+      with the C seed. Print does not leave a value. I still
+      pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (44 passed).
+- [x] Cut A assert: the same pin matches `prove` (`ASSERT`) bytecode
+      with the C seed. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (46 passed).
+- [x] Cut A array_push: the same pin matches `grow` (`ARR_PUSH` of
+      `array<int>`) bytecode with the C seed. String arrays are not
+      this pin. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (48 passed).
+- [x] Cut A str_contains: the same pin matches `has_hi`
+      (`STR_CONTAINS`) bytecode with the C seed. I still pretty-print
+      C to build the compiler.
+- [x] Cut A int_to_string: the same pin matches `digits`
+      (`CAST_STRING`) bytecode with the C seed. I still pretty-print
+      C to build the compiler. `make test-nanoisa-src-nano` (52 passed).
+- [x] Cut A string arrays: the same pin matches `names`
+      (`ARR_LITERAL` tag 5, `ARR_PUSH`, `ARR_LEN`) and `head_s`
+      (`ARR_GET` of `array<string>`) bytecode with the C seed.
+      Nested arrays stay refused. I still pretty-print C to build
+      the compiler. `make test-nanoisa-src-nano` (56 passed).
+- [x] Cut A string eq: the same pin matches `same` (`EQ` of two
+      strings) and `diff` (`NE` of two strings) bytecode with the
+      C seed. I still pretty-print C to build the compiler.
+      `STR_EQ` as a separate opcode is not this pin.
+      `make test-nanoisa-src-nano` (60 passed).
+- [x] Cut A at/str_length: the same pin matches `via_at` (`at` as
+      `ARR_GET`) and `slen` (`str_length` as `STR_LEN`) bytecode
+      with the C seed. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (64 passed).
+- [x] Cut A str_substring: the same pin matches `slice`
+      (`STR_SUBSTR`) bytecode with the C seed. I still pretty-print
+      C to build the compiler. `STR_TRIM` and the rest of the string
+      library are not this pin. `make test-nanoisa-src-nano` (66 passed).
+- [x] Cut A List<int> empty: the same pin matches `blank_l`
+      (`list_int_new` as `ARR_NEW 1`, `list_int_length` as `ARR_LEN`)
+      bytecode with the C seed. I still pretty-print C to build the
+      compiler. `list_int_push` as a void statement is not this pin.
+      `make test-nanoisa-src-nano` (68 passed).
+- [x] Cut A List<int> push: the same pin matches `grow_l`
+      (`list_int_push` as `ARR_PUSH` then `POP`, `list_int_get` as
+      `ARR_GET`) bytecode with the C seed. I still pretty-print C to
+      build the compiler. Typed lists other than `List<int>` are not
+      this pin. `make test-nanoisa-src-nano` (70 passed).
+- [x] Cut A char_at: the same pin matches `ch` (`char_at` as
+      `STR_CHAR_AT`) bytecode with the C seed. I still pretty-print C
+      to build the compiler. Out-of-range index is `-1`, matching the
+      VM. `str_char_at` is the same opcode.
+      `make test-nanoisa-src-nano` (72 passed).
+- [x] Cut A List<string> empty: the same pin matches `blank_s`
+      (`list_string_new` as `ARR_NEW 1`, `list_string_length` as
+      `ARR_LEN`) bytecode with the C seed. I still pretty-print C to
+      build the compiler. The C seed uses tag 1 for every `list_T_new`.
+      `make test-nanoisa-src-nano` (76 passed).
+- [x] Cut A List<string> push: the same pin matches `grow_s`
+      (`list_string_push` as `ARR_PUSH` then `POP`, `list_string_get`
+      as `ARR_GET`) bytecode with the C seed. I still pretty-print C to
+      build the compiler. Record lists and `list_T_set` are not this pin.
+- [x] Cut A string-field records: the same pin matches `get_s`
+      (`AGG_PACK`/`AGG_GET` of a record with an `int` field and a
+      `string` field) bytecode with the C seed. I still pretty-print C
+      to build the compiler. Nested records and bool fields are not
+      this pin. Lists of records are not this pin.
+      `make test-nanoisa-src-nano` (78 passed).
+- [x] Cut A record lists: the same pin matches a `List<Tok>` identity
+      (`list_Tok_new` as `ARR_NEW 1`, `list_Tok_push` as `ARR_PUSH`
+      then `POP`). Nested records stay refused. `list_T_set` is not
+      this pin. I still pretty-print C to build the compiler.
+      `make test-nanoisa-src-nano` (80 passed).
 - [ ] I implement NanoISA lowering in `src_nano` as the dual of
-      `src/nanovirt/codegen.c`. That dual does not exist today.
+      `src/nanovirt/codegen.c` for the compiler subset, not only the pin.
 - [ ] I compile `src_nano` to `.nvm` with the C seed, then with the
       self-hosted emitter.
 - [ ] Stage 3 compares `stage1.nvm` and `stage2.nvm`. Matching native
@@ -1120,7 +1265,78 @@ Compiler product:
       emit a co-process client and call it AOT.
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
       in 5.0 documentation or CLI defaults.
-- [ ] I ship a `nvm2c` tool (seed in C). I may later write `nvm2c` in myself.
+- [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
+      `make test-nvm2c` runs the library and the CLI. Generated C does not
+      name `nano_vm`. I may later write `nvm2c` in myself.
+- [x] `nvm2c` translates i64 comparisons, `JMP`/`JMP_FALSE`, and `TAIL_CALL`.
+      `choose` and `loop_sum` from the Cut A pin compile and run without
+      `nano_vm`. Goto is the translator fallback; recovered `if`/`while` is
+      not this item. `make test-nvm2c` (65 passed).
+- [x] `nvm2c` translates `PUSH_STR`, `STR_CONCAT`, and `STR_LEN`.
+      `greeting` and `glue` from the Cut A pin compile and run without
+      `nano_vm`. I do not link `nano_vm`. Embedded NULs and the rest of
+      the string library stay refused. `make test-nvm2c` (89 passed).
+- [x] `nvm2c` translates `ARR_LITERAL`, `ARR_GET`, and `ARR_LEN` for
+      `array<int>`. `len3` and `first` from the Cut A pin compile and run
+      without `nano_vm`. Nested arrays and the rest of the array library
+      stay refused. `make test-nvm2c` (102 passed).
+- [x] `nvm2c` translates `AGG_PACK` and `AGG_GET` for `int`-field records.
+      `getx` from the Cut A pin compiles and runs without `nano_vm`.
+      Nested records, string fields, `AGG_SET`, variants, and tuples
+      stay refused. `make test-nvm2c` (110 passed).
+- [x] `nvm2c` translates `bool` results as i64 0/1. `is_pos` from the
+      Cut A pin compiles and runs without `nano_vm`.
+      `make test-nvm2c` (120 passed).
+- [x] `nvm2c` translates `PUSH_BOOL`, `BOOL_NOT`, `BOOL_AND`, and
+      `BOOL_OR` as i64 0/1. `yes`, `invert`, `both`, and `either` from
+      the Cut A pin compile and run without `nano_vm`.
+      `make test-nvm2c` (145 passed).
+- [x] `nvm2c` runs Cut A `pick` (`cond` shape) without `nano_vm`.
+      Join points copy temps so both arms share one `RET`. Goto is
+      the translator fallback. `make test-nvm2c` (155 passed).
+- [x] `nvm2c` runs Cut A `say`, `shout`, and `mutter` without `nano_vm`.
+      Printing arrays and records stays refused.
+      `make test-nvm2c` (177 passed).
+- [x] `nvm2c` runs Cut A `prove` (`ASSERT`) without `nano_vm`.
+      False asserts abort the process. `make test-nvm2c` (188 passed).
+- [x] `nvm2c` runs Cut A `grow` (`ARR_PUSH` of `array<int>`) without
+      `nano_vm`. String arrays stay refused.
+      `make test-nvm2c` (196 passed).
+- [x] `nvm2c` runs Cut A `has_hi` (`STR_CONTAINS`) without `nano_vm`.
+- [x] `nvm2c` runs Cut A `digits` (`CAST_STRING`) without `nano_vm`.
+      Casting arrays stays refused. `make test-nvm2c` (214 passed).
+- [x] `nvm2c` runs Cut A `names` and `head_s` (`array<string>`)
+      without `nano_vm`. Nested arrays stay refused.
+      `make test-nvm2c` (225 passed).
+- [x] `nvm2c` runs Cut A `same` and `diff` (`EQ`/`NE` of strings)
+      without `nano_vm`. Array equality stays refused.
+      `make test-nvm2c` (243 passed).
+- [x] `nvm2c` runs Cut A `via_at` and `slen` without `nano_vm`.
+      `make test-nvm2c` (253 passed).
+- [x] `nvm2c` runs Cut A `slice` (`STR_SUBSTR`) without `nano_vm`.
+      `STR_TRIM` stays refused. `make test-nvm2c` (261 passed).
+- [x] `nvm2c` runs Cut A `blank_l` (`ARR_NEW` of `array<int>`) without
+      `nano_vm`. `make test-nvm2c` (266 passed).
+- [x] `nvm2c` preserves array identity across `ARR_PUSH` then `POP` so
+      void `list_int_push` mutates the local the way the VM heap does.
+      Cut A `grow_l` exits 7 without `nano_vm`.
+      `make test-nvm2c` (271 passed).
+- [x] `nvm2c` runs Cut A `ch` (`STR_CHAR_AT`) without `nano_vm`.
+      Index 0 of `"hi"` exits 104. Out of range is `-1`.
+      `make test-nvm2c` (281 passed).
+- [x] `nvm2c` runs Cut A `blank_s` (`ARR_NEW` of a string list) without
+      `nano_vm`. Empty length is 0.
+- [x] `nvm2c` preserves string-array identity across `ARR_PUSH` then
+      `POP` so void `list_string_push` mutates the local the way the VM
+      heap does. Cut A `grow_s` length is 2 without `nano_vm`. The C
+      seed still emits `ARR_NEW 1`; I classify by the pushed value.
+      `make test-nvm2c` (291 passed).
+- [x] `nvm2c` runs Cut A `get_s` (string field of a record) without
+      `nano_vm`. Nested records stay refused.
+      `make test-nvm2c` (299 passed).
+- [x] `nvm2c` runs a Cut A list of records (`ARR_PUSH` of `nrec_t`)
+      without `nano_vm`. Nested records stay refused.
+      `make test-nvm2c` (306 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
@@ -1245,59 +1461,114 @@ Shared frontend contract (MAC `task_e62d1cd35b49296604012df95de7911b`):
 - [x] I define the cross-frontend conformance harness: equivalent programs use
       shared NanoISA libraries and versioned services, with explicit exclusions
       for fixtures outside a bounded language subset.
+- [x] I will define a frontend interface for source locations, typed functions, layouts, constants, imports, effects, capabilities, and diagnostics.
+      `NlFrontendFacts`, `docs/NANOISA_FRONTEND.md`, `make test-frontend-contract`.
+- [x] I will require every frontend to emit the same versioned NanoISA module format and pass the same verifier.
+      `nl_frontend_accept` calls `nvm_verify`; format_version must be v2.
+- [x] I will give every frontend access to the same service contracts, capability model, FFI isolation, debugger metadata, profiler, and target translators.
+      `nl_frontend_toolchain`.
+- [x] I will separate language-specific desugaring and type analysis from language-neutral NanoISA optimization.
+      `nl_frontend_phase_is_language_specific`.
+- [x] I will preserve language-specific facts such as purity, exhaustiveness, ownership, and effect information as optional metadata.
+      Optional fields on `NlFrontendFacts`; unknown effects fail closed.
+- [x] I will define bounded implementation and test goals before starting each frontend.
+      `nl_frontend_goal`; Scheme, ML, Actor, Dataflow, Object, Shell, and Logic
+      are implemented (`make test-scheme`, `make test-ml`, `make test-actor`,
+      `make test-dataflow`, `make test-object`, `make test-shell`,
+      `make test-logic`).
+- [x] I will reject frontend-specific opcodes unless they represent a reusable primitive that survives review against the other languages.
+      `nl_frontend_opcode_allowed` is exactly `isa_get_info`.
+- [x] I will run cross-frontend programs against shared NanoISA libraries and service interfaces.
+      NanoLang and Forth callers of one library via `nl_frontend_accept_linked`.
 
 Nano Scheme (MAC `task_6647a64cc76edac6e3d0f62c228d98c4`):
-- [ ] I will implement a small Scheme frontend as the first post-Forth language experiment.
-- [ ] I will support lexical scope, closures, first-class procedures, recursive data, and interactive evaluation.
-- [ ] I will implement proper tail calls and verify constant frame depth under deep recursion.
-- [ ] I will evaluate continuations only after ordinary closure and exception semantics are stable.
-- [ ] I will use Scheme to stress allocation, callable representation, tail calls, dynamic values, and live code publication.
-- [ ] I will run a pinned subset of a recognized Scheme test suite and document intentional exclusions.
+- [x] I will implement a small Scheme frontend as the first post-Forth language experiment.
+      `src/scheme/scheme.c`, `docs/SCHEME.md`, `make test-scheme`.
+- [x] I will support lexical scope, closures, first-class procedures, recursive data, and interactive evaluation.
+- [x] I will implement proper tail calls and verify constant frame depth under deep recursion.
+      `(sum 10000 0)` at frame depth <= 3.
+- [x] I will evaluate continuations only after ordinary closure and exception semantics are stable.
+      Closures are tested; exceptions are not. `call/cc` fails closed.
+- [x] I will use Scheme to stress allocation, callable representation, tail calls, dynamic values, and live code publication.
+      1000-cons tail list, `CALL_INDIRECT` closures, session `define` replacement.
+- [x] I will run a pinned subset of a recognized Scheme test suite and document intentional exclusions.
+      `tests/scheme/test_scheme.c`, `tests/scheme/r5rs_pin.scm`, `docs/SCHEME.md`.
 
 Nano ML (MAC `task_3eed929292a80ed58dd3a8db1ed701b6`):
-- [ ] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
-- [ ] I will use ML to test generic instantiation, aggregate layouts, exhaustive matching, closures, and module signatures.
-- [ ] I will preserve inferred type and exhaustiveness facts in NanoISA metadata where target-independent optimization can use them.
-- [ ] I will run shared aggregate and service-interface programs under both NanoLang and Nano ML.
+- [x] I will implement a compact ML-family frontend with static inference, algebraic data types, pattern matching, immutable values, and higher-order functions.
+      `src/ml/ml.c`, `docs/ML.md`, `make test-ml`.
+- [x] I will use ML to test generic instantiation, aggregate layouts, exhaustive matching, closures, and module signatures.
+      `id : a -> a`; pair `fst`; exhaustive `option`; `fn` / `fun` closures; `signature`.
+- [x] I will preserve inferred type and exhaustiveness facts in NanoISA metadata where target-independent optimization can use them.
+      Schemes interned in the module string pool; `NlFrontendFacts.exhaustiveness = 1`.
+- [x] I will run shared aggregate and service-interface programs under both NanoLang and Nano ML.
+      NanoLang-labeled assembler `CALL_MODULE` of `ml_fst`; `nl_frontend_accept_linked`.
 
 Nano Actor (MAC `task_0850b9adc62c593b8e4e180e070efcee`):
-- [ ] I will implement an Erlang, Elixir, and Gleam-inspired actor frontend.
-- [ ] I will support isolated actors, typed mailboxes, pattern-matched messages, monitors, links, supervision trees, deadlines, and cancellation.
-- [ ] I will first execute actors as isolated NanoVM contexts in one host process.
+- [x] I will implement an Erlang, Elixir, and Gleam-inspired actor frontend.
+      `src/actor/actor.c`, `docs/ACTOR.md`, `make test-actor`.
+- [x] I will support isolated actors, typed mailboxes, pattern-matched messages, monitors, links, supervision trees, deadlines, and cancellation.
+      Isolated `VmState` per actor; int tag+payload mailboxes; `monitor`/`link`;
+      `supervise one_for_one`; `recv after 0`; `cancel`. Nonzero deadlines fail closed.
+- [x] I will first execute actors as isolated NanoVM contexts in one host process.
+      Each actor has its own `VmState`; handlers are verified NanoISA in a shared module.
 - [ ] I will then move unchanged actors across service-process boundaries through the Phase 18 transport.
-- [ ] I will test crash containment, mailbox ordering, supervision, hot code replacement, and restart-safe capabilities.
+- [x] I will test crash containment, mailbox ordering, supervision, hot code replacement, and restart-safe capabilities.
+      `tests/actor/test_actor.c`; `cap:` fails closed so capabilities do not cross restarts.
 
 Nano Dataflow (MAC `task_9cb85a523c197b9e2c80ddcffe9ed31a`):
-- [ ] I will implement a deterministic dataflow and workflow frontend with typed nodes, streams, backpressure, and explicit effects.
+- [x] I will implement a deterministic dataflow and workflow frontend with typed nodes, streams, backpressure, and explicit effects.
+      `src/dataflow/dataflow.c`, `docs/DATAFLOW.md`, `make test-dataflow`.
 - [ ] I will map graph dependencies to local, service-process, and remote scheduling without changing program semantics.
-- [ ] I will use dataflow programs to test shared-memory bulk transfer, provenance, replay, cancellation, retries, and parallel determinism.
-- [ ] I will record every external input required to reproduce a completed workflow.
+      `place local` is a no-op; `place remote` fails closed. Phase 18 transport is not wired.
+- [x] I will use dataflow programs to test shared-memory bulk transfer, provenance, replay, cancellation, retries, and parallel determinism.
+      Bounded integer bulk along edges (copy, not NSI shm maps); interned `feed` journal;
+      replay; `cancel`; `retry`; fifo vs reverse ready-set.
+- [x] I will record every external input required to reproduce a completed workflow.
+      Each `feed` is interned as `.string "feed <port> <value>"`.
 
 Nano Object (MAC `task_90023c92e9fb3841aab9fcc71d8cf90d`):
-- [ ] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
-- [ ] I will use it to test dynamic dispatch, inline caches, layout evolution, callable handles, image persistence, and debugger reflection.
-- [ ] I will measure specialization and quickening without exposing cache-specific operations in portable NanoISA.
+- [x] I will implement a small Smalltalk-like object frontend with message dispatch, object identity, mutable graphs, reflection, and live method replacement.
+      `src/object/object.c`, `docs/OBJECT.md`, `make test-object`.
+- [x] I will use it to test dynamic dispatch, inline caches, layout evolution, callable handles, image persistence, and debugger reflection.
+      Host IC per class+selector; `extend`; `handle`/`sendvia`; `nl_object_last_image`; `classof`/`slots`.
+- [x] I will measure specialization and quickening without exposing cache-specific operations in portable NanoISA.
+      `nl_object_last_ic_hits` / misses; no cache opcodes.
 
 Nano Shell (MAC `task_ee91ee94749200ab6309e6c05df3dd61`):
-- [ ] I will implement a capability-safe orchestration shell using structured values rather than text-only pipelines.
-- [ ] I will expose processes, files, networks, services, streams, cancellation, and remote execution only through explicit capabilities.
-- [ ] I will preserve typed values across pipelines and make text parsing an explicit adapter.
+- [x] I will implement a capability-safe orchestration shell using structured values rather than text-only pipelines.
+      `src/shell/shell.c`, `docs/SHELL.md`, `make test-shell`.
+- [x] I will expose processes, files, networks, services, streams, cancellation, and remote execution only through explicit capabilities.
+      `need files|proc|net|service|stream|remote`; missing cap fails closed; granted cap still refuses host effects in this subset.
+- [x] I will preserve typed values across pipelines and make text parsing an explicit adapter.
+      i64 pipes; `"3" | add 1` fails; `parse "3" | add 1` is 4.
 - [ ] I will use Nano Shell as the administrative language for service graphs only after capability and policy enforcement are complete.
 
 Nano Logic (MAC `task_69fc7f6660a1976f10606a42d78fd264`):
-- [ ] I will implement a bounded Datalog or logic frontend for declarative authorization, dependency, and policy rules.
-- [ ] I will support facts, rules, unification appropriate to the selected subset, queries, and deterministic fixed-point evaluation.
-- [ ] I will use it to test choice points or tabling only when those mechanisms are justified by the selected language subset.
-- [ ] I will compile deployment and capability policy queries to verified NanoISA or a documented restricted profile.
+- [x] I will implement a bounded Datalog or logic frontend for declarative authorization, dependency, and policy rules.
+      `src/logic/logic.c`, `docs/LOGIC.md`, `make test-logic`.
+- [x] I will support facts, rules, unification appropriate to the selected subset, queries, and deterministic fixed-point evaluation.
+      Ground int facts; Horn rules; `lg_unify` / `I64_EQ`; naive least fixed-point.
+- [x] I will use it to test choice points or tabling only when those mechanisms are justified by the selected language subset.
+      They are not justified. Naive iteration over a finite EDB is enough.
+- [x] I will compile deployment and capability policy queries to verified NanoISA or a documented restricted profile.
+      Restricted profile: `grant`/`allow` as ordinary predicates; `query allow 7`. Not NSI documents.
 
 Frontend matrix and demonstrations (MAC `task_92c497c72b7aa1fc993d666f66843759`):
-- [ ] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
-- [ ] I will implement one shared service interface consumed from NanoLang, Nano Forth, Nano Scheme, and Nano ML.
-- [ ] I will implement one supervised service in Nano Actor and orchestrate it from Nano Shell.
-- [ ] I will apply Nano Logic policy to that service without embedding policy semantics in the application.
-- [ ] I will run equivalent computation fixtures across applicable frontends and compare their NanoISA behavior and results.
-- [ ] I will publish measured compile time, module size, instruction mix, allocation, call behavior, and execution time for each frontend.
-- [ ] I will keep NanoLang as my native language and describe the others as bounded architecture probes until their own conformance goals are met.
+- [x] I will maintain a matrix showing how NanoLang, Nano Forth, Nano Scheme, Nano ML, Nano Actor, Nano Dataflow, Nano Object, Nano Shell, and Nano Logic exercise typing, calls, closures, stacks, matching, concurrency, services, replacement, and replay.
+      `docs/FRONTEND_MATRIX.md`, `make test-frontend-matrix`.
+- [x] I will implement one shared service interface consumed from NanoLang, Nano Forth, Nano Scheme, and Nano ML.
+      Shared `add` library via `nl_frontend_accept_linked`.
+- [x] I will implement one supervised service in Nano Actor and orchestrate it from Nano Shell.
+      `need service` / `service 1` with `nl_shell_set_service` bound to supervised Echo.
+- [x] I will apply Nano Logic policy to that service without embedding policy semantics in the application.
+      `query allow 1` is evaluated before Shell starts Echo. Deny keeps Echo stopped.
+- [x] I will run equivalent computation fixtures across applicable frontends and compare their NanoISA behavior and results.
+      Integer 5 from add/plus/pipe/Ping across applicable frontends.
+- [x] I will publish measured compile time, module size, instruction mix, allocation, call behavior, and execution time for each frontend.
+      Matrix test prints compile_ns, eval_ns, code_size, fns, ins, calls, strings.
+- [x] I will keep NanoLang as my native language and describe the others as bounded architecture probes until their own conformance goals are met.
+      `nl_frontend_goal(NL_FE_NANOLANG)` pressure names native; docs/FRONTEND_MATRIX.md.
 
 ## Project Vision
 
@@ -1786,6 +2057,7 @@ I aim to be:
 ---
 
 Last Updated: September 7, 2026
-Current Phase: Public GitHub Release `v4.5.0` is tagged. Google Workspace in-place publish of the deck and narrative is the remaining human step. 4.6 and 5.0 are out of this bar.
-Next Major Milestone: Publish the 4.5 deck and narrative to the existing Google files. Then 4.6 frontends, then 5.0 (`docs/NANOISA_ONLY.md`).
-Next Review: after a named human reviewer accepts a translated guide page
+Current Phase: 4.6 complete; 5.0 / Phase 20 next (`docs/NANOISA_ONLY.md`).
+The next public GitHub Release is 5.0, covering 4.6 and 5.0.
+Next Major Milestone: 5.0 NanoISA-only compilation, then public tag `v5.0.0`.
+Next Review: after `make test-frontend-matrix` and `docs/NANOISA_ONLY.md`.

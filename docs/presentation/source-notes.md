@@ -15,6 +15,8 @@
 - `src/nanovm/heap_cycles.c` is the cycle collector.
 - `docs/NANOISA_MEASUREMENTS.md` is the performance authority.
 - `tests/nanoisa/`, `tests/nanovm/`, and `tests/nanovirt/` are executable evidence.
+- `docs/ROADMAP.md` records unresolved platform and example-catalog work; it is
+  not release evidence until its named acceptance gate passes.
 
 - `docs/NSI.md`, `docs/NSI_FABRIC.md`, `docs/NSI_EFFECTS.md`, `docs/NSI_TCB.md`,
   and `src/nsi*.c` are the NSI, fabric, policy, journal, and observability

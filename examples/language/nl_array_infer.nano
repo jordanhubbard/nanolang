@@ -8,7 +8,7 @@
 # Build: local
 # Dependencies: none
 # Tags: arrays, shadow-tested
-# Expected Output: array inference
+# Expected Output: Sum: 100
 
 /* Array Type Inference Example
    Arrays can now be declared without explicit element type annotation.

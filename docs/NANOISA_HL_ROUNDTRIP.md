@@ -79,9 +79,8 @@ The C I emit uses `l0` / `a0` / `t0`.
 
 `make test-nvm2c` compiles that C with `cc -std=c11` and checks the
 process exits `42`. The generated source must contain ` + ` and must not
-contain `nano_vm`, a bytecode blob, or `CALL_EXTERN`.
-
-This is not a product CLI. `nano_virt -o binary` still uses `wrapper_gen`.
+contain `nano_vm`, a bytecode blob, or `CALL_EXTERN`. `bin/nvm2c` is the
+seed CLI. `nano_virt -o binary` still uses `wrapper_gen`.
 Imports and `PUSH_STR` are refused: they are outside the subset, and
 `CALL_EXTERN` is the VM FFI path.
 

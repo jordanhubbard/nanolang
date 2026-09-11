@@ -17,7 +17,8 @@ I have several execution paths. They share syntax but not complete feature parit
 | `bin/nano_vm` | Execute NanoISA bytecode |
 | `bin/nano_vmd` | Run the NanoVM daemon |
 | `bin/nano_cop` | Isolate supported foreign calls in a co-process |
-| `bin/nano_emacs_worker` | Isolated SDL-editor walker (no SDL in the worker) |
+| `bin/nvm2c` | Translate a closed NanoISA subset to structured C11 |
+| `bin/nanoisa_emit` | Lower a pinned integer subset to NanoISA assembly (`make nanoisa_emit`) |
 
 Run each tool with `--help` where provided. The generated [Compiler CLI](../generated/cli.md) page records the compiler's current help text.
 
@@ -33,7 +34,7 @@ Run each tool with `--help` where provided. The generated [Compiler CLI](../gene
 | RISC-V assembly | `nanoc source.nano --target riscv -o program.s` | Experimental subset |
 | NanoISA | `nano_virt source.nano -o program.nvm` | Virtual-machine path with isolated FFI support |
 
-Future LLVM and WebAssembly targets translate from NanoISA rather than branching from my source AST. C11 from NanoISA is a closed-subset spike (`nvm2c`, `make test-nvm2c`), not `nano_virt`'s default native wrapper that still embeds the VM.
+Future LLVM and WebAssembly targets translate from NanoISA rather than branching from my source AST. C11 from NanoISA is `bin/nvm2c` on a closed subset (`make test-nvm2c`), not `nano_virt`'s default native wrapper that still embeds the VM.
 
 ## Diagnostics
 

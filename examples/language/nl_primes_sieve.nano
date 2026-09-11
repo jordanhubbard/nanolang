@@ -4,7 +4,7 @@
 # Difficulty: Intermediate
 # Category: language
 # Prerequisites: nl_hello, nl_control_if_while, nl_primes
-# Expected Output: Calculating primes up to 1,000,000 (OPTIMIZED - Sieve of Eratosthenes)...
+# Expected Output: Calculating primes up to 1000000 (OPTIMIZED - Sieve of Eratosthenes)...
 
 # @pure
 fn count_primes_sieve(limit: int) -> int {
