@@ -55,6 +55,10 @@ PYTHON_WITH_YAML ?= $(shell if python3 -c 'import yaml' >/dev/null 2>&1; then co
 # COMMON_OBJECTS, and transpiler.o carries TLS that ld rejects without PIC
 # (R_X86_64_TPOFF32). Darwin dylibs hid this until Ubuntu CI built examples.
 CFLAGS = -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE
+# Every object records the headers it actually consumed. Pattern-specific
+# flags keep dependency generation away from one-shot compile-and-link tests,
+# where it would leave stray .d files beside test binaries.
+DEPFLAGS ?= -MMD -MP
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
@@ -95,6 +99,14 @@ SRC_NANO_DIR = src_nano
 OBJ_DIR = obj
 BIN_DIR = bin
 BUILD_DIR = $(OBJ_DIR)/build_bootstrap
+
+# Existing dependency files participate in the next make invocation. -MP gives
+# deleted headers empty rules, so make reaches the compiler and reports the real
+# missing include instead of failing while it reads a stale dependency file.
+DEPENDENCY_FILES := $(shell find $(OBJ_DIR) -type f -name '*.d' 2>/dev/null)
+-include $(DEPENDENCY_FILES)
+
+$(OBJ_DIR)/%.o: override CFLAGS += $(DEPFLAGS)
 # Module FFI cache. nanoc honors NANO_BUILD_CACHE; Make exports this so
 # `make clean` (rm -rf $(OBJ_DIR)) and module compiles share one tree.
 MODULE_BUILD_CACHE ?= $(OBJ_DIR)/module_cache
@@ -1791,6 +1803,7 @@ test-forth-wordsets:
 # Core test implementation (used by all test variants)
 .PHONY: test-impl
 test-impl: test-units
+	@bash tests/test_make_header_dependencies.sh
 	@$(MAKE) --no-print-directory test-locale-cli
 	@$(MAKE) --no-print-directory test-src-utf8
 	@$(MAKE) --no-print-directory test-locale-catalog
@@ -2185,6 +2198,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@bash tests/test_make_header_dependencies.sh
 	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
 	@bash tests/test_ci_dependency_install.sh
@@ -2212,6 +2226,11 @@ else
 	@$(MAKE) --no-print-directory test-forth-pty
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
 endif
+
+.PHONY: test-make-header-dependencies
+test-make-header-dependencies:
+	@echo "Checking incremental C header dependencies..."
+	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
 
 .PHONY: test-affine-selfhost
 test-affine-selfhost: bootstrap
