@@ -243,6 +243,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       tracking and test that parser/import changes rebuild the affected
       compiler stages. A stale selected binary must not survive a successful
       source rebuild unnoticed. MAC `task_a98f6940228e47b3a503472d0ba5d2a4`.
+      I also check missing stage binaries through transitive dependencies:
+      the current wrapper only checks the stage named directly by the user.
+      Source dependencies and selected-compiler bootstrap ordering are now
+      implemented. Four isolated tests query the real make rules for clean
+      state, changed sources/build rules, unrelated examples, and missing
+      artifacts. Stage one rebuilds and passes its executable smoke test.
+      Stage-two recompilation and the full selected-compiler gate remain
+      unverified; I do not count dependency queries as compiler validation.
 - [x] **5.0 module introspection parity.** I derive module name/path,
       public function and struct inventories, unsafe status, and FFI status
       from each original module before import flattening. I emit the complete

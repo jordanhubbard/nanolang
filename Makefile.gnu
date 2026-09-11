@@ -136,6 +136,9 @@ SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 
 # Bootstrap binaries
 NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
+# I conservatively track every compiler source, including nested imports.
+nano_source_tree = $(wildcard $(1)/*.nano) $(foreach dir,$(wildcard $(1)/*/),$(call nano_source_tree,$(patsubst %/,%,$(dir))))
+SELFHOST_SOURCES := $(sort $(call nano_source_tree,$(SRC_NANO_DIR)))
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
@@ -1810,6 +1813,7 @@ test-forth-wordsets:
 .PHONY: test-impl
 test-impl: test-units
 	@bash tests/test_make_header_dependencies.sh
+	@python3 tests/test_bootstrap_source_dependencies.py
 	@$(MAKE) --no-print-directory test-locale-cli
 	@$(MAKE) --no-print-directory test-src-utf8
 	@$(MAKE) --no-print-directory test-locale-catalog
@@ -2546,6 +2550,11 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 		echo "✓ Compiler: $(COMPILER) -> $(COMPILER_C) (C reference)"; \
 	fi
 
+# Once bootstrap is installed, a normal build must refresh it before use.
+ifneq ($(wildcard $(SENTINEL_BOOTSTRAP3)),)
+$(COMPILER): | $(SENTINEL_BOOTSTRAP3)
+endif
+
 # Interpreter removed - NanoLang is a compiled language
 
 # Interpreter binary: bin/nano runs programs directly via the tree-walking interpreter
@@ -2632,7 +2641,7 @@ $(OBJ_DIR)/eval/%.o: $(SRC_DIR)/eval/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/eval
 
 stage2: $(SENTINEL_STAGE2)
 
-$(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
+$(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo ""
 	@echo "=========================================="
 	@echo "Stage 2: Building Self-Hosted Components"
@@ -2725,6 +2734,16 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 
 .PHONY: bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3
 
+# I do not trust a stamp when its compiler artifact has disappeared, even
+# when a later stage was requested directly.
+.PHONY: missing-bootstrap-artifact
+ifeq ($(wildcard $(NANOC_STAGE1)),)
+$(SENTINEL_BOOTSTRAP1): missing-bootstrap-artifact
+endif
+ifeq ($(wildcard $(NANOC_STAGE2)),)
+$(SENTINEL_BOOTSTRAP2): missing-bootstrap-artifact
+endif
+
 # Full bootstrap: Run all stages
 bootstrap: $(SENTINEL_BOOTSTRAP3)
 	@echo ""
@@ -2770,7 +2789,7 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
