@@ -169,8 +169,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       `docs/FORMAL_TOOLING_DECISION.md` assesses all five tools and retains Rocq.
       The pinned Sail 0.20.2 stack slice typechecks, generates C, compiles, and
       passes seven smoke assertions via `bash scripts/check_sail_container.sh`
-      (2026-09-11). Schema agreement, differential VM tests and prover exports
-      remain unverified; this trial is not a complete ISA model.
+      (2026-09-11). The same runner now checks the schema and matches production
+      `isa_decode` on 1,524 deterministic byte sequences; nine schema-drift tests
+      pass. Differential VM execution and prover exports remain unverified;
+      this trial is not a complete ISA model.
 - [x] **Formal audit defect — missing evaluator theorem.** My formal README
       advertised `eval_fn_sound` while `EvalFn.v` contained only selected case
       lemmas. I implemented all aggregate cases and strong fuel induction,

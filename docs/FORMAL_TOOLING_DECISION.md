@@ -67,9 +67,10 @@ diagnostics and ordinary executable examples as the everyday authoring path.
 More proof tools do not make that path enjoyable by themselves.
 
 My [bounded Sail trial](../formal/sail/README.md) now typechecks, generates C,
-compiles and runs seven smoke assertions with Sail 0.20.2. This establishes
-toolchain viability, not implementation agreement. The next acceptance evidence
-is schema agreement and differential decoding/execution tests against the
-actual implementation.
+compiles and runs seven smoke assertions with Sail 0.20.2. Schema checks and
+1,524 differential byte sequences now establish tested agreement with the
+production decoder for that slice. This is not an ISA refinement proof.
+The next acceptance evidence is differential execution against NanoVM and
+coverage of integer boundaries, control flow and traps.
 The broader language contract, native service runtime, scoped FFI and release
 controls remain in [my roadmap](ROADMAP.md).
