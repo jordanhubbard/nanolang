@@ -361,22 +361,33 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       because the evaluator cannot execute that linked archive. Marker files
       must remain absent. This does not cover generated-list command paths,
       runtime-source paths or all raw compiler/linker flag fragments.
-- [ ] **5.0 C link paths — runtime sources and module objects.** Runtime
+- [x] **5.0 C link paths — runtime sources and module objects.** Runtime
       sources and generated-wrapper paths now enter the command as quoted
       words, and NanoLang module-object lists quote and deduplicate complete
       arguments while rejecting overflow. Copied compiler installations under
       spaces/apostrophes and shell-substitution paths compile and execute.
-      The expanded suite currently passes 16 of 18 tests; two filename tests
-      fail in metadata C generation below, after checking no shell marker was
-      created. I retain their successful-build assertions, not an expected
-      failure exemption, until that contract is repaired.
-- [ ] **5.0 module metadata — filenames versus C identifiers.** The C
-      transpiler uses raw module filenames in `___module_*` helper symbols.
+      The first expanded suite passed 16 of 18 tests; two filename tests
+      failed in metadata C generation below, after checking no shell marker
+      was created. With the metadata repair, all 20 tests now pass without
+      an expected-failure exemption (2026-09-11).
+- [x] **5.0 module metadata — filenames versus C identifiers.** The C
+      transpiler previously used raw module filenames in `___module_*` symbols.
       Filenames containing spaces, apostrophes or command-substitution syntax
-      produce invalid C even when shell arguments are quoted correctly. I
-      must reconcile helper definitions and call-site naming without creating
-      collisions or changing the reported module identity. The two new
-      executable filename tests currently fail and remain required.
+      produced invalid C even when shell arguments were quoted correctly.
+      I now share an injective reserved-prefix/hex encoding across helper
+      definitions, C function mapping, extern declarations and serialized
+      metadata suffixes. Ordinary suffixes retain their spelling; reserved
+      prefix names are encoded too. The 20 build tests pass, including the
+      two previous failures, collision cases and an encoded helper call that
+      reports the original module name. C-seed module introspection, extern
+      selection and parenthesized-parser gates pass; 17 metadata unit tests
+      linked against rebuilt objects also pass (2026-09-11). This is tested
+      C-backend behavior, not complete self-hosted/VM metadata parity.
+- [ ] **5.0 metadata — C literal and comment boundaries.** Generated module
+      metadata still interpolates names and paths into C string literals and
+      comments without a complete escaping contract. I must test quotes,
+      backslashes, newlines and comment delimiters independently of symbol
+      encoding; a safe identifier does not make its associated text safe C.
 - [x] **5.0 generic-list generator — publication boundaries.** I stage both
       generated files privately before replacing either published file, reject
       type names that can escape the output directory, and test overlapping

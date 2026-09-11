@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
 #include <stdarg.h>
@@ -951,6 +952,8 @@ static void mangle_module_name(char *dest, size_t dest_size, const char *module_
 
 /* Helper: Get C function name with namespace mangling support */
 static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern) {
+    const char *helper_name = module_helper_c_name(nano_name);
+    if (helper_name != nano_name) return helper_name;
     /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
     static _Thread_local char buffer[512];
     
@@ -2781,6 +2784,7 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         if (!mod || !mod->name) continue;
         
         const char *module_name = mod->name;
+        const char *module_symbol = module_symbol_suffix(module_name);
         
         #ifdef DEBUG_MODULE_INTROSPECTION
         fprintf(stderr, "DEBUG: Generating functions for module '%s' (unsafe=%d, has_ffi=%d)\n",
@@ -2798,32 +2802,32 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         /* These can be called from NanoLang to introspect modules at compile-time */
         
         /* Function: ___module_is_unsafe_<NAME>() -> bool */
-        sb_appendf(sb, "static inline bool ___module_is_unsafe_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline bool ___module_is_unsafe_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %s;\n", mod->is_unsafe ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_has_ffi_<NAME>() -> bool */
-        sb_appendf(sb, "static inline bool ___module_has_ffi_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline bool ___module_has_ffi_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %s;\n", mod->has_ffi ? "1" : "0");
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_name_<NAME>() -> string */
-        sb_appendf(sb, "static inline const char* ___module_name_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline const char* ___module_name_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return \"%s\";\n", module_name);
         sb_append(sb, "}\n\n");
         
         /* Function: ___module_path_<NAME>() -> string */
-        sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_name);
+        sb_appendf(sb, "static inline const char* ___module_path_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return \"%s\";\n", mod->path ? mod->path : "");
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_function_count_<NAME>() -> int */
-        sb_appendf(sb, "int64_t ___module_function_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "int64_t ___module_function_count_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %d;\n", mod->function_count);
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_function_name_<NAME>(idx: int) -> string */
-        sb_appendf(sb, "const char* ___module_function_name_%s(int64_t idx) {\n", module_name);
+        sb_appendf(sb, "const char* ___module_function_name_%s(int64_t idx) {\n", module_symbol);
         if (mod->function_count > 0 && mod->exported_functions) {
             for (int j = 0; j < mod->function_count; j++) {
                 const char *fname = mod->exported_functions[j] ? mod->exported_functions[j] : "";
@@ -2841,12 +2845,12 @@ static void generate_module_metadata(Environment *env, StringBuilder *sb) {
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_struct_count_<NAME>() -> int */
-        sb_appendf(sb, "int64_t ___module_struct_count_%s(void) {\n", module_name);
+        sb_appendf(sb, "int64_t ___module_struct_count_%s(void) {\n", module_symbol);
         sb_appendf(sb, "    return %d;\n", mod->struct_count);
         sb_append(sb, "}\n\n");
 
         /* Function: ___module_struct_name_<NAME>(idx: int) -> string */
-        sb_appendf(sb, "const char* ___module_struct_name_%s(int64_t idx) {\n", module_name);
+        sb_appendf(sb, "const char* ___module_struct_name_%s(int64_t idx) {\n", module_symbol);
         if (mod->struct_count > 0 && mod->exported_structs) {
             for (int j = 0; j < mod->struct_count; j++) {
                 const char *sname = mod->exported_structs[j] ? mod->exported_structs[j] : "";
@@ -4640,7 +4644,7 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
             sb_append(sb, type_to_c((_return_type))); \
         } \
         \
-        sb_appendf(sb, " %s(", func_name); \
+        sb_appendf(sb, " %s(", module_helper_c_name(func_name)); \
         for (int j = 0; j < (_param_count); j++) { \
             if (j > 0) sb_append(sb, ", "); \
             const char *sdl_param_type = get_sdl_c_type(func_name, j, false); \

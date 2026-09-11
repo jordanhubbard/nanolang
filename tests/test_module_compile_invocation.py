@@ -63,6 +63,8 @@ class ModuleCompileInvocation(unittest.TestCase):
             elif mode == "shell_output":
                 output_name = "program$(touch injected)"
             module_relative = "single_invocation_probe.nano"
+            if mode == "encoded_metadata_call":
+                module_relative = "__nano_hex_single_invocation_probe.nano"
             if mode in ("quoted_filename", "shell_filename"):
                 module_relative = ("single_invocation_probe space's.nano" if mode == "quoted_filename" else
                                    "single_invocation_probe$(touch injected).nano")
@@ -77,8 +79,10 @@ class ModuleCompileInvocation(unittest.TestCase):
             (path / "main.nano").write_text(
                 f'module "{module_relative}" as probe\n' +
                 ("extern fn probe_value() -> int\n" if link_arguments else "") +
+                ("extern fn ___module_name___nano_hex_single_invocation_probe() -> string\n" if mode == "encoded_metadata_call" else "") +
                 "fn main() -> int { assert (== (probe.answer) 42) " +
                 ("unsafe { assert (== (probe_value) 42) } " if link_arguments else "") +
+                ('unsafe { assert (== (___module_name___nano_hex_single_invocation_probe) "__nano_hex_single_invocation_probe") } ' if mode == "encoded_metadata_call" else "") +
                 "return 0 }\n" +
                 ("shadow main { assert (== (probe.answer) 42) }\n" if link_arguments else
                  "shadow main { assert (== (main) 0) }\n"))
@@ -161,7 +165,7 @@ class ModuleCompileInvocation(unittest.TestCase):
                 self.assertIn("I could not represent all module compiler arguments.", output)
                 return
             self.assertEqual(calls, ["compile"], output[-4000:])
-            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library", "quoted_root", "shell_root", "quoted_filename", "shell_filename"):
+            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library", "quoted_root", "shell_root", "quoted_filename", "shell_filename", "encoded_metadata_call"):
                 self.assertEqual(process.returncode, 0, output[-4000:])
                 subprocess.run([str(path / output_name)], check=True, timeout=10)
             else:
@@ -226,6 +230,42 @@ class ModuleCompileInvocation(unittest.TestCase):
 
     def test_module_filename_cannot_execute_shell_substitution(self):
         self.check_compile("shell_filename")
+
+    def test_encoded_metadata_call_preserves_reported_name(self):
+        self.check_compile("encoded_metadata_call")
+
+    def test_symbol_suffix_collisions_and_call_mapping(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            driver = path / "symbols.c"
+            driver.write_text(r'''
+#include "module_symbol.h"
+#include <assert.h>
+int main(void) {
+    const char *names[] = {"plain", "a-b", "a_b", "a b", "a'b", "",
+        "__nano_hex_612d62", "__nano_hex_", "a$(touch marker)", "\xc3\xa9"};
+    char symbols[10][4096];
+    for (unsigned i = 0; i < 10; i++) {
+        strcpy(symbols[i], module_symbol_suffix(names[i]));
+        for (const char *p = symbols[i]; *p; p++)
+            assert((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
+                   (*p >= '0' && *p <= '9') || *p == '_');
+        for (unsigned j = 0; j < i; j++) assert(strcmp(symbols[i], symbols[j]) != 0);
+        char logical[8192], expected[8192];
+        snprintf(logical, sizeof(logical), "___module_name_%s", names[i]);
+        snprintf(expected, sizeof(expected), "___module_name_%s", symbols[i]);
+        assert(strcmp(module_helper_c_name(logical), expected) == 0);
+    }
+    assert(strcmp(symbols[0], "plain") == 0);
+    assert(strcmp(symbols[2], "a_b") == 0);
+    return 0;
+}
+''')
+            subprocess.run(["cc", "-std=c99", "-Wall", "-Wextra", "-Werror",
+                            "-fsanitize=undefined", "-fno-sanitize-recover=undefined",
+                            "-I", str(ROOT / "src"), str(driver), "-o", str(path / "test")],
+                           check=True, capture_output=True, timeout=20)
+            subprocess.run([str(path / "test")], check=True, timeout=10)
 
 
 if __name__ == "__main__":

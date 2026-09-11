@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "module_symbol.h"
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -261,22 +262,7 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
      * symbol does not collide when several module objects are linked into a
      * single binary (previously every module exported `_module_metadata`,
      * causing multiple-definition link errors). */
-    char module_ident[256];
-    {
-        const char *src = meta->module_name ? meta->module_name : "unknown";
-        size_t oi = 0;
-        for (size_t si = 0; src[si] && oi < sizeof(module_ident) - 1; si++) {
-            char ch = src[si];
-            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
-                (ch >= '0' && ch <= '9')) {
-                module_ident[oi++] = ch;
-            } else {
-                module_ident[oi++] = '_';
-            }
-        }
-        if (oi == 0) module_ident[oi++] = '_';
-        module_ident[oi] = '\0';
-    }
+    const char *module_ident = module_symbol_suffix(meta->module_name ? meta->module_name : "unknown");
     
     /* Count and declare FunctionSignature arrays */
     int fn_sig_count = count_function_signatures(meta);
@@ -558,4 +544,3 @@ bool deserialize_module_metadata_from_c(const char *c_code, ModuleMetadata **met
     *meta_out = NULL;
     return false;
 }
-

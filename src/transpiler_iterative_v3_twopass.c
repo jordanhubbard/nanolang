@@ -424,6 +424,8 @@ static void emit_indent_item(WorkList *list, int level) {
 #include "builtins_registry.h"
 
 static const char *map_function_name(const char *name, Environment *env) {
+    const char *helper_name = module_helper_c_name(name);
+    if (helper_name != name) return helper_name;
     /* Handle qualified names: module::func or nested::module::func */
     const char *double_colon = strstr(name, "::");
     if (double_colon) {
