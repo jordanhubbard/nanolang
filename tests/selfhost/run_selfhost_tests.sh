@@ -29,6 +29,7 @@ test_function_calls.nano
 test_let_set.nano
 test_if_else.nano
 test_match_bindings.nano
+test_match_expression_blocks.nano
 test_infix_ops.nano
 "
 

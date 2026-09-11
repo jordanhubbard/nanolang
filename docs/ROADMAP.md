@@ -425,6 +425,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       infer its returned value, while `generate_match_expr` emits an unsupported
       arm-block comment. I must establish block-result/control-flow semantics
       and carry checked result types through lowering, with executable cases.
+      The C seed is not a semantic oracle here: both guarded and unguarded
+      expression-match lowering scan for a direct return and skip the arm's
+      other statements. I must test locals, side effects, nested returns and
+      continuation after the match on both backends before claiming repair.
+      `tests/test_match_block_semantics.py` now isolates these three cases on
+      each native compiler: all six fail (2026-09-11). The C seed drops a local
+      declaration, loses a side effect and rejects branch-result inference;
+      Stage 2 emits `nl_unknown`. The combined fixture is in the self-hosted
+      runner. These probe the current arm-local expression-return convention,
+      not an approved new 5.0 rule: I have requested a decision between that
+      convention and function-scoped `return` with separate match values.
       I first add bare unary parsing and execute every infix fixture assertion
       from `main`, rather than relying on imported shadow execution.
 - [x] **5.0 self-hosted unary expressions.** I parse bare `not` and unary
