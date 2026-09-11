@@ -1368,7 +1368,9 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_ROT3) {
-            if (vm->stack_size < 3) VM_NEXT();
+            if (!stack_has_operands(vm, 3))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need three operands for ROT3.");
             uint32_t top = vm->stack_size - 1;
             NanoValue a = vm->stack[top];
             vm->stack[top] = vm->stack[top - 1];
@@ -1379,10 +1381,9 @@ vm_dispatch_top:
 
         VM_CASE(OP_PICK) {
             uint16_t depth = instr.operands[0].u16;
-            if (depth >= vm->stack_size)
+            if (!stack_has_operands(vm, (uint32_t)depth + 1))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
-                                  "PICK depth %u exceeds stack depth %u",
-                                  depth, vm->stack_size);
+                                  "I have no operand at PICK depth %u.", depth);
             NanoValue value = vm->stack[vm->stack_size - 1 - depth];
             vm_retain(&vm->heap, value);
             stack_push(vm, value);
@@ -1391,10 +1392,9 @@ vm_dispatch_top:
 
         VM_CASE(OP_ROLL) {
             uint16_t depth = instr.operands[0].u16;
-            if (depth >= vm->stack_size)
+            if (!stack_has_operands(vm, (uint32_t)depth + 1))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
-                                  "ROLL depth %u exceeds stack depth %u",
-                                  depth, vm->stack_size);
+                                  "I have no operand at ROLL depth %u.", depth);
             uint32_t index = vm->stack_size - 1 - depth;
             NanoValue value = vm->stack[index];
             memmove(&vm->stack[index], &vm->stack[index + 1],

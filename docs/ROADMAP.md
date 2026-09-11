@@ -375,6 +375,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       empty and singleton operand stacks, locals, and a caller stack prefix.
       Executable Sail agrees on 1,140 bounded integer stack cases; three
       corpus tests check determinism, boundaries, and non-vacuous coverage.
+- [x] **Formal audit defect — indexed and rotating stack boundaries.** I
+      make `ROT3`, `PICK`, and `ROLL` check frame-relative operands before
+      mutation. My tests cover insufficient operands with locals and caller
+      prefixes, including indexed depths zero and 65,535, and check that
+      every surviving operand remains unchanged. `make test-nanovm` passes
+      1,360 assertions (2026-09-11). This does not close the broader audit.
 - [ ] **Formal audit — remaining unchecked boundaries.** I audit the
       remaining checked stack handlers, which still
       return void or skip operations on some insufficient-operand paths.

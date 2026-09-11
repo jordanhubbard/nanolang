@@ -4690,16 +4690,23 @@ static void test_verified_flag_tracks_module_lifecycle(void) {
 
 /* I reject missing operands before touching locals or a caller's stack. */
 static void test_stack_slice_underflow(void) {
-    const NanoOpcode ops[] = {OP_DUP, OP_POP, OP_SWAP};
+    const NanoOpcode ops[] = {OP_DUP, OP_POP, OP_SWAP, OP_ROT3,
+                              OP_PICK, OP_ROLL, OP_PICK, OP_ROLL,
+                              OP_PICK, OP_ROLL};
+    const unsigned required[] = {1, 1, 2, 3, 3, 3, 1, 1, 65536, 65536};
     for (size_t op = 0; op < sizeof(ops) / sizeof(ops[0]); op++) {
-        unsigned needed = ops[op] == OP_SWAP ? 2 : 1;
-        for (unsigned depth = 0; depth < needed; depth++) {
+        unsigned needed = required[op];
+        for (unsigned depth = 0; depth < needed && depth <= 3; depth++) {
             for (unsigned locals = 0; locals <= 2; locals += 2) {
                 for (unsigned caller = 0; caller <= 2; caller += 2) {
                     uint8_t code[64];
                     uint32_t size = 0;
-                    if (depth) size += emit(code + size, OP_PUSH_I64, (int64_t)42);
-                    size += emit(code + size, ops[op]);
+                    for (unsigned i = 0; i < depth; i++)
+                        size += emit(code + size, OP_PUSH_I64, (int64_t)(42 + i));
+                    if (ops[op] == OP_PICK || ops[op] == OP_ROLL)
+                        size += emit(code + size, ops[op], (int)(needed - 1));
+                    else
+                        size += emit(code + size, ops[op]);
                     size += emit(code + size, OP_HALT);
                     NvmModule *mod = make_module(code, size, 0, (uint16_t)locals);
                     VmState vm;
@@ -4718,10 +4725,10 @@ static void test_stack_slice_underflow(void) {
                     for (unsigned i = 0; i < locals; i++)
                         ASSERT_EQ_INT(vm.stack[caller + i].tag, TAG_VOID,
                                       "I preserve frame locals");
-                    if (depth) {
-                        ASSERT_EQ_INT(vm.stack[vm.stack_size - 1].tag, TAG_INT,
+                    for (unsigned i = 0; i < depth; i++) {
+                        ASSERT_EQ_INT(vm.stack[caller + locals + i].tag, TAG_INT,
                                       "I preserve the remaining operand tag");
-                        ASSERT_EQ_INT(vm.stack[vm.stack_size - 1].as.i64, 42,
+                        ASSERT_EQ_INT(vm.stack[caller + locals + i].as.i64, 42 + i,
                                       "I preserve the remaining operand value");
                     }
                     vm_destroy(&vm);
