@@ -5,6 +5,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Incremental C builds now generate and include compiler dependency files, so
+  changing a directly or indirectly included header rebuilds every affected
+  object instead of mixing incompatible translation units (#211).
+
 ### Added
 - 4.6 Nano Scheme laboratory frontend: lexical scope, closures, pairs,
   named tail calls, and session `define` compiled to verified NanoISA.

@@ -139,6 +139,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       `task_ee91ee94749200ab6309e6c05df3dd61` (Shell),
       `task_69fc7f6660a1976f10606a42d78fd264` (Logic),
       `task_92c497c72b7aa1fc993d666f66843759` (matrix).
+- [x] **5.0 release — trustworthy incremental C builds.** I generate and
+      include compiler dependency files for every C object so a changed or
+      deleted header invalidates each translation unit that used it. My
+      regression proves an indirect header is recorded and that changing a
+      recorded dependency makes `make` rebuild the affected object. Verified
+      with `make rebuild`, `make test-make-header-dependencies`, and
+      `make test-quick`. GitHub #211.
+      MAC `task_9f8a6bf48d4c4117b1a551ee35c0b055`.
 - [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
       the only compiler product. Native AOT does not embed `nano_vm`.
       Public GitHub Release `v5.0.0` after 4.6 and this phase close.
