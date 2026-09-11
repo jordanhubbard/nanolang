@@ -634,7 +634,7 @@ static int require_cap(Rt *rt, int granted, const char *cap, const char *what) {
 
 static int eval_expr(Rt *rt, Expr *e, Val *out) {
     Val a, b;
-    int64_t ia, ib;
+    int64_t ia = 0, ib = 0;
     char *end;
     if (!e) return cc_fail(rt->cc, "I expected an expression");
     if (rt->cancelled) return cc_fail(rt->cc, "cancel stopped the pipeline");
