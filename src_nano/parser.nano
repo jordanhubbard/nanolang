@@ -2671,8 +2671,8 @@ fn parse_primary(p: Parser) -> Parser {
                                             }
                                         }
                                     } else {
-                                        /* If identifier, it's a function call: (funcname args...) */
-                                        if (== tok2.token_type (token_identifier)) {
+                                        /* I distinguish a call from grouped infix and tuple expressions. */
+                                        if (parenthesized_call_start p1) {
                                             let name_res: NameParseResult = (parse_call_name p1)
                                             if (not name_res.ok) {
                                                 return (parser_with_error name_res.p true)
@@ -2922,8 +2922,49 @@ fn parse_primary(p: Parser) -> Parser {
 }
 
 shadow parse_primary {
-    /* Tested via integration tests in tokenization and parsing pipeline */
-    assert (== 1 1)
+    let sources: array<string> = ["(sum + i)", "(a + b * c)", "(p.1, p.0)", "(p.x, p.y)", "(x, y)", "(f x)", "(f)", "(Mod.f x)"]
+    let kinds: array<int> = [ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_BINARY_OP, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_TUPLE_LITERAL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_CALL, ParseNodeType.PNODE_MODULE_QUALIFIED_CALL]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens)))
+        assert (not (parser_has_error parsed))
+        assert (== parsed.last_expr_node_type (at kinds i))
+        assert (parser_is_at_end parsed)
+        if (== i 1) {
+            let root: ASTBinaryOp = (list_ASTBinaryOp_get parsed.binary_ops parsed.last_expr_node_id)
+            assert (== root.op (token_star))
+            assert (== root.left_type ParseNodeType.PNODE_BINARY_OP)
+            let left: ASTBinaryOp = (list_ASTBinaryOp_get parsed.binary_ops root.left)
+            assert (== left.op (token_plus))
+        }
+        set i (+ i 1)
+    }
+    let malformed: List<LexerToken> = (tokenize_string "(x +)")
+    let rejected: Parser = (parse_primary (parser_new malformed (list_LexerToken_length malformed)))
+    assert (parser_has_error rejected)
+}
+
+fn parenthesized_call_start(p: Parser) -> bool {
+    let name: NameParseResult = (parse_call_name p)
+    if (not name.ok) { return false }
+    if (parser_is_at_end name.p) { return false }
+    let next: LexerToken = (parser_current name.p)
+    if (is_binary_op next.token_type) { return false }
+    if (== next.token_type (token_dot)) { return false }
+    if (== next.token_type (token_comma)) { return false }
+    return true
+}
+
+shadow parenthesized_call_start {
+    let sources: array<string> = ["f x)", "f)", "Mod.f x)", "x + y)", "p.1, p.0)", "p.x, p.y)", "42)"]
+    let expected: array<bool> = [true, true, true, false, false, false, false]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i))
+        assert (== (parenthesized_call_start (parser_new tokens (list_LexerToken_length tokens))) (at expected i))
+        set i (+ i 1)
+    }
 }
 
 /* Helper: Check if token is a binary operator */

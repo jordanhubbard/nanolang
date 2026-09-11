@@ -170,7 +170,27 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       is not evidence that the selected compiler passes my language corpus.
       Explicit `nanoc_c` compilation passes for control flow, enums, and
       module metadata; `bin/nanoc` selects the older `nanoc_stage2` binary.
+      A fresh C-seed-built NanoLang compiler with the parenthesized-expression
+      repair below now compiles and runs 11 of 14 language tests. Module
+      metadata and the two audio examples still fail. I can select a compiler
+      explicitly with `NANOLANG_COMPILER` in `tests/run_all_tests.sh`; the
+      default remains `bin/nanoc` and the runner prints the selected path.
       MAC `task_b11b688543574e82a96c0fb4f782d234` tracks this repair.
+- [x] **5.0 parser parity — grouped identifiers and tuple projections.**
+      I no longer commit to a prefix call merely because `(` is followed
+      by an identifier. Operator, comma, and tuple-projection continuations
+      use the existing expression/tuple parser. Eight AST-shape cases,
+      seven call-classification cases, equal-precedence left association,
+      and malformed grouping pass in the C-seed-built parser shadows.
+      A fresh compiler candidate compiles and runs the five previously
+      parse-failing language tests (2026-09-11). This does not establish
+      complete compiler parity or install a new stage-two compiler.
+- [ ] **5.0 audit defect — bootstrap source invalidation.** My stage-two
+      component and bootstrap-stage-one sentinels depend on prior-stage
+      sentinels, not the NanoLang sources they compile. I add source dependency
+      tracking and test that parser/import changes rebuild the affected
+      compiler stages. A stale selected binary must not survive a successful
+      source rebuild unnoticed. MAC `task_a98f6940228e47b3a503472d0ba5d2a4`.
 - [ ] **Formal audit — Sail adoption trial.** I record a sourced framework
       decision, run a pinned Sail toolchain on a NanoISA stack/constant slice,
       then extend it to schema-checked decoding and differential VM execution.

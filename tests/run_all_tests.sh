@@ -19,6 +19,8 @@
 #   NANOLANG_BACKEND=c       ./tests/run_all_tests.sh   # C transpiler (default)
 #   NANOLANG_BACKEND=vm      ./tests/run_all_tests.sh   # NanoVM bytecode
 #   NANOLANG_BACKEND=daemon  ./tests/run_all_tests.sh   # NanoVM daemon mode
+#   NANOLANG_COMPILER=./bin/nanoc_stage1 ./tests/run_all_tests.sh --lang
+#     I can test an explicit native compiler without changing bin/nanoc.
 #
 # ============================================================================
 
@@ -31,6 +33,7 @@ cd "$PROJECT_ROOT"
 
 # Backend selection: c (default), vm, daemon
 BACKEND="${NANOLANG_BACKEND:-c}"
+C_COMPILER="${NANOLANG_COMPILER:-./bin/nanoc}"
 
 mkdir -p .test_output
 rm -f .test_output/*.compile.log
@@ -182,7 +185,7 @@ run_test() {
     # Compile the test (backend-dependent)
     case "$BACKEND" in
         c|native)
-            perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nanoc "$test_file" -o "$out_file" >"$log_file" 2>&1
+            perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" "$C_COMPILER" "$test_file" -o "$out_file" >"$log_file" 2>&1
             ;;
         vm|nanovm)
             perl -e "alarm $COMPILE_TIMEOUT; exec @ARGV" ./bin/nano_virt "$test_file" --emit-nvm -o "${out_file}.nvm" >"$log_file" 2>&1
@@ -295,6 +298,9 @@ echo -e "${BOLD}========================================"
 echo "NANOLANG COMPREHENSIVE TEST SUITE"
 echo -e "========================================${NC}"
 echo -e "Backend: ${CYAN}${BACKEND}${NC}"
+if [[ "$BACKEND" == c || "$BACKEND" == native ]]; then
+    echo "Native compiler: $C_COMPILER"
+fi
 echo ""
 
 # ============================================================================
