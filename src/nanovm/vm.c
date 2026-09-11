@@ -92,16 +92,19 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
 
 /* Establish the safety proof for the whole program the VM is about to run.
  * The unchecked private stack handlers on the hot path are sound only when
- * every reachable module has passed nvm_verify(); this recomputes that fact
+ * every reachable module has passed nvm_verify_linked(); this recomputes that fact
  * over the root module and every linked module and records it on the VM.
  * Any module that fails verification (or is absent) clears the proof, so the
  * VM falls back to the checked handlers. */
 static void vm_recompute_verified(VmState *vm) {
     if (!vm) return;
     bool proven = vm->root_module != NULL
-        && nvm_verify(vm->root_module).ok;
+        && nvm_verify_linked(vm->root_module, vm->linked_modules,
+                             vm->linked_module_count).ok;
     for (uint32_t i = 0; proven && i < vm->linked_module_count; i++) {
-        if (!vm->linked_modules[i] || !nvm_verify(vm->linked_modules[i]).ok)
+        if (!vm->linked_modules[i]
+                || !nvm_verify_linked(vm->linked_modules[i], vm->linked_modules,
+                                      vm->linked_module_count).ok)
             proven = false;
     }
     vm->verified = proven;
@@ -2566,6 +2569,13 @@ dynamic_div:
             const NvmModule *target = handle->module;
             uint32_t fn_idx_m = handle->function_index;
             const NvmFunctionEntry *callee = handle->function;
+
+            if (instr.operands[2].u16 != callee->arity
+                    || instr.operands[3].u16 != callee->result_count)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "I declared a linked call %u->%u, but its target is %u->%u.",
+                                  instr.operands[2].u16, instr.operands[3].u16,
+                                  callee->arity, callee->result_count);
 
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");

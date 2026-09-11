@@ -15,6 +15,7 @@
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
 #include "nanoisa/assembler.h"
+#include "nanoisa/verifier.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -3643,7 +3644,7 @@ static void test_call_module_string_constant(void) {
     uint8_t root_code[16];
     uint32_t root_len = 0;
     root_len += emit(root_code + root_len, OP_CALL_MODULE, (uint32_t)0, linked_fn,
-                     (uint16_t)0, (uint16_t)0);
+                     (uint16_t)0, (uint16_t)1);
     root_len += emit(root_code + root_len, OP_RET);
     uint32_t root_fn = add_fn(mod_a, "main", root_code, root_len, 0, 0);
 
@@ -4762,6 +4763,41 @@ static void test_stack_slice_underflow(void) {
     }
 }
 
+static void test_linked_call_shape_boundaries(void) {
+    for (unsigned mismatch = 0; mismatch < 2; mismatch++) {
+        uint8_t code[64], body[32];
+        uint32_t size = emit(code, OP_PUSH_I64, (int64_t)42);
+        size += emit(code + size, OP_CALL_MODULE, (uint32_t)0, (uint32_t)0, 1, 1);
+        size += emit(code + size, OP_RET);
+        NvmModule *mod = make_module(code, size, 0, 2);
+        mod->functions[0].result_tag = TAG_INT;
+        uint32_t body_size = 0;
+        if (!mismatch) body_size += emit(body, OP_PUSH_I64, (int64_t)7);
+        body_size += emit(body + body_size, OP_RET);
+        NvmModule *linked = make_module(body, body_size, mismatch ? 1 : 2, 2);
+        linked->functions[0].result_count = mismatch ? 0 : 1;
+        linked->functions[0].result_tag = mismatch ? TAG_VOID : TAG_INT;
+        ASSERT(nvm_verify(mod).ok, "I verify the caller's declared shape separately");
+        ASSERT(nvm_verify(linked).ok, "I verify the target separately");
+        VmState vm;
+        vm_init(&vm, mod);
+        ASSERT_EQ_INT(vm_link_module(&vm, linked), 0, "I bind the target module");
+        ASSERT(!vm.verified, "I do not confuse separate proofs with a linked proof");
+        vm.stack[vm.stack_size++] = val_int(100);
+        ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_TYPE_ERROR,
+                      "I reject the mismatched linked shape before entering it");
+        ASSERT_EQ_INT(vm.frame_count, 1, "I keep the caller frame");
+        ASSERT_EQ_INT(vm.stack_size, 4, "I keep caller, locals and argument");
+        ASSERT_EQ_INT(vm.stack[0].as.i64, 100, "I preserve the caller prefix");
+        ASSERT_EQ_INT(vm.stack[1].tag, TAG_VOID, "I preserve the first local");
+        ASSERT_EQ_INT(vm.stack[2].tag, TAG_VOID, "I preserve the second local");
+        ASSERT_EQ_INT(vm.stack[3].as.i64, 42, "I preserve the argument");
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+        nvm_module_free(linked);
+    }
+}
+
 static void test_call_operand_boundaries(void) {
     const NanoOpcode ops[] = {OP_CALL, OP_TAIL_CALL, OP_CALL_INDIRECT,
                               OP_CALL_EXTERN, OP_CALL_MODULE};
@@ -4887,6 +4923,7 @@ int main(void) {
     RUN_TEST(test_dup);
     RUN_TEST(test_stack_slice_underflow);
     RUN_TEST(test_call_operand_boundaries);
+    RUN_TEST(test_linked_call_shape_boundaries);
     RUN_TEST(test_closure_large_capture_count);
     RUN_TEST(test_swap);
     RUN_TEST(test_pop);

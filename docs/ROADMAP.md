@@ -412,6 +412,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       prefixes, unchanged frame counts and preserved arguments/callables.
       `make test-nanovm` passes 269,805 assertions (2026-09-11); most assertions
       remain capture-value checks, not distinct call scenarios.
+- [x] **Formal audit defect — linked call signature correspondence.** I use
+      the existing linked verifier, not separate module verification, to
+      establish the unchecked-path flag. Linked calls also check declared
+      arity and result count against the target before frame mutation.
+      Regressions use individually valid modules with mismatched linked
+      signatures and check preserved operands and frames. I corrected an
+      existing string-call fixture that declared zero results instead of one.
+      `make test-nanovm` and `make test-nanoisa` pass (2026-09-11).
 - [ ] **Formal audit — remaining unchecked boundaries.** Dynamic-effect call
       handlers still require their own count and shape checks. I audit the
       remaining checked stack handlers, which still
