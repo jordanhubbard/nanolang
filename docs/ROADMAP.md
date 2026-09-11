@@ -353,6 +353,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       disposable proof container and attempts compilation, eight stack laws,
       assumption reports, and independent `coqchk`. This check is running;
       no successful Rocq result is recorded yet.
+      I also make the runner reject missing or axiom-bearing assumption
+      reports, reusing the existing NanoCore checker with an explicit Sail
+      theorem inventory; printing assumptions alone is not a proof gate.
+      The first run compiled both generated files and all eight lemmas,
+      printed eight closed reports, and passed independent `coqchk`. A fresh
+      report also passed the shared checker. The outer shell failed after a
+      live edit of its runner; I require an unchanged-script rerun before
+      marking the end-to-end check complete. Twelve proof-gate tests pass.
 - [x] **Formal audit defect — stack-slice underflow.** My unverified VM
       silently accepted insufficient operands for `DUP`, `POP`, and `SWAP`.
       These operations now trap without consuming locals or caller values.

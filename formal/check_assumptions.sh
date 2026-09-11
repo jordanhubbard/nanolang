@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # I fail closed on missing reports, axioms, or an unexpected report format.
 set -euo pipefail
-if [[ $# != 2 ]]; then
-    echo 'Usage: check_assumptions.sh SOURCE REPORT' >&2
+if [[ $# -lt 2 ]]; then
+    echo 'Usage: check_assumptions.sh SOURCE REPORT [REQUIRED_THEOREM ...]' >&2
     exit 2
 fi
 source_file=$1
 report_file=$2
-for theorem in preservation_contract progress_contract determinism_contract equivalence_contract evaluator_contract; do
+shift 2
+if [[ $# == 0 ]]; then
+    set -- preservation_contract progress_contract determinism_contract equivalence_contract evaluator_contract
+fi
+for theorem in "$@"; do
     if ! awk -v name="$theorem" '$0 == "Print Assumptions " name "." { found=1 } END { exit !found }' "$source_file"; then
         echo "I require an assumption report for $theorem." >&2
         exit 1

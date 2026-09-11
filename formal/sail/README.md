@@ -88,8 +88,25 @@ agreement checks, not proofs of equivalence for all inputs.
 
 Sail's [Rocq support library](https://github.com/rems-project/coq-sail) is a
 separate dependency; my pinned NanoCore proof image does not contain it.
-I must pin the appropriate support-library version,
-compile the generated definitions, and check model lemmas and assumptions.
+I attempt the complete model check with:
+
+```sh
+bash scripts/check_sail_container.sh --rocq-check
+```
+
+This mode installs `coq-sail-stdpp.0.20.2`, `coq-stdpp.1.12.0`, and
+`coq-stdpp-bitvector.1.12.0`, with exact Coq compatibility-package versions,
+inside the disposable container. It compiles the generated definitions and
+`StackSliceProofs.v`, checks the eight named assumption reports with the same
+failure-rejecting checker as NanoCore, and runs independent `coqchk`.
+The lemmas concern identity, push/pop and dup/pop cancellation, swap reversal,
+and underflow in the generated model. They do not state VM refinement.
+On 2026-09-11 the generated files and eight lemmas compiled, all eight reports
+were closed under the global context, and independent `coqchk` reported that
+the modules were successfully checked. The shared assumption checker also
+accepted a fresh report in that prover environment. The outer runner then
+failed after its file was edited during execution; a clean, unchanged-runner
+rerun remains required before I record end-to-end gate success.
 I do not upgrade the model's proof claim because the C backend works.
 
 My [tooling decision](../../docs/FORMAL_TOOLING_DECISION.md) records what I

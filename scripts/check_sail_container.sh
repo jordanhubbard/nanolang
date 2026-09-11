@@ -29,6 +29,7 @@ docker run --rm --platform linux/amd64 \
     --env PATH=/opt/sail/bin:/usr/local/bin:/usr/bin:/bin \
     --mount "type=bind,source=$sail_tmp/sail,target=/opt/sail,readonly" \
     --mount "type=bind,source=$repo_root/formal/sail,target=/source,readonly" \
+    --mount "type=bind,source=$repo_root/formal/check_assumptions.sh,target=/check_assumptions.sh,readonly" \
     --mount "type=bind,source=$sail_tmp,target=/cases,readonly" \
     rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2 \
     bash -c '
@@ -49,8 +50,12 @@ docker run --rm --platform linux/amd64 \
             opam exec -- coqc stack_slice_types.v
             opam exec -- coqc stack_slice.v
             cp /source/StackSliceProofs.v .
-            opam exec -- coqc StackSliceProofs.v
-            opam exec -- coqchk StackSliceProofs
+            opam exec -- coqc StackSliceProofs.v > assumptions.log
+            cat assumptions.log
+            bash /check_assumptions.sh StackSliceProofs.v assumptions.log \
+                nop_identity push_then_pop dup_then_pop swap_involution \
+                dup_underflow pop_underflow swap_empty_underflow swap_singleton_underflow
+            opam exec -- coqchk -silent StackSliceProofs
             echo "I checked bounded stack-model lemmas, not VM refinement."
             exit 0
         fi

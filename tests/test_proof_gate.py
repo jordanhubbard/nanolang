@@ -13,13 +13,13 @@ CLOSED = "Closed under the global context\n"
 
 
 class ProofGateTests(unittest.TestCase):
-    def run_gate(self, report, source=SOURCE):
+    def run_gate(self, report, source=SOURCE, required=()):
         with tempfile.TemporaryDirectory(prefix="nanocore-gate-") as directory:
             root = Path(directory)
             (root / "Assumptions.v").write_text(source)
             (root / "report").write_text(report)
             return subprocess.run(
-                ["bash", str(CHECKER), str(root / "Assumptions.v"), str(root / "report")],
+                ["bash", str(CHECKER), str(root / "Assumptions.v"), str(root / "report"), *required],
                 capture_output=True, text=True, check=False,
             ).returncode
 
@@ -61,6 +61,17 @@ class ProofGateTests(unittest.TestCase):
                  str(Path(directory) / "missing")], capture_output=True, check=False,
             )
             self.assertNotEqual(result.returncode, 0)
+
+    def test_sail_inventory_and_reports(self):
+        required = ("nop_identity", "push_then_pop", "dup_then_pop", "swap_involution",
+                    "dup_underflow", "pop_underflow", "swap_empty_underflow", "swap_singleton_underflow")
+        source = (ROOT / "formal/sail/StackSliceProofs.v").read_text()
+        self.assertEqual(self.run_gate(CLOSED * 8, source, required), 0)
+        for report in (CLOSED * 7, CLOSED * 9, CLOSED * 8 + "Axioms:\ninjected : False\n"):
+            with self.subTest(report=report):
+                self.assertNotEqual(self.run_gate(report, source, required), 0)
+        missing = source.replace("Print Assumptions swap_involution.\n", "")
+        self.assertNotEqual(self.run_gate(CLOSED * 7, missing, required), 0)
 
 
 if __name__ == "__main__":
