@@ -210,7 +210,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       types, and reject non-closed or missing assumption reports. I test the
       gate's failure paths as well as the complete proof build. Eleven negative/
       positive gate tests pass; the pinned build and independent checker pass
-      all twelve libraries and 43 closed reports on 2026-09-11. Repository
+      all twelve libraries and 43 closed reports on 2026-09-11. GitHub run
+      `34591153105` also passed in 2m22s. It identified checkout v4's deprecated
+      Node 20 runtime; I pin checkout v6 (Node 24) for the new job. Repository
       branch-protection requirements remain a separate release-control check.
 - [ ] **5.0 audit — native runtime services.** I run a useful native
       NanoLang service in a separate worker through typed NSI calls, with
