@@ -140,13 +140,16 @@ static int cc_fail(Cc *cc, const char *fmt, ...) {
 
 static int set_symbol(char *dst, size_t cap, const char *first,
                       const char *second, const char *third) {
+    char symbol[OB_NAME];
     size_t first_len = strlen(first);
     size_t second_len = strlen(second);
     size_t third_len = strlen(third);
-    if (first_len + second_len + third_len >= cap) return -1;
-    memcpy(dst, first, first_len);
-    memcpy(dst + first_len, second, second_len);
-    memcpy(dst + first_len + second_len, third, third_len + 1);
+    size_t total = first_len + second_len + third_len;
+    if (cap > sizeof symbol || total >= cap) return -1;
+    memcpy(symbol, first, first_len);
+    memcpy(symbol + first_len, second, second_len);
+    memcpy(symbol + first_len + second_len, third, third_len + 1);
+    memmove(dst, symbol, total + 1);
     return 0;
 }
 
