@@ -3170,8 +3170,8 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             for (int i = 0; i < stmt->as.block.count; i++) {
                 ASTNode *child = stmt->as.block.statements[i];
                 if (g_source_file_for_line_directives && child && child->line > 0) {
-                    emit_formatted(list, "#line %d \"%s\"\n",
-                                   child->line, g_source_file_for_line_directives);
+                    emit_formatted(list, "#line %d %s\n",
+                                   child->line, module_c_literal(g_source_file_for_line_directives));
                 }
                 build_stmt(list, scopes, child, indent + 1, env, fn_registry);
             }

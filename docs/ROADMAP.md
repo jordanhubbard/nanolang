@@ -391,11 +391,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       module name/path metadata, not every serialized field or import syntax.
       Module introspection, extern selection and parenthesized-parser gates
       also pass; I did not run a full bootstrap for this change.
-- [ ] **5.0 imports — escaped path spelling.** My C-seed module lookup treats
-      escaped quotes, backslashes and newlines in an import string literally
-      instead of resolving the corresponding filename. I reproduced this
-      before C compilation. I must establish the path-string contract and
-      test parsing and lookup together; metadata escaping does not fix it.
+- [ ] **5.0 imports — escaped path parity.** My C-seed lookup previously used
+      raw escape spellings; decoding exposed raw filenames in generated `#line`
+      directives. Both C-seed boundaries are repaired below. I must carry the
+      same path contract through self-hosted parsing and source merging, with
+      executable parity tests; C-seed success does not establish that parity.
+- [x] **5.0 C-seed imports — decoded paths and safe line directives.** I decode
+      quoted import paths once, preserve unknown escapes as the evaluator does,
+      and reject NUL escapes before lookup. I encode filenames in generated
+      `#line` directives. All 24 module build regressions pass, including an
+      executable import whose filename contains quotes, backslashes, newline,
+      tab and carriage return, and NUL rejection before C compilation
+      (2026-09-11). Self-hosted and merger parity remain open above.
+      Module introspection, extern selection and parenthesized-parser gates
+      pass against the rebuilt C seed; no full bootstrap was run here.
 - [x] **5.0 generic-list generator — publication boundaries.** I stage both
       generated files privately before replacing either published file, reject
       type names that can escape the output directory, and test overlapping

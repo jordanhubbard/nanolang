@@ -63,6 +63,8 @@ class ModuleCompileInvocation(unittest.TestCase):
             elif mode == "shell_output":
                 output_name = "program$(touch injected)"
             module_relative = "single_invocation_probe.nano"
+            if mode == "escaped_filename":
+                module_relative = 'single_invocation_probe"back\\slash\nline\ttab\rreturn.nano'
             if mode == "comment_path":
                 (path / "comment*").mkdir()
                 module_relative = "comment*/single_invocation_probe.nano"
@@ -79,8 +81,11 @@ class ModuleCompileInvocation(unittest.TestCase):
                 "module single_invocation_probe\n"
                 "pub fn answer() -> int { return 42 }\n"
                 "shadow answer { assert (== (answer) 42) }\n")
+            import_path = json.dumps(module_relative, ensure_ascii=False)
+            if mode == "nul_path":
+                import_path = '"single_invocation_probe.nano\\0ignored"'
             (path / "main.nano").write_text(
-                f'module {json.dumps(module_relative, ensure_ascii=False)} as probe\n' +
+                f'module {import_path} as probe\n' +
                 ("extern fn probe_value() -> int\n" if link_arguments else "") +
                 ("extern fn ___module_name___nano_hex_single_invocation_probe() -> string\n" if mode == "encoded_metadata_call" else "") +
                 "fn main() -> int { assert (== (probe.answer) 42) " +
@@ -161,6 +166,12 @@ class ModuleCompileInvocation(unittest.TestCase):
                 output, _ = process.communicate()
                 self.fail("I did not drain compiler diagnostics before waiting: " + output[-2000:])
             calls = (path / "calls").read_text().splitlines() if (path / "calls").exists() else []
+            if mode == "nul_path":
+                self.assertNotEqual(process.returncode, 0)
+                self.assertEqual(calls, [])
+                self.assertIn("I cannot use a NUL byte in a module path.", output)
+                self.assertFalse((path / output_name).exists())
+                return
             self.assertFalse((path / "injected").exists(), "module path executed a shell substitution")
             if mode == "long_command":
                 self.assertEqual(calls, [], output[-4000:])
@@ -168,7 +179,7 @@ class ModuleCompileInvocation(unittest.TestCase):
                 self.assertIn("I could not represent all module compiler arguments.", output)
                 return
             self.assertEqual(calls, ["compile"], output[-4000:])
-            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library", "quoted_root", "shell_root", "quoted_filename", "shell_filename", "encoded_metadata_call", "comment_path"):
+            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library", "quoted_root", "shell_root", "quoted_filename", "shell_filename", "encoded_metadata_call", "comment_path", "escaped_filename"):
                 self.assertEqual(process.returncode, 0, output[-4000:])
                 subprocess.run([str(path / output_name)], check=True, timeout=10)
             else:
@@ -268,6 +279,12 @@ int main(void) {
 
     def test_metadata_path_cannot_close_generated_comment(self):
         self.check_compile("comment_path")
+
+    def test_import_path_escapes_resolve_actual_filename(self):
+        self.check_compile("escaped_filename")
+
+    def test_import_path_nul_cannot_select_truncated_filename(self):
+        self.check_compile("nul_path")
 
     def test_symbol_suffix_collisions_and_call_mapping(self):
         with tempfile.TemporaryDirectory() as directory:

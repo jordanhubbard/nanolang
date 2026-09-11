@@ -5147,8 +5147,34 @@ static ASTNode *parse_import(Stage1Parser *p) {
     char *module_path = NULL;
 
     if (match(p, TOKEN_STRING)) {
-        /* module "module.nano" */
-        module_path = strdup(current_token(p)->value);
+        /* I decode path data once; expression strings remain raw in the AST. */
+        const char *raw = current_token(p)->value;
+        size_t length = strlen(raw);
+        module_path = malloc(length + 1);
+        if (!module_path) {
+            parser_error(p, line, column, "I cannot allocate this module path.\n");
+            return NULL;
+        }
+        size_t out = 0;
+        for (size_t i = 0; i < length; i++) {
+            char byte = raw[i];
+            if (byte == '\\' && i + 1 < length) {
+                byte = raw[++i];
+                switch (byte) {
+                    case 'n': byte = '\n'; break;
+                    case 't': byte = '\t'; break;
+                    case 'r': byte = '\r'; break;
+                    case '0':
+                        parser_error(p, line, column, "I cannot use a NUL byte in a module path.\n");
+                        free(module_path);
+                        return NULL;
+                    case '\\': case '\'': case '"': break;
+                    default: module_path[out++] = '\\'; break;
+                }
+            }
+            module_path[out++] = byte;
+        }
+        module_path[out] = '\0';
         advance(p);
     } else if (match(p, TOKEN_IDENTIFIER)) {
         /* module foo (treat as "modules/foo/foo.nano") */
