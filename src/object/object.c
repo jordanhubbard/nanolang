@@ -138,6 +138,18 @@ static int cc_fail(Cc *cc, const char *fmt, ...) {
     return -1;
 }
 
+static int set_symbol(char *dst, size_t cap, const char *first,
+                      const char *second, const char *third) {
+    size_t first_len = strlen(first);
+    size_t second_len = strlen(second);
+    size_t third_len = strlen(third);
+    if (first_len + second_len + third_len >= cap) return -1;
+    memcpy(dst, first, first_len);
+    memcpy(dst + first_len, second, second_len);
+    memcpy(dst + first_len + second_len, third, third_len + 1);
+    return 0;
+}
+
 static void *cc_alloc(Cc *cc, size_t n) {
     void *p = calloc(1, n);
     void **h;
@@ -431,7 +443,9 @@ static int parse_program(Cc *cc) {
                 m = &c->meths[c->nmeth++];
                 memset(m, 0, sizeof *m);
                 snprintf(m->sel, sizeof m->sel, "%s", cc->tok.name);
-                snprintf(m->asm_name, sizeof m->asm_name, "obj_%s_%s", c->name, m->sel);
+                if (set_symbol(m->asm_name, sizeof m->asm_name, "obj_", c->name, "_") < 0
+                    || set_symbol(m->asm_name, sizeof m->asm_name, m->asm_name, m->sel, "") < 0)
+                    return cc_fail(cc, "I refuse class and selector names that exceed my symbol boundary");
                 lex(cc);
                 while (have(cc, TK_ID)) {
                     if (m->nparam >= OB_SLOT) return cc_fail(cc, "I refuse too many parameters");
@@ -553,7 +567,12 @@ static int parse_program(Cc *cc) {
                     if (mi < 0) return cc_fail(cc, "I do not know method %s", r->sel);
                     om = &c->meths[mi];
                     r->nparam = om->nparam;
-                    snprintf(r->asm_name, sizeof r->asm_name, "obj_%s_%s_r%d", r->cls, r->sel, cc->nrepl);
+                    {
+                        char suffix[16];
+                        snprintf(suffix, sizeof suffix, "_r%d", cc->nrepl);
+                        if (set_symbol(r->asm_name, sizeof r->asm_name, om->asm_name, suffix, "") < 0)
+                            return cc_fail(cc, "I refuse a replacement name that exceeds my symbol boundary");
+                    }
                     if (!eat(cc, TK_LBRACE)) return cc_fail(cc, "I expected '{'");
                     if (parse_body(cc, r->as, &r->na, &r->result) < 0) return -1;
                     if (!eat(cc, TK_RBRACE)) return cc_fail(cc, "I expected '}'");

@@ -430,12 +430,17 @@ static int parse_program(Cc *cc) {
         }
         if (eat(cc, TK_FN)) {
             FnDef *f;
+            size_t function_name_len;
             if (!have(cc, TK_ID)) return cc_fail(cc, "I expected a function name");
             if (cc->nfn_def >= SH_MAX) return cc_fail(cc, "I refuse too many functions");
+            function_name_len = strlen(cc->tok.name);
+            if (function_name_len > SH_NAME - 4)
+                return cc_fail(cc, "I refuse a function name longer than %d bytes", SH_NAME - 4);
             f = &cc->fns[cc->nfn_def++];
             memset(f, 0, sizeof *f);
             snprintf(f->name, sizeof f->name, "%s", cc->tok.name);
-            snprintf(f->asm_name, sizeof f->asm_name, "sh_%s", f->name);
+            memcpy(f->asm_name, "sh_", 3);
+            memcpy(f->asm_name + 3, f->name, function_name_len + 1);
             lex(cc);
             while (have(cc, TK_ID)) {
                 if (f->nparam >= SH_ARG) return cc_fail(cc, "I refuse too many parameters");

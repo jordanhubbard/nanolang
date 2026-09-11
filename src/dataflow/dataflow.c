@@ -424,12 +424,17 @@ static int parse_program(Cc *cc) {
     while (!have(cc, TK_EOF)) {
         if (eat(cc, TK_NODE)) {
             NodeDef *n;
+            size_t node_name_len;
             if (!have(cc, TK_ID)) return cc_fail(cc, "I expected a node name");
             if (cc->nnode >= DF_MAX) return cc_fail(cc, "I refuse too many nodes");
+            node_name_len = strlen(cc->tok.name);
+            if (node_name_len > DF_NAME - 4)
+                return cc_fail(cc, "I refuse a node name longer than %d bytes", DF_NAME - 4);
             n = &cc->nodes[cc->nnode++];
             memset(n, 0, sizeof *n);
             snprintf(n->name, sizeof n->name, "%s", cc->tok.name);
-            snprintf(n->asm_name, sizeof n->asm_name, "df_%s", cc->tok.name);
+            memcpy(n->asm_name, "df_", 3);
+            memcpy(n->asm_name + 3, cc->tok.name, node_name_len + 1);
             lex(cc);
             while (have(cc, TK_ID)) {
                 if (n->nparam >= DF_LOCAL) return cc_fail(cc, "I refuse too many parameters");
