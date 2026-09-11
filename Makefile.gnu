@@ -509,6 +509,11 @@ test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 		$(filter-out $(OBJ_DIR)/nanovm/heap.o,$(NANOVM_OBJECTS)) \
 		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/nanovm/test_heap_allocation_failure
+	@$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/nanovm/test_stack_allocation_failure \
+		tests/nanovm/test_stack_allocation_failure.c \
+		$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
 
 .PHONY: test-cop-protocol

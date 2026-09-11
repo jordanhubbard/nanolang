@@ -698,14 +698,25 @@ bool vm_resolve_module_calls(VmState *vm) {
  * Stack Operations
  * ======================================================================== */
 
-static inline VmResult stack_push(VmState *vm, NanoValue v) {
-    if (vm->stack_size >= vm->stack_capacity) {
-        uint32_t new_cap = vm->stack_capacity * 2;
-        NanoValue *new_stack = realloc(vm->stack, new_cap * sizeof(NanoValue));
-        if (!new_stack) return vm_error(vm, VM_ERR_MEMORY, "Stack grow failed");
+static VmResult stack_reserve(VmState *vm, uint64_t required) {
+    if (required > UINT32_MAX || required > SIZE_MAX / sizeof(NanoValue))
+        return vm_error(vm, VM_ERR_MEMORY, "I cannot represent the requested stack size.");
+    if (required > vm->stack_capacity || (!vm->stack && required)) {
+        uint64_t new_cap = vm->stack_capacity ? vm->stack_capacity : VM_STACK_INITIAL;
+        while (new_cap < required) new_cap *= 2;
+        if (new_cap > UINT32_MAX || new_cap > SIZE_MAX / sizeof(NanoValue))
+            new_cap = required;
+        NanoValue *new_stack = realloc(vm->stack, (size_t)new_cap * sizeof(NanoValue));
+        if (!new_stack) return vm_error(vm, VM_ERR_MEMORY, "I could not grow the stack.");
         vm->stack = new_stack;
-        vm->stack_capacity = new_cap;
+        vm->stack_capacity = (uint32_t)new_cap;
     }
+    return VM_OK;
+}
+
+static inline VmResult stack_push(VmState *vm, NanoValue v) {
+    VmResult result = stack_reserve(vm, (uint64_t)vm->stack_size + 1);
+    if (result != VM_OK) return result;
     vm->stack[vm->stack_size++] = v;
     return VM_OK;
 }
@@ -3839,6 +3850,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
 
     uint32_t stack_base = vm->stack_size;
 
+    if (fn->local_count < arg_count || (arg_count && !args))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need valid arguments and enough parameter locals.");
+    VmResult reserve_result = stack_reserve(vm, (uint64_t)stack_base + fn->local_count);
+    if (reserve_result != VM_OK) return reserve_result;
+
     vm->halt_requested = false;
 
     /* Push args as first locals */
@@ -4011,18 +4027,10 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     uint32_t saved_fn = vm->current_fn;
     const NvmModule *saved_module = vm->module;
 
-    uint32_t required = stack_base + fn->local_count;
-    if (required > vm->stack_capacity) {
-        uint32_t new_capacity = vm->stack_capacity;
-        while (new_capacity < required) new_capacity *= 2;
-        NanoValue *new_stack = realloc(vm->stack,
-                                       new_capacity * sizeof(NanoValue));
-        if (!new_stack) {
-            return vm_error(vm, VM_ERR_MEMORY, "Stack grow failed");
-        }
-        vm->stack = new_stack;
-        vm->stack_capacity = new_capacity;
-    }
+    if (fn->local_count < arg_count)
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need enough parameter locals.");
+    VmResult reserve_result = stack_reserve(vm, (uint64_t)stack_base + fn->local_count);
+    if (reserve_result != VM_OK) return reserve_result;
 
     /* vm_call_function consumes argument ownership through its frame cleanup. */
     for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, args[i]);

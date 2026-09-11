@@ -416,7 +416,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       errors, preserved caller/locals/integer inputs and unchanged heap size
       and object counts. `make test-nanovm` passes (2026-09-11). This does not
       establish recovery from stack-growth failure or every allocation site.
-- [ ] **Formal audit — allocation failure boundaries.** Several aggregate
+- [x] **Formal audit defect — stack reserve and embedding entry atomicity.**
+      I share an overflow-safe reserve helper between pushes and embedding
+      entry points. Entry calls reserve all local slots before mutation and
+      reject invalid parameter storage. An isolated actual-VM test checks
+      zero capacity, unrepresentable sizes, allocation failure without buffer
+      replacement, unchanged direct/invoke entry state and successful retry.
+      `make test-nanovm` passes with both allocation-failure suites (2026-09-11).
+- [ ] **Formal audit — allocation failure boundaries.** Internal call-frame
+      growth and handlers that ignore failed pushes still need preflight or
+      ownership-safe failure propagation. Embedding arguments that alias VM
+      stack storage also need an explicit relocation/aliasing contract.
       constructors dereference allocation results without checking them, and
       many handlers ignore `stack_push` failure. I require deterministic
       allocation-failure tests and correct ownership cleanup before claiming
