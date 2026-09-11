@@ -174,8 +174,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       `Progress.v` now compiles after correcting the tuple-tail statement,
       proving tuple-step target shape, and repairing tuple-index induction.
       `Determinism.v` also compiles. I removed a stale empty-tuple tactic in
-      `Equivalence.v`; the fresh build next stops at `expr_equiv_is_value`
-      (line 359), whose proof leaves goals open. I repair the remaining proofs and
+      `Equivalence.v`. I restored omitted tuple cases in value transfer,
+      substitution compatibility, step simulation, symmetry, and transitivity;
+      Rocq accepts those repairs. The fresh build next stops at the match
+      starting at `Equivalence.v:1459`, which omits `ETuple`. I repair the remaining proofs and
       run the complete build and compiled-library checker before claiming a
       checked proof suite. I preserve intended semantics and document any
       necessary correction to a false theorem statement.

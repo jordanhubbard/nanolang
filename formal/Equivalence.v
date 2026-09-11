@@ -356,6 +356,12 @@ Proof.
     + apply IHHF2. assumption.
   - (* Construct *)
     eapply IH; eassumption.
+  - (* Tuple *)
+    rename H into HF2.
+    match goal with HV : Forall is_value _ |- _ => clear Hval; rename HV into Hvals end.
+    induction HF2; inversion Hvals; subst; constructor.
+    + eapply IH; eassumption.
+    + apply IHHF2. assumption.
 Qed.
 
 (** ** Congruence lemmas: lifting multi_step through contexts *)
@@ -652,7 +658,7 @@ Proof.
     try solve [constructor; eapply subst_equiv; eassumption];
     try solve [constructor; [eapply subst_equiv; eassumption | eapply subst_equiv; eassumption]];
     try solve [constructor; [eapply subst_equiv; eassumption | eapply subst_equiv; eassumption | eapply subst_equiv; eassumption]].
-  (* 7 goals remain: Var, Let, Lam, Fix, Array, Record, Match *)
+  (* Remaining cases include binding forms and nested expression lists. *)
   - (* Var *) destruct (String.eqb x0 x); [assumption | constructor].
   - (* Let *) constructor; [eapply subst_equiv; eassumption |].
     destruct (String.eqb x0 x); [assumption | eapply subst_equiv; eassumption].
@@ -681,6 +687,10 @@ Proof.
       * split; [reflexivity |]. split; [reflexivity |].
         destruct (String.eqb x0 y1); [exact Hb | eapply subst_equiv; eassumption].
       * apply IHForall2.
+  - (* Tuple *) constructor.
+    induction H; simpl.
+    + constructor.
+    + constructor; [eapply subst_equiv; eassumption | apply IHForall2].
 Defined.
 End SubstEquiv.
 
@@ -887,6 +897,16 @@ Local Ltac use_IH :=
     let He' := fresh "He" in
     destruct (IH _ He) as [erhs [Hs He']]
   end.
+
+Lemma nth_error_expr_equiv : forall es es' i v,
+  Forall2 expr_equiv es es' -> nth_error es i = Some v ->
+  exists v', nth_error es' i = Some v' /\ expr_equiv v v'.
+Proof.
+  intros es es' i v HF. revert i v.
+  induction HF; intros i v Hnth; destruct i; simpl in *; try discriminate.
+  - inversion Hnth; subst. eexists. split; [reflexivity | eassumption].
+  - eapply IHHF; eassumption.
+Qed.
 
 Lemma step_expr_equiv : forall e1 e2,
   expr_equiv e1 e2 -> forall e1',
@@ -1097,6 +1117,32 @@ Proof.
     match goal with [ He : expr_equiv (EString _) _ |- _ ] => inversion He; subst end.
     match goal with [ He : expr_equiv (EInt _) _ |- _ ] => inversion He; subst end.
     eexists. split; [apply S_StrIndexVal | constructor].
+  - (* S_TupleHead *)
+    match goal with [ HF2 : Forall2 expr_equiv (_ :: _) _ |- _ ] => inversion HF2; subst end.
+    use_IH.
+    eexists. split; [apply S_TupleHead; exact Hs |].
+    constructor. constructor; assumption.
+  - (* S_TupleTail *)
+    match goal with [ HF2 : Forall2 expr_equiv (_ :: _) _ |- _ ] => inversion HF2; subst end.
+    match goal with
+    | [ HF2tail : Forall2 expr_equiv es ?es2 |- _ ] =>
+      destruct (IHHstep _ (EQ_Tuple _ _ HF2tail)) as [erhs0 [Hs' He']]
+    end.
+    inversion He'; subst.
+    eexists. split.
+    + apply S_TupleTail; [eapply expr_equiv_is_value; eassumption | exact Hs'].
+    + constructor. constructor; assumption.
+  - (* S_TupleIndex1 *) use_IH.
+    eexists. split; [apply S_TupleIndex1; exact Hs | constructor; assumption].
+  - (* S_TupleIndexVal *)
+    match goal with [ He : expr_equiv (ETuple _) _ |- _ ] => inversion He; subst end.
+    match goal with
+    | [ HF : Forall2 expr_equiv _ _, Hnth : nth_error _ _ = Some _ |- _ ] =>
+      destruct (nth_error_expr_equiv _ _ _ _ HF Hnth) as [v' [Hnth' Heq']]
+    end.
+    exists v'. split.
+    + apply S_TupleIndexVal; [eapply forall_value_transfer; eassumption | exact Hnth'].
+    + exact Heq'.
 Qed.
 
 (** ** Multi-step simulation *)
@@ -1168,6 +1214,14 @@ Fixpoint expr_equiv_sym (e1 e2 : expr) (H : expr_equiv e1 e2) {struct H} :
                 @Forall2_cons _ _ _ b a _ _ (conj (eq_sym ht) (conj (eq_sym hy) (expr_equiv_sym _ _ hb))) (go _ _ ht')
             end) _ _ hf)
   | EQ_StrIndex _ _ _ _ h1 h2 => EQ_StrIndex _ _ _ _ (expr_equiv_sym _ _ h1) (expr_equiv_sym _ _ h2)
+  | EQ_Tuple _ _ hf =>
+      EQ_Tuple _ _ ((fix go es1 es2 (hf : Forall2 expr_equiv es1 es2) :
+                       Forall2 expr_equiv es2 es1 :=
+                       match hf with
+                       | Forall2_nil _ => Forall2_nil _
+                       | Forall2_cons _ _ h ht => Forall2_cons _ _ (expr_equiv_sym _ _ h) (go _ _ ht)
+                       end) _ _ hf)
+  | EQ_TupleIndex _ _ i h => EQ_TupleIndex _ _ i (expr_equiv_sym _ _ h)
   end.
 
 (** ** Reverse value transfer lemmas (need expr_equiv_sym) *)
@@ -1270,6 +1324,14 @@ Proof.
           split; [congruence | split; [congruence | eapply expr_equiv_trans; eassumption]]
         end.
       * match goal with IH : forall _, Forall2 _ _ _ -> _ |- _ => apply IH; assumption end.
+  - (* Tuple *)
+    constructor. clear H23.
+    match goal with
+    | HF12 : Forall2 expr_equiv ?es1 ?es2,
+      HF23 : Forall2 expr_equiv ?es2 ?es3 |- _ =>
+      revert es3 HF23; induction HF12; intros es3 HF23; inversion HF23; subst;
+      [constructor | constructor; [eapply expr_equiv_trans; eassumption | auto]]
+    end.
 Defined.
 End ExprEquivTrans.
 

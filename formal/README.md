@@ -15,8 +15,10 @@ does not establish that every advertised result has been implemented.
 ## What's proved
 
 Current build status: a fresh Rocq 9.0.1 build compiles `Soundness.v`,
-`Progress.v`, and `Determinism.v`, but fails in `Equivalence.v`, in
-`expr_equiv_is_value` (an unfinished proof). The theorem descriptions below
+`Progress.v`, and `Determinism.v`. In `Equivalence.v`, tuple cases for value
+transfer, substitution, step simulation, symmetry, and transitivity now check;
+the build next fails on a nonexhaustive expression match starting at line 1459,
+which omits `ETuple`. The theorem descriptions below
 record intended statements; I do not currently claim a successfully checked
 complete suite. Reproduce from the repository root with:
 
