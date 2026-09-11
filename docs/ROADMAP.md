@@ -444,10 +444,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       need no allocation. The final result push also releases the result on
       failure; that defensive path is not directly fault-injected here.
       `make test-nanovm` passes (2026-09-11). The tests invoke no host function.
+- [x] **Formal audit defect — movable embedding arguments.** `vm_invoke`
+      snapshots borrowed arguments before stack growth and accepts complete
+      live stack slices. I reject stack-backed result destinations and stack
+      aliases in the ownership-transferring low-level call; `vm.h` documents
+      the distinction. An actual-VM test forces relocation with a string
+      argument, checks original/result reference counts, and checks failed
+      growth and invalid slices without ownership changes. `make test-nanovm`
+      passes (2026-09-11).
 - [ ] **Formal audit — allocation failure boundaries.** Handlers that
       ignore failed pushes still need preflight or
       ownership-safe failure propagation. Embedding arguments that alias VM
-      stack storage also need an explicit relocation/aliasing contract.
+      stack storage follow the relocation/aliasing contract above.
       constructors dereference allocation results without checking them, and
       many handlers ignore `stack_push` failure. I require deterministic
       allocation-failure tests and correct ownership cleanup before claiming

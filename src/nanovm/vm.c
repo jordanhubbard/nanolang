@@ -3868,7 +3868,16 @@ void vm_stack_trace(const VmState *vm, FILE *out) {
  * and communicate with the core over PCIe/AXI.
  * ======================================================================== */
 
+static bool vm_stack_address(const VmState *vm, const void *pointer) {
+    uintptr_t address = (uintptr_t)pointer, base = (uintptr_t)vm->stack;
+    return pointer && vm->stack && address >= base
+        && address - base <= (uint64_t)vm->stack_capacity * sizeof(NanoValue);
+}
+
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    if (arg_count && vm_stack_address(vm, args))
+        return vm_error(vm, VM_ERR_TYPE_ERROR,
+                        "I borrow stack arguments through vm_invoke, not vm_call_function.");
     /* Bind cross-module callable handles before executing. Guarded so
      * this only runs once per link configuration. */
     if (!vm->module_calls_resolved) vm_resolve_module_calls(vm);
@@ -4045,7 +4054,8 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result) {
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
-    if (out_result) *out_result = val_void();
+    if (vm_stack_address(vm, out_result))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
     if (vm->frame_count != 0) {
         return vm_error(vm, VM_ERR_CALL_DEPTH,
                         "Cannot invoke a function while the VM is executing");
@@ -4073,13 +4083,30 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
 
     if (fn->local_count < arg_count)
         return vm_error(vm, VM_ERR_TYPE_ERROR, "I need enough parameter locals.");
+    if (arg_count && vm_stack_address(vm, args)) {
+        uintptr_t offset = (uintptr_t)args - (uintptr_t)vm->stack;
+        if (offset % sizeof(NanoValue) || offset / sizeof(NanoValue) > vm->stack_size
+                || arg_count > vm->stack_size - offset / sizeof(NanoValue))
+            return vm_error(vm, VM_ERR_TYPE_ERROR, "I need a complete live stack argument slice.");
+    }
+    NanoValue inline_args[16];
+    NanoValue *stable_args = arg_count <= 16 ? inline_args
+        : malloc((size_t)arg_count * sizeof(NanoValue));
+    if (!stable_args)
+        return vm_error(vm, VM_ERR_MEMORY, "I could not snapshot invocation arguments.");
+    if (arg_count) memcpy(stable_args, args, (size_t)arg_count * sizeof(NanoValue));
+    if (out_result) *out_result = val_void();
     VmResult reserve_result = stack_reserve(vm, (uint64_t)stack_base + fn->local_count);
-    if (reserve_result != VM_OK) return reserve_result;
+    if (reserve_result != VM_OK) {
+        if (stable_args != inline_args) free(stable_args);
+        return reserve_result;
+    }
 
     /* vm_call_function consumes argument ownership through its frame cleanup. */
-    for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, args[i]);
+    for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
 
-    VmResult result = vm_call_function(vm, fn_idx, (NanoValue *)args, arg_count);
+    VmResult result = vm_call_function(vm, fn_idx, stable_args, arg_count);
+    if (stable_args != inline_args) free(stable_args);
     NanoValue returned = val_void();
     if (result == VM_OK && vm->stack_size > stack_base) {
         returned = stack_pop(vm);

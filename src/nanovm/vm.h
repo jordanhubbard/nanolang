@@ -252,10 +252,14 @@ void vm_destroy(VmState *vm);
  * and handles each trap. */
 VmResult vm_execute(VmState *vm);
 
-/* Execute a specific function by index. Returns VM_OK on success. */
+/* I execute a function and transfer argument references into its frame.
+ * Argument storage must be outside my stack. Use vm_invoke for borrowed or
+ * stack-backed arguments. A rejected call before frame setup consumes none. */
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count);
 
 /* Invoke one function as an isolated host call on a persistent VM.
+ * I borrow and snapshot args, including complete live slices of my stack.
+ * out_result must be outside my stack and ready to receive an owned value.
  * Exact arity is required. On success, ownership of the returned value moves
  * to out_result; pass NULL to discard it. On failure, temporary operand-stack
  * values and call frames are removed while globals and heap state remain. */

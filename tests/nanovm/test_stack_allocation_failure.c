@@ -2,10 +2,21 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 static bool reject_realloc;
+static void *move_pointer;
+static size_t move_bytes;
 static unsigned realloc_calls;
 static void *test_realloc(void *pointer, size_t size) {
     realloc_calls++;
+    if (!reject_realloc && pointer == move_pointer && move_pointer) {
+        void *replacement = malloc(size);
+        if (!replacement) return NULL;
+        memcpy(replacement, pointer, move_bytes);
+        free(pointer);
+        move_pointer = NULL;
+        return replacement;
+    }
     return reject_realloc ? NULL : realloc(pointer, size);
 }
 #define realloc test_realloc
@@ -13,6 +24,42 @@ static void *test_realloc(void *pointer, size_t size) {
 #undef realloc
 int g_argc;
 char **g_argv;
+
+static void test_borrowed_stack_arguments(void) {
+    NvmModule *module = nvm_module_new();
+    uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_RET};
+    NvmFunctionEntry fn = {.arity = 1, .local_count = 4,
+                           .result_count = 1, .result_tag = TAG_STRING};
+    fn.name_idx = nvm_add_string(module, "identity", 8);
+    fn.code_offset = nvm_append_code(module, code, sizeof(code));
+    fn.code_length = sizeof(code);
+    nvm_add_function(module, &fn);
+    VmState vm;
+    vm_init(&vm, module);
+    VmString *string = vm_string_new(&vm.heap, "borrowed", 8);
+    vm.stack[vm.stack_size++] = val_string(string);
+    vm.stack_capacity = 1;
+    assert(vm_call_function(&vm, 0, vm.stack, 1) == VM_ERR_TYPE_ERROR);
+    assert(vm_invoke(&vm, 0, vm.stack, 1, vm.stack) == VM_ERR_TYPE_ERROR);
+    assert(vm_invoke(&vm, 0, vm.stack + 1, 1, NULL) == VM_ERR_TYPE_ERROR);
+    assert(vm.stack[0].as.string == string && string->header.ref_count == 1);
+    NanoValue output = val_void();
+    reject_realloc = true;
+    assert(vm_invoke(&vm, 0, vm.stack, 1, &output) == VM_ERR_MEMORY);
+    reject_realloc = false;
+    assert(vm.frame_count == 0 && string->header.ref_count == 1);
+    move_pointer = vm.stack;
+    move_bytes = sizeof(NanoValue);
+    assert(vm_invoke(&vm, 0, vm.stack, 1, &output) == VM_OK);
+    assert(move_pointer == NULL); /* I actually relocated, not just requested growth. */
+    assert(vm.stack_size == 1 && vm.stack[0].as.string == string);
+    assert(output.tag == TAG_STRING && output.as.string == string);
+    assert(string->header.ref_count == 2);
+    vm_release(&vm.heap, output);
+    assert(string->header.ref_count == 1);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
 
 static void test_foreign_result_reservation(void) {
     for (unsigned argc = 0; argc <= 1; argc++) {
@@ -169,6 +216,7 @@ static void test_internal_calls(void) {
 }
 
 int main(void) {
+    test_borrowed_stack_arguments();
     test_foreign_result_reservation();
     test_instruction_growth();
     test_internal_calls();
