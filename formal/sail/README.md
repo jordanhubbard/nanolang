@@ -99,7 +99,7 @@ This mode installs `coq-sail-stdpp.0.20.2`, `coq-stdpp.1.12.0`, and
 inside the disposable container. It compiles the generated definitions and
 `StackSliceProofs.v`, checks the eight named assumption reports with the same
 failure-rejecting checker as NanoCore, and runs independent `coqchk`.
-The lemmas concern identity, push/pop and dup/pop cancellation, swap reversal,
+The original eight lemmas concern identity, push/pop and dup/pop cancellation, swap reversal,
 and underflow in the generated model. They do not state VM refinement.
 On 2026-09-11 a clean run of this command exited zero: the generated files and
 eight lemmas compiled, all eight reports were closed under the global context,
@@ -109,6 +109,12 @@ earlier run whose outer shell failed after its script was edited while running.
 The checked lemmas cover only the five-instruction integer-stack model. Decoder
 correctness for all inputs and refinement to my C VM remain unproved.
 I do not upgrade the model's proof claim because the C backend works.
+
+I am checking a ninth lemma, `execute_frame_extension`: successful execution
+on an operand stack preserves any suffix appended below it. The runner now
+requires this named assumption report as well. The earlier eight-lemma run
+does not validate this addition; its generated-model compilation and independent
+check remain pending. The law does not cover failing instructions or my C VM.
 
 My [tooling decision](../../docs/FORMAL_TOOLING_DECISION.md) records what I
 retain, what I am testing, and what would justify extending this experiment.

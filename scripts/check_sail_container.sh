@@ -54,7 +54,8 @@ docker run --rm --platform linux/amd64 \
             cat assumptions.log
             bash /check_assumptions.sh StackSliceProofs.v assumptions.log \
                 nop_identity push_then_pop dup_then_pop swap_involution \
-                dup_underflow pop_underflow swap_empty_underflow swap_singleton_underflow
+                dup_underflow pop_underflow swap_empty_underflow swap_singleton_underflow \
+                execute_frame_extension
             opam exec -- coqchk -silent StackSliceProofs
             echo "I checked bounded stack-model lemmas, not VM refinement."
             exit 0

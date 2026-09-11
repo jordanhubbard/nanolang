@@ -41,6 +41,20 @@ Theorem swap_singleton_underflow (value : mword 64) :
   execute (Swap tt) [value] = None.
 Proof. reflexivity. Qed.
 
+Theorem execute_frame_extension instruction stack next suffix :
+  execute instruction stack = Some next ->
+  execute instruction (stack ++ suffix) = Some (next ++ suffix).
+Proof.
+  intro H.
+  destruct instruction; simpl in *;
+    try (inversion H; subst; reflexivity).
+  all: destruct stack as [|first rest]; simpl in *;
+    try discriminate; try (inversion H; subst; reflexivity).
+  destruct rest as [|second rest]; simpl in *; try discriminate.
+  inversion H; subst; reflexivity.
+Qed.
+
+Print Assumptions execute_frame_extension.
 Print Assumptions nop_identity.
 Print Assumptions push_then_pop.
 Print Assumptions dup_then_pop.
