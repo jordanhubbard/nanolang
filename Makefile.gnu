@@ -489,6 +489,12 @@ $(OBJ_DIR)/nanovm:
 	mkdir -p $(OBJ_DIR)/nanovm
 
 .PHONY: test-nanovm
+SAIL_VM_ORACLE ?= $(OBJ_DIR)/nanovm/sail_vm_oracle
+.PHONY: sail-vm-oracle
+sail-vm-oracle: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o "$(SAIL_VM_ORACLE)" tests/nanovm/sail_vm_oracle.c \
+		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
 test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \

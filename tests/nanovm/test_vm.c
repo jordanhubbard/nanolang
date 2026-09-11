@@ -4688,6 +4688,50 @@ static void test_verified_flag_tracks_module_lifecycle(void) {
     nvm_module_free(mod);
 }
 
+/* I reject missing operands before touching locals or a caller's stack. */
+static void test_stack_slice_underflow(void) {
+    const NanoOpcode ops[] = {OP_DUP, OP_POP, OP_SWAP};
+    for (size_t op = 0; op < sizeof(ops) / sizeof(ops[0]); op++) {
+        unsigned needed = ops[op] == OP_SWAP ? 2 : 1;
+        for (unsigned depth = 0; depth < needed; depth++) {
+            for (unsigned locals = 0; locals <= 2; locals += 2) {
+                for (unsigned caller = 0; caller <= 2; caller += 2) {
+                    uint8_t code[64];
+                    uint32_t size = 0;
+                    if (depth) size += emit(code + size, OP_PUSH_I64, (int64_t)42);
+                    size += emit(code + size, ops[op]);
+                    size += emit(code + size, OP_HALT);
+                    NvmModule *mod = make_module(code, size, 0, (uint16_t)locals);
+                    VmState vm;
+                    vm_init(&vm, mod);
+                    ASSERT(!vm.verified, "I reject underflow in the verifier");
+                    for (unsigned i = 0; i < caller; i++)
+                        vm.stack[vm.stack_size++] = val_int(100 + i);
+                    ASSERT_EQ_INT(vm_execute(&vm), VM_ERR_STACK_UNDERFLOW,
+                                  "I trap on missing operands");
+                    ASSERT_EQ_INT(vm.stack_size, caller + locals + depth,
+                                  "I preserve the stack on underflow");
+                    for (unsigned i = 0; i < caller; i++) {
+                        ASSERT_EQ_INT(vm.stack[i].tag, TAG_INT, "I preserve caller tags");
+                        ASSERT_EQ_INT(vm.stack[i].as.i64, 100 + i, "I preserve caller values");
+                    }
+                    for (unsigned i = 0; i < locals; i++)
+                        ASSERT_EQ_INT(vm.stack[caller + i].tag, TAG_VOID,
+                                      "I preserve frame locals");
+                    if (depth) {
+                        ASSERT_EQ_INT(vm.stack[vm.stack_size - 1].tag, TAG_INT,
+                                      "I preserve the remaining operand tag");
+                        ASSERT_EQ_INT(vm.stack[vm.stack_size - 1].as.i64, 42,
+                                      "I preserve the remaining operand value");
+                    }
+                    vm_destroy(&vm);
+                    nvm_module_free(mod);
+                }
+            }
+        }
+    }
+}
+
 int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     printf("=== NanoVM Test Suite ===\n");
@@ -4721,6 +4765,7 @@ int main(void) {
 
     printf("\n[Stack Operations]\n");
     RUN_TEST(test_dup);
+    RUN_TEST(test_stack_slice_underflow);
     RUN_TEST(test_swap);
     RUN_TEST(test_pop);
     RUN_TEST(test_push_void);

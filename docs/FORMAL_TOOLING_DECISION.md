@@ -69,8 +69,11 @@ More proof tools do not make that path enjoyable by themselves.
 My [bounded Sail trial](../formal/sail/README.md) now typechecks, generates C,
 compiles and runs seven smoke assertions with Sail 0.20.2. Schema checks and
 1,524 differential byte sequences now establish tested agreement with the
-production decoder for that slice. This is not an ISA refinement proof.
-The next acceptance evidence is differential execution against NanoVM and
-coverage of integer boundaries, control flow and traps.
+production decoder for that slice. Another 1,140 comparisons establish tested
+agreement with actual NanoVM integer stack execution, including 34 underflows
+and frame-local boundaries. This exposed and repaired silent underflow in
+three unverified VM handlers. This is not an ISA refinement proof.
+The next acceptance evidence is broader integer arithmetic, control flow,
+trap semantics, and a validated prover export.
 The broader language contract, native service runtime, scoped FFI and release
 controls remain in [my roadmap](ROADMAP.md).

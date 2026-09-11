@@ -5,6 +5,7 @@ repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 sail_tmp=$(mktemp -d "${TMPDIR:-/tmp}/nanolang-sail.XXXXXX")
 trap 'rm -rf -- "$sail_tmp"' EXIT
 python3 "$repo_root/scripts/sail_decode_cases.py" "$sail_tmp"
+python3 "$repo_root/scripts/sail_vm_cases.py" "$sail_tmp"
 archive="$sail_tmp/sail.tar.gz"
 curl --fail --location --silent --show-error --retry 2 \
     https://github.com/rems-project/sail/releases/download/0.20.2-binary/sail-Linux-x86_64.tar.gz \
@@ -35,4 +36,8 @@ docker run --rm --platform linux/amd64 \
         cc decode_cases.c /opt/sail/share/sail/lib/*.c \
             -I/opt/sail/share/sail/lib -lgmp -l:libz.so.1 -o decode_cases
         ./decode_cases
+        sail --no-memo-z3 -c /source/stack_slice.sail /cases/vm_cases.sail -o vm_cases
+        cc vm_cases.c /opt/sail/share/sail/lib/*.c \
+            -I/opt/sail/share/sail/lib -lgmp -l:libz.so.1 -o vm_cases
+        ./vm_cases
     '

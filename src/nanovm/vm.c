@@ -736,6 +736,17 @@ static inline NanoValue stack_peek(VmState *vm, uint32_t offset) {
     return vm->stack[vm->stack_size - 1 - offset];
 }
 
+/* Locals and the caller's stack are not operands of the current frame. */
+static inline bool stack_has_operands(const VmState *vm, uint32_t count) {
+    if (vm->verified) return true;
+    uint32_t base = 0;
+    if (vm->frame_count) {
+        const VmCallFrame *frame = &vm->frames[vm->frame_count - 1];
+        base = frame->stack_base + frame->local_count;
+    }
+    return vm->stack_size >= base && vm->stack_size - base >= count;
+}
+
 static inline void profile_instruction(VmState *vm, uint8_t opcode) {
     VmProfile *p = &vm->profile;
     if (!p->enabled) return;
@@ -1327,6 +1338,9 @@ vm_dispatch_top:
             VM_NEXT();
 
         VM_CASE(OP_DUP) {
+            if (!stack_has_operands(vm, 1))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need one operand for DUP.");
             NanoValue top = stack_peek(vm, 0);
             vm_retain(&vm->heap, top);
             stack_push(vm, top);
@@ -1334,13 +1348,18 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_POP) {
+            if (!stack_has_operands(vm, 1))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need one operand for POP.");
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, v);
             VM_NEXT();
         }
 
         VM_CASE(OP_SWAP) {
-            if (vm->stack_size < 2) VM_NEXT();
+            if (!stack_has_operands(vm, 2))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need two operands for SWAP.");
             NanoValue a = vm->stack[vm->stack_size - 1];
             NanoValue b = vm->stack[vm->stack_size - 2];
             vm->stack[vm->stack_size - 1] = b;

@@ -12,14 +12,15 @@ Run from the repository root:
 bash scripts/check_sail_container.sh
 ```
 
-I require Docker, curl, tar, shasum, a C compiler, and Python with PyYAML on the
-host. The script checks model/schema agreement and compiles the actual
-`src/nanoisa/isa.c` with a small test bridge. It downloads Sail
+I require Docker, curl, tar, shasum, Python with PyYAML, and my normal native
+VM build prerequisites on the host (including make and a C compiler).
+The script checks model/schema agreement and compiles the actual
+`src/nanoisa/isa.c` and my VM with small test bridges. It downloads Sail
 0.20.2's Linux x86-64 binary release, verifies its published SHA-256, and mounts
 it and my model read-only into the already pinned proof container. Sail's
 bundled Z3 must be on PATH even for `--version`. I typecheck the model, generate
 C, compile that C with GMP and the container's versioned zlib runtime, and run
-seven smoke assertions, then runs a generated differential decoder corpus.
+seven smoke assertions, then run generated differential decoder and VM corpora.
 I remove the downloaded toolchain and generated artifacts afterward.
 
 Verified on 2026-09-11: Sail reported
@@ -40,10 +41,27 @@ changed opcode numbers, operand widths/kinds, byte order, extension prefix,
 stack effects, and a missing instruction. The schema check is deliberately
 specific to this model's clause format; it is not a general Sail parser.
 
+Execution agreement: Sail's generated C matched my production VM on 1,140
+single-instruction integer stack cases, including 34 underflows. I construct
+real modules with initial `PUSH_I64` instructions, the tested instruction,
+and `HALT`, then call `vm_execute`. I compare the whole operand stack in
+top-first order, exact integer bits, and success versus stack underflow.
+I exercise depths zero through four, signed-boundary bit patterns, seeded
+random values, and both zero-local and two-local frames. I do not bypass
+verification or replace VM handlers in the bridge. The bridge also checks
+that frame locals survive. HALT is test scaffolding, not modeled semantics.
+
+This comparison exposed silent underflow in unverified `DUP`, `POP`, and
+`SWAP`. I now trap before these operations touch a local or caller value;
+`make test-nanovm` passes all 736 assertions, including explicit caller-stack
+boundary regressions. `python3 tests/test_sail_vm_cases.py` passes three
+corpus coverage tests. Other stack handlers still need the separate audit
+recorded in my roadmap. These checks are not a general VM safety proof.
+
 I do not treat `None` for an unsupported opcode as proof that the opcode is
 invalid in NanoISA. Opcode constants remain manually declared, but their numbers
 and operand counts are checked against `spec/nanoisa.yaml` before each run.
-Differential VM execution, broader semantics and prover exports remain mandatory
+Broader execution semantics and prover exports remain mandatory
 before adoption. No Lean, Rocq, Isabelle, or HOL4 export has been
 validated for this model yet.
 

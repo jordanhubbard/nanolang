@@ -171,8 +171,24 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       passes seven smoke assertions via `bash scripts/check_sail_container.sh`
       (2026-09-11). The same runner now checks the schema and matches production
       `isa_decode` on 1,524 deterministic byte sequences; nine schema-drift tests
-      pass. Differential VM execution and prover exports remain unverified;
-      this trial is not a complete ISA model.
+      pass. The runner also matches NanoVM on 1,140 integer stack cases,
+      including 34 underflows and frames with locals (2026-09-11). Broader
+      execution semantics and prover exports remain unverified; this trial
+      is not a complete ISA model.
+- [x] **Formal audit defect — stack-slice underflow.** My unverified VM
+      silently accepted insufficient operands for `DUP`, `POP`, and `SWAP`.
+      These operations now trap without consuming locals or caller values.
+      All 736 NanoVM assertions pass, including underflow regressions with
+      empty and singleton operand stacks, locals, and a caller stack prefix.
+      Executable Sail agrees on 1,140 bounded integer stack cases; three
+      corpus tests check determinism, boundaries, and non-vacuous coverage.
+- [ ] **Formal audit — remaining unchecked boundaries.** I audit the
+      remaining checked stack handlers, which still
+      return void or skip operations on some insufficient-operand paths.
+      I establish a consistent failure contract, preserve frame boundaries,
+      and test malformed modules through the embedding API before claiming
+      complete runtime underflow protection. MAC
+      `task_0ba46839aee94135aaa99a9b7c207499`.
 - [x] **Formal audit defect — missing evaluator theorem.** My formal README
       advertised `eval_fn_sound` while `EvalFn.v` contained only selected case
       lemmas. I implemented all aggregate cases and strong fuel induction,
