@@ -2545,7 +2545,7 @@ fn type_to_c(nano_type: string) -> string {
             return "double"
         } else {
             if (== nano_type "bool") {
-                return "int"
+                return "bool"
             } else {
                 if (== nano_type "string") {
                     return "const char*"
@@ -2612,7 +2612,7 @@ fn type_to_c(nano_type: string) -> string {
 
 shadow type_to_c {
     assert (== (type_to_c "int") "int64_t")
-    assert (== (type_to_c "bool") "int")
+    assert (== (type_to_c "bool") "bool")
     assert (== (type_to_c "MyStruct") "nl_MyStruct")
     assert (== (type_to_c "Result<int,string>") "nl_Result_int_string")
 }
@@ -3549,7 +3549,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return acc;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static DynArray* nl_filter(DynArray* arr, int (*fn)(int64_t)) {\n")
+    set sb (cg_append sb "static DynArray* nl_filter(DynArray* arr, bool (*fn)(int64_t)) {\n")
     set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_INT);\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -3576,7 +3576,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return acc;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static DynArray* nl_filter_str(DynArray* arr, int (*fn)(const char*)) {\n")
+    set sb (cg_append sb "static DynArray* nl_filter_str(DynArray* arr, bool (*fn)(const char*)) {\n")
     set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_STRING);\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -3603,7 +3603,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return acc;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static DynArray* nl_filter_float(DynArray* arr, int (*fn)(double)) {\n")
+    set sb (cg_append sb "static DynArray* nl_filter_float(DynArray* arr, bool (*fn)(double)) {\n")
     set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_FLOAT);\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -5104,7 +5104,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     } else { (print "") }
 
                     /* array_filter: (array_filter arr pred) -> filtered array */
-                    if (== func_name "array_filter") {
+                    if (or (== func_name "array_filter") (== func_name "filter")) {
                         if (== call.arg_count 2) {
                             let af_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let af_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))

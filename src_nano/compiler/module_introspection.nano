@@ -1,0 +1,180 @@
+# I retain source-level module facts before the compiler flattens imports.
+import "src_nano/compiler/lexer.nano"
+
+struct ModuleIntrospection {
+    name: string,
+    path: string,
+    functions: array<string>,
+    structs: array<string>,
+    unsafe_imports: array<string>,
+    is_unsafe: bool,
+    has_ffi: bool,
+    ok: bool
+}
+
+fn mi_identifier(name: string) -> bool {
+    if (== (str_length name) 0) { return false }
+    let mut i: int = 0
+    while (< i (str_length name)) {
+        let c: int = (char_at name i)
+        let letter: bool = (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122)))
+        let digit: bool = (and (> i 0) (and (>= c 48) (<= c 57)))
+        if (not (or (or letter digit) (== c 95))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow mi_identifier {
+    assert (mi_identifier "probe_2")
+    assert (not (mi_identifier "2probe"))
+    assert (not (mi_identifier "probe-name"))
+}
+
+fn mi_unique(names: array<string>, name: string) -> array<string> {
+    let mut i: int = 0
+    while (< i (array_length names)) {
+        if (== (at names i) name) { return names }
+        set i (+ i 1)
+    }
+    return (array_push names name)
+}
+shadow mi_unique {
+    let names: array<string> = ["a"]
+    assert (== (array_length (mi_unique names "a")) 1)
+    assert (== (array_length (mi_unique names "b")) 2)
+}
+
+fn mi_scan(source: string, path: string, fallback_name: string) -> ModuleIntrospection {
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source path diags)
+    let mut name: string = fallback_name
+    let mut functions: array<string> = []
+    let mut structs: array<string> = []
+    let mut unsafe_imports: array<string> = []
+    let mut is_unsafe: bool = false
+    let mut has_ffi: bool = false
+    let mut public_decl: bool = false
+    let mut unsafe_decl: bool = false
+    let mut extern_decl: bool = false
+    let mut valid: bool = true
+    let mut declared: bool = false
+    let mut braces: int = 0
+    let mut parens: int = 0
+    let mut i: int = 0
+    while (< i (list_LexerToken_length tokens)) {
+        let token: LexerToken = (list_LexerToken_get tokens i)
+        let kind: int = token.token_type
+        if (and (== braces 0) (== parens 0)) {
+            if (== kind LexerTokenType.TOKEN_PUB) { set public_decl true }
+            else if (== kind LexerTokenType.TOKEN_UNSAFE) { set unsafe_decl true }
+            else if (== kind LexerTokenType.TOKEN_EXTERN) { set extern_decl true }
+            else if (or (== kind LexerTokenType.TOKEN_FN) (== kind LexerTokenType.TOKEN_STRUCT)) {
+                if (< (+ i 1) (list_LexerToken_length tokens)) {
+                    let next: LexerToken = (list_LexerToken_get tokens (+ i 1))
+                    if (== next.token_type LexerTokenType.TOKEN_IDENTIFIER) {
+                        if public_decl {
+                            if (== kind LexerTokenType.TOKEN_FN) { set functions (mi_unique functions next.value) }
+                            else { set structs (mi_unique structs next.value) }
+                        }
+                    }
+                }
+                if (and extern_decl (== kind LexerTokenType.TOKEN_FN)) { set has_ffi true }
+                set public_decl false
+                set unsafe_decl false
+                set extern_decl false
+            }
+            else if (== kind LexerTokenType.TOKEN_MODULE) {
+                if (< (+ i 1) (list_LexerToken_length tokens)) {
+                    let next: LexerToken = (list_LexerToken_get tokens (+ i 1))
+                    if (== next.token_type LexerTokenType.TOKEN_IDENTIFIER) {
+                        if declared { set valid false }
+                        set declared true
+                        set name next.value
+                        set is_unsafe unsafe_decl
+                    }
+                    else if (and unsafe_decl (== next.token_type LexerTokenType.TOKEN_STRING)) {
+                        set unsafe_imports (mi_unique unsafe_imports next.value)
+                    }
+                }
+                set public_decl false
+                set unsafe_decl false
+                set extern_decl false
+            }
+            else if (!= kind LexerTokenType.TOKEN_RESOURCE) {
+                set public_decl false
+                set unsafe_decl false
+                set extern_decl false
+            }
+        }
+        if (== kind LexerTokenType.TOKEN_LBRACE) { set braces (+ braces 1) }
+        if (== kind LexerTokenType.TOKEN_RBRACE) { set braces (- braces 1) }
+        if (== kind LexerTokenType.TOKEN_LPAREN) { set parens (+ parens 1) }
+        if (== kind LexerTokenType.TOKEN_RPAREN) { set parens (- parens 1) }
+        if (or (< braces 0) (< parens 0)) { set valid false }
+        set i (+ i 1)
+    }
+    return ModuleIntrospection { name: name, path: path, functions: functions, structs: structs, unsafe_imports: unsafe_imports,
+        is_unsafe: is_unsafe, has_ffi: has_ffi,
+        ok: (and valid (and (== (list_CompilerDiagnostic_length diags) 0)
+            (and (mi_identifier name) (and (== braces 0) (== parens 0))))) }
+}
+shadow mi_scan {
+    let info: ModuleIntrospection = (mi_scan "module p pub fn f() -> int { return 1 }" "p.nano" "p")
+    assert info.ok
+    assert (== (array_length info.functions) 1)
+}
+
+fn mi_quote(value: string) -> string {
+    let q: string = (string_from_char 34)
+    let mut result: string = q
+    let mut i: int = 0
+    while (< i (str_length value)) {
+        let c: int = (char_at value i)
+        if (== c 34) { set result (+ result "\\\"") }
+        else if (== c 92) { set result (+ result "\\\\") }
+        else if (== c 10) { set result (+ result "\\n") }
+        else if (== c 13) { set result (+ result "\\r") }
+        else if (== c 9) { set result (+ result "\\t") }
+        else { set result (+ result (string_from_char c)) }
+        set i (+ i 1)
+    }
+    return (+ result q)
+}
+shadow mi_quote { assert (== (mi_quote "a") "\"a\"") }
+
+fn mi_inventory(kind: string, name: string, values: array<string>) -> string {
+    let mut code: string = (+ (+ (+ "int64_t ___module_" kind) "_count_") name)
+    set code (+ code (+ (+ "(void) { return " (int_to_string (array_length values))) "; }\n"))
+    set code (+ code (+ (+ (+ "const char* ___module_" kind) "_name_") name))
+    set code (+ code "(int64_t idx) {\n")
+    let mut i: int = 0
+    while (< i (array_length values)) {
+        set code (+ code (+ (+ "if (idx == " (int_to_string i)) ") return "))
+        set code (+ code (+ (mi_quote (at values i)) ";\n"))
+        set i (+ i 1)
+    }
+    return (+ code "(void)idx; return \"\";\n}\n")
+}
+shadow mi_inventory {
+    let values: array<string> = ["f"]
+    assert (str_contains (mi_inventory "function" "probe" values) "return 1;")
+}
+
+fn mi_emit(info: ModuleIntrospection) -> string {
+    if (not info.ok) { return "" }
+    let mut code: string = (+ (mi_inventory "function" info.name info.functions) (mi_inventory "struct" info.name info.structs))
+    set code (+ code (+ (+ "bool ___module_is_unsafe_" info.name) "(void) { return "))
+    if info.is_unsafe { set code (+ code "true") } else { set code (+ code "false") }
+    set code (+ code "; }\n")
+    set code (+ code (+ (+ "bool ___module_has_ffi_" info.name) "(void) { return "))
+    if info.has_ffi { set code (+ code "true") } else { set code (+ code "false") }
+    set code (+ code "; }\n")
+    set code (+ code (+ (+ "const char* ___module_name_" info.name) "(void) { return "))
+    set code (+ code (+ (mi_quote info.name) "; }\n"))
+    set code (+ code (+ (+ "const char* ___module_path_" info.name) "(void) { return "))
+    return (+ code (+ (mi_quote info.path) "; }\n"))
+}
+shadow mi_emit {
+    let info: ModuleIntrospection = (mi_scan "module p" "p.nano" "p")
+    assert (str_contains (mi_emit info) "___module_path_p")
+}

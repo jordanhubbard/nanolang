@@ -9,7 +9,7 @@ fn main() -> int {
     assert (not (is_runtime_declared_extern "nl_fs_list_files_ci"))
     assert (not (is_runtime_declared_extern "my_list_int_hook"))
     assert (not (is_runtime_declared_extern "___module_function_count_probe"))
-    let source: string = "extern fn nl_fs_probe(path: string) -> int extern fn ___module_count_probe() -> int extern fn my_list_int_hook() -> int"
+    let source: string = "extern fn nl_fs_probe(path: string) -> int extern fn ___module_count_probe() -> int extern fn my_list_int_hook() -> int extern fn boolean_probe(value: bool) -> bool"
     let tokens: List<LexerToken> = (tokenize_string source "extern-test.nano" (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "extern-test.nano")
     assert (not (parser_has_error parsed))
@@ -17,6 +17,8 @@ fn main() -> int {
     assert (str_contains code "extern int64_t nl_fs_probe(")
     assert (str_contains code "extern int64_t ___module_count_probe(void);")
     assert (str_contains code "extern int64_t my_list_int_hook(void);")
+    assert (str_contains code "extern bool boolean_probe(bool value);")
+    assert (== (type_to_c "bool") "bool")
     (println "I passed extern declaration selection.")
     return 0
 }

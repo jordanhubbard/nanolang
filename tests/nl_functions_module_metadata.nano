@@ -14,9 +14,22 @@ extern fn ___module_function_count_metadata_probe() -> int
 extern fn ___module_struct_count_metadata_probe() -> int
 extern fn ___module_is_unsafe_metadata_probe() -> bool
 extern fn ___module_has_ffi_metadata_probe() -> bool
+extern fn ___module_name_metadata_probe() -> string
+extern fn ___module_path_metadata_probe() -> string
+extern fn ___module_function_name_metadata_probe(index: int) -> string
+extern fn ___module_struct_name_metadata_probe(index: int) -> string
 
 fn main() -> int {
     (println "=== Module Metadata Embedding Test ===")
+    assert (== (___module_name_metadata_probe) "metadata_probe")
+    assert (str_ends_with (___module_path_metadata_probe) "tests/test_modules/metadata_probe.nano")
+    assert (== (___module_function_name_metadata_probe 0) "add")
+    assert (== (___module_function_name_metadata_probe 1) "scale")
+    assert (== (___module_function_name_metadata_probe (- 0 1)) "")
+    assert (== (___module_function_name_metadata_probe 2) "")
+    assert (== (___module_struct_name_metadata_probe 0) "Vec2")
+    assert (== (___module_struct_name_metadata_probe (- 0 1)) "")
+    assert (== (___module_struct_name_metadata_probe 1) "")
 
     # The imported module must be usable (its object compiled with embedded
     # metadata without crashing).

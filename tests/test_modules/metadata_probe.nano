@@ -9,6 +9,14 @@
 
 module metadata_probe
 
+# pub fn not_an_export() -> int { return 99 }
+struct PrivatePoint { value: int }
+fn private_probe() -> int {
+    let declaration_text: string = "pub fn phantom() extern fn phantom_ffi()"
+    return (str_length declaration_text)
+}
+shadow private_probe { assert (> (private_probe) 0) }
+
 
 pub struct Vec2 {
     x: int,

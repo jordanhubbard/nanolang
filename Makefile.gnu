@@ -2206,6 +2206,7 @@ test-quick: build
 	@./tests/run_all_tests.sh --lang
 	@$(MAKE) --no-print-directory test-parser-parenthesized
 	@$(MAKE) --no-print-directory test-transpiler-externs
+	@$(MAKE) --no-print-directory test-module-introspection
 	@bash tests/test_make_header_dependencies.sh
 	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
@@ -2238,6 +2239,11 @@ endif
 .PHONY: test-make-header-dependencies
 .PHONY: test-parser-parenthesized
 .PHONY: test-transpiler-externs
+.PHONY: test-module-introspection
+test-module-introspection: $(COMPILER_C)
+	$(COMPILER_C) tests/module_introspection.nano -o $(BIN_DIR)/module_introspection_test
+	$(BIN_DIR)/module_introspection_test
+
 test-transpiler-externs: $(COMPILER_C)
 	$(COMPILER_C) tests/transpiler_externs.nano -o $(BIN_DIR)/transpiler_externs_test
 	$(BIN_DIR)/transpiler_externs_test

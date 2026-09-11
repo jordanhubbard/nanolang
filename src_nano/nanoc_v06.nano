@@ -20,6 +20,7 @@ import "src_nano/typecheck.nano"
 import "src_nano/transpiler.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
+import "src_nano/compiler/module_introspection.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 
 /* CLI argument access */
@@ -1229,6 +1230,69 @@ shadow merge_with_imports {
     assert (== 1 1)
 }
 
+struct IntrospectionOutput { ok: bool, code: string }
+
+fn collect_introspection(files: array<string>, repo_root: string) -> IntrospectionOutput {
+    let mut unsafe_paths: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length files)) {
+        let path: string = (at files i)
+        let info: ModuleIntrospection = (mi_scan (file_read path) path "entry")
+        let mut j: int = 0
+        while (< j (array_length info.unsafe_imports)) {
+            let target: string = (resolve_import_path path (at info.unsafe_imports j) repo_root)
+            set unsafe_paths (mi_unique unsafe_paths (path_normalize target))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let mut names: array<string> = []
+    let mut parts: array<string> = []
+    set i 0
+    # The final DFS entry is the program itself, not an imported module.
+    while (< i (- (array_length files) 1)) {
+        let path: string = (at files i)
+        let base: string = (path_basename path)
+        let dot: int = (last_dot_index base)
+        let mut fallback: string = base
+        if (> dot 0) { set fallback (str_substring base 0 dot) }
+        let raw: ModuleIntrospection = (mi_scan (file_read path) path fallback)
+        let mut j: int = 0
+        while (< j (array_length names)) {
+            if (== (at names j) raw.name) {
+                (println (+ "I reject ambiguous module introspection identity: " raw.name))
+                return IntrospectionOutput { ok: false, code: "" }
+            }
+            set j (+ j 1)
+        }
+        if (not raw.ok) {
+            (println (+ "I cannot derive valid module introspection for: " path))
+            return IntrospectionOutput { ok: false, code: "" }
+        }
+        let mut is_unsafe: bool = raw.is_unsafe
+        set j 0
+        while (< j (array_length unsafe_paths)) {
+            if (== (at unsafe_paths j) (path_normalize path)) { set is_unsafe true }
+            set j (+ j 1)
+        }
+        let info: ModuleIntrospection = ModuleIntrospection {
+            name: raw.name, path: raw.path, functions: raw.functions, structs: raw.structs,
+            unsafe_imports: raw.unsafe_imports, is_unsafe: is_unsafe, has_ffi: raw.has_ffi, ok: raw.ok
+        }
+        set names (array_push names info.name)
+        set parts (cg_append parts (mi_emit info))
+        set i (+ i 1)
+    }
+    return IntrospectionOutput { ok: true, code: (cg_build parts) }
+}
+
+shadow collect_introspection {
+    let empty: array<string> = []
+    let result: IntrospectionOutput = (collect_introspection empty "")
+    assert result.ok
+    assert (== result.code "")
+}
+
 /* =============================================================================
  * COMPILATION PIPELINE
  * ============================================================================= */
@@ -1593,7 +1657,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
 
-            let c_code: string = (transpile_parser parser)
+            let introspection: IntrospectionOutput = (collect_introspection merged_files merge_repo_root)
+            if (not introspection.ok) { return 1 }
+            let c_code: string = (+ (transpile_parser parser) introspection.code)
             
             if verbose {
                 (print "  ✓ Generated ")

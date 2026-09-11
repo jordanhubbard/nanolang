@@ -1,0 +1,3 @@
+module duplicate_identity
+fn second_private() -> int { return 2 }
+shadow second_private { assert (== (second_private) 2) }

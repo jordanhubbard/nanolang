@@ -1,0 +1,20 @@
+unsafe module "test_modules/metadata_ffi_probe.nano" as foreign_probe
+extern fn ___module_is_unsafe_metadata_ffi_probe() -> bool
+extern fn ___module_has_ffi_metadata_ffi_probe() -> bool
+extern fn ___module_function_count_metadata_ffi_probe() -> int
+extern fn ___module_struct_count_metadata_ffi_probe() -> int
+extern fn ___module_function_name_metadata_ffi_probe(index: int) -> string
+extern fn ___module_struct_name_metadata_ffi_probe(index: int) -> string
+
+fn main() -> int {
+    assert (___module_is_unsafe_metadata_ffi_probe)
+    assert (___module_has_ffi_metadata_ffi_probe)
+    assert (== (___module_function_count_metadata_ffi_probe) 1)
+    assert (== (___module_struct_count_metadata_ffi_probe) 0)
+    assert (== (___module_function_name_metadata_ffi_probe 0) "metadata_visible")
+    assert (== (___module_function_name_metadata_ffi_probe 1) "")
+    assert (== (___module_struct_name_metadata_ffi_probe 0) "")
+    (println "I passed unsafe and FFI module-introspection checks.")
+    return 0
+}
+shadow main { assert (== (main) 0) }

@@ -243,6 +243,37 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       tracking and test that parser/import changes rebuild the affected
       compiler stages. A stale selected binary must not survive a successful
       source rebuild unnoticed. MAC `task_a98f6940228e47b3a503472d0ba5d2a4`.
+- [x] **5.0 module introspection parity.** I derive module name/path,
+      public function and struct inventories, unsafe status, and FFI status
+      from each original module before import flattening. I emit the complete
+      eight-operation introspection surface, test private/nested declarations,
+      comments, names, counts and index bounds, and reject ambiguous legacy
+      module identities. This does not replace the separate typed-module ABI
+      and import-authority work. The source-fact native test passes; both
+      compiler candidates execute all eight operations and flag regressions.
+      The self-hosted candidate rejects duplicate identities (2026-09-11).
+- [x] **5.0 audit defect — boolean C ABI.** Module introspection exposed
+      self-hosted `bool` declarations emitted as C `int`, conflicting with the
+      seed's C `bool` definitions. I reconcile boolean declaration/field
+      mappings and verify generated prototypes and executable behavior.
+      `make test-transpiler-externs` passes explicit C `bool` assertions.
+      Boolean filter callbacks agree with their generated function signatures.
+- [ ] **5.0 audit defect — compiler build isolation.** Concurrent C-seed
+      compilations shared `obj/nano_modules/transpiler.o.c`; one compilation
+      removed it before the other invoked clang. I isolate intermediate module
+      files and publish cache entries atomically, then test concurrent builds.
+      The self-hosted merger also uses predictable shared temporary paths;
+      I replace those and remove its unconditional merged-source debug dump.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 audit defect — typed filter dispatch.** My executable callback
+      tests exposed float and string arrays routed to the integer filter
+      helper. I select the helper from the array element type and retain
+      native integer, float, and string callback regressions. The `filter`
+      spelling now shares `array_filter` dispatch. Both the C seed and a fresh
+      NanoLang compiler candidate compile and execute all 17 language programs,
+      including these callbacks (2026-09-11). General collection-expression
+      inference remains part of the wider typing audit. My installed stage-two
+      binary is unchanged; this is not a passing full `test-quick` gate.
 - [ ] **Formal audit — Sail adoption trial.** I record a sourced framework
       decision, run a pinned Sail toolchain on a NanoISA stack/constant slice,
       then extend it to schema-checked decoding and differential VM execution.
