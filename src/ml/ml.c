@@ -966,9 +966,10 @@ static int collect_free_pat(Pat *p, char locals[][ML_NAME], int *nl, int maxl) {
 
 static int add_up(char ups[][ML_NAME], int *nu, int maxu, const char *n) {
     int i;
+    size_t len = strlen(n);
     for (i = 0; i < *nu; i++) if (strcmp(ups[i], n) == 0) return 0;
-    if (*nu >= maxu) return -1;
-    snprintf(ups[*nu], ML_NAME, "%s", n);
+    if (*nu >= maxu || len >= ML_NAME) return -1;
+    memcpy(ups[*nu], n, len + 1);
     (*nu)++;
     return 0;
 }
