@@ -1827,6 +1827,7 @@ test-impl: test-units
 	@python3 tests/test_bootstrap_messages.py
 	@python3 tests/test_module_compile_invocation.py
 	@python3 tests/test_list_generator.py
+	@python3 tests/test_runtime_list_boundaries.py
 	@$(MAKE) --no-print-directory test-locale-cli
 	@$(MAKE) --no-print-directory test-src-utf8
 	@$(MAKE) --no-print-directory test-locale-catalog

@@ -354,11 +354,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       values, and a checked large allocation request intercepted without
       allocating gigabytes (2026-09-11). This checks newly generated code,
       not every checked-in runtime list implementation.
-- [ ] **5.0 runtime lists — checked-in capacity correspondence.** The
-      checked-in runtime list implementations also contain unchecked signed
-      doubling. I must reconcile their capacity and allocation boundaries
-      with the corrected generator, preserve their actual APIs, and exercise
-      them directly; testing newly generated code does not validate copies.
+- [x] **5.0 runtime lists — checked-in capacity correspondence.** I use
+      one internal checked-capacity helper across all 39 retained list
+      implementations, preserve their APIs, and support zero-capacity growth.
+      Each implementation passes five compiled UBSan scenarios: normal growth,
+      negative capacity, maximum-length push/insert, and intercepted large
+      growth. All six generator tests also pass. `make test-runtime-lists`
+      rebuilds the bootstrap and passes 33 AST-list and six non-AST-list
+      API/value tests (2026-09-11). The direct checks run in `test-impl`.
+      I removed the orphaned `list_ASTMatchClause` source/header: its struct
+      was absent from the schema, it was absent from RUNTIME_SOURCES, and
+      the old tests explicitly excluded it. Git preserves that unused pair.
+      These checks establish tested capacity behavior, not full heap safety.
+- [ ] **5.0 runtime lists — string-copy allocation boundaries.** The
+      string-list operations call `strdup` without checking allocation failure.
+      I must preserve the existing ownership/API contract while preventing a
+      failed copy from silently publishing a null element or losing an old
+      value. Capacity checks do not cover element allocation.
 - [x] **5.0 audit defect — typed filter dispatch.** My executable callback
       tests exposed float and string arrays routed to the integer filter
       helper. I select the helper from the array element type and retain
