@@ -333,6 +333,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       command. I must preserve paths containing spaces or shell metacharacters
       as data and reject truncated arguments, with execution tests. Private
       staging and atomic object publication do not repair this boundary.
+      I now quote module object/source/include paths and top-level module
+      include paths, with executable import tests below. Top-level artifact,
+      runtime-source and library paths, generator invocations, and raw flag
+      fragments still require their own boundary audit; this item stays open.
+- [x] **5.0 module imports — literal shell paths.** I share one literal
+      path-quoting helper between module compilation and top-level include
+      construction, reject oversized module commands and dropped flags, and
+      keep NANO_CC command-fragment compatibility for configured wrappers.
+      Nine module-build tests pass, including executable imports from a
+      directory with spaces/apostrophes, literal command-substitution syntax
+      that must not create a marker, and a rejected oversized command before
+      compiler invocation (2026-09-11). The first run exposed the still-unquoted
+      top-level include path after module compilation; both callers are now
+      covered. This does not make all compiler commands shell-free.
+      Rebuilt C-seed module introspection, extern selection and compiled
+      parenthesized-parser regressions also pass.
 - [x] **5.0 generic-list generator — publication boundaries.** I stage both
       generated files privately before replacing either published file, reject
       type names that can escape the output directory, and test overlapping

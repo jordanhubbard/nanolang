@@ -46,12 +46,17 @@ class ModuleCompileInvocation(unittest.TestCase):
     def check_compile(self, mode):
         with tempfile.TemporaryDirectory(prefix="nanolang-module-invocation-") as directory:
             path = Path(directory)
-            (path / "single_invocation_probe.nano").write_text(
+            module_relative = "single_invocation_probe.nano"
+            if mode in ("quoted_path", "shell_path"):
+                parent = "odd space's" if mode == "quoted_path" else "odd$(touch injected)"
+                (path / parent).mkdir()
+                module_relative = parent + "/single_invocation_probe.nano"
+            (path / module_relative).write_text(
                 "module single_invocation_probe\n"
                 "pub fn answer() -> int { return 42 }\n"
                 "shadow answer { assert (== (answer) 42) }\n")
             (path / "main.nano").write_text(
-                'module "single_invocation_probe.nano" as probe\n'
+                f'module "{module_relative}" as probe\n'
                 "fn main() -> int { assert (== (probe.answer) 42) return 0 }\n"
                 "shadow main { assert (== (main) 0) }\n")
             wrapper = path / "compiler.py"
@@ -59,6 +64,8 @@ class ModuleCompileInvocation(unittest.TestCase):
             env = os.environ.copy()
             env.update(NANO_CC=f"{sys.executable} {wrapper}", PROBE_LOG=str(path / "calls"),
                        PROBE_MODE=mode, PROBE_REAL_CC=shutil.which("cc"), TMPDIR=directory)
+            if mode == "long_command":
+                env["NANO_CC"] = " " * 5000 + env["NANO_CC"]
             compiler = str(Path(os.environ.get("NANOLANG_COMPILER", str(ROOT / "bin/nanoc_c"))).resolve())
             if mode == "overlap":
                 processes = []
@@ -113,8 +120,14 @@ class ModuleCompileInvocation(unittest.TestCase):
                 output, _ = process.communicate()
                 self.fail("I did not drain compiler diagnostics before waiting: " + output[-2000:])
             calls = (path / "calls").read_text().splitlines() if (path / "calls").exists() else []
+            self.assertFalse((path / "injected").exists(), "module path executed a shell substitution")
+            if mode == "long_command":
+                self.assertEqual(calls, [], output[-4000:])
+                self.assertNotEqual(process.returncode, 0)
+                self.assertIn("I could not represent all module compiler arguments.", output)
+                return
             self.assertEqual(calls, ["compile"], output[-4000:])
-            if mode == "success":
+            if mode in ("success", "quoted_path", "shell_path"):
                 self.assertEqual(process.returncode, 0, output[-4000:])
                 subprocess.run([str(path / "program")], check=True, timeout=10)
             else:
@@ -143,6 +156,15 @@ class ModuleCompileInvocation(unittest.TestCase):
 
     def test_success_without_an_object_cannot_publish(self):
         self.check_compile("missing")
+
+    def test_module_directory_with_spaces_and_quote(self):
+        self.check_compile("quoted_path")
+
+    def test_module_directory_cannot_execute_shell_substitution(self):
+        self.check_compile("shell_path")
+
+    def test_truncated_command_is_not_executed(self):
+        self.check_compile("long_command")
 
 
 if __name__ == "__main__":

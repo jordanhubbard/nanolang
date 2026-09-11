@@ -2,6 +2,7 @@
 #include "colors.h"
 #include "version.h"
 #include "module_builder.h"
+#include "shell_path.h"
 #include "interpreter_ffi.h"
 #include "reflection.h"
 #include "emit_typed_ast.h"
@@ -1077,12 +1078,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
     
     /* Build include flags */
-    char include_flags[8192];
-    snprintf(include_flags, sizeof(include_flags), "-I%s/src", get_project_root());
+    char include_flags[8192] = "";
+    char root_include[4096];
+    int root_length = snprintf(root_include, sizeof(root_include), "%s/src", get_project_root());
+    bool include_paths_valid = root_length >= 0 && (size_t)root_length < sizeof(root_include);
+    include_paths_valid = module_append_include(include_flags, sizeof(include_flags), root_include) && include_paths_valid;
     for (int i = 0; i < opts->include_count; i++) {
-        char temp[512];
-        snprintf(temp, sizeof(temp), " -I%s", opts->include_paths[i]);
-        strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
+        include_paths_valid = module_append_include(include_flags, sizeof(include_flags), opts->include_paths[i]) && include_paths_valid;
     }
     
     /* Add module directories to include path (for FFI headers) */
@@ -1099,6 +1101,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             
             /* Extract directory from module path */
             char dir_path[512];
+            if (strlen(module_path) >= sizeof(dir_path)) {
+                include_paths_valid = false;
+                continue;
+            }
             strncpy(dir_path, module_path, sizeof(dir_path) - 1);
             dir_path[sizeof(dir_path) - 1] = '\0';
             
@@ -1121,9 +1127,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     unique_count++;
                     
                     /* Add -I flag for this directory */
-                    char temp[1024];
-                    snprintf(temp, sizeof(temp), " -I%s", dir_path);
-                    strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
+                    include_paths_valid = module_append_include(include_flags, sizeof(include_flags), dir_path) && include_paths_valid;
                     
                     if (opts->verbose) {
                         printf("Adding module include path: %s\n", dir_path);
@@ -1442,8 +1446,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
 
     /* Add TMPDIR to include path for generated list headers */
-    char include_flags_with_tmp[2560];
-    snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s -I%s", include_flags, get_tmp_dir());
+    char include_flags_with_tmp[12288];
+    snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s", include_flags);
+    include_paths_valid = module_append_include(include_flags_with_tmp, sizeof(include_flags_with_tmp), get_tmp_dir()) && include_paths_valid;
     
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
@@ -1483,9 +1488,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
             cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
     
-    if (cmd_len >= (int)sizeof(compile_cmd)) {
+    if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
         human_diag(NL_DIAG_CC_CMD);
-        fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
+        fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
         free(c_code);

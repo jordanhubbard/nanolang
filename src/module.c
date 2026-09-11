@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For mkdtemp */
 #include "nanolang.h"
 #include "module_builder.h"
+#include "shell_path.h"
 #include "stdlib_runtime.h"
 #include <sys/stat.h>
 #include <unistd.h>
@@ -1129,6 +1130,7 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
 }
 
 /* Compile a single module to an object file */
+
 bool compile_module_to_object(const char *module_path,
                               const char *output_obj,
                               Environment *env,
@@ -1363,6 +1365,7 @@ bool compile_module_to_object(const char *module_path,
 
     char compile_cmd[4096];
     char inherited_flags[2048] = "";
+    bool arguments_valid = true;
     const char *root = get_project_root();
 
     for (size_t i = 0; i < extra_compile_flags_count; i++) {
@@ -1374,6 +1377,8 @@ bool compile_module_to_object(const char *module_path,
                 strcat(inherited_flags, " ");
             }
             strcat(inherited_flags, extra_compile_flags[i]);
+        } else {
+            arguments_valid = false;
         }
     }
 
@@ -1387,22 +1392,33 @@ bool compile_module_to_object(const char *module_path,
         const char *resolved = realpath(module_path, abs_module_path);
         const char *path_to_use = resolved ? abs_module_path : module_path;
         char *mp_copy = strdup(path_to_use);
-        char *last_slash = strrchr(mp_copy, '/');
+        if (!mp_copy) arguments_valid = false;
+        char *last_slash = mp_copy ? strrchr(mp_copy, '/') : NULL;
         if (last_slash) {
             *last_slash = '\0';
-            if (mp_copy[0] == '/') {
-                snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy);
-            } else {
+            int written = mp_copy[0] == '/' ?
+                snprintf(module_dir, sizeof(module_dir), "-I%s", mp_copy) :
                 snprintf(module_dir, sizeof(module_dir), "-I%s/%s", root, mp_copy);
-            }
+            if (written < 0 || (size_t)written >= sizeof(module_dir)) arguments_valid = false;
         }
         free(mp_copy);
     }
 
-    int command_length = snprintf(compile_cmd, sizeof(compile_cmd),
+    char *quoted_root = module_quote_path(root);
+    char *quoted_module = module_dir[0] ? module_quote_path(module_dir) : strdup("");
+    char *quoted_object = module_quote_path(temp_obj_file);
+    char *quoted_source = module_quote_path(temp_c_file);
+    arguments_valid = arguments_valid && quoted_root && quoted_module && quoted_object && quoted_source;
+    compile_cmd[0] = '\0';
+    int command_length = arguments_valid ? snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -I%s/src -I%s/modules/std -I%s/modules/std/collections -I%s/modules/std/json -I%s/modules/std/io -I%s/modules/std/math -I%s/modules/std/peg -I%s/modules/std/string -I%s/modules/sdl_helpers %s %s %s -c -o %s %s",
-            cc, root, root, root, root, root, root, root, root, root,
-            module_dir, sdl_flags, inherited_flags, temp_obj_file, temp_c_file);
+            cc, quoted_root, quoted_root, quoted_root, quoted_root, quoted_root,
+            quoted_root, quoted_root, quoted_root, quoted_root,
+            quoted_module, sdl_flags, inherited_flags, quoted_object, quoted_source) : -1;
+    free(quoted_root);
+    free(quoted_module);
+    free(quoted_object);
+    free(quoted_source);
     
     if (verbose) {
         printf("Compiling module: %s\n", compile_cmd);
@@ -1414,6 +1430,8 @@ bool compile_module_to_object(const char *module_path,
     FILE *pipe = command_length >= 0 && (size_t)command_length < sizeof(compile_cmd) ?
                  popen(error_cmd, "r") : NULL;
     char error_output[4096] = {0};
+    if (command_length < 0 || (size_t)command_length >= sizeof(compile_cmd))
+        snprintf(error_output, sizeof(error_output), "I could not represent all module compiler arguments.");
     int result = -1;
     if (pipe) {
         /* I retain a bounded diagnostic prefix but drain the entire pipe so
