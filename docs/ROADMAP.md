@@ -230,6 +230,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       return types. Compiled trim/character and user-function equality and
       inequality cases pass on both compilers. The broader inference audit
       remains open under MAC `task_e7a7395191d44cf793d684e21ea16a79`.
+- [ ] **5.0 audit defect — string-call concatenation.** Stage-two bootstrap
+      emitted C pointer addition for `(mi_inventory ...) + (mi_inventory ...)`.
+      I use semantic operand types for concatenation, retain a native
+      string-returning-call regression, and rerun the actual bootstrap.
+      The old stage one rejects the regression; the C seed passes it. With
+      generated-text guesses removed, rebuilt stage one compiles and executes
+      all 17 language programs, including nested concatenation and an
+      integer-returning function named `str_concat_count`. Actual stage-two
+      bootstrap is being rerun; that acceptance criterion remains open.
 - [ ] **5.0 audit defect — interpreted versus native codegen assertions.**
       Calling the extern-prototype regression's `main` from a C-seed shadow
       failed its three generated-text assertions, while the compiled entry
@@ -273,6 +282,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The self-hosted merger also uses predictable shared temporary paths;
       I replace those and remove its unconditional merged-source debug dump.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      The C seed also invokes each module C compilation twice: once via
+      `popen` for diagnostics and again via `system` for status. I execute
+      it once, drain diagnostics, and use that same invocation's exit status.
 - [x] **5.0 audit defect — typed filter dispatch.** My executable callback
       tests exposed float and string arrays routed to the integer filter
       helper. I select the helper from the array element type and retain

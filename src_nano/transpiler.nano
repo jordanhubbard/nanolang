@@ -4551,25 +4551,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 
                 /* Special case: + for string concatenation */
                 if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                    /* Check if either operand looks like a string */
-                    let left_is_str: bool = (and (> (str_length left_code) 0) (== (char_at left_code 0) 34))
-                    let right_is_str: bool = (and (> (str_length right_code) 0) (== (char_at right_code 0) 34))
-                    /* Also check if either operand is a string-returning function call */
-                    let left_is_str_fn: bool = (or (str_contains left_code "nl_str_concat") (or (str_contains left_code "nl_int_to_string") (or (str_contains left_code "nl_float_to_string") (str_contains left_code "nl_bool_to_string"))))
-                    let right_is_str_fn: bool = (or (str_contains right_code "nl_str_concat") (or (str_contains right_code "nl_int_to_string") (or (str_contains right_code "nl_float_to_string") (str_contains right_code "nl_bool_to_string"))))
-                    /* Also check if either identifier operand has string type in GenEnv */
-                    let mut left_is_str_var: bool = false
-                    let mut right_is_str_var: bool = false
-                    if (== binop.left_type ParseNodeType.PNODE_IDENTIFIER) {
-                        let lid: ASTIdentifier = (parser_get_identifier parser binop.left)
-                        let lt: string = (genenv_get env lid.name)
-                        if (== lt "string") { set left_is_str_var true } else { (print "") }
-                    } else { (print "") }
-                    if (== binop.right_type ParseNodeType.PNODE_IDENTIFIER) {
-                        let rid: ASTIdentifier = (parser_get_identifier parser binop.right)
-                        let rt: string = (genenv_get env rid.name)
-                        if (== rt "string") { set right_is_str_var true } else { (print "") }
-                    } else { (print "") }
+                    # I classify values from source types, not generated C substrings.
+                    let left_is_str: bool = (== (infer_expr_type parser binop.left binop.left_type env) "string")
+                    let right_is_str: bool = (== (infer_expr_type parser binop.right binop.right_type env) "string")
                     /* Check struct field access for string type */
                     let mut left_is_str_field: bool = false
                     let mut right_is_str_field: bool = false
@@ -4598,7 +4582,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         } else { (print "") }
                     } else { (print "") }
 
-                    let either_is_str: bool = (or (or left_is_str right_is_str) (or (or left_is_str_fn right_is_str_fn) (or (or left_is_str_var right_is_str_var) (or left_is_str_field right_is_str_field))))
+                    let either_is_str: bool = (or (or left_is_str right_is_str) (or left_is_str_field right_is_str_field))
                     if either_is_str {
                         let mut parts: array<string> = []
                         set parts (cg_append parts "nl_str_concat(")
