@@ -454,6 +454,37 @@ Proof.
     inversion Heval; subst. apply IH in Hright. eapply E_Or_False; eassumption.
 Qed.
 
+(** I cover every binary operator, including arithmetic failure cases. *)
+Theorem eval_fn_sound_binop : forall fuel renv op e1 e2 renv' v,
+  eval_fn fuel renv (EBinOp op e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EBinOp op e1 e2) renv' v.
+Proof.
+  intros fuel renv op e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  destruct op;
+    try solve [eapply eval_fn_sound_logic; [reflexivity | exact Heval | exact IH]].
+  all: simpl in Heval; simpl in IH;
+    destruct (eval_fn n renv e1) as [[r1 v1]|] eqn:Hleft; try discriminate;
+    destruct (eval_fn n r1 e2) as [[r2 v2]|] eqn:Hright; try discriminate;
+    destruct v1, v2; try discriminate;
+    apply IH in Hleft; apply IH in Hright.
+  all: repeat match goal with
+    | H : context [if ?b then _ else _] |- _ =>
+      destruct b eqn:?; try discriminate
+    end.
+  all: inversion Heval; subst;
+    try solve [first [eapply E_BinArith; [eassumption | eassumption | unfold eval_arith_binop; congruence]
+          |eapply E_BinCmp; [eassumption | eassumption | reflexivity]
+          |eapply E_BinEqBool; [eassumption | eassumption | reflexivity]
+          |eapply E_BinNeBool; [eassumption | eassumption | reflexivity]
+          |eapply E_BinEqStr; [eassumption | eassumption | reflexivity]
+          |eapply E_BinNeStr; [eassumption | eassumption | reflexivity]
+          |eapply E_StrCat; eassumption]].
+  all: eapply E_BinArith; [eassumption | eassumption |];
+    unfold eval_arith_binop; rewrite Heqb; reflexivity.
+Qed.
+
 (** Soundness for unary operations *)
 Theorem eval_fn_sound_unop : forall fuel renv e0 renv' v op0,
   eval_fn fuel renv (EUnOp op0 e0) = Some (renv', v) ->
@@ -567,6 +598,103 @@ Proof.
   injection Heval; intros; subst.
   apply IH in He0.
   eapply E_Set; eassumption.
+Qed.
+
+(** I keep binding names and their order while changing stored values. This
+    invariant lets a let-binding pop its own slot after evaluating its body. *)
+Fixpoint env_names (r : env) : list string :=
+  match r with
+  | ENil => []
+  | ECons x _ rest => x :: env_names rest
+  end.
+
+Lemma env_update_names : forall r x v,
+  env_names (env_update x v r) = env_names r.
+Proof.
+  induction r; intros; simpl; [reflexivity |].
+  destruct (String.eqb x s); simpl; f_equal; auto.
+Qed.
+
+Lemma eval_preserves_env_names : forall r e r' v,
+  eval r e r' v -> env_names r' = env_names r.
+Proof.
+  intros r e r' v Heval. induction Heval; simpl in *;
+    try rewrite env_update_names; congruence.
+Qed.
+
+Theorem eval_fn_sound_let : forall fuel renv x e1 e2 renv' v,
+  eval_fn fuel renv (ELet x e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (ELet x e1 e2) renv' v.
+Proof.
+  intros fuel renv x e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv e1) as [[r1 v1]|] eqn:Hfirst; [| discriminate].
+  destruct (eval_fn n (ECons x v1 r1) e2) as [[r2 v2]|] eqn:Hbody; [| discriminate].
+  destruct r2 as [|y vy rest]; [discriminate |].
+  apply IH in Hfirst. apply IH in Hbody.
+  pose proof (eval_preserves_env_names _ _ _ _ Hbody) as Hnames.
+  simpl in Hnames. injection Hnames as Hname Htail. subst y.
+  inversion Heval; subst. eapply E_Let; eassumption.
+Qed.
+
+(** I thread the environment through every executed loop iteration. *)
+Theorem eval_fn_sound_while : forall fuel renv cond body renv' v,
+  eval_fn fuel renv (EWhile cond body) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EWhile cond body) renv' v.
+Proof.
+  intros fuel renv cond body renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv cond) as [[r1 vc]|] eqn:Hcond; [| discriminate].
+  destruct vc; try discriminate. apply IH in Hcond. destruct b.
+  - destruct (eval_fn n r1 body) as [[r2 vb]|] eqn:Hbody; [| discriminate].
+    apply IH in Hbody. apply IH in Heval. eapply E_WhileTrue; eassumption.
+  - inversion Heval; subst. apply E_WhileFalse. assumption.
+Qed.
+
+(** I evaluate closure bodies lexically and return the caller's environment. *)
+Theorem eval_fn_sound_app : forall fuel renv e1 e2 renv' v,
+  eval_fn fuel renv (EApp e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EApp e1 e2) renv' v.
+Proof.
+  intros fuel renv e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv e1) as [[r1 vf]|] eqn:Hfn; [| discriminate].
+  destruct vf; try discriminate.
+  all: repeat match type of Heval with
+    | context [eval_fn ?fuel0 ?r ?e] =>
+      let H := fresh "Hcall" in
+      destruct (eval_fn fuel0 r e) as [[? ?]|] eqn:H; try discriminate
+    end.
+  all: repeat match goal with
+    | H : eval_fn _ _ _ = Some (_, _) |- _ => apply IH in H
+    end.
+  all: inversion Heval; subst; eauto using E_App, E_AppFix.
+Qed.
+
+Theorem eval_fn_sound_match : forall fuel renv e branches renv' v,
+  eval_fn fuel renv (EMatch e branches) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (EMatch e branches) renv' v.
+Proof.
+  intros fuel renv e branches renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv e) as [[r1 vc]|] eqn:Hscrut; [| discriminate].
+  destruct vc as [| | | | | | | |tag payload|]; try discriminate.
+  destruct (find_branch tag branches) as [[x body]|] eqn:Hbranch; [| discriminate].
+  destruct (eval_fn n (ECons x payload r1) body) as [[r2 result]|] eqn:Hbody;
+    [| discriminate].
+  destruct r2 as [|y vy rest]; [discriminate |].
+  apply IH in Hscrut. apply IH in Hbody.
+  pose proof (eval_preserves_env_names _ _ _ _ Hbody) as Hnames.
+  simpl in Hnames. injection Hnames as Hname Htail. subst y.
+  inversion Heval; subst. eapply E_Match; eassumption.
 Qed.
 
 (** ** Extraction directives *)

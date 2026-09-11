@@ -13,7 +13,7 @@ does not establish that every advertised result has been implemented.
 ## What's proved
 
 Current build status (2026-09-11): my fresh pinned Rocq 9.0.1 build passes
-for all ten proof/test modules and `Assumptions.v`. All 22 named assumption
+for all ten proof/test modules and `Assumptions.v`. All 28 named assumption
 reports print `Closed under the global context`, and `rocqchk` independently
 checks all eleven compiled libraries and their dependencies successfully.
 This checks the existing theorems, not the missing general evaluator theorem.
@@ -258,3 +258,13 @@ for arbitrary expressions and preserve the left evaluation's environment.
 recursive evaluations; it does not supply the general evaluator theorem.
 `EvalFnTests.v` checks truth tables, skipped stuck expressions and assignments,
 necessary right-side effects, preserved left-side effects, and operand types.
+It also checks zero divisors, let and match shadowing, outer mutation, closure
+isolation, recursive calls, and loop state. My fourteen regression examples
+complement the theorem statements.
+
+I have conditional soundness lemmas for all binary operators, `let`, loops,
+ordinary and recursive closure application, and variant matching, in addition
+to the earlier cases. `eval_preserves_env_names` proves that my relational
+evaluation preserves binding names and their order; this justifies removing
+the bound slot after a let or match body. Aggregate cases and the final fuel
+induction remain necessary before I can claim general evaluator soundness.

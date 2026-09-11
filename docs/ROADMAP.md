@@ -164,8 +164,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       advertised `eval_fn_sound`, but `EvalFn.v` contains selected case lemmas
       only. I correct the claim, prove the general theorem without adding
       assumptions, and check the advertised theorem names and their assumptions
-      in a reproducible Rocq build. I include `Exhaustiveness.v`, currently
-      omitted from the default proof build. MAC
+      in a reproducible Rocq build. `Exhaustiveness.v` is now included in the
+      checked build. I added conditional soundness for every binary operator,
+      let, loops, ordinary/recursive application, and variant matching, plus
+      the binding-name preservation invariant. Fourteen regression examples
+      and all eleven libraries pass the full pinned gate on 2026-09-11, with
+      28 closed assumption reports. Aggregate cases and the final fuel
+      induction remain open. MAC
       `task_2b291a75ca2840519d47e08bf991c021`.
 - [x] **Formal audit defect — eager reference logical operators.**
       `EvalFn.v` evaluated both operands of `OpAnd` and `OpOr`, unlike

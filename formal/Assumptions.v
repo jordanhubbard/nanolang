@@ -11,6 +11,7 @@ Print Assumptions eval_to_multistep.
 Print Assumptions eval_to_multistep_gen.
 Print Assumptions eval_fn_sound_simple.
 Print Assumptions eval_fn_sound_logic.
+Print Assumptions eval_fn_sound_binop.
 Print Assumptions eval_fn_and_short.
 Print Assumptions eval_fn_or_short.
 Print Assumptions eval_fn_sound_unop.
@@ -21,6 +22,11 @@ Print Assumptions eval_fn_sound_fix.
 Print Assumptions eval_fn_sound_construct.
 Print Assumptions eval_fn_sound_strindex.
 Print Assumptions eval_fn_sound_set.
+Print Assumptions eval_preserves_env_names.
+Print Assumptions eval_fn_sound_let.
+Print Assumptions eval_fn_sound_while.
+Print Assumptions eval_fn_sound_app.
+Print Assumptions eval_fn_sound_match.
 Print Assumptions wildcard_exhaustive.
 Print Assumptions pvariant_covers_self.
 Print Assumptions por_covers_member.
