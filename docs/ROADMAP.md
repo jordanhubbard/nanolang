@@ -160,6 +160,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       decoding and execution, with differential tests against the VM and
       explicit ownership of the ISA source of truth. I retain useful existing
       proofs and adopt additional frameworks only with demonstrated benefit.
+- [ ] **Formal audit — Sail adoption trial.** I record a sourced framework
+      decision, run a pinned Sail toolchain on a NanoISA stack/constant slice,
+      then extend it to schema-checked decoding and differential VM execution.
+      I test truncated encodings, unsupported instructions, stack underflow,
+      integer boundaries, branches, and traps before promoting any model to
+      an ISA authority. A typechecked smoke model alone does not complete this item.
+      `docs/FORMAL_TOOLING_DECISION.md` assesses all five tools and retains Rocq.
+      The pinned Sail 0.20.2 stack slice typechecks, generates C, compiles, and
+      passes seven smoke assertions via `bash scripts/check_sail_container.sh`
+      (2026-09-11). Schema agreement, differential VM tests and prover exports
+      remain unverified; this trial is not a complete ISA model.
 - [x] **Formal audit defect — missing evaluator theorem.** My formal README
       advertised `eval_fn_sound` while `EvalFn.v` contained only selected case
       lemmas. I implemented all aggregate cases and strong fuel induction,
