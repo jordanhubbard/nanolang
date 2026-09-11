@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 # I run the bounded experiment without installing a host Sail toolchain.
 set -euo pipefail
+mode=${1:---execute}
+case "$mode" in
+    --execute|--rocq-export-only) ;;
+    *) echo 'Usage: check_sail_container.sh [--execute|--rocq-export-only]' >&2; exit 2 ;;
+esac
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 sail_tmp=$(mktemp -d "${TMPDIR:-/tmp}/nanolang-sail.XXXXXX")
 trap 'rm -rf -- "$sail_tmp"' EXIT
-python3 "$repo_root/scripts/sail_decode_cases.py" "$sail_tmp"
-python3 "$repo_root/scripts/sail_vm_cases.py" "$sail_tmp"
+if [[ "$mode" == --execute ]]; then
+    python3 "$repo_root/scripts/sail_decode_cases.py" "$sail_tmp"
+    python3 "$repo_root/scripts/sail_vm_cases.py" "$sail_tmp"
+fi
 archive="$sail_tmp/sail.tar.gz"
 curl --fail --location --silent --show-error --retry 2 \
     https://github.com/rems-project/sail/releases/download/0.20.2-binary/sail-Linux-x86_64.tar.gz \
@@ -18,6 +25,7 @@ if [[ "$actual" != "$expected" ]]; then
 fi
 tar -xzf "$archive" -C "$sail_tmp"
 docker run --rm --platform linux/amd64 \
+    --env SAIL_TRIAL_MODE="$mode" \
     --env PATH=/opt/sail/bin:/usr/local/bin:/usr/bin:/bin \
     --mount "type=bind,source=$sail_tmp/sail,target=/opt/sail,readonly" \
     --mount "type=bind,source=$repo_root/formal/sail,target=/source,readonly" \
@@ -27,6 +35,14 @@ docker run --rm --platform linux/amd64 \
         set -euo pipefail
         cd /tmp
         sail --version
+        if [ "$SAIL_TRIAL_MODE" = --rocq-export-only ]; then
+            sail --no-memo-z3 --rocq --rocq-lib-style stdpp /source/stack_slice.sail -o stack_slice
+            test -s stack_slice_types.v
+            test -s stack_slice.v
+            cat stack_slice_types.v stack_slice.v
+            echo "I generated Rocq definitions; I have not checked them with Rocq."
+            exit 0
+        fi
         sail --no-memo-z3 --just-check /source/stack_slice.sail /source/smoke.sail
         sail --no-memo-z3 -c /source/stack_slice.sail /source/smoke.sail -o stack_slice
         cc stack_slice.c /opt/sail/share/sail/lib/*.c \

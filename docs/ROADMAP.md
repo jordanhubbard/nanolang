@@ -153,6 +153,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       self-hosted compiler, VM, and AOT where applicable. I distinguish
       project policy, implementation, and proof. MAC
       `task_2b291a75ca2840519d47e08bf991c021` tracks this audit program.
+      My bootstrap console still says both compilers work correctly and
+      calls smoke success proof of self-hosting even when native binaries
+      differ. I replace those claims with the exact checks performed;
+      canonical artifact equality and semantic correctness remain separate.
 - [ ] **5.0 audit — formal foundations.** I assess Rocq, Lean,
       Isabelle/HOL, and HOL4 against my existing NanoCore development,
       then record a reproducible proof build, theorem assumptions, and
@@ -318,6 +322,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       including 34 underflows and frames with locals (2026-09-11). Broader
       execution semantics and prover exports remain unverified; this trial
       is not a complete ISA model.
+- [ ] **Formal audit — Sail/Rocq export boundary.** I exercise the pinned
+      Sail Rocq backend on my actual stack model, inspect its definitions and
+      required support-library imports, then pin that library and compile the
+      generated development with Rocq. Generation alone does not complete
+      this item; I also need checked model lemmas and assumption reports.
+      The first real export fails inside Sail 0.20.2 rewriting a literal-byte
+      list pattern (`Cannot infer type of: p0# :: rest`). I retain a
+      reproducible export-only command and test a type-explicit representation
+      before changing semantics or upgrading the pinned toolchain.
+      An explicit decoder input annotation reproduces the same error; I
+      reverted that ineffective experiment. MAC
+      `task_c692a020a81a4b11bea6d7c99f98689e` tracks export and proof checking.
 - [x] **Formal audit defect — stack-slice underflow.** My unverified VM
       silently accepted insufficient operands for `DUP`, `POP`, and `SWAP`.
       These operations now trap without consuming locals or caller values.

@@ -65,5 +65,24 @@ Broader execution semantics and prover exports remain mandatory
 before adoption. No Lean, Rocq, Isabelle, or HOL4 export has been
 validated for this model yet.
 
+I can reproduce the Rocq export attempt independently of the native corpus:
+
+```sh
+bash scripts/check_sail_container.sh --rocq-export-only
+```
+
+On 2026-09-11 this command exits nonzero: Sail 0.20.2 raises an internal
+rewriter error on the first literal-byte list pattern in `decode`, reporting
+`Cannot infer type of: p0# :: rest`. Explicitly annotating the decoder's input
+type did not repair it; I retained the original model. I have not generated
+or checked a Rocq development from this model. The command deliberately
+propagates failure instead of treating backend invocation as validation.
+
+Sail's [Rocq support library](https://github.com/rems-project/coq-sail) is a
+separate dependency; my pinned NanoCore proof image does not contain it.
+After repairing export, I must pin the appropriate support-library version,
+compile the generated definitions, and check model lemmas and assumptions.
+I do not upgrade the model's proof claim because the C backend works.
+
 My [tooling decision](../../docs/FORMAL_TOOLING_DECISION.md) records what I
 retain, what I am testing, and what would justify extending this experiment.
