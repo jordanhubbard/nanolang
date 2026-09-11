@@ -90,6 +90,8 @@ static void test_hof_and_poly(void) {
     expect_i64("apply",
                "fun apply f x = f x\nfun inc n = n + 1\napply inc 41", 42);
     expect_type("id scheme", "fun id x = x\nid 1", "id", "a -> a");
+    expect_type("pair scheme", "fun pair x = (x, x)\npair 1", "pair",
+                "a -> a * a");
 }
 
 static void test_tuples_and_adt(void) {

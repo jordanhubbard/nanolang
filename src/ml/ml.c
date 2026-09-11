@@ -1282,6 +1282,18 @@ static uint8_t ty_tag(Ty *t) {
     return TAG_INT;
 }
 
+static void type_text_append(char *out, size_t n, const char *text) {
+    size_t used, available, length;
+    if (!out || !text || n == 0) return;
+    used = strlen(out);
+    if (used >= n - 1) return;
+    available = n - used - 1;
+    length = strlen(text);
+    if (length > available) length = available;
+    memcpy(out + used, text, length);
+    out[used + length] = '\0';
+}
+
 static void print_ty(Cc *cc, Ty *t, char *out, size_t n, int *map, int *nm) {
     char a[64], b[64];
     int i;
@@ -1302,15 +1314,20 @@ static void print_ty(Cc *cc, Ty *t, char *out, size_t n, int *map, int *nm) {
     case TY_FUN:
         print_ty(cc, t->a, a, sizeof a, map, nm);
         print_ty(cc, t->b, b, sizeof b, map, nm);
-        if (prune(t->a) && prune(t->a)->kind == TY_FUN)
-            snprintf(out, n, "(%s) -> %s", a, b);
-        else
-            snprintf(out, n, "%s -> %s", a, b);
+        out[0] = '\0';
+        if (prune(t->a) && prune(t->a)->kind == TY_FUN) type_text_append(out, n, "(");
+        type_text_append(out, n, a);
+        if (prune(t->a) && prune(t->a)->kind == TY_FUN) type_text_append(out, n, ")");
+        type_text_append(out, n, " -> ");
+        type_text_append(out, n, b);
         return;
     case TY_PROD:
         print_ty(cc, t->a, a, sizeof a, map, nm);
         print_ty(cc, t->b, b, sizeof b, map, nm);
-        snprintf(out, n, "%s * %s", a, b);
+        out[0] = '\0';
+        type_text_append(out, n, a);
+        type_text_append(out, n, " * ");
+        type_text_append(out, n, b);
         return;
     case TY_ADT:
         if (cc && t->adt >= 0 && t->adt < cc->nadt)
@@ -1870,4 +1887,3 @@ uint32_t nl_ml_fun_index(const char *src, const char *name, char *err,
     nvm_module_free(mod);
     return (uint32_t)-1;
 }
-
