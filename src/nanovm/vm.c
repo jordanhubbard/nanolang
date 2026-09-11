@@ -2580,6 +2580,12 @@ dynamic_div:
             if (!stack_has_operands(vm, (uint32_t)ext_argc))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "I need %d operands for the foreign call.", ext_argc);
+            uint32_t result_slots = vm->module->imports[import_idx].return_type
+                == TAG_VOID ? 0 : 1;
+            if (stack_reserve(vm, (uint64_t)vm->stack_size - (uint32_t)ext_argc
+                                   + result_slots) != VM_OK)
+                return trap_error(vm, VM_ERR_MEMORY,
+                                  "I could not reserve the foreign-call result slot.");
             VmTrap t = { .type = TRAP_EXTERN_CALL };
             t.data.extern_call.import_idx = import_idx;
             t.data.extern_call.argc = ext_argc;
@@ -4001,7 +4007,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 vm_trace_ffi_result(vm, trap.data.extern_call.import_idx, ext_result);
             if (vm->module->imports[trap.data.extern_call.import_idx].return_type
                     != TAG_VOID) {
-                stack_push(vm, ext_result);
+                VmResult pushed = stack_push(vm, ext_result);
+                if (pushed != VM_OK) {
+                    vm_release(&vm->heap, ext_result);
+                    return pushed;
+                }
             } else {
                 /* A void import contributes nothing to the stack, so anything
                  * the dispatch allocated for the result has no other owner. */

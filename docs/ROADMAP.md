@@ -437,6 +437,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       a full stack succeeds without reallocation. `make test-nanovm` passes
       (2026-09-11). The check relies on the stated instruction effects and
       does not prove every handler's intermediate stack usage agrees.
+- [x] **Formal audit defect — foreign result capacity preflight.** I reserve
+      the result slot before producing a foreign-call trap. Four actual-VM
+      trap-boundary cases cover zero/one argument and void/non-void results:
+      failed required growth traps before dispatch, and reusable argument slots
+      need no allocation. The final result push also releases the result on
+      failure; that defensive path is not directly fault-injected here.
+      `make test-nanovm` passes (2026-09-11). The tests invoke no host function.
 - [ ] **Formal audit — allocation failure boundaries.** Handlers that
       ignore failed pushes still need preflight or
       ownership-safe failure propagation. Embedding arguments that alias VM

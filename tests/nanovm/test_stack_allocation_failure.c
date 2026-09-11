@@ -14,6 +14,53 @@ static void *test_realloc(void *pointer, size_t size) {
 int g_argc;
 char **g_argv;
 
+static void test_foreign_result_reservation(void) {
+    for (unsigned argc = 0; argc <= 1; argc++) {
+        for (unsigned has_result = 0; has_result <= 1; has_result++) {
+            uint8_t code[16];
+            DecodedInstruction call = {.opcode = OP_CALL_EXTERN, .operand_count = 1};
+            size_t size = isa_encode(&call, code, sizeof(code));
+            code[size++] = OP_HALT;
+            NvmModule *module = nvm_module_new();
+            NvmFunctionEntry fn = {.result_count = 1};
+            fn.name_idx = nvm_add_string(module, "main", 4);
+            fn.code_offset = nvm_append_code(module, code, (uint32_t)size);
+            fn.code_length = (uint32_t)size;
+            nvm_add_function(module, &fn);
+            uint32_t library = nvm_add_string(module, "test", 4);
+            uint32_t name = nvm_add_string(module, "foreign", 7);
+            uint8_t arg_type = TAG_INT;
+            nvm_add_import(module, library, name, (uint16_t)argc,
+                           has_result ? TAG_INT : TAG_VOID, &arg_type);
+            VmState vm;
+            vm_init(&vm, module);
+            vm.frame_count = 1;
+            vm.frames[0].module = module;
+            vm.frames[0].stack_base = 1;
+            vm.stack_capacity = 1 + argc;
+            vm.stack[vm.stack_size++] = val_int(100);
+            if (argc) vm.stack[vm.stack_size++] = val_int(7);
+            unsigned calls = realloc_calls;
+            reject_realloc = true;
+            /* I stop at the real trap boundary; no host function is invoked. */
+            VmTrap trap = vm_core_execute(&vm);
+            reject_realloc = false;
+            if (!argc && has_result) {
+                assert(trap.type == TRAP_ERROR && trap.data.error.code == VM_ERR_MEMORY);
+                assert(realloc_calls == calls + 1);
+            } else {
+                assert(trap.type == TRAP_EXTERN_CALL);
+                assert(realloc_calls == calls);
+                assert(trap.data.extern_call.argc == (int)argc);
+                if (argc) assert(trap.data.extern_call.args[0].as.i64 == 7);
+            }
+            assert(vm.stack_size == 1 && vm.stack[0].as.i64 == 100);
+            vm_destroy(&vm);
+            nvm_module_free(module);
+        }
+    }
+}
+
 static void test_instruction_growth(void) {
     const uint8_t ops[] = {OP_PUSH_I64, OP_DUP, OP_PICK,
                           OP_TUPLE_NEW, OP_CLOSURE_NEW, OP_ADD};
@@ -122,6 +169,7 @@ static void test_internal_calls(void) {
 }
 
 int main(void) {
+    test_foreign_result_reservation();
     test_instruction_growth();
     test_internal_calls();
     VmState empty = {0};
