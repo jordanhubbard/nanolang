@@ -1,11 +1,9 @@
 # NanoCore: Formal Verification (Phase 5)
 
-Mechanized metatheory for NanoCore, a minimal subset of NanoLang,
-formalized in the Rocq Prover (Coq). The development is **axiom-free**
-(0 `Axiom` declarations) across ~6,170 lines of Coq, and is
-**`Admitted`-free**: every case of the big-step ↔ small-step equivalence
-proof (`Equivalence.v`), including the `E_TupleIndex` case where indexing a
-tuple of values yields the expected value expression, is fully discharged.
+I formalize NanoCore, a minimal subset of my language, in the Rocq Prover
+(Coq). I distinguish proof source from successfully compiled and independently
+checked theorem terms. Absence of `Axiom` or `Admitted` declarations alone
+does not establish either a successful build or assumption-free theorems.
 I provide theorem statements for preservation, progress, determinism, and
 semantic equivalence. Evaluator soundness is partial: `EvalFn.v` proves
 selected cases, several conditional on recursive soundness. It does not yet
@@ -14,20 +12,21 @@ does not establish that every advertised result has been implemented.
 
 ## What's proved
 
-Current build status: a fresh Rocq 9.0.1 build compiles `Soundness.v`,
-`Progress.v`, and `Determinism.v`. In `Equivalence.v`, tuple cases for value
-transfer, substitution, step simulation, symmetry, and transitivity now check;
-the build next fails on a nonexhaustive expression match starting at line 1459,
-which omits `ETuple`. The theorem descriptions below
-record intended statements; I do not currently claim a successfully checked
-complete suite. Reproduce from the repository root with:
+Current build status (2026-09-11): my fresh pinned Rocq 9.0.1 build passes
+for all nine proof modules and `Assumptions.v`. All 19 named assumption
+reports print `Closed under the global context`, and `rocqchk` independently
+checks all ten compiled libraries and their dependencies successfully.
+This checks the existing theorems, not the missing general evaluator theorem.
+Reproduce from the repository root with:
 
 ```bash
 bash scripts/check_proofs_container.sh
 ```
 
 I pin the container by digest, mount sources read-only, force recompilation
-in a temporary copy, and run `make check` with `rocq compile` and `rocq chk`.
+in a temporary copy, and run `make check` with `rocq compile` and `rocqchk`.
+I invoke the checker directly because this image's `rocq check` launcher fails
+to execute it even though it is installed on `PATH`.
 Once compilation succeeds, `Assumptions.v` prints dependencies of the named
 theorems and the checker rechecks the compiled libraries. Printed assumptions
 still require review; this target does not certify compiler correspondence.
@@ -85,9 +84,9 @@ well-formedness (`val_good`) throughout:
 
 ```
 Theorem eval_to_multistep_gen : forall renv e renv' v,
-  pure e -> env_good renv -> all_vals_closed renv ->
+  pure e -> eval renv e renv' v ->
+  env_good renv -> all_vals_closed renv ->
   eclosed (close renv e) ->
-  eval renv e renv' v ->
   multi_step_equiv (close renv e) (val_to_expr v) /\ val_good v.
 ```
 
@@ -132,20 +131,23 @@ Theorem eval_fn_sound : forall fuel renv e renv' v,
 | Array functional update | Yes |
 | Array push (append) | Yes |
 | String indexing | Yes |
+| Heterogeneous tuples and static indexing | Yes |
 
 ## File structure
 
-| File | Lines | Contents |
-|------|-------|----------|
-| `Syntax.v` | 235 | Types, operators, expressions, values, environments, env_update, assoc_update, list_update, find_branch |
-| `Semantics.v` | 341 | Big-step operational semantics with store-passing |
-| `Typing.v` | 293 | Typing rules, contexts, mutual inductive `has_type`/`branches_type` |
-| `Soundness.v` | 834 | Preservation theorem (value typing + env agreement) |
-| `Progress.v` | 745 | Small-step semantics, substitution, progress theorem |
-| `Determinism.v` | 89 | Determinism of evaluation (eval is a partial function) |
-| `Equivalence.v` | 3,098 | Big-step / small-step semantic equivalence (133 lemmas, 0 axioms) |
-| `EvalFn.v` | 503 | Computable fuel-based evaluator with partial soundness lemmas |
-| `Extract.v` | 32 | OCaml extraction configuration for reference interpreter |
+| File | Contents |
+|------|----------|
+| `Syntax.v` | Types, operators, expressions, values, environments and lookup/update helpers |
+| `Semantics.v` | Big-step operational semantics with store-passing |
+| `Typing.v` | Typing rules, contexts, mutual inductive `has_type`/`branches_type` |
+| `Soundness.v` | Preservation theorem (value typing + env agreement) |
+| `Progress.v` | Small-step semantics, substitution, progress theorem |
+| `Determinism.v` | Determinism of evaluation (eval is a partial function) |
+| `Equivalence.v` | Simulation of pure big-step evaluation by small-step reduction, modulo type annotations |
+| `EvalFn.v` | Computable fuel-based evaluator with partial soundness lemmas |
+| `Exhaustiveness.v` | Pattern coverage properties |
+| `Assumptions.v` | Dependency reports for named theorems |
+| `Extract.v` | OCaml extraction configuration for reference interpreter |
 
 ## Building
 
@@ -160,9 +162,9 @@ Then:
 
 ```
 cd formal/
-make             # Compile all proofs
-make extract     # Extract OCaml reference interpreter
-make nanocore-ref  # Build reference interpreter binary
+make check COQC="rocq compile" COQCHK="rocqchk -silent"
+make extract COQC="rocq compile"  # Extract OCaml reference interpreter
+make nanocore-ref COQC="rocq compile"  # Build reference interpreter binary
 ```
 
 ## Design choices
@@ -242,15 +244,13 @@ make nanocore-ref  # Build reference interpreter binary
 - **Phase 4:** Records/structs (record literals, field access)
 - **Phase 5:** Recursive functions (fix), variants + pattern matching, mutable record fields, array update/push, string indexing, semantic equivalence, computable evaluator -- current
 
-## Statistics
+## Evidence boundary
 
-- **Total lines of Coq:** ~6,170
-- **Total theorems/lemmas:** 193
-  - Equivalence.v: 133 (69%)
-  - Soundness.v: 29 (15%)
-  - Progress.v: 17 (9%)
-  - EvalFn.v: 9 (5%)
-  - Other: 5 (2%)
-- **Axioms:** 0 (fully axiom-free)
-- **Admitted:** 0 (fully `Admitted`-free)
-- **Main theorem statements:** Preservation, Progress, Determinism, and Semantic Equivalence. General Evaluator Soundness remains unfinished.
+I use compilation, named theorem assumptions, and independent library checking
+as proof evidence. I do not use source line counts as a correctness metric.
+General evaluator soundness and correspondence with my production compiler
+and VM remain unfinished.
+My reference evaluator currently evaluates both logical operands, whereas my
+big-step semantics short-circuit `and`/`or`. A skipped right-hand assignment
+can therefore change its output environment. I track that concrete mismatch
+in `docs/ROADMAP.md`; the existing partial soundness lemmas do not cover it.

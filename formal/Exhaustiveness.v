@@ -56,9 +56,7 @@ Lemma wildcard_exhaustive :
 Proof.
   intros tags.
   unfold patterns_exhaustive.
-  induction tags as [| t rest IH].
-  - simpl. reflexivity.
-  - simpl. rewrite IH. reflexivity.
+  apply forallb_forall. intros tag Hin. reflexivity.
 Qed.
 
 (** A single variant pattern covers its own tag. *)
@@ -100,6 +98,7 @@ Proof.
   apply forallb_forall.
   intros tag Hin.
   simpl.
+  rewrite Bool.orb_false_r.
   apply por_covers_member.
   exact Hin.
 Qed.

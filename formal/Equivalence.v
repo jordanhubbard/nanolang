@@ -1484,6 +1484,8 @@ Fixpoint expr_strong_ind
   (P_match : forall e branches,
     P e -> (forall b, In b branches -> P (snd b)) -> P (EMatch e branches))
   (P_strindex : forall e1 e2, P e1 -> P e2 -> P (EStrIndex e1 e2))
+  (P_tuple : forall l, (forall e, In e l -> P e) -> P (ETuple l))
+  (P_tupleindex : forall e i, P e -> P (ETupleIndex e i))
   (e : expr) {struct e} : P e :=
   let fix list_ind (l : list expr) : forall e, In e l -> P e :=
     match l return forall e, In e l -> P e with
@@ -1495,7 +1497,7 @@ Fixpoint expr_strong_ind
             | eq_refl => expr_strong_ind P P_int P_bool P_string P_unit P_var
                 P_binop P_unop P_if P_let P_set P_seq P_while P_lam P_app P_fix
                 P_array P_index P_arrayset P_arraypush P_record P_field P_setfield
-                P_construct P_match P_strindex h
+                P_construct P_match P_strindex P_tuple P_tupleindex h
             end
         | or_intror Hin' => list_ind t e' Hin'
         end
@@ -1511,7 +1513,7 @@ Fixpoint expr_strong_ind
             | eq_refl => expr_strong_ind P P_int P_bool P_string P_unit P_var
                 P_binop P_unop P_if P_let P_set P_seq P_while P_lam P_app P_fix
                 P_array P_index P_arrayset P_arraypush P_record P_field P_setfield
-                P_construct P_match P_strindex h
+                P_construct P_match P_strindex P_tuple P_tupleindex h
             end
         | or_intror Hin' => pair_list_ind t e' Hin'
         end
@@ -1527,7 +1529,7 @@ Fixpoint expr_strong_ind
             | eq_refl => expr_strong_ind P P_int P_bool P_string P_unit P_var
                 P_binop P_unop P_if P_let P_set P_seq P_while P_lam P_app P_fix
                 P_array P_index P_arrayset P_arraypush P_record P_field P_setfield
-                P_construct P_match P_strindex h
+                P_construct P_match P_strindex P_tuple P_tupleindex h
             end
         | or_intror Hin' => branch_list_ind t b' Hin'
         end
@@ -1535,7 +1537,7 @@ Fixpoint expr_strong_ind
   let rec_ := expr_strong_ind P P_int P_bool P_string P_unit P_var
       P_binop P_unop P_if P_let P_set P_seq P_while P_lam P_app P_fix
       P_array P_index P_arrayset P_arraypush P_record P_field P_setfield
-      P_construct P_match P_strindex in
+      P_construct P_match P_strindex P_tuple P_tupleindex in
   match e with
   | EInt n => P_int n
   | EBool b => P_bool b
@@ -1562,6 +1564,8 @@ Fixpoint expr_strong_ind
   | EConstruct tag e1 t => P_construct tag e1 t (rec_ e1)
   | EMatch e1 branches => P_match e1 branches (rec_ e1) (branch_list_ind branches)
   | EStrIndex e1 e2 => P_strindex e1 e2 (rec_ e1) (rec_ e2)
+  | ETuple l => P_tuple l (list_ind l)
+  | ETupleIndex e1 i => P_tupleindex e1 i (rec_ e1)
   end.
 
 (** Substitution commutativity for closed expressions (requires x <> y) *)
@@ -1608,6 +1612,9 @@ Proof.
     f_equal.
     destruct (String.eqb y z) eqn:Hyz; destruct (String.eqb x z) eqn:Hxz; simpl;
       rewrite ?Hyz, ?Hxz; try reflexivity; try apply IH.
+  - (* ETuple *)
+    f_equal.
+    induction l; simpl; [reflexivity | f_equal; [apply IH | assumption]].
 Qed.
 
 (** Substituting same variable twice *)
@@ -1659,6 +1666,11 @@ Proof.
       * reflexivity.
       * apply (IHbrs (t0, z, b)). left. reflexivity.
     + apply IHl'. intros b0 Hin. apply IHbrs. right. assumption.
+  - (* ETuple *)
+    f_equal.
+    induction l as [|e0 rest IHl']; simpl; [reflexivity|].
+    f_equal; [apply H; left; reflexivity |].
+    apply IHl'. intros. apply H. right. assumption.
 Qed.
 
 (** Substituting into a closed expression is identity *)
@@ -1855,8 +1867,8 @@ Qed.
 Lemma eclosed_tuple : forall es, Forall eclosed es -> eclosed (ETuple es).
 Proof.
   unfold eclosed. intros es Hall x s. simpl. f_equal.
-  induction es as [|e rest IH]; inversion Hall; subst; simpl; [reflexivity |].
-  f_equal; [apply H2 | apply IH; assumption].
+  induction es as [|e rest IH]; inversion Hall as [|? ? Hhead Htail]; subst; simpl; [reflexivity |].
+  f_equal; [apply Hhead | apply IH; exact Htail].
 Qed.
 
 Lemma eclosed_tuple_inv : forall es, eclosed (ETuple es) -> Forall eclosed es.
@@ -2418,7 +2430,7 @@ Proof.
     + exact IHr.
   - simpl. apply eclosed_construct. apply IH. exact Hvg0.
   - simpl. apply eclosed_tuple.
-    induction Hall; constructor; [apply IH; assumption | assumption].
+    induction Hall_t; constructor; [apply IH; assumption | assumption].
 Qed.
 
 Lemma env_good_all_vals_closed : forall renv,
@@ -3310,20 +3322,24 @@ Proof.
     + rewrite close_tupleindex.
       destruct Hms as [e' [Hms' Heq']].
       simpl in Heq'. inversion Heq'; subst.
-      (* e' ≡ ETuple (map val_to_expr vs) *)
-      assert (Hv' : is_value e').
-      { eapply expr_equiv_is_value. apply expr_equiv_sym; eassumption. apply val_to_expr_is_value. }
-      exists (nth_default EUnit (map val_to_expr vs) i). split.
+      match goal with
+      | [ HF : Forall2 expr_equiv ?xs (map val_to_expr vs) |- _ ] =>
+        rename xs into es'; rename HF into Helems
+      end.
+      assert (Hreverse : Forall2 expr_equiv (map val_to_expr vs) es').
+      { clear -Helems. induction Helems; constructor; auto using expr_equiv_sym. }
+      assert (Hnth : nth_error (map val_to_expr vs) i = Some (val_to_expr v)).
+      { rewrite nth_error_map, H. reflexivity. }
+      destruct (nth_error_expr_equiv _ _ _ _ Hreverse Hnth)
+        as [v' [Hnth' Hequiv]].
+      exists v'. split.
       * eapply multi_step_trans.
         -- apply ms_tupleindex1; eassumption.
         -- eapply MS_Step; [| apply MS_Refl].
            apply S_TupleIndexVal.
-           ++ inversion Heq'; subst.
-              eapply forall_value_transfer_rev; [apply forall_val_to_expr_is_value | eassumption].
-           ++ rewrite nth_error_map. rewrite H. reflexivity.
-      * assert (Hnd : nth_default EUnit (map val_to_expr vs) i = val_to_expr v).
-        { unfold nth_default. rewrite nth_error_map. rewrite H. reflexivity. }
-        rewrite Hnd. apply expr_equiv_refl.
+           ++ eapply forall_value_transfer_rev; [apply forall_val_to_expr_is_value | exact Helems].
+           ++ exact Hnth'.
+      * apply expr_equiv_sym. exact Hequiv.
     + eapply Forall_nth_error.
       * inversion Hvg; subst. eassumption.
       * eassumption.

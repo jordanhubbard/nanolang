@@ -167,20 +167,35 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       in a reproducible Rocq build. I include `Exhaustiveness.v`, currently
       omitted from the default proof build. MAC
       `task_2b291a75ca2840519d47e08bf991c021`.
-- [ ] **Formal audit defect — clean proof build fails.** A fresh Rocq 9.0.1
+- [ ] **Formal audit defect — eager reference logical operators.**
+      `EvalFn.v` evaluates both operands of `OpAnd` and `OpOr`, while
+      `Semantics.v` short-circuits them. A skipped right-hand assignment can
+      therefore change the reference evaluator's output environment. I restore
+      short-circuit evaluation, test skipped effects and stuck operands, and
+      prove operator soundness before the general evaluator theorem.
+- [x] **Formal audit defect — clean proof build fails.** A fresh Rocq 9.0.1
       build found an unhandled empty-list case in `tuple_nth_type`, now
       repaired without changing its statement; `Soundness.v` compiles.
-      `bash scripts/check_proofs_container.sh` next fails in
       `Progress.v` now compiles after correcting the tuple-tail statement,
       proving tuple-step target shape, and repairing tuple-index induction.
       `Determinism.v` also compiles. I removed a stale empty-tuple tactic in
       `Equivalence.v`. I restored omitted tuple cases in value transfer,
       substitution compatibility, step simulation, symmetry, and transitivity;
-      Rocq accepts those repairs. The fresh build next stops at the match
-      starting at `Equivalence.v:1459`, which omits `ETuple`. I repair the remaining proofs and
-      run the complete build and compiled-library checker before claiming a
-      checked proof suite. I preserve intended semantics and document any
-      necessary correction to a false theorem statement.
+      I extended strong expression induction and substitution identities to
+      tuples, repaired tuple closure proofs, and used related elements for
+      tuple-index simulation. I repaired value destructuring in `EvalFn.v`
+      (conditional and string-index cases omitted the tuple constructor) and
+      simplification/rewrite failures in `Exhaustiveness.v`'s wildcard and
+      complete-or-pattern lemmas, previously excluded from the build.
+      On 2026-09-11, `bash scripts/check_proofs_container.sh` passes: all nine
+      proof modules plus `Assumptions.v` compile, all 19 named reports are
+      closed under the global context, and `rocqchk` independently checks the
+      compiled libraries and dependencies. The general evaluator theorem and
+      production implementation correspondence remain separate open work.
+- [x] **Formal audit tooling — checker command.** The pinned Rocq 9.0.1
+      image rejects `rocq chk`; its `rocq check` launcher fails to execute
+      the installed checker. I invoke `rocqchk` directly in the container
+      wrapper and documented command. The full gate passes on 2026-09-11.
 - [ ] **5.0 audit — native runtime services.** I run a useful native
       NanoLang service in a separate worker through typed NSI calls, with
       scoped capabilities, restart supervision, tracing, and module packaging.

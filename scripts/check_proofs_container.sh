@@ -11,5 +11,5 @@ docker run --rm --platform linux/amd64 \
         cd /tmp/nanocore
         eval "$(opam env)"
         rocq --version
-        make -B check COQC="rocq compile" COQCHK="rocq chk"
+        make -B check COQC="rocq compile" COQCHK="rocqchk -silent"
     '

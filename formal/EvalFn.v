@@ -424,8 +424,8 @@ Proof.
   intros fuel renv cond e_then e_else renv' v Heval IH.
   destruct fuel as [|n]; [simpl in Heval; discriminate |].
   simpl in Heval. simpl in IH.
-  destruct (eval_fn n renv cond) as [[renv1 [| | | | | | | | ]]|] eqn:Hc;
-    try discriminate.
+  destruct (eval_fn n renv cond) as [[renv1 vc]|] eqn:Hc; [| discriminate].
+  destruct vc; try discriminate.
   apply IH in Hc.
   destruct b.
   - apply IH in Heval. eapply E_IfTrue; eassumption.
@@ -487,10 +487,10 @@ Proof.
   intros fuel renv e1 e2 renv' v Heval IH.
   destruct fuel as [|n]; [simpl in Heval; discriminate |].
   simpl in Heval. simpl in IH.
-  destruct (eval_fn n renv e1) as [[renv1 [| | | | | | | | ]]|] eqn:He1;
-    try discriminate.
-  destruct (eval_fn n renv1 e2) as [[renv2 [| | | | | | | | ]]|] eqn:He2;
-    try discriminate.
+  destruct (eval_fn n renv e1) as [[renv1 v1]|] eqn:He1; [| discriminate].
+  destruct v1; try discriminate.
+  destruct (eval_fn n renv1 e2) as [[renv2 v2]|] eqn:He2; [| discriminate].
+  destruct v2; try discriminate.
   injection Heval; intros; subst.
   apply IH in He1. apply IH in He2.
   eapply E_StrIndex; eassumption.
