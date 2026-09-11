@@ -418,6 +418,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       test-frontend-matrix test-scheme test-ml test-actor test-dataflow
       test-object test-shell test-logic` exits zero (2026-09-11). These are
       current frontend laboratory checks, not production runtime guarantees.
+- [x] **5.0 audit — post-hardening quick-gate checkpoint.** A fresh
+      `make test-quick` exits zero on 2026-09-11 with native sources through
+      `a2296993` unchanged during execution. Both bootstrap stages pass smoke
+      checks; the installed compiler runs without the C seed. All three
+      self-hosted component driver checks and 17 selected language tests pass,
+      followed by compiled parser, extern selection, introspection, dependency,
+      release-workflow and Forth evidence checks, 280 Forth example cases and
+      PTY liveness. The IDE binary compiles; graphical initialization is skipped
+      without `xvfb-run`/`timeout`, and interactive GLUT launch is not requested.
+      Native stage binaries differ. Canonical NanoISA equality, complete
+      release checks and the remaining audit findings are not completed by
+      this checkpoint.
 - [x] **Formal audit defect — aggregate allocation error propagation.**
       Array, struct, union, tuple and closure constructors reject null before
       consuming operands. My isolated failing-heap test executes these five
