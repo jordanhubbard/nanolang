@@ -43,7 +43,7 @@ Proof. reflexivity. Qed.
 
 Theorem execute_frame_extension instruction stack next suffix :
   execute instruction stack = Some next ->
-  execute instruction (stack ++ suffix) = Some (next ++ suffix).
+  execute instruction (List.app stack suffix) = Some (List.app next suffix).
 Proof.
   intro H.
   destruct instruction; simpl in *;

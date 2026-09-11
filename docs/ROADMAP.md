@@ -383,6 +383,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I require compilation against the generated executor, a closed named
       assumption report and independent checking. This is a model theorem,
       not production-VM refinement or a claim about failing instructions.
+      The first compilation rejects overloaded `++` as string concatenation
+      under Sail's imports. I use explicit `List.app` and require a fresh
+      proof-gate run; the theorem remains unchecked until that run succeeds.
 - [x] **Formal audit defect — indexed and rotating stack boundaries.** I
       make `ROT3`, `PICK`, and `ROLL` check frame-relative operands before
       mutation. My tests cover insufficient operands with locals and caller

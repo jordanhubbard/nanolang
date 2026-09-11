@@ -115,6 +115,8 @@ on an operand stack preserves any suffix appended below it. The runner now
 requires this named assumption report as well. The earlier eight-lemma run
 does not validate this addition; its generated-model compilation and independent
 check remain pending. The law does not cover failing instructions or my C VM.
+The first compilation rejected `++` under the imported string notation. I now
+state the law with explicit `List.app`; a fresh prover run is required.
 
 My [tooling decision](../../docs/FORMAL_TOOLING_DECISION.md) records what I
 retain, what I am testing, and what would justify extending this experiment.
