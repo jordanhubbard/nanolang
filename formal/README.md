@@ -13,9 +13,9 @@ establish these results.
 ## What's proved
 
 Current build status (2026-09-11): my fresh pinned Rocq 9.0.1 build passes
-for all ten proof/test modules and `Assumptions.v`. All 38 named assumption
+for all eleven proof/test/contract modules and `Assumptions.v`. All 43 named assumption
 reports print `Closed under the global context`, and `rocqchk` independently
-checks all eleven compiled libraries and their dependencies successfully.
+checks all twelve compiled libraries and their dependencies successfully.
 This includes the general evaluator theorem, not production implementation refinement.
 Reproduce from the repository root with:
 
@@ -27,9 +27,17 @@ I pin the container by digest, mount sources read-only, force recompilation
 in a temporary copy, and run `make check` with `rocq compile` and `rocqchk`.
 I invoke the checker directly because this image's `rocq check` launcher fails
 to execute it even though it is installed on `PATH`.
-Once compilation succeeds, `Assumptions.v` prints dependencies of the named
-theorems and the checker rechecks the compiled libraries. Printed assumptions
-still require review; this target does not certify compiler correspondence.
+`Contracts.v` pins the types of my five main advertised theorems. On every
+`make check`, I rebuild `Assumptions.v` and reject missing reports, any report
+that is not closed, and unexpected output. The five theorem-contract reports
+are mandatory even if the report manifest changes. The independent checker
+then rechecks the compiled libraries. This target does not certify compiler
+correspondence or protect against a deliberate change to the reviewed contract.
+
+The `Formal Proofs` workflow runs this gate on every push and pull request,
+without path filters or allowed failures. `python3 tests/test_proof_gate.py`
+tests report-rejection paths. Making `NanoCore proof gate` a required branch
+protection check is a separate repository-setting obligation.
 
 **Type soundness** via preservation + progress, **determinism**,
 and **semantic equivalence** between big-step and small-step semantics:
@@ -148,6 +156,8 @@ Theorem eval_fn_sound : forall fuel renv e renv' v,
 | `EvalFnTests.v` | Reducible regression examples for reference-evaluator behavior |
 | `Exhaustiveness.v` | Pattern coverage properties |
 | `Assumptions.v` | Dependency reports for named theorems |
+| `Contracts.v` | Required types for my five main theorem statements |
+| `check_assumptions.sh` | Fail-closed validation of the assumption reports |
 | `Extract.v` | OCaml extraction configuration for reference interpreter |
 
 ## Building

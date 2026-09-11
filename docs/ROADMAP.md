@@ -205,6 +205,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       image rejects `rocq chk`; its `rocq check` launcher fails to execute
       the installed checker. I invoke `rocqchk` directly in the container
       wrapper and documented command. The full gate passes on 2026-09-11.
+- [x] **Formal audit — enforce the proof gate.** I add an unfiltered PR/push
+      CI job using the pinned proof image, enforce the advertised theorem
+      types, and reject non-closed or missing assumption reports. I test the
+      gate's failure paths as well as the complete proof build. Eleven negative/
+      positive gate tests pass; the pinned build and independent checker pass
+      all twelve libraries and 43 closed reports on 2026-09-11. Repository
+      branch-protection requirements remain a separate release-control check.
 - [ ] **5.0 audit — native runtime services.** I run a useful native
       NanoLang service in a separate worker through typed NSI calls, with
       scoped capabilities, restart supervision, tracing, and module packaging.

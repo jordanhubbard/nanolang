@@ -2,7 +2,7 @@ COQC = coqc
 COQCHK = coqchk
 COQFLAGS = -Q . NanoCore
 
-SOURCES = Syntax.v Semantics.v Typing.v Soundness.v Progress.v Determinism.v Equivalence.v EvalFn.v EvalFnTests.v Exhaustiveness.v
+SOURCES = Syntax.v Semantics.v Typing.v Soundness.v Progress.v Determinism.v Equivalence.v EvalFn.v EvalFnTests.v Exhaustiveness.v Contracts.v
 OBJECTS = $(SOURCES:.v=.vo)
 
 all: $(OBJECTS)
@@ -37,13 +37,18 @@ EvalFnTests.vo: EvalFnTests.v EvalFn.vo
 Exhaustiveness.vo: Exhaustiveness.v Syntax.vo
 	$(COQC) $(COQFLAGS) $<
 
-# Independently recheck compiled libraries and print the actual assumptions of
-# the advertised theorems. This does not prove production compiler refinement.
-check: all Assumptions.vo
+Contracts.vo: Contracts.v Soundness.vo Progress.vo Determinism.vo Equivalence.vo EvalFn.vo
+	$(COQC) $(COQFLAGS) $<
+
+# I rebuild the report on every check, reject assumptions, then independently
+# recheck libraries. This does not prove production compiler refinement.
+check: all check-assumptions
 	$(COQCHK) $(COQFLAGS) $(addprefix NanoCore.,$(SOURCES:.v=)) NanoCore.Assumptions
 
-Assumptions.vo: Assumptions.v $(OBJECTS)
-	$(COQC) $(COQFLAGS) $<
+check-assumptions: Assumptions.v $(OBJECTS) check_assumptions.sh
+	@$(COQC) $(COQFLAGS) Assumptions.v > Assumptions.log 2>&1 || { cat Assumptions.log; exit 1; }
+	@cat Assumptions.log
+	bash check_assumptions.sh Assumptions.v Assumptions.log
 
 # ── OCaml Extraction ──────────────────────────────────────────────────
 # Extract the computable evaluator to OCaml source code.
@@ -63,7 +68,7 @@ install-ref: nanocore-ref
 	$(MAKE) -C ../tools/nanocore_ref install
 
 clean:
-	rm -f *.vo *.vok *.vos *.glob .*.aux
+	rm -f *.vo *.vok *.vos *.glob .*.aux Assumptions.log
 	rm -rf extracted/*.ml extracted/*.mli extracted/*.cmx extracted/*.cmi extracted/*.o
 
-.PHONY: all check clean extract nanocore-ref install-ref
+.PHONY: all check check-assumptions clean extract nanocore-ref install-ref

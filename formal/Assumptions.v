@@ -2,7 +2,7 @@
     These results concern NanoCore. Production compiler refinement and the
     other implementation refinements remain separate, unfinished obligations. *)
 From NanoCore Require Import Soundness Progress Determinism Equivalence
-  EvalFn Exhaustiveness.
+  EvalFn Exhaustiveness Contracts.
 
 Print Assumptions preservation.
 Print Assumptions progress.
@@ -42,3 +42,8 @@ Print Assumptions pvariant_covers_self.
 Print Assumptions por_covers_member.
 Print Assumptions por_exhaustive_when_complete.
 Print Assumptions exhaustive_monotone.
+Print Assumptions preservation_contract.
+Print Assumptions progress_contract.
+Print Assumptions determinism_contract.
+Print Assumptions equivalence_contract.
+Print Assumptions evaluator_contract.
