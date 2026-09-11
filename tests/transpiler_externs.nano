@@ -1,0 +1,27 @@
+# I check declaration selection in an executed entry point.
+import "src_nano/transpiler.nano"
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+
+fn main() -> int {
+    assert (is_runtime_declared_extern "printf")
+    assert (is_runtime_declared_extern "list_int_new")
+    assert (not (is_runtime_declared_extern "nl_fs_list_files_ci"))
+    assert (not (is_runtime_declared_extern "my_list_int_hook"))
+    assert (not (is_runtime_declared_extern "___module_function_count_probe"))
+    let source: string = "extern fn nl_fs_probe(path: string) -> int extern fn ___module_count_probe() -> int extern fn my_list_int_hook() -> int"
+    let tokens: List<LexerToken> = (tokenize_string source "extern-test.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "extern-test.nano")
+    assert (not (parser_has_error parsed))
+    let code: string = (generate_function_prototypes parsed)
+    assert (str_contains code "extern int64_t nl_fs_probe(")
+    assert (str_contains code "extern int64_t ___module_count_probe(void);")
+    assert (str_contains code "extern int64_t my_list_int_hook(void);")
+    (println "I passed extern declaration selection.")
+    return 0
+}
+
+shadow main {
+    assert (not (is_runtime_declared_extern "my_list_int_hook"))
+    assert (not (is_runtime_declared_extern "___module_function_count_probe"))
+}

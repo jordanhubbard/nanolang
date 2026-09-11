@@ -1303,6 +1303,7 @@ fn func_returns_string(name: string) -> bool {
     if (== name "str_substring") { return true } else { (print "") }
     if (== name "str_slice") { return true } else { (print "") }
     if (== name "str_concat") { return true } else { (print "") }
+    if (== name "str_trim") { return true } else { (print "") }
     if (== name "string_from_char") { return true } else { (print "") }
     return false
 }
@@ -1353,6 +1354,8 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
     if (== node_type ParseNodeType.PNODE_CALL) {
         let ic: ASTCall = (parser_get_call parser node_id)
         let if_id: ASTIdentifier = (parser_get_identifier parser ic.function)
+        let declared: string = (lookup_func_return_type_in_parser parser if_id.name)
+        if (!= declared "") { return declared }
         if (func_returns_string if_id.name) { return "string" } else { (print "") }
         if (func_returns_float if_id.name) { return "float" } else { (print "") }
         return "int"
@@ -1370,6 +1373,9 @@ shadow infer_expr_type {
 }
 
 shadow func_returns_string {
+    assert (func_returns_string "str_trim")
+    assert (func_returns_string "string_from_char")
+    assert (not (func_returns_string "str_ends_with"))
     assert (func_returns_string "int_to_string")
     assert (func_returns_string "str_substring")
     assert (not (func_returns_string "print"))
@@ -1698,28 +1704,27 @@ shadow has_function_named {
 }
 
 fn is_runtime_declared_extern(name: string) -> bool {
-    /* Prefix-based: module introspection functions */
-    if (str_contains name "___module_") { return true } else { (print "") }
+    /* Module-specific introspection functions need their own declarations. */
     /* Prefix-based: json module functions */
-    if (str_contains name "nl_json_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_json_") { return true } else { (print "") }
     /* Prefix-based: runtime list functions (included via headers) */
-    if (str_contains name "list_int_") { return true } else { (print "") }
-    if (str_contains name "list_string_") { return true } else { (print "") }
-    if (str_contains name "list_token_") { return true } else { (print "") }
-    if (str_contains name "list_LexerToken_") { return true } else { (print "") }
-    if (str_contains name "list_AST") { return true } else { (print "") }
-    if (str_contains name "list_Compiler") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_int_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_string_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_token_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_LexerToken_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_AST") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_Compiler") { return true } else { (print "") }
     /* Prefix-based: collections.h (nl_sb_, nl_hm_, nl_set_) */
-    if (str_contains name "nl_sb_") { return true } else { (print "") }
-    if (str_contains name "nl_hm_") { return true } else { (print "") }
-    if (str_contains name "nl_set_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_sb_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_hm_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_set_") { return true } else { (print "") }
     /* Prefix-based: nl_os_ functions from cli.c */
-    if (str_contains name "nl_os_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_os_") { return true } else { (print "") }
     /* Prefix-based: fs/path/file functions from fs.c */
-    if (str_contains name "fs_") { return true } else { (print "") }
-    if (str_contains name "path_") { return true } else { (print "") }
-    if (str_contains name "file_") { return true } else { (print "") }
-    if (str_contains name "dir_") { return true } else { (print "") }
+    if (transp_str_starts_with name "fs_") { return true } else { (print "") }
+    if (transp_str_starts_with name "path_") { return true } else { (print "") }
+    if (transp_str_starts_with name "file_") { return true } else { (print "") }
+    if (transp_str_starts_with name "dir_") { return true } else { (print "") }
     /* gen_c_runtime declared: CLI functions */
     if (== name "get_argc") { return true } else { (print "") }
     if (== name "get_argv") { return true } else { (print "") }
@@ -1817,6 +1822,9 @@ shadow is_runtime_declared_extern {
     assert (is_runtime_declared_extern "nl_sb_new")
     assert (is_runtime_declared_extern "list_int_new")
     assert (not (is_runtime_declared_extern "my_custom_func"))
+    assert (not (is_runtime_declared_extern "nl_fs_list_files_ci"))
+    assert (not (is_runtime_declared_extern "my_list_int_hook"))
+    assert (not (is_runtime_declared_extern "___module_function_count_probe"))
 }
 
 fn generate_function_prototypes(parser: Parser) -> string {
@@ -3100,6 +3108,7 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#include <mach/mach_time.h>\n")
     set parts (cg_append parts "#endif\n")
     set parts (cg_append parts "#include \"nanolang.h\"\n")
+    set parts (cg_append parts "#include \"runtime/string_edges.h\"\n")
     set parts (cg_append parts "#include \"collections/collections.h\"\n")
     set parts (cg_append parts "#include \"json/json.h\"\n")
     set parts (cg_append parts "#include \"runtime/hashmap_bootstrap.h\"\n")
@@ -4650,7 +4659,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     let has_literal: bool = (or left_is_lit right_is_lit)
                     let any_str_var: bool = (or left_is_str_var2 right_is_str_var2)
                     let any_str_field: bool = (or left_is_str_field right_is_str_field)
-                    let use_strcmp: bool = (or has_literal (or any_str_var any_str_field))
+                    let left_semantic: string = (infer_expr_type parser binop.left binop.left_type env)
+                    let right_semantic: string = (infer_expr_type parser binop.right binop.right_type env)
+                    let string_call: bool = (or (== left_semantic "string") (== right_semantic "string"))
+                    let use_strcmp: bool = (or string_call (or has_literal (or any_str_var any_str_field)))
                     if use_strcmp {
                         let mut parts: array<string> = []
                         set parts (cg_append parts "(strcmp(")

@@ -1,0 +1,24 @@
+# I exercise shared string helpers in the compiled program, not only shadows.
+fn copied(value: string) -> string { return (str_concat value "") }
+shadow copied { assert (== (copied "abc") "abc") }
+
+fn main() -> int {
+    assert (== (str_trim "") "")
+    assert (== (str_trim " \t\n\r ") "")
+    assert (== (str_trim " \t café \r\n") "café")
+    assert (== (str_trim "a b") "a b")
+    assert (== (str_trim (string_from_char 11)) (string_from_char 11))
+    assert (== (copied "abc") (copied "abc"))
+    assert (!= (copied "abc") (copied "abd"))
+    assert (str_ends_with "" "")
+    assert (str_ends_with "abc" "")
+    assert (str_ends_with "abc" "abc")
+    assert (str_ends_with "café" "fé")
+    assert (not (str_ends_with "abc" "abcd"))
+    assert (not (str_ends_with "abc" "ab"))
+    assert (not (str_ends_with "" "a"))
+    (println "I passed string trim and suffix boundaries.")
+    return 0
+}
+
+shadow main { assert (== (main) 0) }

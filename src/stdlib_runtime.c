@@ -450,14 +450,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "/* String ends_with */\n");
-    sb_append(sb, "static bool nl_str_ends_with(const char* s, const char* suffix) {\n");
-    sb_append(sb, "    if (!s || !suffix) return false;\n");
-    sb_append(sb, "    size_t slen = strnlen(s, 64*1024*1024);\n");
-    sb_append(sb, "    size_t suflen = strnlen(suffix, 64*1024*1024);\n");
-    sb_append(sb, "    if (suflen > slen) return false;\n");
-    sb_append(sb, "    if (suflen == 0) return true;\n");
-    sb_append(sb, "    return strncmp(s + slen - suflen, suffix, suflen) == 0;\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "#include \"runtime/string_edges.h\"\n");
 
     sb_append(sb, "/* String index_of - returns index of first occurrence of needle, or -1 */\n");
     sb_append(sb, "static int64_t nl_str_index_of(const char* haystack, const char* needle) {\n");
@@ -1011,20 +1004,7 @@ void generate_string_operations(StringBuilder *sb) {
     sb_append(sb, "}\n\n");
     
     /* str_trim */
-    sb_append(sb, "static const char* nl_str_trim(const char* s) {\n");
-    sb_append(sb, "    if (!s) return \"\";\n");
-    sb_append(sb, "    size_t len = strnlen(s, 64*1024*1024);\n");
-    sb_append(sb, "    size_t start = 0;\n");
-    sb_append(sb, "    while (start < len && (s[start] == ' ' || s[start] == '\\t' || s[start] == '\\n' || s[start] == '\\r')) start++;\n");
-    sb_append(sb, "    size_t end = len;\n");
-    sb_append(sb, "    while (end > start && (s[end-1] == ' ' || s[end-1] == '\\t' || s[end-1] == '\\n' || s[end-1] == '\\r')) end--;\n");
-    sb_append(sb, "    size_t new_len = end - start;\n");
-    sb_append(sb, "    char* result = gc_alloc_string(new_len);\n");
-    sb_append(sb, "    if (!result) return \"\";\n");
-    sb_append(sb, "    memcpy(result, s + start, new_len);\n");
-    sb_append(sb, "    result[new_len] = '\\0';\n");
-    sb_append(sb, "    return result;\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "#include \"runtime/string_edges.h\"\n");
 
     /* str_trim_left */
     sb_append(sb, "static const char* nl_str_trim_left(const char* s) {\n");

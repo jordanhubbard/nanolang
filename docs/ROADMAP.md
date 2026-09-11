@@ -179,6 +179,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       including the new import regression. Metadata now resolves its import
       but fails on missing introspection declarations; both audio examples
       still fail on missing generated-C declarations (2026-09-11).
+      The declaration/string-runtime increment now passes 16/16 language tests
+      on the C seed and 15/16 on the fresh NanoLang candidate. Both audio
+      examples pass; metadata fails at link time on absent `___module_*`
+      definitions. The installed stage-two compiler is still unchanged.
       MAC `task_b11b688543574e82a96c0fb4f782d234` tracks this repair.
 - [x] **5.0 parser parity — grouped identifiers and tuple projections.**
       I no longer commit to a prefix call merely because `(` is followed
@@ -206,6 +210,33 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       `tests/nl_functions_relative_import.nano` compiles and runs through both
       the C seed and a fresh NanoLang compiler candidate. Module metadata
       emission remains a separate failing case in the language gate.
+- [x] **5.0 generated-C parity — declarations and string helpers.** I
+      stop treating an interior runtime-family substring as a supplied C
+      declaration. I share trim and suffix-test runtime implementations across
+      the C seed and self-hosted emitter, test boundary behavior through both
+      compilers, and rerun the audio regressions. Metadata definitions remain
+      a separate module-emission requirement, not satisfied by a prototype.
+      Shared `runtime/string_edges.h` preserves the seed's trim/suffix behavior.
+      The compiled string-boundary program passes on both compilers, both
+      candidate audio regressions pass, and `make test-transpiler-externs`
+      executes and passes declaration-selection and prototype assertions.
+      That native test is now part of `test-quick` (2026-09-11).
+- [ ] **5.0 audit defect — string-call equality.** The new compiled string
+      boundary test exposes pointer comparison for two string-returning calls
+      in the self-hosted C emitter. I use semantic operand types for string
+      equality, retain a runtime regression, and audit similar text-based
+      type guesses in arithmetic and comparison lowering.
+      Direct string-call equality now uses inferred types and declared function
+      return types. Compiled trim/character and user-function equality and
+      inequality cases pass on both compilers. The broader inference audit
+      remains open under MAC `task_e7a7395191d44cf793d684e21ea16a79`.
+- [ ] **5.0 audit defect — interpreted versus native codegen assertions.**
+      Calling the extern-prototype regression's `main` from a C-seed shadow
+      failed its three generated-text assertions, while the compiled entry
+      point passes them. I investigate the evaluator/AST-list correspondence
+      and retain distinct native and interpreted evidence; running only the
+      compiled assertions does not establish interpreter parity.
+      MAC `task_e7a7395191d44cf793d684e21ea16a79`.
 - [ ] **5.0 audit defect — bootstrap source invalidation.** My stage-two
       component and bootstrap-stage-one sentinels depend on prior-stage
       sentinels, not the NanoLang sources they compile. I add source dependency
