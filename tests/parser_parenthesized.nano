@@ -46,6 +46,13 @@ fn main() -> int {
     let continued: Parser = (parse_statement stopped)
     assert (== continued.last_expr_node_type ParseNodeType.PNODE_CONTINUE)
     assert (parser_is_at_end continued)
+    let unary_tokens: List<LexerToken> = (tokenize_string "not false and true" "parser-test.nano" (list_CompilerDiagnostic_new))
+    let unary: Parser = (parse_expression (parser_new unary_tokens (list_LexerToken_length unary_tokens) "parser-test.nano"))
+    assert (not (parser_has_error unary))
+    assert (== unary.last_expr_node_type ParseNodeType.PNODE_BINARY_OP)
+    let unary_root: ASTBinaryOp = (list_ASTBinaryOp_get unary.binary_ops unary.last_expr_node_id)
+    assert (== unary_root.op LexerTokenType.TOKEN_AND)
+    assert (== unary_root.left_type ParseNodeType.PNODE_CALL)
     (println "I passed the compiled parenthesized-parser assertions.")
     return 0
 }

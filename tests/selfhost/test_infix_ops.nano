@@ -85,5 +85,20 @@ shadow test_mixed_prefix_infix {
 }
 
 fn main() -> int {
+    assert (== (test_infix_arithmetic) 11)
+    assert (== (test_infix_multiply) 20)
+    assert (== (test_infix_chained) 6)
+    assert (test_infix_comparison)
+    assert (test_infix_logic)
+    assert (test_not_bare)
+    assert (== (test_unary_minus) -7)
+    assert (== (test_else_if -5) -1)
+    assert (== (test_else_if 0) 0)
+    assert (== (test_else_if 10) 1)
+    assert (== (test_mixed_prefix_infix) 9)
+    assert (not not true)
+    assert (== (-(-7)) 7)
     return 0
 }
+
+shadow main { assert (== (main) 0) }

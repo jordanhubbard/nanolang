@@ -2451,6 +2451,24 @@ fn parse_primary(p: Parser) -> Parser {
         return (parser_with_error p true)
     } else {
         let tok: LexerToken = (parser_current p)
+
+        # I bind a bare unary operator to the next primary, before infix parsing.
+        if (== tok.token_type (token_not)) {
+            let named: Parser = (parser_store_identifier (parser_advance p) "not" tok.line tok.column)
+            let function_id: int = named.last_expr_node_id
+            let operand: Parser = (parse_primary named)
+            if (parser_has_error operand) { return operand }
+            let arg_start: int = (list_ASTStmtRef_length operand.call_args)
+            let stored: Parser = (parser_store_call_arg operand operand.last_expr_node_id operand.last_expr_node_type)
+            return (parser_store_call stored function_id arg_start 1 tok.line tok.column)
+        }
+        if (== tok.token_type (token_minus)) {
+            let zero: Parser = (parser_store_number (parser_advance p) "0" tok.line tok.column)
+            let zero_id: int = zero.last_expr_node_id
+            let operand: Parser = (parse_primary zero)
+            if (parser_has_error operand) { return operand }
+            return (parser_store_binary_op operand (token_minus) zero_id operand.last_expr_node_id ParseNodeType.PNODE_NUMBER operand.last_expr_node_type tok.line tok.column)
+        }
         
         /* match expression */
         if (== tok.token_type (token_match)) {

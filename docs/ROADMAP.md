@@ -419,6 +419,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       a match result, and `test_infix_ops.nano` rejects `not` at line 47.
       I reproduced both directly with the rebuilt Stage 2 (2026-09-11).
       I must fix and rerun them; I have not established their baseline history.
+      Inspection also finds placeholder emission for block-bodied expression
+      matches; assigning a result type alone would not repair their semantics.
+      `check_match_expr` sends a block node to `check_expr_node`, which does not
+      infer its returned value, while `generate_match_expr` emits an unsupported
+      arm-block comment. I must establish block-result/control-flow semantics
+      and carry checked result types through lowering, with executable cases.
+      I first add bare unary parsing and execute every infix fixture assertion
+      from `main`, rather than relying on imported shadow execution.
+- [x] **5.0 self-hosted unary expressions.** I parse bare `not` and unary
+      minus at primary precedence, reusing my existing call and binary nodes.
+      Compiled parser assertions verify the grouping of `not false and true`.
+      The infix fixture now executes its arithmetic, comparison, logic, unary,
+      else-if and mixed-syntax assertions from `main`. It passes when compiled
+      by rebuilt Stage 1 and Stage 2. Full bootstrap passes; the self-hosted
+      suite improves to 13 passing entries and one failure, match bindings,
+      with all five import/helper regressions passing (2026-09-11).
 - [ ] **5.0 parser recovery — reserved local names.** During import-path work
       I used `byte` (a type keyword) as a local name. My C seed diagnosed the
       syntax error but then exited with a bus error while parsing the compiler
