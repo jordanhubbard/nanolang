@@ -423,8 +423,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       zero capacity, unrepresentable sizes, allocation failure without buffer
       replacement, unchanged direct/invoke entry state and successful retry.
       `make test-nanovm` passes with both allocation-failure suites (2026-09-11).
-- [ ] **Formal audit — allocation failure boundaries.** Internal call-frame
-      growth and handlers that ignore failed pushes still need preflight or
+- [x] **Formal audit defect — internal call-frame reservation.** Direct,
+      tail, indirect and linked calls reserve local slots before argument
+      moves, callable consumption, frame teardown or local initialization.
+      Injected growth failures preserve the stack buffer, caller frame,
+      caller values, locals, arguments and indirect callable. My actual-VM
+      failure suite and `make test-nanovm` pass (2026-09-11).
+- [ ] **Formal audit — allocation failure boundaries.** Handlers that
+      ignore failed pushes still need preflight or
       ownership-safe failure propagation. Embedding arguments that alias VM
       stack storage also need an explicit relocation/aliasing contract.
       constructors dereference allocation results without checking them, and

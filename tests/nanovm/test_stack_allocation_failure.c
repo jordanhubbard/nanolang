@@ -14,7 +14,67 @@ static void *test_realloc(void *pointer, size_t size) {
 int g_argc;
 char **g_argv;
 
+static void test_internal_calls(void) {
+    const uint8_t ops[] = {OP_CALL, OP_TAIL_CALL, OP_CALL_INDIRECT, OP_CALL_MODULE};
+    for (size_t i = 0; i < sizeof(ops); i++) {
+        uint8_t code[64];
+        DecodedInstruction push = {.opcode = OP_PUSH_I64, .operand_count = 1};
+        push.operands[0].i64 = 7;
+        size_t size = isa_encode(&push, code, sizeof(code));
+        bool indirect = ops[i] == OP_CALL_INDIRECT;
+        if (indirect) {
+            DecodedInstruction ref = {.opcode = OP_FUNCREF, .operand_count = 1};
+            ref.operands[0].u32 = 1;
+            size += isa_encode(&ref, code + size, sizeof(code) - size);
+        }
+        DecodedInstruction call = {.opcode = ops[i]};
+        call.operand_count = isa_get_info(ops[i])->operand_count;
+        if (ops[i] == OP_CALL_MODULE) call.operands[2].u16 = 1;
+        else call.operands[0].u32 = 1;
+        size += isa_encode(&call, code + size, sizeof(code) - size);
+        code[size++] = OP_RET;
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry main_fn = {.local_count = 2, .result_tag = TAG_VOID};
+        main_fn.name_idx = nvm_add_string(module, "main", 4);
+        main_fn.code_offset = nvm_append_code(module, code, (uint32_t)size);
+        main_fn.code_length = (uint32_t)size;
+        nvm_add_function(module, &main_fn);
+        module->header.flags |= NVM_FLAG_HAS_MAIN;
+        NvmFunctionEntry callee = {.arity = 1, .local_count = 16, .result_tag = TAG_VOID};
+        uint8_t body[] = {OP_RET};
+        callee.name_idx = nvm_add_string(module, "callee", 6);
+        callee.code_offset = nvm_append_code(module, body, sizeof(body));
+        callee.code_length = sizeof(body);
+        nvm_add_function(module, &callee);
+        NvmModule *linked = nvm_module_new();
+        callee.name_idx = nvm_add_string(linked, "callee", 6);
+        callee.code_offset = nvm_append_code(linked, body, sizeof(body));
+        nvm_add_function(linked, &callee);
+        VmState vm;
+        vm_init(&vm, module);
+        vm_link_module(&vm, linked);
+        vm.stack_capacity = 8;
+        vm.stack[vm.stack_size++] = val_int(100);
+        NanoValue *original = vm.stack;
+        reject_realloc = true;
+        assert(vm_execute(&vm) == VM_ERR_MEMORY);
+        reject_realloc = false;
+        assert(vm.stack == original && vm.stack_capacity == 8);
+        assert(vm.frame_count == 1 && vm.frames[0].fn_idx == 0);
+        assert(vm.frames[0].local_count == 2);
+        assert(vm.stack_size == 4 + indirect);
+        assert(vm.stack[0].as.i64 == 100);
+        assert(vm.stack[1].tag == TAG_VOID && vm.stack[2].tag == TAG_VOID);
+        assert(vm.stack[3].as.i64 == 7);
+        if (indirect) assert(vm.stack[4].tag == TAG_FUNCTION);
+        vm_destroy(&vm);
+        nvm_module_free(module);
+        nvm_module_free(linked);
+    }
+}
+
 int main(void) {
+    test_internal_calls();
     VmState empty = {0};
     assert(stack_reserve(&empty, 1) == VM_OK);
     assert(empty.stack && empty.stack_capacity >= 1);

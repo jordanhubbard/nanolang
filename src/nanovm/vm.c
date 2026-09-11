@@ -721,6 +721,13 @@ static inline VmResult stack_push(VmState *vm, NanoValue v) {
     return VM_OK;
 }
 
+static VmResult stack_reserve_frame(VmState *vm, uint32_t base,
+                                    const NvmFunctionEntry *callee) {
+    if (callee->local_count < callee->arity)
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need enough callee parameter locals.");
+    return stack_reserve(vm, (uint64_t)base + callee->local_count);
+}
+
 /* Unchecked private handlers.
  *
  * These skip the operand-stack bounds guards. They are sound only for a
@@ -2306,6 +2313,9 @@ dynamic_div:
 
             /* Arguments are already on the stack, pop them into the new frame */
             uint32_t new_base = vm->stack_size - callee->arity;
+            VmResult reserved = stack_reserve_frame(vm, new_base, callee);
+            if (reserved != VM_OK)
+                return trap_error(vm, reserved, "I could not reserve the call frame.");
 
             /* Allocate space for remaining locals */
             for (uint16_t i = callee->arity; i < callee->local_count; i++) {
@@ -2348,6 +2358,9 @@ dynamic_div:
                                   "Tail-call function %u needs %u arguments",
                                   callee_idx, callee->arity);
 
+            VmResult reserved = stack_reserve_frame(vm, frame->stack_base, callee);
+            if (reserved != VM_OK)
+                return trap_error(vm, reserved, "I could not reserve the tail-call frame.");
             NanoValue inline_args[16];
             NanoValue *args = callee->arity <= 16 ? inline_args
                 : malloc((size_t)callee->arity * sizeof(*args));
@@ -2432,8 +2445,11 @@ dynamic_div:
                 }
 
                 /* Transfer ownership only after every call validation passes. */
+                uint32_t new_base = vm->stack_size - 1 - callee->arity;
+                VmResult reserved = stack_reserve_frame(vm, new_base, callee);
+                if (reserved != VM_OK)
+                    return trap_error(vm, reserved, "I could not reserve the indirect-call frame.");
                 fn_val = stack_pop(vm);
-                uint32_t new_base = vm->stack_size - callee->arity;
                 for (uint16_t i = callee->arity; i < callee->local_count; i++) {
                     stack_push(vm, val_void());
                 }
@@ -2598,6 +2614,9 @@ dynamic_div:
             }
 
             uint32_t new_base = vm->stack_size - callee->arity;
+            VmResult reserved = stack_reserve_frame(vm, new_base, callee);
+            if (reserved != VM_OK)
+                return trap_error(vm, reserved, "I could not reserve the linked-call frame.");
             for (uint16_t i = callee->arity; i < callee->local_count; i++) {
                 stack_push(vm, val_void());
             }
