@@ -62,7 +62,7 @@ I do not treat `None` for an unsupported opcode as proof that the opcode is
 invalid in NanoISA. Opcode constants remain manually declared, but their numbers
 and operand counts are checked against `spec/nanoisa.yaml` before each run.
 Broader execution semantics remain mandatory before adoption. My Rocq export
-and eight bounded-model lemmas are checked below. I have not validated Lean,
+and nine bounded-model lemmas are checked below. I have not validated Lean,
 Isabelle, or HOL4 exports for this model.
 
 I can reproduce the Rocq export attempt independently of the native corpus:
@@ -97,7 +97,7 @@ bash scripts/check_sail_container.sh --rocq-check
 This mode installs `coq-sail-stdpp.0.20.2`, `coq-stdpp.1.12.0`, and
 `coq-stdpp-bitvector.1.12.0`, with exact Coq compatibility-package versions,
 inside the disposable container. It compiles the generated definitions and
-`StackSliceProofs.v`, checks the eight named assumption reports with the same
+`StackSliceProofs.v`, checks the nine named assumption reports with the same
 failure-rejecting checker as NanoCore, and runs independent `coqchk`.
 The original eight lemmas concern identity, push/pop and dup/pop cancellation, swap reversal,
 and underflow in the generated model. They do not state VM refinement.
@@ -110,18 +110,19 @@ The checked lemmas cover only the five-instruction integer-stack model. Decoder
 correctness for all inputs and refinement to my C VM remain unproved.
 I do not upgrade the model's proof claim because the C backend works.
 
-I am checking a ninth lemma, `execute_frame_extension`: successful execution
-on an operand stack preserves any suffix appended below it. The runner now
-requires this named assumption report as well. The earlier eight-lemma run
-does not validate this addition; its generated-model compilation and independent
-check remain pending. The law does not cover failing instructions or my C VM.
-The first compilation rejected `++` under the imported string notation. I now
-state the law with explicit `List.app`; a fresh prover run is required.
-That run accepted the statement but rejected the proof script's case handling.
-I now split unit payloads and stack shapes explicitly; this revision remains
-pending prover compilation and independent checking.
-The next attempt failed while fetching stdpp with HTTP 429, before compiling
-the revised proof. It adds no evidence for or against the theorem.
+On 2026-09-11 the unchanged `--rocq-check` runner also exited zero with the
+ninth lemma, `execute_frame_extension`: successful execution on an operand
+stack preserves any suffix appended below it. The generated definitions and
+all nine lemmas compiled, all nine assumption reports were closed and accepted
+by the named-inventory checker, and independent `coqchk` succeeded.
+The law does not cover failing instructions or my C VM. In particular, it does
+not say that appending values cannot turn an underflow into a successful step.
+
+Earlier attempts rejected overloaded `++` and then the proof script's case
+handling. The checked version uses explicit `List.app` and explicitly splits
+unit payloads and stack shapes. A subsequent HTTP 429 stopped dependency
+fetching before proof compilation; the successful run supersedes that wait
+without treating network behavior as theorem evidence.
 
 My [tooling decision](../../docs/FORMAL_TOOLING_DECISION.md) records what I
 retain, what I am testing, and what would justify extending this experiment.

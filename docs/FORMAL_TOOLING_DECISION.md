@@ -81,10 +81,15 @@ byte before matching it permits export without upgrading Sail or narrowing
 the instruction slice. The export-only command and unsuccessful annotation
 experiments are recorded in the trial README. On 2026-09-11 the pinned
 `--rocq-check` command exited zero: generated definitions compiled against
-versioned SailStdpp support, eight stack-model lemmas compiled with closed
+versioned SailStdpp support, nine stack-model lemmas compiled with closed
 assumption reports, the named-inventory checker passed, and independent
 `coqchk` succeeded. This validates this bounded Rocq model development, not
 decoder correctness or refinement to my C VM. I retain Rocq rather than
 duplicating these proofs in another framework without a concrete need.
+The ninth law establishes that a successful model instruction preserves an
+arbitrary appended stack suffix. It does not establish that an underflow stays
+an underflow after adding values, or that the production VM respects a frame
+boundary. The complete nine-lemma runner and independent checker exited zero
+on 2026-09-11; this supersedes the earlier pending proof and failed fetch.
 The broader language contract, native service runtime, scoped FFI and release
 controls remain in [my roadmap](ROADMAP.md).

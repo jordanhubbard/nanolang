@@ -377,7 +377,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       empty and singleton operand stacks, locals, and a caller stack prefix.
       Executable Sail agrees on 1,140 bounded integer stack cases; three
       corpus tests check determinism, boundaries, and non-vacuous coverage.
-- [ ] **Formal audit — Sail frame-extension law.** I prove that whenever
+- [x] **Formal audit — Sail frame-extension law.** I prove that whenever
       an instruction succeeds on its operand stack, appending arbitrary
       caller-frame values leaves those values untouched in the result.
       I require compilation against the generated executor, a closed named
@@ -392,6 +392,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Its next run stops before proof compilation because the stdpp archive
       server returns HTTP 429. I retain the revised proof as unverified and
       defer another fetch rather than treating rate limiting as proof evidence.
+      The next unchanged-runner attempt exited zero (2026-09-11): generated
+      definitions and all nine lemmas compiled, all nine named assumption
+      reports were closed and accepted, and independent `coqchk` succeeded.
+      Twelve proof-gate, nine schema-drift and three VM-corpus tests also pass.
+      This establishes the stated success-only law of the five-instruction
+      model, not underflow preservation when a suffix is added or C VM
+      refinement. Broader Sail adoption remains open above.
 - [x] **Formal audit defect — indexed and rotating stack boundaries.** I
       make `ROT3`, `PICK`, and `ROLL` check frame-relative operands before
       mutation. My tests cover insufficient operands with locals and caller
