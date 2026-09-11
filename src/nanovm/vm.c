@@ -1245,16 +1245,35 @@ vm_dispatch_top:
         if (vm->opcode_trace)
             vm_trace_instruction(vm, instr_start, &instr, stack_before);
 
-        /* Check the whole fixed input requirement before a handler mutates
+        /* Check the whole input requirement before a handler mutates
          * anything. A guarded pop alone cannot reject an operation atomically,
          * and the caller's values and frame locals are not operands. */
         if (!vm->verified) {
             const InstructionInfo *info = isa_get_info(instr.opcode);
-            if (info && info->pop_count > 0
-                    && !stack_has_operands(vm, (uint32_t)info->pop_count))
+            int32_t required = info ? info->pop_count : -1;
+            switch (instr.opcode) {
+            case OP_ARR_LITERAL:
+            case OP_STRUCT_LITERAL:
+            case OP_CLOSURE_NEW:
+                required = instr.operands[1].u16;
+                break;
+            case OP_UNION_CONSTRUCT:
+                required = instr.operands[2].u16;
+                break;
+            case OP_TUPLE_NEW:
+                required = instr.operands[0].u16;
+                break;
+            case OP_AGG_PACK:
+                required = instr.operands[3].u16;
+                break;
+            default:
+                break;
+            }
+            if (required >= 0
+                    && !stack_has_operands(vm, (uint32_t)required))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "I need %d operands for %s.",
-                                  info->pop_count, info->name);
+                                  required, info->name);
         }
 
         /* Private superinstructions run before the portable opcode switch.
@@ -3180,7 +3199,7 @@ dynamic_div:
             uint32_t layout = instr.operands[1].u32;
             uint16_t variant = instr.operands[2].u16;
             uint16_t count = instr.operands[3].u16;
-            if (count > vm->stack_size - frame->stack_base - frame->local_count)
+            if (!stack_has_operands(vm, count))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "AGG_PACK needs %u values", count);
             if (kind == AGG_RECORD) {
@@ -3500,8 +3519,8 @@ dynamic_div:
             uint16_t capture_count = instr.operands[1].u16;
             VmClosure *c = vm_closure_new(&vm->heap, fn_idx_c, capture_count);
             /* Pop captures from stack (pushed in order, stored in order) */
-            for (int16_t i = (int16_t)(capture_count - 1); i >= 0; i--) {
-                c->captures[i] = stack_pop(vm);
+            for (uint32_t i = capture_count; i > 0; i--) {
+                c->captures[i - 1] = stack_pop(vm);
             }
             stack_push(vm, val_closure(c));
             VM_NEXT();

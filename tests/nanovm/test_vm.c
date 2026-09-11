@@ -4692,9 +4692,12 @@ static void test_verified_flag_tracks_module_lifecycle(void) {
 static void test_stack_slice_underflow(void) {
     NanoOpcode ops[256] = {OP_DUP, OP_POP, OP_SWAP, OP_ROT3,
                               OP_PICK, OP_ROLL, OP_PICK, OP_ROLL,
-                              OP_PICK, OP_ROLL};
-    unsigned required[256] = {1, 1, 2, 3, 3, 3, 1, 1, 65536, 65536};
-    size_t count = 10;
+                              OP_PICK, OP_ROLL, OP_ARR_LITERAL, OP_STRUCT_LITERAL,
+                              OP_UNION_CONSTRUCT, OP_TUPLE_NEW, OP_AGG_PACK,
+                              OP_CLOSURE_NEW};
+    unsigned required[256] = {1, 1, 2, 3, 3, 3, 1, 1, 65536, 65536,
+                              3, 3, 3, 3, 3, 3};
+    size_t count = 16;
     for (unsigned opcode = 0; opcode < NANOISA_PRIMARY_OPCODE_LIMIT; opcode++) {
         const InstructionInfo *info = isa_get_info((uint8_t)opcode);
         if (!info || info->operand_count || info->pop_count <= 0) continue;
@@ -4715,6 +4718,16 @@ static void test_stack_slice_underflow(void) {
                         size += emit(code + size, OP_PUSH_I64, (int64_t)(42 + i));
                     if (ops[op] == OP_PICK || ops[op] == OP_ROLL)
                         size += emit(code + size, ops[op], (int)(needed - 1));
+                    else if (ops[op] == OP_ARR_LITERAL)
+                        size += emit(code + size, ops[op], TAG_INT, (int)needed);
+                    else if (ops[op] == OP_STRUCT_LITERAL || ops[op] == OP_CLOSURE_NEW)
+                        size += emit(code + size, ops[op], (uint32_t)0, (int)needed);
+                    else if (ops[op] == OP_UNION_CONSTRUCT)
+                        size += emit(code + size, ops[op], (uint32_t)0, 0, (int)needed);
+                    else if (ops[op] == OP_TUPLE_NEW)
+                        size += emit(code + size, ops[op], (int)needed);
+                    else if (ops[op] == OP_AGG_PACK)
+                        size += emit(code + size, ops[op], AGG_TUPLE, (uint32_t)0, 0, (int)needed);
                     else
                         size += emit(code + size, ops[op]);
                     size += emit(code + size, OP_HALT);
@@ -4746,6 +4759,35 @@ static void test_stack_slice_underflow(void) {
                 }
             }
         }
+    }
+}
+
+static void test_closure_large_capture_count(void) {
+    const unsigned counts[] = {0, 32768, 32769, 65535};
+    for (size_t c = 0; c < sizeof(counts) / sizeof(counts[0]); c++) {
+        unsigned count = counts[c];
+        uint8_t *code = malloc((size_t)count * 9 + 16);
+        ASSERT(code != NULL, "I allocate the capture-boundary program");
+        uint32_t size = 0;
+        for (unsigned i = 0; i < count; i++)
+            size += emit(code + size, OP_PUSH_I64, (int64_t)i);
+        size += emit(code + size, OP_CLOSURE_NEW, (uint32_t)0, (int)count);
+        size += emit(code + size, OP_HALT);
+        NvmModule *mod = make_module(code, size, 0, 0);
+        free(code);
+        VmState vm;
+        vm_init(&vm, mod);
+        ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "I construct the complete closure");
+        ASSERT_EQ_INT(vm.stack_size, 1, "I consume every capture operand");
+        ASSERT_EQ_INT(vm.stack[0].tag, TAG_CLOSURE, "I return a closure");
+        for (unsigned i = 0; i < count; i++) {
+            ASSERT_EQ_INT(vm.stack[0].as.closure->captures[i].tag, TAG_INT,
+                          "I preserve capture tags");
+            ASSERT_EQ_INT(vm.stack[0].as.closure->captures[i].as.i64, i,
+                          "I preserve capture order across the signed boundary");
+        }
+        vm_destroy(&vm);
+        nvm_module_free(mod);
     }
 }
 
@@ -4783,6 +4825,7 @@ int main(void) {
     printf("\n[Stack Operations]\n");
     RUN_TEST(test_dup);
     RUN_TEST(test_stack_slice_underflow);
+    RUN_TEST(test_closure_large_capture_count);
     RUN_TEST(test_swap);
     RUN_TEST(test_pop);
     RUN_TEST(test_push_void);

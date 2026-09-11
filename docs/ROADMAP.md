@@ -391,7 +391,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       remaining operands. `make test-nanovm` passes 6,801 assertions
       (2026-09-11). These tests rely on the declared metadata; they do not
       prove that every handler agrees with it.
-- [ ] **Formal audit — remaining unchecked boundaries.** Dynamic-effect
+- [x] **Formal audit defect — aggregate input bounds and capture width.**
+      I preflight frame-relative inputs for array, struct, union, tuple,
+      aggregate and closure construction before allocation or popping.
+      Insufficient-stack tests preserve locals, caller prefixes and remaining
+      operands. My closure loop now uses a full-width index; tests inspect
+      every capture at counts 0, 32,768, 32,769 and 65,535. `make test-nanovm`
+      passes 269,537 assertions (mostly capture tags and values), 2026-09-11.
+- [ ] **Formal audit — allocation failure boundaries.** Several aggregate
+      constructors dereference allocation results without checking them, and
+      many handlers ignore `stack_push` failure. I require deterministic
+      allocation-failure tests and correct ownership cleanup before claiming
+      recoverable memory exhaustion. I track this with the runtime boundary
+      task `task_0ba46839aee94135aaa99a9b7c207499`.
+- [ ] **Formal audit — remaining unchecked boundaries.** Dynamic-effect call
       handlers still require their own count and shape checks. I audit the
       remaining checked stack handlers, which still
       return void or skip operations on some insufficient-operand paths.
