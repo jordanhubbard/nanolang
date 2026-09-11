@@ -446,11 +446,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       by rebuilt Stage 1 and Stage 2. Full bootstrap passes; the self-hosted
       suite improves to 13 passing entries and one failure, match bindings,
       with all five import/helper regressions passing (2026-09-11).
-- [ ] **5.0 parser recovery — reserved local names.** During import-path work
+- [x] **5.0 parser recovery — failed prefix arguments.** During import-path work
       I used `byte` (a type keyword) as a local name. My C seed diagnosed the
       syntax error but then exited with a bus error while parsing the compiler
-      driver. I must reject malformed declarations without crashing, with a
-      minimized regression and sanitizer evidence.
+      driver. I now reject the minimized malformed declarations without a signal.
+      The minimized failure is a prefix argument that cannot parse: the loop
+      appends NULL without advancing and doubles storage until signed overflow
+      (UBSan, `parse_prefix_op`). Both operator and function-call loops have
+      this pattern. My shared argument parser stops on failure/no progress,
+      checks allocation growth and frees prior arguments before returning failure.
+      `make test-parser-recovery` passes 13 CLI rejection cases and 10 direct
+      parser cases with lexer/parser ASan/UBSan instrumentation, including valid
+      list growth. Leak detection is disabled; linked runtime objects are not
+      instrumented. Module introspection, extern selection and parenthesized
+      parser gates also pass (2026-09-11). No full bootstrap was run here.
+- [ ] **5.0 parser fuzzing — production API alignment.** My legacy
+      `tests/fuzzing/fuzz_parser.c` declares a TokenList-based `tokenize` and
+      `parse` API, while production uses `Token *tokenize(..., int *)` and
+      `parse_program`. I must rebuild the fuzz target against current headers
+      and execute a bounded corpus; an obsolete harness is not fuzz coverage.
 - [ ] **5.0 C lowering — string length result type.** A direct comparison
       between an `int` index and `(str_length line)` lowers to signed `int64_t`
       versus unsigned `strlen`, failing the driver's `-Werror` build. An

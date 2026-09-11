@@ -3,6 +3,7 @@
 #include "diag_id.h"
 #include <stdarg.h>
 #include <stdint.h>
+#include <limits.h>
 
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
@@ -1111,6 +1112,50 @@ static bool is_infix_binary_op(TokenType type) {
             type == TOKEN_AND || type == TOKEN_OR);
 }
 
+/* I publish an argument list only after every argument and its delimiter parse. */
+static ASTNode **parse_prefix_arguments(Stage1Parser *p, int *arg_count) {
+    int capacity = 4;
+    int count = 0;
+    ASTNode **args = malloc(sizeof(*args) * capacity);
+    *arg_count = 0;
+    if (!args) {
+        parser_error(p, 0, 0, "I cannot allocate prefix arguments.\n");
+        return NULL;
+    }
+    while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
+        if (count == capacity) {
+            if (capacity > INT_MAX / 2 || (size_t)capacity > SIZE_MAX / 2 / sizeof(*args)) {
+                parser_error(p, 0, 0, "I cannot represent this many prefix arguments.\n");
+                goto fail;
+            }
+            int next_capacity = capacity * 2;
+            ASTNode **grown = realloc(args, sizeof(*args) * (size_t)next_capacity);
+            if (!grown) {
+                parser_error(p, 0, 0, "I cannot grow prefix arguments.\n");
+                goto fail;
+            }
+            args = grown;
+            capacity = next_capacity;
+        }
+        int start = p->pos;
+        ASTNode *arg = parse_expression(p);
+        if (!arg) goto fail;
+        if (p->pos <= start) {
+            free_ast(arg);
+            parser_error(p, 0, 0, "I cannot parse a prefix argument without advancing.\n");
+            goto fail;
+        }
+        args[count++] = arg;
+    }
+    if (!expect(p, TOKEN_RPAREN, "Expected ')' after prefix arguments")) goto fail;
+    *arg_count = count;
+    return args;
+fail:
+    for (int i = 0; i < count; i++) free_ast(args[i]);
+    free(args);
+    return NULL;
+}
+
 /* Parse prefix operation: (op arg1 arg2 ...) */
 static ASTNode *parse_prefix_op(Stage1Parser *p) {
     Token *tok = current_token(p);
@@ -1137,22 +1182,9 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
         advance(p);
 
         /* Parse arguments */
-        int capacity = 4;
         int count = 0;
-        ASTNode **args = malloc(sizeof(ASTNode*) * capacity);
-
-        while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
-            if (count >= capacity) {
-                capacity *= 2;
-                args = realloc(args, sizeof(ASTNode*) * capacity);
-            }
-            args[count++] = parse_expression(p);
-        }
-
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after prefix operation")) {
-            free(args);
-            return NULL;
-        }
+        ASTNode **args = parse_prefix_arguments(p, &count);
+        if (!args) return NULL;
 
         ASTNode *node = create_node(AST_PREFIX_OP, line, column);
         node->as.prefix_op.op = op;
@@ -1178,21 +1210,10 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
         char *func_name = strdup(tok->value ? tok->value : "unknown");
         advance(p);
 
-        int capacity = 4;
         int count = 0;
-        ASTNode **args = malloc(sizeof(ASTNode*) * capacity);
-
-        while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
-            if (count >= capacity) {
-                capacity *= 2;
-                args = realloc(args, sizeof(ASTNode*) * capacity);
-            }
-            args[count++] = parse_expression(p);
-        }
-
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after function call")) {
+        ASTNode **args = parse_prefix_arguments(p, &count);
+        if (!args) {
             free(func_name);
-            free(args);
             return NULL;
         }
 

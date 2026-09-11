@@ -1826,6 +1826,7 @@ test-impl: test-units
 	@python3 tests/test_bootstrap_source_dependencies.py
 	@python3 tests/test_bootstrap_messages.py
 	@python3 tests/test_module_compile_invocation.py
+	@$(MAKE) --no-print-directory test-parser-recovery
 	@python3 tests/test_list_generator.py
 	@python3 tests/test_runtime_list_boundaries.py
 	@$(MAKE) --no-print-directory test-locale-cli
@@ -2269,6 +2270,17 @@ test-transpiler-externs: $(COMPILER_C)
 test-parser-parenthesized: $(COMPILER_C)
 	$(COMPILER_C) tests/parser_parenthesized.nano -o $(BIN_DIR)/parser_parenthesized_test
 	$(BIN_DIR)/parser_parenthesized_test
+
+.PHONY: test-parser-recovery
+test-parser-recovery: $(COMPILER_C) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@python3 tests/test_parser_error_recovery.py
+	# I instrument lexer/parser code; linked runtime objects are not instrumented here.
+	$(CC) $(CFLAGS) -O1 $(SANITIZE_FLAGS) -fno-sanitize-recover=all \
+		-o $(BIN_DIR)/parser_recovery_test tests/test_parser_recovery.c \
+		src/parser.c src/lexer.c \
+		$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/lexer.o,$(COMMON_OBJECTS)) \
+		$(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=0 $(BIN_DIR)/parser_recovery_test
 
 test-make-header-dependencies:
 	@echo "Checking incremental C header dependencies..."
