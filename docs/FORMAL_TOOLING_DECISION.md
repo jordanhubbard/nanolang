@@ -75,10 +75,12 @@ and frame-local boundaries. This exposed and repaired silent underflow in
 three unverified VM handlers. This is not an ISA refinement proof.
 The next acceptance evidence is broader integer arithmetic, control flow,
 trap semantics, and a validated prover export.
-An actual Rocq export attempt now exposes a Sail 0.20.2 internal rewriting
-failure on my decoder's literal-byte list pattern. The export-only command
-and failed annotation experiment are recorded in the trial README. I retain
-the C differential evidence, but do not claim that this backend can yet
-produce a checked Rocq model.
+An actual Rocq export attempt exposed a Sail 0.20.2 internal rewriting
+failure on my decoder's literal-byte list pattern. Splitting out the opcode
+byte before matching it permits export without upgrading Sail or narrowing
+the instruction slice. The export-only command and unsuccessful annotation
+experiments are recorded in the trial README. Generated definitions import
+SailStdpp; compiling them and checking useful lemmas and assumptions remain
+required before I claim a checked Rocq model.
 The broader language contract, native service runtime, scoped FFI and release
 controls remain in [my roadmap](ROADMAP.md).

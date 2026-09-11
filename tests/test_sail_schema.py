@@ -22,15 +22,15 @@ class SailSchemaTests(unittest.TestCase):
 
     def test_changed_opcode(self):
         with self.assertRaises(ValueError):
-            validate_schema(self.schema, self.model.replace("0x01 ::", "0x02 ::"))
+            validate_schema(self.schema, self.model.replace("0x01 =>", "0x02 =>"))
 
     def test_missing_instruction(self):
         with self.assertRaises(ValueError):
-            validate_schema(self.schema, self.model.replace("  0x07 :: rest => Some((Dup(), rest)),\n", ""))
+            validate_schema(self.schema, self.model.replace("    0x07 => Some((Dup(), rest)),\n", ""))
 
     def test_truncated_operand_pattern(self):
         with self.assertRaises(ValueError):
-            validate_schema(self.schema, self.model.replace("b6 :: b7 :: rest", "b6 :: rest"))
+            validate_schema(self.schema, self.model.replace("b6 :: b7 :: tail", "b6 :: tail"))
 
     def test_changed_byte_order(self):
         self.schema["encoding"]["byte_order"] = "big"

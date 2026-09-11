@@ -26,7 +26,7 @@ def validate_schema(schema, model):
     entries = {entry["name"]: entry for entry in schema["legacy_opcodes"]}
     body = model.split("function decode(code) =", 1)[1].split("val execute", 1)[0]
     clauses = re.findall(
-        r"^\s*0x([0-9a-f]{2}) :: (.*?)(?=^\s*(?:0x[0-9a-f]{2} ::|_ =>))",
+        r"^    0x([0-9a-f]{2}) => (.*?)(?=^    (?:0x[0-9a-f]{2} =>|_ =>))",
         body, re.M | re.S,
     )
     decoded = {}
@@ -34,7 +34,7 @@ def validate_schema(schema, model):
         constructor = re.search(r"Some\(\((\w+)\(", clause).group(1)
         if constructor in decoded:
             raise ValueError("I reject duplicate model constructors.")
-        decoded[constructor] = (int(code, 16), clause.split("=>", 1)[0].count("::"))
+        decoded[constructor] = (int(code, 16), clause.split("Some", 1)[0].count("::"))
     if set(decoded) != {entry[0] for entry in SLICE.values()}:
         raise ValueError("My model instruction inventory changed without review.")
     for name, (constructor, operands, pops, pushes) in SLICE.items():

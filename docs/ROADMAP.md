@@ -334,6 +334,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       An explicit decoder input annotation reproduces the same error; I
       reverted that ineffective experiment. MAC
       `task_c692a020a81a4b11bea6d7c99f98689e` tracks export and proof checking.
+      A whole-pattern annotation also fails. Separating the opcode byte
+      from its payload before matching it now permits actual Rocq export.
+      The emitted decoder and executor import SailStdpp; generated definitions
+      still need Rocq compilation, model lemmas, and assumption checking.
 - [x] **Formal audit defect — stack-slice underflow.** My unverified VM
       silently accepted insufficient operands for `DUP`, `POP`, and `SWAP`.
       These operations now trap without consuming locals or caller values.

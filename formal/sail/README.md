@@ -71,16 +71,24 @@ I can reproduce the Rocq export attempt independently of the native corpus:
 bash scripts/check_sail_container.sh --rocq-export-only
 ```
 
-On 2026-09-11 this command exits nonzero: Sail 0.20.2 raises an internal
-rewriter error on the first literal-byte list pattern in `decode`, reporting
-`Cannot infer type of: p0# :: rest`. Explicitly annotating the decoder's input
-type did not repair it; I retained the original model. I have not generated
-or checked a Rocq development from this model. The command deliberately
-propagates failure instead of treating backend invocation as validation.
+The original decoder raised a Sail 0.20.2 internal rewriter error on its first
+literal-byte list pattern: `Cannot infer type of: p0# :: rest`. Neither an
+input annotation nor a whole-pattern annotation repaired it. I now separate
+the opcode byte from the remaining list and match that byte independently.
+On 2026-09-11 this representation successfully generates `stack_slice_types.v`
+and `stack_slice.v`, including the actual `decode` and `execute` definitions.
+I inspected those definitions; they import `SailStdpp.Base` and
+`SailStdpp.Real`. Generation is not Rocq compilation or a checked ISA theorem.
+The command propagates backend errors and explicitly labels generation-only
+success.
+The revised representation also passes the seven smoke assertions, all 1,524
+production-decoder comparisons and all 1,140 VM comparisons (34 underflows).
+The nine schema checks and three VM corpus tests pass. These are executable
+agreement checks, not proofs of equivalence for all inputs.
 
 Sail's [Rocq support library](https://github.com/rems-project/coq-sail) is a
 separate dependency; my pinned NanoCore proof image does not contain it.
-After repairing export, I must pin the appropriate support-library version,
+I must pin the appropriate support-library version,
 compile the generated definitions, and check model lemmas and assumptions.
 I do not upgrade the model's proof claim because the C backend works.
 
