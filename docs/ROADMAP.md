@@ -157,6 +157,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       calls smoke success proof of self-hosting even when native binaries
       differ. I replace those claims with the exact checks performed;
       canonical artifact equality and semantic correctness remain separate.
+- [x] **5.0 bootstrap — evidence-bounded reporting.** I report native
+      byte equality only for the artifacts compared in this build, label
+      possible difference causes as hypotheses, and distinguish smoke checks
+      from compiler correctness and canonical NanoISA equality. Three
+      isolated reporting tests exercise identical and differing artifacts
+      and preserve deterministic-mode rejection. Four source-dependency
+      tests also pass; fake reporting fixtures do not test compiler semantics.
 - [ ] **5.0 audit — formal foundations.** I assess Rocq, Lean,
       Isabelle/HOL, and HOL4 against my existing NanoCore development,
       then record a reproducible proof build, theorem assumptions, and

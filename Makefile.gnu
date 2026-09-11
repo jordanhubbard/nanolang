@@ -1814,6 +1814,7 @@ test-forth-wordsets:
 test-impl: test-units
 	@bash tests/test_make_header_dependencies.sh
 	@python3 tests/test_bootstrap_source_dependencies.py
+	@python3 tests/test_bootstrap_messages.py
 	@python3 tests/test_module_compile_invocation.py
 	@$(MAKE) --no-print-directory test-locale-cli
 	@$(MAKE) --no-print-directory test-src-utf8
@@ -2867,7 +2868,7 @@ verify-no-nanoc_c: $(SENTINEL_BOOTSTRAP3)
 verify-no-nanoc_c-check:
 	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
-# Bootstrap Stage 3: Verify reproducible build
+# Bootstrap Stage 3: Compare native artifacts and check installed execution
 bootstrap3:
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ ! -f $(NANOC_STAGE2) ]; then \
 		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP3)"; \
@@ -2885,11 +2886,10 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
 	@echo ""
 	@if cmp -s $(NANOC_STAGE1) $(NANOC_STAGE2); then \
-		echo "✅ BOOTSTRAP VERIFIED: Binaries are identical!"; \
+		echo "I compared the stage binaries: they are byte-identical in this build."; \
 		echo ""; \
-		echo "This proves reproducible builds - the compiler compiled"; \
-		echo "by the C compiler is IDENTICAL to the compiler compiled"; \
-		echo "by itself. This is TRUE SELF-HOSTING!"; \
+		echo "I have not established reproducibility across clean environments"; \
+		echo "or proved compiler semantic correctness."; \
 		echo ""; \
 	else \
 		if [ "$(BOOTSTRAP_DETERMINISTIC)" = "1" ]; then \
@@ -2901,12 +2901,13 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 		echo "Stage 1 size: $$(stat -f%z $(NANOC_STAGE1) 2>/dev/null || stat -c%s $(NANOC_STAGE1))"; \
 		echo "Stage 2 size: $$(stat -f%z $(NANOC_STAGE2) 2>/dev/null || stat -c%s $(NANOC_STAGE2))"; \
 		echo ""; \
-		echo "This is expected if:"; \
-		echo "  - Timestamps are embedded in binary"; \
-		echo "  - Non-deterministic codegen"; \
+		echo "I have not diagnosed the difference. These causes remain hypotheses:"; \
+		echo "  - Embedded timestamps or other native artifact metadata"; \
+		echo "  - Non-deterministic code generation"; \
 		echo "  - Different compiler optimizations"; \
 		echo ""; \
-		echo "Both compilers work correctly, which proves self-hosting!"; \
+		echo "Both stages passed the configured smoke test; that is not a correctness proof."; \
+		echo "Canonical NanoISA artifact equality remains a separate 5.0 gate."; \
 		echo ""; \
 	fi; \
 	echo "==========================================";\
@@ -2952,9 +2953,9 @@ bootstrap-status:
 		echo "  ❌ Stage 2: Not built"; \
 	fi
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		echo "  ✅ Stage 3: Bootstrap verified!"; \
+		echo "  Stage 3: recorded comparison and installed-compiler smoke checks passed."; \
 		echo ""; \
-		echo "  🎉 TRUE SELF-HOSTING ACHIEVED!"; \
+		echo "  I do not infer compiler correctness or release readiness from this stamp."; \
 	else \
 		echo "  ❌ Stage 3: Not verified"; \
 	fi
