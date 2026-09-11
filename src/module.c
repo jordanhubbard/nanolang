@@ -1666,25 +1666,14 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                     return false;
                 }
                 
-                /* Check if this object file is already in the buffer (avoid duplicates) */
-                bool already_added = false;
-                if (module_objs_buffer[0] != '\0') {
-                    char *found = strstr(module_objs_buffer, nano_obj);
-                    if (found) {
-                        /* Verify it's a complete match, not a substring */
-                        size_t nano_obj_len = strlen(nano_obj);
-                        if ((found == module_objs_buffer || found[-1] == ' ') &&
-                            (found[nano_obj_len] == '\0' || found[nano_obj_len] == ' ')) {
-                            already_added = true;
-                        }
-                    }
-                }
-                
-                if (!already_added && strlen(module_objs_buffer) + strlen(nano_obj) + 2 < buffer_size) {
-                    if (module_objs_buffer[0] != '\0') {
-                        strcat(module_objs_buffer, " ");
-                    }
-                    strcat(module_objs_buffer, nano_obj);
+                if (!module_append_unique_object(module_objs_buffer, buffer_size, nano_obj)) {
+                    fprintf(stderr, "I could not represent all module object paths.\n");
+                    module_metadata_free(meta);
+                    free(module_dir);
+                    module_builder_free(builder);
+                    for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
+                    free(build_infos);
+                    return false;
                 }
             }
             
@@ -1747,25 +1736,13 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
             
             nanolang_compiled++;
             
-            /* Add to module_objs buffer (check for duplicates) */
-            bool already_added = false;
-            if (module_objs_buffer[0] != '\0') {
-                char *found = strstr(module_objs_buffer, obj_file);
-                if (found) {
-                    /* Verify it's a complete match, not a substring */
-                    size_t obj_file_len = strlen(obj_file);
-                    if ((found == module_objs_buffer || found[-1] == ' ') &&
-                        (found[obj_file_len] == '\0' || found[obj_file_len] == ' ')) {
-                        already_added = true;
-                    }
-                }
-            }
-            
-            if (!already_added && strlen(module_objs_buffer) + strlen(obj_file) + 2 < buffer_size) {
-                if (module_objs_buffer[0] != '\0') {
-                    strcat(module_objs_buffer, " ");
-                }
-                strcat(module_objs_buffer, obj_file);
+            if (!module_append_unique_object(module_objs_buffer, buffer_size, obj_file)) {
+                fprintf(stderr, "I could not represent all module object paths.\n");
+                free(module_dir);
+                module_builder_free(builder);
+                for (int j = 0; j < build_info_count; j++) module_build_info_free(build_infos[j]);
+                free(build_infos);
+                return false;
             }
         }
         

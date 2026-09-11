@@ -63,6 +63,9 @@ class ModuleCompileInvocation(unittest.TestCase):
             elif mode == "shell_output":
                 output_name = "program$(touch injected)"
             module_relative = "single_invocation_probe.nano"
+            if mode in ("quoted_filename", "shell_filename"):
+                module_relative = ("single_invocation_probe space's.nano" if mode == "quoted_filename" else
+                                   "single_invocation_probe$(touch injected).nano")
             if mode in ("quoted_path", "shell_path"):
                 parent = "odd space's" if mode == "quoted_path" else "odd$(touch injected)"
                 (path / parent).mkdir()
@@ -91,6 +94,13 @@ class ModuleCompileInvocation(unittest.TestCase):
                 temporary.mkdir()
                 env["TMPDIR"] = str(temporary)
             compiler = str(Path(os.environ.get("NANOLANG_COMPILER", str(ROOT / "bin/nanoc_c"))).resolve())
+            if mode in ("quoted_root", "shell_root"):
+                root = path / ("checkout space's" if mode == "quoted_root" else "checkout$(touch injected)")
+                (root / "bin").mkdir(parents=True)
+                shutil.copy2(compiler, root / "bin/nanoc_c")
+                for child in ("src", "modules", "scripts"):
+                    (root / child).symlink_to(ROOT / child, target_is_directory=True)
+                compiler = str(root / "bin/nanoc_c")
             if mode == "overlap":
                 processes = []
                 try:
@@ -151,7 +161,7 @@ class ModuleCompileInvocation(unittest.TestCase):
                 self.assertIn("I could not represent all module compiler arguments.", output)
                 return
             self.assertEqual(calls, ["compile"], output[-4000:])
-            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library"):
+            if mode in ("success", "quoted_path", "shell_path", "quoted_output", "shell_output", "quoted_tmp", "quoted_library", "shell_library", "quoted_root", "shell_root", "quoted_filename", "shell_filename"):
                 self.assertEqual(process.returncode, 0, output[-4000:])
                 subprocess.run([str(path / output_name)], check=True, timeout=10)
             else:
@@ -204,6 +214,18 @@ class ModuleCompileInvocation(unittest.TestCase):
 
     def test_library_arguments_cannot_execute_shell_substitution(self):
         self.check_compile("shell_library")
+
+    def test_checkout_directory_with_spaces_and_quote(self):
+        self.check_compile("quoted_root")
+
+    def test_checkout_directory_cannot_execute_shell_substitution(self):
+        self.check_compile("shell_root")
+
+    def test_module_filename_with_spaces_and_quote(self):
+        self.check_compile("quoted_filename")
+
+    def test_module_filename_cannot_execute_shell_substitution(self):
+        self.check_compile("shell_filename")
 
 
 if __name__ == "__main__":

@@ -1391,8 +1391,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 
                 /* Add wrapper to compile list */
                 char list_file[256];
-                snprintf(list_file, sizeof(list_file), " %s/list_%s_wrapper.c", get_tmp_dir(), type_name);
-                strncat(generated_lists, list_file, sizeof(generated_lists) - strlen(generated_lists) - 1);
+                int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
+                if (list_length < 0 || (size_t)list_length >= sizeof(list_file)) include_paths_valid = false;
+                include_paths_valid = module_append_path_flag(generated_lists, sizeof(generated_lists), "", list_file) && include_paths_valid;
             }
         }
     }
@@ -1435,11 +1436,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     runtime_files[0] = '\0';
     for (int i = 0; runtime_basenames[i]; i++) {
         char entry[8192];
-        snprintf(entry, sizeof(entry), "%s%s/src/%s",
-                 i > 0 ? " " : "", get_project_root(), runtime_basenames[i]);
-        strncat(runtime_files, entry, sizeof(runtime_files) - strlen(runtime_files) - 1);
+        int entry_length = snprintf(entry, sizeof(entry), "%s/src/%s",
+                                    get_project_root(), runtime_basenames[i]);
+        if (entry_length < 0 || (size_t)entry_length >= sizeof(entry)) include_paths_valid = false;
+        include_paths_valid = module_append_path_flag(runtime_files, sizeof(runtime_files), "", entry) && include_paths_valid;
     }
-    strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
+    if (strlen(generated_lists) >= sizeof(runtime_files) - strlen(runtime_files)) include_paths_valid = false;
+    else strcat(runtime_files, generated_lists);
 
     /* Add TMPDIR to include path for generated list headers */
     char include_flags_with_tmp[12288];

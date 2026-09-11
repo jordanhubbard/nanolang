@@ -361,6 +361,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       because the evaluator cannot execute that linked archive. Marker files
       must remain absent. This does not cover generated-list command paths,
       runtime-source paths or all raw compiler/linker flag fragments.
+- [ ] **5.0 C link paths — runtime sources and module objects.** Runtime
+      sources and generated-wrapper paths now enter the command as quoted
+      words, and NanoLang module-object lists quote and deduplicate complete
+      arguments while rejecting overflow. Copied compiler installations under
+      spaces/apostrophes and shell-substitution paths compile and execute.
+      The expanded suite currently passes 16 of 18 tests; two filename tests
+      fail in metadata C generation below, after checking no shell marker was
+      created. I retain their successful-build assertions, not an expected
+      failure exemption, until that contract is repaired.
+- [ ] **5.0 module metadata — filenames versus C identifiers.** The C
+      transpiler uses raw module filenames in `___module_*` helper symbols.
+      Filenames containing spaces, apostrophes or command-substitution syntax
+      produce invalid C even when shell arguments are quoted correctly. I
+      must reconcile helper definitions and call-site naming without creating
+      collisions or changing the reported module identity. The two new
+      executable filename tests currently fail and remain required.
 - [x] **5.0 generic-list generator — publication boundaries.** I stage both
       generated files privately before replacing either published file, reject
       type names that can escape the output directory, and test overlapping

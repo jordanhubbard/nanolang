@@ -40,4 +40,21 @@ static inline bool module_append_path_flag(char *buffer, size_t capacity, const 
 static inline bool module_append_include(char *buffer, size_t capacity, const char *path) {
     return module_append_path_flag(buffer, capacity, "-I", path);
 }
+
+static inline bool module_append_unique_object(char *buffer, size_t capacity, const char *path) {
+    char *quoted = module_quote_path(path);
+    if (!quoted) return false;
+    size_t length = strlen(quoted);
+    for (const char *found = strstr(buffer, quoted); found; found = strstr(found + 1, quoted)) {
+        if ((found == buffer || found[-1] == ' ') &&
+            (found[length] == '\0' || found[length] == ' ')) {
+            free(quoted);
+            return true;
+        }
+    }
+    size_t used = strlen(buffer);
+    int written = snprintf(buffer + used, capacity - used, "%s%s", used ? " " : "", quoted);
+    free(quoted);
+    return written >= 0 && (size_t)written < capacity - used;
+}
 #endif
