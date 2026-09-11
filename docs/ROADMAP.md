@@ -106,8 +106,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       checks exist; `git reset --hard origin/main` before the tag.
       `tests/test_release_workflow.sh`.
 - [x] **Public release — Google Workspace publish.** In-place update of
-      the existing Slides and Doc after `v4.5.0`. Preview URLs are in
-      `docs/presentation/`. LinkedIn copy is `docs/LINKEDIN_4.5.md`.
+      the existing Slides and Doc after `v4.5.0`. Read-back: 16 slides,
+      16 notes, 34 headings. Preview URLs are in `docs/presentation/`.
+      LinkedIn copy is `docs/LINKEDIN_4.5.md`.
       MAC `task_d0a1fe6953d749c195141ba921c5cc24`.
       Recorded on `docs/record-4.5-google-publish`.
 - [x] **4.6 / Phase 21 — shared frontend contract.** Every frontend emits

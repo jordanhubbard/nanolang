@@ -1,35 +1,64 @@
 # LinkedIn post — NanoLang 4.5
 
-I am NanoLang. I tagged `v4.5.0`. The last public GitHub Release was
-`v4.0.0`. The five product phases in between shipped as this one tag.
+Paste the block below. Lead with the sandbox. Services exist so a
+program can touch the host without becoming it. Forth is an ISA proof,
+not the product. The technical boundary remains `docs/RELEASE_4.5.md`.
 
-I am a language designed for machines to write and humans to read. I
-also host a secure runtime: versioned service contracts, unforgeable
-capabilities, a POSIX supervisor, and a trap journal. I run on an
-ordinary kernel. I do not claim a kernel of my own.
+---
 
-Since 4.0 I added a Forth session that compiles colon definitions to
-verified NanoISA. Jackson Core and Core Ext suites are vendored and I
-record what they pass. I do not claim a Forth Standard System.
-`INCLUDED` is still a gap.
+NanoLang 4.5 is public.
 
-I added UTF-8 message catalogs for six languages and machine-draft user
-guides. Human stderr can follow the process locale. JSON and TOON stay
-English. I do not call the system internationalized.
+The problem is not that machines write code. The problem is that the
+code they write wants the host: files, the network, other processes,
+GPUs, Python. Most runtimes hand the whole machine to whatever runs. I
+do not.
 
-I added Nano Service Interface v0: stable ids, fail-closed documents,
-generated stubs, and invocation by method id. On top of that I added
-unforgeable capabilities and a POSIX service fabric. The SDL editor’s
-walker now runs in `bin/nano_emacs_worker`. The frame does not load the
-interpreter in-process. I do not claim GNU Emacs.
+I am a language meant for programs that machines write and people can
+still read. This release is the runtime that sits between that program
+and the operating system. You say what it is allowed to do. I refuse
+the rest.
 
-4.5 maps declared effects to least-privilege grants, records
-nondeterminism in a journal, and copies trace ids across NanoVM,
-router, service, and host. Replay returns the recorded result. The
-journal is a tested library in this tag, not a hook on every VM trap.
+That is what a service is for.
 
-4.0’s contract is unchanged: bytecode is verified, not merely
-well-formed. Shadow tests still ship with the function they describe.
+A useful program has to ask the host for something. A service is that
+ask, made into a door: who may knock, what they send, what they get
+back, and what of the machine that door may touch. You describe the
+door once. I generate the clients in NanoLang, Python, Rust, and C++.
+An older client can ask whether a newer door is still safe. If the
+process behind the door dies, your program does not have to die with
+it. Generated code can do real work — log, read a file, talk to a
+neighbor — without becoming the operating system. That is the point.
+Without services, the only honest answers are “no host at all” or
+“here is libc, good luck.”
 
-`docs/RELEASE_4.5.md` is the boundary. GitHub:
+The security model is the rest of the story.
+
+Permissions are tokens I mint from host entropy. You cannot forge one
+from an integer or a pointer. You can hand someone a weaker grant; you
+cannot keep the original after you transfer it. Restart invalidates
+old tokens. Declared effects become a reviewable deployment manifest:
+uncovered grants fail closed, unused grants are counted, an override
+does not rewrite the source. A local capability does not leave the
+machine. FFI already ran in a co-process; the editor’s language
+process now does too. If it crashes, the window stays up. I do not
+claim GNU Emacs. I do not claim a kernel. POSIX is the host. I isolate
+on top of it.
+
+When a run is nondeterministic — time, entropy, the network, user
+input — a journal can record what happened and play that answer back
+without calling the original service. In this tag the journal is a
+library you call, not a hook on every trap.
+
+I proved the bytecode path with Forth because Forth is a language, an
+assembler, and a compiler in one design: a single stress test of the
+instruction set, not a product direction and not a return to 1970. I
+record which suites pass. I do not call myself a Forth Standard
+System.
+
+What did not change: bytecode is verified, not merely well-formed.
+Every function still ships with the test that describes it.
+
+Release, deck, and narrative:
 https://github.com/jordanhubbard/nanolang/releases/tag/v4.5.0
+https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview
+https://docs.google.com/document/d/1AHbhUecsOx2QHG4fTMlFDA7l4xZR9IhhgV80NmdiCb8/preview

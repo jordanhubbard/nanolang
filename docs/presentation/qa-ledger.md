@@ -13,6 +13,12 @@
   failure; that lesson did not expire.
 - Last public GitHub Release remains `v4.0.0` until `v4.5.0`. Google
   publication uses the existing file ids and happens after that tag.
+- Published in place after `v4.5.0` (`ef32c833`). Read-back matched the
+  local build: 16 slides, 16 note pages, 34 narrative headings. Anyone
+  with the link can read; search discovery stays off. Anonymous `/preview`
+  returned HTTP 200 with no sign-in wall.
+  - Deck: https://docs.google.com/presentation/d/1oWP5WJ7q5XhUF5jB_iLf3qO1mTdtrNt3FqIvYfbH2uM/preview
+  - Narrative: https://docs.google.com/document/d/1AHbhUecsOx2QHG4fTMlFDA7l4xZR9IhhgV80NmdiCb8/preview
 - I do not claim a Forth Standard System, GNU Emacs, a kernel, or that the
   system is internationalized. The trap journal is a tested library, not a
   hook on every `vm.c` trap.
