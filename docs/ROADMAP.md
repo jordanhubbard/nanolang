@@ -460,11 +460,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       list growth. Leak detection is disabled; linked runtime objects are not
       instrumented. Module introspection, extern selection and parenthesized
       parser gates also pass (2026-09-11). No full bootstrap was run here.
-- [ ] **5.0 parser fuzzing — production API alignment.** My legacy
+- [x] **5.0 parser fuzzing — production API alignment.** My legacy
       `tests/fuzzing/fuzz_parser.c` declares a TokenList-based `tokenize` and
       `parse` API, while production uses `Token *tokenize(..., int *)` and
-      `parse_program`. I must rebuild the fuzz target against current headers
-      and execute a bounded corpus; an obsolete harness is not fuzz coverage.
+      `parse_program`. I rebuilt the target against current headers and ran a
+      bounded corpus; an obsolete harness was not fuzz coverage.
+      The harness now includes production headers and shares one input path
+      between libFuzzer and its retained AFL++ entry point. `make fuzz-parser-check`
+      builds the harness/lexer/parser with coverage, ASan and UBSan and replays
+      four seeds. Installed LLVM clang passes replay and a 1000-run campaign
+      (`-seed=211 -max_len=4096 -timeout=5 -detect_leaks=0`, 2026-09-11).
+      Apple's clang lacks libFuzzer here; `FUZZ_CC` selects the installed LLVM.
+      Support/runtime objects are not instrumented; leak freedom, AFL++ build
+      validation and unbounded input coverage remain unestablished.
 - [ ] **5.0 C lowering — string length result type.** A direct comparison
       between an `int` index and `(str_length line)` lowers to signed `int64_t`
       versus unsigned `strlen`, failing the driver's `-Werror` build. An

@@ -3209,6 +3209,19 @@ valgrind: $(COMPILER)
 	@echo "Valgrind checks complete"
 
 # Fuzzing targets
+FUZZ_CC ?= clang
+.PHONY: fuzz-parser-build fuzz-parser-check
+fuzz-parser-build: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(FUZZ_CC) $(CFLAGS) -O1 -fsanitize=fuzzer,address,undefined \
+		-fno-sanitize-recover=all -fno-omit-frame-pointer \
+		-o $(BIN_DIR)/fuzz_parser tests/fuzzing/fuzz_parser.c src/lexer.c src/parser.c \
+		$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/lexer.o,$(COMMON_OBJECTS)) \
+		$(RUNTIME_OBJECTS) $(LDFLAGS)
+
+fuzz-parser-check: fuzz-parser-build
+	$(BIN_DIR)/fuzz_parser -runs=0 -detect_leaks=0 -timeout=5 \
+		tests/fuzzing/corpus_parser
+
 fuzz-build:
 	@echo "Building fuzzing targets..."
 	@mkdir -p tests/fuzzing
