@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 static bool reject_calloc;
+static bool reject_realloc;
 static unsigned frees;
 static void *heap_test_calloc(size_t count, size_t size) {
     return reject_calloc ? NULL : calloc(count, size);
@@ -14,15 +15,59 @@ static void heap_test_free(void *pointer) {
     if (pointer) frees++;
     free(pointer);
 }
+static void *heap_test_realloc(void *pointer, size_t size) {
+    return reject_realloc ? NULL : realloc(pointer, size);
+}
 #define calloc heap_test_calloc
 #define free heap_test_free
+#define realloc heap_test_realloc
 #include "../../src/nanovm/heap.c"
 #undef calloc
 #undef free
+#undef realloc
 #include "nanovm/vm.h"
 
 int g_argc;
 char **g_argv;
+
+static void test_append_failure(void) {
+    uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0, OP_ARR_PUSH, OP_RET};
+    NvmModule *module = nvm_module_new();
+    NvmFunctionEntry fn = {.arity = 2, .local_count = 2,
+                           .result_count = 1, .result_tag = TAG_ARRAY};
+    fn.name_idx = nvm_add_string(module, "append", 6);
+    fn.code_offset = nvm_append_code(module, code, sizeof(code));
+    fn.code_length = sizeof(code);
+    nvm_add_function(module, &fn);
+    VmState vm;
+    vm_init(&vm, module);
+    uint64_t baseline_objects = vm.heap.stats.num_objects;
+    VmArray *array = vm_array_new(&vm.heap, TAG_STRING, 8);
+    VmString *existing = vm_string_new(&vm.heap, "old", 3);
+    VmString *candidate = vm_string_new(&vm.heap, "new", 3);
+    for (unsigned i = 0; i < 8; i++) assert(vm_array_push(&vm.heap, array, val_string(existing)));
+    vm_release(&vm.heap, val_string(existing));
+    NanoValue args[] = {val_array(array), val_string(candidate)};
+    NanoValue output = val_void();
+    reject_realloc = true;
+    assert(!vm_array_push(&vm.heap, array, args[1]));
+    assert(vm_invoke(&vm, 0, args, 2, &output) == VM_ERR_MEMORY);
+    reject_realloc = false;
+    assert(array->length == 8 && array->capacity == 8);
+    assert(array->header.ref_count == 1 && candidate->header.ref_count == 1);
+    for (unsigned i = 0; i < 8; i++) assert(vm_array_get(array, i).as.string == existing);
+    assert(existing->header.ref_count == 8);
+    assert(vm_invoke(&vm, 0, args, 2, &output) == VM_OK);
+    assert(array->length == 9 && vm_array_get(array, 8).as.string == candidate);
+    assert(array->header.ref_count == 2 && candidate->header.ref_count == 2);
+    vm_release(&vm.heap, output);
+    vm_release(&vm.heap, args[0]);
+    vm_release(&vm.heap, args[1]);
+    vm_gc_collect_cycles(&vm.heap);
+    assert(vm.heap.stats.num_objects == baseline_objects);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
 
 static void test_constructor_traps(void) {
     const uint8_t opcodes[] = {OP_ARR_LITERAL, OP_STRUCT_LITERAL,
@@ -111,6 +156,7 @@ int main(void) {
     vm_release(&heap, val_union(variant));
     vm_heap_destroy(&heap);
     test_constructor_traps();
+    test_append_failure();
     puts("I passed struct/union field-allocation failure and recovery checks.");
     return 0;
 }

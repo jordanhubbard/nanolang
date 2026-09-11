@@ -214,7 +214,8 @@ VmString *vmstring_char_at(VmHeap *heap, VmString *s, uint32_t index);
 
 /* Array allocation */
 VmArray *vm_array_new(VmHeap *heap, uint8_t elem_type, uint32_t initial_capacity);
-void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v);
+/* I retain v only on success; failure leaves the array and v unchanged. */
+bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v);
 NanoValue vm_array_pop(VmArray *a);
 NanoValue vm_array_get(VmArray *a, uint32_t index);
 void vm_array_set(VmArray *a, uint32_t index, NanoValue v);

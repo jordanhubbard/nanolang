@@ -520,20 +520,20 @@ static bool array_grow(VmArray *a) {
     return true;
 }
 
-void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
+bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
+    if (!a) return false;
     if (a->length >= a->capacity) {
-        /* On grow failure keep the array intact and drop the push rather than
-         * writing past the buffer (heap overflow). */
-        if (!array_grow(a)) return;
+        if (!array_grow(a)) return false;
     }
     if (a->unboxed) {
         packed_store(a, a->length, v);
         a->length++;
         /* Unboxed payloads own no references; nothing to retain. */
-        return;
+        return true;
     }
     a->elements[a->length++] = v;
     vm_retain(heap, v);
+    return true;
 }
 
 NanoValue vm_array_pop(VmArray *a) {
@@ -838,18 +838,26 @@ void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key) {
 
 VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->key_type, m->count > 0 ? m->count : 8);
+    if (!result) return NULL;
     for (uint32_t i = 0; i < m->bucket_count; i++) {
         VmHMEntry *entry = &m->entries[i];
-        if (entry->state == 1) vm_array_push(heap, result, entry->key);
+        if (entry->state == 1 && !vm_array_push(heap, result, entry->key)) {
+            vm_release(heap, val_array(result));
+            return NULL;
+        }
     }
     return result;
 }
 
 VmArray *vm_hashmap_values(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->val_type, m->count > 0 ? m->count : 8);
+    if (!result) return NULL;
     for (uint32_t i = 0; i < m->bucket_count; i++) {
         VmHMEntry *entry = &m->entries[i];
-        if (entry->state == 1) vm_array_push(heap, result, entry->value);
+        if (entry->state == 1 && !vm_array_push(heap, result, entry->value)) {
+            vm_release(heap, val_array(result));
+            return NULL;
+        }
     }
     return result;
 }

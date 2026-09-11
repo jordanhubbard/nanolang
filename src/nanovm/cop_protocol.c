@@ -174,7 +174,12 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
                 return 0;
             }
             pos += n;
-            vm_array_push(heap, arr, elem);
+            if (!vm_array_push(heap, arr, elem)) {
+                vm_release(heap, elem);
+                vm_release(heap, val_array(arr));
+                *out = val_void();
+                return 0;
+            }
             vm_release(heap, elem); /* The preallocated array retains its own reference. */
         }
         *out = val_array(arr);

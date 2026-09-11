@@ -120,6 +120,8 @@ state the law with explicit `List.app`; a fresh prover run is required.
 That run accepted the statement but rejected the proof script's case handling.
 I now split unit payloads and stack shapes explicitly; this revision remains
 pending prover compilation and independent checking.
+The next attempt failed while fetching stdpp with HTTP 429, before compiling
+the revised proof. It adds no evidence for or against the theorem.
 
 My [tooling decision](../../docs/FORMAL_TOOLING_DECISION.md) records what I
 retain, what I am testing, and what would justify extending this experiment.

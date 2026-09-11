@@ -1591,6 +1591,11 @@ dynamic_add:
                 uint32_t len = arr_a && arr_b ?
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr_a, ai);
                     NanoValue eb = vm_array_get(arr_b, ai);
@@ -1608,7 +1613,13 @@ dynamic_add:
                         ev = val_float((double)ea.as.i64 + eb.as.f64);
                     else
                         ev = val_int(ea.as.i64 + eb.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1625,6 +1636,11 @@ dynamic_add:
                 NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
@@ -1645,7 +1661,13 @@ dynamic_add:
                         ev = val_float(da + ds);
                     } else
                         ev = val_int(ea.as.i64 + scalar.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1689,6 +1711,11 @@ dynamic_sub:
                 uint32_t len = arr_a && arr_b ?
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr_a, ai);
                     NanoValue eb = vm_array_get(arr_b, ai);
@@ -1701,7 +1728,13 @@ dynamic_sub:
                         ev = val_float(da - db);
                     } else
                         ev = val_int(ea.as.i64 - eb.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1716,6 +1749,11 @@ dynamic_sub:
                 bool arr_is_left = (a.tag == TAG_ARRAY);
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
@@ -1726,7 +1764,13 @@ dynamic_sub:
                         ev = val_int(arr_is_left ? ea.as.i64 - scalar.as.i64 : scalar.as.i64 - ea.as.i64);
                     else
                         ev = val_float(dr);
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1767,6 +1811,11 @@ dynamic_mul:
                 uint32_t len = arr_a && arr_b ?
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr_a, ai);
                     NanoValue eb = vm_array_get(arr_b, ai);
@@ -1779,7 +1828,13 @@ dynamic_mul:
                         ev = val_float(da * db);
                     } else
                         ev = val_int(ea.as.i64 * eb.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1793,6 +1848,11 @@ dynamic_mul:
                 NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
@@ -1803,7 +1863,13 @@ dynamic_mul:
                         double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
                         ev = val_float(da * ds);
                     }
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1851,6 +1917,11 @@ dynamic_div:
                 uint32_t len = arr_a && arr_b ?
                     (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr_a, ai);
                     NanoValue eb = vm_array_get(arr_b, ai);
@@ -1862,7 +1933,13 @@ dynamic_div:
                         double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
                         ev = val_float(db == 0.0 ? 0.0 : da / db);
                     }
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1877,6 +1954,11 @@ dynamic_div:
                 bool arr_is_left = (a.tag == TAG_ARRAY);
                 uint32_t len = arr ? arr->length : 0;
                 VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
+                if (!result) {
+                    vm_release(&vm->heap, a);
+                    vm_release(&vm->heap, b);
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array result.");
+                }
                 for (uint32_t ai = 0; ai < len; ai++) {
                     NanoValue ea = vm_array_get(arr, ai);
                     NanoValue ev;
@@ -1892,7 +1974,13 @@ dynamic_div:
                                                 : (da == 0.0 ? 0.0 : ds / da);
                         ev = val_float(dr);
                     }
-                    vm_array_push(&vm->heap, result, ev);
+                    if (!vm_array_push(&vm->heap, result, ev)) {
+                        vm_release(&vm->heap, ev);
+                        vm_release(&vm->heap, val_array(result));
+                        vm_release(&vm->heap, a);
+                        vm_release(&vm->heap, b);
+                        return trap_error(vm, VM_ERR_MEMORY, "I could not append the array result.");
+                    }
                 }
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -2879,11 +2967,15 @@ dynamic_div:
             size_t slen = vmstring_len(s.as.string);
             size_t dlen = vmstring_len(delim_v.as.string);
             VmArray *arr = vm_array_new(&vm->heap, TAG_STRING, 8);
+            if (!arr) goto split_allocation_failed;
             if (dlen == 0) {
                 /* Empty delimiter: split into individual characters. */
                 for (size_t i = 0; i < slen; i++) {
                     VmString *ch = vm_string_new(&vm->heap, str + i, 1);
-                    vm_array_push(&vm->heap, arr, val_string(ch));
+                    if (!ch || !vm_array_push(&vm->heap, arr, val_string(ch))) {
+                        vm_release(&vm->heap, val_string(ch));
+                        goto split_allocation_failed;
+                    }
                     vm_release(&vm->heap, val_string(ch));
                 }
             } else {
@@ -2894,19 +2986,30 @@ dynamic_div:
                                             delim, dlen)) != NULL) {
                     VmString *seg = vm_string_new(&vm->heap, start,
                                                   (uint32_t)(found - start));
-                    vm_array_push(&vm->heap, arr, val_string(seg));
+                    if (!seg || !vm_array_push(&vm->heap, arr, val_string(seg))) {
+                        vm_release(&vm->heap, val_string(seg));
+                        goto split_allocation_failed;
+                    }
                     vm_release(&vm->heap, val_string(seg));
                     start = found + dlen;
                 }
                 VmString *rest = vm_string_new(&vm->heap, start,
                                                (uint32_t)(end - start));
-                vm_array_push(&vm->heap, arr, val_string(rest));
+                if (!rest || !vm_array_push(&vm->heap, arr, val_string(rest))) {
+                    vm_release(&vm->heap, val_string(rest));
+                    goto split_allocation_failed;
+                }
                 vm_release(&vm->heap, val_string(rest));
             }
             vm_release(&vm->heap, delim_v);
             vm_release(&vm->heap, s);
             stack_push(vm, val_array(arr));
             VM_NEXT();
+        split_allocation_failed:
+            vm_release(&vm->heap, val_array(arr));
+            vm_release(&vm->heap, delim_v);
+            vm_release(&vm->heap, s);
+            return trap_error(vm, VM_ERR_MEMORY, "I could not build the split result.");
         }
 
         VM_CASE(OP_STR_REPLACE) {
@@ -2993,7 +3096,11 @@ dynamic_div:
                 vm_release(&vm->heap, v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_PUSH: not an array");
             }
-            vm_array_push(&vm->heap, arr.as.array, v);
+            if (!vm_array_push(&vm->heap, arr.as.array, v)) {
+                vm_release(&vm->heap, v);
+                vm_release(&vm->heap, arr);
+                return trap_error(vm, VM_ERR_MEMORY, "I could not append the array element.");
+            }
             vm_release(&vm->heap, v); /* push retains */
             stack_push(vm, arr);
             VM_NEXT();
@@ -3449,6 +3556,7 @@ dynamic_div:
             }
             VmArray *keys = vm_hashmap_keys(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
+            if (!keys) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate hashmap keys.");
             stack_push(vm, val_array(keys));
             VM_NEXT();
         }
@@ -3461,6 +3569,7 @@ dynamic_div:
             }
             VmArray *vals = vm_hashmap_values(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
+            if (!vals) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate hashmap values.");
             stack_push(vm, val_array(vals));
             VM_NEXT();
         }

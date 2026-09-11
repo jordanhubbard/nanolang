@@ -389,6 +389,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The next run accepts the statement but rejects the case script's use
       of `rest`. I explicitly destruct unit constructor payloads and stack
       shapes in one case split; the revised proof still needs checking.
+      Its next run stops before proof compilation because the stdpp archive
+      server returns HTTP 429. I retain the revised proof as unverified and
+      defer another fetch rather than treating rate limiting as proof evidence.
 - [x] **Formal audit defect — indexed and rotating stack boundaries.** I
       make `ROT3`, `PICK`, and `ROLL` check frame-relative operands before
       mutation. My tests cover insufficient operands with locals and caller
@@ -476,6 +479,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       argument, checks original/result reference counts, and checks failed
       growth and invalid slices without ownership changes. `make test-nanovm`
       passes (2026-09-11).
+- [x] **Formal audit defect — explicit array append failure.** Array append
+      returns a boolean and retains its input only on success. Production VM,
+      co-process, FFI and hashmap-array builders now check failure and discard
+      partial results. A real-VM injected growth failure preserves a boxed
+      string array and its references; retry succeeds and cleanup returns to
+      the baseline live-object count. NanoVM, 32 protocol, eight protocol-fuzz
+      and 18 FFI tests pass (2026-09-11). Not every builder failure branch has
+      a dedicated injection test. Typed arithmetic storage remains separate.
 - [ ] **Formal audit — allocation failure boundaries.** Handlers that
       append arrays currently call `void vm_array_push`, which silently drops
       an append when buffer growth fails. I must return an explicit status,

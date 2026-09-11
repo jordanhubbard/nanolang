@@ -131,7 +131,8 @@ static int marshal_args(NanoValue *args, int arg_count,
 
 /* Convert C int64_t result to NanoValue based on return type tag */
 static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
-                                VmHeap *heap) {
+                                VmHeap *heap, bool *success) {
+    *success = true;
     switch (return_tag) {
         case TAG_INT:
             return val_int(raw_result);
@@ -175,6 +176,7 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
                 default:          vm_elem_tag = TAG_INT;     break;
             }
             VmArray *varr = vm_array_new(heap, vm_elem_tag, (uint32_t)darr->length);
+            if (!varr) { *success = false; return val_void(); }
             for (int64_t ai = 0; ai < darr->length; ai++) {
                 NanoValue elem;
                 switch (darr->elem_type) {
@@ -201,7 +203,12 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
                         elem = val_int(dyn_array_get_int(darr, ai));
                         break;
                 }
-                vm_array_push(heap, varr, elem);
+                if (!vm_array_push(heap, varr, elem)) {
+                    vm_release(heap, elem);
+                    vm_release(heap, val_array(varr));
+                    *success = false;
+                    return val_void();
+                }
                 /* push retains, so the reference vm_string_new handed back
                  * has no owner once the array holds its own. Without this,
                  * every string element of a marshalled array kept a reference
@@ -353,8 +360,9 @@ static bool ffi_call_mixed(void *func_ptr, NanoValue *args, int arg_count,
 
     int64_t r = 0;
     if (!ffi_dispatch_gp(func_ptr, slots, arg_count, &r)) return false;
-    *result = marshal_result(r, imp->return_type, heap);
-    return true;
+    bool converted;
+    *result = marshal_result(r, imp->return_type, heap, &converted);
+    return converted;
 }
 
 /* ========================================================================
@@ -653,8 +661,10 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     }
 
     /* Marshal result */
-    *result = marshal_result(raw_result, imp->return_type, heap);
-    return true;
+    bool converted;
+    *result = marshal_result(raw_result, imp->return_type, heap, &converted);
+    if (!converted) snprintf(error_msg, error_msg_size, "I could not allocate the foreign array result.");
+    return converted;
 }
 
 /* ========================================================================
