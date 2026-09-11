@@ -13,9 +13,9 @@ does not establish that every advertised result has been implemented.
 ## What's proved
 
 Current build status (2026-09-11): my fresh pinned Rocq 9.0.1 build passes
-for all nine proof modules and `Assumptions.v`. All 19 named assumption
+for all ten proof/test modules and `Assumptions.v`. All 22 named assumption
 reports print `Closed under the global context`, and `rocqchk` independently
-checks all ten compiled libraries and their dependencies successfully.
+checks all eleven compiled libraries and their dependencies successfully.
 This checks the existing theorems, not the missing general evaluator theorem.
 Reproduce from the repository root with:
 
@@ -145,6 +145,7 @@ Theorem eval_fn_sound : forall fuel renv e renv' v,
 | `Determinism.v` | Determinism of evaluation (eval is a partial function) |
 | `Equivalence.v` | Simulation of pure big-step evaluation by small-step reduction, modulo type annotations |
 | `EvalFn.v` | Computable fuel-based evaluator with partial soundness lemmas |
+| `EvalFnTests.v` | Reducible regression examples for reference-evaluator behavior |
 | `Exhaustiveness.v` | Pattern coverage properties |
 | `Assumptions.v` | Dependency reports for named theorems |
 | `Extract.v` | OCaml extraction configuration for reference interpreter |
@@ -250,7 +251,10 @@ I use compilation, named theorem assumptions, and independent library checking
 as proof evidence. I do not use source line counts as a correctness metric.
 General evaluator soundness and correspondence with my production compiler
 and VM remain unfinished.
-My reference evaluator currently evaluates both logical operands, whereas my
-big-step semantics short-circuit `and`/`or`. A skipped right-hand assignment
-can therefore change its output environment. I track that concrete mismatch
-in `docs/ROADMAP.md`; the existing partial soundness lemmas do not cover it.
+My reference evaluator short-circuits `and`/`or`, matching my big-step rules.
+`eval_fn_and_short` and `eval_fn_or_short` state skipped-right-operand behavior
+for arbitrary expressions and preserve the left evaluation's environment.
+`eval_fn_sound_logic` proves logical-operator soundness conditional on sound
+recursive evaluations; it does not supply the general evaluator theorem.
+`EvalFnTests.v` checks truth tables, skipped stuck expressions and assignments,
+necessary right-side effects, preserved left-side effects, and operand types.

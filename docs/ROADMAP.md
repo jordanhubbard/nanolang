@@ -167,12 +167,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       in a reproducible Rocq build. I include `Exhaustiveness.v`, currently
       omitted from the default proof build. MAC
       `task_2b291a75ca2840519d47e08bf991c021`.
-- [ ] **Formal audit defect — eager reference logical operators.**
-      `EvalFn.v` evaluates both operands of `OpAnd` and `OpOr`, while
-      `Semantics.v` short-circuits them. A skipped right-hand assignment can
-      therefore change the reference evaluator's output environment. I restore
-      short-circuit evaluation, test skipped effects and stuck operands, and
-      prove operator soundness before the general evaluator theorem.
+- [x] **Formal audit defect — eager reference logical operators.**
+      `EvalFn.v` evaluated both operands of `OpAnd` and `OpOr`, unlike
+      `Semantics.v`. I restored short-circuit evaluation and added seven
+      regression examples in `EvalFnTests.v`, covering truth tables, skipped
+      effects and stuck operands, required effects, left-side effects, and
+      operand types. `eval_fn_and_short` / `eval_fn_or_short` prove skipped-RHS
+      behavior for arbitrary expressions. `eval_fn_sound_logic` proves operator
+      soundness conditional on recursive soundness. The full pinned proof gate
+      passes on 2026-09-11, including 22 closed assumption reports and independent
+      checking of all eleven libraries. The general evaluator theorem stays open.
 - [x] **Formal audit defect — clean proof build fails.** A fresh Rocq 9.0.1
       build found an unhandled empty-list case in `tuple_nth_type`, now
       repaired without changing its statement; `Soundness.v` compiles.

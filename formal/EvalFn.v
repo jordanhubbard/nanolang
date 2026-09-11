@@ -1,15 +1,15 @@
 (** * NanoCore: Computable Evaluator with Soundness Proof
 
-    This file defines a fuel-based computable evaluator [eval_fn] and proves
-    it sound with respect to the relational big-step semantics in Semantics.v.
+    I define a fuel-based computable evaluator [eval_fn] and prove selected
+    cases sound with respect to the relational semantics in Semantics.v.
 
     The evaluator can be extracted to OCaml and used as a reference interpreter
     for testing the C implementation.
 
-    Key result:
-      eval_fn_sound_simple : soundness for literals, variables, unops, if, seq,
-                             lambda, fix, construct, string indexing
-      (Full soundness for all 25 cases outlined but deferred for binop/let/while/app)
+    [eval_fn_sound_simple] covers literals and variables. Other named lemmas
+    cover selected compound cases, assuming sound recursive evaluations.
+    [eval_fn_and_short] and [eval_fn_or_short] establish skipped-right-operand
+    behavior directly. The general [eval_fn_sound] theorem remains unfinished.
 
     Design decisions:
     - Fuel-based: standard technique (CompCert, CertiCoq). Fuel decreases on
@@ -54,7 +54,29 @@ Fixpoint eval_fn (fuel : nat) (renv : env) (e : expr) {struct fuel}
       | None   => None
       end
 
-    (* ── Binary operations ── *)
+    (* I evaluate a logical right operand only when its value is needed. *)
+    | EBinOp OpAnd e1 e2 =>
+      match eval_fn n renv e1 with
+      | Some (renv1, VBool false) => Some (renv1, VBool false)
+      | Some (renv1, VBool true) =>
+        match eval_fn n renv1 e2 with
+        | Some (renv2, VBool b) => Some (renv2, VBool b)
+        | _ => None
+        end
+      | _ => None
+      end
+    | EBinOp OpOr e1 e2 =>
+      match eval_fn n renv e1 with
+      | Some (renv1, VBool true) => Some (renv1, VBool true)
+      | Some (renv1, VBool false) =>
+        match eval_fn n renv1 e2 with
+        | Some (renv2, VBool b) => Some (renv2, VBool b)
+        | _ => None
+        end
+      | _ => None
+      end
+
+    (* ── Remaining binary operations ── *)
     | EBinOp op e1 e2 =>
       match eval_fn n renv e1 with
       | Some (renv1, v1) =>
@@ -75,8 +97,6 @@ Fixpoint eval_fn (fuel : nat) (renv : env) (e : expr) {struct fuel}
             else None
           | VBool b1, VBool b2 =>
             match op with
-            | OpAnd => Some (renv2, VBool (andb b1 b2))
-            | OpOr  => Some (renv2, VBool (orb b1 b2))
             | OpEq  => Some (renv2, VBool (Bool.eqb b1 b2))
             | OpNe  => Some (renv2, VBool (negb (Bool.eqb b1 b2)))
             | _     => None
@@ -374,6 +394,18 @@ Fixpoint eval_fn (fuel : nat) (renv : env) (e : expr) {struct fuel}
     end
   end.
 
+(** I preserve the left evaluation's environment without inspecting the right
+    expression when its value cannot affect the logical result. *)
+Theorem eval_fn_and_short : forall n r e1 e2 r1,
+  eval_fn n r e1 = Some (r1, VBool false) ->
+  eval_fn (S n) r (EBinOp OpAnd e1 e2) = Some (r1, VBool false).
+Proof. intros n r e1 e2 r1 H. simpl. rewrite H. reflexivity. Qed.
+
+Theorem eval_fn_or_short : forall n r e1 e2 r1,
+  eval_fn n r e1 = Some (r1, VBool true) ->
+  eval_fn (S n) r (EBinOp OpOr e1 e2) = Some (r1, VBool true).
+Proof. intros n r e1 e2 r1 H. simpl. rewrite H. reflexivity. Qed.
+
 (** ** Soundness proofs *)
 
 (** Soundness for literal and variable cases *)
@@ -395,6 +427,31 @@ Proof.
     + destruct (env_lookup s renv) eqn:Hl; [| discriminate].
       injection Heval; intros; subst.
       constructor. assumption.
+Qed.
+
+(** I prove logical-operator soundness assuming sound recursive evaluations. *)
+Theorem eval_fn_sound_logic : forall fuel renv op e1 e2 renv' v,
+  is_logic_op op = true ->
+  eval_fn fuel renv (EBinOp op e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EBinOp op e1 e2) renv' v.
+Proof.
+  intros fuel renv op e1 e2 renv' v Hop Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in IH.
+  destruct op; simpl in Hop; try discriminate;
+    simpl in Heval;
+    destruct (eval_fn n renv e1) as [[r1 v1]|] eqn:Hleft; try discriminate;
+    destruct v1; try discriminate;
+    apply IH in Hleft; destruct b.
+  - destruct (eval_fn n r1 e2) as [[r2 v2]|] eqn:Hright; [| discriminate].
+    destruct v2; try discriminate.
+    inversion Heval; subst. apply IH in Hright. eapply E_And_True; eassumption.
+  - inversion Heval; subst. apply E_And_Short. assumption.
+  - inversion Heval; subst. apply E_Or_Short. assumption.
+  - destruct (eval_fn n r1 e2) as [[r2 v2]|] eqn:Hright; [| discriminate].
+    destruct v2; try discriminate.
+    inversion Heval; subst. apply IH in Hright. eapply E_Or_False; eassumption.
 Qed.
 
 (** Soundness for unary operations *)

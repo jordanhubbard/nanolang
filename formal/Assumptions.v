@@ -10,6 +10,9 @@ Print Assumptions eval_deterministic.
 Print Assumptions eval_to_multistep.
 Print Assumptions eval_to_multistep_gen.
 Print Assumptions eval_fn_sound_simple.
+Print Assumptions eval_fn_sound_logic.
+Print Assumptions eval_fn_and_short.
+Print Assumptions eval_fn_or_short.
 Print Assumptions eval_fn_sound_unop.
 Print Assumptions eval_fn_sound_if.
 Print Assumptions eval_fn_sound_seq.

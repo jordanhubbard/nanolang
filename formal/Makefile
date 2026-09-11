@@ -2,7 +2,7 @@ COQC = coqc
 COQCHK = coqchk
 COQFLAGS = -Q . NanoCore
 
-SOURCES = Syntax.v Semantics.v Typing.v Soundness.v Progress.v Determinism.v Equivalence.v EvalFn.v Exhaustiveness.v
+SOURCES = Syntax.v Semantics.v Typing.v Soundness.v Progress.v Determinism.v Equivalence.v EvalFn.v EvalFnTests.v Exhaustiveness.v
 OBJECTS = $(SOURCES:.v=.vo)
 
 all: $(OBJECTS)
@@ -29,6 +29,9 @@ Equivalence.vo: Equivalence.v Syntax.vo Semantics.vo Typing.vo Progress.vo
 	$(COQC) $(COQFLAGS) $<
 
 EvalFn.vo: EvalFn.v Syntax.vo Semantics.vo
+	$(COQC) $(COQFLAGS) $<
+
+EvalFnTests.vo: EvalFnTests.v EvalFn.vo
 	$(COQC) $(COQFLAGS) $<
 
 Exhaustiveness.vo: Exhaustiveness.v Syntax.vo
