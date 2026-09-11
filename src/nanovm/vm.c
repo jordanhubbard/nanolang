@@ -1269,23 +1269,33 @@ vm_dispatch_top:
         /* Check the whole input requirement before a handler mutates
          * anything. A guarded pop alone cannot reject an operation atomically,
          * and the caller's values and frame locals are not operands. */
-        if (!vm->verified) {
+        {
             const InstructionInfo *info = isa_get_info(instr.opcode);
             int32_t required = info ? info->pop_count : -1;
+            int32_t produced = info ? info->push_count : -1;
             switch (instr.opcode) {
             case OP_ARR_LITERAL:
             case OP_STRUCT_LITERAL:
             case OP_CLOSURE_NEW:
                 required = instr.operands[1].u16;
+                produced = 1;
                 break;
             case OP_UNION_CONSTRUCT:
                 required = instr.operands[2].u16;
+                produced = 1;
                 break;
             case OP_TUPLE_NEW:
                 required = instr.operands[0].u16;
+                produced = 1;
                 break;
             case OP_AGG_PACK:
                 required = instr.operands[3].u16;
+                produced = 1;
+                break;
+            case OP_PICK:
+            case OP_ROLL:
+                required = (int32_t)instr.operands[0].u16 + 1;
+                produced = required + (instr.opcode == OP_PICK ? 1 : 0);
                 break;
             default:
                 break;
@@ -1295,6 +1305,11 @@ vm_dispatch_top:
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "I need %d operands for %s.",
                                   required, info->name);
+            if (required >= 0 && produced > required
+                    && stack_reserve(vm, (uint64_t)vm->stack_size
+                                          + (uint32_t)(produced - required)) != VM_OK)
+                return trap_error(vm, VM_ERR_MEMORY,
+                                  "I could not reserve instruction output space.");
         }
 
         /* Private superinstructions run before the portable opcode switch.

@@ -14,6 +14,54 @@ static void *test_realloc(void *pointer, size_t size) {
 int g_argc;
 char **g_argv;
 
+static void test_instruction_growth(void) {
+    const uint8_t ops[] = {OP_PUSH_I64, OP_DUP, OP_PICK,
+                          OP_TUPLE_NEW, OP_CLOSURE_NEW, OP_ADD};
+    for (size_t i = 0; i < sizeof(ops); i++) {
+        unsigned inputs = ops[i] == OP_ADD ? 2
+            : (ops[i] == OP_DUP || ops[i] == OP_PICK ? 1 : 0);
+        uint8_t code[64];
+        size_t size = 0;
+        DecodedInstruction push = {.opcode = OP_PUSH_I64, .operand_count = 1};
+        push.operands[0].i64 = 7;
+        for (unsigned j = 0; j < inputs; j++)
+            size += isa_encode(&push, code + size, sizeof(code) - size);
+        DecodedInstruction operation = {.opcode = ops[i]};
+        operation.operand_count = isa_get_info(ops[i])->operand_count;
+        size += isa_encode(&operation, code + size, sizeof(code) - size);
+        code[size++] = OP_HALT;
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.result_count = 1};
+        fn.name_idx = nvm_add_string(module, "main", 4);
+        fn.code_offset = nvm_append_code(module, code, (uint32_t)size);
+        fn.code_length = (uint32_t)size;
+        nvm_add_function(module, &fn);
+        module->header.flags |= NVM_FLAG_HAS_MAIN;
+        VmState vm;
+        vm_init(&vm, module);
+        vm.stack_capacity = 1 + inputs;
+        vm.stack[vm.stack_size++] = val_int(100);
+        NanoValue *original = vm.stack;
+        uint64_t allocated = vm.heap.stats.allocated;
+        unsigned calls = realloc_calls;
+        reject_realloc = true;
+        VmResult result = vm_execute(&vm);
+        reject_realloc = false;
+        assert(vm.stack == original && vm.stack[0].as.i64 == 100);
+        assert(vm.heap.stats.allocated == allocated);
+        if (ops[i] == OP_ADD) {
+            assert(result == VM_OK && realloc_calls == calls);
+            assert(vm.stack_size == 2 && vm.stack[1].as.i64 == 14);
+        } else {
+            assert(result == VM_ERR_MEMORY);
+            assert(vm.stack_size == 1 + inputs);
+            for (unsigned j = 0; j < inputs; j++) assert(vm.stack[j + 1].as.i64 == 7);
+        }
+        vm_destroy(&vm);
+        nvm_module_free(module);
+    }
+}
+
 static void test_internal_calls(void) {
     const uint8_t ops[] = {OP_CALL, OP_TAIL_CALL, OP_CALL_INDIRECT, OP_CALL_MODULE};
     for (size_t i = 0; i < sizeof(ops); i++) {
@@ -74,6 +122,7 @@ static void test_internal_calls(void) {
 }
 
 int main(void) {
+    test_instruction_growth();
     test_internal_calls();
     VmState empty = {0};
     assert(stack_reserve(&empty, 1) == VM_OK);

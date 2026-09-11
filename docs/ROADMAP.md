@@ -429,6 +429,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Injected growth failures preserve the stack buffer, caller frame,
       caller values, locals, arguments and indirect callable. My actual-VM
       failure suite and `make test-nanovm` pass (2026-09-11).
+- [x] **Formal audit defect — instruction output reservation.** I reserve
+      positive net stack growth before dispatch for declared fixed effects,
+      aggregate constructors and indexed stack operations. Failure-injection
+      tests cover push, duplication, indexed duplication and empty tuple/closure
+      construction without operand mutation or heap allocation. Addition on
+      a full stack succeeds without reallocation. `make test-nanovm` passes
+      (2026-09-11). The check relies on the stated instruction effects and
+      does not prove every handler's intermediate stack usage agrees.
 - [ ] **Formal audit — allocation failure boundaries.** Handlers that
       ignore failed pushes still need preflight or
       ownership-safe failure propagation. Embedding arguments that alias VM
