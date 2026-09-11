@@ -147,10 +147,46 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with `make rebuild`, `make test-make-header-dependencies`, and
       `make test-quick`. GitHub #211.
       MAC `task_9f8a6bf48d4c4117b1a551ee35c0b055`.
+- [ ] **5.0 audit — language contract and claims.** I reconcile PERSONA,
+      README, specification, guide, and compiler behavior; version one
+      executable language contract and test each claim on the C seed,
+      self-hosted compiler, VM, and AOT where applicable. I distinguish
+      project policy, implementation, and proof. MAC
+      `task_2b291a75ca2840519d47e08bf991c021` tracks this audit program.
+- [ ] **5.0 audit — formal foundations.** I assess Rocq, Lean,
+      Isabelle/HOL, and HOL4 against my existing NanoCore development,
+      then record a reproducible proof build, theorem assumptions, and
+      implementation correspondence limits. I evaluate Sail on real NanoISA
+      decoding and execution, with differential tests against the VM and
+      explicit ownership of the ISA source of truth. I retain useful existing
+      proofs and adopt additional frameworks only with demonstrated benefit.
+- [ ] **5.0 audit — native runtime services.** I run a useful native
+      NanoLang service in a separate worker through typed NSI calls, with
+      scoped capabilities, restart supervision, tracing, and module packaging.
+      I expose mailboxes, monitoring, links, supervision, and upgrade behavior
+      through native NanoLang runtime APIs; laboratory frontends remain tests.
+      Acceptance exercises real operations, worker death, recovery, denied
+      authority, bounded queues, and version compatibility end to end.
+- [ ] **5.0 audit — FFI authority.** I resolve declared typed imports by
+      module identity, remove ambient symbol fallback from the secure path,
+      validate manifests, and isolate untrusted native code. I test symbol
+      collisions, undeclared imports, unload lifetime, and crash containment.
+- [ ] **5.0 audit — measured ergonomics.** I benchmark human authoring and
+      LLM generation/repair with representative programs and recorded compiler
+      diagnostics. I use correctness, repair rounds, and author feedback to
+      improve imports, operator grouping, shadow policy, and standard-library
+      consistency; I publish migrations for changed accepted syntax.
 - [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
       the only compiler product. Native AOT does not embed `nano_vm`.
       Public GitHub Release `v5.0.0` after 4.6 and this phase close.
       `docs/NANOISA_ONLY.md`.
+
+- [ ] **5.0 audit — enforceable release evidence.** I require successful
+      CI and review before merging, make lint and proof gates blocking, pin
+      build dependencies and Actions, and publish reproducible artifacts with
+      signed checksums, SBOMs, and provenance. I remove destructive release
+      synchronization and predictable temporary files, reconcile task evidence,
+      and verify clean installation and rollback before the public release.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
