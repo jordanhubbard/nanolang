@@ -1666,7 +1666,8 @@ dynamic_add:
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
             if (b.tag == TAG_ENUM) { b = val_int((int64_t)b.as.enum_val); }
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                stack_push(vm, val_int(a.as.i64 + b.as.i64));
+                /* Compute the wrapped bits without signed C overflow. */
+                stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(a.as.f64 + b.as.f64));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
@@ -1677,6 +1678,8 @@ dynamic_add:
                 VmString *s = vm_string_concat(&vm->heap, a.as.string, b.as.string);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
+                if (!s)
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the concatenated string.");
                 stack_push(vm, val_string(s));
             } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
                 NanoValue result = val_void();
@@ -1711,7 +1714,7 @@ dynamic_sub:
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
             if (b.tag == TAG_ENUM) { b = val_int((int64_t)b.as.enum_val); }
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                stack_push(vm, val_int(a.as.i64 - b.as.i64));
+                stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(a.as.f64 - b.as.f64));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
@@ -1748,7 +1751,7 @@ dynamic_mul:
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
             if (b.tag == TAG_ENUM) { b = val_int((int64_t)b.as.enum_val); }
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                stack_push(vm, val_int(a.as.i64 * b.as.i64));
+                stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(a.as.f64 * b.as.f64));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
@@ -1859,9 +1862,10 @@ dynamic_div:
                                   "%s requires two integers",
                                   isa_get_info(instr.opcode)->name);
             int64_t result = 0;
-            if (instr.opcode == OP_I64_ADD) result = a.as.i64 + b.as.i64;
-            else if (instr.opcode == OP_I64_SUB) result = a.as.i64 - b.as.i64;
-            else if (instr.opcode == OP_I64_MUL) result = a.as.i64 * b.as.i64;
+            /* Unsigned intermediates implement modulo-2^64 arithmetic. */
+            if (instr.opcode == OP_I64_ADD) result = (int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64);
+            else if (instr.opcode == OP_I64_SUB) result = (int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64);
+            else if (instr.opcode == OP_I64_MUL) result = (int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64);
             else if (instr.opcode == OP_I64_DIV_S) {
                 if (b.as.i64 == 0) result = 0;
                 else if (a.as.i64 == INT64_MIN && b.as.i64 == -1) result = INT64_MIN;
@@ -2602,6 +2606,8 @@ dynamic_div:
             VmString *result = vm_string_concat(&vm->heap, a.as.string, b.as.string);
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
+            if (!result)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the concatenated string.");
             stack_push(vm, val_string(result));
             VM_NEXT();
         }

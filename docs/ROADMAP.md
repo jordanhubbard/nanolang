@@ -511,11 +511,24 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       failure tests before claiming recoverable memory exhaustion. I track
       this with runtime boundary task
       `task_0ba46839aee94135aaa99a9b7c207499`.
-- [ ] **Formal audit — remaining arithmetic boundaries.** Scalar dynamic
-      ADD/SUB/MUL still use signed C operations instead of explicit wrapping.
-      String concatenation adds two 32-bit lengths before allocation without
-      an overflow guard. I must test and repair these boundaries separately;
-      passing vector tests does not establish scalar or string-size safety.
+- [x] **Formal audit defect — scalar arithmetic and string boundaries.**
+      Dynamic and typed integer ADD/SUB/MUL now use unsigned intermediates
+      for modulo-2^64 arithmetic. My prior assumption that the typed handlers
+      already avoided signed C overflow was wrong. Thirty scalar boundary
+      cases check both opcode families, including total division/remainder.
+      String creation/concatenation rejects unrepresentable allocation sizes;
+      concatenation checks length before payload access and avoids malloc(0).
+      Both scalar concatenation opcodes propagate allocation failure. Failed
+      initial intern-table allocation/insertion remains unpublished and can
+      recover on retry. Tests cover synthetic overflowing lengths without
+      payloads, empty strings, each temporary/result allocation, partial
+      vector string results, input references and baseline object recovery.
+      NanoVM passes 272,215 assertions plus allocation-failure suites; all
+      18 FFI and 32 protocol tests pass (2026-09-11). The VM suite also passes
+      with production vm.c/heap.c and its test driver compiled using
+      `-fsanitize=undefined -fno-sanitize-recover=undefined` at O3; other linked
+      objects were not instrumented. These tests do not establish complete
+      runtime safety or correspondence with the formal arithmetic model.
 - [x] **Formal audit defect — call argument boundaries.** Direct, tail,
       linked-module, indirect and foreign calls check frame-relative operands
       before consuming arguments or changing frames. Indirect calls retain

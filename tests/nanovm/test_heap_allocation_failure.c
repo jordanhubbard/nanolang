@@ -7,6 +7,13 @@
 
 static bool reject_calloc;
 static bool reject_realloc;
+static unsigned fail_malloc_at;
+static unsigned malloc_calls;
+static void *heap_test_malloc(size_t size) {
+    malloc_calls++;
+    if (fail_malloc_at && malloc_calls == fail_malloc_at) return NULL;
+    return malloc(size);
+}
 static unsigned frees;
 static void *heap_test_calloc(size_t count, size_t size) {
     return reject_calloc ? NULL : calloc(count, size);
@@ -21,14 +28,105 @@ static void *heap_test_realloc(void *pointer, size_t size) {
 #define calloc heap_test_calloc
 #define free heap_test_free
 #define realloc heap_test_realloc
+#define malloc heap_test_malloc
 #include "../../src/nanovm/heap.c"
 #undef calloc
 #undef free
 #undef realloc
+#undef malloc
 #include "nanovm/vm.h"
 
 int g_argc;
 char **g_argv;
+
+static void test_string_allocation_boundaries(void) {
+    VmHeap heap;
+    reject_calloc = true;
+    vm_heap_init(&heap);
+    assert(!heap.intern_buckets && heap.intern_bucket_count == 0);
+    assert(!vm_string_new(&heap, "first", 5));
+    assert(heap.stats.num_objects == 0 && heap.stats.allocated == 0);
+    reject_calloc = false;
+    VmString *first = vm_string_new(&heap, "first", 5);
+    assert(first && first->header.ref_count == 1 && heap.intern_count == 1);
+    vm_release(&heap, val_string(first));
+    assert(heap.stats.num_objects == 0);
+    /* Only headers exist: the guard must run before any payload read. */
+    VmString huge = {.length = UINT32_MAX};
+    VmString one = {.length = 1};
+    malloc_calls = 0;
+    assert(!vm_string_concat(&heap, &huge, &one));
+    assert(!vm_string_concat(&heap, &one, &huge));
+    assert(!vm_string_concat(&heap, NULL, &one));
+    assert(malloc_calls == 0);
+    assert(!vm_string_new(&heap, NULL, 1));
+    VmString *empty = vm_string_new(&heap, NULL, 0);
+    assert(empty && empty->length == 0);
+    malloc_calls = 0;
+    fail_malloc_at = 1;
+    VmString *joined = vm_string_concat(&heap, empty, empty);
+    fail_malloc_at = 0;
+    assert(joined == empty && empty->header.ref_count == 2 && malloc_calls == 0);
+    vm_release(&heap, val_string(joined));
+    vm_release(&heap, val_string(empty));
+    assert(heap.stats.num_objects == 0);
+    vm_heap_destroy(&heap);
+}
+
+static void test_string_instruction_allocation_failure(void) {
+    const uint8_t ops[] = {OP_ADD, OP_STR_CONCAT, OP_ARRAY_ADD};
+    for (unsigned i = 0; i < sizeof(ops); i++) {
+        uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0, ops[i], OP_RET};
+        NvmModule *module = nvm_module_new();
+        NvmFunctionEntry fn = {.arity = 2, .local_count = 2, .result_count = 1,
+                               .result_tag = i == 2 ? TAG_ARRAY : TAG_STRING};
+        fn.name_idx = nvm_add_string(module, "concatenate", 11);
+        fn.code_offset = nvm_append_code(module, code, sizeof(code));
+        fn.code_length = sizeof(code);
+        nvm_add_function(module, &fn);
+        VmState vm;
+        vm_init(&vm, module);
+        uint64_t baseline = vm.heap.stats.num_objects;
+        NanoValue a = val_string(vm_string_new(&vm.heap, "aa", 2));
+        NanoValue b = val_string(vm_string_new(&vm.heap, "cc", 2));
+        if (i == 2) {
+            VmArray *array = vm_array_new(&vm.heap, TAG_STRING, 2);
+            assert(vm_array_push(&vm.heap, array, a));
+            vm_release(&vm.heap, a);
+            a = val_string(vm_string_new(&vm.heap, "bb", 2));
+            assert(vm_array_push(&vm.heap, array, a));
+            vm_release(&vm.heap, a);
+            a = val_array(array);
+        }
+        NanoValue args[] = {a, b};
+        uint64_t inputs = vm.heap.stats.num_objects;
+        for (unsigned failure = 1; failure <= (i == 2 ? 4u : 2u); failure++) {
+            NanoValue output = val_void();
+            malloc_calls = 0;
+            fail_malloc_at = failure;
+            assert(vm_invoke(&vm, 0, args, 2, &output) == VM_ERR_MEMORY);
+            fail_malloc_at = 0;
+            assert(output.tag == TAG_VOID);
+            assert(((VmHeapHeader *)a.as.obj)->ref_count == 1);
+            assert(b.as.string->header.ref_count == 1);
+            vm_gc_collect_cycles(&vm.heap);
+            assert(vm.heap.stats.num_objects == inputs);
+            assert(vm_invoke(&vm, 0, args, 2, &output) == VM_OK);
+            NanoValue string = i == 2 ? vm_array_get(output.as.array, 0) : output;
+            assert(strcmp(vmstring_cstr(string.as.string), "aacc") == 0);
+            assert(string.as.string->header.ref_count == 1);
+            vm_release(&vm.heap, output);
+            vm_gc_collect_cycles(&vm.heap);
+            assert(vm.heap.stats.num_objects == inputs);
+        }
+        vm_release(&vm.heap, a);
+        vm_release(&vm.heap, b);
+        vm_gc_collect_cycles(&vm.heap);
+        assert(vm.heap.stats.num_objects == baseline);
+        vm_destroy(&vm);
+        nvm_module_free(module);
+    }
+}
 
 static void test_arithmetic_allocation_failure(void) {
     const uint8_t ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
@@ -196,6 +294,8 @@ int main(void) {
     test_constructor_traps();
     test_append_failure();
     test_arithmetic_allocation_failure();
+    test_string_allocation_boundaries();
+    test_string_instruction_allocation_failure();
     puts("I passed struct/union field-allocation failure and recovery checks.");
     return 0;
 }

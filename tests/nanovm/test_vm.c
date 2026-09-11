@@ -3536,6 +3536,34 @@ static void test_add_array_array(void) {
     nvm_module_free(mod);
 }
 
+static void test_scalar_arithmetic_boundaries(void) {
+    const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV, OP_MOD,
+        OP_I64_ADD, OP_I64_SUB, OP_I64_MUL, OP_I64_DIV_S, OP_I64_REM_S};
+    const int64_t pairs[][2] = {{INT64_MAX, 1}, {INT64_MIN, -1}, {9, 0}};
+    const int64_t expected[][5] = {
+        {INT64_MIN, INT64_MAX - 1, INT64_MAX, INT64_MAX, 0},
+        {INT64_MAX, INT64_MIN + 1, INT64_MIN, INT64_MIN, 0},
+        {9, 9, 0, 0, 0}
+    };
+    for (unsigned op = 0; op < 10; op++) {
+        uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_LOAD_LOCAL, 1, 0,
+                          (uint8_t)ops[op], OP_RET};
+        NvmModule *mod = make_module(code, sizeof(code), 2, 2);
+        mod->functions[0].result_tag = TAG_INT;
+        VmState vm;
+        vm_init(&vm, mod);
+        for (unsigned pair = 0; pair < 3; pair++) {
+            NanoValue args[] = {val_int(pairs[pair][0]), val_int(pairs[pair][1])};
+            NanoValue output = val_void();
+            ASSERT_EQ_INT(vm_invoke(&vm, 0, args, 2, &output), VM_OK, "scalar boundary");
+            ASSERT_EQ_INT(output.tag, TAG_INT, "integer result");
+            ASSERT_EQ_INT(output.as.i64, expected[pair][op % 5], "total wrapping result");
+        }
+        vm_destroy(&vm);
+        nvm_module_free(mod);
+    }
+}
+
 static void test_array_arithmetic_values(void) {
     const NanoOpcode ops[] = {OP_ADD, OP_SUB, OP_MUL, OP_DIV,
                              OP_ARRAY_ADD, OP_ARRAY_SUB, OP_ARRAY_MUL, OP_ARRAY_DIV};
@@ -5232,6 +5260,7 @@ int main(void) {
     RUN_TEST(test_add_array_array);
     RUN_TEST(test_add_array_scalar);
     RUN_TEST(test_array_arithmetic_values);
+    RUN_TEST(test_scalar_arithmetic_boundaries);
     RUN_TEST(test_array_arithmetic_boundaries);
     RUN_TEST(test_array_arithmetic_strings);
 
