@@ -1,5 +1,5 @@
 (** I check reference-evaluator regressions by reduction in Rocq. These examples
-    complement, rather than replace, the general soundness obligation. *)
+    complement, rather than replace, the general soundness theorem. *)
 From Stdlib Require Import String ZArith Bool List.
 From NanoCore Require Import Syntax EvalFn.
 Import ListNotations.
@@ -98,4 +98,50 @@ Example match_restores_shadowed_binding :
   eval_fn 5 logical_test_env
     (EMatch (EConstruct "Some" (EInt 3) (TVariant [("Some", TInt)]))
       [("Some", "x", EVar "x")]) = Some (logical_test_env, VInt 3).
+Proof. reflexivity. Qed.
+
+Example empty_aggregates :
+  eval_fn 1 ENil (EArray []) = Some (ENil, VArray []) /\
+  eval_fn 1 ENil (ERecord []) = Some (ENil, VRecord []) /\
+  eval_fn 1 ENil (ETuple []) = Some (ENil, VTuple []).
+Proof. repeat split; reflexivity. Qed.
+
+Example array_literal_evaluation_order :
+  eval_fn 7 logical_test_env (EArray [logical_effect true; EVar "x"]) =
+    Some (ECons "x" (VInt 1) ENil, VArray [VBool true; VInt 1]).
+Proof. reflexivity. Qed.
+
+Example tuple_literal_evaluation_order :
+  eval_fn 7 logical_test_env (ETuple [logical_effect true; EVar "x"]) =
+    Some (ECons "x" (VInt 1) ENil, VTuple [VBool true; VInt 1]).
+Proof. reflexivity. Qed.
+
+Example record_literal_evaluation_order :
+  eval_fn 7 logical_test_env
+    (ERecord [("first", logical_effect true); ("second", EVar "x")]) =
+    Some (ECons "x" (VInt 1) ENil,
+      VRecord [("first", VBool true); ("second", VInt 1)]).
+Proof. reflexivity. Qed.
+
+Example aggregate_indexing :
+  eval_fn 5 ENil (EIndex (EArray [EInt 3]) (EInt 0)) = Some (ENil, VInt 3) /\
+  eval_fn 5 ENil (ETupleIndex (ETuple [EBool true; EInt 3]) 1) = Some (ENil, VInt 3).
+Proof. split; reflexivity. Qed.
+
+Example aggregate_index_bounds :
+  eval_fn 5 ENil (EIndex (EArray [EInt 3]) (EInt 1)) = None /\
+  eval_fn 5 ENil (ETupleIndex (ETuple [EInt 3]) 1) = None.
+Proof. split; reflexivity. Qed.
+
+Example array_functional_updates :
+  eval_fn 5 ENil (EArraySet (EArray [EInt 3]) (EInt 0) (EInt 8)) =
+    Some (ENil, VArray [VInt 8]) /\
+  eval_fn 5 ENil (EArrayPush (EArray [EInt 3]) (EInt 8)) =
+    Some (ENil, VArray [VInt 3; VInt 8]).
+Proof. split; reflexivity. Qed.
+
+Example record_update_and_read :
+  eval_fn 6 (ECons "r" (VRecord [("field", VInt 0)]) ENil)
+    (ESeq (ESetField "r" "field" (EInt 8)) (EField (EVar "r") "field")) =
+    Some (ECons "r" (VRecord [("field", VInt 8)]) ENil, VInt 8).
 Proof. reflexivity. Qed.

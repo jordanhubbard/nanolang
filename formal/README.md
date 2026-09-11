@@ -4,19 +4,19 @@ I formalize NanoCore, a minimal subset of my language, in the Rocq Prover
 (Coq). I distinguish proof source from successfully compiled and independently
 checked theorem terms. Absence of `Axiom` or `Admitted` declarations alone
 does not establish either a successful build or assumption-free theorems.
-I provide theorem statements for preservation, progress, determinism, and
-semantic equivalence. Evaluator soundness is partial: `EvalFn.v` proves
-selected cases, several conditional on recursive soundness. It does not yet
-contain the general `eval_fn_sound` theorem. Absence of `Admitted` tokens
-does not establish that every advertised result has been implemented.
+I provide checked theorems for preservation, progress, determinism, semantic
+equivalence, and general evaluator soundness. `EvalFn.v` connects its case
+lemmas by strong induction on fuel in `eval_fn_sound`. The final theorem has
+no recursive-soundness premise. Absence of `Admitted` tokens alone would not
+establish these results.
 
 ## What's proved
 
 Current build status (2026-09-11): my fresh pinned Rocq 9.0.1 build passes
-for all ten proof/test modules and `Assumptions.v`. All 28 named assumption
+for all ten proof/test modules and `Assumptions.v`. All 38 named assumption
 reports print `Closed under the global context`, and `rocqchk` independently
 checks all eleven compiled libraries and their dependencies successfully.
-This checks the existing theorems, not the missing general evaluator theorem.
+This includes the general evaluator theorem, not production implementation refinement.
 Reproduce from the repository root with:
 
 ```bash
@@ -91,8 +91,8 @@ Theorem eval_to_multistep_gen : forall renv e renv' v,
 ```
 
 **Computable Evaluator:** I implement a fuel-based interpreter extractable
-to OCaml. The following is a remaining proof obligation, not an existing
-theorem:
+to OCaml. I prove that every successful evaluation agrees with the relational
+semantics, including its output environment:
 
 ```
 Theorem eval_fn_sound : forall fuel renv e renv' v,
@@ -144,7 +144,7 @@ Theorem eval_fn_sound : forall fuel renv e renv' v,
 | `Progress.v` | Small-step semantics, substitution, progress theorem |
 | `Determinism.v` | Determinism of evaluation (eval is a partial function) |
 | `Equivalence.v` | Simulation of pure big-step evaluation by small-step reduction, modulo type annotations |
-| `EvalFn.v` | Computable fuel-based evaluator with partial soundness lemmas |
+| `EvalFn.v` | Computable fuel-based evaluator, case lemmas, and general soundness theorem |
 | `EvalFnTests.v` | Reducible regression examples for reference-evaluator behavior |
 | `Exhaustiveness.v` | Pattern coverage properties |
 | `Assumptions.v` | Dependency reports for named theorems |
@@ -234,7 +234,7 @@ make nanocore-ref COQC="rocq compile"  # Build reference interpreter binary
   `subst y t e = e`, then `subst y t (subst x s e) = subst x s e`
 - **Fuel-based computable evaluator**: `eval_fn` uses standard decreasing
   fuel technique (as in CompCert/CertiCoq) with `Some/None` return type;
-  selected soundness cases are proved; the general induction remains unfinished
+  strong induction on fuel proves soundness for every expression constructor
 
 ## Phases
 
@@ -249,22 +249,28 @@ make nanocore-ref COQC="rocq compile"  # Build reference interpreter binary
 
 I use compilation, named theorem assumptions, and independent library checking
 as proof evidence. I do not use source line counts as a correctness metric.
-General evaluator soundness and correspondence with my production compiler
-and VM remain unfinished.
+General evaluator soundness is checked. Correspondence with my production
+compiler and VM remains unfinished. I do not claim evaluator completeness,
+termination of every source program, or correctness of OCaml extraction from
+the soundness theorem alone.
 My reference evaluator short-circuits `and`/`or`, matching my big-step rules.
 `eval_fn_and_short` and `eval_fn_or_short` state skipped-right-operand behavior
 for arbitrary expressions and preserve the left evaluation's environment.
 `eval_fn_sound_logic` proves logical-operator soundness conditional on sound
-recursive evaluations; it does not supply the general evaluator theorem.
+recursive evaluations; `eval_fn_sound` supplies and discharges that hypothesis
+through strong fuel induction.
 `EvalFnTests.v` checks truth tables, skipped stuck expressions and assignments,
 necessary right-side effects, preserved left-side effects, and operand types.
 It also checks zero divisors, let and match shadowing, outer mutation, closure
-isolation, recursive calls, and loop state. My fourteen regression examples
-complement the theorem statements.
+isolation, recursive calls, loop state, and aggregate construction, access,
+bounds, and updates. My twenty-two regression examples complement the theorem
+statements.
 
 I have conditional soundness lemmas for all binary operators, `let`, loops,
 ordinary and recursive closure application, and variant matching, in addition
 to the earlier cases. `eval_preserves_env_names` proves that my relational
 evaluation preserves binding names and their order; this justifies removing
-the bound slot after a let or match body. Aggregate cases and the final fuel
-induction remain necessary before I can claim general evaluator soundness.
+the bound slot after a let or match body. Array and record literal proofs
+follow their decreasing-fuel loops; tuple proofs follow their element lists.
+The final strong fuel induction connects all these cases without changing
+their fuel-consumption rules.

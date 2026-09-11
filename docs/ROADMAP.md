@@ -160,17 +160,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       decoding and execution, with differential tests against the VM and
       explicit ownership of the ISA source of truth. I retain useful existing
       proofs and adopt additional frameworks only with demonstrated benefit.
-- [ ] **Formal audit defect — missing evaluator theorem.** My formal README
-      advertised `eval_fn_sound`, but `EvalFn.v` contains selected case lemmas
-      only. I correct the claim, prove the general theorem without adding
-      assumptions, and check the advertised theorem names and their assumptions
-      in a reproducible Rocq build. `Exhaustiveness.v` is now included in the
-      checked build. I added conditional soundness for every binary operator,
-      let, loops, ordinary/recursive application, and variant matching, plus
-      the binding-name preservation invariant. Fourteen regression examples
-      and all eleven libraries pass the full pinned gate on 2026-09-11, with
-      28 closed assumption reports. Aggregate cases and the final fuel
-      induction remain open. MAC
+- [x] **Formal audit defect — missing evaluator theorem.** My formal README
+      advertised `eval_fn_sound` while `EvalFn.v` contained only selected case
+      lemmas. I implemented all aggregate cases and strong fuel induction,
+      connecting the earlier control-flow, binding, and operator proofs. The
+      general theorem now covers every expression constructor with no recursive
+      soundness premise. Twenty-two regression examples and all eleven libraries
+      pass `bash scripts/check_proofs_container.sh` on pinned Rocq 9.0.1
+      (2026-09-11), with 38 closed assumption reports and independent library
+      checking. Production correspondence, completeness, and extraction
+      correctness are not consequences of this theorem. MAC
       `task_2b291a75ca2840519d47e08bf991c021`.
 - [x] **Formal audit defect — eager reference logical operators.**
       `EvalFn.v` evaluated both operands of `OpAnd` and `OpOr`, unlike
@@ -181,7 +180,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       behavior for arbitrary expressions. `eval_fn_sound_logic` proves operator
       soundness conditional on recursive soundness. The full pinned proof gate
       passes on 2026-09-11, including 22 closed assumption reports and independent
-      checking of all eleven libraries. The general evaluator theorem stays open.
+      checking of all eleven libraries. General evaluator soundness was completed
+      separately in the item above.
 - [x] **Formal audit defect — clean proof build fails.** A fresh Rocq 9.0.1
       build found an unhandled empty-list case in `tuple_nth_type`, now
       repaired without changing its statement; `Soundness.v` compiles.
@@ -199,8 +199,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       On 2026-09-11, `bash scripts/check_proofs_container.sh` passes: all nine
       proof modules plus `Assumptions.v` compile, all 19 named reports are
       closed under the global context, and `rocqchk` independently checks the
-      compiled libraries and dependencies. The general evaluator theorem and
-      production implementation correspondence remain separate open work.
+      compiled libraries and dependencies. General evaluator soundness was later
+      completed separately; production implementation correspondence remains open.
 - [x] **Formal audit tooling — checker command.** The pinned Rocq 9.0.1
       image rejects `rocq chk`; its `rocq check` launcher fails to execute
       the installed checker. I invoke `rocqchk` directly in the container
