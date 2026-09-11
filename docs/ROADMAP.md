@@ -409,6 +409,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       test-frontend-matrix test-scheme test-ml test-actor test-dataflow
       test-object test-shell test-logic` exits zero (2026-09-11). These are
       current frontend laboratory checks, not production runtime guarantees.
+- [x] **Formal audit defect — aggregate allocation error propagation.**
+      Array, struct, union, tuple and closure constructors reject null before
+      consuming operands. My isolated failing-heap test executes these five
+      instructions and aggregate pack through the actual VM, checking memory
+      errors, preserved caller/locals/integer inputs and unchanged heap size
+      and object counts. `make test-nanovm` passes (2026-09-11). This does not
+      establish recovery from stack-growth failure or every allocation site.
 - [ ] **Formal audit — allocation failure boundaries.** Several aggregate
       constructors dereference allocation results without checking them, and
       many handlers ignore `stack_push` failure. I require deterministic

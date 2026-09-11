@@ -3042,6 +3042,7 @@ dynamic_div:
             uint8_t elem_type = instr.operands[0].u8;
             uint16_t count = instr.operands[1].u16;
             VmArray *a = vm_array_new(&vm->heap, elem_type, count > 0 ? count : 8);
+            if (!a) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array.");
             /* Pop count values in reverse (they were pushed in order). The
              * popped values transfer their ownership into the array, so for
              * boxed storage we store without an extra retain; for unboxed
@@ -3107,6 +3108,7 @@ dynamic_div:
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t field_count = instr.operands[1].u16;
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, field_count);
+            if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             /* Pop fields in reverse order */
             for (uint16_t i = 0; i < field_count; i++) {
                 s->fields[field_count - 1 - i] = stack_pop(vm);
@@ -3124,6 +3126,7 @@ dynamic_div:
             uint16_t variant = instr.operands[1].u16;
             uint16_t fcount = instr.operands[2].u16;
             VmUnion *u = vm_union_new(&vm->heap, def_idx, variant, fcount);
+            if (!u) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the union.");
             for (uint16_t i = 0; i < fcount; i++) {
                 u->fields[fcount - 1 - i] = stack_pop(vm);
             }
@@ -3187,6 +3190,7 @@ dynamic_div:
         VM_CASE(OP_TUPLE_NEW) {
             uint16_t count = instr.operands[0].u16;
             VmTuple *t = vm_tuple_new(&vm->heap, count);
+            if (!t) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the tuple.");
             for (uint16_t i = 0; i < count; i++) {
                 t->elements[count - 1 - i] = stack_pop(vm);
             }
@@ -3536,6 +3540,7 @@ dynamic_div:
             uint32_t fn_idx_c = instr.operands[0].u32;
             uint16_t capture_count = instr.operands[1].u16;
             VmClosure *c = vm_closure_new(&vm->heap, fn_idx_c, capture_count);
+            if (!c) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the closure.");
             /* Pop captures from stack (pushed in order, stored in order) */
             for (uint32_t i = capture_count; i > 0; i--) {
                 c->captures[i - 1] = stack_pop(vm);

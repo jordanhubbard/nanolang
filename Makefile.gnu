@@ -506,8 +506,8 @@ test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 	@./tests/nanovm/test_vm
 	@$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/nanovm/test_heap_allocation_failure \
 		tests/nanovm/test_heap_allocation_failure.c \
-		$(OBJ_DIR)/nanovm/value.o $(OBJ_DIR)/nanovm/heap_cycles.o \
-		$(OBJ_DIR)/nanoisa/isa.o $(LDFLAGS)
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/nanovm/test_heap_allocation_failure
 	@rm -f tests/nanovm/test_vm
 
