@@ -292,6 +292,65 @@ shadow nisa_is_list_call {
     assert (not (nisa_is_list_call "array_new"))
 }
 
+fn nisa_list_element_tag(parser: Parser, name: string) -> string {
+    let type_len: int = (- (str_length name) 9)
+    if (<= type_len 0) {
+        return "1"
+    } else {
+        let type_name: string = (str_substring name 5 type_len)
+        if (or (== type_name "int") (== type_name "Token")) {
+            return "1"
+        } else {
+            if (== type_name "u8") {
+                return "2"
+            } else {
+                if (== type_name "float") {
+                    return "3"
+                } else {
+                    if (== type_name "bool") {
+                        return "4"
+                    } else {
+                        if (== type_name "string") {
+                            return "5"
+                        } else {
+                            if (>= (nisa_struct_index parser type_name) 0) {
+                                return "8"
+                            } else {
+                                let enum_count: int = (parser_get_enum_count parser)
+                                let mut i: int = 0
+                                while (< i enum_count) {
+                                    let e: ASTEnum = (parser_get_enum parser i)
+                                    if (== e.name type_name) {
+                                        return "9"
+                                    } else {
+                                        set i (+ i 1)
+                                    }
+                                }
+                                return "1"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+shadow nisa_list_element_tag {
+    let _: int = (nisa_reset)
+    let diags: List<CompilerDiagnostic> = (diag_list_new)
+    let src: string = (+ "struct Tok { t: int, s: string } enum Shade { Light, Dark } " (+ "f" "n main() -> int { return 0 } shadow main { assert true }"))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (== (nisa_list_element_tag p "list_int_new") "1")
+    assert (== (nisa_list_element_tag p "list_u8_new") "2")
+    assert (== (nisa_list_element_tag p "list_float_new") "3")
+    assert (== (nisa_list_element_tag p "list_bool_new") "4")
+    assert (== (nisa_list_element_tag p "list_string_new") "5")
+    assert (== (nisa_list_element_tag p "list_Tok_new") "8")
+    assert (== (nisa_list_element_tag p "list_Shade_new") "9")
+}
+
 fn nisa_is_inline_call(name: string) -> bool {
     return (or (nisa_is_arr_builtin name)
                (or (nisa_is_print_builtin name)
@@ -755,7 +814,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         if (!= call.arg_count 0) {
             return (nisa_fail "list_T_new needs 0 arguments")
         } else {
-            return (nisa_line_imm "ARR_NEW" "1")
+            return (nisa_line_imm "ARR_NEW" (nisa_list_element_tag parser func_id.name))
         }
     } else {
     if (or (== func_id.name "array_length") (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_length"))) {
@@ -1563,7 +1622,7 @@ shadow nisa_emit_function {
     let blank_s_fn: ASTFunction = (parser_get_function p27 0)
     let blank_s_text: string = (nisa_emit_function p27 blank_s_fn)
     assert (str_contains blank_s_text ".function blank_s 0 1 0 int 1")
-    assert (str_contains blank_s_text "ARR_NEW 1")
+    assert (str_contains blank_s_text "ARR_NEW 5")
     assert (str_contains blank_s_text "ARR_LEN")
     let src28: string = (+ "f" "n grow_s() -> string { let xs: List<string> = (list_string_new) (list_string_push xs \"hi\") return (list_string_get xs 0) } shadow grow_s { assert true }")
     let toks28: List<LexerToken> = (tokenize_string src28 "t.nano" diags)
@@ -1587,7 +1646,7 @@ shadow nisa_emit_function {
     let grow_t_fn: ASTFunction = (parser_get_function p30 0)
     let grow_t_text: string = (nisa_emit_function p30 grow_t_fn)
     assert (str_contains grow_t_text ".function grow_t 0 2 0 string 1")
-    assert (str_contains grow_t_text "ARR_NEW 1")
+    assert (str_contains grow_t_text "ARR_NEW 8")
     assert (str_contains grow_t_text "ARR_PUSH")
     assert (str_contains grow_t_text "POP")
     assert (str_contains grow_t_text "ARR_GET")
