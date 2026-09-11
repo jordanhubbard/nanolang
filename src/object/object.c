@@ -581,8 +581,8 @@ static int parse_program(Cc *cc) {
                     memset(s, 0, sizeof *s);
                     s->kind = ST_REPLACE;
                     s->repl = cc->nrepl;
-                    snprintf(s->cls, sizeof s->cls, "%s", r->cls);
-                    snprintf(s->sel, sizeof s->sel, "%s", r->sel);
+                    memmove(s->cls, r->cls, sizeof s->cls);
+                    memmove(s->sel, r->sel, sizeof s->sel);
                     cc->nrepl++;
                     continue;
                 }
