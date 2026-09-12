@@ -449,7 +449,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v2-generations");
+    hash_context_field(&hash, "nanolang-c-build-context-v3-canonical-modules");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -1526,9 +1526,13 @@ static void append_string_array_unique(char ***arr, size_t *count, const char *v
     }
 }
 
-ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
+static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module_dir) {
     char path[1024];
-    snprintf(path, sizeof(path), "%s/module.json", module_dir);
+    int length = snprintf(path, sizeof(path), "%s/module.json", module_dir);
+    if (length < 0 || (size_t)length >= sizeof(path)) {
+        fprintf(stderr, "I cannot represent the module manifest path\n");
+        return NULL;
+    }
 
     if (!file_exists(path)) {
         // No module.json = pure nanolang module
@@ -1783,6 +1787,17 @@ ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
     }
 
     cJSON_Delete(json);
+    return meta;
+}
+
+ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
+    if (!module_dir || !module_dir[0]) return NULL;
+    char *canonical = realpath(module_dir, NULL);
+    if (!canonical) return NULL;
+    /* I use the physical module directory for both cache identity and
+     * module-relative include fallback, regardless of an import alias. */
+    ModuleBuildMetadata *meta = module_load_metadata_at_directory(canonical);
+    free(canonical);
     return meta;
 }
 

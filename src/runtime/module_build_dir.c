@@ -6,44 +6,45 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <errno.h>
-
-static void sanitize_module_dir(const char *module_dir, char *out, size_t out_size) {
-    const char *p = module_dir ? module_dir : "";
-    while (p[0] == '.' && p[1] == '/') {
-        p += 2;
-    }
-    size_t oi = 0;
-    for (; *p != '\0' && oi + 1 < out_size; p++) {
-        char c = *p;
-        if (c == '/') {
-            c = '_';
-        }
-        out[oi++] = c;
-    }
-    out[oi] = '\0';
-    if (oi == 0 && out_size > 0) {
-        snprintf(out, out_size, "unknown");
-    }
-}
+#include <openssl/sha.h>
 
 bool nano_module_build_dir(const char *module_dir, char *dest, size_t dest_size) {
     if (!dest || dest_size == 0) {
         return false;
     }
+    dest[0] = '\0';
+    if (!module_dir || !module_dir[0]) return false;
 
     const char *cache = getenv("NANO_BUILD_CACHE");
     if (cache && cache[0] != '\0') {
-        char key[1024];
-        sanitize_module_dir(module_dir, key, sizeof(key));
-        int n = snprintf(dest, dest_size, "%s/%s", cache, key);
-        return n >= 0 && (size_t)n < dest_size;
-    }
-
-    if (!module_dir || module_dir[0] == '\0') {
+        char *canonical = realpath(module_dir, NULL);
+        struct stat st;
+        if (!canonical || stat(canonical, &st) != 0 || !S_ISDIR(st.st_mode)) {
+            free(canonical);
+            return false;
+        }
+        unsigned char digest[SHA256_DIGEST_LENGTH];
+        bool hashed = SHA256((const unsigned char *)canonical, strlen(canonical), digest) != NULL;
+        free(canonical);
+        if (!hashed) return false;
+        char key[SHA256_DIGEST_LENGTH * 2 + 1];
+        const char *hex = "0123456789abcdef";
+        for (size_t i = 0; i < sizeof(digest); i++) {
+            key[i * 2] = hex[digest[i] >> 4];
+            key[i * 2 + 1] = hex[digest[i] & 15];
+        }
+        key[sizeof(key) - 1] = '\0';
+        /* I never read an ambiguous slash-to-underscore legacy namespace. */
+        int n = snprintf(dest, dest_size, "%s/v2-%s", cache, key);
+        if (n >= 0 && (size_t)n < dest_size) return true;
+        dest[0] = '\0';
         return false;
     }
+
     int n = snprintf(dest, dest_size, "%s/.build", module_dir);
-    return n >= 0 && (size_t)n < dest_size;
+    if (n >= 0 && (size_t)n < dest_size) return true;
+    dest[0] = '\0';
+    return false;
 }
 
 bool nano_module_artifact_dir(const char *module_dir, char *dest, size_t dest_size) {

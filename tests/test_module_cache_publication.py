@@ -1,6 +1,7 @@
 """I protect cached foreign artifacts while compilers fail or overlap."""
 import json
 import ctypes
+import hashlib
 import os
 from pathlib import Path
 import select
@@ -21,15 +22,9 @@ ROOT = shadows.ROOT
 class ModuleCachePublication(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.probe_directory = tempfile.TemporaryDirectory(prefix="nano-generation-probe-")
-        cls.addClassCleanup(cls.probe_directory.cleanup)
-        cls.probe = Path(cls.probe_directory.name) / "probe"
-        objects = ["cJSON.o", "utf8.o", "runtime/module_build_dir.o", "runtime/ffi_loader.o"]
-        command = [shutil.which("cc"), "-D_GNU_SOURCE", "-Isrc", "tests/test_module_generation_probe.c"]
-        command += [str(ROOT / "obj" / name) for name in objects]
-        command += ["-pthread", "-o", str(cls.probe)]
-        if sys.platform != "darwin": command.append("-ldl")
-        subprocess.run(command, cwd=ROOT, capture_output=True, check=True, timeout=20)
+        cls.probe = ROOT / "obj/test_module_generation_probe"
+        if not cls.probe.is_file():
+            raise RuntimeError("I need make test-bytecode-shadows to build the production cache probe")
 
     def setUp(self):
         self.support = shadows.BytecodeShadows()
@@ -478,6 +473,94 @@ os.execv(''')
                     self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
                     if damage == "empty": self.assertEqual(path.stat().st_size, 0)
                     else: self.assertTrue(path.is_symlink())
+
+    def test_distinct_module_paths_do_not_share_cache(self):
+        with tempfile.TemporaryDirectory(prefix="nano-namespace-") as tmp:
+            directory = Path(tmp)
+            objects = []
+            for parent, answer in ((directory / "a_b", 42), (directory / "a" / "b", 43)):
+                parent.mkdir(parents=True)
+                module, source, env = self.support.foreign_build_fixture(parent)
+                env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                (module / "answer.c").write_text('#include <stdint.h>\n#include "answer.h"\nint64_t nano_build_answer(void) { return ANSWER; }\n')
+                (module / "answer.h").write_text(f"#define ANSWER {answer}\n")
+                result, output = self.support.compile(source.replace(" 42)", f" {answer})"), parent, "--run", env=env)
+                self.assertEqual(result.returncode, answer, result.stderr)
+                objects.append(self.probe_path("build", module, env))
+                self.assertEqual(self.library_answer(self.probe_path("library", module, env)), answer)
+                self.assertEqual(self.support.execute(output, env=env).returncode, answer)
+            self.assertNotEqual(objects[0].parent.parent, objects[1].parent.parent)
+
+    def test_namespace_is_canonical_bounded_and_versioned(self):
+        with tempfile.TemporaryDirectory(prefix="nano-namespace-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            cache = directory / "cache"
+            env["NANO_BUILD_CACHE"] = str(cache)
+            alias = directory / "alias"
+            alias.symlink_to(module, target_is_directory=True)
+            expected = cache / ("v2-" + hashlib.sha256(os.fsencode(module.resolve())).hexdigest())
+            for spelling in (module, module.resolve(), Path(os.path.relpath(module, ROOT)), alias, module / "."):
+                self.assertEqual(self.probe_path("root", spelling, env), expected)
+            size = len(os.fsencode(expected)) + 1
+            for capacity, succeeds in ((0, False), (1, False), (size - 1, False), (size, True)):
+                result = subprocess.run([str(self.probe), "root", str(module), str(capacity)], cwd=ROOT, env=env, capture_output=True, timeout=10)
+                self.assertEqual(result.returncode == 0, succeeds, result.stderr)
+            for invalid in ("", str(directory / "missing"), str(module / "answer.c"), str(directory / ("z" * 1500))):
+                result = subprocess.run([str(self.probe), "root", invalid], cwd=ROOT, env=env, capture_output=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0)
+
+    def test_long_directory_uses_fixed_length_namespace(self):
+        with tempfile.TemporaryDirectory(prefix="nano-namespace-") as tmp:
+            directory = Path(tmp)
+            parent = directory
+            for _ in range(6): parent = parent / ("long" * 15)
+            parent.mkdir(parents=True)
+            module, _, env = self.support.foreign_build_fixture(parent)
+            env["NANO_BUILD_CACHE"] = str(directory / "cache")
+            root = self.probe_path("root", module, env)
+            self.assertEqual(len(root.name), 67)
+            self.probe_path("build", module, env)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+
+    def test_alias_metadata_uses_physical_module_directory(self):
+        with tempfile.TemporaryDirectory(prefix="nano-namespace-") as tmp:
+            directory = Path(tmp)
+            physical = directory / "physical"
+            physical.mkdir()
+            module, _, env = self.support.foreign_build_fixture(physical)
+            env["NANO_BUILD_CACHE"] = str(directory / "cache")
+            (module / "answer.c").write_text("#include <stdint.h>\n#include <answer.h>\nint64_t nano_build_answer(void) { return ANSWER; }\n")
+            (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"], "include_dirs": ["headers"]}))
+            alternate = directory / "alternate"
+            for parent, answer in ((physical, 42), (alternate, 43)):
+                headers = parent / "headers"
+                headers.mkdir(parents=True)
+                (headers / "answer.h").write_text(f"#define ANSWER {answer}\n")
+            alias = alternate / "foreign"
+            alias.symlink_to(module, target_is_directory=True)
+            aliased_object = self.probe_path("build", alias, env)
+            self.assertEqual(self.library_answer(self.probe_path("library", alias, env)), 42)
+            self.assertEqual(self.probe_path("build", module, env), aliased_object)
+
+    def test_ambiguous_legacy_cache_is_not_reused_or_modified(self):
+        with tempfile.TemporaryDirectory(prefix="nano-namespace-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            cache = directory / "cache"
+            env["NANO_BUILD_CACHE"] = str(cache)
+            legacy = cache / str(module).replace("/", "_")
+            legacy.mkdir(parents=True)
+            extension = "dylib" if sys.platform == "darwin" else "so"
+            (legacy / f"libanswer_native.{extension}").write_bytes(b"untrusted legacy artifact")
+            before = self.snapshot(legacy)
+            result = subprocess.run([str(self.probe), "library", str(module)], cwd=ROOT, env=env, capture_output=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            current = self.probe_path("build", module, env)
+            self.assertNotEqual(current.parent.parent, legacy)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+            self.assertEqual(self.snapshot(legacy), before)
+            self.assertEqual(len(list(legacy.iterdir())), 1)
 
 
 if __name__ == "__main__":

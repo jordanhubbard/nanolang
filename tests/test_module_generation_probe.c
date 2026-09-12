@@ -24,7 +24,14 @@ static int generation_test_rename(const char *source, const char *target) {
 #undef rename
 
 int main(int argc, char **argv) {
-    if (argc != 3) return 2;
+    if (argc != 3 && argc != 4) return 2;
+    if (strcmp(argv[1], "root") == 0) {
+        char path[2048];
+        size_t size = argc == 4 ? (size_t)strtoul(argv[3], NULL, 10) : sizeof(path);
+        if (size > sizeof(path) || !nano_module_build_dir(argv[2], path, size)) return 1;
+        puts(path);
+        return 0;
+    }
     if (strcmp(argv[1], "directory") == 0) {
         char path[2048];
         if (!nano_module_artifact_dir(argv[2], path, sizeof(path))) return 1;

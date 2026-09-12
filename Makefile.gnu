@@ -62,6 +62,10 @@ DEPFLAGS ?= -MMD -MP
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
+# I need libcrypto for cache namespace identity, including sanitizer overrides.
+ifneq ($(filter command line override,$(origin LDFLAGS)),)
+override LDFLAGS += -lcrypto
+endif
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
@@ -84,8 +88,16 @@ ifeq ($(UNAME_S),Darwin)
 # Homebrew OpenSSL is keg-only on macOS — add include/lib paths
 OPENSSL_PREFIX := $(shell brew --prefix openssl 2>/dev/null)
 ifneq ($(OPENSSL_PREFIX),)
-CFLAGS  += -I$(OPENSSL_PREFIX)/include
+ifneq ($(filter command line override,$(origin CFLAGS)),)
+override CFLAGS += -I$(OPENSSL_PREFIX)/include
+else
+CFLAGS += -I$(OPENSSL_PREFIX)/include
+endif
+ifneq ($(filter command line override,$(origin LDFLAGS)),)
+override LDFLAGS += -L$(OPENSSL_PREFIX)/lib
+else
 LDFLAGS += -L$(OPENSSL_PREFIX)/lib
+endif
 endif
 endif
 # Note: -fblocks/-ldispatch/-lBlocksRuntime are only needed when compiling programs
@@ -2028,7 +2040,12 @@ test-language-claims:
 	@python3 tests/test_language_claims.py
 
 .PHONY: test-bytecode-shadows
-test-bytecode-shadows: nano_virt nano_vm
+MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
+
+$(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/module_builder.h $(RUNTIME_DIR)/module_build_dir.h $(HEADERS) $(MODULE_GENERATION_PROBE_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ tests/test_module_generation_probe.c $(MODULE_GENERATION_PROBE_OBJECTS) $(LDFLAGS) -pthread $(if $(filter Linux,$(UNAME_S)),-ldl)
+
+test-bytecode-shadows: nano_virt nano_vm $(OBJ_DIR)/test_module_generation_probe
 	@python3 tests/test_bytecode_shadows.py
 	@python3 -m unittest tests.test_module_cache_publication
 

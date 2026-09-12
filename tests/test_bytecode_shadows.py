@@ -1,6 +1,7 @@
 """I execute shadows before publishing bytecode, not from production main."""
 from pathlib import Path
 import json
+import hashlib
 import os
 import shutil
 import signal
@@ -132,7 +133,8 @@ shadow main { assert true }
                     if cached:
                         cache = directory / "cache"
                         env["NANO_BUILD_CACHE"] = str(cache)
-                        build_dir = cache / os.path.dirname(module_path).replace("/", "_")
+                        key = hashlib.sha256(os.fsencode(module_dir.resolve())).hexdigest()
+                        build_dir = cache / ("v2-" + key)
                     else:
                         build_dir = module_dir / ".build"
                     build_dir.mkdir(parents=True)

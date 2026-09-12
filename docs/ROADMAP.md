@@ -382,10 +382,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       deliberately contains `42`. A missing-module failure was test corruption,
       not evidence of a compiler lookup defect.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 cache namespace identity.** My shared-cache key replaces `/` with
-      `_` and truncates long module paths, so distinct directories can alias.
-      I need canonical, collision-resistant directory identity and explicit
-      path-length rejection, with migration and separate-module tests.
+- [x] **5.0 cache namespace identity.** I replace slash-to-underscore keys
+      with `v2-<SHA-256 of realpath(module_dir)>`. I reject unresolvable
+      directories and undersized destination buffers. I leave ambiguous legacy
+      shared caches untouched and rebuild in the new namespace. Metadata include
+      fallback also uses the physical module directory; a context-version bump
+      invalidates old local records that could depend on alias spelling.
+      Four initial namespace tests and the additional alias-header regression
+      fail before their repairs and pass afterward. Tests cover distinct paths
+      with different headers, canonical aliases, long paths, buffer bounds,
+      migration and actual library/bytecode execution. All 28 shadow tests,
+      20 cache tests, 63 codegen tests, 18 FFI tests, installation policy and
+      C-seed dependency gates pass on Darwin (2026-09-12). Make builds the cache
+      probe with project flags; required OpenSSL flags survive caller overrides
+      in the checked dry run. This is namespace identity, not artifact trust.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 C-library cache — driver and build-environment identity.** I
       invalidate cached C artifacts when the selected compiler command,

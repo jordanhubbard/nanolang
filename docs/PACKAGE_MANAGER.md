@@ -219,6 +219,23 @@ Packages installed by `nanoc-pkg` land in `modules/` and are immediately availab
 
 My module builder (`module_builder.c`) tracks content hashes for incremental builds. When `nanoc-pkg install` updates a module, the content hash changes, triggering a rebuild on next compilation. This is automatic.
 
+With `NANO_BUILD_CACHE` set, I use a versioned namespace:
+`<cache>/v2-<SHA-256 of the resolved absolute module-directory path>`. I require
+that directory to exist. Relative paths and symlink aliases resolve to the same
+identity; slashes and underscores no longer collapse distinct directories.
+Module-relative metadata include fallback uses that same physical directory.
+I reject insufficient destination buffers rather than return a truncated key.
+The hash identifies a directory, not its artifacts or their authenticity.
+
+I leave old slash-to-underscore shared-cache directories untouched and do not
+load or migrate their artifacts: their ownership is ambiguous. The first build
+in the new namespace rebuilds them. Without `NANO_BUILD_CACHE`, I still use
+`<module_dir>/.build`, including legacy flat-library lookup. A build-context
+version change also invalidates old local records whose include fallback could
+depend on the spelling of an alias. Namespace hashing
+uses my existing OpenSSL build dependency; Make retains its required flags when
+caller-supplied compiler or linker flags are used.
+
 I rebuild when the hash record is missing, unreadable, malformed or disagrees
 with current inputs. Older or unchanged timestamps cannot override a content
 change. I include regular and shared-only C sources, the manifest, and headers
@@ -277,8 +294,8 @@ These hashes are a non-cryptographic cache optimization, not artifact
 authentication. Generation publication is atomic per module, not across multiple
 modules. Bytecode still records logical/source module names: loading it later can
 select a newer generation than the one used during compilation. Exact bytecode
-bindings, power-loss durability, source snapshots, collision-free shared-cache
-namespaces and complete toolchain identity remain open work. A matching source
+bindings, power-loss durability, source snapshots and complete toolchain identity
+remain open work. A matching source
 hash alone does not establish a reproducible build.
 
 ### System Dependencies During Compilation
