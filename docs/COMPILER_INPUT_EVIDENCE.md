@@ -5,7 +5,7 @@ keeps the remaining failure reproducible and tests candidate boundaries before
 I change the compilation pipeline.
 
 ```sh
-make bin/nano_virt bin/nano_vm
+make nano_virt nano_vm
 python3 -m tests.characterize_compiler_inputs
 ```
 

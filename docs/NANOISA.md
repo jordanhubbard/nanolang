@@ -415,6 +415,15 @@ one preprocessing invocation per source; a cacheable cold build uses two. The
 configured compiler remains trusted. Matching observations are not an atomic
 snapshot and do not establish complete PCH, module or toolchain identity.
 
+`PKG_CONFIG` can select a pkg-config executable name or path. It is not a
+shell-command fragment. When unset or empty, I keep my existing installation
+lookup order. I quote the tool, package and search-path arguments, and require
+successful query exit, complete reads and NUL-free output of at most 64 KiB.
+A successful empty flag response is valid. A failed required flag query aborts
+the build instead of supplying partial compile or link flags; an existing
+generation stays intact. This checks query validity, not a snapshot of all
+pkg-config responses or the libraries those responses select.
+
 ### Cross-section validation
 
 A section codec sees one section and cannot check an index into another, so the

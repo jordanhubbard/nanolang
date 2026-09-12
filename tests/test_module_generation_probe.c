@@ -25,6 +25,13 @@ static int generation_test_rename(const char *source, const char *target) {
 
 int main(int argc, char **argv) {
     if (argc != 3 && argc != 4) return 2;
+    if (strcmp(argv[1], "pkgflags") == 0) {
+        char *flags = get_pkg_config_flags(argv[2], argc == 4 ? argv[3] : "--cflags");
+        if (!flags) return 1;
+        puts(flags);
+        free(flags);
+        return 0;
+    }
     if (strcmp(argv[1], "deps") == 0 || strcmp(argv[1], "includes") == 0) {
         cJSON *root = cJSON_CreateObject();
         if (!root) return 1;
@@ -52,10 +59,10 @@ int main(int argc, char **argv) {
     ModuleBuildMetadata *meta = module_load_metadata(argv[2]);
     if (!meta) return 1;
     int status = 1;
-    if (strcmp(argv[1], "build") == 0) {
+    if (strcmp(argv[1], "build") == 0 || strcmp(argv[1], "build-info") == 0) {
         ModuleBuildInfo *info = module_build(NULL, meta);
-        if (info && info->object_file) {
-            puts(info->object_file);
+        if (info && (info->object_file || strcmp(argv[1], "build-info") == 0)) {
+            puts(info->object_file ? info->object_file : "no object");
             status = 0;
         }
         module_build_info_free(info);

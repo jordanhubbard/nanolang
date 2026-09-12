@@ -658,6 +658,100 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(result.returncode, 42, result.stderr)
                 self.assertEqual(self.support.execute(output, env=env).returncode, 42)
 
+    def test_pkg_config_query_status_and_recovery(self):
+        with tempfile.TemporaryDirectory(prefix="nano-pkg-status-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            tools = directory / "tools"
+            tools.mkdir()
+            control = directory / "query-mode"
+            control.write_text("ok")
+            pkg = tools / "pkg-config"
+            pkg.write_text(f'''#!{sys.executable}
+import pathlib, sys
+if "--version" in sys.argv: print("1.0"); sys.exit(0)
+if "--exists" in sys.argv: sys.exit(0)
+mode = pathlib.Path({str(control)!r}).read_text()
+query = "cflags" if "--cflags" in sys.argv else "libs"
+if mode == query:
+    print("-DQUERY_PARTIAL=1" if query == "cflags" else "-lm")
+    sys.exit(23)
+print("   ")
+''')
+            pkg.chmod(0o700)
+            env["PKG_CONFIG"] = str(pkg)
+            env["PATH"] = str(tools) + os.pathsep + env["PATH"]
+            manifest = module / "module.json"
+            metadata = json.loads(manifest.read_text())
+            metadata["pkg_config"] = ["fixture"]
+            manifest.write_text(json.dumps(metadata))
+            result, output = self.support.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+            previous = output.read_bytes()
+            old_generation = self.probe_path("directory", module, env)
+            for query in ("cflags", "libs"):
+                control.write_text(query)
+                result, output = self.support.compile(source, directory, env=env)
+                self.assertEqual(result.returncode, 1, (query, result.stderr))
+                self.assertEqual(output.read_bytes(), previous)
+                self.assertEqual(self.probe_path("directory", module, env), old_generation)
+                control.write_text("ok")
+                result, output = self.support.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+            for query in ("cflags", "libs"):
+                control.write_text(query)
+                c_source = module / "answer.c"
+                c_source.write_text(c_source.read_text() + "\n/* I force a cold build. */\n")
+                result, output = self.support.compile(source, directory, env=env)
+                self.assertEqual(result.returncode, 1, (query, result.stderr))
+                self.assertEqual(output.read_bytes(), previous)
+                self.assertEqual(self.probe_path("directory", module, env), old_generation)
+            no_source = directory / "source-free"
+            no_source.mkdir()
+            (no_source / "module.json").write_text(json.dumps({"name": "source_free", "pkg_config": ["fixture"]}))
+            for mode, expected in (("ok", 0), ("cflags", 1), ("libs", 1), ("ok", 0)):
+                control.write_text(mode)
+                result = subprocess.run([str(self.probe), "build-info", str(no_source)], env=env,
+                                        capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, expected, (mode, result.stderr))
+            result, _ = self.support.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+
+    def test_pkg_config_output_and_literal_arguments(self):
+        with tempfile.TemporaryDirectory(prefix="nano-pkg-boundary-") as tmp:
+            directory = Path(tmp)
+            pkg = directory / "pkg ' literal"
+            pkg.write_text(f'''#!{sys.executable}
+import json, os, signal, sys
+mode = os.environ["NANO_QUERY_FIXTURE"]
+if mode == "empty": print(" \\t\\r"); sys.exit(0)
+if mode == "partial": print("-DIGNORED=1"); sys.exit(23)
+if mode == "signal": os.kill(os.getpid(), signal.SIGTERM)
+if mode == "nul": sys.stdout.buffer.write(b"-DOK=1\\0-DHIDDEN=1"); sys.exit(0)
+if mode == "large": print("x" * 65537); sys.exit(0)
+if mode == "limit": sys.stdout.write("x" * 65536); sys.exit(0)
+print(json.dumps({{"args": sys.argv[1:], "path": os.environ.get("PKG_CONFIG_PATH", "")}}))
+''')
+            pkg.chmod(0o700)
+            env = os.environ.copy()
+            env["PKG_CONFIG"] = str(pkg)
+            env["NANO_ALLOW_PACKAGE_INSTALL"] = "0"
+            env["PKG_CONFIG_PATH"] = "literal ' $(touch injected-env) ; path"
+            package = "-literal ' $(touch injected-package) ; package"
+            for mode, expected in (("empty", 0), ("partial", 1), ("signal", 1), ("nul", 1), ("large", 1), ("limit", 0), ("literal", 0)):
+                env["NANO_QUERY_FIXTURE"] = mode
+                result = subprocess.run([str(self.probe), "pkgflags", package], cwd=directory,
+                                        env=env, capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, expected, (mode, result.stderr))
+                if mode == "empty": self.assertEqual(result.stdout, b"\n")
+                elif mode == "limit": self.assertEqual(len(result.stdout), 65537)
+                elif mode == "literal":
+                    observed = json.loads(result.stdout)
+                    self.assertEqual(observed["args"], ["--cflags", "--", package])
+                    self.assertTrue(observed["path"].endswith(env["PKG_CONFIG_PATH"]))
+                self.assertFalse((directory / "injected-env").exists())
+                self.assertFalse((directory / "injected-package").exists())
+
     def test_changed_include_search_path_changes_output(self):
         with tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
             directory = Path(tmp)

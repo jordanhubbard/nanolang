@@ -175,7 +175,7 @@ fn main() -> int {{ unsafe {{ return (foreign.nano_build_answer) }} }}
 shadow main {{ assert (== (main) 42) }}
 '''
         env = os.environ.copy()
-        for name in ("NANO_BUILD_CACHE", "NANO_ALLOW_PACKAGE_INSTALL", "NANO_CC", "CC"):
+        for name in ("NANO_BUILD_CACHE", "NANO_ALLOW_PACKAGE_INSTALL", "NANO_CC", "CC", "PKG_CONFIG"):
             env.pop(name, None)
         return module_dir, source, env
 

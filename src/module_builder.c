@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v7-fresh-preprocessing");
+    hash_context_field(&hash, "nanolang-c-build-context-v8-pkg-query-status");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -471,7 +471,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         "PATH", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
         "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX", "SDKROOT", "DEVELOPER_DIR",
         "MACOSX_DEPLOYMENT_TARGET", "IPHONEOS_DEPLOYMENT_TARGET", "ARCHFLAGS",
-        "CFLAGS", "CPPFLAGS", "LDFLAGS", "PKG_CONFIG_PATH", "PKG_CONFIG_LIBDIR",
+        "CFLAGS", "CPPFLAGS", "LDFLAGS", "PKG_CONFIG", "PKG_CONFIG_PATH", "PKG_CONFIG_LIBDIR",
         "PKG_CONFIG_SYSROOT_DIR", "SOURCE_DATE_EPOCH", "LANG", "LC_ALL", "LC_CTYPE",
         "LD_LIBRARY_PATH", "LD_PRELOAD", "LD_AUDIT", "DYLD_LIBRARY_PATH",
         "DYLD_FALLBACK_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES",
@@ -966,49 +966,6 @@ static bool mkdir_p(const char *path) {
     return true;
 }
 
-// Helper: Run command and capture output
-static char* run_command(const char *cmd) {
-    FILE *fp = popen(cmd, "r");
-    if (!fp) {
-        return NULL;
-    }
-
-    char *output = malloc(4096);
-    if (!output) {
-        pclose(fp);
-        return NULL;
-    }
-    
-    // Initialize buffer to empty string in case command produces no output
-    output[0] = '\0';
-
-    size_t total = 0;
-    size_t capacity = 4096;
-    
-    while (fgets(output + total, capacity - total, fp) != NULL) {
-        total = strlen(output);
-        if (total + 1024 > capacity) {
-            capacity *= 2;
-            char *new_output = realloc(output, capacity);
-            if (!new_output) {
-                free(output);
-                pclose(fp);
-                return NULL;
-            }
-            output = new_output;
-        }
-    }
-
-    pclose(fp);
-
-    // Remove trailing newline
-    if (total > 0 && output[total - 1] == '\n') {
-        output[total - 1] = '\0';
-    }
-
-    return output;
-}
-
 // Helper to detect WSL2
 static bool is_wsl2(void) {
     FILE *fp = fopen("/proc/version", "r");
@@ -1385,6 +1342,8 @@ static bool pkg_config_install_attempted = false;
 
 // Find pkg-config executable path, or NULL if not found
 static const char* find_pkg_config(void) {
+    const char *configured = getenv("PKG_CONFIG");
+    if (configured && configured[0]) return configured;
     // Check common locations
     if (access("/opt/homebrew/bin/pkg-config", X_OK) == 0) {
         return "/opt/homebrew/bin/pkg-config";
@@ -1441,26 +1400,31 @@ static const char* ensure_pkg_config(void) {
     return NULL;
 }
 
+static bool module_build_append(char *buffer, size_t capacity, const char *format, ...);
+
+/* I preserve executable, package and search-path bytes as shell words. */
+static bool pkg_config_command(char *cmd, size_t capacity, const char *package, const char *mode) {
+    const char *tool = ensure_pkg_config();
+    if (!tool || !package || !mode) return false;
+    cmd[0] = 0;
+#ifdef __APPLE__
+    char search[4096];
+    const char *inherited = getenv("PKG_CONFIG_PATH");
+    int n = snprintf(search, sizeof(search), "/opt/homebrew/opt/%s/lib/pkgconfig:/usr/local/opt/%s/lib/pkgconfig:%s",
+                     package, package, inherited ? inherited : "");
+    if (n < 0 || (size_t)n >= sizeof(search) ||
+        !module_append_path_flag(cmd, capacity, "PKG_CONFIG_PATH=", search)) return false;
+#endif
+    return module_append_path_flag(cmd, capacity, "", tool) &&
+           module_append_path_flag(cmd, capacity, "", mode) &&
+           module_append_path_flag(cmd, capacity, "-- ", package) &&
+           module_build_append(cmd, capacity, " 2>/dev/null");
+}
+
 // Check if a pkg-config package is available (returns true if installed)
 static bool check_pkg_config_package(const char *package) {
-    const char *pkg_config_path = ensure_pkg_config();
-    if (!pkg_config_path) {
-        return false;
-    }
-    
-    char cmd[1024];
-#ifdef __APPLE__
-    // On macOS, Homebrew keg-only packages need PKG_CONFIG_PATH set
-    // Include common keg-only package paths
-    snprintf(cmd, sizeof(cmd), 
-        "PKG_CONFIG_PATH=\"/opt/homebrew/opt/%s/lib/pkgconfig:/usr/local/opt/%s/lib/pkgconfig:$PKG_CONFIG_PATH\" "
-        "%s --exists %s 2>/dev/null",
-        package, package, pkg_config_path, package);
-#else
-    snprintf(cmd, sizeof(cmd), "%s --exists %s 2>/dev/null", pkg_config_path, package);
-#endif
-    int result = system(cmd);
-    return (result == 0);
+    char cmd[8192];
+    return pkg_config_command(cmd, sizeof(cmd), package, "--exists") && system(cmd) == 0;
 }
 
 // Check all pkg-config dependencies for a module, return true if all available
@@ -1486,45 +1450,27 @@ static bool check_module_pkg_dependencies(ModuleBuildMetadata *meta, const char 
 
 /* I query compiler/linker flags through the authority-aware tool lookup. */
 static char* get_pkg_config_flags(const char *package, const char *flag_type) {
-    char cmd[1024];
-    
-    /* I require explicit installation authority if pkg-config is absent. */
-    const char *pkg_config_path = ensure_pkg_config();
-    if (!pkg_config_path) {
+    char cmd[8192];
+    if (!pkg_config_command(cmd, sizeof(cmd), package, flag_type)) return NULL;
+    FILE *pipe = popen(cmd, "r");
+    if (!pipe) return NULL;
+    enum { MAX_FLAGS = 65536 };
+    char *result = malloc(MAX_FLAGS + 1);
+    if (!result) { pclose(pipe); return NULL; }
+    size_t count = fread(result, 1, MAX_FLAGS + 1, pipe);
+    bool ok = count <= MAX_FLAGS && !ferror(pipe) && feof(pipe) && !memchr(result, 0, count);
+    if (pclose(pipe) != 0) ok = false;
+    if (!ok) {
+        fprintf(stderr, "I could not query %s for package '%s'\n", flag_type, package);
+        free(result);
         return NULL;
     }
-    
-    // Run pkg-config with the found path
-#ifdef __APPLE__
-    // On macOS, Homebrew keg-only packages need PKG_CONFIG_PATH set
-    snprintf(cmd, sizeof(cmd), 
-        "PKG_CONFIG_PATH=\"/opt/homebrew/opt/%s/lib/pkgconfig:/usr/local/opt/%s/lib/pkgconfig:$PKG_CONFIG_PATH\" "
-        "%s %s %s 2>/dev/null",
-        package, package, pkg_config_path, flag_type, package);
-#else
-    snprintf(cmd, sizeof(cmd), "%s %s %s 2>/dev/null", pkg_config_path, flag_type, package);
-#endif
-    char *result = run_command(cmd);
-    
-    
-    // If result is empty or only whitespace, return NULL instead
-    if (result) {
-        // Trim leading/trailing whitespace
-        char *start = result;
-        while (*start && (*start == ' ' || *start == '\t' || *start == '\n' || *start == '\r')) {
-            start++;
-        }
-        if (*start == '\0') {
-            // Empty after trimming
-            free(result);
-            return NULL;
-        }
-        // If start is not at beginning, shift the string
-        if (start != result) {
-            memmove(result, start, strlen(start) + 1);
-        }
-    }
-    
+    result[count] = 0;
+    size_t first = strspn(result, " \t\r\n");
+    while (count > first && strchr(" \t\r\n", result[count - 1])) count--;
+    memmove(result, result + first, count - first);
+    result[count - first] = 0;
+    /* An allocated empty string is success; NULL is always a failed query. */
     return result;
 }
 
@@ -2156,7 +2102,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
         if (flags) {
             ok &= module_build_append(prefix, capacity, " %s", flags);
             free(flags);
-        }
+        } else ok = false;
     }
     for (size_t i = 0; i < meta->include_dirs_count; i++)
         ok &= module_append_include(prefix, capacity, meta->include_dirs[i]);
@@ -2300,6 +2246,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
             char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+            if (!pkg_flags) {
+                for (size_t j = 0; j < total_link_flags; j++) free(link_flags[j]);
+                free(link_flags);
+                module_build_info_free(info);
+                return NULL;
+            }
             if (pkg_flags) {
                 append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
                 free(pkg_flags);
@@ -2340,6 +2292,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+            if (!pkg_cflags) {
+                for (size_t j = 0; j < total_compile_flags; j++) free(compile_flags[j]);
+                free(compile_flags);
+                module_build_info_free(info);
+                return NULL;
+            }
             if (pkg_cflags) {
                 append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
                 free(pkg_cflags);
@@ -2545,6 +2503,11 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
                 char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+                if (!pkg_cflags) {
+                    for (size_t j = 0; j < shared_cflags_count; j++) free(shared_cflags[j]);
+                    free(build_dir);
+                    return NULL;
+                }
                 if (pkg_cflags) {
                     append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
                     free(pkg_cflags);
@@ -2562,6 +2525,11 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
                 char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+                if (!pkg_libs) {
+                    for (size_t j = 0; j < shared_ldflags_count; j++) free(shared_ldflags[j]);
+                    free(build_dir);
+                    return NULL;
+                }
                 if (pkg_libs) {
                     append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
                     free(pkg_libs);
@@ -2688,6 +2656,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
         char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+        if (!pkg_flags) {
+            for (size_t j = 0; j < total_link_flags; j++) free(link_flags[j]);
+            free(link_flags);
+            module_build_info_free(info);
+            return NULL;
+        }
         if (pkg_flags) {
             append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
             free(pkg_flags);
@@ -2728,6 +2702,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
         char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+        if (!pkg_cflags) {
+            for (size_t j = 0; j < total_compile_flags; j++) free(compile_flags[j]);
+            free(compile_flags);
+            module_build_info_free(info);
+            return NULL;
+        }
         if (pkg_cflags) {
             append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
             free(pkg_cflags);

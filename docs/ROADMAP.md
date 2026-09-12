@@ -491,14 +491,32 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       do not acquire extra probe invocations. Warm reuse now includes a
       preprocessing pass; original compilation and linking are still skipped.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 pkg-config query status.** I distinguish a successful empty flag
+      response from failure, reject partial/invalid output, and propagate query
+      failure through cold, warm and source-free module builds. I preserve
+      existing artifacts on failure and test recovery without installing any
+      packages. Query arguments and environment paths remain literal data.
+      I support an explicit `PKG_CONFIG` executable override so builds and
+      tests can select their tool without replacing a host installation.
+      I also correct the compiler-input experiment's build command to use
+      `make nano_virt nano_vm`: file targets alone did not rebuild stale tools.
+      The partial-output/nonzero-exit regression fails before the repair and
+      passes afterward. Cold/warm/source-free failure and recovery, signals,
+      NUL/oversized output, the 64-KiB boundary and literal arguments pass.
+      All 28 shadows, 36 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency
+      gates pass on Darwin (2026-09-12). The two new query methods also pass
+      with ASan/UBSan on the production module builder through the probe;
+      linked support objects and CLI binaries remain uninstrumented.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 lossless transitive compiler dependency evidence.** My current
       cache excludes known lossy manifest paths and supplements Make records
       with include traces. I still need a verified compiler-mode boundary for
       PCH, modules and other external inputs before claiming every cached
       input is the input the compiler actually read. Newly earlier include
       files, source snapshots and complete toolchain identity remain open.
-      I also need to distinguish a successful empty pkg-config response from
-      a failed flag query; the existing helper collapses both to no flags.
+      Query status is addressed above; stable pkg-config response snapshots
+      and the identity of selected libraries remain open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
       - [x] I reproduce a transitive backslash/slash alias against the actual
         compiler and cache, then measure preprocessed-input snapshots as a
