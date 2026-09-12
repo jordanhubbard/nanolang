@@ -354,7 +354,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 C-library cache transactions.** Content invalidation and private
       writes are addressed in adjacent items. Per-module generation publication
-      is addressed below. I still need exact bytecode generation bindings,
+      and exact bytecode generation bindings are addressed below. I still need
       generation retention/collection policy, source snapshots and
       power-loss durability before I claim complete cache transactions.
       Driver and documented environment identity are addressed below. Automatic
@@ -362,6 +362,40 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 binding string-pool and import-table allocation safety.** Adding
+      binding paths exposed paired `realloc` growth that could leave dangling
+      arrays after partial failure. I preserve existing entries on failed
+      growth and return an unambiguous failure index. Six injected failures
+      and retries pass, also under AddressSanitizer/UndefinedBehaviorSanitizer
+      on the production pool implementation (2026-09-12). This is not a full
+      audit of allocation propagation across every producer.
+      MAC `task_0ba46839aee94135aaa99a9b7c207499`.
+- [x] **5.0 bytecode foreign-generation bindings.** I retain the generation
+      returned by each foreign build and bind both shadows and production
+      imports to its library. I encode an explicit artifact import kind, preserve
+      it through v2 conversion, reject lossy v1 output, and resolve bound symbols
+      only through their library handle. I test rebuild stability, missing
+      artifacts, transitive imports, isolation from unrelated loaded symbols,
+      and wire-format validation. Relocatable packaging and artifact content
+      authentication remain distinct requirements.
+      My 28 shadow tests, 22 cache tests, 63 codegen tests, 19 FFI tests,
+      v2 codec/conversion/end-to-end tests, verifier, nvm2c, package policy and
+      C-seed dependency gates pass on Darwin (2026-09-12). I also test direct
+      and transitive retained imports in co-process mode and a rebuild while
+      a shadow is paused. Packaged-wrapper execution remains unverified below.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 standalone VM failure diagnostics.** Debug metadata does not
+      establish that a stack trace was printed. I always report execution
+      failure and its detail, including a missing bound foreign library.
+      Direct and transitive missing-library regressions pass with debug
+      metadata, including co-process failure exits (2026-09-12).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 packaged-interpreter link acceptance.** My wrapper test currently
+      reports success without requiring a successful link. Actual linkage lacks
+      UTF-8 and module-build-directory objects. I must repair its dependency
+      list and crypto linkage, require generation success, and execute a
+      wrapper with a retained foreign binding after a rebuild.
+      MAC `task_4524b827bf464fe7bf4d0d43d6f88fd1`.
 - [x] **5.0 C-library cache — atomic generation publication.** I publish
       object, library, dependency files and reuse evidence as one generation
       through an atomic current-pointer replacement. Native link inputs and
@@ -459,6 +493,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       when that imported module has those names: short names leak into the
       helper's declaration scope. I preserve module ownership through lookup
       and lowering, with same-named wrapper tests instead of renaming APIs.
+      My bytecode extern table also deduplicates declarations by bare function
+      name across modules. I must preserve distinct source declarations before
+      exact library bindings can isolate same-named qualified foreign calls.
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
       rejects 98 of 229 eligible examples after shadow execution is enabled.

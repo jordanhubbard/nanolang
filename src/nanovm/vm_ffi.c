@@ -37,6 +37,20 @@ void vm_ffi_shutdown(void) {
     ffi_loader_shutdown();
 }
 
+bool vm_ffi_load_import(const NvmModule *module, uint32_t import_idx) {
+    if (!module || import_idx >= module->import_count) return false;
+    const NvmImportEntry *imp = &module->imports[import_idx];
+    const char *name = nvm_get_string(module, imp->module_name_idx);
+    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (!name || name[0] != '/' ||
+            strlen(name) != nvm_get_string_len(module, imp->module_name_idx)) return false;
+        if (!ffi_loader_is_initialized()) ffi_loader_init(false);
+        return ffi_loader_open(name, name);
+    }
+    if (imp->kind > NVM_IMPORT_ARTIFACT) return false;
+    return vm_ffi_load_module(name);
+}
+
 bool vm_ffi_load_module(const char *module_name) {
     if (!module_name || !module_name[0]) return false;
     if (!ffi_loader_is_initialized()) ffi_loader_init(false);
@@ -542,13 +556,15 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
         return NULL;
     }
 
-    /* Load the backing module once (best-effort; the symbol may live in the
-     * main executable or an already-loaded library). */
-    if (mod_name && mod_name[0] != '\0') {
-        vm_ffi_load_module(mod_name);
+    /* I require exact loading for artifacts. Only logical imports retain
+     * best-effort loading and the legacy global symbol search. */
+    bool loaded = vm_ffi_load_import(module, import_idx);
+    void *func_ptr = NULL;
+    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (loaded) func_ptr = ffi_loader_resolve_module(func_name, mod_name);
+    } else if (imp->kind <= NVM_IMPORT_COPROCESS) {
+        func_ptr = ffi_loader_resolve(func_name);
     }
-
-    void *func_ptr = ffi_loader_resolve(func_name);
     if (!func_ptr) {
         desc->state = NVM_CALL_FAILED;
         snprintf(error_msg, error_msg_size,
@@ -578,7 +594,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     /* Module introspection functions (___module_*) are environment- and
      * argument-dependent, so they are dispatched directly and never cached. */
-    if (vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
+    if (imp->kind == NVM_IMPORT_FFI &&
+        vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
         return true;
     }
 

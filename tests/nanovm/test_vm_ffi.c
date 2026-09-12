@@ -578,11 +578,53 @@ TEST(descriptor_reset_forces_reresolve) {
     vm_ffi_shutdown();
 }
 
+TEST(artifact_handle_isolation) {
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    ASSERT(mod);
+    char *paths[] = {realpath("obj/ffi_artifact_first.so", NULL),
+                     realpath("obj/ffi_artifact_second.so", NULL)};
+    ASSERT(paths[0] && paths[1]);
+    uint32_t fn = nvm_add_string(mod, "nano_artifact_answer", 20);
+    for (int i = 0; i < 2; i++) {
+        uint32_t path = nvm_add_string(mod, paths[i], (uint32_t)strlen(paths[i]));
+        uint32_t imp = nvm_add_import(mod, path, fn, 0, TAG_INT, NULL);
+        mod->imports[imp].kind = NVM_IMPORT_ARTIFACT;
+        free(paths[i]);
+    }
+    uint32_t missing = nvm_add_string(mod, "/no-such-nano-artifact.so", 25);
+    nvm_add_import(mod, missing, fn, 0, TAG_INT, NULL);
+    mod->imports[2].kind = NVM_IMPORT_ARTIFACT;
+    /* I must not resolve a missing bound symbol from the main executable. */
+    uint32_t global = nvm_add_string(mod, "nl_ffi_test_mix_fi_gp", 21);
+    uint8_t tags[] = {TAG_FLOAT, TAG_INT};
+    nvm_add_import(mod, mod->imports[0].module_name_idx, global, 2, TAG_INT, tags);
+    mod->imports[3].kind = NVM_IMPORT_ARTIFACT;
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue result;
+    char err[256];
+    for (int repeat = 0; repeat < 2; repeat++) {
+        for (uint32_t i = 0; i < 2; i++) {
+            ASSERT(vm_ffi_call(mod, i, NULL, 0, &result, &heap, err, sizeof err));
+            ASSERT_EQ(result.tag, TAG_INT);
+            ASSERT_EQ(result.as.i64, 42 + i);
+        }
+        ASSERT(!vm_ffi_call(mod, 2, NULL, 0, &result, &heap, err, sizeof err));
+        NanoValue args[] = {val_float(2.0), val_int(3)};
+        ASSERT(!vm_ffi_call(mod, 3, args, 2, &result, &heap, err, sizeof err));
+    }
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
 /* ── main ──────────────────────────────────────────────────────────────── */
 
 int main(void) {
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
+    RUN(artifact_handle_isolation);
     RUN(load_module_nonexistent);
     RUN(call_empty_module_oob);
     RUN(call_too_many_args);

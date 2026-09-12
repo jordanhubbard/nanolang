@@ -556,6 +556,8 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 
 .PHONY: test-vm-ffi
 test-vm-ffi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=42 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_first.so $(LDFLAGS)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=43 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_second.so $(LDFLAGS)
 	@echo "Running vm_ffi unit tests..."
 	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_vm_ffi \
 		tests/nanovm/test_vm_ffi.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -1101,12 +1103,17 @@ test-nvm-v2-module: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_nvm_v2_module
 
 .PHONY: test-nvm-v2-convert
-test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc
 	@echo "Running NanoISA v1<->v2 bridge tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_convert \
 		tests/nanoisa/test_nvm_v2_convert.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_convert
 	@rm -f tests/nanoisa/test_nvm_v2_convert
+
+.PHONY: test-nvm-pool-alloc
+test-nvm-pool-alloc: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(LDFLAGS)
+	@./obj/test_nvm_pool_alloc
 
 .PHONY: test-nvm-v2-endtoend
 test-nvm-v2-endtoend: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

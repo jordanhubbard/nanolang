@@ -508,8 +508,16 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
     /* Add to NVM import table */
     uint32_t mod_str = nvm_add_string(cg->module, module_name, (uint32_t)strlen(module_name));
     uint32_t fn_str = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
+    if (mod_str == UINT32_MAX || fn_str == UINT32_MAX) {
+        cg_error(cg, 0, "I could not allocate foreign import names");
+        return;
+    }
     uint32_t imp_idx = nvm_add_import(cg->module, mod_str, fn_str,
                                        param_count, return_tag, param_tags);
+    if (imp_idx == UINT32_MAX) {
+        cg_error(cg, 0, "I could not allocate a foreign import");
+        return;
+    }
 
     /* Add to codegen extern table */
     ExternFn *ef = &cg->externs[cg->extern_count];
@@ -3152,7 +3160,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             for (int p = 0; p < pc && p < 16; p++) {
                                 param_tags[p] = type_to_tag(mitem->as.function.params[p].type, mitem->as.function.params[p].struct_type_name, cg.env);
                             }
-                            register_extern(&cg, ename, mod_path ? mod_path : "",
+                            register_extern(&cg, ename, lookup_path ? lookup_path : "",
                                            pc, ret_tag, param_tags);
                         }
                     }

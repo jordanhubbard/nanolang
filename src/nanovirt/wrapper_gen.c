@@ -147,10 +147,7 @@ static bool write_wrapper_c(FILE *f, const NvmModule *module,
         /* Load modules from import table */
         fprintf(f, "    /* Load modules referenced in import table */\n");
         fprintf(f, "    for (uint32_t i = 0; i < module->import_count; i++) {\n");
-        fprintf(f, "        const char *mod_name = nvm_get_string(module, module->imports[i].module_name_idx);\n");
-        fprintf(f, "        if (mod_name && mod_name[0] != '\\0') {\n");
-        fprintf(f, "            vm_ffi_load_module(mod_name);\n");
-        fprintf(f, "        }\n");
+        fprintf(f, "        vm_ffi_load_import(module, i);\n");
         fprintf(f, "    }\n\n");
 
         /* Scan AST_IMPORT nodes for module paths */

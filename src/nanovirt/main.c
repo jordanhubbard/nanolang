@@ -76,7 +76,40 @@ static bool has_nvm_extension(const char *path) {
 
 /* I already lower NanoLang imports into bytecode. Here I build only their
  * manifest-backed foreign support, including transitive imports. */
-static bool build_ffi_modules(ModuleList *modules) {
+static void free_ffi_bindings(char **bindings, int count) {
+    if (!bindings) return;
+    for (int i = 0; i < count; i++) free(bindings[i]);
+    free(bindings);
+}
+
+static bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
+                             char **bindings, const char *input) {
+    for (uint32_t i = 0; i < module->import_count; i++) {
+        NvmImportEntry *imp = &module->imports[i];
+        const char *name = nvm_get_string(module, imp->module_name_idx);
+        if (!name || !name[0]) continue;
+        const char *resolved = resolve_module_path(name, input);
+        char *canonical = realpath(resolved ? resolved : name, NULL);
+        free((void *)resolved);
+        for (int j = 0; j < modules->count; j++) {
+            if (!bindings[j]) continue;
+            char *candidate = realpath(modules->module_paths[j], NULL);
+            bool match = strcmp(name, modules->module_paths[j]) == 0 ||
+                         (canonical && candidate && strcmp(canonical, candidate) == 0);
+            free(candidate);
+            if (!match) continue;
+            uint32_t idx = nvm_add_string(module, bindings[j], (uint32_t)strlen(bindings[j]));
+            if (idx == UINT32_MAX) { free(canonical); return false; }
+            imp->module_name_idx = idx;
+            imp->kind = NVM_IMPORT_ARTIFACT;
+            break;
+        }
+        free(canonical);
+    }
+    return true;
+}
+
+static bool build_ffi_modules(ModuleList *modules, char **bindings) {
     for (int i = 0; i < modules->count; i++) {
         char *dir = strdup(modules->module_paths[i]);
         if (!dir) return false;
@@ -110,6 +143,29 @@ static bool build_ffi_modules(ModuleList *modules) {
         if (meta->c_sources_count > 0) {
             ModuleBuildInfo *info = module_build(NULL, meta);
             ok = info != NULL;
+            if (ok) {
+                /* I derive the library from the returned object generation,
+                 * never from a second read of the mutable current pointer. */
+                char *generation = info->object_file ? strdup(info->object_file) : NULL;
+                char *end = generation ? strrchr(generation, '/') : NULL;
+                ok = end != NULL;
+                if (ok) {
+                    *end = '\0';
+                    char library[1024];
+#ifdef __APPLE__
+                    const char *extension = "dylib";
+#else
+                    const char *extension = "so";
+#endif
+                    int n = snprintf(library, sizeof(library), "%s/lib%s.%s", generation, meta->name, extension);
+                    ok = n > 0 && (size_t)n < sizeof(library);
+                    if (ok) {
+                        bindings[i] = realpath(library, NULL);
+                        ok = bindings[i] != NULL;
+                    }
+                }
+                free(generation);
+            }
             module_build_info_free(info);
         }
         module_metadata_free(meta);
@@ -122,7 +178,7 @@ static bool build_ffi_modules(ModuleList *modules) {
 }
 
 static bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
-                           const char *input) {
+                           const char *input, char **bindings) {
     bool present = false;
     for (int i = 0; i < program->as.program.count; i++) {
         if (program->as.program.items[i]->type == AST_SHADOW) present = true;
@@ -131,6 +187,11 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
     CodegenResult tests = codegen_compile_shadows(program, env, modules, input);
     if (!tests.ok) {
         fprintf(stderr, "I could not compile shadows at line %d: %s\n", tests.error_line, tests.error_msg);
+        return false;
+    }
+    if (!bind_ffi_imports(tests.module, modules, bindings, input)) {
+        fprintf(stderr, "I could not bind shadow foreign imports\n");
+        nvm_module_free(tests.module);
         return false;
     }
     NvmVerifyResult verified = nvm_verify(tests.module);
@@ -298,7 +359,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!build_ffi_modules(modules) || !check_shadows(program, env, modules, input)) {
+    char **bindings = calloc(modules->count ? (size_t)modules->count : 1, sizeof(char *));
+    if (!bindings || !build_ffi_modules(modules, bindings) ||
+        !check_shadows(program, env, modules, input, bindings)) {
+        free_ffi_bindings(bindings, modules->count);
         free_ast(program);
         free_environment(env);
         free_module_list(modules);
@@ -310,6 +374,12 @@ int main(int argc, char **argv) {
 
     /* Codegen */
     CodegenResult cg = codegen_compile(program, env, modules, input);
+    if (cg.ok && !bind_ffi_imports(cg.module, modules, bindings, input)) {
+        fprintf(stderr, "I could not bind production foreign imports\n");
+        nvm_module_free(cg.module);
+        cg.ok = false;
+    }
+    free_ffi_bindings(bindings, modules->count);
     if (!cg.ok) {
         fprintf(stderr, "error: codegen failed at line %d: %s\n",
                 cg.error_line, cg.error_msg);
@@ -416,11 +486,7 @@ int main(int argc, char **argv) {
 
         /* Load modules referenced in import table */
         for (uint32_t i = 0; i < cg.module->import_count; i++) {
-            const char *mod_name = nvm_get_string(cg.module,
-                                                   cg.module->imports[i].module_name_idx);
-            if (mod_name && mod_name[0] != '\0') {
-                vm_ffi_load_module(mod_name);
-            }
+            vm_ffi_load_import(cg.module, i);
         }
 
         /* Also scan for AST_IMPORT nodes to load modules by path.

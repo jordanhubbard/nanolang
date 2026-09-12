@@ -349,6 +349,25 @@ module declaring less depth than it uses is rejected, because a disagreement
 between producer and verifier otherwise surfaces as a stack overflow at run
 time. A declared 0 means the producer had nothing to declare.
 
+### Foreign artifact bindings in 5.0
+
+I encode import kind `0` for logical FFI, `1` for coprocess imports, and `2`
+for an exact foreign artifact. For kind `2`, `module_name_idx` names an
+absolute library path with no embedded NUL. I retain this kind through my v2
+reader and writer; my legacy v1 writer refuses nonzero kinds rather than
+erasing them. Older v2 readers reject kind `2` as unknown.
+
+My bytecode CLI retains the generation returned by each imported C-module
+build. Both root shadows and production imports use that generation's
+library. At runtime I open that path and resolve its entry symbol through
+that library handle, without falling back to an unrelated loaded symbol.
+A missing library or entry symbol is an execution failure.
+
+These are local absolute bindings, not relocatable packages or authenticated
+artifacts. Library dependencies and internal C symbol interposition still
+follow the platform loader. My source-level imported-name isolation remains
+roadmap work; handle-scoped lookup does not repair merged source declarations.
+
 ### Cross-section validation
 
 A section codec sees one section and cannot check an index into another, so the

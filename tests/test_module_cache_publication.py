@@ -111,6 +111,88 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(result.returncode, 43, result.stderr)
                 self.assertFalse(list(cache.glob(".nano-build-*")))
 
+    def test_bytecode_retains_generation_after_rebuild(self):
+        for transitive in (False, True):
+            with self.subTest(transitive=transitive), tempfile.TemporaryDirectory(prefix="nano-binding-") as tmp:
+                directory = Path(tmp)
+                module, source, env = self.support.foreign_build_fixture(directory)
+                source = source.replace(str(module / "api.nano"), "foreign/api.nano")
+                if transitive:
+                    helper = directory / "helper.nano"
+                    helper.write_text(f'''module "{module / 'api.nano'}" as foreign
+pub fn answer() -> int {{ unsafe {{ return (foreign.nano_build_answer) }} }}
+shadow answer {{ assert (== (answer) 42) }}
+''')
+                    source = f'''module "{helper}" as helper
+fn main() -> int {{ return (helper.answer) }}
+shadow main {{ assert (== (main) 42) }}
+'''
+                result, output = self.support.compile(source, directory, env=env)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                old_output = directory / "old.nvm"
+                shutil.copyfile(output, old_output)
+                old_library = self.probe_path("library", module, env)
+                self.assertIn(str(old_library).encode(), old_output.read_bytes())
+                c_source = module / "answer.c"
+                c_source.write_text(c_source.read_text().replace("42", "43"))
+                result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
+                self.assertEqual(result.returncode, 43, result.stderr)
+                self.assertNotEqual(old_library, self.probe_path("library", module, env))
+                self.assertEqual(self.support.execute(old_output, env=env).returncode, 42)
+                self.assertEqual(self.support.execute(output, env=env).returncode, 43)
+                cop = subprocess.run([str(ROOT / "bin/nano_vm"), "--isolate-ffi", str(old_output)],
+                                     cwd=ROOT, env=env, capture_output=True, timeout=10)
+                self.assertEqual(cop.returncode, 42, cop.stderr)
+                old_library.rename(old_library.with_suffix(".retained"))
+                execution = self.support.execute(old_output, env=env)
+                self.assertEqual(execution.returncode, 1, (execution.stdout, execution.stderr))
+                self.assertIn(b"nano_build_answer", execution.stdout + execution.stderr)
+                cop = subprocess.run([str(ROOT / "bin/nano_vm"), "--isolate-ffi", str(old_output)],
+                                     cwd=ROOT, env=env, capture_output=True, timeout=10)
+                self.assertEqual(cop.returncode, 1, (cop.stdout, cop.stderr))
+                self.assertEqual(self.support.execute(output, env=env).returncode, 43)
+
+    def test_shadow_and_production_share_retained_generation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-binding-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            c_source = module / "answer.c"
+            c_source.write_text('''#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+int64_t nano_build_answer(void) {
+    const char *ready = getenv("NANO_BIND_READY");
+    const char *release = getenv("NANO_BIND_RELEASE");
+    if (ready && release) {
+        FILE *file = fopen(ready, "w");
+        if (!file) return -1;
+        fclose(file);
+        while (access(release, F_OK) != 0) usleep(1000);
+    }
+    return 42;
+}
+''')
+            ready, release = directory / "ready", directory / "release"
+            env["NANO_BIND_READY"] = str(ready)
+            env["NANO_BIND_RELEASE"] = str(release)
+            build_dir = directory / "compile"
+            process = self.start(build_dir, source, env)
+            try:
+                self.wait_ready(ready, process)
+                old_library = self.probe_path("library", module, env)
+                c_source.write_text(c_source.read_text().replace("return 42;", "return 43;"))
+                self.probe_path("build", module, env)
+                self.assertNotEqual(old_library, self.probe_path("library", module, env))
+                release.touch()
+                stdout, stderr = process.communicate(timeout=10)
+                self.assertEqual(process.returncode, 0, (stdout, stderr))
+                output = build_dir / "program.nvm"
+                self.assertIn(str(old_library).encode(), output.read_bytes())
+                self.assertEqual(self.support.execute(output, env=env).returncode, 42)
+            finally:
+                self.stop(process)
+
     def test_multi_source_and_private_dependencies_publish(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)

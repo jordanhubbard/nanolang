@@ -193,6 +193,20 @@ void *ffi_loader_resolve(const char *symbol_name) {
     return ffi_loader_resolve_in(symbol_name, NULL);
 }
 
+void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name) {
+    if (!symbol_name || !module_name) return NULL;
+    void *ptr = NULL;
+    pthread_rwlock_rdlock(&ffi_lock);
+    for (int i = 0; i < module_count; i++) {
+        if (strcmp(modules[i].name, module_name) == 0) {
+            ptr = dlsym(modules[i].handle, symbol_name);
+            break;
+        }
+    }
+    pthread_rwlock_unlock(&ffi_lock);
+    return ptr;
+}
+
 void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module) {
     if (out_module) *out_module = NULL;
 
