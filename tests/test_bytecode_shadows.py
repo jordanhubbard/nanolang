@@ -1,6 +1,8 @@
 """I execute shadows before publishing bytecode, not from production main."""
 from pathlib import Path
+import json
 import os
+import shutil
 import signal
 import sys
 import subprocess
@@ -158,6 +160,98 @@ shadow main {{ assert (== (main) {expected}) }}
                             self.assertIn(b"shadow", result.stderr.lower())
                             self.assertNotIn(b"not found", result.stderr)
                             self.assertEqual(output.read_bytes(), b"preserve")
+
+    def foreign_build_fixture(self, directory):
+        module_dir = directory / "foreign"
+        module_dir.mkdir()
+        module = module_dir / "api.nano"
+        module.write_text("pub extern fn nano_build_answer() -> int\n")
+        (module_dir / "answer.c").write_text("#include <stdint.h>\nint64_t nano_build_answer(void) { return 42; }\n")
+        (module_dir / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"]}))
+        source = f'''module "{module}" as foreign
+fn main() -> int {{ unsafe {{ return (foreign.nano_build_answer) }} }}
+shadow main {{ assert (== (main) 42) }}
+'''
+        env = os.environ.copy()
+        for name in ("NANO_BUILD_CACHE", "NANO_ALLOW_PACKAGE_INSTALL", "NANO_CC", "CC"):
+            env.pop(name, None)
+        return module_dir, source, env
+
+    def test_foreign_library_cold_and_warm_build(self):
+        for cached in (False, True):
+            for transitive in (False, True):
+                with self.subTest(cached=cached, transitive=transitive), tempfile.TemporaryDirectory(prefix="nano-ffi-build-") as tmp:
+                    directory = Path(tmp)
+                    module_dir, source, env = self.foreign_build_fixture(directory)
+                    if cached:
+                        env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                    if transitive:
+                        helper = directory / "helper.nano"
+                        helper.write_text(f'''module "{module_dir / 'api.nano'}" as foreign
+pub fn answer() -> int {{ unsafe {{ return (foreign.nano_build_answer) }} }}
+shadow answer {{ assert (== (answer) 42) }}
+''')
+                        source = f'''module "{helper}" as helper
+fn main() -> int {{ return (helper.answer) }}
+shadow main {{ assert (== (main) 42) }}
+'''
+                    result, output = self.compile(source, directory, "--run", env=env)
+                    self.assertEqual(result.returncode, 42, result.stderr)
+                    execution = subprocess.run([str(ROOT / "bin/nano_vm"), str(output)], cwd=ROOT,
+                                               env=env, capture_output=True, timeout=10)
+                    self.assertEqual(execution.returncode, 42, execution.stderr)
+                    env["NANO_CC"] = "/usr/bin/false"
+                    result, output = self.compile(source, directory, "--run", env=env)
+                    self.assertEqual(result.returncode, 42, result.stderr)
+
+    def test_foreign_library_build_failure_and_recovery(self):
+        for failure in ("source", "shared_source", "link", "missing_library", "empty_library"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-ffi-build-") as tmp:
+                directory = Path(tmp)
+                module_dir, source, env = self.foreign_build_fixture(directory)
+                original_c = (module_dir / "answer.c").read_text()
+                if failure == "source":
+                    (module_dir / "answer.c").write_text("#error I reject this fixture\n")
+                elif failure == "shared_source":
+                    (module_dir / "private.c").write_text("#error I reject this private fixture\n")
+                    (module_dir / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"], "shared_c_sources": ["private.c"]}))
+                else:
+                    compiler = directory / "cc-fixture"
+                    compiler.write_text(f'''#!{sys.executable}
+import os, sys
+if "-dynamiclib" in sys.argv or "-shared" in sys.argv:
+    if {failure == 'empty_library'!r}:
+        open(sys.argv[sys.argv.index("-o") + 1], "wb").close()
+    sys.exit({24 if failure == 'link' else 0})
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+                    compiler.chmod(0o700)
+                    env["NANO_CC"] = str(compiler)
+                # I must reject the build even when no shadow calls the FFI.
+                source = source.replace("shadow main { assert (== (main) 42) }", "shadow main { assert true }")
+                output = directory / "program.nvm"
+                output.write_bytes(b"preserve")
+                result, output = self.compile(source, directory, env=env)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(b"could not build foreign support", result.stderr)
+                self.assertEqual(output.read_bytes(), b"preserve")
+                (module_dir / "answer.c").write_text(original_c)
+                (module_dir / "private.c").write_text("int nano_private_fixture(void) { return 1; }\n")
+                env.pop("NANO_CC", None)
+                result, output = self.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+
+    def test_foreign_invalid_manifest_preserves_output(self):
+        for manifest in ("{", '{"c_sources": ["answer.c"]}'):
+            with self.subTest(manifest=manifest), tempfile.TemporaryDirectory(prefix="nano-ffi-build-") as tmp:
+                directory = Path(tmp)
+                module_dir, source, env = self.foreign_build_fixture(directory)
+                (module_dir / "module.json").write_text(manifest)
+                output = directory / "program.nvm"
+                output.write_bytes(b"preserve")
+                result, output = self.compile(source, directory, env=env)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(output.read_bytes(), b"preserve")
 
     def test_entry_exit_values(self):
         for value, expected in ((0, 0), (7, 7), (-1, 255), (256, 0)):

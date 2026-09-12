@@ -324,6 +324,35 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC rejects direct `open` to `completed` closure; I leave the task open
       with implementation evidence rather than fabricate an agent claim.
       MAC `task_d6f0090c3b8345f7a4bd75dbd154202a`.
+- [x] **5.0 VM imported C libraries — build before publication.** I build
+      imported manifest-backed C libraries before root shadows or bytecode
+      publication, using my existing builder without transpiling NanoLang
+      imports to C. I reject shared-source and shared-link failures rather
+      than returning successful build information, and resolve the manifest's
+      library name at VM load time. I test cold/warm builds, transitive imports,
+      differing source/library names, failed builds preserving output, and
+      recovery. A rejected empty library was then accepted as a cache hit;
+      I require a regular nonempty library on both fresh and cached paths.
+      This does not finish shell-argument or cache-transaction work.
+      All 23 shadow tests, 63 codegen tests, 18 FFI tests, package-installation
+      policy and C-seed warm-cache dependency/recovery gates pass. The original
+      cold-cache datetime example gets past library loading but fails on an
+      opaque signature, tracked below. I have not rerun full example coverage
+      in this increment (2026-09-12).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 C-library cache transactions.** My C module builder writes
+      object and shared-library outputs directly into a shared cache, and a
+      failed hash comparison can fall through to a timestamp-based cache hit.
+      I need private staging, atomic publication and content-change/retry
+      tests before I claim robust concurrent or interrupted C-library builds.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 VM opaque signatures across imports.** With its foreign library
+      built, `advanced/datetime_demo.nano` reaches execution but fails in `now`:
+      an imported opaque `DateTime` return is declared as a struct in bytecode
+      and arrives as an integer. I preserve opaque identity through checked
+      signatures, bytecode imports and FFI marshaling, with round-trip and
+      rejection tests rather than weakening runtime return checks.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
       rejects 98 of 229 eligible examples after shadow execution is enabled.
       Direct checks expose integer negation emitted for floats and missing

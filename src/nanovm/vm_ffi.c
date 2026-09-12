@@ -9,6 +9,7 @@
 /* usleep(), kill(), fork(), pipe(), exec*() need _GNU_SOURCE */
 
 #include "vm_ffi.h"
+#include "module_builder.h"
 #include "runtime/dyn_array.h"
 #include "runtime/ffi_loader.h"
 #include "ffi_dispatch_generated.h"
@@ -54,7 +55,12 @@ bool vm_ffi_load_module(const char *module_name) {
         else strcpy(module_dir, ".");
     }
     char path[1024];
-    bool found = ffi_loader_find_library(module_name, module_dir, path, sizeof(path));
+    /* I read build metadata to resolve its library name; I never build or
+     * install dependencies from the runtime loader. */
+    ModuleBuildMetadata *meta = module_dir ? module_load_metadata(module_dir) : NULL;
+    bool found = ffi_loader_find_library(meta ? meta->name : module_name,
+                                         module_dir, path, sizeof(path));
+    module_metadata_free(meta);
     free(module_dir);
     if (!found) {
         /* Not fatal - function might be in main executable or already-loaded lib */

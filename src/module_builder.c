@@ -1770,9 +1770,11 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
     snprintf(shared_lib, sizeof(shared_lib), "%s/lib%s.so", slib_dir, meta->name);
     #endif
     free(slib_dir);
-    if (!file_exists(shared_lib)) {
+    struct stat library_stat;
+    if (stat(shared_lib, &library_stat) != 0 || !S_ISREG(library_stat.st_mode) ||
+        library_stat.st_size == 0) {
         if (module_builder_verbose) {
-            printf("[Module] %s needs build: shared library missing\n", meta->name);
+            printf("[Module] I must rebuild %s: shared library missing or empty\n", meta->name);
         }
         return true;
     }
@@ -2238,7 +2240,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         snprintf(shared_dir, sizeof(shared_dir), "%s", build_dir);
         bool shared_dir_ok = dir_exists(shared_dir) || mkdir_p(shared_dir);
         if (!shared_dir_ok) {
-            fprintf(stderr, "Warning: Failed to create shared library directory for %s\n", meta->name);
+            fprintf(stderr, "I could not create the shared library directory for %s\n", meta->name);
+            free(build_dir);
+            return NULL;
         }
 
         if (shared_dir_ok) {
@@ -2372,8 +2376,10 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                         snprintf(lib_cmd + lp, sizeof(lib_cmd) - lp, " %s", sc_obj);
                     } else {
                         fprintf(stderr,
-                                "Warning: Failed to compile shared_c_source %s for %s\n",
+                                "I could not compile shared_c_source %s for %s\n",
                                 meta->shared_c_sources[sci], meta->name);
+                        free(build_dir);
+                        return NULL;
                     }
                 }
             }
@@ -2384,9 +2390,13 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             }
             
             int lib_result = system(lib_cmd);
-            if (lib_result != 0) {
-                fprintf(stderr, "Warning: Failed to build shared library for %s (interpreter FFI unavailable)\n", 
+            struct stat library_stat;
+            if (lib_result != 0 || stat(shared_lib, &library_stat) != 0 ||
+                !S_ISREG(library_stat.st_mode) || library_stat.st_size == 0) {
+                fprintf(stderr, "I could not build the shared library for %s\n",
                         meta->name);
+                free(build_dir);
+                return NULL;
             } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] ✓ Built shared library %s\n", shared_lib);
             }

@@ -10,6 +10,7 @@
  */
 
 #include "nanolang.h"
+#include "module_builder.h"
 #include "nanovirt/codegen.h"
 #include "nanovirt/wrapper_gen.h"
 #include "nanoisa/nvm_format.h"
@@ -71,6 +72,53 @@ static void usage(const char *prog) {
 static bool has_nvm_extension(const char *path) {
     size_t len = strlen(path);
     return (len >= 4 && strcmp(path + len - 4, ".nvm") == 0);
+}
+
+/* I already lower NanoLang imports into bytecode. Here I build only their
+ * manifest-backed foreign support, including transitive imports. */
+static bool build_ffi_modules(ModuleList *modules) {
+    for (int i = 0; i < modules->count; i++) {
+        char *dir = strdup(modules->module_paths[i]);
+        if (!dir) return false;
+        char *slash = strrchr(dir, '/');
+        if (slash == dir) slash[1] = '\0';
+        else if (slash) *slash = '\0';
+        else strcpy(dir, ".");
+
+        char manifest[1024];
+        int length = snprintf(manifest, sizeof(manifest), "%s/module.json", dir);
+        if (length < 0 || (size_t)length >= sizeof(manifest)) {
+            fprintf(stderr, "I could not represent the imported module manifest path\n");
+            free(dir);
+            return false;
+        }
+        ModuleBuildMetadata *meta = module_load_metadata(dir);
+        free(dir);
+        if (!meta) {
+            if (access(manifest, F_OK) == 0 || errno != ENOENT) {
+                fprintf(stderr, "I could not read imported module metadata: %s\n", manifest);
+                return false;
+            }
+            continue;
+        }
+        if (!meta->name || !meta->name[0]) {
+            fprintf(stderr, "I require a name in imported module metadata: %s\n", manifest);
+            module_metadata_free(meta);
+            return false;
+        }
+        bool ok = true;
+        if (meta->c_sources_count > 0) {
+            ModuleBuildInfo *info = module_build(NULL, meta);
+            ok = info != NULL;
+            module_build_info_free(info);
+        }
+        module_metadata_free(meta);
+        if (!ok) {
+            fprintf(stderr, "I could not build foreign support for %s\n", modules->module_paths[i]);
+            return false;
+        }
+    }
+    return true;
 }
 
 static bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
@@ -250,7 +298,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    if (!check_shadows(program, env, modules, input)) {
+    if (!build_ffi_modules(modules) || !check_shadows(program, env, modules, input)) {
         free_ast(program);
         free_environment(env);
         free_module_list(modules);

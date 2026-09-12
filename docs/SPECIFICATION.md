@@ -740,8 +740,14 @@ test output goes to stderr. The child process is not a security sandbox.
 My VM retains a `.nano` import's directory when locating its shared library.
 I test foreign calls from absolute and relative nested paths, both with a
 local `.build` directory and with `NANO_BUILD_CACHE`, in shadows and standalone
-bytecode. This lookup does not build a missing library or make artifacts
-independent of their recorded import paths.
+bytecode. My bytecode compiler builds imported manifest-backed C libraries
+before running shadows or publishing output, including transitive imports.
+It rejects failed shared-source compilation, failed linking, and absent or
+empty library outputs. My runtime loader reads the manifest's library name;
+it does not build libraries or install dependencies. Imports without a build
+manifest continue to depend on available host or prebuilt foreign symbols.
+These checks do not make artifacts independent of their recorded import paths,
+provide a build sandbox, or establish atomic/concurrent C-library cache updates.
 Production bytecode retains the original entry and omits the test harness.
 Shadow-only root files are accepted by this CLI. Imported shadows are not
 automatically included; import policy and C-seed FFI exemptions remain gaps.
