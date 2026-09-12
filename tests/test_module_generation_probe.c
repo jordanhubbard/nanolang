@@ -11,12 +11,17 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <signal.h>
 
 static void generation_test_event(const char *event) {
     const char *path = getenv("NANO_TEST_SYNC_EVENTS");
-    if (!path) return;
-    FILE *file = fopen(path, "a");
-    if (file) { fprintf(file, "%s\n", event); fclose(file); }
+    if (path) {
+        FILE *file = fopen(path, "a");
+        if (file) { fprintf(file, "%s\n", event); fclose(file); }
+    }
+    /* I terminate only this test probe, after its compiler children exit. */
+    const char *crash = getenv("NANO_TEST_CRASH_EVENT");
+    if (crash && !strcmp(crash, event)) (void)kill(getpid(), SIGKILL);
 }
 
 static int generation_test_fsync(int fd) {

@@ -69,6 +69,79 @@ class ModuleCachePublication(unittest.TestCase):
                 self.assertEqual(result.returncode, 0 if kind == "regular" else 1, result.stderr)
                 self.assertEqual(target.read_bytes(), b"I remain outside the generation.")
 
+    def test_process_crash_at_publication_boundaries(self):
+        def fresh_library_answer(library):
+            result = subprocess.run([sys.executable, "-c",
+                "import ctypes,sys; lib=ctypes.CDLL(sys.argv[1]); "
+                "lib.nano_build_answer.restype=ctypes.c_int64; print(lib.nano_build_answer())", str(library)],
+                capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return int(result.stdout)
+
+        def native_answer(directory, generation, expected):
+            main = directory / "native-main.c"
+            executable = directory / "native-main"
+            main.write_text("long long nano_build_answer(void);\n"
+                            "int main(void) { return (int)nano_build_answer(); }\n")
+            result = subprocess.run([shutil.which("cc"), str(main), str(generation / "answer_native.o"),
+                                     "-o", str(executable)], capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            result = subprocess.run([str(executable)], capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, expected, result.stderr)
+
+        for shared in (False, True):
+            for replacement in (False, True):
+                for boundary in ("file", "stage", "generation", "cache-1", "ancestor", "pointer", "cache-2"):
+                    with self.subTest(shared=shared, replacement=replacement, boundary=boundary), \
+                            tempfile.TemporaryDirectory(prefix="nano-publication-crash-") as tmp:
+                        directory = Path(tmp)
+                        module, _, env = self.support.foreign_build_fixture(directory)
+                        if shared:
+                            env["NANO_BUILD_CACHE"] = str(directory / "nested" / "shared-cache")
+                        previous = previous_library = None
+                        if replacement:
+                            self.probe_path("build", module, env)
+                            previous = self.probe_path("directory", module, env)
+                            previous_library = self.probe_path("library", module, env)
+                        (module / "answer.c").write_text("long long nano_build_answer(void) { return 43; }\n")
+                        root = self.probe_path("root", module, env)
+                        events = directory / "events"
+                        env.update(NANO_TEST_SYNC_CACHE=str(root), NANO_TEST_SYNC_EVENTS=str(events),
+                                   NANO_TEST_CRASH_EVENT=boundary)
+                        result = subprocess.run([str(self.probe), "build", str(module)], env=env,
+                                                capture_output=True, timeout=20)
+                        self.assertEqual(result.returncode, -signal.SIGKILL, result.stderr)
+                        self.assertEqual(events.read_text().splitlines()[-1], boundary)
+                        switched = boundary in ("pointer", "cache-2")
+                        visible = None
+                        if switched:
+                            visible = self.probe_path("directory", module, env)
+                            self.assertTrue(visible.is_dir())
+                            self.assertNotEqual(visible, previous)
+                            self.assertEqual(fresh_library_answer(self.probe_path("library", module, env)), 43)
+                            native_answer(directory, visible, 43)
+                        elif previous:
+                            self.assertEqual(self.probe_path("directory", module, env), previous)
+                            self.assertEqual(fresh_library_answer(self.probe_path("library", module, env)), 42)
+                        else:
+                            self.assertFalse((root / "current").is_symlink())
+                        if previous_library:
+                            self.assertEqual(fresh_library_answer(previous_library), 42)
+                        del env["NANO_TEST_CRASH_EVENT"]
+                        # A completed retry also checks that process death released
+                        # the advisory lock. Old private stages are not reused.
+                        self.probe_path("build", module, env)
+                        recovered = self.probe_path("directory", module, env)
+                        self.assertEqual(fresh_library_answer(self.probe_path("library", module, env)), 43)
+                        native_answer(directory, recovered, 43)
+                        if visible:
+                            self.assertEqual(recovered, visible)
+                        self.probe_path("build", module, env)
+                        self.assertEqual(self.probe_path("directory", module, env), recovered)
+                        if previous_library:
+                            self.assertEqual(fresh_library_answer(previous_library), 42)
+                            native_answer(directory, previous, 42)
+
     def test_nested_cache_ancestor_failure_and_retry(self):
         with tempfile.TemporaryDirectory(prefix="nano-cache-ancestors-") as tmp:
             directory = Path(tmp)

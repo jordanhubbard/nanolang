@@ -401,6 +401,16 @@ even when the directories already exist: existence does not establish that an
 earlier creation was flushed. Establishing mounts belongs to the host.
 
 I test syscall ordering, injected failures, retry and retained artifact reads.
+My process-crash matrix sends `SIGKILL` to the actual builder at seven points:
+file and generation-directory barriers, generation rename, the first cache
+barrier, an ancestor barrier, pointer rename and the final cache barrier.
+I cover both first publication and replacement in local and shared caches.
+Before the pointer switch, readers see the previous generation or no published
+generation. After the switch, fresh processes load a complete new library.
+Recovery reacquires the released advisory lock and succeeds; subsequent warm
+reuse retains the recovered generation. I also link and execute the native
+objects and check retained old libraries in fresh processes, so already-loaded
+code cannot hide a missing artifact.
 These tests do not simulate device power loss. Device-level flush guarantees,
 wrapper/output-file persistence and full crash-recovery acceptance remain open;
 successful directory barriers alone do

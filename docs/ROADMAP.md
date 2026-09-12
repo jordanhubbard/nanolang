@@ -397,6 +397,21 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       objects and fixture libraries remain uninstrumented. This establishes
       tested syscall ordering, not a physical power-loss result.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache process-crash recovery.** I terminate the production builder
+      at file/directory barriers and generation/pointer renames. I test first
+      publication and replacement in local and shared caches, complete visible
+      artifacts, retained old paths, lock release, recovery and warm reuse.
+      Process termination is not a simulated filesystem or device power loss.
+      All 28 combinations pass: seven boundaries, initial/replacement builds,
+      local/shared caches. I verify actual SIGKILL and the last reached event,
+      load libraries in fresh processes, and link/execute new and retained
+      native objects. Recovery completes within the test timeout and subsequent
+      warm reuse retains the recovered generation. No production repair was
+      needed for these cases. All 28 shadows, 47 cache tests, five wrapper link
+      tests, seven wrapper boundary tests, 63 codegen tests, 19 FFI tests and
+      package/dependency gates pass on Darwin (2026-09-12). This increment does
+      not add a sanitizer or physical power-loss result.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 binding string-pool and import-table allocation safety.** Adding
       binding paths exposed paired `realloc` growth that could leave dangling
       arrays after partial failure. I preserve existing entries on failed
