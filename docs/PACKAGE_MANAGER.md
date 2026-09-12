@@ -232,10 +232,39 @@ I invalidate hash evidence before publication, so interrupted or failed
 publication forces rebuilding. A killed build may leave a private directory;
 later builds ignore it. I do not remove other invocations' directories.
 
+I also compare a versioned build-context digest: the selected compiler command
+(`NANO_CC`, then `CC`, then the manifest, then `cc`), its resolved executable
+path and bytes, and the working directory. I include these environment inputs,
+distinguishing unset from empty values:
+
+- Search paths: `PATH`, `CPATH`, `C_INCLUDE_PATH`, `CPLUS_INCLUDE_PATH`,
+  `OBJC_INCLUDE_PATH`, `LIBRARY_PATH`, `COMPILER_PATH`, `GCC_EXEC_PREFIX`.
+- SDK and flags: `SDKROOT`, `DEVELOPER_DIR`, `MACOSX_DEPLOYMENT_TARGET`,
+  `IPHONEOS_DEPLOYMENT_TARGET`, `ARCHFLAGS`, `CFLAGS`, `CPPFLAGS`, `LDFLAGS`.
+- Package configuration: `PKG_CONFIG_PATH`, `PKG_CONFIG_LIBDIR`,
+  `PKG_CONFIG_SYSROOT_DIR`.
+- Driver loading: `LD_LIBRARY_PATH`, `LD_PRELOAD`, `LD_AUDIT`,
+  `DYLD_LIBRARY_PATH`, `DYLD_FALLBACK_LIBRARY_PATH`, `DYLD_INSERT_LIBRARIES`.
+- Other build inputs: `SOURCE_DATE_EPOCH`, `LANG`, `LC_ALL`, `LC_CTYPE`,
+  `NANO_TOOLCHAIN_ID`.
+
+The digest does not make unused flags active. I persist the digest, not these
+environment strings. Existing records without this context rebuild once.
+Compiler shell expressions or unreadable/unresolved executables do not qualify
+for cache reuse. I still attempt the requested build; on success I leave no
+reusable hash record. If driver/context changes across a build, I likewise
+withhold reuse evidence.
+
+`NANO_TOOLCHAIN_ID` is a caller-supplied invalidation stamp for inputs I do not
+discover, such as a wrapper's configuration or a managed SDK revision. Change
+it when those inputs change. It is not a verified toolchain digest. Driver
+hashing does not identify every compiler subprocess, linker, library,
+pkg-config result or wrapper dependency; their automatic tracking remains open.
+
 These hashes are a non-cryptographic cache optimization, not artifact
 authentication. Publication is atomic per file, not across the artifact set;
 later readers do not yet hold immutable artifact bindings. Power-loss durability,
-source snapshots and compiler/toolchain identity remain open work. A matching
+source snapshots and complete toolchain identity remain open work. A matching
 source hash alone does not establish a reproducible build.
 
 ### System Dependencies During Compilation

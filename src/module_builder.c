@@ -397,6 +397,86 @@ static uint64_t hash_file_fnv1a(const char *path) {
     return failed ? 0 : h;
 }
 
+static const char *module_selected_compiler(const ModuleBuildMetadata *meta) {
+    const char *cc = getenv("NANO_CC");
+    if (!cc) cc = getenv("CC");
+    if (!cc) cc = meta->c_compiler;
+    return cc ? cc : "cc";
+}
+
+/* I fingerprint fields with a terminating zero, including unset versus empty
+ * environment values. I persist only the digest, not environment strings. */
+static void hash_context_field(uint64_t *hash, const char *value) {
+    const unsigned char *p = (const unsigned char *)value;
+    do {
+        *hash ^= *p;
+        *hash *= 1099511628211ULL;
+    } while (*p++);
+}
+
+/* I resolve only a simple executable token. Shell expressions still execute
+ * through the existing build path, but I cannot identify their tools safely. */
+static char *module_compiler_path(const char *cc) {
+    if (!cc[0] || strspn(cc, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./+-") != strlen(cc)) return NULL;
+    if (strchr(cc, '/')) return access(cc, X_OK) == 0 ? realpath(cc, NULL) : NULL;
+    const char *path = getenv("PATH");
+    if (!path) return NULL;
+    const char *part = path;
+    for (;;) {
+        const char *end = strchr(part, ':');
+        size_t length = end ? (size_t)(end - part) : strlen(part);
+        char *candidate = malloc(length + strlen(cc) + 3);
+        if (!candidate) return NULL;
+        if (length) {
+            memcpy(candidate, part, length);
+            candidate[length] = '/';
+            strcpy(candidate + length + 1, cc);
+        } else strcpy(candidate, cc);
+        char *resolved = access(candidate, X_OK) == 0 ? realpath(candidate, NULL) : NULL;
+        free(candidate);
+        if (resolved) return resolved;
+        if (!end) return NULL;
+        part = end + 1;
+    }
+}
+
+static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
+    const char *cc = module_selected_compiler(meta);
+    char *driver = module_compiler_path(cc);
+    char *cwd = getcwd(NULL, 0);
+    struct stat st;
+    uint64_t driver_hash = driver && stat(driver, &st) == 0 && S_ISREG(st.st_mode)
+        ? hash_file_fnv1a(driver) : 0;
+    if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
+    uint64_t hash = 14695981039346656037ULL;
+    hash_context_field(&hash, "nanolang-c-build-context-v1");
+    hash_context_field(&hash, cc);
+    hash_context_field(&hash, driver);
+    hash_context_field(&hash, cwd);
+    char digest[24];
+    snprintf(digest, sizeof(digest), "%llu", (unsigned long long)driver_hash);
+    hash_context_field(&hash, digest);
+    const char *variables[] = {
+        "PATH", "CPATH", "C_INCLUDE_PATH", "CPLUS_INCLUDE_PATH", "OBJC_INCLUDE_PATH",
+        "LIBRARY_PATH", "COMPILER_PATH", "GCC_EXEC_PREFIX", "SDKROOT", "DEVELOPER_DIR",
+        "MACOSX_DEPLOYMENT_TARGET", "IPHONEOS_DEPLOYMENT_TARGET", "ARCHFLAGS",
+        "CFLAGS", "CPPFLAGS", "LDFLAGS", "PKG_CONFIG_PATH", "PKG_CONFIG_LIBDIR",
+        "PKG_CONFIG_SYSROOT_DIR", "SOURCE_DATE_EPOCH", "LANG", "LC_ALL", "LC_CTYPE",
+        "LD_LIBRARY_PATH", "LD_PRELOAD", "LD_AUDIT", "DYLD_LIBRARY_PATH",
+        "DYLD_FALLBACK_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES",
+        "NANO_TOOLCHAIN_ID"
+    };
+    for (size_t i = 0; i < sizeof(variables) / sizeof(variables[0]); i++) {
+        const char *value = getenv(variables[i]);
+        hash_context_field(&hash, variables[i]);
+        hash_context_field(&hash, value ? "set" : "unset");
+        if (value) hash_context_field(&hash, value);
+    }
+    free(driver);
+    free(cwd);
+    return hash;
+}
+
 /* Path to the hash cache file for a module */
 static char *hash_cache_path(const char *module_dir) {
     char *build_dir = module_get_build_dir(module_dir);
@@ -678,8 +758,13 @@ static void save_hash_cache(const char *module_dir, cJSON *root) {
 /* Update the on-disk hash cache after a successful build */
 void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta) {
     if (!meta || meta->c_sources_count == 0) return;
+    uint64_t context = module_build_context(meta);
+    if (!context) return;
     cJSON *root = cJSON_CreateObject();
     if (!root) return;
+    char context_string[24];
+    snprintf(context_string, sizeof(context_string), "%llu", (unsigned long long)context);
+    cJSON_AddStringToObject(root, "__build_context_v1", context_string);
     for (int shared = 0; shared < 2; shared++) {
         char **sources = shared ? meta->shared_c_sources : meta->c_sources;
         size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
@@ -711,7 +796,12 @@ void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta)
 static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
     cJSON *cache = load_hash_cache(module_dir);
     if (!cache) return false;
-    bool match = true;
+    uint64_t context = module_build_context(meta);
+    char context_string[24];
+    snprintf(context_string, sizeof(context_string), "%llu", (unsigned long long)context);
+    cJSON *stored_context = cJSON_GetObjectItemCaseSensitive(cache, "__build_context_v1");
+    bool match = context && cJSON_IsString(stored_context) &&
+        strcmp(stored_context->valuestring, context_string) == 0;
     for (int shared = 0; shared < 2 && match; shared++) {
         char **sources = shared ? meta->shared_c_sources : meta->c_sources;
         size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
@@ -2056,10 +2146,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         // Get CC from environment, module.json, or use POSIX cc
-        const char *cc = getenv("NANO_CC");
-        if (!cc) cc = getenv("CC");
-        if (!cc && meta->c_compiler) cc = meta->c_compiler;
-        if (!cc) cc = "cc";
+        const char *cc = module_selected_compiler(meta);
 
         // Build a reusable compile prefix (flags only)
         char compile_prefix[4096];
@@ -2552,6 +2639,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     }
     ModuleBuildInfo *info = NULL;
     if (locked == 0 && mkdtemp(stage)) {
+        uint64_t context_before = module_build_context(meta);
         info = module_build_staged(builder, meta, stage);
         if (info && info->needs_rebuild) {
             char target[2048];
@@ -2575,7 +2663,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
                 info->object_file = object;
                 free(info->link_flags[object_index]);
                 info->link_flags[object_index] = link_object;
-                module_update_hash_cache(meta->module_dir, meta);
+                if (context_before && context_before == module_build_context(meta))
+                    module_update_hash_cache(meta->module_dir, meta);
             } else {
                 fprintf(stderr, "I could not publish complete C-library artifacts for %s\n", meta->name);
                 free(object);

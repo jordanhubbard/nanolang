@@ -356,10 +356,26 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       writes are addressed in adjacent items. I still need atomic artifact-set
       publication, immutable bindings for later readers, source snapshots and
       power-loss durability before I claim complete cache transactions.
-      Cache identity also omits the selected compiler/toolchain and ambient
-      build settings; those need explicit inputs and invalidation tests. My
-      current warm-cache tests use a changed compiler command as a no-build
-      sentinel, so those tests must change when compiler identity is tracked.
+      Driver and documented environment identity are addressed below. Automatic
+      tracking of transitive compiler tools, linker/library bytes, SDK contents,
+      pkg-config results and arbitrary wrapper inputs remains open. An explicit
+      toolchain stamp supplies invalidation, not discovery or authentication.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 C-library cache — driver and build-environment identity.** I
+      invalidate cached C artifacts when the selected compiler command,
+      resolved driver bytes, working directory or documented build environment
+      changes. I treat unresolved shell compiler expressions as uncacheable,
+      preserve warm reuse for unchanged inputs, and test actual changed output
+      as well as failure/recovery. I document the remaining transitive
+      toolchain and wrapper-input boundary rather than claiming hermeticity.
+      Six initial scenarios fail against the previous compiler and pass with
+      the repair. Expanded tests cover PATH resolution, same-timestamp driver
+      replacement, CPATH, working directory, explicit toolchain stamp, missing
+      and shell-expression compilers, old/malformed context records, and driver
+      mutation during compilation. All 28 shadow tests, 10 cache tests, 63
+      codegen tests, 18 FFI tests, installation policy and C-seed dependency
+      gates pass (2026-09-12). Warm tests no longer change the selected compiler
+      as a no-build sentinel; damaged-record tests keep driver identity fixed.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 C-library cache — private writes and publication lock.** I
       compile into a private directory, validate the expected artifacts, and

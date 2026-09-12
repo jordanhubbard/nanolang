@@ -146,6 +146,128 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
         compiler.chmod(0o700)
         return compiler
 
+    def counting_compiler(self, compiler, calls, answer=42):
+        compiler.write_text(f'''#!{sys.executable}
+import os, sys
+if "-c" in sys.argv:
+    with open({str(calls)!r}, "a") as log: log.write("compile\\n")
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] + sys.argv[1:])
+''')
+        compiler.chmod(0o700)
+
+    def test_changed_compiler_identity_changes_output(self):
+        for selection in ("NANO_CC", "CC", "PATH", "same_path"):
+            with self.subTest(selection=selection), tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
+                directory = Path(tmp)
+                module, source, env = self.support.foreign_build_fixture(directory)
+                (module / "answer.c").write_text("#include <stdint.h>\nint64_t nano_build_answer(void) { return ANSWER; }\n")
+                calls = directory / "calls"
+                first = directory / "cc"
+                second = directory / "cc-next"
+                self.counting_compiler(first, calls, 42)
+                self.counting_compiler(second, calls, 43)
+                if selection == "PATH":
+                    env["PATH"] = str(directory) + os.pathsep + env["PATH"]
+                else:
+                    env["CC" if selection == "CC" else "NANO_CC"] = str(first)
+                for _ in range(2):
+                    result, output = self.support.compile(source, directory, "--run", env=env)
+                    self.assertEqual(result.returncode, 42, result.stderr)
+                self.assertEqual(calls.read_text().splitlines(), ["compile"])
+                if selection == "PATH":
+                    next_dir = directory / "next"
+                    next_dir.mkdir()
+                    second.rename(next_dir / "cc")
+                    env["PATH"] = str(next_dir) + os.pathsep + env["PATH"]
+                elif selection == "same_path":
+                    stamp = first.stat()
+                    self.counting_compiler(first, calls, 43)
+                    os.utime(first, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                else:
+                    env[selection] = str(second)
+                result, output = self.support.compile(source.replace("42", "43"), directory, "--run", env=env)
+                self.assertEqual(result.returncode, 43, result.stderr)
+                execution = self.support.execute(output, env=env)
+                self.assertEqual(execution.returncode, 43, execution.stderr)
+                self.assertEqual(calls.read_text().splitlines(), ["compile", "compile"])
+
+    def test_changed_include_search_path_changes_output(self):
+        with tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            (module / "answer.c").write_text("#include <stdint.h>\n#include <answer.h>\nint64_t nano_build_answer(void) { return ANSWER; }\n")
+            for answer in (42, 43):
+                include = directory / str(answer)
+                include.mkdir()
+                (include / "answer.h").write_text(f"#define ANSWER {answer}\n")
+                env["CPATH"] = str(include)
+                result, output = self.support.compile(source.replace("42", str(answer)), directory, "--run", env=env)
+                self.assertEqual(result.returncode, answer, result.stderr)
+                execution = self.support.execute(output, env=env)
+                self.assertEqual(execution.returncode, answer, execution.stderr)
+
+    def test_toolchain_stamp_and_unresolved_compiler(self):
+        with tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            calls = directory / "calls"
+            compiler = directory / "cc"
+            self.counting_compiler(compiler, calls)
+            env["NANO_CC"] = str(compiler)
+            for stamp, count in (("first", 1), ("first", 1), ("second", 2)):
+                env["NANO_TOOLCHAIN_ID"] = stamp
+                result, _ = self.support.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                self.assertEqual(len(calls.read_text().splitlines()), count)
+            old = self.snapshot(module / ".build")
+            env["NANO_CC"] = str(directory / "missing-compiler")
+            result, _ = self.support.compile(source, directory, env=env)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(self.snapshot(module / ".build"), old)
+            env["NANO_CC"] = str(compiler) + " -DFIXTURE=1"
+            for count in (3, 4):
+                result, _ = self.support.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                self.assertEqual(len(calls.read_text().splitlines()), count)
+                self.assertFalse((module / ".build" / "source_hashes.json").exists())
+
+    def test_working_directory_changes_relative_include_resolution(self):
+        with tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            (module / "answer.c").write_text("#include <stdint.h>\n#include <answer.h>\nint64_t nano_build_answer(void) { return ANSWER; }\n")
+            (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"], "include_dirs": ["headers"]}))
+            for answer in (42, 43):
+                cwd = directory / str(answer)
+                include = cwd / "headers"
+                include.mkdir(parents=True)
+                (include / "answer.h").write_text(f"#define ANSWER {answer}\n")
+                result, output = self.support.compile(source.replace("42", str(answer)), directory, "--run", env=env, cwd=cwd)
+                self.assertEqual(result.returncode, answer, result.stderr)
+                execution = self.support.execute(output, env=env)
+                self.assertEqual(execution.returncode, answer, execution.stderr)
+
+    def test_driver_change_during_build_withholds_reuse_evidence(self):
+        with tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            calls = directory / "calls"
+            compiler = directory / "cc"
+            self.counting_compiler(compiler, calls)
+            text = compiler.read_text().replace("import os, sys", "import os, sys, pathlib")
+            text = text.replace("os.execv(", f'''marker = pathlib.Path({str(directory / 'changed')!r})
+if not marker.exists():
+    marker.touch()
+    with open(__file__, "a") as script: script.write("\\n# changed driver bytes\\n")
+os.execv(''')
+            compiler.write_text(text)
+            env["NANO_CC"] = str(compiler)
+            for count, reusable in ((1, False), (2, True), (2, True)):
+                result, _ = self.support.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                self.assertEqual(len(calls.read_text().splitlines()), count)
+                self.assertEqual((module / ".build" / "source_hashes.json").exists(), reusable)
+
     def test_interrupted_compiler_preserves_cache_and_releases_lock(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)

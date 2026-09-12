@@ -13,12 +13,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BytecodeShadows(unittest.TestCase):
-    def compile(self, source, directory, *options, env=None):
+    def compile(self, source, directory, *options, env=None, cwd=ROOT):
         path = directory / "program.nano"
         path.write_text(source)
         output = directory / "program.nvm"
         args = [str(ROOT / "bin/nano_virt"), str(path), "--emit-nvm", "-o", str(output), *options]
-        process = subprocess.Popen(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        process = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                    start_new_session=True, env=env)
         try:
             stdout, stderr = process.communicate(timeout=25)
@@ -183,6 +183,7 @@ shadow main {{ assert (== (main) 42) }}
                 with self.subTest(cached=cached, transitive=transitive), tempfile.TemporaryDirectory(prefix="nano-ffi-build-") as tmp:
                     directory = Path(tmp)
                     module_dir, source, env = self.foreign_build_fixture(directory)
+                    env["NANO_VERBOSE_BUILD"] = "1"
                     if cached:
                         env["NANO_BUILD_CACHE"] = str(directory / "cache")
                     if transitive:
@@ -200,9 +201,9 @@ shadow main {{ assert (== (main) 42) }}
                     execution = subprocess.run([str(ROOT / "bin/nano_vm"), str(output)], cwd=ROOT,
                                                env=env, capture_output=True, timeout=10)
                     self.assertEqual(execution.returncode, 42, execution.stderr)
-                    env["NANO_CC"] = "/usr/bin/false"
                     result, output = self.compile(source, directory, "--run", env=env)
                     self.assertEqual(result.returncode, 42, result.stderr)
+                    self.assertNotIn(b"[Module] Building answer_native", result.stdout)
 
     def test_foreign_library_build_failure_and_recovery(self):
         for failure in ("source", "shared_source", "link", "missing_library", "empty_library"):
@@ -290,25 +291,43 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(execution.returncode, 43, execution.stderr)
 
     def test_foreign_cache_requires_readable_hash_record(self):
-        for damage in ("missing", "corrupt", "directory"):
+        for damage in ("missing", "corrupt", "directory", "legacy_context", "malformed_context"):
             with self.subTest(damage=damage), tempfile.TemporaryDirectory(prefix="nano-cache-") as tmp:
                 directory = Path(tmp)
                 module_dir, source, env = self.foreign_build_fixture(directory)
+                compiler = directory / "cc-fixture"
+                fail = directory / "fail-compilation"
+                compiler.write_text(f'''#!{sys.executable}
+import os, pathlib, sys
+if pathlib.Path({str(fail)!r}).exists(): sys.exit(24)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+                compiler.chmod(0o700)
+                env["NANO_CC"] = str(compiler)
                 result, output = self.compile(source, directory, "--run", env=env)
                 self.assertEqual(result.returncode, 42, result.stderr)
                 cache = module_dir / ".build" / "source_hashes.json"
-                cache.unlink()
-                if damage == "corrupt":
+                if damage in ("legacy_context", "malformed_context"):
+                    record = json.loads(cache.read_text())
+                    if damage == "legacy_context":
+                        record.pop("__build_context_v1")
+                    else:
+                        record["__build_context_v1"] = []
+                    cache.write_text(json.dumps(record))
+                elif damage == "missing":
+                    cache.unlink()
+                elif damage == "corrupt":
                     cache.write_text("{")
                 elif damage == "directory":
+                    cache.unlink()
                     cache.mkdir()
-                env["NANO_CC"] = "/usr/bin/false"
+                fail.touch()  # I inject failure without changing the compiler identity.
                 output.write_bytes(b"preserve")
                 result, output = self.compile(source, directory, env=env)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn(b"could not build foreign support", result.stderr)
                 self.assertEqual(output.read_bytes(), b"preserve")
-                env.pop("NANO_CC")
+                fail.unlink()
                 if damage == "directory":
                     cache.rmdir()
                 result, output = self.compile(source, directory, "--run", env=env)
