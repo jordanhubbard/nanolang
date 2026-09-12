@@ -133,3 +133,62 @@ before/after observations are not an atomic snapshot of the bytes the linker
 read, and I do not yet capture changes that occur and revert during a build.
 The linker binary and arbitrary wrapper inputs also need separate identity.
 The full implementation requirements above remain in my roadmap and MAC task.
+
+## Linux / GNU ld evidence
+
+On 2026-09-12 I ran the same experiment against `ff7774a1` on Linux arm64,
+using GCC 12.2.0 (`Debian 12.2.0-14+deb12u1`) and GNU ld 2.40. I used the
+locally available `python:3.12-bookworm` image, immutable local image ID
+`sha256:581429e3df12d76e6af4be5ab7d0e7fc2013eb57dc23d2de691411c8efdbb970`.
+Networking was disabled, the source mount was read-only, and build storage was
+disposable. I installed no packages. My [normalized JSON observations](evidence/linux-gcc12-ld240-linker.json)
+retain dependency-file contents and trace excerpts.
+
+| Change | Cached result | Fresh link |
+| --- | --- | --- |
+| Unchanged inputs | 42; same generation | 42 |
+| Same-size, same-timestamp selected archive edit | 42; same generation | 43 |
+| New earlier library candidate | 42; same generation | 44 |
+
+The Linux cache writes a reusable record without the selected archive. This
+is a reproduced defect, not a passing invalidation test.
+
+GNU ld accepts `--dependency-file` in this image, but the observed file is not
+enough to close the gap:
+
+- It records the selected archive, but not the absent earlier candidate.
+- It records the archive supplied through a response file, but not that
+  response file itself.
+- The unusual archive pathname contains its literal space, backslash and
+  newline in the file. I cannot treat it as an escaped Make token inventory.
+- GNU `ar rcsT` produces an actual thin archive. The dependency file records
+  that archive but omits the external `member.o` it selects. The trace names
+  the member, but retains the separate line-boundary problem.
+
+Plain, traced and dependency-record links preserve the fixture answers. That
+establishes observed output behavior, not completeness of either record.
+Selected-input hashing alone cannot detect a newly earlier candidate, and
+hashing only thin-archive container bytes cannot track an omitted member.
+The GNU implementation must address these requirements before I call reuse
+safe; I have not enabled a dependency-file-only approximation.
+
+To repeat the experiment with that image already present locally:
+
+```sh
+docker run --rm --pull never --network none \
+  --mount type=bind,src="$PWD",dst=/source,readonly \
+  --tmpfs /work:exec,size=512m -w /work \
+  sha256:581429e3df12d76e6af4be5ab7d0e7fc2013eb57dc23d2de691411c8efdbb970 \
+  sh -c 'cp -R /source/src /source/tests . && mkdir obj &&
+    cc -Wall -Wextra -Werror -std=c99 -O1 -D_GNU_SOURCE -Isrc \
+      -o obj/test_module_generation_probe tests/test_module_generation_probe.c \
+      src/cJSON.c src/utf8.c src/runtime/module_build_dir.c \
+      src/runtime/ffi_loader.c -lm -lcrypto -pthread -ldl &&
+    python3 -m tests.characterize_linker_inputs'
+```
+
+I separately rebuilt that probe with `-O3` and passed six cache-boundary
+methods: nonregular generation entries, symlink-safe cleanup, publication
+barrier failures/retry, ancestor barriers, the 28-case process-crash matrix,
+and surviving compiler children in local/shared caches. These are Linux
+builder results, not a full Linux compiler/VM gate or a sanitizer result.

@@ -362,6 +362,28 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache Linux linker evidence.** I run the existing archive/search,
+      unusual-path, response-file and thin-archive experiment on an actual GNU
+      linker before choosing its dependency-record integration. I record the
+      compiler/linker versions and distinguish successful experiments from
+      safe cache acceptance. I use read-only source input and disposable Linux
+      build storage; the Darwin parser does not establish Linux behavior.
+      GCC 12.2 / GNU ld 2.40 on Linux arm64 reproduces cached 42 versus fresh
+      43/44 after archive/search changes. Dependency files omit the tested
+      negative candidate, response file and external thin-archive member;
+      unusual paths appear unescaped. Raw normalized JSON and reproduction
+      steps are in `docs/LINKER_INPUT_EVIDENCE.md`. Six production-builder
+      methods pass under GCC `-O3`, including the 28-case crash matrix and
+      surviving-child cases. This is neither the Linux invalidation repair
+      nor a full Linux compiler/VM or sanitizer gate (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 GNU linker cache invalidation.** I repair the reproduced stale
+      archive and search-selection results, including thin members and
+      indirect flag inputs. I establish a lossless supported-mode boundary
+      rather than treating GNU ld's readable dependency file as complete.
+      I require actual changed results, unchanged reuse, failed-build
+      preservation and recovery on Linux before marking this complete.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 cache retention — ordinary build cleanup.** `make clean` previously
       removed `obj/module_cache`, invalidating existing bytecode bindings. I
       preserve the default and configured runtime caches while cleaning build
