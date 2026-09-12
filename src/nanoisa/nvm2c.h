@@ -23,13 +23,15 @@
  * printing arrays/records, array equality, STR_TRIM, and the rest of the
  * string and array libraries stay refused.
  * I track operand-stack joins and emit simultaneous transfers on taken
- * edges. Local classification remains function-wide; this is not general
- * flow-sensitive or interprocedural aggregate type inference.
+ * edges. I converge parameter kinds and flat aggregate field kinds across
+ * direct calls before emitting prototypes and bodies. Flat record/variant
+ * returns, forwarding and tail calls use C value returns. I reject conflicting
+ * field layouts and unresolved packed fields instead of guessing their types.
+ * Local classification remains function-wide, not generally flow-sensitive.
  * I preserve variant tags and runtime field kinds. AGG_TAG on a record,
  * out-of-range fields and mismatched field storage abort the emitted process.
- * Aggregate function results remain unsupported. A string field passed
- * through a function can still lack static type information and trap;
- * runtime guards prevent a silent read from integer storage, not this gap.
+ * Nested aggregates and field layouts that vary across calls remain outside
+ * this representation. Runtime guards are not a complete type-system proof.
  */
 
 #ifndef NANOISA_NVM2C_H

@@ -183,21 +183,39 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       All four accumulator/permutation and unconditional/conditional
       combinations compile under C11 warnings-as-errors and execute with
       expected status. This is tested behavior, not a correspondence proof.
-- [ ] **5.0 contract defect — AOT source corpus aggregates.** I make the
+- [x] **5.0 contract defect — AOT source corpus aggregates.** I make the
       record-return and two variant corpus programs compile and execute via
-      `nvm2c`. My VM executes all three, but current AOT analysis rejects
-      `04_records` with `AGG_PACK fields must be int or string`. The variant
-      representation and tag lowering now execute `05_match` and
-      `06_single_field_variant` with exact expected stdout. The matrix is
-      27 pass, 1 fail; record arguments/results and complete interprocedural
-      field classification remain open. I retain the required failing row.
+      `nvm2c`. All three now execute with exact expected stdout. The required
+      seven-program matrix passes all 28 rows on C seed, Stage 2, VM and AOT
+      (2026-09-12). This checks the rebuilt translator and existing compiler
+      tools, not a new bootstrap or complete language conformance.
       MAC `task_9a7214c876e24c3491f8d1d49c1384a1`.
+      MAC rejects direct closure from `open`; verified evidence awaits its
+      normal claim/review workflow.
+- [x] **5.0 AOT record calls — converged type facts.** I propagate parameter
+      kinds and flat aggregate fields across direct calls, converge return
+      field facts before emission, and support record/variant value returns.
+      I test caller/callee ordering, multi-hop string fields, tail returns,
+      conflicting layouts and unresolved fields. I retain runtime field
+      guards and explicit rejection outside this representable subset.
+      My structured-C suite passes 371 checks, including recursive returns
+      and branch joins with initially unknown field kinds. The translator
+      and harness also pass with ASan/UBSan, leak detection disabled; linked
+      support objects and generated programs are not instrumented. A known
+      string-as-integer return now fails translation before its runtime guard.
+- [ ] **5.0 AOT aggregate breadth — declared layouts and richer fields.** I
+      extend the flat direct-call subset to nested aggregates, field kinds
+      varying by variant or control flow, arrays across aggregate signatures,
+      separately linked parameter metadata and path-sensitive local facts.
+      I use declared NanoISA type/layout evidence where available and add
+      corresponding VM/AOT semantic fixtures without weakening rejection.
+      MAC `task_a4fde0d59ad24fe18c285a76ad58c176`.
 - [x] **5.0 AOT aggregate boundaries — unreachable labels and field kinds.**
       I omit labels reached only by jumps in dead code after returning match
       arms. I retain runtime field kinds so incomplete static classification
       traps instead of reading the wrong parallel field storage. I test
       variant tags, payloads, empty variants, and non-variant tag rejection;
-      complete interprocedural field classification remains required above.
+      richer interprocedural field classification remains required above.
       My structured-C suite passes 356 checks, including full-width variant
       tags, integer/string payloads, dead labels at function end and two
       runtime guard failures. Generated programs compile with C11

@@ -128,6 +128,7 @@ static const char *c_result_type(const NvmFunctionEntry *fn) {
     if (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL) return "int64_t";
     if (fn->result_tag == TAG_STRING) return "const char *";
     if (fn->result_tag == TAG_ARRAY) return "nrarr_t";
+    if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) return "nrec_t";
     return NULL;
 }
 
@@ -184,6 +185,32 @@ typedef struct {
     int origin;
     uint8_t rec_k[NVM2C_MAX_REC_FIELDS];
 } Nvm2cSimSlot;
+
+typedef struct {
+    uint8_t *parameters;
+    uint8_t *fields;
+    uint8_t *results;
+    int changed;
+    int final;
+} Nvm2cFacts;
+
+static int merge_fact(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
+    if (kind == NVM2C_VK_UNK || *dest == kind) return 1;
+    if (*dest != NVM2C_VK_UNK) {
+        nvm2c_fail(b, "I cannot assign conflicting kinds to a function parameter or aggregate field");
+        return 0;
+    }
+    *dest = kind;
+    facts->changed = 1;
+    return 1;
+}
+
+static int merge_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uint8_t *fields) {
+    for (int i = 0; i < NVM2C_MAX_REC_FIELDS; i++) {
+        if (!merge_fact(b, facts, &dest[i], fields[i])) return 0;
+    }
+    return 1;
+}
 
 static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
                          Nvm2cSimSlot slot) {
@@ -248,12 +275,29 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
         return 0;
     }
     for (int i = 0; i < sp; i++) {
-        if (join->slots[i].kind != stack[i].kind ||
-            memcmp(join->slots[i].rec_k, stack[i].rec_k, NVM2C_MAX_REC_FIELDS)) {
+        int origin = join->slots[i].origin == stack[i].origin ? stack[i].origin : -1;
+        if (join->slots[i].kind == NVM2C_VK_UNK) {
+            join->slots[i] = stack[i];
+            join->slots[i].origin = origin;
+            continue;
+        }
+        join->slots[i].origin = origin;
+        if (stack[i].kind == NVM2C_VK_UNK) continue;
+        if (join->slots[i].kind != stack[i].kind) {
             nvm2c_fail(b, "I found incompatible stack kinds at a join in function %u", idx);
             return 0;
         }
-        if (join->slots[i].origin != stack[i].origin) join->slots[i].origin = -1;
+        if (stack[i].kind == NVM2C_VK_REC || stack[i].kind == NVM2C_VK_RARR) {
+            for (int field = 0; field < NVM2C_MAX_REC_FIELDS; field++) {
+                uint8_t incoming = stack[i].rec_k[field];
+                uint8_t *current = &join->slots[i].rec_k[field];
+                if (*current == NVM2C_VK_UNK) *current = incoming;
+                else if (incoming != NVM2C_VK_UNK && incoming != *current) {
+                    nvm2c_fail(b, "I found incompatible aggregate fields at a join in function %u", idx);
+                    return 0;
+                }
+            }
+        }
     }
     return 1;
 }
@@ -263,11 +307,16 @@ static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
 
 static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                   uint8_t *local_kind, uint8_t *rec_fields,
-                                  Nvm2cSimJoin *joins, const uint8_t *targets) {
+                                  Nvm2cSimJoin *joins, const uint8_t *targets,
+                                  Nvm2cFacts *facts) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
     uint16_t i;
     memset(local_kind, NVM2C_VK_UNK, nloc);
+    memset(rec_fields, NVM2C_VK_UNK, (size_t)nloc * NVM2C_MAX_REC_FIELDS);
+    memcpy(local_kind, facts->parameters + (size_t)idx * NVM2C_MAX_LOCALS, fn->arity);
+    memcpy(rec_fields, facts->fields + (size_t)idx * NVM2C_MAX_LOCALS * NVM2C_MAX_REC_FIELDS,
+           (size_t)fn->arity * NVM2C_MAX_REC_FIELDS);
 
     if (fn->code_offset > mod->code_size ||
         fn->code_length > mod->code_size - fn->code_offset) {
@@ -592,7 +641,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             for (ai = 0; ai < count; ai++) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
-                if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR) {
+                if (v.kind != NVM2C_VK_INT && v.kind != NVM2C_VK_STR &&
+                    !(v.kind == NVM2C_VK_UNK && !facts->final)) {
                     nvm2c_fail(b, "function %u: AGG_PACK fields must be int or string", idx);
                     return 0;
                 }
@@ -619,9 +669,6 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             fk = rec.rec_k[fi];
-            if (fk != NVM2C_VK_STR) {
-                fk = NVM2C_VK_INT;
-            }
             if (!sim_push(b, idx, stk, &sp, fk, -1)) return 0;
             break;
         }
@@ -633,10 +680,21 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             const NvmFunctionEntry *cf = &mod->functions[callee];
-            for (i = 0; i < cf->arity; i++) {
+            if (cf->arity > NVM2C_MAX_LOCALS || cf->arity > cf->local_count) {
+                nvm2c_fail(b, "I cannot classify a call with invalid parameter counts");
+                return 0;
+            }
+            for (i = cf->arity; i > 0; i--) {
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
-                (void)arg;
+                size_t at = (size_t)callee * NVM2C_MAX_LOCALS + i - 1;
+                if (!merge_fact(b, facts, &facts->parameters[at], arg.kind)) return 0;
+                if (arg.kind == NVM2C_VK_UNK) {
+                    mark_origin(local_kind, nloc, arg.origin, facts->parameters[at]);
+                }
+                if (arg.kind == NVM2C_VK_REC || arg.kind == NVM2C_VK_RARR) {
+                    if (!merge_fields(b, facts, facts->fields + at * NVM2C_MAX_REC_FIELDS, arg.rec_k)) return 0;
+                }
             }
             if (ins.opcode == OP_CALL) {
                 if (cf->result_count == 1 && cf->result_tag == TAG_STRING) {
@@ -645,7 +703,19 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_RARR, -1)) return 0;
                 } else if (result_is_i64(cf)) {
                     if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+                } else if (cf->result_count == 1 &&
+                           (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION)) {
+                    Nvm2cSimSlot result;
+                    memset(&result, 0, sizeof result);
+                    result.kind = NVM2C_VK_REC;
+                    result.origin = -1;
+                    memcpy(result.rec_k, facts->results + (size_t)callee * NVM2C_MAX_REC_FIELDS,
+                           NVM2C_MAX_REC_FIELDS);
+                    if (!sim_push_slot(b, idx, stk, &sp, result)) return 0;
                 }
+            } else if (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION) {
+                if (!merge_fields(b, facts, facts->results + (size_t)idx * NVM2C_MAX_REC_FIELDS,
+                                  facts->results + (size_t)callee * NVM2C_MAX_REC_FIELDS)) return 0;
             }
             break;
         }
@@ -659,7 +729,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_HALT: {
             if (fn->result_count == 1 &&
                 (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL ||
-                 fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY) &&
+                 fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY ||
+                 fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) &&
                 sp > 0) {
                 Nvm2cSimSlot v;
                 if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -667,6 +738,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     mark_str_origin(local_kind, nloc, v.origin);
                 } else if (fn->result_tag == TAG_ARRAY) {
                     mark_origin(local_kind, nloc, v.origin, NVM2C_VK_RARR);
+                } else if (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION) {
+                    mark_origin(local_kind, nloc, v.origin, NVM2C_VK_REC);
+                    if (v.kind == NVM2C_VK_REC &&
+                        !merge_fields(b, facts, facts->results + (size_t)idx * NVM2C_MAX_REC_FIELDS,
+                                      v.rec_k)) return 0;
                 }
             }
             break;
@@ -685,13 +761,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     }
 
     for (i = 0; i < nloc; i++) {
-        if (local_kind[i] == NVM2C_VK_UNK) local_kind[i] = NVM2C_VK_INT;
+        if (i < fn->arity &&
+            !merge_fact(b, facts, &facts->parameters[(size_t)idx * NVM2C_MAX_LOCALS + i], local_kind[i])) return 0;
+        if (facts->final && local_kind[i] == NVM2C_VK_UNK) local_kind[i] = NVM2C_VK_INT;
     }
     return 1;
 }
 
 static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                             uint8_t *local_kind, uint8_t *rec_fields) {
+                             uint8_t *local_kind, uint8_t *rec_fields, Nvm2cFacts *facts) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     if (fn->local_count > NVM2C_MAX_LOCALS || fn->arity > fn->local_count) {
         nvm2c_fail(b, "I cannot classify function %u with invalid local or parameter counts", idx);
@@ -732,7 +810,7 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             goto done;
         }
     }
-    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets);
+    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts);
 done:
     free(joins);
     free(targets);
@@ -1062,7 +1140,8 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
 }
 
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                               const uint8_t *kinds, const uint8_t *rec_fields) {
+                               const uint8_t *kinds, const uint8_t *rec_fields,
+                               const uint8_t *result_fields) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     const char *rt = c_result_type(fn);
     if (!rt || b->failed) return;
@@ -1788,6 +1867,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 stack_push_str(b, &st, call);
             } else if (cf->result_count == 1 && cf->result_tag == TAG_ARRAY) {
                 stack_push_rarr(b, &st, call);
+            } else if (cf->result_count == 1 &&
+                       (cf->result_tag == TAG_STRUCT || cf->result_tag == TAG_UNION)) {
+                int result = stack_push_rec(b, &st, call);
+                if (result >= 0) memcpy(st.rec_k[result], result_fields + (size_t)callee * NVM2C_MAX_REC_FIELDS,
+                                        NVM2C_MAX_REC_FIELDS);
             } else {
                 nvm2c_printf(b, "    %s;\n", call);
             }
@@ -1814,7 +1898,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (fn->result_count == 1 &&
                 (result_is_i64(fn) || fn->result_tag == TAG_STRING ||
-                 fn->result_tag == TAG_ARRAY)) {
+                 fn->result_tag == TAG_ARRAY || fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION)) {
                 nvm2c_printf(b, "    return %s;\n", call);
             } else {
                 nvm2c_printf(b, "    %s;\n    return;\n", call);
@@ -1869,6 +1953,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     goto done;
                 }
                 nvm2c_printf(b, "    return ra[%d];\n", a);
+            } else if (fn->result_count == 1 &&
+                       (fn->result_tag == TAG_STRUCT || fn->result_tag == TAG_UNION)) {
+                int record = stack_pop_expect(b, &st, NVM2C_VK_REC, "RET");
+                if (b->failed) goto done;
+                if (st.sp != 0) {
+                    nvm2c_fail(b, "I cannot return an aggregate with extra stack values");
+                    goto done;
+                }
+                nvm2c_printf(b, "    if (r[%d].kind != %u) abort();\n    return r[%d];\n",
+                             record, fn->result_tag == TAG_STRUCT ? AGG_RECORD : AGG_VARIANT, record);
             } else {
                 if (st.sp != 0) {
                     nvm2c_fail(b, "function %u: void RET leaves extra stack values", idx);
@@ -2187,26 +2281,45 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.err = err;
     b.err_len = err_len;
 
+    size_t per_function = NVM2C_MAX_LOCALS * (1 + NVM2C_MAX_REC_FIELDS) + NVM2C_MAX_REC_FIELDS;
+    if (mod->function_count > SIZE_MAX / per_function) {
+        if (err && err_len) snprintf(err, err_len, "I cannot allocate this many function facts");
+        return NULL;
+    }
+    size_t fact_size = (size_t)mod->function_count * per_function;
+    uint8_t *inference = malloc(fact_size);
     uint8_t *kinds = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS, 1);
     uint8_t *rec_fields = calloc((size_t)mod->function_count * NVM2C_MAX_LOCALS
                                  * NVM2C_MAX_REC_FIELDS, 1);
-    if (!kinds || !rec_fields) {
+    if (!kinds || !rec_fields || !inference) {
+        free(inference);
         free(kinds);
         free(rec_fields);
         if (err && err_len) snprintf(err, err_len, "out of memory");
         return NULL;
     }
 
-    {
-        uint32_t i;
-        for (i = 0; i < mod->function_count; i++) {
-            if (!classify_function(&b, mod, i,
-                                   kinds + (size_t)i * NVM2C_MAX_LOCALS,
-                                   rec_fields + ((size_t)i * NVM2C_MAX_LOCALS)
-                                       * NVM2C_MAX_REC_FIELDS)) {
+    memset(inference, NVM2C_VK_UNK, fact_size);
+    Nvm2cFacts facts = {0};
+    facts.parameters = inference;
+    facts.fields = inference + (size_t)mod->function_count * NVM2C_MAX_LOCALS;
+    facts.results = facts.fields + (size_t)mod->function_count * NVM2C_MAX_LOCALS * NVM2C_MAX_REC_FIELDS;
+    /* I only add known facts to unknown slots; conflicts fail, never widen. */
+    for (size_t pass = 0; ; pass++) {
+        if (pass > fact_size + 1) {
+            nvm2c_fail(&b, "I could not converge function type facts");
+            goto fail;
+        }
+        facts.changed = 0;
+        for (uint32_t i = 0; i < mod->function_count; i++) {
+            if (!classify_function(&b, mod, i, kinds + (size_t)i * NVM2C_MAX_LOCALS,
+                                   rec_fields + (size_t)i * NVM2C_MAX_LOCALS * NVM2C_MAX_REC_FIELDS,
+                                   &facts)) {
                 goto fail;
             }
         }
+        if (facts.final) break;
+        if (!facts.changed) facts.final = 1;
     }
 
     {
@@ -2314,7 +2427,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
-            emit_function_body(&b, mod, i, kinds, rec_fields);
+            emit_function_body(&b, mod, i, kinds, rec_fields, facts.results);
             if (b.failed) goto fail;
         }
     }
@@ -2350,11 +2463,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     }
     free(kinds);
     free(rec_fields);
+    free(inference);
     return b.data;
 
 fail:
     free(kinds);
     free(rec_fields);
+    free(inference);
     free(b.data);
     return NULL;
 }

@@ -2302,6 +2302,15 @@ static void test_aggregate_runtime_kind_checks(void) {
             /* I exercise the direct API with a non-variant AGG_TAG input. */
             m->code[1] = AGG_RECORD;
         }
+        if (i == 1) {
+            char error[256];
+            char *rejected = nvm2c_emit(m, error, sizeof error);
+            CHECK(rejected == NULL && strstr(error, "RET") != NULL,
+                  "I reject a known string field returned as an integer before execution");
+            free(rejected);
+            nvm_module_free(m);
+            continue;
+        }
         char *c = emit_or_fail(m, "aggregate runtime kind checks");
         if (c) {
             int status = 0;
@@ -2311,6 +2320,83 @@ static void test_aggregate_runtime_kind_checks(void) {
         }
         nvm_module_free(m);
     }
+}
+
+static void test_aggregate_call_facts(void) {
+    for (int variant = 0; variant < 4; variant++) {
+        const char *tag = (variant & 1) ? "union" : "struct";
+        int kind = (variant & 1) ? AGG_VARIANT : AGG_RECORD;
+        char make[512], relay[512], main_source[1024], source[4096];
+        snprintf(make, sizeof make,
+                 ".function make 2 2 0 %s 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\n"
+                 "AGG_PACK %d 0 65535 2\nRET\n.end\n", tag, kind);
+        snprintf(relay, sizeof relay,
+                 ".function relay 2 2 0 %s 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nTAIL_CALL make\n.end\n"
+                 ".function identity 1 1 0 %s 1\nLOAD_LOCAL 0\nRET\n.end\n", tag, tag);
+        snprintf(main_source, sizeof main_source,
+                 ".function main 0 1 0 int 1\nPUSH_I64 42\nPUSH_STR hello\n"
+                 "CALL relay\nCALL identity\nSTORE_LOCAL 0\n%s"
+                 "LOAD_LOCAL 0\nAGG_GET 1\nSTR_LEN\nPUSH_I64 5\nI64_EQ\nASSERT\n"
+                 "LOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n",
+                 kind == AGG_VARIANT ? "LOAD_LOCAL 0\nAGG_TAG\nPUSH_I64 65535\nI64_EQ\nASSERT\n" : "");
+        snprintf(source, sizeof source, ".string hello \"hello\"\n.entry main\n%s%s%s",
+                 variant & 2 ? main_source : make, relay, variant & 2 ? make : main_source);
+        NvmModule *m = assemble_ok(source, "aggregate direct-call facts");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "aggregate direct-call facts");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "I compile aggregate return and tail-call chains");
+            CHECK(status == 42, "I preserve string and integer fields independently of function order");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
+static void test_unrepresentable_call_facts(void) {
+    const char *sources[] = {
+        ".string hello \"hello\"\n.entry main\n"
+        ".function read 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 42\nAGG_PACK 0 0 0 1\nCALL read\nPOP\n"
+        "PUSH_STR hello\nAGG_PACK 0 0 0 1\nCALL read\nRET\n.end\n",
+        ".entry main\n.function make 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+    };
+    for (int i = 0; i < 2; i++) {
+        NvmModule *m = assemble_ok(sources[i], "unrepresentable function facts");
+        if (!m) continue;
+        char error[256];
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, i ? "AGG_PACK" : "conflicting") != NULL,
+              "I reject conflicting or unresolved field types instead of guessing");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
+static void test_recursive_and_branch_record_facts(void) {
+    const char *source =
+        ".entry main\n"
+        ".function select 2 2 0 struct 1\nLOAD_LOCAL 1\nJMP_FALSE alternate\n"
+        "PUSH_I64 42\nAGG_PACK 0 0 0 1\nJMP joined\n"
+        "alternate:\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\njoined:\nRET\n.end\n"
+        ".function recurse 2 2 0 struct 1\nLOAD_LOCAL 1\nPUSH_I64 0\nI64_EQ\nJMP_FALSE again\n"
+        "LOAD_LOCAL 0\nRET\nagain:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_SUB\n"
+        "CALL recurse\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 7\nPUSH_BOOL 0\nCALL select\nPUSH_I64 3\n"
+        "CALL recurse\nAGG_GET 0\nPUSH_I64 7\nI64_EQ\nASSERT\n"
+        "PUSH_I64 7\nPUSH_BOOL 1\nCALL select\nPUSH_I64 3\nCALL recurse\nAGG_GET 0\nRET\n.end\n";
+    NvmModule *m = assemble_ok(source, "recursive and joined record facts");
+    if (!m) return;
+    char *c = emit_or_fail(m, "recursive and joined record facts");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "I compile recursive aggregate calls and partial-fact joins");
+        CHECK(status == 42, "I preserve aggregate values across both selected branches and recursive returns");
+        free(c);
+    }
+    nvm_module_free(m);
 }
 
 int main(int argc, char **argv) {
@@ -2380,6 +2466,9 @@ int main(int argc, char **argv) {
     test_loop_carried_stack();
     test_variant_tags_and_payloads();
     test_aggregate_runtime_kind_checks();
+    test_aggregate_call_facts();
+    test_unrepresentable_call_facts();
+    test_recursive_and_branch_record_facts();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);
