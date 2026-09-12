@@ -119,8 +119,8 @@ DEPENDENCY_FILES := $(shell find $(OBJ_DIR) -type f -name '*.d' 2>/dev/null)
 -include $(DEPENDENCY_FILES)
 
 $(OBJ_DIR)/%.o: override CFLAGS += $(DEPFLAGS)
-# Module FFI cache. nanoc honors NANO_BUILD_CACHE; Make exports this so
-# `make clean` (rm -rf $(OBJ_DIR)) and module compiles share one tree.
+# I retain the module FFI cache across ordinary clean: bytecode may still
+# reference immutable generations here after its source build is removed.
 MODULE_BUILD_CACHE ?= $(OBJ_DIR)/module_cache
 export NANO_BUILD_CACHE ?= $(abspath $(MODULE_BUILD_CACHE))
 COV_DIR = coverage
@@ -2357,6 +2357,10 @@ test-parser-recovery: $(COMPILER_C) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 		$(RUNTIME_OBJECTS) $(LDFLAGS)
 	ASAN_OPTIONS=detect_leaks=0 $(BIN_DIR)/parser_recovery_test
 
+.PHONY: test-clean-cache-retention
+test-clean-cache-retention:
+	@python3 -m unittest tests.test_clean_cache_retention
+
 test-make-header-dependencies:
 	@echo "Checking incremental C header dependencies..."
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
@@ -2590,21 +2594,19 @@ module-self-test: $(COMPILER_C) modules-index
 # Backwards-compatible alias
 module-mvp: module-self-test
 
-# Clean: Remove all build artifacts and sentinels
+# I clean compiler artifacts and sentinels, not retained runtime generations.
 clean:
-	@echo "Cleaning all build artifacts..."
-	rm -rf $(OBJ_DIR) $(BUILD_DIR) $(COV_DIR)
-	rm -rf $(BIN_DIR)/*
-	rm -f *.out *.out.c tests/*.out tests/*.out.c
-	rm -f $(SENTINEL_STAGE1) $(SENTINEL_STAGE2) $(SENTINEL_STAGE3)
-	rm -f $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
-	rm -f $(SCHEMA_STAMP)
-	rm -f *.gcda *.gcno *.gcov coverage.info
-	rm -f test.nano test_output.c test_program
-	rm -rf .test_output
-	find tests -name "*.out" -o -name "*.out.c" 2>/dev/null | xargs rm -f || true
-	rm -f formal/*.vo formal/*.vok formal/*.vos formal/*.glob formal/.*.aux
-	@$(TIMEOUT_CMD) $(MAKE) -C examples clean 2>/dev/null || true
+	@echo "I clean compiler artifacts and retain module runtime caches."
+	python3 scripts/clean_build_trees.py --root "$(OBJ_DIR)" --root "$(BUILD_DIR)" \
+		--root "$(COV_DIR)" --root "$(BIN_DIR)" \
+		--cache "$(OBJ_DIR)/module_cache" --cache "$(NANO_BUILD_CACHE)" \
+		$(foreach file,$(SENTINEL_STAGE1) $(SENTINEL_STAGE2) $(SENTINEL_STAGE3) $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3),--file "$(file)") \
+		--file "$(SCHEMA_STAMP)" --file coverage.info --file test.nano \
+		--file test_output.c --file test_program --root .test_output \
+		--glob '*.out' --glob '*.out.c' --glob 'tests/**/*.out' --glob 'tests/**/*.out.c' \
+		--glob '*.gcda' --glob '*.gcno' --glob '*.gcov' \
+		--glob 'formal/*.vo' --glob 'formal/*.vok' --glob 'formal/*.vos' \
+		--glob 'formal/*.glob' --glob 'formal/.*.aux'
 	@echo "✅ Clean complete - ready for fresh build"
 
 # Rebuild: Clean and build from scratch

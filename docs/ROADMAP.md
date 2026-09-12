@@ -362,6 +362,26 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache retention — ordinary build cleanup.** `make clean` previously
+      removed `obj/module_cache`, invalidating existing bytecode bindings. I
+      preserve the default and configured runtime caches while cleaning build
+      trees, reject unsafe cleanup roots, and test actual clean invocations in
+      isolated workspaces. Runtime-cache reset remains a separate destructive
+      action requiring quiescence and acceptance of invalidated artifacts.
+      I also replace the module guide's obsolete timestamp-only and
+      `.build_info.json` descriptions with the current generation layout.
+      Project/example recipes preserve six configured cache placements, local
+      and default caches, earlier marked cache locations and private stages.
+      Four cleanup methods cover those cases, direct generation/stage roots,
+      unsafe roots and symlink ancestors. A real library loads in a fresh
+      process after clean and the next build reuses its generation. The full
+      normal gates pass: header invalidation, 28 shadows, 52 cache tests,
+      five wrapper link tests, seven wrapper boundary tests, 63 codegen tests,
+      19 FFI tests and package/dependency gates (Darwin, 2026-09-12). After
+      extending conservative retention markers, I reran all cleanup methods
+      and the real-library clean/reuse test successfully. Automatic collection
+      and the broader transaction item remain open; no new sanitizer claim.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 cache retention — surviving compiler evidence.** I kill only the
       builder while a controlled compiler child is paused, then require a new
       acknowledgement from that child. I test whether another builder can

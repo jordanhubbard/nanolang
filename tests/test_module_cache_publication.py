@@ -1513,6 +1513,30 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                         except ProcessLookupError: pass
                     process.communicate(timeout=10)
 
+    def test_make_clean_preserves_foreign_generations(self):
+        from tests.test_clean_cache_retention import fixture
+        with tempfile.TemporaryDirectory(prefix="nano-retained-library-") as tmp:
+            directory = Path(tmp)
+            fixture(directory)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            env["NANO_BUILD_CACHE"] = str(directory / "obj/module_cache")
+            self.probe_path("build", module, env)
+            generation = self.probe_path("directory", module, env)
+            library = self.probe_path("library", module, env)
+            retained = self.snapshot(generation)
+            result = subprocess.run(["make", "-f", "Makefile.gnu", "clean"], cwd=directory,
+                                    env=env, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.snapshot(generation), retained)
+            result = subprocess.run([sys.executable, "-c",
+                "import ctypes,sys; lib=ctypes.CDLL(sys.argv[1]); "
+                "lib.nano_build_answer.restype=ctypes.c_int64; print(lib.nano_build_answer())", str(library)],
+                capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), b"42")
+            self.probe_path("build", module, env)
+            self.assertEqual(self.probe_path("directory", module, env), generation)
+
     def test_overlapping_builders_wait_and_reuse(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)

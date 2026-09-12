@@ -410,6 +410,19 @@ descendant-aware lifetime mechanism or an explicit quiescence contract first.
 Published generations also remain retained: copied bytecode can reference their
 absolute paths outside the cache owner's inventory. Retention can consume
 unbounded disk space; a size or age limit cannot safely infer those references.
+Ordinary project and example `make clean` targets therefore preserve local
+module caches, the default `obj/module_cache`, and the configured shared cache.
+My project clean removes unrelated compiler trees and files but keeps cache
+ancestors. It does not recursively invoke another recipe that can delete the
+retained cache. I also retain earlier cache locations identified by my lock,
+generation or private-stage names; changing the configured cache must not
+discard an older generation or a surviving compiler child's stage. This is a
+conservative retention hint, not a liveness test. The cleanup helper validates tree boundaries before removing
+anything and does not traverse directory symlinks. I test the actual recipes
+in disposable workspaces, then load a retained foreign library in a fresh
+process and verify warm generation reuse. Manual cache reset requires retiring
+dependent artifacts and quiescing compiler descendants; it is not a normal
+clean operation.
 
 I do not follow symlinks or recurse into unexpected directories while flushing
 generation contents. Interrupted barriers retry; failed barriers fail the build.
