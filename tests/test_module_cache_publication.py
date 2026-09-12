@@ -222,6 +222,88 @@ int64_t nano_build_answer(void) {
             self.assertEqual(result.returncode, 1, (result.stdout, result.stderr))
             self.assertIn(b"nano_build_answer", result.stderr)
 
+    def test_foreign_compiler_paths_are_literal(self):
+        for multi, special in ((False, ""), (True, ""), (False, "\\"), (True, "\\"), (True, "\n")):
+            with self.subTest(multi=multi, special=special), tempfile.TemporaryDirectory(prefix="nano-foreign-path-") as tmp:
+                directory = Path(tmp)
+                parent = directory / f"literal ' \" {special} $(touch injected) ; directory"
+                parent.mkdir()
+                module, source, env = self.support.foreign_build_fixture(parent)
+                raw = str(module / "api.nano")
+                source = source.replace('"' + raw + '"', json.dumps(raw))
+                includes = module / f"include ' \" {special} literal"
+                includes.mkdir()
+                (includes / "answer.h").write_text("#define ANSWER 40\n")
+                name = f"answer ' \" {special} literal.c"
+                (module / "answer.c").rename(module / name)
+                (module / name).write_text('#include <stdint.h>\n#include "answer.h"\nint64_t private_answer(void);\nint64_t nano_build_answer(void) { return ANSWER + private_answer(); }\n')
+                private = f"private ' \" {special} literal.c"
+                (module / private).write_text('#include <stdint.h>\n#include "answer.h"\nint64_t private_answer(void) { return ANSWER - 38; }\n')
+                metadata = {"name": "answer_native", "c_sources": [name],
+                            "shared_c_sources": [private], "include_dirs": [str(includes)]}
+                if multi:
+                    extra = f"extra ' \" {special} literal.c"
+                    (module / extra).write_text("int extra_answer(void) { return 1; }\n")
+                    metadata["c_sources"].append(extra)
+                (module / "module.json").write_text(json.dumps(metadata))
+                env["NANO_BUILD_CACHE"] = str(directory / f"cache ' \" {special} literal")
+                result, output = self.support.compile(source, directory, "--run", env=env, cwd=directory)
+                self.assertEqual(result.returncode, 42, (result.stdout, result.stderr))
+                self.assertEqual(self.support.execute(output, env=env).returncode, 42)
+                self.assertFalse((directory / "injected").exists())
+                generation = self.probe_path("directory", module, env)
+                record = generation / "source_hashes.json"
+                if special:
+                    self.assertFalse(record.exists())
+                else:
+                    self.assertTrue(record.exists(), [(p.name, p.read_text()) for p in generation.glob("*.d")])
+                    self.assertIn("dep:" + str(includes / "answer.h"), json.loads(record.read_text()))
+                (includes / "answer.h").write_text("#define ANSWER 41\n")
+                result, output = self.support.compile(source.replace(" 42)", " 44)"), directory,
+                                                      "--run", env=env, cwd=directory)
+                self.assertEqual(result.returncode, 44, (result.stdout, result.stderr))
+
+    def test_dependency_records_reject_incomplete_evidence(self):
+        with tempfile.TemporaryDirectory(prefix="nano-dep-record-") as tmp:
+            directory = Path(tmp)
+            header = directory / "quoted ' $ # header.h"
+            header.write_text("#define ANSWER 42\n")
+            escaped = str(header).replace("$", "$$").replace("#", "\\#").replace(" ", "\\ ")
+            dependency = directory / "record.d"
+            dependency.write_text("nano_module_dependencies: \\\n " + escaped + "\n")
+            result = subprocess.run([str(self.probe), "deps", str(dependency)], cwd=ROOT,
+                                    capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("dep:" + str(header), json.loads(result.stdout))
+            bad = ["", "wrong_target: " + escaped, "nano_module_dependencies:",
+                   "nano_module_dependencies: " + escaped + " /no-such-nano-header.h",
+                   "nano_module_dependencies: " + "x" * 5000,
+                   "nano_module_dependencies: " + escaped + "\x00hidden",
+                   "nano_module_dependencies: $unexpanded"]
+            for text in bad:
+                dependency.write_text(text)
+                result = subprocess.run([str(self.probe), "deps", str(dependency)], cwd=ROOT,
+                                        capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 1, (text[:80], result.stderr))
+
+    def test_oversized_foreign_command_preserves_generation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-command-bound-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            result, output = self.support.compile(source, directory, env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            old = output.read_bytes()
+            generation = self.probe_path("directory", module, env)
+            manifest = module / "module.json"
+            metadata = json.loads(manifest.read_text())
+            metadata["cflags"] = ["-DOVERSIZED=" + "x" * 10000]
+            manifest.write_text(json.dumps(metadata))
+            result, output = self.support.compile(source, directory, env=env)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertEqual(output.read_bytes(), old)
+            self.assertEqual(self.probe_path("directory", module, env), generation)
+            self.assertEqual(self.support.execute(output, env=env).returncode, 42)
+
     def test_multi_source_and_private_dependencies_publish(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)

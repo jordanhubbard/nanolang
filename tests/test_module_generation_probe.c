@@ -25,6 +25,16 @@ static int generation_test_rename(const char *source, const char *target) {
 
 int main(int argc, char **argv) {
     if (argc != 3 && argc != 4) return 2;
+    if (strcmp(argv[1], "deps") == 0) {
+        cJSON *root = cJSON_CreateObject();
+        if (!root) return 1;
+        bool ok = hash_depfile_into_cache(root, argv[2]);
+        char *json = cJSON_PrintUnformatted(root);
+        if (json) puts(json);
+        free(json);
+        cJSON_Delete(root);
+        return ok ? 0 : 1;
+    }
     if (strcmp(argv[1], "root") == 0) {
         char path[2048];
         size_t size = argc == 4 ? (size_t)strtoul(argv[3], NULL, 10) : sizeof(path);

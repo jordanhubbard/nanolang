@@ -417,13 +417,37 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with a diagnostic. I do not claim power-loss durability, a compiler
       sandbox or cross-platform execution from these tests.
       MAC `task_0750c33a06a14dd39baf4d3e77e37a0d`.
-- [ ] **5.0 foreign-module compiler path boundaries.** My manifest-backed
-      C-module compiler still constructs shell commands with raw source,
-      dependency and object paths. A foreign module under a path containing
-      quotes and backslashes fails before wrapper generation. I must preserve
-      literal bytes through every foreign build phase and test metacharacters,
-      without confusing this with the repaired C-seed link-path handling.
+- [x] **5.0 foreign-module compiler path boundaries.** I quote filesystem
+      arguments through ordinary compilation, relocatable-object combination,
+      shared-only compilation and shared-library linking. Shared-only sources
+      now receive the common include and platform compile settings. Five
+      single/multi-source path cases cover quotes, dollar expressions,
+      backslashes and newlines in source, include and cache locations. The
+      original two cases fail before the repair; all five now execute and
+      observe subsequent header edits. Compiler and flag command fragments
+      remain trusted configuration, not a sandbox boundary.
       MAC `task_8c10a946dfa14d92b491fd80f4635187`.
+- [x] **5.0 foreign command and dependency record bounds.** I reject truncated
+      compiler commands before execution, decode supported Make escapes and
+      require every expected dependency record. Malformed, missing, unreadable,
+      NUL-containing or overlong records cannot establish reuse. My context
+      version invalidates older evidence. The header-edit regression fails
+      before this repair and passes afterward. Clang emits lossy dependency
+      paths for literal backslashes: affected manifest paths (and newline
+      paths) still compile but deliberately receive no reusable hash record.
+      Parser boundary cases and oversized-command preservation pass alongside
+      28 shadows, 26 cache tests, five wrapper link tests, seven wrapper boundary
+      tests, 63 codegen tests, 19 FFI tests and package/dependency gates on Darwin
+      (2026-09-12). These checks validate records, not compiler truthfulness.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 lossless transitive compiler dependency evidence.** My current
+      cache excludes known lossy manifest paths and rejects incomplete decoded
+      records. A compiler can still rewrite a transitive header name into a
+      different existing path. I need lossless dependency capture or a stronger
+      verified boundary before claiming every cached header is the header the
+      compiler actually read. Source snapshot and toolchain identity work also
+      remains open.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 C-library cache — atomic generation publication.** I publish
       object, library, dependency files and reuse evidence as one generation
       through an atomic current-pointer replacement. Native link inputs and

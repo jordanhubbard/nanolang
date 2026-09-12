@@ -8,6 +8,8 @@
 #include "module_builder.h"
 #include "runtime/module_build_dir.h"
 #include "utf8.h"
+#include "shell_path.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -441,6 +443,15 @@ static char *module_compiler_path(const char *cc) {
 }
 
 static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
+    /* I observed clang's Make dependency output turn literal backslashes into
+     * slashes. These inputs still compile, but cannot establish cache reuse. */
+    if (!meta || !meta->module_dir || strpbrk(meta->module_dir, "\\\r\n")) return 0;
+    for (size_t group = 0; group < 3; group++) {
+        char **paths = group == 0 ? meta->c_sources : group == 1 ? meta->shared_c_sources : meta->include_dirs;
+        size_t count = group == 0 ? meta->c_sources_count : group == 1 ? meta->shared_c_sources_count : meta->include_dirs_count;
+        for (size_t i = 0; i < count; i++)
+            if (!paths[i] || strpbrk(paths[i], "\\\r\n")) return 0;
+    }
     const char *cc = module_selected_compiler(meta);
     char *driver = module_compiler_path(cc);
     char *cwd = getcwd(NULL, 0);
@@ -449,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v3-canonical-modules");
+    hash_context_field(&hash, "nanolang-c-build-context-v4-literal-paths-complete-deps");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -622,93 +633,89 @@ static bool system_headers_match(cJSON *cache, ModuleBuildMetadata *meta) {
     return true;
 }
 
-/* Parse a compiler-generated Make-format .d dependency file and add every
-   listed dependency path as a "dep:<path>" hash entry in root.
-   Handles backslash-continuation lines and escaped spaces. */
-static void hash_depfile_into_cache(cJSON *root, const char *depfile_path) {
-    FILE *fp = fopen(depfile_path, "r");
-    if (!fp) return;
-    fseek(fp, 0, SEEK_END);
-    long sz = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-    if (sz <= 0) { fclose(fp); return; }
-    char *buf = malloc((size_t)sz + 1);
-    if (!buf) { fclose(fp); return; }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-    fread(buf, 1, (size_t)sz, fp);
-#pragma GCC diagnostic pop
-    buf[sz] = '\0';
-    fclose(fp);
+/* I only cache a complete dependency record. Unknown escapes, missing files,
+ * truncation and allocation failures cannot establish safe reuse. */
+static bool hash_dependency(cJSON *root, const char *path) {
+    uint64_t hash = hash_file_fnv1a(path);
+    if (!hash) return false;
+    char key[4101], value[24];
+    int n = snprintf(key, sizeof(key), "dep:%s", path);
+    if (n < 0 || (size_t)n >= sizeof(key)) return false;
+    snprintf(value, sizeof(value), "%llu", (unsigned long long)hash);
+    return cJSON_GetObjectItemCaseSensitive(root, key) ||
+           cJSON_AddStringToObject(root, key, value);
+}
 
-    /* Skip past the "target(s):" prefix to reach the dependency list. */
-    char *p = strchr(buf, ':');
-    if (!p) { free(buf); return; }
-    p++;
-
-    /* Tokenize: paths are space-separated, lines end with \ for continuation. */
-    char token[4096];
-    int ti = 0;
-
-    while (*p) {
-        if (*p == '\\' && *(p + 1) == '\n') {
-            p += 2; /* backslash-newline continuation */
-        } else if (*p == '\\' && *(p + 1) == '\r' && *(p + 2) == '\n') {
-            p += 3;
-        } else if (*p == '\\' && *(p + 1) == ' ') {
-            /* escaped space inside a path (rare but legal) */
-            if (ti < (int)sizeof(token) - 1) token[ti++] = ' ';
-            p += 2;
-        } else if (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') {
-            if (ti > 0) {
-                token[ti] = '\0';
-                if (access(token, R_OK) == 0) {
-                    uint64_t h = hash_file_fnv1a(token);
-                    char hstr[24];
-                    snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
-                    char key[4096 + 5];
-                    snprintf(key, sizeof(key), "dep:%s", token);
-                    if (!cJSON_GetObjectItemCaseSensitive(root, key))
-                        cJSON_AddStringToObject(root, key, hstr);
-                }
-                ti = 0;
-            }
-            p++;
-        } else {
-            if (ti < (int)sizeof(token) - 1) token[ti++] = *p;
-            p++;
-        }
+static bool hash_depfile_into_cache(cJSON *root, const char *depfile_path) {
+    FILE *fp = fopen(depfile_path, "rb");
+    if (!fp) return false;
+    if (fseek(fp, 0, SEEK_END) != 0) { fclose(fp); return false; }
+    long size = ftell(fp);
+    if (size <= 0 || (unsigned long)size >= SIZE_MAX ||
+        fseek(fp, 0, SEEK_SET) != 0) { fclose(fp); return false; }
+    char *buf = malloc((size_t)size + 1);
+    if (!buf) { fclose(fp); return false; }
+    bool ok = fread(buf, 1, (size_t)size, fp) == (size_t)size && !ferror(fp);
+    if (fclose(fp) != 0) ok = false;
+    buf[size] = '\0';
+    static const char target[] = "nano_module_dependencies:";
+    if (!ok || memchr(buf, 0, (size_t)size) ||
+        strncmp(buf, target, sizeof(target) - 1) != 0) {
+        free(buf);
+        return false;
     }
-    /* flush final token */
-    if (ti > 0) {
-        token[ti] = '\0';
-        if (access(token, R_OK) == 0) {
-            uint64_t h = hash_file_fnv1a(token);
-            char hstr[24];
-            snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
-            char key[4096 + 5];
-            snprintf(key, sizeof(key), "dep:%s", token);
-            if (!cJSON_GetObjectItemCaseSensitive(root, key))
-                cJSON_AddStringToObject(root, key, hstr);
+    char *p = buf + sizeof(target) - 1;
+    char token[4096];
+    size_t used = 0, count = 0;
+    while (ok) {
+        if (!*p || *p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') {
+            if (used) {
+                token[used] = '\0';
+                ok = hash_dependency(root, token);
+                used = 0;
+                count++;
+            }
+            if (!*p) break;
+            p++;
+        } else if (*p == '\\' && p[1] == '\n') {
+            p += 2;
+        } else if (*p == '\\' && p[1] == '\r' && p[2] == '\n') {
+            p += 3;
+        } else {
+            char byte = *p++;
+            if (byte == '$') {
+                if (*p != '$') { ok = false; break; }
+                p++;
+            } else if (byte == '\\' && (*p == ' ' || *p == '\t' || *p == '#' || *p == '\\')) {
+                byte = *p++;
+            } else if (byte == '#') {
+                ok = false;
+                break;
+            }
+            if (used == sizeof(token) - 1) { ok = false; break; }
+            token[used++] = byte;
         }
     }
     free(buf);
+    return ok && count > 0;
 }
 
-/* Scan the module build directory for compiler-generated *.d files and add
-   all their dependency hashes to root. Called after a successful compile. */
-static void hash_depfiles_in_build_dir(cJSON *root, const char *build_dir) {
-    DIR *d = opendir(build_dir);
-    if (!d) return;
-    struct dirent *e;
-    while ((e = readdir(d)) != NULL) {
-        size_t len = strlen(e->d_name);
-        if (len < 3 || strcmp(e->d_name + len - 2, ".d") != 0) continue;
-        char deppath[1024];
-        snprintf(deppath, sizeof(deppath), "%s/%s", build_dir, e->d_name);
-        hash_depfile_into_cache(root, deppath);
+static bool hash_depfiles_in_build_dir(cJSON *root, const char *build_dir,
+                                       const ModuleBuildMetadata *meta) {
+    /* I require one dependency record for every requested compilation. */
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            char path[2048];
+            int n;
+            if (group) n = snprintf(path, sizeof(path), "%s/__shared_%zu.d", build_dir, i);
+            else if (count == 1) n = snprintf(path, sizeof(path), "%s/%s.d", build_dir, meta->name);
+            else n = snprintf(path, sizeof(path), "%s/%s_%zu.d", build_dir, meta->name, i);
+            if (n < 0 || (size_t)n >= sizeof(path) || !hash_depfile_into_cache(root, path))
+                return false;
+        }
     }
-    closedir(d);
+    return meta->c_sources_count > 0;
 }
 
 /* Verify that every "dep:<path>" entry in the cache still matches the file on disk.
@@ -791,8 +798,10 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
     /* Hash system headers declared in module.json (fast top-level check) */
     hash_system_headers(root, meta);
     /* Hash all transitively-included headers from compiler-generated .d files */
-    hash_depfiles_in_build_dir(root, build_dir);
-    save_hash_cache(build_dir, root);
+    if (hash_depfiles_in_build_dir(root, build_dir, meta))
+        save_hash_cache(build_dir, root);
+    else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
+        fprintf(stderr, "I cannot establish complete dependency evidence; I will rebuild this module next time\n");
     cJSON_Delete(root);
 }
 
@@ -2034,6 +2043,32 @@ static bool ensure_module_system_deps(ModuleBuildMetadata *meta) {
     return false;
 }
 
+/* I keep truncation inside the buffer and report it before running a command. */
+static bool module_build_append(char *buffer, size_t capacity, const char *format, ...) {
+    size_t used = strlen(buffer);
+    if (used >= capacity) return false;
+    va_list args;
+    va_start(args, format);
+    int n = vsnprintf(buffer + used, capacity - used, format, args);
+    va_end(args);
+    return n >= 0 && (size_t)n < capacity - used;
+}
+
+static bool module_source_command(char *command, size_t capacity, const char *prefix,
+                                  const char *directory, const char *source,
+                                  const char *object, const char *dependency, bool hidden) {
+    char source_path[2048];
+    int n = source[0] == '/' ? snprintf(source_path, sizeof(source_path), "%s", source)
+                            : snprintf(source_path, sizeof(source_path), "%s/%s", directory, source);
+    command[0] = '\0';
+    if (n < 0 || (size_t)n >= sizeof(source_path)) return false;
+    return module_build_append(command, capacity, "%s -MMD -MT nano_module_dependencies%s", prefix,
+                               hidden ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "") &&
+           module_append_path_flag(command, capacity, "-MF ", dependency) &&
+           module_append_path_flag(command, capacity, "", source_path) &&
+           module_append_path_flag(command, capacity, "-o ", object);
+}
+
 static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
                                            ModuleBuildMetadata *meta, const char *staging) {
     if (!meta) return NULL;
@@ -2156,9 +2191,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 
     char *build_dir = needs_rebuild && staging ? strdup(staging) : module_get_artifact_dir(meta->module_dir);
     if (!build_dir) return false;
-    char object_file[1024];
-    snprintf(object_file, sizeof(object_file), "%s/%s.o",
-             build_dir, meta->name ? meta->name : "unknown");
+    char object_file[1024] = {0};
+    if (!module_build_append(object_file, sizeof(object_file), "%s/%s.o",
+                             build_dir, meta->name ? meta->name : "unknown")) {
+        free(build_dir);
+        return NULL;
+    }
 
     if (needs_rebuild) {
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
@@ -2169,14 +2207,14 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         const char *cc = module_selected_compiler(meta);
 
         // Build a reusable compile prefix (flags only)
-        char compile_prefix[4096];
-        int prefix_pos = 0;
-        prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, "%s -c -fPIC", cc);
+        bool command_ok = true;
+        char compile_prefix[4096] = {0};
+        command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), "%s -c -fPIC", cc);
 
         // On Linux/FreeBSD enable POSIX 2008 extensions (strdup, strndup, etc.)
         // macOS provides these unconditionally; Linux/BSD require the feature-test macro.
 #if !defined(__APPLE__)
-        prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " -D_POSIX_C_SOURCE=200809L");
+        command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " -D_POSIX_C_SOURCE=200809L");
 #endif
 
         // Add pkg-config cflags
@@ -2186,49 +2224,49 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #endif
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
             if (pkg_cflags) {
-                prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", pkg_cflags);
+                command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", pkg_cflags);
                 free(pkg_cflags);
             }
         }
 
         // Add include dirs
         for (size_t i = 0; i < meta->include_dirs_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " -I%s", meta->include_dirs[i]);
+            command_ok &= module_append_include(compile_prefix, sizeof(compile_prefix), meta->include_dirs[i]);
         }
 
         // Add custom cflags (all platforms)
         for (size_t i = 0; i < meta->cflags_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags[i]);
+            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags[i]);
         }
         // Add platform-specific cflags
 #ifdef __APPLE__
         for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_macos[i]);
+            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags_macos[i]);
         }
 #elif defined(__FreeBSD__)
         for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_freebsd[i]);
+            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags_freebsd[i]);
         }
 #else
         for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_linux[i]);
+            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags_linux[i]);
         }
 #endif
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
-            char dep_path[1024];
-            snprintf(dep_path, sizeof(dep_path), "%s/%s.d",
+            char dep_path[1024] = {0};
+            command_ok &= module_build_append(dep_path, sizeof(dep_path), "%s/%s.d",
                      build_dir, meta->name ? meta->name : "unknown");
             char compile_cmd[8192];
-            snprintf(compile_cmd, sizeof(compile_cmd), "%s -MMD -MF %s %s/%s -o %s",
-                     compile_prefix, dep_path, meta->module_dir, meta->c_sources[0], object_file);
+            command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
+                         meta->module_dir, meta->c_sources[0], object_file, dep_path, false);
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] %s\n", compile_cmd);
             }
 
-            int result = system(compile_cmd);
+            int result = command_ok ? system(compile_cmd) : -1;
             if (result != 0) {
                 fprintf(stderr, "Error: Failed to compile module %s\n", meta->name);
                 free(build_dir);
@@ -2244,22 +2282,22 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             }
 
             for (size_t i = 0; i < meta->c_sources_count; i++) {
-                char obj_path[1024];
-                snprintf(obj_path, sizeof(obj_path), "%s/%s_%zu.o", build_dir, meta->name, i);
+                char obj_path[1024] = {0};
+                command_ok &= module_build_append(obj_path, sizeof(obj_path), "%s/%s_%zu.o", build_dir, meta->name, i);
                 src_objects[i] = strdup(obj_path);
 
-                char dep_path[1024];
-                snprintf(dep_path, sizeof(dep_path), "%s/%s_%zu.d",
+                char dep_path[1024] = {0};
+                command_ok &= module_build_append(dep_path, sizeof(dep_path), "%s/%s_%zu.d",
                          build_dir, meta->name ? meta->name : "unknown", i);
                 char compile_cmd[8192];
-                snprintf(compile_cmd, sizeof(compile_cmd), "%s -MMD -MF %s %s/%s -o %s",
-                         compile_prefix, dep_path, meta->module_dir, meta->c_sources[i], obj_path);
+                command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
+                         meta->module_dir, meta->c_sources[i], obj_path, dep_path, false);
 
                 if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                     printf("[Module] %s\n", compile_cmd);
                 }
 
-                int result = system(compile_cmd);
+                int result = command_ok ? system(compile_cmd) : -1;
                 if (result != 0) {
                     fprintf(stderr, "Error: Failed to compile module %s (%s)\n", meta->name, meta->c_sources[i]);
                     for (size_t j = 0; j < meta->c_sources_count; j++) free(src_objects[j]);
@@ -2269,18 +2307,18 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            char combine_cmd[8192];
-            int combine_pos = 0;
-            combine_pos += snprintf(combine_cmd + combine_pos, sizeof(combine_cmd) - combine_pos, "%s -r -o %s", cc, object_file);
+            char combine_cmd[8192] = {0};
+            command_ok &= module_build_append(combine_cmd, sizeof(combine_cmd), "%s -r", cc);
+            command_ok &= module_append_path_flag(combine_cmd, sizeof(combine_cmd), "-o ", object_file);
             for (size_t i = 0; i < meta->c_sources_count; i++) {
-                combine_pos += snprintf(combine_cmd + combine_pos, sizeof(combine_cmd) - combine_pos, " %s", src_objects[i]);
+                command_ok &= src_objects[i] && module_append_path_flag(combine_cmd, sizeof(combine_cmd), "", src_objects[i]);
             }
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] %s\n", combine_cmd);
             }
 
-            int combine_result = system(combine_cmd);
+            int combine_result = command_ok ? system(combine_cmd) : -1;
             for (size_t i = 0; i < meta->c_sources_count; i++) free(src_objects[i]);
             free(src_objects);
 
@@ -2296,12 +2334,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
         
         /* Also create shared library for interpreter FFI */
-        char shared_lib[1024];
+        char shared_lib[1024] = {0};
         #ifdef __APPLE__
-        snprintf(shared_lib, sizeof(shared_lib), "%s/lib%s.dylib",
+        command_ok &= module_build_append(shared_lib, sizeof(shared_lib), "%s/lib%s.dylib",
                  build_dir, meta->name);
         #else
-        snprintf(shared_lib, sizeof(shared_lib), "%s/lib%s.so",
+        command_ok &= module_build_append(shared_lib, sizeof(shared_lib), "%s/lib%s.so",
                  build_dir, meta->name);
         #endif
 
@@ -2316,24 +2354,22 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 
         if (shared_dir_ok) {
             /* Build shared library command */
-            char lib_cmd[4096];
-            size_t lib_pos = 0;
+            char lib_cmd[4096] = {0};
             
             #ifdef __APPLE__
             /* On macOS, allow unresolved symbols so modules can reference symbols
              * provided by the host process (compiler/interpreter) at dlopen() time.
              */
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               "%s -dynamiclib -undefined dynamic_lookup -fPIC -o %s",
-                               cc, shared_lib);
+            command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
+                               "%s -dynamiclib -undefined dynamic_lookup -fPIC", cc);
             #else
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               "%s -shared -fPIC -Wl,--allow-shlib-undefined -o %s",
-                               cc, shared_lib);
+            command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
+                               "%s -shared -fPIC -Wl,--allow-shlib-undefined", cc);
             #endif
             
             /* Link the shared library from the module object (supports multi-source modules) */
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", object_file);
+            command_ok &= module_append_path_flag(lib_cmd, sizeof(lib_cmd), "-o ", shared_lib);
+            command_ok &= module_append_path_flag(lib_cmd, sizeof(lib_cmd), "", object_file);
             
             /* Add pkg-config flags (deduplicated) */
             char *shared_cflags[1024] = {0};
@@ -2349,7 +2385,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
             for (size_t i = 0; i < shared_cflags_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_cflags[i]);
+                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd), " %s", shared_cflags[i]);
                 free(shared_cflags[i]);
             }
 
@@ -2382,29 +2418,29 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             #endif
 
             for (size_t i = 0; i < shared_ldflags_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_ldflags[i]);
+                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd), " %s", shared_ldflags[i]);
                 free(shared_ldflags[i]);
             }
             
             /* Add custom cflags (all platforms) */
             for (size_t i = 0; i < meta->cflags_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
                                    " %s", meta->cflags[i]);
             }
             /* Add platform-specific cflags */
 #ifdef __APPLE__
             for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
                                    " %s", meta->cflags_macos[i]);
             }
 #elif defined(__FreeBSD__)
             for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
                                    " %s", meta->cflags_freebsd[i]);
             }
 #else
             for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
+                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
                                    " %s", meta->cflags_linux[i]);
             }
 #endif
@@ -2416,33 +2452,21 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
              * preventing duplicate-symbol errors when the host binary also has those symbols
              * (e.g. from modules/std/json). */
             if (meta->shared_c_sources_count > 0) {
-                const char *cc_sc = cc;
                 for (size_t sci = 0; sci < meta->shared_c_sources_count; sci++) {
-                    char sc_obj[2048];
-                    snprintf(sc_obj, sizeof(sc_obj), "%s/__shared_%zu.o", shared_dir, sci);
-
+                    char sc_obj[2048] = {0}, sc_dep[2048] = {0};
+                    command_ok &= module_build_append(sc_obj, sizeof(sc_obj), "%s/__shared_%zu.o", shared_dir, sci);
+                    command_ok &= module_build_append(sc_dep, sizeof(sc_dep), "%s/__shared_%zu.d", shared_dir, sci);
                     char sc_cmd[8192];
-                    snprintf(sc_cmd, sizeof(sc_cmd),
-                             "%s -c -fPIC -fvisibility=hidden -D_POSIX_C_SOURCE=200809L -MMD -MF %s/__shared_%zu.d",
-                             cc_sc, shared_dir, sci);
-                    /* Append module cflags (include paths) */
-                    for (size_t fi = 0; fi < meta->cflags_count; fi++) {
-                        size_t sc_len = strlen(sc_cmd);
-                        snprintf(sc_cmd + sc_len, sizeof(sc_cmd) - sc_len, " %s", meta->cflags[fi]);
-                    }
-                    /* Append source path and output */
-                    size_t sc_len = strlen(sc_cmd);
-                    snprintf(sc_cmd + sc_len, sizeof(sc_cmd) - sc_len,
-                             " %s/%s -o %s", meta->module_dir, meta->shared_c_sources[sci], sc_obj);
+                    command_ok &= module_source_command(sc_cmd, sizeof(sc_cmd), compile_prefix,
+                                      meta->module_dir, meta->shared_c_sources[sci], sc_obj, sc_dep, true);
 
                     if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                         printf("[Module] (shared-only) %s\n", sc_cmd);
                     }
 
-                    if (system(sc_cmd) == 0) {
+                    if (command_ok && system(sc_cmd) == 0) {
                         /* Append this object to the lib_cmd */
-                        size_t lp = strlen(lib_cmd);
-                        snprintf(lib_cmd + lp, sizeof(lib_cmd) - lp, " %s", sc_obj);
+                        command_ok &= module_append_path_flag(lib_cmd, sizeof(lib_cmd), "", sc_obj);
                     } else {
                         fprintf(stderr,
                                 "I could not compile shared_c_source %s for %s\n",
@@ -2458,7 +2482,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 printf("[Module] Building shared library: %s\n", lib_cmd);
             }
             
-            int lib_result = system(lib_cmd);
+            int lib_result = command_ok ? system(lib_cmd) : -1;
             struct stat library_stat;
             if (lib_result != 0 || stat(shared_lib, &library_stat) != 0 ||
                 !S_ISREG(library_stat.st_mode) || library_stat.st_size == 0) {
