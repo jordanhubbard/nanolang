@@ -32,6 +32,7 @@ extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
 extern fn file_append(path: string, content: string) -> int
+extern fn file_delete(path: string) -> int
 
 /* Path operations */
 extern fn path_normalize(path: string) -> string
@@ -834,6 +835,7 @@ struct MergeResult {
     source: string
     files: array<string>
     repo_root: string
+    root_line: int
 }
 
 struct ModuleBuildFlags {
@@ -1177,13 +1179,16 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true max_files max_lines max_lines_per_file 0 trace)
     let files: array<string> = res.order
     if (not res.ok) {
-        return MergeResult { source: "", files: [], repo_root: repo_root }
+        return MergeResult { source: "", files: [], repo_root: repo_root, root_line: 0 }
     } else { (print "") }
     /* Write merged source directly to temp file - avoids O(n²) string concat */
     let merge_tmp: string = "/tmp/nanolang_merge_tmp.nano"
     let _dummy: int = (file_write merge_tmp "")
     let mut i: int = 0
+    let mut merged_lines: int = 0
+    let mut root_line: int = 1
     while (< i (array_length files)) {
+        if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
         let src: string = (file_read (at files i))
         let lines: array<string> = (split_lines src)
         let file_aliases: array<string> = (extract_from_aliases lines)
@@ -1198,6 +1203,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
                 let resolved_line: string = (apply_all_aliases (strip_pub_decl line) file_aliases)
                 let _w1: int = (file_append merge_tmp resolved_line)
                 let _w2: int = (file_append merge_tmp "\n")
+                set merged_lines (+ merged_lines 1)
             } else {
                 (print "")
             }
@@ -1205,7 +1211,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         }
         set i (+ i 1)
     }
-    return MergeResult { source: (file_read merge_tmp), files: files, repo_root: repo_root }
+    return MergeResult { source: (file_read merge_tmp), files: files, repo_root: repo_root, root_line: root_line }
 }
 
 shadow merge_with_imports {
@@ -1427,6 +1433,55 @@ fn llm_write_diags_json(path: string, input_file: string, output_file: string, e
     return (file_write path s)
 }
 
+fn native_shell_quote(path: string) -> string {
+    let mut result: string = "'"
+    let length: int = (str_length path)
+    let mut i: int = 0
+    while (< i length) {
+        let ch: string = (str_substring path i 1)
+        if (== ch "'") { set result (+ result "'\\''") }
+        else { set result (+ result ch) }
+        set i (+ i 1)
+    }
+    return (+ result "'")
+}
+
+shadow native_shell_quote {
+    assert (== (native_shell_quote "a b") "'a b'")
+    assert (== (native_shell_quote "a'b") "'a'\\''b'")
+}
+
+fn native_shadow_start(parser: Parser, root_line: int) -> int {
+    let mut i: int = 0
+    while (< i parser.shadows_count) {
+        let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)
+        if (>= sh.line root_line) { return i }
+        set i (+ i 1)
+    }
+    return i
+}
+
+shadow native_shadow_start {
+    let tokens: List<LexerToken> = (tokenize_string "fn f() -> int { return 1 }\nshadow f { assert false }\nshadow f { assert true }" "selection.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "selection.nano")
+    assert (== (native_shadow_start p 3) 1)
+    assert (== (native_shadow_start p 4) 2)
+}
+
+fn native_cleanup(directory: string, keep_c: bool) -> void {
+    if (== directory "") { return }
+    unsafe { (file_delete (+ directory "/shadows")) }
+    if keep_c { (println (+ "I kept generated C in " (+ directory "/program.c"))) }
+    else {
+        unsafe {
+            (file_delete (+ directory "/program.c"))
+            (file_delete directory)
+        }
+    }
+}
+
+shadow native_cleanup { (native_cleanup "" false) }
+
 fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool) -> int {
     if (== input_file "") { return 1 }
     if verbose {
@@ -1590,7 +1645,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let tc: TypecheckPhaseOutput = (typecheck_phase_with_symbols parser source_to_compile imported_symbols)
+            let first_shadow: int = (native_shadow_start parser merge_result.root_line)
+            let has_shadows: bool = (< first_shadow parser.shadows_count)
+            let tc: TypecheckPhaseOutput = (typecheck_phase_with_shadows parser source_to_compile imported_symbols first_shadow)
             if tc.had_error {
                 (println "NSType checking failed")
                 (println "Diagnostics:")
@@ -1666,13 +1723,19 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 if (!= llm_diags_json_path "") {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
                 }
+                if has_shadows { (println "I emitted C source without executing shadows; native compilation runs them.") }
                 return 0
             }
             
             /* Write C code to temporary file */
-            let c_file: string = (+ (tmp_dir) "/nanolang_temp.c")
-            let write_result: int = (file_write c_file c_code)
+            let native_dir: string = (mktemp_dir "nano_native_")
+            if (== native_dir "") { (println "I could not create native compilation staging") return 1 }
+            let c_file: string = (+ native_dir "/program.c")
+            let mut staged_code: string = c_code
+            if has_shadows { set staged_code (+ (transpile_parser_shadows parser first_shadow) introspection.code) }
+            let write_result: int = (file_write c_file staged_code)
             if (!= write_result 0) {
+                (native_cleanup native_dir false)
                 (println "Error: Failed to write C file")
                 if (not (== llm_diags_json_path "")) {
                     let msg: string = "Failed to write temporary C file"
@@ -1724,9 +1787,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             } else {
                 (print "")
             }
-            set cc_cmd (+ cc_cmd c_file)
-            set cc_cmd (+ cc_cmd " -o ")
-            set cc_cmd (+ cc_cmd output_file)
+            set cc_cmd (+ cc_cmd (native_shell_quote c_file))
             /* Add runtime library sources with absolute paths */
             let runtime_dir: string = (nl_path_join repo_root "src/runtime")
             set cc_cmd (+ cc_cmd " ")
@@ -1869,7 +1930,26 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             } else {
                 (print "")
             }
-            set cc_cmd (+ cc_cmd " 2>&1")
+            if has_shadows {
+                let test_file: string = (+ native_dir "/shadows")
+                let test_cmd: string = (+ cc_cmd (+ " -o " (+ (native_shell_quote test_file) " 2>&1")))
+                if (!= (nl_exec_shell test_cmd) 0) {
+                    (println "I could not compile native shadows")
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
+                if (!= (nl_exec_shell (native_shell_quote test_file)) 0) {
+                    (println "I will not publish native output after failed shadows")
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
+                if (!= (file_write c_file c_code) 0) {
+                    (println "I could not stage production C after checking shadows")
+                    (native_cleanup native_dir keep_c)
+                    return 1
+                }
+            }
+            set cc_cmd (+ cc_cmd (+ " -o " (+ (native_shell_quote output_file) " 2>&1")))
             
             if verbose {
                 (print "  Command: ")
@@ -1881,6 +1961,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let cc_result: int = (nl_exec_shell cc_cmd)
             if (!= cc_result 0) {
                 (println "Error: C compilation failed")
+                (native_cleanup native_dir keep_c)
                 return 1
             } else {
                 (print "")
@@ -1897,18 +1978,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            /* Clean up temp file unless --keep-c */
-            if (not keep_c) {
-                let rm_cmd: string = (+ "rm -f " c_file)
-                let _rm_result: int = (nl_exec_shell rm_cmd)
-            } else {
-                if verbose {
-                    (print "Kept C file: ")
-                    (println c_file)
-                } else {
-                    (print "")
-                }
-            }
+            (native_cleanup native_dir keep_c)
             
             if (not (== llm_diags_json_path "")) {
                 (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)

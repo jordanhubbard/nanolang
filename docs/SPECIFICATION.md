@@ -724,7 +724,8 @@ I use shadow tests to state executable expectations. My current paths differ:
 | Path | Observed failing-shadow behavior |
 | --- | --- |
 | C seed | I run selected shadows during compilation and reject a failing assertion. |
-| Stage 2 | I currently compile and run the characterization program without executing its failing shadow. |
+| Self-hosted native driver | I typecheck root shadows and run a separate native test executable before publishing native output. A failed assertion, signal, or ten-second execution deadline rejects compilation. |
+| Self-hosted `--target c` | I check types and emit production C without invoking a native compiler or executing shadows; I report that distinction. |
 | `nano_virt` bytecode CLI | I compile root-file shadows into a separate verified NanoISA module, execute it in NanoVM and reject failures before publishing output. |
 
 `tests/test_language_claims.py` checks these observations.
@@ -733,9 +734,16 @@ and output preservation. Its compiler parent enforces a 10-second deadline;
 test output goes to stderr. The child process is not a security sandbox.
 Production bytecode retains the original entry and omits the test harness.
 Shadow-only root files are accepted by this CLI. Imported shadows are not
-automatically included; import policy and Stage 2 enforcement remain gaps.
+automatically included; import policy and C-seed FFI exemptions remain gaps.
 My AOT translator consumes the emitted bytecode; it cannot recover omitted
 shadows or certify that a producer ran them.
+
+`make test-native-shadows` checks the self-hosted driver, including root/import
+selection, shadow-only files, inferred locals, scope rejection, output
+preservation, `NDEBUG` and foreign cancellation of a child alarm. Native test
+output goes to stderr; production output omits the harness. The deadline does
+not restrict filesystem, network, or foreign-code authority. Compilation and
+test execution are separate failure boundaries.
 
 ### 7.2 Syntax
 

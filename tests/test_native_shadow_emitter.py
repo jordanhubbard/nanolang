@@ -58,7 +58,12 @@ class NativeShadowEmitter(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                 else:
                     self.assertEqual(result.returncode, expected, result.stderr)
-                self.assertEqual(result.stdout, stdout)
+                if first >= 0:
+                    self.assertEqual(result.stdout, "")
+                    if stdout:
+                        self.assertIn(stdout, result.stderr)
+                else:
+                    self.assertEqual(result.stdout, stdout)
 
     def test_failing_assertion_with_ndebug(self):
         self.check("fn f() -> int { return 7 } shadow f { assert false }", expected=None, ndebug=True)

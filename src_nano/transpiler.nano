@@ -7606,7 +7606,7 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     let mut tests: array<string> = []
     set tests (cg_append tests "#undef NDEBUG\n#define main __nano_product_entry\n")
     set tests (cg_append tests product)
-    set tests (cg_append tests "\n#undef main\n")
+    set tests (cg_append tests "\n#undef main\n#include \"runtime/shadow_runner.h\"\n")
     let mut si: int = first_shadow
     while (< si parser.shadows_count) {
         let sh: ASTShadow = (list_ASTShadow_get parser.shadows si)
@@ -7617,13 +7617,14 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
         set tests (cg_append tests "}\n")
         set si (+ si 1)
     }
-    set tests (cg_append tests "int main(int argc, char **argv) {\n    g_argc = argc;\n    g_argv = argv;\n")
+    set tests (cg_append tests "static int __nano_shadow_entry(void) {\n")
     set si first_shadow
     while (< si parser.shadows_count) {
         set tests (cg_append tests (+ "    __nano_shadow_" (+ (int_to_string si) "();\n")))
         set si (+ si 1)
     }
     set tests (cg_append tests "    return 0;\n}\n")
+    set tests (cg_append tests "int main(int argc, char **argv) {\n    g_argc = argc;\n    g_argv = argv;\n    return nl_run_shadow_entry(__nano_shadow_entry, 10);\n}\n")
     return (cg_build tests)
 }
 

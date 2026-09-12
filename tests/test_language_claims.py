@@ -72,19 +72,14 @@ shadow main { assert (== (main) 0) }
                 self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                 self.assertEqual(self.execute(backend, output).returncode, 0)
 
-    def test_shadow_execution_gap(self):
+    def test_shadow_execution_rejects_failure(self):
         source = "fn f() -> int { return 42 }\nshadow f { assert false }\nfn main() -> int { return 0 }\nshadow main { assert true }\n"
         for backend in COMPILERS:
             with self.subTest(backend=backend), tempfile.TemporaryDirectory(prefix="nano-claims-") as tmp:
                 compiled, output = self.compile_source(backend, source, Path(tmp))
-                if backend != "selfhost":
-                    self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
-                    self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
-                    self.assertFalse(output.exists())
-                else:
-                    # I record a known gap, not successful shadow enforcement.
-                    self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
-                    self.assertEqual(self.execute(backend, output).returncode, 0)
+                self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
+                self.assertFalse(output.exists())
 
     def test_specification_unsafe_math_example(self):
         specification = (ROOT / "docs/SPECIFICATION.md").read_text()

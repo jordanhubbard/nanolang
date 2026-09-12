@@ -2001,6 +2001,71 @@ shadow env_add_symbol {
     assert (== 1 1)
 }
 
+fn env_copy_symbols(symbols: array<Symbol>) -> array<Symbol> {
+    let mut copy: array<Symbol> = []
+    let mut i: int = 0
+    while (< i (array_length symbols)) {
+        set copy (array_push copy (at symbols i))
+        set i (+ i 1)
+    }
+    return copy
+}
+
+shadow env_copy_symbols {
+    let original: array<Symbol> = []
+    let copy: array<Symbol> = (env_copy_symbols original)
+    let added: array<Symbol> = (env_add_symbol copy (symbol_new "local" (type_int) false false 0 (empty_param_types) (type_void)))
+    assert (== (array_length original) 0)
+    assert (== (array_length added) 1)
+}
+
+# I classify locals from every statement list, including nested expression blocks.
+fn typecheck_local_lets(parser: Parser) -> array<bool> {
+    let mut flags: array<bool> = []
+    let mut i: int = 0
+    while (< i (parser_get_let_count parser)) { set flags (array_push flags false) set i (+ i 1) }
+    set i 0
+    while (< i (parser_get_function_count parser)) {
+        let f: ASTFunction = (parser_get_function parser i)
+        let mut j: int = 0
+        while (< j f.param_count) { (array_set flags (+ f.param_start j) true) set j (+ j 1) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (list_ASTBlock_length parser.blocks)) {
+        let block: ASTBlock = (list_ASTBlock_get parser.blocks i)
+        let mut j: int = 0
+        while (< j (list_ASTStmtRef_length block.statements)) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements j)
+            if (== stmt.node_type ParseNodeType.PNODE_LET) { (array_set flags stmt.node_id true) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (list_ASTUnsafeBlock_length parser.unsafe_blocks)) {
+        let block: ASTUnsafeBlock = (list_ASTUnsafeBlock_get parser.unsafe_blocks i)
+        let mut j: int = 0
+        while (< j (list_ASTStmtRef_length block.statements)) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements j)
+            if (== stmt.node_type ParseNodeType.PNODE_LET) { (array_set flags stmt.node_id true) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return flags
+}
+
+shadow typecheck_local_lets {
+    let tokens: List<LexerToken> = (tokenize_string "let g: int = 1 fn f(x: int) -> int { let y: int = x return y } shadow f { let z: int = 2 assert true }" "locals.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "locals.nano")
+    let flags: array<bool> = (typecheck_local_lets p)
+    assert (not (at flags 0))
+    assert (at flags 1)
+    assert (at flags 2)
+    assert (at flags 3)
+}
+
 /* Look up symbol by name */
 fn env_lookup(symbols: array<Symbol>, name: string) -> int {
     /* Returns index of symbol, or -1 if not found */
@@ -2419,7 +2484,7 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
     let union_name: string = scrutinee_type.name
 
     while (< i m.arm_count) {
-        let mut arm_symbols: array<Symbol> = symbols
+        let mut arm_symbols: array<Symbol> = (env_copy_symbols symbols)
         let has_bindings: bool = (< i (array_length m.arm_bindings))
         if has_bindings {
             let binding_name: string = (at m.arm_bindings i)
@@ -2516,7 +2581,13 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
         let lookup: OptionType = (env_get_type symbols id_node.name)
-        if lookup.has_value { return lookup.value } else { return (type_unknown_named id_node.name) }
+        if lookup.has_value { return lookup.value }
+        let builtin: NSType = (check_builtin_function id_node.name)
+        let named_type: bool = (or (is_enum_name parser id_node.name) (is_union_name parser id_node.name))
+        if (and (not named_type) (== builtin.kind TypeKind.TYPE_UNKNOWN)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" (+ "I cannot find this name in the current scope: " id_node.name) (Diagnostics.diag_location file_name id_node.line id_node.column)))
+        }
+        return (type_unknown_named id_node.name)
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_BINARY_OP) {
         let binop: ASTBinaryOp = (parser_get_binary_op parser node_id)
@@ -3114,16 +3185,19 @@ shadow expr_kind_from_pnode {
 
 fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
     let block: ASTBlock = (parser_get_block parser block_id)
-    
-    let stmt_count: int = (list_ASTStmtRef_length block.statements)
-    let mut local_symbols: array<Symbol> = symbols
+    return (check_statement_list parser block.statements symbols expected_return diags file_name current_function)
+}
+
+fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
+    let stmt_count: int = (list_ASTStmtRef_length statements)
+    let mut local_symbols: array<Symbol> = (env_copy_symbols symbols)
     let mut ok: bool = true
     let mut returned: bool = false
     let mut value_type: NSType = (type_void)
 
     let mut i: int = 0
     while (< i stmt_count) {
-        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get statements i)
 
         /* Dead code detection: warn if statement follows a return */
         if (== returned true) {
@@ -3190,7 +3264,7 @@ fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expe
             } else { (print "") } }
             /* Add loop var to symbols, then check body */
             let loop_sym: Symbol = (symbol_new for_node.var_name loop_var_type false false 0 (empty_param_types) (type_void))
-            let body_symbols: array<Symbol> = (env_add_symbol local_symbols loop_sym)
+            let body_symbols: array<Symbol> = (env_add_symbol (env_copy_symbols local_symbols) loop_sym)
             if (>= for_node.body 0) {
                 if (not (check_block parser for_node.body body_symbols expected_return diags file_name current_function)) { set ok false } else { (print "") }
             } else { (print "") }
@@ -3211,34 +3285,9 @@ fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expe
                 set ok false
             } else { (print "") }
         } else { if (== stmt.node_type ParseNodeType.PNODE_UNSAFE_BLOCK) {
-            /* Unsafe block - check its statements */
             let unsafe_block: ASTUnsafeBlock = (parser_get_unsafe_block parser stmt.node_id)
-            let mut j: int = 0
-            let unsafe_stmt_count: int = (list_ASTStmtRef_length unsafe_block.statements)
-            while (< j unsafe_stmt_count) {
-                let unsafe_stmt: ASTStmtRef = (list_ASTStmtRef_get unsafe_block.statements j)
-                
-                if (== unsafe_stmt.node_type ParseNodeType.PNODE_LET) {
-                    let let_node: ASTLet = (parser_get_let parser unsafe_stmt.node_id)
-                    set local_symbols (check_let_statement parser let_node unsafe_stmt.node_id local_symbols diags file_name)
-                } else { if (== unsafe_stmt.node_type ParseNodeType.PNODE_RETURN) {
-                    let ret_node: ASTReturn = (parser_get_return parser unsafe_stmt.node_id)
-                    if (not (check_return_statement parser ret_node expected_return local_symbols diags file_name current_function)) {
-                        set ok false
-                    } else { (print "") }
-                } else {
-                    /* Other statements */
-                    let kind: int = (expr_kind_from_pnode unsafe_stmt.node_type)
-                    if (>= kind 0) {
-                        let _t: NSType = (check_expr_node parser unsafe_stmt.node_id kind local_symbols diags file_name)
-                        (print "")
-                    } else {
-                        (print "")
-                    }
-                } }
-                
-                set j (+ j 1)
-            }
+            let checked: CheckedBlock = (check_statement_list parser unsafe_block.statements local_symbols expected_return diags file_name current_function)
+            if (not checked.ok) { set ok false }
         } else {
             /* Expression statement */
             if (parser_is_value_expression stmt.node_type) {
@@ -3263,6 +3312,12 @@ shadow check_block_value {
     let checked: CheckedBlock = (check_block_value parser func.body symbols (type_int) (Diagnostics.diag_list_new) "block.nano" "value")
     assert checked.ok
     assert (== checked.value_type.kind TypeKind.TYPE_INT)
+}
+
+shadow check_statement_list {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { unsafe { assert 7 } return 0 }" "unsafe.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "unsafe.nano")
+    assert (typecheck_phase p "unsafe.nano").had_error
 }
 
 fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
@@ -3291,7 +3346,7 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
     /* Create a fresh symbol table for this function.
      * All symbols at this point are functions or mutable globals (set up in Phase 1),
      * so no filtering is needed — just use them all. This avoids the O(n^2) rebuild. */
-    let mut func_symbols: array<Symbol> = symbols
+    let mut func_symbols: array<Symbol> = (env_copy_symbols symbols)
 
     /* Add parameters as symbols (stored as lets starting at func.param_start) */
     let mut i: int = 0
@@ -3403,8 +3458,12 @@ shadow typecheck_phase { assert true }
 
 /* NSType check with initial symbol table (for transitive imports) */
 pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_symbols: array<Symbol>) -> TypecheckPhaseOutput {
+    return (typecheck_phase_with_shadows parser file_name initial_symbols parser.shadows_count)
+}
+
+pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int) -> TypecheckPhaseOutput {
     let env: TypeEnvironment = (env_new)
-    let mut symbols: array<Symbol> = initial_symbols
+    let mut symbols: array<Symbol> = (env_copy_symbols initial_symbols)
     let mut error_count: int = 0
 
     /* Get function count using accessor */
@@ -3452,25 +3511,11 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
 
     /* Phase 0.5: Add global let constants to symbol table */
     let global_let_count: int = (parser_get_let_count parser)
+    let local_lets: array<bool> = (typecheck_local_lets parser)
     let mut gli: int = 0
     while (< gli global_let_count) {
         let gl: ASTLet = (parser_get_let parser gli)
-        /* Only add top-level lets (not function params/locals).
-         * Top-level lets have no enclosing function, detected by checking if the
-         * let index is below the first function's param_start. */
-        let mut is_global: bool = true
-        let mut fi: int = 0
-        while (< fi func_count) {
-            let f: ASTFunction = (parser_get_function parser fi)
-            /* If this let index is within a function's parameter range, it's not global */
-            if (and (>= gli f.param_start) (< gli (+ f.param_start f.param_count))) {
-                set is_global false
-            } else { (print "") }
-            set fi (+ fi 1)
-        }
-        /* Also check: global lets typically appear before all functions or have no function context.
-         * A simpler heuristic: if the let has a declared type and its line number is before the first function. */
-        if is_global {
+        if (not (at local_lets gli)) {
             let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
             if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
                 let gl_sym: Symbol = (symbol_new gl.name gl_type gl.is_mut false 0 (empty_param_types) (type_void))
@@ -3504,8 +3549,6 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
     }
     
     /* Phase 2: NSType check each function body */
-    /* Note: Shadow tests are NOT type-checked - they are compile-time tests */
-    /* executed by the C runtime, not part of the type system */
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
@@ -3519,11 +3562,47 @@ pub fn typecheck_phase_with_symbols(parser: Parser, file_name: string, initial_s
         set i (+ i 1)
     }
 
-    let had_error: bool = (Diagnostics.diag_list_has_errors env.diagnostics)
+    if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) {
+        (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0001" "I cannot select this shadow range" (Diagnostics.diag_location file_name 0 0)))
+        return (typecheck_output env.diagnostics (+ error_count 1) true)
+    }
+    set i first_shadow
+    while (< i parser.shadows_count) {
+        let sh: ASTShadow = (list_ASTShadow_get parser.shadows i)
+        let mut target: int = -1
+        let mut fi: int = 0
+        while (< fi func_count) {
+            let func: ASTFunction = (parser_get_function parser fi)
+            if (== func.name sh.target_name) { set target fi }
+            set fi (+ fi 1)
+        }
+        if (< target 0) {
+            (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0002" (+ "I cannot find the shadow target: " sh.target_name) (Diagnostics.diag_location file_name sh.line sh.column)))
+            set error_count (+ error_count 1)
+        } else {
+            let func: ASTFunction = (parser_get_function parser target)
+            if (< func.body 0) {
+                (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0003" "I require a non-extern shadow target" (Diagnostics.diag_location file_name sh.line sh.column)))
+                set error_count (+ error_count 1)
+            } else {
+                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body }
+                if (not (check_function parser synthetic symbols env.diagnostics file_name)) { set error_count (+ error_count 1) }
+            }
+        }
+        set i (+ i 1)
+    }
+    let had_error: bool = (or (> error_count 0) (Diagnostics.diag_list_has_errors env.diagnostics))
     return (typecheck_output env.diagnostics error_count had_error)
 }
 
 shadow typecheck_phase_with_symbols { assert true }
+
+shadow typecheck_phase_with_shadows {
+    let tokens: List<LexerToken> = (tokenize_string "fn f() -> int { return 1 } shadow f { assert 7 }" "shadow.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "shadow.nano")
+    let symbols: array<Symbol> = []
+    assert (typecheck_phase_with_shadows p "shadow.nano" symbols 0).had_error
+}
 
 /* Compatibility wrapper returning legacy status code */
 pub fn typecheck_parser(parser: Parser) -> int {

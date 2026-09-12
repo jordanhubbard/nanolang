@@ -288,9 +288,12 @@ Execution is currently backend-dependent. My C seed executes selected shadows
 during compilation. My `nano_virt` CLI runs root-file shadows in a separate
 verified NanoVM test module before publishing output, with a 10-second parent
 deadline. Production bytecode omits that test harness. This child process is
-not a security sandbox: tests can have side effects. My Stage 2 native path
-still accepts and runs the failing-shadow characterization in
-`tests/test_language_claims.py`; imported-shadow policy also remains open.
+not a security sandbox: tests can have side effects. My self-hosted native
+driver also runs root shadows in a separate test executable with a ten-second
+parent deadline before publishing native output. Test stdout is redirected to
+stderr. Source-only `--target c` checks types but does not execute shadows or
+invoke a native compiler. Imported shadows are not automatically selected by
+these drivers; imported-shadow policy and C-seed FFI exemptions remain open.
 Until execution is consistent, execute important assertions from an explicit
 test entry point as well as writing the shadow.
 

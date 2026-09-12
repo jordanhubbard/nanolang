@@ -33,9 +33,9 @@ these seven programs do not establish release readiness.
 `make test-language-claims` uses the existing compiler tools to characterize
 inferred locals, selected type rejections and shadow handling. It also compiles
 and executes the specification's unsafe math wrapper through the C seed.
-Its shadow test requires C-seed and bytecode-CLI rejection but records the
-remaining Stage 2 native omission; passing that characterization is not
-universal shadow conformance. `make test-bytecode-shadows` checks the NanoVM
+Its failing-shadow case requires rejection by the C seed, Stage 2 native
+driver and bytecode CLI. That case does not establish universal shadow
+conformance. `make test-bytecode-shadows` checks the NanoVM
 test-module path and publication guards. Build `bootstrap3`,
 `nano_virt` and `nano_vm` first when those tools are missing or stale.
 
@@ -44,6 +44,8 @@ C test entry. I build the emitter with the C seed and Stage 2, then compile and
 execute its generated C. The suite checks selected shadows, independent local
 scopes, calls to NanoLang main, assertion failures even with `NDEBUG`, and the
 unchanged production entry. It also checks record-string lifetime through
-callee locals. This target uses existing compiler tools; it is not evidence
-that my native driver executes shadows before publication. That integration,
-shadow typechecking, and root/import selection remain roadmap work.
+callee locals. This target uses existing compiler tools. Separately,
+`make test-native-shadows` checks driver enforcement, type errors, root/import
+selection, output preservation and the parent-enforced deadline. Source-only
+emission remains non-executing and reports that distinction. Neither target
+establishes full type-system soundness or a foreign-code security sandbox.

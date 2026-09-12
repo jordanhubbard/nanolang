@@ -176,8 +176,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       self-hosted and VM paths before claiming consistent execution or order.
       I preserve the requirement for useful tests; documenting a gap does
       not satisfy it.
-      The failing-shadow characterization is rejected by the C seed and
-      bytecode CLI but still compiles and runs successfully on Stage 2.
+      The failing-shadow characterization is now rejected by the C seed,
+      bytecode CLI and Stage 2 native driver. Imported-shadow policy and
+      C-seed foreign-call exemptions remain open; source-only emission
+      typechecks root shadows but deliberately does not execute them.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**
       My native-emitter build exposed SIGABRT in `eval_call` cleanup. A field
@@ -208,20 +210,37 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       selected suffixes and invalid selection, calls to main, and production
       output without the harness. My bootstrap smoke and no-C-seed checks
       pass; the native binaries still differ (2026-09-12).
-- [ ] **5.0 native shadows — driver enforcement.** I typecheck root shadows,
+- [x] **5.0 shadow typing — lexical environments.** My self-hosted checker
+      registered non-parameter local lets as globals and shared
+      mutable symbol arrays across function and block scopes. I classify lets
+      from statement ownership, copy environments at scope boundaries and
+      test sibling shadows, branches, parameters and undeclared names. I also
+      check assertions inside unsafe blocks instead of skipping them.
+      My rebuilt Stage 2 rejects seven malformed-shadow cases before C-source
+      publication, including scope leaks with no native compiler available.
+      This is bounded lexical coverage, not a claim of full checker soundness.
+      MAC `task_a16bb6229928482080df35058afb5a52`.
+- [x] **5.0 native shadows — driver enforcement.** I typecheck root shadows,
       compile and supervise their private test executable, and reject errors
       before publishing native output. I test imported helper visibility,
       root/import selection, malformed shadows, output preservation, traps
-      and deadlines. Source-only output must retain its no-native-toolchain
-      contract and describe how its shadows are checked.
+      and deadlines. Source-only output retains its no-native-toolchain
+      contract and explicitly reports that shadows were not executed.
+      All nine native-driver tests pass on rebuilt Stage 2, including a
+      foreign call cancelling an alarm: my parent still enforces ten seconds.
+      My test executable uses private staging and sends shadow stdout to
+      stderr. Foreign calls retain user privileges; this is not a sandbox.
+      My bootstrap smoke/no-C-seed checks, nine emitter tests, five language
+      claim tests, all 28 four-path contract rows and nine CLI tests pass
+      (2026-09-12). Native bootstrap binaries still differ.
 - [x] **5.0 bytecode shadows — verified test module before publication.** I
       lower root-file shadows as separate zero-argument NanoISA functions and
       execute a private test entry before publishing bytecode or wrappers.
       I verify the test module and bound its execution in a child process.
       Production output retains its original entry and omits the harness.
       I test assertion failure, helper calls, main shadows, output preservation,
-      test-only sources, traps and timeouts. Imported-shadow policy and the
-      Stage 2 native path remain part of the open enforcement item above.
+      test-only sources, traps and timeouts. Imported-shadow policy remains
+      part of the open enforcement item above.
       My ten integration tests pass, including a foreign call cancelling the
       child alarm: the parent still enforces the ten-second deadline.
 - [x] **5.0 execution contract — standalone VM exit value.** I propagate a
