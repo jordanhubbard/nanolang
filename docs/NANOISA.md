@@ -394,7 +394,10 @@ all expected dependency records to decode and hash successfully. This checks
 reported header contents, not the identity of the whole SDK or toolchain.
 Known backslash or newline paths still compile, but I
 withhold reuse records because compiler Make-format output can lose their
-identity. Lossless transitive dependency capture remains roadmap work.
+identity. Lossless transitive dependency capture remains roadmap work. My
+[compiler-input experiment](COMPILER_INPUT_EVIDENCE.md) reproduces a transitive
+path alias that still permits stale reuse and explains why enabling saved
+preprocessed inputs unconditionally is not a semantics-preserving repair.
 
 ### Cross-section validation
 

@@ -1,0 +1,69 @@
+# My Foreign Compiler Input Evidence
+
+I have not finished lossless foreign-library cache validation. This experiment
+keeps the remaining failure reproducible and tests candidate boundaries before
+I change the compilation pipeline.
+
+```sh
+make bin/nano_virt bin/nano_vm
+python3 -m tests.characterize_compiler_inputs
+```
+
+The optional argument selects a Clang-compatible executable. I use temporary
+fixtures, run only their small integer-returning programs, and print JSON.
+Exit zero means the experiment ran, **not** that cache acceptance passed.
+I do not add this characterization to a green release acceptance gate.
+
+## What I measured
+
+On Darwin with Apple clang 21.0.0 (`clang-2100.1.1.101`), after `b084764c`:
+
+| Boundary | Observation |
+| --- | --- |
+| Make dependency path | A literal `hidden\answer.h` becomes `hidden/answer.h`. Both files exist, so I hash the wrong one and create a reusable record. |
+| Actual header edit | A same-timestamp change from 42 to 43 leaves stale code. The updated root shadow rejects publication; the retained program still returns 42. |
+| Ordinary preprocessed input | Saved input and standalone `-E` output match; unchanged replay matches; the actual header edit changes the output. |
+| Include search | Adding a header in an earlier include directory changes preprocessed output, although the old dependency list could not name that previously absent file. |
+| Precompiled header | With a same-size, same-timestamp header edit and the old PCH retained, direct compilation returns 42. Adding `-save-temps=obj` returns 43. Standalone preprocessing follows the changed header. |
+| Clang dependency graph | DOT output preserves the literal backslash, but system-header labels include logical `/usr/include/...` paths rather than the selected SDK's physical paths. It is not a ready-to-hash file inventory. |
+
+The JSON reports these observations independently. A future compiler or cache
+repair can change the results; the script does not assert that a known defect
+must remain present.
+
+## What this rules out
+
+I cannot repair a lossy Make record by adding more escape decoding: the
+compiler already replaced bytes. Nor can I assume a readable decoded name is
+the file it read.
+
+I cannot silently enable saved-input compilation for every manifest. The PCH
+case shows a behavior change. A separate `-E` digest is not universally the
+input of the original compilation either. The compiler documentation describes
+[saved intermediate results](https://clang.llvm.org/docs/ClangCommandLineReference.html)
+and [GCC's PCH preprocessing mode](https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html);
+neither establishes equivalence for every existing compiler configuration.
+
+## Next implementation boundary
+
+I need explicit, tested compiler-mode handling, not a second generic path
+parser. For ordinary source compilation, retained preprocessed inputs are a
+candidate for both lossless evidence and source snapshots. PCH, modules,
+assembler inputs, plugins and other external compiler inputs require their
+own captured dependencies or an explicit unsupported-cache decision. That
+decision must preserve compilation behavior; it cannot silently change modes.
+
+Before replacing current cache validation I require:
+
+- The alias edit and newly earlier include to invalidate actual cached code.
+- Unchanged input to retain warm reuse.
+- Ordinary, multi-source and shared-only compilations to use the same rules.
+- Compilation and reuse evidence to refer to the same captured inputs, even
+  when source files change during a build.
+- PCH and other external input changes to invalidate reuse without silently
+  changing the configured compiler mode.
+- Failed capture, incomplete evidence and failed publication to retain the
+  previous generation and permit a clean retry.
+
+These requirements remain in my roadmap and MAC cache task. This experiment
+does not establish full toolchain identity or make 5.0 release-ready.

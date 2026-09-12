@@ -462,6 +462,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       compiler actually read. Source snapshot and toolchain identity work also
       remains open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      - [x] I reproduce a transitive backslash/slash alias against the actual
+        compiler and cache, then measure preprocessed-input snapshots as a
+        candidate boundary. I check unchanged replay, header edits, include
+        search changes and external precompiled-header references before
+        selecting an implementation. Characterization is not cache acceptance.
+        `python3 -m tests.characterize_compiler_inputs` confirms stale code
+        on Apple clang 21.0.0 and shows that `-save-temps=obj` changes the
+        result of a stale-PCH build from 42 to 43. DOT keeps backslash bytes
+        but exposes logical SDK paths. I reject an unconditional snapshot
+        switch; compiler modes need explicit handling. The observations and
+        implementation acceptance requirements are in
+        `docs/COMPILER_INPUT_EVIDENCE.md` (2026-09-12).
 - [x] **5.0 C-library cache — atomic generation publication.** I publish
       object, library, dependency files and reuse evidence as one generation
       through an atomic current-pointer replacement. Native link inputs and
