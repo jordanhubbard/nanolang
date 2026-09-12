@@ -31,6 +31,31 @@ The JSON reports these observations independently. A future compiler or cache
 repair can change the results; the script does not assert that a known defect
 must remain present.
 
+## Include-trace repair
+
+I now supplement Make dependencies with `-H` output from the original
+compilation. In the tested Apple clang, the trace preserves escaped backslash
+bytes and physical SDK paths. I accept literal paths and
+[LLVM-style escaped](https://llvm.org/doxygen/classllvm_1_1raw__ostream.html)
+paths only when their interpretation is unambiguous; if both spellings exist
+and differ, I withhold reuse even when they currently share an inode. I hash
+the resolved trace spelling as well as Make dependencies, so a readable slash
+alias cannot hide a changed literal-backslash header.
+
+I preserve warnings and errors when capturing the trace. Unexpected trace
+content, including mixed diagnostics, withholds reuse instead of being silently
+discarded. I recognize GCC's English guard-advice section only when it repeats
+already recorded paths; my parser fixture tests this format, not a complete
+GCC build on Linux. Empty traces are valid for compilations without textual includes;
+Make records and the existing source checks are still required. I do not
+claim that an empty trace establishes complete PCH, module or plugin inputs.
+
+My acceptance regression exercises single-source, multi-source and shared-only
+alias edits. This repair does not change the saved-input/PCH observation or
+finish source snapshot and include-search validation.
+The updated experiment observes the header edit through the cache and returns
+42 in both direct and traced PCH builds, versus 43 in saved-input mode.
+
 ## What this rules out
 
 I cannot repair a lossy Make record by adding more escape decoding: the

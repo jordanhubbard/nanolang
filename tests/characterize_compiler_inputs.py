@@ -62,6 +62,7 @@ def measure(compiler):
         run(flags + ["-c", "-Xclang", "-dependency-dot", "-Xclang", graph,
                      translation_unit, "-o", directory / "graph.o"], directory)
         graph_text = graph.read_text()
+        trace = run(flags + ["-H", "-c", translation_unit, "-o", directory / "trace.o"], directory).stderr
         original_preprocessed = run(flags + ["-E", translation_unit], directory).stdout
         unchanged_preprocessed = run(flags + ["-E", translation_unit], directory).stdout
         timestamp = actual.stat()
@@ -102,6 +103,9 @@ def measure(compiler):
         run(flags + ["-include-pch", pch, pch_source, "-o", pch_executable], directory)
         stale_pch_exit = subprocess.run([str(pch_executable)], cwd=directory,
                                         capture_output=True, timeout=10).returncode
+        run(flags + ["-H", "-include-pch", pch, pch_source, "-o", pch_executable], directory)
+        traced_pch_exit = subprocess.run([str(pch_executable)], cwd=directory,
+                                         capture_output=True, timeout=10).returncode
         run(flags + ["-save-temps=obj", "-include-pch", pch, pch_source,
                      "-o", pch_executable], directory)
         saved_pch_exit = subprocess.run([str(pch_executable)], cwd=directory,
@@ -120,12 +124,14 @@ def measure(compiler):
             "cache_observed_header_edit": second.returncode == 43 and replay.returncode == 43,
             "saved_input_equals_standalone_preprocessing": snapshot == original_preprocessed,
             "dependency_graph": graph_text.replace(str(directory), "$FIXTURE"),
+            "include_trace": trace.decode(errors="replace").replace(str(directory), "$FIXTURE"),
             "unchanged_preprocessing_equal": original_preprocessed == unchanged_preprocessed,
             "preprocessing_detected_actual_header_edit": original_preprocessed != changed_preprocessed,
             "preprocessing_detected_new_earlier_include": before_selection != after_selection,
             "preprocessing_detected_rebuilt_pch": pch_before != pch_after,
             "preprocessing_changed_with_stale_pch": pch_before != stale_pch_preprocessed,
             "stale_pch_direct_program_exit": stale_pch_exit,
+            "stale_pch_traced_program_exit": traced_pch_exit,
             "stale_pch_saved_input_program_exit": saved_pch_exit,
             "pch_preprocessor_output": pch_before.decode(errors="replace").replace(str(directory), "$FIXTURE"),
         }

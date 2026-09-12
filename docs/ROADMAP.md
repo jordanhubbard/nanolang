@@ -454,13 +454,31 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       on Darwin (2026-09-12). Lossless path reporting and full SDK/toolchain
       identity remain open; this does not establish either.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 transitive dependency alias rejection.** I capture include traces
+      during the original compilation, without enabling saved-input mode.
+      I decode supported escaped paths and hash the actual trace input as well
+      as Make dependencies. Ambiguous trace paths must withhold cache evidence,
+      not authorize reuse through a different readable dependency path.
+      I preserve compiler diagnostics and test ordinary, multi-source and
+      shared-only alias edits plus warm reuse for ordinary paths. This closes
+      the reproduced stale-reuse case, not full lossless input capture.
+      The three alias cases fail before the repair and pass afterward. The
+      parser tests quoted, backslash, tab, newline and octal paths, ambiguous
+      same-inode spellings, malformed records and missing files. GCC guard
+      advice is accepted only for already recorded paths (format-fixture test,
+      not a Linux end-to-end claim). Warning/error
+      preservation and retry pass. All 28 shadows, 30 cache tests, five wrapper
+      link tests, seven wrapper boundary tests, 63 codegen tests, 19 FFI tests
+      and package/dependency gates pass on Darwin (2026-09-12).
+      Both dependency-parser boundary methods also pass with ASan/UBSan on
+      the production module builder; linked support objects are uninstrumented.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 lossless transitive compiler dependency evidence.** My current
-      cache excludes known lossy manifest paths and rejects incomplete decoded
-      records. A compiler can still rewrite a transitive header name into a
-      different existing path. I need lossless dependency capture or a stronger
-      verified boundary before claiming every cached header is the header the
-      compiler actually read. Source snapshot and toolchain identity work also
-      remains open.
+      cache excludes known lossy manifest paths and supplements Make records
+      with include traces. I still need a verified compiler-mode boundary for
+      PCH, modules and other external inputs before claiming every cached
+      input is the input the compiler actually read. Newly earlier include
+      files, source snapshots and complete toolchain identity remain open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
       - [x] I reproduce a transitive backslash/slash alias against the actual
         compiler and cache, then measure preprocessed-input snapshots as a

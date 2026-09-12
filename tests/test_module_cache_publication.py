@@ -297,6 +297,93 @@ int64_t nano_build_answer(void) {
             self.assertIn("dep:" + str(header), record)
             self.assertIn("dep:" + str(includes / "public.h"), record)
 
+    def test_transitive_path_alias_cannot_authorize_reuse(self):
+        for phase in ("single", "multi", "shared"):
+            with self.subTest(phase=phase), tempfile.TemporaryDirectory(prefix="nano-transitive-alias-") as tmp:
+                directory = Path(tmp)
+                module, source, env = self.support.foreign_build_fixture(directory)
+                actual = module / "hidden\\answer.h"
+                alias = module / "hidden" / "answer.h"
+                alias.parent.mkdir()
+                actual.write_text("#define ANSWER 42\n")
+                alias.write_text("#define ANSWER 17\n")
+                body = ('#include <stdint.h>\n#include "hidden\\answer.h"\n'
+                        'int64_t nano_build_answer(void) { return ANSWER; }\n')
+                metadata = {"name": "answer_native", "c_sources": ["answer.c"]}
+                (module / "answer.c").write_text(body)
+                if phase == "multi":
+                    (module / "extra.c").write_text("int extra(void) { return 1; }\n")
+                    metadata["c_sources"].append("extra.c")
+                elif phase == "shared":
+                    (module / "answer.c").write_text("int extra(void) { return 1; }\n")
+                    (module / "private.c").write_text(body.replace(
+                        'int64_t nano_build_answer', '__attribute__((visibility("default"))) int64_t nano_build_answer'))
+                    metadata["shared_c_sources"] = ["private.c"]
+                (module / "module.json").write_text(json.dumps(metadata))
+                result, output = self.support.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                generation = self.probe_path("directory", module, env)
+                old_stat = actual.stat()
+                actual.write_text("#define ANSWER 43\n")
+                os.utime(actual, ns=(old_stat.st_atime_ns, old_stat.st_mtime_ns))
+                result, output = self.support.compile(source.replace(" 42)", " 43)"), directory,
+                                                      "--run", env=env)
+                self.assertEqual(result.returncode, 43, result.stderr)
+                self.assertEqual(self.support.execute(output, env=env).returncode, 43)
+                record = json.loads((generation / "source_hashes.json").read_text())
+                self.assertIn("dep:" + str(actual.resolve()), record)
+
+    def test_include_trace_requires_unambiguous_paths(self):
+        with tempfile.TemporaryDirectory(prefix="nano-include-record-") as tmp:
+            directory = Path(tmp)
+            trace = directory / "trace.includes"
+            def inspect(text):
+                trace.write_bytes(text)
+                return subprocess.run([str(self.probe), "includes", str(trace)], cwd=ROOT,
+                                      capture_output=True, timeout=10)
+            self.assertEqual(inspect(b"").returncode, 0)
+            for name in ("plain.h", 'quoted " header.h', "back\\slash.h", "tab\theader.h", "line\nheader.h", "octal\rheader.h"):
+                header = directory / name
+                header.write_text("#define VALUE 42\n")
+                escaped = str(header).replace("\\", "\\\\").replace('"', '\\"').replace("\t", "\\t").replace("\n", "\\n").replace("\r", "\\015")
+                result = inspect((".. " + escaped + "\n").encode())
+                self.assertEqual(result.returncode, 0, (name, result.stderr))
+                self.assertIn("dep:" + str(header), json.loads(result.stdout))
+            raw = directory / "ambiguous\\n.h"
+            decoded = directory / "ambiguous\n.h"
+            raw.write_text("#define VALUE 42\n")
+            decoded.symlink_to(raw)
+            self.assertEqual(inspect((". " + str(raw) + "\n").encode()).returncode, 1)
+            plain = directory / "plain.h"
+            guard_list = f". {plain}\nMultiple include guards may be useful for:\n{plain}\n"
+            self.assertEqual(inspect(guard_list.encode()).returncode, 0)
+            self.assertEqual(inspect((guard_list + str(raw) + "\n").encode()).returncode, 1)
+            # I reject two spellings even when they currently name one inode:
+            # a later symlink retarget must not hide behind that coincidence.
+            for bad in (b"warning: fixture\n", b". /missing-nano-header\n", b". incomplete",
+                        b". embedded\0null\n", b". raw\tcontrol\n", b". " + b"x" * 8192 + b"\n"):
+                self.assertEqual(inspect(bad).returncode, 1, bad[:80])
+
+    def test_compiler_diagnostics_survive_include_capture(self):
+        with tempfile.TemporaryDirectory(prefix="nano-include-diag-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            c_source = module / "answer.c"
+            original = c_source.read_text()
+            c_source.write_text('#warning I_preserve_this_compiler_warning\n' + original)
+            result, output = self.support.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+            self.assertIn(b"I_preserve_this_compiler_warning", result.stderr)
+            old_output = output.read_bytes()
+            c_source.write_text('#error I_preserve_this_compiler_error\n' + original)
+            result, output = self.support.compile(source, directory, env=env)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn(b"I_preserve_this_compiler_error", result.stderr)
+            self.assertEqual(output.read_bytes(), old_output)
+            c_source.write_text(original)
+            result, _ = self.support.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+
     def test_dependency_records_reject_incomplete_evidence(self):
         with tempfile.TemporaryDirectory(prefix="nano-dep-record-") as tmp:
             directory = Path(tmp)

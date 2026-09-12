@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v5-system-header-deps");
+    hash_context_field(&hash, "nanolang-c-build-context-v6-include-trace");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -700,6 +700,74 @@ static bool hash_depfile_into_cache(cJSON *root, const char *depfile_path) {
     return ok && count > 0;
 }
 
+/* I accept literal GCC-style paths or LLVM's escaped paths. If both spellings
+ * name different files, I cannot identify the compiler's input and withhold
+ * reuse. The Make record remains required, but cannot erase this evidence. */
+static const char module_guard_advice[] = "Multiple include guards may be useful for:";
+
+static bool hash_include_trace(cJSON *root, const char *trace_path) {
+    FILE *fp = fopen(trace_path, "rb");
+    if (!fp) return false;
+    char *line = NULL;
+    size_t capacity = 0;
+    ssize_t length;
+    bool ok = true;
+    bool guard_advice = false;
+    while (ok && (length = getline(&line, &capacity, fp)) >= 0) {
+        if (length < 3 || length > 8192 || line[length - 1] != '\n' ||
+            memchr(line, 0, (size_t)length)) { ok = false; break; }
+        line[length - 1] = 0;
+        if (strcmp(line, module_guard_advice) == 0) { guard_advice = true; continue; }
+        if (guard_advice) {
+            /* GCC repeats paths here. I accept only already recorded inputs. */
+            char key[4101];
+            int n = snprintf(key, sizeof(key), "dep:%s", line);
+            ok = n >= 0 && (size_t)n < sizeof(key) && cJSON_GetObjectItemCaseSensitive(root, key);
+            continue;
+        }
+        char *raw = line;
+        while (*raw == '.') raw++;
+        if (raw == line || *raw++ != ' ' || !*raw) { ok = false; break; }
+        char decoded[4096];
+        size_t used = 0;
+        bool decodable = true;
+        for (const unsigned char *p = (unsigned char *)raw; *p; p++) {
+            unsigned char byte = *p;
+            if (byte < 32 || byte == 127 || used == sizeof(decoded) - 1) {
+                ok = false;
+                break;
+            }
+            if (byte == '\\') {
+                p++;
+                if (*p == '\\' || *p == '"') byte = *p;
+                else if (*p == 'n') byte = '\n';
+                else if (*p == 't') byte = '\t';
+                else if (*p >= '0' && *p <= '3' && p[1] >= '0' && p[1] <= '7' &&
+                         p[2] >= '0' && p[2] <= '7') {
+                    byte = (unsigned char)((p[0] - '0') * 64 + (p[1] - '0') * 8 + p[2] - '0');
+                    p += 2;
+                    if (!byte) { decodable = false; break; }
+                } else { decodable = false; break; }
+            }
+            decoded[used++] = (char)byte;
+        }
+        if (!ok) break;
+        decoded[used] = 0;
+        struct stat raw_stat, decoded_stat;
+        bool raw_exists = stat(raw, &raw_stat) == 0 && S_ISREG(raw_stat.st_mode);
+        bool decoded_exists = decodable && stat(decoded, &decoded_stat) == 0 && S_ISREG(decoded_stat.st_mode);
+        if (raw_exists && decoded_exists && strcmp(raw, decoded) != 0) {
+            ok = false;
+        } else if (raw_exists) ok = hash_dependency(root, raw);
+        else if (decoded_exists) ok = hash_dependency(root, decoded);
+        else ok = false;
+    }
+    if (ferror(fp) || !feof(fp)) ok = false;
+    free(line);
+    if (fclose(fp) != 0) ok = false;
+    return ok;
+}
+
 static bool hash_depfiles_in_build_dir(cJSON *root, const char *build_dir,
                                        const ModuleBuildMetadata *meta) {
     /* I require one dependency record for every requested compilation. */
@@ -713,6 +781,9 @@ static bool hash_depfiles_in_build_dir(cJSON *root, const char *build_dir,
             else n = snprintf(path, sizeof(path), "%s/%s_%zu.d", build_dir, meta->name, i);
             if (n < 0 || (size_t)n >= sizeof(path) || !hash_depfile_into_cache(root, path))
                 return false;
+            char trace[2060];
+            int t = snprintf(trace, sizeof(trace), "%s.includes", path);
+            if (t < 0 || (size_t)t >= sizeof(trace) || !hash_include_trace(root, trace)) return false;
         }
     }
     return meta->c_sources_count > 0;
@@ -2064,11 +2135,51 @@ static bool module_source_command(char *command, size_t capacity, const char *pr
     if (n < 0 || (size_t)n >= sizeof(source_path)) return false;
     /* I need system headers too: an unchanged SDK label does not establish
      * unchanged transitive header contents. */
-    return module_build_append(command, capacity, "%s -MD -MT nano_module_dependencies%s", prefix,
+    char trace[2060];
+    int t = snprintf(trace, sizeof(trace), "%s.includes", dependency);
+    if (t < 0 || (size_t)t >= sizeof(trace)) return false;
+    return module_build_append(command, capacity, "%s -H -MD -MT nano_module_dependencies%s", prefix,
                                hidden ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "") &&
            module_append_path_flag(command, capacity, "-MF ", dependency) &&
            module_append_path_flag(command, capacity, "", source_path) &&
-           module_append_path_flag(command, capacity, "-o ", object);
+           module_append_path_flag(command, capacity, "-o ", object) &&
+           module_append_path_flag(command, capacity, "2>", trace);
+}
+
+static int module_run_source_command(const char *command, const char *dependency) {
+    int result = system(command);
+    char trace[2060];
+    int n = snprintf(trace, sizeof(trace), "%s.includes", dependency);
+    if (n < 0 || (size_t)n >= sizeof(trace)) return result ? result : -1;
+    FILE *fp = fopen(trace, "rb");
+    if (!fp) return result ? result : -1;
+    char *line = NULL;
+    size_t capacity = 0;
+    ssize_t length;
+    bool guard_advice = false;
+    while ((length = getline(&line, &capacity, fp)) >= 0) {
+        const char *p = line;
+        while (*p == '.') p++;
+        bool include_line = p != line && *p == ' ';
+        if (length > 0 && line[length - 1] == '\n') {
+            line[length - 1] = 0;
+            if (strcmp(line, module_guard_advice) == 0) {
+                guard_advice = true;
+                include_line = true;
+            } else if (guard_advice) {
+                struct stat st;
+                include_line = stat(line, &st) == 0 && S_ISREG(st.st_mode);
+            }
+            line[length - 1] = '\n';
+        }
+        /* I suppress only include-list lines on success, never diagnostics. */
+        if (result || !include_line || module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
+            (void)fwrite(line, 1, (size_t)length, stderr);
+    }
+    if ((ferror(fp) || !feof(fp)) && !result) result = -1;
+    free(line);
+    if (fclose(fp) != 0 && !result) result = -1;
+    return result;
 }
 
 static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
@@ -2268,7 +2379,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 printf("[Module] %s\n", compile_cmd);
             }
 
-            int result = command_ok ? system(compile_cmd) : -1;
+            int result = command_ok ? module_run_source_command(compile_cmd, dep_path) : -1;
             if (result != 0) {
                 fprintf(stderr, "Error: Failed to compile module %s\n", meta->name);
                 free(build_dir);
@@ -2299,7 +2410,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                     printf("[Module] %s\n", compile_cmd);
                 }
 
-                int result = command_ok ? system(compile_cmd) : -1;
+                int result = command_ok ? module_run_source_command(compile_cmd, dep_path) : -1;
                 if (result != 0) {
                     fprintf(stderr, "Error: Failed to compile module %s (%s)\n", meta->name, meta->c_sources[i]);
                     for (size_t j = 0; j < meta->c_sources_count; j++) free(src_objects[j]);
@@ -2466,7 +2577,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                         printf("[Module] (shared-only) %s\n", sc_cmd);
                     }
 
-                    if (command_ok && system(sc_cmd) == 0) {
+                    if (command_ok && module_run_source_command(sc_cmd, sc_dep) == 0) {
                         /* Append this object to the lib_cmd */
                         command_ok &= module_append_path_flag(lib_cmd, sizeof(lib_cmd), "", sc_obj);
                     } else {

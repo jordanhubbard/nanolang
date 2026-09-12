@@ -25,10 +25,11 @@ static int generation_test_rename(const char *source, const char *target) {
 
 int main(int argc, char **argv) {
     if (argc != 3 && argc != 4) return 2;
-    if (strcmp(argv[1], "deps") == 0) {
+    if (strcmp(argv[1], "deps") == 0 || strcmp(argv[1], "includes") == 0) {
         cJSON *root = cJSON_CreateObject();
         if (!root) return 1;
-        bool ok = hash_depfile_into_cache(root, argv[2]);
+        bool ok = strcmp(argv[1], "deps") == 0 ? hash_depfile_into_cache(root, argv[2])
+                                               : hash_include_trace(root, argv[2]);
         char *json = cJSON_PrintUnformatted(root);
         if (json) puts(json);
         free(json);
