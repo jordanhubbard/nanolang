@@ -8,6 +8,38 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+static void generation_test_event(const char *event) {
+    const char *path = getenv("NANO_TEST_SYNC_EVENTS");
+    if (!path) return;
+    FILE *file = fopen(path, "a");
+    if (file) { fprintf(file, "%s\n", event); fclose(file); }
+}
+
+static int generation_test_fsync(int fd) {
+    static unsigned cache_calls = 0;
+    static bool interrupted = false;
+    struct stat st, cache;
+    const char *root = getenv("NANO_TEST_SYNC_CACHE");
+    const char *failure = getenv("NANO_TEST_SYNC_FAILURE");
+    const char *event = "file";
+    if (fstat(fd, &st) != 0) return -1;
+    if (S_ISDIR(st.st_mode)) {
+        if (root && stat(root, &cache) == 0 && cache.st_ino == st.st_ino && cache.st_dev == st.st_dev)
+            event = ++cache_calls == 1 ? "cache-1" : "cache-2";
+        else event = "stage";
+    }
+    generation_test_event(event);
+    if (failure && !strcmp(failure, "eintr") && !interrupted) {
+        interrupted = true;
+        errno = EINTR;
+        return -1;
+    }
+    if (failure && !strcmp(failure, event)) { errno = EIO; return -1; }
+    return fsync(fd);
+}
 
 /* I inject a final-pointer rename failure without damaging the old pointer.
  * This hook is confined to the test translation unit. */
@@ -17,11 +49,18 @@ static int generation_test_rename(const char *source, const char *target) {
         errno = EIO;
         return -1;
     }
-    return rename(source, target);
+    int result = rename(source, target);
+    if (!result && leaf) {
+        if (!strncmp(leaf, "/.nano-gen-", 11)) generation_test_event("generation");
+        if (!strcmp(leaf, "/current")) generation_test_event("pointer");
+    }
+    return result;
 }
 #define rename generation_test_rename
+#define fsync generation_test_fsync
 #include "../src/module_builder.c"
 #undef rename
+#undef fsync
 
 int main(int argc, char **argv) {
 #ifdef __APPLE__
@@ -37,6 +76,8 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (strcmp(argv[1], "sync-generation") == 0)
+        return module_sync_generation(argv[2]) ? 0 : 1;
     if (strcmp(argv[1], "pkgflags") == 0) {
         char *flags = get_pkg_config_flags(argv[2], argc == 4 ? argv[3] : "--cflags");
         if (!flags) return 1;

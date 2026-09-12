@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v11-link-observations");
+    hash_context_field(&hash, "nanolang-c-build-context-v12-publication-sync");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2982,6 +2982,44 @@ static void module_remove_staging(const char *stage) {
     if (rmdir(stage) != 0) fprintf(stderr, "I retained private build files in %s\n", stage);
 }
 
+static bool module_sync_fd(int fd) {
+    int result;
+    do { result = fsync(fd); } while (result < 0 && errno == EINTR);
+    return result == 0;
+}
+
+static bool module_sync_directory(const char *path) {
+    int fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0) return false;
+    bool ok = module_sync_fd(fd);
+    if (close(fd) != 0) ok = false;
+    return ok;
+}
+
+/* I flush only regular files in my private generation, never symlink targets
+ * or arbitrary nested trees. A failed barrier cannot authorize publication. */
+static bool module_sync_generation(const char *path) {
+    int fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0) return false;
+    DIR *directory = fdopendir(fd);
+    if (!directory) { close(fd); return false; }
+    bool ok = true;
+    while (ok) {
+        errno = 0;
+        struct dirent *entry = readdir(directory);
+        if (!entry) { if (errno) ok = false; break; }
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")) continue;
+        int file = openat(fd, entry->d_name, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+        if (file < 0) { ok = false; break; }
+        struct stat st;
+        ok = fstat(file, &st) == 0 && S_ISREG(st.st_mode) && module_sync_fd(file);
+        if (close(file) != 0) ok = false;
+    }
+    if (ok) ok = module_sync_fd(fd);
+    if (closedir(directory) != 0) ok = false;
+    return ok;
+}
+
 static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBuildMetadata *meta,
                                                const ModulePkgFlags *flags) {
     if (meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL, NULL, flags, NULL);
@@ -3040,12 +3078,15 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
                 module_update_hash_cache(meta->module_dir, meta, stage, preprocessing_before, link_observation);
             /* I never mutate a published generation. The old pointer remains
              * valid until the complete replacement is visible in one rename. */
-            bool renamed = false, linked = false;
+            bool renamed = false, linked = false, published = false;
             struct stat st;
+            if (ok) ok = module_sync_generation(stage);
             if (ok) ok = lstat(generation, &st) != 0 && errno == ENOENT;
             if (ok) ok = renamed = rename(stage, generation) == 0;
+            if (ok) ok = module_sync_directory(cache);
             if (ok) ok = linked = symlink(strrchr(generation, '/') + 1, temporary) == 0;
-            if (ok) ok = rename(temporary, pointer) == 0;
+            if (ok) ok = published = rename(temporary, pointer) == 0;
+            if (ok) ok = module_sync_directory(cache);
             if (linked) (void)unlink(temporary);
             if (ok) {
                 free(info->object_file);
@@ -3053,13 +3094,22 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
                 free(info->link_flags[object_index]);
                 info->link_flags[object_index] = link_object;
             } else {
-                if (renamed) module_remove_staging(generation);
-                fprintf(stderr, "I could not publish complete C-library artifacts for %s\n", meta->name);
+                /* After the pointer switch I must retain the referenced
+                 * generation, even if its directory barrier reports failure. */
+                if (renamed && !published) module_remove_staging(generation);
+                if (published)
+                    fprintf(stderr, "I published %s but could not confirm its cache-directory barrier; I retained the generation\n", meta->name);
+                else
+                    fprintf(stderr, "I could not publish complete C-library artifacts for %s\n", meta->name);
                 free(object);
                 free(link_object);
                 module_build_info_free(info);
                 info = NULL;
             }
+        } else if (info && !module_sync_directory(cache)) {
+            fprintf(stderr, "I could not confirm the cache-directory barrier for %s\n", meta->name);
+            module_build_info_free(info);
+            info = NULL;
         }
         cJSON_Delete(link_observation);
         module_remove_staging(stage);

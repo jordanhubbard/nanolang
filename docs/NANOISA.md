@@ -384,6 +384,23 @@ ignore; I retain unknown compiler side artifacts with a diagnostic rather
 than recursively deleting them. This is not relocatable deployment,
 power-loss durability, or protection from a malicious configured compiler.
 
+For foreign C-module cache generations, I now check ordered `fsync` barriers:
+regular generation files, then the generation directory, then the cache
+directory after naming the generation and again after switching `current`.
+I do not follow symlinks or recurse into unexpected directories while flushing
+generation contents. Interrupted barriers retry; failed barriers fail the build.
+Failure before the pointer switch leaves the old current generation intact.
+Failure after the switch retains the newly referenced generation and reports
+that its cache-directory barrier was not confirmed. I never delete that
+generation and leave a dangling `current`. A subsequent warm build retries the
+cache-directory barrier before returning success.
+
+I test syscall ordering, injected failures, retry and retained artifact reads.
+These tests do not simulate device power loss. Device-level flush guarantees,
+newly created ancestor-directory durability, wrapper/output-file persistence
+and full crash-recovery acceptance remain open; successful barriers alone do
+not establish those broader claims.
+
 My foreign-module builder also quotes source, object, dependency, library and
 declared include paths. It refuses oversized commands before invoking the
 compiler. Compiler commands and explicit flag fragments remain trusted

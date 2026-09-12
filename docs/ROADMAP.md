@@ -362,6 +362,24 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache publication persistence barriers.** I flush generation files
+      and the generation directory before publishing its name, then flush the
+      cache directory before and after switching the current pointer. I test
+      barrier ordering, interrupted calls, failure before/after the pointer
+      switch, retained generations and retry. A post-switch failure must not
+      delete the generation now referenced by current. Warm reuse must retry
+      the cache-directory barrier. Device-level power-loss behavior and newly
+      created ancestor-directory durability remain separate acceptance work.
+      File, generation-directory, pre-pointer and post-pointer barrier failures,
+      interrupted-call retry and warm barrier retry pass. I reject symlink,
+      directory and FIFO entries without following them or blocking on a FIFO.
+      All 28 shadows, 45 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency gates
+      pass on Darwin (2026-09-12). Both new persistence methods pass with
+      ASan/UBSan on the production builder through the probe; linked support
+      objects and fixture libraries are uninstrumented. These tests exercise
+      syscall ordering and failures, not physical power loss.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 binding string-pool and import-table allocation safety.** Adding
       binding paths exposed paired `realloc` growth that could leave dangling
       arrays after partial failure. I preserve existing entries on failed
