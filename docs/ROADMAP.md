@@ -250,6 +250,54 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       exited zero. I test 0, 7, -1 and 256 through both execution paths and
       retain trap failures as nonzero;
       daemon-mode result propagation requires separate verification.
+- [x] **5.0 array literal typing — validate annotations before stamping.**
+      My shared checker overwrites an array literal's inferred element kind
+      with a let/set annotation without comparing them. I reject incompatible
+      literal elements before assigning metadata, preserve empty-array typing,
+      and test both C-seed and VM rejection plus successful matching literals.
+      Nested generic identity and non-literal array assignment remain separate.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 function signatures — initialized nested return metadata.**
+      Checking factory arguments uses an uninitialized temporary signature's
+      nested return pointer, producing either a crash or a false mismatch.
+      I initialize the record and borrow the declared nested return signature.
+      I also initialize parser signature cleanup state before error paths.
+      I test matching/mismatched factories and incomplete signatures.
+      Repeated nested-factory execution and rejected mismatches/incomplete
+      signatures pass. The original function-factory example compiles and
+      runs, and the parser-recovery gate passes with parser/lexer ASan/UBSan
+      instrumentation (linked support objects are not instrumented).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM shadow typing — check bodies before lowering.** I run the
+      shared statement checker on root shadow bodies before bytecode emission
+      so local inference, array element metadata and malformed statements
+      receive the same checks as function bodies. I test inferred string/int
+      arrays, sibling names and rejected malformed shadows before publication.
+      A same-named integer parameter still overrides a shadow-local float
+      during lowering; I re-establish checked local metadata at each let and
+      retain the executable collision regression.
+      This does not complete the shared checker's lexical-scope architecture.
+      My expanded bytecode-shadow suite passes, including string/int array
+      inference, malformed statements, parameter/local metadata collisions
+      and output preservation. The original array-inference example now
+      compiles and executes its shadows and production entry.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM numeric builtins — min/max operand preservation.** Running
+      the repaired float example exposes `min(2.5, 7.8)` returning `7.8`.
+      Both builtins rotate the stack incorrectly and discard the first
+      operand. I preserve both values, compare copies, and select the correct
+      original. I test both branches, equality, negative int/float values and
+      left-to-right exactly-once evaluation through shadows and product runs.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM numeric builtins — typed absolute value.** My `abs` lowering
+      always emits integer negation. I select float operations for float
+      operands and test negative, positive and zero operands through actual
+      shadow and product execution, retaining integer boundary semantics.
+      Negative/positive/zero int and float cases and integer minimum wrapping
+      pass. Min/max assertions cover both orders, equality, negative values
+      and observable evaluation order. The original float example executes
+      with `abs(-3.14) = 3.14` and `min(2.5, 7.8) = 2.5`.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
       rejects 98 of 229 eligible examples after shadow execution is enabled.
       Direct checks expose integer negation emitted for floats and missing
@@ -261,6 +309,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       functions, shadow-bytecode verification failures, type errors and
       assertions. These are execution-dependent results, not a stable
       compile-only acceptance count. I retain both observations.
+      After root-shadow typing, array-annotation checks, numeric builtin and
+      nested-signature repairs, the latest rerun reports 87 failures of 229
+      and seven excluded shadow-only sources now accepted. No compiler
+      crash appears in this rerun. Many failures are unresolved FFI functions;
+      verifier, assertion and type failures also remain. The expanded shadow
+      suite, 63 codegen tests, shared-checker unit tests, parser-recovery gate,
+      272215 VM checks, bootstrap smoke/no-C-seed checks and all 28 contract
+      rows pass. Native bootstrap binaries still differ; the full quick and
+      release gates are not green (2026-09-12).
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [x] **5.0 VM example evidence — actual failure status.** My coverage loop
       reads status after an `if` statement, reporting failed compiles as

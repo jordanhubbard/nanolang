@@ -742,54 +742,34 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     /* Math (inline implementations) */
     if (strcmp(name, "abs") == 0 && argc == 1) {
         /* abs(x) = if x < 0 then -x else x */
+        bool is_float = check_expression(args[0], cg->env) == TYPE_FLOAT;
         compile_expr(cg, args[0]);
         emit_op(cg, OP_DUP);
-        emit_op(cg, OP_PUSH_I64, (int64_t)0);
-        emit_op(cg, OP_LT);
+        if (is_float) emit_op(cg, OP_PUSH_F64, 0.0);
+        else emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, is_float ? OP_F64_LT : OP_I64_LT_S);
         uint32_t jf_instr = cg->code_size;
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
-        emit_op(cg, OP_I64_NEG);
+        emit_op(cg, is_float ? OP_F64_NEG : OP_I64_NEG);
         patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
         return true;
     }
-    if (strcmp(name, "min") == 0 && argc == 2) {
-        /* min(a,b) = if a < b then a else b */
+    if ((strcmp(name, "min") == 0 || strcmp(name, "max") == 0) && argc == 2) {
+        /* I evaluate once in source order, compare copies, and keep an original. */
         compile_expr(cg, args[0]);
         compile_expr(cg, args[1]);
-        /* Stack: a b */
-        emit_op(cg, OP_DUP);     /* a b b */
-        emit_op(cg, OP_ROT3);    /* b b a */
-        emit_op(cg, OP_DUP);     /* b b a a */
-        emit_op(cg, OP_ROT3);    /* b a a b */
-        emit_op(cg, OP_LT);      /* b a (a<b) */
+        emit_op(cg, OP_PICK, 1); /* a b a */
+        emit_op(cg, OP_PICK, 1); /* a b a b */
+        emit_op(cg, strcmp(name, "min") == 0 ? OP_LT : OP_GT);
         uint32_t jf_instr = cg->code_size;
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
-        /* a < b: keep a, drop b */
-        emit_op(cg, OP_SWAP);
+        /* The comparison selected a: discard b. */
         emit_op(cg, OP_POP);
         uint32_t je_instr = cg->code_size;
         uint32_t je_off = emit_op(cg, OP_JMP, (int32_t)0);
-        /* a >= b: keep b, drop a */
+        /* Otherwise keep b, including the equal case. */
         patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
-        emit_op(cg, OP_POP);
-        patch_jump(cg, je_off + 1, je_instr, cg->code_size);
-        return true;
-    }
-    if (strcmp(name, "max") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_DUP);
-        emit_op(cg, OP_ROT3);
-        emit_op(cg, OP_DUP);
-        emit_op(cg, OP_ROT3);
-        emit_op(cg, OP_GT);
-        uint32_t jf_instr = cg->code_size;
-        uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
         emit_op(cg, OP_SWAP);
-        emit_op(cg, OP_POP);
-        uint32_t je_instr = cg->code_size;
-        uint32_t je_off = emit_op(cg, OP_JMP, (int32_t)0);
-        patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
         emit_op(cg, OP_POP);
         patch_jump(cg, je_off + 1, je_instr, cg->code_size);
         return true;
@@ -2471,6 +2451,19 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         /* Track struct type for field access resolution */
         if (node->as.let.type_name) {
             cg->locals[slot].struct_type = node->as.let.type_name;
+        }
+        /* I re-establish this declaration's checked type. The shared checker
+         * retains symbols across functions, and emitting a previous function's
+         * parameter can otherwise override a same-named local's metadata. */
+        env_define_var_with_type_info(cg->env, node->as.let.name, node->as.let.var_type,
+                                      node->as.let.element_type, node->as.let.type_info,
+                                      node->as.let.is_mut, create_void());
+        Symbol *local_type = env_get_var(cg->env, node->as.let.name);
+        if (local_type) {
+            local_type->def_line = node->line;
+            local_type->def_column = node->column;
+            if (node->as.let.type_name)
+                local_type->struct_type_name = strdup(node->as.let.type_name);
         }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
         break;

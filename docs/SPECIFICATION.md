@@ -726,9 +726,14 @@ I use shadow tests to state executable expectations. My current paths differ:
 | C seed | I run selected shadows during compilation and reject a failing assertion. |
 | Self-hosted native driver | I typecheck root shadows and run a separate native test executable before publishing native output. A failed assertion, signal, or ten-second execution deadline rejects compilation. |
 | Self-hosted `--target c` | I check types and emit production C without invoking a native compiler or executing shadows; I report that distinction. |
-| `nano_virt` bytecode CLI | I compile root-file shadows into a separate verified NanoISA module, execute it in NanoVM and reject failures before publishing output. |
+| `nano_virt` bytecode CLI | I typecheck root-file shadow bodies, compile them into a separate verified NanoISA module, execute it in NanoVM and reject failures before publishing output. |
 
 `tests/test_language_claims.py` checks these observations.
+`make test-bytecode-shadows` also checks shadow-local array inference, malformed
+shadow statements, nested function factories, and `abs`/`min`/`max` through test
+and product execution. Min/max preserve left-to-right, exactly-once evaluation.
+My shared checker validates array-literal element kinds before applying let/set
+annotations. These checks do not establish complete lexical or generic typing.
 `make test-bytecode-shadows` checks bytecode test execution, failure handling
 and output preservation. Its compiler parent enforces a 10-second deadline;
 test output goes to stderr. The child process is not a security sandbox.

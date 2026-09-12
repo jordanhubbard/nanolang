@@ -230,6 +230,7 @@ int main(int argc, char **argv) {
 
     /* Type Checking */
     typecheck_set_current_file(input);
+    env_set_current_file(env, input);
     bool has_main = false, has_shadows = false;
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
@@ -237,6 +238,7 @@ int main(int argc, char **argv) {
         if (item->type == AST_FUNCTION && strcmp(item->as.function.name, "main") == 0) has_main = true;
     }
     bool typed = has_shadows && !has_main ? type_check_module(program, env) : type_check(program, env);
+    if (typed && has_shadows) typed = type_check_root_shadows(program, env);
     if (!typed) {
         fprintf(stderr, "error: type check failed\n");
         free_ast(program);

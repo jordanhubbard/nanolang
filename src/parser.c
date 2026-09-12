@@ -207,6 +207,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     sig->param_struct_names = NULL;
     sig->return_type = TYPE_UNKNOWN;
     sig->return_struct_name = NULL;
+    sig->return_fn_sig = NULL;
     
     /* Parse parameter types */
     tok = current_token(p);
