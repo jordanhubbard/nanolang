@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v8-pkg-query-status");
+    hash_context_field(&hash, "nanolang-c-build-context-v9-pkg-snapshot");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -836,7 +836,14 @@ static void save_hash_cache(const char *build_dir, cJSON *root) {
     free(path);
 }
 
-static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta);
+typedef struct {
+    char **cflags;
+    char **libs;
+    size_t count;
+} ModulePkgFlags;
+
+static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
+                                             const ModulePkgFlags *flags);
 
 /* Update the on-disk hash cache after a successful build */
 static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta,
@@ -884,7 +891,8 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
 }
 
 /* Returns true if all source hashes match the cache → skip rebuild */
-static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
+static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta,
+                         const ModulePkgFlags *flags) {
     cJSON *cache = load_hash_cache(module_dir);
     if (!cache) return false;
     uint64_t context = module_build_context(meta);
@@ -923,7 +931,7 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
     if (match) match = dep_hashes_match(cache);
     if (match) {
         cJSON *stored = cJSON_GetObjectItemCaseSensitive(cache, "__preprocessing_v1");
-        uint64_t observed = cJSON_IsString(stored) ? module_preprocess_fingerprint(meta) : 0;
+        uint64_t observed = cJSON_IsString(stored) ? module_preprocess_fingerprint(meta, flags) : 0;
         char digest[24];
         snprintf(digest, sizeof(digest), "%llu", (unsigned long long)observed);
         match = observed && strcmp(stored->valuestring, digest) == 0 &&
@@ -1474,6 +1482,40 @@ static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     return result;
 }
 
+static void module_pkg_flags_free(ModulePkgFlags *flags) {
+    for (size_t i = 0; i < flags->count; i++) {
+        free(flags->cflags ? flags->cflags[i] : NULL);
+        free(flags->libs ? flags->libs[i] : NULL);
+    }
+    free(flags->cflags);
+    free(flags->libs);
+    memset(flags, 0, sizeof(*flags));
+}
+
+/* I keep one response set for all consumers in a build, including callers
+ * that only need returned flags. Failed capture leaves no partial set. */
+static bool module_pkg_flags_capture(ModuleBuildMetadata *meta, ModulePkgFlags *flags) {
+    memset(flags, 0, sizeof(*flags));
+    flags->count = meta->pkg_config_count;
+    if (!flags->count) return true;
+    flags->cflags = calloc(flags->count, sizeof(char *));
+    flags->libs = calloc(flags->count, sizeof(char *));
+    if (!flags->cflags || !flags->libs) goto failed;
+    for (size_t i = 0; i < flags->count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+        flags->cflags[i] = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+        if (!flags->cflags[i]) goto failed;
+        flags->libs[i] = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+        if (!flags->libs[i]) goto failed;
+    }
+    return true;
+failed:
+    module_pkg_flags_free(flags);
+    return false;
+}
+
 // Simple C header parser to extract #define constants
 // Returns array of ConstantDef, or NULL if parsing fails
 // Note: This is a basic parser - it handles simple integer #define patterns only
@@ -1910,7 +1952,8 @@ bool module_ensure_build_dir(const char *module_dir) {
 
 // Check if module needs rebuild
 
-bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
+static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildMetadata *meta,
+                                           const ModulePkgFlags *flags) {
     if (!meta || meta->c_sources_count == 0) {
         // No C sources = no rebuild needed
         return false;
@@ -1955,7 +1998,7 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
     /* Fast path: compare content hashes. If all hashes match the
      * persisted cache, sources haven't changed regardless of mtime
      * (handles git checkout, rsync copies, CI environments). */
-    if (hashes_match(module_dir, meta)) {
+    if (hashes_match(module_dir, meta, flags)) {
         if (module_builder_verbose) {
             printf("[Module] %s up-to-date (hash cache hit)\n", meta->name);
         }
@@ -1965,6 +2008,10 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
     /* I cannot turn missing or contradictory content evidence into a cache
      * hit merely because a timestamp is old. */
     return true;
+}
+
+bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
+    return module_needs_rebuild_with_flags(module_dir, meta, NULL);
 }
 
 // Build module
@@ -2087,7 +2134,7 @@ static bool module_build_append(char *buffer, size_t capacity, const char *forma
 }
 
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
-                                  bool preprocessing) {
+                                  bool preprocessing, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
     bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
                                    module_selected_compiler(meta), preprocessing ? "-E" : "-c");
@@ -2098,10 +2145,9 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-        char *flags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+        const char *flags = snapshot->cflags[i];
         if (flags) {
             ok &= module_build_append(prefix, capacity, " %s", flags);
-            free(flags);
         } else ok = false;
     }
     for (size_t i = 0; i < meta->include_dirs_count; i++)
@@ -2125,11 +2171,24 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
  * mode. I still compile the original source and require its dependency hashes.
  * Capturing the include trace also detects search changes when -P hides line
  * markers. No probe output is compiled or written into a published generation. */
-static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta) {
+static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
+                                             const ModulePkgFlags *flags) {
     if (!meta || !meta->c_sources_count) return 0;
+    if (!flags) {
+        ModulePkgFlags captured;
+        if (!module_pkg_flags_capture(meta, &captured)) return 0;
+        uint64_t result = module_preprocess_fingerprint(meta, &captured);
+        module_pkg_flags_free(&captured);
+        return result;
+    }
     char prefix[4096];
-    if (!module_compile_prefix(meta, prefix, sizeof(prefix), true)) return 0;
+    if (!module_compile_prefix(meta, prefix, sizeof(prefix), true, flags)) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
+    for (size_t i = 0; i < flags->count; i++) {
+        hash_context_field(&fingerprint, meta->pkg_config[i]);
+        hash_context_field(&fingerprint, flags->cflags[i] ? flags->cflags[i] : "");
+        hash_context_field(&fingerprint, flags->libs[i] ? flags->libs[i] : "");
+    }
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         char **sources = group ? meta->shared_c_sources : meta->c_sources;
@@ -2223,18 +2282,14 @@ static int module_run_source_command(const char *command, const char *dependency
 
 static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
                                            ModuleBuildMetadata *meta, const char *staging,
-                                           uint64_t *preprocessing_before) {
+                                           uint64_t *preprocessing_before,
+                                           const ModulePkgFlags *flags) {
     if (!meta) return NULL;
 
     if (meta->c_sources_count == 0) {
         // No C sources = nothing to build, but still need link/compile flags
         ModuleBuildInfo *info = calloc(1, sizeof(ModuleBuildInfo));
         if (!info) return NULL;
-
-        if (!ensure_module_system_deps(meta)) {
-            free(info);
-            return NULL;
-        }
 
         // Collect link flags from pkg-config and system_libs
         size_t total_link_flags = 0;
@@ -2245,7 +2300,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #ifdef __APPLE__
             if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-            char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+            char *pkg_flags = strdup(flags->libs[i]);
             if (!pkg_flags) {
                 for (size_t j = 0; j < total_link_flags; j++) free(link_flags[j]);
                 free(link_flags);
@@ -2291,7 +2346,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #ifdef __APPLE__
             if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-            char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+            char *pkg_cflags = strdup(flags->cflags[i]);
             if (!pkg_cflags) {
                 for (size_t j = 0; j < total_compile_flags; j++) free(compile_flags[j]);
                 free(compile_flags);
@@ -2345,14 +2400,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         return NULL;
     }
 
-    // Verify system dependencies before looking at the object cache: a cached
-    // object says nothing about whether this host still has the headers.
-    if (!ensure_module_system_deps(meta)) {
-        return NULL;
-    }
-
     // Check if rebuild needed
-    bool needs_rebuild = module_needs_rebuild(meta->module_dir, meta);
+    bool needs_rebuild = module_needs_rebuild_with_flags(meta->module_dir, meta, flags);
 
     char *build_dir = needs_rebuild && staging ? strdup(staging) : module_get_artifact_dir(meta->module_dir);
     if (!build_dir) return false;
@@ -2364,7 +2413,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
     }
 
     if (needs_rebuild) {
-        if (preprocessing_before) *preprocessing_before = module_preprocess_fingerprint(meta);
+        if (preprocessing_before) *preprocessing_before = module_preprocess_fingerprint(meta, flags);
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }
@@ -2375,7 +2424,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         // Build a reusable compile prefix (flags only)
         bool command_ok;
         char compile_prefix[4096] = {0};
-        command_ok = module_compile_prefix(meta, compile_prefix, sizeof(compile_prefix), false);
+        command_ok = module_compile_prefix(meta, compile_prefix, sizeof(compile_prefix), false, flags);
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
@@ -2502,7 +2551,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #ifdef __APPLE__
                 if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-                char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+                char *pkg_cflags = strdup(flags->cflags[i]);
                 if (!pkg_cflags) {
                     for (size_t j = 0; j < shared_cflags_count; j++) free(shared_cflags[j]);
                     free(build_dir);
@@ -2524,7 +2573,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #ifdef __APPLE__
                 if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-                char *pkg_libs = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+                char *pkg_libs = strdup(flags->libs[i]);
                 if (!pkg_libs) {
                     for (size_t j = 0; j < shared_ldflags_count; j++) free(shared_ldflags[j]);
                     free(build_dir);
@@ -2655,7 +2704,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-        char *pkg_flags = get_pkg_config_flags(meta->pkg_config[i], "--libs");
+        char *pkg_flags = strdup(flags->libs[i]);
         if (!pkg_flags) {
             for (size_t j = 0; j < total_link_flags; j++) free(link_flags[j]);
             free(link_flags);
@@ -2701,7 +2750,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-        char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+        char *pkg_cflags = strdup(flags->cflags[i]);
         if (!pkg_cflags) {
             for (size_t j = 0; j < total_compile_flags; j++) free(compile_flags[j]);
             free(compile_flags);
@@ -2798,8 +2847,9 @@ static void module_remove_staging(const char *stage) {
     if (rmdir(stage) != 0) fprintf(stderr, "I retained private build files in %s\n", stage);
 }
 
-ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
-    if (!meta || meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL, NULL);
+static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBuildMetadata *meta,
+                                               const ModulePkgFlags *flags) {
+    if (meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL, NULL, flags);
     /* Names become artifact basenames, never paths or shell fragments. */
     if (!meta->name || !meta->name[0] || strlen(meta->name) > 255 ||
         strspn(meta->name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-") != strlen(meta->name)) {
@@ -2829,7 +2879,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     if (locked == 0 && mkdtemp(stage)) {
         uint64_t context_before = module_build_context(meta);
         uint64_t preprocessing_before = 0;
-        info = module_build_staged(builder, meta, stage, context_before ? &preprocessing_before : NULL);
+        info = module_build_staged(builder, meta, stage, context_before ? &preprocessing_before : NULL, flags);
         if (info && info->needs_rebuild) {
             char generation[2048], pointer[2048], temporary[2048], target[2048];
             int g = snprintf(generation, sizeof(generation), "%s/.nano-gen-%s", cache, stage + strlen(stage) - 6);
@@ -2848,7 +2898,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
                 object_index < info->link_flags_count &&
                 module_validate_artifacts(stage, meta);
             if (ok && context_before && preprocessing_before &&
-                preprocessing_before == module_preprocess_fingerprint(meta) &&
+                preprocessing_before == module_preprocess_fingerprint(meta, NULL) &&
                 context_before == module_build_context(meta))
                 module_update_hash_cache(meta->module_dir, meta, stage, preprocessing_before);
             /* I never mutate a published generation. The old pointer remains
@@ -2878,6 +2928,15 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     }
     close(fd); /* I retain the lock inode; removing it would split waiters. */
     free(cache);
+    return info;
+}
+
+ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
+    if (!meta || !ensure_module_system_deps(meta)) return NULL;
+    ModulePkgFlags flags;
+    if (!module_pkg_flags_capture(meta, &flags)) return NULL;
+    ModuleBuildInfo *info = module_build_with_flags(builder, meta, &flags);
+    module_pkg_flags_free(&flags);
     return info;
 }
 

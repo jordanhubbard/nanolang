@@ -421,8 +421,15 @@ lookup order. I quote the tool, package and search-path arguments, and require
 successful query exit, complete reads and NUL-free output of at most 64 KiB.
 A successful empty flag response is valid. A failed required flag query aborts
 the build instead of supplying partial compile or link flags; an existing
-generation stays intact. This checks query validity, not a snapshot of all
-pkg-config responses or the libraries those responses select.
+generation stays intact. I capture each required compiler/linker response once
+per build and share that set across preprocessing, compilation, shared linking
+and returned build information, including source-free modules. Both responses
+enter my cache fingerprint, so a link-only response change invalidates reuse.
+Before recording a cold build as reusable, I query a fresh set: changed or
+failed responses withhold reuse evidence without changing the flags used to
+build the published artifacts. Capturing sequential responses is not an atomic
+snapshot of the package database, and I do not yet identify selected library
+bytes or all toolchain inputs.
 
 ### Cross-section validation
 

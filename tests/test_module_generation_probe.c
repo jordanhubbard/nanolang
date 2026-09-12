@@ -63,6 +63,12 @@ int main(int argc, char **argv) {
         ModuleBuildInfo *info = module_build(NULL, meta);
         if (info && (info->object_file || strcmp(argv[1], "build-info") == 0)) {
             puts(info->object_file ? info->object_file : "no object");
+            if (strcmp(argv[1], "build-info") == 0) {
+                for (size_t i = 0; i < info->compile_flags_count; i++)
+                    printf("compile:%s\n", info->compile_flags[i]);
+                for (size_t i = 0; i < info->link_flags_count; i++)
+                    printf("link:%s\n", info->link_flags[i]);
+            }
             status = 0;
         }
         module_build_info_free(info);

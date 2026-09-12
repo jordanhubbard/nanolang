@@ -509,14 +509,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with ASan/UBSan on the production module builder through the probe;
       linked support objects and CLI binaries remain uninstrumented.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 single-build package flag snapshot.** I capture required package
+      compiler and linker responses once, then use that set for preprocessing,
+      compilation, shared linking and returned build information. I include
+      both responses in reuse evidence and withhold new evidence when fresh
+      post-build responses differ or fail. I test changing successful responses,
+      link-only invalidation, source-free builds and recovery. This does not
+      establish selected library byte identity or an atomic source snapshot.
+      All 28 shadows, 38 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency
+      gates pass on Darwin (2026-09-12). The expanded snapshot test also checks
+      actual shared-link arguments and failed post-build queries with recovery.
+      Four package-query methods pass with ASan/UBSan on the production module
+      builder through the probe; linked support objects and CLI binaries remain
+      uninstrumented. I capture sequential responses, not an atomic package
+      database transaction.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 lossless transitive compiler dependency evidence.** My current
       cache excludes known lossy manifest paths and supplements Make records
       with include traces. I still need a verified compiler-mode boundary for
       PCH, modules and other external inputs before claiming every cached
       input is the input the compiler actually read. Newly earlier include
       files, source snapshots and complete toolchain identity remain open.
-      Query status is addressed above; stable pkg-config response snapshots
-      and the identity of selected libraries remain open.
+      Query status and per-build response consistency are addressed above;
+      the identity of selected libraries remains open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
       - [x] I reproduce a transitive backslash/slash alias against the actual
         compiler and cache, then measure preprocessed-input snapshots as a

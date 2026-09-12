@@ -717,6 +717,128 @@ print("   ")
             result, _ = self.support.compile(source, directory, "--run", env=env)
             self.assertEqual(result.returncode, 42, result.stderr)
 
+    def test_pkg_config_snapshot_and_source_free_flags(self):
+        with tempfile.TemporaryDirectory(prefix="nano-pkg-snapshot-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            counts = directory / "counts.json"
+            pkg = directory / "pkg-config"
+            pkg.write_text(f'''#!{sys.executable}
+import json, os, pathlib, sys
+if "--version" in sys.argv: print("1.0"); sys.exit(0)
+if "--exists" in sys.argv: sys.exit(0)
+path = pathlib.Path({str(counts)!r})
+counts = json.loads(path.read_text()) if path.exists() else {{}}
+query = "cflags" if "--cflags" in sys.argv else "libs"
+counts[query] = counts.get(query, 0) + 1
+path.write_text(json.dumps(counts))
+if os.environ.get("NANO_TEST_PKG_POST_FAILURE") == query and counts[query] > 1:
+    print("-DPARTIAL=1")
+    sys.exit(23)
+print("-D" + ("VALUE" if query == "cflags" else "LINK_VALUE") + "=" +
+      ("42" if counts[query] == 1 else "43"))
+''')
+            pkg.chmod(0o700)
+            env["PKG_CONFIG"] = str(pkg)
+            (module / "answer.c").write_text("long long nano_build_answer(void) { return VALUE; }\n")
+            (module / "shared.c").write_text(
+                "#ifndef LINK_VALUE\n#define LINK_VALUE VALUE\n#endif\n"
+                '__attribute__((visibility("default"))) long long snapshot_link_answer(void) { return LINK_VALUE; }\n'
+                '__attribute__((visibility("default"))) long long snapshot_compile_answer(void) { return VALUE; }\n')
+            (module / "module.json").write_text(json.dumps({
+                "name": "answer_native", "c_sources": ["answer.c"],
+                "shared_c_sources": ["shared.c"], "pkg_config": ["fixture"]}))
+
+            def build(target):
+                result = subprocess.run([str(self.probe), "build-info", str(target)],
+                                        env=env | {"NANO_VERBOSE_BUILD": "1"},
+                                        capture_output=True, timeout=20)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                return result.stdout.decode().splitlines()
+
+            lines = build(module)
+            self.assertIn("compile:-DVALUE=42", lines)
+            self.assertIn("link:-DLINK_VALUE=42", lines)
+            shared_links = [line for line in lines if "Building shared library:" in line]
+            self.assertEqual(len(shared_links), 1)
+            self.assertIn(" -DVALUE=42", shared_links[0])
+            self.assertIn(" -DLINK_VALUE=42", shared_links[0])
+            self.assertNotIn("=43", shared_links[0])
+            generation = self.probe_path("directory", module, env)
+            self.assertFalse((generation / "source_hashes.json").exists())
+            self.assertEqual(json.loads(counts.read_text()), {"cflags": 2, "libs": 2})
+            library = self.probe_path("library", module, env)
+            self.assertEqual(self.library_answer(library), 42)
+            handle = ctypes.CDLL(str(library))
+            for symbol in ("snapshot_link_answer", "snapshot_compile_answer"):
+                function = getattr(handle, symbol)
+                function.restype = ctypes.c_int64
+                self.assertEqual(function(), 42)
+            lines = build(module)
+            self.assertIn("compile:-DVALUE=43", lines)
+            self.assertIn("link:-DLINK_VALUE=43", lines)
+            recovered = self.probe_path("directory", module, env)
+            self.assertNotEqual(recovered, generation)
+            self.assertTrue((recovered / "source_hashes.json").is_file())
+            build(module)
+            self.assertEqual(self.probe_path("directory", module, env), recovered)
+
+            for query in ("cflags", "libs"):
+                counts.write_text("{}")
+                env["NANO_TEST_PKG_POST_FAILURE"] = query
+                c_source = module / "answer.c"
+                c_source.write_text(c_source.read_text() + "\n/* I force another cold build. */\n")
+                lines = build(module)
+                self.assertIn("compile:-DVALUE=42", lines)
+                self.assertIn("link:-DLINK_VALUE=42", lines)
+                generation = self.probe_path("directory", module, env)
+                self.assertFalse((generation / "source_hashes.json").exists())
+                self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+                del env["NANO_TEST_PKG_POST_FAILURE"]
+                build(module)
+                recovered = self.probe_path("directory", module, env)
+                self.assertTrue((recovered / "source_hashes.json").is_file())
+
+            no_source = directory / "source-free"
+            no_source.mkdir()
+            (no_source / "module.json").write_text(json.dumps({
+                "name": "source_free", "pkg_config": ["fixture"]}))
+            counts.write_text("{}")
+            lines = build(no_source)
+            self.assertIn("no object", lines)
+            self.assertIn("compile:-DVALUE=42", lines)
+            self.assertIn("link:-DLINK_VALUE=42", lines)
+            self.assertEqual(json.loads(counts.read_text()), {"cflags": 1, "libs": 1})
+
+    def test_pkg_config_link_only_change_invalidates_cache(self):
+        with tempfile.TemporaryDirectory(prefix="nano-pkg-link-change-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            response = directory / "link-response"
+            response.write_text("-DLINK_SELECTION=42")
+            pkg = directory / "pkg-config"
+            pkg.write_text(f'''#!{sys.executable}
+import pathlib, sys
+if "--version" in sys.argv: print("1.0")
+elif "--libs" in sys.argv: print(pathlib.Path({str(response)!r}).read_text())
+''')
+            pkg.chmod(0o700)
+            env["PKG_CONFIG"] = str(pkg)
+            manifest = module / "module.json"
+            metadata = json.loads(manifest.read_text())
+            metadata["pkg_config"] = ["fixture"]
+            manifest.write_text(json.dumps(metadata))
+            self.probe_path("build", module, env)
+            first = self.probe_path("directory", module, env)
+            self.probe_path("build", module, env)
+            self.assertEqual(self.probe_path("directory", module, env), first)
+            response.write_text("-DLINK_SELECTION=43")
+            self.probe_path("build", module, env)
+            second = self.probe_path("directory", module, env)
+            self.assertNotEqual(second, first)
+            self.probe_path("build", module, env)
+            self.assertEqual(self.probe_path("directory", module, env), second)
+
     def test_pkg_config_output_and_literal_arguments(self):
         with tempfile.TemporaryDirectory(prefix="nano-pkg-boundary-") as tmp:
             directory = Path(tmp)
