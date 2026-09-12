@@ -2003,6 +2003,10 @@ test-cross-backend: $(COMPILER) test-cross-backend-runner
 test-cross-backend-runner:
 	@python3 tests/test_cross_backend_runner.py
 
+.PHONY: test-selfhost-cli
+test-selfhost-cli: bootstrap3
+	@python3 tests/test_selfhost_cli.py
+
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json
 .PHONY: bench bench-compare

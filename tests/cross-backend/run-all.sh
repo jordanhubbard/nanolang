@@ -276,8 +276,12 @@ test_c() {
         emit_result SKIP c "$name" "no C compiler found"
         return
     fi
-    if ! "$cc" -std=gnu11 -o "$out_exe" "$out_c" 2>/dev/null; then
+    # I supply repository runtime headers for self-hosted C output. These
+    # scalar corpus programs need libc/libm, not external module libraries.
+    if ! "$cc" -O2 -std=gnu11 -I"$REPO_ROOT/src" -I"$REPO_ROOT/modules/std" \
+            -o "$out_exe" "$out_c" -lm 2>"$TMPDIR_TESTS/c-compile.err"; then
         report_outcome fail c "$nano_file" "$name" "$cc compilation failed"
+        cat "$TMPDIR_TESTS/c-compile.err" >&2
         return
     fi
     if [ ! -f "$expected_file" ]; then

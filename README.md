@@ -187,18 +187,31 @@ make dap   # Build bin/nanolang-dap  (breakpoints, step-through, variable inspec
 A VS Code extension is provided in `editors/vscode/`. It wires the LSP and DAP servers automatically.
 
 ```bash
-# Compile to native C (default)
+# Compile through C to a native executable (default)
 ./bin/nanoc program.nano -o program
 
-# Experimental direct targets during the NanoISA translator migration
-./bin/nanoc program.nano --target ptx   -o program.ptx  # CUDA PTX
-./bin/nanoc program.nano --target riscv -o program.s    # RISC-V assembly
+# Emit C source without invoking a native compiler
+./bin/nanoc program.nano --target c -o program.c
+
+# Experimental C-seed targets during the NanoISA translator migration
+./bin/nanoc_c program.nano --target ptx   -o program.ptx  # CUDA PTX
+./bin/nanoc_c program.nano --target riscv -o program.s    # RISC-V assembly
 
 # Export documentation from triple-slash comments
-./bin/nanoc program.nano --doc-md -o program.md
+./bin/nanoc_c program.nano --doc-md -o program.md
 ```
 
+My self-hosted driver accepts `--target native` and `--target c`; it rejects
+unknown options, unsupported targets, missing option values, and multiple
+input files. With `--target c` and no `-o`, I write a sibling `.c` file. Use
+`--` before an input path beginning with `-`. My generated C uses headers in
+`src` and `modules/std`; link the runtime and module libraries used by the
+program. Source emission alone does not prove that those dependencies link.
+
 ## Performance Monitoring and LLM Optimization
+
+The profiling options in this section belong to my C-seed driver,
+`bin/nanoc_c`; my self-hosted driver does not implement them yet.
 
 When I compile with `-pg`, the native binary wraps `main` as `_nl_run_with_profiling`. On Linux I drive **gprofng**. On macOS I drive **xctrace** (full Xcode) and fall back to **sample**. I print JSON on **stdout** and, with `--profile-output`, to a file. That JSON is for an agent to read; it is not a PGO input.
 

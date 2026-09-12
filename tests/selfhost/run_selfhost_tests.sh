@@ -94,7 +94,12 @@ if NANOLANG_SELFHOST_COMPILER="$NANOC" python3 tests/test_selfhost_import_paths.
 else
     FAILED=$((FAILED + 1))
 fi
-echo "Results: $PASSED passed, $FAILED failed (including the import-path suite)"
+if NANOLANG_SELFHOST_COMPILER="$NANOC" python3 tests/test_selfhost_cli.py; then
+    PASSED=$((PASSED + 1))
+else
+    FAILED=$((FAILED + 1))
+fi
+echo "Results: $PASSED passed, $FAILED failed (including import-path and CLI suites)"
 echo "========================================"
 
 # Cleanup intermediate test binaries

@@ -166,12 +166,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       after repair. `make test-cross-backend-runner` passes and is a prerequisite
       of the full runner. The real C seed passes all seven C corpus programs;
       fixture success alone is not compiler conformance (2026-09-11).
-- [ ] **5.0 contract defect — self-hosted CLI output modes.** The rebuilt
-      Stage 2 ignores `--target c` after its input argument and writes a native
-      executable at the requested `.c` path. All seven C cross-backend cases
-      then fail in the external C compiler. I must validate unknown/missing
-      options and implement the source-output contract, with direct CLI tests
-      and the existing corpus; silently selecting another mode is not success.
+- [x] **5.0 contract defect — self-hosted CLI output modes.** I parse
+      options before compilation and reject unknown options, missing operands,
+      unsupported targets and extra input files. `--target c` writes C source
+      without invoking the native toolchain; `--target native` retains native
+      compilation. I derive a sibling `.c` filename when `-o` is absent and
+      accept `--` before a hyphen-prefixed input path. Nine CLI tests pass on
+      rebuilt Stage 1 and Stage 2, covering output preservation on bad options,
+      source compilation/execution with native compilation disabled in the
+      driver, default paths, explicit native execution and write errors.
+      `make test-selfhost-cli` passes; my full self-hosted suite reports
+      16 passed, 0 failed. Both the C seed and Stage 2 compile and execute all
+      seven C corpus programs using repository runtime headers. Eight runner
+      fixture tests pass. The serial bootstrap passes its smoke/no-C-seed gates;
+      native stage binaries still differ. README distinguishes self-hosted
+      modes from C-seed-only target, documentation and profiling switches.
+      MAC rejects direct closure from `open`; verified evidence awaits its
+      normal claim/review workflow (2026-09-11).
       MAC `task_09aa81ed3aa442cba41a53d2c4b646e6`.
 - [x] **5.0 bootstrap — evidence-bounded reporting.** I report native
       byte equality only for the artifacts compared in this build, label

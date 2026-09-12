@@ -44,7 +44,6 @@ extern fn nl_exec_capture(cmd: string) -> string
 /* =============================================================================
  * CLI ARGUMENT PARSING
  * ============================================================================= */
-
 struct CompileOptions {
     input_file: string,
     output_file: string,
@@ -52,173 +51,140 @@ struct CompileOptions {
     keep_c: bool,
     show_intermediate_code: bool,
     llm_diags_json_path: string,
-    show_help: bool
+    show_help: bool,
+    emit_c: bool,
+    error: string
 }
 
 fn default_options() -> CompileOptions {
-    return CompileOptions {
-        input_file: "",
-        output_file: "a.out",
-        verbose: false,
-        keep_c: false,
-        show_intermediate_code: false,
-        llm_diags_json_path: "",
-        show_help: false
-    }
+    return (parse_options [])
 }
 
 shadow default_options {
     let opts: CompileOptions = (default_options)
     assert (== opts.output_file "a.out")
-    assert (not opts.verbose)
-    assert (not opts.show_help)
+    assert (not opts.emit_c)
+    assert (== opts.error "")
+}
+
+# I derive a sibling source filename only when no output was specified.
+fn c_source_output_path(input: string) -> string {
+    let length: int = (str_length input)
+    let mut component_start: int = 0
+    let mut extension: int = length
+    let mut i: int = 0
+    while (< i length) {
+        let ch: string = (str_substring input i 1)
+        if (== ch "/") { set component_start (+ i 1) set extension length }
+        if (and (== ch ".") (> i component_start)) { set extension i }
+        set i (+ i 1)
+    }
+    return (+ (str_substring input 0 extension) ".c")
+}
+
+shadow c_source_output_path {
+    assert (== (c_source_output_path "dir.name/file.nano") "dir.name/file.c")
+    assert (== (c_source_output_path ".hidden") ".hidden.c")
+    assert (== (c_source_output_path "plain") "plain.c")
+}
+
+# I parse arguments before any source loading or output writes.
+fn parse_options(args: array<string>) -> CompileOptions {
+    let mut input: string = ""
+    let mut output: string = "a.out"
+    let mut output_set: bool = false
+    let mut verbose: bool = false
+    let mut keep_c: bool = false
+    let mut show_code: bool = false
+    let mut diags: string = ""
+    let mut help: bool = false
+    let mut emit_c: bool = false
+    let mut error: string = ""
+    let mut positional_only: bool = false
+    let count: int = (array_length args)
+    let mut i: int = 0
+    while (< i count) {
+        let arg: string = (at args i)
+        if (and (not positional_only) (== arg "--")) {
+            set positional_only true
+        } else if (and (not positional_only) (or (== arg "-h") (== arg "--help"))) {
+            set help true
+        } else if (and (not positional_only) (or (== arg "-v") (== arg "--verbose"))) {
+            set verbose true
+        } else if (and (not positional_only) (or (== arg "-k") (== arg "--keep-c"))) {
+            set keep_c true
+        } else if (and (not positional_only) (== arg "-fshow-intermediate-code")) {
+            set show_code true
+        } else if (and (not positional_only) (or (or (== arg "-o") (== arg "--target")) (== arg "--llm-diags-json"))) {
+            if (>= (+ i 1) count) {
+                set error (+ "I need a value after " arg)
+                break
+            }
+            set i (+ i 1)
+            let value: string = (at args i)
+            if (or (== value "") (nlc_str_starts_with value "-")) {
+                set error (+ "I need a value after " arg)
+                break
+            }
+            if (== arg "-o") {
+                set output value
+                set output_set true
+            } else if (== arg "--llm-diags-json") {
+                set diags value
+            } else {
+                if (and (!= value "c") (!= value "native")) {
+                    set error (+ "I do not support this target in my self-hosted driver: " value)
+                    break
+                }
+                set emit_c (== value "c")
+            }
+        } else if (and (not positional_only) (nlc_str_starts_with arg "-")) {
+            set error (+ "I do not recognize this option: " arg)
+            break
+        } else {
+            if (== arg "") { set error "I need a nonempty input path" break }
+            if (!= input "") { set error "I accept one input file per invocation" break }
+            set input arg
+        }
+        set i (+ i 1)
+    }
+    if (and emit_c (not output_set)) { set output (c_source_output_path input) }
+    return CompileOptions {
+        input_file: input, output_file: output, verbose: verbose,
+        keep_c: keep_c, show_intermediate_code: show_code,
+        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, error: error
+    }
+}
+
+shadow parse_options {
+    let source: CompileOptions = (parse_options ["file.nano", "--target", "c"])
+    assert source.emit_c
+    assert (== source.output_file "file.c")
+    assert (== source.error "")
+    let bad: CompileOptions = (parse_options ["file.nano", "--unknown"])
+    assert (!= bad.error "")
+    let missing: CompileOptions = (parse_options ["-o"])
+    assert (!= missing.error "")
+    let escaped: CompileOptions = (parse_options ["--", "-file.nano"])
+    assert (== escaped.input_file "-file.nano")
+    assert (== escaped.error "")
 }
 
 fn parse_args() -> CompileOptions {
-    let argc: int = (get_argc)
-    let mut opts: CompileOptions = (default_options)
+    let count: int = (get_argc)
+    let mut args: array<string> = []
     let mut i: int = 1
-    
-    while (< i argc) {
-        let arg: string = (get_argv i)
-        
-        if (== arg "-h") {
-            set opts CompileOptions {
-                input_file: opts.input_file,
-                output_file: opts.output_file,
-                verbose: opts.verbose,
-                keep_c: opts.keep_c,
-                show_intermediate_code: opts.show_intermediate_code,
-                llm_diags_json_path: opts.llm_diags_json_path,
-                show_help: true
-            }
-        } else {
-            if (== arg "--help") {
-                set opts CompileOptions {
-                    input_file: opts.input_file,
-                    output_file: opts.output_file,
-                    verbose: opts.verbose,
-                    keep_c: opts.keep_c,
-                    show_intermediate_code: opts.show_intermediate_code,
-                    llm_diags_json_path: opts.llm_diags_json_path,
-                    show_help: true
-                }
-            } else {
-                if (== arg "-v") {
-                    set opts CompileOptions {
-                        input_file: opts.input_file,
-                        output_file: opts.output_file,
-                        verbose: true,
-                        keep_c: opts.keep_c,
-                        show_intermediate_code: opts.show_intermediate_code,
-                        llm_diags_json_path: opts.llm_diags_json_path,
-                        show_help: opts.show_help
-                    }
-                } else {
-                    if (== arg "--verbose") {
-                        set opts CompileOptions {
-                            input_file: opts.input_file,
-                            output_file: opts.output_file,
-                            verbose: true,
-                            keep_c: opts.keep_c,
-                            show_intermediate_code: opts.show_intermediate_code,
-                            llm_diags_json_path: opts.llm_diags_json_path,
-                            show_help: opts.show_help
-                        }
-                    } else {
-                        if (== arg "-k") {
-                            set opts CompileOptions {
-                                input_file: opts.input_file,
-                                output_file: opts.output_file,
-                                verbose: opts.verbose,
-                                keep_c: true,
-                                show_intermediate_code: opts.show_intermediate_code,
-                                llm_diags_json_path: opts.llm_diags_json_path,
-                                show_help: opts.show_help
-                            }
-                        } else {
-                            if (== arg "--keep-c") {
-                                set opts CompileOptions {
-                                    input_file: opts.input_file,
-                                    output_file: opts.output_file,
-                                    verbose: opts.verbose,
-                                    keep_c: true,
-                                    show_intermediate_code: opts.show_intermediate_code,
-                                    llm_diags_json_path: opts.llm_diags_json_path,
-                                    show_help: opts.show_help
-                                }
-                            } else {
-                                if (== arg "-fshow-intermediate-code") {
-                                    set opts CompileOptions {
-                                        input_file: opts.input_file,
-                                        output_file: opts.output_file,
-                                        verbose: opts.verbose,
-                                        keep_c: opts.keep_c,
-                                        show_intermediate_code: true,
-                                        llm_diags_json_path: opts.llm_diags_json_path,
-                                        show_help: opts.show_help
-                                    }
-                                } else {
-                                if (== arg "--llm-diags-json") {
-                                    if (< (+ i 1) argc) {
-                                        set i (+ i 1)
-                                        let p: string = (get_argv i)
-                                        set opts CompileOptions {
-                                            input_file: opts.input_file,
-                                            output_file: opts.output_file,
-                                            verbose: opts.verbose,
-                                            keep_c: opts.keep_c,
-                                            show_intermediate_code: opts.show_intermediate_code,
-                                            llm_diags_json_path: p,
-                                            show_help: opts.show_help
-                                        }
-                                    } else { (print "") }
-                                } else {
-                                if (== arg "-o") {
-                                    if (< (+ i 1) argc) {
-                                        set i (+ i 1)
-                                        let output: string = (get_argv i)
-                                        set opts CompileOptions {
-                                            input_file: opts.input_file,
-                                            output_file: output,
-                                            verbose: opts.verbose,
-                                            keep_c: opts.keep_c,
-                                            show_intermediate_code: opts.show_intermediate_code,
-                                            llm_diags_json_path: opts.llm_diags_json_path,
-                                            show_help: opts.show_help
-                                        }
-                                    } else {
-                                        (print "")
-                                    }
-                                } else {
-                                    /* Assume it's the input file if no option prefix */
-                                    if (== opts.input_file "") {
-                                        set opts CompileOptions {
-                                            input_file: arg,
-                                            output_file: opts.output_file,
-                                            verbose: opts.verbose,
-                                            keep_c: opts.keep_c,
-                                            show_intermediate_code: opts.show_intermediate_code,
-                                            llm_diags_json_path: opts.llm_diags_json_path,
-                                            show_help: opts.show_help
-                                        }
-                                    } else {
-                                        (print "")
-                                    }
-                                }
-                                }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
+    while (< i count) {
+        set args (array_push args (get_argv i))
         set i (+ i 1)
     }
-    
-    return opts
+    return (parse_options args)
+}
+
+shadow parse_args {
+    let count: int = (get_argc)
+    let opts: CompileOptions = (parse_args)
+    if (<= count 1) { assert (== opts.input_file "") }
 }
 
 /* =============================================================================
@@ -1461,7 +1427,8 @@ fn llm_write_diags_json(path: string, input_file: string, output_file: string, e
     return (file_write path s)
 }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string) -> int {
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool) -> int {
+    if (== input_file "") { return 1 }
     if verbose {
         (println "")
         (println "╔══════════════════════════════════════════════════════════════╗")
@@ -1688,6 +1655,19 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             if show_intermediate_code {
                 (print c_code)
             } else { (print "") }
+
+            # I publish C source without invoking the native toolchain.
+            if emit_c {
+                let status: int = (file_write output_file c_code)
+                if (!= status 0) {
+                    (println "I could not write the requested C source file")
+                    return 1
+                }
+                if (!= llm_diags_json_path "") {
+                    (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
+                }
+                return 0
+            }
             
             /* Write C code to temporary file */
             let c_file: string = (+ (tmp_dir) "/nanolang_temp.c")
@@ -1942,6 +1922,10 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
  * MAIN ENTRY POINT
  * ============================================================================= */
 
+shadow compile_program {
+    assert (== (compile_program "" "" false false false "" false) 1)
+}
+
 fn show_usage() -> int {
     (println "")
     (println "╔══════════════════════════════════════════════════════════════╗")
@@ -1954,6 +1938,8 @@ fn show_usage() -> int {
     (println "  -o <file>        Output executable (default: a.out)")
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
+    (println "  --target <t>    native (default) or c (source output, no native compilation)")
+    (println "  --              End options; the remaining argument is my input path")
     (println "  -fshow-intermediate-code  Print generated C to stdout")
     (println "  -h, --help       Show this help")
     (println "  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)")
@@ -1971,6 +1957,10 @@ shadow show_usage {
 
 fn main() -> int {
     let opts: CompileOptions = (parse_args)
+    if (!= opts.error "") {
+        (println opts.error)
+        return 1
+    }
     
     if opts.show_help {
         return (show_usage)
@@ -1994,7 +1984,11 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path)
+    if (== (path_normalize opts.input_file) (path_normalize opts.output_file)) {
+        (println "I will not overwrite my input file")
+        return 1
+    }
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c)
 }
 
 shadow main {
