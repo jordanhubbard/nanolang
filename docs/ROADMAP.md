@@ -402,13 +402,28 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       on Darwin (2026-09-12). Daemon execution and cross-platform execution are
       not established by these link checks.
       MAC `task_4524b827bf464fe7bf4d0d43d6f88fd1`.
-- [ ] **5.0 wrapper command and publication boundaries.** My packaged and
-      daemon wrapper builders interpolate paths into shell commands, use
-      predictable temporary C filenames, and link directly to the destination.
-      I must preserve literal path bytes, use private temporary work, and leave
-      an existing executable intact after failed or overlapping compilation.
-      Link acceptance alone does not establish these properties.
+- [x] **5.0 wrapper command and publication boundaries.** Both wrapper modes
+      share private sibling staging and atomic executable replacement. I quote
+      filesystem arguments with my existing shell-path helpers and encode
+      source import paths as C-string bytes. Compiler command fragments remain
+      trusted configuration. I reject absent, empty, non-executable, symlinked
+      and multiply-linked compiler outputs before publishing.
+      Seven boundary tests cover literal paths (including option-like relative
+      object directories), compiler failure, overlapping failure/success,
+      interruption, destination symlinks, failed rename and import escaping.
+      Five wrapper link tests, 28 shadows, 23 cache tests and 63 codegen tests
+      also pass on Darwin (2026-09-12). Interrupted private stages are ignored,
+      not automatically collected; unknown compiler side artifacts are retained
+      with a diagnostic. I do not claim power-loss durability, a compiler
+      sandbox or cross-platform execution from these tests.
       MAC `task_0750c33a06a14dd39baf4d3e77e37a0d`.
+- [ ] **5.0 foreign-module compiler path boundaries.** My manifest-backed
+      C-module compiler still constructs shell commands with raw source,
+      dependency and object paths. A foreign module under a path containing
+      quotes and backslashes fails before wrapper generation. I must preserve
+      literal bytes through every foreign build phase and test metacharacters,
+      without confusing this with the repaired C-seed link-path handling.
+      MAC `task_8c10a946dfa14d92b491fd80f4635187`.
 - [x] **5.0 C-library cache — atomic generation publication.** I publish
       object, library, dependency files and reuse evidence as one generation
       through an atomic current-pointer replacement. Native link inputs and

@@ -373,7 +373,16 @@ dependency. I retain the build's optional Homebrew OpenSSL library directory
 for this link; system installations use the compiler's normal library search.
 I test a generated standalone executable from another working directory,
 including retention after a foreign rebuild and failure after artifact removal.
-This does not establish relocatable deployment or safe output publication.
+Both standalone and daemon wrapper builders compile in a private directory
+beside the output and publish by rename only after a successful compiler exit
+and executable-file checks. Failed builds do not replace the destination.
+Overlapping successes follow last-successful-publication order; a destination
+symlink is replaced, not followed. I quote path arguments and encode imported
+paths as C-string bytes. `NANO_CC` and `CC` remain trusted shell command
+configuration. Killed builds can leave private stages, which later builds
+ignore; I retain unknown compiler side artifacts with a diagnostic rather
+than recursively deleting them. This is not relocatable deployment,
+power-loss durability, or protection from a malicious configured compiler.
 
 ### Cross-section validation
 
