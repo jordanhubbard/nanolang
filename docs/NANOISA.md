@@ -368,6 +368,13 @@ artifacts. Library dependencies and internal C symbol interposition still
 follow the platform loader. My source-level imported-name isolation remains
 roadmap work; handle-scoped lookup does not repair merged source declarations.
 
+My packaged interpreter links the prebuilt runtime objects and their crypto
+dependency. I retain the build's optional Homebrew OpenSSL library directory
+for this link; system installations use the compiler's normal library search.
+I test a generated standalone executable from another working directory,
+including retention after a foreign rebuild and failure after artifact removal.
+This does not establish relocatable deployment or safe output publication.
+
 ### Cross-section validation
 
 A section codec sees one section and cannot check an index into another, so the

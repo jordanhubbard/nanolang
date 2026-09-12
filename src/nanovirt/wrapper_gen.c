@@ -269,7 +269,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
     static const char *common_objs[] = {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",
         "stdlib_runtime.o", "env.o", "builtins_registry.o",
-        "module.o", "module_metadata.o",
+        "module.o", "module_metadata.o", "utf8.o",
         "cJSON.o", "toon_output.o", "module_builder.o",
         "resource_tracking.o", "eval.o", "interpreter_ffi.o",
         "json_diagnostics.o", "reflection.o", "effects.o", "coroutine.o",
@@ -300,7 +300,7 @@ static bool build_obj_list(char *buf, size_t buf_size, const char *obj_dir) {
         "runtime/list_ASTTupleIndex.o",
         "runtime/token_helpers.o", "runtime/gc.o", "runtime/dyn_array.o",
         "runtime/gc_struct.o", "runtime/nl_string.o", "runtime/ffi_loader.o",
-        "runtime/cli.o", "runtime/regex.o", NULL
+        "runtime/module_build_dir.o", "runtime/cli.o", "runtime/regex.o", NULL
     };
 
     buf[0] = '\0';
@@ -414,10 +414,20 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
 
     /* Platform-specific flags */
     const char *export_dynamic = "";
+    const char *loader_library = "";
 #ifdef __linux__
     export_dynamic = "-rdynamic";
+    loader_library = "-ldl";
 #elif defined(__FreeBSD__)
     export_dynamic = "-Wl,-E";
+#endif
+
+    /* I carry the build's keg-only OpenSSL search directory into my wrapper
+     * link. System installations use the compiler's default library search. */
+#ifdef NANO_WRAPPER_CRYPTO_DIR
+    const char *crypto_search = "-L\"" NANO_WRAPPER_CRYPTO_DIR "\"";
+#else
+    const char *crypto_search = "";
 #endif
 
     /* Compile command */
@@ -426,9 +436,9 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
             "%s -std=c99 -Wall -Wextra -Werror "
             "-Wno-error=unused-function -Wno-error=unused-parameter "
             "-Wno-error=unused-variable -Wno-error=unused-but-set-variable "
-            "%s -I%s -I%s -o %s %s %s -lm",
+            "%s -I%s -I%s -o %s %s %s -lm -pthread %s %s -lcrypto",
             cc, export_dynamic, real_src, real_modules,
-            output_path, temp_c, obj_list);
+            output_path, temp_c, obj_list, loader_library, crypto_search);
 
     if (cmd_len >= (int)sizeof(cmd)) {
         fprintf(stderr, "error: compile command too long\n");

@@ -193,6 +193,35 @@ int64_t nano_build_answer(void) {
             finally:
                 self.stop(process)
 
+    def test_packaged_wrapper_retains_foreign_generation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-wrapper-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            env["NANO_VIRT_LIB"] = str(ROOT / "obj")
+            program = directory / "program.nano"
+            program.write_text(source)
+            wrapper = directory / "program"
+            result = subprocess.run([str(ROOT / "bin/nano_virt"), str(program), "-o", str(wrapper)],
+                                    cwd=ROOT, env=env, capture_output=True, timeout=25)
+            self.assertEqual(result.returncode, 0, (result.stdout, result.stderr))
+            elsewhere = directory / "elsewhere"
+            elsewhere.mkdir()
+            def execute():
+                return subprocess.run([str(wrapper)], cwd=elsewhere, env=env,
+                                      capture_output=True, timeout=10)
+            self.assertEqual(execute().returncode, 42)
+            old_library = self.probe_path("library", module, env)
+            c_source = module / "answer.c"
+            c_source.write_text(c_source.read_text().replace("42", "43"))
+            result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.support.execute(output, env=env).returncode, 43)
+            self.assertEqual(execute().returncode, 42)
+            old_library.rename(old_library.with_suffix(".retained"))
+            result = execute()
+            self.assertEqual(result.returncode, 1, (result.stdout, result.stderr))
+            self.assertIn(b"nano_build_answer", result.stderr)
+
     def test_multi_source_and_private_dependencies_publish(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)

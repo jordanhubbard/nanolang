@@ -382,7 +382,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       v2 codec/conversion/end-to-end tests, verifier, nvm2c, package policy and
       C-seed dependency gates pass on Darwin (2026-09-12). I also test direct
       and transitive retained imports in co-process mode and a rebuild while
-      a shadow is paused. Packaged-wrapper execution remains unverified below.
+      a shadow is paused. Packaged-wrapper execution is checked below.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 standalone VM failure diagnostics.** Debug metadata does not
       establish that a stack trace was printed. I always report execution
@@ -390,12 +390,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Direct and transitive missing-library regressions pass with debug
       metadata, including co-process failure exits (2026-09-12).
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
-- [ ] **5.0 packaged-interpreter link acceptance.** My wrapper test currently
-      reports success without requiring a successful link. Actual linkage lacks
-      UTF-8 and module-build-directory objects. I must repair its dependency
-      list and crypto linkage, require generation success, and execute a
-      wrapper with a retained foreign binding after a rebuild.
+- [x] **5.0 packaged-interpreter link acceptance.** I repaired missing UTF-8
+      and module-build-directory objects and added crypto/thread/loader linkage.
+      My wrapper compiler retains the build's optional OpenSSL library search
+      directory, including with caller flag overrides in the checked dry run.
+      Both positive standalone and daemon link tests now require success;
+      the standalone positive gate failed before the repair and passes after it.
+      An executed standalone wrapper retains its foreign generation after a
+      rebuild and reports a missing artifact from a different working directory.
+      Five wrapper tests, 28 shadows, 23 cache tests and 63 codegen tests pass
+      on Darwin (2026-09-12). Daemon execution and cross-platform execution are
+      not established by these link checks.
       MAC `task_4524b827bf464fe7bf4d0d43d6f88fd1`.
+- [ ] **5.0 wrapper command and publication boundaries.** My packaged and
+      daemon wrapper builders interpolate paths into shell commands, use
+      predictable temporary C filenames, and link directly to the destination.
+      I must preserve literal path bytes, use private temporary work, and leave
+      an existing executable intact after failed or overlapping compilation.
+      Link acceptance alone does not establish these properties.
+      MAC `task_0750c33a06a14dd39baf4d3e77e37a0d`.
 - [x] **5.0 C-library cache — atomic generation publication.** I publish
       object, library, dependency files and reuse evidence as one generation
       through an atomic current-pointer replacement. Native link inputs and
