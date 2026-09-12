@@ -37,12 +37,26 @@ void vm_ffi_shutdown(void) {
 }
 
 bool vm_ffi_load_module(const char *module_name) {
+    if (!module_name || !module_name[0]) return false;
     if (!ffi_loader_is_initialized()) ffi_loader_init(false);
     if (ffi_loader_find(module_name)) return true;
 
-    /* Find library using the shared search logic (no module_dir for VM) */
+    /* I retain source-path context, as the interpreter does. Logical module
+     * names still use the shared loader's standard-module fallbacks. */
+    char *module_dir = NULL;
+    size_t name_len = strlen(module_name);
+    if (name_len >= 5 && strcmp(module_name + name_len - 5, ".nano") == 0) {
+        module_dir = strdup(module_name);
+        if (!module_dir) return false;
+        char *slash = strrchr(module_dir, '/');
+        if (slash == module_dir) slash[1] = '\0';
+        else if (slash) *slash = '\0';
+        else strcpy(module_dir, ".");
+    }
     char path[1024];
-    if (!ffi_loader_find_library(module_name, NULL, path, sizeof(path))) {
+    bool found = ffi_loader_find_library(module_name, module_dir, path, sizeof(path));
+    free(module_dir);
+    if (!found) {
         /* Not fatal - function might be in main executable or already-loaded lib */
         return false;
     }

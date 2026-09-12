@@ -737,6 +737,11 @@ annotations. These checks do not establish complete lexical or generic typing.
 `make test-bytecode-shadows` checks bytecode test execution, failure handling
 and output preservation. Its compiler parent enforces a 10-second deadline;
 test output goes to stderr. The child process is not a security sandbox.
+My VM retains a `.nano` import's directory when locating its shared library.
+I test foreign calls from absolute and relative nested paths, both with a
+local `.build` directory and with `NANO_BUILD_CACHE`, in shadows and standalone
+bytecode. This lookup does not build a missing library or make artifacts
+independent of their recorded import paths.
 Production bytecode retains the original entry and omits the test harness.
 Shadow-only root files are accepted by this CLI. Imported shadows are not
 automatically included; import policy and C-seed FFI exemptions remain gaps.

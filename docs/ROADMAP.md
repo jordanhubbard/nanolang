@@ -298,6 +298,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and observable evaluation order. The original float example executes
       with `abs(-3.14) = 3.14` and `min(2.5, 7.8) = 2.5`.
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM FFI source-path lookup.** I retain the directory of a `.nano`
+      import when resolving its shared library, including absolute paths and
+      relative nested modules. I test real foreign calls in shadows and
+      standalone bytecode, with default and explicit build-cache locations,
+      and preserve an existing artifact when the foreign assertion fails.
+      All four path/cache combinations fail before the repair and pass after
+      it, including compiler-run and standalone execution. My 20 shadow
+      tests, 63 codegen tests and 18 FFI unit tests pass (2026-09-12).
+      Missing-library builds and general module packaging remain separate.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
       rejects 98 of 229 eligible examples after shadow execution is enabled.
       Direct checks expose integer negation emitted for floats and missing

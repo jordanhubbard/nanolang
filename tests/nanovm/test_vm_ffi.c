@@ -76,9 +76,10 @@ TEST(load_module_nonexistent) {
     bool ok = vm_ffi_load_module("definitely_not_a_real_ffi_module_xyzzy");
     ASSERT(!ok);
 
-    /* Empty module name */
+    /* I reject absent module names without entering library lookup. */
     ok = vm_ffi_load_module("");
-    /* Return value undefined for empty name — just must not crash */
+    ASSERT(!ok);
+    ASSERT(!vm_ffi_load_module(NULL));
 
     vm_ffi_shutdown();
 }

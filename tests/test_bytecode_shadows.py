@@ -2,6 +2,7 @@
 from pathlib import Path
 import os
 import signal
+import sys
 import subprocess
 import tempfile
 import unittest
@@ -10,13 +11,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BytecodeShadows(unittest.TestCase):
-    def compile(self, source, directory, *options):
+    def compile(self, source, directory, *options, env=None):
         path = directory / "program.nano"
         path.write_text(source)
         output = directory / "program.nvm"
         args = [str(ROOT / "bin/nano_virt"), str(path), "--emit-nvm", "-o", str(output), *options]
         process = subprocess.Popen(args, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   start_new_session=True)
+                                   start_new_session=True, env=env)
         try:
             stdout, stderr = process.communicate(timeout=25)
         except subprocess.TimeoutExpired:
@@ -113,6 +114,50 @@ shadow main { assert true }
             self.assertNotEqual(result.returncode, 0)
             self.assertIn(b"after 10 seconds", result.stderr)
             self.assertFalse(output.exists())
+
+    def test_foreign_module_source_directory(self):
+        for cached in (False, True):
+            for absolute in (False, True):
+                with self.subTest(cached=cached, absolute=absolute), tempfile.TemporaryDirectory(prefix="nano-ffi-path-") as tmp:
+                    directory = Path(tmp)
+                    module_dir = directory / "nested"
+                    module_dir.mkdir()
+                    module = module_dir / "foreign.nano"
+                    module.write_text("pub extern fn nano_shadow_answer() -> int\n")
+                    module_path = str(module) if absolute else os.path.relpath(module, ROOT)
+                    env = os.environ.copy()
+                    env.pop("NANO_BUILD_CACHE", None)
+                    if cached:
+                        cache = directory / "cache"
+                        env["NANO_BUILD_CACHE"] = str(cache)
+                        build_dir = cache / os.path.dirname(module_path).replace("/", "_")
+                    else:
+                        build_dir = module_dir / ".build"
+                    build_dir.mkdir(parents=True)
+                    extension = "dylib" if sys.platform == "darwin" else "so"
+                    library = build_dir / f"libforeign.{extension}"
+                    built = subprocess.run(["cc", "-shared", "-fPIC", "-x", "c", "-", "-o", str(library)],
+                                           input=b"#include <stdint.h>\nint64_t nano_shadow_answer(void) { return 42; }\n",
+                                           capture_output=True, timeout=30)
+                    self.assertEqual(built.returncode, 0, built.stderr)
+                    for expected in (42, 41):
+                        source = f'''module "{module_path}" as foreign
+fn main() -> int {{ unsafe {{ return (foreign.nano_shadow_answer) }} }}
+shadow main {{ assert (== (main) {expected}) }}
+'''
+                        output = directory / "program.nvm"
+                        output.write_bytes(b"preserve")
+                        result, output = self.compile(source, directory, "--run", env=env)
+                        if expected == 42:
+                            self.assertEqual(result.returncode, 42, result.stderr)
+                            run = subprocess.run([str(ROOT / "bin/nano_vm"), str(output)], cwd=ROOT,
+                                                 env=env, capture_output=True, timeout=10)
+                            self.assertEqual(run.returncode, 42, run.stderr)
+                        else:
+                            self.assertNotEqual(result.returncode, 0)
+                            self.assertIn(b"shadow", result.stderr.lower())
+                            self.assertNotIn(b"not found", result.stderr)
+                            self.assertEqual(output.read_bytes(), b"preserve")
 
     def test_entry_exit_values(self):
         for value, expected in ((0, 0), (7, 7), (-1, 255), (256, 0)):
