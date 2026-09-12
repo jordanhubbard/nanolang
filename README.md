@@ -68,7 +68,7 @@ EOF
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
 - **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking (warnings on incomplete matches).
-- **Shadow Tests** - I warn loudly when a function is missing its `shadow` test block. The compiler tracks shadow coverage but does not currently fail the build on its absence.
+- **Shadow Tests** - My project policy requires useful shadows. Missing-shadow enforcement is not universal. My C seed executes selected shadows during compilation; Stage 2 and bytecode execution currently have gaps measured by `make test-language-claims`. Successful compilation alone does not mean a shadow ran.
 - **Type Inference** - I infer types where unambiguous so you can write `let x = 42` without an annotation. Inference is local and bidirectional, not full Hindley-Milner — explicit annotations are required at function boundaries.
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
@@ -305,7 +305,7 @@ What followed was a period the programmer later called "necessary" and Sir Regin
 
 Sir Reginald, who had been sleeping on the formal specification documents, shifted his weight slightly to cover the section on semantic equivalence.  He had learned that if he stayed on the important papers, progress was slowed.  He had also learned that this did not stop progress.  It merely made it slightly damp.
 
-The mandatory test blocks — `shadow` functions that must accompany every function definition, without exception, or the compiler refuses to proceed — were added because the programmer was, as he put it, "tired of code that was never tested before it was written and therefore was never tested at all."  When asked whether `shadow` was a strange name for a test block, the programmer replied that it was "evocative."  Sir Reginald expressed no opinion.  His opinion on keywords was that they were all equally irrelevant to the procurement of tuna.
+The test blocks — `shadow` blocks I require under project policy, with enforcement gaps documented above — were added because the programmer was, as he put it, "tired of code that was never tested before it was written and therefore was never tested at all."  When asked whether `shadow` was a strange name for a test block, the programmer replied that it was "evocative."  Sir Reginald expressed no opinion.  His opinion on keywords was that they were all equally irrelevant to the procurement of tuna.
 
 The language was named NanoLang.  It was minimal in the way that a Swiss watch is minimal: every component was necessary, the whole was smaller than it had any right to be, and explaining how it worked required considerably more time than most people had.
 

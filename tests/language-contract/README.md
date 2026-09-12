@@ -29,3 +29,10 @@ semantics, or self-hosted NanoISA lowering. My bytecode frontend is C-based.
 All 28 execution rows pass with the checked tools after the AOT aggregate
 repairs (2026-09-12). Broader contract coverage remains in `docs/ROADMAP.md`;
 these seven programs do not establish release readiness.
+
+`make test-language-claims` uses the existing compiler tools to characterize
+inferred locals, selected type rejections and shadow handling. It also compiles
+and executes the specification's unsafe math wrapper through the C seed.
+Its shadow test records a known Stage 2/bytecode execution omission; passing
+that characterization is not shadow conformance. Build `bootstrap3`,
+`nano_virt` and `nano_vm` first when those tools are missing or stale.

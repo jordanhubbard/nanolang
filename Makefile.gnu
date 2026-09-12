@@ -2017,6 +2017,10 @@ test-language-contract: test-language-contract-runner
 test-language-contract-runner:
 	@python3 tests/test_language_contract_runner.py
 
+.PHONY: test-language-claims
+test-language-claims:
+	@python3 tests/test_language_claims.py
+
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json
 .PHONY: bench bench-compare

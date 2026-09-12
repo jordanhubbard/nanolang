@@ -153,8 +153,32 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       self-hosted compiler, VM, and AOT where applicable. I distinguish
       project policy, implementation, and proof. MAC
       `task_2b291a75ca2840519d47e08bf991c021` tracks this audit program.
+      On 2026-09-12, MAC marked that task failed after a dispatcher-managed
+      agent lease expired without captured evidence; it requests manual
+      ledger repair. My repository audit and remaining roadmap work stay
+      active. This is not a failed compiler or test result.
       My bootstrap reporting now names the checks performed; canonical
       artifact equality and semantic correctness remain separate.
+- [x] **5.0 contract claims — typing and shadow execution evidence.** I
+      characterize inferred locals, explicit function boundaries, immutable
+      assignment, boolean conditions and shadow handling on the C seed,
+      Stage 2 and bytecode frontend. I reconcile specification, canonical
+      style and persona with those observations, distinguishing intended
+      language rules and project shadow policy from current enforcement.
+      Five test methods cover 22 compiler cases, including the specification's
+      unsafe math wrapper on the C seed. `make test-language-claims` passes
+      with the existing tools (2026-09-12). README, persona, canonical style
+      and the specification now agree about this observed shadow gap; the
+      specification remains a draft with broader coverage explicitly open.
+- [ ] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
+      make failing shadow assertions observable on every supported compiler
+      path. My C-seed driver runs shadows during compilation; I measure the
+      self-hosted and VM paths before claiming consistent execution or order.
+      I preserve the requirement for useful tests; documenting a gap does
+      not satisfy it.
+      The failing-shadow characterization is rejected by the C seed but
+      compiles and runs successfully on Stage 2 and the bytecode/VM path.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [x] **5.0 contract evidence — versioned executable matrix.** I version
       the existing seven-program corpus and check exact stdout and successful
       execution with the C seed, Stage 2, VM, and actual NanoISA-to-C AOT.

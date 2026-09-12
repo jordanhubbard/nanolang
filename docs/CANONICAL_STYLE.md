@@ -284,6 +284,13 @@ Write shadows around observable contracts. Include boundaries and failure
 variants. A shadow shows behavior for the cases it executes. It does not prove
 the function for all inputs.
 
+Execution is currently backend-dependent. My C seed executes selected shadows
+during compilation. The Stage 2 and bytecode paths currently accept and run a
+program whose only failing assertion is in a shadow. I characterize this gap
+in `tests/test_language_claims.py`; its passing result does not mean those
+backends enforce shadows. Until execution is consistent, execute important
+assertions from `main` or a test entry point as well as writing the shadow.
+
 ## Comments And Names
 
 I accept three comment forms:

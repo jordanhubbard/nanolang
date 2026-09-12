@@ -1,4 +1,13 @@
-# My Language Specification v0.1
+# My Language Specification — 5.0 Draft
+
+I am reconciling this specification with my implementation. My language rules,
+project policy and tested backend behavior are distinct. The versioned
+[execution contract](../tests/language-contract/README.md) currently covers
+seven programs on C seed, Stage 2, VM and AOT; it is not full conformance.
+`make test-language-claims` checks the typing and shadow boundaries described
+below. Features without corresponding evidence remain subject to the audit in
+[my roadmap](ROADMAP.md). My [canonical style](CANONICAL_STYLE.md) identifies
+recommended source forms and accepted legacy syntax.
 
 ## Table of Contents
 
@@ -29,9 +38,9 @@
 
 I am a minimal, statically-typed programming language. I prioritize clarity and am designed for machines to write and humans to read. My design rests on these principles:
 
-- **Unambiguity**: I provide one clear syntax for every semantic concept.
+- **Unambiguity**: I recommend canonical forms while retaining accepted legacy syntax.
 - **Explicitness**: I do not use implicit conversions or hide my behavior.
-- **Testability**: I require shadow tests for every function I compile.
+- **Testability**: My project policy requires useful shadow tests; enforcement and execution have gaps described in Section 7.
 - **Simplicity**: I maintain a minimal feature set with clear semantics.
 
 ## 2. Lexical Structure
@@ -122,10 +131,12 @@ I use whitespace (spaces, tabs, newlines) to separate tokens. Beyond that, I do 
 
 ### 3.2 Type Annotations
 
-I require explicit type annotations for all variables and function parameters.
+I require explicit function parameter and return types. Local bindings can
+infer their type from an initializer; annotate empty, generic, foreign and
+otherwise unclear values.
 
 ```nano
-let x: int = 42
+let x = 42
 let name: string = "Alice"
 
 fn add(a: int, b: int) -> int {
@@ -135,7 +146,11 @@ fn add(a: int, b: int) -> int {
 
 ### 3.3 Type Checking
 
-I am statically typed. I catch all type errors at compile time.
+I check types before generating code. The C seed, Stage 2 and bytecode frontend
+reject the tested missing function annotations, immutable reassignment and
+integer-valued `if` condition in `tests/test_language_claims.py`. These cases
+do not establish that every type error is caught. Resource analysis, FFI
+boundaries and backend correspondence retain separate roadmap requirements.
 
 ```nano
 let x: int = 42
@@ -407,7 +422,7 @@ My infix notation uses standard operator placement.
 2 + 3                # 5
 (2 + 3) * 4          # 20
 x == 5               # Comparison
-x > 0 and x < 10    # Logical AND
+(x > 0) and (x < 10)  # Logical AND with explicit grouping
 ```
 
 My infix operators are: `+`, `-`, `*`, `/`, `%`, `==`, `!=`, `<`, `<=`, `>`, `>=`, `and`, `or`.
@@ -426,7 +441,8 @@ not flag             # Logical negation
 -x                   # Numeric negation
 ```
 
-You can mix these notations. I maintain prefix notation for compatibility.
+You can mix these notations. I recommend prefix operators for dense expressions
+and explicit grouping when using infix operators.
 
 ### 4.4 Arithmetic Operations
 
@@ -578,6 +594,12 @@ return expression
 
 I use this to return a value from a function. I check that the expression type matches the return type I defined for the function.
 
+In 5.0, `return` inside a match arm exits the enclosing function. It does not
+yield an arm-local result. An expression arm yields its expression; a block
+arm yields its final expression after its preceding statements. See
+[match values](CANONICAL_STYLE.md#match-values-in-50) for the canonical form.
+Complete backend, nonlocal-control-flow and ownership coverage remains open.
+
 ### 5.6 Expression Statement
 
 I allow any expression to be used as a statement.
@@ -611,11 +633,12 @@ fn name(param1: type1, param2: type2) -> return_type {
 }
 ```
 
-I require that every function:
+My function contract requires that every function:
 1. Defines explicit parameter types.
 2. Defines an explicit return type.
 3. Returns a value if the return type is not `void`.
-4. Includes a shadow test.
+4. Includes a useful shadow test under project policy, subject to the current
+   enforcement distinction in Section 7.
 
 ### 6.2 Parameters
 
@@ -631,7 +654,9 @@ fn increment(x: int) -> int {
 ### 6.3 Return Type
 
 I require a return type for every function.
-- If the function is not `void`, I ensure every code path returns a value.
+- If the function is not `void`, every returning path must supply that type.
+  This is a language requirement, not a claim of complete return-path analysis
+  in every backend.
 - If the function is `void`, you can use `return` without a value or omit it.
 
 ```nano
@@ -660,7 +685,9 @@ I allow you to declare external functions to call the C standard library.
 extern fn function_name(param: type) -> return_type
 ```
 
-These declarations have no body and do not require a shadow test. I call them using their C names. I require these functions to be safe.
+These declarations have no body and cannot have a shadow attached directly.
+Foreign calls require an `unsafe` boundary; declaring an extern does not prove
+its implementation or ABI safe. Test wrappers and integration boundaries.
 
 ```nano
 # Declare external C functions
@@ -671,9 +698,11 @@ extern fn strlen(s: string) -> int
 
 # Use them in my code
 fn hypotenuse(a: float, b: float) -> float {
-    let a_sq: float = (pow a 2.0)
-    let b_sq: float = (pow b 2.0)
-    return (sqrt (+ a_sq b_sq))
+    unsafe {
+        let a_sq: float = (pow a 2.0)
+        let b_sq: float = (pow b 2.0)
+        return (sqrt (+ a_sq b_sq))
+    }
 }
 
 shadow hypotenuse {
@@ -681,17 +710,26 @@ shadow hypotenuse {
 }
 ```
 
-I expect you to only expose C functions that are safe. They should use explicit lengths and avoid pointer arithmetic.
+Keep unsafe regions narrow, validate inputs and audit the declared ABI. My VM
+co-process path isolates foreign execution from the VM process; native calls
+have a different boundary. Neither `unsafe` nor process separation proves a
+foreign function correct.
 
 ## 7. Shadow Tests
 
 ### 7.1 Purpose
 
-I use shadow tests to ensure honesty.
-- I run them during compilation.
-- I stop compilation if a test fails.
-- I remove them from production builds.
-- I use them to document my behavior.
+I use shadow tests to state executable expectations. My current paths differ:
+
+| Path | Observed failing-shadow behavior |
+| --- | --- |
+| C seed | I run selected shadows during compilation and reject a failing assertion. |
+| Stage 2 | I currently compile and run the characterization program without executing its failing shadow. |
+| Bytecode frontend and VM | I currently emit and run that program without executing its failing shadow. |
+
+`tests/test_language_claims.py` checks these observations. The omissions are
+implementation gaps, not permitted ways to satisfy my testing policy. My AOT
+translator consumes the emitted bytecode; it cannot recover omitted shadows.
 
 ### 7.2 Syntax
 
@@ -701,7 +739,9 @@ shadow function_name {
 }
 ```
 
-I require exactly one shadow test block for every function you define. You must place it after the function definition.
+Project policy requires a useful shadow for each added or changed non-extern
+named function. Put it near the function. My compilers do not universally
+reject missing shadows; see canonical style for warnings and exemptions.
 
 ### 7.3 Assertions
 
@@ -723,7 +763,8 @@ shadow add {
 
 I evaluate the boolean expression given to `assert`.
 - If it is `true`, I continue.
-- If it is `false`, I stop compilation and report the error.
+- If it is `false`, execution fails. A failing shadow executed by the C seed
+  fails compilation; an assertion in a program body fails when that path runs.
 
 ### 7.5 Coverage Requirements
 
@@ -731,7 +772,9 @@ I expect shadow tests to cover normal cases, edge cases, and boundary conditions
 
 ### 7.6 Execution Order
 
-I run each shadow test immediately after I finish defining the function it tests.
+Do not rely on immediate execution after a function definition or on a shared
+ordering across backends. Write independent shadows. Until execution is
+consistent, run important assertions from an explicit test entry point too.
 
 ## 8. Semantics
 
@@ -801,14 +844,23 @@ I use short-circuit evaluation for `and` and `or`.
 
 1. **Lexing**: I turn your source text into tokens.
 2. **Parsing**: I turn those tokens into an AST.
-3. **Type Checking**: I verify your types, tests, and return paths.
-4. **Shadow Test Execution**: I run your tests.
-5. **Transpilation**: I turn my AST into C code.
-6. **C Compilation**: I use a C compiler to produce a binary.
+3. **Type Checking**: I check the implemented type and control-flow rules.
+4. **Shadow Handling**: My C seed executes selected shadows; other paths have
+   the gaps in Section 7.
+5. **Lowering**: My native compiler paths emit C. My bytecode frontend emits
+   NanoISA for execution by NanoVM or translation by `nvm2c` to standalone C.
+6. **Execution**: I build and run the native output or execute the bytecode.
+
+My [5.0 NanoISA architecture](NANOISA_ONLY.md) sets the target pipeline.
+Existing C-native bootstrap paths are not evidence that self-hosted NanoISA
+lowering or canonical artifact equality is finished.
 
 ### 9.2 Shadow Test Compilation
 
-I extract tests during parsing and check them for correctness. I execute them while I compile. I do not include them in my final output.
+I parse shadow blocks separately from ordinary functions. The C-seed native
+path runs selected shadows before C emission and does not emit those blocks
+as ordinary functions. This is not a universal description of test execution
+across backends; see Section 7 and its characterization test.
 
 ### 9.3 C Transpilation
 
@@ -844,7 +896,8 @@ shadow main {
 
 ### 9.5 Built-in Functions
 
-I provide built-in functions through my runtime. I currently offer 72 functions across several categories.
+I provide built-in functions through my runtime. The following is an overview,
+not a versioned inventory or a claim of support on every backend.
 
 **Core I/O:**
 - `print`, `println`
@@ -955,7 +1008,9 @@ I only use prefix notation for my function calls. This keeps them distinct from 
 
 ### 11.2 Why Mandatory Shadow Tests?
 
-I require tests because untested code is a claim without proof. My tests also serve as documentation and give you confidence in my correctness.
+I require tests because implementation claims need executable evidence. A
+passing shadow checks its assertions; it does not prove correctness for all
+inputs. My formal-model theorems have their own scope in `formal/README.md`.
 
 ### 11.3 Why Static Typing?
 
@@ -963,35 +1018,25 @@ I use static typing to catch errors before your code ever runs. It makes my sema
 
 ### 11.4 Why C Transpilation?
 
-I transpile to C because it is portable and efficient. It allows me to use existing tools and will eventually allow me to compile myself.
+My native bootstrap uses C as a portable compilation substrate and already
+builds Stage 1 and Stage 2 from my source. My 5.0 architecture moves product
+lowering through NanoISA and a thicker runtime. Passing bootstrap smoke tests
+does not establish canonical output equality or compiler correctness.
 
 ## 12. Future Extensions
 
-**What I have implemented:**
-- Arrays (static and dynamic)
-- Structs
-- Enums
-- Unions
-- Generics (List<T> and HashMap<K,V>)
-- First-class functions
-- Pattern matching
-- My standard library
-- My C transpiler
-- My self-hosted compiler (bootstrapped from NanoLang source)
-- A module system (native and FFI modules via module.json)
-- Parallel independence annotation: `par { }` blocks
-- WebAssembly backend (`--target wasm`)
-- Language Server Protocol server (`make lsp`)
-- Debug Adapter Protocol server (`make dap`)
+I track implementation order, acceptance criteria and verified completion in
+[ROADMAP.md](ROADMAP.md), not a second feature checklist here. A parser form,
+C-seed implementation, VM operation and self-hosted implementation are distinct
+deliverables. Support in one does not establish support in the others.
 
-**What I am developing:**
-- Tuple types
-- Compiled-mode support for arrays of structs
-- Explicit type conversions (`float_to_int`, `int_to_float`)
+My 5.0 direction is a general-purpose language with NanoISA and NanoVM carrying
+higher-level runtime behavior. [NANOISA_ONLY.md](NANOISA_ONLY.md) describes that
+architecture and its bootstrap boundary. I retain the existing C substrate
+where it serves that goal; I do not equate adding a backend switch with
+finishing a runtime feature.
 
-**My plans for the future:**
-- More generic types
-- Memory management hints
-- A package manager
-
-I will ensure that all my extensions follow my core principles. I will remain minimal and unambiguous. I will always require tests.
+This draft still needs broader executable coverage of collections, effects,
+evaluation order, resources, modules and foreign boundaries. The seven-program
+execution contract and the typing/shadow characterization suite are evidence
+for their named cases, not a certificate for the rest of this document.
