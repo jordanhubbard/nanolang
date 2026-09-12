@@ -362,6 +362,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache retention — surviving compiler evidence.** I kill only the
+      builder while a controlled compiler child is paused, then require a new
+      acknowledgement from that child. I test whether another builder can
+      publish while the child still uses its private stage, and verify that
+      the child's late writes do not change published generations. I cover
+      local and shared caches before choosing an abandoned-stage collection
+      rule; a released module lock alone is not sufficient evidence.
+      Both cases pass: a new builder publishes while the acknowledged child
+      remains paused; the child then successfully writes its private object.
+      Old and new generation bytes stay unchanged and warm reuse retains the
+      replacement. All 51 cache tests pass on Darwin (2026-09-12). This
+      increment changes tests and documentation only; it does not implement
+      collection or claim a new sanitizer or power-loss result.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 cache cleanup — no symlink traversal.** My private-directory
       cleanup followed a substituted root symlink. I anchor cleanup
       to an opened directory descriptor, refuse symlink roots and never

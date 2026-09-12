@@ -1438,6 +1438,81 @@ os.execv(''')
             result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
             self.assertEqual(result.returncode, 43, result.stderr)
 
+    def test_surviving_compiler_stage_is_not_abandoned(self):
+        for shared in (False, True):
+            with self.subTest(shared=shared), tempfile.TemporaryDirectory(prefix="nano-orphan-child-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.foreign_build_fixture(directory)
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / "shared")
+                self.probe_path("build", module, env)
+                previous_library = self.probe_path("library", module, env)
+                previous = self.probe_path("directory", module, env)
+                previous_bytes = self.snapshot(previous)
+                (module / "answer.c").write_text("long long nano_build_answer(void) { return 43; }\n")
+                compiler = directory / "cc-survivor"
+                compiler.write_text(f'''#!{sys.executable}
+import json, os, pathlib, subprocess, sys, time
+control = pathlib.Path({str(directory)!r})
+if "-c" in sys.argv:
+    output = pathlib.Path(sys.argv[sys.argv.index("-o") + 1])
+    output.write_bytes(b"partial compiler output")
+    (control / "ready").write_text(str(output))
+    deadline = time.monotonic() + 20
+    while not (control / "release").exists():
+        if (control / "ping").exists(): (control / "ack").touch()
+        if time.monotonic() >= deadline: sys.exit(25)
+        time.sleep(0.01)
+    result = subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:])
+    (control / "done").write_text(json.dumps({{"status": result.returncode, "size": output.stat().st_size}}))
+    sys.exit(result.returncode)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+                compiler.chmod(0o700)
+                child_env = dict(env, NANO_CC=str(compiler))
+                process = subprocess.Popen([str(self.probe), "build", str(module)], cwd=ROOT,
+                                           env=child_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                           start_new_session=True)
+                def await_file(name):
+                    path = directory / name
+                    deadline = time.monotonic() + 10
+                    while not path.exists() and time.monotonic() < deadline: time.sleep(0.01)
+                    self.assertTrue(path.exists(), f"I did not observe {name}")
+                    return path
+                try:
+                    self.wait_ready(directory / "ready", process)
+                    private_output = Path((directory / "ready").read_text())
+                    self.assertEqual(private_output.parent.parent, self.probe_path("root", module, env).resolve())
+                    self.assertTrue(private_output.parent.name.startswith(".nano-build-"))
+                    process.kill()
+                    self.assertEqual(process.wait(timeout=5), -signal.SIGKILL)
+                    # I require new evidence from the child after its parent died.
+                    (directory / "ping").touch()
+                    await_file("ack")
+                    self.assertEqual(private_output.read_bytes(), b"partial compiler output")
+                    (module / "answer.c").write_text("long long nano_build_answer(void) { return 44; }\n")
+                    self.probe_path("build", module, env)
+                    current = self.probe_path("directory", module, env)
+                    self.assertNotEqual(current, previous)
+                    published = self.snapshot(current)
+                    self.assertEqual(private_output.read_bytes(), b"partial compiler output")
+                    (directory / "release").touch()
+                    _, error = process.communicate(timeout=10)
+                    done = json.loads(await_file("done").read_text())
+                    self.assertEqual(done["status"], 0, error)
+                    self.assertGreater(done["size"], len(b"partial compiler output"))
+                    self.assertTrue(private_output.is_file())
+                    self.assertEqual(self.snapshot(current), published)
+                    self.assertEqual(self.snapshot(previous), previous_bytes)
+                    self.assertEqual(self.library_answer(previous_library), 42)
+                    self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 44)
+                    self.probe_path("build", module, env)
+                    self.assertEqual(self.probe_path("directory", module, env), current)
+                finally:
+                    if process.poll() is None or not (directory / "done").exists():
+                        try: os.killpg(process.pid, signal.SIGKILL)
+                        except ProcessLookupError: pass
+                    process.communicate(timeout=10)
+
     def test_overlapping_builders_wait_and_reuse(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)

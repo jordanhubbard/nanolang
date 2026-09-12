@@ -396,6 +396,21 @@ My boundary tests include replacing the directory path with a symlink after
 opening it: entry removal stays in the original directory. This does not
 isolate arbitrary compiler code or make the enclosing cache namespace safe
 against a hostile process with write access.
+
+A released module-build lock does not mean every private stage is abandoned.
+My controlled compiler test kills only the builder, obtains a new acknowledgement
+from its surviving child, and publishes a replacement through another builder
+while that child remains paused. After release, the child successfully writes
+its original private output. The old and new published generations remain
+byte-for-byte unchanged, and warm reuse keeps the replacement. I test local and
+shared caches. Killing the whole process group would not exercise this case.
+I therefore do not collect leftover stages merely because I acquired the module
+lock, or because their creator PID is gone. Automatic collection needs a
+descendant-aware lifetime mechanism or an explicit quiescence contract first.
+Published generations also remain retained: copied bytecode can reference their
+absolute paths outside the cache owner's inventory. Retention can consume
+unbounded disk space; a size or age limit cannot safely infer those references.
+
 I do not follow symlinks or recurse into unexpected directories while flushing
 generation contents. Interrupted barriers retry; failed barriers fail the build.
 Failure before the pointer switch leaves the old current generation intact.
