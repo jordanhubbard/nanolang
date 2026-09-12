@@ -2969,14 +2969,23 @@ static bool module_validate_artifacts(const char *stage, ModuleBuildMetadata *me
 }
 
 static void module_remove_staging(const char *stage) {
-    DIR *dir = opendir(stage);
-    if (!dir) return;
+    /* I never follow a substituted staging symlink. All entry removal stays
+     * relative to this descriptor even if the directory is renamed. */
+    int fd = open(stage, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0) {
+        if (errno != ENOENT) fprintf(stderr, "I retained private build files in %s\n", stage);
+        return;
+    }
+    DIR *dir = fdopendir(fd);
+    if (!dir) {
+        close(fd);
+        fprintf(stderr, "I retained private build files in %s\n", stage);
+        return;
+    }
     struct dirent *entry;
     while ((entry = readdir(dir))) {
         if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")) continue;
-        char path[2048];
-        int n = snprintf(path, sizeof(path), "%s/%s", stage, entry->d_name);
-        if (n >= 0 && (size_t)n < sizeof(path)) (void)unlink(path);
+        (void)unlinkat(fd, entry->d_name, 0);
     }
     closedir(dir);
     if (rmdir(stage) != 0) fprintf(stderr, "I retained private build files in %s\n", stage);

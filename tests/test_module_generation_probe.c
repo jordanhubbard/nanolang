@@ -115,11 +115,27 @@ static int generation_test_rename(const char *source, const char *target) {
     }
     return result;
 }
+
+static int generation_test_unlinkat(int fd, const char *name, int flags) {
+    static bool swapped = false;
+    const char *stage = getenv("NANO_TEST_CLEANUP_STAGE");
+    const char *target = getenv("NANO_TEST_CLEANUP_TARGET");
+    if (!swapped && stage && target) {
+        char moved[4096];
+        int length = snprintf(moved, sizeof(moved), "%s.moved", stage);
+        if (length < 0 || (size_t)length >= sizeof(moved)) { errno = ENAMETOOLONG; return -1; }
+        if (rename(stage, moved) != 0 || symlink(target, stage) != 0) return -1;
+        swapped = true;
+    }
+    return unlinkat(fd, name, flags);
+}
+#define unlinkat generation_test_unlinkat
 #define rename generation_test_rename
 #define fsync generation_test_fsync
 #include "../src/module_builder.c"
 #undef rename
 #undef fsync
+#undef unlinkat
 #ifdef __APPLE__
 #undef fcntl
 #endif
@@ -138,6 +154,10 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (strcmp(argv[1], "remove-staging") == 0) {
+        module_remove_staging(argv[2]);
+        return 0;
+    }
     if (strcmp(argv[1], "sync-generation") == 0)
         return module_sync_generation(argv[2]) ? 0 : 1;
     if (strcmp(argv[1], "pkgflags") == 0) {

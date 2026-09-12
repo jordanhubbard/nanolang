@@ -362,6 +362,21 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache cleanup — no symlink traversal.** My private-directory
+      cleanup followed a substituted root symlink. I anchor cleanup
+      to an opened directory descriptor, refuse symlink roots and never
+      recurse into nested directories. I test external-file preservation,
+      ordinary files, symlink entries, FIFOs and retained nested artifacts
+      before adding abandoned-build collection. This does not complete the
+      generation retention/collection policy above.
+      The old implementation deletes an external fixture file; the repaired
+      implementation passes all six cases, including directory-path replacement
+      after opening. The same method passes with ASan/UBSan on the production
+      builder probe; linked support objects remain uninstrumented. All 28
+      shadows, 50 cache tests, five wrapper link tests, seven wrapper boundary
+      tests, 63 codegen tests, 19 FFI tests and package/dependency gates pass
+      on Darwin (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 cache publication persistence barriers.** I flush generation files
       and the generation directory before publishing its name, then flush the
       cache directory before and after switching the current pointer. I test

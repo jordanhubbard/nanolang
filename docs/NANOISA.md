@@ -388,6 +388,14 @@ For foreign C-module cache generations, I now check ordered `fsync` barriers:
 regular generation files, then the generation directory, then the cache
 directory and its ancestors after naming the generation, then the cache
 directory again after switching `current`.
+When removing a failed private build, I open its directory without following
+a root symlink and remove entries relative to that descriptor. I unlink
+symlink entries themselves, never their targets, and do not recurse into
+nested directories. I report retained private files if cleanup cannot finish.
+My boundary tests include replacing the directory path with a symlink after
+opening it: entry removal stays in the original directory. This does not
+isolate arbitrary compiler code or make the enclosing cache namespace safe
+against a hostile process with write access.
 I do not follow symlinks or recurse into unexpected directories while flushing
 generation contents. Interrupted barriers retry; failed barriers fail the build.
 Failure before the pointer switch leaves the old current generation intact.

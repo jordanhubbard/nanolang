@@ -69,6 +69,44 @@ class ModuleCachePublication(unittest.TestCase):
                 self.assertEqual(result.returncode, 0 if kind == "regular" else 1, result.stderr)
                 self.assertEqual(target.read_bytes(), b"I remain outside the generation.")
 
+    def test_private_cleanup_never_follows_symlinks(self):
+        for kind in ("regular", "root-symlink", "entry-symlink", "directory", "fifo", "swap"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-cleanup-") as tmp:
+                directory = Path(tmp)
+                external = directory / "external"
+                external.mkdir()
+                valuable = external / "artifact"
+                valuable.write_bytes(b"I am not a compiler artifact.")
+                stage = directory / "stage"
+                if kind == "root-symlink":
+                    stage.symlink_to(external, target_is_directory=True)
+                else:
+                    stage.mkdir()
+                    item = stage / "artifact"
+                    if kind in ("regular", "swap"): item.write_bytes(b"partial output")
+                    elif kind == "entry-symlink": item.symlink_to(external, target_is_directory=True)
+                    elif kind == "directory":
+                        item.mkdir()
+                        (item / "valuable").write_bytes(b"I need explicit cleanup.")
+                    else: os.mkfifo(item)
+                env = dict(os.environ)
+                if kind == "swap":
+                    env.update(NANO_TEST_CLEANUP_STAGE=str(stage), NANO_TEST_CLEANUP_TARGET=str(external))
+                result = subprocess.run([str(self.probe), "remove-staging", str(stage)],
+                                        env=env, capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(valuable.read_bytes(), b"I am not a compiler artifact.")
+                if kind in ("root-symlink", "swap"):
+                    self.assertTrue(stage.is_symlink())
+                    self.assertIn(b"retained private build files", result.stderr)
+                    if kind == "swap":
+                        self.assertEqual(list(Path(str(stage) + ".moved").iterdir()), [])
+                elif kind == "directory":
+                    self.assertEqual((stage / "artifact/valuable").read_bytes(), b"I need explicit cleanup.")
+                    self.assertIn(b"retained private build files", result.stderr)
+                else:
+                    self.assertFalse(stage.exists())
+
     def test_process_crash_at_publication_boundaries(self):
         def fresh_library_answer(library):
             result = subprocess.run([sys.executable, "-c",
