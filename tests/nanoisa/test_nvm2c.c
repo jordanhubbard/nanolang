@@ -2147,6 +2147,121 @@ static void test_cli_refuses_call_extern(const char *cli) {
           "CLI refusal names the FFI path");
 }
 
+static void test_classifier_branch_stack(void) {
+    for (int condition = 0; condition <= 1; condition++) {
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".entry 0\n.function main 0 0 0 int 1\n"
+            "PUSH_I64 40\nPUSH_BOOL %d\nJMP_FALSE alternate\n"
+            "PUSH_I64 2\nI64_ADD\nRET\n"
+            "alternate:\nPUSH_I64 3\nI64_ADD\nRET\n.end\n", condition);
+        NvmModule *m = assemble_ok(source, "branch with live operand");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "branch with live operand");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "I compile a branch carrying a live operand");
+            CHECK(status == (condition ? 42 : 43), "I preserve the operand on either branch");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
+static void test_classifier_unreachable_and_invalid_joins(void) {
+    const char *sources[] = {
+        ".entry 0\n.function main 0 0 0 int 1\n"
+        "PUSH_I64 42\nRET\nPOP\nPOP\n.end\n",
+        ".entry 0\n.function main 0 0 0 int 1\n"
+        "PUSH_I64 42\nPUSH_BOOL 1\nJMP_FALSE join\nPOP\n"
+        "PUSH_I64 42\njoin:\nPOP\nPUSH_I64 0\nRET\n.end\n",
+        ".string wrong \"wrong\"\n.entry 0\n.function main 0 0 0 int 1\n"
+        "PUSH_I64 42\nPUSH_BOOL 1\nJMP_FALSE join\nPOP\n"
+        "PUSH_I64 42\njoin:\nPOP\nPUSH_I64 0\nRET\n.end\n"
+    };
+    for (int i = 0; i < 3; i++) {
+        NvmModule *m = assemble_ok(sources[i], "classifier control flow");
+        if (!m) continue;
+        if (i != 0) {
+            /* I corrupt a verified module to exercise the direct C API. */
+            int constants = 0;
+            for (uint32_t pc = 0; pc < m->code_size;) {
+                DecodedInstruction ins;
+                uint32_t n = isa_decode(m->code + pc, m->code_size - pc, &ins);
+                if (!n) break;
+                if (ins.opcode == OP_PUSH_I64 && ++constants == 2) {
+                    memset(m->code + pc, OP_NOP, n);
+                    if (i == 2) {
+                        m->code[pc] = OP_PUSH_STR;
+                        memset(m->code + pc + 1, 0, 4);
+                    }
+                    break;
+                }
+                pc += n;
+            }
+        }
+        char err[256];
+        char *c = nvm2c_emit(m, err, sizeof err);
+        if (i == 0) {
+            CHECK(c != NULL, "I ignore unreachable stack operations after return");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 42,
+                      "I execute the reachable return");
+            }
+        } else {
+            CHECK(c == NULL && strstr(err, "join") != NULL, "I reject incompatible classifier joins");
+        }
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
+static void test_classifier_local_bounds(void) {
+    NvmModule *m = assemble_ok(".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
+                              "classifier bounds");
+    if (!m) return;
+    char err[256];
+    m->functions[0].local_count = UINT16_MAX;
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL && strstr(err, "counts") != NULL, "I reject oversized locals before writing classifier state");
+    free(c);
+    m->functions[0].local_count = 0;
+    m->functions[0].arity = 1;
+    c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL && strstr(err, "counts") != NULL, "I reject arity exceeding local storage");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_loop_carried_stack(void) {
+    for (int variant = 0; variant < 4; variant++) {
+        int swap = variant & 1;
+        int conditional = variant & 2;
+        char source[1024];
+        snprintf(source, sizeof source,
+            ".entry 0\n.function main 0 1 0 int 1\n"
+            "PUSH_I64 3\nSTORE_LOCAL 0\n%s"
+            "again:\nLOAD_LOCAL 0\nPUSH_I64 0\nI64_GT_S\nJMP_FALSE end\n"
+            "%sLOAD_LOCAL 0\nPUSH_I64 1\nI64_SUB\nSTORE_LOCAL 0\n%s"
+            "end:\n%sRET\n.end\n",
+            swap ? "PUSH_I64 7\nPUSH_I64 2\n" : "PUSH_I64 40\n",
+            swap ? "SWAP\n" : "PUSH_I64 1\nI64_ADD\n",
+            conditional ? "LOAD_LOCAL 0\nPUSH_I64 0\nI64_EQ\nJMP_FALSE again\n" : "JMP again\n",
+            swap ? "I64_SUB\n" : "");
+        NvmModule *m = assemble_ok(source, "loop-carried stack");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "loop-carried stack");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "I compile loop-carried stack transfers");
+            CHECK(status == (swap ? 251 : 43), "I preserve simultaneous backedge values");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_add_is_structured_c_and_runs();
@@ -2208,6 +2323,10 @@ int main(int argc, char **argv) {
     test_choose_else_runs_without_nano_vm();
     test_loop_sum_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
+    test_classifier_branch_stack();
+    test_classifier_unreachable_and_invalid_joins();
+    test_classifier_local_bounds();
+    test_loop_carried_stack();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);

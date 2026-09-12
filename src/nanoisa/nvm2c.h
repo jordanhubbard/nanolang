@@ -21,6 +21,9 @@
  * host C ABI. Embedded NULs, nested arrays, nested records, variants, tuples,
  * printing arrays/records, array equality, STR_TRIM, and the rest of the
  * string and array libraries stay refused.
+ * I track operand-stack joins and emit simultaneous transfers on taken
+ * edges. Local classification remains function-wide; this is not general
+ * flow-sensitive or interprocedural aggregate type inference.
  */
 
 #ifndef NANOISA_NVM2C_H

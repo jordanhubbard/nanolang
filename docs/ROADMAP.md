@@ -166,11 +166,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Ten runner tests pass. The real matrix reports 25 passing rows and
       three AOT failures and exits nonzero (2026-09-11); this checks existing
       rebuilt tools, not a new bootstrap or full release gate.
+- [x] **5.0 AOT prerequisite — classifier control flow.** I preserve operand
+      stack state across branches, stop interpreting terminated paths, and
+      reject incompatible joins before C emission. I test both outcomes of a
+      branch carrying a live operand, unreachable instructions, malformed
+      joins and classifier local-count bounds. This does not establish
+      flow-sensitive local or interprocedural aggregate type inference.
+      My AOT suite passes 335 checks, also with the translator and harness
+      instrumented by ASan/UBSan (leak detection disabled; linked support
+      objects and emitted programs are not instrumented) (2026-09-11).
+- [x] **5.0 AOT prerequisite — executable edge transfers.** I emit join
+      assignments before unconditional jumps and inside conditional taken
+      edges. I copy incoming values simultaneously so loop-carried stack
+      permutations cannot overwrite one another. Native regressions must
+      exercise a live accumulator and a swapped pair across backedges.
+      All four accumulator/permutation and unconditional/conditional
+      combinations compile under C11 warnings-as-errors and execute with
+      expected status. This is tested behavior, not a correspondence proof.
 - [ ] **5.0 contract defect — AOT source corpus aggregates.** I make the
       record-return and two variant corpus programs compile and execute via
       `nvm2c`. My VM executes all three, but current AOT analysis rejects
-      `04_records` with `AGG_PACK fields must be int or string` and rejects
-      `05_match` and `06_single_field_variant` with `DUP on empty stack`.
+      `04_records` with `AGG_PACK fields must be int or string`. After the
+      control-flow repair, `05_match` and `06_single_field_variant` reach
+      the actual unsupported `AGG_TAG` emission boundary instead of a false
+      `DUP on empty stack`. The required matrix remains 25 pass, 3 fail.
       I retain these as required failing matrix rows until repaired.
       MAC `task_9a7214c876e24c3491f8d1d49c1384a1`.
 - [x] **5.0 contract evidence — cross-backend runner failures.** I reject

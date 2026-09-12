@@ -229,8 +229,41 @@ static const uint8_t *fn_rec_k_const(const uint8_t *tab, uint32_t fn, uint16_t s
     return tab + ((size_t)fn * NVM2C_MAX_LOCALS + slot) * NVM2C_MAX_REC_FIELDS;
 }
 
-static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
-                             uint8_t *local_kind, uint8_t *rec_fields) {
+typedef struct {
+    Nvm2cSimSlot slots[NVM2C_MAX_STACK];
+    int sp;
+    int set;
+} Nvm2cSimJoin;
+
+static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
+                    const Nvm2cSimSlot *stack, int sp) {
+    if (!join->set) {
+        memcpy(join->slots, stack, (size_t)sp * sizeof *stack);
+        join->sp = sp;
+        join->set = 1;
+        return 1;
+    }
+    if (join->sp != sp) {
+        nvm2c_fail(b, "I found incompatible stack heights at a join in function %u", idx);
+        return 0;
+    }
+    for (int i = 0; i < sp; i++) {
+        if (join->slots[i].kind != stack[i].kind ||
+            memcmp(join->slots[i].rec_k, stack[i].rec_k, NVM2C_MAX_REC_FIELDS)) {
+            nvm2c_fail(b, "I found incompatible stack kinds at a join in function %u", idx);
+            return 0;
+        }
+        if (join->slots[i].origin != stack[i].origin) join->slots[i].origin = -1;
+    }
+    return 1;
+}
+
+static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
+                       size_t remaining, size_t *out);
+
+static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
+                                  uint8_t *local_kind, uint8_t *rec_fields,
+                                  Nvm2cSimJoin *joins, const uint8_t *targets) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
     uint16_t i;
@@ -247,8 +280,10 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     Nvm2cSimSlot stk[NVM2C_MAX_STACK];
     int sp = 0;
     size_t pc = 0;
+    int terminated = 0;
 
     while (pc < remaining) {
+        size_t start = pc;
         DecodedInstruction ins;
         uint32_t n = isa_decode(code + pc, remaining - pc, &ins);
         if (n == 0) {
@@ -256,10 +291,16 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             return 0;
         }
         pc += n;
+        if (terminated && !joins[start].set) continue;
+        if (targets[start]) {
+            if (!terminated && !sim_join(b, idx, &joins[start], stk, sp)) return 0;
+            sp = joins[start].sp;
+            memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
+            terminated = 0;
+        }
 
         switch (ins.opcode) {
         case OP_NOP:
-        case OP_JMP:
             break;
         case OP_PUSH_I64:
         case OP_PUSH_BOOL:
@@ -626,6 +667,13 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         default:
             break;
         }
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE) {
+            size_t target;
+            if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &target) ||
+                !sim_join(b, idx, &joins[target], stk, sp)) return 0;
+        }
+        if (ins.opcode == OP_JMP || ins.opcode == OP_RET ||
+            ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) terminated = 1;
         if (b->failed) return 0;
     }
 
@@ -633,6 +681,56 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (local_kind[i] == NVM2C_VK_UNK) local_kind[i] = NVM2C_VK_INT;
     }
     return 1;
+}
+
+static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
+                             uint8_t *local_kind, uint8_t *rec_fields) {
+    const NvmFunctionEntry *fn = &mod->functions[idx];
+    if (fn->local_count > NVM2C_MAX_LOCALS || fn->arity > fn->local_count) {
+        nvm2c_fail(b, "I cannot classify function %u with invalid local or parameter counts", idx);
+        return 0;
+    }
+    if (fn->code_offset > mod->code_size || fn->code_length > mod->code_size - fn->code_offset) {
+        nvm2c_fail(b, "I cannot classify function %u outside the module code", idx);
+        return 0;
+    }
+    size_t length = fn->code_length;
+    Nvm2cSimJoin *joins = calloc(length + 1, sizeof *joins);
+    uint8_t *targets = calloc(length + 1, 1);
+    uint8_t *starts = calloc(length + 1, 1);
+    int ok = 0;
+    if (!joins || !targets || !starts) {
+        nvm2c_fail(b, "I cannot allocate classifier control-flow state");
+        goto done;
+    }
+    for (size_t pc = 0; pc < length;) {
+        DecodedInstruction ins;
+        uint32_t n = isa_decode(mod->code + fn->code_offset + pc, length - pc, &ins);
+        if (!n) {
+            nvm2c_fail(b, "I cannot decode function %u at offset %zu", idx, pc);
+            goto done;
+        }
+        starts[pc] = 1;
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE) {
+            size_t target;
+            if (!jump_target(b, idx, pc, ins.operands[0].i32, length, &target)) goto done;
+            targets[target] = 1;
+        }
+        pc += n;
+    }
+    starts[length] = 1;
+    for (size_t pc = 0; pc <= length; pc++) {
+        if (targets[pc] && !starts[pc]) {
+            nvm2c_fail(b, "I found a jump to a non-instruction boundary in function %u", idx);
+            goto done;
+        }
+    }
+    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets);
+done:
+    free(joins);
+    free(targets);
+    free(starts);
+    return ok;
 }
 
 static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
@@ -839,6 +937,17 @@ static void stack_keep_high_water(Nvm2cStack *st, const Nvm2cStack *other) {
     if (other->next_rarr > st->next_rarr) st->next_rarr = other->next_rarr;
 }
 
+static const char *stack_array_name(uint8_t kind) {
+    switch (kind) {
+    case NVM2C_VK_STR: return "s";
+    case NVM2C_VK_ARR: return "a";
+    case NVM2C_VK_SARR: return "sa";
+    case NVM2C_VK_REC: return "r";
+    case NVM2C_VK_RARR: return "ra";
+    default: return "t";
+    }
+}
+
 static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *set,
                        size_t tgt, const Nvm2cStack *st) {
     int i;
@@ -852,30 +961,29 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
                    idx, tgt, joins[tgt].sp, st->sp);
         return 0;
     }
+    nvm2c_puts(b, "    {\n");
     for (i = 0; i < st->sp; i++) {
         if (joins[tgt].kinds[i] != st->kinds[i]) {
             nvm2c_fail(b, "function %u: join at %zu has a value-kind mismatch", idx, tgt);
             return 0;
         }
         if (joins[tgt].slots[i] == st->slots[i]) continue;
-        if (st->kinds[i] == NVM2C_VK_STR) {
-            nvm2c_printf(b, "    s[%d] = s[%d];\n", joins[tgt].slots[i], st->slots[i]);
-        } else if (st->kinds[i] == NVM2C_VK_ARR) {
-            nvm2c_printf(b, "    a[%d] = a[%d];\n", joins[tgt].slots[i], st->slots[i]);
-        } else if (st->kinds[i] == NVM2C_VK_SARR) {
-            nvm2c_printf(b, "    sa[%d] = sa[%d];\n", joins[tgt].slots[i], st->slots[i]);
-        } else if (st->kinds[i] == NVM2C_VK_REC) {
-            nvm2c_printf(b, "    r[%d] = r[%d];\n", joins[tgt].slots[i], st->slots[i]);
+        nvm2c_printf(b, "    %s j%d = %s[%d];\n", c_local_type(st->kinds[i]), i,
+                     stack_array_name(st->kinds[i]), st->slots[i]);
+    }
+    for (i = 0; i < st->sp; i++) {
+        if (joins[tgt].slots[i] == st->slots[i]) continue;
+        nvm2c_printf(b, "    %s[%d] = j%d;\n", stack_array_name(st->kinds[i]),
+                     joins[tgt].slots[i], i);
+        if (st->kinds[i] == NVM2C_VK_REC) {
             memcpy(joins[tgt].rec_k[joins[tgt].slots[i]],
                     st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
         } else if (st->kinds[i] == NVM2C_VK_RARR) {
-            nvm2c_printf(b, "    ra[%d] = ra[%d];\n", joins[tgt].slots[i], st->slots[i]);
             memcpy(joins[tgt].rec_k[joins[tgt].slots[i]],
                    st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
-        } else {
-            nvm2c_printf(b, "    t[%d] = t[%d];\n", joins[tgt].slots[i], st->slots[i]);
         }
     }
+    nvm2c_puts(b, "    }\n");
     stack_keep_high_water(&joins[tgt], st);
     return 1;
 }
@@ -1698,8 +1806,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &tgt)) {
                 goto done;
             }
-            nvm2c_printf(b, "    goto L_%zu;\n", tgt);
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
+            nvm2c_printf(b, "    goto L_%zu;\n", tgt);
             terminated = 1;
             break;
         }
@@ -1710,8 +1818,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (!jump_target(b, idx, start, ins.operands[0].i32, remaining, &tgt)) {
                 goto done;
             }
-            nvm2c_printf(b, "    if (!t[%d]) goto L_%zu;\n", cond, tgt);
+            nvm2c_printf(b, "    if (!t[%d]) {\n", cond);
             if (!record_join(b, idx, joins, join_set, tgt, &st)) goto done;
+            nvm2c_printf(b, "    goto L_%zu;\n    }\n", tgt);
             break;
         }
         case OP_RET:
