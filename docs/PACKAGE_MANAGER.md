@@ -219,6 +219,29 @@ Packages installed by `nanoc-pkg` land in `modules/` and are immediately availab
 
 My module builder (`module_builder.c`) tracks content hashes for incremental builds. When `nanoc-pkg install` updates a module, the content hash changes, triggering a rebuild on next compilation. This is automatic.
 
+### System Dependencies During Compilation
+
+I check declared `pkg_config` dependencies on every module build, including
+warm-cache builds. By default I report a missing dependency without running a
+package manager, sudo, or package-registry install/probe commands. I also report
+a missing `pkg-config` executable without installing it. A manifest without
+`pkg_config` entries has no such availability probe; a later compiler or linker
+error can still expose a missing dependency.
+
+Install system dependencies separately, or opt in for one trusted build:
+
+```bash
+NANO_ALLOW_PACKAGE_INSTALL=1 ./bin/nanoc_c program.nano -o program
+```
+
+Only the exact value `1` enables my module builder's existing installation
+paths. That opt-in permits package-registry commands and host package-manager
+operations; it is not a promise that installation will succeed. It does not
+affect explicit package-installation tools such as `nanoc-pkg`.
+
+This default is not a build sandbox. Module build flags and foreign code still
+require trust, and my separate shell-argument boundary audit remains open.
+
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -227,6 +250,7 @@ My module builder (`module_builder.c`) tracks content hashes for incremental bui
 | `NANO_REGISTRY_BRANCH` | `main` | Registry branch |
 | `NANO_PKG_CACHE` | `~/.cache/nanolang/packages` | Local cache directory |
 | `NANO_VERBOSE_BUILD` | `0` | Set to `1` for verbose output |
+| `NANO_ALLOW_PACKAGE_INSTALL` | unset | Only `1` permits system-package installation by the compiler's module builder |
 
 ## Example
 

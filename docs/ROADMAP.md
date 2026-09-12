@@ -308,6 +308,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       tests, 63 codegen tests and 18 FFI unit tests pass (2026-09-12).
       Missing-library builds and general module packaging remain separate.
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 module dependencies — explicit installation authority.** My
+      module builder can invoke system package managers during compilation,
+      including when discovering a missing `pkg-config`. Before extending
+      automatic library builds to the VM, I make installation opt-in with
+      `NANO_ALLOW_PACKAGE_INSTALL=1`. I test missing/available dependencies,
+      missing tooling, legacy and registry installation paths, and explicit
+      opt-in without invoking a real package manager. I retain warm-cache
+      dependency checks and document that this is not a build sandbox.
+      My intercepted-command regression fails against the previous builder
+      and passes with the repair. Missing/available dependency and recovery
+      checks pass through the C seed with a warm cache; rebuilt VM tools and
+      all 20 shadow tests pass (2026-09-12). No real package manager is invoked
+      by the policy regression; actual installation success is not claimed.
+      MAC rejects direct `open` to `completed` closure; I leave the task open
+      with implementation evidence rather than fabricate an agent claim.
+      MAC `task_d6f0090c3b8345f7a4bd75dbd154202a`.
 - [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
       rejects 98 of 229 eligible examples after shadow execution is enabled.
       Direct checks expose integer negation emitted for floats and missing
@@ -643,7 +659,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I now quote module object/source/include paths and top-level module
       include paths, with executable import tests below. Top-level artifact
       and CLI library paths are repaired below. Runtime-source paths,
-      generator invocations, and raw flag
+      generator invocations, manifest package names used in shell probes, and raw flag
       fragments still require their own boundary audit; this item stays open.
 - [x] **5.0 module imports — literal shell paths.** I share one literal
       path-quoting helper between module compilation and top-level include

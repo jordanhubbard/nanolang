@@ -21,6 +21,13 @@
 bool module_builder_verbose = false;
 static bool module_builder_can_prompt_sudo = false;
 
+/* I require explicit host authority before running package-registry probes,
+ * install overrides, package managers, or sudo from the module builder. */
+static bool package_installation_allowed(void) {
+    const char *value = getenv("NANO_ALLOW_PACKAGE_INSTALL");
+    return value && strcmp(value, "1") == 0;
+}
+
 // ============================================================================
 // Package Registry System - Central database of system package mappings
 // ============================================================================
@@ -872,6 +879,7 @@ static void disable_subcommand_pager(void) {
 static bool install_single_package_ex(const char *package_name, PackageManager pm,
                                       const char *install_cmd_override,
                                       const char *test_cmd_override) {
+    if (!package_installation_allowed()) return false;
     char cmd[2048];
     int result;
     const char *sudo_cmd = module_builder_sudo_prefix();
@@ -1076,6 +1084,7 @@ static bool module_pkg_is_native_framework(ModuleBuildMetadata *meta, const char
 
 // Install system packages from module metadata (with registry support)
 static bool install_system_packages(ModuleBuildMetadata *meta) {
+    if (!package_installation_allowed()) return false;
     PackageManager pm = detect_package_manager();
     
     if (pm == PKG_MGR_UNKNOWN) {
@@ -1182,11 +1191,16 @@ static const char* find_pkg_config(void) {
     return NULL;
 }
 
-// Ensure pkg-config is installed, auto-installing if needed
+/* I locate pkg-config, installing it only with explicit host authority. */
 static const char* ensure_pkg_config(void) {
     const char *pkg_config_path = find_pkg_config();
     if (pkg_config_path) {
         return pkg_config_path;
+    }
+
+    if (!package_installation_allowed()) {
+        fprintf(stderr, "[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.\n");
+        return NULL;
     }
     
     // pkg-config not found - try to auto-install it (once)
@@ -1259,11 +1273,11 @@ static bool check_module_pkg_dependencies(ModuleBuildMetadata *meta, const char 
     return true;
 }
 
-// Get pkg-config flags, with automatic package installation on failure
+/* I query compiler/linker flags through the authority-aware tool lookup. */
 static char* get_pkg_config_flags(const char *package, const char *flag_type) {
     char cmd[1024];
     
-    // Ensure pkg-config is available (auto-install if needed)
+    /* I require explicit installation authority if pkg-config is absent. */
     const char *pkg_config_path = ensure_pkg_config();
     if (!pkg_config_path) {
         return NULL;
@@ -1882,8 +1896,16 @@ static bool ensure_module_system_deps(ModuleBuildMetadata *meta) {
     if (!meta) return false;
 
     const char *missing_pkg = NULL;
-    if (meta->pkg_config_count > 0 && check_module_pkg_dependencies(meta, &missing_pkg)) {
+    bool allow_install = package_installation_allowed();
+    if ((meta->pkg_config_count > 0 || !allow_install) &&
+        check_module_pkg_dependencies(meta, &missing_pkg)) {
         return true;
+    }
+
+    if (!allow_install) {
+        fprintf(stderr, "[Module] Package '%s' not found for module '%s'\n", missing_pkg, meta->name);
+        fprintf(stderr, "[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.\n");
+        return false;
     }
 
     bool has_package_metadata = module_has_system_package_metadata(meta);

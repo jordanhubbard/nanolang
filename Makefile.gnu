@@ -1717,8 +1717,13 @@ test-launcher-makefile:
 
 # A cached module object says nothing about whether this host still has the
 # dev package, so system dependencies must be re-checked on every build.
+.PHONY: test-module-install-policy
+test-module-install-policy: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_install_policy tests/test_module_install_policy.c $^ $(LDFLAGS)
+	@$(OBJ_DIR)/test_module_install_policy
+
 .PHONY: test-module-dep-recheck
-test-module-dep-recheck: $(COMPILER_C)
+test-module-dep-recheck: $(COMPILER_C) test-module-install-policy
 	@bash tests/test_module_dep_recheck.sh
 
 .PHONY: test-negative
