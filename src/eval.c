@@ -5108,17 +5108,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_BLOCK: {
             /* Blocks can be used as expressions in match arms
-             * Execute statements and return the last return value
+             * I yield the final expression and preserve function-scoped control flow.
              */
             Value result = create_void();
             for (int i = 0; i < expr->as.block.count; i++) {
                 result = eval_statement(expr->as.block.statements[i], env);
                 /* If statement returned a value, propagate it immediately */
-                if (result.is_return) {
-                    /* Clear the return flag since we're handling it */
-                    result.is_return = false;
-                    result.is_break = false;
-                    result.is_continue = false;
+                if (result.is_return || result.is_break || result.is_continue) {
                     return result;
                 }
             }
@@ -5133,7 +5129,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             } else {
                 result = create_void();
             }
-            /* Don't set is_return flag here - let the block handler deal with it */
+            result.is_return = true;
             return result;
         }
 

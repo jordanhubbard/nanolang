@@ -173,6 +173,7 @@ typedef struct {
     WorkItem *items;
     int capacity;
     int count;
+    FunctionTypeRegistry *fn_registry;
 } WorkList;
 
 static WorkList *worklist_create(int initial_capacity) {
@@ -183,6 +184,7 @@ static WorkList *worklist_create(int initial_capacity) {
     }
     list->capacity = initial_capacity;
     list->count = 0;
+    list->fn_registry = NULL;
     list->items = malloc(sizeof(WorkItem) * initial_capacity);
     if (!list->items) {
         fprintf(stderr, "Error: Out of memory allocating WorkList items\n");
@@ -692,6 +694,39 @@ static int try_eval_bool_const(ASTNode *expr) {
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env);
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry);
+
+static void build_match_arm_value(WorkList *list, ASTNode *body, Environment *env) {
+    if (!body) return;
+    if (body->type != AST_BLOCK) {
+        emit_literal(list, "_out = ");
+        build_expr(list, body, env);
+        emit_literal(list, "; ");
+        return;
+    }
+    ScopeStack *scopes = scope_stack_create();
+    scope_stack_push(scopes);
+    for (int i = 0; i < body->as.block.count; i++) {
+        ASTNode *stmt = body->as.block.statements[i];
+        if (i == body->as.block.count - 1 && ast_is_value_expression(stmt->type)) {
+            emit_literal(list, "_out = ");
+            build_expr(list, stmt, env);
+            emit_literal(list, "; ");
+            /* I transfer a directly yielded local's owned reference to _out. */
+            if (stmt->type == AST_IDENTIFIER) {
+                Scope *scope = &scopes->scopes[scopes->count - 1];
+                for (int j = 0; j < scope->count; j++) {
+                    if (strcmp(scope->vars[j].name, stmt->as.identifier) == 0)
+                        scope->vars[j].needs_gc_release = false;
+                }
+            }
+        } else {
+            build_stmt(list, scopes, stmt, 0, env, list->fn_registry);
+        }
+    }
+    scope_emit_cleanup(scopes, list, 0);
+    scope_stack_pop(scopes);
+    scope_stack_free(scopes);
+}
 
 static bool is_generic_list_runtime_fn(const char *name) {
     if (!name) return false;
@@ -2780,31 +2815,22 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
-            /* Determine output type from current function's return type */
-            const char *out_type = "int64_t";  /* Default fallback */
-            char out_type_buf[256] = "int64_t";  /* Buffer to save out_type */
-            if (g_current_function) {
-                Type fn_ret = g_current_function->as.function.return_type;
-                if (fn_ret == TYPE_STRUCT && g_current_function->as.function.return_struct_type_name) {
-                    const char *temp = get_prefixed_type_name(g_current_function->as.function.return_struct_type_name);
-                    snprintf(out_type_buf, sizeof(out_type_buf), "%s", temp);
+            /* I lower the checked match value, not the enclosing return type. */
+            Type result_type = expr->as.match_expr.result_type;
+            const char *out_type = type_to_c(result_type);
+            if (result_type == TYPE_VOID || result_type == TYPE_UNKNOWN) out_type = "int64_t";
+            char out_type_buf[256];
+            if (result_type == TYPE_STRUCT || result_type == TYPE_UNION || result_type == TYPE_ENUM) {
+                const char *name = get_struct_type_name(expr, env);
+                if (name) {
+                    snprintf(out_type_buf, sizeof(out_type_buf), "%s", get_prefixed_type_name(name));
                     out_type = out_type_buf;
-                } else if (fn_ret == TYPE_STRING) {
-                    out_type = "const char*";
-                } else if (fn_ret == TYPE_FLOAT) {
-                    out_type = "double";
-                } else if (fn_ret == TYPE_BOOL) {
-                    out_type = "int64_t";
                 }
             }
 
             const char *prefixed_union = get_prefixed_type_name(union_c_name);
 
             if (has_any_guard_expr) {
-                /* Guard mode: emit if-else chain with _matched flag.
-                 * Each arm: if (!_matched && <tag_check>) { <binding>; if (<guard>) { _matched=1; _out=body; } }
-                 * Unguarded arms: if (!_matched && <tag_check>) { <binding>; _matched=1; _out=body; }
-                 */
                 emit_literal(list, "({ ");
                 if (is_int_match_expr) {
                     emit_literal(list, "int64_t _m = ");
@@ -2886,23 +2912,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
 
                     /* Emit arm body */
-                    if (arm_body) {
-                        if (arm_body->type == AST_BLOCK) {
-                            for (int j = 0; j < arm_body->as.block.count; j++) {
-                                ASTNode *bstmt = arm_body->as.block.statements[j];
-                                if (bstmt && bstmt->type == AST_RETURN && bstmt->as.return_stmt.value) {
-                                    emit_literal(list, "_out = ");
-                                    build_expr(list, bstmt->as.return_stmt.value, env);
-                                    emit_literal(list, "; ");
-                                    break;
-                                }
-                            }
-                        } else {
-                            emit_literal(list, "_out = ");
-                            build_expr(list, arm_body, env);
-                            emit_literal(list, "; ");
-                        }
-                    }
+                        build_match_arm_value(list, arm_body, env);
 
                     if (guard) {
                         emit_literal(list, "} ");  /* close if (guard) */
@@ -2939,23 +2949,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         /* Wildcard arm: _ => expr  emits default: */
                         emit_literal(list, "default: { ");
 
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    ASTNode *bstmt = arm_body->as.block.statements[j];
-                                    if (bstmt && bstmt->type == AST_RETURN && bstmt->as.return_stmt.value) {
-                                        emit_literal(list, "_out = ");
-                                        build_expr(list, bstmt->as.return_stmt.value, env);
-                                        emit_literal(list, "; ");
-                                        break;
-                                    }
-                                }
-                            } else {
-                                emit_literal(list, "_out = ");
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, "; ");
-                            }
-                        }
+                        build_match_arm_value(list, arm_body, env);
 
                         emit_literal(list, "break; } ");
                     } else if (strncmp(variant_name, "INT:", 4) == 0) {
@@ -2964,23 +2958,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         emit_literal(list, variant_name + 4);  /* skip "INT:" prefix */
                         emit_literal(list, ": { ");
 
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    ASTNode *bstmt = arm_body->as.block.statements[j];
-                                    if (bstmt && bstmt->type == AST_RETURN && bstmt->as.return_stmt.value) {
-                                        emit_literal(list, "_out = ");
-                                        build_expr(list, bstmt->as.return_stmt.value, env);
-                                        emit_literal(list, "; ");
-                                        break;
-                                    }
-                                }
-                            } else {
-                                emit_literal(list, "_out = ");
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, "; ");
-                            }
-                        }
+                        build_match_arm_value(list, arm_body, env);
 
                         emit_literal(list, "break; } ");
                     } else if (strncmp(variant_name, "OR:", 3) == 0) {
@@ -2994,16 +2972,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         }
                         emit_literal(list, "case nl_"); emit_literal(list, union_c_name);
                         emit_literal(list, "_TAG_"); emit_literal(list, alts_expr[n_alts_expr-1]); emit_literal(list, ": { ");
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    ASTNode *s = arm_body->as.block.statements[j];
-                                    if (s && s->type == AST_RETURN && s->as.return_stmt.value) {
-                                        emit_literal(list, "_out = "); build_expr(list, s->as.return_stmt.value, env); emit_literal(list, "; "); break;
-                                    }
-                                }
-                            } else { emit_literal(list, "_out = "); build_expr(list, arm_body, env); emit_literal(list, "; "); }
-                        }
+                        build_match_arm_value(list, arm_body, env);
                         emit_literal(list, "break; } ");
                     } else {
                         /* case nl_UnionName_TAG_Variant: { */
@@ -3042,23 +3011,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         }
 
                         /* Handle arm body */
-                        if (arm_body) {
-                            if (arm_body->type == AST_BLOCK) {
-                                for (int j = 0; j < arm_body->as.block.count; j++) {
-                                    ASTNode *bstmt = arm_body->as.block.statements[j];
-                                    if (bstmt && bstmt->type == AST_RETURN && bstmt->as.return_stmt.value) {
-                                        emit_literal(list, "_out = ");
-                                        build_expr(list, bstmt->as.return_stmt.value, env);
-                                        emit_literal(list, "; ");
-                                        break;
-                                    }
-                                }
-                            } else {
-                                emit_literal(list, "_out = ");
-                                build_expr(list, arm_body, env);
-                                emit_literal(list, "; ");
-                            }
-                        }
+                        build_match_arm_value(list, arm_body, env);
 
                         emit_literal(list, "break; } ");
                     }
@@ -3601,7 +3554,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 emit_literal(list, ";\n");
             }
             /* Handle function types - use typedef from registry */
-            else if (stmt->as.let.var_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+            else if (stmt->as.let.var_type == TYPE_FUNCTION && stmt->as.let.fn_sig && fn_registry) {
                 const char *typedef_name = register_function_signature(fn_registry, stmt->as.let.fn_sig);
                 emit_formatted(list, "%s %s", typedef_name, stmt->as.let.name);
                 
@@ -4246,6 +4199,7 @@ void transpile_statement_iterative(StringBuilder *sb, ASTNode *stmt, int indent,
 
     /* Pass 1: Build work items with scope tracking */
     WorkList *list = worklist_create(5000);
+    list->fn_registry = fn_registry;
     ScopeStack *scopes = scope_stack_create();
 
     /* Function body is already a scope, but we track variables in it */

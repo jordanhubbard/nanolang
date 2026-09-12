@@ -413,31 +413,34 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 - [ ] **5.0 self-hosted loop control — context validation.** I must reject
       break/continue outside loops in the language frontend and test nested
       function boundaries. C compiler rejection is not a frontend diagnostic.
-- [ ] **5.0 self-hosted suite — remaining failures.** After the import/loop
-      repair, my full self-hosted runner reports 12 passing entries and two
-      compilation failures: `test_match_bindings.nano` emits `nl_unknown` for
-      a match result, and `test_infix_ops.nano` rejects `not` at line 47.
-      I reproduced both directly with the rebuilt Stage 2 (2026-09-11).
-      I must fix and rerun them; I have not established their baseline history.
-      Inspection also finds placeholder emission for block-bodied expression
-      matches; assigning a result type alone would not repair their semantics.
-      `check_match_expr` sends a block node to `check_expr_node`, which does not
-      infer its returned value, while `generate_match_expr` emits an unsupported
-      arm-block comment. I must establish block-result/control-flow semantics
-      and carry checked result types through lowering, with executable cases.
-      The C seed is not a semantic oracle here: both guarded and unguarded
-      expression-match lowering scan for a direct return and skip the arm's
-      other statements. I must test locals, side effects, nested returns and
-      continuation after the match on both backends before claiming repair.
-      `tests/test_match_block_semantics.py` now isolates these three cases on
-      each native compiler: all six fail (2026-09-11). The C seed drops a local
-      declaration, loses a side effect and rejects branch-result inference;
-      Stage 2 emits `nl_unknown`. The combined fixture is in the self-hosted
-      runner. These probe the current arm-local expression-return convention,
-      not an approved new 5.0 rule: I have requested a decision between that
-      convention and function-scoped `return` with separate match values.
-      I first add bare unary parsing and execute every infix fixture assertion
-      from `main`, rather than relying on imported shadow execution.
+- [x] **5.0 native match blocks — scalar acceptance.** I follow the approved
+      rule: `return` exits the enclosing function; an expression arm yields
+      its expression, and a block arm yields its final expression after its
+      preceding statements. I replaced the C emitter's return scan and the
+      self-hosted emitter's placeholder with ordered statement/value emission.
+      I preserve the enclosing return context while checking block statements,
+      retain nonlocal return flags in my shadow evaluator, and type C match
+      temporaries independently of the enclosing function's return type.
+      I also resolve named union-variant fields in my self-hosted checker.
+      Five executable cases cover locals, effects, conditional returns,
+      string values in integer functions, and return-only arms. Three
+      negative cases reject wrong function returns, incompatible arm values,
+      and missing final values. `tests/test_match_block_semantics.py` passes
+      on the C seed with rebuilt Stage 1 and again with rebuilt Stage 2.
+      The combined fixture and migrated match-bindings fixture execute from
+      `main`. My full self-hosted runner reports 15 passed, 0 failed, including
+      five import-path checks. A serial `make bootstrap3` passes its configured
+      gates, including operation without the C seed; native binaries still
+      differ. Type-inference, effects, NanoCore and parser-recovery gates pass.
+      These are tests, not a compiler correctness proof (2026-09-11).
+- [ ] **5.0 match control flow — full backend acceptance.** I still need
+      acceptance cases for nonlocal returns nested in operands and call
+      arguments, matches whose every arm exits, guarded/exhaustive matches,
+      aggregate and resource values, and NanoISA lowering. I must verify
+      arm-local scope and escaped ownership beyond directly yielded locals.
+      My bootstrap checker saves/restores function return context in sequential
+      global state; I must pass explicit context before enabling parallel or
+      reentrant checking. The scalar native cases do not complete this work.
 - [x] **5.0 self-hosted unary expressions.** I parse bare `not` and unary
       minus at primary precedence, reusing my existing call and binary nodes.
       Compiled parser assertions verify the grouping of `not false and true`.

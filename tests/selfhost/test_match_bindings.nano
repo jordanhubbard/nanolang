@@ -26,10 +26,10 @@ shadow double_option {
 fn match_in_expression(opt: Option) -> int {
     let doubled = (match opt {
         Some(s) => {
-            return s.value * 2
+            s.value * 2
         }
         None(n) => {
-            return 0
+            0
         }
     })
     return doubled
@@ -41,6 +41,8 @@ shadow match_in_expression {
 }
 
 fn main() -> int {
+    assert (== (match_in_expression Option.Some { value: 5 }) 10)
+    assert (== (match_in_expression Option.None { }) 0)
     let opt: Option = Option.Some { value: 7 }
     let result = (double_option opt)
     if result == 14 {

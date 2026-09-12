@@ -4779,7 +4779,7 @@ static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **
 }
 
 /* Returns true if an AST node type is a value-producing expression */
-static bool is_expression_node(ASTNodeType type) {
+bool ast_is_value_expression(ASTNodeType type) {
     switch (type) {
         case AST_NUMBER:
         case AST_FLOAT:
@@ -4794,10 +4794,7 @@ static bool is_expression_node(ASTNodeType type) {
         case AST_STRUCT_LITERAL:
         case AST_FIELD_ACCESS:
         case AST_UNION_CONSTRUCT:
-        /* AST_MATCH excluded: match arm bodies need the full TypeChecker context
-         * (current_function_return_type) for proper return-statement type checking.
-         * Wrapping match in an implicit return causes arms to be evaluated through
-         * check_expression with an uninitialised temp TypeChecker, breaking type inference. */
+        case AST_MATCH:
         case AST_TUPLE_LITERAL:
         case AST_TUPLE_INDEX:
         case AST_QUALIFIED_NAME:
@@ -4806,6 +4803,20 @@ static bool is_expression_node(ASTNodeType type) {
         default:
             return false;
     }
+}
+
+/* I recognize definite function exits, without assuming that loops terminate. */
+bool ast_always_returns(const ASTNode *node) {
+    if (!node) return false;
+    if (node->type == AST_RETURN) return true;
+    if (node->type == AST_IF)
+        return ast_always_returns(node->as.if_stmt.then_branch) &&
+               ast_always_returns(node->as.if_stmt.else_branch);
+    if (node->type == AST_BLOCK) {
+        for (int i = 0; i < node->as.block.count; i++)
+            if (ast_always_returns(node->as.block.statements[i])) return true;
+    }
+    return false;
 }
 
 /* Recursively inject implicit returns at tail positions of a block.
@@ -4822,7 +4833,7 @@ static void inject_implicit_return(ASTNode *block) {
     ASTNode *stmt = block->as.block.statements[last];
     if (!stmt) return;
 
-    if (is_expression_node(stmt->type)) {
+    if (stmt->type != AST_MATCH && ast_is_value_expression(stmt->type)) {
         /* Wrap bare expression in return */
         ASTNode *ret = create_node(AST_RETURN, stmt->line, stmt->column);
         ret->as.return_stmt.value = stmt;

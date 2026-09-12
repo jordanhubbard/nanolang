@@ -77,6 +77,9 @@ typedef struct {
     int loop_depth;         /* Track if we're inside a loop (for break/continue validation) */
 } TypeChecker;
 
+/* I retain the enclosing function context when checking expression blocks. */
+static _Thread_local TypeChecker *active_statement_checker;
+
 static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
     if (!param) return strdup("unknown");
 
@@ -619,6 +622,18 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     
     switch (expr->type) {
+        case AST_BLOCK:
+            if (expr->as.block.count > 0) {
+                ASTNode *tail = expr->as.block.statements[expr->as.block.count - 1];
+                if (ast_is_value_expression(tail->type)) return get_struct_type_name(tail, env);
+            }
+            return NULL;
+        case AST_MATCH:
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                const char *name = get_struct_type_name(expr->as.match_expr.arm_bodies[i], env);
+                if (name) return name;
+            }
+            return NULL;
         case AST_STRUCT_LITERAL:
             return expr->as.struct_literal.struct_name;
             
@@ -3040,6 +3055,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_MATCH: {
+            /* Code generation may ask again without a function-checking context. */
+            if (!active_statement_checker && expr->as.match_expr.result_type_checked)
+                return expr->as.match_expr.result_type;
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
             /* Allow int-pattern match: any arm variant starts with "INT:" */
@@ -3172,12 +3190,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                  * This is safe because each arm's binding uses a unique name from the source code.
                  */
                 
-                /* First arm determines return type */
-                if (i == 0) {
+                /* A definite function exit contributes no match value. */
+                if (ast_always_returns(expr->as.match_expr.arm_bodies[i])) continue;
+                if (return_type == TYPE_UNKNOWN) {
                     return_type = arm_type;
-                } else if (arm_type != return_type && arm_type != TYPE_VOID) {
+                } else if (arm_type != return_type) {
                     fprintf(stderr, "Error at line %d, column %d: Match arms must all return the same type\n",
                             expr->line, expr->column);
+                    if (active_statement_checker) active_statement_checker->has_error = true;
                 }
             }
 
@@ -3262,33 +3282,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
+            expr->as.match_expr.result_type = return_type;
+            expr->as.match_expr.result_type_checked = true;
             return return_type;
         }
 
         case AST_BLOCK: {
             /* Blocks can be used as expressions in match arms
-             * Type check all statements and return the type of the last expression/return
+             * I check statements in function context; only the final expression yields a value.
              */
             Type block_type = TYPE_VOID;
             
-            /* Create a temporary TypeChecker for statement type checking */
-            TypeChecker temp_tc;
+            /* I inherit return/unsafe context, rather than inventing a function. */
+            TypeChecker temp_tc = active_statement_checker ? *active_statement_checker : (TypeChecker){0};
             temp_tc.env = env;
             temp_tc.has_error = false;
-            temp_tc.loop_depth = 0;
             
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
-                if (stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
-                    block_type = check_expression(stmt->as.return_stmt.value, env);
+                if (i == expr->as.block.count - 1 && ast_is_value_expression(stmt->type)) {
+                    block_type = check_expression(stmt, env);
                 } else {
-                    /* Type check the statement (for side effects) */
-                    Type stmt_type = check_statement(&temp_tc, stmt);
-                    /* If it's the last statement and not a return, use its type */
-                    if (i == expr->as.block.count - 1 && stmt_type != TYPE_VOID) {
-                        block_type = stmt_type;
-                    }
+                    check_statement(&temp_tc, stmt);
                 }
+            }
+            if (temp_tc.has_error) {
+                if (active_statement_checker) active_statement_checker->has_error = true;
+                return TYPE_UNKNOWN;
             }
             return block_type;
         }
@@ -3584,7 +3604,10 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
         return TYPE_VOID;
     }
 
+    TypeChecker *previous = active_statement_checker;
+    active_statement_checker = tc;
     Type result = check_statement_impl(tc, stmt);
+    active_statement_checker = previous;
     g_check_stmt_depth--;
     return result;
 }

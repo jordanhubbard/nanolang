@@ -1,4 +1,4 @@
-# I probe the C seed's arm-local expression-return convention; 5.0 semantics are pending.
+# I yield final expressions from match blocks; return always leaves my function.
 union Choice {
     Some { value: int },
     None { }
@@ -8,9 +8,9 @@ fn match_local(choice: Choice) -> int {
     let result = (match choice {
         Some(item) => {
             let doubled: int = (* item.value 2)
-            return doubled
+            doubled
         }
-        None(empty) => { return 0 }
+        None(empty) => { 0 }
     })
     return (+ result 100)
 }
@@ -25,11 +25,11 @@ fn match_effect(choice: Choice) -> int {
     let result = (match choice {
         Some(item) => {
             set count (+ count 1)
-            return item.value
+            item.value
         }
         None(empty) => {
             set count (+ count 2)
-            return 0
+            0
         }
     })
     return (+ result (* count 100))
@@ -43,25 +43,58 @@ shadow match_effect {
 fn match_branch(choice: Choice) -> int {
     let result = (match choice {
         Some(item) => {
-            if (> item.value 0) { return 1 } else { return 2 }
+            if (> item.value 0) { return 1 }
+            2
         }
-        None(empty) => { return 3 }
+        None(empty) => { 3 }
     })
     return (+ result 100)
 }
 
 shadow match_branch {
-    assert (== (match_branch Choice.Some { value: 7 }) 101)
+    assert (== (match_branch Choice.Some { value: 7 }) 1)
     assert (== (match_branch Choice.Some { value: -7 }) 102)
     assert (== (match_branch Choice.None { }) 103)
 }
 
+fn match_string(choice: Choice) -> int {
+    let text = (match choice {
+        Some(item) => { if (> item.value 0) { return 7 } "negative" }
+        None(empty) => { "none" }
+    })
+    return (str_length text)
+}
+
+shadow match_string {
+    assert (== (match_string Choice.Some { value: 7 }) 7)
+    assert (== (match_string Choice.Some { value: -7 }) 8)
+    assert (== (match_string Choice.None { }) 4)
+}
+
+fn match_return(choice: Choice) -> int {
+    let value = (match choice {
+        Some(item) => { return item.value }
+        None(empty) => { 3 }
+    })
+    return (+ value 100)
+}
+
+shadow match_return {
+    assert (== (match_return Choice.Some { value: 7 }) 7)
+    assert (== (match_return Choice.None { }) 103)
+}
+
 fn main() -> int {
+    assert (== (match_return Choice.Some { value: 7 }) 7)
+    assert (== (match_return Choice.None { }) 103)
+    assert (== (match_string Choice.Some { value: 7 }) 7)
+    assert (== (match_string Choice.Some { value: -7 }) 8)
+    assert (== (match_string Choice.None { }) 4)
     assert (== (match_local Choice.Some { value: 7 }) 114)
     assert (== (match_local Choice.None { }) 100)
     assert (== (match_effect Choice.Some { value: 7 }) 107)
     assert (== (match_effect Choice.None { }) 200)
-    assert (== (match_branch Choice.Some { value: 7 }) 101)
+    assert (== (match_branch Choice.Some { value: 7 }) 1)
     assert (== (match_branch Choice.Some { value: -7 }) 102)
     assert (== (match_branch Choice.None { }) 103)
     return 0

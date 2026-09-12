@@ -1,4 +1,4 @@
-"""I check arm-local values, effects and continuation on both native compilers."""
+"""I check final-expression values, effects and function-scoped returns."""
 import os
 from pathlib import Path
 import subprocess
@@ -10,12 +10,38 @@ FIXTURE = ROOT / "tests/selfhost/test_match_expression_blocks.nano"
 
 
 class MatchBlockSemantics(unittest.TestCase):
+    def test_reject_wrong_return_and_arm_types(self):
+        preamble = FIXTURE.read_text().split("\nfn ", 1)[0]
+        bodies = [
+            'Some(item) => { if (> item.value 0) { return "bad" } 7 } None(empty) => { 0 }',
+            'Some(item) => { 7 } None(empty) => { "bad" }',
+            'Some(item) => { 7 } None(empty) => { let unused: int = 0 }',
+        ]
+        for compiler in [ROOT / "bin/nanoc_c", Path(os.environ.get(
+                "NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_stage2"))]:
+            for body in bodies:
+                with self.subTest(compiler=compiler.name, body=body), tempfile.TemporaryDirectory(
+                        prefix="nanolang-match-reject-") as directory:
+                    path = Path(directory)
+                    source = path / "invalid.nano"
+                    source.write_text(preamble + '\nfn broken(choice: Choice) -> int {\n'
+                                      'let value = (match choice { ' + body + ' })\nreturn value\n}\n'
+                                      'shadow broken { assert true }\nfn main() -> int { return 0 }\n')
+                    result = subprocess.run([str(compiler), str(source), "-o", str(path / "invalid")],
+                                            cwd=ROOT, env=dict(os.environ, TMPDIR=directory),
+                                            capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertNotIn("error: incompatible", result.stderr,
+                                     "I must reject this before invoking the C compiler")
+
     def test_backend_cases(self):
         fixture = FIXTURE.read_text()
         preamble = fixture.split("\nfn ", 1)[0]
         cases = {"match_local": [(7, 114), (None, 100)],
                  "match_effect": [(7, 107), (None, 200)],
-                 "match_branch": [(7, 101), (-7, 102), (None, 103)]}
+                 "match_branch": [(7, 1), (-7, 102), (None, 103)],
+                 "match_string": [(7, 7), (-7, 8), (None, 4)],
+                 "match_return": [(7, 7), (None, 103)]}
         compilers = [ROOT / "bin/nanoc_c",
                      Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_stage2"))]
         for compiler in compilers:

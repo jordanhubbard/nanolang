@@ -427,6 +427,8 @@ struct ASTNode {
             ASTNode **arm_bodies;
             ASTNode **guard_exprs;  /* Per-arm guard: NULL if no guard, or boolean expression */
             char *union_type_name;  /* Filled during typechecking */
+            Type result_type;       /* Checked arm value, independent of function return */
+            bool result_type_checked;
         } match_expr;
         /* Import statement: import "module.nano" as alias or from "module.nano" import sym1, sym2 */
         struct {
@@ -835,6 +837,8 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
+bool ast_is_value_expression(ASTNodeType type);
+bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
 void free_ast(ASTNode *node);
 

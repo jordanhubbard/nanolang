@@ -5967,6 +5967,42 @@ shadow generate_assert_stmt {
     assert (== code "assert(1);\n")
 }
 
+# I emit statements in order; only a final expression assigns the arm value.
+fn generate_match_arm_value(parser: Parser, body_id: int, body_type: int, env: GenEnv, expected_type: string) -> string {
+    if (!= body_type ParseNodeType.PNODE_BLOCK) {
+        return (+ "_out = " (+ (generate_expression parser body_id body_type env expected_type) "; "))
+    }
+    let block: ASTBlock = (parser_get_block parser body_id)
+    let count: int = (list_ASTStmtRef_length block.statements)
+    let mut env_cur: GenEnv = env
+    let mut parts: array<string> = []
+    let return_type: string = (lookup_func_return_type_in_parser parser env.scope)
+    let mut i: int = 0
+    while (< i count) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        if (and (== i (- count 1)) (parser_is_value_expression stmt.node_type)) {
+            set parts (cg_append parts "_out = ")
+            set parts (cg_append parts (generate_expression parser stmt.node_id stmt.node_type env_cur expected_type))
+            set parts (cg_append parts "; ")
+        } else {
+            let generated: StmtGenResult = (generate_statement parser stmt 0 env_cur return_type)
+            set parts (cg_append parts generated.code)
+            set env_cur generated.env
+        }
+        set i (+ i 1)
+    }
+    return (cg_build parts)
+}
+
+shadow generate_match_arm_value {
+    let toks: List<LexerToken> = (tokenize_string "fn value() -> void { let n: int = 7 n }")
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "block.nano")
+    let func: ASTFunction = (parser_get_function parser 0)
+    let code: string = (generate_match_arm_value parser func.body ParseNodeType.PNODE_BLOCK (genenv_new "value") "int")
+    assert (str_contains code "n = 7")
+    assert (str_contains code "_out = nl_n;")
+}
+
 fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: string) -> string {
     let scr_code: string = (generate_expression parser m.scrutinee m.scrutinee_type env "")
 
@@ -6041,14 +6077,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         if (== variant "_") {
             set parts (cg_append parts "default: { ")
 
-            if (== body_type ParseNodeType.PNODE_BLOCK) {
-                set parts (cg_append parts "/* unsupported match arm block */ ")
-            } else {
-                let expr_code: string = (generate_expression parser body_id body_type env expected_type)
-                set parts (cg_append parts "_out = ")
-                set parts (cg_append parts expr_code)
-                set parts (cg_append parts "; ")
-            }
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env expected_type))
 
             set parts (cg_append parts "break; } ")
         } else if (transp_str_starts_with variant "INT:") {
@@ -6058,14 +6087,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
             set parts (cg_append parts int_val)
             set parts (cg_append parts ": { ")
 
-            if (== body_type ParseNodeType.PNODE_BLOCK) {
-                set parts (cg_append parts "/* unsupported match arm block */ ")
-            } else {
-                let expr_code: string = (generate_expression parser body_id body_type env expected_type)
-                set parts (cg_append parts "_out = ")
-                set parts (cg_append parts expr_code)
-                set parts (cg_append parts "; ")
-            }
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env expected_type))
 
             set parts (cg_append parts "break; } ")
         } else {
@@ -6088,15 +6110,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
             let binding_type_expr: string = (get_variant_field_type parser union_name variant)
             let env_arm: GenEnv = (genenv_put env binding binding_type_expr false)
 
-            if (== body_type ParseNodeType.PNODE_BLOCK) {
-                /* Block bodies in expression match aren't supported here; assume they return */
-                set parts (cg_append parts "/* unsupported match arm block */ ")
-            } else {
-                let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
-                set parts (cg_append parts "_out = ")
-                set parts (cg_append parts expr_code)
-                set parts (cg_append parts "; ")
-            }
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env_arm expected_type))
 
             set parts (cg_append parts "break; } ")
         }

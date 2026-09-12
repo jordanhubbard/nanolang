@@ -31,6 +31,15 @@ from "src_nano/compiler/error_messages.nano" import encode_type_mismatch_message
 
 /* TypeKind and NSType are provided by src_nano/compiler/ir.nano */
 
+# I scope these to a function check in my sequential bootstrap checker.
+let mut tc_enclosing_function: string = ""
+let mut tc_enclosing_return: string = "void"
+
+struct CheckedBlock {
+    ok: bool,
+    value_type: NSType
+}
+
 /* Function signature for type checking */
 struct FunctionType {
     name: string,
@@ -2436,7 +2445,11 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
         let body_type: int = (at m.arm_body_types i)
         let arm_type: NSType = (check_expr_node parser body_id body_type arm_symbols diags file_name)
 
-        if (== i 0) {
+        if (parser_always_returns parser body_id body_type) {
+            set i (+ i 1)
+            continue
+        }
+        if (== first_arm_type.kind TypeKind.TYPE_UNKNOWN) {
             set first_arm_type arm_type
         } else {
             if (not (types_equal arm_type first_arm_type)) {
@@ -2456,7 +2469,46 @@ fn check_match_expr(parser: Parser, node_id: int, symbols: array<Symbol>, diags:
 
 shadow check_match_expr { assert true }
 
+fn check_variant_field_type(parser: Parser, variant_label: string, field_name: string) -> NSType {
+    let mut ui: int = 0
+    while (< ui (parser_get_union_count parser)) {
+        let u: ASTUnion = (parser_get_union parser ui)
+        let mut vi: int = 0
+        let mut offset: int = 0
+        while (< vi u.variant_count) {
+            let count: int = (at u.variant_field_counts vi)
+            if (== variant_label (+ u.name (+ "." (at u.variant_names vi)))) {
+                let mut fi: int = 0
+                while (< fi count) {
+                    if (== field_name (at u.variant_field_names (+ offset fi))) {
+                        return (type_from_string_with_parser parser (at u.variant_field_types (+ offset fi)))
+                    }
+                    set fi (+ fi 1)
+                }
+            }
+            set offset (+ offset count)
+            set vi (+ vi 1)
+        }
+        set ui (+ ui 1)
+    }
+    return (type_unknown_named "variant_field")
+}
+
+shadow check_variant_field_type {
+    let toks: List<LexerToken> = (tokenize_string "union Choice { Some { value: string }, None {} }")
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "variant.nano")
+    let found: NSType = (check_variant_field_type parser "Choice.Some" "value")
+    assert (== found.kind TypeKind.TYPE_STRING)
+    let missing: NSType = (check_variant_field_type parser "Choice.None" "value")
+    assert (== missing.kind TypeKind.TYPE_UNKNOWN)
+}
+
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (== node_type ParseNodeType.PNODE_BLOCK) {
+        let expected: NSType = (type_from_string_with_parser parser tc_enclosing_return)
+        let checked: CheckedBlock = (check_block_value parser node_id symbols expected diags file_name tc_enclosing_function)
+        return checked.value_type
+    }
     if (== node_type ParseNodeType.PNODE_NUMBER) { return (type_int) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_STRING) { return (type_string) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_BOOL) { return (type_bool) } else { (print "") }
@@ -2629,6 +2681,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (== obj_t.kind TypeKind.TYPE_STRUCT) {
             let metadata: array<FieldMetadata> = (merge_struct_metadata parser)
             let field_t: NSType = (lookup_field_type metadata obj_t.name fa.field_name)
+            if (== field_t.kind TypeKind.TYPE_UNKNOWN) {
+                return (check_variant_field_type parser obj_t.name fa.field_name)
+            }
             return field_t
         } else {
             if (== obj_t.kind TypeKind.TYPE_UNION) {
@@ -3057,13 +3112,14 @@ shadow expr_kind_from_pnode {
     assert (== (expr_kind_from_pnode ParseNodeType.PNODE_CALL) 3)
 }
 
-fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
+fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
     let block: ASTBlock = (parser_get_block parser block_id)
     
     let stmt_count: int = (list_ASTStmtRef_length block.statements)
     let mut local_symbols: array<Symbol> = symbols
     let mut ok: bool = true
     let mut returned: bool = false
+    let mut value_type: NSType = (type_void)
 
     let mut i: int = 0
     while (< i stmt_count) {
@@ -3185,10 +3241,9 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
             }
         } else {
             /* Expression statement */
-            let kind: int = (expr_kind_from_pnode stmt.node_type)
-            if (>= kind 0) {
-                let _t: NSType = (check_expr_node parser stmt.node_id kind local_symbols diags file_name)
-                (print "")
+            if (parser_is_value_expression stmt.node_type) {
+                let t: NSType = (check_expr_node parser stmt.node_id stmt.node_type local_symbols diags file_name)
+                if (== i (- stmt_count 1)) { set value_type t }
             } else {
                 (print "")
             }
@@ -3197,7 +3252,22 @@ fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_r
         set i (+ i 1)
     }
 
-    return ok
+    return CheckedBlock { ok: ok, value_type: value_type }
+}
+
+shadow check_block_value {
+    let toks: List<LexerToken> = (tokenize_string "fn value() -> void { 7 }")
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "block.nano")
+    let func: ASTFunction = (parser_get_function parser 0)
+    let symbols: array<Symbol> = []
+    let checked: CheckedBlock = (check_block_value parser func.body symbols (type_int) (Diagnostics.diag_list_new) "block.nano" "value")
+    assert checked.ok
+    assert (== checked.value_type.kind TypeKind.TYPE_INT)
+}
+
+fn check_block(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> bool {
+    let checked: CheckedBlock = (check_block_value parser block_id symbols expected_return diags file_name current_function)
+    return checked.ok
 }
 
 shadow check_block { assert true }
@@ -3250,7 +3320,14 @@ fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, dia
             let float_sym: Symbol = (symbol_new func.name (type_float) false true func.param_count param_types (type_float))
             set local_symbols (env_add_symbol local_symbols float_sym)
         } else { (print "") }
-        return (check_block parser func.body local_symbols return_type diags file_name func.name)
+        let previous_function: string = tc_enclosing_function
+        let previous_return: string = tc_enclosing_return
+        set tc_enclosing_function func.name
+        set tc_enclosing_return func.return_type
+        let ok: bool = (check_block parser func.body local_symbols return_type diags file_name func.name)
+        set tc_enclosing_function previous_function
+        set tc_enclosing_return previous_return
+        return ok
     }
 }
 

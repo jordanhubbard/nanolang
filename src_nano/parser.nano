@@ -3765,6 +3765,61 @@ fn parser_store_array_literal(p: Parser, element_start: int, element_count: int,
 }
 
 # I return an empty path for a NUL escape; callers must reject it.
+# I distinguish arm values from statements that transfer control.
+pub fn parser_is_value_expression(node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_NUMBER) { return true }
+    if (== node_type ParseNodeType.PNODE_STRING) { return true }
+    if (== node_type ParseNodeType.PNODE_BOOL) { return true }
+    if (== node_type ParseNodeType.PNODE_FLOAT) { return true }
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+    if (== node_type ParseNodeType.PNODE_CALL) { return true }
+    if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) { return true }
+    if (== node_type ParseNodeType.PNODE_BINARY_OP) { return true }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) { return true }
+    if (== node_type ParseNodeType.PNODE_MATCH) { return true }
+    if (== node_type ParseNodeType.PNODE_TUPLE_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_TUPLE_INDEX) { return true }
+    if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) { return true }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return true }
+    return false
+}
+
+pub fn parser_always_returns(parser: Parser, node_id: int, node_type: int) -> bool {
+    if (== node_type ParseNodeType.PNODE_RETURN) { return true }
+    if (== node_type ParseNodeType.PNODE_IF) {
+        let branch: ASTIf = (parser_get_if parser node_id)
+        if (or (< branch.then_body 0) (< branch.else_body 0)) { return false }
+        return (and (parser_always_returns parser branch.then_body ParseNodeType.PNODE_BLOCK)
+                    (parser_always_returns parser branch.else_body ParseNodeType.PNODE_BLOCK))
+    }
+    if (== node_type ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser node_id)
+        let mut i: int = 0
+        while (< i (list_ASTStmtRef_length block.statements)) {
+            let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            if (parser_always_returns parser stmt.node_id stmt.node_type) { return true }
+            set i (+ i 1)
+        }
+    }
+    return false
+}
+
+shadow parser_always_returns {
+    let toks: List<LexerToken> = (tokenize_string "fn exit() -> int { if true { return 1 } else { return 2 } }")
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "exit.nano")
+    let func: ASTFunction = (parser_get_function parser 0)
+    assert (parser_always_returns parser func.body ParseNodeType.PNODE_BLOCK)
+    assert (not (parser_always_returns parser 0 ParseNodeType.PNODE_NUMBER))
+}
+
+shadow parser_is_value_expression {
+    assert (parser_is_value_expression ParseNodeType.PNODE_FIELD_ACCESS)
+    assert (parser_is_value_expression ParseNodeType.PNODE_MATCH)
+    assert (not (parser_is_value_expression ParseNodeType.PNODE_RETURN))
+    assert (not (parser_is_value_expression ParseNodeType.PNODE_IF))
+}
+
 fn parser_decode_import_path(raw: string) -> string {
     let mut out: string = ""
     let mut i: int = 0

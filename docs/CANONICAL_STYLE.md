@@ -134,6 +134,29 @@ for i in (range 0 count) {
 
 `while`, `break`, and `continue` are also accepted.
 
+### Match Values In 5.0
+
+I use `return` to leave the enclosing function, including inside a match arm.
+An expression arm yields that expression. A block arm yields its final
+expression after executing its preceding statements:
+
+```nano
+let doubled = (match option {
+    Some(item) => {
+        if (< item.value 0) { return -1 }
+        let value: int = (* item.value 2)
+        value
+    }
+    None(empty) => { 0 }
+})
+return (+ doubled 100)
+```
+
+Here a negative value returns `-1` from the function; other paths continue
+after the match. I do not use `return value` to yield an arm-local value.
+My backend acceptance work, including control-flow and ownership boundaries,
+is tracked in `docs/ROADMAP.md`.
+
 ## Imports And Modules
 
 The current module import form is `module`:
