@@ -56,6 +56,21 @@ finish source snapshot and include-search validation.
 The updated experiment observes the header edit through the cache and returns
 42 in both direct and traced PCH builds, versus 43 in saved-input mode.
 
+## Fresh search observations
+
+I now use fresh preprocessing and its include trace as a supplemental veto on
+cache reuse. I do not use that output as the original compiler's input. The
+existing source, manifest, driver, environment, header and trace checks still
+apply. This distinction preserves the configured compilation mode while
+detecting the newly earlier header in the experiment.
+
+I compare probes before and after a cold compilation and repeat the probe
+before warm reuse. Failed or empty observations cannot authorize reuse.
+Differing before/after observations withhold the new hash record, even if the
+normal compilation produced valid code. I still need captured source inputs
+to exclude changes that happen and revert between those observations, and I
+still need compiler-mode-specific evidence for external inputs such as PCH.
+
 ## What this rules out
 
 I cannot repair a lossy Make record by adding more escape decoding: the

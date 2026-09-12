@@ -404,6 +404,17 @@ roadmap work. My [compiler-input experiment](COMPILER_INPUT_EVIDENCE.md)
 records the original failure and explains why enabling saved preprocessed
 inputs unconditionally is not a semantics-preserving repair.
 
+I additionally fingerprint fresh preprocessing and its include trace before
+warm reuse. This detects newly selected headers that an old dependency list
+could not name. I use the same configured compile flags, including shared-only
+flags; I do not compile the probe output. Cold builds require equal probe
+observations before and after compilation before I store reuse evidence.
+Failed, empty or changed observations withhold reuse, while normal compilation
+still determines whether I can publish code. Each warm-cache validation costs
+one preprocessing invocation per source; a cacheable cold build uses two. The
+configured compiler remains trusted. Matching observations are not an atomic
+snapshot and do not establish complete PCH, module or toolchain identity.
+
 ### Cross-section validation
 
 A section codec sees one section and cannot check an index into another, so the

@@ -533,6 +533,131 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                 self.assertEqual(execution.returncode, 43, execution.stderr)
                 self.assertEqual(calls.read_text().splitlines(), ["compile", "compile"])
 
+    def test_new_earlier_header_invalidates_unchanged_search_path(self):
+        for phase in ("single", "multi", "shared"):
+            for route in ("include_dirs", "cflags", "CPATH", "quote"):
+                with self.subTest(phase=phase, route=route), tempfile.TemporaryDirectory(prefix="nano-search-") as tmp:
+                    directory = Path(tmp)
+                    module, source, env = self.support.foreign_build_fixture(directory)
+                    early, late = directory / "early", directory / "late"
+                    early.mkdir()
+                    late.mkdir()
+                    (late / "answer.h").write_text("#define ANSWER 42\n")
+                    directive = '#include "answer.h"' if route == "quote" else '#include <answer.h>'
+                    body = '#include <stdint.h>\n' + directive + '\nint64_t nano_build_answer(void) { return ANSWER; }\n'
+                    metadata = {"name": "answer_native", "c_sources": ["answer.c"]}
+                    if route == "include_dirs": metadata["include_dirs"] = [str(early), str(late)]
+                    elif route == "cflags": metadata["cflags"] = ["-I" + str(early), "-I" + str(late)]
+                    elif route == "CPATH": env["CPATH"] = str(early) + os.pathsep + str(late)
+                    else:
+                        metadata["include_dirs"] = [str(late)]
+                        early = module
+                    (module / "answer.c").write_text(body)
+                    if phase == "multi":
+                        (module / "extra.c").write_text("int extra(void) { return 1; }\n")
+                        metadata["c_sources"].append("extra.c")
+                    elif phase == "shared":
+                        (module / "answer.c").write_text("int extra(void) { return 1; }\n")
+                        (module / "private.c").write_text(body.replace('int64_t nano_build_answer',
+                            '__attribute__((visibility("default"))) int64_t nano_build_answer'))
+                        metadata["shared_c_sources"] = ["private.c"]
+                    (module / "module.json").write_text(json.dumps(metadata))
+                    result, output = self.support.compile(source, directory, "--run", env=env)
+                    self.assertEqual(result.returncode, 42, result.stderr)
+                    generation = self.probe_path("directory", module, env)
+                    result, _ = self.support.compile(source, directory, "--run", env=env)
+                    self.assertEqual(result.returncode, 42, result.stderr)
+                    self.assertEqual(self.probe_path("directory", module, env), generation)
+                    (early / "answer.h").write_text("#define ANSWER 43\n")
+                    result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
+                    self.assertEqual(result.returncode, 43, result.stderr)
+                    self.assertEqual(self.support.execute(output, env=env).returncode, 43)
+
+    def test_failed_preprocessing_cannot_authorize_reuse(self):
+        for failure in ("partial", "empty"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-probe-failure-") as tmp:
+                directory = Path(tmp)
+                module, source, env = self.support.foreign_build_fixture(directory)
+                compiler, calls = directory / "cc", directory / "calls"
+                compiler.write_text(f'''#!{sys.executable}
+import os, pathlib, sys
+if "-E" in sys.argv:
+    if {failure!r} == "partial":
+        print("partial preprocessor output")
+        sys.exit(23)
+    sys.exit(0)
+if "-c" in sys.argv:
+    with open({str(calls)!r}, "a") as log: log.write("compile\\n")
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+                compiler.chmod(0o700)
+                env["NANO_CC"] = str(compiler)
+                for count in (1, 2):
+                    result, output = self.support.compile(source, directory, "--run", env=env)
+                    self.assertEqual(result.returncode, 42, result.stderr)
+                    self.assertEqual(self.support.execute(output, env=env).returncode, 42)
+                    self.assertEqual(len(calls.read_text().splitlines()), count)
+                    self.assertFalse((module / ".build" / "current" / "source_hashes.json").exists())
+
+    def test_header_change_during_compilation_withholds_reuse(self):
+        with tempfile.TemporaryDirectory(prefix="nano-probe-race-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            header = module / "answer.h"
+            header.write_text("#define ANSWER 42\n")
+            (module / "answer.c").write_text('#include <stdint.h>\n#include "answer.h"\nint64_t nano_build_answer(void) { return ANSWER; }\n')
+            compiler = directory / "cc"
+            compiler.write_text(f'''#!{sys.executable}
+import os, pathlib, subprocess, sys
+if "-c" in sys.argv:
+    result = subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:])
+    header = pathlib.Path({str(header)!r})
+    stamp = header.stat()
+    header.write_text("#define ANSWER 43\\n")
+    os.utime(header, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+    sys.exit(result.returncode)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+            compiler.chmod(0o700)
+            env["NANO_CC"] = str(compiler)
+            result, output = self.support.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+            self.assertFalse((module / ".build" / "current" / "source_hashes.json").exists())
+            result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
+            self.assertEqual(result.returncode, 43, result.stderr)
+            self.assertEqual(self.support.execute(output, env=env).returncode, 43)
+            generation = self.probe_path("directory", module, env)
+            self.assertTrue((generation / "source_hashes.json").is_file())
+            result, _ = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
+            self.assertEqual(result.returncode, 43, result.stderr)
+            self.assertEqual(self.probe_path("directory", module, env), generation)
+
+    def test_preprocessing_veto_preserves_original_pch_mode(self):
+        compiler = shutil.which("cc")
+        version = subprocess.run([compiler, "--version"], capture_output=True, timeout=10)
+        if b"clang" not in version.stdout.lower():
+            self.skipTest("I exercise Clang's explicit PCH mode here")
+        with tempfile.TemporaryDirectory(prefix="nano-probe-pch-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            header, pch = module / "precompiled.h", module / "precompiled.pch"
+            header.write_text("typedef char measured_type[42];\n")
+            flags = [compiler, "-fPIC"]
+            if sys.platform != "darwin": flags.append("-D_POSIX_C_SOURCE=200809L")
+            build = subprocess.run(flags + ["-x", "c-header", str(header), "-o", str(pch)],
+                                   capture_output=True, timeout=10)
+            self.assertEqual(build.returncode, 0, build.stderr)
+            stamp = header.stat()
+            header.write_text("typedef char measured_type[43];\n")
+            os.utime(header, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            (module / "answer.c").write_text("long long nano_build_answer(void) { return sizeof(measured_type); }\n")
+            (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
+                                                           "cflags": ["-include-pch", str(pch)]}))
+            for _ in range(2):
+                result, output = self.support.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                self.assertEqual(self.support.execute(output, env=env).returncode, 42)
+
     def test_changed_include_search_path_changes_output(self):
         with tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
             directory = Path(tmp)

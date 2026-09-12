@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v6-include-trace");
+    hash_context_field(&hash, "nanolang-c-build-context-v7-fresh-preprocessing");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -836,9 +836,11 @@ static void save_hash_cache(const char *build_dir, cJSON *root) {
     free(path);
 }
 
+static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta);
+
 /* Update the on-disk hash cache after a successful build */
 static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta,
-                                     const char *build_dir) {
+                                     const char *build_dir, uint64_t preprocessing) {
     if (!meta || meta->c_sources_count == 0) return;
     uint64_t context = module_build_context(meta);
     if (!context) return;
@@ -847,6 +849,11 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
     char context_string[24];
     snprintf(context_string, sizeof(context_string), "%llu", (unsigned long long)context);
     cJSON_AddStringToObject(root, "__build_context_v1", context_string);
+    snprintf(context_string, sizeof(context_string), "%llu", (unsigned long long)preprocessing);
+    if (!preprocessing || !cJSON_AddStringToObject(root, "__preprocessing_v1", context_string)) {
+        cJSON_Delete(root);
+        return;
+    }
     for (int shared = 0; shared < 2; shared++) {
         char **sources = shared ? meta->shared_c_sources : meta->c_sources;
         size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
@@ -914,6 +921,14 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
     }
     if (match) match = system_headers_match(cache, meta);
     if (match) match = dep_hashes_match(cache);
+    if (match) {
+        cJSON *stored = cJSON_GetObjectItemCaseSensitive(cache, "__preprocessing_v1");
+        uint64_t observed = cJSON_IsString(stored) ? module_preprocess_fingerprint(meta) : 0;
+        char digest[24];
+        snprintf(digest, sizeof(digest), "%llu", (unsigned long long)observed);
+        match = observed && strcmp(stored->valuestring, digest) == 0 &&
+                context == module_build_context(meta);
+    }
     cJSON_Delete(cache);
     return match;
 }
@@ -2125,6 +2140,84 @@ static bool module_build_append(char *buffer, size_t capacity, const char *forma
     return n >= 0 && (size_t)n < capacity - used;
 }
 
+static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
+                                  bool preprocessing) {
+    prefix[0] = 0;
+    bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
+                                   module_selected_compiler(meta), preprocessing ? "-E" : "-c");
+#if !defined(__APPLE__)
+    ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
+#endif
+    for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+        char *flags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
+        if (flags) {
+            ok &= module_build_append(prefix, capacity, " %s", flags);
+            free(flags);
+        }
+    }
+    for (size_t i = 0; i < meta->include_dirs_count; i++)
+        ok &= module_append_include(prefix, capacity, meta->include_dirs[i]);
+    for (size_t i = 0; i < meta->cflags_count; i++)
+        ok &= module_build_append(prefix, capacity, " %s", meta->cflags[i]);
+#ifdef __APPLE__
+    for (size_t i = 0; i < meta->cflags_macos_count; i++)
+        ok &= module_build_append(prefix, capacity, " %s", meta->cflags_macos[i]);
+#elif defined(__FreeBSD__)
+    for (size_t i = 0; i < meta->cflags_freebsd_count; i++)
+        ok &= module_build_append(prefix, capacity, " %s", meta->cflags_freebsd[i]);
+#else
+    for (size_t i = 0; i < meta->cflags_linux_count; i++)
+        ok &= module_build_append(prefix, capacity, " %s", meta->cflags_linux[i]);
+#endif
+    return ok;
+}
+
+/* This is a supplemental veto, not a claim that -E reproduces every compiler
+ * mode. I still compile the original source and require its dependency hashes.
+ * Capturing the include trace also detects search changes when -P hides line
+ * markers. No probe output is compiled or written into a published generation. */
+static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta) {
+    if (!meta || !meta->c_sources_count) return 0;
+    char prefix[4096];
+    if (!module_compile_prefix(meta, prefix, sizeof(prefix), true)) return 0;
+    uint64_t fingerprint = 14695981039346656037ULL;
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        char **sources = group ? meta->shared_c_sources : meta->c_sources;
+        hash_context_field(&fingerprint, group ? "shared" : "ordinary");
+        for (size_t i = 0; i < count; i++) {
+            char source[2048], command[8192] = {0};
+            int n = sources[i][0] == '/' ? snprintf(source, sizeof(source), "%s", sources[i])
+                : snprintf(source, sizeof(source), "%s/%s", meta->module_dir, sources[i]);
+            if (n < 0 || (size_t)n >= sizeof(source) ||
+                !module_build_append(command, sizeof(command), "%s%s -E -H -MD -MF /dev/null -MT nano_module_dependencies -o -",
+                    prefix, group ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "") ||
+                !module_append_path_flag(command, sizeof(command), "", source) ||
+                !module_build_append(command, sizeof(command), " 2>&1")) return 0;
+            FILE *pipe = popen(command, "r");
+            if (!pipe) return 0;
+            unsigned char buffer[4096];
+            size_t amount;
+            uint64_t hash = 14695981039346656037ULL;
+            bool nonempty = false;
+            while ((amount = fread(buffer, 1, sizeof(buffer), pipe)) > 0) {
+                nonempty = true;
+                for (size_t j = 0; j < amount; j++) { hash ^= buffer[j]; hash *= 1099511628211ULL; }
+            }
+            bool ok = !ferror(pipe) && feof(pipe);
+            if (pclose(pipe) != 0 || !ok || !nonempty) return 0;
+            char digest[24];
+            snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
+            hash_context_field(&fingerprint, source);
+            hash_context_field(&fingerprint, digest);
+        }
+    }
+    return fingerprint;
+}
+
 static bool module_source_command(char *command, size_t capacity, const char *prefix,
                                   const char *directory, const char *source,
                                   const char *object, const char *dependency, bool hidden) {
@@ -2183,7 +2276,8 @@ static int module_run_source_command(const char *command, const char *dependency
 }
 
 static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
-                                           ModuleBuildMetadata *meta, const char *staging) {
+                                           ModuleBuildMetadata *meta, const char *staging,
+                                           uint64_t *preprocessing_before) {
     if (!meta) return NULL;
 
     if (meta->c_sources_count == 0) {
@@ -2312,6 +2406,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
     }
 
     if (needs_rebuild) {
+        if (preprocessing_before) *preprocessing_before = module_preprocess_fingerprint(meta);
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }
@@ -2320,51 +2415,9 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         const char *cc = module_selected_compiler(meta);
 
         // Build a reusable compile prefix (flags only)
-        bool command_ok = true;
+        bool command_ok;
         char compile_prefix[4096] = {0};
-        command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), "%s -c -fPIC", cc);
-
-        // On Linux/FreeBSD enable POSIX 2008 extensions (strdup, strndup, etc.)
-        // macOS provides these unconditionally; Linux/BSD require the feature-test macro.
-#if !defined(__APPLE__)
-        command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " -D_POSIX_C_SOURCE=200809L");
-#endif
-
-        // Add pkg-config cflags
-        for (size_t i = 0; i < meta->pkg_config_count; i++) {
-#ifdef __APPLE__
-            if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
-#endif
-            char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
-            if (pkg_cflags) {
-                command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", pkg_cflags);
-                free(pkg_cflags);
-            }
-        }
-
-        // Add include dirs
-        for (size_t i = 0; i < meta->include_dirs_count; i++) {
-            command_ok &= module_append_include(compile_prefix, sizeof(compile_prefix), meta->include_dirs[i]);
-        }
-
-        // Add custom cflags (all platforms)
-        for (size_t i = 0; i < meta->cflags_count; i++) {
-            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags[i]);
-        }
-        // Add platform-specific cflags
-#ifdef __APPLE__
-        for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags_macos[i]);
-        }
-#elif defined(__FreeBSD__)
-        for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags_freebsd[i]);
-        }
-#else
-        for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-            command_ok &= module_build_append(compile_prefix, sizeof(compile_prefix), " %s", meta->cflags_linux[i]);
-        }
-#endif
+        command_ok = module_compile_prefix(meta, compile_prefix, sizeof(compile_prefix), false);
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
@@ -2766,7 +2819,7 @@ static void module_remove_staging(const char *stage) {
 }
 
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
-    if (!meta || meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL);
+    if (!meta || meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL, NULL);
     /* Names become artifact basenames, never paths or shell fragments. */
     if (!meta->name || !meta->name[0] || strlen(meta->name) > 255 ||
         strspn(meta->name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-") != strlen(meta->name)) {
@@ -2795,7 +2848,8 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     ModuleBuildInfo *info = NULL;
     if (locked == 0 && mkdtemp(stage)) {
         uint64_t context_before = module_build_context(meta);
-        info = module_build_staged(builder, meta, stage);
+        uint64_t preprocessing_before = 0;
+        info = module_build_staged(builder, meta, stage, context_before ? &preprocessing_before : NULL);
         if (info && info->needs_rebuild) {
             char generation[2048], pointer[2048], temporary[2048], target[2048];
             int g = snprintf(generation, sizeof(generation), "%s/.nano-gen-%s", cache, stage + strlen(stage) - 6);
@@ -2813,8 +2867,10 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
             bool ok = paths_ok && object && link_object &&
                 object_index < info->link_flags_count &&
                 module_validate_artifacts(stage, meta);
-            if (ok && context_before && context_before == module_build_context(meta))
-                module_update_hash_cache(meta->module_dir, meta, stage);
+            if (ok && context_before && preprocessing_before &&
+                preprocessing_before == module_preprocess_fingerprint(meta) &&
+                context_before == module_build_context(meta))
+                module_update_hash_cache(meta->module_dir, meta, stage, preprocessing_before);
             /* I never mutate a published generation. The old pointer remains
              * valid until the complete replacement is visible in one rename. */
             bool renamed = false, linked = false;
