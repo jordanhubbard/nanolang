@@ -26,5 +26,5 @@ Each case uses a private temporary directory that I remove after its run.
 This is a small tested contract, not a full specification or a proof. It does
 not yet cover rejected programs, ownership, FFI, effects, all match-expression
 semantics, or self-hosted NanoISA lowering. My bytecode frontend is C-based.
-My current AOT record-return and variant failures remain required failing rows,
+My current AOT record-return failure remains a required failing row,
 tracked in `docs/ROADMAP.md`; I do not call this matrix release-ready.

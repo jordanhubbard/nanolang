@@ -601,6 +601,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push_slot(b, idx, stk, &sp, packed)) return 0;
             break;
         }
+        case OP_AGG_TAG: {
+            Nvm2cSimSlot aggregate;
+            if (!sim_pop(b, idx, stk, &sp, &aggregate)) return 0;
+            mark_origin(local_kind, nloc, aggregate.origin, NVM2C_VK_REC);
+            if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
+            break;
+        }
         case OP_AGG_GET: {
             Nvm2cSimSlot rec;
             uint16_t fi = ins.operands[0].u16;
@@ -1173,7 +1180,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_fail(b, "function %u: invalid instruction at offset %zu", idx, pc);
             goto done;
         }
-        if (terminated && !is_target[start]) {
+        if (terminated && !join_set[start]) {
             pc += n;
             continue;
         }
@@ -1690,8 +1697,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int elems[NVM2C_MAX_REC_FIELDS];
             uint8_t fkind[NVM2C_MAX_REC_FIELDS];
             int ei;
-            if (kind != AGG_RECORD) {
-                nvm2c_fail(b, "function %u: AGG_PACK only supports int or string fields", idx);
+            if (kind != AGG_RECORD && kind != AGG_VARIANT) {
+                nvm2c_fail(b, "I support record and variant packing, not aggregate kind %u", kind);
                 goto done;
             }
             if (count > NVM2C_MAX_REC_FIELDS) {
@@ -1719,8 +1726,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             {
                 int r = st.next_rec++;
                 nvm2c_printf(b, "    r[%d].n = %u;\n", r, (unsigned)count);
+                nvm2c_printf(b, "    r[%d].kind = %u; r[%d].tag = %u;\n",
+                             r, (unsigned)kind, r, (unsigned)ins.operands[2].u16);
                 for (ei = 0; ei < (int)count; ei++) {
                     st.rec_k[r][ei] = fkind[ei];
+                    nvm2c_printf(b, "    r[%d].k[%d] = %u;\n", r, ei, (unsigned)fkind[ei]);
                     if (fkind[ei] == NVM2C_VK_STR) {
                         nvm2c_printf(b, "    r[%d].s[%d] = s[%d];\n", r, ei, elems[ei]);
                     } else {
@@ -1733,6 +1743,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_AGG_TAG: {
+            int aggregate = stack_pop_expect(b, &st, NVM2C_VK_REC, "AGG_TAG");
+            if (b->failed) goto done;
+            nvm2c_printf(b, "    if (r[%d].kind != %u) abort();\n", aggregate, AGG_VARIANT);
+            char expression[64];
+            snprintf(expression, sizeof expression, "r[%d].tag", aggregate);
+            stack_push_temp(b, &st, expression);
+            break;
+        }
         case OP_AGG_GET: {
             uint16_t fi = ins.operands[0].u16;
             int rec = stack_pop_expect(b, &st, NVM2C_VK_REC, "AGG_GET");
@@ -1742,6 +1761,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             nvm2c_printf(b, "    if (%u >= r[%d].n) abort();\n", (unsigned)fi, rec);
+            nvm2c_printf(b, "    if (r[%d].k[%u] != %u) abort();\n", rec, (unsigned)fi,
+                         (unsigned)st.rec_k[rec][fi]);
             {
                 char expr[64];
                 if (st.rec_k[rec][fi] == NVM2C_VK_STR) {
@@ -1884,7 +1905,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (b->failed) goto done;
     }
 
-    if (is_target[remaining]) {
+    if (is_target[remaining] && join_set[remaining]) {
         nvm2c_printf(b, "L_%zu: ;\n", remaining);
     }
     if (!terminated) {
@@ -2214,7 +2235,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_iarr_push = need_arr_push && need_iarr;
         int need_sarr_push = need_arr_push && need_sarr;
         int need_sarr_new = need_sarr && module_has_opcode(mod, OP_ARR_NEW);
-        int need_agg_get = module_has_opcode(mod, OP_AGG_GET);
+        int need_agg_get = module_has_opcode(mod, OP_AGG_GET) || module_has_opcode(mod, OP_AGG_TAG);
         int need_print = module_has_opcode(mod, OP_PRINT) ||
             module_has_opcode(mod, OP_PRINTLN);
         int need_assert = module_has_opcode(mod, OP_ASSERT);
@@ -2249,8 +2270,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef struct { const char **data; size_t len; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n");
         nvm2c_printf(&b,
-            "typedef struct { int64_t f[%d]; const char *s[%d]; uint16_t n; } nrec_t;\n",
-            NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
+            "typedef struct { int64_t f[%d]; const char *s[%d]; uint8_t k[%d]; uint16_t n, tag; uint8_t kind; } nrec_t;\n",
+            NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
         nvm2c_puts(&b,
             "enum { NVM2C_RECORD_ARRAY_CAP = 256 };\n"
             "typedef struct { nrec_t data[NVM2C_RECORD_ARRAY_CAP]; size_t len; } nrarr_s;\n"

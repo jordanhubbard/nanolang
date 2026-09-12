@@ -186,12 +186,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 - [ ] **5.0 contract defect — AOT source corpus aggregates.** I make the
       record-return and two variant corpus programs compile and execute via
       `nvm2c`. My VM executes all three, but current AOT analysis rejects
-      `04_records` with `AGG_PACK fields must be int or string`. After the
-      control-flow repair, `05_match` and `06_single_field_variant` reach
-      the actual unsupported `AGG_TAG` emission boundary instead of a false
-      `DUP on empty stack`. The required matrix remains 25 pass, 3 fail.
-      I retain these as required failing matrix rows until repaired.
+      `04_records` with `AGG_PACK fields must be int or string`. The variant
+      representation and tag lowering now execute `05_match` and
+      `06_single_field_variant` with exact expected stdout. The matrix is
+      27 pass, 1 fail; record arguments/results and complete interprocedural
+      field classification remain open. I retain the required failing row.
       MAC `task_9a7214c876e24c3491f8d1d49c1384a1`.
+- [x] **5.0 AOT aggregate boundaries — unreachable labels and field kinds.**
+      I omit labels reached only by jumps in dead code after returning match
+      arms. I retain runtime field kinds so incomplete static classification
+      traps instead of reading the wrong parallel field storage. I test
+      variant tags, payloads, empty variants, and non-variant tag rejection;
+      complete interprocedural field classification remains required above.
+      My structured-C suite passes 356 checks, including full-width variant
+      tags, integer/string payloads, dead labels at function end and two
+      runtime guard failures. Generated programs compile with C11
+      warnings-as-errors and execute; source variant cases pass the matrix
+      (2026-09-11).
 - [x] **5.0 contract evidence — cross-backend runner failures.** I reject
       execution failures even when stdout matches, reject unknown or empty
       backend selections, and use private scratch paths. I retain explicit

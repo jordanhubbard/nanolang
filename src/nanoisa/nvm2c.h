@@ -14,16 +14,22 @@
  * POP mutates the local the way the VM does (void list_int_push /
  * list_string_push). The C seed emits ARR_NEW tag 1 for every list_T_new;
  * string lists are classified from the pushed value.
- * AGG_PACK, AGG_GET of int and string fields, bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
+ * AGG_PACK of records/variants, AGG_TAG, AGG_GET of int and string fields,
+ * bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
  * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT. Anything else is refused with an error.
  * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
- * host C ABI. Embedded NULs, nested arrays, nested records, variants, tuples,
+ * host C ABI. Embedded NULs, nested arrays, nested records, tuples,
  * printing arrays/records, array equality, STR_TRIM, and the rest of the
  * string and array libraries stay refused.
  * I track operand-stack joins and emit simultaneous transfers on taken
  * edges. Local classification remains function-wide; this is not general
  * flow-sensitive or interprocedural aggregate type inference.
+ * I preserve variant tags and runtime field kinds. AGG_TAG on a record,
+ * out-of-range fields and mismatched field storage abort the emitted process.
+ * Aggregate function results remain unsupported. A string field passed
+ * through a function can still lack static type information and trap;
+ * runtime guards prevent a silent read from integer storage, not this gap.
  */
 
 #ifndef NANOISA_NVM2C_H

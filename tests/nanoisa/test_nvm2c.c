@@ -2262,6 +2262,57 @@ static void test_loop_carried_stack(void) {
     }
 }
 
+static void test_variant_tags_and_payloads(void) {
+    const char *bodies[] = {
+        "AGG_PACK 1 0 0 0\nAGG_TAG\nRET\n",
+        "AGG_PACK 1 0 65535 0\nAGG_TAG\nPUSH_I64 65535\nI64_EQ\nRET\n",
+        "PUSH_I64 42\nAGG_PACK 1 0 7 1\nDUP\nAGG_TAG\nPUSH_I64 7\nI64_EQ\nASSERT\nAGG_GET 0\nRET\n",
+        "PUSH_STR payload\nAGG_PACK 1 0 9 1\nDUP\nAGG_TAG\nPUSH_I64 9\nI64_EQ\nASSERT\nAGG_GET 0\nSTR_LEN\nRET\n",
+        "PUSH_I64 42\nRET\nJMP dead\ndead:\nPOP\nJMP end\nend:\n"
+    };
+    const int expected[] = {0, 1, 42, 5, 42};
+    for (int i = 0; i < 5; i++) {
+        char source[1024];
+        snprintf(source, sizeof source,
+                 ".string payload \"hello\"\n.entry 0\n.function main 0 0 0 int 1\n%s.end\n", bodies[i]);
+        NvmModule *m = assemble_ok(source, "variant values and dead labels");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "variant values and dead labels");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "I compile variant payloads and dead-label paths");
+            CHECK(status == expected[i], "I preserve the variant tag, payload and reachable return");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
+static void test_aggregate_runtime_kind_checks(void) {
+    const char *sources[] = {
+        ".entry 0\n.function main 0 0 0 int 1\nAGG_PACK 1 0 0 0\nAGG_TAG\nRET\n.end\n",
+        ".string payload \"hello\"\n.entry 1\n"
+        ".function read 1 1 0 int 1\nLOAD_LOCAL 0\nAGG_GET 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_STR payload\nAGG_PACK 1 0 0 1\nCALL read\nRET\n.end\n"
+    };
+    for (int i = 0; i < 2; i++) {
+        NvmModule *m = assemble_ok(sources[i], "aggregate runtime kind checks");
+        if (!m) continue;
+        if (i == 0) {
+            /* I exercise the direct API with a non-variant AGG_TAG input. */
+            m->code[1] = AGG_RECORD;
+        }
+        char *c = emit_or_fail(m, "aggregate runtime kind checks");
+        if (c) {
+            int status = 0;
+            CHECK(compile_and_run(c, &status) == 0, "I compile aggregate runtime guards");
+            CHECK(status == -1, "I abort on non-variant tags or mismatched field storage");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 int main(int argc, char **argv) {
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_add_is_structured_c_and_runs();
@@ -2327,6 +2378,8 @@ int main(int argc, char **argv) {
     test_classifier_unreachable_and_invalid_joins();
     test_classifier_local_bounds();
     test_loop_carried_stack();
+    test_variant_tags_and_payloads();
+    test_aggregate_runtime_kind_checks();
     if (argc >= 2 && argv[1] && argv[1][0]) {
         test_cli_translates_add_and_does_not_name_nano_vm(argv[1]);
         test_cli_refuses_call_extern(argv[1]);
