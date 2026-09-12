@@ -263,6 +263,40 @@ int64_t nano_build_answer(void) {
                                                       "--run", env=env, cwd=directory)
                 self.assertEqual(result.returncode, 44, (result.stdout, result.stderr))
 
+    def test_transitive_system_header_invalidates_cache(self):
+        with tempfile.TemporaryDirectory(prefix="nano-system-deps-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            includes = directory / "system-include"
+            includes.mkdir()
+            (includes / "public.h").write_text('#include "private.h"\n')
+            header = includes / "private.h"
+            header.write_text("#define ANSWER 42\n")
+            (module / "answer.c").write_text(
+                '#include <stdint.h>\n#include <public.h>\n'
+                'int64_t nano_build_answer(void) { return ANSWER; }\n')
+            manifest = module / "module.json"
+            metadata = json.loads(manifest.read_text())
+            metadata["cflags"] = ["-isystem", str(includes)]
+            manifest.write_text(json.dumps(metadata))
+            result, output = self.support.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+            generation = self.probe_path("directory", module, env)
+            result, output = self.support.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+            self.assertEqual(self.probe_path("directory", module, env), generation)
+            old_stat = header.stat()
+            header.write_text("#define ANSWER 43\n")
+            os.utime(header, ns=(old_stat.st_atime_ns, old_stat.st_mtime_ns))
+            result, output = self.support.compile(source.replace(" 42)", " 43)"), directory,
+                                                  "--run", env=env)
+            self.assertEqual(result.returncode, 43, result.stderr)
+            self.assertNotEqual(self.probe_path("directory", module, env), generation)
+            self.assertEqual(self.support.execute(output, env=env).returncode, 43)
+            record = json.loads((generation / "source_hashes.json").read_text())
+            self.assertIn("dep:" + str(header), record)
+            self.assertIn("dep:" + str(includes / "public.h"), record)
+
     def test_dependency_records_reject_incomplete_evidence(self):
         with tempfile.TemporaryDirectory(prefix="nano-dep-record-") as tmp:
             directory = Path(tmp)

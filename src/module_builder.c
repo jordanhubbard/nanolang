@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v4-literal-paths-complete-deps");
+    hash_context_field(&hash, "nanolang-c-build-context-v5-system-header-deps");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2062,7 +2062,9 @@ static bool module_source_command(char *command, size_t capacity, const char *pr
                             : snprintf(source_path, sizeof(source_path), "%s/%s", directory, source);
     command[0] = '\0';
     if (n < 0 || (size_t)n >= sizeof(source_path)) return false;
-    return module_build_append(command, capacity, "%s -MMD -MT nano_module_dependencies%s", prefix,
+    /* I need system headers too: an unchanged SDK label does not establish
+     * unchanged transitive header contents. */
+    return module_build_append(command, capacity, "%s -MD -MT nano_module_dependencies%s", prefix,
                                hidden ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "") &&
            module_append_path_flag(command, capacity, "-MF ", dependency) &&
            module_append_path_flag(command, capacity, "", source_path) &&

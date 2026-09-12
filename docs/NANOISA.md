@@ -387,8 +387,12 @@ power-loss durability, or protection from a malicious configured compiler.
 My foreign-module builder also quotes source, object, dependency, library and
 declared include paths. It refuses oversized commands before invoking the
 compiler. Compiler commands and explicit flag fragments remain trusted
-configuration. Cache reuse requires all expected dependency records to decode
-and hash successfully. Known backslash or newline paths still compile, but I
+configuration. I request user and system header dependencies with
+[`-MD`](https://clang.llvm.org/docs/ClangCommandLineReference.html#dependency-file-generation),
+including transitive headers reached through `-isystem`. Cache reuse requires
+all expected dependency records to decode and hash successfully. This checks
+reported header contents, not the identity of the whole SDK or toolchain.
+Known backslash or newline paths still compile, but I
 withhold reuse records because compiler Make-format output can lose their
 identity. Lossless transitive dependency capture remains roadmap work.
 

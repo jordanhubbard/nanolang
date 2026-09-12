@@ -440,6 +440,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       tests, 63 codegen tests, 19 FFI tests and package/dependency gates on Darwin
       (2026-09-12). These checks validate records, not compiler truthfulness.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 foreign system-header dependency coverage.** I record compiler
+      dependencies for system headers as well as user headers. I test a
+      transitive `-isystem` header edit without changing the manifest or source,
+      and require new bytecode to observe its new value. `-MMD` omits these
+      inputs; manually listed top-level headers do not cover their contents.
+      I now request `-MD` for ordinary and shared-only compilations and bump
+      the cache context version to invalidate older incomplete evidence.
+      The regression fails before the repair and passes afterward, including
+      unchanged-generation warm reuse and standalone VM execution. All 28
+      shadows, 27 cache tests, five wrapper link tests, seven wrapper boundary
+      tests, 63 codegen tests, 19 FFI tests and package/dependency gates pass
+      on Darwin (2026-09-12). Lossless path reporting and full SDK/toolchain
+      identity remain open; this does not establish either.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 lossless transitive compiler dependency evidence.** My current
       cache excludes known lossy manifest paths and rejects incomplete decoded
       records. A compiler can still rewrite a transitive header name into a
