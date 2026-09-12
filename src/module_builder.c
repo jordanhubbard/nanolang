@@ -1,6 +1,10 @@
 // Module Build System Implementation
 // Handles automatic compilation of C sources, caching, and dependency tracking
 
+#if defined(__APPLE__) && !defined(_DARWIN_C_SOURCE)
+#define _DARWIN_C_SOURCE
+#endif
+
 #include "module_builder.h"
 #include "runtime/module_build_dir.h"
 #include "utf8.h"
@@ -14,6 +18,8 @@
 #include <errno.h>
 #include <time.h>
 #include <dirent.h>
+#include <fcntl.h>
+#include <sys/file.h>
 
 // JSON parsing (simple, minimal implementation for module.json)
 #include "cJSON.h"
@@ -649,8 +655,22 @@ static void save_hash_cache(const char *module_dir, cJSON *root) {
     if (!path) return;
     char *text = cJSON_PrintUnformatted(root);
     if (!text) { free(path); return; }
-    FILE *fp = fopen(path, "w");
-    if (fp) { fputs(text, fp); fclose(fp); }
+    char *temporary = malloc(strlen(path) + 16);
+    if (temporary) {
+        sprintf(temporary, "%s.XXXXXX", path);
+        int fd = mkstemp(temporary);
+        if (fd >= 0) {
+            FILE *fp = fdopen(fd, "w");
+            bool ok = false;
+            if (fp) {
+                ok = fputs(text, fp) >= 0;
+                if (fclose(fp) != 0) ok = false;
+            } else close(fd);
+            if (ok) (void)rename(temporary, path);
+            (void)unlink(temporary);
+        }
+        free(temporary);
+    }
     free(text);
     free(path);
 }
@@ -1904,7 +1924,8 @@ static bool ensure_module_system_deps(ModuleBuildMetadata *meta) {
     return false;
 }
 
-ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), ModuleBuildMetadata *meta) {
+static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
+                                           ModuleBuildMetadata *meta, const char *staging) {
     if (!meta) return NULL;
 
     if (meta->c_sources_count == 0) {
@@ -2023,7 +2044,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     // Check if rebuild needed
     bool needs_rebuild = module_needs_rebuild(meta->module_dir, meta);
 
-    char *build_dir = module_get_build_dir(meta->module_dir);
+    char *build_dir = needs_rebuild && staging ? strdup(staging) : module_get_build_dir(meta->module_dir);
     if (!build_dir) return false;
     char object_file[1024];
     snprintf(object_file, sizeof(object_file), "%s/%s.o",
@@ -2342,23 +2363,9 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 printf("[Module] ✓ Built shared library %s\n", shared_lib);
             }
         }
-        /* Update hash cache so next build can skip mtime check */
-        module_update_hash_cache(meta->module_dir, meta);
     } else {
         if (module_builder_verbose) {
             printf("[Module] %s up to date (using cache)\n", meta->name);
-        }
-        /* Repopulate hash cache if it's missing (e.g. after git clean or manual deletion).
-           This ensures system header hashes get recorded for future invalidation checks. */
-        {
-            char *cache_path = hash_cache_path(meta->module_dir);
-            if (cache_path) {
-                bool cache_exists = (access(cache_path, F_OK) == 0);
-                free(cache_path);
-                if (!cache_exists) {
-                    module_update_hash_cache(meta->module_dir, meta);
-                }
-            }
         }
     }
 
@@ -2459,6 +2466,129 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
     info->compile_flags = compile_flags;
     info->compile_flags_count = total_compile_flags;
 
+    return info;
+}
+
+/* I touch only expected, complete files inside this invocation's private
+ * directory. Validation precedes publication of any file. */
+static bool module_publish_file(const char *stage, const char *cache,
+                                const char *name, bool publish) {
+    char source[2048], target[2048];
+    int s = snprintf(source, sizeof(source), "%s/%s", stage, name);
+    int t = snprintf(target, sizeof(target), "%s/%s", cache, name);
+    if (s < 0 || (size_t)s >= sizeof(source) || t < 0 || (size_t)t >= sizeof(target)) return false;
+    if (publish) return rename(source, target) == 0;
+    struct stat st;
+    return lstat(source, &st) == 0 && S_ISREG(st.st_mode) && st.st_size > 0;
+}
+
+static bool module_publish_artifacts(const char *stage, const char *cache,
+                                     ModuleBuildMetadata *meta, bool publish) {
+    char name[512];
+    snprintf(name, sizeof(name), "%s.o", meta->name);
+    if (!module_publish_file(stage, cache, name, publish)) return false;
+#ifdef __APPLE__
+    snprintf(name, sizeof(name), "lib%s.dylib", meta->name);
+#else
+    snprintf(name, sizeof(name), "lib%s.so", meta->name);
+#endif
+    if (!module_publish_file(stage, cache, name, publish)) return false;
+    for (size_t i = 0; i < meta->c_sources_count; i++) {
+        if (meta->c_sources_count == 1) snprintf(name, sizeof(name), "%s.d", meta->name);
+        else snprintf(name, sizeof(name), "%s_%zu.d", meta->name, i);
+        if (!module_publish_file(stage, cache, name, publish)) return false;
+        if (meta->c_sources_count > 1) {
+            snprintf(name, sizeof(name), "%s_%zu.o", meta->name, i);
+            if (!module_publish_file(stage, cache, name, publish)) return false;
+        }
+    }
+    for (size_t i = 0; i < meta->shared_c_sources_count; i++) {
+        snprintf(name, sizeof(name), "__shared_%zu.o", i);
+        if (!module_publish_file(stage, cache, name, publish)) return false;
+        snprintf(name, sizeof(name), "__shared_%zu.d", i);
+        if (!module_publish_file(stage, cache, name, publish)) return false;
+    }
+    return true;
+}
+
+static void module_remove_staging(const char *stage) {
+    DIR *dir = opendir(stage);
+    if (!dir) return;
+    struct dirent *entry;
+    while ((entry = readdir(dir))) {
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..")) continue;
+        char path[2048];
+        int n = snprintf(path, sizeof(path), "%s/%s", stage, entry->d_name);
+        if (n >= 0 && (size_t)n < sizeof(path)) (void)unlink(path);
+    }
+    closedir(dir);
+    if (rmdir(stage) != 0) fprintf(stderr, "I retained private build files in %s\n", stage);
+}
+
+ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
+    if (!meta || meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL);
+    /* Names become artifact basenames, never paths or shell fragments. */
+    if (!meta->name || !meta->name[0] || strlen(meta->name) > 255 ||
+        strspn(meta->name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-") != strlen(meta->name)) {
+        fprintf(stderr, "I require a simple artifact name for a C module\n");
+        return NULL;
+    }
+    if (!module_ensure_build_dir(meta->module_dir)) return NULL;
+    char *cache = module_get_build_dir(meta->module_dir);
+    if (!cache) return NULL;
+    char lock_path[2048], stage[2048];
+    int l = snprintf(lock_path, sizeof(lock_path), "%s/.build.lock", cache);
+    int s = snprintf(stage, sizeof(stage), "%s/.nano-build-XXXXXX", cache);
+    if (l < 0 || (size_t)l >= sizeof(lock_path) || s < 0 || (size_t)s >= sizeof(stage)) {
+        free(cache);
+        return NULL;
+    }
+    int fd = open(lock_path, O_RDWR | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0600);
+    if (fd < 0) { free(cache); return NULL; }
+    int locked = flock(fd, LOCK_EX | LOCK_NB);
+    if (locked < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
+        if (getenv("NANO_VERBOSE_BUILD")) fprintf(stderr, "I wait for the C-library cache lock: %s\n", cache);
+        do { locked = flock(fd, LOCK_EX); } while (locked < 0 && errno == EINTR);
+    }
+    ModuleBuildInfo *info = NULL;
+    if (locked == 0 && mkdtemp(stage)) {
+        info = module_build_staged(builder, meta, stage);
+        if (info && info->needs_rebuild) {
+            char target[2048];
+            int n = snprintf(target, sizeof(target), "%s/%s.o", cache, meta->name);
+            char *object = n >= 0 && (size_t)n < sizeof(target) ? strdup(target) : NULL;
+            char *link_object = object ? strdup(object) : NULL;
+            char *hash_path = hash_cache_path(meta->module_dir);
+            size_t object_index = 0;
+            while (object_index < info->link_flags_count &&
+                   (!info->object_file || !info->link_flags[object_index] ||
+                    strcmp(info->link_flags[object_index], info->object_file) != 0)) object_index++;
+            bool ok = object && link_object && hash_path &&
+                object_index < info->link_flags_count &&
+                module_publish_artifacts(stage, cache, meta, false);
+            /* I invalidate evidence before the first rename. If publication
+             * is interrupted, another builder cannot accept the partial set. */
+            if (ok && unlink(hash_path) != 0 && errno != ENOENT) ok = false;
+            if (ok) ok = module_publish_artifacts(stage, cache, meta, true);
+            if (ok) {
+                free(info->object_file);
+                info->object_file = object;
+                free(info->link_flags[object_index]);
+                info->link_flags[object_index] = link_object;
+                module_update_hash_cache(meta->module_dir, meta);
+            } else {
+                fprintf(stderr, "I could not publish complete C-library artifacts for %s\n", meta->name);
+                free(object);
+                free(link_object);
+                module_build_info_free(info);
+                info = NULL;
+            }
+            free(hash_path);
+        }
+        module_remove_staging(stage);
+    }
+    close(fd); /* I retain the lock inode; removing it would split waiters. */
+    free(cache);
     return info;
 }
 

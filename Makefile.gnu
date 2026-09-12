@@ -2030,6 +2030,7 @@ test-language-claims:
 .PHONY: test-bytecode-shadows
 test-bytecode-shadows: nano_virt nano_vm
 	@python3 tests/test_bytecode_shadows.py
+	@python3 -m unittest tests.test_module_cache_publication
 
 .PHONY: test-native-shadow-emitter
 test-native-shadow-emitter:

@@ -352,15 +352,33 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       package-installation policy and C-seed dependency/recovery gates pass
       (2026-09-12). Cache transaction and toolchain identity work stays open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 C-library cache transactions.** My C module builder writes
-      object and shared-library outputs directly into a shared cache. Content
-      invalidation is addressed above; I still need private staging, atomic
-      publication and concurrent/interrupted-build recovery tests before I
-      claim robust concurrent or interrupted C-library builds.
+- [ ] **5.0 C-library cache transactions.** Content invalidation and private
+      writes are addressed in adjacent items. I still need atomic artifact-set
+      publication, immutable bindings for later readers, source snapshots and
+      power-loss durability before I claim complete cache transactions.
       Cache identity also omits the selected compiler/toolchain and ambient
       build settings; those need explicit inputs and invalidation tests. My
       current warm-cache tests use a changed compiler command as a no-build
       sentinel, so those tests must change when compiler identity is tracked.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 C-library cache — private writes and publication lock.** I
+      compile into a private directory, validate the expected artifacts, and
+      serialize cache validation/build/publication across compiler processes.
+      I publish complete files by rename and invalidate hash evidence before
+      publication so a partial publication forces rebuilding. I test partial
+      object/library failures, an interrupted compiler, overlapping builders,
+      cleanup and recovery. Per-file rename is not an atomic multi-file
+      transaction or an immutable artifact binding for later consumers.
+      Five publication tests cover these boundaries, symlink rejection,
+      multi-source artifacts and failed-publication hash invalidation. They
+      pass with 28 shadow tests, 63 codegen tests, 18 FFI tests, installation
+      policy and C-seed dependency/recovery gates (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 foreign-cache test environment parity.** I pass the fixture's
+      cache environment to standalone execution as well as compilation.
+      Make's exported cache path previously caused six existing scenarios
+      to read a different cache. The full Make gate now passes with its
+      exported environment; the new publication tests follow the same rule.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 VM opaque signature representation.** With its foreign library
       built, `advanced/datetime_demo.nano` reaches execution but fails in `now`:

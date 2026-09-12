@@ -225,10 +225,18 @@ change. I include regular and shared-only C sources, the manifest, and headers
 recorded in compiler dependency files. Shared-only sources use the same selected
 compiler as the ordinary module sources and produce dependency files too.
 
+I hold a per-cache process lock through validation, compilation and publication.
+I compile into a private directory, require nonempty regular artifacts, and
+publish complete files by rename. Failed compilation leaves cached files intact.
+I invalidate hash evidence before publication, so interrupted or failed
+publication forces rebuilding. A killed build may leave a private directory;
+later builds ignore it. I do not remove other invocations' directories.
+
 These hashes are a non-cryptographic cache optimization, not artifact
-authentication. Concurrent publication, interrupted cache transactions and
-compiler/toolchain identity remain open work; a matching source hash alone
-does not establish a reproducible build.
+authentication. Publication is atomic per file, not across the artifact set;
+later readers do not yet hold immutable artifact bindings. Power-loss durability,
+source snapshots and compiler/toolchain identity remain open work. A matching
+source hash alone does not establish a reproducible build.
 
 ### System Dependencies During Compilation
 

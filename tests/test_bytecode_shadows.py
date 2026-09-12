@@ -29,9 +29,9 @@ class BytecodeShadows(unittest.TestCase):
         result = subprocess.CompletedProcess(args, process.returncode, stdout, stderr)
         return result, output
 
-    def execute(self, output):
+    def execute(self, output, env=None):
         return subprocess.run([str(ROOT / "bin/nano_vm"), str(output)], cwd=ROOT,
-                              capture_output=True, timeout=10)
+                              capture_output=True, timeout=10, env=env)
 
     def test_failed_shadow_preserves_output(self):
         with tempfile.TemporaryDirectory(prefix="nano-shadows-") as tmp:
@@ -286,7 +286,8 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(changed.stat().st_mtime_ns, stamp.st_mtime_ns)
                 result, output = self.compile(source.replace("42", "43"), directory, "--run", env=env)
                 self.assertEqual(result.returncode, 43, result.stderr)
-                self.assertEqual(self.execute(output).returncode, 43)
+                execution = self.execute(output, env=env)
+                self.assertEqual(execution.returncode, 43, execution.stderr)
 
     def test_foreign_cache_requires_readable_hash_record(self):
         for damage in ("missing", "corrupt", "directory"):
@@ -340,7 +341,8 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             env.pop("NANO_CC")
             result, output = self.compile(source.replace("42", "43"), directory, "--run", env=env)
             self.assertEqual(result.returncode, 43, result.stderr)
-            self.assertEqual(self.execute(output).returncode, 43)
+            execution = self.execute(output, env=env)
+            self.assertEqual(execution.returncode, 43, execution.stderr)
 
     def test_local_opaque_roundtrip(self):
         source = '''opaque type LocalHandle
