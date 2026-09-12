@@ -24,6 +24,18 @@ static int generation_test_rename(const char *source, const char *target) {
 #undef rename
 
 int main(int argc, char **argv) {
+#ifdef __APPLE__
+    if (argc == 5 && strcmp(argv[1], "link-inputs") == 0) {
+        cJSON *inputs = module_link_inputs(argv[2], argv[3], argv[4]);
+        if (!inputs) return 1;
+        char *json = cJSON_PrintUnformatted(inputs);
+        if (json) puts(json);
+        int status = json ? 0 : 1;
+        free(json);
+        cJSON_Delete(inputs);
+        return status;
+    }
+#endif
     if (argc != 3 && argc != 4) return 2;
     if (strcmp(argv[1], "pkgflags") == 0) {
         char *flags = get_pkg_config_flags(argv[2], argc == 4 ? argv[3] : "--cflags");

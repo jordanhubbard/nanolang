@@ -429,7 +429,18 @@ Before recording a cold build as reusable, I query a fresh set: changed or
 failed responses withhold reuse evidence without changing the flags used to
 build the published artifacts. Capturing sequential responses is not an atomic
 snapshot of the package database, and I do not yet identify selected library
-bytes or all toolchain inputs.
+bytes or all toolchain inputs across supported platforms.
+
+On Darwin, my shared link now supplies tagged dependency records. I hash its
+regular external inputs, record missing search candidates, and check both
+before warm reuse. The same-size/time archive edit and newly earlier library
+regressions now produce new generations. If capture is unsupported, I discard
+its record and retry ordinary linking without reuse evidence. Invalid or
+incomplete records likewise withhold reuse. Link commands containing `@` remain
+uncacheable pending indirect response-file capture. These checks do not pin
+runtime dynamic-library bytes or snapshot files during linking; other linker
+formats and full toolchain identity remain open. My
+[linker evidence](LINKER_INPUT_EVIDENCE.md) records the tested boundary.
 
 ### Cross-section validation
 

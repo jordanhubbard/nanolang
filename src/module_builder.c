@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v9-pkg-snapshot");
+    hash_context_field(&hash, "nanolang-c-build-context-v10-darwin-link-inputs");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -842,6 +842,88 @@ typedef struct {
     size_t count;
 } ModulePkgFlags;
 
+#ifdef __APPLE__
+/* I read tagged NUL-terminated paths, not human-readable archive(member)
+ * lines. This records selected bytes and negative searches, not a snapshot
+ * of bytes during linking or a complete inventory of indirect flag inputs. */
+static cJSON *module_link_inputs(const char *record_path, const char *stage,
+                                 const char *output) {
+    FILE *file = fopen(record_path, "rb");
+    if (!file) return NULL;
+    cJSON *inputs = cJSON_CreateObject();
+    bool ok = inputs != NULL, version = false, emitted = false, internal = false;
+    size_t records = 0, bytes = 0;
+    int tag;
+    while (ok && (tag = fgetc(file)) != EOF) {
+        if (++records > 65536 || emitted) { ok = false; break; }
+        char path[8192];
+        size_t length = 0;
+        int ch;
+        while ((ch = fgetc(file)) != EOF && ch != 0) {
+            if (length + 1 >= sizeof(path) || ++bytes > 16 * 1024 * 1024) { ok = false; break; }
+            path[length++] = (char)ch;
+        }
+        if (!ok || ch != 0 || !length) { ok = false; break; }
+        path[length] = 0;
+        if (tag == 0) {
+            const char *prefix = "@(#)PROGRAM:ld PROJECT:ld-";
+            if (records != 1 || strncmp(path, prefix, strlen(prefix))) ok = false;
+            else version = true;
+            continue;
+        }
+        if (!version) { ok = false; break; }
+        if (tag == 64) {
+            emitted = strcmp(path, output) == 0;
+            if (!emitted) ok = false;
+            continue;
+        }
+        if (tag != 16 && tag != 17) { ok = false; break; }
+        struct stat st;
+        int status = stat(path, &st);
+        char digest[24];
+        if (tag == 17) {
+            if (status == 0 || (errno != ENOENT && errno != ENOTDIR)) { ok = false; break; }
+            strcpy(digest, "missing");
+        } else {
+            if (status != 0 || !S_ISREG(st.st_mode)) { ok = false; break; }
+            size_t stage_length = strlen(stage);
+            if (!strncmp(path, stage, stage_length) && path[stage_length] == '/') {
+                internal = true;
+                continue;
+            }
+            uint64_t hash = hash_file_fnv1a(path);
+            if (!hash) { ok = false; break; }
+            snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
+        }
+        cJSON *previous = cJSON_GetObjectItemCaseSensitive(inputs, path);
+        if (previous) ok = cJSON_IsString(previous) && !strcmp(previous->valuestring, digest);
+        else ok = cJSON_AddStringToObject(inputs, path, digest) != NULL;
+    }
+    ok = ok && version && emitted && internal && records > 2 && !ferror(file) && feof(file);
+    if (fclose(file) != 0) ok = false;
+    if (!ok) { cJSON_Delete(inputs); return NULL; }
+    return inputs;
+}
+
+static bool module_link_inputs_match(cJSON *inputs) {
+    if (!cJSON_IsObject(inputs) || !inputs->child) return false;
+    for (cJSON *item = inputs->child; item; item = item->next) {
+        if (!item->string || !cJSON_IsString(item)) return false;
+        struct stat st;
+        if (!strcmp(item->valuestring, "missing")) {
+            if (stat(item->string, &st) == 0 || (errno != ENOENT && errno != ENOTDIR)) return false;
+        } else {
+            if (stat(item->string, &st) != 0 || !S_ISREG(st.st_mode)) return false;
+            uint64_t hash = hash_file_fnv1a(item->string);
+            char digest[24];
+            snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
+            if (!hash || strcmp(item->valuestring, digest)) return false;
+        }
+    }
+    return true;
+}
+#endif
+
 static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
                                              const ModulePkgFlags *flags);
 
@@ -883,7 +965,19 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
     /* Hash system headers declared in module.json (fast top-level check) */
     hash_system_headers(root, meta);
     /* Hash all transitively-included headers from compiler-generated .d files */
-    if (hash_depfiles_in_build_dir(root, build_dir, meta))
+    bool complete = hash_depfiles_in_build_dir(root, build_dir, meta);
+#ifdef __APPLE__
+    char link_record[2048], library[2048];
+    int r = snprintf(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir);
+    int l = snprintf(library, sizeof(library), "%s/lib%s.dylib", build_dir, meta->name);
+    cJSON *link_inputs = r >= 0 && (size_t)r < sizeof(link_record) &&
+        l >= 0 && (size_t)l < sizeof(library) ? module_link_inputs(link_record, build_dir, library) : NULL;
+    if (!link_inputs || !cJSON_AddItemToObject(root, "__link_inputs_v1", link_inputs)) {
+        cJSON_Delete(link_inputs);
+        complete = false;
+    }
+#endif
+    if (complete)
         save_hash_cache(build_dir, root);
     else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
         fprintf(stderr, "I cannot establish complete dependency evidence; I will rebuild this module next time\n");
@@ -929,6 +1023,9 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta,
     }
     if (match) match = system_headers_match(cache, meta);
     if (match) match = dep_hashes_match(cache);
+#ifdef __APPLE__
+    if (match) match = module_link_inputs_match(cJSON_GetObjectItemCaseSensitive(cache, "__link_inputs_v1"));
+#endif
     if (match) {
         cJSON *stored = cJSON_GetObjectItemCaseSensitive(cache, "__preprocessing_v1");
         uint64_t observed = cJSON_IsString(stored) ? module_preprocess_fingerprint(meta, flags) : 0;
@@ -2665,7 +2762,24 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 printf("[Module] Building shared library: %s\n", lib_cmd);
             }
             
-            int lib_result = command_ok ? system(lib_cmd) : -1;
+            int lib_result = -1;
+#ifdef __APPLE__
+            /* I preserve an ordinary link when dependency capture is not
+             * supported. Response files can hide flag inputs from this format;
+             * I do not create reuse evidence for those command lines yet. */
+            char recorded_command[8192] = {0}, link_record[2048] = {0};
+            bool capture = command_ok && !strchr(lib_cmd, '@') &&
+                module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
+                module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&
+                module_append_path_flag(recorded_command, sizeof(recorded_command), "-Xlinker ", link_record);
+            if (capture) lib_result = system(recorded_command);
+            if (!capture || lib_result != 0) {
+                if (link_record[0]) (void)unlink(link_record);
+                lib_result = command_ok ? system(lib_cmd) : -1;
+            }
+#else
+            lib_result = command_ok ? system(lib_cmd) : -1;
+#endif
             struct stat library_stat;
             if (lib_result != 0 || stat(shared_lib, &library_stat) != 0 ||
                 !S_ISREG(library_stat.st_mode) || library_stat.st_size == 0) {

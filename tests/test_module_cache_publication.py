@@ -5,6 +5,7 @@ import hashlib
 import os
 from pathlib import Path
 import select
+import shlex
 import shutil
 import signal
 import stat
@@ -657,6 +658,113 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 result, output = self.support.compile(source, directory, "--run", env=env)
                 self.assertEqual(result.returncode, 42, result.stderr)
                 self.assertEqual(self.support.execute(output, env=env).returncode, 42)
+
+    @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
+    def test_linker_archive_bytes_and_search_invalidate_reuse(self):
+        from tests.characterize_linker_inputs import measure
+        observed = measure(shutil.which("cc"), self.probe)
+        self.assertTrue(observed["reusable_record_created"])
+        self.assertTrue(observed["selected_archive_recorded"])
+        self.assertTrue(observed["unchanged_generation_reused"])
+        self.assertEqual(observed["unchanged_answer"], 42)
+        self.assertTrue(observed["archive_changed"])
+        self.assertTrue(observed["archive_size_preserved"])
+        self.assertTrue(observed["archive_timestamp_preserved"])
+        self.assertEqual(observed["cache_answer_after_archive_edit"], 43)
+        self.assertTrue(observed["cache_generation_changed_after_archive_edit"])
+        self.assertEqual(observed["cache_answer_after_earlier_library"], 44)
+        self.assertTrue(observed["cache_generation_changed_after_earlier_library"])
+
+    @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
+    def test_linker_record_boundaries(self):
+        with tempfile.TemporaryDirectory(prefix="nano-link-record-") as tmp:
+            directory = Path(tmp)
+            stage = directory / "stage"
+            stage.mkdir()
+            obj, output = stage / "input.o", stage / "library.dylib"
+            obj.write_bytes(b"object")
+            external = directory / "space ' back\\slash\nline.a"
+            external.write_bytes(b"archive")
+            missing = directory / "absent.a"
+            record = directory / "record"
+
+            def field(tag, path):
+                return bytes([tag]) + os.fsencode(path) + b"\0"
+
+            version = field(0, "@(#)PROGRAM:ld PROJECT:ld-1267\n")
+            body = field(16, obj) + field(16, external) + field(17, missing)
+            end = field(64, output)
+            valid = version + body + end
+            cases = [("literal", valid, 0), ("empty", b"", 1),
+                     ("no-version", body + end, 1), ("no-output", version + body, 1),
+                     ("unknown-tag", version + field(99, external) + body + end, 1),
+                     ("truncated", valid[:-1], 1), ("empty-path", version + field(16, "") + body + end, 1),
+                     ("no-internal-input", version + field(16, external) + end, 1),
+                     ("wrong-output", version + body + field(64, missing), 1),
+                     ("trailing-record", valid + field(16, external), 1),
+                     ("existing-negative", version + body + field(17, external) + end, 1),
+                     ("missing-input", version + body + field(16, missing) + end, 1),
+                     ("directory-input", version + field(16, directory) + body + end, 1),
+                     ("oversized-path", version + field(16, "x" * 8192) + body + end, 1)]
+            for name, data, expected in cases:
+                with self.subTest(name=name):
+                    record.write_bytes(data)
+                    result = subprocess.run([str(self.probe), "link-inputs", str(record), str(stage), str(output)],
+                                            capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, expected, result.stderr)
+                    if not expected:
+                        inputs = json.loads(result.stdout)
+                        self.assertIn(str(external), inputs)
+                        self.assertEqual(inputs[str(missing)], "missing")
+                        self.assertNotIn(str(obj), inputs)
+
+    @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
+    def test_linker_capture_fallback_and_response_file(self):
+        with tempfile.TemporaryDirectory(prefix="nano-link-fallback-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            wrapper = directory / "cc-wrapper"
+            control = directory / "mode"
+            control.write_text("ok")
+            compiler = shutil.which("cc")
+            wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, sys
+args = sys.argv[1:]
+mode = pathlib.Path({str(control)!r}).read_text()
+if "-dependency_info" in args:
+    path = pathlib.Path(args[args.index("-dependency_info") + 2])
+    if mode == "unsupported":
+        path.write_bytes(b"partial")
+        sys.exit(23)
+    if mode == "malformed":
+        import subprocess
+        result = subprocess.run([{compiler!r}] + args)
+        path.write_bytes(b"partial")
+        sys.exit(result.returncode)
+os.execv({compiler!r}, [{compiler!r}] + args)
+''')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            previous = None
+            for mode in ("unsupported", "malformed", "ok", "ok"):
+                control.write_text(mode)
+                self.probe_path("build", module, env)
+                generation = self.probe_path("directory", module, env)
+                self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+                self.assertEqual((generation / "source_hashes.json").is_file(), mode == "ok")
+                if previous and mode == "ok":
+                    self.assertEqual(previous, generation)
+                if mode == "ok": previous = generation
+            response = directory / "flags.rsp"
+            response.write_text("-lm\n")
+            manifest = module / "module.json"
+            metadata = json.loads(manifest.read_text())
+            metadata["ldflags"] = ["-Xlinker", shlex.quote("@" + str(response))]
+            manifest.write_text(json.dumps(metadata))
+            self.probe_path("build", module, env)
+            generation = self.probe_path("directory", module, env)
+            self.assertFalse((generation / "source_hashes.json").exists())
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
 
     def test_pkg_config_query_status_and_recovery(self):
         with tempfile.TemporaryDirectory(prefix="nano-pkg-status-") as tmp:

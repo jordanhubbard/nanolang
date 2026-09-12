@@ -89,6 +89,34 @@ of a linked dynamic library pin the runtime loader to those same bytes for an
 old executable. Runtime dependency retention, source snapshots, transitive
 tool identity and other compiler modes remain separate unfinished boundaries.
 
-I keep the implementation open in my roadmap and MAC cache task. I have
-reproduced the defect and ruled out a generic line-trace parser; I have not
-repaired library-content cache invalidation in this increment.
+## Darwin cache repair
+
+I now request tagged dependency records from the original Darwin shared link.
+If that command fails, I discard its record and retry the ordinary link; a
+successful fallback does not create reuse evidence. Malformed, truncated,
+unknown-tag or contradictory records also withhold reuse evidence.
+
+I require a linker header, an input in my private build directory and the exact
+expected output record. I hash regular external inputs and record absent
+search candidates. Duplicate records must agree. I check those hashes and
+absences again before warm reuse. Paths remain literal strings, including
+newlines and backslashes; I do not parse archive-member display notation.
+Record paths are limited to 8191 bytes, with bounded record count and payload.
+
+The reproducer now returns 43 after the archive edit and 44 after the earlier
+candidate appears, while unchanged inputs retain their generation. These
+results have an acceptance test. Parser tests cover literal unusual paths,
+unknown/missing/truncated records, wrong outputs, missing or non-regular
+inputs, existing negative candidates and overlong paths. Unsupported capture,
+malformed capture, response-file bypass and recovery exercise actual builds.
+
+I conservatively withhold reuse evidence when the link command contains `@`;
+response-file inputs are not captured yet. This also excludes literal `@`
+characters that are not response-file syntax. I preserve ordinary compilation
+and linking for those commands. The check is not a general shell-input audit.
+
+This integration is Darwin-specific. Other linker formats remain open. I hash
+observed files after linking, not an atomic snapshot of the bytes the linker
+read, and I do not yet capture changes that occur and revert during a build.
+The linker binary and arbitrary wrapper inputs also need separate identity.
+The full implementation requirements above remain in my roadmap and MAC task.

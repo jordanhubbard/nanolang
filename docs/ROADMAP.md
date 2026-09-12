@@ -556,6 +556,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
         reuse, malformed evidence, unusual paths, failed builds and recovery
         must be tested. I handle each supported linker mode explicitly and
         do not infer completeness from a readable trace or dependency file.
+        - [x] I integrate Darwin tagged linker records as an additional cache
+          requirement, checking external input hashes and absent candidates.
+          Unsupported capture preserves ordinary linking without reuse evidence.
+          Response-file commands remain uncacheable until their indirect inputs
+          are captured. I test actual archive/search changes, warm reuse,
+          malformed records, literal paths and failed-capture recovery. Other
+          linkers, indirect inputs and snapshots remain explicit unfinished work.
+          The reproducer now returns 43 and 44 for the archive/search edits,
+          with unchanged generation reuse. Fourteen parser cases plus actual
+          unsupported/malformed capture, response-file bypass and recovery pass.
+          All 28 shadows, 41 cache tests, five wrapper link tests, seven wrapper
+          boundary tests, 63 codegen tests, 19 FFI tests and package/dependency
+          gates pass on Darwin (2026-09-12). The three new linker methods also
+          pass with ASan/UBSan on the production builder through the probe;
+          linked support objects and fixture libraries are uninstrumented.
+          I hash files after linking; this is not a linker-input snapshot.
       - [x] I reproduce a transitive backslash/slash alias against the actual
         compiler and cache, then measure preprocessed-input snapshots as a
         candidate boundary. I check unchanged replay, header edits, include

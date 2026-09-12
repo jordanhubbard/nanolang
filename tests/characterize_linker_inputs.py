@@ -26,8 +26,8 @@ def run(argv, directory, env=None, required=True):
     return result
 
 
-def measure(compiler):
-    probe = shadows.ROOT / "obj/test_module_generation_probe"
+def measure(compiler, probe=None):
+    probe = probe or shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
     archiver = shutil.which("ar")
@@ -182,7 +182,8 @@ def measure(compiler):
             "unchanged_answer": warm_answer,
             "unchanged_generation_reused": first_generation == warm_generation,
             "reusable_record_created": bool(record),
-            "selected_archive_recorded": "dep:" + str(archive) in record,
+            "selected_archive_recorded": ("dep:" + str(archive) in record or
+                                           str(archive) in record.get("__link_inputs_v1", {})),
             "archive_changed": hashlib.sha256(original).digest() != hashlib.sha256(archive.read_bytes()).digest(),
             "archive_size_preserved": len(original) == archive.stat().st_size,
             "archive_timestamp_preserved": archive.stat().st_mtime_ns == stamp.st_mtime_ns,
