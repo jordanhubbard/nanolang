@@ -250,6 +250,28 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       exited zero. I test 0, 7, -1 and 256 through both execution paths and
       retain trap failures as nonzero;
       daemon-mode result propagation requires separate verification.
+- [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
+      rejects 98 of 229 eligible examples after shadow execution is enabled.
+      Direct checks expose integer negation emitted for floats and missing
+      shadow locals. I repair source/compiler/runtime failures without
+      bypassing shadows or hiding examples in exclusions. Six previously
+      excluded library inputs now compile as shadow-only sources; I reconcile
+      their eligibility with the build contract. I rerun the full example gate.
+      The isolated rerun reports 101 failures, including unresolved FFI
+      functions, shadow-bytecode verification failures, type errors and
+      assertions. These are execution-dependent results, not a stable
+      compile-only acceptance count. I retain both observations.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM example evidence — actual failure status.** My coverage loop
+      reads status after an `if` statement, reporting failed compiles as
+      `exited 0`, and recognizes only legacy diagnostics. I retain the failed
+      invocation's status and show modern diagnostics, test silent and
+      structured failures, then rerun coverage without weakening acceptance.
+      A regression exercises the production loop with silent status 7,
+      modern-diagnostic status 42, legacy-diagnostic status 3 and success.
+      It passes; the real coverage rerun remains nonzero with actual failure
+      statuses and diagnostics. This test runs in `test-vm-examples`.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [ ] **5.0 execution contract — daemon exit status parity.** I verify entry
       values and traps end-to-end through `nano_vm --daemon` and the vmd
       protocol without confusing RPC success with the program's result.
@@ -491,6 +513,32 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       mappings and verify generated prototypes and executable behavior.
       `make test-transpiler-externs` passes explicit C `bool` assertions.
       Boolean filter callbacks agree with their generated function signatures.
+- [x] **5.0 self-hosted build isolation — in-memory merged source.** I remove
+      shared merger files and the unconditional debug dump, reuse my existing
+      string accumulator, and lex the result directly. I test overlapping
+      source/native compilations with distinct imports, preservation of legacy
+      scratch paths, failure cleanup and source-only compilation without a
+      writable temporary directory. I rebuild the compiler and rerun native
+      shadow, CLI and language-contract gates before claiming isolation.
+      I update the import-path regression that still reads the removed fixed
+      C filename, and verify the reported private `--keep-c` artifact instead.
+      Four isolation tests pass, including confirmed live overlapping source
+      and native compiles with distinct executable outputs. The legacy-symlink
+      regression overwrites its protected target on the old compiler and
+      preserves it after repair. Bootstrap smoke/no-C-seed checks, five import
+      tests, nine native-shadow tests, nine CLI tests, five language-claim
+      tests and all 28 contract rows pass. The broader quick gate passes
+      17 native language programs but fails VM example coverage as recorded
+      above; I do not claim a green quick or release gate (2026-09-12).
+      Generic-list generation remains separate under the broader item below.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 self-hosted diagnostics — original source provenance.** My
+      flattened import stream uses merged line numbers, now labelled with
+      the root input path rather than a temporary filename. I retain original
+      paths and positions through merging/tokenization and translate lexer,
+      parser and type diagnostics, including machine-readable output. I test
+      root and nested imports, removed declarations and escaped path bytes.
+      MAC `task_3c235c2533a5499093804b26da53801b`.
 - [ ] **5.0 audit defect — compiler build isolation.** Concurrent C-seed
       compilations shared `obj/nano_modules/transpiler.o.c`; one compilation
       removed it before the other invoked clang. I isolate intermediate module

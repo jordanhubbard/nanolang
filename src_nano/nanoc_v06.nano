@@ -31,7 +31,6 @@ extern fn get_argv(index: int) -> string
 extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
-extern fn file_append(path: string, content: string) -> int
 extern fn file_delete(path: string) -> int
 
 /* Path operations */
@@ -1181,9 +1180,8 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     if (not res.ok) {
         return MergeResult { source: "", files: [], repo_root: repo_root, root_line: 0 }
     } else { (print "") }
-    /* Write merged source directly to temp file - avoids O(n²) string concat */
-    let merge_tmp: string = "/tmp/nanolang_merge_tmp.nano"
-    let _dummy: int = (file_write merge_tmp "")
+    # I retain source in this invocation; no other compiler can replace it.
+    let mut parts: array<string> = []
     let mut i: int = 0
     let mut merged_lines: int = 0
     let mut root_line: int = 1
@@ -1201,8 +1199,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
             let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
             if (and (== imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
                 let resolved_line: string = (apply_all_aliases (strip_pub_decl line) file_aliases)
-                let _w1: int = (file_append merge_tmp resolved_line)
-                let _w2: int = (file_append merge_tmp "\n")
+                set parts (cg_append parts (+ resolved_line "\n"))
                 set merged_lines (+ merged_lines 1)
             } else {
                 (print "")
@@ -1211,11 +1208,14 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         }
         set i (+ i 1)
     }
-    return MergeResult { source: (file_read merge_tmp), files: files, repo_root: repo_root, root_line: root_line }
+    return MergeResult { source: (cg_build parts), files: files, repo_root: repo_root, root_line: root_line }
 }
 
 shadow merge_with_imports {
-    assert (== 1 1)
+    let result: MergeResult = (merge_with_imports "examples/language/nl_hello.nano")
+    assert (> (str_length result.source) 0)
+    assert (> (array_length result.files) 0)
+    assert (== result.root_line 1)
 }
 
 struct IntrospectionOutput { ok: bool, code: string }
@@ -1520,28 +1520,19 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     let merged_source: string = merge_result.source
     let merged_files: array<string> = merge_result.files
     let merge_repo_root: string = merge_result.repo_root
-    let temp_source_file: string = (+ (tmp_dir) "/nanolang_merged.nano")
-    let mut source_to_compile: string = input_file
+    let source_to_compile: string = input_file
     
     if (== merged_source "") {
         (println "Error: import resolution failed")
         return 1
     } else {
-        /* Imports resolved - use merged file */
+        # I lex the merged text without publishing a temporary source file.
         if verbose {
             (print "  ✓ Merged source: ")
             (print (int_to_string (str_length merged_source)))
             (println " bytes")
         } else {
             (print "")
-        }
-        let write_merged: int = (file_write temp_source_file merged_source)
-        /* DEBUG: Also write to $TMPDIR/merged_debug.nano for inspection */
-        let _debug_write: int = (file_write (+ (tmp_dir) "/merged_debug.nano") merged_source)
-        if (== write_merged 0) {
-            set source_to_compile temp_source_file
-        } else {
-            set source_to_compile input_file
         }
     }
     
@@ -1555,7 +1546,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     /* Diagnostics list (start with lexer diags; may be replaced by later phase outputs) */
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     
-    let tokens: List<LexerToken> = (tokenize_file source_to_compile diags)
+    let tokens: List<LexerToken> = (tokenize_string merged_source source_to_compile diags)
     let token_count: int = (list_LexerToken_length tokens)
     
     if (== token_count 0) {

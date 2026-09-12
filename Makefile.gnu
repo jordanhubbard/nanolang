@@ -1757,6 +1757,7 @@ test-verify-all-programs: nano_virt nano_vm
 
 .PHONY: test-vm-examples
 test-vm-examples: nano_virt nano_vm $(COMPILER_C)
+	@python3 tests/test_vm_example_reporting.py
 	@bash tests/test_vm_examples_coverage.sh
 
 # Ring-buffer unit tests (no compiler or VM required)
@@ -2007,7 +2008,7 @@ test-cross-backend-runner:
 test-selfhost-cli: bootstrap3
 	@python3 tests/test_selfhost_cli.py
 
-# Keep tool builds ordered: bootstrap currently shares merger scratch state.
+# I keep tool builds ordered until compiler-private generic-list generation is verified.
 .PHONY: test-language-contract test-language-contract-runner
 test-language-contract: test-language-contract-runner
 	@$(MAKE) bootstrap3
@@ -2032,6 +2033,10 @@ test-native-shadow-emitter:
 .PHONY: test-native-shadows
 test-native-shadows:
 	@python3 tests/test_native_shadows.py
+
+.PHONY: test-selfhost-build-isolation
+test-selfhost-build-isolation:
+	@python3 tests/test_selfhost_build_isolation.py
 
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json

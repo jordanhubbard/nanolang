@@ -25,14 +25,17 @@ class SelfhostImportPaths(unittest.TestCase):
                               '(println (parser_decode_import_path "plain.nano"))\n'
                               '(println (parse_import_path_from_line "module \\"plain.nano\\" as probe"))\n'
                               'return 0 }\nshadow main { assert (== (main) 0) }\n')
-            compiler = str(ROOT / "bin/nanoc_stage1")
+            compiler = os.environ.get("NANOLANG_SELFHOST_COMPILER", str(ROOT / "bin/nanoc_stage1"))
             result = subprocess.run([compiler, str(source), "-o", str(path / "helpers"), "-k"],
                                     cwd=ROOT, env=dict(os.environ, TMPDIR=directory),
                                     capture_output=True, text=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            retained = list(path.glob("nano_native_*/program.c"))
+            self.assertEqual(len(retained), 1, result.stdout + result.stderr)
+            self.assertIn(str(retained[0]), result.stdout)
             result = subprocess.run([str(path / "helpers")], capture_output=True, text=True)
             self.assertEqual(result.stdout.splitlines(), ["plain.nano", "plain.nano"],
-                             (path / "nanolang_temp.c").read_text())
+                             retained[0].read_text())
 
     def check_path(self, filename, suffix="", invalid=False):
         compiler = Path(os.environ.get("NANOLANG_SELFHOST_COMPILER", ROOT / "bin/nanoc_stage1"))
