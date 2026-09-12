@@ -676,6 +676,108 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
         self.assertTrue(observed["cache_generation_changed_after_earlier_library"])
 
     @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
+    def test_linker_mutation_does_not_cache_unlinked_bytes(self):
+        for mode in ("first", "second", "postprocess"):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory(prefix="nano-link-mutation-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.foreign_build_fixture(directory)
+                compiler = shutil.which("cc")
+                archive, replacement = directory / "selected.a", directory / "replacement.a"
+                for path, value in ((archive, 42), (replacement, 43)):
+                    c_source, obj = directory / "member.c", directory / "member.o"
+                    c_source.write_text(f"long long selected_answer(void) {{ return {value}; }}\n")
+                    subprocess.run([compiler, "-fPIC", "-c", str(c_source), "-o", str(obj)], check=True,
+                                   capture_output=True, timeout=10)
+                    subprocess.run(["ar", "rcs", str(path), str(obj)], check=True, capture_output=True, timeout=10)
+                (module / "answer.c").write_text("extern long long selected_answer(void);\n"
+                                                 "long long nano_build_answer(void) { return selected_answer(); }\n")
+                (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                    "c_sources": ["answer.c"], "ldflags": [str(archive)]}))
+                counter, changed = directory / "count", directory / "changed"
+                wrapper = directory / "cc-wrapper"
+                wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, subprocess, sys
+args = sys.argv[1:]
+counter, changed = pathlib.Path({str(counter)!r}), pathlib.Path({str(changed)!r})
+count = int(counter.read_text()) if counter.exists() else 0
+if "-dynamiclib" in args:
+    count += 1
+    counter.write_text(str(count))
+result = subprocess.run([{compiler!r}] + args)
+mode = {mode!r}
+mutate = ((mode == "first" and "-dynamiclib" in args and count == 1) or
+          (mode == "second" and "-dynamiclib" in args and count == 2) or
+          (mode == "postprocess" and "-E" in args and count > 0))
+if result.returncode == 0 and mutate and not changed.exists():
+    archive = pathlib.Path({str(archive)!r})
+    stamp = archive.stat()
+    archive.write_bytes(pathlib.Path({str(replacement)!r}).read_bytes())
+    os.utime(archive, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+    changed.touch()
+sys.exit(result.returncode)
+''')
+                wrapper.chmod(0o700)
+                env["NANO_CC"] = str(wrapper)
+                self.probe_path("build", module, env)
+                value = self.library_answer(self.probe_path("library", module, env))
+                generation = self.probe_path("directory", module, env)
+                self.assertTrue(changed.exists())
+                self.assertIn(value, (42, 43))
+                if value == 42:
+                    self.assertFalse((generation / "source_hashes.json").exists(),
+                                     "I must not cache old code under the replacement archive hash")
+                self.probe_path("build", module, env)
+                self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 43)
+                recovered = self.probe_path("directory", module, env)
+                self.assertTrue((recovered / "source_hashes.json").is_file())
+                self.probe_path("build", module, env)
+                self.assertEqual(self.probe_path("directory", module, env), recovered)
+
+    @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
+    def test_failed_final_link_preserves_previous_generation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-final-link-failure-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            compiler = shutil.which("cc")
+            counter, control = directory / "count", directory / "mode"
+            control.write_text("ok")
+            wrapper = directory / "cc-wrapper"
+            wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, sys
+args = sys.argv[1:]
+counter, control = pathlib.Path({str(counter)!r}), pathlib.Path({str(control)!r})
+if "-dynamiclib" in args:
+    count = int(counter.read_text()) + 1 if counter.exists() else 1
+    counter.write_text(str(count))
+    if control.read_text() == "fail" and count == 2:
+        pathlib.Path(args[args.index("-o") + 1]).write_bytes(b"partial library")
+        sys.exit(23)
+os.execv({compiler!r}, [{compiler!r}] + args)
+''')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            self.probe_path("build", module, env)
+            previous = self.probe_path("directory", module, env)
+            self.assertEqual(counter.read_text(), "2")
+            c_source = module / "answer.c"
+            c_source.write_text(c_source.read_text() + "\n/* I force another build. */\n")
+            counter.write_text("0")
+            control.write_text("fail")
+            result = subprocess.run([str(self.probe), "build", str(module)], env=env,
+                                    capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertEqual(counter.read_text(), "2", "I must not retry past a failed final link")
+            self.assertEqual(self.probe_path("directory", module, env), previous)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+            control.write_text("ok")
+            self.probe_path("build", module, env)
+            recovered = self.probe_path("directory", module, env)
+            self.assertNotEqual(recovered, previous)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+            self.probe_path("build", module, env)
+            self.assertEqual(self.probe_path("directory", module, env), recovered)
+
+    @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
     def test_linker_record_boundaries(self):
         with tempfile.TemporaryDirectory(prefix="nano-link-record-") as tmp:
             directory = Path(tmp)

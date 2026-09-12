@@ -572,6 +572,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
           pass with ASan/UBSan on the production builder through the probe;
           linked support objects and fixture libraries are uninstrumented.
           I hash files after linking; this is not a linker-input snapshot.
+        - [x] I reproduce library replacement during the link, then require
+          matching observed linker inputs around the final link before storing
+          reuse evidence. I retain that observation rather than replacing it
+          with later hashes. I test mutation, recovery, unchanged reuse and
+          failed final links. Matching observations are not an atomic snapshot;
+          changes that occur and revert still require captured input bytes.
+          Changes after the original link and during later preprocessing
+          reproduce incorrect code/hash pairing before the repair. Tests now
+          cover discovery/final/postprocessing mutations, retry and warm reuse,
+          plus failed final links preserving the prior generation without an
+          extra retry. All 28 shadows, 43 cache tests, five wrapper link tests,
+          seven wrapper boundary tests, 63 codegen tests, 19 FFI tests and
+          package/dependency gates pass on Darwin (2026-09-12). Three timing,
+          final-failure and fallback methods also pass with ASan/UBSan on the
+          production builder through the probe; linked support objects and
+          fixture libraries remain uninstrumented.
       - [x] I reproduce a transitive backslash/slash alias against the actual
         compiler and cache, then measure preprocessed-input snapshots as a
         candidate boundary. I check unchanged replay, header edits, include

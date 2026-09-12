@@ -437,7 +437,11 @@ before warm reuse. The same-size/time archive edit and newly earlier library
 regressions now produce new generations. If capture is unsupported, I discard
 its record and retry ordinary linking without reuse evidence. Invalid or
 incomplete records likewise withhold reuse. Link commands containing `@` remain
-uncacheable pending indirect response-file capture. These checks do not pin
+uncacheable pending indirect response-file capture. Cacheable cold builds use
+a private discovery link and an identical final link; their input observations
+must agree. I retain and revalidate those hashes before recording reuse, rather
+than labeling linked code with later hashes. A failed final link preserves the
+previous generation. Warm reuse skips both links. These checks do not pin
 runtime dynamic-library bytes or snapshot files during linking; other linker
 formats and full toolchain identity remain open. My
 [linker evidence](LINKER_INPUT_EVIDENCE.md) records the tested boundary.

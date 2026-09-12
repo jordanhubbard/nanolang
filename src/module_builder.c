@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v10-darwin-link-inputs");
+    hash_context_field(&hash, "nanolang-c-build-context-v11-link-observations");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -905,7 +905,7 @@ static cJSON *module_link_inputs(const char *record_path, const char *stage,
     return inputs;
 }
 
-static bool module_link_inputs_match(cJSON *inputs) {
+static bool module_link_inputs_match(const cJSON *inputs) {
     if (!cJSON_IsObject(inputs) || !inputs->child) return false;
     for (cJSON *item = inputs->child; item; item = item->next) {
         if (!item->string || !cJSON_IsString(item)) return false;
@@ -929,7 +929,8 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
 
 /* Update the on-disk hash cache after a successful build */
 static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta,
-                                     const char *build_dir, uint64_t preprocessing) {
+                                     const char *build_dir, uint64_t preprocessing,
+                                     const cJSON *link_observation __attribute__((unused))) {
     if (!meta || meta->c_sources_count == 0) return;
     uint64_t context = module_build_context(meta);
     if (!context) return;
@@ -967,11 +968,10 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
     /* Hash all transitively-included headers from compiler-generated .d files */
     bool complete = hash_depfiles_in_build_dir(root, build_dir, meta);
 #ifdef __APPLE__
-    char link_record[2048], library[2048];
-    int r = snprintf(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir);
-    int l = snprintf(library, sizeof(library), "%s/lib%s.dylib", build_dir, meta->name);
-    cJSON *link_inputs = r >= 0 && (size_t)r < sizeof(link_record) &&
-        l >= 0 && (size_t)l < sizeof(library) ? module_link_inputs(link_record, build_dir, library) : NULL;
+    /* I retain the hashes checked around the final link. Replacing them with
+     * current hashes could label old code with bytes that were never linked. */
+    cJSON *link_inputs = module_link_inputs_match(link_observation)
+        ? cJSON_Duplicate(link_observation, true) : NULL;
     if (!link_inputs || !cJSON_AddItemToObject(root, "__link_inputs_v1", link_inputs)) {
         cJSON_Delete(link_inputs);
         complete = false;
@@ -2380,7 +2380,8 @@ static int module_run_source_command(const char *command, const char *dependency
 static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
                                            ModuleBuildMetadata *meta, const char *staging,
                                            uint64_t *preprocessing_before,
-                                           const ModulePkgFlags *flags) {
+                                           const ModulePkgFlags *flags,
+                                           cJSON **link_observation __attribute__((unused))) {
     if (!meta) return NULL;
 
     if (meta->c_sources_count == 0) {
@@ -2768,12 +2769,32 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
              * supported. Response files can hide flag inputs from this format;
              * I do not create reuse evidence for those command lines yet. */
             char recorded_command[8192] = {0}, link_record[2048] = {0};
-            bool capture = command_ok && !strchr(lib_cmd, '@') &&
+            bool capture = command_ok && link_observation && !strchr(lib_cmd, '@') &&
                 module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
                 module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&
                 module_append_path_flag(recorded_command, sizeof(recorded_command), "-Xlinker ", link_record);
-            if (capture) lib_result = system(recorded_command);
-            if (!capture || lib_result != 0) {
+            bool final_link = false;
+            if (capture) {
+                lib_result = system(recorded_command);
+                cJSON *before = lib_result == 0 ? module_link_inputs(link_record, build_dir, shared_lib) : NULL;
+                if (before) {
+                    /* I discover inputs in private staging, then link again
+                     * with those observed inputs checked around the final link.
+                     * Both links use the same command and compilation mode. */
+                    final_link = true;
+                    lib_result = system(recorded_command);
+                    cJSON *after = lib_result == 0 ? module_link_inputs(link_record, build_dir, shared_lib) : NULL;
+                    if (after && cJSON_Compare(before, after, true)) {
+                        *link_observation = before;
+                        before = NULL;
+                    }
+                    cJSON_Delete(after);
+                }
+                cJSON_Delete(before);
+            }
+            /* A failed final link is a build failure, not an invitation to
+             * publish the successful discovery link or retry past the failure. */
+            if (!capture || (!final_link && lib_result != 0)) {
                 if (link_record[0]) (void)unlink(link_record);
                 lib_result = command_ok ? system(lib_cmd) : -1;
             }
@@ -2963,7 +2984,7 @@ static void module_remove_staging(const char *stage) {
 
 static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBuildMetadata *meta,
                                                const ModulePkgFlags *flags) {
-    if (meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL, NULL, flags);
+    if (meta->c_sources_count == 0) return module_build_staged(builder, meta, NULL, NULL, flags, NULL);
     /* Names become artifact basenames, never paths or shell fragments. */
     if (!meta->name || !meta->name[0] || strlen(meta->name) > 255 ||
         strspn(meta->name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-") != strlen(meta->name)) {
@@ -2993,7 +3014,9 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
     if (locked == 0 && mkdtemp(stage)) {
         uint64_t context_before = module_build_context(meta);
         uint64_t preprocessing_before = 0;
-        info = module_build_staged(builder, meta, stage, context_before ? &preprocessing_before : NULL, flags);
+        cJSON *link_observation = NULL;
+        info = module_build_staged(builder, meta, stage, context_before ? &preprocessing_before : NULL,
+                                   flags, context_before ? &link_observation : NULL);
         if (info && info->needs_rebuild) {
             char generation[2048], pointer[2048], temporary[2048], target[2048];
             int g = snprintf(generation, sizeof(generation), "%s/.nano-gen-%s", cache, stage + strlen(stage) - 6);
@@ -3014,7 +3037,7 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
             if (ok && context_before && preprocessing_before &&
                 preprocessing_before == module_preprocess_fingerprint(meta, NULL) &&
                 context_before == module_build_context(meta))
-                module_update_hash_cache(meta->module_dir, meta, stage, preprocessing_before);
+                module_update_hash_cache(meta->module_dir, meta, stage, preprocessing_before, link_observation);
             /* I never mutate a published generation. The old pointer remains
              * valid until the complete replacement is visible in one rename. */
             bool renamed = false, linked = false;
@@ -3038,6 +3061,7 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
                 info = NULL;
             }
         }
+        cJSON_Delete(link_observation);
         module_remove_staging(stage);
     }
     close(fd); /* I retain the lock inode; removing it would split waiters. */
