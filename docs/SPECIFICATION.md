@@ -715,6 +715,15 @@ co-process path isolates foreign execution from the VM process; native calls
 have a different boundary. Neither `unsafe` nor process separation proves a
 foreign function correct.
 
+My bytecode signature lowering retains the name of an opaque type while
+choosing its runtime tag. I test local and imported handle round trips,
+transitive wrappers, ordinary record returns alongside opaque returns, and
+wrong-kind argument rejection. The datetime example executes its shadows and
+standalone bytecode with this representation. This does not establish nominal
+opaque safety: module-qualified opaque lookup still falls back to short names,
+and the checker permits overly broad struct/integer arguments. Those remain
+explicit 5.0 work, not a guarantee implied by the runtime tag.
+
 ## 7. Shadow Tests
 
 ### 7.1 Purpose

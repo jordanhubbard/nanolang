@@ -253,6 +253,86 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(output.read_bytes(), b"preserve")
 
+    def test_local_opaque_roundtrip(self):
+        source = '''opaque type LocalHandle
+struct Box { value: int }
+fn box() -> Box { return Box { value: 42 } }
+shadow box { let item = (box) assert (== item.value 42) }
+extern fn malloc(size: int) -> LocalHandle
+extern fn free(ptr: LocalHandle) -> void
+fn allocate() -> LocalHandle { unsafe { return (malloc 8) } }
+shadow allocate { let p = (allocate) unsafe { (free p) } }
+fn identity(p: LocalHandle) -> LocalHandle { return p }
+shadow identity { let p = (allocate) unsafe { (free (identity p)) } }
+fn main() -> int {
+    let p = (allocate)
+    unsafe { (free (identity p)) }
+    return 0
+}
+shadow main { assert (== (main) 0) }
+'''
+        with tempfile.TemporaryDirectory(prefix="nano-opaque-") as tmp:
+            result, output = self.compile(source, Path(tmp), "--run")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.execute(output).returncode, 0)
+
+    def test_imported_opaque_roundtrip_and_wrong_kind(self):
+        for transitive in (False, True):
+            with self.subTest(transitive=transitive), tempfile.TemporaryDirectory(prefix="nano-opaque-") as tmp:
+                directory = Path(tmp)
+                module_dir, _, env = self.foreign_build_fixture(directory)
+                (module_dir / "answer.c").write_text('''#include <stdint.h>
+static int64_t answer = 42;
+void *nano_handle_new(void) { return &answer; }
+void *nano_handle_echo(void *p) { return p; }
+int64_t nano_handle_read(void *p) { return p == &answer ? answer : -1; }
+''')
+                (module_dir / "api.nano").write_text('''opaque type ForeignHandle
+extern fn nano_handle_new() -> ForeignHandle
+extern fn nano_handle_echo(p: ForeignHandle) -> ForeignHandle
+extern fn nano_handle_read(p: ForeignHandle) -> int
+pub fn make() -> ForeignHandle { unsafe { return (nano_handle_new) } }
+shadow make { assert (== (read (make)) 42) }
+pub fn echo(p: ForeignHandle) -> ForeignHandle { unsafe { return (nano_handle_echo p) } }
+shadow echo { assert (== (read (echo (make))) 42) }
+pub fn read(p: ForeignHandle) -> int { unsafe { return (nano_handle_read p) } }
+shadow read { assert (== (read (make)) 42) }
+''')
+                imported = module_dir / "api.nano"
+                if transitive:
+                    helper = directory / "helper.nano"
+                    helper.write_text(f'''module "{imported}" as foreign
+pub fn make_indirect() -> foreign.ForeignHandle {{ return (foreign.make) }}
+shadow make_indirect {{ assert (== (read_indirect (make_indirect)) 42) }}
+pub fn echo_indirect(p: foreign.ForeignHandle) -> foreign.ForeignHandle {{ return (foreign.echo p) }}
+shadow echo_indirect {{ assert (== (read_indirect (echo_indirect (make_indirect))) 42) }}
+pub fn read_indirect(p: foreign.ForeignHandle) -> int {{ return (foreign.read p) }}
+shadow read_indirect {{ assert (== (read_indirect (make_indirect)) 42) }}
+''')
+                    imported = helper
+                source = f'''module "{imported}" as handles
+fn local_echo(p: handles.ForeignHandle) -> handles.ForeignHandle {{ return (handles.echo p) }}
+shadow local_echo {{ assert (== (handles.read (local_echo (handles.make))) 42) }}
+fn main() -> int {{ return (handles.read (local_echo (handles.make))) }}
+shadow main {{ assert (== (main) 42) }}
+'''
+                if transitive:
+                    for name in ("make", "echo", "read"):
+                        source = source.replace(f"handles.{name}", f"handles.{name}_indirect")
+                result, output = self.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                run = subprocess.run([str(ROOT / "bin/nano_vm"), str(output)], cwd=ROOT,
+                                     env=env, capture_output=True, timeout=10)
+                self.assertEqual(run.returncode, 42, run.stderr)
+                for wrong in ('(handles.read "wrong")', '(local_echo "wrong")'):
+                    if transitive:
+                        wrong = wrong.replace("handles.read", "handles.read_indirect")
+                    output.write_bytes(b"preserve")
+                    result, output = self.compile(source.replace('(== (main) 42)', f'(== {wrong} 42)'), directory, env=env)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertNotIn(b"UNDEFINED FUNCTION", result.stderr)
+                    self.assertEqual(output.read_bytes(), b"preserve")
+
     def test_entry_exit_values(self):
         for value, expected in ((0, 0), (7, 7), (-1, 255), (256, 0)):
             with self.subTest(value=value), tempfile.TemporaryDirectory(prefix="nano-shadows-") as tmp:

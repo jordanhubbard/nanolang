@@ -442,7 +442,10 @@ static int32_t extern_find_qualified(CG *cg, const char *module_alias, const cha
 }
 
 /* Convert nanolang Type enum to NanoValueTag */
-static uint8_t type_to_tag(Type t) {
+static uint8_t type_to_tag(Type t, const char *name, Environment *env) {
+    /* I retain the runtime kind of named opaque signatures. The parser uses
+     * TYPE_STRUCT for named types, so the enum alone is not a representation. */
+    if (t == TYPE_STRUCT && name && env_get_opaque_type(env, name)) return TAG_OPAQUE;
     switch (t) {
         case TYPE_INT:     return TAG_INT;
         case TYPE_U8:      return TAG_U8;
@@ -2228,7 +2231,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         NvmFunctionEntry fn = {0};
         fn.name_idx = name_idx;
         fn.arity = (uint16_t)node->as.function.param_count;
-        fn.result_tag = type_to_tag(node->as.function.return_type);
+        fn.result_tag = type_to_tag(node->as.function.return_type, node->as.function.return_struct_type_name, cg->env);
         fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
         fn_idx = (int32_t)nvm_add_function(cg->module, &fn);
         if (cg->fn_count < MAX_FUNCTIONS) {
@@ -2970,7 +2973,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             NvmFunctionEntry fn = {0};
             fn.name_idx = name_idx;
             fn.arity = (uint16_t)item->as.function.param_count;
-            fn.result_tag = type_to_tag(item->as.function.return_type);
+            fn.result_tag = type_to_tag(item->as.function.return_type, item->as.function.return_struct_type_name, cg.env);
             fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
 
             uint32_t idx = nvm_add_function(cg.module, &fn);
@@ -3024,12 +3027,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         if (item->type == AST_FUNCTION && item->as.function.is_extern) {
             const char *name = item->as.function.name;
             uint16_t pc = (uint16_t)item->as.function.param_count;
-            uint8_t ret_tag = type_to_tag(item->as.function.return_type);
+            uint8_t ret_tag = type_to_tag(item->as.function.return_type, item->as.function.return_struct_type_name, cg.env);
 
             /* Build param type tags */
             uint8_t param_tags[16] = {0};
             for (int p = 0; p < pc && p < 16; p++) {
-                param_tags[p] = type_to_tag(item->as.function.params[p].type);
+                param_tags[p] = type_to_tag(item->as.function.params[p].type, item->as.function.params[p].struct_type_name, cg.env);
             }
 
             register_extern(&cg, name, "", pc, ret_tag, param_tags);
@@ -3106,7 +3109,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             NvmFunctionEntry fn = {0};
                             fn.name_idx = name_idx;
                             fn.arity = (uint16_t)mitem->as.function.param_count;
-                            fn.result_tag = type_to_tag(mitem->as.function.return_type);
+                            fn.result_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                             fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                             idx = nvm_add_function(cg.module, &fn);
                             if (cg.fn_count < MAX_FUNCTIONS) {
@@ -3144,10 +3147,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         const char *ename = mitem->as.function.name;
                         if (extern_find(&cg, ename) < 0) {
                             uint16_t pc = (uint16_t)mitem->as.function.param_count;
-                            uint8_t ret_tag = type_to_tag(mitem->as.function.return_type);
+                            uint8_t ret_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                             uint8_t param_tags[16] = {0};
                             for (int p = 0; p < pc && p < 16; p++) {
-                                param_tags[p] = type_to_tag(mitem->as.function.params[p].type);
+                                param_tags[p] = type_to_tag(mitem->as.function.params[p].type, mitem->as.function.params[p].struct_type_name, cg.env);
                             }
                             register_extern(&cg, ename, mod_path ? mod_path : "",
                                            pc, ret_tag, param_tags);
@@ -3247,10 +3250,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                         if (fn) {
                             uint16_t pc = (uint16_t)fn->param_count;
-                            uint8_t ret_tag = type_to_tag(fn->return_type);
+                            uint8_t ret_tag = type_to_tag(fn->return_type, fn->return_struct_type_name, cg.env);
                             uint8_t param_tags[16] = {0};
                             for (int p = 0; p < pc && p < 16; p++) {
-                                param_tags[p] = type_to_tag(fn->params[p].type);
+                                param_tags[p] = type_to_tag(fn->params[p].type, fn->params[p].struct_type_name, cg.env);
                             }
                             register_extern(&cg, local_name, mod_name ? mod_name : "",
                                            pc, ret_tag, param_tags);
@@ -3264,10 +3267,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             if (fn->name && strncmp(fn->name, mod_name, prefix_len) == 0 &&
                                 fn->name[prefix_len] == '.') {
                                 uint16_t pc = (uint16_t)fn->param_count;
-                                uint8_t ret_tag = type_to_tag(fn->return_type);
+                                uint8_t ret_tag = type_to_tag(fn->return_type, fn->return_struct_type_name, cg.env);
                                 uint8_t param_tags[16] = {0};
                                 for (int p = 0; p < pc && p < 16; p++) {
-                                    param_tags[p] = type_to_tag(fn->params[p].type);
+                                    param_tags[p] = type_to_tag(fn->params[p].type, fn->params[p].struct_type_name, cg.env);
                                 }
                                 register_extern(&cg, fn->name, mod_name,
                                                pc, ret_tag, param_tags);
@@ -3305,7 +3308,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         NvmFunctionEntry fn = {0};
                         fn.name_idx = ni;
                         fn.arity = (uint16_t)mitem->as.function.param_count;
-                        fn.result_tag = type_to_tag(mitem->as.function.return_type);
+                        fn.result_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                         fn.result_count = fn.result_tag == TAG_VOID ? 0 : 1;
                         uint32_t idx = nvm_add_function(cg.module, &fn);
                         cg.functions[cg.fn_count].name = (char *)fname;
@@ -3318,10 +3321,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     const char *ename = mitem->as.function.name;
                     if (extern_find(&cg, ename) < 0) {
                         uint16_t pc = (uint16_t)mitem->as.function.param_count;
-                        uint8_t ret_tag = type_to_tag(mitem->as.function.return_type);
+                        uint8_t ret_tag = type_to_tag(mitem->as.function.return_type, mitem->as.function.return_struct_type_name, cg.env);
                         uint8_t param_tags[16] = {0};
                         for (int p = 0; p < pc && p < 16; p++) {
-                            param_tags[p] = type_to_tag(mitem->as.function.params[p].type);
+                            param_tags[p] = type_to_tag(mitem->as.function.params[p].type, mitem->as.function.params[p].struct_type_name, cg.env);
                         }
                         register_extern(&cg, ename, modules->module_paths[mi],
                                        pc, ret_tag, param_tags);

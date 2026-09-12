@@ -346,12 +346,31 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I need private staging, atomic publication and content-change/retry
       tests before I claim robust concurrent or interrupted C-library builds.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 VM opaque signatures across imports.** With its foreign library
+- [x] **5.0 VM opaque signature representation.** With its foreign library
       built, `advanced/datetime_demo.nano` reaches execution but fails in `now`:
       an imported opaque `DateTime` return is declared as a struct in bytecode
-      and arrives as an integer. I preserve opaque identity through checked
-      signatures, bytecode imports and FFI marshaling, with round-trip and
-      rejection tests rather than weakening runtime return checks.
+      and arrives as an integer. I preserve the declared opaque runtime kind
+      in local, imported and extern signatures, with round-trip and rejected
+      wrong-kind tests rather than weakening runtime return checks.
+      Local malloc/free and foreign-library direct/transitive round trips
+      pass, as do wrong-kind rejection and ordinary record returns in the same
+      program. The original datetime example executes root shadows and main;
+      its standalone bytecode exits zero. All 25 shadow tests, 63 codegen
+      tests, 18 FFI tests, 272215 VM checks and failure/recovery suites, and
+      all 28 cross-backend contract rows pass (2026-09-12).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 opaque nominal identity and null boundaries.** My environment
+      resolves qualified opaque names by global short-name fallback. My
+      argument checker accepts any struct or integer for an opaque parameter,
+      despite describing only the declared handle or zero as valid. I require
+      module-aware nominal identity and exact null handling through checker
+      and backend metadata, with colliding-name and wrong-handle rejections.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 imported function namespace isolation.** A helper that imports
+      a module as `foreign` cannot define its own `make`, `echo` or `read`
+      when that imported module has those names: short names leak into the
+      helper's declaration scope. I preserve module ownership through lookup
+      and lowering, with same-named wrapper tests instead of renaming APIs.
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
       rejects 98 of 229 eligible examples after shadow execution is enabled.
