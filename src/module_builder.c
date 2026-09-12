@@ -321,18 +321,12 @@ static void append_flag_move_to_end(char **out_flags, size_t *out_count, size_t 
     out_flags[(*out_count)++] = strdup(flag);
 }
 
-static void append_split_flags_move_to_end(char **out_flags, size_t *out_count, size_t out_cap, const char *flags) {
-    if (!flags || flags[0] == '\0') return;
-
+static void append_flag_fragment(char **out_flags, size_t *out_count, size_t out_cap, const char *flags) {
+    if (!flags || !flags[0] || !out_flags || !out_count || *out_count >= out_cap) return;
+    /* I preserve trusted shell fragments byte-for-byte and in order. Splitting
+     * on whitespace corrupts quoted paths and deduplication can change linking. */
     char *copy = strdup(flags);
-    if (!copy) return;
-
-    char *saveptr = NULL;
-    for (char *tok = strtok_r(copy, " \t\r\n", &saveptr); tok; tok = strtok_r(NULL, " \t\r\n", &saveptr)) {
-        append_flag_move_to_end(out_flags, out_count, out_cap, tok);
-    }
-
-    free(copy);
+    if (copy) out_flags[(*out_count)++] = copy;
 }
 
 static void append_platform_ldflags(ModuleBuildMetadata *meta, char **out_flags, size_t *out_count, size_t out_cap, bool split) {
@@ -351,7 +345,7 @@ static void append_platform_ldflags(ModuleBuildMetadata *meta, char **out_flags,
 
     for (size_t i = 0; i < count; i++) {
         if (split) {
-            append_split_flags_move_to_end(out_flags, out_count, out_cap, flags[i]);
+            append_flag_fragment(out_flags, out_count, out_cap, flags[i]);
         } else if (*out_count < out_cap) {
             out_flags[(*out_count)++] = strdup(flags[i]);
         }
@@ -460,7 +454,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v13-device-sync");
+    hash_context_field(&hash, "nanolang-c-build-context-v14-link-validation");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2377,6 +2371,155 @@ static int module_run_source_command(const char *command, const char *dependency
     return result;
 }
 
+/* I use one link recipe for publication and Linux warm validation. */
+static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                      const char *object_file, const char *shared_lib,
+                                      const char *build_dir, char *lib_cmd, size_t capacity) {
+    bool command_ok = true;
+    const char *cc = module_selected_compiler(meta);
+    lib_cmd[0] = 0;
+    #ifdef __APPLE__
+    /* On macOS, allow unresolved symbols so modules can reference symbols
+     * provided by the host process (compiler/interpreter) at dlopen() time.
+     */
+    command_ok &= module_build_append(lib_cmd, capacity,
+                       "%s -dynamiclib -undefined dynamic_lookup -fPIC", cc);
+    #else
+    command_ok &= module_build_append(lib_cmd, capacity,
+                       "%s -shared -fPIC -Wl,--allow-shlib-undefined", cc);
+    #endif
+    /* Link the shared library from the module object (supports multi-source modules) */
+    command_ok &= module_append_path_flag(lib_cmd, capacity, "-o ", shared_lib);
+    command_ok &= module_append_path_flag(lib_cmd, capacity, "", object_file);
+    /* I append captured package fragments without tokenizing their contents. */
+    char *shared_cflags[1024] = {0};
+    size_t shared_cflags_count = 0;
+    for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+        char *pkg_cflags = strdup(flags->cflags[i]);
+        if (!pkg_cflags) {
+            for (size_t j = 0; j < shared_cflags_count; j++) free(shared_cflags[j]);
+            return false;
+        }
+        if (pkg_cflags) {
+            append_flag_fragment(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
+            free(pkg_cflags);
+        }
+    }
+    for (size_t i = 0; i < shared_cflags_count; i++) {
+        command_ok &= module_build_append(lib_cmd, capacity, " %s", shared_cflags[i]);
+        free(shared_cflags[i]);
+    }
+
+    char *shared_ldflags[1024] = {0};
+    size_t shared_ldflags_count = 0;
+    for (size_t i = 0; i < meta->pkg_config_count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+        char *pkg_libs = strdup(flags->libs[i]);
+        if (!pkg_libs) {
+            for (size_t j = 0; j < shared_ldflags_count; j++) free(shared_ldflags[j]);
+            return false;
+        }
+        if (pkg_libs) {
+            append_flag_fragment(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
+            free(pkg_libs);
+        }
+    }
+    for (size_t i = 0; i < meta->system_libs_count; i++) {
+        char buf[256];
+        snprintf(buf, sizeof(buf), "-l%s", meta->system_libs[i]);
+        append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, buf);
+    }
+    for (size_t i = 0; i < meta->ldflags_count; i++) {
+        append_flag_fragment(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
+    }
+    append_platform_ldflags(meta, shared_ldflags, &shared_ldflags_count, 1024, true);
+    #ifdef __APPLE__
+    for (size_t i = 0; i < meta->frameworks_count; i++) {
+        append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
+        append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->frameworks[i]);
+    }
+    #endif
+
+    for (size_t i = 0; i < shared_ldflags_count; i++) {
+        command_ok &= module_build_append(lib_cmd, capacity, " %s", shared_ldflags[i]);
+        free(shared_ldflags[i]);
+    }
+    /* Add custom cflags (all platforms) */
+    for (size_t i = 0; i < meta->cflags_count; i++) {
+        command_ok &= module_build_append(lib_cmd, capacity,
+                           " %s", meta->cflags[i]);
+    }
+    /* Add platform-specific cflags */
+#ifdef __APPLE__
+    for (size_t i = 0; i < meta->cflags_macos_count; i++) {
+        command_ok &= module_build_append(lib_cmd, capacity,
+                           " %s", meta->cflags_macos[i]);
+    }
+#elif defined(__FreeBSD__)
+    for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
+        command_ok &= module_build_append(lib_cmd, capacity,
+                           " %s", meta->cflags_freebsd[i]);
+    }
+#else
+    for (size_t i = 0; i < meta->cflags_linux_count; i++) {
+        command_ok &= module_build_append(lib_cmd, capacity,
+                           " %s", meta->cflags_linux[i]);
+    }
+#endif
+    for (size_t i = 0; i < meta->shared_c_sources_count; i++) {
+        char object[2048] = {0};
+        command_ok &= module_build_append(object, sizeof(object), "%s/__shared_%zu.o", build_dir, i);
+        command_ok &= module_append_path_flag(lib_cmd, capacity, "", object);
+    }
+    return command_ok;
+}
+
+#ifdef __linux__
+static bool module_equal_libraries(const char *left, const char *right) {
+    int a = open(left, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+    int b = open(right, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+    struct stat sa, sb;
+    bool equal = a >= 0 && b >= 0 && fstat(a, &sa) == 0 && fstat(b, &sb) == 0 &&
+        S_ISREG(sa.st_mode) && S_ISREG(sb.st_mode) && sa.st_size > 0 && sa.st_size == sb.st_size;
+    FILE *fa = a >= 0 ? fdopen(a, "rb") : NULL;
+    FILE *fb = b >= 0 ? fdopen(b, "rb") : NULL;
+    if (!fa || !fb) equal = false;
+    while (equal) {
+        unsigned char ba[8192], bb[8192];
+        size_t na = fread(ba, 1, sizeof(ba), fa);
+        size_t nb = fread(bb, 1, sizeof(bb), fb);
+        equal = na == nb && memcmp(ba, bb, na) == 0 && !ferror(fa) && !ferror(fb);
+        if (!na || !nb) break;
+    }
+    if (fa) { if (fclose(fa) != 0) equal = false; }
+    else if (a >= 0) close(a);
+    if (fb) { if (fclose(fb) != 0) equal = false; }
+    else if (b >= 0) close(b);
+    return equal;
+}
+
+/* I validate the link's output, not an inferred inventory of GNU ld inputs.
+ * A failed link is not permission to retry and hide its failure. */
+static int module_linux_link_matches(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                     const char *objects, const char *staging, const char *object_file) {
+    char retained[2048] = {0}, candidate[2048] = {0}, command[4096] = {0};
+    bool ok = module_build_append(retained, sizeof(retained), "%s/lib%s.so", objects, meta->name) &&
+        module_build_append(candidate, sizeof(candidate), "%s/lib%s.so", staging, meta->name) &&
+        module_shared_link_command(meta, flags, object_file, candidate, objects, command, sizeof(command));
+    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
+        fprintf(stderr, "I validate the cached shared link for %s\n", meta->name);
+    struct stat st;
+    if (!ok || system(command) != 0 || lstat(candidate, &st) != 0 ||
+        !S_ISREG(st.st_mode) || st.st_size == 0) return -1;
+    return module_equal_libraries(retained, candidate) ? 1 : 0;
+}
+#endif
+
 static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
                                            ModuleBuildMetadata *meta, const char *staging,
                                            uint64_t *preprocessing_before,
@@ -2406,7 +2549,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 return NULL;
             }
             if (pkg_flags) {
-                append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
+                append_flag_fragment(link_flags, &total_link_flags, 1024, pkg_flags);
                 free(pkg_flags);
             }
         }
@@ -2452,7 +2595,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 return NULL;
             }
             if (pkg_cflags) {
-                append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
+                append_flag_fragment(compile_flags, &total_compile_flags, 1024, pkg_cflags);
                 free(pkg_cflags);
             }
         }
@@ -2509,6 +2652,28 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         free(build_dir);
         return NULL;
     }
+
+#ifdef __linux__
+    if (!needs_rebuild && staging) {
+        int matches = module_linux_link_matches(meta, flags, build_dir, staging, object_file);
+        if (matches < 0) {
+            fprintf(stderr, "I could not validate the cached shared link for %s\n", meta->name);
+            free(build_dir);
+            return NULL;
+        }
+        if (!matches) {
+            free(build_dir);
+            build_dir = strdup(staging);
+            object_file[0] = 0;
+            if (!build_dir || !module_build_append(object_file, sizeof(object_file), "%s/%s.o",
+                                                   build_dir, meta->name)) {
+                free(build_dir);
+                return NULL;
+            }
+            needs_rebuild = true;
+        }
+    }
+#endif
 
     if (needs_rebuild) {
         if (preprocessing_before) *preprocessing_before = module_preprocess_fingerprint(meta, flags);
@@ -2624,107 +2789,9 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         if (shared_dir_ok) {
-            /* Build shared library command */
             char lib_cmd[4096] = {0};
-            
-            #ifdef __APPLE__
-            /* On macOS, allow unresolved symbols so modules can reference symbols
-             * provided by the host process (compiler/interpreter) at dlopen() time.
-             */
-            command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
-                               "%s -dynamiclib -undefined dynamic_lookup -fPIC", cc);
-            #else
-            command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
-                               "%s -shared -fPIC -Wl,--allow-shlib-undefined", cc);
-            #endif
-            
-            /* Link the shared library from the module object (supports multi-source modules) */
-            command_ok &= module_append_path_flag(lib_cmd, sizeof(lib_cmd), "-o ", shared_lib);
-            command_ok &= module_append_path_flag(lib_cmd, sizeof(lib_cmd), "", object_file);
-            
-            /* Add pkg-config flags (deduplicated) */
-            char *shared_cflags[1024] = {0};
-            size_t shared_cflags_count = 0;
-            for (size_t i = 0; i < meta->pkg_config_count; i++) {
-#ifdef __APPLE__
-                if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
-#endif
-                char *pkg_cflags = strdup(flags->cflags[i]);
-                if (!pkg_cflags) {
-                    for (size_t j = 0; j < shared_cflags_count; j++) free(shared_cflags[j]);
-                    free(build_dir);
-                    return NULL;
-                }
-                if (pkg_cflags) {
-                    append_split_flags_move_to_end(shared_cflags, &shared_cflags_count, 1024, pkg_cflags);
-                    free(pkg_cflags);
-                }
-            }
-            for (size_t i = 0; i < shared_cflags_count; i++) {
-                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd), " %s", shared_cflags[i]);
-                free(shared_cflags[i]);
-            }
-
-            char *shared_ldflags[1024] = {0};
-            size_t shared_ldflags_count = 0;
-            for (size_t i = 0; i < meta->pkg_config_count; i++) {
-#ifdef __APPLE__
-                if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
-#endif
-                char *pkg_libs = strdup(flags->libs[i]);
-                if (!pkg_libs) {
-                    for (size_t j = 0; j < shared_ldflags_count; j++) free(shared_ldflags[j]);
-                    free(build_dir);
-                    return NULL;
-                }
-                if (pkg_libs) {
-                    append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, pkg_libs);
-                    free(pkg_libs);
-                }
-            }
-            for (size_t i = 0; i < meta->system_libs_count; i++) {
-                char buf[256];
-                snprintf(buf, sizeof(buf), "-l%s", meta->system_libs[i]);
-                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, buf);
-            }
-            for (size_t i = 0; i < meta->ldflags_count; i++) {
-                append_split_flags_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->ldflags[i]);
-            }
-            append_platform_ldflags(meta, shared_ldflags, &shared_ldflags_count, 1024, true);
-            #ifdef __APPLE__
-            for (size_t i = 0; i < meta->frameworks_count; i++) {
-                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, "-framework");
-                append_flag_move_to_end(shared_ldflags, &shared_ldflags_count, 1024, meta->frameworks[i]);
-            }
-            #endif
-
-            for (size_t i = 0; i < shared_ldflags_count; i++) {
-                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd), " %s", shared_ldflags[i]);
-                free(shared_ldflags[i]);
-            }
-            
-            /* Add custom cflags (all platforms) */
-            for (size_t i = 0; i < meta->cflags_count; i++) {
-                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
-                                   " %s", meta->cflags[i]);
-            }
-            /* Add platform-specific cflags */
-#ifdef __APPLE__
-            for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
-                                   " %s", meta->cflags_macos[i]);
-            }
-#elif defined(__FreeBSD__)
-            for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
-                                   " %s", meta->cflags_freebsd[i]);
-            }
-#else
-            for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-                command_ok &= module_build_append(lib_cmd, sizeof(lib_cmd),
-                                   " %s", meta->cflags_linux[i]);
-            }
-#endif
+            command_ok &= module_shared_link_command(meta, flags, object_file, shared_lib,
+                                                      build_dir, lib_cmd, sizeof(lib_cmd));
 
             /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
 
@@ -2745,10 +2812,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                         printf("[Module] (shared-only) %s\n", sc_cmd);
                     }
 
-                    if (command_ok && module_run_source_command(sc_cmd, sc_dep) == 0) {
-                        /* Append this object to the lib_cmd */
-                        command_ok &= module_append_path_flag(lib_cmd, sizeof(lib_cmd), "", sc_obj);
-                    } else {
+                    if (!command_ok || module_run_source_command(sc_cmd, sc_dep) != 0) {
                         fprintf(stderr,
                                 "I could not compile shared_c_source %s for %s\n",
                                 meta->shared_c_sources[sci], meta->name);
@@ -2847,7 +2911,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             return NULL;
         }
         if (pkg_flags) {
-            append_split_flags_move_to_end(link_flags, &total_link_flags, 1024, pkg_flags);
+            append_flag_fragment(link_flags, &total_link_flags, 1024, pkg_flags);
             free(pkg_flags);
         }
     }
@@ -2893,7 +2957,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             return NULL;
         }
         if (pkg_cflags) {
-            append_split_flags_move_to_end(compile_flags, &total_compile_flags, 1024, pkg_cflags);
+            append_flag_fragment(compile_flags, &total_compile_flags, 1024, pkg_cflags);
             free(pkg_cflags);
         }
     }

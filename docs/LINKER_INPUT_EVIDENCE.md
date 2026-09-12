@@ -192,3 +192,31 @@ methods: nonregular generation entries, symlink-safe cleanup, publication
 barrier failures/retry, ancestor barriers, the 28-case process-crash matrix,
 and surviving compiler children in local/shared caches. These are Linux
 builder results, not a full Linux compiler/VM gate or a sanitizer result.
+
+## Linux link-result repair
+
+I now validate source-cache hits with the actual linker. I link the retained
+native and shared-only objects into private staging using the same command
+recipe as a cold build, then compare the library bytes with the published
+library. Equal output retains the generation and avoids C compilation. Changed
+output triggers rebuilding. Failed links fail the build without another link
+attempt or publication; the previous generation remains usable.
+
+The archive/search reproducer now returns 43 and 44 and retains its generation
+when unchanged. Additional tests replace a thin member without changing archive
+bytes, change a response file, and use a quoted archive pathname containing a
+newline and backslash. A counted multi-source/shared-only fixture verifies three
+initial C compilations, no additional warm C compilation, one warm link, failure
+preservation and recovery. File-comparison tests reject different, empty,
+missing, symlink and FIFO inputs.
+
+The unusual pathname also exposed whitespace tokenization of supplied flag
+fragments. I preserve those fragments intact and in order now; the shell still
+interprets this trusted configuration. The same cold/warm unusual-path test
+runs on Darwin. My v14 build context invalidates older flag-splitting behavior.
+
+This costs one shared link per warm Linux build. It is deliberately a
+link-result check, not a claim that I captured every input byte or took an
+atomic snapshot. I have not replaced the remaining GNU input-identity work
+with a claim about dependency-file completeness. Runtime dynamic-library
+retention and nondeterministic-link performance remain separate concerns.

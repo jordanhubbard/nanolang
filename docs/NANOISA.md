@@ -462,6 +462,23 @@ wrapper/output-file persistence and full crash-recovery acceptance remain open;
 successful directory barriers alone do
 not establish those broader claims.
 
+On Linux, I validate a source-cache hit with one private shared-library link
+using the retained native and shared-only objects. I construct that command
+with the same recipe as a cold build. A byte-for-byte equal library keeps its
+generation without recompiling C; changed bytes trigger rebuilding. A failed
+validation link fails the build without retrying past that failure or changing
+the current pointer. This catches the tested archive, earlier-search-candidate,
+thin-member and response-file changes without interpreting GNU ld's lossy
+dependency file. Warm builds now pay for one shared link. Nondeterministic
+link output can prevent generation reuse.
+
+This checks a link result, not a complete input inventory or an atomic source
+snapshot. It does not pin the external dynamic libraries used later by the
+runtime. Other linker modes and the full input-identity contract remain open.
+I preserve configured flag fragments as trusted shell text, including quoted
+newlines, rather than splitting their bytes on whitespace. My v14 cache context
+rebuilds generations created with the earlier flag-splitting behavior.
+
 My foreign-module builder also quotes source, object, dependency, library and
 declared include paths. It refuses oversized commands before invoking the
 compiler. Compiler commands and explicit flag fragments remain trusted

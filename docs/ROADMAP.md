@@ -377,6 +377,34 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       surviving-child cases. This is neither the Linux invalidation repair
       nor a full Linux compiler/VM or sanitizer gate (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 module flag fragments — preserve quoted bytes.** My whitespace
+      tokenizer changed a quoted newline in an archive path into a space.
+      I preserve supplied flag fragments intact and in order instead of
+      tokenizing them without a shell grammar. I test the unusual archive
+      through cold and warm Linux links and keep package/foreign-build gates.
+      This does not make configured shell fragments untrusted or sandboxed.
+      Cold/warm archive replacement through a quoted space, quote, backslash
+      and newline path passes on Darwin and Linux. The package and foreign
+      build gates below pass. My v14 cache context invalidates the old
+      flag-splitting semantics (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Linux warm-link validation.** Before reusing cached C artifacts,
+      I run the original shared-link recipe against their objects into private
+      staging and compare the library bytes. Equal output retains the current
+      generation; changed output triggers rebuilding; a failed validation link
+      fails without publishing or retrying past the failure. I test archive
+      edits, earlier search candidates, thin members, response files, unchanged
+      reuse, shared-only objects and failed-link recovery. Warm Linux builds
+      pay for one link. This does not replace full input identity or snapshots.
+      All four new Linux methods pass under GCC 12.2 `-O3` and ASan/UBSan;
+      the sanitizer build instruments the production builder and linked
+      support sources, not fixture libraries or system libraries. Eleven
+      optimized Linux methods pass including prior barrier/crash/cleanup
+      boundaries. Darwin passes 28 shadows, 53 cache tests, five wrapper link
+      tests, seven wrapper boundary tests, 63 codegen tests, 19 FFI tests and
+      package/dependency gates. The four Linux-specific methods skip on
+      Darwin, rather than claiming that platform executes them (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 GNU linker cache invalidation.** I repair the reproduced stale
       archive and search-selection results, including thin members and
       indirect flag inputs. I establish a lossless supported-mode boundary

@@ -2061,6 +2061,7 @@ $(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(
 test-bytecode-shadows: nano_virt nano_vm $(OBJ_DIR)/test_module_generation_probe
 	@python3 tests/test_bytecode_shadows.py
 	@python3 -m unittest tests.test_module_cache_publication
+	@python3 -m unittest tests.test_linux_link_cache
 
 .PHONY: test-native-shadow-emitter
 test-native-shadow-emitter:

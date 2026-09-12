@@ -154,6 +154,10 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+#ifdef __linux__
+    if (argc == 4 && strcmp(argv[1], "equal-libraries") == 0)
+        return module_equal_libraries(argv[2], argv[3]) ? 0 : 1;
+#endif
     if (strcmp(argv[1], "remove-staging") == 0) {
         module_remove_staging(argv[2]);
         return 0;
