@@ -1,5 +1,6 @@
 """I protect cached foreign artifacts while compilers fail or overlap."""
 import json
+import ctypes
 import os
 from pathlib import Path
 import select
@@ -18,10 +19,35 @@ ROOT = shadows.ROOT
 
 
 class ModuleCachePublication(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.probe_directory = tempfile.TemporaryDirectory(prefix="nano-generation-probe-")
+        cls.addClassCleanup(cls.probe_directory.cleanup)
+        cls.probe = Path(cls.probe_directory.name) / "probe"
+        objects = ["cJSON.o", "utf8.o", "runtime/module_build_dir.o", "runtime/ffi_loader.o"]
+        command = [shutil.which("cc"), "-D_GNU_SOURCE", "-Isrc", "tests/test_module_generation_probe.c"]
+        command += [str(ROOT / "obj" / name) for name in objects]
+        command += ["-pthread", "-o", str(cls.probe)]
+        if sys.platform != "darwin": command.append("-ldl")
+        subprocess.run(command, cwd=ROOT, capture_output=True, check=True, timeout=20)
+
     def setUp(self):
         self.support = shadows.BytecodeShadows()
 
+    def probe_path(self, mode, module, env):
+        result = subprocess.run([str(self.probe), mode, str(module)], cwd=ROOT,
+                                env=env, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return Path(result.stdout.decode().strip())
+
+    def library_answer(self, library):
+        handle = ctypes.CDLL(str(library))
+        handle.nano_build_answer.restype = ctypes.c_int64
+        return handle.nano_build_answer()
+
     def snapshot(self, cache):
+        if (cache / "current").is_symlink():
+            cache = (cache / "current").resolve(strict=True)
         return {p.name: p.read_bytes() for p in cache.iterdir()
                 if p.is_file() and p.name != ".build.lock"}
 
@@ -68,7 +94,7 @@ if ({phase!r} in ("object", "symlink") and "-c" in sys.argv) or ({phase!r} == "l
     if {phase!r} == "symlink":
         subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:], check=True)
         output.unlink()
-        output.symlink_to({str(cache / 'answer_native.o')!r})
+        output.symlink_to({str((cache / 'current').resolve() / 'answer_native.o')!r})
         sys.exit(0)
     output.write_bytes(b"partial compiler output")
     sys.exit(24)
@@ -76,7 +102,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
 ''')
                 compiler.chmod(0o700)
                 env["NANO_CC"] = str(compiler)
-                result, output = self.support.compile(source.replace("42", "43"), directory, env=env)
+                result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, env=env)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(self.snapshot(cache), old)
                 self.assertEqual(output.read_bytes(), old_program)
@@ -86,7 +112,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(observation["mode"], 0o700)
                 self.assertFalse(list(cache.glob(".nano-build-*")))
                 env.pop("NANO_CC")
-                result, output = self.support.compile(source.replace("42", "43"), directory, "--run", env=env)
+                result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
                 self.assertEqual(result.returncode, 43, result.stderr)
                 self.assertFalse(list(cache.glob(".nano-build-*")))
 
@@ -103,10 +129,10 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(self.support.execute(output, env=env).returncode, 42)
             cache = module / ".build"
             for name in ("answer_native.o", "answer_native_0.o", "answer_native_1.o", "answer_native_0.d", "answer_native_1.d", "__shared_0.o", "__shared_0.d", "source_hashes.json"):
-                self.assertGreater((cache / name).stat().st_size, 0)
+                self.assertGreater((cache / "current" / name).stat().st_size, 0)
             self.assertFalse(list(cache.glob(".nano-build-*")))
 
-    def test_failed_publication_invalidates_hash_evidence(self):
+    def test_failed_publication_preserves_old_generation(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
             directory = Path(tmp)
             module, source, env = self.support.foreign_build_fixture(directory)
@@ -114,18 +140,25 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(result.returncode, 42, result.stderr)
             old_program = output.read_bytes()
             cache = module / ".build"
-            extension = "dylib" if sys.platform == "darwin" else "so"
-            library = cache / f"libanswer_native.{extension}"
-            library.unlink()
-            library.mkdir()  # I force the library rename to fail after the object rename.
-            result, output = self.support.compile(source, directory, env=env)
+            pointer = cache / "current"
+            old_generation = pointer.resolve(strict=True)
+            old = self.snapshot(old_generation)
+            pointer.unlink()
+            pointer.mkdir()  # I force the final pointer rename to fail.
+            c_source = module / "answer.c"
+            c_source.write_text(c_source.read_text().replace("42", "43"))
+            result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, env=env)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn(b"could not publish complete", result.stderr)
             self.assertEqual(output.read_bytes(), old_program)
-            self.assertFalse((cache / "source_hashes.json").exists())
-            library.rmdir()
-            result, output = self.support.compile(source, directory, "--run", env=env)
-            self.assertEqual(result.returncode, 42, result.stderr)
+            self.assertEqual(self.snapshot(old_generation), old)
+            self.assertEqual([p.resolve() for p in cache.glob(".nano-gen-*")], [old_generation])
+            self.assertFalse(list(cache.glob(".nano-build-*")))
+            pointer.rmdir()
+            pointer.symlink_to(old_generation.name)
+            self.assertEqual(self.support.execute(output, env=env).returncode, 42)
+            result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
+            self.assertEqual(result.returncode, 43, result.stderr)
 
     def blocking_compiler(self, directory):
         compiler = directory / "cc-blocked"
@@ -185,7 +218,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                     os.utime(first, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
                 else:
                     env[selection] = str(second)
-                result, output = self.support.compile(source.replace("42", "43"), directory, "--run", env=env)
+                result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
                 self.assertEqual(result.returncode, 43, result.stderr)
                 execution = self.support.execute(output, env=env)
                 self.assertEqual(execution.returncode, 43, execution.stderr)
@@ -201,7 +234,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                 include.mkdir()
                 (include / "answer.h").write_text(f"#define ANSWER {answer}\n")
                 env["CPATH"] = str(include)
-                result, output = self.support.compile(source.replace("42", str(answer)), directory, "--run", env=env)
+                result, output = self.support.compile(source.replace(" 42)", f" {answer})"), directory, "--run", env=env)
                 self.assertEqual(result.returncode, answer, result.stderr)
                 execution = self.support.execute(output, env=env)
                 self.assertEqual(execution.returncode, answer, execution.stderr)
@@ -229,10 +262,10 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                 result, _ = self.support.compile(source, directory, "--run", env=env)
                 self.assertEqual(result.returncode, 42, result.stderr)
                 self.assertEqual(len(calls.read_text().splitlines()), count)
-                self.assertFalse((module / ".build" / "source_hashes.json").exists())
+                self.assertFalse((module / ".build" / "current" / "source_hashes.json").exists())
 
     def test_working_directory_changes_relative_include_resolution(self):
-        with tempfile.TemporaryDirectory(prefix="nano-identity-") as tmp:
+        with tempfile.TemporaryDirectory(prefix="nano-identity-42-") as tmp:
             directory = Path(tmp)
             module, source, env = self.support.foreign_build_fixture(directory)
             (module / "answer.c").write_text("#include <stdint.h>\n#include <answer.h>\nint64_t nano_build_answer(void) { return ANSWER; }\n")
@@ -242,7 +275,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                 include = cwd / "headers"
                 include.mkdir(parents=True)
                 (include / "answer.h").write_text(f"#define ANSWER {answer}\n")
-                result, output = self.support.compile(source.replace("42", str(answer)), directory, "--run", env=env, cwd=cwd)
+                result, output = self.support.compile(source.replace(" 42)", f" {answer})"), directory, "--run", env=env, cwd=cwd)
                 self.assertEqual(result.returncode, answer, result.stderr)
                 execution = self.support.execute(output, env=env)
                 self.assertEqual(execution.returncode, answer, execution.stderr)
@@ -266,7 +299,7 @@ os.execv(''')
                 result, _ = self.support.compile(source, directory, "--run", env=env)
                 self.assertEqual(result.returncode, 42, result.stderr)
                 self.assertEqual(len(calls.read_text().splitlines()), count)
-                self.assertEqual((module / ".build" / "source_hashes.json").exists(), reusable)
+                self.assertEqual((module / ".build" / "current" / "source_hashes.json").exists(), reusable)
 
     def test_interrupted_compiler_preserves_cache_and_releases_lock(self):
         with tempfile.TemporaryDirectory(prefix="nano-publish-") as tmp:
@@ -279,7 +312,7 @@ os.execv(''')
             c_source = module / "answer.c"
             c_source.write_text(c_source.read_text().replace("42", "43"))
             env["NANO_CC"] = str(self.blocking_compiler(directory))
-            process = self.start(directory / "interrupted", source.replace("42", "43"), env)
+            process = self.start(directory / "interrupted", source.replace(" 42)", " 43)"), env)
             try:
                 self.wait_ready(directory / "ready", process)
             finally:
@@ -290,7 +323,7 @@ os.execv(''')
             self.assertEqual(len(orphaned), 1)
             self.assertEqual(stat.S_IMODE(orphaned[0].stat().st_mode), 0o700)
             env.pop("NANO_CC")
-            result, output = self.support.compile(source.replace("42", "43"), directory, "--run", env=env)
+            result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
             self.assertEqual(result.returncode, 43, result.stderr)
 
     def test_overlapping_builders_wait_and_reuse(self):
@@ -328,6 +361,123 @@ os.execv(''')
             finally:
                 for process in processes:
                     self.stop(process)
+
+    def test_old_object_and_library_paths_survive_new_publication(self):
+        with tempfile.TemporaryDirectory(prefix="nano-generation-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            old_object = self.probe_path("build", module, env)
+            old_library = self.probe_path("library", module, env)
+            self.assertIn(".nano-gen-", old_object.parent.name)
+            self.assertEqual(old_object.parent, old_library.parent)
+            old = self.snapshot(old_object.parent)
+            changed = module / "answer.c"
+            changed.write_text(changed.read_text().replace("42", "43"))
+            result, _ = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
+            self.assertEqual(result.returncode, 43, result.stderr)
+            new_object = self.probe_path("build", module, env)
+            new_library = self.probe_path("library", module, env)
+            self.assertNotEqual(old_object.parent, new_object.parent)
+            self.assertEqual(new_object.parent, new_library.parent)
+            self.assertEqual(self.snapshot(old_object.parent), old)
+            self.assertEqual(self.library_answer(old_library), 42)
+            self.assertEqual(self.library_answer(new_library), 43)
+            # I link the previously returned object only after replacement.
+            main = directory / "main.c"
+            main.write_text("#include <stdint.h>\nint64_t nano_build_answer(void);\nint main(void) { return (int)nano_build_answer(); }\n")
+            executable = directory / "old-native"
+            subprocess.run([shutil.which("cc"), str(main), str(old_object), "-o", str(executable)], check=True, capture_output=True, timeout=10)
+            self.assertEqual(subprocess.run([str(executable)], timeout=10).returncode, 42)
+
+    def test_reader_keeps_complete_generation_during_build(self):
+        with tempfile.TemporaryDirectory(prefix="nano-generation-") as tmp:
+            directory = Path(tmp)
+            module, source, env = self.support.foreign_build_fixture(directory)
+            old_object = self.probe_path("build", module, env)
+            old_library = self.probe_path("library", module, env)
+            changed = module / "answer.c"
+            changed.write_text(changed.read_text().replace("42", "43"))
+            env["NANO_CC"] = str(self.blocking_compiler(directory))
+            process = self.start(directory / "writer", source.replace(" 42)", " 43)"), env)
+            try:
+                self.wait_ready(directory / "ready", process)
+                for _ in range(3):
+                    self.assertEqual(self.probe_path("library", module, env), old_library)
+                    self.assertEqual(self.library_answer(old_library), 42)
+                    self.assertTrue((old_object.parent / "source_hashes.json").is_file())
+                    self.assertIsNone(process.poll())
+                (directory / "release").touch()
+                _, error = process.communicate(timeout=20)
+                self.assertEqual(process.returncode, 0, error)
+                new_library = self.probe_path("library", module, env)
+                self.assertNotEqual(new_library, old_library)
+                self.assertEqual(self.library_answer(new_library), 43)
+                self.assertEqual(self.library_answer(old_library), 42)
+            finally:
+                self.stop(process)
+
+    def test_invalid_generation_pointer_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="nano-generation-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            cache = module / ".build"
+            cache.mkdir()
+            self.assertEqual(self.probe_path("directory", module, env), cache)
+            pointer = cache / "current"
+            for target in ("../outside", ".nano-gen-unknown", ".nano-gen-ABC123/../outside", ".nano-gen-ABC123"):
+                with self.subTest(target=target):
+                    pointer.symlink_to(target)
+                    result = subprocess.run([str(self.probe), "directory", str(module)], env=env, capture_output=True, timeout=10)
+                    self.assertNotEqual(result.returncode, 0)
+                    pointer.unlink()
+            (cache / ".nano-gen-ABC123").symlink_to(directory, target_is_directory=True)
+            pointer.symlink_to(".nano-gen-ABC123")
+            result = subprocess.run([str(self.probe), "directory", str(module)], env=env, capture_output=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+
+    def test_pointer_rename_failure_keeps_valid_old_pointer(self):
+        with tempfile.TemporaryDirectory(prefix="nano-generation-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            old_object = self.probe_path("build", module, env)
+            old_library = self.probe_path("library", module, env)
+            old = self.snapshot(old_object.parent)
+            changed = module / "answer.c"
+            changed.write_text(changed.read_text().replace("42", "43"))
+            env["NANO_TEST_POINTER_FAILURE"] = "1"
+            result = subprocess.run([str(self.probe), "build", str(module)], cwd=ROOT,
+                                    env=env, capture_output=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b"could not publish complete", result.stderr)
+            self.assertEqual(self.probe_path("library", module, env), old_library)
+            self.assertEqual(self.library_answer(old_library), 42)
+            self.assertEqual(self.snapshot(old_object.parent), old)
+            self.assertEqual(len(list((module / ".build").glob(".nano-gen-*"))), 1)
+            self.assertFalse(list((module / ".build").glob(".nano-build-*")))
+            env.pop("NANO_TEST_POINTER_FAILURE")
+            self.assertNotEqual(self.probe_path("build", module, env), old_object)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 43)
+
+    def test_damaged_cached_artifact_rebuilds_new_generation(self):
+        for artifact in ("object", "library"):
+            for damage in ("empty", "symlink"):
+                with self.subTest(artifact=artifact, damage=damage), tempfile.TemporaryDirectory(prefix="nano-generation-") as tmp:
+                    directory = Path(tmp)
+                    module, _, env = self.support.foreign_build_fixture(directory)
+                    old_object = self.probe_path("build", module, env)
+                    path = old_object if artifact == "object" else self.probe_path("library", module, env)
+                    if damage == "empty":
+                        path.write_bytes(b"")
+                    else:
+                        saved = directory / path.name
+                        path.rename(saved)
+                        path.symlink_to(saved)
+                    new_object = self.probe_path("build", module, env)
+                    self.assertNotEqual(old_object.parent, new_object.parent)
+                    self.assertGreater(new_object.stat().st_size, 0)
+                    self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+                    if damage == "empty": self.assertEqual(path.stat().st_size, 0)
+                    else: self.assertTrue(path.is_symlink())
 
 
 if __name__ == "__main__":

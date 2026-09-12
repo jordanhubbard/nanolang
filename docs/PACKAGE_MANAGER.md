@@ -226,11 +226,23 @@ recorded in compiler dependency files. Shared-only sources use the same selected
 compiler as the ordinary module sources and produce dependency files too.
 
 I hold a per-cache process lock through validation, compilation and publication.
-I compile into a private directory, require nonempty regular artifacts, and
-publish complete files by rename. Failed compilation leaves cached files intact.
-I invalidate hash evidence before publication, so interrupted or failed
-publication forces rebuilding. A killed build may leave a private directory;
-later builds ignore it. I do not remove other invocations' directories.
+I compile into a private directory and require nonempty regular artifacts.
+I move the complete artifact set into a retained `.nano-gen-<suffix>` directory,
+including dependency files and reuse evidence when available. One atomic rename
+replaces a relative `current` symlink. Failed publication leaves the previous
+generation and pointer intact. A killed build may leave an unpublished directory
+or temporary pointer; later builds ignore it.
+
+My native builder returns the generation's object path. My shared-library loader
+resolves `current` once to a generation path before opening the library. Rebuilds
+do not overwrite those paths. I reject malformed generation pointers and symlink
+generation directories. With no pointer, runtime lookup supports legacy flat
+libraries; the changed build-context version makes old cache records rebuild.
+
+I retain old generations because readers can still hold their paths. I do not yet
+have automatic generation collection; remove a cache only when its readers and
+builders are finished. These are stable paths under my builder's behavior, not
+filesystem-enforced immutability against another process with write access.
 
 I also compare a versioned build-context digest: the selected compiler command
 (`NANO_CC`, then `CC`, then the manifest, then `cc`), its resolved executable
@@ -262,10 +274,12 @@ hashing does not identify every compiler subprocess, linker, library,
 pkg-config result or wrapper dependency; their automatic tracking remains open.
 
 These hashes are a non-cryptographic cache optimization, not artifact
-authentication. Publication is atomic per file, not across the artifact set;
-later readers do not yet hold immutable artifact bindings. Power-loss durability,
-source snapshots and complete toolchain identity remain open work. A matching
-source hash alone does not establish a reproducible build.
+authentication. Generation publication is atomic per module, not across multiple
+modules. Bytecode still records logical/source module names: loading it later can
+select a newer generation than the one used during compilation. Exact bytecode
+bindings, power-loss durability, source snapshots, collision-free shared-cache
+namespaces and complete toolchain identity remain open work. A matching source
+hash alone does not establish a reproducible build.
 
 ### System Dependencies During Compilation
 

@@ -286,7 +286,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
     /* Pattern 1: module_dir (interpreter supplies this from import path) */
     if (module_dir && module_dir[0] != '\0') {
         char bdir[1024];
-        if (nano_module_build_dir(module_dir, bdir, sizeof(bdir))) {
+        if (nano_module_artifact_dir(module_dir, bdir, sizeof(bdir))) {
             for (int ei = 0; exts[ei]; ei++) {
                 snprintf(out_path, path_size, "%s/lib%s.%s",
                          bdir, lib_name, exts[ei]);
@@ -301,7 +301,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
 
         /* Pattern 2: modules/<full_normalized> */
         snprintf(logical, sizeof(logical), "modules/%s", mn);
-        if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
+        if (nano_module_artifact_dir(logical, bdir, sizeof(bdir))) {
             snprintf(out_path, path_size, "%s/lib%s.%s",
                      bdir, lib_name, exts[ei]);
             if (access(out_path, F_OK) == 0) return true;
@@ -310,7 +310,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
         /* Pattern 3: modules/<parent_dir> with joined lib name */
         if (parent_dir[0]) {
             snprintf(logical, sizeof(logical), "modules/%s", parent_dir);
-            if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
+            if (nano_module_artifact_dir(logical, bdir, sizeof(bdir))) {
                 snprintf(out_path, path_size, "%s/lib%s.%s",
                          bdir, joined_name, exts[ei]);
                 if (access(out_path, F_OK) == 0) return true;
@@ -320,7 +320,7 @@ bool ffi_loader_find_library(const char *module_name, const char *module_dir,
         /* Pattern 4: modules/<top_dir> */
         if (top_dir[0]) {
             snprintf(logical, sizeof(logical), "modules/%s", top_dir);
-            if (nano_module_build_dir(logical, bdir, sizeof(bdir))) {
+            if (nano_module_artifact_dir(logical, bdir, sizeof(bdir))) {
                 snprintf(out_path, path_size, "%s/lib%s.%s",
                          bdir, top_dir, exts[ei]);
                 if (access(out_path, F_OK) == 0) return true;

@@ -353,13 +353,39 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       (2026-09-12). Cache transaction and toolchain identity work stays open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 C-library cache transactions.** Content invalidation and private
-      writes are addressed in adjacent items. I still need atomic artifact-set
-      publication, immutable bindings for later readers, source snapshots and
+      writes are addressed in adjacent items. Per-module generation publication
+      is addressed below. I still need exact bytecode generation bindings,
+      generation retention/collection policy, source snapshots and
       power-loss durability before I claim complete cache transactions.
       Driver and documented environment identity are addressed below. Automatic
       tracking of transitive compiler tools, linker/library bytes, SDK contents,
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 C-library cache — atomic generation publication.** I publish
+      object, library, dependency files and reuse evidence as one generation
+      through an atomic current-pointer replacement. Native link inputs and
+      runtime library lookup resolve a retained generation path. I test failed
+      publication, concurrent readers/builders, recovery and old-path stability.
+      Bytecode-to-exact-generation binding, source snapshots, retention policy
+      and power-loss durability remain separate acceptance requirements.
+      I test stable native object and runtime library paths after replacement,
+      a live reader during a blocked build, final-pointer rename failure with
+      the old pointer intact, malformed pointers, corrupted cached artifacts,
+      and recovery. All 28 shadow tests, 15 cache tests, 63 codegen tests, 18
+      FFI tests, installation policy and C-seed dependency gates pass on Darwin
+      (2026-09-12). I make no power-loss or full toolchain-identity claim.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache fixture path preservation.** My tests replaced every `42`
+      in generated source, including random temporary import paths. I now
+      change only the expected shadow value and exercise an import path that
+      deliberately contains `42`. A missing-module failure was test corruption,
+      not evidence of a compiler lookup defect.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 cache namespace identity.** My shared-cache key replaces `/` with
+      `_` and truncates long module paths, so distinct directories can alias.
+      I need canonical, collision-resistant directory identity and explicit
+      path-length rejection, with migration and separate-module tests.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 C-library cache — driver and build-environment identity.** I
       invalidate cached C artifacts when the selected compiler command,
@@ -381,7 +407,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       compile into a private directory, validate the expected artifacts, and
       serialize cache validation/build/publication across compiler processes.
       I publish complete files by rename and invalidate hash evidence before
-      publication so a partial publication forces rebuilding. I test partial
+      publication so a partial publication forces rebuilding. This initial
+      per-file publication is superseded by generation publication above.
+      I test partial
       object/library failures, an interrupted compiler, overlapping builders,
       cleanup and recovery. Per-file rename is not an atomic multi-file
       transaction or an immutable artifact binding for later consumers.
