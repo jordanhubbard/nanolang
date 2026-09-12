@@ -107,3 +107,8 @@ Before replacing current cache validation I require:
 
 These requirements remain in my roadmap and MAC cache task. This experiment
 does not establish full toolchain identity or make 5.0 release-ready.
+
+My separate [linker-input experiment](LINKER_INPUT_EVIDENCE.md) reproduces
+same-timestamp archive changes and newly earlier library selections that my
+cache still misses. It measures linker records, unusual paths and omitted
+response-file inputs; it does not establish cache acceptance.

@@ -534,6 +534,28 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Query status and per-build response consistency are addressed above;
       the identity of selected libraries remains open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      - [x] I reproduce unchanged-flag library mutations and new earlier
+        library-search candidates through the actual cache. I compare linker
+        input traces and dependency records against selected archive bytes,
+        member paths and unusual filenames before choosing a lossless boundary.
+        I record tool/platform identity and distinguish characterization from
+        acceptance; changing runtime dependencies remains a separate boundary.
+        Apple clang 21 / ld-1267 retains cached 42 after a same-size,
+        same-timestamp archive edit and an earlier search candidate; fresh
+        links return 43 and 44. Binary records preserve unusual paths and
+        absent candidates but omit the supplied response file. Line traces
+        contain literal newlines. My host's successful `ar rcsT` produces a
+        regular archive, so thin-archive coverage is not established.
+        `python3 -m tests.characterize_linker_inputs` and all 38 existing cache
+        tests complete on Darwin (2026-09-12). Those green tests do not cover
+        these stale-library cases. `docs/LINKER_INPUT_EVIDENCE.md` records the
+        evidence and implementation requirements; this is not the repair.
+      - [ ] I capture and validate selected linker-input bytes, negative
+        search state and indirect flag inputs. Same-timestamp archive edits
+        and newly earlier libraries must change actual cached results; warm
+        reuse, malformed evidence, unusual paths, failed builds and recovery
+        must be tested. I handle each supported linker mode explicitly and
+        do not infer completeness from a readable trace or dependency file.
       - [x] I reproduce a transitive backslash/slash alias against the actual
         compiler and cache, then measure preprocessed-input snapshots as a
         candidate boundary. I check unchanged replay, header edits, include
