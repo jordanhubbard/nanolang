@@ -1993,11 +1993,15 @@ test-c-backend: $(COMPILER_C)
 
 # Cross-backend compile suite: compile canonical test programs across all 5 backends
 .PHONY: test-cross-backend
-test-cross-backend: $(COMPILER)
+test-cross-backend: $(COMPILER) test-cross-backend-runner
 	@echo "🔀 Running direct cross-backend compile suite (riscv, c, ptx)..."
 	@chmod +x tests/cross-backend/run-all.sh
 	@bash tests/cross-backend/run-all.sh $(COMPILER)
 	@echo "✅ Cross-backend tests PASSED"
+
+.PHONY: test-cross-backend-runner
+test-cross-backend-runner:
+	@python3 tests/test_cross_backend_runner.py
 
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json

@@ -40,8 +40,7 @@ if [ -d /opt/homebrew/opt/llvm/bin ] && ! command -v lli >/dev/null 2>&1; then
     export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
 fi
 
-TMPDIR_TESTS="${TMPDIR:-/tmp}/nano_cross_backend_$$"
-mkdir -p "$TMPDIR_TESTS"
+TMPDIR_TESTS="$(mktemp -d "${TMPDIR:-/tmp}/nano_cross_backend.XXXXXX")"
 trap 'rm -rf "$TMPDIR_TESTS"' EXIT
 
 PASS=0
@@ -113,12 +112,10 @@ report_outcome() {
 compile_nano() {
     local nano_file="$1"
     shift
-    "$NANOC" "$nano_file" "$@" 2>/tmp/nano_compile_err_$$ || {
-        cat /tmp/nano_compile_err_$$ >&2
-        rm -f /tmp/nano_compile_err_$$
+    "$NANOC" "$nano_file" "$@" 2>"$TMPDIR_TESTS/compile.err" || {
+        cat "$TMPDIR_TESTS/compile.err" >&2
         return 1
     }
-    rm -f /tmp/nano_compile_err_$$
 }
 
 # diff_output <actual_text> <expected_file>: returns 0 on match
@@ -158,10 +155,18 @@ test_wasm() {
     local executor=""
     if check_tool wasmtime; then
         executor="wasmtime"
-        actual="$(wasmtime run --invoke main "$out" 2>/dev/null)" || true
+        if ! actual="$(wasmtime run --invoke main "$out" 2>"$TMPDIR_TESTS/runtime.err")"; then
+            report_outcome fail wasm "$nano_file" "$name" "execution failed via wasmtime"
+            cat "$TMPDIR_TESTS/runtime.err" >&2
+            return
+        fi
     elif check_tool wasm3; then
         executor="wasm3"
-        actual="$(wasm3 "$out" 2>/dev/null)" || true
+        if ! actual="$(wasm3 "$out" 2>"$TMPDIR_TESTS/runtime.err")"; then
+            report_outcome fail wasm "$nano_file" "$name" "execution failed via wasm3"
+            cat "$TMPDIR_TESTS/runtime.err" >&2
+            return
+        fi
     fi
 
     if [ -n "$executor" ]; then
@@ -210,7 +215,11 @@ test_llvm() {
         # The LLVM backend prefixes function names with "nano_", so
         # entry point is "nano_main", not "main".
         local actual
-        actual="$(lli --entry-function=nano_main "$out" 2>/dev/null)" || true
+        if ! actual="$(lli --entry-function=nano_main "$out" 2>"$TMPDIR_TESTS/runtime.err")"; then
+            report_outcome fail llvm "$nano_file" "$name" "execution failed via lli"
+            cat "$TMPDIR_TESTS/runtime.err" >&2
+            return
+        fi
         if diff_output "$actual" "$expected_file"; then
             report_outcome pass llvm "$nano_file" "$name"
         else
@@ -275,7 +284,12 @@ test_c() {
         emit_result SKIP c "$name" "no .expected file"
         return
     fi
-    local actual; actual="$("$out_exe" 2>/dev/null)" || true
+    local actual
+    if ! actual="$("$out_exe" 2>"$TMPDIR_TESTS/runtime.err")"; then
+        report_outcome fail c "$nano_file" "$name" "execution failed"
+        cat "$TMPDIR_TESTS/runtime.err" >&2
+        return
+    fi
     if diff_output "$actual" "$expected_file"; then
         report_outcome pass c "$nano_file" "$name"
     else
@@ -301,7 +315,17 @@ test_ptx() {
 
 # ── main loop ────────────────────────────────────────────────────────────────
 
-read -r -a BACKENDS <<<"${NANOLANG_TEST_BACKENDS:-riscv c ptx}"
+read -r -a BACKENDS <<<"${NANOLANG_TEST_BACKENDS-riscv c ptx}"
+if [ "${#BACKENDS[@]}" -eq 0 ]; then
+    echo "I need at least one backend to test." >&2
+    exit 1
+fi
+for backend in "${BACKENDS[@]}"; do
+    case "$backend" in
+        wasm|llvm|riscv|c|ptx) ;;
+        *) echo "I do not recognize backend: $backend" >&2; exit 1 ;;
+    esac
+done
 TEST_FILES=("$SCRIPT_DIR"/*.nano)
 
 echo "=== nanolang cross-backend compile suite ==="

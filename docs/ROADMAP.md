@@ -157,6 +157,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       calls smoke success proof of self-hosting even when native binaries
       differ. I replace those claims with the exact checks performed;
       canonical artifact equality and semantic correctness remain separate.
+- [x] **5.0 contract evidence — cross-backend runner failures.** I reject
+      execution failures even when stdout matches, reject unknown or empty
+      backend selections, and use private scratch paths. I retain explicit
+      XFAIL/XPASS and validation-only reporting. Eight tests exercise the real
+      runner with controlled compiler/executor fixtures; all four executor
+      failure cases falsely succeed with the previous runner and fail correctly
+      after repair. `make test-cross-backend-runner` passes and is a prerequisite
+      of the full runner. The real C seed passes all seven C corpus programs;
+      fixture success alone is not compiler conformance (2026-09-11).
+- [ ] **5.0 contract defect — self-hosted CLI output modes.** The rebuilt
+      Stage 2 ignores `--target c` after its input argument and writes a native
+      executable at the requested `.c` path. All seven C cross-backend cases
+      then fail in the external C compiler. I must validate unknown/missing
+      options and implement the source-output contract, with direct CLI tests
+      and the existing corpus; silently selecting another mode is not success.
+      MAC `task_09aa81ed3aa442cba41a53d2c4b646e6`.
 - [x] **5.0 bootstrap — evidence-bounded reporting.** I report native
       byte equality only for the artifacts compared in this build, label
       possible difference causes as hypotheses, and distinguish smoke checks
