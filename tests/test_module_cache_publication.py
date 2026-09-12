@@ -69,8 +69,49 @@ class ModuleCachePublication(unittest.TestCase):
                 self.assertEqual(result.returncode, 0 if kind == "regular" else 1, result.stderr)
                 self.assertEqual(target.read_bytes(), b"I remain outside the generation.")
 
+    def test_nested_cache_ancestor_failure_and_retry(self):
+        with tempfile.TemporaryDirectory(prefix="nano-cache-ancestors-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            cache_base = directory / "new" / "deep" / "cache"
+            env["NANO_BUILD_CACHE"] = str(cache_base)
+            root = self.probe_path("root", module, env)
+            events, identities = directory / "events", directory / "identities"
+            failed_parent = cache_base.parent
+            env.update(NANO_TEST_SYNC_CACHE=str(root), NANO_TEST_SYNC_EVENTS=str(events),
+                       NANO_TEST_SYNC_IDENTITIES=str(identities), NANO_TEST_SYNC_FAIL_PATH=str(failed_parent))
+            result = subprocess.run([str(self.probe), "build", str(module)], env=env,
+                                    capture_output=True, timeout=20)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertTrue(failed_parent.is_dir())
+            self.assertFalse((root / "current").exists())
+            self.assertNotIn("pointer", events.read_text().splitlines())
+            del env["NANO_TEST_SYNC_FAIL_PATH"]
+            events.write_text("")
+            identities.write_text("")
+            self.probe_path("build", module, env)
+            observed = identities.read_text().splitlines()
+            positions = []
+            for parent in (root, cache_base, failed_parent, cache_base.parent.parent, directory):
+                st = parent.stat()
+                self.assertIn(f"{st.st_dev}:{st.st_ino}", observed)
+                positions.append(observed.index(f"{st.st_dev}:{st.st_ino}"))
+            self.assertEqual(positions, sorted(positions))
+            generation = self.probe_path("directory", module, env)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+            env["NANO_TEST_SYNC_FAIL_PATH"] = str(failed_parent)
+            events.write_text("")
+            result = subprocess.run([str(self.probe), "build", str(module)], env=env,
+                                    capture_output=True, timeout=20)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertNotIn("pointer", events.read_text().splitlines())
+            self.assertEqual(self.probe_path("directory", module, env), generation)
+            del env["NANO_TEST_SYNC_FAIL_PATH"]
+            self.probe_path("build", module, env)
+            self.assertEqual(self.probe_path("directory", module, env), generation)
+
     def test_publication_sync_order_and_failure_recovery(self):
-        for failure in ("file", "stage", "cache-1", "cache-2", "eintr"):
+        for failure in ("file", "stage", "cache-1", "ancestor", "cache-2", "eintr"):
             with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-sync-") as tmp:
                 directory = Path(tmp)
                 module, _, env = self.support.foreign_build_fixture(directory)
@@ -94,7 +135,11 @@ class ModuleCachePublication(unittest.TestCase):
                     self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 43)
                     file_end = observed.index("stage")
                     self.assertTrue(all(event == "file" for event in observed[:file_end]))
-                    self.assertEqual(observed[file_end:], ["stage", "generation", "cache-1", "pointer", "cache-2"])
+                    self.assertEqual([event for event in observed[file_end:] if event != "ancestor"],
+                                     ["stage", "generation", "cache-1", "pointer", "cache-2"])
+                    self.assertTrue(all(event == "ancestor" for event in
+                                        observed[observed.index("cache-1") + 1:observed.index("pointer")]))
+                    self.assertIn("ancestor", observed)
                     if failure == "cache-2":
                         self.assertIn(b"could not confirm", result.stderr)
                 else:
@@ -108,7 +153,10 @@ class ModuleCachePublication(unittest.TestCase):
                 self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 43)
                 if failure in ("cache-2", "eintr"):
                     self.assertEqual(recovered, current)
-                    self.assertEqual(events.read_text().splitlines(), ["cache-1"])
+                    warm_events = events.read_text().splitlines()
+                    self.assertEqual(warm_events[0], "cache-1")
+                    self.assertTrue(all(event == "ancestor" for event in warm_events[1:]))
+                    self.assertGreater(len(warm_events), 1)
                 events.write_text("")
                 env["NANO_TEST_SYNC_FAILURE"] = "cache-1"
                 result = subprocess.run([str(self.probe), "build", str(module)], env=env,

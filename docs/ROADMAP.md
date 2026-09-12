@@ -368,8 +368,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       barrier ordering, interrupted calls, failure before/after the pointer
       switch, retained generations and retry. A post-switch failure must not
       delete the generation now referenced by current. Warm reuse must retry
-      the cache-directory barrier. Device-level power-loss behavior and newly
-      created ancestor-directory durability remain separate acceptance work.
+      the cache-directory barrier. Ancestor barriers are addressed below;
+      device-level power-loss behavior remains separate acceptance work.
       File, generation-directory, pre-pointer and post-pointer barrier failures,
       interrupted-call retry and warm barrier retry pass. I reject symlink,
       directory and FIFO entries without following them or blocking on a FIFO.
@@ -379,6 +379,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       ASan/UBSan on the production builder through the probe; linked support
       objects and fixture libraries are uninstrumented. These tests exercise
       syscall ordering and failures, not physical power loss.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache ancestor-directory barriers.** I flush the cache directory
+      and its descriptor-resolved parents before switching current, and repeat
+      the chain on warm reuse. I stop at the filesystem boundary or root;
+      establishing the mount namespace is not a cache-build operation. I test
+      newly created nested shared-cache directories, ancestor failure before
+      first publication, retry, warm failure and barrier ordering. Device-level
+      power-loss and full crash-recovery acceptance remain open.
+      I verify the device/inode identities and child-to-parent order of newly
+      created shared-cache ancestors. Injected ancestor failure before first
+      publication and on warm reuse, retry and prior barrier ordering pass.
+      All 28 shadows, 46 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency gates
+      pass on Darwin (2026-09-12). Three persistence methods also pass with
+      ASan/UBSan on the production builder through the probe; linked support
+      objects and fixture libraries remain uninstrumented. This establishes
+      tested syscall ordering, not a physical power-loss result.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 binding string-pool and import-table allocation safety.** Adding
       binding paths exposed paired `realloc` growth that could leave dangling

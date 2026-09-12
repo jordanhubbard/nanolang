@@ -2988,11 +2988,30 @@ static bool module_sync_fd(int fd) {
     return result == 0;
 }
 
-static bool module_sync_directory(const char *path) {
+static bool module_sync_directory(const char *path, bool ancestors) {
     int fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
     if (fd < 0) return false;
-    bool ok = module_sync_fd(fd);
-    if (close(fd) != 0) ok = false;
+    bool ok = false;
+    /* I walk actual directory descriptors, including on retry when mkdir
+     * now reports an existing directory. I do not infer persistence from
+     * existence. Mount setup itself belongs to the host. */
+    for (size_t depth = 0; depth < 1024; depth++) {
+        if (!module_sync_fd(fd)) break;
+        if (!ancestors) { ok = true; break; }
+        int parent = openat(fd, "..", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        if (parent < 0) break;
+        struct stat current_stat, parent_stat;
+        if (fstat(fd, &current_stat) != 0 || fstat(parent, &parent_stat) != 0) {
+            close(parent);
+            break;
+        }
+        bool end = current_stat.st_dev != parent_stat.st_dev ||
+            current_stat.st_ino == parent_stat.st_ino;
+        if (end) { ok = close(parent) == 0; break; }
+        if (close(fd) != 0) { close(parent); fd = -1; break; }
+        fd = parent;
+    }
+    if (fd >= 0 && close(fd) != 0) ok = false;
     return ok;
 }
 
@@ -3083,10 +3102,10 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
             if (ok) ok = module_sync_generation(stage);
             if (ok) ok = lstat(generation, &st) != 0 && errno == ENOENT;
             if (ok) ok = renamed = rename(stage, generation) == 0;
-            if (ok) ok = module_sync_directory(cache);
+            if (ok) ok = module_sync_directory(cache, true);
             if (ok) ok = linked = symlink(strrchr(generation, '/') + 1, temporary) == 0;
             if (ok) ok = published = rename(temporary, pointer) == 0;
-            if (ok) ok = module_sync_directory(cache);
+            if (ok) ok = module_sync_directory(cache, false);
             if (linked) (void)unlink(temporary);
             if (ok) {
                 free(info->object_file);
@@ -3106,7 +3125,7 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
                 module_build_info_free(info);
                 info = NULL;
             }
-        } else if (info && !module_sync_directory(cache)) {
+        } else if (info && !module_sync_directory(cache, true)) {
             fprintf(stderr, "I could not confirm the cache-directory barrier for %s\n", meta->name);
             module_build_info_free(info);
             info = NULL;

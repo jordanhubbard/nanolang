@@ -386,19 +386,24 @@ power-loss durability, or protection from a malicious configured compiler.
 
 For foreign C-module cache generations, I now check ordered `fsync` barriers:
 regular generation files, then the generation directory, then the cache
-directory after naming the generation and again after switching `current`.
+directory and its ancestors after naming the generation, then the cache
+directory again after switching `current`.
 I do not follow symlinks or recurse into unexpected directories while flushing
 generation contents. Interrupted barriers retry; failed barriers fail the build.
 Failure before the pointer switch leaves the old current generation intact.
 Failure after the switch retains the newly referenced generation and reports
 that its cache-directory barrier was not confirmed. I never delete that
 generation and leave a dangling `current`. A subsequent warm build retries the
-cache-directory barrier before returning success.
+cache-directory and ancestor barriers before returning success. I resolve each
+parent with `openat` from the current directory descriptor, proceeding from
+child to parent until the root or a filesystem boundary. I repeat this chain
+even when the directories already exist: existence does not establish that an
+earlier creation was flushed. Establishing mounts belongs to the host.
 
 I test syscall ordering, injected failures, retry and retained artifact reads.
 These tests do not simulate device power loss. Device-level flush guarantees,
-newly created ancestor-directory durability, wrapper/output-file persistence
-and full crash-recovery acceptance remain open; successful barriers alone do
+wrapper/output-file persistence and full crash-recovery acceptance remain open;
+successful directory barriers alone do
 not establish those broader claims.
 
 My foreign-module builder also quotes source, object, dependency, library and

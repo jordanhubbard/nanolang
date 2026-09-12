@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h>
 
 static void generation_test_event(const char *event) {
     const char *path = getenv("NANO_TEST_SYNC_EVENTS");
@@ -29,9 +30,35 @@ static int generation_test_fsync(int fd) {
     if (S_ISDIR(st.st_mode)) {
         if (root && stat(root, &cache) == 0 && cache.st_ino == st.st_ino && cache.st_dev == st.st_dev)
             event = ++cache_calls == 1 ? "cache-1" : "cache-2";
-        else event = "stage";
+        else {
+            event = root ? "ancestor" : "stage";
+            DIR *directory = root ? opendir(root) : NULL;
+            struct dirent *entry;
+            while (directory && (entry = readdir(directory))) {
+                if (strncmp(entry->d_name, ".nano-build-", 12)) continue;
+                char path[4096];
+                struct stat candidate;
+                int length = snprintf(path, sizeof(path), "%s/%s", root, entry->d_name);
+                if (length > 0 && (size_t)length < sizeof(path) && stat(path, &candidate) == 0 &&
+                    candidate.st_dev == st.st_dev && candidate.st_ino == st.st_ino) event = "stage";
+            }
+            if (directory) closedir(directory);
+        }
     }
     generation_test_event(event);
+    const char *identities = getenv("NANO_TEST_SYNC_IDENTITIES");
+    if (identities && S_ISDIR(st.st_mode)) {
+        FILE *file = fopen(identities, "a");
+        if (file) {
+            fprintf(file, "%llu:%llu\n", (unsigned long long)st.st_dev, (unsigned long long)st.st_ino);
+            fclose(file);
+        }
+    }
+    const char *fail_path = getenv("NANO_TEST_SYNC_FAIL_PATH");
+    if (fail_path && stat(fail_path, &cache) == 0 && cache.st_dev == st.st_dev && cache.st_ino == st.st_ino) {
+        errno = EIO;
+        return -1;
+    }
     if (failure && !strcmp(failure, "eintr") && !interrupted) {
         interrupted = true;
         errno = EINTR;
