@@ -184,10 +184,33 @@ class ModuleCachePublication(unittest.TestCase):
             self.assertEqual(self.probe_path("directory", module, env), generation)
 
     def test_publication_sync_order_and_failure_recovery(self):
+        self.check_publication_sync_order_and_failure_recovery(full_sync=False)
+
+    @unittest.skipUnless(sys.platform == "darwin", "I use F_FULLFSYNC on Darwin")
+    def test_device_sync_order_and_failure_recovery(self):
+        self.check_publication_sync_order_and_failure_recovery(full_sync=True)
+
+    @unittest.skipUnless(sys.platform == "darwin", "I use F_FULLFSYNC on Darwin")
+    def test_unsupported_device_sync_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="nano-device-sync-") as tmp:
+            stage = Path(tmp)
+            (stage / "artifact").write_bytes(b"artifact")
+            env = dict(os.environ, NANO_TEST_FULL_SYNC="1", NANO_TEST_SYNC_FAILURE="unsupported")
+            result = subprocess.run([str(self.probe), "sync-generation", str(stage)],
+                                    env=env, capture_output=True, timeout=5)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            del env["NANO_TEST_SYNC_FAILURE"]
+            result = subprocess.run([str(self.probe), "sync-generation", str(stage)],
+                                    env=env, capture_output=True, timeout=5)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def check_publication_sync_order_and_failure_recovery(self, full_sync):
         for failure in ("file", "stage", "cache-1", "ancestor", "cache-2", "eintr"):
             with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-sync-") as tmp:
                 directory = Path(tmp)
                 module, _, env = self.support.foreign_build_fixture(directory)
+                if full_sync:
+                    env["NANO_TEST_FULL_SYNC"] = "1"
                 self.probe_path("build", module, env)
                 previous = self.probe_path("directory", module, env)
                 previous_library = self.probe_path("library", module, env)

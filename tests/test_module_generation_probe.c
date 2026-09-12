@@ -12,6 +12,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <signal.h>
+#include <fcntl.h>
+
+static const char *generation_sync_event;
 
 static void generation_test_event(const char *event) {
     const char *path = getenv("NANO_TEST_SYNC_EVENTS");
@@ -51,6 +54,7 @@ static int generation_test_fsync(int fd) {
         }
     }
     generation_test_event(event);
+    generation_sync_event = event;
     const char *identities = getenv("NANO_TEST_SYNC_IDENTITIES");
     if (identities && S_ISDIR(st.st_mode)) {
         FILE *file = fopen(identities, "a");
@@ -64,6 +68,7 @@ static int generation_test_fsync(int fd) {
         errno = EIO;
         return -1;
     }
+    if (getenv("NANO_TEST_FULL_SYNC")) return fsync(fd);
     if (failure && !strcmp(failure, "eintr") && !interrupted) {
         interrupted = true;
         errno = EINTR;
@@ -72,6 +77,28 @@ static int generation_test_fsync(int fd) {
     if (failure && !strcmp(failure, event)) { errno = EIO; return -1; }
     return fsync(fd);
 }
+
+#ifdef __APPLE__
+static int generation_test_fcntl(int fd, int command) {
+    static bool interrupted = false;
+    if (command != F_FULLFSYNC) { errno = EINVAL; return -1; }
+    const char *failure = getenv("NANO_TEST_SYNC_FAILURE");
+    if (getenv("NANO_TEST_FULL_SYNC") && failure) {
+        if (!strcmp(failure, "unsupported")) { errno = ENOTSUP; return -1; }
+        if (!strcmp(failure, "eintr") && !interrupted) {
+            interrupted = true;
+            errno = EINTR;
+            return -1;
+        }
+        if (generation_sync_event && !strcmp(failure, generation_sync_event)) {
+            errno = EIO;
+            return -1;
+        }
+    }
+    return fcntl(fd, command);
+}
+#define fcntl generation_test_fcntl
+#endif
 
 /* I inject a final-pointer rename failure without damaging the old pointer.
  * This hook is confined to the test translation unit. */
@@ -93,6 +120,9 @@ static int generation_test_rename(const char *source, const char *target) {
 #include "../src/module_builder.c"
 #undef rename
 #undef fsync
+#ifdef __APPLE__
+#undef fcntl
+#endif
 
 int main(int argc, char **argv) {
 #ifdef __APPLE__

@@ -460,7 +460,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v12-publication-sync");
+    hash_context_field(&hash, "nanolang-c-build-context-v13-device-sync");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2985,6 +2985,13 @@ static void module_remove_staging(const char *stage) {
 static bool module_sync_fd(int fd) {
     int result;
     do { result = fsync(fd); } while (result < 0 && errno == EINTR);
+#ifdef __APPLE__
+    /* I also ask the device to flush its cache. I do not silently substitute
+     * the weaker host-buffer barrier if this request is unsupported. */
+    if (result == 0) {
+        do { result = fcntl(fd, F_FULLFSYNC); } while (result < 0 && errno == EINTR);
+    }
+#endif
     return result == 0;
 }
 

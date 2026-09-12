@@ -397,6 +397,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       objects and fixture libraries remain uninstrumented. This establishes
       tested syscall ordering, not a physical power-loss result.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Darwin cache device-flush requests.** I require `F_FULLFSYNC`
+      after successful file and directory `fsync` barriers on Darwin, retry
+      interruptions, and reject unsupported or failed device-flush requests
+      without silently weakening the operation. I test actual host support,
+      injected failures, publication preservation and warm retry. A successful
+      request is not evidence of physical power-loss survival.
+      Actual host calls, six injected barrier-failure/interruption cases,
+      unsupported-operation rejection and retry pass. All 28 shadows,
+      49 cache tests, five wrapper link tests, seven wrapper boundary tests,
+      63 codegen tests, 19 FFI tests and package/dependency gates pass on
+      Darwin (2026-09-12). Three barrier methods also pass with ASan/UBSan
+      on the production builder through the probe; linked support objects
+      and fixture libraries remain uninstrumented. My v13 cache context
+      rebuilds older generations. Darwin filesystems that reject the stronger
+      operation now fail the build; other hosts retain their `fsync` path.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 cache process-crash recovery.** I terminate the production builder
       at file/directory barriers and generation/pointer renames. I test first
       publication and replacement in local and shared caches, complete visible

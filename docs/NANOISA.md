@@ -400,6 +400,16 @@ child to parent until the root or a filesystem boundary. I repeat this chain
 even when the directories already exist: existence does not establish that an
 earlier creation was flushed. Establishing mounts belongs to the host.
 
+On Darwin, I require `fcntl(F_FULLFSYNC)` after each successful `fsync`,
+including directory barriers. I retry interruptions and fail unsupported or
+failed requests; I do not silently fall back to the weaker operation. My v13
+build context invalidates generations built before this requirement. Other
+hosts retain their `fsync` path. Apple's
+[fsync contract](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html)
+distinguishes flushing host buffers from requesting that the drive flush its
+cache. Successful requests still depend on filesystem and device behavior;
+they are not a physical power-loss test.
+
 I test syscall ordering, injected failures, retry and retained artifact reads.
 My process-crash matrix sends `SIGKILL` to the actual builder at seven points:
 file and generation-directory barriers, generation rename, the first cache
@@ -411,7 +421,7 @@ Recovery reacquires the released advisory lock and succeeds; subsequent warm
 reuse retains the recovered generation. I also link and execute the native
 objects and check retained old libraries in fresh processes, so already-loaded
 code cannot hide a missing artifact.
-These tests do not simulate device power loss. Device-level flush guarantees,
+These tests do not simulate device power loss. Physical device durability,
 wrapper/output-file persistence and full crash-recovery acceptance remain open;
 successful directory barriers alone do
 not establish those broader claims.
