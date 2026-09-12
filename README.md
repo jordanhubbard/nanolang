@@ -68,7 +68,7 @@ EOF
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
 - **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking (warnings on incomplete matches).
-- **Shadow Tests** - My project policy requires useful shadows. Missing-shadow enforcement is not universal. My C seed executes selected shadows during compilation; Stage 2 and bytecode execution currently have gaps measured by `make test-language-claims`. Successful compilation alone does not mean a shadow ran.
+- **Shadow Tests** - My project policy requires useful shadows. Missing-shadow enforcement is not universal. My C seed executes selected shadows during compilation; `nano_virt` runs root-file shadows in a verified NanoVM test module before publishing output. Stage 2 native execution and imported-shadow policy remain open. `make test-language-claims` distinguishes those paths.
 - **Type Inference** - I infer types where unambiguous so you can write `let x = 42` without an annotation. Inference is local and bidirectional, not full Hindley-Milner — explicit annotations are required at function boundaries.
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.

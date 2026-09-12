@@ -2939,8 +2939,9 @@ static void register_imported_struct(Environment *env, ASTNode *item) {
     env_define_struct(env, sdef);
 }
 
-CodegenResult codegen_compile(ASTNode *program, Environment *env,
-                              ModuleList *modules, const char *input_file) {
+static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env,
+                                              ModuleList *modules, const char *input_file,
+                                              bool shadows) {
     CodegenResult result = {0};
 
     if (!program || program->type != AST_PROGRAM) {
@@ -3535,6 +3536,59 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
     }
     env_set_current_file(env, outer_file);   /* leave the environment as found */
 
+    if (shadows && !cg.had_error) {
+        uint32_t shadow_functions[MAX_FUNCTIONS];
+        int shadow_count = 0;
+        env_set_current_file(env, input_file);
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *shadow = program->as.program.items[i];
+            if (shadow->type != AST_SHADOW) continue;
+            if (cg.fn_count >= MAX_FUNCTIONS) {
+                cg_error(&cg, shadow->line, "I cannot register another shadow function");
+                break;
+            }
+            char name[64];
+            snprintf(name, sizeof name, "$shadow_%d_%.32s", i, shadow->as.shadow.function_name);
+            uint32_t name_idx = nvm_add_string(cg.module, name, (uint32_t)strlen(name));
+            NvmFunctionEntry entry = {0};
+            entry.name_idx = name_idx;
+            entry.result_tag = TAG_VOID;
+            uint32_t index = nvm_add_function(cg.module, &entry);
+            cg.functions[cg.fn_count].name = cg.module->strings[name_idx];
+            cg.functions[cg.fn_count++].fn_idx = index;
+            ASTNode function = {0};
+            function.type = AST_FUNCTION;
+            function.line = shadow->line;
+            function.column = shadow->column;
+            function.as.function.name = cg.module->strings[name_idx];
+            function.as.function.return_type = TYPE_VOID;
+            function.as.function.body = shadow->as.shadow.body;
+            compile_function(&cg, &function);
+            if (cg.had_error) break;
+            shadow_functions[shadow_count++] = index;
+        }
+        if (!cg.had_error) {
+            NvmFunctionEntry entry = {0};
+            entry.name_idx = nvm_add_string(cg.module, "$shadow_entry", 13);
+            entry.result_tag = TAG_INT;
+            entry.result_count = 1;
+            uint32_t index = nvm_add_function(cg.module, &entry);
+            cg.code_size = 0;
+            cg.local_count = 0;
+            cg.loop_depth = 0;
+            cg.upvalue_count = 0;
+            cg.current_fn_idx = index;
+            for (int i = 0; i < shadow_count; i++) emit_op(&cg, OP_CALL, shadow_functions[i]);
+            emit_op(&cg, OP_PUSH_I64, (int64_t)0);
+            emit_op(&cg, OP_RET);
+            uint32_t offset = nvm_append_code(cg.module, cg.code, cg.code_size);
+            cg.module->functions[index].code_offset = offset;
+            cg.module->functions[index].code_length = cg.code_size;
+            main_fn_idx = (int)index;
+        }
+        env_set_current_file(env, outer_file);
+    }
+
     /* For shadow-only programs (no main), generate a synthetic main that returns 0 */
     if (main_fn_idx < 0 && !cg.had_error) {
         NvmFunctionEntry syn_fn = {0};
@@ -3595,4 +3649,14 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
     result.ok = true;
     result.module = cg.module;
     return result;
+}
+
+CodegenResult codegen_compile(ASTNode *program, Environment *env,
+                              ModuleList *modules, const char *input_file) {
+    return codegen_compile_internal(program, env, modules, input_file, false);
+}
+
+CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
+                                      ModuleList *modules, const char *input_file) {
+    return codegen_compile_internal(program, env, modules, input_file, true);
 }

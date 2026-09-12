@@ -22,6 +22,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <time.h>
 
 /* Forward declarations for interpreter FFI (already linked) */
 extern bool ffi_init(bool verbose);
@@ -66,6 +71,83 @@ static void usage(const char *prog) {
 static bool has_nvm_extension(const char *path) {
     size_t len = strlen(path);
     return (len >= 4 && strcmp(path + len - 4, ".nvm") == 0);
+}
+
+static bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
+                           const char *input) {
+    bool present = false;
+    for (int i = 0; i < program->as.program.count; i++) {
+        if (program->as.program.items[i]->type == AST_SHADOW) present = true;
+    }
+    if (!present) return true;
+    CodegenResult tests = codegen_compile_shadows(program, env, modules, input);
+    if (!tests.ok) {
+        fprintf(stderr, "I could not compile shadows at line %d: %s\n", tests.error_line, tests.error_msg);
+        return false;
+    }
+    NvmVerifyResult verified = nvm_verify(tests.module);
+    if (!verified.ok) {
+        fprintf(stderr, "I could not verify shadow bytecode: %s\n", verified.error_msg);
+        nvm_module_free(tests.module);
+        return false;
+    }
+    fflush(NULL);
+    pid_t child = fork();
+    if (child == 0) {
+        /* I bound test execution, not its authority: this is not a sandbox. */
+        signal(SIGALRM, SIG_DFL);
+        alarm(10);
+        if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
+        vm_ffi_set_env(env);
+        VmState vm;
+        vm_init(&vm, tests.module);
+        VmResult status = vm_execute(&vm);
+        if (status != VM_OK) {
+            fprintf(stderr, "I failed a shadow: %s\n", vm.error_msg[0] ? vm.error_msg : vm_error_string(status));
+        }
+        if (vm.cop_pid > 0) vm_ffi_cop_stop(&vm);
+        vm_destroy(&vm);
+        vm_ffi_shutdown();
+        fflush(NULL);
+        _exit(status == VM_OK ? 0 : 1);
+    }
+    int status = 0;
+    pid_t waited = -1;
+    bool timed_out = false;
+    bool clock_failed = false;
+    if (child > 0) {
+        struct timespec start, now, pause = {0, 10000000};
+        bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
+        for (;;) {
+            waited = waitpid(child, &status, WNOHANG);
+            if (waited == child || (waited < 0 && errno != EINTR)) break;
+            clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
+            timed_out = !clock_failed && (now.tv_sec - start.tv_sec > 10 ||
+                (now.tv_sec - start.tv_sec == 10 && now.tv_nsec >= start.tv_nsec));
+            if (clock_failed || timed_out) {
+                kill(child, SIGKILL);
+                do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
+                break;
+            }
+            nanosleep(&pause, NULL);
+        }
+    }
+    int supervision_error = errno;
+    nvm_module_free(tests.module);
+    if (child < 0 || waited < 0) {
+        fprintf(stderr, "I could not supervise shadow execution: %s\n", strerror(supervision_error));
+        return false;
+    }
+    if (clock_failed || timed_out || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        if (clock_failed)
+            fprintf(stderr, "I could not measure the shadow execution deadline\n");
+        else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
+            fprintf(stderr, "I stopped shadow execution after 10 seconds\n");
+        else
+            fprintf(stderr, "I will not publish output after failed shadow execution\n");
+        return false;
+    }
+    return true;
 }
 
 int main(int argc, char **argv) {
@@ -148,8 +230,25 @@ int main(int argc, char **argv) {
 
     /* Type Checking */
     typecheck_set_current_file(input);
-    if (!type_check(program, env)) {
+    bool has_main = false, has_shadows = false;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_SHADOW) has_shadows = true;
+        if (item->type == AST_FUNCTION && strcmp(item->as.function.name, "main") == 0) has_main = true;
+    }
+    bool typed = has_shadows && !has_main ? type_check_module(program, env) : type_check(program, env);
+    if (!typed) {
         fprintf(stderr, "error: type check failed\n");
+        free_ast(program);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free_tokens(tokens, token_count);
+        free(source);
+        return 1;
+    }
+
+    if (!check_shadows(program, env, modules, input)) {
         free_ast(program);
         free_environment(env);
         free_module_list(modules);

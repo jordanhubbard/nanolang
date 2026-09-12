@@ -2021,6 +2021,10 @@ test-language-contract-runner:
 test-language-claims:
 	@python3 tests/test_language_claims.py
 
+.PHONY: test-bytecode-shadows
+test-bytecode-shadows: nano_virt nano_vm
+	@python3 tests/test_bytecode_shadows.py
+
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json
 .PHONY: bench bench-compare

@@ -77,7 +77,7 @@ shadow main { assert (== (main) 0) }
         for backend in COMPILERS:
             with self.subTest(backend=backend), tempfile.TemporaryDirectory(prefix="nano-claims-") as tmp:
                 compiled, output = self.compile_source(backend, source, Path(tmp))
-                if backend == "c-seed":
+                if backend != "selfhost":
                     self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                     self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
                     self.assertFalse(output.exists())

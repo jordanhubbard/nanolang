@@ -33,6 +33,8 @@ these seven programs do not establish release readiness.
 `make test-language-claims` uses the existing compiler tools to characterize
 inferred locals, selected type rejections and shadow handling. It also compiles
 and executes the specification's unsafe math wrapper through the C seed.
-Its shadow test records a known Stage 2/bytecode execution omission; passing
-that characterization is not shadow conformance. Build `bootstrap3`,
+Its shadow test requires C-seed and bytecode-CLI rejection but records the
+remaining Stage 2 native omission; passing that characterization is not
+universal shadow conformance. `make test-bytecode-shadows` checks the NanoVM
+test-module path and publication guards. Build `bootstrap3`,
 `nano_virt` and `nano_vm` first when those tools are missing or stale.

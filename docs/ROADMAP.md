@@ -176,9 +176,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       self-hosted and VM paths before claiming consistent execution or order.
       I preserve the requirement for useful tests; documenting a gap does
       not satisfy it.
-      The failing-shadow characterization is rejected by the C seed but
-      compiles and runs successfully on Stage 2 and the bytecode/VM path.
+      The failing-shadow characterization is rejected by the C seed and
+      bytecode CLI but still compiles and runs successfully on Stage 2.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [x] **5.0 bytecode shadows — verified test module before publication.** I
+      lower root-file shadows as separate zero-argument NanoISA functions and
+      execute a private test entry before publishing bytecode or wrappers.
+      I verify the test module and bound its execution in a child process.
+      Production output retains its original entry and omits the harness.
+      I test assertion failure, helper calls, main shadows, output preservation,
+      test-only sources, traps and timeouts. Imported-shadow policy and the
+      Stage 2 native path remain part of the open enforcement item above.
+      My ten integration tests pass, including a foreign call cancelling the
+      child alarm: the parent still enforces the ten-second deadline.
+- [x] **5.0 execution contract — standalone VM exit value.** I propagate a
+      successful integer entry result as the standalone `nano_vm` process
+      status, matching `nano_virt --run` and native execution. The new main
+      shadow regression exposed that standalone execution discarded `7` and
+      exited zero. I test 0, 7, -1 and 256 through both execution paths and
+      retain trap failures as nonzero;
+      daemon-mode result propagation requires separate verification.
+- [ ] **5.0 execution contract — daemon exit status parity.** I verify entry
+      values and traps end-to-end through `nano_vm --daemon` and the vmd
+      protocol without confusing RPC success with the program's result.
+      MAC `task_6ac194c20d284641ad2798bf780177bd`.
 - [x] **5.0 contract evidence — versioned executable matrix.** I version
       the existing seven-program corpus and check exact stdout and successful
       execution with the C seed, Stage 2, VM, and actual NanoISA-to-C AOT.

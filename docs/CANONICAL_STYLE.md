@@ -285,11 +285,14 @@ variants. A shadow shows behavior for the cases it executes. It does not prove
 the function for all inputs.
 
 Execution is currently backend-dependent. My C seed executes selected shadows
-during compilation. The Stage 2 and bytecode paths currently accept and run a
-program whose only failing assertion is in a shadow. I characterize this gap
-in `tests/test_language_claims.py`; its passing result does not mean those
-backends enforce shadows. Until execution is consistent, execute important
-assertions from `main` or a test entry point as well as writing the shadow.
+during compilation. My `nano_virt` CLI runs root-file shadows in a separate
+verified NanoVM test module before publishing output, with a 10-second parent
+deadline. Production bytecode omits that test harness. This child process is
+not a security sandbox: tests can have side effects. My Stage 2 native path
+still accepts and runs the failing-shadow characterization in
+`tests/test_language_claims.py`; imported-shadow policy also remains open.
+Until execution is consistent, execute important assertions from an explicit
+test entry point as well as writing the shadow.
 
 ## Comments And Names
 

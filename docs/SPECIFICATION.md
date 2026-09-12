@@ -725,11 +725,17 @@ I use shadow tests to state executable expectations. My current paths differ:
 | --- | --- |
 | C seed | I run selected shadows during compilation and reject a failing assertion. |
 | Stage 2 | I currently compile and run the characterization program without executing its failing shadow. |
-| Bytecode frontend and VM | I currently emit and run that program without executing its failing shadow. |
+| `nano_virt` bytecode CLI | I compile root-file shadows into a separate verified NanoISA module, execute it in NanoVM and reject failures before publishing output. |
 
-`tests/test_language_claims.py` checks these observations. The omissions are
-implementation gaps, not permitted ways to satisfy my testing policy. My AOT
-translator consumes the emitted bytecode; it cannot recover omitted shadows.
+`tests/test_language_claims.py` checks these observations.
+`make test-bytecode-shadows` checks bytecode test execution, failure handling
+and output preservation. Its compiler parent enforces a 10-second deadline;
+test output goes to stderr. The child process is not a security sandbox.
+Production bytecode retains the original entry and omits the test harness.
+Shadow-only root files are accepted by this CLI. Imported shadows are not
+automatically included; import policy and Stage 2 enforcement remain gaps.
+My AOT translator consumes the emitted bytecode; it cannot recover omitted
+shadows or certify that a producer ran them.
 
 ### 7.2 Syntax
 

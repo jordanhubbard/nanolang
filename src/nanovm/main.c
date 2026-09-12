@@ -200,6 +200,9 @@ static int run_standalone(const char *path) {
             }
         }
         exit_code = 1;
+    } else {
+        NanoValue value = vm_get_result(&vm);
+        if (value.tag == TAG_INT) exit_code = (int)value.as.i64;
     }
 
     /* Stop co-process if it was launched */
