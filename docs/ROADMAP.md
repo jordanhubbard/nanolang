@@ -179,6 +179,41 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The failing-shadow characterization is rejected by the C seed and
       bytecode CLI but still compiles and runs successfully on Stage 2.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**
+      My native-emitter build exposed SIGABRT in `eval_call` cleanup. A field
+      read borrowed record-owned string storage that a callee's local then
+      released. I copy string field values before returning them. My small
+      `nl_shadow_struct_string_lifetime.nano` regression now compiles and runs;
+      all 95 evaluator and ten GC-struct tests pass, including repeated reads
+      and local mutation. This does not establish general aggregate ownership.
+      MAC `task_de992b992c064ceb917bda531312f531`.
+- [x] **5.0 native shadows — string builder result handling.** I preserve
+      `array_push`'s returned array in `cg_append`. My interpreter converts an
+      empty static array to a new dynamic array on its first push, so ignoring
+      that result leaves the original accumulator empty. I test generated
+      source from an interpreted shadow and from compiled emitters.
+      The interpreted emitter shadow and nine native-emitter integration
+      tests pass with rebuilt C-seed and Stage 2 tools.
+      MAC `task_589709f18d304e6bb828a56583be7755`.
+- [x] **5.0 native shadows — separate C test entry.** I add a self-hosted
+      transpiler entry that emits selected shadow bodies as independent void
+      functions and calls them from a private C test entry. I preserve the
+      production entry, allow shadows to call NanoLang main, isolate local
+      scopes and test emitted C by compiling and executing it. This is a
+      prerequisite, not driver enforcement: selection, shadow typechecking,
+      bounded execution and publication ordering remain required below.
+      `make test-native-shadow-emitter` passes nine tests, building emitters
+      with the C seed and Stage 2 and executing their generated C. It covers
+      assertion failures with `NDEBUG`, helper assertions, independent locals,
+      selected suffixes and invalid selection, calls to main, and production
+      output without the harness. My bootstrap smoke and no-C-seed checks
+      pass; the native binaries still differ (2026-09-12).
+- [ ] **5.0 native shadows — driver enforcement.** I typecheck root shadows,
+      compile and supervise their private test executable, and reject errors
+      before publishing native output. I test imported helper visibility,
+      root/import selection, malformed shadows, output preservation, traps
+      and deadlines. Source-only output must retain its no-native-toolchain
+      contract and describe how its shadows are checked.
 - [x] **5.0 bytecode shadows — verified test module before publication.** I
       lower root-file shadows as separate zero-argument NanoISA functions and
       execute a private test entry before publishing bytecode or wrappers.
@@ -362,6 +397,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       shadows and bootstrap validation claims, execute meaningful assertions
       explicitly, and distinguish skipped from executed checks. MAC
       `task_56a065134a6e4394ae5c307c05e9597d`.
+      Older transpiler shadows still call `tokenize_string` with one argument;
+      its current signature requires source, filename and diagnostics.
 - [x] **5.0 import parity — bare relative paths.** I try a bare import path
       beside its importing file before falling back to the repository root.
       `tests/nl_functions_relative_import.nano` compiles and runs through both

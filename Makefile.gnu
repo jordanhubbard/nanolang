@@ -2025,6 +2025,10 @@ test-language-claims:
 test-bytecode-shadows: nano_virt nano_vm
 	@python3 tests/test_bytecode_shadows.py
 
+.PHONY: test-native-shadow-emitter
+test-native-shadow-emitter:
+	@python3 tests/test_native_shadow_emitter.py
+
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json
 .PHONY: bench bench-compare

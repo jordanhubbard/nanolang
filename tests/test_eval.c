@@ -105,6 +105,32 @@ void test_eval_integer_arithmetic(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_record_string_local_lifetime(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Text { value: string }\n"
+        "fn read_text(t: Text) -> int {\n"
+        "  let mut local: string = t.value\n"
+        "  set local (+ local \"!\")\n"
+        "  return (str_length local)\n"
+        "}\n"
+        "fn check() -> int {\n"
+        "  let t: Text = Text { value: \"seven\" }\n"
+        "  let a: int = (read_text t)\n"
+        "  let b: int = (read_text t)\n"
+        "  return (+ (+ a b) (str_length t.value))\n"
+        "}\n"
+        "shadow check { assert (== (check) 17) }\n"
+        "fn main() -> int { return 0 }\n"));
+    for (int i = 0; i < 100; i++) {
+        Value value = call_function("check", NULL, 0, ctx.env);
+        ASSERT_EQ(value.type, VAL_INT);
+        ASSERT_EQ(value.as.int_val, 17);
+    }
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
 void test_eval_subtraction(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2077,6 +2103,7 @@ int main(void) {
     TEST(eval_type_casting);
     TEST(eval_bool_operations);
     TEST(eval_nested_struct_fields);
+    TEST(eval_record_string_local_lifetime);
 
     TEST(eval_map_pure_arithmetic_int);
     TEST(eval_map_pure_arithmetic_float);

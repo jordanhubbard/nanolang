@@ -4894,6 +4894,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Find field in struct */
             for (int i = 0; i < sv->field_count; i++) {
                 if (strcmp(sv->field_names[i], field_name) == 0) {
+                    /* I return an owned string, not a record's borrowed storage.
+                     * A local binding releases its value when its call ends. */
+                    if (sv->field_values[i].type == VAL_STRING) {
+                        return create_string(sv->field_values[i].as.string_val);
+                    }
                     return sv->field_values[i];
                 }
             }

@@ -478,11 +478,10 @@ shadow gen_indent {
 
 /* StringBuilder: Array-based string accumulator for O(n) performance
  * Instead of: set result (+ result "text")  // O(n²) - copies entire string each time
- * Use: (cg_append parts "text")              // O(n) - just appends to array
+ * Use: set parts (cg_append parts "text")    // Preserve the returned array
  */
 fn cg_append(parts: array<string>, text: string) -> array<string> {
-    (array_push parts text)
-    return parts
+    return (array_push parts text)
 }
 
 fn cg_build(parts: array<string>) -> string {
@@ -7507,7 +7506,7 @@ shadow parser_has_peg2_import {
     assert (== (parser_has_peg2_import p) 0)
 }
 
-pub fn transpile_parser(parser: Parser) -> string {
+fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     (build_module_alias_map parser)
     (reset_fn_types)
 
@@ -7600,7 +7599,60 @@ pub fn transpile_parser(parser: Parser) -> string {
     }
     let all_functions: string = (cg_build sb)
 
-    return (gen_c_program_with_modules parser all_functions)
+    let product: string = (gen_c_program_with_modules parser all_functions)
+    if (< first_shadow 0) { return product }
+
+    # I keep NanoLang main callable; only the C process entry is renamed.
+    let mut tests: array<string> = []
+    set tests (cg_append tests "#undef NDEBUG\n#define main __nano_product_entry\n")
+    set tests (cg_append tests product)
+    set tests (cg_append tests "\n#undef main\n")
+    let mut si: int = first_shadow
+    while (< si parser.shadows_count) {
+        let sh: ASTShadow = (list_ASTShadow_get parser.shadows si)
+        let scope: string = (+ "__nano_shadow_" (int_to_string si))
+        let env: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, scope: scope }
+        set tests (cg_append tests (+ "static void " (+ scope "(void) {\n")))
+        set tests (cg_append tests (generate_block parser sh.body 1 env "void"))
+        set tests (cg_append tests "}\n")
+        set si (+ si 1)
+    }
+    set tests (cg_append tests "int main(int argc, char **argv) {\n    g_argc = argc;\n    g_argv = argv;\n")
+    set si first_shadow
+    while (< si parser.shadows_count) {
+        set tests (cg_append tests (+ "    __nano_shadow_" (+ (int_to_string si) "();\n")))
+        set si (+ si 1)
+    }
+    set tests (cg_append tests "    return 0;\n}\n")
+    return (cg_build tests)
+}
+
+shadow transpile_parser_mode {
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 7 } shadow main { assert (== (main) 7) }" "shadow.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "shadow.nano")
+    assert (not (str_contains (transpile_parser_mode p -1) "__nano_shadow_"))
+    assert (str_contains (transpile_parser_mode p 0) "__nano_shadow_0();")
+}
+
+pub fn transpile_parser(parser: Parser) -> string {
+    return (transpile_parser_mode parser -1)
+}
+
+# I accept an explicit suffix of shadows; the driver owns root/import policy.
+# An invalid selection fails without emitting a misleading empty test program.
+pub fn transpile_parser_shadows(parser: Parser, first_shadow: int) -> string {
+    if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) { return "" }
+    return (transpile_parser_mode parser first_shadow)
+}
+
+shadow transpile_parser_shadows {
+    let toks: List<LexerToken> = (tokenize_string "fn f() -> int { return 1 } shadow f { assert false } shadow f { assert true }" "shadow.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "shadow.nano")
+    let code: string = (transpile_parser_shadows p 1)
+    assert (not (str_contains code "__nano_shadow_0"))
+    assert (str_contains code "__nano_shadow_1();")
+    assert (== (transpile_parser_shadows p -1) "")
+    assert (== (transpile_parser_shadows p 3) "")
 }
 
 shadow transpile_parser {

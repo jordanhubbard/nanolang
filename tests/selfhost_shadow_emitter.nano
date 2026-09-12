@@ -1,0 +1,38 @@
+# I exercise my native test emitter independently of driver enforcement.
+import "src_nano/transpiler.nano"
+import "src_nano/compiler/lexer.nano"
+import "src_nano/parser.nano"
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+extern fn file_write(path: string, content: string) -> int
+
+fn emit_shadow_source(source: string, first: int) -> string {
+    let tokens: List<LexerToken> = (tokenize_string source "shadow-fixture.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "shadow-fixture.nano")
+    if (parser_has_error parser) { return "" }
+    if (== first -1) { return (transpile_parser parser) }
+    return (transpile_parser_shadows parser first)
+}
+
+shadow emit_shadow_source {
+    let source: string = "fn f() -> int { return 7 } shadow f { assert (== (f) 7) }"
+    let code: string = (emit_shadow_source source 0)
+    assert (str_contains code "__nano_shadow_0();")
+    assert (not (str_contains (emit_shadow_source source -1) "__nano_shadow_0"))
+    assert (== (emit_shadow_source source 2) "")
+}
+
+fn main() -> int {
+    unsafe {
+        if (!= (get_argc) 4) { return 2 }
+        let source: string = (file_read (get_argv 1))
+        let code: string = (emit_shadow_source source (string_to_int (get_argv 3)))
+        if (== code "") { return 1 }
+        return (file_write (get_argv 2) code)
+    }
+}
+
+shadow main {
+    assert (== (emit_shadow_source "fn invalid(" 0) "")
+}

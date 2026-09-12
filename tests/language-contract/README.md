@@ -38,3 +38,12 @@ remaining Stage 2 native omission; passing that characterization is not
 universal shadow conformance. `make test-bytecode-shadows` checks the NanoVM
 test-module path and publication guards. Build `bootstrap3`,
 `nano_virt` and `nano_vm` first when those tools are missing or stale.
+
+`make test-native-shadow-emitter` exercises my self-hosted transpiler's separate
+C test entry. I build the emitter with the C seed and Stage 2, then compile and
+execute its generated C. The suite checks selected shadows, independent local
+scopes, calls to NanoLang main, assertion failures even with `NDEBUG`, and the
+unchanged production entry. It also checks record-string lifetime through
+callee locals. This target uses existing compiler tools; it is not evidence
+that my native driver executes shadows before publication. That integration,
+shadow typechecking, and root/import selection remain roadmap work.
