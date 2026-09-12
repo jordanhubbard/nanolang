@@ -1,0 +1,12 @@
+{
+  "schema": "nanolang.language-contract.v1",
+  "cases": [
+    "01_arithmetic",
+    "02_fibonacci",
+    "03_strings",
+    "04_records",
+    "05_match",
+    "06_single_field_variant",
+    "07_while"
+  ]
+}

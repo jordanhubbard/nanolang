@@ -153,10 +153,26 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       self-hosted compiler, VM, and AOT where applicable. I distinguish
       project policy, implementation, and proof. MAC
       `task_2b291a75ca2840519d47e08bf991c021` tracks this audit program.
-      My bootstrap console still says both compilers work correctly and
-      calls smoke success proof of self-hosting even when native binaries
-      differ. I replace those claims with the exact checks performed;
-      canonical artifact equality and semantic correctness remain separate.
+      My bootstrap reporting now names the checks performed; canonical
+      artifact equality and semantic correctness remain separate.
+- [x] **5.0 contract evidence — versioned executable matrix.** I version
+      the existing seven-program corpus and check exact stdout and successful
+      execution with the C seed, Stage 2, VM, and actual NanoISA-to-C AOT.
+      I run VM and AOT from the same bytecode artifact, expose unsupported
+      AOT cases as failures rather than conformance passes, and
+      test runner failure handling, timeouts, and manifest validation. This
+      initial corpus does not complete specification reconciliation or cover
+      the whole language; I retain the umbrella contract item above.
+      Ten runner tests pass. The real matrix reports 25 passing rows and
+      three AOT failures and exits nonzero (2026-09-11); this checks existing
+      rebuilt tools, not a new bootstrap or full release gate.
+- [ ] **5.0 contract defect — AOT source corpus aggregates.** I make the
+      record-return and two variant corpus programs compile and execute via
+      `nvm2c`. My VM executes all three, but current AOT analysis rejects
+      `04_records` with `AGG_PACK fields must be int or string` and rejects
+      `05_match` and `06_single_field_variant` with `DUP on empty stack`.
+      I retain these as required failing matrix rows until repaired.
+      MAC `task_9a7214c876e24c3491f8d1d49c1384a1`.
 - [x] **5.0 contract evidence — cross-backend runner failures.** I reject
       execution failures even when stdout matches, reject unknown or empty
       backend selections, and use private scratch paths. I retain explicit

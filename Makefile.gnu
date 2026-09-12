@@ -2007,6 +2007,16 @@ test-cross-backend-runner:
 test-selfhost-cli: bootstrap3
 	@python3 tests/test_selfhost_cli.py
 
+# Keep tool builds ordered: bootstrap currently shares merger scratch state.
+.PHONY: test-language-contract test-language-contract-runner
+test-language-contract: test-language-contract-runner
+	@$(MAKE) bootstrap3
+	@$(MAKE) nano_virt nano_vm nvm2c
+	@python3 tests/run_language_contract.py
+
+test-language-contract-runner:
+	@python3 tests/test_language_contract_runner.py
+
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json
 .PHONY: bench bench-compare
