@@ -362,15 +362,6 @@ static bool dir_exists(const char *path) {
     return stat(path, &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-// Helper: Get file modification time
-static time_t get_mtime(const char *path) {
-    struct stat st;
-    if (stat(path, &st) != 0) {
-        return 0;
-    }
-    return st.st_mtime;
-}
-
 /* ============================================================
  * Incremental compilation: content-hash cache
  *
@@ -395,8 +386,9 @@ static uint64_t hash_file_fnv1a(const char *path) {
             h *= 1099511628211ULL;
         }
     }
-    fclose(fp);
-    return h;
+    bool failed = ferror(fp) != 0;
+    if (fclose(fp) != 0) failed = true;
+    return failed ? 0 : h;
 }
 
 /* Path to the hash cache file for a module */
@@ -422,10 +414,12 @@ static cJSON *load_hash_cache(const char *module_dir) {
     if (sz <= 0) { fclose(fp); return NULL; }
     char *buf = malloc((size_t)sz + 1);
     if (!buf) { fclose(fp); return NULL; }
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-    fread(buf, 1, (size_t)sz, fp);
-#pragma GCC diagnostic pop
+    size_t read_size = fread(buf, 1, (size_t)sz, fp);
+    if (read_size != (size_t)sz || ferror(fp)) {
+        fclose(fp);
+        free(buf);
+        return NULL;
+    }
     buf[sz] = '\0';
     fclose(fp);
     cJSON *root = cJSON_Parse(buf);
@@ -532,7 +526,7 @@ static bool system_headers_match(cJSON *cache, ModuleBuildMetadata *meta) {
         free(path);
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
-        if (strcmp(item->valuestring, hstr) != 0) return false;
+        if (h == 0 || strcmp(item->valuestring, hstr) != 0) return false;
     }
     return true;
 }
@@ -641,7 +635,7 @@ static bool dep_hashes_match(cJSON *cache) {
             uint64_t h = hash_file_fnv1a(path);
             char hstr[24];
             snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
-            if (!cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
+            if (h == 0 || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
                 return false;
         }
         item = item->next;
@@ -666,13 +660,17 @@ void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta)
     if (!meta || meta->c_sources_count == 0) return;
     cJSON *root = cJSON_CreateObject();
     if (!root) return;
-    for (size_t i = 0; i < meta->c_sources_count; i++) {
-        char src[1024];
-        snprintf(src, sizeof(src), "%s/%s", module_dir, meta->c_sources[i]);
-        uint64_t h = hash_file_fnv1a(src);
-        char hstr[24];
-        snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
-        cJSON_AddStringToObject(root, meta->c_sources[i], hstr);
+    for (int shared = 0; shared < 2; shared++) {
+        char **sources = shared ? meta->shared_c_sources : meta->c_sources;
+        size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            char src[1024];
+            snprintf(src, sizeof(src), "%s/%s", module_dir, sources[i]);
+            uint64_t h = hash_file_fnv1a(src);
+            char hstr[24];
+            snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+            cJSON_AddStringToObject(root, sources[i], hstr);
+        }
     }
     /* Also hash module.json itself */
     char mj[1024];
@@ -694,15 +692,19 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
     cJSON *cache = load_hash_cache(module_dir);
     if (!cache) return false;
     bool match = true;
-    for (size_t i = 0; i < meta->c_sources_count && match; i++) {
-        char src[1024];
-        snprintf(src, sizeof(src), "%s/%s", module_dir, meta->c_sources[i]);
-        uint64_t h = hash_file_fnv1a(src);
-        char hstr[24];
-        snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
-        cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, meta->c_sources[i]);
-        if (!item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0) {
-            match = false;
+    for (int shared = 0; shared < 2 && match; shared++) {
+        char **sources = shared ? meta->shared_c_sources : meta->c_sources;
+        size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count && match; i++) {
+            char src[1024];
+            snprintf(src, sizeof(src), "%s/%s", module_dir, sources[i]);
+            uint64_t h = hash_file_fnv1a(src);
+            char hstr[24];
+            snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
+            cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, sources[i]);
+            if (h == 0 || !item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0) {
+                match = false;
+            }
         }
     }
     /* Check module.json hash */
@@ -713,7 +715,7 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
         cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, "module.json");
-        if (!item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
+        if (h == 0 || !item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
             match = false;
     }
     if (match) match = system_headers_match(cache, meta);
@@ -1789,70 +1791,9 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
         return false;
     }
 
-    time_t object_mtime = get_mtime(object_file);
-
-    // Check if any C source is newer
-    for (size_t i = 0; i < meta->c_sources_count; i++) {
-        char source_path[1024];
-        snprintf(source_path, sizeof(source_path), "%s/%s", module_dir, meta->c_sources[i]);
-
-        if (!file_exists(source_path)) {
-            fprintf(stderr, "Error: C source not found: %s\n", source_path);
-            return true;
-        }
-
-        time_t source_mtime = get_mtime(source_path);
-        if (source_mtime > object_mtime) {
-            if (module_builder_verbose) {
-                printf("[Module] %s needs rebuild: %s modified\n", meta->name, meta->c_sources[i]);
-            }
-            return true;
-        }
-    }
-
-    // Check if module.json is newer
-    char module_json[1024];
-    snprintf(module_json, sizeof(module_json), "%s/module.json", module_dir);
-    time_t json_mtime = get_mtime(module_json);
-    if (json_mtime > object_mtime) {
-        if (module_builder_verbose) {
-            printf("[Module] %s needs rebuild: module.json modified\n", meta->name);
-        }
-        return true;
-    }
-
-    /* Check if any platform-specific system include/framework directory is newer
-       than the object. This catches library reinstalls (e.g. brew cask upgrade)
-       where the C source is unchanged but the library's headers were replaced. */
-#ifdef __APPLE__
-    for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-        const char *flag = meta->cflags_macos[i];
-        if (strncmp(flag, "-F", 2) != 0) continue;
-        time_t fdir_mtime = get_mtime(flag + 2);
-        if (fdir_mtime > object_mtime) {
-            if (module_builder_verbose)
-                printf("[Module] %s needs rebuild: framework dir %s is newer\n", meta->name, flag + 2);
-            return true;
-        }
-    }
-#else
-    for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-        const char *flag = meta->cflags_linux[i];
-        if (strncmp(flag, "-I", 2) != 0) continue;
-        const char *dir = flag + 2;
-        /* Skip standard toolchain paths that are effectively immutable. */
-        if (strncmp(dir, "/usr/include", 12) == 0) continue;
-        if (strncmp(dir, "/usr/lib/gcc", 12) == 0) continue;
-        time_t idir_mtime = get_mtime(dir);
-        if (idir_mtime > object_mtime) {
-            if (module_builder_verbose)
-                printf("[Module] %s needs rebuild: include dir %s is newer\n", meta->name, dir);
-            return true;
-        }
-    }
-#endif
-
-    return false;
+    /* I cannot turn missing or contradictory content evidence into a cache
+     * hit merely because a timestamp is old. */
+    return true;
 }
 
 // Build module
@@ -2347,15 +2288,15 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
              * preventing duplicate-symbol errors when the host binary also has those symbols
              * (e.g. from modules/std/json). */
             if (meta->shared_c_sources_count > 0) {
-                const char *cc_sc = getenv("CC") ? getenv("CC") : "cc";
+                const char *cc_sc = cc;
                 for (size_t sci = 0; sci < meta->shared_c_sources_count; sci++) {
                     char sc_obj[2048];
                     snprintf(sc_obj, sizeof(sc_obj), "%s/__shared_%zu.o", shared_dir, sci);
 
                     char sc_cmd[8192];
                     snprintf(sc_cmd, sizeof(sc_cmd),
-                             "%s -c -fPIC -fvisibility=hidden -D_POSIX_C_SOURCE=200809L",
-                             cc_sc);
+                             "%s -c -fPIC -fvisibility=hidden -D_POSIX_C_SOURCE=200809L -MMD -MF %s/__shared_%zu.d",
+                             cc_sc, shared_dir, sci);
                     /* Append module cflags (include paths) */
                     for (size_t fi = 0; fi < meta->cflags_count; fi++) {
                         size_t sc_len = strlen(sc_cmd);

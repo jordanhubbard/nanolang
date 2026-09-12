@@ -253,6 +253,95 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(output.read_bytes(), b"preserve")
 
+    def test_foreign_cache_same_timestamp_content_changes(self):
+        for change in ("source", "header", "shared_source", "shared_header", "manifest"):
+            with self.subTest(change=change), tempfile.TemporaryDirectory(prefix="nano-cache-") as tmp:
+                directory = Path(tmp)
+                module_dir, source, env = self.foreign_build_fixture(directory)
+                changed = module_dir / "answer.c"
+                manifest = {"name": "answer_native", "c_sources": ["answer.c"]}
+                if change == "header":
+                    changed = module_dir / "answer.h"
+                    changed.write_text("#define ANSWER 42\n")
+                    (module_dir / "answer.c").write_text('#include <stdint.h>\n#include "answer.h"\nint64_t nano_build_answer(void) { return ANSWER; }\n')
+                elif change in ("shared_source", "shared_header"):
+                    manifest["shared_c_sources"] = ["private.c"]
+                    (module_dir / "answer.c").write_text('#include <stdint.h>\nint64_t private_answer(void);\nint64_t nano_build_answer(void) { return private_answer(); }\n')
+                    changed = module_dir / "private.c"
+                    changed.write_text('#include <stdint.h>\nint64_t private_answer(void) { return 42; }\n')
+                    if change == "shared_header":
+                        changed.write_text('#include <stdint.h>\n#include "private.h"\nint64_t private_answer(void) { return ANSWER; }\n')
+                        changed = module_dir / "private.h"
+                        changed.write_text("#define ANSWER 42\n")
+                elif change == "manifest":
+                    manifest["cflags"] = ["-DANSWER=42"]
+                    changed.write_text('#include <stdint.h>\nint64_t nano_build_answer(void) { return ANSWER; }\n')
+                    changed = module_dir / "module.json"
+                (module_dir / "module.json").write_text(json.dumps(manifest))
+                stamp = changed.stat()
+                result, output = self.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                changed.write_text(changed.read_text().replace("42", "43"))
+                os.utime(changed, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                self.assertEqual(changed.stat().st_mtime_ns, stamp.st_mtime_ns)
+                result, output = self.compile(source.replace("42", "43"), directory, "--run", env=env)
+                self.assertEqual(result.returncode, 43, result.stderr)
+                self.assertEqual(self.execute(output).returncode, 43)
+
+    def test_foreign_cache_requires_readable_hash_record(self):
+        for damage in ("missing", "corrupt", "directory"):
+            with self.subTest(damage=damage), tempfile.TemporaryDirectory(prefix="nano-cache-") as tmp:
+                directory = Path(tmp)
+                module_dir, source, env = self.foreign_build_fixture(directory)
+                result, output = self.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+                cache = module_dir / ".build" / "source_hashes.json"
+                cache.unlink()
+                if damage == "corrupt":
+                    cache.write_text("{")
+                elif damage == "directory":
+                    cache.mkdir()
+                env["NANO_CC"] = "/usr/bin/false"
+                output.write_bytes(b"preserve")
+                result, output = self.compile(source, directory, env=env)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(b"could not build foreign support", result.stderr)
+                self.assertEqual(output.read_bytes(), b"preserve")
+                env.pop("NANO_CC")
+                if damage == "directory":
+                    cache.rmdir()
+                result, output = self.compile(source, directory, "--run", env=env)
+                self.assertEqual(result.returncode, 42, result.stderr)
+
+    def test_foreign_cache_failed_link_retry(self):
+        with tempfile.TemporaryDirectory(prefix="nano-cache-") as tmp:
+            directory = Path(tmp)
+            module_dir, source, env = self.foreign_build_fixture(directory)
+            changed = module_dir / "answer.c"
+            stamp = changed.stat()
+            result, output = self.compile(source, directory, "--run", env=env)
+            self.assertEqual(result.returncode, 42, result.stderr)
+            changed.write_text(changed.read_text().replace("42", "43"))
+            os.utime(changed, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            compiler = directory / "cc-fixture"
+            compiler.write_text(f'''#!{sys.executable}
+import os, sys
+if "-dynamiclib" in sys.argv or "-shared" in sys.argv:
+    sys.exit(24)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+            compiler.chmod(0o700)
+            env["NANO_CC"] = str(compiler)
+            output.write_bytes(b"preserve")
+            result, output = self.compile(source.replace("42", "43"), directory, env=env)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b"could not build foreign support", result.stderr)
+            self.assertEqual(output.read_bytes(), b"preserve")
+            env.pop("NANO_CC")
+            result, output = self.compile(source.replace("42", "43"), directory, "--run", env=env)
+            self.assertEqual(result.returncode, 43, result.stderr)
+            self.assertEqual(self.execute(output).returncode, 43)
+
     def test_local_opaque_roundtrip(self):
         source = '''opaque type LocalHandle
 struct Box { value: int }

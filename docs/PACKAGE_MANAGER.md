@@ -219,6 +219,17 @@ Packages installed by `nanoc-pkg` land in `modules/` and are immediately availab
 
 My module builder (`module_builder.c`) tracks content hashes for incremental builds. When `nanoc-pkg install` updates a module, the content hash changes, triggering a rebuild on next compilation. This is automatic.
 
+I rebuild when the hash record is missing, unreadable, malformed or disagrees
+with current inputs. Older or unchanged timestamps cannot override a content
+change. I include regular and shared-only C sources, the manifest, and headers
+recorded in compiler dependency files. Shared-only sources use the same selected
+compiler as the ordinary module sources and produce dependency files too.
+
+These hashes are a non-cryptographic cache optimization, not artifact
+authentication. Concurrent publication, interrupted cache transactions and
+compiler/toolchain identity remain open work; a matching source hash alone
+does not establish a reproducible build.
+
 ### System Dependencies During Compilation
 
 I check declared `pkg_config` dependencies on every module build, including

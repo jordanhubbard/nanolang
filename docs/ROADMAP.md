@@ -340,11 +340,27 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       opaque signature, tracked below. I have not rerun full example coverage
       in this increment (2026-09-12).
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 C-library cache — content invalidation and retry.** I treat a
+      missing, unreadable or mismatching content-hash record as a cache miss,
+      not permission to trust timestamps. I include shared-only C sources
+      and their header dependencies. I test same-timestamp source, header,
+      manifest and shared-source changes, damaged cache records and failed
+      link recovery through actual compilation and execution.
+      All nine scenarios fail before the repair and pass afterward: five
+      same-timestamp content changes, three hash-record damage cases and a
+      failed-link retry. All 28 shadow tests, 63 codegen tests, 18 FFI tests,
+      package-installation policy and C-seed dependency/recovery gates pass
+      (2026-09-12). Cache transaction and toolchain identity work stays open.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 C-library cache transactions.** My C module builder writes
-      object and shared-library outputs directly into a shared cache, and a
-      failed hash comparison can fall through to a timestamp-based cache hit.
-      I need private staging, atomic publication and content-change/retry
-      tests before I claim robust concurrent or interrupted C-library builds.
+      object and shared-library outputs directly into a shared cache. Content
+      invalidation is addressed above; I still need private staging, atomic
+      publication and concurrent/interrupted-build recovery tests before I
+      claim robust concurrent or interrupted C-library builds.
+      Cache identity also omits the selected compiler/toolchain and ambient
+      build settings; those need explicit inputs and invalidation tests. My
+      current warm-cache tests use a changed compiler command as a no-build
+      sentinel, so those tests must change when compiler identity is tracked.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 VM opaque signature representation.** With its foreign library
       built, `advanced/datetime_demo.nano` reaches execution but fails in `now`:
