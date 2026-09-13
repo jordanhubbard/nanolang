@@ -1015,11 +1015,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Both 140-method regression sets pass; all 39 Linux snapshot methods pass
       under ASan/UBSan, with focused leak-enabled checks (2026-09-13).
       MAC `task_641f3a82b3474cd28c895dd9ffcb290b`.
-- [ ] **5.0 Darwin driver-response regression gate.** I need one clean
-      full compiler/shadow/cache/assembler/linker run for build-context v27.
-      The 152-method run had 24 expected skips and one response-recovery
-      timeout; the affected method passed in isolation. I investigate repeated
-      timeouts without widening ordinary deadlines indiscriminately.
+- [x] **5.0 Darwin driver-response regression gate.** My rebuilt tools at
+      `d9bfd86c` pass the full 152-method compiler/shadow/cache/assembler/linker
+      run in 341.417 seconds, with 24 expected skips and no failures or
+      timeouts (2026-09-13). Ordinary probe deadlines remain unchanged; only
+      the existing 40-package stress builds use their thirty-second bound.
       MAC `task_44c2d5851e1948e6a474036e263a0a73`.
 - [ ] **5.0 retained compiler response files.** I measure restored edits to
       `@file` arguments on Clang and GCC, including local and shared caches.

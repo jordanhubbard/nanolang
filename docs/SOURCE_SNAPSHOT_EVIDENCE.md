@@ -1191,3 +1191,21 @@ build also timed out and passed its isolated recheck; only those stress builds
 now receive a thirty-second test bound. I do not claim a clean full Darwin
 gate. MAC `task_44c2d5851e1948e6a474036e263a0a73` and the roadmap retain that
 verification requirement.
+
+### Completed Darwin gate
+
+At `d9bfd86c`, I rebuilt `nano_virt`, `nano_vm`, `nano_cop`, `bin/nanoc_c` and
+the production generation probe, then ran the same complete regression set
+with verbose reporting. All 152 methods finished in 341.417 seconds: 24
+expected skips, no failures and no timeouts (2026-09-13). This closes the
+missing full-run requirement; it does not establish that a loaded host can
+never exceed a test deadline. I did not change ordinary deadlines for this run.
+
+```sh
+python3 -m unittest tests.test_bytecode_shadows tests.test_module_cache_publication \
+  tests.test_linux_link_cache tests.test_source_snapshots \
+  tests.test_assembler_capture_records tests.test_link_argument_transport -v
+```
+
+Forwarded linker response inputs and larger argument budgets remain separate
+open work. This is not a release-readiness claim.
