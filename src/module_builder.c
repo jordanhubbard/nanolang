@@ -3589,6 +3589,51 @@ static int module_linux_link_matches(ModuleBuildMetadata *meta, const ModulePkgF
 }
 #endif
 
+/* I size returned compiler flags from metadata, not a fixed pointer budget.
+ * The same owner and failure path serve source-free and compiled modules. */
+static bool module_collect_compile_flags(ModuleBuildInfo *info, const ModuleBuildMetadata *meta,
+                                          const ModulePkgFlags *flags) {
+    size_t platform_count;
+    char **platform = module_platform_cflags(meta, &platform_count);
+    size_t counts[] = {flags->count, meta->include_dirs_count, meta->cflags_count, platform_count};
+    size_t capacity = 0;
+    for (size_t i = 0; i < sizeof(counts) / sizeof(counts[0]); i++) {
+        if (counts[i] > SIZE_MAX - capacity) return false;
+        capacity += counts[i];
+    }
+    if (capacity > SIZE_MAX / sizeof(char *)) return false;
+    char **collected = capacity ? calloc(capacity, sizeof(char *)) : NULL;
+    if (capacity && !collected) return false;
+    size_t count = 0;
+    for (size_t group = 0; group < 4; group++) {
+        char **values = group == 0 ? flags->cflags : group == 1 ? meta->include_dirs :
+            group == 2 ? meta->cflags : platform;
+        for (size_t i = 0; i < counts[group]; i++) {
+#ifdef __APPLE__
+            if (group == 0 && module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+            if (!values[i]) goto failed;
+            if (group == 0 && !values[i][0]) continue;
+            char *value;
+            if (group == 1) {
+                size_t length = strlen(values[i]);
+                if (length > SIZE_MAX - 3) goto failed;
+                value = malloc(length + 3);
+                if (value) { memcpy(value, "-I", 2); memcpy(value + 2, values[i], length + 1); }
+            } else value = strdup(values[i]);
+            if (!value) goto failed;
+            collected[count++] = value;
+        }
+    }
+    info->compile_flags = collected;
+    info->compile_flags_count = count;
+    return true;
+failed:
+    for (size_t i = 0; i < count; i++) free(collected[i]);
+    free(collected);
+    return false;
+}
+
 static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__((unused)),
                                            ModuleBuildMetadata *meta, const char *staging,
                                            uint64_t *preprocessing_before,
@@ -3647,57 +3692,10 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         info->link_flags = link_flags;
         info->link_flags_count = total_link_flags;
 
-        // Collect compile flags (include paths from pkg-config)
-        size_t total_compile_flags = 0;
-        char **compile_flags = calloc(1024, sizeof(char*));
-
-        // Add pkg-config compile flags (include paths, defines)
-        for (size_t i = 0; i < meta->pkg_config_count; i++) {
-#ifdef __APPLE__
-            if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
-#endif
-            char *pkg_cflags = strdup(flags->cflags[i]);
-            if (!pkg_cflags) {
-                for (size_t j = 0; j < total_compile_flags; j++) free(compile_flags[j]);
-                free(compile_flags);
-                module_build_info_free(info);
-                return NULL;
-            }
-            if (pkg_cflags) {
-                append_flag_fragment(compile_flags, &total_compile_flags, 1024, pkg_cflags);
-                free(pkg_cflags);
-            }
+        if (!module_collect_compile_flags(info, meta, flags)) {
+            module_build_info_free(info);
+            return NULL;
         }
-
-        // Add custom include dirs
-        for (size_t i = 0; i < meta->include_dirs_count; i++) {
-            char *include_flag = malloc(256);
-            snprintf(include_flag, 256, "-I%s", meta->include_dirs[i]);
-            compile_flags[total_compile_flags++] = include_flag;
-        }
-
-        // Add custom cflags (all platforms)
-        for (size_t i = 0; i < meta->cflags_count; i++) {
-            compile_flags[total_compile_flags++] = strdup(meta->cflags[i]);
-        }
-
-        // Add platform-specific cflags
-#ifdef __APPLE__
-        for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-            compile_flags[total_compile_flags++] = strdup(meta->cflags_macos[i]);
-        }
-#elif defined(__FreeBSD__)
-        for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-            compile_flags[total_compile_flags++] = strdup(meta->cflags_freebsd[i]);
-        }
-#else
-        for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-            compile_flags[total_compile_flags++] = strdup(meta->cflags_linux[i]);
-        }
-#endif
-
-        info->compile_flags = compile_flags;
-        info->compile_flags_count = total_compile_flags;
         info->needs_rebuild = false;
         info->object_file = NULL;
 
@@ -4023,56 +4021,10 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
     info->link_flags = link_flags;
     info->link_flags_count = total_link_flags;
 
-    // Collect compile flags (include paths from pkg-config)
-    size_t total_compile_flags = 0;
-    char **compile_flags = calloc(1024, sizeof(char*));
-
-    // Add pkg-config compile flags (include paths, defines)
-    for (size_t i = 0; i < meta->pkg_config_count; i++) {
-#ifdef __APPLE__
-        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
-#endif
-        char *pkg_cflags = strdup(flags->cflags[i]);
-        if (!pkg_cflags) {
-            for (size_t j = 0; j < total_compile_flags; j++) free(compile_flags[j]);
-            free(compile_flags);
-            module_build_info_free(info);
-            return NULL;
-        }
-        if (pkg_cflags) {
-            append_flag_fragment(compile_flags, &total_compile_flags, 1024, pkg_cflags);
-            free(pkg_cflags);
-        }
+    if (!module_collect_compile_flags(info, meta, flags)) {
+        module_build_info_free(info);
+        return NULL;
     }
-
-    // Add custom include dirs
-    for (size_t i = 0; i < meta->include_dirs_count; i++) {
-        char *include_flag = malloc(256);
-        snprintf(include_flag, 256, "-I%s", meta->include_dirs[i]);
-        compile_flags[total_compile_flags++] = include_flag;
-    }
-
-    // Add custom cflags (all platforms)
-    for (size_t i = 0; i < meta->cflags_count; i++) {
-        compile_flags[total_compile_flags++] = strdup(meta->cflags[i]);
-    }
-    // Add platform-specific cflags
-#ifdef __APPLE__
-    for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-        compile_flags[total_compile_flags++] = strdup(meta->cflags_macos[i]);
-    }
-#elif defined(__FreeBSD__)
-    for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-        compile_flags[total_compile_flags++] = strdup(meta->cflags_freebsd[i]);
-    }
-#else
-    for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-        compile_flags[total_compile_flags++] = strdup(meta->cflags_linux[i]);
-    }
-#endif
-
-    info->compile_flags = compile_flags;
-    info->compile_flags_count = total_compile_flags;
 
     return info;
 }

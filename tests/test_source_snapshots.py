@@ -631,6 +631,34 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 for field in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record", "generation_reused"):
                     self.assertTrue(case[field], field)
 
+    def test_many_returned_compile_flags_preserve_count_and_order(self):
+        platform = "cflags_macos" if sys.platform == "darwin" else "cflags_linux"
+        for origin in ("cflags", platform, "include_dirs", "compiled"):
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory(prefix="nano-many-flags-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                values = [f"-DNANO_FLAG_{i}=1" for i in range(1300)]
+                if origin == "include_dirs":
+                    values = [f"/nano/include/{i}" for i in range(1300)]
+                    values[-1] = "/nano/include/" + "x" * 300
+                if origin == "compiled": values = [""] * 1300
+                (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                    "c_sources": ["answer.c"] if origin == "compiled" else [],
+                    "cflags" if origin == "compiled" else origin: values}))
+                result = subprocess.run([str(self.support.probe), "build-info", str(module)],
+                                        env=env, capture_output=True, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                returned = [line[len("compile:"):] for line in result.stdout.decode().splitlines()
+                            if line.startswith("compile:")]
+                self.assertEqual(returned, ["-I" + value for value in values] if origin == "include_dirs" else values)
+
+    def test_compile_flag_allocation_failures_are_atomic(self):
+        for failure in (*map(str, range(5)), "overflow"):
+            with self.subTest(failure=failure):
+                result = subprocess.run([str(self.support.probe), "compile-flags-allocation", failure],
+                                        capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_response_words_match_the_real_compiler(self):
         with tempfile.TemporaryDirectory(prefix="nano-response-words-") as tmp:
             directory = Path(tmp)

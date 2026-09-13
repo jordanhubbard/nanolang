@@ -132,7 +132,29 @@ static int generation_test_unlinkat(int fd, const char *name, int flags) {
 #define unlinkat generation_test_unlinkat
 #define rename generation_test_rename
 #define fsync generation_test_fsync
+static long generation_allocation_limit = -1;
+static bool generation_allocation_fails(void) {
+    if (generation_allocation_limit < 0) return false;
+    if (generation_allocation_limit == 0) return true;
+    generation_allocation_limit--;
+    return false;
+}
+static void *generation_test_malloc(size_t size) {
+    return generation_allocation_fails() ? NULL : malloc(size);
+}
+static void *generation_test_calloc(size_t count, size_t size) {
+    return generation_allocation_fails() ? NULL : calloc(count, size);
+}
+static char *generation_test_strdup(const char *value) {
+    return generation_allocation_fails() ? NULL : strdup(value);
+}
+#define malloc generation_test_malloc
+#define calloc generation_test_calloc
+#define strdup generation_test_strdup
 #include "../src/module_builder.c"
+#undef malloc
+#undef calloc
+#undef strdup
 #undef rename
 #undef fsync
 #undef unlinkat
@@ -154,6 +176,39 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 3 && !strcmp(argv[1], "compile-flags-allocation")) {
+        char *packages[] = {"-DPACKAGE=1", ""}, *includes[] = {"/include"};
+        char *common[] = {"-DCOMMON=1"}, *platform[] = {"-DPLATFORM=1"};
+        ModuleBuildMetadata meta = {0};
+        meta.cflags = common; meta.cflags_count = 1;
+        meta.include_dirs = includes; meta.include_dirs_count = 1;
+#ifdef __APPLE__
+        char *names[] = {"fixture-a", "fixture-b"};
+        meta.pkg_config = names; meta.pkg_config_count = 2;
+        meta.cflags_macos = platform; meta.cflags_macos_count = 1;
+#elif defined(__FreeBSD__)
+        meta.cflags_freebsd = platform; meta.cflags_freebsd_count = 1;
+#else
+        meta.cflags_linux = platform; meta.cflags_linux_count = 1;
+#endif
+        ModulePkgFlags flags = {.count = 2, .cflags = packages};
+        ModuleBuildInfo *info = calloc(1, sizeof(*info));
+        if (!info) return 1;
+        bool overflow = !strcmp(argv[2], "overflow");
+        if (overflow) meta.cflags_count = SIZE_MAX;
+        generation_allocation_limit = overflow ? -1 : strtol(argv[2], NULL, 10);
+        bool result = module_collect_compile_flags(info, &meta, &flags);
+        generation_allocation_limit = -1;
+        bool ok = !result && !info->compile_flags && !info->compile_flags_count;
+        meta.cflags_count = 1;
+        ok = ok && module_collect_compile_flags(info, &meta, &flags) &&
+            info->compile_flags_count == 4 && !strcmp(info->compile_flags[0], "-DPACKAGE=1") &&
+            !strcmp(info->compile_flags[1], "-I/include") &&
+            !strcmp(info->compile_flags[2], "-DCOMMON=1") &&
+            !strcmp(info->compile_flags[3], "-DPLATFORM=1");
+        module_build_info_free(info);
+        return ok ? 0 : 1;
+    }
     if (argc == 3 && !strcmp(argv[1], "capture-response")) {
         char *captured = module_capture_response_fragment(argv[2]);
         if (!captured) return 1;

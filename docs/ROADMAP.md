@@ -986,6 +986,24 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       24 Darwin skips), with final rewrite rejection checks on both hosts.
       Other configured compiler inputs remain open (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 native compile-flag collection capacity.** Before extending aggregate
+      argument transport, I remove the fixed 1024-pointer compile-flag buffers
+      in both source-free and compiled-module result paths. Metadata loops can
+      write beyond their allocation. I preserve ordering and complete include
+      paths, propagate allocation failure, and test lists above 1024 entries
+      under sanitizers. Both returned paths now share a size-checked collector.
+      Tests cover 1300 entries, long include paths, five allocation failures,
+      count overflow and clean retry. The 136-method regression set passes on
+      Darwin and Linux; Linux ASan/UBSan passes all 35 snapshots and focused
+      leak-enabled failure checks (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 native link-flag collection capacity.** I remove the remaining fixed
+      pointer budgets in returned link flags and shared-link flag assembly.
+      System-library and framework append loops still use unchecked increments,
+      while bounded fragment appenders can silently drop flags. I measure the
+      boundaries, preserve ordering, and verify allocation failure and retry
+      before accepting aggregate native argument lists.
+      MAC `task_641f3a82b3474cd28c895dd9ffcb290b`.
 - [ ] **5.0 retained compiler response files.** I measure restored edits to
       `@file` arguments on Clang and GCC, including local and shared caches.
       I retain the selected arguments before compilation, preserving compiler

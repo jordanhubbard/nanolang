@@ -938,3 +938,39 @@ flags. It passes in the full Linux sanitizer run and a focused Darwin run.
 The Darwin bootstrap and 134-method broad regression set also pass, with
 24 expected skips. The focused Darwin run includes the final quoting,
 concurrency and prior-generation preservation checks.
+
+## Returned compiler-flag capacity
+
+Aggregate argument work exposed a prerequisite memory-safety defect. Both
+returned compile-flag collectors allocated 1024 pointers, then appended common
+flags, active-platform flags and include directories without checking capacity.
+The 1300-entry production fixtures fail under GCC 12 UBSan with an insufficient
+object-space store at each append loop. This is an out-of-bounds write, not
+just a compiler command-length limit.
+
+I now use one collector for source-free and compiled modules. It checks count
+addition and allocation-size multiplication, allocates enough pointer storage,
+preserves package/include/common/platform order, and publishes the result only
+after every string copy succeeds. Include flags use their complete string
+length instead of a 256-byte allocation. This preserves their existing shell
+spelling; it does not establish a new path-quoting contract.
+
+Tests cover 1300 returned entries for each metadata group, an include path over
+256 bytes, and a compiled module with 1300 empty fragments. The latter reaches
+the result collector without exceeding the still-open command-length limit.
+Five injected allocation failures and count overflow leave no partial result;
+each is followed by a successful retry with exact order checks. All 35 snapshot
+methods pass on Darwin and under GCC 12 ASan/UBSan (eleven and two expected
+skips respectively, leak detection disabled for the full sanitizer suite).
+
+Returned link flags and shared-link assembly still have fixed pointer budgets.
+They have a separate roadmap item before aggregate transport; this collector
+repair does not establish that arbitrary-sized compiler or linker commands
+are supported.
+
+The Linux bootstrap and 136-method regression set pass with ten expected skips.
+The focused allocation-failure test also passes with leak detection enabled,
+in addition to the full 35-method ASan/UBSan snapshot run (2026-09-13).
+Darwin's rebuilt native VM tools and 136-method regression suite pass with
+24 expected skips. Aggregate command transport and the separate link-flag
+collector work remain open.
