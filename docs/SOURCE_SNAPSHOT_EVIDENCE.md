@@ -1138,3 +1138,56 @@ the focused fragment-allocation test also passes with leak detection enabled
 Darwin's rebuilt native tools and C reference compiler pass the complete
 149-method compiler, shadow, cache, assembler and linker regression set
 (24 expected skips).
+
+## Driver responses supplied through linker flags
+
+My restored-input experiment now covers common linker metadata, active-platform
+linker metadata and package-library output, in local and shared caches:
+
+```sh
+python3 -m tests.characterize_source_snapshot --link-response --require-consistent
+```
+
+The fixture switches only the selected archive name during the shared link,
+then restores the response bytes, size and timestamp. Its directory deliberately
+contains `42`; only `selected42.a` changes to `selected43.a`. Fresh reference
+links place archives after the referring source. The original generic byte
+replacement and archive ordering were fixture defects, corrected before the
+final Linux baseline. At revision `8e9f17fb`, GCC 12 reproduces cold/warm/fresh
+43/42/42 in all six cases. Apple Clang 21 reproduces the same mismatch for
+common linker metadata in both caches.
+
+I now capture driver response arguments in all four common/platform compiler
+and linker metadata groups. Package compiler and library candidates are captured
+and published atomically. Unsupported response or driver-mode forms roll back
+the candidate set. Decoded linker arguments remain in build identity and owned
+returned flags. Build-context version 27 invalidates older recipes.
+
+The six restored-response cases now produce 42/42/42 with generation reuse on
+both drivers. Source-free consumers retain complete ordered arguments after the
+original response is removed and can pass them to a later compiler process.
+Missing, cyclic and FIFO responses fail; repaired inputs work again. Thirty-two
+allocation budgets exercise fallback, partial-copy cleanup and
+successful retry without changing caller-owned arrays.
+
+This captures compiler-driver response syntax, not response files forwarded
+as `-Wl,@file`, linker scripts or the contents of selected archives. Those
+external-input boundaries and larger argument budgets remain open.
+
+All 51 snapshot/link methods pass on GCC 12 normally and with ASan/UBSan on
+the production builder probe (three expected skips). Metadata-allocation and
+returned-lifetime checks also pass with leak detection enabled. The final
+lifetime check includes literal and escaped driver-mode overrides and verifies
+that both compiler and linker response references remain unexpanded; it passes
+on Darwin and under Linux sanitizers (2026-09-13).
+The existing Darwin `-Xlinker @file` test now requires a reuse record and an
+unchanged warm generation: these are captured driver arguments, not an
+uncaptured linker response. The forwarded-response visibility test remains.
+
+Darwin's rebuilt tools completed a 152-method run with 24 expected skips and
+one ten-second timeout in the existing response-recovery method. That method
+passed its isolated recheck in 9.246 seconds. An earlier 40-package stress
+build also timed out and passed its isolated recheck; only those stress builds
+now receive a thirty-second test bound. I do not claim a clean full Darwin
+gate. MAC `task_44c2d5851e1948e6a474036e263a0a73` and the roadmap retain that
+verification requirement.

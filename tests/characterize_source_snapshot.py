@@ -5,6 +5,7 @@ Add --require-consistent to fail when cold or warm answers differ from fresh.
 Add --assembler to include external binary input read by inline assembly.
 Add --response to include compiler arguments read from a response file.
 Add --response-large to exercise argument lists beyond inline capture limits.
+Add --link-response to exercise driver response files in linker metadata.
 I execute the production builder and load each library in a fresh process.
 """
 
@@ -28,7 +29,7 @@ def measure(compiler, kinds=("source", "header")):
     cases = []
     for kind in kinds:
         for shared in (False, True):
-            with tempfile.TemporaryDirectory(prefix="nano-source-snapshot-") as tmp:
+            with tempfile.TemporaryDirectory(prefix="nano-source42-snapshot-" if kind.startswith("link-response") else "nano-source-snapshot-") as tmp:
                 directory = Path(tmp)
                 module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
                 env.pop("NANO_VERBOSE_BUILD", None)
@@ -37,7 +38,30 @@ def measure(compiler, kinds=("source", "header")):
                 source = module / "answer.c"
                 target = source
                 fresh_flags = []
-                if kind == "header":
+                if kind.startswith("link-response"):
+                    for value in (42, 43):
+                        member, obj = directory / "member.c", directory / "member.o"
+                        member.write_text(f"long long selected(void) {{ return {value}; }}\n")
+                        run([compiler, "-fPIC", "-c", member, "-o", obj], directory)
+                        run(["ar", "rcs", directory / f"selected{value}.a", obj], directory)
+                    target = module / "link.rsp"
+                    target.write_text(str(directory / "selected42.a") + "\n")
+                    source.write_text("extern long long selected(void);\n"
+                                      "long long nano_build_answer(void) { return selected(); }\n")
+                    fresh_flags = ["@" + str(target)]
+                    metadata = {"name": "answer_native", "c_sources": ["answer.c"]}
+                    if kind == "link-response-pkg":
+                        metadata["pkg_config"] = ["link-fixture"]
+                        pkg = directory / "pkg-config"
+                        pkg.write_text(f"#!{sys.executable}\nimport sys\n"
+                                       f"if '--libs' in sys.argv: print({fresh_flags[0]!r})\n")
+                        pkg.chmod(0o700)
+                        env["PKG_CONFIG"] = str(pkg)
+                    else:
+                        field = ("ldflags_macos" if sys.platform == "darwin" else "ldflags_linux") if kind.endswith("-platform") else "ldflags"
+                        metadata[field] = fresh_flags
+                    (module / "module.json").write_text(json.dumps(metadata))
+                elif kind == "header":
                     target = module / "answer.h"
                     target.write_text("#define ANSWER 42\n")
                     source.write_text('#include <stdint.h>\n#include "answer.h"\n'
@@ -89,11 +113,13 @@ if "-S" in sys.argv or "-E" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write(("S" if "-S" in sys.argv else "E") + "\\n")
 if "-c" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write("C\\n")
+if {"('-shared' in sys.argv or '-dynamiclib' in sys.argv)" if kind.startswith("link-response") else "'-c' in sys.argv"}:
     marker = pathlib.Path({str(marker)!r})
     if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":
         target = pathlib.Path({str(target)!r})
         original, stamp = target.read_bytes(), target.stat()
-        changed = original.replace(b"42", b"43")
+        changed = original.replace({(b"selected42.a" if kind.startswith("link-response") else b"42")!r},
+                                   {(b"selected43.a" if kind.startswith("link-response") else b"43")!r})
         assert changed != original and len(changed) == len(original)
         try:
             target.write_bytes(changed)
@@ -129,7 +155,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 warm_answer = answer(query("library"))
                 fresh = directory / ("fresh.dylib" if sys.platform == "darwin" else "fresh.so")
                 run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared",
-                     "-fPIC", *fresh_flags, source, "-o", fresh], directory)
+                     "-fPIC", source, *fresh_flags, "-o", fresh], directory)
                 if marker.read_text() != "0" or target.read_bytes() != original:
                     raise RuntimeError("I did not complete and restore the controlled compilation")
                 cases.append({
@@ -170,6 +196,7 @@ if __name__ == "__main__":
     parser.add_argument("--assembler", action="store_true")
     parser.add_argument("--response", action="store_true")
     parser.add_argument("--response-large", action="store_true")
+    parser.add_argument("--link-response", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler:
@@ -178,6 +205,7 @@ if __name__ == "__main__":
     if args.assembler: kinds += ("assembler",)
     if args.response: kinds += ("response",)
     if args.response_large: kinds += ("response-large",)
+    if args.link_response: kinds += ("link-response", "link-response-platform", "link-response-pkg")
     result = measure(compiler, kinds)
     print(json.dumps(result, indent=2))
     if args.require_consistent:

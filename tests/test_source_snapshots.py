@@ -618,6 +618,16 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     self.assertTrue(case[field], field)
                 self.assertTrue(case["retained_translation_unit"] or case["retained_assembly"])
 
+    def test_link_driver_response_arguments_are_retained(self):
+        observed = measure(shutil.which("cc"), ("link-response", "link-response-platform", "link-response-pkg"))
+        require_consistent(observed)
+        self.assertEqual(len(observed["cases"]), 6)
+        for case in observed["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual(case["fresh_answer"], 42)
+                for field in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record", "generation_reused"):
+                    self.assertTrue(case[field], field)
+
     def test_large_response_arguments_are_retained(self):
         observed = measure(shutil.which("cc"), ("response-large",))
         require_consistent(observed)
@@ -683,10 +693,10 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 else: metadata[origin] = values
                 (module / "module.json").write_text(json.dumps(metadata))
                 original = (module / "module.json").read_bytes()
-                self.support.probe_path("build", module, env)
+                self.support.probe_path("build", module, env, timeout=30 if origin == "pkg_config" else 10)
                 generation = self.support.probe_path("directory", module, env)
                 self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
-                self.support.probe_path("build", module, env)
+                self.support.probe_path("build", module, env, timeout=30 if origin == "pkg_config" else 10)
                 self.assertEqual(self.support.probe_path("directory", module, env), generation)
                 self.assertTrue((generation / "source_hashes.json").is_file())
                 self.assertEqual((module / "module.json").read_bytes(), original)

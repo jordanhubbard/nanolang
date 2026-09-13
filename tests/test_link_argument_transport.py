@@ -2,10 +2,12 @@
 
 import unittest
 import json
+import os
 from pathlib import Path
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 
 from tests.characterize_link_argument_transport import measure, require_consistent
@@ -13,6 +15,66 @@ from tests import test_bytecode_shadows as shadows
 
 
 class LinkArgumentAcceptance(unittest.TestCase):
+    def test_link_response_metadata_allocation_rollback(self):
+        result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                                 "link-response-allocation", "all"], capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_returned_link_response_flags_outlive_inputs(self):
+        platform = "ldflags_macos" if sys.platform == "darwin" else "ldflags_linux"
+        for origin in ("ldflags", platform, "pkg_config"):
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory(prefix="nano-link-response-lifetime-") as tmp:
+                directory = Path(tmp)
+                module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
+                response = directory / "link.rsp"
+                response.write_text("-L/selected42\n-lm\n-lc\n-lm\n")
+                metadata = {"name": "answer_native", "c_sources": []}
+                if origin == "pkg_config":
+                    metadata[origin] = ["link-fixture"]
+                    pkg = directory / "pkg-config"
+                    pkg.write_text(f"#!{sys.executable}\nimport sys\n"
+                                   f"if '--libs' in sys.argv: print({'@' + str(response)!r})\n")
+                    pkg.chmod(0o700)
+                    env["PKG_CONFIG"] = str(pkg)
+                else: metadata[origin] = ["@" + str(response)]
+                (module / "module.json").write_text(json.dumps(metadata))
+
+                def invoke():
+                    return subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                        "build-info", str(module)], env=env, capture_output=True, timeout=15)
+
+                result = invoke()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                words = [word for line in result.stdout.decode().splitlines() if line.startswith("link:")
+                         for word in shlex.split(line[len("link:"):])]
+                response.unlink()
+                self.assertEqual(words, ["-L/selected42", "-lm", "-lc", "-lm"])
+                later = subprocess.run([shutil.which("cc"), "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                    "-fPIC", str(module / "answer.c"), "-o", str(directory / "later.so"), *words],
+                    cwd=directory, env=env, capture_output=True, timeout=15)
+                self.assertEqual(later.returncode, 0, later.stderr)
+                self.assertNotEqual(invoke().returncode, 0)
+                response.write_text("@" + str(response) + "\n")
+                self.assertNotEqual(invoke().returncode, 0)
+                response.unlink()
+                os.mkfifo(response)
+                self.assertNotEqual(invoke().returncode, 0)
+                response.unlink()
+                response.write_text("-L/selected43\n")
+                retry = invoke()
+                self.assertEqual(retry.returncode, 0, retry.stderr)
+                self.assertIn(b"selected43", retry.stdout)
+                compiler_response = directory / "compiler.rsp"
+                compiler_response.write_text("-DANSWER=42\n")
+                metadata["cflags"] = ["@" + str(compiler_response)]
+                (module / "module.json").write_text(json.dumps(metadata))
+                for override in ("--driver-mode=cl\n", "--driver\\-mode=cl\n"):
+                    response.write_text(override)
+                    fallback = invoke()
+                    self.assertEqual(fallback.returncode, 0, fallback.stderr)
+                    self.assertIn(("compile:@" + str(compiler_response)).encode(), fallback.stdout)
+                    self.assertIn(("link:@" + str(response)).encode(), fallback.stdout)
+
     def test_changed_link_sidecar_rejects_replacement_and_recovers(self):
         with tempfile.TemporaryDirectory(prefix="nano-link-sidecar-") as tmp:
             module, _, env = shadows.BytecodeShadows().foreign_build_fixture(Path(tmp))

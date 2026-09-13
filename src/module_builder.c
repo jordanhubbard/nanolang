@@ -430,7 +430,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v26-link-transport");
+    hash_context_field(&hash, "nanolang-c-build-context-v27-link-response");
     for (size_t i = 0; i < meta->cflags_count; i++) hash_context_field(&hash, meta->cflags[i]);
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) hash_context_field(&hash, meta->cflags_macos[i]);
@@ -1592,30 +1592,35 @@ static bool module_pkg_flags_capture(ModuleBuildMetadata *meta, ModulePkgFlags *
         flags->libs[i] = get_pkg_config_flags(meta->pkg_config[i], "--libs");
         if (!flags->libs[i]) goto failed;
     }
-    bool needed = module_flags_need_capture(flags->cflags, flags->count);
+    bool needed = module_flags_need_capture(flags->cflags, flags->count) ||
+                  module_flags_need_capture(flags->libs, flags->count);
     for (size_t i = 0; i < flags->count; i++) {
         if (!flags->cflags[i]) continue;
-        if (strstr(flags->cflags[i], "--driver-mode")) return true;
+        if (strstr(flags->cflags[i], "--driver-mode") || strstr(flags->libs[i], "--driver-mode")) return true;
         if (strchr(flags->cflags[i], '@')) needed = true;
     }
     if (!needed || module_response_metadata_pending(meta) || !module_response_driver(meta)) return true;
-    char **expanded = calloc(flags->count, sizeof(char *));
-    if (!expanded) goto failed;
-    bool complete = true, success = true;
-    for (size_t i = 0; i < flags->count && success; i++) {
-        if (!flags->cflags[i]) continue;
-        expanded[i] = module_capture_response_fragment(flags->cflags[i]);
-        if (!expanded[i]) success = false;
-        else if (module_response_pending(expanded[i])) complete = false;
+    char **expanded[2] = {calloc(flags->count, sizeof(char *)), calloc(flags->count, sizeof(char *))};
+    bool complete = true, success = expanded[0] && expanded[1];
+    for (size_t group = 0; group < 2 && success; group++) {
+        char **source = group ? flags->libs : flags->cflags;
+        for (size_t i = 0; i < flags->count && success; i++) {
+            if (!source[i]) continue;
+            expanded[group][i] = module_capture_response_fragment(source[i]);
+            if (!expanded[group][i]) success = false;
+            else if (module_response_pending(expanded[group][i])) complete = false;
+        }
     }
-    if (success && complete) success = module_coalesce_cflags(expanded, flags->count);
+    if (success && complete) success = module_coalesce_cflags(expanded[0], flags->count);
     if (success && complete) {
-        char **original = flags->cflags;
-        flags->cflags = expanded;
-        expanded = original;
+        char **original[2] = {flags->cflags, flags->libs};
+        flags->cflags = expanded[0]; flags->libs = expanded[1];
+        expanded[0] = original[0]; expanded[1] = original[1];
     }
-    for (size_t i = 0; i < flags->count; i++) free(expanded[i]);
-    free(expanded);
+    for (size_t group = 0; group < 2; group++) {
+        for (size_t i = 0; expanded[group] && i < flags->count; i++) free(expanded[group][i]);
+        free(expanded[group]);
+    }
     if (!success) goto failed;
     return true;
 failed:
@@ -2516,30 +2521,41 @@ static char **module_platform_cflags(const ModuleBuildMetadata *meta, size_t *co
 #endif
 }
 
-static char ***module_response_platform_slot(ModuleBuildMetadata *meta) {
+static char **module_response_group(const ModuleBuildMetadata *meta, size_t group, size_t *count) {
+    if (group < 2) {
+        *count = meta->cflags_count;
+        return group ? module_platform_cflags(meta, count) : meta->cflags;
+    }
+    *count = meta->ldflags_count;
+    return group == 3 ? module_platform_ldflags(meta, count) : meta->ldflags;
+}
+
+static char ***module_response_group_slot(ModuleBuildMetadata *meta, size_t group) {
+    if (group == 0) return &meta->cflags;
+    if (group == 2) return &meta->ldflags;
 #ifdef __APPLE__
-    return &meta->cflags_macos;
+    return group == 1 ? &meta->cflags_macos : &meta->ldflags_macos;
 #elif defined(__FreeBSD__)
-    return &meta->cflags_freebsd;
+    return group == 1 ? &meta->cflags_freebsd : &meta->ldflags_freebsd;
 #else
-    return &meta->cflags_linux;
+    return group == 1 ? &meta->cflags_linux : &meta->ldflags_linux;
 #endif
 }
 
 static bool module_response_metadata_pending(const ModuleBuildMetadata *meta) {
-    for (size_t group = 0; group < 2; group++) {
-        size_t count = meta->cflags_count;
-        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+    for (size_t group = 0; group < 4; group++) {
+        size_t count;
+        char **flags = module_response_group(meta, group, &count);
         for (size_t i = 0; i < count; i++) if (module_response_pending(flags[i])) return true;
     }
     return false;
 }
 
 static void module_response_metadata_free(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy) {
-    for (size_t group = 0; group < 2; group++) {
-        size_t count = meta->cflags_count, copied_count = copy->cflags_count;
-        char **original = group ? module_platform_cflags(meta, &count) : meta->cflags;
-        char **owned = group ? module_platform_cflags(copy, &copied_count) : copy->cflags;
+    for (size_t group = 0; group < 4; group++) {
+        size_t count, copied_count;
+        char **original = module_response_group(meta, group, &count);
+        char **owned = module_response_group(copy, group, &copied_count);
         if (owned && owned != original) {
             for (size_t i = 0; i < copied_count; i++) free(owned[i]);
             free(owned);
@@ -2550,16 +2566,16 @@ static void module_response_metadata_free(const ModuleBuildMetadata *meta, Modul
 static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy) {
     *copy = *meta;
     bool needed = false;
-    for (size_t group = 0; group < 2; group++) {
-        size_t count = meta->cflags_count;
-        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+    for (size_t group = 0; group < 4; group++) {
+        size_t count;
+        char **flags = module_response_group(meta, group, &count);
         if (module_flags_need_capture(flags, count)) needed = true;
     }
     if (!needed || !module_response_driver(meta)) return true;
-    for (size_t group = 0; group < 2; group++) {
-        size_t count = meta->cflags_count;
-        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
-        char ***slot = group ? module_response_platform_slot(copy) : &copy->cflags;
+    for (size_t group = 0; group < 4; group++) {
+        size_t count;
+        char **flags = module_response_group(meta, group, &count);
+        char ***slot = module_response_group_slot(copy, group);
         *slot = count ? calloc(count, sizeof(char *)) : NULL;
         if (count && !*slot) goto failed;
         for (size_t i = 0; i < count; i++)
@@ -2591,7 +2607,7 @@ static char *module_response_transport(const ModuleBuildMetadata *meta, const Mo
     if (strlen(fragment) <= 1024 || module_response_metadata_pending(meta) ||
         !module_response_driver(meta)) return strdup(fragment);
     for (size_t i = 0; flags && i < flags->count; i++)
-        if (module_response_pending(flags->cflags[i])) return strdup(fragment);
+        if (module_response_pending(flags->cflags[i]) || module_response_pending(flags->libs[i])) return strdup(fragment);
     if (module_response_pending(fragment)) return strdup(fragment);
     size_t length = strlen(fragment);
     if (length > 65536) return strdup(fragment);
@@ -2875,9 +2891,9 @@ static bool module_response_driver(const ModuleBuildMetadata *meta) {
     const char *base = strrchr(driver, '/');
     base = base ? base + 1 : driver;
     if (!strncmp(base, "clang-cl", 8)) return false;
-    for (size_t group = 0; group < 2; group++) {
-        size_t count = meta->cflags_count;
-        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+    for (size_t group = 0; group < 4; group++) {
+        size_t count;
+        char **flags = module_response_group(meta, group, &count);
         for (size_t i = 0; i < count; i++)
             if (strstr(flags[i], "--driver-mode")) return false;
     }
@@ -4288,7 +4304,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
         /* A response or driver-mode override left in package flags can choose
          * a different response dialect for the entire driver invocation. */
         for (size_t i = 0; i < flags.count; i++) {
-            if (module_response_pending(flags.cflags[i])) {
+            if (module_response_pending(flags.cflags[i]) || module_response_pending(flags.libs[i])) {
                 module_response_metadata_free(meta, &captured);
                 captured = *meta;
                 break;

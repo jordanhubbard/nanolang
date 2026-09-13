@@ -1015,6 +1015,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Both 140-method regression sets pass; all 39 Linux snapshot methods pass
       under ASan/UBSan, with focused leak-enabled checks (2026-09-13).
       MAC `task_641f3a82b3474cd28c895dd9ffcb290b`.
+- [ ] **5.0 Darwin driver-response regression gate.** I need one clean
+      full compiler/shadow/cache/assembler/linker run for build-context v27.
+      The 152-method run had 24 expected skips and one response-recovery
+      timeout; the affected method passed in isolation. I investigate repeated
+      timeouts without widening ordinary deadlines indiscriminately.
+      MAC `task_44c2d5851e1948e6a474036e263a0a73`.
 - [ ] **5.0 retained compiler response files.** I measure restored edits to
       `@file` arguments on Clang and GCC, including local and shared caches.
       I retain the selected arguments before compilation, preserving compiler
@@ -1097,6 +1103,26 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and recover after removal. The allocation-failure retry and indirect
       response visibility checks pass. Larger groups and indirect linker
       response capture remain open.
+      I next measure response arguments supplied through linker metadata,
+      restoring an archive-selection change during the shared link. I compare
+      cold, warm and fresh results in local and shared caches before extending
+      invocation-owned capture to these arguments.
+      Apple Clang 21 reproduces cold/warm/fresh 43/42/42 in both caches.
+      I extend atomic metadata/package captures to driver response arguments
+      in common and platform linker flags and package libraries, retaining
+      decoded arguments for later consumers. Forwarded linker response syntax
+      remains distinct from driver response syntax.
+      I also correct the characterization's fresh-link archive order: archive
+      arguments follow the source/object that refers to them on GNU linkers.
+      The corrected GCC baseline reproduces 43/42/42 for common/platform/package
+      driver responses in both cache locations. My capture now returns 42/42/42
+      with reuse. I test owned returned arguments after input removal, missing,
+      cyclic and FIFO inputs, recovery, and metadata allocation rollback.
+      I replace the old Darwin fallback expectation for captured driver
+      `-Xlinker @file` arguments with explicit reuse-record and warm-reuse checks.
+      The 40-package stress fixture exceeded its ten-second per-build timeout
+      once; its isolated recheck passed. I give only those stress builds a
+      thirty-second test bound, leaving ordinary probe deadlines unchanged.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

@@ -32,9 +32,9 @@ class ModuleCachePublication(unittest.TestCase):
     def setUp(self):
         self.support = shadows.BytecodeShadows()
 
-    def probe_path(self, mode, module, env):
+    def probe_path(self, mode, module, env, timeout=10):
         result = subprocess.run([str(self.probe), mode, str(module)], cwd=ROOT,
-                                env=env, capture_output=True, timeout=10)
+                                env=env, capture_output=True, timeout=timeout)
         self.assertEqual(result.returncode, 0, result.stderr)
         return Path(result.stdout.decode().strip())
 
@@ -1147,8 +1147,10 @@ os.execv({compiler!r}, [{compiler!r}] + args)
             manifest.write_text(json.dumps(metadata))
             self.probe_path("build", module, env)
             generation = self.probe_path("directory", module, env)
-            self.assertFalse((generation / "source_hashes.json").exists())
+            self.assertTrue((generation / "source_hashes.json").is_file())
             self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
+            self.probe_path("build", module, env)
+            self.assertEqual(self.probe_path("directory", module, env), generation)
 
     def test_pkg_config_query_status_and_recovery(self):
         with tempfile.TemporaryDirectory(prefix="nano-pkg-status-") as tmp:

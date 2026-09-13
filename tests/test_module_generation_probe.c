@@ -176,6 +176,31 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 3 && !strcmp(argv[1], "link-response-allocation")) {
+        char large[1300];
+        memset(large, 'x', sizeof(large) - 1); large[sizeof(large) - 1] = 0;
+        memcpy(large, "-L/", 3);
+        char *common[] = {"-O2"}, *link[] = {large};
+        ModuleBuildMetadata meta = {0}, copy;
+        meta.cflags = common; meta.cflags_count = 1;
+        meta.ldflags = link; meta.ldflags_count = 1;
+        unsigned failures = 0, captures = 0;
+        for (long limit = 0; limit < 32; limit++) {
+            generation_allocation_limit = limit;
+            bool ok = module_response_metadata(&meta, &copy);
+            generation_allocation_limit = -1;
+            if (meta.cflags != common || meta.ldflags != link || strcmp(common[0], "-O2") || link[0] != large) return 1;
+            if (ok) {
+                bool owned = copy.ldflags != link;
+                if ((copy.cflags != common) != owned || strcmp(copy.ldflags[0], large)) return 1;
+                captures += owned;
+                module_response_metadata_free(&meta, &copy);
+            } else failures++;
+            if (!module_response_metadata(&meta, &copy) || copy.ldflags == link || copy.cflags == common) return 1;
+            module_response_metadata_free(&meta, &copy);
+        }
+        return failures && captures ? 0 : 1;
+    }
     if (argc == 3 && !strcmp(argv[1], "link-fragment-allocation")) {
         char *libs[] = {"-lpkg"}, *system[] = {"m", "c", "m"}, *common[] = {"-L/common"};
         ModuleBuildMetadata meta = {0};

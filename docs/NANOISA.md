@@ -550,8 +550,12 @@ compilation and returned native flags. Original paths remain in metadata for
 dependency validation. For shared-library linking, I combine package libraries,
 system libraries, common and platform linker flags, and Darwin framework pairs
 in their existing order. Literal groups up to 64 KiB use the same transport;
-raw user `@` arguments stay visible and do not gain linker-cache eligibility.
-Returned native linker flags retain their existing spelling and ownership.
+unexpanded linker `@` arguments stay visible and do not gain linker-cache eligibility.
+I capture driver response arguments in common/platform linker metadata and
+package libraries with the compiler-flag response set. Returned native linker
+flags own those decoded arguments, so removing the original response file does
+not change them. Package compiler and linker candidates are published together
+or discarded together. This does not decode forwarded `-Wl,@file` syntax.
 I publish complete read-only files with content-derived
 names, verify their bytes before reuse, and leave them alive until that cache
 is removed. Returned native flags therefore remain usable after build-info
