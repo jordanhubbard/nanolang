@@ -429,7 +429,7 @@ bool wrapper_generate(const NvmModule *module, const uint8_t *blob, uint32_t blo
             "%s -std=c99 -Wall -Wextra -Werror "
             "-Wno-error=unused-function -Wno-error=unused-parameter "
             "-Wno-error=unused-variable -Wno-error=unused-but-set-variable "
-            "%s -I%s -I%s -o %s %s %s -lm",
+            "%s -I%s -I%s -o %s %s %s -lm -lffi",
             cc, export_dynamic, real_src, real_modules,
             output_path, temp_c, obj_list);
 
