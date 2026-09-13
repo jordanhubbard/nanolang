@@ -141,6 +141,21 @@ NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
 VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 
+# The self-hosted compiler consumes more than NANOC_SOURCE: imported Nano
+# modules and their C runtime support affect the generated stage binaries too.
+# Track source-like files plus directory membership, while leaving caches,
+# documentation, and compiled outputs out of bootstrap invalidation.
+BOOTSTRAP_INPUT_ROOTS := src_nano src modules std stdlib
+BOOTSTRAP_INPUTS := $(shell find $(BOOTSTRAP_INPUT_ROOTS) \
+	\( -name '.*' -o -name obj -o -name build -o -name cache -o -name __pycache__ \) -prune -o \
+	-type f \( -name '*.nano' -o -name '*.c' -o -name '*.h' -o -name '*.json' \) -print 2>/dev/null)
+BOOTSTRAP_INPUT_DIRS := $(shell find $(BOOTSTRAP_INPUT_ROOTS) \
+	\( -name '.*' -o -name obj -o -name build -o -name cache -o -name __pycache__ \) -prune -o \
+	-type d -print 2>/dev/null)
+# "dir/." is a real directory prerequisite without the trailing-slash wildcard
+# behavior of older Darwin make versions or collisions with phony target names.
+BOOTSTRAP_INPUT_MEMBERSHIP := $(addsuffix /.,$(BOOTSTRAP_INPUT_DIRS))
+
 # When enabled, make bootstrap stage artifacts deterministic (Mach-O LC_UUID + signature)
 BOOTSTRAP_DETERMINISTIC ?= 0
 # TMPDIR-aware temp directory for bootstrap test artifacts
@@ -2208,6 +2223,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@$(MAKE) --no-print-directory test-bootstrap-dependencies
 	@bash tests/test_make_header_dependencies.sh
 	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
@@ -2241,6 +2257,10 @@ endif
 test-make-header-dependencies:
 	@echo "Checking incremental C header dependencies..."
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
+
+.PHONY: test-bootstrap-dependencies
+test-bootstrap-dependencies:
+	@python3 -m unittest tests.test_bootstrap_dependencies
 
 .PHONY: test-affine-selfhost
 test-affine-selfhost: bootstrap
@@ -2743,7 +2763,7 @@ bootstrap-install: bootstrap
 # Bootstrap Stage 0: Build C reference compiler
 bootstrap0: $(SENTINEL_BOOTSTRAP0)
 
-$(SENTINEL_BOOTSTRAP0): $(COMPILER_C)
+$(SENTINEL_BOOTSTRAP0): $(COMPILER_C) $(BOOTSTRAP_INPUTS) $(BOOTSTRAP_INPUT_MEMBERSHIP)
 	@echo "✓ Bootstrap Stage 0: C reference compiler ready"
 	@touch $(SENTINEL_BOOTSTRAP0)
 
