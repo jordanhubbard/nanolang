@@ -716,7 +716,7 @@ test-coroutine-scheduler: stage1
 	@rm -f tests/test_coroutine_scheduler
 
 .PHONY: test-eval
-test-eval: stage1
+test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so
 	@echo "Running interpreter (eval.c) unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_eval

@@ -321,6 +321,12 @@ successful void return. My interpreter uses libffi for fixed-arity scalar and
 pointer signatures, including floating-point arguments and results. I reject
 array arguments and non-opaque aggregate signatures. My native declarations
 remain trusted: I cannot infer a C function's signature from its address.
+Qualified calls, returned-function calls and function variables now share
+checked foreign dispatch. Native builtin callbacks inherit their invoking
+source call for shadow failure reporting; host calls without a source node do
+not invent a location. This interpreter call context is sequential, not a
+reentrant or concurrent execution guarantee. I test floating-point calls and
+ignored missing-symbol failures through these routes, including `map`.
 General interpreter error propagation remains separate work; a successful
 shadow is not an ABI safety guarantee.
 My `test_imported_shadow_selection` characterizes direct and transitive pure

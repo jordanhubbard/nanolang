@@ -237,7 +237,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       open; source-only emission
       typechecks root shadows but deliberately does not execute them.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
-- [ ] **5.0 imported shadow prerequisite — function ownership.** I repair
+- [x] **5.0 imported shadow prerequisite — function ownership.** I repair
       same-named pure wrappers across qualified imports, preserving module
       ownership in lookup and rejecting true local duplicates. I test root,
       imported and transitive calls through compiler execution; the broader
@@ -249,6 +249,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       inferred and declared module names on Darwin and Linux. True local
       duplicates are rejected. At that checkpoint Stage2 still failed the
       fixture's useful root shadow; the following gate owns its implementation.
+      That Stage2 gate now passes the pure wrapper fixture on both platforms;
+      foreign-name and nominal isolation remain in the broader gate.
       The 63 codegen tests, evaluator, typechecker, environment and 28 bytecode
       shadow tests pass on Linux. Darwin bootstrap smoke tests pass, but its
       Stage1 and Stage2 binaries still differ. This is not full module isolation.
@@ -344,11 +346,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and bytecode drivers. A completed cached load returns an AST; I no longer
       accept a NULL result merely because a loading marker exists.
       MAC `task_60c31b34d18c4e698194a9dd1ba691c4`.
-- [ ] **5.0 qualified and indirect interpreted FFI.** I characterize the
-      separate `call_function` path used by qualified and higher-order calls,
-      then preserve checked foreign dispatch and shadow failure locations.
-      Inspection found no explicit FFI branch there; my direct-call libffi
-      tests do not establish this path's behavior.
+- [x] **5.0 interpreted indexed-read alias.** I route `array_get` to the
+      same reader as `at`. My FFI map fixture exposed that typing accepted the
+      alias while interpreted shadow execution reported an unimplemented
+      builtin. Static and dynamic integer-array assertions for both names
+      pass, along with indexed reads of mapped floats, on Darwin and Linux.
+      MAC `task_a6d2c314d94542a48f11a2bac05af8c2`.
+- [x] **5.0 qualified and indirect interpreted FFI.** I route the separate
+      `call_function` path through checked foreign dispatch. Before the repair,
+      qualified and returned-function calls lost successful foreign results and
+      ignored failures escaped shadow reporting. Eight compiler cases per
+      platform now cover qualified, returned, variable and `map` callback calls,
+      valid floating results, ignored missing symbols, shadow failure locations
+      and preservation of prior output. Native API tests check void-call side
+      effects, bool/string results, invalid count/storage/type rejection and
+      unchanged interpreter bindings. I retain the invoking source call for
+      builtin callbacks; host calls without a source node do not invent one.
+      Darwin and Linux each pass 97 evaluator tests, 11 FFI tests and 59
+      driver/emitter/binding methods. Both bootstrap smoke and no-C-seed checks
+      pass; native binaries still differ. Darwin ASan/UBSan also passes all 97
+      evaluator tests with production `eval.c` and the test driver instrumented;
+      other linked objects, libffi and the native fixture are uninstrumented,
+      and leak detection is disabled. This sequential call context does not
+      establish reentrancy, complete interpreter error propagation, exact foreign
+      library isolation or safety of declarations supplied for native symbols.
       MAC `task_17fe744141024df08c2ef3de7599865a`.
 - [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**
       My native-emitter build exposed SIGABRT in `eval_call` cleanup. A field

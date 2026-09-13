@@ -250,6 +250,56 @@ shadow main {{ assert (== (main) 0) }}
                         self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
                         self.assertFalse(output.exists())
 
+    def test_qualified_and_returned_foreign_dispatch(self):
+        for route in ("qualified", "returned", "variable", "map"):
+            for missing in (False, True):
+                with self.subTest(route=route, missing=missing), tempfile.TemporaryDirectory(prefix="nano-foreign-route-") as tmp:
+                    directory = Path(tmp)
+                    symbol = "nano_missing_route_symbol" if missing else "erf"
+                    declaration = f"extern fn {symbol}(x: float) -> float\n"
+                    if route == "qualified":
+                        library = directory / "foreign.nano"
+                        library.write_text("pub " + declaration)
+                        prefix = f'unsafe module "{library}" as foreign\n'
+                        call = f"(foreign.{symbol} 0.0)"
+                    elif route == "returned":
+                        prefix = declaration + f'''fn choose() -> fn(float) -> float {{ return {symbol} }}
+shadow choose {{ unsafe {{ assert (== ((choose) 0.0) 0.0) }} }}
+'''
+                        call = "((choose) 0.0)"
+                    else:
+                        prefix = declaration
+                        call = f"(map [0.0] {symbol})" if route == "map" else "(op 0.0)"
+                    setup = f"let op: fn(float) -> float = {symbol} " if route == "variable" else ""
+                    value = f"(array_get {call} 0)" if route == "map" else call
+                    operation = call if missing else f"assert (== {value} 0.0)"
+                    source = prefix + f'''fn root() -> int {{ return 42 }}
+shadow root {{ unsafe {{ {setup}{operation} }} assert (== (root) 42) }}
+fn main() -> int {{ return 0 }}
+shadow main {{ assert (== (main) 0) }}
+'''
+                    report = directory / "shadows.json"
+                    output = directory / "claim"
+                    output.write_bytes(b"prior artifact")
+                    compiled, output = self.compile_source("c-seed", source, directory,
+                                                           ["--llm-shadow-json", str(report)])
+                    self.assertTrue(report.exists(), compiled.stdout + compiled.stderr)
+                    evidence = json.loads(report.read_text())
+                    if missing:
+                        self.assertFalse(evidence["success"], compiled.stdout + compiled.stderr)
+                        failure = next(f for f in evidence["failures"] if f["test"] == "root")
+                        self.assertEqual(failure["fail_count"], 1)
+                        lines = source.splitlines()
+                        line = next(i for i, value in enumerate(lines, 1) if value.startswith("shadow root"))
+                        self.assertEqual(failure["first_location"]["line"], line)
+                        self.assertGreater(failure["first_location"]["column"], 0)
+                        self.assertNotEqual(compiled.returncode, 0)
+                        self.assertEqual(output.read_bytes(), b"prior artifact")
+                    else:
+                        self.assertTrue(evidence["success"], compiled.stdout + compiled.stderr)
+                        self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                        self.assertEqual(self.execute("c-seed", output).returncode, 0)
+
     def test_foreign_failures_reject_ignored_results(self):
         # I match the host's int64_t typedef in the generated C declaration.
         absolute = "llabs" if sys.platform == "darwin" else "labs"

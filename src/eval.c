@@ -106,6 +106,26 @@ static const char *g_shadow_current_test = NULL;
 static int g_shadow_current_fail_count = 0;
 static int g_shadow_current_first_line = 0;
 static int g_shadow_current_first_column = 0;
+/* Like shadow accounting, my interpreted call context is sequential. */
+static ASTNode *g_eval_call_site = NULL;
+
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column);
+
+/* I keep checked dispatch and shadow failure accounting shared by every call route. */
+static Value eval_foreign_call(Function *func, Value *args, int arg_count,
+                               Environment *env, int line, int column) {
+    bool success = false;
+    Value result = ffi_call_extern_checked(func->name, args, arg_count, func, env, &success);
+    if (!success && g_in_shadow_tests) {
+        g_shadow_current_fail_count++;
+        if (g_shadow_current_first_line == 0) {
+            g_shadow_current_first_line = line;
+            g_shadow_current_first_column = column;
+        }
+    }
+    return result;
+}
 
 static void shadow_json_escape(FILE *out, const char *s) {
     if (!s) return;
@@ -2769,8 +2789,19 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     return create_void();
 }
 
-/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env);
+
+/* I retain the invoking source node while native builtins call back into me. */
 static Value eval_call(ASTNode *node, Environment *env) {
+    ASTNode *saved_site = g_eval_call_site;
+    g_eval_call_site = node;
+    Value result = eval_call_impl(node, env);
+    g_eval_call_site = saved_site;
+    return result;
+}
+
+/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env) {
     /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
     if (node->as.call.func_expr) {
         /* Evaluate the inner function call to get the function */
@@ -2811,7 +2842,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
             return create_void();
         }
         
-        Value result = call_function(func_name, args, node->as.call.arg_count, env);
+        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
+                                        node->line, node->column);
         free(args);
         return result;
     }
@@ -3392,7 +3424,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
     
     /* Array operations */
-    if (strcmp(name, "at") == 0) return builtin_at(args);
+    if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args);
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
     if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
@@ -4420,16 +4452,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
         /* Try FFI for extern functions */
         if (func->is_extern) {
-            bool success = false;
-            Value result = ffi_call_extern_checked(name, args, node->as.call.arg_count,
-                                                  func, env, &success);
-            if (!success && g_in_shadow_tests) {
-                g_shadow_current_fail_count++;
-                if (g_shadow_current_first_line == 0) {
-                    g_shadow_current_first_line = node->line;
-                    g_shadow_current_first_column = node->column;
-                }
-            }
+            Value result = eval_foreign_call(func, args, node->as.call.arg_count,
+                                            env, node->line, node->column);
             return result;
         }
         
@@ -4648,7 +4672,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 }
             }
 
-            Value result = call_function(qualified_name, args, arg_count, env);
+            Value result = call_function_at(qualified_name, args, arg_count, env,
+                                            expr->line, expr->column);
             free(args);
             free(qualified_name);
             return result;
@@ -5960,7 +5985,8 @@ bool run_program(ASTNode *program, Environment *env) {
 }
 
 /* Call a function by name with arguments */
-Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column) {
     /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
     if (strncmp(name, "List_", 5) == 0) {
         /* Extract element type name and operation from function name */
@@ -6046,6 +6072,10 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
         return create_void();
     }
 
+    if (func->is_extern && func->body == NULL) {
+        return eval_foreign_call(func, args, arg_count, env, line, column);
+    }
+
     /* Check argument count */
     if (arg_count != func->param_count) {
         fprintf(stderr, "Error: Function '%s' expects %d arguments, got %d\n",
@@ -6100,6 +6130,13 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     env->symbol_count = original_symbol_count;
 
     return return_value;
+}
+
+Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+    /* A builtin callback inherits its invoking call. Host calls have no location. */
+    return call_function_at(name, args, arg_count, env,
+                            g_eval_call_site ? g_eval_call_site->line : 0,
+                            g_eval_call_site ? g_eval_call_site->column : 0);
 }
 
 /* ============================================================================

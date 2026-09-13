@@ -11,6 +11,9 @@
 
 #include "../src/nanolang.h"
 #include "../src/builtins_registry.h"
+#include "../src/interpreter_ffi.h"
+#include "../src/runtime/ffi_loader.h"
+#include "../src/runtime/dyn_array.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2021,6 +2024,73 @@ void test_eval_array_broadcast_scalar_right(void) {
  * main
  * ============================================================================ */
 
+void test_eval_indexed_read_aliases(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "fn read(values: array<int>) -> int { return (+ (at values 0) (array_get values 1)) }\n"
+        "shadow read { assert (== (read [20, 22]) 42) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    Value values = create_array(VAL_INT, 2, 2);
+    ((long long *)values.as.array_val->data)[0] = 20;
+    ((long long *)values.as.array_val->data)[1] = 22;
+    Value result = call_function("read", &values, 1, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    free(values.as.array_val->data);
+    free(values.as.array_val);
+    DynArray *dynamic = dyn_array_new(ELEM_INT);
+    dynamic = dyn_array_push_int(dynamic, 20);
+    dynamic = dyn_array_push_int(dynamic, 22);
+    values = create_void();
+    values.type = VAL_DYN_ARRAY;
+    values.as.dyn_array_val = dynamic;
+    result = call_function("read", &values, 1, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_foreign_native_call_api(void) {
+    ASSERT(ffi_init(false));
+    ASSERT(ffi_loader_open("eval_abi", "obj/test_interpreter_ffi_native.so"));
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "extern fn ffi_test_void(d: float, n: int, b: bool) -> void\n"
+        "extern fn ffi_test_observed() -> int\n"
+        "extern fn ffi_test_string() -> string\n"
+        "extern fn ffi_test_bool(b: bool, n: int, d: float) -> bool\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n"));
+    int symbols = ctx.env->symbol_count;
+    Value args[] = {create_float(1.25), create_int(42), create_bool(true)};
+    Value result = call_function("ffi_test_void", args, 3, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    result = call_function("ffi_test_observed", NULL, 0, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    result = call_function("ffi_test_string", NULL, 0, ctx.env);
+    ASSERT(result.type == VAL_STRING && !strcmp(result.as.string_val, "native"));
+    Value bool_args[] = {create_bool(true), create_int(42), create_float(1.25)};
+    result = call_function("ffi_test_bool", bool_args, 3, ctx.env);
+    ASSERT(result.type == VAL_BOOL && result.as.bool_val);
+    bool_args[0] = create_bool(false);
+    result = call_function("ffi_test_bool", bool_args, 3, ctx.env);
+    ASSERT(result.type == VAL_BOOL && !result.as.bool_val);
+    suppress_stderr();
+    result = call_function("ffi_test_void", args, 2, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    result = call_function("ffi_test_void", NULL, 3, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    args[0] = create_bool(true);
+    result = call_function("ffi_test_void", args, 3, ctx.env);
+    ASSERT(result.type == VAL_VOID);
+    restore_stderr();
+    result = call_function("ffi_test_observed", NULL, 0, ctx.env);
+    ASSERT(result.type == VAL_INT && result.as.int_val == 42);
+    ASSERT(ctx.env->symbol_count == symbols);
+    run_ctx_free(&ctx);
+    ffi_cleanup();
+}
+
 int main(void) {
     printf("=== Interpreter (eval.c) Tests ===\n");
     TEST(eval_integer_arithmetic);
@@ -2119,6 +2189,8 @@ int main(void) {
     TEST(eval_async_fn_direct_call);
     TEST(eval_string_format_struct);
     TEST(eval_array_broadcast_scalar_right);
+    TEST(eval_foreign_native_call_api);
+    TEST(eval_indexed_read_aliases);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;
