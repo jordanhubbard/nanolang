@@ -1680,3 +1680,25 @@ seconds; the expanded production case passes separately in 4.045 seconds.
 This adds acceptance evidence without changing production code. It does not
 establish arbitrary assembler file-read coverage, external assembler modes,
 other Clang versions, or completion of the general snapshot requirement.
+
+## External assembler: reproduced stale reuse
+
+Apple Clang 21.0.0 with `-fno-integrated-as` does not expand the tested
+`.incbin` during `-S`. Its emitted assembly still reads the original payload:
+changing 42 to 43 changes the linked result, and deleting the input makes
+assembly fail. The existing `capture-assembly` helper retains this literal
+input; replay with the external assembler then returns 42 after the source and
+payload are deleted. That trial is not production integration.
+
+The production builder currently excludes this flag from retained-input mode
+but still publishes and reuses a cache record. The restored-edit fixture gives
+cold/warm/fresh **43/43/42** under both local and shared caches, with restored
+bytes, size and mtime, no retained assembly, and actual generation reuse.
+The exclusion is not containment. This is an unresolved cache defect.
+
+`python3 -m tests.characterize_source_snapshot --external-assembler --require-consistent`
+reproduces and rejects the mismatch. A repair must preserve external assembler
+selection in the final command and capture inputs in private storage during
+warm validation; the current directory-free Clang assembly-text hash cannot
+establish those external bytes. Macro and nonliteral read coverage remains
+part of the general assembler-input requirement.

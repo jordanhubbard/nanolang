@@ -493,6 +493,53 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     compile_run([shared, "-x", "assembler", str(captured), "-o", str(retained)])
                     self.assertEqual(self.answer(retained), 42)
 
+    def test_clang_external_assembler_requires_read_capture(self):
+        if not self.clang:
+            self.skipTest("I characterize Clang's external assembler boundary")
+        compiler = shutil.which("cc")
+        with tempfile.TemporaryDirectory(prefix="nano-external-as-trial-") as tmp:
+            directory = Path(tmp)
+            payload = directory / "payload.bin"
+            payload.write_bytes(b"42")
+            source = directory / "answer.c"
+            symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+            assembly = f'.data\n.globl {symbol}\n{symbol}:\n.incbin "{payload}"\n.text\n'
+            source.write_text('__asm__(' + json.dumps(assembly) + ');\n'
+                              'extern const unsigned char snapshot_payload[];\n'
+                              'long long nano_build_answer(void) { return '
+                              '(snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+            captured = directory / "captured.s"
+            capture = subprocess.run([compiler, "-fno-integrated-as", "-fPIC", "-S", str(source),
+                                      "-o", str(captured)], capture_output=True, timeout=20)
+            self.assertEqual(capture.returncode, 0, capture.stderr)
+            self.assertIn(str(payload), captured.read_text())
+            private = directory / "private"
+            private.mkdir()
+            frozen = private / "captured.s"
+            copied = subprocess.run([str(self.support.probe), "capture-assembly", str(captured), str(frozen)],
+                                    capture_output=True, timeout=10)
+            self.assertEqual(copied.returncode, 0, copied.stderr)
+            shared = "-dynamiclib" if sys.platform == "darwin" else "-shared"
+            for value in (42, 43):
+                payload.write_bytes(str(value).encode())
+                library = directory / f"answer{value}.so"
+                result = subprocess.run([compiler, "-fno-integrated-as", shared, "-x", "assembler",
+                                         str(captured), "-o", str(library)], capture_output=True, timeout=20)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(self.answer(library), value)
+            payload.unlink()
+            source.unlink()
+            missing = subprocess.run([compiler, "-fno-integrated-as", shared, "-x", "assembler",
+                                      str(captured), "-o", str(directory / "missing.so")],
+                                     capture_output=True, timeout=20)
+            self.assertNotEqual(missing.returncode, 0)
+            self.assertFalse((directory / "missing.so").exists())
+            replay = directory / "replayed.so"
+            result = subprocess.run([compiler, "-fno-integrated-as", shared, "-x", "assembler",
+                                     str(frozen), "-o", str(replay)], capture_output=True, timeout=20)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.answer(replay), 42)
+
     def test_gcc_retained_object_reproducibility_and_external_inputs(self):
         if self.clang: self.skipTest("I test the GCC compiler-output candidate here")
         compiler = shutil.which("cc")

@@ -3,6 +3,7 @@
 Run with python3 -m tests.characterize_source_snapshot [C-compiler].
 Add --require-consistent to fail when cold or warm answers differ from fresh.
 Add --assembler to include external binary input read by inline assembly.
+Add --external-assembler to measure Clang's non-integrated assembler mode.
 Add --response to include compiler arguments read from a response file.
 Add --response-large to exercise argument lists beyond inline capture limits.
 Add --link-response to exercise driver response files in linker metadata.
@@ -77,6 +78,11 @@ def measure(compiler, kinds=("source", "header")):
                     metadata["cflags"] = fresh_flags
                     (module / "module.json").write_text(json.dumps(metadata))
                 elif kind.startswith("assembler"):
+                    if kind == "assembler-external":
+                        metadata = json.loads((module / "module.json").read_text())
+                        fresh_flags = ["-fno-integrated-as"]
+                        metadata["cflags"] = fresh_flags
+                        (module / "module.json").write_text(json.dumps(metadata))
                     target = module / "answer.bin"
                     target.write_bytes(b"42")
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
@@ -195,6 +201,7 @@ if __name__ == "__main__":
     parser.add_argument("compiler", nargs="?", default="cc")
     parser.add_argument("--require-consistent", action="store_true")
     parser.add_argument("--assembler", action="store_true")
+    parser.add_argument("--external-assembler", action="store_true")
     parser.add_argument("--response", action="store_true")
     parser.add_argument("--response-large", action="store_true")
     parser.add_argument("--link-response", action="store_true")
@@ -205,6 +212,7 @@ if __name__ == "__main__":
         raise SystemExit("I need a C compiler executable")
     kinds = ("source", "header")
     if args.assembler: kinds += ("assembler",)
+    if args.external_assembler: kinds += ("assembler-external",)
     if args.response: kinds += ("response",)
     if args.response_large: kinds += ("response-large",)
     if args.link_response: kinds += ("link-response", "link-response-platform", "link-response-pkg")

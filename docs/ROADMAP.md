@@ -1045,6 +1045,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       methods pass with eleven platform skips; the expanded cache case passes
       separately after the full run started. No production code changed.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 external-assembler stale cache.** I repair the measured
+      `-fno-integrated-as` cold/warm/fresh 43/43/42 mismatch on Apple Clang 21
+      under local and shared caches. Both publish a reuse record despite no
+      retained assembler inputs. Flag exclusion is not containment. I bind
+      final compilation and warm validation to retained inputs while preserving
+      external assembler selection, and test literal/nested/macro inputs,
+      deletion, restored edits and failure recovery. The existing literal
+      copier passes a standalone deleted-input replay trial, not production
+      integration. `--external-assembler` in the characterization CLI reproduces
+      this defect; `--require-consistent` must reject it until repaired.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent
@@ -1052,6 +1063,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       variants. Rehashing the C preprocessor output cannot satisfy this gate;
       merely withholding reuse is containment, not completed snapshot support.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      I first characterize Clang's external-assembler mode: whether `-S`
+      resolves file reads, whether replay survives deletion, and whether the
+      selected external assembler remains selected. The current flag filter
+      excludes `-fno-integrated-as`; admitting it without these checks would
+      turn fallback behavior into an unsupported snapshot claim.
 - [x] **5.0 retained GCC PCH inputs.** I replace external PCH references in
       retained translation units with private copies and bind their bytes to
       cache identity. Before integration I verify that GCC accepts relocated
