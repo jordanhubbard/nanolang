@@ -16,6 +16,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DocumentPairAcceptance(unittest.TestCase):
+    def test_narrative_keeps_code_blocks_together(self):
+        with ZipFile(ROOT / "docs/presentation/nanolang-developer-overview.docx") as archive:
+            document = ET.fromstring(archive.read("word/document.xml"))
+        code = []
+        for paragraph in document.findall(".//w:p", NS):
+            value = "".join(node.text or "" for node in paragraph.findall(".//w:t", NS))
+            if value.startswith(("fn gcd(", "make test", ".nano source")):
+                code.append(value)
+                keep = paragraph.find("w:pPr/w:keepLines", NS)
+                self.assertIsNotNone(keep, value)
+                self.assertNotEqual(keep.get(f"{{{NS['w']}}}val"), "0")
+        self.assertEqual(len(code), 3)
+        self.assertTrue(document.findall('.//w:br[@w:type="page"]', NS))
+
     def test_retained_deck_states_shadow_and_verifier_boundaries(self):
         with ZipFile(ROOT / "docs/presentation/nanolang-developer-overview.pptx") as archive:
             def text(part):

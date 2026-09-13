@@ -1,5 +1,31 @@
 # NanoLang presentation QA ledger
 
+## 5.0 local visual acceptance
+
+I completed the remaining render gate with LibreOffice 24.2.7.2 in a disposable
+Ubuntu 24.04 ARM64 container. I used the document skill's `render_docx.py` with
+pdf2image 1.17.0 and Pillow 11.3.0; Impress PDF export and Poppler rendered the
+deck. Liberation and Carlito fonts supplied substitutions for Arial, Courier
+New and Calibri. This is local LibreOffice acceptance, not identical rendering
+in Microsoft Office or Google Workspace.
+
+I inspected all sixteen full-size slide images and all five narrative pages.
+The first narrative render split the final command block across pages. I set
+code paragraphs to keep their lines together and moved the closing section to
+a new page. I rendered again and inspected both changed pages; the first three
+page images were byte-identical to those already inspected. No clipping,
+overlap, missing glyphs or broken code blocks remain in these renders.
+
+The extracted example still passes and rejects a false assertion on all three
+backends. Artifact tests check code paragraph pagination and the closing page
+break alongside the existing claims and geometry checks. I have not published
+either member or cut a tag. The accepted local artifact SHA-256 hashes are:
+
+- PPTX: `20f7b45363b7952541a19162b5ef01ee2a021698bd059125fa7c2cbbf48bd24d`
+- DOCX: `6f5748d136e8faed7fbb81f0fc2a85fe399b666cff8b8c171a1af72913b686ad`
+
+The earlier checkpoint below records the state before this render recovery.
+
 ## 5.0 claims correction checkpoint (local, unpublished)
 
 I regenerated both members from the existing Python builders and preserved

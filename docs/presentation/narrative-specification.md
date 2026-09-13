@@ -54,3 +54,5 @@ an outstanding limitation. Full runtime isolation and backend parity remain open
 Use continuous first-person prose. Quote real NanoLang and NanoISA excerpts.
 Every implementation claim cites `source-notes.md`; every forward-looking claim
 is labeled as roadmap work.
+I keep code excerpts together across pagination. My closing "How to work on me"
+section starts a new page so its commands and handoff remain one reading unit.

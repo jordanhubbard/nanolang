@@ -211,7 +211,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with sixteen slides and thirty-four headings. The full release-gate suite
       still rejects CONTRIBUTING staleness, tracked above; no override is used.
       MAC `task_8708bf8104604c278ad846f2b7f476a9`.
-- [ ] **5.0 developer deck — shadow enforcement claims.** I replace the
+- [x] **5.0 developer deck — shadow enforcement claims.** I replace the
       slide-two `PROOF` label and the claim that an unshadowed function cannot
       compile in `docs/presentation/build_deck.py` with my tested policy,
       warning and exemption boundary. I regenerate and visually verify the
@@ -227,9 +227,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       executable example between both artifacts, and test the extracted code.
       The local pair is regenerated; extracted DOCX code passes on all three
       backends, and false assertions preserve prior outputs. Mechanical checks
-      pass. Full-size Pillow slide review is available, but native artifact
-      visual acceptance remains open: the host's soffice launcher points to a
-      missing LibreOffice application. I do not treat a launcher as a renderer.
+      pass. The host's soffice launcher points to a missing application; I used
+      LibreOffice 24.2.7.2 in a disposable Ubuntu container instead. I inspected
+      all sixteen slides and five narrative pages, fixed the split command
+      block, and gave the closing section its own page. Code excerpts stay
+      together, with an artifact regression check. QA records exact artifact
+      hashes and renderer scope; neither member is externally published.
 - [x] **5.0 imported shadows — selection characterization.** I test direct
       and transitive imports with failing dependency shadows on the C seed,
       Stage 2 native driver and bytecode CLI, then compile that dependency as

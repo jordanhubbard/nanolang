@@ -21,6 +21,7 @@ def paragraph(document: Document, value: str, *, style: str | None = None, code:
     item = document.add_paragraph(style=style)
     item.paragraph_format.space_after = Pt(8)
     item.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+    item.paragraph_format.keep_together = code
     run = item.add_run(value)
     run.font.name = "Courier New" if code else "Calibri"
     run.font.size = Pt(9 if code else 11)
@@ -109,6 +110,7 @@ def build() -> Path:
     paragraph(document, "I have not completed a Forth Standard System, reviewed human translations, GNU Emacs compatibility, a kernel, CUDA or CPython as wrapped runtimes, full backend parity, complete ownership analysis, production service isolation, or the 5.0 one-IR work. See docs/ROADMAP.md; historical release scope is in docs/RELEASE_4.5.md.")
     paragraph(document, "I have implemented transitive C header dependencies in Makefile.gnu, resolving the implementation gap recorded as GitHub issue #211. The focused gate is make test-make-header-dependencies. Broader native-cache snapshot and publication requirements remain separate work.")
 
+    document.add_page_break()
     heading(document, 1, "How to work on me")
     heading(document, 2, "Read the source and roadmap")
     paragraph(document, "Start with docs/PERSONA.md, docs/ROADMAP.md, docs/RELEASE_4.5.md, userguide/guide/08_secure_runtime.md, the relevant source symbols, and the matching tests. Do not turn a roadmap sentence into a feature claim.")
