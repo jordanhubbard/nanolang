@@ -54,7 +54,7 @@ fn register_extern_names(parser: Parser) -> int {
 }
 
 shadow register_extern_names {
-    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int")
+    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int" "register_extern_names.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let n: int = (register_extern_names p)
     assert (>= n 0)
@@ -964,7 +964,7 @@ fn build_module_alias_map(parser: Parser) -> int {
 }
 
 shadow build_module_alias_map {
-    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }")
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }" "parser_expr.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let r: int = (build_module_alias_map p)
     assert (== r 0)
@@ -1468,7 +1468,7 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
 
 shadow parse_type_c_from_tokens {
     /* Minimal sanity: require a token stream with `int` at position 0. */
-    let toks: List<LexerToken> = (tokenize_string "int")
+    let toks: List<LexerToken> = (tokenize_string "int" "type_name.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parser_new toks (list_LexerToken_length toks))
     let r: TypeCParseResult = (parse_type_c_from_tokens p 0)
     assert r.ok
@@ -1674,7 +1674,7 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
 
 shadow generate_struct_definitions_from_tokens {
     let src: string = "struct Foo { x: int, y: bool }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "array_literal.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parser_new toks (list_LexerToken_length toks))
     let c: string = (generate_struct_definitions_from_tokens p)
     assert (> (str_length c) 0)
@@ -1692,7 +1692,7 @@ fn has_function_named(parser: Parser, name: string) -> bool {
 }
 
 shadow has_function_named {
-    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }")
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }" "program.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "test.nano")
     assert (has_function_named p "main")
 }
@@ -1915,7 +1915,7 @@ fn generate_function_prototypes(parser: Parser) -> string {
 }
 
 shadow generate_function_prototypes {
-    let toks: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return x }")
+    let toks: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return x }" "function.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_function_prototypes p)
     assert (> (str_length c) 0)
@@ -1943,7 +1943,7 @@ fn lookup_struct_field_type(parser: Parser, struct_name: string, field_name: str
 
 shadow lookup_struct_field_type {
     let src: string = "struct Point { x: int, y: bool } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "function_body.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let t: string = (lookup_struct_field_type p "Point" "x")
     assert (== t "int")
@@ -1963,7 +1963,7 @@ fn is_extern_function(parser: Parser, name: string) -> bool {
 }
 
 shadow is_extern_function {
-    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int")
+    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int" "extern.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (is_extern_function p "foo")
 }
@@ -2766,7 +2766,7 @@ fn gen_tuple_typedefs(parser: Parser) -> string {
 
 shadow gen_tuple_typedefs {
     let source: string = (+ "f" "n main() -> (int,int) { return (1, 2) }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "expression.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (gen_tuple_typedefs p)
     assert (str_contains code "Tuple_int_int")
@@ -3694,7 +3694,7 @@ fn generate_module_forward_declarations(parser: Parser) -> string {
 
 shadow generate_module_forward_declarations {
     let source: string = (+ "from \"modules/std/fs.nano\" import walkdir\nf" "n main() -> int { return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "statement.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_module_forward_declarations p)
     assert (str_contains code "Module forward declarations")
@@ -3730,7 +3730,7 @@ fn parser_has_guarded_globals(parser: Parser) -> bool {
 
 shadow parser_has_guarded_globals {
     let src: string = "fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "unsafe.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (parser_has_guarded_globals p) false)
 }
@@ -3797,7 +3797,7 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
 
 shadow gen_c_program_with_modules {
     let source: string = (+ "from \"modules/std/fs.nano\" import walkdir\nf" "n helper() -> int { return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "block.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (gen_c_program_with_modules p "int64_t nl_helper() { return 0; }\n")
     assert (str_contains code "Module forward declarations")
@@ -3842,7 +3842,7 @@ fn detect_list_types(parser: Parser) -> array<string> {
 
 shadow detect_list_types {
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "if.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let types: array<string> = (detect_list_types p)
     assert (== (array_length types) 1)
@@ -3906,7 +3906,7 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
 
 shadow scan_block_for_lists {
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "while.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let seen: HashMap<string, int> = (hashset_new_string)
@@ -3950,7 +3950,7 @@ fn generate_list_specializations(parser: Parser) -> string {
 
 shadow generate_list_specializations {
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "for.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_list_specializations p)
     assert (str_contains code "List_Point")
@@ -5825,7 +5825,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
 shadow generate_expression {
     let source: string = (+ "f" "n main() -> int { return 42 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "call.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let ret: ASTReturn = (parser_get_return p 0)
     let env: GenEnv = (genenv_new "test")
@@ -5863,7 +5863,7 @@ fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int, env: GenEnv
 
 shadow generate_return_stmt {
     let source: string = (+ "f" "n main() -> int { return 42 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "qualified_call.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let ret: ASTReturn = (parser_get_return p 0)
     let env: GenEnv = (genenv_new "test")
@@ -5943,7 +5943,7 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv)
 
 shadow generate_let_stmt {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "match.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let l: ASTLet = (parser_get_let p 0)
     let env: GenEnv = (genenv_new "test")
@@ -5963,7 +5963,7 @@ fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) 
 
 shadow generate_assert_stmt {
     let source: string = (+ "f" "n main() -> int { assert true return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "struct.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let a: ASTAssert = (parser_get_assert p 0)
     let env: GenEnv = (genenv_new "test")
@@ -6113,7 +6113,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
 
 shadow generate_match_expr {
     let source: string = (+ "f" "n main() -> int { let x: Option = 0 match x { Some(y) => y } return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "tuple.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let m: ASTMatch = (parser_get_match p 0)
     let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
@@ -6164,7 +6164,7 @@ fn get_variant_field_type(parser: Parser, union_name: string, variant: string) -
 
 shadow get_variant_field_type {
     let source: string = "union Color { Red, Green, Blue(val: int) } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "index.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     /* Unit variant — returns "Color.Red" */
     let t1: string = (get_variant_field_type p "Color" "Red")
@@ -6215,7 +6215,7 @@ fn get_variant_first_field_access(parser: Parser, union_name: string, variant: s
 
 shadow get_variant_first_field_access {
     let source: string = "union Result { Ok(_0: int), Err } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "return.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     /* Unit variant — no field access */
     let a1: string = (get_variant_first_field_access p "Result" "Err")
@@ -6346,7 +6346,7 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
 
 shadow gen_match_variant_binding {
     let source: string = "union Opt { Some(_0: int), None } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "let.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     /* Unit variant — no binding needed */
     let b1: string = (gen_match_variant_binding p "Opt" "None" "x" "  ")
@@ -6514,7 +6514,7 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
 
 shadow generate_match_stmt {
     let source: string = (+ "f" "n main() -> int { let x: Option = 0 match x { Some(y) => y } return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "set.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let m: ASTMatch = (parser_get_match p 0)
     let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
@@ -6586,7 +6586,7 @@ fn get_stmt_line(parser: Parser, stmt: ASTStmtRef) -> int {
 
 shadow get_stmt_line {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "binary.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let block: ASTBlock = (parser_get_block p func.body)
@@ -6698,7 +6698,7 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
 
 shadow generate_statement {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "literal.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let block: ASTBlock = (parser_get_block p func.body)
@@ -6736,7 +6736,7 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
 
 shadow generate_block {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "array.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let env: GenEnv = (genenv_new "test")
@@ -6781,7 +6781,7 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
 
 shadow generate_set_stmt {
     let source: string = (+ "f" "n main() -> int { let mut x: int = 1 set x 2 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "field.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let s: ASTSet = (parser_get_set p 0)
     /* Non-mut local x: expect direct assignment */
@@ -6837,7 +6837,7 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, re
 
 shadow generate_if_stmt {
     let source: string = (+ "f" "n main() -> int { if true { return 1 } else { return 0 } }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "union.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let if_stmt: ASTIf = (parser_get_if p 0)
     let env: GenEnv = (genenv_new "test")
@@ -7021,7 +7021,7 @@ fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int, env: G
 
 shadow generate_while_stmt {
     let source: string = (+ "f" "n main() -> int { while true { return 1 } return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "function_codegen.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let w: ASTWhile = (parser_get_while p 0)
     let env: GenEnv = (genenv_new "test")
@@ -7134,7 +7134,7 @@ fn generate_block_tail_return(parser: Parser, block_id: int, indent: int, env: G
 shadow generate_block_tail_return {
     /* Test: expression tail return */
     let src: string = (+ "f" "n f(x: int) -> int { (* x 2) }")
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "module.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let env: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
@@ -7154,7 +7154,7 @@ fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type
 shadow generate_function_body {
     /* Test: explicit return still works */
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "transpile.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let env: GenEnv = (genenv_new "test")
@@ -7162,7 +7162,7 @@ shadow generate_function_body {
     assert (str_contains code "return")
     /* Test: implicit return — last expression used as return value */
     let source2: string = (+ "f" "n double(x: int) -> int { (* x 2) }")
-    let toks2: List<LexerToken> = (tokenize_string source2)
+    let toks2: List<LexerToken> = (tokenize_string source2 "transpile_empty.nano" (Diagnostics.diag_list_new))
     let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
     let func2: ASTFunction = (parser_get_function p2 0)
     let env2: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
@@ -7244,7 +7244,7 @@ fn is_let_in_block(parser: Parser, block_id: int, let_idx: int) -> bool {
 
 shadow is_let_in_block {
     let src: string = "fn main() -> int { let x: int = 1 return x }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "module_alias.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (not (is_let_in_block p -1 0))
 }
@@ -7282,7 +7282,7 @@ fn is_let_in_function(parser: Parser, let_idx: int) -> bool {
 
 shadow is_let_in_function {
     let src: string = "fn main() -> int { let x: int = 1 return x }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "function_alias.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (is_let_in_function p 0)
 }
@@ -7327,7 +7327,7 @@ fn global_init_literal(parser: Parser, let_node: ASTLet) -> string {
 
 shadow global_init_literal {
     let src: string = "fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "generic_struct.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (>= (str_length (global_init_literal p (parser_get_let p 0))) 0)
 }
@@ -7411,7 +7411,7 @@ fn generate_global_constants(parser: Parser) -> string {
 
 shadow generate_global_constants {
     let src: string = "fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "module_import.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_global_constants p)
     assert (>= (str_length c) 0)
@@ -7432,7 +7432,7 @@ fn lookup_func_return_type_in_parser(parser: Parser, name: string) -> string {
 
 shadow lookup_func_return_type_in_parser {
     let src: string = "fn add(a: int, b: int) -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "module_function.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (lookup_func_return_type_in_parser p "add") "int")
     assert (== (lookup_func_return_type_in_parser p "nonexistent") "")
@@ -7595,7 +7595,7 @@ pub fn transpile_parser(parser: Parser) -> string {
 
 shadow transpile_parser {
     let source: string = (+ "f" "n main() -> int { return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "transpiler_error.nano" (Diagnostics.diag_list_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (transpile_parser p)
     assert (str_contains code "int main(")
