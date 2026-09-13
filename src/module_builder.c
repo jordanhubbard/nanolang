@@ -430,7 +430,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v24-coalesced-cflags");
+    hash_context_field(&hash, "nanolang-c-build-context-v25-include-transport");
     for (size_t i = 0; i < meta->cflags_count; i++) hash_context_field(&hash, meta->cflags[i]);
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) hash_context_field(&hash, meta->cflags_macos[i]);
@@ -2722,6 +2722,37 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
 typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED, MODULE_C_RETAINED_ASSEMBLY,
                MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE } ModuleCPhase;
 
+/* The caller owns a zeroed array and frees every slot on failure. I retain
+ * original include paths in metadata for dependency and cache validation. */
+static bool module_include_flags(const ModuleBuildMetadata *meta, char **output) {
+    for (size_t i = 0; i < meta->include_dirs_count; i++) {
+        char *quoted = module_quote_path(meta->include_dirs[i]);
+        if (!quoted) return false;
+        size_t length = strlen(quoted);
+        output[i] = length <= SIZE_MAX - 3 ? malloc(length + 3) : NULL;
+        if (output[i]) { memcpy(output[i], "-I", 2); memcpy(output[i] + 2, quoted, length + 1); }
+        free(quoted);
+        if (!output[i]) return false;
+    }
+    return module_coalesce_cflags(output, meta->include_dirs_count);
+}
+
+static bool module_append_include_arguments(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                            char *output, size_t capacity) {
+    size_t count = meta->include_dirs_count;
+    if (!count) return true;
+    char **includes = calloc(count, sizeof(char *));
+    if (!includes) return false;
+    bool ok = module_include_flags(meta, includes);
+    for (size_t i = 0; i < count; i++) {
+        if (ok && includes[i][0])
+            ok = module_append_compiler_fragment(meta, flags, includes[i], false, output, capacity);
+        free(includes[i]);
+    }
+    free(includes);
+    return ok;
+}
+
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
@@ -2743,8 +2774,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
             ok &= module_append_compiler_fragment(meta, snapshot, flags, retained, prefix, capacity);
         } else if (!flags) ok = false;
     }
-    if (!retained) for (size_t i = 0; i < meta->include_dirs_count; i++)
-        ok &= module_append_include(prefix, capacity, meta->include_dirs[i]);
+    if (!retained) ok &= module_append_include_arguments(meta, snapshot, prefix, capacity);
     for (size_t group = 0; group < 2; group++) {
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
@@ -3611,6 +3641,11 @@ static bool module_collect_compile_flags(ModuleBuildInfo *info, const ModuleBuil
     if (capacity && !collected) return false;
     size_t count = 0;
     for (size_t group = 0; group < 4; group++) {
+        if (group == 1 && counts[group]) {
+            if (!module_include_flags(meta, collected + count)) goto failed;
+            count += counts[group];
+            continue;
+        }
         char **values = group == 0 ? flags->cflags : group == 1 ? meta->include_dirs :
             group == 2 ? meta->cflags : platform;
         for (size_t i = 0; i < counts[group]; i++) {
@@ -3619,13 +3654,7 @@ static bool module_collect_compile_flags(ModuleBuildInfo *info, const ModuleBuil
 #endif
             if (!values[i]) goto failed;
             if (group == 0 && !values[i][0]) continue;
-            char *value;
-            if (group == 1) {
-                size_t length = strlen(values[i]);
-                if (length > SIZE_MAX - 3) goto failed;
-                value = malloc(length + 3);
-                if (value) { memcpy(value, "-I", 2); memcpy(value + 2, values[i], length + 1); }
-            } else value = strdup(values[i]);
+            char *value = strdup(values[i]);
             if (!value) goto failed;
             collected[count++] = value;
         }
@@ -3634,7 +3663,7 @@ static bool module_collect_compile_flags(ModuleBuildInfo *info, const ModuleBuil
     info->compile_flags_count = count;
     return true;
 failed:
-    for (size_t i = 0; i < count; i++) free(collected[i]);
+    for (size_t i = 0; i < capacity; i++) free(collected[i]);
     free(collected);
     return false;
 }

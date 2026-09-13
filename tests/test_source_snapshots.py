@@ -650,7 +650,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(result.returncode, 0, result.stderr)
                 returned = [line[len("compile:"):] for line in result.stdout.decode().splitlines()
                             if line.startswith("compile:")]
-                if any(value.lstrip().startswith("@") for value in returned):
+                if origin != "compiled":
                     decoded = []
                     for value in returned:
                         for word in shlex.split(value):
@@ -691,8 +691,49 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertTrue((generation / "source_hashes.json").is_file())
                 self.assertEqual((module / "module.json").read_bytes(), original)
 
+    def test_include_transport_preserves_search_order_and_lifetime(self):
+        for compiled in (False, True):
+            with self.subTest(compiled=compiled), tempfile.TemporaryDirectory(prefix="nano-include-transport-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                first = directory / "first 'quoted' $HOME"
+                second = directory / 'second "quoted"'
+                for path, answer in ((first, 42), (second, 43)):
+                    path.mkdir()
+                    (path / "answer.h").write_text(f"#define ANSWER {answer}\n")
+                missing = [str(directory / f"missing-{i}") for i in range(200)]
+                source = module / "answer.c"
+                source.write_text("#include <answer.h>\nlong long nano_build_answer(void) { return ANSWER; }\n")
+                later = directory / "later.c"
+                later.write_text("#include <answer.h>\nANSWER\n")
+                generations = []
+                for paths, answer in (((first, second), 42), ((second, first), 43)):
+                    metadata = {"name": "answer_native", "c_sources": ["answer.c"] if compiled else [],
+                                "include_dirs": missing + list(map(str, paths))}
+                    (module / "module.json").write_text(json.dumps(metadata))
+                    original = (module / "module.json").read_bytes()
+                    result = subprocess.run([str(self.support.probe), "build-info", str(module)],
+                                            env=env, capture_output=True, timeout=30)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    flags = " ".join(line[len("compile:"):] for line in result.stdout.decode().splitlines()
+                                     if line.startswith("compile:"))
+                    self.assertTrue(any(word.startswith("@") for word in shlex.split(flags)))
+                    replay = subprocess.run(shlex.join([shutil.which("cc"), "-E", "-P", str(later)]) + " " + flags,
+                                            shell=True, cwd=directory, env=env, capture_output=True, timeout=15)
+                    self.assertEqual(replay.returncode, 0, replay.stderr)
+                    self.assertEqual(replay.stdout.strip(), str(answer).encode())
+                    if compiled:
+                        generation = self.support.probe_path("directory", module, env)
+                        generations.append(generation)
+                        self.assertEqual(self.answer(self.support.probe_path("library", module, env)), answer)
+                        self.support.probe_path("build", module, env)
+                        self.assertEqual(self.support.probe_path("directory", module, env), generation)
+                        self.assertTrue((generation / "source_hashes.json").is_file())
+                    self.assertEqual((module / "module.json").read_bytes(), original)
+                if compiled: self.assertNotEqual(*generations)
+
     def test_compile_flag_allocation_failures_are_atomic(self):
-        for failure in (*map(str, range(5)), "overflow"):
+        for failure in (*map(str, range(6)), "overflow"):
             with self.subTest(failure=failure):
                 result = subprocess.run([str(self.support.probe), "compile-flags-allocation", failure],
                                         capture_output=True, timeout=10)

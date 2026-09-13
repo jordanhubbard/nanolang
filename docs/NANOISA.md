@@ -544,8 +544,10 @@ under the module cache. Before transport, I coalesce eligible common, active-
 platform and package compiler groups above 1024 bytes, within a 64 KiB combined
 budget. Argument order stays intact; array slots and native-framework NULLs
 remain stable. Allocation failure leaves the original strings untouched.
-This handles many short compiler fragments as well as individual long ones;
-include-directory lists and linker fragments are not coalesced here.
+This handles many short compiler fragments as well as individual long ones.
+I also quote and coalesce include-directory arguments in search order for
+compilation and returned native flags. Original paths remain in metadata for
+dependency validation. Linker fragments are not coalesced here.
 I publish complete read-only files with content-derived
 names, verify their bytes before reuse, and leave them alive until that cache
 is removed. Returned native flags therefore remain usable after build-info

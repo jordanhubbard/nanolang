@@ -1069,8 +1069,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       allocation rollback and unchanged unsupported shell/driver-mode paths.
       The aggregate fixture passes for 1300 short flags, forty small response
       references and forty package fragments; all four variants fail against
-      the previous revision. Include-directory lists, linker fragments and
-      groups beyond the 64 KiB budget remain outside this coalescing boundary.
+      the previous revision. Linker fragments and groups beyond the 64 KiB
+      budget remain outside this coalescing boundary.
+      I quote include-directory arguments consistently for compilation
+      and returned native flags, then coalesce them through retained sidecars.
+      I keep original include paths in metadata and cache validation, verify
+      ordered header search and later consumers, and test allocation rollback.
+      The 200-directory fixture preserves quoted paths and header precedence;
+      its compiled variant fails against the previous revision on GCC 12.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

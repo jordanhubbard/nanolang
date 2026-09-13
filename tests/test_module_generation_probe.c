@@ -271,7 +271,7 @@ int main(int argc, char **argv) {
         meta.cflags_count = 1;
         ok = ok && module_collect_compile_flags(info, &meta, &flags) &&
             info->compile_flags_count == 4 && !strcmp(info->compile_flags[0], "-DPACKAGE=1") &&
-            !strcmp(info->compile_flags[1], "-I/include") &&
+            !strcmp(info->compile_flags[1], "-I'/include'") &&
             !strcmp(info->compile_flags[2], "-DCOMMON=1") &&
             !strcmp(info->compile_flags[3], "-DPLATFORM=1");
         module_build_info_free(info);

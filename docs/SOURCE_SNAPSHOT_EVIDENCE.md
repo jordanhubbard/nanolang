@@ -1049,3 +1049,30 @@ skips. The complete 41-method snapshot sanitizer run and leak-enabled allocation
 checks use the same production code.
 Darwin's rebuilt native tools and C reference compiler also pass the 142-method
 regression set, with 24 expected skips (2026-09-13).
+
+## Include-directory transport
+
+I quote include paths consistently for object compilation and returned native
+flags, then coalesce their ordered argument list through retained response
+transport. Original include paths remain in metadata and cache validation;
+build-context version 25 identifies the new recipe. Partial allocation failure
+frees every initialized slot before returning failure.
+
+The regression uses 200 missing include directories followed by competing
+headers in paths containing spaces, quotes and a dollar sign. Reordering the
+headers changes 42 to 43 and selects a new generation; warm builds reuse it.
+Both source-free and compiled modules return flags that a later compiler
+process can use from another directory. The earlier 1300-directory fixture
+still checks complete argument order. Six collector allocation failures and
+the capacity overflow guard each permit a clean retry.
+
+Against revision `344950ff` on GCC 12, the compiled fixture fails to build and
+the source-free fixture does not produce retained transport. The new fixture
+passes on Darwin. Linker fragments, over-budget groups and unsupported driver
+forms remain outside this boundary; the parent roadmap item stays open.
+
+On GCC 12, all 42 snapshot methods pass normally and with ASan/UBSan on the
+production builder probe (three expected skips). The two focused allocation
+failure methods also pass with leak detection enabled (2026-09-13).
+Darwin's rebuilt native tools and C reference compiler pass the 143-method
+compiler, shadow, cache and assembler regression suite (24 expected skips).
