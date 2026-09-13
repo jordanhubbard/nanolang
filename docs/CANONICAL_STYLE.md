@@ -190,6 +190,11 @@ domain types and operations, not incidental storage or raw foreign calls.
 My C-seed and bytecode paths now keep distinct pure functions with the same
 short name across qualified imports. I test a root wrapper, a transitive
 wrapper and their private helpers with inferred and declared module names.
+I also scope import aliases by their declaring module in the C environment:
+two wrappers may each call `lib.answer` without sharing the first wrapper's
+binding. A dependency's alias is not visible at the root, and a root alias is
+not inherited by unrelated modules. I test inferred and declared owners across
+all three drivers. This uses module names, not canonical path identity.
 My Stage2 driver now preserves pure function identity across that fixture too.
 It retains import declarations, binds function references by their owning file,
 and assigns imported function definitions private generated names. Selective

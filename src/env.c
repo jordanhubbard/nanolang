@@ -223,6 +223,8 @@ void free_environment(Environment *env) {
     /* Free namespaces */
     for (int i = 0; i < env->namespace_count; i++) {
         free(env->namespaces[i].alias);
+        free(env->namespaces[i].owner_module);
+        free(env->namespaces[i].module_name);
         for (int j = 0; j < env->namespaces[i].function_count; j++) {
             free(env->namespaces[i].function_names[j]);
         }
@@ -508,6 +510,11 @@ void env_define_function(Environment *env, Function func) {
     }
 }
 
+static bool namespace_owned_by(const ModuleNamespace *ns, const char *owner) {
+    return (!ns->owner_module && !owner) ||
+           (ns->owner_module && owner && strcmp(ns->owner_module, owner) == 0);
+}
+
 /* Get function */
 Function *env_get_function(Environment *env, const char *name) {
     if (!name) {
@@ -528,7 +535,8 @@ Function *env_get_function(Environment *env, const char *name) {
         
         /* Find namespace */
         for (int i = 0; i < env->namespace_count; i++) {
-            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
+                strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 /* Check if function is in this namespace */
                 for (int j = 0; j < env->namespaces[i].function_count; j++) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
@@ -793,7 +801,8 @@ StructDef *env_get_struct(Environment *env, const char *name) {
         
         /* Find namespace */
         for (int i = 0; i < env->namespace_count; i++) {
-            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
+                strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 /* Check if struct is in this namespace */
                 for (int j = 0; j < env->namespaces[i].struct_count; j++) {
                     if (strcmp(env->namespaces[i].struct_names[j], type_name) == 0) {
@@ -886,7 +895,8 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
         const char *type_name = dot + 1;
         
         for (int i = 0; i < env->namespace_count; i++) {
-            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
+                strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].enum_count; j++) {
                     if (strcmp(env->namespaces[i].enum_names[j], type_name) == 0) {
                         /* Look up the actual enum by its original name AND module name */
@@ -974,7 +984,8 @@ UnionDef *env_get_union(Environment *env, const char *name) {
         const char *type_name = dot + 1;
         
         for (int i = 0; i < env->namespace_count; i++) {
-            if (strcmp(env->namespaces[i].alias, module_alias) == 0) {
+            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
+                strcmp(env->namespaces[i].alias, module_alias) == 0) {
                 for (int j = 0; j < env->namespaces[i].union_count; j++) {
                     if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
                         /* Look up the actual union by its original name AND module name */
@@ -1512,7 +1523,8 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
     
     /* Check if alias already exists */
     for (int i = 0; i < env->namespace_count; i++) {
-        if (strcmp(env->namespaces[i].alias, alias) == 0) {
+        if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
+            strcmp(env->namespaces[i].alias, alias) == 0) {
             /* Namespace already registered */
             return;
         }
@@ -1527,6 +1539,7 @@ void env_register_namespace(Environment *env, const char *alias, const char *mod
     /* Register the namespace */
     ModuleNamespace *ns = &env->namespaces[env->namespace_count++];
     ns->alias = strdup(alias);
+    ns->owner_module = env->current_module ? strdup(env->current_module) : NULL;
     ns->module_name = module_name ? strdup(module_name) : NULL;
     ns->function_names = function_names;
     ns->function_count = function_count;

@@ -250,6 +250,31 @@ shadow main {{ assert (== (main) 0) }}
                         self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
                         self.assertFalse(output.exists())
 
+    def test_aliases_belong_to_the_importing_module(self):
+        for backend in COMPILERS:
+            for declared in (False, True):
+                with self.subTest(backend=backend, declared=declared), tempfile.TemporaryDirectory(prefix="nano-alias-owners-") as tmp:
+                    directory = Path(tmp)
+                    for name, number in (("left", 11), ("right", 22)):
+                        leaf = directory / f"{name}_value.nano"
+                        owner = f"module {name.title()}Value\n" if declared else ""
+                        leaf.write_text(owner + f"pub fn answer() -> int {{ return {number} }}\nshadow answer {{ assert (== (answer) {number}) }}\n")
+                        wrapper = directory / f"{name}_wrapper.nano"
+                        owner = f"module {name.title()}Wrapper\n" if declared else ""
+                        wrapper.write_text(owner + f'''module "{leaf}" as lib
+pub fn answer() -> int {{ return (lib.answer) }}
+shadow answer {{ assert (== (answer) {number}) }}
+''')
+                    source = f'''module "{directory}/left_wrapper.nano" as left
+module "{directory}/right_wrapper.nano" as right
+fn main() -> int {{ assert (== (left.answer) 11) assert (== (right.answer) 22) return 0 }}
+shadow main {{ assert (== (main) 0) }}
+'''
+                    compiled, output = self.compile_source(backend, source, directory)
+                    self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    executed = self.execute(backend, output)
+                    self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
+
     def test_qualified_and_returned_foreign_dispatch(self):
         for route in ("qualified", "returned", "variable", "map"):
             for missing in (False, True):

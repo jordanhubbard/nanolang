@@ -709,6 +709,7 @@ typedef struct {
 /* Module namespace for import aliases */
 typedef struct {
     char *alias;               /* Module alias name (e.g., "Math", "Lexer") */
+    char *owner_module;        /* Declaring module; NULL is the root namespace. */
     char *module_name;         /* Original module name */
     char **function_names;     /* Functions from this module */
     int function_count;

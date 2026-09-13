@@ -346,6 +346,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and bytecode drivers. A completed cached load returns an AST; I no longer
       accept a NULL result merely because a loading marker exists.
       MAC `task_60c31b34d18c4e698194a9dd1ba691c4`.
+- [x] **5.0 importer-scoped namespace prerequisite.** I distinguish identical
+      import aliases declared by different modules in the C environment and
+      its consumers. I establish inferred or declared ownership before processing
+      imports and restore the caller on success or failure. Six compiler cases
+      exercise reused aliases through C-seed, VM and Stage2 on Darwin and Linux;
+      the baseline failed both C-seed and VM cases. All 60 driver-test methods,
+      32 environment checks, and the evaluator, typechecker and code-generation
+      gates pass on both platforms. Both bootstraps pass smoke and no-C-seed
+      checks; native binaries still differ. Type alias visibility is tested separately
+      from colliding nominal identity, which remains open. These owner names
+      are not canonical path identities; dependency-shadow selection remains open.
+      MAC `task_8064e9156d1246ada3673b4014802040`.
+- [ ] **5.0 explicit transitive shadow execution.** I expose a consistent
+      selection mode across C-seed, VM and self-hosted native compilation,
+      exercise direct, transitive and diamond imports exactly once, preserve
+      ownership and prior output on failure, and document execution order,
+      source-only behavior and side effects. The ordinary-compilation default
+      is a separate policy choice; root-only remains the current behavior.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [x] **5.0 interpreted indexed-read alias.** I route `array_get` to the
       same reader as `at`. My FFI map fixture exposed that typing accepted the
       alias while interpreted shadow execution reported an unimplemented

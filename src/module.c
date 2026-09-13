@@ -633,9 +633,16 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         return NULL;
     }
     
+    /* I register aliases in their importer's context, before checking its body. */
+    char *saved_current_module = env->current_module;
+    char *module_name = module_name_from_path(module_path);
+    env->current_module = module_name;
+
     /* Process imports first - modules may depend on symbols from imported modules */
     if (!process_imports(module_ast, env, modules_to_track, module_path)) {
         fprintf(stderr, "Error: Failed to process imports for module '%s'\n", module_path);
+        env->current_module = saved_current_module;
+        free(module_name);
         free_ast(module_ast);
         free_tokens(tokens, token_count);
         free(source);
@@ -643,28 +650,6 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     /* Type check module (without requiring main) */
-    /* Save current module context before processing imported module */
-    char *saved_current_module = env->current_module;
-    
-    /* Extract module name from path for function tagging */
-    /* e.g., "modules/sdl/sdl.nano" -> "sdl" */
-    char *module_name = NULL;
-    const char *last_slash = strrchr(module_path, '/');
-    const char *last_dot = strrchr(module_path, '.');
-    if (last_slash && last_dot && last_dot > last_slash) {
-        size_t name_len = last_dot - (last_slash + 1);
-        module_name = strndup(last_slash + 1, name_len);
-    } else if (last_slash) {
-        module_name = strdup(last_slash + 1);
-    } else if (last_dot) {
-        size_t name_len = last_dot - module_path;
-        module_name = strndup(module_path, name_len);
-    } else {
-        module_name = strdup(module_path);
-    }
-    
-    env->current_module = module_name;  /* Set module context for function tagging */
-    
     /* Register module for introspection BEFORE type checking so functions can be tracked */
     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
     
@@ -855,8 +840,26 @@ ASTNode *load_module_from_package(const char *package_path, Environment *env, ch
     return module_ast;
 }
 
-/* Process imports in a program */
+static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
+
+/* I apply an explicit module declaration before registering its import aliases. */
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    char *saved_owner = env->current_module;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_MODULE_DECL) {
+            env->current_module = item->as.module_decl.name;
+            break;
+        }
+    }
+    bool ok = process_imports_owned(program, env, modules, current_file);
+    env->current_module = saved_owner;
+    return ok;
+}
+
+/* Process imports in a program */
+static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM) {
         return false;
     }
