@@ -886,3 +886,55 @@ buffer or a flag saying this unsupported path is safe.
 All 32 snapshot test methods pass on Apple Clang 21 Darwin arm64 and GCC 12
 Linux arm64, with eleven and two expected skips respectively. The separate
 large-response acceptance command remains red on both hosts.
+
+## Retained response transport
+
+I now transport long literal compiler fragments through content-addressed GNU
+response sidecars in the module cache. I keep the decoded strings for build
+identity and phase filtering, and use sidecar references only for compiler
+commands and returned native flags. Build-context version 22 distinguishes this
+transport from the earlier inline-only path.
+
+Each file contains separately double-quoted GNU response words, with backslashes
+and double quotes escaped. I write and sync a private file, make it read-only,
+then publish it with a no-replacement hard link. Concurrent creators verify the
+same complete bytes. A content-derived name is not sufficient evidence: I check
+the existing file's type, size and bytes, and reject mismatches rather than
+overwrite them. These are trusted local cache files, not a sandbox against an
+owner who modifies files during compiler reads.
+
+Sidecars outlive invocation metadata, build-info objects and compiler processes.
+They remain under the module cache until that cache is removed. The lifetime
+test gets native flags from a completed probe process, changes the original
+response file, then runs the host compiler with those returned flags. Its output
+still matches the original arguments, including literal dollar signs.
+
+Compilation, GCC post-preprocessing flags and shared linking use this transport.
+Darwin's linker observation recognizes only exact transports of captured
+compiler flags; unrelated indirect response arguments remain excluded. The
+10,212-byte reproducer now returns cold/warm/fresh 42 with generation reuse in
+both local and shared caches on Apple Clang 21 and GCC 12.
+
+Common, active-platform and package argument tests cover changed sidecars,
+symlinks, FIFOs, directories, removal and recovery. Concurrent source-free builds
+exercise publication without relying on the C-generation lock. Long repeated
+`-O2` arguments also exercise phase filtering and permanent argument changes.
+
+I retain the 16-level nesting limit, 64 KiB response-input and serialized-fragment
+budgets, and 4095-byte words. Transport begins above 1024 serialized bytes per
+fragment. This does not remove aggregate command limits for many short
+fragments, capture shell-expanded or noncanonical forms, or implement other
+driver dialects and indirect linker response retention. The parent roadmap
+item remains open.
+
+The Linux GCC 12 bootstrap and 134-method bytecode/cache/link/snapshot/helper
+regression set pass with ten expected skips. All 33 snapshot methods also pass
+with the production builder and support sources compiled under ASan/UBSan
+(two expected skips, leak detection disabled). The sanitizer run includes the
+final quoting and concurrent-publication cases (2026-09-13).
+The final sidecar-corruption check preserves the prior published generation
+and reuses it after transport repair, for common, active-platform and package
+flags. It passes in the full Linux sanitizer run and a focused Darwin run.
+The Darwin bootstrap and 134-method broad regression set also pass, with
+24 expected skips. The focused Darwin run includes the final quoting,
+concurrency and prior-generation preservation checks.

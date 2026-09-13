@@ -1003,11 +1003,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and keep package flag captures consistent with the same rule. Unsupported
       shell fragments remain on their existing path rather than being evaluated
       by the capture parser.
-      The bounded literal path now repairs the measured mismatch. I still need
-      retained transport for large argument lists and capture of shell-expanded
-      or noncanonical response forms before closing this full item. Current
-      limits are 16 nested files, 64 KiB cumulative file bytes, 4095-byte words
-      and a 2048-byte serialized fragment; over-budget and noncanonical forms
+      The initial bounded literal path repaired the measured mismatch. Its
+      limits were 16 nested files, 64 KiB cumulative file bytes, 4095-byte words
+      and a 2048-byte serialized fragment. Transport below removes the last
+      limit; I still need broader budgets and capture of shell-expanded or
+      noncanonical response forms. Over-budget and noncanonical forms
       keep the previous path. Missing/cyclic/nonregular inputs fail capture.
       A Clang version banner alone does not establish GNU response syntax:
       I exclude named `clang-cl` drivers and explicit `--driver-mode` overrides
@@ -1021,8 +1021,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The 10,212-byte literal reproducer now confirms cold/warm/fresh
       43/43/42 with reuse on GCC 12 and 43/42/42 without reuse on Apple Clang
       21, in both local and shared caches. The explicit
-      `--response-large --require-consistent` gate remains red. A passing
-      characterization-instrument test does not satisfy this acceptance gate.
+      `--response-large --require-consistent` gate was red before transport.
+      A passing characterization-instrument test did not satisfy that gate.
+      I implement content-addressed GNU response sidecars under the module cache,
+      keeping decoded arguments in identity and phase selection. Compilation,
+      shared linking and returned native flags use the same transport; sidecars
+      outlive build-info objects and are removed with the module cache. I verify
+      byte equality on reuse and reject altered or nonregular sidecars. Tests
+      cover long restored inputs, later consumers, phase filtering and recovery.
+      The 10 KiB reproducer now returns 42/42/42 with reuse on both drivers.
+      The remaining serialized-fragment budget is 64 KiB; many short fragments
+      can still exceed aggregate command limits. Shell-expanded/noncanonical
+      forms and other response dialects remain outside the retained boundary.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

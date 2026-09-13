@@ -536,11 +536,18 @@ I preserve the original argument set instead of mixing response dialects or
 partially expanded argument groups.
 
 This path is bounded to 16 response nesting levels, 64 KiB cumulative input,
-4095-byte words and a 2048-byte serialized fragment. Over-budget fragments,
+4095-byte words and a 64 KiB serialized fragment. Over-budget fragments,
 unterminated quotes, trailing escapes, embedded NULs and shell-expanded
 fragments keep the previous compiler path and do not gain snapshot eligibility
-from this capture. Retained transport for large lists, other response dialects
-and indirect linker response files remain open. This is argument retention,
+from this capture. Literal fragments over 1024 bytes use GNU response sidecars
+under the module cache. I publish complete read-only files with content-derived
+names, verify their bytes before reuse, and leave them alive until that cache
+is removed. Returned native flags therefore remain usable after build-info
+cleanup. Decoded arguments remain in cache identity and phase selection;
+sidecar paths are only transport. I use the same transport for shared linking,
+and Darwin linker observation admits only exact sidecars of captured flags.
+Larger budgets, other response dialects and indirect linker response files
+remain open. This is argument retention,
 not retention of every external input named by an argument.
 
 Clang applies all supported C flags during `-S` capture, then assembles without

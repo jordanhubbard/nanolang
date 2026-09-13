@@ -464,7 +464,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v21-response-arguments");
+    hash_context_field(&hash, "nanolang-c-build-context-v22-response-transport");
     for (size_t i = 0; i < meta->cflags_count; i++) hash_context_field(&hash, meta->cflags[i]);
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) hash_context_field(&hash, meta->cflags_macos[i]);
@@ -2422,7 +2422,6 @@ static char *module_capture_response_fragment(const char *fragment) {
             return NULL;
         }
     }
-    if (strlen(output) > 2048) { free(output); return strdup(fragment); }
     return output;
 }
 
@@ -2557,6 +2556,143 @@ failed:
     return false;
 }
 
+/* I retain transport files in the module cache, not an invocation's staging
+ * directory: returned native flags can outlive both metadata and build info.
+ * Decoded argument strings, not these paths, remain my build identity. */
+static char *module_response_transport(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                       const char *fragment) {
+    if (!fragment) return NULL;
+    if (strlen(fragment) <= 1024 || module_response_metadata_pending(meta) ||
+        !module_response_driver(meta)) return strdup(fragment);
+    for (size_t i = 0; flags && i < flags->count; i++)
+        if (module_response_pending(flags->cflags[i])) return strdup(fragment);
+    if (module_response_pending(fragment)) return strdup(fragment);
+    size_t length = strlen(fragment);
+    if (length > 65536) return strdup(fragment);
+    char *data = malloc(length * 4 + 16);
+    if (!data) return NULL;
+    size_t used = 0;
+    const char *cursor = fragment;
+    char word[4096];
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        data[used++] = '"';
+        for (const char *p = word; *p; p++) {
+            if (*p == '\\' || *p == '"') data[used++] = '\\';
+            data[used++] = *p;
+        }
+        data[used++] = '"';
+        data[used++] = '\n';
+    }
+    if (status < 0) { free(data); return strdup(fragment); }
+    uint64_t hash = 14695981039346656037ULL;
+    for (size_t i = 0; i < used; i++) { hash ^= (unsigned char)data[i]; hash *= 1099511628211ULL; }
+    char *root = module_ensure_build_dir(meta->module_dir) ? module_get_build_dir(meta->module_dir) : NULL;
+    char *directory = root ? realpath(root, NULL) : NULL;
+    free(root);
+    char path[2048] = {0}, temporary[2048] = {0};
+    bool ok = directory && module_build_append(path, sizeof(path), "%s/.nano-args-%016llx.rsp",
+        directory, (unsigned long long)hash) &&
+        module_build_append(temporary, sizeof(temporary), "%s/.nano-args-XXXXXX", directory);
+    free(directory);
+    int fd = ok ? open(path, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK) : -1;
+    if (ok && fd < 0 && errno == ENOENT) {
+        int out = mkstemp(temporary);
+        ok = out >= 0;
+        size_t offset = 0;
+        while (ok && offset < used) {
+            ssize_t n = write(out, data + offset, used - offset);
+            if (n < 0 && errno == EINTR) continue;
+            if (n <= 0) ok = false;
+            else offset += (size_t)n;
+        }
+        if (out >= 0) {
+            if (fchmod(out, 0400) || fsync(out)) ok = false;
+            if (close(out)) ok = false;
+            if (ok && link(temporary, path) && errno != EEXIST) ok = false;
+            if (unlink(temporary)) ok = false;
+        }
+        if (ok) fd = open(path, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+    }
+    struct stat st;
+    ok = ok && fd >= 0 && !fstat(fd, &st) && S_ISREG(st.st_mode) &&
+        st.st_size >= 0 && (uint64_t)st.st_size == used;
+    size_t offset = 0;
+    while (ok && offset < used) {
+        char buffer[4096];
+        size_t want = used - offset < sizeof(buffer) ? used - offset : sizeof(buffer);
+        ssize_t n = read(fd, buffer, want);
+        if (n < 0 && errno == EINTR) continue;
+        if (n <= 0 || memcmp(buffer, data + offset, (size_t)n)) ok = false;
+        else offset += (size_t)n;
+    }
+    if (ok) {
+        char extra;
+        ssize_t n;
+        do { n = read(fd, &extra, 1); } while (n < 0 && errno == EINTR);
+        if (n != 0) ok = false;
+    }
+    if (fd >= 0 && close(fd)) ok = false;
+    free(data);
+    char result[8192] = {0};
+    if (!ok || !module_append_path_flag(result, sizeof(result), "@", path)) return NULL;
+    return strdup(result);
+}
+
+static bool module_append_compiler_fragment(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                            const char *fragment, bool retained,
+                                            char *output, size_t capacity) {
+    char *filtered = NULL;
+    if (retained) {
+        size_t size = strlen(fragment);
+        if (size > (SIZE_MAX - 16) / 4) return false;
+        size = size * 4 + 16;
+        filtered = calloc(size, 1);
+        if (!filtered || !module_retained_flags(fragment, filtered, size)) { free(filtered); return false; }
+        fragment = filtered;
+    }
+    char *transport = module_response_transport(meta, flags, fragment);
+    bool ok = transport && module_build_append(output, capacity, " %s", transport);
+    free(transport);
+    free(filtered);
+    return ok;
+}
+
+#ifdef __APPLE__
+/* My linker observation still declines indirect user arguments. The only @
+ * words I admit are exact transports of this invocation's captured flags. */
+static bool module_link_response_safe(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                      const char *command) {
+    if (!strchr(command, '@')) return true;
+    const char *cursor = command;
+    char word[4096];
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (!strchr(word, '@')) continue;
+        if (word[0] != '@') return false;
+        bool found = false;
+        for (size_t group = 0; group < 3 && !found; group++) {
+            size_t count = group == 0 ? flags->count : meta->cflags_count;
+            char **fragments = group == 0 ? flags->cflags :
+                group == 1 ? meta->cflags : module_platform_cflags(meta, &count);
+            for (size_t i = 0; i < count && !found; i++) {
+                if (!fragments[i] || strlen(fragments[i]) <= 1024) continue;
+                char *transport = module_response_transport(meta, flags, fragments[i]);
+                if (!transport) return false;
+                const char *p = transport;
+                char expected[4096];
+                found = strcmp(transport, fragments[i]) != 0 &&
+                    module_flag_word(&p, expected, sizeof(expected)) == 1 && !strcmp(expected, word) &&
+                    module_flag_word(&p, expected, sizeof(expected)) == 0;
+                free(transport);
+            }
+        }
+        if (!found) return false;
+    }
+    return status == 0;
+}
+#endif
+
 typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED, MODULE_C_RETAINED_ASSEMBLY,
                MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE } ModuleCPhase;
 
@@ -2578,8 +2714,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
 #endif
         const char *flags = snapshot->cflags[i];
         if (flags) {
-            ok &= retained ? module_retained_flags(flags, prefix, capacity)
-                           : module_build_append(prefix, capacity, " %s", flags);
+            ok &= module_append_compiler_fragment(meta, snapshot, flags, retained, prefix, capacity);
         } else ok = false;
     }
     if (!retained) for (size_t i = 0; i < meta->include_dirs_count; i++)
@@ -2588,8 +2723,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
         for (size_t i = 0; i < count; i++) {
-            ok &= retained ? module_retained_flags(flags[i], prefix, capacity)
-                           : module_build_append(prefix, capacity, " %s", flags[i]);
+            ok &= module_append_compiler_fragment(meta, snapshot, flags[i], retained, prefix, capacity);
         }
     }
     return ok;
@@ -3348,7 +3482,7 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
         }
     }
     for (size_t i = 0; i < shared_cflags_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity, " %s", shared_cflags[i]);
+        command_ok &= module_append_compiler_fragment(meta, flags, shared_cflags[i], false, lib_cmd, capacity);
         free(shared_cflags[i]);
     }
 
@@ -3390,24 +3524,20 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
     }
     /* Add custom cflags (all platforms) */
     for (size_t i = 0; i < meta->cflags_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity,
-                           " %s", meta->cflags[i]);
+        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags[i], false, lib_cmd, capacity);
     }
     /* Add platform-specific cflags */
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity,
-                           " %s", meta->cflags_macos[i]);
+        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_macos[i], false, lib_cmd, capacity);
     }
 #elif defined(__FreeBSD__)
     for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity,
-                           " %s", meta->cflags_freebsd[i]);
+        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_freebsd[i], false, lib_cmd, capacity);
     }
 #else
     for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity,
-                           " %s", meta->cflags_linux[i]);
+        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_linux[i], false, lib_cmd, capacity);
     }
 #endif
     for (size_t i = 0; i < meta->shared_c_sources_count; i++) {
@@ -3783,10 +3913,10 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             int lib_result = -1;
 #ifdef __APPLE__
             /* I preserve an ordinary link when dependency capture is not
-             * supported. Response files can hide flag inputs from this format;
-             * I do not create reuse evidence for those command lines yet. */
+             * supported. I admit my retained compiler argument transports,
+             * but not indirect user response inputs hidden from this format. */
             char recorded_command[8192] = {0}, link_record[2048] = {0};
-            bool capture = command_ok && link_observation && !strchr(lib_cmd, '@') &&
+            bool capture = command_ok && link_observation && module_link_response_safe(meta, flags, lib_cmd) &&
                 module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
                 module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&
                 module_append_path_flag(recorded_command, sizeof(recorded_command), "-Xlinker ", link_record);
@@ -4188,6 +4318,12 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
             }
         }
         info = module_build_with_flags(builder, &captured, &flags);
+        for (size_t i = 0; info && i < info->compile_flags_count; i++) {
+            char *transport = module_response_transport(&captured, &flags, info->compile_flags[i]);
+            if (!transport) { module_build_info_free(info); info = NULL; break; }
+            free(info->compile_flags[i]);
+            info->compile_flags[i] = transport;
+        }
         module_pkg_flags_free(&flags);
     }
     module_response_metadata_free(meta, &captured);
