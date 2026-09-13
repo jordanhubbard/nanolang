@@ -2046,6 +2046,10 @@ test-cross-backend-runner:
 test-selfhost-cli: bootstrap3
 	@python3 tests/test_selfhost_cli.py
 
+.PHONY: test-selfhost-module-bindings
+test-selfhost-module-bindings: bootstrap3
+	@python3 -m unittest tests.test_selfhost_module_bindings
+
 # I keep tool builds ordered until compiler-private generic-list generation is verified.
 .PHONY: test-language-contract test-language-contract-runner
 test-language-contract: test-language-contract-runner

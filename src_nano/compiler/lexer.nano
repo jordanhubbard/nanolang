@@ -890,7 +890,14 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                             if (== new_pos -1) {
                                 set i len
                             } else {
-                                set i new_pos
+                                # I count source bytes, not decoded escape values.
+                                while (< i new_pos) {
+                                    if (== (char_at source i) 10) {
+                                        set line (+ line 1)
+                                        set line_start (+ i 1)
+                                    }
+                                    set i (+ i 1)
+                                }
                             }
                         }
                     }
@@ -931,4 +938,13 @@ shadow tokenize_string {
     let toks_bad: List<LexerToken> = (tokenize_string bad "cafe.nano" diags_bad)
     assert (== (list_LexerToken_length toks_bad) 0)
     assert (diag_list_has_errors diags_bad)
+    let positions: List<LexerToken> = (tokenize_string "\"a\nb\" next\n\"a\\nb\" last" "positions.nano" diags)
+    let next: LexerToken = (list_LexerToken_get positions 1)
+    let last: LexerToken = (list_LexerToken_get positions 3)
+    assert (== next.value "next")
+    assert (== next.line 2)
+    assert (== next.column 4)
+    assert (== last.value "last")
+    assert (== last.line 3)
+    assert (== last.column 8)
 }

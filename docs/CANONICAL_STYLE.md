@@ -190,13 +190,22 @@ domain types and operations, not incidental storage or raw foreign calls.
 My C-seed and bytecode paths now keep distinct pure functions with the same
 short name across qualified imports. I test a root wrapper, a transitive
 wrapper and their private helpers with inferred and declared module names.
-My Stage2 source merger still flattens those declarations: the same fixture
-fails its root shadow. I now retain declaration ownership and reject duplicate
-non-extern function definitions within one input file before native or C-source
-publication. This does not resolve calls between different owners.
-Reused module aliases, colliding module identities and
-foreign-name isolation remain open; qualification is not yet a universal
-isolation guarantee across my backends.
+My Stage2 driver now preserves pure function identity across that fixture too.
+It retains import declarations, binds function references by their owning file,
+and assigns imported function definitions private generated names. Selective
+aliases do not rewrite strings, local bindings or field labels. I test reused
+aliases in separate importers, function values and calls inside aggregates.
+Local variables take precedence without leaking beyond their lexical scope.
+I reject duplicate non-extern definitions within one file and unbound qualified
+calls before native or C-source publication, preserving prior output. My JSON
+codes are `M0001` and `M0002`; merged offsets are not original-file provenance.
+
+This binding state belongs to one sequential compiler invocation; it is not
+reentrant. Private visibility, conflicting aliases within one importer,
+selective type aliases, colliding nominal module identities and foreign-name
+isolation remain open. Same-basename fixtures use distinct declared module
+identities; I still reject ambiguous introspection names. Qualification is not
+yet a universal isolation guarantee across my backends.
 
 ## Unsafe Code And FFI
 

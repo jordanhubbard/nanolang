@@ -59,7 +59,7 @@ class SelfhostBuildIsolation(unittest.TestCase):
                             binary = output
                             if target == "c":
                                 binary = output.with_suffix("")
-                                result = subprocess.run(["cc", "-std=gnu11", "-I", str(ROOT / "src"),
+                                result = subprocess.run(["cc", "-O2", "-std=gnu11", "-I", str(ROOT / "src"),
                                                          "-I", str(ROOT / "modules/std"), str(output),
                                                          "-lm", "-o", str(binary)], capture_output=True, timeout=30)
                                 self.assertEqual(result.returncode, 0, result.stderr)

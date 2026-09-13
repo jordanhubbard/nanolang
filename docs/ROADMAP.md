@@ -247,8 +247,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       call paths, module C emission and bytecode registration/lowering. My
       three-level wrapper and same-named private-helper fixture executes with
       inferred and declared module names on Darwin and Linux. True local
-      duplicates are rejected. Stage2 still fails the fixture's useful root
-      shadow; the following gate owns that remaining implementation work.
+      duplicates are rejected. At that checkpoint Stage2 still failed the
+      fixture's useful root shadow; the following gate owns its implementation.
       The 63 codegen tests, evaluator, typechecker, environment and 28 bytecode
       shadow tests pass on Linux. Darwin bootstrap smoke tests pass, but its
       Stage1 and Stage2 binaries still differ. This is not full module isolation.
@@ -273,24 +273,67 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       methods pass on Darwin with Stage2. No Linux bootstrap was run in this
       increment.
       MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
-- [ ] **5.0 Stage2 syntax-aware alias binding.** I replace raw
+- [x] **5.0 Stage2 physical string emission.** I escape physical newline and
+      carriage-return bytes in plain string literals without double-escaping
+      source escape spellings. I execute a multiline imported function and
+      preserve its value; a multiline global is also checked at runtime.
+      Darwin and Linux pass. Interpolation escaping remains a separate boundary.
+      MAC `task_634c83a18dbb4a47ae1597a07549cca5`.
+- [x] **5.0 Stage2 physical token positions.** I count physical newlines
+      consumed inside literals before locating subsequent tokens. I reproduce
+      owner drift across merged-file boundaries, test escaped versus physical
+      newlines, and resolve the introspection lexer call in both bootstraps.
+      I check subsequent token lines and columns; this is not complete original
+      source provenance or interpolation-internal location coverage.
+      MAC `task_9c6fae270c964a25b8949c5929e2f686`.
+- [x] **5.0 Stage2 emitter lexical environments.** I prevent inner bindings
+      from mutating the outer `GenEnv` arrays. My selective-alias fixture
+      exposed an inner local leaking into resolution after the block. Copying
+      the environment arrays fixes ordinary blocks, loop and match bindings;
+      those cases execute through Stage2 on Darwin and Linux.
+      MAC `task_123d7299a3824f0f9383e5de4401360a`.
+- [x] **5.0 standalone Linux fixture flags.** I compile small runtime-free
+      emitted fixtures at `-O2`, as in my CLI source-output test. GCC otherwise
+      retains unused static array helpers whose runtime objects this small
+      harness does not link. I retain the `NDEBUG` assertion controls; this
+      does not establish general unoptimized, runtime-free C linkage. My
+      native driver links runtime sources; these small harnesses do not.
+      MAC `task_bc02b0a4d83141ceb2153abc107f2f92`.
+- [x] **5.0 Stage2 inactive binding state.** I let library callers use my
+      transpiler without driver initialization. My standalone emitter test
+      exposed a NULL-array read in the new binding table. I guard inactive
+      lookups and verify all nine standalone emitter methods through C-seed
+      and Stage2 compilation on Darwin and Linux.
+      MAC `task_4949e598ba254bd2a4f7f7dfa8abf5d9`.
+- [x] **5.0 Stage2 syntax-aware function alias binding.** I replace raw
       `apply_all_aliases` source rewriting with name resolution that preserves
       local bindings, strings, comments and field labels. Inspection found
-      that the current replacement scans those bytes without syntax context.
+      that the old replacement scanned those bytes without syntax context.
       I retain import declarations for the binding pass and test qualified,
-      selective and reused aliases with distinct importer identities.
+      selective and reused aliases with distinct importer identities. Both
+      platforms pass; selective type aliases remain in the broader gate.
       MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
-- [ ] **5.0 Stage2 module function identity.** I preserve declaration,
+- [x] **5.0 Stage2 unresolved qualified calls.** I reject qualified calls
+      without an importer binding before native or C-source publication,
+      including calls inside aggregates. Before the repair, my controls
+      accepted a missing member and an unknown alias by calling a root
+      function with the same short name. Six cases now preserve prior output
+      and report `M0002` in JSON on Darwin and Linux.
+      MAC `task_4d3c007828e445c5bf748c0b6f6bb44e`.
+- [x] **5.0 Stage2 pure module function identity.** I preserve declaration,
       call, alias and shadow ownership instead of flattening same-named
-      functions into one scope. My three-level wrapper regression currently
-      fails its useful root shadow on Stage2; that rejection is evidence of
-      the gap, not support for this program.
-      I now retain `MergeResult.file_starts` for per-invocation ownership.
-      Binding must cover checker and emitter references, including function
-      values and calls inside aggregate expressions: inspection shows that
-      `check_expr_node` does not visit every expression child, so checker-only
-      AST mutation would leave some emitted references unresolved. These
-      merged offsets do not establish original-file diagnostic provenance.
+      functions into one scope. My three-level wrapper now executes its root
+      shadow on all three compiler paths with inferred and declared names.
+      Checker and emitter both resolve function references, including function
+      values and aggregate calls; checker-only rewriting would miss children.
+      Nine binding methods and the existing driver/emitter suites total 58
+      passing methods on each of Darwin and Linux. Both bootstraps pass smoke
+      and no-C-seed checks; native binaries still differ. The new Make target
+      runs the binding suite against the bootstrapped compiler.
+      These sequential tables and merged offsets do not establish reentrancy,
+      original-file provenance, private visibility, conflicting-alias policy,
+      nominal type identity or foreign-name isolation. The broader gate remains
+      open; same-basename tests retain distinct declared introspection names.
       MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
 - [x] **5.0 imported module failure propagation.** I reject failed loads
       before publishing bytecode. An in-progress cache marker must not turn
@@ -1165,6 +1208,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       My bytecode extern table also deduplicates declarations by bare function
       name across modules. I must preserve distinct source declarations before
       exact library bindings can isolate same-named qualified foreign calls.
+      Pure function binding is now addressed by the earlier backend gates.
+      Private visibility, conflicting aliases in one importer, selective type
+      aliases and nominal identities still need acceptance tests and consistent
+      rejection. Sequential Stage2 binding state is not a reentrant context.
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
       rejects 98 of 229 eligible examples after shadow execution is enabled.

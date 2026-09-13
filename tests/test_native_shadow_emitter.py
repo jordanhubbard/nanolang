@@ -50,7 +50,8 @@ class NativeShadowEmitter(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 code = output.read_text()
                 self.assertEqual("__nano_shadow_" in code, first >= 0 and "shadow " in source)
-                result = self.run_command(["cc", "-std=gnu11", "-I", ROOT / "src", "-I", ROOT / "modules/std",
+                # I discard unused runtime helpers in this runtime-free fixture.
+                result = self.run_command(["cc", "-O2", "-std=gnu11", "-I", ROOT / "src", "-I", ROOT / "modules/std",
                                            *(["-DNDEBUG"] if ndebug else []), output, "-lm", "-o", binary])
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 result = self.run_command([binary], 5)

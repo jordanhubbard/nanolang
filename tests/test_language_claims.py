@@ -132,7 +132,7 @@ shadow main {{ assert (== (helper.{function}) 42) }}
                     self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
                     self.assertFalse(output.exists())
 
-    def test_qualified_same_named_wrapper_backend_boundary(self):
+    def test_qualified_same_named_wrapper(self):
         for backend, declared in ((backend, declared) for backend in COMPILERS for declared in (False, True)):
             with self.subTest(backend=backend, declared=declared), tempfile.TemporaryDirectory(prefix="nano-owner-") as tmp:
                 directory = Path(tmp)
@@ -154,13 +154,6 @@ fn main() -> int {{ assert (== (answer) 45) assert (== (middle.answer) 42) retur
 shadow main {{ assert (== (main) 0) }}
 '''
                 compiled, output = self.compile_source(backend, source, directory)
-                if backend == "selfhost":
-                    # I still flatten imports in Stage2. This useful root shadow
-                    # catches the wrong implementation before output publication.
-                    self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
-                    self.assertIn(b"failed shadow", compiled.stdout + compiled.stderr)
-                    self.assertFalse(output.exists())
-                    continue
                 self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                 result = self.execute(backend, output)
                 self.assertEqual(result.returncode, 0, (result.stdout + result.stderr)[:4000])

@@ -18,6 +18,7 @@
  */
 
 import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/module_bindings.nano"
 import "src_nano/ast_shared.nano"
 import "src_nano/parser.nano"
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
@@ -924,6 +925,7 @@ shadow module_name_from_path {
 fn build_module_alias_map(parser: Parser) -> int {
     (reset_module_aliases)
     (reset_func_aliases)
+    if (mb_active) { return 0 }
     let import_count: int = (parser_get_import_count parser)
     let mut i: int = 0
     while (< i import_count) {
@@ -1353,7 +1355,7 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
     if (== node_type ParseNodeType.PNODE_CALL) {
         let ic: ASTCall = (parser_get_call parser node_id)
         let if_id: ASTIdentifier = (parser_get_identifier parser ic.function)
-        let declared: string = (lookup_func_return_type_in_parser parser if_id.name)
+        let declared: string = (lookup_func_return_type_in_parser parser (mb_resolve if_id.name if_id.line env.names))
         if (!= declared "") { return declared }
         if (func_returns_string if_id.name) { return "string" } else { (print "") }
         if (func_returns_float if_id.name) { return "float" } else { (print "") }
@@ -1988,11 +1990,36 @@ shadow genenv_new {
     assert (== env.scope "main")
 }
 
+fn genenv_copy(env: GenEnv) -> GenEnv {
+    let mut names: array<string> = []
+    let mut types: array<string> = []
+    let mut flags: array<bool> = []
+    let mut globals: array<bool> = []
+    let mut i: int = 0
+    while (< i (array_length env.names)) {
+        set names (array_push names (at env.names i))
+        set types (array_push types (at env.types i))
+        set flags (array_push flags (at env.mut_flags i))
+        set globals (array_push globals (at env.global_flags i))
+        set i (+ i 1)
+    }
+    return GenEnv { names: names, types: types, mut_flags: flags, global_flags: globals, scope: env.scope }
+}
+shadow genenv_copy {
+    let outer: GenEnv = (genenv_put (genenv_new "outer") "first" "int" false)
+    let copy: GenEnv = (genenv_copy outer)
+    let extended: array<string> = (array_push copy.names "inner")
+    assert (== (array_length outer.names) 1)
+    assert (== (array_length extended) 2)
+    assert (== (at copy.types 0) "int")
+}
+
 fn genenv_put(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
-    let new_names: array<string> = (array_push env.names name)
-    let new_types: array<string> = (array_push env.types t)
-    let new_flags: array<bool> = (array_push env.mut_flags is_mut)
-    let new_globals: array<bool> = (array_push env.global_flags false)
+    let copy: GenEnv = (genenv_copy env)
+    let new_names: array<string> = (array_push copy.names name)
+    let new_types: array<string> = (array_push copy.types t)
+    let new_flags: array<bool> = (array_push copy.mut_flags is_mut)
+    let new_globals: array<bool> = (array_push copy.global_flags false)
     return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
 }
 
@@ -2005,15 +2032,17 @@ shadow genenv_put {
     assert (== (at env2.mut_flags 0) false)
     assert (== (at env2.global_flags 0) false)
     let env3: GenEnv = (genenv_put env2 "y" "int" true)
+    assert (== (array_length env2.names) 1)
     assert (== (at env3.mut_flags 1) true)
     assert (== (at env3.global_flags 1) false)
 }
 
 fn genenv_put_global(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
-    let new_names: array<string> = (array_push env.names name)
-    let new_types: array<string> = (array_push env.types t)
-    let new_flags: array<bool> = (array_push env.mut_flags is_mut)
-    let new_globals: array<bool> = (array_push env.global_flags true)
+    let copy: GenEnv = (genenv_copy env)
+    let new_names: array<string> = (array_push copy.names name)
+    let new_types: array<string> = (array_push copy.types t)
+    let new_flags: array<bool> = (array_push copy.mut_flags is_mut)
+    let new_globals: array<bool> = (array_push copy.global_flags true)
     return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
 }
 
@@ -2797,10 +2826,22 @@ shadow gen_number {
 
 /* Generate code for a string literal */
 fn gen_string(value: string) -> string {
-    /* For now, return as-is. In production, need to escape special chars */
+    # I retain source escape spellings and escape physical line breaks for C.
     let mut parts: array<string> = []
     set parts (cg_append parts "\"")
-    set parts (cg_append parts value)
+    let mut start: int = 0
+    let mut i: int = 0
+    while (< i (str_length value)) {
+        let c: int = (char_at value i)
+        if (or (== c 10) (== c 13)) {
+            set parts (cg_append parts (str_substring value start (- i start)))
+            if (== c 10) { set parts (cg_append parts "\\n") }
+            else { set parts (cg_append parts "\\r") }
+            set start (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    set parts (cg_append parts (str_substring value start (- i start)))
     set parts (cg_append parts "\"")
     return (cg_build parts)
 }
@@ -2808,6 +2849,8 @@ fn gen_string(value: string) -> string {
 shadow gen_string {
     let code: string = (gen_string "hello")
     assert (== code "\"hello\"")
+    assert (== (gen_string "a\nb\rc") "\"a\\nb\\rc\"")
+    assert (== (gen_string "a\\nb") "\"a\\nb\"")
 }
 
 /* Generate code for a boolean literal */
@@ -4459,11 +4502,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
             if (str_contains s.value "{") {
                 return (expand_string_interp s.value env)
             } else {
-                let mut parts: array<string> = []
-                set parts (cg_append parts "\"")
-                set parts (cg_append parts s.value)
-                set parts (cg_append parts "\"")
-                return (cg_build parts)
+                return (gen_string s.value)
             }
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
@@ -4477,7 +4516,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
             /* Identifier — guarded globals use NL_GUARDED_READ for thread-safe reads */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
-            let c_var: string = (+ "nl_" (mangle_name id.name))
+            let c_var: string = (+ "nl_" (mangle_name (mb_resolve id.name id.line env.names)))
             if (and (genenv_get_global env id.name) (is_guarded_primitive (genenv_get env id.name))) {
                 let c_type: string = (type_to_c (genenv_get env id.name))
                 let mut rd: array<string> = []
@@ -4694,7 +4733,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     
                     /* Get function name from identifier */
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                    let func_name: string = func_id.name
+                    let func_name: string = (mb_resolve func_id.name func_id.line env.names)
 
                     /* Special-case: unary not is represented as a call */
                     if (== func_name "not") {
@@ -5310,7 +5349,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 if (== aref.node_type ParseNodeType.PNODE_CALL) {
                                     let arg_call: ASTCall = (parser_get_call parser aref.node_id)
                                     let arg_call_id: ASTIdentifier = (parser_get_identifier parser arg_call.function)
-                                    let call_ret_t: string = (lookup_func_return_type_in_parser parser arg_call_id.name)
+                                    let call_ret_t: string = (lookup_func_return_type_in_parser parser (mb_resolve arg_call_id.name arg_call_id.line env.names))
                                     if (or (func_returns_float arg_call_id.name) (== call_ret_t "float")) {
                                         set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
                                     } else {
@@ -5423,8 +5462,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
                         
                         /* Use function_name which contains full qualified name */
-                        let qualified_name: string = mqc.function_name
-                        let c_func_name: string = (c_name_for_qualified_function qualified_name)
+                        let qualified_name: string = (mb_lookup (mb_owner mqc.line) mqc.function_name)
+                        let mut c_func_name: string = (c_name_for_qualified_function qualified_name)
+                        if (!= qualified_name mqc.function_name) {
+                            set c_func_name (c_func_name_for_call qualified_name)
+                            if (is_extern_function parser qualified_name) {
+                                set c_func_name qualified_name
+                                let mapped: string = (map_builtin_func_name qualified_name)
+                                if (!= mapped "") { set c_func_name mapped }
+                            }
+                        }
                         
                         let mut parts: array<string> = []
                         set parts (cg_append parts c_func_name)
@@ -7313,11 +7360,7 @@ fn global_init_literal(parser: Parser, let_node: ASTLet) -> string {
         } else {
             if (== let_node.value_type ParseNodeType.PNODE_STRING) {
                 let str_node: ASTString = (parser_get_string parser let_node.value)
-                let mut parts: array<string> = []
-                set parts (cg_append parts "\"")
-                set parts (cg_append parts str_node.value)
-                set parts (cg_append parts "\"")
-                return (cg_build parts)
+                return (gen_string str_node.value)
             } else {
                 if (== let_node.value_type ParseNodeType.PNODE_BOOL) {
                     let bool_node: ASTBool = (parser_get_bool parser let_node.value)
@@ -7335,10 +7378,10 @@ fn global_init_literal(parser: Parser, let_node: ASTLet) -> string {
 }
 
 shadow global_init_literal {
-    let src: string = "fn main() -> int { return 0 }"
+    let src: string = "let banner: string = \"a\nb\""
     let toks: List<LexerToken> = (tokenize_string src)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
-    assert (>= (str_length (global_init_literal p (parser_get_let p 0))) 0)
+    assert (== (global_init_literal p (parser_get_let p 0)) "\"a\\nb\"")
 }
 
 /* Generate global constant declarations for top-level let statements.
