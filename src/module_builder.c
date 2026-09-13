@@ -45,6 +45,7 @@ static bool module_response_pending(const char *fragment);
 static bool module_response_metadata_pending(const ModuleBuildMetadata *meta);
 static bool module_flags_need_capture(char **flags, size_t count);
 static bool module_coalesce_cflags(char **flags, size_t count);
+static bool module_flag_operand_state(const char *fragment, bool *operand);
 static char **module_response_group(const ModuleBuildMetadata *meta, size_t group, size_t *count);
 
 /* I require explicit host authority before running package-registry probes,
@@ -436,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v34-assembler-search");
+    hash_context_field(&hash, "nanolang-c-build-context-v35-paired-fragments");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -1964,10 +1965,18 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         }
     }
 
-    /* Same resolution for -I flags in cflags */
+    /* I resolve C include flags, not operands forwarded to another tool. */
+    bool pending_operand = false;
     for (size_t i = 0; i < meta->cflags_count; i++) {
+        bool operand = pending_operand;
+        if (!module_flag_operand_state(meta->cflags[i], &pending_operand)) {
+            pending_operand = false;
+            continue;
+        }
+        if (operand) continue;
         if (strncmp(meta->cflags[i], "-I", 2) != 0) continue;
         const char *inc_path = meta->cflags[i] + 2;
+        if (!inc_path[0]) continue;
         if (inc_path[0] == '/') continue;
         if (dir_exists(inc_path)) continue;
 
@@ -2423,7 +2432,37 @@ static bool module_response_pending(const char *fragment) {
     return status < 0;
 }
 
+static bool module_flag_takes_operand(const char *word) {
+    return !strcmp(word, "-D") || !strcmp(word, "-U") || !strcmp(word, "-I") ||
+        !strcmp(word, "-Xassembler") || !strcmp(word, "-Xlinker");
+}
+
+static bool module_flag_operand_state(const char *fragment, bool *operand) {
+    const char *cursor = fragment;
+    char word[4096];
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0)
+        *operand = !*operand && module_flag_takes_operand(word);
+    return status == 0;
+}
+
+/* A metadata boundary is not an argv boundary. In particular, assembler -I
+ * spans two -Xassembler pairs; a simple dangling-driver-operand check is not
+ * enough. I normalize groups containing paired forms before phase selection. */
+static bool module_flags_have_operands(char **flags, size_t count) {
+    if (count < 2) return false;
+    for (size_t i = 0; i < count; i++) {
+        if (!flags[i]) continue;
+        const char *cursor = flags[i];
+        char word[4096];
+        while (module_flag_word(&cursor, word, sizeof(word)) > 0)
+            if (module_flag_takes_operand(word)) return true;
+    }
+    return false;
+}
+
 static bool module_flags_need_capture(char **flags, size_t count) {
+    if (module_flags_have_operands(flags, count)) return true;
     size_t bytes = 0;
     for (size_t i = 0; i < count; i++) {
         if (!flags[i] || !flags[i][0]) continue;
@@ -2435,7 +2474,8 @@ static bool module_flags_need_capture(char **flags, size_t count) {
 }
 
 /* I keep array slots (including native-framework NULLs) stable, but put a
- * large literal argument sequence in its first nonempty slot for transport.
+ * literal argument sequence in its first nonempty slot for transport or
+ * cross-fragment operand pairing.
  * Allocation failure leaves every original string untouched. */
 static bool module_coalesce_cflags(char **flags, size_t count) {
     size_t bytes = 0, first = count;
@@ -2447,7 +2487,7 @@ static bool module_coalesce_cflags(char **flags, size_t count) {
         if (first == count) first = i;
         bytes += length + 1;
     }
-    if (bytes <= 1024 || first == count || count < 2) return true;
+    if (first == count || count < 2 || (bytes <= 1024 && !module_flags_have_operands(flags, count))) return true;
     char *joined = malloc(bytes + 1);
     char **replacement = calloc(count, sizeof(char *));
     if (!joined || !replacement) { free(joined); free(replacement); return false; }

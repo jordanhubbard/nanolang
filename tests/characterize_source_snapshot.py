@@ -25,7 +25,7 @@ from tests.characterize_linker_inputs import run
 from tests import test_bytecode_shadows as shadows
 
 
-def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False):
+def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False):
     probe = shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
@@ -96,7 +96,8 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                         search.mkdir()
                         (search / "selected.s").write_text(directive + "\n")
                         directive = '.include "selected.s"'
-                        fresh_flags.append("-Wa,-I," + str(search))
+                        fresh_flags.extend(["-Xassembler", "-I", "-Xassembler", str(search)] if split_search
+                                           else ["-Wa,-I," + str(search)])
                         metadata = json.loads((module / "module.json").read_text())
                         metadata["cflags"] = [shlex.quote(flag) for flag in fresh_flags]
                         (module / "module.json").write_text(json.dumps(metadata))

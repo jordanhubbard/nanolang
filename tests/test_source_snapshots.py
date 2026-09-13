@@ -182,10 +182,74 @@ class SourceSnapshots(unittest.TestCase):
                     if case["input"] == "assembler-external-search":
                         self.assertEqual(case["external_assembly_compilations"], case["total_object_compilations"])
 
+    def test_paired_fragment_normalization(self):
+        for parts in (["-D", "VALUE=42", "-U", "OLD", "-I", "'C headers'"],
+                      ["-Xassembler", "-I", "-Xassembler", "'a path,comma'"],
+                      ["-Xassembler -I", "-Xassembler 'a path'"],
+                      ["-Xlinker", "-rpath", "-Xlinker", "'/a path'"],
+                      ["-O2", "-g"], ["-Xassembler", "-I", "'$SEARCH'"],
+                      ["-Xassembler", "-I", "$SEARCH"]):
+            with self.subTest(parts=parts):
+                result = subprocess.run([str(self.support.probe), "coalesce-flags", *parts],
+                    capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                captured = json.loads(result.stdout)
+                self.assertEqual(shlex.split(" ".join(captured)), shlex.split(" ".join(parts)))
+                if parts == ["-O2", "-g"] or "$SEARCH" in parts:
+                    self.assertEqual(captured, parts)
+                else:
+                    self.assertEqual(captured[0], " ".join(parts))
+                    self.assertTrue(all(part == "" for part in captured[1:]))
+        result = subprocess.run([str(self.support.probe), "coalesce-allocation", "paired"],
+            capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_split_assembler_search_restored_inputs(self):
+        kinds = ("assembler-search", "assembler-external-search") if self.clang else ("assembler-search",)
+        for removed in (False, True):
+            observed = measure(shutil.which("cc"), kinds, split_search=True, remove_input=removed)
+            require_consistent(observed)
+            for case in observed["cases"]:
+                with self.subTest(removed=removed, case=case):
+                    for key in ("bytes_restored", "mtime_preserved", "size_preserved", "reuse_record", "generation_reused", "retained_assembly"):
+                        self.assertTrue(case[key], key)
+
+    def test_forwarded_include_operands_are_not_rebased(self):
+        with tempfile.TemporaryDirectory(prefix="nano-operand-owner-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            include = directory / "assembler_fallback"
+            include.mkdir()
+            working = directory / "work"
+            working.mkdir()
+            for flags, expected in ((["-Iassembler_fallback"], ["-I" + str(include.resolve())]),
+                                    (["-O${NANO_TEST_LEVEL:-2}", "-Iassembler_fallback"],
+                                     ["-O${NANO_TEST_LEVEL:-2}", "-I" + str(include.resolve())]),
+                                    (["-Xassembler", "-Iassembler_fallback"], ["-Xassembler", "-Iassembler_fallback"]),
+                                    (["-Xlinker", "-Iassembler_fallback"], ["-Xlinker", "-Iassembler_fallback"]),
+                                    (["-D", "-Iassembler_fallback"], ["-D", "-Iassembler_fallback"]),
+                                    (["-I", shlex.quote(str(include))], ["-I", str(include)])):
+                with self.subTest(flags=flags):
+                    manifest = json.dumps({"name": "answer_native", "cflags": flags})
+                    (module / "module.json").write_text(manifest)
+                    result = subprocess.run([str(self.support.probe), "build-info", str(module)],
+                        cwd=working, env=env, capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    captured = [line[len("compile:"):] for line in result.stdout.decode().splitlines()
+                                if line.startswith("compile:")]
+                    self.assertEqual(shlex.split(" ".join(captured)), expected)
+                    self.assertEqual((module / "module.json").read_text(), manifest)
+
     def test_assembler_search_order_phases_and_recovery(self):
+        self.assembler_search_order_phases_and_recovery(("wa-paired", "wa-joined", "xassembler"))
+
+    def test_split_assembler_search_order_phases_and_recovery(self):
+        self.assembler_search_order_phases_and_recovery(("xassembler-split",))
+
+    def assembler_search_order_phases_and_recovery(self, styles):
         modes = (False, True) if self.clang else (False,)
         for style, placement, external, shared in ((style, placement, external, shared)
-                for style in ("wa-paired", "wa-joined", "xassembler")
+                for style in styles
                 for placement in ("common", "platform", "package") for external in modes for shared in (False, True)):
             with self.subTest(style=style, placement=placement, external=external, shared=shared), tempfile.TemporaryDirectory(prefix="nano-as-search-") as tmp:
                 directory = Path(tmp)
@@ -201,20 +265,25 @@ class SourceSnapshots(unittest.TestCase):
                     [f"-Wa,-I{early},-I{late}"] if style == "wa-joined" else
                     ["-Xassembler", "-I", "-Xassembler", str(early), "-Xassembler", "-I" + str(late)])
                 cflags = ["-std=c11", "-Werror", "-I", str(c_headers)] + (["-fno-integrated-as"] if external else [])
-                metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": [shlex.join(cflags)]}
-                if placement == "common": metadata["cflags"].append(shlex.join(asm_flags))
-                elif placement == "platform": metadata["cflags_macos" if sys.platform == "darwin" else "cflags_linux"] = [shlex.join(asm_flags)]
+                split = style == "xassembler-split"
+                fragments = lambda words: [shlex.quote(word) for word in words] if split else [shlex.join(words)]
+                metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": fragments(cflags)}
+                if placement == "common": metadata["cflags"].extend(fragments(asm_flags))
+                elif placement == "platform": metadata["cflags_macos" if sys.platform == "darwin" else "cflags_linux"] = fragments(asm_flags)
                 else:
-                    metadata["pkg_config"] = ["assembler-search-fixture"]
+                    package_flags = fragments(asm_flags)
+                    metadata["pkg_config"] = [f"assembler-search-fixture-{i}" for i in range(len(package_flags))]
                     pkg = directory / "pkg-config"
-                    pkg.write_text(f'#!{sys.executable}\nimport sys\nif "--cflags" in sys.argv: print({shlex.join(asm_flags)!r})\n')
+                    mapping = dict(zip(metadata["pkg_config"], package_flags))
+                    pkg.write_text(f'#!{sys.executable}\nimport sys\nif "--cflags" in sys.argv: print({mapping!r}[sys.argv[-1]])\n')
                     pkg.chmod(0o700)
                     env["PKG_CONFIG"] = str(pkg)
                 # I also exercise the guarded linker query with assembler operands.
-                if style == "xassembler" and placement == "common":
+                if style.startswith("xassembler") and placement == "common":
                     response = module / "link.rsp"
                     response.write_text("-lm\n")
                     metadata["ldflags"] = ["-Wl,@" + str(response)]
+                    if split: metadata["cflags"].extend(["-Xlinker", "-lm"])
                 (module / "module.json").write_text(json.dumps(metadata))
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                 assembly = f'.data\n.globl {symbol}\n{symbol}:\n.include "selected.s"\n.text\n'
@@ -1319,12 +1388,42 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     self.assertTrue((generation / "source_hashes.json").is_file())
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
 
+    def test_split_c_preprocessor_flags_capture_and_reuse(self):
+        with tempfile.TemporaryDirectory(prefix="nano-paired-c-flags-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            headers = directory / "C headers"
+            headers.mkdir()
+            header = headers / "config.h"
+            header.write_text("#define OFFSET 0\n")
+            (module / "answer.c").write_text('#include <config.h>\n#ifdef OLD\n#error OLD must be undefined\n#endif\n'
+                'long long nano_build_answer(void) { return NAME + OFFSET; }\n')
+            for joined in (False, True):
+                with self.subTest(joined=joined):
+                    header.write_text("#define OFFSET 0\n")
+                    words = ["-D", "NAME=42", "-D", "OLD=1", "-U", "OLD", "-I", str(headers)]
+                    flags = [shlex.join(words)] if joined else [shlex.quote(word) for word in words]
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                        "c_sources": ["answer.c"], "cflags": flags}))
+                    def build(expected):
+                        self.support.probe_path("build", module, env)
+                        generation = self.support.probe_path("directory", module, env)
+                        self.assertTrue((generation / "source_hashes.json").is_file())
+                        self.assertTrue(list(generation.glob("__snapshot_*")))
+                        self.assertEqual(self.answer(self.support.probe_path("library", module, env)), expected)
+                        return generation
+                    first = build(42)
+                    self.assertEqual(build(42), first)
+                    header.write_text("#define OFFSET 1\n")
+                    changed = build(43)
+                    self.assertNotEqual(changed, first)
+                    self.assertEqual(build(43), changed)
+
     def test_unknown_fragments_keep_original_compilation(self):
         with tempfile.TemporaryDirectory(prefix="nano-retained-unknown-flags-") as tmp:
             directory = Path(tmp)
             module, _, env = self.support.support.foreign_build_fixture(directory)
-            for flags in (["-fno-builtin"], ["-O${NANO_TEST_LEVEL:-2}"],
-                          ["-D", "NAME=42"]):
+            for flags in (["-fno-builtin"], ["-O${NANO_TEST_LEVEL:-2}"]):
                 with self.subTest(flags=flags):
                     (module / "module.json").write_text(json.dumps({"name": "answer_native",
                         "c_sources": ["answer.c"], "cflags": flags}))

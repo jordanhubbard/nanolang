@@ -2043,3 +2043,75 @@ snapshot methods pass in 596.717 seconds, including the 36-case search matrix.
 The later transport, response-graph and guarded-query suites also pass. These
 results verify the admitted flag fragments; they do not establish arbitrary
 assembler option support or compiler/VM semantic equivalence.
+
+## Paired arguments across metadata fragments
+
+My v35 context treats adjacent literal flag fragments as one argument
+sequence for phase selection when they contain paired forms. The former
+1024-byte coalescing threshold served response transport, not argument
+semantics. A short `-Xassembler`, `-I`, `-Xassembler`, `dir` array must receive
+the same capture treatment as its joined spelling.
+
+The first Apple Clang 21 characterization failed before producing a library:
+metadata loading interpreted bare `-I` as an empty C include path, rebased it
+to an ancestor directory, and changed the forwarded assembler arguments.
+Clang then rejected the directory operand as an unsupported assembler option.
+I now track paired operands while applying legacy C include fallback and
+leave bare `-I` and forwarded operands unchanged. Ordinary attached C include
+fallback remains tested from a different working directory.
+An unclassified shell fragment does not disable that fallback for later
+literal flags. The ownership test includes this compatibility boundary.
+
+Invocation capture copies metadata before coalescing, keeps array slots and
+native-framework NULL entries stable, and leaves original strings untouched
+on allocation failure. I reuse the existing literal parser and owned-copy
+path. Shell expansions and malformed shell fragments remain outside admitted
+normalization; I do not evaluate them to discover arguments. Coalescing does
+not newly admit arbitrary compiler or assembler options.
+
+The split restored-input characterization now yields 42/42/42 with retained
+assembly and actual reuse on Apple Clang's ordinary/external modes under both
+cache roots. Five new methods exercise paired C/assembler/linker words,
+allocation failure and retry, include-operand ownership, restored edits and
+deletion, plus six GCC or twelve Clang package/common/platform search-order
+and failure/recovery cases. The common split case also carries a split
+`-Xlinker -lm` pair and a captured linker response. The initial four-method
+GCC/Linux run passes in 10.511 seconds.
+
+The previous unknown-fragment test required split `-D`, `NAME=42` to avoid
+capture. I replace that outdated expectation with a positive split/joined C
+test: definitions and undefinition affect the compiled function, a selected
+header change changes its answer, and unchanged input reuses its generation.
+Genuinely unsupported scalar and shell-expanded flags retain their separate
+compatibility tests.
+
+Three focused Linux ASan/UBSan methods pass in 70.132 seconds, followed by the
+positive C capture test in 13.231 seconds. Leak detection is enabled; neither
+sanitizer produces a diagnostic log. The production builder is instrumented
+through a separate probe, not its supporting objects or external tools.
+After the compatibility guard, all four methods pass together in 84.635
+seconds, again with leak detection and no sanitizer diagnostic logs.
+
+The final rebuilt GCC/Linux `make test-bytecode-shadows` gate passes all 211
+methods with 24 platform/configuration skips in 155.140 seconds of reported
+test time.
+This includes all 70 snapshot methods and the publication, transport, response
+graph and guarded-query suites. The guide builds and validates thirteen pages
+in six editions; localized draft validation is not translation acceptance.
+
+Debian Clang 14 on Linux ARM64 passes the final 70-method snapshot suite with
+nineteen skips in 129.825 seconds. I use the GCC-built production probe and
+select Clang through a private `cc` symlink; this is cross-driver capture
+evidence, not a Clang-built bootstrap.
+
+The final rebuilt Darwin `make test-bytecode-shadows` gate passes all 211
+methods with seventeen platform skips in 1081.933 seconds of reported test
+time. All 70 snapshot methods pass in 782.050 seconds; transport, response
+graph and guarded-query suites pass afterward.
+
+An initial targeted Darwin run, concurrent with another gate, exceeded the
+ten-second deadline in the fresh Python library reader for one external
+package-flags case. It reported no wrong answer. The final full gate and an
+isolated rerun of all twelve split-search cases pass with unchanged deadlines;
+the isolated method takes 132.640 seconds. I have not established the cause
+of that initial timeout.

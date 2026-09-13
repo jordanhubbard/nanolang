@@ -1163,6 +1163,27 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_92e6817607cf4071ab614289911a9a41`.
       MAC rejects completion while unclaimed; a verified agent identity is
       still needed for ledger closure.
+- [x] **5.0 paired compiler flag fragments.** I make adjacent metadata flag
+      fragments preserve the same operand pairing and capture semantics as
+      their joined spelling, independently of transport-size thresholds.
+      I measure restored assembler inputs first, then test invocation-owned
+      normalization, C/assembler/linker operands, split/joined argv, malformed
+      forms, failure/recovery and local/shared reuse before documenting support.
+      I reproduced Apple Clang 21 rejecting split assembler include arguments:
+      metadata loading rewrote bare `-I` as an empty relative C include path.
+      My v35 operand tracking and owned-fragment normalization repair this;
+      restored inputs now yield 42/42/42 with actual reuse.
+      An unclassified fragment must not disable existing include fallback for
+      later literal flags; I test that compatibility boundary explicitly.
+      Darwin and GCC/Linux full gates each pass 211 methods (seventeen and
+      twenty-four skips); Linux Clang passes all 70 snapshot methods with
+      nineteen skips. Four leak-enabled sanitizer methods and an isolated
+      twelve-case Darwin rerun pass. I record an initial reader timeout without
+      claiming its cause in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`. The updated
+      guide builds and validates. Broader assembler-input capture remains open.
+      MAC `task_8500a5ea65584cc3a5cfb02a7812b16b`.
+      MAC rejects completion while unclaimed; a verified agent identity is
+      still needed for ledger closure.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

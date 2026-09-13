@@ -210,6 +210,23 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if (argc >= 3 && !strcmp(argv[1], "coalesce-flags")) {
+        size_t count = (size_t)argc - 2;
+        char **flags = calloc(count, sizeof(char *));
+        bool ok = flags != NULL;
+        for (size_t i = 0; i < count && ok; i++) ok = (flags[i] = strdup(argv[i + 2])) != NULL;
+        if (ok) ok = module_coalesce_cflags(flags, count);
+        cJSON *array = ok ? cJSON_CreateArray() : NULL;
+        for (size_t i = 0; array && i < count; i++) cJSON_AddItemToArray(array, cJSON_CreateString(flags[i]));
+        char *output = array ? cJSON_PrintUnformatted(array) : NULL;
+        if (output) puts(output);
+        ok = output != NULL;
+        free(output);
+        cJSON_Delete(array);
+        for (size_t i = 0; flags && i < count; i++) free(flags[i]);
+        free(flags);
+        return ok ? 0 : 1;
+    }
     if ((argc >= 4 && !strcmp(argv[1], "capture-link-arguments")) ||
         (argc >= 5 && !strcmp(argv[1], "capture-link-arguments-allocation"))) {
         bool allocation = !strcmp(argv[1], "capture-link-arguments-allocation");
@@ -367,6 +384,10 @@ int main(int argc, char **argv) {
         memset(left, 'x', sizeof(left) - 1); left[sizeof(left) - 1] = 0;
         memset(right, 'y', sizeof(right) - 1); right[sizeof(right) - 1] = 0;
         memcpy(left, "-DLEFT=", 7); memcpy(right, "-DRIGHT=", 8);
+        if (!strcmp(argv[2], "paired")) {
+            strcpy(left, "-Xassembler -I");
+            strcpy(right, "-Xassembler 'a path'");
+        }
         for (long failure = 0; failure < 4; failure++) {
             char *flags[] = {NULL, strdup(""), strdup(left), strdup(right)};
             if (!flags[1] || !flags[2] || !flags[3]) {
@@ -381,7 +402,8 @@ int main(int argc, char **argv) {
             for (size_t i = 0; i < 4; i++) ok = ok && flags[i] == original[i];
             ok = ok && !strcmp(flags[1], "") && !strcmp(flags[2], left) && !strcmp(flags[3], right);
             ok = ok && module_coalesce_cflags(flags, 4) && flags[0] == NULL && !flags[1][0] &&
-                !strncmp(flags[2], left, strlen(left)) && strstr(flags[2], " -DRIGHT=") && !flags[3][0];
+                !strncmp(flags[2], left, strlen(left)) && flags[2][strlen(left)] == ' ' &&
+                !strcmp(flags[2] + strlen(left) + 1, right) && !flags[3][0];
             for (size_t i = 0; i < 4; i++) free(flags[i]);
             if (!ok) return 1;
         }
