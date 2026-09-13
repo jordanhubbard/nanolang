@@ -159,14 +159,32 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       active. This is not a failed compiler or test result.
       My bootstrap reporting now names the checks performed; canonical
       artifact equality and semantic correctness remain separate.
-- [ ] **5.0 contributor contract — current compiler and verification rules.**
+- [x] **5.0 contributor contract — current compiler and verification rules.**
       I reconcile CONTRIBUTING with current shadow execution, backend scope,
       verifier limits and fuzzing practice. `make test-release-gates` currently
       rejects its staleness relative to verifier/fuzzing changes. Its claims
       that shadows prove correctness, only externs are exempt, and tests run
       in the final binary also contradict the tested contract. I repair those
       claims and rerun the gate without a release acknowledgement override.
+      I now distinguish the compiler paths, separate shadow test processes,
+      default dependency selection, warning exemptions, formal correspondence,
+      abstract reference balance and parser fuzzing limits. Sixteen language
+      claim methods, all ninety-three verifier tests and all twenty-two release
+      gate methods pass on Darwin (2026-09-13), without an acknowledgement.
+      The four parser seeds also replay successfully with the installed LLVM
+      libFuzzer target; this is not a mutation campaign or leak-freedom claim.
       MAC `task_bb0635cd76e04f898ea7886298377a01`.
+- [x] **5.0 release freshness — preserve Git paths.** I repair the shared
+      release helper's stripping of the leading porcelain status space, which
+      truncates the first unstaged path and still calls edited CONTRIBUTING
+      untouched. I use NUL-delimited Git output for committed and working paths,
+      preserve both rename endpoints, and test real temporary repositories
+      with unstaged edits, renames, spaces and newline-containing filenames.
+      Real Git tests now retain the first unstaged path and both rename
+      endpoints before and after commit, including literal arrows, leading/
+      trailing spaces and CR/LF names. Raw Git output avoids text-mode newline
+      conversion. All twenty-two release-gate methods pass.
+      MAC `task_04bd7f1a9f5f4396b7ba9fb14dd5d370`.
 - [x] **5.0 contract claims — typing and shadow execution evidence.** I
       characterize inferred locals, explicit function boundaries, immutable
       assignment, boolean conditions and shadow handling on the C seed,
