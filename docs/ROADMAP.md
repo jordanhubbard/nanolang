@@ -1213,6 +1213,29 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       equivalence, edits and overflow checks pass on GCC and external Clang.
       MAC rejects completion while unclaimed; a verified agent identity is
       still needed for ledger closure.
+- [x] **5.0 Apple `.s` source-kind semantics.** Apple Clang 21's native driver
+      query selects assembler-with-cpp preprocessing for lowercase `.s` too.
+      My new capture classifies it as raw solely by suffix. I reproduce this
+      with preprocessing-required `.s`, then preserve selected-driver default
+      semantics and explicitly disable preprocessing for retained text replay.
+      I verify integrated and external paths before claiming source parity.
+      MAC `task_75da2d51a32c4e10a4d9ef6832abc96f`.
+      The external path now preserves native preprocessing with cache context
+      v38; eight ordinary/shared, local/shared-cache replacement/deletion cases
+      return 42/42/42 with reuse. Native integrated reports and the standalone
+      text trial confirm the same default; production integrated admission
+      remains unfinished below.
+      MAC ledger closure is unresolved: an external worker marked the task
+      failed after receiving an unrelated checkout. My local implementation
+      and validation evidence are recorded; I did not override that history.
+- [ ] **5.0 standalone assembler debug parity.** I preserve native debug
+      sections and source provenance through standalone-source capture/replay.
+      Selected integrated text expansion reproduces ordinary objects, but
+      data-only `-g` replay fails with undefined section-end labels on Apple
+      Clang 21 and Debian Clang 14. I also audit debug-option ownership when
+      copying retained assembler bypasses C lowering. I do not equate payload
+      equality or omission of debug flags with native debug parity.
+      MAC `task_da2ca60a6acf481ab6d9e3f2fd276a31`.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
@@ -1232,6 +1255,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pass on Linux GCC 12/Clang 14 and Darwin Apple Clang 21. Integrated
       Clang still needs source-kind-specific capture; broader flag/include
       matrices also remain open. This item is not complete.
+      Before integrated-Clang admission I compare native objects with selected
+      `-cc1as` text expansion and replay after deleting source/include/payload
+      inputs. I check both `.s` and `.S`, ordinary/debug modes, runtime bytes
+      and object differences; an expansion exit status alone is insufficient.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

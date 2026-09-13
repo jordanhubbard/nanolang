@@ -119,6 +119,19 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertNotEqual(failed.returncode, 0)
                 self.assertEqual(failed.stdout, b"0\n")
 
+    def test_apple_lowercase_assembly_is_preprocessed(self):
+        if sys.platform != "darwin" or not self.clang:
+            self.skipTest("I exercise Apple Clang's lowercase assembler default")
+        for shared_unit in (False, True):
+            for removed in (False, True):
+                result = measure(shutil.which("cc"), ("assembler-external-unit",),
+                                 preprocess_raw=True, shared_unit=shared_unit, remove_input=removed)
+                require_consistent(result)
+                for case in result["cases"]:
+                    with self.subTest(shared_unit=shared_unit, removed=removed, case=case):
+                        self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                        self.assertTrue(case["generation_reused"])
+
     def test_assembler_filename_spelling_restored_inputs(self):
         kinds = ("assembler", "assembler-external") if self.clang else ("assembler",)
         names = ("space name.bin", "single'quote.bin", 'double"quote.bin', r"back\slash.bin", "naïve-λ.bin")

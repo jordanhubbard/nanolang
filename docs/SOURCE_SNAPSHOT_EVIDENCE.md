@@ -2288,3 +2288,56 @@ take 93.833 seconds. Three existing Darwin external-assembler regressions
 in 31.038 seconds after the preparation-step refactor.
 The final Clang 14 Linux snapshot suite passes all 76 methods with nineteen
 platform skips in 164.938 seconds.
+
+### Integrated assembler text trial and Apple source-kind correction
+
+I add `tests/characterize_integrated_assembler.py` to compare native objects
+against text emitted by the integrated assembler selected in the driver's
+dry-run report. The trial invokes one selected `-cc1as` job as an argument
+vector, changes its output to text, preserves temporary labels, then deletes
+the original source, retained preprocessing, nested includes and binary
+payload before replay. It checks repeated macro payload bytes (`4242`) in
+fresh library-reader processes and compares complete object bytes. This is
+an experiment, not production admission or a replacement report parser.
+
+On Apple Clang 21 and Debian Clang 14, Linux/Darwin arm64, both `.s` and `.S`
+without debug information replay to byte-identical objects with the expected
+payload and no remaining `.include`/`.incbin` directives. With `-g`, all four
+host/source-kind cases fail replay. Apple reports undefined `Lsec_end0`;
+Linux reports undefined `.Lsec_end0` and a cross-section difference. The
+fixture has payload data and an empty text section. I do not generalize the
+failure to every debug assembly input. Omitting `-g` from replay (as production
+phase routing does) removes a duplicate debug-label error on Linux but does
+not resolve these failures. Both strict trial commands exit one:
+
+```sh
+python3 -m tests.characterize_integrated_assembler clang --require-identical
+```
+
+The native Apple driver report also revealed that lowercase `.s` selects a
+preprocessing job. Clang 14 on Linux preprocesses `.S` but not `.s`. A new
+lowercase fixture requiring a filename macro reproduces a production
+regression at `66a4abf3`: Apple external native compilation returns 42, but
+capture fails at `.incbin PAYLOAD`, before mutation or publication, under
+both cache roots. The capture path had classified `.s` as raw on every host.
+
+I now preprocess lowercase `.s` in the Apple external-Clang capture path,
+retain explicit `-x assembler` replay, and advance cache context to v38.
+The regression checks restored replacement/deletion, ordinary/shared units,
+both cache roots, 42/42/42 results and actual reuse. This corrects the source
+kind independently of the unfinished integrated-backend work.
+
+Integrated capture still needs a debug-preserving strategy before general
+admission. I must also audit standalone-source debug flag ownership: C
+lowering consumes debug options, but copied assembler inputs skip that phase.
+Neither passing payload assertions nor removing debug options establishes
+native debug parity. The translation-unit roadmap item remains open.
+
+Validation for the source-kind correction: three Darwin translation-unit
+methods pass in 109.889 seconds; three existing external-assembler regression
+methods pass in 30.407 seconds. Three Linux GCC translation-unit/path methods
+pass in 7.399 seconds, confirming the host-specific correction leaves that
+path intact. The probe builds with strict warning flags on both hosts, Python
+syntax checks pass, and the guide builds/validates thirteen pages in six
+editions. I did not rerun a full release gate for this host-specific change.
+The debug follow-up is MAC `task_da2ca60a6acf481ab6d9e3f2fd276a31`.

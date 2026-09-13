@@ -28,7 +28,7 @@ from tests.characterize_linker_inputs import run
 from tests import test_bytecode_shadows as shadows
 
 
-def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False, shared_unit=False):
+def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False, shared_unit=False, preprocess_raw=False):
     probe = shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
@@ -141,7 +141,7 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                     standalone = kind.endswith("-unit")
                     if standalone:
                         unit = module / ("payload.S" if "preprocessed" in kind else "payload.s")
-                        if "preprocessed" in kind:
+                        if "preprocessed" in kind or preprocess_raw:
                             assembly = '#define PAYLOAD ' + json.dumps(str(target)) + '\n' + assembly.replace(directive, '.incbin PAYLOAD')
                         unit.write_text(assembly)
                         extra_sources.append(unit)

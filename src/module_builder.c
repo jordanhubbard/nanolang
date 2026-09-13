@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v37-assembler-units");
+    hash_context_field(&hash, "nanolang-c-build-context-v38-apple-assembler-preprocessing");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3494,7 +3494,8 @@ static bool module_response_driver(const ModuleBuildMetadata *meta) {
     return module_driver_snapshot_mode(meta) != MODULE_SNAPSHOT_NONE;
 }
 
-/* Zero is unsupported, one is C, two is raw assembler, three is preprocessed assembler. */
+/* Zero is unsupported, one is C, two is .s, three is .S. The selected
+ * driver's platform semantics determine whether .s needs preprocessing. */
 static unsigned module_source_kind(const char *source) {
     size_t length = strlen(source);
     if (length < 2 || source[length - 2] != '.') return 0;
@@ -4235,6 +4236,11 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             char command[8192] = {0}, snapshot[2048] = {0}, dependency[2048] = {0};
             unsigned kind = module_source_kind(sources[i]);
             char unit_prefix[4096];
+#ifdef __APPLE__
+            /* Apple Clang preprocesses lowercase .s by default too. Retained
+             * replay explicitly uses -x assembler to avoid doing that twice. */
+            if (kind == 2 && mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) kind = 3;
+#endif
             const char *selected_prefix = prefix;
             if (kind == 3) {
                 if (!module_compile_prefix(meta, unit_prefix, sizeof(unit_prefix), MODULE_C_PREPROCESS, flags) ||
