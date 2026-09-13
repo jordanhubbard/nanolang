@@ -399,6 +399,9 @@ test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c bin/nvm2c
 	@rm -f tests/nanoisa/test_nvm2c
 
+.PHONY: test-nvm2c371pass0fail
+test-nvm2c371pass0fail: test-nvm2c
+
 .PHONY: test-frontend-contract
 test-frontend-contract: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA frontend contract tests..."
