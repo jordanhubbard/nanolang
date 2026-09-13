@@ -3392,7 +3392,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
     
     /* Array operations */
-    if (strcmp(name, "at") == 0) return builtin_at(args);
+    if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args);
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
     if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
