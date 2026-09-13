@@ -237,6 +237,15 @@ make test-quick     # Run my quick language tests
 make examples       # Build my examples
 ```
 
+My self-hosted bootstrap tracks Nano and C sources, headers, JSON manifests,
+and directory membership under `src_nano`, `src`, `modules`, `std`, and
+`stdlib`. This is a conservative, modification-time dependency set: a library
+edit can rebuild the compiler even when that library is not imported. Hidden
+cache contents, object files and documentation edits are not source inputs;
+directory entry changes still invalidate conservatively. An unchanged build
+reuses its completed stages. Toolchain or environment changes require separate
+rebuild control; these prerequisites are not a content-addressed build key.
+
 ## Examples & Interactive Tools
 
 **Web Playground** (I recommend this for learning my syntax):

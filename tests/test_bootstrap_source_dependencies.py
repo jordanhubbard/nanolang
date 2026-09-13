@@ -18,8 +18,17 @@ class BootstrapDependencies(unittest.TestCase):
         shutil.copyfile(ROOT / "Makefile.gnu", self.root / "Makefile.gnu")
         self.sources = ["src_nano/parser.nano", "src_nano/compiler/module_loader.nano",
                         "src_nano/compiler/nested/new_import.nano"]
-        for name in self.sources:
+        self.runtime_inputs = ["modules/std/fs.c", "modules/std/fs.h", "modules/std/module.json",
+                               "modules/std/fs.nano", "modules/std/json/json.c",
+                               "src/runtime/shadow_runner.h", "src/runtime/gc.c",
+                               "src/generated/compiler_schema.h", "src/cJSON.c",
+                               "stdlib/example.nano", "std/example/example.nano"]
+        for name in self.sources + self.runtime_inputs:
             self.file(name, 100)
+        for name in ["schema/compiler_schema.json", "scripts/gen_compiler_schema.py",
+                     "scripts/gen_compiler_schema.nano"]:
+            self.file(name, 80)
+        self.file("obj/build_bootstrap/schema.stamp", 90)
         os.utime(self.root / "Makefile.gnu", (100, 100))
         for name, stamp in [("bin/nanoc_c", 110), (".bootstrap0.built", 120),
                             (".bootstrap1.built", 130), ("bin/nanoc_stage1", 130),
@@ -28,6 +37,9 @@ class BootstrapDependencies(unittest.TestCase):
                             (".stage2.built", 170), (".stage3.built", 180)]:
             self.file(name, stamp)
         (self.root / "bin/nanoc").symlink_to("nanoc_stage2")
+        for directory in self.root.rglob("*"):
+            if directory.is_dir():
+                os.utime(directory, (100, 100))
 
     def file(self, name, stamp):
         path = self.root / name
@@ -59,6 +71,39 @@ class BootstrapDependencies(unittest.TestCase):
     def test_unrelated_program_does_not_invalidate_bootstrap(self):
         self.file("examples/unrelated.nano", 100)
         self.assertEqual(self.query(".bootstrap3.built", "examples/unrelated.nano"), 0)
+
+    def test_runtime_inputs_invalidate_all_selfhost_stages(self):
+        for target in [".bootstrap1.built", ".bootstrap2.built", ".bootstrap3.built",
+                       ".stage2.built", ".stage3.built", "bin/nanoc"]:
+            self.assertEqual(self.query(target), 0)
+            for source in self.runtime_inputs:
+                with self.subTest(target=target, changed=source):
+                    self.assertEqual(self.query(target, source), 1)
+
+    def test_actual_helper_edit_and_source_membership_changes(self):
+        self.file("modules/std/fs.c", 200)
+        self.assertEqual(self.query(".bootstrap3.built"), 1)
+        self.file("modules/std/fs.c", 100)
+        self.assertEqual(self.query(".bootstrap3.built"), 0)
+        self.file("modules/std/new_helper.h", 100)
+        self.assertEqual(self.query(".bootstrap3.built"), 1)
+        (self.root / "modules/std/new_helper.h").unlink()
+        os.utime(self.root / "modules/std", (100, 100))
+        self.assertEqual(self.query(".bootstrap3.built"), 0)
+        (self.root / "modules/std/fs.c").unlink()
+        self.assertEqual(self.query(".bootstrap3.built"), 1)
+
+    def test_cache_payload_changes_do_not_invalidate_bootstrap(self):
+        self.file("modules/std/.build/generated.c", 100)
+        os.utime(self.root / "modules/std", (100, 100))
+        self.assertEqual(self.query(".bootstrap3.built", "modules/std/.build/generated.c"), 0)
+
+    def test_artifacts_and_documentation_are_not_source_inputs(self):
+        for name in ["modules/std/fs.o", "modules/std/libstd.a", "modules/std/README.md"]:
+            self.file(name, 100)
+            os.utime(self.root / "modules/std", (100, 100))
+            with self.subTest(path=name):
+                self.assertEqual(self.query(".bootstrap3.built", name), 0)
 
     def test_missing_stage_one_invalidates_later_stages(self):
         (self.root / "bin/nanoc_stage1").unlink()

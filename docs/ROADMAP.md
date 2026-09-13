@@ -502,11 +502,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
         My 18-test CLI gate now includes the probe lifecycle test. This checks
         stable filesystem entries, not concurrent hostile replacement.
         MAC `task_a6419f0b3c764b6d9e3036cf13ae0be8`.
-- [ ] **5.0 bootstrap runtime dependency invalidation.** Changing only
-      `modules/std/fs.c` left `make bootstrap3` satisfied without rebuilding
-      Stage2. I establish the linked runtime/module dependency closure and test
-      that helper/header edits invalidate the affected bootstrap stages. A
-      forced rebuild verifies one change, not this dependency graph.
+- [x] **5.0 bootstrap runtime dependency invalidation.** I conservatively
+      track Nano/C/header/manifest files and directory membership under compiler,
+      runtime and library roots, excluding hidden cache contents and non-source
+      artifacts. The baseline missed 67 edit/invalidation checks. Eight
+      dependency tests now cover all self-hosted stages, additions, deletions,
+      cache exclusions and no-op builds on Darwin and Linux. Ordinary bootstraps
+      and 30 selected build/CLI tests pass on each platform. A header-only change
+      in the Linux repository copy advances all self-hosted stage stamps; the
+      following unchanged build preserves them. Darwin's unchanged build also
+      preserves its stamps. Directory tests use `/.` to avoid old Make wildcard
+      behavior and collisions with phony target names. This is conservative
+      modification-time invalidation, not a toolchain/content-addressed key.
       MAC `task_85191b435c95480d9db52e3671d1e740`.
 - [ ] **5.0 self-hosted string-search builtin lowering.** A use of
       `str_index_of` typechecks but emits an undefined `nl_str_index_of`

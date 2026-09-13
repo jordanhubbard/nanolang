@@ -153,9 +153,11 @@ SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 
 # Bootstrap binaries
 NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
-# I conservatively track every compiler source, including nested imports.
-nano_source_tree = $(wildcard $(1)/*.nano) $(foreach dir,$(wildcard $(1)/*/),$(call nano_source_tree,$(patsubst %/,%,$(dir))))
-SELFHOST_SOURCES := $(sort $(call nano_source_tree,$(SRC_NANO_DIR)))
+# I conservatively track compiler/runtime/library inputs, not just Nano imports.
+# Directory mtimes notice source additions/removals, including old-dated files.
+# Wildcards exclude hidden build caches; their payloads are not source inputs.
+bootstrap_input_tree = $(if $(wildcard $(1)/.),$(1)/. $(wildcard $(addprefix $(1)/,*.nano *.c *.h *.json)) $(foreach child,$(wildcard $(1)/*),$(call bootstrap_input_tree,$(child))))
+SELFHOST_SOURCES := $(sort $(foreach root,$(SRC_NANO_DIR) $(SRC_DIR) modules std stdlib,$(call bootstrap_input_tree,$(root))))
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
