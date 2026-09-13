@@ -170,6 +170,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with the existing tools (2026-09-12). README, persona, canonical style
       and the specification now agree about this observed shadow gap; the
       specification remains a draft with broader coverage explicitly open.
+- [ ] **5.0 developer deck — shadow enforcement claims.** I replace the
+      slide-two `PROOF` label and the claim that an unshadowed function cannot
+      compile in `docs/presentation/build_deck.py` with my tested policy,
+      warning and exemption boundary. I regenerate and visually verify the
+      local artifacts and add a claim regression check before publication.
+      MAC `task_467da218e63ea9836c2fa6412c9026b0`.
 - [x] **5.0 imported shadows — selection characterization.** I test direct
       and transitive imports with failing dependency shadows on the C seed,
       Stage 2 native driver and bytecode CLI, then compile that dependency as
@@ -1155,6 +1161,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pass under sanitizers. I still need invocation-wide admission and returned
       transport, including retained cache paths containing commas that cannot
       be inserted unchanged into a `-Wl,` argument.
+      I query the selected linker through the complete literal link command,
+      with bounded output and a supervised deadline. Clang's
+      `-print-prog-name=ld` still names Apple ld under `-fuse-ld=lld`, while
+      its actual recipe selects ld64.lld; that lookup cannot authorize a grammar.
+      Apple's version-details query can complete a link. Query integration
+      therefore needs disposable outputs and must never target a published
+      generation; a version flag is not a read-only guarantee.
+      My bounded query mechanism now recognizes tested native tools through
+      the complete command, including `-B` and response-file-hidden selectors,
+      and rejects unsupported selected linkers. Query/graph sanitizer checks
+      and the 168-method Darwin gate pass. Private probe construction and
+      atomic invocation integration remain open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

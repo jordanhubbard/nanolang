@@ -27,6 +27,10 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <sys/wait.h>
+#include <spawn.h>
+#include <poll.h>
+#include <signal.h>
 
 // JSON parsing (simple, minimal implementation for module.json)
 #include "cJSON.h"
@@ -2833,6 +2837,128 @@ char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *
         free(graph.nodes[i].retained);
     }
     return result;
+}
+
+static int64_t module_link_query_clock(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now)) return -1;
+    return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
+}
+
+/* I execute literal argv, not a shell, and supervise one private process group.
+ * Both version requests share the caller's five-second deadline. Version
+ * requests are not universally read-only; the caller owns disposable outputs. */
+static bool module_link_query_output(char **args, char *output, size_t capacity, int64_t deadline) {
+    int64_t now = module_link_query_clock();
+    if (now < 0 || now >= deadline) return false;
+    int descriptors[2];
+    if (pipe(descriptors)) return false;
+    bool ok = true;
+    for (size_t i = 0; i < 2; i++) {
+        if (descriptors[i] < 3) {
+            int copied = fcntl(descriptors[i], F_DUPFD_CLOEXEC, 3);
+            if (copied < 0) { ok = false; break; }
+            close(descriptors[i]);
+            descriptors[i] = copied;
+        } else if (fcntl(descriptors[i], F_SETFD, FD_CLOEXEC)) { ok = false; break; }
+    }
+    if (ok && fcntl(descriptors[0], F_SETFL, O_NONBLOCK)) ok = false;
+    posix_spawn_file_actions_t actions;
+    posix_spawnattr_t attributes;
+    bool have_actions = posix_spawn_file_actions_init(&actions) == 0;
+    bool have_attributes = posix_spawnattr_init(&attributes) == 0;
+    ok = ok && have_actions && have_attributes;
+    if (ok) ok = posix_spawn_file_actions_addopen(&actions, STDIN_FILENO, "/dev/null", O_RDONLY, 0) == 0 &&
+        posix_spawn_file_actions_adddup2(&actions, descriptors[1], STDOUT_FILENO) == 0 &&
+        posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0) == 0 &&
+        posix_spawn_file_actions_addclose(&actions, descriptors[0]) == 0 &&
+        posix_spawn_file_actions_addclose(&actions, descriptors[1]) == 0 &&
+        posix_spawnattr_setflags(&attributes, POSIX_SPAWN_SETPGROUP) == 0 &&
+        posix_spawnattr_setpgroup(&attributes, 0) == 0;
+    pid_t child = -1;
+    extern char **environ;
+    if (ok) ok = posix_spawnp(&child, args[0], &actions, &attributes, args, environ) == 0;
+    if (have_actions) posix_spawn_file_actions_destroy(&actions);
+    if (have_attributes) posix_spawnattr_destroy(&attributes);
+    close(descriptors[1]);
+    if (!ok) { close(descriptors[0]); return false; }
+    bool eof = false, reaped = false;
+    size_t used = 0;
+    int status = 0;
+    while (ok && (!eof || !reaped)) {
+        now = module_link_query_clock();
+        if (now < 0 || now >= deadline) { ok = false; break; }
+        struct pollfd descriptor = {.fd = eof ? -1 : descriptors[0], .events = POLLIN};
+        int ready = poll(&descriptor, 1, (int)(deadline - now < 25 ? deadline - now : 25));
+        if (ready < 0 && errno != EINTR) { ok = false; break; }
+        if (ready > 0) {
+            char buffer[1024];
+            ssize_t n = read(descriptors[0], buffer, sizeof(buffer));
+            if (n == 0) eof = true;
+            else if (n < 0) {
+                if (errno != EINTR && errno != EAGAIN) ok = false;
+            } else if ((size_t)n >= capacity - used || memchr(buffer, 0, (size_t)n)) ok = false;
+            else { memcpy(output + used, buffer, (size_t)n); used += (size_t)n; }
+        }
+        if (!reaped) {
+            pid_t result = waitpid(child, &status, WNOHANG);
+            if (result == child) reaped = true;
+            else if (result < 0 && errno != EINTR) { ok = false; break; }
+        }
+    }
+    close(descriptors[0]);
+    ok = ok && eof && reaped && WIFEXITED(status) && WEXITSTATUS(status) == 0 && used;
+    /* A successful reporter can leave descendants after closing its pipe too.
+     * I retain no background process from this private query group. */
+    (void)kill(-child, SIGKILL);
+    if (!reaped) while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
+    output[used] = 0;
+    return ok;
+}
+
+ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command) {
+    if (!command || strnlen(command, 65537) > 65536) return 0;
+    char **args = calloc(2050, sizeof(char *));
+    if (!args) return 0;
+    const char *cursor = command;
+    char word[4096];
+    size_t count = 0;
+    int status;
+    bool ok = true;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (count == 2048 || !(args[count] = strdup(word))) { ok = false; break; }
+        count++;
+    }
+    ModuleLinkResponseGrammar grammar = 0;
+    int64_t now = module_link_query_clock();
+    if (ok && status == 0 && count && now >= 0) {
+        int64_t deadline = now + 5000;
+        char output[8193];
+        args[count] = "-Wl,--version";
+        if (module_link_query_output(args, output, sizeof(output), deadline) &&
+            !strncmp(output, "GNU ld (", 8) && strchr(output, '\n')) grammar = MODULE_LINK_RESPONSE_GNU;
+        if (!grammar) {
+            args[count] = "-Wl,-version_details";
+            if (module_link_query_output(args, output, sizeof(output), deadline)) {
+                const char *end = NULL;
+                cJSON *details = cJSON_ParseWithOpts(output, &end, true);
+                cJSON *version = cJSON_GetObjectItemCaseSensitive(details, "version");
+                cJSON *architectures = cJSON_GetObjectItemCaseSensitive(details, "architectures");
+                cJSON *tapi = cJSON_GetObjectItemCaseSensitive(details, "tapi");
+                cJSON *vendor = cJSON_GetObjectItemCaseSensitive(tapi, "version_string");
+                /* I admit the installed Apple implementation covered by my
+                 * identity/grammar corpus, not every JSON-speaking linker. */
+                if (cJSON_IsString(version) && !strcmp(version->valuestring, "1267") &&
+                    cJSON_IsArray(architectures) && cJSON_GetArraySize(architectures) > 0 &&
+                    cJSON_IsString(vendor) && !strncmp(vendor->valuestring, "Apple TAPI version ", 19))
+                    grammar = MODULE_LINK_RESPONSE_APPLE;
+                cJSON_Delete(details);
+            }
+        }
+    }
+    for (size_t i = 0; i < count; i++) free(args[i]);
+    free(args);
+    return grammar;
 }
 
 static bool module_append_compiler_fragment(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,

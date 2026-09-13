@@ -1368,3 +1368,46 @@ Retained cache paths containing commas also need deliberate driver transport:
 inserting such a path into `-Wl,` splits it, and this Apple driver rejects the
 joined spelling `-Xlinker=@path`. I retain that integration requirement on the
 roadmap rather than claiming the graph helper solves argument transport.
+
+### Selected-linker query boundary
+
+I implement `module_query_link_response_grammar` as an internal query over a
+complete literal compiler command. I do not execute a shell to discover its
+arguments. I supervise a private process group, bound stdout to 8 KiB and
+share a five-second monotonic deadline across the GNU `--version` and Apple
+`-version_details` requests. I terminate remaining members of the query's
+process group on completion as well as failure; this is not a security sandbox.
+Diagnostics on stderr are discarded, not mixed into the
+machine-readable version report.
+
+This identifies a supported tool contract, not toolchain authenticity. I
+recognize GNU ld's version banner and the tested Apple ld 1267 JSON report
+with its architecture list and Apple TAPI vendor field. Unrecognized linkers,
+failed queries, malformed/binary/oversized reports and exceeded deadlines do
+not select a grammar. A fixture that prints a recognized banner can emulate
+that contract; this is not executable attestation.
+
+On installed Clang, `-print-prog-name=ld -fuse-ld=lld` still names Apple ld,
+while the actual dry-run recipe selects ld64.lld. My native tests instead
+route the complete command through a controlled `-B` linker wrapper. They
+verify default recognition and rejection of an unsupported selected linker,
+including a `-fuse-ld` selector supplied in a driver response file. Both Apple
+Clang 21 and GCC 12 pass those routing checks.
+
+The caller must supply disposable probe outputs. Apple's version-details
+request can complete a link when inputs are present; my native test verifies
+that it creates the disposable library. A version flag is not a read-only
+guarantee. Query integration must not target a published generation, and must
+retain the full invocation's selection flags while constructing private
+probe artifacts.
+
+Seven query tests cover native routing, overrides, literal arguments, rejected
+shell syntax, argument/output bounds, report validation, allocation retry,
+deadline cleanup and successful reporters that leave background descendants.
+All fourteen query/graph methods pass with ASan/UBSan and leak detection on
+Linux; all ten linker-transport methods pass with ASan/UBSan and leak detection
+disabled (2026-09-13). Invocation-wide ownership and cache admission remain
+unwired; this query does not close the six forwarded snapshot failures.
+Darwin's rebuilt compiler/VM tools and generation probe pass the complete
+168-method regression set in 302.000 seconds, with 24 expected skips and no
+failures or timeouts.

@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <stdarg.h>
 
 static const char *generation_sync_event;
 
@@ -79,8 +80,15 @@ static int generation_test_fsync(int fd) {
 }
 
 #ifdef __APPLE__
-static int generation_test_fcntl(int fd, int command) {
+static int generation_test_fcntl(int fd, int command, ...) {
     static bool interrupted = false;
+    if (command == F_DUPFD_CLOEXEC || command == F_SETFD || command == F_SETFL) {
+        va_list arguments;
+        va_start(arguments, command);
+        int value = va_arg(arguments, int);
+        va_end(arguments);
+        return fcntl(fd, command, value);
+    }
     if (command != F_FULLFSYNC) { errno = EINVAL; return -1; }
     const char *failure = getenv("NANO_TEST_SYNC_FAILURE");
     if (getenv("NANO_TEST_FULL_SYNC") && failure) {
@@ -328,6 +336,17 @@ int main(int argc, char **argv) {
         puts(captured);
         free(captured);
         return 0;
+    }
+    if (argc == 3 && !strcmp(argv[1], "link-response-grammar")) {
+        printf("%d\n", module_query_link_response_grammar(argv[2]));
+        return 0;
+    }
+    if (argc == 4 && !strcmp(argv[1], "link-response-query-allocation")) {
+        generation_allocation_limit = strtol(argv[3], NULL, 10);
+        ModuleLinkResponseGrammar grammar = module_query_link_response_grammar(argv[2]);
+        generation_allocation_limit = -1;
+        printf("%d\n", grammar);
+        return module_query_link_response_grammar(argv[2]) ? 0 : 1;
     }
     if (argc == 5 && !strcmp(argv[1], "capture-link-response")) {
         ModuleBuildMetadata meta = {.module_dir = argv[3]};
