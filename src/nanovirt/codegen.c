@@ -58,6 +58,7 @@ typedef struct {
 typedef struct {
     char *name;
     uint32_t fn_idx;
+    ASTNode *body; /* I identify a source function independently of its short name. */
 } FnEntry;
 
 typedef struct {
@@ -265,7 +266,19 @@ static const char *local_struct_type(CG *cg, const char *name) {
 
 /* ── Function lookup ────────────────────────────────────────────── */
 
+static int32_t fn_find_body(CG *cg, ASTNode *body) {
+    if (!body) return -1;
+    for (int i = 0; i < cg->fn_count; i++) {
+        if (cg->functions[i].body == body)
+            return (int32_t)cg->functions[i].fn_idx;
+    }
+    return -1;
+}
+
 static int32_t fn_find(CG *cg, const char *name) {
+    Function *function = env_get_function(cg->env, name);
+    if (function && !function->is_extern && function->body)
+        return fn_find_body(cg, function->body);
     for (int i = 0; i < cg->fn_count; i++) {
         if (strcmp(cg->functions[i].name, name) == 0)
             return (int32_t)cg->functions[i].fn_idx;
@@ -2245,6 +2258,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         if (cg->fn_count < MAX_FUNCTIONS) {
             cg->functions[cg->fn_count].name = (char *)name;
             cg->functions[cg->fn_count].fn_idx = (uint32_t)fn_idx;
+            cg->functions[cg->fn_count].body = node->as.function.body;
             cg->fn_count++;
         }
     }
@@ -2820,10 +2834,18 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     if (fn_node->as.function.is_extern) return;  /* skip extern declarations */
 
     const char *name = fn_node->as.function.name;
-    int32_t fn_idx = fn_find(cg, name);
+    int32_t fn_idx = fn_find_body(cg, fn_node->as.function.body);
     if (fn_idx < 0) {
         cg_error(cg, fn_node->line, "function '%s' not registered", name);
         return;
+    }
+
+    char *saved_module = cg->env->current_module;
+    for (int i = 0; i < cg->env->function_count; i++) {
+        if (cg->env->functions[i].body == fn_node->as.function.body) {
+            cg->env->current_module = cg->env->functions[i].module_name;
+            break;
+        }
     }
 
     /* Reset per-function state */
@@ -2891,6 +2913,7 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
         emit_op(cg, OP_RET);
     }
 
+    cg->env->current_module = saved_module;
     if (cg->had_error) return;
 
     /* Append code to module */
@@ -2989,6 +3012,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             if (cg.fn_count < MAX_FUNCTIONS) {
                 cg.functions[cg.fn_count].name = (char *)name;
                 cg.functions[cg.fn_count].fn_idx = idx;
+                cg.functions[cg.fn_count].body = item->as.function.body;
                 cg.fn_count++;
             }
 
@@ -3100,12 +3124,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             }
                         }
 
-                        /* Register under original/aliased name first (needed for internal calls
-                         * and for compile_function to find the entry by AST name) */
+                        /* I share an entry only for the same source body, not
+                         * for an unrelated module's same-named function. */
                         bool already = false;
                         uint32_t idx = 0;
                         for (int f = 0; f < cg.fn_count; f++) {
-                            if (strcmp(cg.functions[f].name, use_name) == 0) {
+                            if (cg.functions[f].body == mitem->as.function.body) {
                                 already = true;
                                 idx = cg.functions[f].fn_idx;
                                 break;
@@ -3123,6 +3147,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             if (cg.fn_count < MAX_FUNCTIONS) {
                                 cg.functions[cg.fn_count].name = (char *)use_name;
                                 cg.functions[cg.fn_count].fn_idx = idx;
+                                cg.functions[cg.fn_count].body = mitem->as.function.body;
                                 cg.fn_count++;
                             }
                         }
@@ -3145,6 +3170,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             if (!qalready && cg.fn_count < MAX_FUNCTIONS) {
                                 cg.functions[cg.fn_count].name = strdup(qname);
                                 cg.functions[cg.fn_count].fn_idx = idx; /* same fn_idx! */
+                                cg.functions[cg.fn_count].body = mitem->as.function.body;
                                 cg.fn_count++;
                             }
                         }
@@ -3311,7 +3337,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
 
                 if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
                     const char *fname = mitem->as.function.name;
-                    if (fn_find(&cg, fname) < 0 && cg.fn_count < MAX_FUNCTIONS) {
+                    if (fn_find_body(&cg, mitem->as.function.body) < 0 && cg.fn_count < MAX_FUNCTIONS) {
                         uint32_t ni = nvm_add_string(cg.module, fname, (uint32_t)strlen(fname));
                         NvmFunctionEntry fn = {0};
                         fn.name_idx = ni;
@@ -3321,6 +3347,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         uint32_t idx = nvm_add_function(cg.module, &fn);
                         cg.functions[cg.fn_count].name = (char *)fname;
                         cg.functions[cg.fn_count].fn_idx = idx;
+                        cg.functions[cg.fn_count].body = mitem->as.function.body;
                         cg.fn_count++;
                     }
                 }
@@ -3559,6 +3586,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             entry.result_tag = TAG_VOID;
             uint32_t index = nvm_add_function(cg.module, &entry);
             cg.functions[cg.fn_count].name = cg.module->strings[name_idx];
+            cg.functions[cg.fn_count].body = shadow->as.shadow.body;
             cg.functions[cg.fn_count++].fn_idx = index;
             ASTNode function = {0};
             function.type = AST_FUNCTION;

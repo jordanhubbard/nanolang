@@ -6301,6 +6301,11 @@ register_function_pass1:;
             
             /* Check if function is already defined */
             Function *existing = env_get_function(env, func_name);
+            /* I distinguish an imported name from a duplicate in this module. */
+            if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
+                (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
             if (existing) {
                 /* If both are extern and signatures match, it's fine (idempotent) */
                 if (item->as.function.is_extern && existing->is_extern) {
@@ -7062,6 +7067,11 @@ register_function_pass2:;
             
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
+            /* I distinguish an imported name from a duplicate in this module. */
+            if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
+                (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
             if (existing) {
                 /* If both are extern and signatures match, it's fine (idempotent) */
                 if (item->as.function.is_extern && existing->is_extern) {

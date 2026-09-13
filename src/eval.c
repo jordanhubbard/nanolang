@@ -4470,6 +4470,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
 
     /* Execute function body */
+    char *saved_module_context = env->current_module;
+    env->current_module = func->module_name;
     Value result = create_void();
     for (int i = 0; i < func->body->as.block.count; i++) {
         ASTNode *stmt = func->body->as.block.statements[i];
@@ -4487,6 +4489,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
 
     /* Pop call stack */
+    env->current_module = saved_module_context;
     tracing_pop_call();
 
     /*
@@ -6066,7 +6069,10 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     }
 
     /* Execute the function body */
+    char *saved_module_context = env->current_module;
+    env->current_module = func->module_name;
     Value result = eval_statement(func->body, env);
+    env->current_module = saved_module_context;
 
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
     Value return_value = result;

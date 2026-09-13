@@ -132,6 +132,79 @@ shadow main {{ assert (== (helper.{function}) 42) }}
                     self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
                     self.assertFalse(output.exists())
 
+    def test_qualified_same_named_wrapper_backend_boundary(self):
+        for backend, declared in ((backend, declared) for backend in COMPILERS for declared in (False, True)):
+            with self.subTest(backend=backend, declared=declared), tempfile.TemporaryDirectory(prefix="nano-owner-") as tmp:
+                directory = Path(tmp)
+                leaf = directory / "leaf.nano"
+                leaf.write_text(("module LeafOwner\n" if declared else "") + "fn increment() -> int { return 40 }\nshadow increment { assert (== (increment) 40) }\npub fn answer() -> int { return (increment) }\nshadow answer { assert (== (answer) 40) }\n")
+                middle = directory / "middle.nano"
+                middle.write_text(("module MiddleOwner\n" if declared else "") + f'''module "{leaf}" as leaf
+fn increment() -> int {{ return 2 }}
+shadow increment {{ assert (== (increment) 2) }}
+pub fn answer() -> int {{ return (+ (leaf.answer) (increment)) }}
+shadow answer {{ assert (== (answer) 42) }}
+''')
+                source = f'''module "{middle}" as middle
+fn increment() -> int {{ return 3 }}
+shadow increment {{ assert (== (increment) 3) }}
+fn answer() -> int {{ return (+ (middle.answer) (increment)) }}
+shadow answer {{ assert (== (answer) 45) }}
+fn main() -> int {{ assert (== (answer) 45) assert (== (middle.answer) 42) return 0 }}
+shadow main {{ assert (== (main) 0) }}
+'''
+                compiled, output = self.compile_source(backend, source, directory)
+                if backend == "selfhost":
+                    # I still flatten imports in Stage2. This useful root shadow
+                    # catches the wrong implementation before output publication.
+                    self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    self.assertIn(b"failed shadow", compiled.stdout + compiled.stderr)
+                    self.assertFalse(output.exists())
+                    continue
+                self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                result = self.execute(backend, output)
+                self.assertEqual(result.returncode, 0, (result.stdout + result.stderr)[:4000])
+
+    def test_local_duplicate_function_is_rejected(self):
+        for backend in ("c-seed", "bytecode"):
+            for imported in (False, True):
+                with self.subTest(backend=backend, imported=imported), tempfile.TemporaryDirectory(prefix="nano-duplicate-") as tmp:
+                    directory = Path(tmp)
+                    body = "fn answer() -> int { return 1 }\nfn answer() -> int { return 2 }\nshadow answer { assert true }\n"
+                    if imported:
+                        dependency = directory / "duplicate.nano"
+                        dependency.write_text(body)
+                        body = f'module "{dependency}" as duplicate\n'
+                    compiled, output = self.compile_source(backend, body + "fn main() -> int { return 0 }\nshadow main { assert true }\n", directory)
+                    self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    self.assertFalse(output.exists())
+
+    def test_failed_import_preserves_output(self):
+        for backend in ("c-seed", "bytecode"):
+            for failure in ("duplicate", "type", "syntax", "missing", "cycle"):
+                for transitive in (False, True):
+                    with self.subTest(backend=backend, failure=failure, transitive=transitive), tempfile.TemporaryDirectory(prefix="nano-import-error-") as tmp:
+                        directory = Path(tmp)
+                        leaf = directory / "leaf.nano"
+                        if failure == "duplicate":
+                            leaf.write_text("fn answer() -> int { return 1 }\nfn answer() -> int { return 2 }\n")
+                        elif failure == "type":
+                            leaf.write_text('fn answer() -> int { return "wrong" }\n')
+                        elif failure == "syntax":
+                            leaf.write_text("fn answer(\n")
+                        elif failure == "cycle":
+                            leaf.write_text(f'module "{leaf}" as cycle\n')
+                        target = leaf
+                        if transitive:
+                            target = directory / "middle.nano"
+                            target.write_text(f'module "{leaf}" as leaf\n')
+                        output = directory / ("claim.nvm" if backend == "bytecode" else "claim")
+                        output.write_bytes(b"previous output")
+                        source = f'module "{target}" as dependency\nfn main() -> int {{ return 0 }}\nshadow main {{ assert true }}\n'
+                        compiled, actual = self.compile_source(backend, source, directory)
+                        self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                        self.assertEqual(actual.read_bytes(), b"previous output")
+
     def test_foreign_function_does_not_exempt_explicit_shadow(self):
         for body in ("if false { return (erf 0.0) } return 0.0",
                      "unsafe { if false { return (erf 0.0) } } return 0.0",

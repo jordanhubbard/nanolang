@@ -237,6 +237,47 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       open; source-only emission
       typechecks root shadows but deliberately does not execute them.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [ ] **5.0 imported shadow prerequisite — function ownership.** I repair
+      same-named pure wrappers across qualified imports, preserving module
+      ownership in lookup and rejecting true local duplicates. I test root,
+      imported and transitive calls through compiler execution; the broader
+      namespace-isolation gate below remains open for foreign declarations
+      and colliding module identities.
+      I now preserve pure function ownership in C-seed lookup, both interpreted
+      call paths, module C emission and bytecode registration/lowering. My
+      three-level wrapper and same-named private-helper fixture executes with
+      inferred and declared module names on Darwin and Linux. True local
+      duplicates are rejected. Stage2 still fails the fixture's useful root
+      shadow; the following gate owns that remaining implementation work.
+      The 63 codegen tests, evaluator, typechecker, environment and 28 bytecode
+      shadow tests pass on Linux. Darwin bootstrap smoke tests pass, but its
+      Stage1 and Stage2 binaries still differ. This is not full module isolation.
+      All 48 Darwin language-claim, native-shadow and bytecode-shadow methods
+      pass, including the explicit Stage2 boundary characterization; Linux
+      passes the 39 applicable language-claim and bytecode-shadow methods
+      without a self-hosted compiler build.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 Stage2 module function identity.** I preserve declaration,
+      call, alias and shadow ownership instead of flattening same-named
+      functions into one scope. My three-level wrapper regression currently
+      fails its useful root shadow on Stage2; that rejection is evidence of
+      the gap, not support for this program.
+      MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
+- [x] **5.0 imported module failure propagation.** I reject failed loads
+      before publishing bytecode. An in-progress cache marker must not turn
+      a duplicate-definition error into successful compilation. I cover
+      direct and transitive invalid imports and preserve existing output.
+      Forty compiler cases on both Darwin and Linux cover duplicates, wrong
+      return types, malformed syntax, missing files and cycles through C-seed
+      and bytecode drivers. A completed cached load returns an AST; I no longer
+      accept a NULL result merely because a loading marker exists.
+      MAC `task_60c31b34d18c4e698194a9dd1ba691c4`.
+- [ ] **5.0 qualified and indirect interpreted FFI.** I characterize the
+      separate `call_function` path used by qualified and higher-order calls,
+      then preserve checked foreign dispatch and shadow failure locations.
+      Inspection found no explicit FFI branch there; my direct-call libffi
+      tests do not establish this path's behavior.
+      MAC `task_17fe744141024df08c2ef3de7599865a`.
 - [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**
       My native-emitter build exposed SIGABRT in `eval_call` cleanup. A field
       read borrowed record-owned string storage that a callee's local then

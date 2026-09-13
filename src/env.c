@@ -536,9 +536,10 @@ Function *env_get_function(Environment *env, const char *name) {
                         const char *orig_mod = env->namespaces[i].module_name;
                         for (int k = 0; k < env->function_count; k++) {
                             if (safe_strcmp(env->functions[k].name, func_name) == 0) {
-                                /* If module name matches, or if one is NULL (global/builtin) */
-                                if (!orig_mod || !env->functions[k].module_name ||
-                                    strcmp(env->functions[k].module_name, orig_mod) == 0) {
+                                /* I bind a qualified name only to its namespace owner. */
+                                if ((!orig_mod && !env->functions[k].module_name) ||
+                                    (orig_mod && env->functions[k].module_name &&
+                                     strcmp(env->functions[k].module_name, orig_mod) == 0)) {
                                     return &env->functions[k];
                                 }
                             }
@@ -577,11 +578,12 @@ Function *env_get_function(Environment *env, const char *name) {
 
     /* Check user-defined functions */
     /* First pass: prefer functions in the current module */
-    if (env->current_module) {
+    {
         for (int i = 0; i < env->function_count; i++) {
             if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
-                if (env->functions[i].module_name && 
-                    strcmp(env->functions[i].module_name, env->current_module) == 0) {
+                if ((!env->current_module && !env->functions[i].module_name) ||
+                    (env->current_module && env->functions[i].module_name &&
+                     strcmp(env->functions[i].module_name, env->current_module) == 0)) {
                     return &env->functions[i];
                 }
             }

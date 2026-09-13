@@ -930,9 +930,9 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 module_ast = load_module_internal(module_path, env, true, modules);
             }
             
-            /* NULL return means module was already loaded - this is OK */
-            if (module_ast == NULL && !is_module_cached(module_path)) {
-                /* Only error if module wasn't cached (i.e., actual failure) */
+            /* I return an AST for a completed cached load. A NULL AST is a
+             * failure, even when a loading marker remains in the cache. */
+            if (module_ast == NULL) {
                 fprintf(stderr, "Error at line %d, column %d: Failed to load module '%s'\n",
                         item->line, item->column, module_path);
                 free(module_path);
@@ -1001,11 +1001,13 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 }
                 
                 /* Register the namespace */
-                env_register_namespace(env, module_alias, orig_module_name,
+                char *inferred_name = orig_module_name ? NULL : module_name_from_path(module_path);
+                env_register_namespace(env, module_alias, orig_module_name ? orig_module_name : inferred_name,
                                       func_names, func_count,
                                       struct_names, struct_count,
                                       enum_names, enum_count,
                                       union_names, union_count);
+                free(inferred_name);
             }
 
             /* Apply import aliases for selective imports: from "module" import foo as bar */
@@ -1200,7 +1202,15 @@ bool compile_module_to_object(const char *module_path,
         saved_main->is_extern = true;
     }
 
+    char *saved_module_context = module_env->current_module;
+    module_env->current_module = module_name;
+    for (int i = 0; i < module_ast->as.program.count; i++) {
+        ASTNode *item = module_ast->as.program.items[i];
+        if (item->type == AST_MODULE_DECL && item->as.module_decl.name)
+            module_env->current_module = item->as.module_decl.name;
+    }
     char *c_code = transpile_to_c(module_ast, module_env, module_path);
+    module_env->current_module = saved_module_context;
 
     if (saved_main) {
         saved_main->is_extern = saved_main_is_extern;

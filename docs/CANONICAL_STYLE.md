@@ -187,6 +187,14 @@ Avoid wildcard imports. Keep imports at the top, keep private helpers private,
 and mark only the intended module surface `pub`. A module is a boundary: expose
 domain types and operations, not incidental storage or raw foreign calls.
 
+My C-seed and bytecode paths now keep distinct pure functions with the same
+short name across qualified imports. I test a root wrapper, a transitive
+wrapper and their private helpers with inferred and declared module names.
+My Stage2 source merger still flattens those declarations: the same fixture
+fails its root shadow. Reused module aliases, colliding module identities and
+foreign-name isolation remain open; qualification is not yet a universal
+isolation guarantee across my backends.
+
 ## Unsafe Code And FFI
 
 Declare foreign functions with `extern fn`. A direct call to one must occur in
