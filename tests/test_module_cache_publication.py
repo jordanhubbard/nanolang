@@ -856,7 +856,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                     self.assertEqual(result.returncode, 43, result.stderr)
                     self.assertEqual(self.support.execute(output, env=env).returncode, 43)
 
-    def test_failed_preprocessing_cannot_authorize_reuse(self):
+    def test_failed_preprocessing_cannot_publish_output(self):
         for failure in ("partial", "empty"):
             with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-probe-failure-") as tmp:
                 directory = Path(tmp)
@@ -875,12 +875,16 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
 ''')
                 compiler.chmod(0o700)
                 env["NANO_CC"] = str(compiler)
-                for count in (1, 2):
+                for attempt in (1, 2):
                     result, output = self.support.compile(source, directory, "--run", env=env)
-                    self.assertEqual(result.returncode, 42, result.stderr)
-                    self.assertEqual(self.support.execute(output, env=env).returncode, 42)
-                    self.assertEqual(len(calls.read_text().splitlines()), count)
-                    self.assertFalse((module / ".build" / "current" / "source_hashes.json").exists())
+                    self.assertNotEqual(result.returncode, 0, (attempt, result.stderr))
+                    self.assertIn(b"I could not retain", result.stderr)
+                    self.assertFalse(output.exists())
+                    self.assertFalse(calls.exists())
+                    root = self.probe_path("root", module, env)
+                    self.assertFalse(os.path.lexists(root / "current"))
+                    self.assertFalse(list(root.glob(".nano-gen-*")))
+                    self.assertFalse(list(root.glob(".nano-build-*")))
 
     def test_header_change_during_compilation_withholds_reuse(self):
         with tempfile.TemporaryDirectory(prefix="nano-probe-race-") as tmp:

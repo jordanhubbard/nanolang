@@ -203,18 +203,89 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(case["total_object_compilations"], 3)
                 self.assertEqual(case["total_assembly_captures"], 3)
 
-    def test_gcc_assembler_macro_argument_keeps_validation_fallback(self):
-        if self.clang: self.skipTest("I exercise the GCC object-output fallback here")
+    def test_gcc_incomplete_assembler_capture_refuses_cold_output(self):
+        if self.clang: self.skipTest("I exercise GCC assembler capture failure here")
         for case in measure(shutil.which("cc"), ("assembler-fallback",))["cases"]:
             with self.subTest(case=case):
-                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
-                self.assertFalse(case["reuse_record"])
-                self.assertFalse(case["generation_reused"])
-                self.assertFalse(case["retained_assembly"])
-                self.assertEqual(case["retained_assembler_files"], 0)
-                for key in ("bytes_restored", "mtime_preserved", "size_preserved", "retained_translation_unit"):
-                    self.assertTrue(case[key], key)
-                self.assertEqual(case["total_object_compilations"], 4)
+                self.assert_capture_refused(case)
+
+    def assert_capture_refused(self, case):
+        self.assertTrue(case.get("build_failed"), case)
+        self.assertIn("I could not retain", case["diagnostic"])
+        for key in ("total_object_compilations", "published_generations", "leaked_stages"):
+            self.assertEqual(case[key], 0, key)
+        self.assertFalse(case["current_exists"])
+        self.assertFalse(case["mutation_started"])
+        for key in ("bytes_restored", "size_preserved", "mtime_preserved"):
+            self.assertTrue(case[key], key)
+        with self.assertRaises(SystemExit): require_consistent({"cases": [case]})
+
+    def test_ordinary_capture_failure_refuses_live_cold_output(self):
+        for case in measure(shutil.which("cc"), ("capture-failure",))["cases"]:
+            with self.subTest(case=case):
+                self.assert_capture_refused(case)
+                self.assertIn("I failed the requested capture phase", case["diagnostic"])
+
+    def test_admitted_capture_phase_failure_and_recovery(self):
+        phases = ("-S",) if self.clang else ("-E", "-S")
+        for shared, phase in ((shared, phase) for shared in (False, True) for phase in phases):
+            with self.subTest(shared=shared, phase=phase), tempfile.TemporaryDirectory(prefix="nano-capture-phase-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                scratch = directory / "temporary"
+                scratch.mkdir()
+                env["TMPDIR"] = str(scratch)
+                wrapper, calls = directory / "cc", directory / "object-calls"
+                wrapper.write_text(f'''#!{sys.executable}
+import os, sys
+if os.getenv("NANO_TEST_CAPTURE_FAIL") in sys.argv:
+    print("I failed the requested capture phase", file=sys.stderr)
+    sys.exit(29)
+if "-c" in sys.argv:
+    with open({str(calls)!r}, "a") as log: log.write("C\\n")
+os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
+''')
+                wrapper.chmod(0o700)
+                env["NANO_CC"] = str(wrapper)
+                env["NANO_TEST_CAPTURE_FAIL"] = phase
+                root = self.support.probe_path("root", module, env)
+
+                def refused():
+                    result = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
+                                            capture_output=True, timeout=20)
+                    self.assertNotEqual(result.returncode, 0, result.stderr)
+                    self.assertIn(b"I failed the requested capture phase", result.stderr)
+                    self.assertIn(b"I could not retain", result.stderr)
+                    self.assertFalse(list(root.glob(".nano-build-*")))
+                    self.assertEqual(list(scratch.iterdir()), [])
+
+                refused()
+                self.assertFalse(os.path.lexists(root / "current"))
+                self.assertFalse(list(root.glob(".nano-gen-*")))
+                self.assertFalse(calls.exists())
+                del env["NANO_TEST_CAPTURE_FAIL"]
+                self.support.probe_path("build", module, env)
+                previous = self.support.probe_path("directory", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                self.assertTrue((previous / "source_hashes.json").exists())
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.support.probe_path("directory", module, env), previous)
+                saved, before = self.support.snapshot(previous), calls.read_bytes()
+                (module / "answer.c").write_text("long long nano_build_answer(void) { return 43; }\n")
+                env["NANO_TEST_CAPTURE_FAIL"] = phase
+                refused()
+                self.assertEqual(self.support.probe_path("directory", module, env), previous)
+                self.assertEqual(self.support.snapshot(previous), saved)
+                self.assertEqual(calls.read_bytes(), before)
+                del env["NANO_TEST_CAPTURE_FAIL"]
+                self.support.probe_path("build", module, env)
+                recovered = self.support.probe_path("directory", module, env)
+                self.assertNotEqual(recovered, previous)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                self.assertTrue((recovered / "source_hashes.json").exists())
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.support.probe_path("directory", module, env), recovered)
 
     def test_gcc_macro_argument_replays_captured_reads(self):
         if not self.read_replay: self.skipTest("I need a supported Linux GNU assembler replay version")
@@ -225,6 +296,68 @@ class SourceSnapshots(unittest.TestCase):
                             "generation_reused", "retained_read_manifest"):
                     self.assertTrue(case[key], key)
                 self.assertEqual(case["total_object_compilations"], 6)
+
+    def test_gcc_missing_capture_helper_preserves_generation_and_recovers(self):
+        if not self.read_replay: self.skipTest("I need supported GNU assembler read capture")
+        for shared in (False, True):
+            with self.subTest(shared=shared), tempfile.TemporaryDirectory(prefix="nano-helper-recovery-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                helper = directory / "capture.so"
+                shutil.copy2(cache.ROOT / "bin/nano_as_capture.so", helper)
+                env["NANO_AS_CAPTURE_HELPER"] = str(helper)
+                payload = module / "payload.bin"
+                payload.write_bytes(b"42")
+                assembly = '.data\n.globl snapshot_payload\nsnapshot_payload:\n.macro read_payload file\n.incbin "\\file"\n.endm\n'
+                assembly += f'read_payload "{payload}"\n.text\n'
+                (module / "answer.c").write_text('extern const unsigned char snapshot_payload[];\n'
+                    '__asm__(' + json.dumps(assembly) + ');\n'
+                    'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+                self.support.probe_path("build", module, env)
+                previous = self.support.probe_path("directory", module, env)
+                self.assertTrue((previous / "__as_read_0_0.manifest0").exists())
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                saved = self.support.snapshot(previous)
+                helper.unlink()
+                payload.write_bytes(b"43")
+                result = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
+                                        capture_output=True, timeout=20)
+                self.assertNotEqual(result.returncode, 0, result.stderr)
+                self.assertIn(b"I could not retain", result.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), previous)
+                self.assertEqual(self.support.snapshot(previous), saved)
+                self.assertFalse(list(previous.parent.glob(".nano-build-*")))
+                shutil.copy2(cache.ROOT / "bin/nano_as_capture.so", helper)
+                self.support.probe_path("build", module, env)
+                recovered = self.support.probe_path("directory", module, env)
+                self.assertNotEqual(recovered, previous)
+                self.assertTrue((recovered / "__as_read_0_0.manifest0").exists())
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.support.probe_path("directory", module, env), recovered)
+
+    def test_linux_clang_external_macros_replay_captured_reads(self):
+        if not self.clang or sys.platform != "linux":
+            self.skipTest("I exercise Clang with the Linux GNU assembler")
+        compiler = shutil.which("cc")
+        query = subprocess.run([compiler, "-print-prog-name=as"], capture_output=True, timeout=10, check=True)
+        assembler = shutil.which(query.stdout.decode().strip())
+        if not assembler: self.skipTest("I need the selected external assembler")
+        version = subprocess.run([assembler, "--version"], capture_output=True, timeout=10, check=True)
+        accepted = subprocess.run([str(self.support.probe), "assembler-version", version.stdout.decode()],
+                                  capture_output=True, timeout=10)
+        if accepted.returncode: self.skipTest("I need a tested GNU assembler replay version")
+        result = measure(compiler, ("assembler-external-macro", "assembler-external-macro-debug"))
+        require_consistent(result)
+        for case in result["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                for key in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record",
+                            "generation_reused", "retained_read_manifest"):
+                    self.assertTrue(case[key], key)
+                self.assertEqual(case["total_object_compilations"], 6)
+                self.assertEqual(case["external_assembly_compilations"], 6)
 
     def test_gcc_replay_cleanup_failure_and_tool_selection(self):
         if not self.read_replay: self.skipTest("I need a supported Linux GNU assembler replay version")
@@ -290,14 +423,18 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             changed = build(43)
             self.assertNotEqual(first, changed)
             env["NANO_TEST_AS_QUERY_FAIL"] = "/missing/assembler"
-            fallback = build(43)
-            self.assertFalse((fallback / "__as_read_0_0.manifest0").exists())
             fake_as = directory / "as-wrapper"
             fake_as.write_text('#!/bin/sh\nexec ' + shlex.quote(shutil.which("as")) + ' "$@"\n')
             fake_as.chmod(0o700)
-            env["NANO_TEST_AS_QUERY_FAIL"] = str(fake_as)
-            fallback = build(43)
-            self.assertFalse((fallback / "__as_read_0_0.manifest0").exists())
+            for tool in ("/missing/assembler", str(fake_as)):
+                env["NANO_TEST_AS_QUERY_FAIL"] = tool
+                previous = self.support.snapshot(changed)
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(failed.returncode, 0, failed.stderr)
+                self.assertIn(b"I could not retain", failed.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), changed)
+                self.assertEqual(self.support.snapshot(changed), previous)
+                self.assertEqual(list(scratch.iterdir()), [])
             del env["NANO_TEST_AS_QUERY_FAIL"]
             recovered = build(43)
             self.assertTrue((recovered / "__as_read_0_0.manifest0").is_file())
@@ -980,6 +1117,8 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
         with tempfile.TemporaryDirectory(prefix="nano-retained-scalar-flags-") as tmp:
             directory = Path(tmp)
             module, _, env = self.support.support.foreign_build_fixture(directory)
+            # My probe lives in obj/, unlike installed drivers beside the helper.
+            env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
             for flag in flags:
                 with self.subTest(flag=flag):
                     (module / "module.json").write_text(json.dumps({"name": "answer_native",

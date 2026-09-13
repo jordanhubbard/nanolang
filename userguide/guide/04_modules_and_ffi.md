@@ -75,9 +75,13 @@ Three files serve different jobs:
 
 `module.json` stays build metadata. Isolation, restart, budgets, and required capabilities live on `module.manifest.json` in a portable `nsi` block. See [Secure Runtime](08_secure_runtime.md) and the generated [module inventory](../generated/modules.md) for what exists now.
 
-For Clang C builds admitted to my retained-input path with `-fno-integrated-as`,
-failed capture stops the build before object compilation. I preserve the previous
-successful generation and report the failure, including compiler or assembler
-diagnostics when available. Check missing inputs, assembler support, and tool
-failures before retrying. Source and flag modes outside this path retain their
-existing compatibility behavior; they have no retained-input guarantee.
+For Clang and GCC C builds admitted to my retained-input path, failed capture
+stops the build before final object compilation. GCC must retain assembler reads
+as well as preprocessed C; Clang's external-assembler mode has the same rule.
+I preserve the previous successful generation and report capture diagnostics.
+Check missing inputs, assembler support, and tool failures before retrying.
+On supported Linux GNU assembler versions, macro reads can require my installed
+`nano_as_capture.so` beside the driver. `NANO_AS_CAPTURE_HELPER` selects another
+copy; a missing helper is a build failure when literal capture cannot suffice.
+Source and flag modes outside this path retain their existing compatibility
+behavior; they have no retained-input guarantee.

@@ -1867,3 +1867,68 @@ the snapshot suite; I do not claim an observed exit status for that invocation.
 I reran the remaining transport, response-graph and response-query suites:
 all 49 methods pass in 111.956 seconds. Together these verified runs cover all
 197 methods in the gate with fifteen skips.
+
+## Complete admitted capture or failure
+
+My v33 context extends capture-failure refusal to ordinary Clang and GCC C
+builds admitted by the existing source/flag checks. GCC no longer accepts a
+preprocessed translation unit alone when both literal assembly capture and
+read replay fail: later assembler file reads would still consume live inputs.
+Failure before final compilation leaves publication to a later successful
+build. Unsupported source and flag modes remain outside this guarantee.
+
+Before the repair, the GCC missing-helper characterization passed its defect
+expectation: cold/warm/fresh 43/42/42 under both cache roots (0.713 seconds on
+GCC 12.2 Linux ARM64). It now requires a failed build with no mutation hook,
+object compilation, generation, current pointer or staging leak. Ordinary
+capture failure has the same cold-cache checks. Separate preprocessing and
+assembly-phase failures test local/shared cold refusal, warm byte preservation,
+diagnostics, cleanup, recovery to changed output and actual subsequent reuse.
+Missing helper and rejected assembler selection also preserve prior generations.
+
+My capture subprocesses now use the existing source diagnostic filter; failed
+capture previously left errors in a private include-trace file. GCC retained
+C-to-assembly and read-capture commands no longer discard diagnostics. Initial
+Linux regression failures exposed both the hidden errors and a fixture setup
+problem: the probe lives in `obj/`, not beside the installed helper in `bin/`.
+The scalar-flag fixture now selects that helper explicitly. Its GCC `-g3`
+output contains quoted macro debug strings outside the literal copier's grammar
+and uses read replay; I did not exclude `-g3` or restore live-input fallback.
+
+The corrected Linux snapshot suite passes 58 methods with fourteen platform
+skips in 29.419 seconds. Four Darwin phase-failure and diagnostic methods pass
+in 6.924 seconds. I then added local/shared missing-helper recovery before the
+full rebuilt compiler/shadow/cache gates reported below.
+
+The final GCC/Linux full gate passes all 201 methods with twenty-four platform
+or configuration skips in 109.456 seconds of reported test time. Its existing
+CLI preprocessing-failure test previously required successful live compilation;
+I replaced that expectation with failure, no output, no object compilation and
+no published generation for both partial and empty capture output.
+
+Four focused Linux ASan/UBSan methods pass first with leak detection disabled
+(5.091 seconds), then with leak detection enabled (63.263 seconds). They cover
+phase failure/recovery, missing-helper warm preservation/recovery, source
+diagnostics and replay cleanup/tool selection. The production builder is
+instrumented through the probe; supporting objects, external compilers and the
+assembler helper are not sanitizer instrumented. My user-guide build and check
+also pass thirteen pages in six editions; localized draft validation is not
+translation acceptance.
+
+The same GCC-built production probe also passes all 59 snapshot methods using
+Debian Clang 14 on Linux ARM64 (nineteen skips, 26.184 seconds). I select that
+compiler through a private `cc` symlink in the disposable container; this is
+cross-driver input-capture evidence, not a Clang-built compiler bootstrap.
+
+An additional permanent Linux Clang regression passes in 2.382 seconds. Its
+four plain/debug macro cases yield cold/warm/fresh 42/42/42 under local and
+shared caches, with retained read manifests, actual generation reuse and the
+external assembler selector on all six capture/replay object invocations.
+This checks the Linux read-replay path separately from Apple backend expansion.
+
+The final Darwin full gate passes 200 methods with sixteen skips in 589.397
+seconds of reported test time. Its snapshot process loaded before I added the
+Linux Clang regression; that additional method separately confirms its Darwin
+skip in 0.026 seconds. Together these runs cover the current 201-method gate.
+I removed the disposable Linux container, including its sanitizer scratch and
+temporary Clang installation. No host toolchain installation changed.

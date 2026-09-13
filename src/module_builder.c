@@ -436,7 +436,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v32-external-capture-failure");
+    hash_context_field(&hash, "nanolang-c-build-context-v33-complete-admitted-capture");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3441,8 +3441,7 @@ static bool module_source_command(char *command, size_t capacity, const char *pr
            module_append_path_flag(command, capacity, "2>", trace);
 }
 
-static int module_run_source_command(const char *command, const char *dependency) {
-    int result = system(command);
+static int module_source_diagnostics(int result, const char *dependency) {
     char trace[2060];
     int n = snprintf(trace, sizeof(trace), "%s.includes", dependency);
     if (n < 0 || (size_t)n >= sizeof(trace)) return result ? result : -1;
@@ -3475,6 +3474,10 @@ static int module_run_source_command(const char *command, const char *dependency
     free(line);
     if (fclose(fp) != 0 && !result) result = -1;
     return result;
+}
+
+static int module_run_source_command(const char *command, const char *dependency) {
+    return module_source_diagnostics(system(command), dependency);
 }
 
 /* I capture a deliberately bounded assembler spelling, not the assembler
@@ -3615,8 +3618,7 @@ static uint64_t module_gcc_capture_assembly(ModuleBuildMetadata *meta, const Mod
                 module_build_append(command, sizeof(command), "%s%s -x cpp-output", prefix,
                                     group ? " -fvisibility=hidden" : "") &&
                 module_append_path_flag(command, sizeof(command), "", input) &&
-                module_append_path_flag(command, sizeof(command), "-o ", raw) &&
-                module_build_append(command, sizeof(command), " 2>/dev/null");
+                module_append_path_flag(command, sizeof(command), "-o ", raw);
             if (!ok || system(command) || !module_capture_assembly_file(&capture, raw, frozen, true, 0)) goto failed;
         }
     }
@@ -3918,9 +3920,9 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
                 module_build_append(command, sizeof(command), "%s%s -x cpp-output", retained, group ? " -fvisibility=hidden" : "") &&
                 module_append_path_flag(command, sizeof(command), "", input) &&
                 module_append_path_flag(command, sizeof(command), "-o ", assembly) &&
-                module_build_append(command, sizeof(command), " 2>/dev/null") && !system(command) &&
+                !system(command) &&
                 module_read_command(command, sizeof(command), assemble, directory, group, i, object, true) &&
-                module_build_append(command, sizeof(command), " 2>/dev/null") && !system(command);
+                !system(command);
             unsigned captured = 0;
             uint64_t hash = 0;
             if (ok) ok = nac_load(record, assembly, reads, &captured, &hash);
@@ -4071,6 +4073,7 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             }
             ok &= !ferror(pipe) && feof(pipe);
             int status = pclose(pipe);
+            if (directory) status = module_source_diagnostics(status, dependency);
             if (output && fclose(output) != 0) ok = false;
             if (!ok || status != 0 || !nonempty) return 0;
             if (external_pch) {
@@ -4105,9 +4108,9 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             return frozen;
         }
 #endif
-        /* External Clang cannot claim retained assembly when the copier cannot
-         * resolve the input language. Keep the uncaptured fallback explicit. */
-        if (mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) return 0;
+        /* Retained C alone does not retain later assembler reads. Neither
+         * driver may publish that incomplete snapshot after capture fails. */
+        return 0;
     }
     return fingerprint;
 }
@@ -4579,12 +4582,14 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
     if (needs_rebuild) {
         ModuleSnapshotMode mode = preprocessing_before ? module_snapshot_mode(meta, flags) : MODULE_SNAPSHOT_NONE;
         bool external_capture = mode == MODULE_SNAPSHOT_CLANG_EXTERNAL;
-        bool snapshots = mode != MODULE_SNAPSHOT_NONE;
+        bool admitted = mode != MODULE_SNAPSHOT_NONE;
+        bool snapshots = admitted;
         if (preprocessing_before) *preprocessing_before = snapshots
             ? module_snapshot_sources(meta, flags, build_dir, mode, &mode) : module_preprocess_fingerprint(meta, flags);
         snapshots = snapshots && *preprocessing_before;
-        if (external_capture && !snapshots) {
-            fprintf(stderr, "I could not retain external-assembler inputs for %s; I will not compile live sources after capture failure\n",
+        if (admitted && !snapshots) {
+            fprintf(stderr, "I could not retain %sinputs for %s; I will not compile live sources after capture failure\n",
+                    external_capture ? "external-assembler " : "compiler and assembler ",
                     meta->name ? meta->name : "unknown");
             free(build_dir);
             return NULL;

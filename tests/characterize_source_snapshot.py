@@ -119,6 +119,9 @@ def measure(compiler, kinds=("source", "header")):
 import os, pathlib, subprocess, sys
 if {kind == "assembler-external-macro-query-failure"!r} and "-###" in sys.argv:
     sys.exit(1)
+if {kind == "capture-failure"!r} and any(arg in sys.argv for arg in ("-S", "-E")):
+    print("I failed the requested capture phase", file=sys.stderr)
+    sys.exit(1)
 if "-S" in sys.argv or "-E" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write(("S" if "-S" in sys.argv else "E") + "\\n")
 if "-c" in sys.argv and "-###" not in sys.argv:
@@ -158,7 +161,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                         "print(lib.nano_build_answer())", library], directory)
                     return int(result.stdout)
 
-                if kind == "assembler-external-macro-query-failure":
+                if kind in ("assembler-external-macro-query-failure", "assembler-fallback", "capture-failure"):
                     built = subprocess.run([probe, "build", module], cwd=directory, env=env, capture_output=True, timeout=20)
                     if built.returncode:
                         root = query("root")

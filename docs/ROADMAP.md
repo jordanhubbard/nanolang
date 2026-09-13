@@ -1106,6 +1106,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       including numeric data inside a named-parameter macro. Apple external
       `-O2 -g` restored edits now yield 42/42/42 with actual local/shared reuse.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 admitted snapshot failure consistency.** I remove the remaining
+      path from failed GCC assembly capture to preprocessed C with live
+      assembler reads, and from failed ordinary capture to live C. The existing
+      missing-helper GCC regression expects cold/warm/fresh 43/42/42. I require
+      failure before final object compilation, preservation of a previous
+      generation, useful diagnostics, and recovery under both cache roots.
+      Successful literal and macro capture must still produce reusable 42/42/42
+      results. Unadmitted source/flag compatibility remains separate; refusal
+      does not complete broader snapshot support.
+      My v33 context and diagnostic reporting pass the GCC/Linux 201-method
+      full gate (twenty-four skips), Darwin's 200-method full gate (sixteen
+      skips) and the added Linux-only method's Darwin skip. Linux Clang passes
+      all 59 existing snapshot methods plus the new plain/debug external-macro
+      regression: four local/shared cases yield reusable 42/42/42. Four focused
+      Linux methods pass ASan/UBSan with leak detection enabled. My user-guide
+      build and validation pass. `docs/SOURCE_SNAPSHOT_EVIDENCE.md` records scope.
+      MAC `task_1251873d28334037b9c02b640d3669c6`.
+      MAC rejects `open` to `completed`; ledger closure needs an ownership
+      repair. The task description records the verified repository evidence.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent
