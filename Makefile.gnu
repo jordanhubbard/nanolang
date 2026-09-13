@@ -63,6 +63,12 @@ DEPFLAGS ?= -MMD -MP
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
 
+# I use libffi for typed native calls in my interpreter, including doubles.
+LIBFFI_CFLAGS ?= $(shell pkg-config --cflags libffi 2>/dev/null)
+LIBFFI_LIBS ?= $(shell pkg-config --libs libffi 2>/dev/null || printf '%s' '-lffi')
+override CFLAGS += $(LIBFFI_CFLAGS)
+override LDFLAGS += $(LIBFFI_LIBS)
+
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
 #
@@ -672,7 +678,7 @@ test-coroutine-scheduler: stage1
 	@rm -f tests/test_coroutine_scheduler
 
 .PHONY: test-eval
-test-eval: stage1
+test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so
 	@echo "Running interpreter (eval.c) unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_eval
