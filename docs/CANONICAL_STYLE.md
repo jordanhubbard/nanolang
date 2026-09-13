@@ -357,6 +357,13 @@ Set `NANO_SHADOW_TRACE=1` to print each self-hosted native shadow target before
 it runs. Generated target names identify merged ownership, not original-file
 diagnostic provenance.
 
+Before self-hosted compilation writes output or diagnostics, I compare both
+destinations with the root and loaded dependency files by device and inode.
+I reject aliases through relative paths, symlinks and hard links, and stop if
+file identity cannot be checked. This preflight covers stable filesystem
+entries; it does not prevent concurrent path replacement. It also does not
+yet reject an artifact destination that aliases the diagnostic destination.
+
 My C-seed shadow JSON aggregates the selected graph. Completed runs report
 `completed: true`, `test_count`, and failed tests with their owning
 `source_file`. The recorded first line/column is not full cross-module

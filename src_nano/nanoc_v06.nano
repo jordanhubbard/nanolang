@@ -34,6 +34,7 @@ extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
 extern fn file_delete(path: string) -> int
+extern fn file_compare_identity(source: string, candidate: string) -> int
 
 /* Path operations */
 extern fn path_normalize(path: string) -> string
@@ -1710,6 +1711,52 @@ fn native_cleanup(directory: string, keep_c: bool) -> void {
 
 shadow native_cleanup { (native_cleanup "" false) }
 
+fn outputs_preserve_sources(sources: array<string>, output: string, diagnostics: string) -> bool {
+    let destinations: array<string> = [output, diagnostics]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let source: string = (at sources i)
+        let mut j: int = 0
+        while (< j (array_length destinations)) {
+            let destination: string = (at destinations j)
+            if (!= destination "") {
+                let mut identity: int = -1
+                unsafe { set identity (file_compare_identity source destination) }
+                if (> identity 0) {
+                    (println (+ "I will not overwrite a source file: " source))
+                    return false
+                }
+                if (< identity 0) {
+                    (println (+ "I cannot check source/output file identity: " source))
+                    return false
+                }
+            }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow outputs_preserve_sources {
+    let directory: string = (mktemp_dir "nano_source_guard_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let source: string = (+ directory "/source.nano")
+        let output: string = (+ directory "/output")
+        unsafe { assert (== (file_write source "source") 0) }
+        assert (outputs_preserve_sources [source] output "")
+        assert (not (outputs_preserve_sources [source] source ""))
+        assert (not (outputs_preserve_sources [source] output source))
+        assert (not (outputs_preserve_sources [(+ directory "/missing")] output ""))
+        unsafe {
+            assert (== (file_read source) "source")
+            assert (== (file_delete source) 0)
+            assert (== (file_delete directory) 0)
+        }
+    }
+}
+
 fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, test_imports: bool) -> int {
     if (== input_file "") { return 1 }
     if verbose {
@@ -1749,6 +1796,9 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     let merged_files: array<string> = merge_result.files
     let merge_repo_root: string = merge_result.repo_root
     let source_to_compile: string = input_file
+
+    # I reject aliases before parsing can write diagnostics or shadows can run.
+    if (not (outputs_preserve_sources merged_files output_file llm_diags_json_path)) { return 1 }
     
     if (== merged_source "") {
         (println "Error: import resolution failed")
@@ -2293,10 +2343,6 @@ fn main() -> int {
         (print "")
     }
     
-    if (== (path_normalize opts.input_file) (path_normalize opts.output_file)) {
-        (println "I will not overwrite my input file")
-        return 1
-    }
     return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.test_imports)
 }
 

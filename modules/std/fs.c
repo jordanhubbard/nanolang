@@ -65,6 +65,19 @@ const char* path_canonical(const char* path) {
     return resolved ? resolved : strdup("");
 }
 
+/* I compare existing file identities without opening either file for writing.
+ * A missing candidate is distinct; unavailable source identity is an error.
+ * This is a snapshot check, not protection against concurrent path replacement. */
+int64_t file_compare_identity(const char* source, const char* candidate) {
+    struct stat source_stat, candidate_stat;
+    if (!source || !source[0] || !candidate || !candidate[0]) return -1;
+    if (stat(source, &source_stat) != 0) return -1;
+    if (stat(candidate, &candidate_stat) != 0)
+        return errno == ENOENT || errno == ENOTDIR ? 0 : -1;
+    return source_stat.st_dev == candidate_stat.st_dev &&
+           source_stat.st_ino == candidate_stat.st_ino ? 1 : 0;
+}
+
 /* Internal helper: normalize path into caller-provided buffer */
 static void path_normalize_into(const char* path, char* result, size_t result_size) {
     if (!path || path[0] == '\0') {

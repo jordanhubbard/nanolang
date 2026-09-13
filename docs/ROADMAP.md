@@ -468,11 +468,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
         is not a semantic-equivalence claim. Opt-in `NANO_SHADOW_TRACE` prints
         each generated native shadow target before execution.
         MAC `task_be1b5b951f7a499da6b995bed61871f9`.
-- [ ] **5.0 self-hosted source preservation through path aliases.** My input
-      overwrite guard still compares lexical spellings. I reproduce and reject
-      absolute/relative, symlink and hard-link input/output aliases before any
-      native or source-only write. Canonical import paths alone do not establish
-      this boundary. MAC `task_507117859a0642f4882b7015296d8af6`.
+- [x] **5.0 self-hosted source preservation through path aliases.** I compare
+      device/inode identities before diagnostics or shadows execute, checking
+      artifact and diagnostic paths against the root and loaded dependencies.
+      I reject relative, symlink and hard-link aliases for native and source-only
+      output, and fail closed when existing file identity cannot be checked.
+      All 24 alias combinations, syntax-error diagnostics and uncheckable-path
+      regressions pass within 44 driver tests on Darwin and Linux. Both
+      bootstraps pass with dependency shadows enabled. This checks stable
+      filesystem entries, not concurrent hostile namespace replacement.
+      MAC `task_507117859a0642f4882b7015296d8af6`.
+- [ ] **5.0 separate artifact and diagnostic destinations.** My self-hosted
+      driver writes diagnostics after publishing output without checking whether
+      those destinations alias each other. I reproduce and reject equal paths,
+      symlinks and hard links, including initially nonexistent equal paths,
+      while preserving prior artifacts. Source identity checks do not cover
+      this pair. MAC `task_f38c6358bf944c218f179daf1490ebe2`.
 - [ ] **5.0 self-hosted string-search builtin lowering.** A use of
       `str_index_of` typechecks but emits an undefined `nl_str_index_of`
       call. I test first/last search, empty and missing needles from source

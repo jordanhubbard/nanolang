@@ -91,6 +91,68 @@ class SelfhostCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0)
             self.assertIn("--target", result.stdout)
 
+    def test_source_aliases_are_rejected_before_writes(self):
+        for target in ("c", "native"):
+            for alias_kind in ("relative", "symlink", "hardlink"):
+                for dependency in (False, True):
+                    for report in (False, True):
+                        with self.subTest(target=target, alias=alias_kind, dependency=dependency, report=report), tempfile.TemporaryDirectory(prefix="nano-source-alias-") as tmp:
+                            directory = Path(tmp)
+                            source = directory / "input.nano"
+                            leaf = directory / "leaf.nano"
+                            leaf_text = 'pub fn answer() -> int { return 42 }\nshadow answer { assert true }\n'
+                            leaf.write_text(leaf_text)
+                            text = (f'module "{leaf}" as leaf\n' if dependency else '') + SOURCE
+                            source.write_text(text)
+                            protected = leaf if dependency else source
+                            alias = directory / "alias.nano"
+                            if alias_kind == "relative":
+                                alias = Path(protected.name)
+                            elif alias_kind == "symlink":
+                                alias.symlink_to(protected)
+                            else:
+                                os.link(protected, alias)
+                            output = directory / "output"
+                            output.write_bytes(b"prior output")
+                            args = [source, "--target", target, "-o", output if report else alias]
+                            if report:
+                                args.extend(["--llm-diags-json", alias])
+                            result = self.invoke(args, directory, cwd=directory)
+                            self.assertEqual(source.read_text(), text)
+                            self.assertEqual(leaf.read_text(), leaf_text)
+                            self.assertEqual(output.read_bytes(), b"prior output")
+                            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                            self.assertIn("I will not overwrite", result.stdout + result.stderr)
+                            self.assertFalse(list(directory.glob("nano_native_*")))
+
+    def test_diagnostic_alias_is_rejected_before_parse_error(self):
+        with tempfile.TemporaryDirectory(prefix="nano-source-alias-") as tmp:
+            directory = Path(tmp)
+            source = directory / "input.nano"
+            text = "fn main( -> int { invalid syntax }"
+            source.write_text(text)
+            alias = directory / "diagnostics.json"
+            os.link(source, alias)
+            output = directory / "output.c"
+            result = self.invoke([source, "--target", "c", "-o", output,
+                                  "--llm-diags-json", alias], directory)
+            self.assertEqual(source.read_text(), text)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("I will not overwrite", result.stdout + result.stderr)
+            self.assertFalse(output.exists())
+
+    def test_uncheckable_destination_identity_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="nano-source-alias-") as tmp:
+            directory = Path(tmp)
+            source = directory / "input.nano"
+            source.write_text(SOURCE)
+            alias = directory / "loop"
+            alias.symlink_to(alias.name)
+            result = self.invoke([source, "--target", "c", "-o", alias], directory)
+            self.assertEqual(source.read_text(), SOURCE)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("I cannot check", result.stdout + result.stderr)
+
     def test_missing_input(self):
         for args in ([], ["--target", "c"]):
             with self.subTest(args=args), tempfile.TemporaryDirectory(prefix="nanolang-cli-") as tmp:

@@ -14,6 +14,9 @@ const char* path_normalize(const char* path);
 /* I return an allocated physical absolute path, or an empty string on failure. */
 const char* path_canonical(const char* path);
 
+/* I return 1 for the same file, 0 for distinct/missing candidate, -1 on error. */
+int64_t file_compare_identity(const char* source, const char* candidate);
+
 /* Join two path components */
 const char* path_join(const char* a, const char* b);
 
