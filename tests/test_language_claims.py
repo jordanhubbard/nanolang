@@ -1,8 +1,10 @@
 """I characterize implementation boundaries; these are not universal language proofs."""
+import json
 import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -15,13 +17,14 @@ COMPILERS = {
 
 
 class LanguageClaims(unittest.TestCase):
-    def compile_source(self, backend, source, directory):
+    def compile_source(self, backend, source, directory, extra_args=()):
         path = directory / "claim.nano"
         path.write_text(source)
         output = directory / ("claim.nvm" if backend == "bytecode" else "claim")
         args = [str(COMPILERS[backend]), str(path), "-o", str(output)]
         if backend == "bytecode":
             args.append("--emit-nvm")
+        args.extend(extra_args)
         compiled = subprocess.run(args, cwd=ROOT, capture_output=True,
                                   env=dict(os.environ, TMPDIR=str(directory)), timeout=60)
         return compiled, output
@@ -150,6 +153,47 @@ shadow main {{ assert (== (main) 0) }}
                         self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                         self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
                         self.assertFalse(output.exists())
+
+    def test_foreign_failures_reject_ignored_results(self):
+        # I match the host's int64_t typedef in the generated C declaration.
+        absolute = "llabs" if sys.platform == "darwin" else "labs"
+        cases = {
+            "missing": ("extern fn nano_missing_shadow_symbol() -> void", "(nano_missing_shadow_symbol)"),
+            "float": ("extern fn erf(x: float) -> float", "(erf 0.0)"),
+            "resolved": (f"extern fn {absolute}(x: int) -> int", f"assert (== ({absolute} -42) 42)"),
+        }
+        for name, (declaration, call) in cases.items():
+            with self.subTest(case=name), tempfile.TemporaryDirectory(prefix="nano-foreign-failure-") as tmp:
+                directory = Path(tmp)
+                output = directory / "claim"
+                output.write_bytes(b"previous artifact")
+                source = f'''{declaration}
+fn root() -> int {{ return 42 }}
+shadow root {{ unsafe {{ {call} }} assert (== (root) 42) }}
+fn main() -> int {{ return 0 }}
+shadow main {{ assert (== (main) 0) }}
+'''
+                report = directory / "shadows.json"
+                compiled, output = self.compile_source("c-seed", source, directory,
+                                                       ["--llm-shadow-json", str(report)])
+                self.assertTrue(report.exists(), compiled.stdout + compiled.stderr)
+                evidence = json.loads(report.read_text())
+                if name == "resolved":
+                    self.assertTrue(evidence["success"])
+                    self.assertEqual(evidence["failures"], [])
+                    self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    self.assertEqual(self.execute("c-seed", output).returncode, 0)
+                else:
+                    self.assertFalse(evidence["success"])
+                    self.assertEqual(len(evidence["failures"]), 1)
+                    failure = evidence["failures"][0]
+                    self.assertEqual(failure["test"], "root")
+                    self.assertEqual(failure["fail_count"], 1)
+                    self.assertEqual(failure["first_location"]["line"], 3)
+                    self.assertGreater(failure["first_location"]["column"], 0)
+                    self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    self.assertIn(b"Shadow tests failed", compiled.stdout + compiled.stderr)
+                    self.assertEqual(output.read_bytes(), b"previous artifact")
 
 
 if __name__ == "__main__":

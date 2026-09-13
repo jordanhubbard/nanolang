@@ -4419,8 +4419,18 @@ static Value eval_call(ASTNode *node, Environment *env) {
     /* If built-in with no body, already handled above */
     if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
         /* Try FFI for extern functions */
-        if (func->is_extern && ffi_is_available()) {
-            return ffi_call_extern(name, args, node->as.call.arg_count, func, env);
+        if (func->is_extern) {
+            bool success = false;
+            Value result = ffi_call_extern_checked(name, args, node->as.call.arg_count,
+                                                  func, env, &success);
+            if (!success && g_in_shadow_tests) {
+                g_shadow_current_fail_count++;
+                if (g_shadow_current_first_line == 0) {
+                    g_shadow_current_first_line = node->line;
+                    g_shadow_current_first_column = node->column;
+                }
+            }
+            return result;
         }
         
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
@@ -5859,7 +5869,7 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
                 if (verbose) {
                     fprintf(stdout, "FAILED\n");
                 }
-                fprintf(stdout, "  Shadow test '%s' FAILED: %d assertion(s) failed\n", func_name, g_shadow_current_fail_count);
+                fprintf(stdout, "  Shadow test '%s' FAILED: %d failure(s)\n", func_name, g_shadow_current_fail_count);
                 if (g_shadow_current_first_line > 0) {
                     fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
                 }

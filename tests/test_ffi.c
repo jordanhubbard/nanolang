@@ -118,6 +118,59 @@ void test_ffi_double_cleanup(void) {
     ffi_cleanup();  /* Double cleanup should not crash */
 }
 
+void test_ffi_checked_status(void) {
+    Environment *env = create_environment();
+    Parameter param = {0};
+    param.type = TYPE_INT;
+    Function function = {0};
+    function.params = &param;
+    function.param_count = 1;
+    function.return_type = TYPE_INT;
+    Value arg = create_int(-42);
+    bool success = true;
+    ffi_cleanup();
+    Value result = ffi_call_extern_checked("llabs", &arg, 1, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+    ASSERT(ffi_init(false));
+    result = ffi_call_extern_checked("llabs", &arg, 1, &function, env, &success);
+    ASSERT(success && result.type == VAL_INT && result.as.int_val == 42);
+
+    result = ffi_call_extern_checked("nano_missing_checked_symbol", &arg, 1, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+    result = ffi_call_extern_checked("llabs", &arg, -1, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+    result = ffi_call_extern_checked("llabs", NULL, 1, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+    result = ffi_call_extern_checked("llabs", &arg, 0, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+    result = ffi_call_extern_checked("llabs", &arg, 1, NULL, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+
+    arg = create_bool(true);
+    result = ffi_call_extern_checked("llabs", &arg, 1, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+    param.type = TYPE_FLOAT;
+    arg = create_float(0.0);
+    result = ffi_call_extern_checked("llabs", &arg, 1, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+    function.return_type = TYPE_FLOAT;
+    result = ffi_call_extern_checked("erf", &arg, 1, &function, env, &success);
+    ASSERT(!success && result.type == VAL_VOID);
+
+    param.type = TYPE_OPAQUE;
+    function.return_type = TYPE_VOID;
+    arg = create_int(0);
+    result = ffi_call_extern_checked("free", &arg, 1, &function, env, &success);
+    ASSERT(success && result.type == VAL_VOID);
+
+    function.param_count = 0;
+    function.return_type = TYPE_BOOL;
+    result = ffi_call_extern_checked("___module_is_unsafe_missing", NULL, 0, &function, env, &success);
+    ASSERT(success && result.type == VAL_BOOL && !result.as.bool_val);
+    free_environment(env);
+    ffi_cleanup();
+}
+
 /* ============================================================================
  * main
  * ============================================================================ */
@@ -133,6 +186,7 @@ int main(void) {
     TEST(ffi_call_extern_no_module);
     TEST(ffi_double_init);
     TEST(ffi_double_cleanup);
+    TEST(ffi_checked_status);
 
     printf("\n✓ All FFI tests passed!\n");
     return 0;

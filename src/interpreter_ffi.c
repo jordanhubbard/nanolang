@@ -257,26 +257,31 @@ static size_t marshal_value_to_c(Value val, Type expected_type,
                                   unsigned char *buffer, size_t buffer_size) {
     switch (expected_type) {
         case TYPE_INT:
+            if (val.type != VAL_INT) return 0;
             if (buffer_size < sizeof(int64_t)) return 0;
             *((int64_t*)buffer) = val.as.int_val;
             return sizeof(int64_t);
             
         case TYPE_FLOAT:
+            if (val.type != VAL_FLOAT) return 0;
             if (buffer_size < sizeof(double)) return 0;
             *((double*)buffer) = val.as.float_val;
             return sizeof(double);
             
         case TYPE_BOOL:
+            if (val.type != VAL_BOOL) return 0;
             if (buffer_size < sizeof(bool)) return 0;
             *((bool*)buffer) = val.as.bool_val;
             return sizeof(bool);
             
         case TYPE_STRING:
+            if (val.type != VAL_STRING) return 0;
             if (buffer_size < sizeof(const char*)) return 0;
             *((const char**)buffer) = val.as.string_val;
             return sizeof(const char*);
 
         case TYPE_OPAQUE:
+            if (val.type != VAL_INT) return 0;
             /* Opaque values are represented as pointer-sized ints in the interpreter */
             if (buffer_size < sizeof(int64_t)) return 0;
             *((int64_t*)buffer) = val.as.int_val;
@@ -336,6 +341,20 @@ static Value marshal_c_to_value(void *c_result, Type return_type) {
 /* Call an extern function via FFI */
 Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
                       Function *func_info, Environment *env) {
+    bool success;
+    return ffi_call_extern_checked(function_name, args, arg_count, func_info, env, &success);
+}
+
+Value ffi_call_extern_checked(const char *function_name, Value *args, int arg_count,
+                             Function *func_info, Environment *env, bool *success) {
+    if (!success) return create_void();
+    *success = false;
+    if (!function_name || !func_info || !env || arg_count < 0 ||
+        arg_count > NANO_MAX_FFI_ARGS || arg_count != func_info->param_count ||
+        (arg_count && (!args || !func_info->params))) {
+        fprintf(stderr, "I cannot call FFI with invalid signature metadata or arguments.\n");
+        return create_void();
+    }
     if (!ffi_loader_is_initialized()) {
         fprintf(stderr, "Error: FFI not initialized\n");
         return create_void();
@@ -352,8 +371,21 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
         }
         Value v;
         if (ffi_try_module_introspection(function_name, args, arg_count, func_info, env, &v)) {
+            *success = true;
             return v;
         }
+        fprintf(stderr, "I cannot resolve foreign function '%s'.\n", function_name);
+        return create_void();
+    }
+
+    Type ret_type = func_info->return_type;
+    if (ret_type == TYPE_STRUCT && func_info->return_struct_type_name &&
+        env_get_opaque_type(env, func_info->return_struct_type_name)) {
+        ret_type = TYPE_OPAQUE;
+    }
+    if (ret_type != TYPE_INT && ret_type != TYPE_BOOL && ret_type != TYPE_STRING &&
+        ret_type != TYPE_VOID && ret_type != TYPE_OPAQUE && ret_type != TYPE_ARRAY) {
+        fprintf(stderr, "I cannot dispatch foreign result type %d for '%s'.\n", ret_type, function_name);
         return create_void();
     }
 
@@ -384,6 +416,11 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
             if (env_get_opaque_type(env, func_info->params[i].struct_type_name)) {
                 param_type = TYPE_OPAQUE;
             }
+        }
+
+        if (param_type == TYPE_FLOAT) {
+            fprintf(stderr, "I cannot dispatch floating-point foreign arguments for '%s'.\n", function_name);
+            return create_void();
         }
 
         size_t size = marshal_value_to_c(args[i], param_type,
@@ -519,12 +556,7 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
     /* Marshal result back */
     *((int64_t*)result_buffer) = result;
 
-    Type ret_type = func_info->return_type;
-    if (ret_type == TYPE_STRUCT && func_info->return_struct_type_name) {
-        if (env_get_opaque_type(env, func_info->return_struct_type_name)) {
-            ret_type = TYPE_OPAQUE;
-        }
-    }
+    *success = true;
 
     if (ret_type == TYPE_STRING) {
         const char *str = (const char*)(intptr_t)result;
@@ -561,4 +593,3 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
 
     return marshal_c_to_value(result_buffer, ret_type);
 }
-

@@ -3,7 +3,7 @@
  * @brief Foreign Function Interface for nanolang interpreter
  *
  * Enables the interpreter to dynamically load and call C functions from compiled
- * modules at runtime, providing true compiler/interpreter parity for extern functions.
+ * modules at runtime. I do not establish compiler/interpreter ABI parity.
  * Uses platform-specific dynamic loading (dlopen on Unix, LoadLibrary on Windows).
  */
 
@@ -54,16 +54,23 @@ bool ffi_load_module(const char *module_name, const char *module_path, Environme
  * @param env Environment context (reserved for future use)
  * @return Function return value as nanolang Value, or VAL_VOID on error
  *
- * Marshals nanolang Values to C types (int64_t, double, bool, char*, void*),
+ * Marshals nanolang Values to C types (int64_t, bool, char*, void*),
  * invokes the native function via function pointer from dlsym(), then marshals
  * the C return value back to a nanolang Value. Handles type conversions
  * automatically based on func_info metadata.
  *
- * Supported types: int, float, bool, string, opaque
- * Unsupported: arrays, structs, unions (future work)
+ * I retain integer/pointer dispatch, including array-pointer results.
+ * I reject float signatures, array arguments and non-opaque aggregates.
+ * Full signature-correct native dispatch remains a roadmap requirement.
  */
 Value ffi_call_extern(const char *function_name, Value *args, int arg_count, 
                       Function *func_info, Environment *env);
+
+/* I report dispatch failure separately from a legitimate void return.
+ * success is required and reset on every call. Legacy callers above discard it.
+ * My current pointer-cast dispatcher rejects floating-point signatures. */
+Value ffi_call_extern_checked(const char *function_name, Value *args, int arg_count,
+                             Function *func_info, Environment *env, bool *success);
 
 /**
  * @brief Check if FFI is available and initialized
@@ -75,4 +82,3 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
 bool ffi_is_available(void);
 
 #endif /* NANOLANG_INTERPRETER_FFI_H */
-

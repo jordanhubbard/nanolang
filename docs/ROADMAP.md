@@ -193,13 +193,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The post-bootstrap rerun passes all 16 language-claim/native-shadow tests;
       all nine interpreter FFI tests also pass.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
-- [ ] **5.0 interpreted shadows — foreign failures are test failures.** I
+- [x] **5.0 interpreted shadows — foreign failures are test failures.** I
       propagate failed symbol resolution and marshaling into shadow results
       instead of returning an ordinary void value that a test can ignore.
-      A non-builtin `erf(0.0)` fixture did not yield its expected zero on my
-      Darwin C seed; I must verify resolved and unavailable pure foreign calls,
-      including ignored results, before claiming foreign shadow acceptance.
+      My checked call API separates failure from a successful void return.
+      I test ignored missing-symbol and unsupported-float calls, JSON failure
+      locations and preservation of existing output, with a resolved native
+      integer-call control. Ten FFI tests cover malformed metadata, mismatched
+      value tags, uninitialized dispatch, recovery, introspection and void.
+      Those tests and all 95 evaluator tests pass on Darwin and Linux GCC;
+      the nine focused compiler cases pass on both. My Darwin bootstrap smoke
+      and no-C-seed checks pass; native binaries still differ. The prior `erf`
+      result came from unsupported native dispatch, which remains work below.
+      This is shadow failure accounting, not general interpreter exception
+      propagation, foreign isolation or proof of the declared C signature.
+      The final Darwin language/native-shadow rerun passes all 17 tests.
       MAC `task_48a773d48f4843ea92039b6b4dd381e3`.
+- [ ] **5.0 interpreter FFI — signature-correct native dispatch.** I replace
+      integer-returning pointer casts with ABI-correct calls for declared
+      argument and result types. My existing dispatch cannot pass or return
+      floating-point values correctly; until replaced I reject those calls
+      before invocation. I test mixed scalar signatures, void results and
+      malformed metadata on Darwin and Linux, and do not infer ABI correctness
+      from integer-only tests. I also remove unaligned marshaling accesses.
+      MAC `task_b6f54605c59c4e1abff628422c77922f`.
 - [ ] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
       make failing shadow assertions observable on every supported compiler
       path. My C-seed driver runs shadows during compilation; I measure the
@@ -208,7 +225,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       not satisfy it.
       The failing-shadow characterization is now rejected by the C seed,
       bytecode CLI and Stage 2 native driver. Imported-shadow policy and
-      interpreted foreign-call failure handling remain open; source-only emission
+      signature-correct interpreted foreign calls remain open; source-only emission
       typechecks root shadows but deliberately does not execute them.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**

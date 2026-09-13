@@ -54,7 +54,7 @@ I maintain a clear boundary between proof and testing. My `--trust-report` repor
 
 My project policy requires shadow tests. My compiler currently warns when a function lacks a shadow, subject to exemptions; it does not reject every untested function. I document the distinction in `docs/CANONICAL_STYLE.md`.
 
-Shadow tests are small assertions next to the function they test. My C seed executes selected shadows during compilation. My bytecode CLI compiles root-file shadows into a separate verified NanoISA module and runs it in NanoVM before publishing output. My self-hosted native driver runs root shadows in a separate timed test executable. Source-only C emission does not execute tests. Interpreted foreign-call error propagation and imported-shadow policy remain open. The requirement remains: if you write a function, you must test at least one observable property of it.
+Shadow tests are small assertions next to the function they test. My C seed executes selected shadows during compilation. My bytecode CLI compiles root-file shadows into a separate verified NanoISA module and runs it in NanoVM before publishing output. My self-hosted native driver runs root shadows in a separate timed test executable. Source-only C emission does not execute tests. Full interpreted foreign ABI support and imported-shadow policy remain open. The requirement remains: if you write a function, you must test at least one observable property of it.
 
 Compiler exemptions include extern functions, main, generated lambdas, and functions using extern calls. Foreign wrappers still need boundary and integration tests; an exemption does not establish their correctness.
 
