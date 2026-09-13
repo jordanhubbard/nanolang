@@ -461,6 +461,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       cache and linker tests. Warm validation now performs C code generation;
       I report assembly-capture and object-build counts separately (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GCC retained-object trial.** I test whether compiler object output
+      is reproducible across private output paths with supported flags, includes
+      assembler-read bytes, and can be linked after deleting original inputs.
+      I compare changed and restored inputs and execution results. I distinguish
+      this compiler-output boundary from a source-file snapshot and report the
+      full-compilation cost before deciding production integration.
+      Four GCC 12 subcases pass, including nested macro/include reads and debug
+      flags. Both platforms pass the 15-method snapshot suite with three
+      compiler-specific skips each. Median cJSON capture time is 214 ms for
+      object generation versus 12 ms for preprocessing in the Linux fixture;
+      this is not an incremental compilation speedup (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

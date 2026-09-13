@@ -247,6 +247,53 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     compile_run([shared, "-x", "assembler", str(captured), "-o", str(retained)])
                     self.assertEqual(self.answer(retained), 42)
 
+    def test_gcc_retained_object_reproducibility_and_external_inputs(self):
+        if self.clang: self.skipTest("I test the GCC compiler-output candidate here")
+        compiler = shutil.which("cc")
+        for nested in (False, True):
+            for flags in ([], ["-O2", "-g", "-std=c11", "-Wall", "-Wextra", "-Werror"]):
+                with self.subTest(nested=nested, flags=flags), tempfile.TemporaryDirectory(prefix="nano-object-trial-") as tmp:
+                    directory = Path(tmp)
+                    binary, include = directory / "payload with 'quotes'.bin", directory / "nested include.s"
+                    binary.write_bytes(b"xx42yy")
+                    include.write_text(f'.macro payload\n.incbin "{binary}", 2, 2\n.endm\npayload\n')
+                    source = directory / "answer.c"
+                    directive = f'.include "{include}"' if nested else f'.incbin "{binary}", 2, 2'
+                    assembly = f'.data\n.globl snapshot_payload\nsnapshot_payload:\n{directive}\n.text\n'
+                    source.write_text('extern const unsigned char snapshot_payload[];\n'
+                        '__asm__(' + json.dumps(assembly) + ');\n'
+                        'long long nano_build_answer(void) {\nreturn (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n')
+                    def capture(folder):
+                        output = directory / folder
+                        output.mkdir()
+                        obj = output / (folder + ".o")
+                        result = subprocess.run([compiler, "-fPIC", *flags, "-c", str(source), "-o", str(obj)],
+                                                capture_output=True, timeout=20)
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        return obj
+                    original, stamp = binary.read_bytes(), binary.stat()
+                    first, second = capture("first"), capture("second")
+                    self.assertEqual(first.read_bytes(), second.read_bytes())
+                    binary.write_bytes(b"xx43yy")
+                    os.utime(binary, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                    changed = capture("changed")
+                    self.assertNotEqual(first.read_bytes(), changed.read_bytes())
+                    binary.write_bytes(original)
+                    os.utime(binary, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                    self.assertEqual(first.read_bytes(), capture("restored").read_bytes())
+                    binary.unlink()
+                    include.unlink()
+                    failed = subprocess.run([compiler, "-fPIC", *flags, "-c", str(source), "-o", str(directory / "failed.o")],
+                                            capture_output=True, timeout=20)
+                    self.assertNotEqual(failed.returncode, 0)
+                    source.unlink()
+                    for obj, expected in ((first, 42), (changed, 43)):
+                        library = obj.with_suffix(".so")
+                        result = subprocess.run([compiler, "-shared", str(obj), "-o", str(library)],
+                                                capture_output=True, timeout=20)
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        self.assertEqual(self.answer(library), expected)
+
     def test_multiple_and_shared_only_sources(self):
         with tempfile.TemporaryDirectory(prefix="nano-retained-multiple-") as tmp:
             directory = Path(tmp)

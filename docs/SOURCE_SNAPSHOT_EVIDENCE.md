@@ -360,3 +360,44 @@ disconnected its network, and passed the snapshot, cache and Linux linker
 suites using that compiler. This exercises the new assembly path on Linux;
 the GCC pass alone would not. The temporary compiler is not a new product
 dependency.
+
+## GCC object-output candidate and cost
+
+GCC 12 emits a reproducible object for the four exercised combinations of
+direct/nested assembler reads and default/configured flags. The configured
+set is `-O2 -g -std=c11 -Wall -Wextra -Werror`; objects also use `-fPIC`.
+`test_gcc_retained_object_reproducibility_and_external_inputs` checks:
+
+- Different private output directories and filenames produce identical objects.
+- Changing the binary payload from 42 to 43 changes object bytes despite
+  restoring the original mtime.
+- Restoring the payload and mtime restores the original object bytes.
+- Missing assembler inputs fail compilation.
+- After deleting C, assembler include and binary inputs, the retained original
+  and changed objects still link and execute 42 and 43 respectively.
+
+This is a compiler-output boundary. It does not retain an auditable snapshot
+of every original source file, make source-tree reads atomic, or establish
+reproducibility for arbitrary compiler options. It is a candidate for binding
+linking and reuse to actual compiler output without parsing assembler syntax.
+Production integration remains open.
+
+Warm output validation would repeat the complete C compilation and assembly.
+I measured the cost on repository `src/cJSON.c` inside the same isolated Linux
+arm64 GCC 12 environment, with these commands, three sequential runs each:
+
+```sh
+time cc -O2 -fPIC -Isrc -E src/cJSON.c -o /work/cjson.i
+time cc -O2 -fPIC -Isrc -c src/cJSON.c -o /work/cjson.o
+```
+
+Preprocessing took 12, 12 and 11 ms; object generation took 214, 214 and 211 ms
+of wall time. The median ratio is about 18 times for this workload, not a
+general performance estimate. This path could establish stronger output
+consistency, but calling it an incremental compilation speedup would be false.
+The same distinction applies to Clang's already integrated assembly capture:
+its warm validation also repeats C code generation.
+
+The expanded 15-method snapshot suite passes on both Darwin Clang and Linux
+GCC, with three compiler-specific skips each. This trial changes tests and
+evidence, not production compiler behavior.
