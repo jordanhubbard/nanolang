@@ -151,6 +151,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with `make rebuild`, `make test-make-header-dependencies`, and
       `make test-quick`. GitHub #211.
       MAC `task_9f8a6bf48d4c4117b1a551ee35c0b055`.
+- [x] **5.0 contributor contract and release freshness.** I reconcile
+      CONTRIBUTING with current shadow execution, backend scope, verifier
+      limits and parser fuzzing practice. I distinguish project policy,
+      implementation, tests and formal proof. The shared release helper reads
+      raw NUL-delimited Git output, retains both rename endpoints and preserves
+      leading, trailing, CR and LF filename bytes. Real temporary-repository
+      regressions and the release documentation gate pass without an
+      acknowledgement override. MAC `task_bb0635cd76e04f898ea7886298377a01`.
 - [x] **5.0 / native match-block scalar acceptance.** Function-scoped return
       and final-expression arm values work in the C seed and self-hosted
       compiler. I repaired evaluator return propagation and direct
