@@ -889,6 +889,21 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       length-delimited records. Production snapshots remain unchanged; their
       19-method suite passes on both hosts. Darwin skips the Linux-only trial
       (2026-09-13). MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 assembler capture record lifecycle.** I replace the trial's
+      append-only records with a versioned, bounded, sealed capture format.
+      I preserve failed opens and ordered repeated reads, validate copy contents,
+      reject interrupted/truncated captures, and require replay completion.
+      I build the helper from runtime sources and exercise it with real GNU as
+      before connecting it to the production builder. The integration gate
+      below remains open until compilation actually selects the helper.
+      Eight Linux methods pass against the built helper and with helper UBSan,
+      including real GNU-as macro/path replay, ordered failures and repeated
+      reads, killed capture, malformed records, changed/missing/symlink copies,
+      FIFO replacement and stale-completion rejection. The original trial and
+      19 production snapshot methods still pass on both hosts with their
+      platform skips. Private replay storage remains trusted; this is not
+      hostile-writer isolation or authenticated evidence (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 GNU assembler capture/replay integration.** I bind a supported
       assembler executable to an isolated read-capture helper, preserving
       ordered repeated reads and exact path bytes. I package and identify the

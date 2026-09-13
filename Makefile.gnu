@@ -2075,6 +2075,15 @@ test-cseed-import-shadows: $(COMPILER_C)
 test-assembler-snapshot-trial:
 	@python3 -m unittest tests.test_assembler_snapshot_trial
 
+.PHONY: test-assembler-capture-records
+test-assembler-capture-records:
+	@python3 -m unittest tests.test_assembler_capture_records
+
+ifeq ($(UNAME_S),Linux)
+$(BIN_DIR)/nano_as_capture.so: $(RUNTIME_DIR)/assembler_capture.c $(RUNTIME_DIR)/assembler_capture.h | $(BIN_DIR)
+	$(CC) -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o $@ $< -ldl
+endif
+
 MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
 
 $(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/module_builder.h $(RUNTIME_DIR)/module_build_dir.h $(HEADERS) $(MODULE_GENERATION_PROBE_OBJECTS)

@@ -539,3 +539,60 @@ directory; it supports only the tested stdio modes, 256 opens and 32 MiB per
 input. It does not cover static assemblers, arbitrary direct syscalls, host
 sandboxing, concurrent writers to the capture, or other compiler/assembler
 variants. General assembler snapshot acceptance remains open (2026-09-13).
+
+## Sealed assembler capture records
+
+`src/runtime/assembler_capture.c` now owns a runtime helper and
+`src/runtime/assembler_capture.h` its shared record validator. I build it
+explicitly on Linux with `make bin/nano_as_capture.so`; the production module
+builder does not select it yet. The earlier trial remains historical evidence,
+not the implementation used by this helper.
+
+The `NASCAP01` format uses little-endian fixed-width headers and length-delimited
+path bytes. Each ordered open records either the original error number or a
+copy's size and FNV-1a content digest. The seal binds the complete record stream.
+I normalize only the first, invocation-private pathname in that digest and
+require the helper's expected-input setting to match its actual first read.
+The validator checks every successful copy, record bounds, the seal and EOF.
+These checks detect corruption; they are not cryptographic authentication.
+
+Capture writes an exclusive partial record and exclusive copy files, returns
+streams for the copies, and publishes the sealed record without replacing an
+existing manifest. A killed capture leaves only partial evidence. Replay checks
+the entire capture, preserves failed opens even if those paths now exist,
+and consumes repeated reads in order. Unknown reads, missing/changed copies,
+symlink substitutions and an unread tail fail. Each replay first clears its
+completion marker; only a completed replay writes `NACDONE1`. The driver must
+check both child success and completion evidence: a sealed open stream alone
+does not establish successful assembly.
+
+The helper requires `NANO_AS_CAPTURE_PREFIX`, `NANO_AS_CAPTURE_PHASE` and
+`NANO_AS_CAPTURE_INPUT`. Those settings and `LD_PRELOAD` must eventually be
+confined to the selected assembler child. I reject unsupported stdio modes,
+other threads/processes, nonregular source inputs and excess capture sizes.
+Original symlinks are followed during capture; retained-copy symlinks are not.
+Nonblocking source opens prevent a FIFO replacement from blocking capture.
+The limits are 256 opens, 4095 pathname bytes, 32 MiB per file and 64 MiB total.
+
+```sh
+make test-assembler-capture-records
+make bin/nano_as_capture.so
+NANO_AS_CAPTURE_TEST_HELPER="$PWD/bin/nano_as_capture.so" make test-assembler-capture-records
+NANO_AS_TRIAL_UBSAN=1 make test-assembler-capture-records
+```
+
+Eight methods pass against the packaged Linux helper and against its UBSan
+build. Real GNU as replays a macro include and path bytes containing double
+quotes, apostrophes, dollar/hash, backslash and newline after source deletion.
+A deterministic stdio driver verifies repeated reads, preserved `ENOENT`, and
+rejection of an unread tail even when the driver itself exits zero. Tests also
+cover killed capture, header/seal truncation, extra trailing bytes, bad sizes,
+changed/missing copy evidence, source/copy symlink distinctions, FIFO replacement
+and existing-capture preservation. Darwin skips these Linux-only methods.
+
+The private capture directory remains trusted and must not be modified during
+replay; this is not hostile-writer isolation or power-loss durability. Only the
+tested stdio read boundary is covered, not arbitrary assembler syscalls. Tool
+identification, complete supported read coverage, child-only configuration,
+build/install integration and actual production selection remain in the
+integration gate. I have not enabled the helper as a default compiler path.
