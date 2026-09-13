@@ -1014,6 +1014,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       from this capture boundary. Metadata and package captures roll back
       together if an unresolved response, shell fragment or driver-mode
       override remains; decoded escaped overrides follow the same rule.
+      I next measure long literal argument lists through the production build,
+      comparing cold, warm and fresh results in local and shared caches. The
+      transport must survive phase filtering and the returned `ModuleBuildInfo`
+      flags; increasing one parser buffer does not satisfy this lifetime.
+      The 10,212-byte literal reproducer now confirms cold/warm/fresh
+      43/43/42 with reuse on GCC 12 and 43/42/42 without reuse on Apple Clang
+      21, in both local and shared caches. The explicit
+      `--response-large --require-consistent` gate remains red. A passing
+      characterization-instrument test does not satisfy this acceptance gate.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

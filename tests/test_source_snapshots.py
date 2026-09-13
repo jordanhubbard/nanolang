@@ -617,6 +617,26 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     self.assertTrue(case[field], field)
                 self.assertTrue(case["retained_translation_unit"] or case["retained_assembly"])
 
+    def test_large_response_characterization_restores_the_input(self):
+        # I check the measuring instrument here. The explicit CLI consistency
+        # gate remains red until large response transport is implemented.
+        observed = measure(shutil.which("cc"), ("response-large",))
+        self.assertEqual({case["cache"] for case in observed["cases"]}, {"local", "shared"})
+        self.assertEqual(len(observed["cases"]), 2)
+        for case in observed["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual(case["input"], "response-large")
+                self.assertEqual(case["input_bytes"], 10212)
+                self.assertEqual(case["fresh_answer"], 42)
+                for field in ("bytes_restored", "size_preserved", "mtime_preserved"):
+                    self.assertTrue(case[field], field)
+        mismatch = any(case["cold_answer"] != case["fresh_answer"] or
+                       case["warm_answer"] != case["fresh_answer"] for case in observed["cases"])
+        if mismatch:
+            with self.assertRaises(SystemExit): require_consistent(observed)
+        else:
+            require_consistent(observed)
+
     def test_response_words_match_the_real_compiler(self):
         with tempfile.TemporaryDirectory(prefix="nano-response-words-") as tmp:
             directory = Path(tmp)

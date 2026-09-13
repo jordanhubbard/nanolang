@@ -4,6 +4,7 @@ Run with python3 -m tests.characterize_source_snapshot [C-compiler].
 Add --require-consistent to fail when cold or warm answers differ from fresh.
 Add --assembler to include external binary input read by inline assembly.
 Add --response to include compiler arguments read from a response file.
+Add --response-large to exercise argument lists beyond inline capture limits.
 I execute the production builder and load each library in a fresh process.
 """
 
@@ -41,9 +42,10 @@ def measure(compiler, kinds=("source", "header")):
                     target.write_text("#define ANSWER 42\n")
                     source.write_text('#include <stdint.h>\n#include "answer.h"\n'
                                       'int64_t nano_build_answer(void) { return ANSWER; }\n')
-                elif kind == "response":
+                elif kind in ("response", "response-large"):
                     target = module / "flags.rsp"
-                    target.write_text("-DANSWER=42\n")
+                    padding = "-DNANO_PADDING=1\n" * 600 if kind == "response-large" else ""
+                    target.write_text(padding + "-DANSWER=42\n")
                     source.write_text('long long nano_build_answer(void) { return ANSWER; }\n')
                     metadata = json.loads((module / "module.json").read_text())
                     fresh_flags = ["@" + str(target)]
@@ -132,6 +134,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     raise RuntimeError("I did not complete and restore the controlled compilation")
                 cases.append({
                     "input": kind, "cache": "shared" if shared else "local",
+                    "input_bytes": len(original),
                     "bytes_restored": target.read_bytes() == original,
                     "size_preserved": target.stat().st_size == stamp.st_size,
                     "mtime_preserved": target.stat().st_mtime_ns == stamp.st_mtime_ns,
@@ -166,6 +169,7 @@ if __name__ == "__main__":
     parser.add_argument("--require-consistent", action="store_true")
     parser.add_argument("--assembler", action="store_true")
     parser.add_argument("--response", action="store_true")
+    parser.add_argument("--response-large", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler:
@@ -173,6 +177,7 @@ if __name__ == "__main__":
     kinds = ("source", "header")
     if args.assembler: kinds += ("assembler",)
     if args.response: kinds += ("response",)
+    if args.response_large: kinds += ("response-large",)
     result = measure(compiler, kinds)
     print(json.dumps(result, indent=2))
     if args.require_consistent:

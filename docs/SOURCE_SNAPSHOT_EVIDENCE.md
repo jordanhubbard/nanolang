@@ -846,3 +846,43 @@ Darwin bytecode/cache/link/snapshot/helper run passes 132 methods with 24 expect
 skips before the final escaped-override decoding guard.
 With that final guard, all 31 Darwin snapshot methods pass with eleven expected
 skips (Apple Clang 21, arm64, 2026-09-13).
+
+## Large response-file transport remains unretained
+
+I now measure a 10,212-byte response file: 600 harmless identical macro flags,
+followed by `-DANSWER=42`. The selected driver changes 42 to 43 only during
+object compilation, then restores the original bytes and timestamp. This
+exceeds my inline expansion limit while remaining well below the response
+reader's 64 KiB input budget.
+
+```sh
+python3 -m tests.characterize_source_snapshot --response-large --require-consistent
+```
+
+Both local and shared caches give these results on arm64 (2026-09-13):
+
+| Compiler | Cold | Warm | Fresh | Generation reused |
+|---|---:|---:|---:|---|
+| Apple Clang 21.0.0 | 43 | 42 | 42 | no |
+| GCC 12.2.0 | 43 | 43 | 42 | yes |
+
+Neither driver retains a translation unit or assembly snapshot for this case.
+GCC publishes a reuse record that does not name the response input. Clang
+withholds reuse, but that does not repair its incorrect cold output. The command
+above exits one on both hosts. My unit test checks the measurement's restoration,
+size, fresh output and consistency predicate; it deliberately does not claim
+that this production boundary passes.
+
+The next implementation must retain argument ownership across every consumer:
+`module_compile_prefix` filters arguments by compilation phase;
+`module_shared_link_command` also consumes metadata compiler flags; and
+`ModuleBuildInfo.compile_flags` outlives the invocation-local metadata copy and
+is returned to native callers. An invocation-private response file removed at
+the end of `module_build` would leave those returned flags dangling. A random
+temporary pathname must not become cache identity either. I need retained
+transport with defined lifetime and content identity, not a larger inline
+buffer or a flag saying this unsupported path is safe.
+
+All 32 snapshot test methods pass on Apple Clang 21 Darwin arm64 and GCC 12
+Linux arm64, with eleven and two expected skips respectively. The separate
+large-response acceptance command remains red on both hosts.
