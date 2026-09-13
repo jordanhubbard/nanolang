@@ -1355,6 +1355,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I next extend native debug controls to instruction-emitting nested
       macros and explicit `.file`/`.loc` directives, including quoted and
       Unicode source names, before closing the provenance parent.
+      I measure these controls without normalizing source paths or line rows,
+      across `.s`/`.S`, both cache roots, integrated Clang and external
+      assembly. Explicit-location fixtures must name their logical debug
+      source rather than mistaking its absence from the physical source for
+      missing debug information.
+      The expanded 48-case matrix passes on each host, including both quote
+      forms, implicit locations and explicit logical source locations. I
+      retain complete native-object/debug equality and warm reuse. The
+      mapping-source `=` limitation below still prevents parent completion.
+- [x] **5.0 assembler provenance measurement — native zero addresses.** I
+      recognize `readelf`'s bare `0` address in explicit source-line rows,
+      while rejecting wrong filenames and line numbers. I test both quote
+      forms in Unicode source basenames and make strict characterization
+      require the requested location as well as native object identity.
+      Three focused Darwin methods pass; the complete Linux target passes
+      238 methods with 29 platform skips. I record escaped native Unicode
+      spellings separately, without normalizing debug data.
+- [ ] **5.0 assembler debug maps — equals-containing source paths.** I give
+      retained inputs representable names when source or cache paths contain
+      `=`, preserving native include lookup, physical-root debug provenance,
+      native object identity, warm reuse and failure cleanup. Native Apple
+      Clang 21, Debian Clang 14 and GNU assembler 2.40 all split debug maps at
+      the first `=`; simply removing my guard produces the wrong directory.
+      MAC `task_da2ca60a6acf481ab6d9e3f2fd276a31` retains this requirement.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

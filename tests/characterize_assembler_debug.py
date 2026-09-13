@@ -16,6 +16,7 @@ import difflib
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -42,14 +43,33 @@ def evidence(obj, source, cwd, text=None):
     decoded = run([*command, obj], cwd)
     normalized = decoded.replace(str(obj), "@object")
     if text is not None: text.extend(normalized.splitlines(keepends=True))
+    # I recognize escaped native spellings without rewriting the debug dump.
+    escaped = ''.join(chr(byte) if 32 <= byte < 127 and byte not in (34, 92)
+                      else '\\"' if byte == 34 else '\\\\' if byte == 92 else f'\\{byte:03o}'
+                      for byte in source.name.encode())
+    displayed = escaped.replace('\\', '\\\\').replace('"', '\\"')
     return {"sections": sections, "source_named": source.name in decoded,
+            "escaped_source_named": source.name not in decoded and any(
+                spelling != source.name and spelling in decoded for spelling in (escaped, displayed)),
             "decoded_debug_sha256": hashlib.sha256(normalized.encode()).hexdigest(),
             "private_snapshot_named": "__snapshot_" in decoded or "__assembler_" in decoded,
             "compile_units": decoded.count("DW_TAG_compile_unit")}
 
 
+def requested_location(decoded, platform=sys.platform):
+    # My Linux decoded line table exposes the source and line, not the column.
+    pattern = (r"(?m)^0x[0-9a-f]+\s+137\s+5\s" if platform == "darwin" else
+               r"(?m)^logical source\.c\s+137\s+(?:0|0x[0-9a-f]+)(?:\s|$)")
+    return bool(re.search(pattern, decoded))
+
+
 def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False, module_alias=False,
-            capture_object=False, nested_read=False, integrated=False):
+            capture_object=False, nested_read=False, integrated=False, instruction_macro=False,
+            explicit_locations=False, source_stem="payload"):
+    if instruction_macro and not (macro_read and nested_read):
+        raise ValueError("I require nested macro reads for instruction provenance")
+    if not source_stem or Path(source_stem).name != source_stem:
+        raise ValueError("I require a source basename, not a path")
     if nested_read and not macro_read:
         raise ValueError("I require macro reads for the nested include fixture")
     if flat and not candidate:
@@ -71,19 +91,25 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 env["NANO_CC"] = compiler
                 env["NANO_AS_CAPTURE_HELPER"] = str(ROOT / "bin/nano_as_capture.so")
                 if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
-                source = module / ("payload." + suffix)
+                source = module / (source_stem + "." + suffix)
+                debug_source = Path("logical source.c") if explicit_locations else source
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                 assembly = f'.text\nnop\n.data\n.globl {symbol}\n{symbol}:\n.byte 42\n'
                 if macro_read:
                     payload = directory / "debug payload.bin"
                     payload.write_bytes(b"*")
                     macro_text = '.macro read_payload path\n.incbin "\\path"\n.endm\n'
+                    if instruction_macro:
+                        macro_text += '.macro step operation\n\\operation\n.endm\n'
+                        assembly = assembly.replace('nop', 'step nop')
                     if nested_read:
                         macro_source = directory / "debug macro.s"
                         macro_source.write_text(macro_text)
                         macro_text = '.include "' + str(macro_source) + '"\n'
                     assembly = macro_text + assembly.replace(
                         '.byte 42', 'read_payload "' + str(payload) + '"')
+                if explicit_locations:
+                    assembly = '.file 1 "logical source.c"\n' + assembly.replace('.text\n', '.text\n.loc 1 137 5\n')
                 if suffix == "S": assembly = '#define INSTRUCTION nop\n' + assembly.replace('nop', 'INSTRUCTION')
                 source.write_text(assembly)
                 (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
@@ -93,22 +119,24 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 native = directory / "native.o"
                 run([compiler, "-c", "-fPIC", *flags, source, "-o", native], directory)
                 native_text = []
-                expected = evidence(native, source, directory, native_text)
+                expected = evidence(native, debug_source, directory, native_text)
                 physical_source = module.resolve() / source.name
                 physical_native = directory / "physical-native.o"
                 run([compiler, "-c", "-fPIC", *flags, physical_source, "-o", physical_native], directory)
                 physical_text = []
-                physical_expected = evidence(physical_native, physical_source, directory, physical_text)
-                if debug_options and debug_options[-1] != "-g0" and (not expected["sections"] or not expected["source_named"]):
+                physical_expected = evidence(physical_native, debug_source, directory, physical_text)
+                native_location = requested_location(''.join(physical_text)) if explicit_locations else None
+                if debug_options and debug_options[-1] != "-g0" and (not expected["sections"] or
+                        not (expected["source_named"] or expected["escaped_source_named"])):
                     raise RuntimeError("I need a native object with debug sections and source provenance")
                 probe = ROOT / "obj/test_module_generation_probe"
                 run([probe, "build", requested_module], directory, env)
                 generation = Path(run([probe, "directory", requested_module], directory, env).strip())
                 production_object = generation / "answer_native_1.o"
                 production_text = []
-                observed = evidence(production_object, source, directory, production_text)
+                observed = evidence(production_object, debug_source, directory, production_text)
                 native_retained = generation / "__native_unit_0_1.o"
-                retained_evidence = evidence(native_retained, physical_source, directory) if native_retained.is_file() else None
+                retained_evidence = evidence(native_retained, debug_source, directory) if native_retained.is_file() else None
                 retained_identical = physical_native.read_bytes() == native_retained.read_bytes() if native_retained.is_file() else None
                 captured_evidence = None
                 captured_identical = None
@@ -129,7 +157,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                     run([compiler, "-c", "-fPIC", *flags, *remaps, "-x", "assembler",
                          retained_unit, "-o", captured_object], directory)
                     captured_text = []
-                    captured_evidence = evidence(captured_object, physical_source, directory, captured_text)
+                    captured_evidence = evidence(captured_object, debug_source, directory, captured_text)
                     captured_identical = physical_native.read_bytes() == captured_object.read_bytes()
                     captured_diff = ''.join(difflib.unified_diff(physical_text, captured_text,
                                                                fromfile="physical-native", tofile="captured-object"))
@@ -174,7 +202,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                     finally:
                         source.write_bytes(original)
                     candidate_text = []
-                    candidate_evidence = evidence(output, source, directory, candidate_text)
+                    candidate_evidence = evidence(output, debug_source, directory, candidate_text)
                     candidate_identical = native.read_bytes() == output.read_bytes()
                     candidate_diff = ''.join(difflib.unified_diff(native_text, candidate_text, fromfile="native", tofile="candidate"))
                 library = run([probe, "library", requested_module], directory, env).strip()
@@ -184,7 +212,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 warm_generation = Path(run([probe, "directory", module.resolve()], directory, env).strip())
                 reused = generation == warm_generation
                 warm_text = []
-                evidence(warm_generation / "answer_native_1.o", source, directory, warm_text)
+                evidence(warm_generation / "answer_native_1.o", debug_source, directory, warm_text)
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
                               "published_unit_aliases": [p.name for p in generation.glob("__unit_*")],
                               "native": expected, "production": observed,
@@ -196,6 +224,10 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                               "captured_object_debug_diff": captured_diff,
                               "captured_object_removed_inputs": removed_inputs,
                               "lexical_source": str(source), "physical_source": str(physical_source),
+                              "debug_source": str(debug_source), "instruction_macro": instruction_macro,
+                              "explicit_locations": explicit_locations,
+                              "native_requested_location": native_location,
+                              "production_requested_location": requested_location(''.join(production_text)) if explicit_locations else None,
                               "requested_module": str(requested_module),
                               "physical_native": physical_expected,
                               "physical_object_identical": physical_native.read_bytes() == production_object.read_bytes(),
@@ -225,6 +257,9 @@ if __name__ == "__main__":
     parser.add_argument("--integrated", action="store_true")
     parser.add_argument("--macro-read", action="store_true")
     parser.add_argument("--nested-read", action="store_true")
+    parser.add_argument("--instruction-macro", action="store_true")
+    parser.add_argument("--explicit-locations", action="store_true")
+    parser.add_argument("--source-stem", default="payload")
     parser.add_argument("--capture-object", action="store_true")
     parser.add_argument("--require-captured-object", action="store_true")
     parser.add_argument("--candidate", action="store_true")
@@ -239,11 +274,17 @@ if __name__ == "__main__":
         parser.error("I require --capture-object for captured-object acceptance")
     if args.nested_read and not args.macro_read:
         parser.error("I require --macro-read with --nested-read")
+    if args.instruction_macro and not (args.macro_read and args.nested_read):
+        parser.error("I require --macro-read and --nested-read with --instruction-macro")
+    if not args.source_stem or Path(args.source_stem).name != args.source_stem:
+        parser.error("I require a source basename, not a path")
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler")
     result = measure(compiler, candidate=args.candidate, flat=args.flat,
                      module_alias=args.module_alias, macro_read=args.macro_read, capture_object=args.capture_object,
-                     nested_read=args.nested_read, integrated=args.integrated)
+                     nested_read=args.nested_read, integrated=args.integrated,
+                     instruction_macro=args.instruction_macro, explicit_locations=args.explicit_locations,
+                     source_stem=args.source_stem)
     print(json.dumps(result, indent=2))
     if args.require_debug and any(case["native"] != case["candidate" if args.candidate else "production"] or case["answer"] != 42
                                   or not case["generation_reused"] or (args.candidate and not case["candidate_object_identical"])
@@ -251,7 +292,9 @@ if __name__ == "__main__":
         raise SystemExit("I did not retain the native debug evidence and reusable result")
     if args.require_physical_debug and any(case["physical_native"] != case["production"] or
                                           not case["physical_object_identical"] or case["answer"] != 42 or
-                                          not case["generation_reused"] for case in result["cases"]):
+                                          not case["generation_reused"] or (args.explicit_locations and
+                                          not (case["native_requested_location"] and case["production_requested_location"]))
+                                          for case in result["cases"]):
         raise SystemExit("I did not retain the physical-source native object and debug evidence")
     if args.require_captured_object and any(case["physical_native"] != case["captured_object"] or
                                            not case["captured_object_identical"] or case["captured_object_value"] != 42 or

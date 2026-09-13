@@ -2781,3 +2781,54 @@ methods pass in 119.672 seconds with AddressSanitizer, UndefinedBehaviorSanitize
 and leak detection enabled, with no reports. Instrumentation covers the
 builder/probe, not every support object. Strict builds, Python syntax,
 whitespace and six-edition guide checks pass.
+
+### Nested instruction and explicit-location provenance
+
+I extend the standalone debug characterizer with an instruction-emitting
+macro defined in an included assembler file, alongside the existing nested
+binary read. The `.S` control preprocesses the instruction argument before
+macro expansion. A separate variant supplies `.file 1 "logical source.c"`
+and `.loc 1 137 5`; its expected debug source is that logical file, not the
+physical assembler basename.
+
+My regression matrix crosses `.s`/`.S`, local/shared cache roots, external
+assembly/integrated Clang, implicit/explicit locations, and three source
+basenames: plain, single-quoted Unicode and double-quoted Unicode. Every
+case requires complete object-byte identity with an independently compiled
+physical-source native control, unchanged decoded debug data, runtime value
+42 and alias-to-physical warm reuse. I do not normalize source paths or line
+rows. The existing object-heading substitution remains the only debug-dump
+normalization.
+
+Apple's native debug dump can display Unicode filename bytes as escaped
+octal spellings. I report recognition of those spellings separately from
+literal source-name presence; I do not rewrite the dump. This establishes
+parity with native output, not an external debugger's ability to resolve
+that spelling to a filesystem path.
+
+My first Linux location check rejected the native control: `readelf`
+prints address zero as `0`, not `0x0`. I now recognize either spelling and
+require the exact logical filename and line 137. Negative controls reject
+wrong files, wrong lines and malformed addresses. Darwin's decoded table
+also exposes column 5, which I check; the Linux decoded table does not
+expose a column. Strict physical characterization requires the requested
+location when that fixture is selected, in addition to object/debug equality.
+
+The mapping-source `=` limitation remains open. In a separate native
+control, `.file 1 "/original=dir/a.s"` with the mapping
+`/original=dir=/mapped` produces `dir=/mapped=dir`, not `/mapped`.
+Apple Clang 21 integrated/external, GCC 12 with GNU assembler 2.40, and
+Debian Clang 14 integrated all accept the command but split the mapping at
+the first `=`. Removing my representability guard would silently change
+provenance. A repair must preserve native include lookup and physical-root
+source identity while giving the retained input a representable name.
+
+Final validation: all 48 matrix cases pass on each host. Three focused
+Darwin methods pass in 199.118 seconds. The complete Linux bytecode-shadow
+target passes 238 methods with 29 platform skips; its 97-method snapshot
+suite takes 159.939 seconds. A strict integrated Linux CLI invocation also
+accepts all four suffix/cache cases with explicit locations and a
+double-quoted Unicode basename; malformed fixture arguments are rejected.
+Python syntax, whitespace and six-edition guide checks pass. This checkpoint
+changes test and evidence code, not production capture code; it does not
+add a new sanitizer claim.

@@ -615,6 +615,43 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 self.support.probe_path("build", module, env, timeout=30)
                 self.assertEqual(self.support.probe_path("directory", module, env), first)
 
+    def test_assembler_requested_location_evidence(self):
+        from tests.characterize_assembler_debug import requested_location
+        for address in ("0", "0x0", "0x42"):
+            row = f"logical source.c   137   {address}   x\n"
+            self.assertTrue(requested_location(row, "linux"))
+            self.assertFalse(requested_location(row.replace("137", "138"), "linux"))
+            self.assertFalse(requested_location(row.replace("logical", "unrelated"), "linux"))
+        self.assertFalse(requested_location("logical source.c 137 0garbage x\n", "linux"))
+        self.assertTrue(requested_location("0x00000000 137 5 1 0 is_stmt\n", "darwin"))
+        self.assertFalse(requested_location("0x00000000 138 5 1 0 is_stmt\n", "darwin"))
+        self.assertFalse(requested_location("0x00000000 137 6 1 0 is_stmt\n", "darwin"))
+
+    def test_assembler_instruction_and_location_provenance(self):
+        self.assembler_instruction_and_location_provenance(shutil.which("cc"), integrated=False)
+
+    def test_integrated_instruction_and_location_provenance(self):
+        compiler = shutil.which("clang")
+        if not compiler: self.skipTest("I require integrated Clang")
+        self.assembler_instruction_and_location_provenance(compiler, integrated=True)
+
+    def assembler_instruction_and_location_provenance(self, compiler, integrated):
+        from tests.characterize_assembler_debug import measure as measure_debug
+        for explicit in (False, True):
+            for stem in ("payload", "code 'naïve-λ'", 'code "naïve-λ"'):
+                for case in measure_debug(compiler, integrated=integrated, macro_read=True, nested_read=True,
+                                          instruction_macro=True, explicit_locations=explicit, source_stem=stem,
+                                          module_alias=True)["cases"]:
+                    with self.subTest(integrated=integrated, explicit=explicit, stem=stem,
+                                      suffix=case["suffix"], cache=case["cache"]):
+                        self.assertTrue(case["physical_object_identical"], case["physical_debug_diff"])
+                        self.assertEqual(case["production"], case["physical_native"])
+                        self.assertEqual(case["answer"], 42)
+                        self.assertTrue(case["generation_reused"], case["warm_debug_diff"])
+                        if explicit:
+                            self.assertTrue(case["native_requested_location"])
+                            self.assertTrue(case["production_requested_location"])
+
     def test_assembler_include_flag_phases(self):
         assembler = ["-Wa,-I,first path,-Isecond", "-Xassembler", "-I", "-Xassembler", "third path,comma",
                      "-Xassembler", "-Ifourth", "-Wa,--alternate", "-Xassembler", "--alternate",
