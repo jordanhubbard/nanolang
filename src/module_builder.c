@@ -3,6 +3,7 @@
 
 #include "module_builder.h"
 #include "runtime/module_build_dir.h"
+#include "shell_path.h"
 #include "utf8.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -2076,14 +2077,15 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
         if (!cc) cc = "cc";
 
         // Build a reusable compile prefix (flags only)
-        char compile_prefix[4096];
-        int prefix_pos = 0;
-        prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, "%s -c -fPIC", cc);
+        char compile_prefix[4096] = {0};
+        size_t prefix_pos = 0;
+        bool command_ok = shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, cc) &&
+                          shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, " -c -fPIC");
 
         // On Linux/FreeBSD enable POSIX 2008 extensions (strdup, strndup, etc.)
         // macOS provides these unconditionally; Linux/BSD require the feature-test macro.
 #if !defined(__APPLE__)
-        prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " -D_POSIX_C_SOURCE=200809L");
+            command_ok = command_ok && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, " -D_POSIX_C_SOURCE=200809L");
 #endif
 
         // Add pkg-config cflags
@@ -2093,32 +2095,35 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 #endif
             char *pkg_cflags = get_pkg_config_flags(meta->pkg_config[i], "--cflags");
             if (pkg_cflags) {
-                prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", pkg_cflags);
+                command_ok = command_ok && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, " ") &&
+                             shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, pkg_cflags);
                 free(pkg_cflags);
             }
         }
 
         // Add include dirs
         for (size_t i = 0; i < meta->include_dirs_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " -I%s", meta->include_dirs[i]);
+            command_ok = command_ok && shell_append_joined_word(compile_prefix, sizeof(compile_prefix), &prefix_pos,
+                                                                 "-I", meta->include_dirs[i]);
         }
 
         // Add custom cflags (all platforms)
         for (size_t i = 0; i < meta->cflags_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags[i]);
+            command_ok = command_ok && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, " ") &&
+                         shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, meta->cflags[i]);
         }
         // Add platform-specific cflags
 #ifdef __APPLE__
         for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_macos[i]);
+            command_ok = command_ok && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, " ") && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, meta->cflags_macos[i]);
         }
 #elif defined(__FreeBSD__)
         for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_freebsd[i]);
+            command_ok = command_ok && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, " ") && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, meta->cflags_freebsd[i]);
         }
 #else
         for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-            prefix_pos += snprintf(compile_prefix + prefix_pos, sizeof(compile_prefix) - prefix_pos, " %s", meta->cflags_linux[i]);
+            command_ok = command_ok && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, " ") && shell_append_text(compile_prefix, sizeof(compile_prefix), &prefix_pos, meta->cflags_linux[i]);
         }
 #endif
 
@@ -2127,15 +2132,23 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             char dep_path[1024];
             snprintf(dep_path, sizeof(dep_path), "%s/%s.d",
                      build_dir, meta->name ? meta->name : "unknown");
-            char compile_cmd[8192];
-            snprintf(compile_cmd, sizeof(compile_cmd), "%s -MMD -MF %s %s/%s -o %s",
-                     compile_prefix, dep_path, meta->module_dir, meta->c_sources[0], object_file);
+            char source_path[2048];
+            int source_len = snprintf(source_path, sizeof(source_path), "%s/%s", meta->module_dir, meta->c_sources[0]);
+            char compile_cmd[8192] = {0};
+            size_t compile_pos = 0;
+            command_ok = command_ok && source_len >= 0 && (size_t)source_len < sizeof(source_path) &&
+                         shell_append_text(compile_cmd, sizeof(compile_cmd), &compile_pos, compile_prefix) &&
+                         shell_append_text(compile_cmd, sizeof(compile_cmd), &compile_pos, " -MMD -MF") &&
+                         shell_append_word(compile_cmd, sizeof(compile_cmd), &compile_pos, dep_path) &&
+                         shell_append_word(compile_cmd, sizeof(compile_cmd), &compile_pos, source_path) &&
+                         shell_append_text(compile_cmd, sizeof(compile_cmd), &compile_pos, " -o") &&
+                         shell_append_word(compile_cmd, sizeof(compile_cmd), &compile_pos, object_file);
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] %s\n", compile_cmd);
             }
 
-            int result = system(compile_cmd);
+            int result = command_ok ? system(compile_cmd) : -1;
             if (result != 0) {
                 fprintf(stderr, "Error: Failed to compile module %s\n", meta->name);
                 free(build_dir);
@@ -2158,15 +2171,23 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 char dep_path[1024];
                 snprintf(dep_path, sizeof(dep_path), "%s/%s_%zu.d",
                          build_dir, meta->name ? meta->name : "unknown", i);
-                char compile_cmd[8192];
-                snprintf(compile_cmd, sizeof(compile_cmd), "%s -MMD -MF %s %s/%s -o %s",
-                         compile_prefix, dep_path, meta->module_dir, meta->c_sources[i], obj_path);
+                char source_path[2048];
+                int source_len = snprintf(source_path, sizeof(source_path), "%s/%s", meta->module_dir, meta->c_sources[i]);
+                char compile_cmd[8192] = {0};
+                size_t compile_pos = 0;
+                bool compile_ok = command_ok && source_len >= 0 && (size_t)source_len < sizeof(source_path) &&
+                                  shell_append_text(compile_cmd, sizeof(compile_cmd), &compile_pos, compile_prefix) &&
+                                  shell_append_text(compile_cmd, sizeof(compile_cmd), &compile_pos, " -MMD -MF") &&
+                                  shell_append_word(compile_cmd, sizeof(compile_cmd), &compile_pos, dep_path) &&
+                                  shell_append_word(compile_cmd, sizeof(compile_cmd), &compile_pos, source_path) &&
+                                  shell_append_text(compile_cmd, sizeof(compile_cmd), &compile_pos, " -o") &&
+                                  shell_append_word(compile_cmd, sizeof(compile_cmd), &compile_pos, obj_path);
 
                 if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                     printf("[Module] %s\n", compile_cmd);
                 }
 
-                int result = system(compile_cmd);
+                int result = compile_ok ? system(compile_cmd) : -1;
                 if (result != 0) {
                     fprintf(stderr, "Error: Failed to compile module %s (%s)\n", meta->name, meta->c_sources[i]);
                     for (size_t j = 0; j < meta->c_sources_count; j++) free(src_objects[j]);
@@ -2176,18 +2197,20 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 }
             }
 
-            char combine_cmd[8192];
-            int combine_pos = 0;
-            combine_pos += snprintf(combine_cmd + combine_pos, sizeof(combine_cmd) - combine_pos, "%s -r -o %s", cc, object_file);
+            char combine_cmd[8192] = {0};
+            size_t combine_pos = 0;
+            bool combine_ok = shell_append_text(combine_cmd, sizeof(combine_cmd), &combine_pos, cc) &&
+                              shell_append_text(combine_cmd, sizeof(combine_cmd), &combine_pos, " -r -o") &&
+                              shell_append_word(combine_cmd, sizeof(combine_cmd), &combine_pos, object_file);
             for (size_t i = 0; i < meta->c_sources_count; i++) {
-                combine_pos += snprintf(combine_cmd + combine_pos, sizeof(combine_cmd) - combine_pos, " %s", src_objects[i]);
+                combine_ok = combine_ok && shell_append_word(combine_cmd, sizeof(combine_cmd), &combine_pos, src_objects[i]);
             }
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] %s\n", combine_cmd);
             }
 
-            int combine_result = system(combine_cmd);
+            int combine_result = combine_ok ? system(combine_cmd) : -1;
             for (size_t i = 0; i < meta->c_sources_count; i++) free(src_objects[i]);
             free(src_objects);
 
@@ -2221,24 +2244,25 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
 
         if (shared_dir_ok) {
             /* Build shared library command */
-            char lib_cmd[4096];
+            char lib_cmd[8192] = {0};
             size_t lib_pos = 0;
+            bool lib_ok = shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, cc);
             
             #ifdef __APPLE__
             /* On macOS, allow unresolved symbols so modules can reference symbols
              * provided by the host process (compiler/interpreter) at dlopen() time.
              */
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               "%s -dynamiclib -undefined dynamic_lookup -fPIC -o %s",
-                               cc, shared_lib);
+            lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos,
+                                                 " -dynamiclib -undefined dynamic_lookup -fPIC -o") &&
+                     shell_append_word(lib_cmd, sizeof(lib_cmd), &lib_pos, shared_lib);
             #else
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                               "%s -shared -fPIC -Wl,--allow-shlib-undefined -o %s",
-                               cc, shared_lib);
+            lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos,
+                                                 " -shared -fPIC -Wl,--allow-shlib-undefined -o") &&
+                     shell_append_word(lib_cmd, sizeof(lib_cmd), &lib_pos, shared_lib);
             #endif
             
             /* Link the shared library from the module object (supports multi-source modules) */
-            lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", object_file);
+            lib_ok = lib_ok && shell_append_word(lib_cmd, sizeof(lib_cmd), &lib_pos, object_file);
             
             /* Add pkg-config flags (deduplicated) */
             char *shared_cflags[1024] = {0};
@@ -2254,7 +2278,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 }
             }
             for (size_t i = 0; i < shared_cflags_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_cflags[i]);
+                lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, " ") && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, shared_cflags[i]);
                 free(shared_cflags[i]);
             }
 
@@ -2287,30 +2311,26 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
             #endif
 
             for (size_t i = 0; i < shared_ldflags_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos, " %s", shared_ldflags[i]);
+                lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, " ") && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, shared_ldflags[i]);
                 free(shared_ldflags[i]);
             }
             
             /* Add custom cflags (all platforms) */
             for (size_t i = 0; i < meta->cflags_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                                   " %s", meta->cflags[i]);
+                lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, " ") && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, meta->cflags[i]);
             }
             /* Add platform-specific cflags */
 #ifdef __APPLE__
             for (size_t i = 0; i < meta->cflags_macos_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                                   " %s", meta->cflags_macos[i]);
+                lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, " ") && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, meta->cflags_macos[i]);
             }
 #elif defined(__FreeBSD__)
             for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                                   " %s", meta->cflags_freebsd[i]);
+                lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, " ") && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, meta->cflags_freebsd[i]);
             }
 #else
             for (size_t i = 0; i < meta->cflags_linux_count; i++) {
-                lib_pos += snprintf(lib_cmd + lib_pos, sizeof(lib_cmd) - lib_pos,
-                                   " %s", meta->cflags_linux[i]);
+                lib_ok = lib_ok && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, " ") && shell_append_text(lib_cmd, sizeof(lib_cmd), &lib_pos, meta->cflags_linux[i]);
             }
 #endif
 
@@ -2326,28 +2346,46 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                     char sc_obj[2048];
                     snprintf(sc_obj, sizeof(sc_obj), "%s/__shared_%zu.o", shared_dir, sci);
 
-                    char sc_cmd[8192];
-                    snprintf(sc_cmd, sizeof(sc_cmd),
-                             "%s -c -fPIC -fvisibility=hidden -D_POSIX_C_SOURCE=200809L",
-                             cc_sc);
+                    char sc_cmd[8192] = {0};
+                    size_t sc_len = 0;
+                    bool sc_ok = shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, cc_sc) &&
+                                 shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len,
+                                                   " -c -fPIC -fvisibility=hidden -D_POSIX_C_SOURCE=200809L");
+                    for (size_t ii = 0; ii < meta->include_dirs_count; ii++) {
+                        sc_ok = sc_ok && shell_append_joined_word(sc_cmd, sizeof(sc_cmd), &sc_len, "-I", meta->include_dirs[ii]);
+                    }
                     /* Append module cflags (include paths) */
                     for (size_t fi = 0; fi < meta->cflags_count; fi++) {
-                        size_t sc_len = strlen(sc_cmd);
-                        snprintf(sc_cmd + sc_len, sizeof(sc_cmd) - sc_len, " %s", meta->cflags[fi]);
+                        sc_ok = sc_ok && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, " ") && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, meta->cflags[fi]);
                     }
+#ifdef __APPLE__
+                    for (size_t fi = 0; fi < meta->cflags_macos_count; fi++) {
+                        sc_ok = sc_ok && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, " ") && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, meta->cflags_macos[fi]);
+                    }
+#elif defined(__FreeBSD__)
+                    for (size_t fi = 0; fi < meta->cflags_freebsd_count; fi++) {
+                        sc_ok = sc_ok && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, " ") && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, meta->cflags_freebsd[fi]);
+                    }
+#else
+                    for (size_t fi = 0; fi < meta->cflags_linux_count; fi++) {
+                        sc_ok = sc_ok && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, " ") && shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, meta->cflags_linux[fi]);
+                    }
+#endif
                     /* Append source path and output */
-                    size_t sc_len = strlen(sc_cmd);
-                    snprintf(sc_cmd + sc_len, sizeof(sc_cmd) - sc_len,
-                             " %s/%s -o %s", meta->module_dir, meta->shared_c_sources[sci], sc_obj);
+                    char sc_source[2048];
+                    int sc_source_len = snprintf(sc_source, sizeof(sc_source), "%s/%s", meta->module_dir, meta->shared_c_sources[sci]);
+                    sc_ok = sc_ok && sc_source_len >= 0 && (size_t)sc_source_len < sizeof(sc_source) &&
+                            shell_append_word(sc_cmd, sizeof(sc_cmd), &sc_len, sc_source) &&
+                            shell_append_text(sc_cmd, sizeof(sc_cmd), &sc_len, " -o") &&
+                            shell_append_word(sc_cmd, sizeof(sc_cmd), &sc_len, sc_obj);
 
                     if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                         printf("[Module] (shared-only) %s\n", sc_cmd);
                     }
 
-                    if (system(sc_cmd) == 0) {
+                    if (sc_ok && system(sc_cmd) == 0) {
                         /* Append this object to the lib_cmd */
-                        size_t lp = strlen(lib_cmd);
-                        snprintf(lib_cmd + lp, sizeof(lib_cmd) - lp, " %s", sc_obj);
+                        lib_ok = lib_ok && shell_append_word(lib_cmd, sizeof(lib_cmd), &lib_pos, sc_obj);
                     } else {
                         fprintf(stderr,
                                 "Warning: Failed to compile shared_c_source %s for %s\n",
@@ -2361,7 +2399,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder __attribute__((unused)), Mo
                 printf("[Module] Building shared library: %s\n", lib_cmd);
             }
             
-            int lib_result = system(lib_cmd);
+            int lib_result = lib_ok ? system(lib_cmd) : -1;
             if (lib_result != 0) {
                 fprintf(stderr, "Warning: Failed to build shared library for %s (interpreter FFI unavailable)\n", 
                         meta->name);

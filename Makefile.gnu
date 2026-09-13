@@ -653,6 +653,9 @@ test-diagnostics: stage1
 .PHONY: test-module-metadata
 test-module-metadata: stage1
 	@echo "Running module metadata unit tests..."
+	$(CC) $(CFLAGS) -o tests/test_module_builder_paths tests/test_module_builder_paths.c
+	@./tests/test_module_builder_paths
+	@rm -f tests/test_module_builder_paths
 	$(CC) $(CFLAGS) -o tests/test_module_metadata tests/test_module_metadata.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_module_metadata
 	@rm -f tests/test_module_metadata
