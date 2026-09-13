@@ -154,6 +154,10 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+#ifdef __linux__
+    if (argc == 3 && !strcmp(argv[1], "assembler-version"))
+        return module_assembler_version_supported(argv[2]) ? 0 : 1;
+#endif
     if (argc == 4 && strcmp(argv[1], "capture-assembly") == 0) {
         char *directory = strdup(argv[3]);
         if (!directory) return 1;

@@ -29,7 +29,9 @@ class SourceSnapshots(unittest.TestCase):
             assembler = shutil.which(query.stdout.decode().strip()) if query.returncode == 0 else None
             if assembler:
                 version = subprocess.run([assembler, "--version"], capture_output=True, timeout=10)
-                cls.read_replay = version.returncode == 0 and b"GNU assembler" in version.stdout and b" 2.40\n" in version.stdout
+                cls.read_replay = version.returncode == 0 and subprocess.run(
+                    [str(cache.ROOT / "obj/test_module_generation_probe"), "assembler-version", version.stdout.decode()],
+                    capture_output=True, timeout=10).returncode == 0
 
     def setUp(self):
         self.support = cache.ModuleCachePublication()
@@ -43,6 +45,20 @@ class SourceSnapshots(unittest.TestCase):
             str(library)], capture_output=True, timeout=10)
         self.assertEqual(result.returncode, 0, result.stderr)
         return int(result.stdout)
+
+    def test_supported_assembler_version_line(self):
+        if not sys.platform.startswith("linux"): self.skipTest("I select GNU assembler replay only on Linux")
+        accepted = ["GNU assembler (GNU Binutils for Debian) 2.40\nCopyright text\n",
+                    "GNU assembler (GNU Binutils for Ubuntu) 2.42\nCopyright text\n"]
+        rejected = ["GNU assembler (GNU Binutils) 2.41\n", "GNU assembler (GNU Binutils) 2.43\n",
+                    "GNU assembler (GNU Binutils) 2.42.1\n", "GNU assembler (GNU Binutils) 2.420\n",
+                    "GNU assembler (GNU Binutils) 2.42", "GNU ld (GNU Binutils) 2.42\n",
+                    "GNU assembler (GNU Binutils) 9.99\nPrevious version 2.42\n",
+                    "unrelated banner\nGNU assembler (GNU Binutils) 2.42\n"]
+        for banner in accepted + rejected:
+            with self.subTest(banner=banner):
+                result = subprocess.run([str(self.support.probe), "assembler-version", banner], capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0 if banner in accepted else 1, result.stderr)
 
     def test_restored_source_and_header_changes(self):
         observed = measure(shutil.which("cc"))
@@ -132,7 +148,7 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(case["total_object_compilations"], 4)
 
     def test_gcc_macro_argument_replays_captured_reads(self):
-        if not self.read_replay: self.skipTest("I need the supported Linux GNU as 2.40 replay boundary")
+        if not self.read_replay: self.skipTest("I need a supported Linux GNU assembler replay version")
         for case in measure(shutil.which("cc"), ("assembler-macro",))["cases"]:
             with self.subTest(case=case):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
@@ -142,7 +158,7 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(case["total_object_compilations"], 6)
 
     def test_gcc_replay_cleanup_failure_and_tool_selection(self):
-        if not self.read_replay: self.skipTest("I need the supported Linux GNU as 2.40 replay boundary")
+        if not self.read_replay: self.skipTest("I need a supported Linux GNU assembler replay version")
         with tempfile.TemporaryDirectory(prefix="nano-replay-build-") as tmp:
             directory = Path(tmp)
             module, _, env = self.support.support.foreign_build_fixture(directory)

@@ -552,7 +552,9 @@ checks use `TMPDIR` (or `/tmp`) and are removed after normal success or failure;
 process termination can leave an orphan. This is not an atomic source snapshot.
 
 On Linux, when literal capture cannot represent the input, I also support a
-read-capture/replay path for dynamically linked ELF64 little-endian GNU as 2.40.
+read-capture/replay path for dynamically linked ELF64 little-endian GNU as 2.40
+and 2.42. I require an exact supported version token on the first banner line;
+this selects compatibility, not executable authenticity.
 GCC identifies its assembler with `-print-prog-name=as` and still supplies the
 assembly arguments. A private `-B` wrapper loads my copied helper only in the
 assembler child, through an inherited descriptor; paths may contain spaces.

@@ -931,6 +931,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       helper; other assembler variants and general read coverage remain open
       in the acceptance gate below (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GNU assembler variant acceptance.** I exercise sealed capture,
+      replay and the production cache with a second GNU toolchain, including
+      restored macro inputs and failure recovery. I widen the supported version
+      set only after those gates pass, retaining rejection of unidentified
+      executables and untested versions. I record compiler, assembler and host
+      versions; this does not close arbitrary compiler-mode snapshots.
+      GCC 13.3 / GNU as 2.42 on Ubuntu 24.04 Linux arm64 passes 22 snapshot
+      methods (two skips), eight capture-record and two replay-trial methods,
+      including helper UBSan. GCC 12.2 / GNU as 2.40 on Debian bookworm arm64
+      passes those same gates. I accept exact first-line 2.40/2.42 tokens;
+      lookalike versions and later-line matches are rejected. GCC 13.3 exposed
+      a discarded diagnostic `write` result; I handle partial writes/EINTR
+      without suppressing warnings. The Linux bootstrap and 122-method
+      bytecode/cache/link/snapshot/helper suite pass (ten skips). General
+      assembler reads and other variants remain open. Darwin bootstrap and
+      22 snapshot methods pass with nine skips (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

@@ -65,7 +65,13 @@ __attribute__((destructor)) static void nac_finish(void) {
     /* An ignored open failure or unread tail must not report assembly success. */
     if (active && failed) {
         static const char message[] = "I could not complete assembler input capture/replay.\n";
-        (void)write(STDERR_FILENO, message, sizeof(message) - 1);
+        size_t sent = 0;
+        while (sent < sizeof(message) - 1) {
+            ssize_t amount = write(STDERR_FILENO, message + sent, sizeof(message) - 1 - sent);
+            if (amount < 0 && errno == EINTR) continue;
+            if (amount <= 0) break;
+            sent += (size_t)amount;
+        }
         _exit(125);
     }
 }

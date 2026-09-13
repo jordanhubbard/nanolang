@@ -602,7 +602,7 @@ integration gate. At this stage I had not enabled the helper as a default compil
 When GCC's literal assembler copier cannot represent a source, I now try the
 sealed read-capture helper on Linux. I resolve GCC's `-print-prog-name=as`
 result, require a dynamically linked ELF64 little-endian executable reporting
-GNU as 2.40, and fingerprint its path and bytes. I copy the selected helper
+GNU as 2.40 or 2.42, and fingerprint its path and bytes. I copy the selected helper
 into private staging and fingerprint those actual bytes. GNU/Linux builds and
 installs include `nano_as_capture.so` beside the native/bytecode drivers;
 `NANO_AS_CAPTURE_HELPER` is an explicit path override and cache-context input.
@@ -653,3 +653,32 @@ three injected exact-fit/oversized cases preserve old files and pass on both
 hosts. Linux `make install` then succeeded, including the adjacent helper.
 These gates do not establish complete relocatable installation of the whole
 language or release readiness (2026-09-13).
+
+## GNU assembler 2.42 acceptance
+
+I exercised the same production path on Ubuntu 24.04, Linux arm64, with GCC
+13.3.0 and GNU as 2.42. My 22 snapshot methods pass with two Clang-only skips,
+including restored macro inputs, shared-only assembly, replay failure,
+preservation of old generations, cleanup and recovery. The eight capture-record
+and two replay-trial methods pass normally and with the helper under UBSan.
+GCC 12.2.0 / GNU as 2.40 on Debian bookworm, Linux arm64, passes the same
+snapshot, record and trial gates, including helper UBSan.
+
+GCC 13 first rejected a discarded diagnostic `write` result under `-Werror`.
+I now handle partial writes and EINTR, and stop on other failures before the
+existing exit 125. I did not suppress the warning. Darwin's production build
+also required keeping the version classifier inside its Linux-only boundary.
+
+I now accept exact 2.40 and 2.42 version tokens on the first GNU assembler
+banner line. Tests reject neighboring versions, suffixes, a missing newline,
+another tool's banner, and a supported version appearing only on later lines.
+The separate dynamic-ELF check remains. Neither check authenticates an
+executable. Other assembler versions, arbitrary syscall reads and transitive
+toolchain snapshots remain outside this tested boundary (2026-09-13).
+
+The Ubuntu bootstrap passes. After explicitly building `nano_virt`, `nano_vm`
+and `nano_cop`, my 122-method bytecode-shadow/cache/link/snapshot/helper suite
+passes with ten expected skips. Initial suite attempts lacked those test
+executables; they were prerequisite failures, not passing runs.
+The Darwin bootstrap also passes, followed by all 22 snapshot methods with
+nine Linux/GCC-only skips on the final source.

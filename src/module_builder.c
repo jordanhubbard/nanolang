@@ -2678,6 +2678,24 @@ failed:
     return 0;
 }
 
+#ifdef __linux__
+/* I accept only tested version tokens on the GNU assembler banner's first
+ * line. This is compatibility selection, not executable authentication. */
+static bool module_assembler_version_supported(const char *version) {
+    static const char prefix[] = "GNU assembler (";
+    static const char *versions[] = {" 2.40", " 2.42"};
+    if (!version || strncmp(version, prefix, sizeof(prefix) - 1)) return false;
+    const char *end = strchr(version, '\n');
+    if (!end) return false;
+    for (size_t i = 0; i < sizeof(versions) / sizeof(versions[0]); i++) {
+        size_t length = strlen(versions[i]);
+        if ((size_t)(end - version) >= sizeof(prefix) + length &&
+            *(end - length - 1) == ')' && !memcmp(end - length, versions[i], length)) return true;
+    }
+    return false;
+}
+#endif
+
 /* GCC still chooses assembler arguments; my private -B entry changes only the
  * executable receiving them. Loader configuration starts inside that wrapper,
  * never in the compiler driver, preprocessor, linker or calling process. */
@@ -2761,7 +2779,7 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
     bool ok = module_append_path_flag(command, sizeof(command), "", assembler) &&
         module_build_append(command, sizeof(command), " --version 2>/dev/null") &&
         module_tool_output(command, version, sizeof(version)) &&
-        strstr(version, "GNU assembler") && strstr(version, " 2.40\n");
+        module_assembler_version_supported(version);
     uint64_t assembler_hash = ok && module_dynamic_elf(assembler) ? hash_file_fnv1a(assembler) : 0;
     char copied[2048] = {0}, wrapper[2048] = {0};
     ModuleAssemblyCapture bytes = {directory, 0, 0, fingerprint};
