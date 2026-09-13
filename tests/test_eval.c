@@ -1064,6 +1064,33 @@ void test_eval_array_length(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_array_get_alias(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn double(x: float) -> float { return (* x 2.0) }\n"
+        "fn read_static() -> int { return (array_get [4, 5, 6] 1) }\n"
+        "fn read_mapped() -> float {\n"
+        "    let values: array<float> = (map [1.5, 2.5] double)\n"
+        "    return (array_get values 1)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow double { assert (== (double 2.5) 5.0) }\n"
+        "shadow read_static { assert (== (read_static) 5) }\n"
+        "shadow read_mapped { assert (== (read_mapped) 5.0) }\n"
+    );
+    ASSERT(ok);
+
+    Value static_result = call_function("read_static", NULL, 0, ctx.env);
+    ASSERT(static_result.type == VAL_INT);
+    ASSERT_EQ(static_result.as.int_val, 5);
+
+    Value mapped_result = call_function("read_mapped", NULL, 0, ctx.env);
+    ASSERT(mapped_result.type == VAL_FLOAT);
+    ASSERT(mapped_result.as.float_val == 5.0);
+
+    run_ctx_free(&ctx);
+}
+
 void test_eval_math_functions(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2071,6 +2098,7 @@ int main(void) {
     TEST(eval_break_in_for);
     TEST(eval_nested_for_loops);
     TEST(eval_array_length);
+    TEST(eval_array_get_alias);
     TEST(eval_math_functions);
     TEST(eval_string_conversion);
     TEST(eval_enum_access);
