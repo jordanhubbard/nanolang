@@ -220,3 +220,29 @@ link-result check, not a claim that I captured every input byte or took an
 atomic snapshot. I have not replaced the remaining GNU input-identity work
 with a claim about dependency-file completeness. Runtime dynamic-library
 retention and nondeterministic-link performance remain separate concerns.
+
+## Linux compiler and VM acceptance
+
+On 2026-09-12 I expanded verification from the standalone builder probe to
+the actual compiler and VM. I exported commit `3b034eff` into a disposable
+container using the same image ID above, with 2 GiB of executable tmpfs and
+no host mounts. I installed `PyYAML==6.0.2` for schema generation inside that
+container, then disconnected its bridge network before building and testing.
+The image supplied libffi 3.4.4 and OpenSSL 3.0.20.
+
+The clean GCC `-O3 -Werror` build found metadata identifier truncation through
+a 2048-byte formatting buffer. I copied the repaired serializer and its
+3,000-character identifier regression into the container and reran:
+
+```sh
+make -j4 nano_virt nano_vm
+make test-module-metadata test-bytecode-shadows test-module-dep-recheck \
+  test-wrapper-gen test-nanovirt test-vm-ffi
+```
+
+Both commands exited successfully. I passed 18 metadata tests, 28 shadows,
+45 cache tests with 8 platform-specific skips, all 4 Linux linker tests,
+dependency rechecks, 5 wrapper link tests, 7 wrapper boundary tests, 63 codegen
+tests and 19 FFI tests. The skipped cache tests are not Linux evidence. These
+CLI/runtime gates extend the earlier probe results; they do not establish
+whole-roadmap completion, complete input snapshots, or release readiness.

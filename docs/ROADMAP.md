@@ -362,6 +362,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pkg-config results and arbitrary wrapper inputs remains open. An explicit
       toolchain stamp supplies invalidation, not discovery or authentication.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 metadata identifier truncation.** I append exported metadata and
+      constant identifiers directly to the dynamic output buffer. I test long
+      3,000-character names and build with GCC 12 at `-O3 -Werror`, which
+      rejected their passage through a 2048-byte formatting buffer. All 18
+      metadata tests pass on Linux and macOS (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Linux compiler/VM cache acceptance.** I build the actual bytecode
+      compiler and VM in isolated Linux storage and run shadows, the complete
+      cache suite, wrappers, code generation and FFI. I distinguish probe-only
+      evidence from CLI/runtime integration and record any portability defects
+      before fixing them. Dependency installation stays inside the disposable
+      environment; test execution has no network access.
+      On Linux arm64, GCC 12.2/ld 2.40, 28 shadows, 45 cache tests (8
+      platform-specific skips), 4 Linux linker tests, dependency rechecks,
+      5 wrapper link tests, 7 wrapper boundaries, 63 codegen tests and 19 FFI
+      tests pass. This is not a full release or sanitizer gate (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 cache Linux linker evidence.** I run the existing archive/search,
       unusual-path, response-file and thin-archive experiment on an actual GNU
       linker before choosing its dependency-record integration. I record the

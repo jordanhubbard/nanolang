@@ -447,8 +447,9 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
     APPEND("}\n\n");
     
     /* Export metadata accessor (per-module symbol name to avoid link clashes) */
-    snprintf(temp, sizeof(temp), "ModuleMetadata _module_metadata_%s = {\n", module_ident);
-    APPEND(temp);
+    APPEND("ModuleMetadata _module_metadata_");
+    APPEND(module_ident);
+    APPEND(" = {\n");
     APPEND("    .module_name = ");
     APPEND(module_c_literal(meta->module_name));
     APPEND(",\n");
@@ -480,17 +481,21 @@ char *serialize_module_metadata_to_c(ModuleMetadata *meta) {
             ConstantDef *c = &meta->constants[i];
             const char *cname = c->name ? c->name : "unnamed";
             if (c->type == TYPE_INT) {
-                snprintf(temp, sizeof(temp),
-                         "static const int64_t _module_const_%s_%s = %lldLL;\n",
-                         module_ident, cname, (long long)c->value);
+                APPEND("static const int64_t _module_const_");
+                APPEND(module_ident);
+                APPEND("_");
+                APPEND(cname);
+                snprintf(temp, sizeof(temp), " = %lldLL;\n", (long long)c->value);
                 APPEND(temp);
             } else if (c->type == TYPE_FLOAT) {
                 /* Reconstruct float from int64 bit pattern */
                 union { double d; int64_t i; } u;
                 u.i = c->value;
-                snprintf(temp, sizeof(temp),
-                         "static const double _module_const_%s_%s = %g;\n",
-                         module_ident, cname, u.d);
+                APPEND("static const double _module_const_");
+                APPEND(module_ident);
+                APPEND("_");
+                APPEND(cname);
+                snprintf(temp, sizeof(temp), " = %g;\n", u.d);
                 APPEND(temp);
             }
         }
