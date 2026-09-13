@@ -1,0 +1,118 @@
+"""I measure restored source changes; exit zero is not cache acceptance.
+
+Run with python3 -m tests.characterize_source_snapshot [C-compiler].
+Add --require-consistent to fail when warm and fresh answers differ.
+I execute the production builder and load each library in a fresh process.
+"""
+
+import argparse
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
+
+from tests.characterize_linker_inputs import run
+from tests import test_bytecode_shadows as shadows
+
+
+def measure(compiler):
+    probe = shadows.ROOT / "obj/test_module_generation_probe"
+    if not probe.is_file():
+        raise RuntimeError("I need make obj/test_module_generation_probe")
+    cases = []
+    for kind in ("source", "header"):
+        for shared in (False, True):
+            with tempfile.TemporaryDirectory(prefix="nano-source-snapshot-") as tmp:
+                directory = Path(tmp)
+                module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
+                env.pop("NANO_VERBOSE_BUILD", None)
+                if shared:
+                    env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                source = module / "answer.c"
+                target = source
+                if kind == "header":
+                    target = module / "answer.h"
+                    target.write_text("#define ANSWER 42\n")
+                    source.write_text('#include <stdint.h>\n#include "answer.h"\n'
+                                      'int64_t nano_build_answer(void) { return ANSWER; }\n')
+                original, stamp = target.read_bytes(), target.stat()
+                wrapper, marker = directory / "cc", directory / "mutated"
+                calls = directory / "calls"
+                wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, subprocess, sys
+if "-c" in sys.argv:
+    with open({str(calls)!r}, "a") as log: log.write("C\\n")
+    marker = pathlib.Path({str(marker)!r})
+    if not marker.exists():
+        target = pathlib.Path({str(target)!r})
+        original, stamp = target.read_bytes(), target.stat()
+        changed = original.replace(b"42", b"43")
+        assert changed != original and len(changed) == len(original)
+        try:
+            target.write_bytes(changed)
+            os.utime(target, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            result = subprocess.run([{compiler!r}] + sys.argv[1:])
+        finally:
+            target.write_bytes(original)
+            os.utime(target, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+        marker.write_text(str(result.returncode))
+        sys.exit(result.returncode)
+os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
+''')
+                wrapper.chmod(0o700)
+                env["NANO_CC"] = str(wrapper)
+
+                def query(mode):
+                    return Path(run([probe, mode, module], directory, env).stdout.decode().strip())
+
+                def answer(library):
+                    result = run([sys.executable, "-c",
+                        "import ctypes,sys; lib=ctypes.CDLL(sys.argv[1]); "
+                        "lib.nano_build_answer.restype=ctypes.c_int64; "
+                        "print(lib.nano_build_answer())", library], directory)
+                    return int(result.stdout)
+
+                query("build")
+                cold_generation = query("directory")
+                cold_answer = answer(query("library"))
+                cold_calls = len(calls.read_text().splitlines())
+                record = (cold_generation / "source_hashes.json").is_file()
+                query("build")
+                warm_generation = query("directory")
+                warm_answer = answer(query("library"))
+                fresh = directory / ("fresh.dylib" if sys.platform == "darwin" else "fresh.so")
+                run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                     "-fPIC", source, "-o", fresh], directory)
+                if marker.read_text() != "0" or target.read_bytes() != original:
+                    raise RuntimeError("I did not complete and restore the controlled compilation")
+                cases.append({
+                    "input": kind, "cache": "shared" if shared else "local",
+                    "bytes_restored": target.read_bytes() == original,
+                    "size_preserved": target.stat().st_size == stamp.st_size,
+                    "mtime_preserved": target.stat().st_mtime_ns == stamp.st_mtime_ns,
+                    "cold_answer": cold_answer, "warm_answer": warm_answer,
+                    "fresh_answer": answer(fresh), "reuse_record": record,
+                    "generation_reused": cold_generation == warm_generation,
+                    "cold_compilations": cold_calls,
+                    "total_compilations": len(calls.read_text().splitlines()),
+                })
+    return {"platform": sys.platform, "compiler": compiler,
+            "compiler_version": run([compiler, "--version"], shadows.ROOT).stdout.decode().splitlines()[0],
+            "cases": cases}
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("compiler", nargs="?", default="cc")
+    parser.add_argument("--require-consistent", action="store_true")
+    args = parser.parse_args()
+    compiler = shutil.which(args.compiler)
+    if not compiler:
+        raise SystemExit("I need a C compiler executable")
+    result = measure(compiler)
+    print(json.dumps(result, indent=2))
+    if args.require_consistent and any(case["warm_answer"] != case["fresh_answer"]
+                                       for case in result["cases"]):
+        raise SystemExit("I reused code from input bytes that are no longer present.")

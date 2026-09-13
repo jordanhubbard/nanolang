@@ -352,6 +352,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       package-installation policy and C-seed dependency/recovery gates pass
       (2026-09-12). Cache transaction and toolchain identity work stays open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 cache source snapshot acceptance.** I test source and header
+      changes restored during compilation, preserving their original bytes
+      and timestamps before final validation. I compare actual cold, warm and
+      fresh library results. Matching preprocessing observations must not
+      authorize a generation compiled from different input bytes. I record
+      reproduced failures before implementing a supported snapshot boundary.
+      `python3 -m tests.characterize_source_snapshot --require-consistent`
+      fails on Apple clang 21: all four cases publish/reuse 43 despite restored
+      input bytes and timestamps; fresh compilation returns 42. Warm builds
+      perform no additional C compilation. This is reproduced incorrect reuse,
+      not a completed snapshot repair (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 C-library cache transactions.** Content invalidation and private
       writes are addressed in adjacent items. Per-module generation publication
       and exact bytecode generation bindings are addressed below. I still need
