@@ -176,6 +176,49 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 3 && !strcmp(argv[1], "link-flags-allocation")) {
+        char *packages[] = {"-lpackage", ""}, *common[] = {"-Lcommon"};
+        char *platform[] = {"-Lplatform"}, *libraries[] = {"fixture"};
+        ModuleBuildMetadata meta = {0};
+        meta.ldflags = common; meta.ldflags_count = 1;
+        meta.system_libs = libraries; meta.system_libs_count = 1;
+        size_t allocations = 6, expected = 5;
+#ifdef __APPLE__
+        char *names[] = {"fixture-a", "fixture-b"}, *frameworks[] = {"Foundation"};
+        meta.pkg_config = names; meta.pkg_config_count = 2;
+        meta.frameworks = frameworks; meta.frameworks_count = 1;
+        meta.ldflags_macos = platform; meta.ldflags_macos_count = 1;
+        allocations += 2; expected += 2;
+#elif defined(__FreeBSD__)
+        meta.ldflags_freebsd = platform; meta.ldflags_freebsd_count = 1;
+#else
+        meta.ldflags_linux = platform; meta.ldflags_linux_count = 1;
+#endif
+        ModulePkgFlags flags = {.count = 2, .libs = packages};
+        for (size_t failure = 0; failure < allocations + 2; failure++) {
+            ModuleBuildInfo *info = calloc(1, sizeof(*info));
+            if (!info) return 1;
+            info->object_file = strdup("fixture.o");
+            if (!info->object_file) { module_build_info_free(info); return 1; }
+            meta.ldflags_count = failure == allocations ? SIZE_MAX :
+                failure == allocations + 1 ? SIZE_MAX / sizeof(char *) : 1;
+            generation_allocation_limit = failure < allocations ? (long)failure : -1;
+            bool result = module_collect_link_flags(info, &meta, &flags);
+            generation_allocation_limit = -1;
+            bool ok = !result && !info->link_flags && !info->link_flags_count;
+            meta.ldflags_count = 1;
+            ok = ok && module_collect_link_flags(info, &meta, &flags) &&
+                info->link_flags_count == expected && !strcmp(info->link_flags[0], "fixture.o") &&
+                !strcmp(info->link_flags[1], "-lpackage") && !strcmp(info->link_flags[2], "-Lcommon") &&
+                !strcmp(info->link_flags[3], "-Lplatform") && !strcmp(info->link_flags[expected - 1], "-lfixture");
+#ifdef __APPLE__
+            ok = ok && !strcmp(info->link_flags[4], "-framework") && !strcmp(info->link_flags[5], "Foundation");
+#endif
+            module_build_info_free(info);
+            if (!ok) return 1;
+        }
+        return 0;
+    }
     if (argc == 3 && !strcmp(argv[1], "compile-flags-allocation")) {
         char *packages[] = {"-DPACKAGE=1", ""}, *includes[] = {"/include"};
         char *common[] = {"-DCOMMON=1"}, *platform[] = {"-DPLATFORM=1"};
@@ -298,6 +341,21 @@ int main(int argc, char **argv) {
     ModuleBuildMetadata *meta = module_load_metadata(argv[2]);
     if (!meta) return 1;
     int status = 1;
+    if (!strcmp(argv[1], "shared-link-command")) {
+        size_t capacity = argc == 4 ? (size_t)strtoul(argv[3], NULL, 10) : 131072;
+        ModulePkgFlags flags;
+        char *command = capacity && capacity <= 131072 ? malloc(capacity) : NULL;
+        if (command && module_pkg_flags_capture(meta, &flags)) {
+            if (module_shared_link_command(meta, &flags, "fixture.o", "fixture.so", argv[2], command, capacity)) {
+                puts(command);
+                status = 0;
+            }
+            module_pkg_flags_free(&flags);
+        }
+        free(command);
+        module_metadata_free(meta);
+        return status;
+    }
     if (strcmp(argv[1], "build") == 0 || strcmp(argv[1], "build-info") == 0) {
         ModuleBuildInfo *info = module_build(NULL, meta);
         if (info && (info->object_file || strcmp(argv[1], "build-info") == 0)) {

@@ -659,6 +659,78 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                                         capture_output=True, timeout=10)
                 self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_many_returned_link_flags_preserve_count_and_order(self):
+        platform = "ldflags_macos" if sys.platform == "darwin" else "ldflags_linux"
+        origins = ["system_libs", "ldflags", platform, "compiled"]
+        if sys.platform == "darwin": origins.append("frameworks")
+        for origin in origins:
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory(prefix="nano-many-links-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                values = [f"nano_{i}" for i in range(1300)]
+                if origin == "system_libs": values[-1] = "nano_" + "x" * 300
+                if origin in ("ldflags", platform): values = ["-L/" + value for value in values]
+                if origin == "compiled": values = [""] * 1300
+                (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                    "c_sources": ["answer.c"] if origin == "compiled" else [],
+                    "ldflags" if origin == "compiled" else origin: values}))
+                result = subprocess.run([str(self.support.probe), "build-info", str(module)],
+                                        env=env, capture_output=True, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                returned = [line[len("link:"):] for line in result.stdout.decode().splitlines()
+                            if line.startswith("link:")]
+                if origin == "compiled":
+                    self.assertTrue(returned[0].endswith("answer_native.o"))
+                    returned = returned[1:]
+                expected = (["-l" + value for value in values] if origin == "system_libs" else
+                            [word for value in values for word in ("-framework", value)]
+                            if origin == "frameworks" else values)
+                self.assertEqual(returned, expected)
+
+    def test_shared_link_preserves_framework_pairs(self):
+        if sys.platform != "darwin": self.skipTest("I exercise Darwin framework pairs here")
+        with tempfile.TemporaryDirectory(prefix="nano-framework-pairs-") as tmp:
+            module, _, env = self.support.support.foreign_build_fixture(Path(tmp))
+            (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                "c_sources": ["answer.c"], "frameworks": ["Foundation", "Security"]}))
+            self.support.probe_path("build", module, env)
+            self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+
+    def test_link_flag_allocation_failures_are_atomic(self):
+        result = subprocess.run([str(self.support.probe), "link-flags-allocation", "all"],
+                                capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_shared_link_does_not_drop_tail_flags_or_repeated_libraries(self):
+        with tempfile.TemporaryDirectory(prefix="nano-link-tail-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            self.support.probe_path("build", module, env)
+            previous = self.support.probe_path("directory", module, env)
+            metadata = {"name": "answer_native", "c_sources": ["answer.c"],
+                        "system_libs": ["m", "c", "m"], "ldflags": [" "] * 1300 + ["-Wl,-nano-invalid-option"]}
+            (module / "module.json").write_text(json.dumps(metadata))
+            result = subprocess.run([str(self.support.probe), "shared-link-command", str(module)],
+                                    env=env, capture_output=True, timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            words = shlex.split(result.stdout.decode())
+            self.assertEqual([word for word in words if word.startswith("-l")], ["-lm", "-lc", "-lm"])
+            self.assertIn("-Wl,-nano-invalid-option", words)
+            too_small = subprocess.run([str(self.support.probe), "shared-link-command", str(module), "64"],
+                                       env=env, capture_output=True, timeout=15)
+            self.assertNotEqual(too_small.returncode, 0)
+            self.assertEqual(too_small.stdout, b"")
+            rejected = subprocess.run([str(self.support.probe), "build", str(module)],
+                                      env=env, capture_output=True, timeout=15)
+            self.assertNotEqual(rejected.returncode, 0)
+            self.assertIn(b"nano-invalid-option", rejected.stderr)
+            self.assertEqual(self.support.probe_path("directory", module, env), previous)
+            metadata.pop("ldflags")
+            metadata.pop("system_libs")
+            (module / "module.json").write_text(json.dumps(metadata))
+            self.support.probe_path("build", module, env)
+            self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+
     def test_response_words_match_the_real_compiler(self):
         with tempfile.TemporaryDirectory(prefix="nano-response-words-") as tmp:
             directory = Path(tmp)

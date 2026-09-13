@@ -974,3 +974,44 @@ in addition to the full 35-method ASan/UBSan snapshot run (2026-09-13).
 Darwin's rebuilt native VM tools and 136-method regression suite pass with
 24 expected skips. Aggregate command transport and the separate link-flag
 collector work remain open.
+
+## Returned link flags and shared-link assembly
+
+The link collectors had the same fixed 1024-pointer allocation. Linux sanitizer
+fixtures reproduce out-of-bounds writes for common linker flags, system libraries
+and the compiled-module result path. Active-platform linker flags instead stop
+at 1024 entries without reporting failure. On Darwin, shared-link deduplication
+also turns `-framework Foundation -framework Security` into a command with a
+bare `Foundation`; the real compiler rejects it as a missing input file.
+
+I now size one returned-link collector from checked metadata counts. Both
+source-free and compiled results use it, preserving object/package/common/
+platform/framework/system-library order. System-library strings use their full
+length. I publish the owned array only after every allocation succeeds.
+
+Shared linking no longer builds temporary 1024-entry arrays. It appends package,
+system-library, common, platform and framework fragments directly through the
+checked command writer. Explicit library repetitions and framework pairs stay
+in order. A command-capacity failure prevents execution; it does not silently
+drop tail arguments. Build-context version 23 invalidates earlier link recipes.
+
+Tests cover 1300 returned entries, the compiled result path, a real Foundation
+and Security link, and a rejected option after 1300 space-only fragments. That
+tail option reaches the linker; rejection leaves the previous generation intact
+and a repaired build succeeds. Failure injection covers all six Linux or eight
+Darwin collector allocations, count-addition and pointer-allocation overflow,
+then successful retry with exact order checks. All 39 snapshot methods pass on
+Darwin and under GCC 12 ASan/UBSan (eleven and three expected skips). The focused
+Linux allocation test also passes with leak detection enabled (2026-09-13).
+
+Aggregate command-length limits and cross-module flag-merging policy are not
+changed by this per-module collection repair.
+
+The Linux bootstrap and 140-method regression set pass with eleven expected
+skips. The final large-list fixture also checks a system-library name over
+256 bytes; returned spelling must remain complete.
+The final Linux ASan/UBSan run passes all 39 snapshot methods with three expected
+skips. Darwin's rebuilt native tools, C reference compiler and 140-method broad
+suite pass with 24 expected skips; its final long-library-name fixture also
+passes. The link-flag capacity roadmap item is complete; aggregate command
+transport remains open.

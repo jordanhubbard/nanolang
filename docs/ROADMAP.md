@@ -997,12 +997,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Darwin and Linux; Linux ASan/UBSan passes all 35 snapshots and focused
       leak-enabled failure checks (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 native link-flag collection capacity.** I remove the remaining fixed
+- [x] **5.0 native link-flag collection capacity.** I remove the remaining fixed
       pointer budgets in returned link flags and shared-link flag assembly.
       System-library and framework append loops still use unchecked increments,
       while bounded fragment appenders can silently drop flags. I measure the
       boundaries, preserve ordering, and verify allocation failure and retry
       before accepting aggregate native argument lists.
+      I replace duplicate returned-link collectors with size-checked ownership,
+      and append shared-link fragments directly through checked command writes.
+      Shared framework deduplication currently separates names from their
+      repeated `-framework` markers; I preserve complete pairs and explicit
+      library repetitions, then test a real two-framework Darwin link.
+      Both returned paths now use checked allocation, and shared linking has
+      no temporary fixed-pointer lists. Tests cover 1300 entries, long library
+      names, all collector allocation failures, overflow, retry, framework
+      pairs, repeated libraries and rejected tail flags preserving old code.
+      Both 140-method regression sets pass; all 39 Linux snapshot methods pass
+      under ASan/UBSan, with focused leak-enabled checks (2026-09-13).
       MAC `task_641f3a82b3474cd28c895dd9ffcb290b`.
 - [ ] **5.0 retained compiler response files.** I measure restored edits to
       `@file` arguments on Clang and GCC, including local and shared caches.
