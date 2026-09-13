@@ -281,3 +281,34 @@ compiler-variant acceptance work remains open in my roadmap.
 After adding the experiment, the existing 11-method snapshot suite passes on
 GCC and passes on Darwin with its two GCC-specific skips. No production
 compiler code changed in this characterization step.
+
+## Clang assembly-output candidate
+
+Apple Clang 21's normal `-S` pipeline expands inline `.incbin` to literal data
+and expands nested assembler `.include` files and macros. I test the resulting
+assembly as a candidate retained input in
+`test_clang_retained_assembly_expands_external_inputs`:
+
+1. Direct compilation executes 42.
+2. I capture assembly with `-S` while the binary input still contains 42.
+3. I change the binary; independent direct compilation executes 43.
+4. I remove the binary and both nested include files. New assembly capture fails.
+5. I remove the C source too, assemble/link only the retained output, and execute 42.
+
+The four subcases combine direct versus nested reads with default flags versus
+`-O2 -g -std=c11 -Wall -Wextra -Werror`. They exercise assembler macros, include
+paths containing spaces, a binary path containing spaces and apostrophes, and
+the offset/count operands of `.incbin`. No production cache implementation
+changed in this trial. It establishes the exercised data/result behavior,
+not complete debug metadata equivalence or all assembler dialects.
+
+GCC 12's `-S` output retains the external `.incbin` directive. I confirmed this
+in a disposable, network-disabled Debian container. Using that output as if it
+were self-contained would preserve the reproduced defect. Production Clang
+integration must capture and validate assembly bytes, preserve C diagnostics
+and dependencies, and apply C code-generation flags during capture rather than
+passing them blindly to assembly. GCC needs a separately tested capture path.
+
+The expanded 12-method snapshot suite passes on Darwin with two GCC-specific
+skips. The new trial skips compilers whose version output does not identify
+Clang; a skip does not establish an equivalent GCC path.

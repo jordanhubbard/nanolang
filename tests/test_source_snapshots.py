@@ -144,6 +144,51 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertNotEqual(actual.returncode, 0)
                 self.assertEqual(actual.stdout, b"")
 
+    def test_clang_retained_assembly_expands_external_inputs(self):
+        compiler = shutil.which("cc")
+        version = subprocess.run([compiler, "--version"], capture_output=True, check=True).stdout
+        if b"clang version" not in version:
+            self.skipTest("I test the Clang assembly-output candidate here")
+        for nested in (False, True):
+            for flags in ([], ["-O2", "-g", "-std=c11", "-Wall", "-Wextra", "-Werror"]):
+                with self.subTest(nested=nested, flags=flags), tempfile.TemporaryDirectory(prefix="nano-assembly-trial-") as tmp:
+                    directory = Path(tmp)
+                    binary = directory / "payload with 'quotes'.bin"
+                    binary.write_bytes(b"xx42yy")
+                    include = directory / "nested include.s"
+                    outer = directory / "outer include.s"
+                    include.write_text(f'.macro payload\n.incbin "{binary}", 2, 2\n.endm\npayload\n')
+                    outer.write_text(f'.include "{include}"\n')
+                    symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                    directive = f'.include "{outer}"' if nested else f'.incbin "{binary}", 2, 2'
+                    assembly = f'.data\n.globl {symbol}\n{symbol}:\n{directive}\n.text\n'
+                    source = directory / "answer.c"
+                    source.write_text('extern const unsigned char snapshot_payload[];\n'
+                        '__asm__(' + json.dumps(assembly) + ');\n'
+                        'long long nano_build_answer(void) {\n'
+                        'return (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n')
+                    shared = "-dynamiclib" if sys.platform == "darwin" else "-shared"
+                    direct, retained, changed = (directory / name for name in ("direct.so", "retained.so", "changed.so"))
+                    def compile_run(args):
+                        result = subprocess.run([compiler] + args, capture_output=True, timeout=20)
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                    compile_run(["-fPIC", *flags, shared, str(source), "-o", str(direct)])
+                    self.assertEqual(self.answer(direct), 42)
+                    captured = directory / "captured.s"
+                    compile_run(["-fPIC", *flags, "-S", str(source), "-o", str(captured)])
+                    binary.write_bytes(b"xx43yy")
+                    compile_run(["-fPIC", *flags, shared, str(source), "-o", str(changed)])
+                    self.assertEqual(self.answer(changed), 43)
+                    binary.unlink()
+                    include.unlink()
+                    outer.unlink()
+                    failed = subprocess.run([compiler, "-fPIC", *flags, "-S", str(source), "-o", str(directory / "failed.s")],
+                                            capture_output=True, timeout=20)
+                    self.assertNotEqual(failed.returncode, 0)
+                    source.unlink()
+                    compile_run([shared, "-x", "assembler", str(captured), "-o", str(retained)])
+                    self.assertEqual(self.answer(retained), 42)
+
     def test_multiple_and_shared_only_sources(self):
         with tempfile.TemporaryDirectory(prefix="nano-retained-multiple-") as tmp:
             directory = Path(tmp)

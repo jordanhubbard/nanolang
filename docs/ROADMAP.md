@@ -438,6 +438,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       `--assembler --require-consistent` fails on both platforms (2026-09-12).
       This is a reproduced defect, not assembler snapshot acceptance.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Clang retained-assembly trial.** I exercise normal Clang `-S`
+      output as a candidate retained input. I compare executed direct and
+      retained builds, including nested assembler includes, binary ranges,
+      missing inputs and configured flags. I remove original assembler inputs
+      before assembling the retained output. This trial must establish the
+      pipeline boundary before production integration; it is not that integration.
+      Four Clang 21 subcases pass: direct/nested assembler reads with default
+      and optimization/debug/strict-warning flags. Retained output executes 42
+      after deleting all original inputs; changed direct compilation executes
+      43 and missing-input capture fails. GCC 12 keeps `.incbin` in its `-S`
+      output and cannot use this boundary unchanged (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent
