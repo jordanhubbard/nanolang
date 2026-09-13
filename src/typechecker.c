@@ -602,6 +602,22 @@ static bool types_match(Type t1, Type t2) {
     return false;
 }
 
+/* I validate the inferred literal kind before annotation propagation changes it. */
+static bool check_array_literal_annotation(TypeChecker *tc, ASTNode *literal, Type expected) {
+    if (literal->as.array_literal.element_count > 0 &&
+            !types_match(literal->as.array_literal.element_type, expected)) {
+        char message[256];
+        snprintf(message, sizeof message, "I expected array elements of type %s, but found %s.",
+                 type_to_string(expected), type_to_string(literal->as.array_literal.element_type));
+        emit_context_error("E001 TYPE MISMATCH", literal->line, literal->column, 1,
+                           message, "Use elements matching the array annotation.");
+        tc->has_error = true;
+        return false;
+    }
+    literal->as.array_literal.element_type = expected;
+    return true;
+}
+
 static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value) {
     if (out_key) *out_key = TYPE_UNKNOWN;
     if (out_value) *out_value = TYPE_UNKNOWN;
@@ -2063,7 +2079,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         /* Create signature from passed function */
-                        FunctionSignature passed_sig;
+                        FunctionSignature passed_sig = {0};
                         passed_sig.param_count = passed_func->param_count;
                         passed_sig.param_types = malloc(sizeof(Type) * passed_func->param_count);
                         passed_sig.param_struct_names = malloc(sizeof(char*) * passed_func->param_count);
@@ -2073,6 +2089,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         passed_sig.return_type = passed_func->return_type;
                         passed_sig.return_struct_name = passed_func->return_struct_type_name;
+                        passed_sig.return_fn_sig = passed_func->return_fn_sig;
                         
                         /* Compare signatures */
                         if (!function_signatures_equal(func->params[i].fn_sig, &passed_sig)) {
@@ -3916,8 +3933,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (declared_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
                 if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.let.value;
-                    /* Set element type on array literal so transpiler knows what to generate */
-                    array_lit->as.array_literal.element_type = element_type;
+                    check_array_literal_annotation(tc, array_lit, element_type);
                 }
             }
             
@@ -4039,7 +4055,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
                 if (stmt->as.set.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.set.value;
-                    array_lit->as.array_literal.element_type = sym->element_type;
+                    check_array_literal_annotation(tc, array_lit, sym->element_type);
                 }
             }
 
@@ -5803,6 +5819,24 @@ static bool functions_match(Function *f1, Function *f2) {
     }
     
     return true;
+}
+
+/* I check only the root's shadows here, after its declarations and functions.
+ * I retain inferred metadata just as the ordinary function checker does;
+ * the bytecode emitter still needs it when choosing operand/array kinds. */
+bool type_check_root_shadows(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    bool ok = true;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_SHADOW) continue;
+        TypeChecker tc = {0};
+        tc.env = env;
+        tc.current_function_return_type = TYPE_VOID;
+        check_statement(&tc, item->as.shadow.body);
+        if (tc.has_error) ok = false;
+    }
+    return ok && g_typecheck_error_count == 0;
 }
 
 bool type_check(ASTNode *program, Environment *env) {

@@ -742,54 +742,34 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
     /* Math (inline implementations) */
     if (strcmp(name, "abs") == 0 && argc == 1) {
         /* abs(x) = if x < 0 then -x else x */
+        bool is_float = check_expression(args[0], cg->env) == TYPE_FLOAT;
         compile_expr(cg, args[0]);
         emit_op(cg, OP_DUP);
-        emit_op(cg, OP_PUSH_I64, (int64_t)0);
-        emit_op(cg, OP_LT);
+        if (is_float) emit_op(cg, OP_PUSH_F64, 0.0);
+        else emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, is_float ? OP_F64_LT : OP_I64_LT_S);
         uint32_t jf_instr = cg->code_size;
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
-        emit_op(cg, OP_I64_NEG);
+        emit_op(cg, is_float ? OP_F64_NEG : OP_I64_NEG);
         patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
         return true;
     }
-    if (strcmp(name, "min") == 0 && argc == 2) {
-        /* min(a,b) = if a < b then a else b */
+    if ((strcmp(name, "min") == 0 || strcmp(name, "max") == 0) && argc == 2) {
+        /* I evaluate once in source order, compare copies, and keep an original. */
         compile_expr(cg, args[0]);
         compile_expr(cg, args[1]);
-        /* Stack: a b */
-        emit_op(cg, OP_DUP);     /* a b b */
-        emit_op(cg, OP_ROT3);    /* b b a */
-        emit_op(cg, OP_DUP);     /* b b a a */
-        emit_op(cg, OP_ROT3);    /* b a a b */
-        emit_op(cg, OP_LT);      /* b a (a<b) */
+        emit_op(cg, OP_PICK, 1); /* a b a */
+        emit_op(cg, OP_PICK, 1); /* a b a b */
+        emit_op(cg, strcmp(name, "min") == 0 ? OP_LT : OP_GT);
         uint32_t jf_instr = cg->code_size;
         uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
-        /* a < b: keep a, drop b */
-        emit_op(cg, OP_SWAP);
+        /* The comparison selected a: discard b. */
         emit_op(cg, OP_POP);
         uint32_t je_instr = cg->code_size;
         uint32_t je_off = emit_op(cg, OP_JMP, (int32_t)0);
-        /* a >= b: keep b, drop a */
+        /* Otherwise keep b, including the equal case. */
         patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
-        emit_op(cg, OP_POP);
-        patch_jump(cg, je_off + 1, je_instr, cg->code_size);
-        return true;
-    }
-    if (strcmp(name, "max") == 0 && argc == 2) {
-        compile_expr(cg, args[0]);
-        compile_expr(cg, args[1]);
-        emit_op(cg, OP_DUP);
-        emit_op(cg, OP_ROT3);
-        emit_op(cg, OP_DUP);
-        emit_op(cg, OP_ROT3);
-        emit_op(cg, OP_GT);
-        uint32_t jf_instr = cg->code_size;
-        uint32_t jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
         emit_op(cg, OP_SWAP);
-        emit_op(cg, OP_POP);
-        uint32_t je_instr = cg->code_size;
-        uint32_t je_off = emit_op(cg, OP_JMP, (int32_t)0);
-        patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
         emit_op(cg, OP_POP);
         patch_jump(cg, je_off + 1, je_instr, cg->code_size);
         return true;
@@ -2472,6 +2452,19 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         if (node->as.let.type_name) {
             cg->locals[slot].struct_type = node->as.let.type_name;
         }
+        /* I re-establish this declaration's checked type. The shared checker
+         * retains symbols across functions, and emitting a previous function's
+         * parameter can otherwise override a same-named local's metadata. */
+        env_define_var_with_type_info(cg->env, node->as.let.name, node->as.let.var_type,
+                                      node->as.let.element_type, node->as.let.type_info,
+                                      node->as.let.is_mut, create_void());
+        Symbol *local_type = env_get_var(cg->env, node->as.let.name);
+        if (local_type) {
+            local_type->def_line = node->line;
+            local_type->def_column = node->column;
+            if (node->as.let.type_name)
+                local_type->struct_type_name = strdup(node->as.let.type_name);
+        }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
         break;
     }
@@ -2939,8 +2932,9 @@ static void register_imported_struct(Environment *env, ASTNode *item) {
     env_define_struct(env, sdef);
 }
 
-CodegenResult codegen_compile(ASTNode *program, Environment *env,
-                              ModuleList *modules, const char *input_file) {
+static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env,
+                                              ModuleList *modules, const char *input_file,
+                                              bool shadows) {
     CodegenResult result = {0};
 
     if (!program || program->type != AST_PROGRAM) {
@@ -3535,6 +3529,59 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
     }
     env_set_current_file(env, outer_file);   /* leave the environment as found */
 
+    if (shadows && !cg.had_error) {
+        uint32_t shadow_functions[MAX_FUNCTIONS];
+        int shadow_count = 0;
+        env_set_current_file(env, input_file);
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *shadow = program->as.program.items[i];
+            if (shadow->type != AST_SHADOW) continue;
+            if (cg.fn_count >= MAX_FUNCTIONS) {
+                cg_error(&cg, shadow->line, "I cannot register another shadow function");
+                break;
+            }
+            char name[64];
+            snprintf(name, sizeof name, "$shadow_%d_%.32s", i, shadow->as.shadow.function_name);
+            uint32_t name_idx = nvm_add_string(cg.module, name, (uint32_t)strlen(name));
+            NvmFunctionEntry entry = {0};
+            entry.name_idx = name_idx;
+            entry.result_tag = TAG_VOID;
+            uint32_t index = nvm_add_function(cg.module, &entry);
+            cg.functions[cg.fn_count].name = cg.module->strings[name_idx];
+            cg.functions[cg.fn_count++].fn_idx = index;
+            ASTNode function = {0};
+            function.type = AST_FUNCTION;
+            function.line = shadow->line;
+            function.column = shadow->column;
+            function.as.function.name = cg.module->strings[name_idx];
+            function.as.function.return_type = TYPE_VOID;
+            function.as.function.body = shadow->as.shadow.body;
+            compile_function(&cg, &function);
+            if (cg.had_error) break;
+            shadow_functions[shadow_count++] = index;
+        }
+        if (!cg.had_error) {
+            NvmFunctionEntry entry = {0};
+            entry.name_idx = nvm_add_string(cg.module, "$shadow_entry", 13);
+            entry.result_tag = TAG_INT;
+            entry.result_count = 1;
+            uint32_t index = nvm_add_function(cg.module, &entry);
+            cg.code_size = 0;
+            cg.local_count = 0;
+            cg.loop_depth = 0;
+            cg.upvalue_count = 0;
+            cg.current_fn_idx = index;
+            for (int i = 0; i < shadow_count; i++) emit_op(&cg, OP_CALL, shadow_functions[i]);
+            emit_op(&cg, OP_PUSH_I64, (int64_t)0);
+            emit_op(&cg, OP_RET);
+            uint32_t offset = nvm_append_code(cg.module, cg.code, cg.code_size);
+            cg.module->functions[index].code_offset = offset;
+            cg.module->functions[index].code_length = cg.code_size;
+            main_fn_idx = (int)index;
+        }
+        env_set_current_file(env, outer_file);
+    }
+
     /* For shadow-only programs (no main), generate a synthetic main that returns 0 */
     if (main_fn_idx < 0 && !cg.had_error) {
         NvmFunctionEntry syn_fn = {0};
@@ -3595,4 +3642,14 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
     result.ok = true;
     result.module = cg.module;
     return result;
+}
+
+CodegenResult codegen_compile(ASTNode *program, Environment *env,
+                              ModuleList *modules, const char *input_file) {
+    return codegen_compile_internal(program, env, modules, input_file, false);
+}
+
+CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
+                                      ModuleList *modules, const char *input_file) {
+    return codegen_compile_internal(program, env, modules, input_file, true);
 }

@@ -34,4 +34,9 @@ typedef struct {
 CodegenResult codegen_compile(ASTNode *program, Environment *env,
                               ModuleList *modules, const char *input_file);
 
+/* I compile root-file shadows into a separate module whose entry runs them.
+ * I do not change the normal program entry or insert tests into production. */
+CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
+                                      ModuleList *modules, const char *input_file);
+
 #endif /* NANOVIRT_CODEGEN_H */
