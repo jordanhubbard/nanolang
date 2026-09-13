@@ -139,7 +139,7 @@ fn main() -> int {{ assert (== (helper.{function}) 42) return 0 }}
 shadow main {{ assert (== (helper.{function}) 42) }}
 '''
                     compiled, output = self.compile_source(backend, source, directory)
-                    if backend == "bytecode":
+                    if backend in ("c-seed", "bytecode"):
                         self.assertNotEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                         self.assertFalse(output.exists())
                         compiled, output = self.compile_source(backend, source, directory, ("--root-shadows-only",))

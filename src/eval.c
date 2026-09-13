@@ -26,6 +26,7 @@
 #include <sys/wait.h>
 #include <spawn.h>
 #include <math.h>
+#include <limits.h>
 
 /* g_argc/g_argv are defined in main.c / nano_main.c */
 extern int g_argc;
@@ -59,6 +60,7 @@ static Value coro_trampoline(void *raw_arg, int coro_id) {
 
 typedef struct {
     const char *test_name;
+    const char *source_file;
     int first_line;
     int first_column;
     int fail_count;
@@ -144,19 +146,22 @@ static void shadow_json_escape(FILE *out, const char *s) {
     }
 }
 
-static void shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success) {
-    if (!path || path[0] == '\0') return;
+static bool shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success, int test_count) {
+    if (!path || path[0] == '\0') return true;
     FILE *f = fopen(path, "w");
-    if (!f) return;
+    if (!f) return false;
 
     fprintf(f, "{");
     fprintf(f, "\"tool\":\"nanoc_c\",");
     fprintf(f, "\"success\":%s,", success ? "true" : "false");
+    fprintf(f, "\"completed\":true,");
+    fprintf(f, "\"test_count\":%d,", test_count);
     fprintf(f, "\"failures\":[");
     for (int i = 0; i < fail_len; i++) {
         if (i > 0) fprintf(f, ",");
         fprintf(f, "{");
         fprintf(f, "\"test\":\""); shadow_json_escape(f, fails[i].test_name); fprintf(f, "\",");
+        fprintf(f, "\"source_file\":\""); shadow_json_escape(f, fails[i].source_file); fprintf(f, "\",");
         fprintf(f, "\"fail_count\":%d,", fails[i].fail_count);
         fprintf(f, "\"first_location\":{");
         fprintf(f, "\"line\":%d,", fails[i].first_line);
@@ -165,7 +170,9 @@ static void shadow_write_json_file(const char *path, const ShadowFailure *fails,
         fprintf(f, "}");
     }
     fprintf(f, "]}");
-    fclose(f);
+    bool written = !ferror(f);
+    if (fclose(f) != 0) written = false;
+    return written;
 }
 
 
@@ -1032,14 +1039,53 @@ static Value builtin_array_new(Value *args) {
     return arr;
 }
 
+static ElementType value_type_to_elem_type(ValueType vtype);
+
 static Value builtin_array_set(Value *args) {
     /* array_set(array, index, value) -> void */
-    if (args[0].type != VAL_ARRAY) {
+    if (args[1].type != VAL_INT) {
+        fprintf(stderr, "Error: array_set() requires an integer index\n");
+        return create_void();
+    }
+    if (args[0].type != VAL_ARRAY && args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_set() requires an array as first argument\n");
         return create_void();
     }
-    if (args[1].type != VAL_INT) {
-        fprintf(stderr, "Error: array_set() requires an integer index\n");
+
+    if (args[0].type == VAL_DYN_ARRAY) {
+        DynArray *arr = args[0].as.dyn_array_val;
+        long long index = args[1].as.int_val;
+        if (index < 0 || index >= dyn_array_length(arr)) {
+            fprintf(stderr, "I cannot write array index %lld outside [0..%lld).\n",
+                    index, (long long)dyn_array_length(arr));
+            exit(1);
+        }
+        if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr)) {
+            fprintf(stderr, "I cannot assign a different element type to this array.\n");
+            exit(1);
+        }
+        switch (args[2].type) {
+            case VAL_INT: dyn_array_set_int(arr, index, args[2].as.int_val); break;
+            case VAL_FLOAT: dyn_array_set_float(arr, index, args[2].as.float_val); break;
+            case VAL_BOOL: dyn_array_set_bool(arr, index, args[2].as.bool_val); break;
+            case VAL_STRING: {
+                char *copy = strdup(args[2].as.string_val);
+                if (!copy) { fprintf(stderr, "I cannot allocate an array string.\n"); exit(1); }
+                dyn_array_set_string(arr, index, copy);
+                break;
+            }
+            case VAL_DYN_ARRAY: dyn_array_set_array(arr, index, args[2].as.dyn_array_val); break;
+            case VAL_STRUCT: {
+                StructValue *sv = args[2].as.struct_val;
+                Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                StructValue *stored = copy.as.struct_val;
+                dyn_array_set_struct(arr, index, &stored, sizeof(stored));
+                break;
+            }
+            default:
+                fprintf(stderr, "I cannot write this array element representation.\n");
+                exit(1);
+        }
         return create_void();
     }
     
@@ -1280,6 +1326,37 @@ static Value builtin_array_push(Value *args) {
         return create_dyn_array(arr);
     }
     
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        size_t width;
+        switch (arr->element_type) {
+            case VAL_INT: width = sizeof(long long); break;
+            case VAL_FLOAT: width = sizeof(double); break;
+            case VAL_BOOL: width = sizeof(bool); break;
+            case VAL_STRING: width = sizeof(char*); break;
+            case VAL_STRUCT: width = sizeof(StructValue*); break;
+            default:
+                fprintf(stderr, "I cannot append this array element representation.\n");
+                exit(1);
+        }
+        if (args[1].type != arr->element_type || arr->length == INT_MAX ||
+            (size_t)arr->length + 1 > SIZE_MAX / width) {
+            fprintf(stderr, "I cannot append this value to the array.\n");
+            exit(1);
+        }
+        if (arr->length == arr->capacity) {
+            void *data = realloc(arr->data, ((size_t)arr->length + 1) * width);
+            if (!data) { fprintf(stderr, "I cannot grow the array.\n"); exit(1); }
+            arr->data = data;
+            arr->capacity++;
+        }
+        memset((char*)arr->data + (size_t)arr->length * width, 0, width);
+        Value set_args[] = {args[0], create_int(arr->length), args[1]};
+        arr->length++;
+        builtin_array_set(set_args);
+        return args[0];
+    }
+
     /* Must be a dynamic array */
     if (args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_push() requires a dynamic array (use [] to create one)\n");
@@ -4698,7 +4775,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Set elements */
             for (int i = 0; i < count; i++) {
-                Value elem = eval_expression(expr->as.array_literal.elements[i], env);
+                Value elem = i == 0 ? first : eval_expression(expr->as.array_literal.elements[i], env);
                 
                 /* Store element in array data */
                 switch (elem_type) {
@@ -4714,6 +4791,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     case VAL_STRING:
                         ((char**)arr.as.array_val->data)[i] = strdup(elem.as.string_val);
                         break;
+                    case VAL_STRUCT: {
+                        StructValue *sv = elem.as.struct_val;
+                        Value copy = create_struct(sv->struct_name, sv->field_names,
+                                                   sv->field_values, sv->field_count);
+                        ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
+                        break;
+                    }
                     default:
                         fprintf(stderr, "Error: Unsupported array element type\n");
                         break;
@@ -5808,6 +5892,11 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
 /* Run shadow tests */
 bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
+    return run_shadow_tests_scope(program, env, NULL, env_current_file(env), false, verbose);
+}
+
+bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                            const char *input_file, bool include_imports, bool verbose) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program for shadow tests\n");
         return false;
@@ -5825,107 +5914,130 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
     int failure_cap = 0;
     int test_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
+    ASTNode *root_program = program;
+    char *root_owner = env->current_module;
+    const char *root_file = env_current_file(env);
+    int imported_count = include_imports && modules ? modules->count : 0;
 
-    /* First pass: Evaluate top-level constants */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_LET) {
-            eval_statement(item, env);  /* Evaluate the constant */
+    for (int source = 0; source <= imported_count; source++) {
+        bool imported = source < imported_count;
+        const char *file = imported ? modules->module_paths[source] : input_file;
+        program = imported ? get_cached_module_ast(file) : root_program;
+        char *owner = imported ? module_program_name(program, file) : NULL;
+        if (!program || (imported && !owner)) {
+            fprintf(stderr, "I cannot load a selected shadow module: %s\n", file ? file : "");
+            free(owner);
+            all_passed = false;
+            break;
         }
-    }
+        env->current_module = imported ? owner : root_owner;
+        env_set_current_file(env, file);
 
-    /* Second pass: Register all enum definitions so they're available in shadow tests */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
+        /* First pass: Evaluate top-level constants */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
         
-        if (item->type == AST_ENUM_DEF) {
-            eval_statement(item, env);  /* This will register the enum */
+            if (item->type == AST_LET) {
+                eval_statement(item, env);  /* Evaluate the constant */
+            }
         }
-    }
 
-    /* Third pass: Register all union definitions so they're available in shadow tests */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
+        /* Second pass: Register all enum definitions so they're available in shadow tests */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
         
-        if (item->type == AST_UNION_DEF) {
-            eval_statement(item, env);  /* This will register the union */
+            if (item->type == AST_ENUM_DEF) {
+                eval_statement(item, env);  /* This will register the enum */
+            }
         }
-    }
 
-    /* Fourth pass: Run each shadow test */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
+        /* Third pass: Register all union definitions so they're available in shadow tests */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
         
-        if (item->type == AST_SHADOW) {
-            const char *func_name = item->as.shadow.function_name;
-            /* I execute explicit shadows; foreign syntax does not exempt them. */
+            if (item->type == AST_UNION_DEF) {
+                eval_statement(item, env);  /* This will register the union */
+            }
+        }
+
+        /* Fourth pass: Run each shadow test */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+        
+            if (item->type == AST_SHADOW) {
+                const char *func_name = item->as.shadow.function_name;
+                /* I execute explicit shadows; foreign syntax does not exempt them. */
             
-            test_count++;
-            if (verbose) {
-                fprintf(stdout, "Testing %s... ", func_name);
-            }
-            
-            /* Execute shadow test */
-            g_shadow_current_test = func_name;
-            g_shadow_current_fail_count = 0;
-            g_shadow_current_first_line = 0;
-            g_shadow_current_first_column = 0;
-
-            /* When not verbose, suppress stdout from test body execution */
-            int saved_stdout_fd = -1;
-            if (!verbose) {
-                fflush(stdout);
-                saved_stdout_fd = dup(STDOUT_FILENO);
-                int devnull = open("/dev/null", O_WRONLY);
-                if (devnull >= 0) {
-                    dup2(devnull, STDOUT_FILENO);
-                    close(devnull);
-                }
-            }
-
-            eval_statement(item->as.shadow.body, env);
-
-            if (!verbose && saved_stdout_fd >= 0) {
-                fflush(stdout);
-                dup2(saved_stdout_fd, STDOUT_FILENO);
-                close(saved_stdout_fd);
-            }
-
-            if (g_shadow_current_fail_count > 0) {
-                all_passed = false;
+                test_count++;
                 if (verbose) {
-                    fprintf(stdout, "FAILED\n");
+                    fprintf(stdout, "Testing %s... ", func_name);
                 }
-                fprintf(stdout, "  Shadow test '%s' FAILED: %d failure(s)\n", func_name, g_shadow_current_fail_count);
-                if (g_shadow_current_first_line > 0) {
-                    fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
-                }
+            
+                /* Execute shadow test */
+                g_shadow_current_test = func_name;
+                g_shadow_current_fail_count = 0;
+                g_shadow_current_first_line = 0;
+                g_shadow_current_first_column = 0;
 
-                if (failure_count >= failure_cap) {
-                    int new_cap = failure_cap == 0 ? 8 : failure_cap * 2;
-                    ShadowFailure *new_arr = realloc(failures, sizeof(ShadowFailure) * (size_t)new_cap);
-                    if (new_arr) {
-                        failures = new_arr;
-                        failure_cap = new_cap;
+                /* When not verbose, suppress stdout from test body execution */
+                int saved_stdout_fd = -1;
+                if (!verbose) {
+                    fflush(stdout);
+                    saved_stdout_fd = dup(STDOUT_FILENO);
+                    int devnull = open("/dev/null", O_WRONLY);
+                    if (devnull >= 0) {
+                        dup2(devnull, STDOUT_FILENO);
+                        close(devnull);
                     }
                 }
-                if (failure_count < failure_cap) {
-                    failures[failure_count].test_name = func_name;
-                    failures[failure_count].fail_count = g_shadow_current_fail_count;
-                    failures[failure_count].first_line = g_shadow_current_first_line;
-                    failures[failure_count].first_column = g_shadow_current_first_column;
-                    failure_count++;
+
+                eval_statement(item->as.shadow.body, env);
+
+                if (!verbose && saved_stdout_fd >= 0) {
+                    fflush(stdout);
+                    dup2(saved_stdout_fd, STDOUT_FILENO);
+                    close(saved_stdout_fd);
                 }
-            } else {
-                if (verbose) {
-                    fprintf(stdout, "PASSED\n");
+
+                if (g_shadow_current_fail_count > 0) {
+                    all_passed = false;
+                    if (verbose) {
+                        fprintf(stdout, "FAILED\n");
+                    }
+                    fprintf(stdout, "  Shadow test '%s' FAILED: %d failure(s)\n", func_name, g_shadow_current_fail_count);
+                    if (g_shadow_current_first_line > 0) {
+                        fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
+                    }
+
+                    if (failure_count >= failure_cap) {
+                        int new_cap = failure_cap == 0 ? 8 : failure_cap * 2;
+                        ShadowFailure *new_arr = realloc(failures, sizeof(ShadowFailure) * (size_t)new_cap);
+                        if (new_arr) {
+                            failures = new_arr;
+                            failure_cap = new_cap;
+                        }
+                    }
+                    if (failure_count < failure_cap) {
+                        failures[failure_count].test_name = func_name;
+                        failures[failure_count].source_file = file;
+                        failures[failure_count].fail_count = g_shadow_current_fail_count;
+                        failures[failure_count].first_line = g_shadow_current_first_line;
+                        failures[failure_count].first_column = g_shadow_current_first_column;
+                        failure_count++;
+                    }
+                } else {
+                    if (verbose) {
+                        fprintf(stdout, "PASSED\n");
+                    }
                 }
             }
+            /* Note: We do NOT execute non-shadow items here - they're already registered
+             * in the environment by the type checker. Only shadow test bodies need execution. */
         }
-        /* Note: We do NOT execute non-shadow items here - they're already registered
-         * in the environment by the type checker. Only shadow test bodies need execution. */
+        env->current_module = root_owner;
+        free(owner);
     }
+    env_set_current_file(env, root_file);
 
     if (all_passed) {
         if (verbose) {
@@ -5934,7 +6046,10 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
         }
     }
 
-    shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed);
+    if (!shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed, test_count)) {
+        fprintf(stderr, "I cannot write the completed shadow report.\n");
+        all_passed = false;
+    }
     free(failures);
     g_in_shadow_tests = false;
 

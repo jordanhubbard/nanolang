@@ -954,6 +954,11 @@ typedef struct {
     int capacity;
 } ModuleList;
 
+bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                             const char *input_file, bool include_imports);
+bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                            const char *input_file, bool include_imports, bool verbose);
+
 ModuleList *create_module_list(void);
 void free_module_list(ModuleList *list);
 void module_list_add(ModuleList *list, const char *module_path);

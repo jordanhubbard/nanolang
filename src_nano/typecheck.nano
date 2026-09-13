@@ -1320,13 +1320,14 @@ fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
 
 shadow type_from_string_with_parser { assert true }
 
-/* Find first occurrence of character in string */
+/* I find the first complete needle, including an empty needle at zero. */
 fn tc_str_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
+    let needle_length: int = (str_length ch)
     let mut i: int = 0
     
-    while (< i len) {
-        let char_at: string = (str_substring s i 1)
+    while (<= i (- len needle_length)) {
+        let char_at: string = (str_substring s i needle_length)
         if (== char_at ch) {
             return i
         } else {
@@ -1342,6 +1343,10 @@ shadow tc_str_index_of {
     assert (== (tc_str_index_of "hello" "e") 1)
     assert (== (tc_str_index_of "List<Point>" "<") 4)
     assert (== (tc_str_index_of "hello" "x") -1)
+    assert (== (tc_str_index_of "array<Point>" "array<") 0)
+    assert (== (tc_str_index_of "ababa" "aba") 0)
+    assert (== (tc_str_index_of "a" "ab") -1)
+    assert (== (tc_str_index_of "" "") 0)
 }
 
 /* Extract element type from List<T> string */
@@ -2561,7 +2566,7 @@ fn check_variant_field_type(parser: Parser, variant_label: string, field_name: s
 }
 
 shadow check_variant_field_type {
-    let toks: List<LexerToken> = (tokenize_string "union Choice { Some { value: string }, None {} }")
+    let toks: List<LexerToken> = (tokenize_string "union Choice { Some { value: string }, None {} }" "variant.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program toks (list_LexerToken_length toks) "variant.nano")
     let found: NSType = (check_variant_field_type parser "Choice.Some" "value")
     assert (== found.kind TypeKind.TYPE_STRING)
@@ -2950,27 +2955,21 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
-    let p0: Parser = (parser_init_ast_lists)
-    let p1: Parser = (parser_store_identifier p0 "var_name" 1 1)
-    let var_id: int = p1.last_expr_node_id
-    let var_type: int = p1.last_expr_node_type
-    let p2: Parser = (parser_store_string p1 "not found" 1 1)
-    let msg_id: int = p2.last_expr_node_id
-    let msg_type: int = p2.last_expr_node_type
-    let p3: Parser = (parser_store_binary_op p2 LexerTokenType.TOKEN_PLUS var_id msg_id var_type msg_type 1 1)
-    let inner_id: int = p3.last_expr_node_id
-    let inner_type: int = p3.last_expr_node_type
-    let p4: Parser = (parser_store_string p3 "Error: " 1 1)
-    let err_id: int = p4.last_expr_node_id
-    let err_type: int = p4.last_expr_node_type
-    let p5: Parser = (parser_store_binary_op p4 LexerTokenType.TOKEN_PLUS err_id inner_id err_type inner_type 1 1)
-    let env: TypeEnvironment = (env_new)
+    let source: string = "fn message(var_name: string) -> string { return (+ \"Error: \" (+ var_name \"not found\")) }"
+    let tokens: List<LexerToken> = (tokenize_string source "test.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "test.nano")
+    assert (not (parser_has_error parsed))
+    let function: ASTFunction = (parser_get_function parsed 0)
+    let body: ASTBlock = (parser_get_block parsed function.body)
+    let statement: ASTStmtRef = (list_ASTStmtRef_get body.statements 0)
+    let ret: ASTReturn = (parser_get_return parsed statement.node_id)
     let mut symbols: array<Symbol> = []
     let sym: Symbol = (symbol_new "var_name" (type_string) false false 0 (empty_param_types) (type_void))
     set symbols (env_add_symbol symbols sym)
     let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
-    let result: NSType = (check_expr_node p5 p5.last_expr_node_id p5.last_expr_node_type symbols diags "test.nano")
+    let result: NSType = (check_expr_node parsed ret.value ret.value_type symbols diags "test.nano")
     assert (== result.kind TypeKind.TYPE_STRING)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
 }
 
 /* NSType check a return statement expression
@@ -3329,7 +3328,7 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
 }
 
 shadow check_block_value {
-    let toks: List<LexerToken> = (tokenize_string "fn value() -> void { 7 }")
+    let toks: List<LexerToken> = (tokenize_string "fn value() -> void { 7 }" "block.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program toks (list_LexerToken_length toks) "block.nano")
     let func: ASTFunction = (parser_get_function parser 0)
     let symbols: array<Symbol> = []

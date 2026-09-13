@@ -5765,7 +5765,8 @@ void free_ast(ASTNode *node) {
             if (node->as.let.type_name) {
                 free(node->as.let.type_name);
             }
-            if (node->as.let.fn_sig) {
+            if (node->as.let.fn_sig &&
+                (!node->as.let.type_info || node->as.let.type_info->fn_sig != node->as.let.fn_sig)) {
                 free_function_signature(node->as.let.fn_sig);
             }
             if (node->as.let.type_info) {

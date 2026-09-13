@@ -309,8 +309,9 @@ Write shadows around observable contracts. Include boundaries and failure
 variants. A shadow shows behavior for the cases it executes. It does not prove
 the function for all inputs.
 
-Execution is currently backend-dependent. My C seed executes selected shadows
-during compilation; foreign-call syntax no longer exempts an explicit shadow.
+Execution is currently backend-dependent. My C seed checks dependency and root
+shadows, then executes them in a separate interpreter child with a ten-second
+parent deadline; foreign-call syntax does not exempt an explicit shadow.
 My `nano_virt` CLI runs dependency and root-file shadows in a separate
 verified NanoVM test module before publishing output, with a 10-second parent
 deadline. Production bytecode omits that test harness. This child process is
@@ -319,10 +320,10 @@ driver also runs root shadows in a separate test executable with a ten-second
 parent deadline before publishing native output. Test stdout is redirected to
 stderr. Source-only `--target c` checks types but does not execute shadows or
 invoke a native compiler. My creator chose dependency shadows by default for
-5.0. My bytecode driver implements that choice; C-seed and self-hosted native
-parity remain required work.
+5.0. My C-seed and bytecode drivers implement that choice; self-hosted native
+parity remains required work.
 
-My bytecode driver includes imports by default; `--test-imports` selects that
+My C-seed and bytecode drivers include imports by default; `--test-imports` selects that
 behavior explicitly, and `--root-shadows-only` opts out:
 
 ```sh
@@ -337,12 +338,23 @@ dot segments and symlinks do not select the same file twice. Relative imports
 inside a symlinked module resolve from the target directory. This does not
 establish colliding nominal type identity or self-hosted loader parity.
 
-All selected VM shadows share one test VM and its ten-second parent deadline.
+All selected shadows share one test process and its ten-second parent deadline.
 Foreign calls, printing and other side effects still happen with host authority;
 the test child is not a sandbox. A failed type check, assertion, runtime trap or
 deadline prevents publication. I do not put shadow entry functions in production
-bytecode. C-seed and self-hosted `--test-imports` parity remain roadmap work;
+bytecode. Self-hosted `--test-imports` parity remains roadmap work;
 source-only C emission still does not execute tests.
+
+My C-seed shadow JSON aggregates the selected graph. Completed runs report
+`completed: true`, `test_count`, and failed tests with their owning
+`source_file`. The recorded first line/column is not full cross-module
+callee provenance.
+Before starting the child I replace an old report with `success: false`,
+`completed: false`, and a null count. A crash, early process exit or deadline cannot
+leave a previous successful report masquerading as this run. I keep shadow
+locals and runtime mutations out of the production compiler environment.
+My filesystem and module-cache bootstrap shadows create private fixtures;
+they do not depend on a particular working directory or fixed temporary names.
 
 My C-seed shadow runner
 records failed foreign dispatch even when the test ignores its result, and
@@ -360,9 +372,9 @@ ignored missing-symbol failures through these routes, including `map`.
 General interpreter error propagation remains separate work; a successful
 shadow is not an ABI safety guarantee.
 My `test_imported_shadow_selection` characterizes direct and transitive pure
-imports: my VM rejects a failing dependency shadow by default and allows the
-explicit root-only opt-out. C-seed and Stage2 still skip it on import and
-reject it when compiled as the root. Passing a consumer's
+imports: my C seed and VM reject a failing dependency shadow by default and
+allow the explicit root-only opt-out. Stage2 still skips it on import and
+rejects it when compiled as the root. Passing a Stage2 consumer's
 compilation therefore does not establish that its dependencies' shadows passed.
 Until execution is consistent, execute important assertions from an explicit
 test entry point as well as writing the shadow.

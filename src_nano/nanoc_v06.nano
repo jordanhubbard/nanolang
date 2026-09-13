@@ -342,7 +342,9 @@ fn nlc_hashset_new_string() -> HashMap<string, int> {
 
 shadow nlc_hashset_new_string {
     let s: HashMap<string, int> = (nlc_hashset_new_string)
-    assert (!= s 0)  /* HashMap is a valid pointer */
+    assert (not (map_has s "fresh"))
+    (map_put s "fresh" 1)
+    assert (== (map_get s "fresh") 1)
 }
 
 fn nlc_hashset_has_string(hset: HashMap<string, int>, key: string) -> bool {

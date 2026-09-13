@@ -368,8 +368,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       exercise direct, transitive and diamond imports exactly once, preserve
       ownership and prior output on failure, and document execution order,
       source-only behavior and side effects. My creator chose this default;
-      I retain `--root-shadows-only` as an explicit opt-out. C-seed and Stage2
-      still need the new selection implementation and default.
+      I retain `--root-shadows-only` as an explicit opt-out. C-seed and VM
+      now use this default; Stage2 selection and source identity remain open.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
       - [x] I canonicalize resolved imports before cache lookup, graph
         registration, owner inference and C forward declarations. I reproduced
@@ -389,14 +389,64 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
         typechecker, code-generation and wrapper gates pass on both platforms.
         Both bootstraps pass smoke and no-C-seed checks; native binaries differ.
         MAC `task_e74afc2a7ccb4b16941f5d34f314998d`.
-      - [ ] I apply dependency-shadow selection and the default to C-seed,
+      - [x] I repair previously skipped bootstrap shadows as behavioral tests.
+        The first failure compared a `HashMap` with integer zero. I check its
+        observable collection behavior, replace filesystem shadows' fixed
+        temporary paths and repository-cwd assumptions with private fixtures,
+        and keep transitive selection enabled through both bootstraps.
+        MAC `task_601070f4e9904943b1e2ca1ebeea5f4f`.
+      - [x] I repair the interpreter array failure exposed by default bootstrap
+        shadow execution. I reproduce the unsupported-element diagnostic and
+        subsequent crash, add a minimal regression, and verify the default
+        without suppressing dependency tests.
+        MAC `task_fdb1477733a44a9fb9ef1881abf4757c`.
+      - [x] I isolate interpreted shadows from production compiler state.
+        Checked shadow locals contaminated C lowering; I discard their extra
+        metadata before lowering and execute shadows in a child. A parent
+        deadline and completion handshake reject crashes, hangs and early
+        `exit(0)` without replacing prior output. I retain graph-wide JSON and
+        mark interrupted runs incomplete. This is not a security sandbox.
+        MAC `task_795f49013a5d4ac294c6e25e0363f7ec`.
+      - [x] I repair interpreted record alias lifetimes. Full bootstrap shadows
+        reached an invalid free when reassigning `env_cur` in nested transpiler
+        calls. Record bindings now copy before replacement, including nested
+        records. Alias, self-assignment and callee regressions pass; complete
+        aggregate reclamation remains outside this repair.
+        MAC `task_1ac1c2fd6bc04b5e81932553901b0d4b`.
+      - [x] I repair remaining bootstrap contracts exposed by full shadow
+        execution: substring search in array type extraction, interpreted
+        static append and dynamic indexed writes, obsolete C-name and boolean
+        expectations, invalid union fixtures, and cwd-dependent module-cache
+        tests. I verify behavior instead of removing failing assertions.
+        MAC `task_ef3a7b277592408988a2b4dbd5642034`.
+      - [x] I preserve declared signatures when checking indirect calls in
+        shadows. Previously unchecked float function-variable and returned
+        function calls were incorrectly typed as integers. I retain valid FFI
+        regressions and reject invalid indirect arities and scalar argument
+        types. Complete aggregate and higher-order signature checking remains
+        separate work. MAC `task_4027a8e02a744178b8f99d83a92395d7`.
+      - [x] I apply dependency-shadow selection and the default to C-seed,
         preserving owner context, aggregate shadow JSON and prior output on
         failure. I verify library shadows and bootstrap without bypassing the
-        default. MAC `task_b331d5925b504d379e21b24d0710d03c`.
+        default. Both platforms pass bootstrap smoke and no-C-seed checks;
+        native binaries differ, so I do not claim equivalence.
+        My 157-method shadow/cache/native-driver suite passes on macOS and
+        Linux (eight platform-specific skips on Linux). Evaluator, typechecker,
+        environment, parser, transpiler and 63 VM codegen tests pass on both.
+        The 101 evaluator tests also pass macOS ASan/UBSan with the changed
+        environment, evaluator, parser and typechecker instrumented at O1;
+        other linked objects are uninstrumented and leak detection is disabled.
+        MAC `task_b331d5925b504d379e21b24d0710d03c`.
       - [ ] I apply the same default, flags and dependency order to Stage2,
         establish canonical source identity in its merger, and verify library
         shadows, native publication and bootstrap. Source-only C emission stays
         non-executing. MAC `task_be1b5b951f7a499da6b995bed61871f9`.
+      - [ ] I complete self-hosted string-search builtin lowering. A use of
+        `str_index_of` typechecks but emits an undefined `nl_str_index_of`
+        call. I test first/last search, empty and missing needles from source
+        through native output. My bootstrap helpers now implement substring
+        search themselves; that does not establish builtin parity.
+        MAC `task_a9b152cf5299491694d96a2385527e98`.
 - [x] **5.0 interpreted indexed-read alias.** I route `array_get` to the
       same reader as `at`. My FFI map fixture exposed that typing accepted the
       alias while interpreted shadow execution reported an unimplemented

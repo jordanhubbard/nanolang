@@ -2091,6 +2091,86 @@ void test_eval_foreign_native_call_api(void) {
     ffi_cleanup();
 }
 
+void test_eval_struct_array_literal(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { label: string, value: int }\n"
+        "fn item() -> Item { let label: string = (+ \"forty\" \"two\") return Item { label: label, value: 42 } }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow item { let values: array<Item> = [(item), Item { label: \"next\", value: 43 }] "
+        "let first: Item = (at values 0) let second: Item = (array_get values 1) "
+        "assert (== first.label \"fortytwo\") assert (== first.value 42) "
+        "assert (== second.label \"next\") assert (== second.value 43) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_literal_evaluates_once_in_order(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "let mut calls: int = 0\n"
+        "fn next() -> int { set calls (+ calls 1) return calls }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow next { let values: array<int> = [(next), (next), (next)] "
+        "assert (== calls 3) assert (== (at values 0) 1) "
+        "assert (== (at values 1) 2) assert (== (at values 2) 3) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_append_and_dynamic_write(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { "
+        "let ints: array<int> = [1] let ints2: array<int> = (array_push ints 2) "
+        "assert (== (array_length ints) 2) assert (== (at ints2 1) 2) "
+        "let floats: array<float> = [1.5] let floats2: array<float> = (array_push floats 2.5) "
+        "assert (== (at floats2 1) 2.5) "
+        "let bools: array<bool> = [false] let bools2: array<bool> = (array_push bools true) "
+        "assert (at bools2 1) "
+        "let strings: array<string> = [\"a\"] let strings2: array<string> = (array_push strings \"b\") "
+        "assert (== (at strings2 1) \"b\") "
+        "let records: array<Item> = [Item { value: 1, label: \"a\" }] "
+        "let records2: array<Item> = (array_push records Item { value: 2, label: \"b\" }) "
+        "assert (== (at records2 1).value 2) "
+        "let di: array<int> = (array_push [] 1) (array_set di 0 42) assert (== (at di 0) 42) "
+        "let df: array<float> = (array_push [] 1.5) (array_set df 0 2.5) assert (== (at df 0) 2.5) "
+        "let db: array<bool> = (array_push [] false) (array_set db 0 true) assert (at db 0) "
+        "let ds: array<string> = (array_push [] \"a\") (array_set ds 0 (+ \"forty\" \"two\")) "
+        "assert (== (at ds 0) \"fortytwo\") "
+        "let dr: array<Item> = (array_push [] Item { value: 1, label: \"a\" }) "
+        "(array_set dr 0 Item { value: 42, label: (+ \"forty\" \"two\") }) "
+        "assert (== (at dr 0).value 42) assert (== (at dr 0).label \"fortytwo\") "
+        "let nested: array<array<int>> = (array_push [] di) "
+        "let other: array<int> = (array_push [] 7) (array_set nested 0 other) "
+        "assert (== (at (at nested 0) 0) 7) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_record_alias_reassignment(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Item { value: int, label: string }\n"
+        "struct Box { item: Item }\n"
+        "fn replace(item: Item) -> Item { let mut local: Item = item "
+        "set local Item { value: 2, label: \"new\" } return local }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow replace { let mut original: Item = Item { value: 1, label: (+ \"o\" \"ld\") } "
+        "let alias: Item = original let nested: Box = Box { item: original } "
+        "set original original assert (== original.label \"old\") "
+        "set original (replace original) assert (== original.value 2) "
+        "assert (== alias.value 1) assert (== alias.label \"old\") "
+        "assert (== nested.item.label \"old\") "
+        "set original nested.item assert (== original.value 1) "
+        "set original Item { value: 3, label: \"last\" } "
+        "assert (== nested.item.value 1) assert (== nested.item.label \"old\") }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
     printf("=== Interpreter (eval.c) Tests ===\n");
     TEST(eval_integer_arithmetic);
@@ -2191,6 +2271,10 @@ int main(void) {
     TEST(eval_array_broadcast_scalar_right);
     TEST(eval_foreign_native_call_api);
     TEST(eval_indexed_read_aliases);
+    TEST(eval_struct_array_literal);
+    TEST(eval_array_literal_evaluates_once_in_order);
+    TEST(eval_array_append_and_dynamic_write);
+    TEST(eval_record_alias_reassignment);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;

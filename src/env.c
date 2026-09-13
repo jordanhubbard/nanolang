@@ -296,6 +296,10 @@ static Symbol *env_get_var_same_file(Environment *env, const char *name) {
 }
 
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {
+    if (value.type == VAL_STRUCT && value.as.struct_val) {
+        StructValue *sv = value.as.struct_val;
+        value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+    }
     if (env->symbol_count >= env->symbol_capacity) {
         env->symbol_capacity *= 2;
         env->symbols = realloc(env->symbols, sizeof(Symbol) * env->symbol_capacity);
@@ -444,6 +448,12 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
+        /* I copy before releasing the old binding, including self-assignment
+         * and a record field borrowed from that binding. */
+        if (value.type == VAL_STRUCT && value.as.struct_val) {
+            StructValue *sv = value.as.struct_val;
+            value = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+        }
         env_free_value(sym->value);
         sym->value = value;
 
@@ -721,6 +731,10 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
         if (field_values[i].type == VAL_STRING) {
             const char *src = field_values[i].as.string_val ? field_values[i].as.string_val : "";
             v.as.struct_val->field_values[i] = create_string(src);
+        } else if (field_values[i].type == VAL_STRUCT && field_values[i].as.struct_val) {
+            StructValue *nested = field_values[i].as.struct_val;
+            v.as.struct_val->field_values[i] = create_struct(nested->struct_name,
+                nested->field_names, nested->field_values, nested->field_count);
         } else {
             v.as.struct_val->field_values[i] = field_values[i];
         }

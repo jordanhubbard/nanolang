@@ -27,6 +27,10 @@
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
+#include <signal.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <fcntl.h>
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
@@ -74,6 +78,7 @@ typedef struct {
     bool verbose;
     bool keep_c;
     bool show_intermediate_code;
+    bool test_imports;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
@@ -372,6 +377,98 @@ static int determinize_macho_uuid_and_signature(const char *path) {
 }
 #endif
 
+static bool check_interpreted_shadows(ASTNode *program, Environment *env,
+                                      ModuleList *modules, const char *input,
+                                      CompilerOptions *opts) {
+    if (opts->llm_shadow_json_path) {
+        FILE *report = fopen(opts->llm_shadow_json_path, "w");
+        if (!report) {
+            fprintf(stderr, "I cannot initialize the shadow report: %s\n", strerror(errno));
+            return false;
+        }
+        fputs("{\"tool\":\"nanoc_c\",\"success\":false,\"completed\":false,"
+              "\"test_count\":null,\"failures\":[]}\n", report);
+        bool report_ok = !ferror(report);
+        if (fclose(report) != 0) report_ok = false;
+        if (!report_ok) {
+            fprintf(stderr, "I cannot write the shadow report.\n");
+            return false;
+        }
+    }
+    int completion[2];
+    if (pipe(completion) != 0) {
+        fprintf(stderr, "I cannot create the shadow completion channel.\n");
+        return false;
+    }
+    if (fcntl(completion[0], F_SETFL, O_NONBLOCK) < 0 ||
+        fcntl(completion[0], F_SETFD, FD_CLOEXEC) < 0 ||
+        fcntl(completion[1], F_SETFD, FD_CLOEXEC) < 0) {
+        close(completion[0]);
+        close(completion[1]);
+        fprintf(stderr, "I cannot configure the shadow completion channel.\n");
+        return false;
+    }
+    fflush(NULL);
+    pid_t child = fork();
+    if (child == 0) {
+        close(completion[0]);
+        /* I isolate compiler state, not host authority. */
+        signal(SIGALRM, SIG_DFL);
+        alarm(10);
+        if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
+        bool passed = run_shadow_tests_scope(program, env, modules, input,
+                                             opts->test_imports, opts->verbose);
+        unsigned char done = 1;
+        if (passed && write(completion[1], &done, 1) != 1) passed = false;
+        close(completion[1]);
+        fflush(NULL);
+        _exit(passed ? 0 : 1);
+    }
+    int fork_error = errno;
+    close(completion[1]);
+    if (child < 0) {
+        close(completion[0]);
+        fprintf(stderr, "I cannot start shadow execution: %s\n", strerror(fork_error));
+        return false;
+    }
+    struct timespec start, now, pause = {0, 10000000};
+    bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
+    bool timed_out = false, clock_failed = false;
+    int status = 0;
+    pid_t waited;
+    for (;;) {
+        waited = waitpid(child, &status, WNOHANG);
+        if (waited == child || (waited < 0 && errno != EINTR)) break;
+        clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
+        timed_out = !clock_failed && (now.tv_sec - start.tv_sec > 10 ||
+            (now.tv_sec - start.tv_sec == 10 && now.tv_nsec >= start.tv_nsec));
+        if (clock_failed || timed_out) {
+            kill(child, SIGKILL);
+            do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
+            break;
+        }
+        nanosleep(&pause, NULL);
+    }
+    int wait_error = errno;
+    unsigned char done = 0;
+    bool completed = read(completion[0], &done, 1) == 1 && done == 1;
+    close(completion[0]);
+    if (waited < 0) {
+        fprintf(stderr, "I cannot supervise shadow execution: %s\n", strerror(wait_error));
+        return false;
+    }
+    if (clock_failed || timed_out || !completed || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        if (clock_failed)
+            fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
+        else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
+            fprintf(stderr, "I stopped shadow execution after 10 seconds.\n");
+        else
+            fprintf(stderr, "I will not publish output after failed shadow execution.\n");
+        return false;
+    }
+    return true;
+}
+
 /* Compile nanolang source to executable */
 static int compile_file(const char *input_file, const char *output_file, CompilerOptions *opts) {
     List_CompilerDiagnostic *diags = nl_list_CompilerDiagnostic_new();
@@ -510,10 +607,22 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4: Type Checking */
     typecheck_set_current_file(input_file);
+    env_set_current_file(env, input_file);
     /* Use type_check_module if reflection or doc-md is requested (no main needed) */
     bool typecheck_success = (opts->reflect_output_path || opts->doc_md) ?
         type_check_module(program, env) :
         type_check(program, env);
+    if (typecheck_success) {
+        int production_symbols = env->symbol_count;
+        typecheck_success = type_check_shadow_scope(program, env, modules, input_file, opts->test_imports);
+        /* I do not lower shadow bodies in this backend. Their checked local
+         * declarations must not replace production metadata by short name. */
+        for (int i = production_symbols; i < env->symbol_count; i++) {
+            free(env->symbols[i].name);
+            free(env->symbols[i].struct_type_name);
+        }
+        env->symbol_count = production_symbols;
+    }
     
     if (!typecheck_success) {
         human_diag(NL_DIAG_TYPE_FAILED);
@@ -954,7 +1063,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     } else {
         unsetenv("NANO_LLM_SHADOW_JSON");
     }
-    if (!run_shadow_tests(program, env, opts->verbose)) {
+    if (!check_interpreted_shadows(program, env, modules, input_file, opts)) {
         human_diag(NL_DIAG_SHADOW_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_SHADOW_FAILED);
         free_ast(program);
@@ -1652,6 +1761,8 @@ int main(int argc, char *argv[]) {
         printf("  --llm-diags-json <p>   Write machine-readable diagnostics JSON (agent-only)\n");
         printf("  --llm-diags-toon <p>   Write diagnostics in TOON format (~40%% fewer tokens)\n");
         printf("  --llm-shadow-json <p>  Write machine-readable shadow failure summary JSON (agent-only)\n");
+        printf("  --test-imports        I run dependency shadows before root shadows (default)\n");
+        printf("  --root-shadows-only   I run only root-file shadows\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano -o hello\n", argv[0]);
         printf("  %s program.nano --verbose -S          # Show steps and save C code\n", argv[0]);
@@ -1738,6 +1849,7 @@ int main(int argc, char *argv[]) {
         .verbose = false,
         .keep_c = false,
         .show_intermediate_code = false,
+        .test_imports = true,
         .save_asm = false,
         .json_errors = false,
         .profile_gprof = false,
@@ -1877,6 +1989,10 @@ int main(int argc, char *argv[]) {
             opts.llm_diags_toon_path = argv[i + 1];
             toon_diagnostics_enable();
             i++;
+        } else if (strcmp(argv[i], "--test-imports") == 0) {
+            opts.test_imports = true;
+        } else if (strcmp(argv[i], "--root-shadows-only") == 0) {
+            opts.test_imports = false;
         } else if (strcmp(argv[i], "--llm-shadow-json") == 0 && i + 1 < argc) {
             opts.llm_shadow_json_path = argv[i + 1];
             i++;

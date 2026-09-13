@@ -354,33 +354,7 @@ int main(int argc, char **argv) {
         if (item->type == AST_FUNCTION && strcmp(item->as.function.name, "main") == 0) has_main = true;
     }
     bool typed = has_shadows && !has_main ? type_check_module(program, env) : type_check(program, env);
-    if (typed && has_shadows) typed = type_check_root_shadows(program, env);
-    if (typed && test_imports) {
-        char *root_owner = env->current_module;
-        bool root_unsafe = env->current_module_is_unsafe;
-        for (int i = 0; i < modules->count && typed; i++) {
-            const char *file = modules->module_paths[i];
-            ASTNode *dependency = get_cached_module_ast(file);
-            char *owner = module_program_name(dependency, file);
-            env->current_module = owner;
-            env->current_module_is_unsafe = false;
-            if (dependency) {
-                for (int j = 0; j < dependency->as.program.count; j++) {
-                    ASTNode *item = dependency->as.program.items[j];
-                    if (item->type == AST_IMPORT && item->as.import_stmt.is_unsafe)
-                        env->current_module_is_unsafe = true;
-                }
-            }
-            env_set_current_file(env, file);
-            typecheck_set_current_file(file);
-            typed = owner && type_check_root_shadows(dependency, env);
-            env->current_module = root_owner;
-            free(owner);
-        }
-        env_set_current_file(env, input);
-        env->current_module_is_unsafe = root_unsafe;
-        typecheck_set_current_file(input);
-    }
+    if (typed) typed = type_check_shadow_scope(program, env, modules, input, test_imports);
     if (!typed) {
         fprintf(stderr, "error: type check failed\n");
         free_ast(program);

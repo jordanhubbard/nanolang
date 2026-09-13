@@ -2064,6 +2064,10 @@ test-language-contract-runner:
 test-language-claims:
 	@python3 tests/test_language_claims.py
 
+.PHONY: test-cseed-import-shadows
+test-cseed-import-shadows: $(COMPILER_C)
+	@python3 -m unittest tests.test_cseed_import_shadows
+
 .PHONY: test-bytecode-shadows
 MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
 
