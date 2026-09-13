@@ -154,6 +154,8 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 4 && !strcmp(argv[1], "capture-pch"))
+        return module_snapshot_pch(argv[2], argv[3], 0, 0, 14695981039346656037ULL) ? 0 : 1;
 #ifdef __linux__
     if (argc == 3 && !strcmp(argv[1], "assembler-version"))
         return module_assembler_version_supported(argv[2]) ? 0 : 1;

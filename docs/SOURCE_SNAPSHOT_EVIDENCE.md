@@ -707,3 +707,47 @@ with two expected skips. Darwin imports the new suite and skips all nine
 Linux-only methods; that is not runtime-helper evidence. No production code
 changed in this acceptance step. Arbitrary syscall reads and configured
 compiler-wrapper inputs remain separate work (2026-09-13).
+
+## Retained GCC precompiled headers
+
+My relocation trial establishes that GCC can compile retained preprocessed C
+against a copied `.gch`, including a private directory containing spaces. The
+result stays 42 after the original PCH is rebuilt for 43 and after the original
+source, header and PCH are removed. Removing the private PCH makes that retained
+compilation fail.
+
+I now rewrite canonical `#pragma GCC pch_preprocess` references to private
+binary copies during production capture. I combine the original pragma text,
+original PCH path and actual copied bytes in the fingerprint. Destination paths
+are invocation-private and do not enter identity. The existing copier enforces
+regular files, 16 MiB per file, 64 MiB per translation unit and 256 visits.
+Malformed pragmas, escaped paths and failed copies still decline snapshot reuse.
+A rejected rewrite preserves the original retained input and does not remove a
+pre-existing rewrite temporary file. Other partial private copies belong to
+the normal staging cleanup.
+
+GCC's `-H` trace emits `! ` for a selected PCH and a space-prefixed root source
+line. My previous dot-only parser rejected that evidence. I now hash both paths
+as dependencies, so a valid retained-PCH build can acquire a reuse record.
+PCH appearance, replacement and removal invalidate prior selections.
+
+The production restoration test changes the live PCH during final assembly and
+restores its bytes and timestamp. Cold output remains 42, warm builds reuse the
+generation, and a permanent replacement yields 43. I run this for ordinary and
+shared-only C sources under local and shared caches. Deleting the private PCH
+before retained C emission fails replacement, preserves the old generation,
+cleans staging, and permits a later retry. Every split position in the pragma
+marker still selects retained assembly and permits reuse.
+
+This retains GCC PCH inputs; it does not retain arbitrary compiler modules,
+plugins, response files or wrapper-owned inputs. Those configured-mode gates
+remain open.
+
+The 25 snapshot methods pass on Linux arm64 with GCC 12.2 / GNU as 2.40
+(Debian bookworm) and GCC 13.3 / GNU as 2.42 (Ubuntu 24.04), two expected skips
+each. The final matrix also passes with GCC 12's production builder and linked
+support sources under ASan/UBSan, leak detection disabled. The Linux bootstrap
+and 126-method bytecode/cache/link/snapshot/helper regression set pass with ten
+expected skips (2026-09-13).
+Darwin also passes its bootstrap and final 126-method regression set with 24
+expected skips; its production probe exercises the rewrite rejection checks.

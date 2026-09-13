@@ -573,11 +573,16 @@ This is not a syscall sandbox or complete toolchain snapshot.
 
 For GCC I add `-fpch-preprocess` to capture and warm validation. A
 `#pragma GCC pch_preprocess` marker means the output still references external
-PCH bytes. I then use original compilation without a reuse record, rather
-than treating that output as a self-contained snapshot. This also invalidates
-an earlier ordinary cache hit when a usable PCH appears. The marker check
-crosses input-buffer boundaries; even a literal mention conservatively
-withholds reuse. I have not implemented retained PCH files.
+PCH bytes. For canonical pragmas with unescaped paths I copy those bytes into
+private staging and rewrite the retained input to reference the copies. Original
+path spellings and copied bytes join the fingerprint; private destination names
+do not. Selected-PCH include traces also record the PCH and root source. This
+invalidates an earlier ordinary cache hit when a usable PCH appears, and detects
+PCH replacement or removal. The marker check crosses input-buffer boundaries.
+Malformed pragmas, escaped paths and failed or oversized copies retain the
+original-compilation/no-reuse fallback. PCH copies use the existing regular-file
+capture limits: 16 MiB per file, 64 MiB per translation unit, and 256 visits.
+This is retained GCC PCH support, not arbitrary compiler-module retention.
 
 Other compilers and configured modes keep their original path. I fingerprint
 fresh preprocessing and its include trace before

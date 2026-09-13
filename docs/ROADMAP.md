@@ -968,6 +968,24 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       variants. Rehashing the C preprocessor output cannot satisfy this gate;
       merely withholding reuse is containment, not completed snapshot support.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 retained GCC PCH inputs.** I replace external PCH references in
+      retained translation units with private copies and bind their bytes to
+      cache identity. Before integration I verify that GCC accepts relocated
+      PCH bytes with the original header and PCH removed, and that restored
+      PCH replacement cannot affect compilation of that retained input.
+      My include-trace parser also rejects GCC's selected-PCH `! ` record
+      and following root-source line; I capture those dependencies to make
+      retained PCH reuse possible.
+      Production capture, restored edits, failure/recovery and reuse now pass
+      for ordinary and shared-only C sources under local and shared caches.
+      All 25 snapshots pass on GCC 12.2 and 13.3 Linux arm64 (two skips each),
+      and again with the GCC 12 production builder/support under ASan/UBSan,
+      leak detection disabled. Canonical unescaped PCH paths are retained;
+      malformed, escaped and over-limit inputs keep the no-reuse fallback.
+      Both bootstraps and the 126-method regression set pass (ten Linux and
+      24 Darwin skips), with final rewrite rejection checks on both hosts.
+      Other configured compiler inputs remain open (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
       and timestamps before final validation. I compare actual cold, warm and

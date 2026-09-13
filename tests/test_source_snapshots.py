@@ -721,12 +721,16 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             result = subprocess.run(flags + ["-shared", str(source), "-o", str(fresh)], capture_output=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(self.answer(fresh), 42)
+            pch_generation = None
             for _ in range(2):
                 self.support.probe_path("build", module, env)
                 generation = self.support.probe_path("directory", module, env)
                 self.assertNotEqual(generation, plain)
                 self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
-                self.assertFalse((generation / "source_hashes.json").exists())
+                self.assertTrue(list(generation.glob("__pch_*.gch")), list(generation.iterdir()))
+                self.assertTrue((generation / "source_hashes.json").exists())
+                if pch_generation is not None: self.assertEqual(generation, pch_generation)
+                pch_generation = generation
             pch.unlink()
             self.support.probe_path("build", module, env)
             recovered = self.support.probe_path("directory", module, env)
@@ -766,7 +770,8 @@ if "-E" in sys.argv:
     sys.stderr.buffer.write(result.stderr)
     sys.exit(result.returncode)
 if "-c" in sys.argv:
-    pathlib.Path({str(calls)!r}).write_text("snapshot" if any(a.endswith(".i") for a in sys.argv) else "original")
+    pathlib.Path({str(calls)!r}).write_text("assembly" if any(a.endswith(".s") for a in sys.argv) else
+        "snapshot" if any(a.endswith(".i") for a in sys.argv) else "original")
 os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
 ''')
             wrapper.chmod(0o700)
@@ -775,10 +780,170 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 with self.subTest(split=split):
                     env["NANO_TEST_PCH_SPLIT"] = str(split)
                     self.support.probe_path("build", module, env)
-                    self.assertEqual(calls.read_text(), "original")
+                    self.assertEqual(calls.read_text(), "assembly")
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
                     generation = self.support.probe_path("directory", module, env)
-                    self.assertFalse((generation / "source_hashes.json").exists())
+                    self.assertTrue((generation / "source_hashes.json").exists())
+                    self.assertTrue(list(generation.glob("__pch_*.gch")))
+
+    def test_gcc_retained_pch_relocation_trial(self):
+        """I establish relocation viability, not production PCH capture."""
+        compiler = shutil.which("cc")
+        version = subprocess.run([compiler, "--version"], capture_output=True, timeout=10)
+        if b"Free Software Foundation" not in version.stdout:
+            self.skipTest("I need GCC's PCH preprocessing directive")
+        with tempfile.TemporaryDirectory(prefix="nano-pch-relocation-") as tmp:
+            directory = Path(tmp)
+            original, retained = directory / "original", directory / "private copy"
+            original.mkdir()
+            retained.mkdir()
+            header, source = original / "answer.h", original / "answer.c"
+            pch, copy = original / "answer.h.gch", retained / "frozen.gch"
+            header.write_text("#define ANSWER 42\n")
+            source.write_text('#include "answer.h"\nlong long nano_build_answer(void) { return ANSWER; }\n')
+            flags = [compiler, "-fPIC", "-D_POSIX_C_SOURCE=200809L"]
+            subprocess.run(flags + ["-x", "c-header", str(header), "-o", str(pch)],
+                           capture_output=True, check=True, timeout=10)
+            result = subprocess.run(flags + ["-E", "-fpch-preprocess", str(source)],
+                                    capture_output=True, check=True, timeout=10)
+            marker = f'#pragma GCC pch_preprocess "{pch}"'.encode()
+            self.assertEqual(result.stdout.count(marker), 1)
+            copy.write_bytes(pch.read_bytes())
+            copy.chmod(0o400)
+            frozen = retained / "input.i"
+            frozen.write_bytes(result.stdout.replace(marker,
+                f'#pragma GCC pch_preprocess "{copy}"'.encode()))
+            library = retained / "answer.so"
+            def compile_frozen():
+                return subprocess.run(flags + ["-shared", "-x", "cpp-output", str(frozen),
+                    "-o", str(library)], capture_output=True, timeout=10)
+            # The original PCH now disagrees with the private retained copy.
+            header.write_text("#define ANSWER 43\n")
+            subprocess.run(flags + ["-x", "c-header", str(header), "-o", str(pch)],
+                           capture_output=True, check=True, timeout=10)
+            fresh = original / "fresh.so"
+            subprocess.run(flags + ["-shared", str(source), "-o", str(fresh)],
+                           capture_output=True, check=True, timeout=10)
+            self.assertEqual(self.answer(fresh), 43)
+            for remove_originals in (False, True):
+                with self.subTest(remove_originals=remove_originals):
+                    if remove_originals:
+                        for path in (pch, header, source): path.unlink()
+                    result = compile_frozen()
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(self.answer(library), 42)
+            copy.unlink()
+            self.assertNotEqual(compile_frozen().returncode, 0)
+
+    def test_pch_rewriter_preserves_input_on_rejected_capture(self):
+        with tempfile.TemporaryDirectory(prefix="nano-pch-rewriter-") as tmp:
+            directory = Path(tmp)
+            pch = directory / "source with spaces.gch"
+            pch.write_bytes(b"retained binary\x00bytes")
+            good = f'#pragma GCC pch_preprocess "{pch}"\n'.encode()
+            variants = [b"int value;\n", b" " + good, good.rstrip() + b" extra\n",
+                        good + b"\x00\n", good.replace(b"source with", b"source\\ with"),
+                        f'#pragma GCC pch_preprocess "{directory / "missing"}"\n'.encode(),
+                        f'#pragma GCC pch_preprocess "{directory}"\n'.encode()]
+            for number, data in enumerate([good] + variants):
+                with self.subTest(number=number):
+                    stage = directory / str(number)
+                    stage.mkdir()
+                    snapshot = stage / "input.i"
+                    snapshot.write_bytes(data)
+                    result = subprocess.run([str(self.support.probe), "capture-pch", snapshot, stage],
+                                            capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0 if number == 0 else 1, result.stderr)
+                    self.assertFalse(Path(str(snapshot) + ".pch").exists())
+                    if number:
+                        self.assertEqual(snapshot.read_bytes(), data)
+                    else:
+                        copy = stage / "__pch_0_0_0.gch"
+                        self.assertEqual(copy.read_bytes(), pch.read_bytes())
+                        self.assertEqual(snapshot.read_text(), f'#pragma GCC pch_preprocess "{copy}"\n')
+            stage = directory / "occupied"
+            stage.mkdir()
+            snapshot = stage / "input.i"
+            snapshot.write_bytes(good)
+            temporary = Path(str(snapshot) + ".pch")
+            temporary.write_bytes(b"I already exist")
+            result = subprocess.run([str(self.support.probe), "capture-pch", snapshot, stage],
+                                    capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(temporary.read_bytes(), b"I already exist")
+            self.assertEqual(snapshot.read_bytes(), good)
+
+    def test_gcc_pch_restoration_and_private_copy_failure(self):
+        if self.clang: self.skipTest("I exercise GCC retained PCH inputs")
+        compiler = shutil.which("cc")
+        for shared, shared_source in ((False, False), (True, False), (False, True), (True, True)):
+            with self.subTest(shared=shared, shared_source=shared_source), tempfile.TemporaryDirectory(prefix="nano-pch-build-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                source, header = module / "answer.c", module / "answer.h"
+                pch, replacement = module / "answer.h.gch", directory / "replacement.gch"
+                source.write_text('#include "answer.h"\n__attribute__((visibility("default"))) '
+                                  'long long nano_build_answer(void) { return ANSWER; }\n')
+                if shared_source:
+                    source.rename(module / "pch_answer.c")
+                    source.write_text("long long nano_build_anchor(void) { return 0; }\n")
+                    source = module / "pch_answer.c"
+                    metadata = json.loads((module / "module.json").read_text())
+                    metadata["shared_c_sources"] = [source.name]
+                    (module / "module.json").write_text(json.dumps(metadata))
+                flags = [compiler, "-fPIC", "-D_POSIX_C_SOURCE=200809L", "-x", "c-header"]
+                if shared_source: flags.append("-fvisibility=hidden")
+                for answer, output in ((43, replacement), (42, pch)):
+                    header.write_text(f"#define ANSWER {answer}\n")
+                    subprocess.run(flags + [str(header), "-o", str(output)],
+                                   capture_output=True, check=True, timeout=10)
+                wrapper, calls = directory / "cc", directory / "calls"
+                wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, re, subprocess, sys
+pch = pathlib.Path({str(pch)!r})
+if os.getenv("NANO_TEST_PCH_BREAK") and "-S" in sys.argv:
+    for arg in sys.argv[1:]:
+        if arg.endswith(".i"):
+            for path in re.findall(r'#pragma GCC pch_preprocess "([^"\\n]+)"', pathlib.Path(arg).read_text()):
+                pathlib.Path(path).unlink(missing_ok=True)
+if "-c" in sys.argv and any(arg.endswith(".s") for arg in sys.argv):
+    original, stamp = pch.read_bytes(), pch.stat()
+    pch.write_bytes(pathlib.Path({str(replacement)!r}).read_bytes())
+    with open({str(calls)!r}, "a") as file: file.write("mutated\\n")
+    try:
+        result = subprocess.run([{compiler!r}] + sys.argv[1:])
+    finally:
+        pch.write_bytes(original)
+        os.utime(pch, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+    sys.exit(result.returncode)
+os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
+''')
+                wrapper.chmod(0o700)
+                env["NANO_CC"] = str(wrapper)
+                original, stamp = pch.read_bytes(), pch.stat()
+                self.support.probe_path("build", module, env)
+                generation = self.support.probe_path("directory", module, env)
+                self.assertTrue((generation / "source_hashes.json").exists())
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                self.assertTrue(calls.read_text())
+                self.assertEqual(pch.read_bytes(), original)
+                self.assertEqual(pch.stat().st_mtime_ns, stamp.st_mtime_ns)
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.support.probe_path("directory", module, env), generation)
+                source.write_text(source.read_text() + "\n/* I force a replacement attempt. */\n")
+                env["NANO_TEST_PCH_BREAK"] = "1"
+                result = subprocess.run([str(self.support.probe), "build", str(module)],
+                                        env=env, capture_output=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), generation)
+                self.assertFalse(list(generation.parent.glob(".nano-build-*")))
+                del env["NANO_TEST_PCH_BREAK"]
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                pch.write_bytes(replacement.read_bytes())
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
 
 
 if __name__ == "__main__":

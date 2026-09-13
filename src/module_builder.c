@@ -724,8 +724,15 @@ static bool hash_include_trace(cJSON *root, const char *trace_path) {
             continue;
         }
         char *raw = line;
-        while (*raw == '.') raw++;
-        if (raw == line || *raw++ != ' ' || !*raw) { ok = false; break; }
+        /* GCC -H reports a selected PCH with '! ', then its root source
+         * with one leading space. I retain both as dependency evidence. */
+        if (raw[0] == '!' && raw[1] == ' ') raw += 2;
+        else if (raw[0] == ' ') raw++;
+        else {
+            while (*raw == '.') raw++;
+            if (raw == line || *raw++ != ' ') { ok = false; break; }
+        }
+        if (!*raw) { ok = false; break; }
         char decoded[4096];
         size_t used = 0;
         bool decodable = true;
@@ -2852,6 +2859,52 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
 }
 #endif
 
+/* I rewrite only GCC's explicit PCH pragma. Original spellings and copied
+ * bytes join identity; invocation-private destination names do not. */
+static uint64_t module_snapshot_pch(const char *snapshot, const char *directory,
+                                    size_t group, size_t index, uint64_t hash) {
+    if (!directory || strpbrk(directory, "\"\\\n\r")) return 0;
+    char temporary[2048] = {0};
+    if (!module_build_append(temporary, sizeof(temporary), "%s.pch", snapshot)) return 0;
+    FILE *input = fopen(snapshot, "rb"), *output = input ? fopen(temporary, "wx") : NULL;
+    bool ok = input && output;
+    bool created = output != NULL;
+    char *line = NULL;
+    size_t capacity = 0;
+    ssize_t length;
+    unsigned count = 0;
+    ModuleAssemblyCapture capture = {directory, 0, 0, hash};
+    hash_context_field(&capture.hash, "gcc-retained-pch-v1");
+    static const char marker[] = "#pragma GCC pch_preprocess";
+    while (ok && (length = getline(&line, &capacity, input)) >= 0) {
+        if (memchr(line, 0, (size_t)length)) { ok = false; break; }
+        char *pragma = strstr(line, marker);
+        if (!pragma) { ok = fwrite(line, 1, (size_t)length, output) == (size_t)length; continue; }
+        /* I decline noncanonical or escaped paths, never guess their meaning. */
+        char *path = line + sizeof(marker) - 1;
+        if (pragma != line || path[0] != ' ' || path[1] != '"') { ok = false; break; }
+        path += 2;
+        char *end = strchr(path, '"');
+        if (!end || end == path || strspn(end + 1, "\r\n") != strlen(end + 1)) { ok = false; break; }
+        *end = 0;
+        if (strpbrk(path, "\\\n\r")) { ok = false; break; }
+        char copied[2048] = {0};
+        ok = module_build_append(copied, sizeof(copied), "%s/__pch_%zu_%zu_%u.gch", directory, group, index, count++) &&
+            module_capture_assembly_file(&capture, path, copied, false, 0);
+        if (ok) {
+            hash_context_field(&capture.hash, path);
+            ok = fprintf(output, "%s \"%s\"\n", marker, copied) >= 0;
+        }
+    }
+    free(line);
+    if (input) { if (ferror(input) || !feof(input)) ok = false; if (fclose(input)) ok = false; }
+    if (output && fclose(output)) ok = false;
+    if (!count) ok = false;
+    if (ok) ok = rename(temporary, snapshot) == 0;
+    if (!ok && created) (void)unlink(temporary);
+    return ok ? capture.hash : 0;
+}
+
 /* I hash the retained input: Clang assembly or GCC preprocessed C. A later
  * capture must reproduce those bytes, not just hashes of restored source. */
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
@@ -2932,7 +2985,11 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             ok &= !ferror(pipe) && feof(pipe);
             int status = pclose(pipe);
             if (output && fclose(output) != 0) ok = false;
-            if (!ok || status != 0 || !nonempty || external_pch) return 0;
+            if (!ok || status != 0 || !nonempty) return 0;
+            if (external_pch) {
+                hash = module_snapshot_pch(snapshot, directory, group, i, hash);
+                if (!hash) return 0;
+            }
             char digest[24];
             snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
             hash_context_field(&fingerprint, sources[i]);
