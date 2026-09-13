@@ -21,6 +21,7 @@ import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/ast_shared.nano"
 import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
 /* =============================================================================
@@ -1969,6 +1970,26 @@ shadow lookup_struct_field_type {
     assert (== t2 "")
 }
 
+fn declared_call_argument_type(parser: Parser, name: string, index: int) -> string {
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let func: ASTFunction = (parser_get_function parser i)
+        if (and (== func.name name) (and (>= index 0) (< index func.param_count))) {
+            return (parser_get_let parser (+ func.param_start index)).var_type
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+
+shadow declared_call_argument_type {
+    let tokens: List<LexerToken> = (tokenize_string "fn names(xs: array<string>) -> int { return (array_length xs) }" "args.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "args.nano")
+    assert (== (declared_call_argument_type parser "names" 0) "array<string>")
+    assert (== (declared_call_argument_type parser "names" 1) "")
+    assert (== (declared_call_argument_type parser "missing" 0) "")
+}
+
 fn is_extern_function(parser: Parser, name: string) -> bool {
     let n: int = (parser_get_function_count parser)
     let mut i: int = 0
@@ -3243,6 +3264,7 @@ fn gen_c_includes() -> string {
      * does not depend on module include paths when a program does not import them. */
     set parts (cg_append parts "DynArray* fs_walkdir(const char* root);\n")
     set parts (cg_append parts "const char* path_normalize(const char* path);\n")
+    set parts (cg_append parts "const char* path_canonical(const char* path);\n")
     set parts (cg_append parts "const char* path_join(const char* a, const char* b);\n")
     set parts (cg_append parts "const char* path_basename(const char* path);\n")
     set parts (cg_append parts "const char* path_dirname(const char* path);\n")
@@ -4508,11 +4530,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
-            if (str_contains s.value "{") {
-                return (expand_string_interp s.value env)
-            } else {
-                return (gen_string s.value)
-            }
+            # My lexer already expands f-strings. Ordinary strings stay literal.
+            return (gen_string s.value)
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
             let b: ASTBool = (parser_get_bool parser node_id)
@@ -4924,9 +4943,6 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 2) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-                            let arr_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            let val_code: string = (generate_expression parser a1.node_id a1.node_type env "")
-
                             let mut arr_t: string = ""
                             if (is_array_type expected_type) {
                                 set arr_t expected_type
@@ -4953,6 +4969,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     } else { (print "") }
                                 }
                             } else { (print "") }
+                            let arr_code: string = (generate_expression parser a0.node_id a0.node_type env (+ "array<" (+ elem_t ">")))
+                            let val_code: string = (generate_expression parser a1.node_id a1.node_type env elem_t)
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
                             let mut parts: array<string> = []
@@ -5339,12 +5357,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         }
 
                         let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-                        let mut arg_expected: string = ""
+                        let mut arg_expected: string = (declared_call_argument_type parser func_name i)
                         if (or (== func_name "print") (== func_name "println")) {
                             set arg_expected "string"
                         } else { (print "") }
                         let mut arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
-                        if (== arg_expected "string") {
+                        if (or (== func_name "print") (== func_name "println")) {
                             if (== aref.node_type ParseNodeType.PNODE_IDENTIFIER) {
                                 let arg_id: ASTIdentifier = (parser_get_identifier parser aref.node_id)
                                 let arg_t: string = (genenv_get env arg_id.name)
@@ -5597,10 +5615,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             /* Array literal -> DynArray* */
                             let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
 
-                            /* Prefer typechecker-propagated element_type; fall back to expected_type for empty literals. */
+                            /* I retain the declared element type for nonempty literals too. */
                             let mut elem_t: string = arr.element_type
                             if (== elem_t "") {
-                                if (and (== arr.element_count 0) (is_array_type expected_type)) {
+                                if (is_array_type expected_type) {
                                     set elem_t (array_elem_type_from_array_type expected_type)
                                 } else { (print "") }
                             } else { (print "") }
@@ -7675,6 +7693,8 @@ fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     set tests (cg_append tests "static int __nano_shadow_entry(void) {\n")
     set si first_shadow
     while (< si parser.shadows_count) {
+        let label: string = (gen_string (+ "I am testing shadow " (+ (list_ASTShadow_get parser.shadows si).target_name "\n")))
+        set tests (cg_append tests (+ "    if (getenv(\"NANO_SHADOW_TRACE\")) fputs(" (+ label ", stderr);\n")))
         set tests (cg_append tests (+ "    __nano_shadow_" (+ (int_to_string si) "();\n")))
         set si (+ si 1)
     }

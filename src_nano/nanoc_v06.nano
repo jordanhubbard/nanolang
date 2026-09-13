@@ -23,6 +23,7 @@ import "src_nano/compiler/module_loader.nano"
 import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/module_bindings.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
+from "std/fs.nano" import canonical
 
 /* CLI argument access */
 extern fn get_argc() -> int
@@ -54,6 +55,7 @@ struct CompileOptions {
     llm_diags_json_path: string,
     show_help: bool,
     emit_c: bool,
+    test_imports: bool,
     error: string
 }
 
@@ -65,6 +67,7 @@ shadow default_options {
     let opts: CompileOptions = (default_options)
     assert (== opts.output_file "a.out")
     assert (not opts.emit_c)
+    assert opts.test_imports
     assert (== opts.error "")
 }
 
@@ -100,6 +103,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     let mut diags: string = ""
     let mut help: bool = false
     let mut emit_c: bool = false
+    let mut test_imports: bool = true
     let mut error: string = ""
     let mut positional_only: bool = false
     let count: int = (array_length args)
@@ -114,6 +118,10 @@ fn parse_options(args: array<string>) -> CompileOptions {
             set verbose true
         } else if (and (not positional_only) (or (== arg "-k") (== arg "--keep-c"))) {
             set keep_c true
+        } else if (and (not positional_only) (== arg "--test-imports")) {
+            set test_imports true
+        } else if (and (not positional_only) (== arg "--root-shadows-only")) {
+            set test_imports false
         } else if (and (not positional_only) (== arg "-fshow-intermediate-code")) {
             set show_code true
         } else if (and (not positional_only) (or (or (== arg "-o") (== arg "--target")) (== arg "--llm-diags-json"))) {
@@ -153,7 +161,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     return CompileOptions {
         input_file: input, output_file: output, verbose: verbose,
         keep_c: keep_c, show_intermediate_code: show_code,
-        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, error: error
+        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, test_imports: test_imports, error: error
     }
 }
 
@@ -169,6 +177,8 @@ shadow parse_options {
     let escaped: CompileOptions = (parse_options ["--", "-file.nano"])
     assert (== escaped.input_file "-file.nano")
     assert (== escaped.error "")
+    assert (not (parse_options ["file.nano", "--root-shadows-only"]).test_imports)
+    assert (parse_options ["--root-shadows-only", "--test-imports", "file.nano"]).test_imports
 }
 
 fn parse_args() -> CompileOptions {
@@ -744,12 +754,12 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
         return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
     } else { (print "") }
 
-    /* Normalize to absolute canonical path so dedup works */
-    let mut norm_path: string = path
-    if (not (nlc_str_starts_with path "/")) {
-        set norm_path (nl_path_join (getcwd) path)
-    } else { (print "") }
-    set norm_path (path_normalize norm_path)
+    # I resolve symlinks before deduplication and relative dependency lookup.
+    let norm_path: string = (canonical path)
+    if (== norm_path "") {
+        (println (+ "I cannot resolve a source path: " path))
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: false, lines_scanned: lines_scanned }
+    }
 
     if (nlc_hashset_has_string visited_set norm_path) {
         return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true, lines_scanned: lines_scanned }
@@ -830,6 +840,23 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
             set order2 (array_push order2 norm_path)
         } else { (print "") }
         return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: ok2, lines_scanned: lines_scanned2 }
+    }
+}
+
+shadow collect_files_dfs {
+    let directory: string = (mktemp_dir "nano_collect_sources_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/fixture.nano")
+        unsafe { assert (== (file_write path "fn value() -> int { return 1 }") 0) }
+        let result: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] true 10 100 100 0 false)
+        assert result.ok
+        assert (== (array_length result.order) 1)
+        assert (== (at result.order 0) (canonical path))
+        let again: CollectResult = (collect_files_dfs (+ directory "/./fixture.nano") "" result.visited result.visited_set result.order true 10 100 100 0 false)
+        assert again.ok
+        assert (== (array_length again.order) 1)
+        unsafe { assert (== (file_delete path) 0) assert (== (file_delete directory) 0) }
     }
 }
 
@@ -983,7 +1010,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         if (< owner 0) { return false }
         let mut resolved: string = (resolve_import_path (at merge.files owner) imp.module_path merge.repo_root)
         if (not (nlc_str_starts_with resolved "/")) { set resolved (nl_path_join (getcwd) resolved) }
-        let path: string = (path_normalize resolved)
+        let path: string = (canonical resolved)
         let target_owner: int = (merged_path_owner merge.files path)
         if (< target_owner 0) {
             (println (+ "I cannot bind an import outside the merged source set: " path))
@@ -1355,10 +1382,8 @@ shadow collect_module_build_flags {
 }
 
 fn merge_with_imports(input_file: string) -> MergeResult {
-    let mut start: string = input_file
-    if (not (nlc_str_starts_with input_file "/")) {
-        set start (nl_path_join (getcwd) input_file)
-    } else { (print "") }
+    let start: string = (canonical input_file)
+    if (== start "") { return MergeResult { source: "", files: [], file_starts: [], repo_root: "", root_line: 0 } }
     let repo_root: string = (find_repo_root (nl_path_dirname start))
     let max_files: int = (parse_env_int "NANO_IMPORT_MAX_FILES" 5000)
     let max_lines: int = (parse_env_int "NANO_IMPORT_MAX_LINES" 50000)
@@ -1432,7 +1457,7 @@ fn collect_introspection(files: array<string>, repo_root: string) -> Introspecti
         let mut j: int = 0
         while (< j (array_length info.unsafe_imports)) {
             let target: string = (resolve_import_path path (at info.unsafe_imports j) repo_root)
-            set unsafe_paths (mi_unique unsafe_paths (path_normalize target))
+            set unsafe_paths (mi_unique unsafe_paths (canonical target))
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -1685,7 +1710,7 @@ fn native_cleanup(directory: string, keep_c: bool) -> void {
 
 shadow native_cleanup { (native_cleanup "" false) }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool) -> int {
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, test_imports: bool) -> int {
     if (== input_file "") { return 1 }
     if verbose {
         (println "")
@@ -1856,7 +1881,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let first_shadow: int = (native_shadow_start parser merge_result.root_line)
+            let mut first_shadow: int = 0
+            if (not test_imports) { set first_shadow (native_shadow_start parser merge_result.root_line) }
             let has_shadows: bool = (< first_shadow parser.shadows_count)
             let tc: TypecheckPhaseOutput = (typecheck_phase_with_shadows parser source_to_compile imported_symbols first_shadow)
             if tc.had_error {
@@ -2204,7 +2230,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
  * ============================================================================= */
 
 shadow compile_program {
-    assert (== (compile_program "" "" false false false "" false) 1)
+    assert (== (compile_program "" "" false false false "" false true) 1)
 }
 
 fn show_usage() -> int {
@@ -2220,6 +2246,8 @@ fn show_usage() -> int {
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
     (println "  --target <t>    native (default) or c (source output, no native compilation)")
+    (println "  --test-imports  I run dependency shadows before root shadows (default)")
+    (println "  --root-shadows-only  I run only root-file shadows")
     (println "  --              End options; the remaining argument is my input path")
     (println "  -fshow-intermediate-code  Print generated C to stdout")
     (println "  -h, --help       Show this help")
@@ -2269,7 +2297,7 @@ fn main() -> int {
         (println "I will not overwrite my input file")
         return 1
     }
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.test_imports)
 }
 
 shadow main {

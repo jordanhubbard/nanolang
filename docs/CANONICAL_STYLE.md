@@ -187,6 +187,13 @@ Avoid wildcard imports. Keep imports at the top, keep private helpers private,
 and mark only the intended module surface `pub`. A module is a boundary: expose
 domain types and operations, not incidental storage or raw foreign calls.
 
+`std/fs.canonical` resolves an existing path to its physical absolute path,
+including symlinks, and returns an empty string on failure. `std/fs.normalize`
+remains lexical; it does not establish file identity. My self-hosted merger
+uses physical identity before deduplication, relative dependency lookup and
+function binding. This is path identity, not hard-link identity. My self-hosted
+input/output alias guard remains separate source-preservation work.
+
 My C-seed and bytecode paths now keep distinct pure functions with the same
 short name across qualified imports. I test a root wrapper, a transitive
 wrapper and their private helpers with inferred and declared module names.
@@ -316,14 +323,13 @@ My `nano_virt` CLI runs dependency and root-file shadows in a separate
 verified NanoVM test module before publishing output, with a 10-second parent
 deadline. Production bytecode omits that test harness. This child process is
 not a security sandbox: tests can have side effects. My self-hosted native
-driver also runs root shadows in a separate test executable with a ten-second
+driver also runs dependency and root shadows in a separate test executable with a ten-second
 parent deadline before publishing native output. Test stdout is redirected to
 stderr. Source-only `--target c` checks types but does not execute shadows or
 invoke a native compiler. My creator chose dependency shadows by default for
-5.0. My C-seed and bytecode drivers implement that choice; self-hosted native
-parity remains required work.
+5.0. My C-seed, bytecode and self-hosted native drivers implement that choice.
 
-My C-seed and bytecode drivers include imports by default; `--test-imports` selects that
+All three drivers include imports by default; `--test-imports` selects that
 behavior explicitly, and `--root-shadows-only` opts out:
 
 ```sh
@@ -336,14 +342,20 @@ loaded source file once. Within a file I preserve shadow source order. Existing
 file paths are canonicalized before C-frontend cache and graph registration;
 dot segments and symlinks do not select the same file twice. Relative imports
 inside a symlinked module resolve from the target directory. This does not
-establish colliding nominal type identity or self-hosted loader parity.
+establish colliding nominal type identity. My self-hosted merger uses the same
+physical-path rule; it is still line-oriented import discovery, not a complete
+syntax-aware loader.
 
 All selected shadows share one test process and its ten-second parent deadline.
 Foreign calls, printing and other side effects still happen with host authority;
 the test child is not a sandbox. A failed type check, assertion, runtime trap or
 deadline prevents publication. I do not put shadow entry functions in production
-bytecode. Self-hosted `--test-imports` parity remains roadmap work;
-source-only C emission still does not execute tests.
+bytecode. Source-only C emission still does not execute tests. My native shadow
+supervisor also requires its entry point to return successfully: calling
+`exit(0)` or replacing the child with another executable is not test completion.
+Set `NANO_SHADOW_TRACE=1` to print each self-hosted native shadow target before
+it runs. Generated target names identify merged ownership, not original-file
+diagnostic provenance.
 
 My C-seed shadow JSON aggregates the selected graph. Completed runs report
 `completed: true`, `test_count`, and failed tests with their owning
@@ -372,12 +384,10 @@ ignored missing-symbol failures through these routes, including `map`.
 General interpreter error propagation remains separate work; a successful
 shadow is not an ABI safety guarantee.
 My `test_imported_shadow_selection` characterizes direct and transitive pure
-imports: my C seed and VM reject a failing dependency shadow by default and
-allow the explicit root-only opt-out. Stage2 still skips it on import and
-rejects it when compiled as the root. Passing a Stage2 consumer's
-compilation therefore does not establish that its dependencies' shadows passed.
-Until execution is consistent, execute important assertions from an explicit
-test entry point as well as writing the shadow.
+imports: all three drivers reject a failing dependency shadow by default and
+allow the explicit root-only opt-out. I test diamond imports, symlinks,
+dependency-before-root execution and production separation. These tests do
+not establish complete backend semantic equivalence.
 
 ## Comments And Names
 

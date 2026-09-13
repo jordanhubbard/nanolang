@@ -11,6 +11,9 @@ DynArray* fs_walkdir(const char* root);
 /* Normalize path (resolve . and .., remove redundant slashes) */
 const char* path_normalize(const char* path);
 
+/* I return an allocated physical absolute path, or an empty string on failure. */
+const char* path_canonical(const char* path);
+
 /* Join two path components */
 const char* path_join(const char* a, const char* b);
 
@@ -48,4 +51,3 @@ int64_t file_copy(const char* src, const char* dst);
 int64_t dir_copy(const char* src, const char* dst);
 
 #endif /* NANOLANG_STD_FS_H */
-

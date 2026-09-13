@@ -8,6 +8,7 @@ module std_fs
 /* FFI declarations for filesystem operations */
 extern fn fs_walkdir(_root: string) -> array<string>
 extern fn path_normalize(_path: string) -> string
+extern fn path_canonical(_path: string) -> string
 extern fn path_join(_a: string, _b: string) -> string
 extern fn path_basename(_path: string) -> string
 extern fn path_dirname(_path: string) -> string
@@ -45,6 +46,24 @@ shadow walkdir {
 pub fn normalize(path: string) -> string {
     unsafe {
         return (path_normalize path)
+    }
+}
+
+# I resolve existing paths, including symlinks; failure returns an empty string.
+pub fn canonical(path: string) -> string {
+    unsafe { return (path_canonical path) }
+}
+
+shadow canonical {
+    assert (== (canonical "") "")
+    let directory: string = (mktemp_dir "nano_fs_canonical_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let resolved: string = (canonical directory)
+        assert (!= resolved "")
+        assert (== (canonical (+ directory "/.")) resolved)
+        assert (== (canonical (+ directory "/absent")) "")
+        assert (== (delete directory) 0)
     }
 }
 

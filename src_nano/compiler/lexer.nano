@@ -7,7 +7,7 @@
  */
 
 import "src_nano/compiler/ir.nano"
-from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors
+from "src_nano/compiler/diagnostics.nano" import diag_lexer_error, diag_location, diag_list_add, diag_list_has_errors, diag_list_new
 from "std/fs.nano" import read
 
 pure fn is_identifier_start(c: int) -> bool {

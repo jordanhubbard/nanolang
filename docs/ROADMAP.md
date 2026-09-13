@@ -363,27 +363,29 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and type symbols after checked interpreted foreign dispatch gained that
       dependency. The packaged-wrapper regression and wrapper-generation gates
       now pass on Darwin and Linux. MAC `task_309856ab8480437aab712e39001d2dd9`.
-- [ ] **5.0 transitive shadow execution by default.** I run dependency shadows
+- [x] **5.0 transitive shadow execution by default.** I run dependency shadows
       by default across C-seed, VM and self-hosted native compilation,
       exercise direct, transitive and diamond imports exactly once, preserve
       ownership and prior output on failure, and document execution order,
       source-only behavior and side effects. My creator chose this default;
       I retain `--root-shadows-only` as an explicit opt-out. C-seed and VM
-      now use this default; Stage2 selection and source identity remain open.
+      now use this default, as does Stage2 with canonical source paths.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
       - [x] I canonicalize resolved imports before cache lookup, graph
         registration, owner inference and C forward declarations. I reproduced
         duplicate typechecking and mismatched prototypes through equivalent
         paths. Dot segments and symlinks now pass C-seed/VM fixtures, including
         dependencies relative to a symlink target and exactly-once VM shadows.
-        My public resolver remains unchanged; Stage2 path parity remains open.
+        My public resolver remains unchanged; Stage2 adopts physical-path
+        identity in the later checkpoint below.
         MAC `task_8ae80d436b1342b3b25ed8839f8694fd`.
       - [x] I select dependency shadows by default in my bytecode driver,
         retain `--test-imports` and add `--root-shadows-only`, check and compile
         dependency shadows in owner context, execute a deduplicated graph
         dependency-first and root-last, and test failure publication boundaries
         and production separation. I do not let selected dependencies inherit
-        the root's unsafe context. C-seed and Stage2 parity remain required.
+        the root's unsafe context. At this checkpoint C-seed and Stage2 parity
+        remained required.
         Darwin runs all 103 shadow/cache/language test methods successfully;
         Linux runs the same suite with eight platform-specific skips. Environment,
         typechecker, code-generation and wrapper gates pass on both platforms.
@@ -437,16 +439,46 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
         environment, evaluator, parser and typechecker instrumented at O1;
         other linked objects are uninstrumented and leak detection is disabled.
         MAC `task_b331d5925b504d379e21b24d0710d03c`.
-      - [ ] I apply the same default, flags and dependency order to Stage2,
+      - [x] I require a completion handshake from native shadow entry points.
+        A dependency calling `exit(0)` previously passed the native supervisor
+        without finishing the selected tests. I reject early exit and exec
+        replacement, retain crash/deadline handling, and test the production
+        supervisor and driver publication boundary.
+        MAC `task_32e7e4b9a93d49dfa4e15d7c83ed1678`.
+      - [x] I fail timeout wrappers when their requested command cannot start.
+        A `noexec` scratch mount exposed zero exits from failed Perl `exec`
+        calls and false bootstrap success messages. I test missing and
+        non-executable commands, normal exit propagation and deadlines for
+        each Makefile timeout wrapper.
+        MAC `task_e0f2c52ae84842f084d49cff3394d7e1`.
+      - [x] I repair self-hosted lowering exposed by full bootstrap shadows:
+        physical-path extern declarations, explicit imports used by shadows,
+        record-array literal and call-argument element types, inferred append
+        results losing their input array type, and plain strings incorrectly
+        interpolated from their braces. I retain the dependency default and
+        verify minimal source regressions before accepting bootstrap.
+        MAC `task_c1dcaff808164681b70a093c9ca75113`.
+      - [x] I apply the same default, flags and dependency order to Stage2,
         establish canonical source identity in its merger, and verify library
         shadows, native publication and bootstrap. Source-only C emission stays
-        non-executing. MAC `task_be1b5b951f7a499da6b995bed61871f9`.
-      - [ ] I complete self-hosted string-search builtin lowering. A use of
-        `str_index_of` typechecks but emits an undefined `nl_str_index_of`
-        call. I test first/last search, empty and missing needles from source
-        through native output. My bootstrap helpers now implement substring
-        search themselves; that does not establish builtin parity.
-        MAC `task_a9b152cf5299491694d96a2385527e98`.
+        non-executing. All 164 shadow/cache/native-driver/supervisor/timeout
+        regression methods pass on macOS and Linux, with eight Linux skips.
+        Both full bootstraps execute dependency shadows and pass installed
+        smoke and no-C-seed checks. Native stage binaries still differ; this
+        is not a semantic-equivalence claim. Opt-in `NANO_SHADOW_TRACE` prints
+        each generated native shadow target before execution.
+        MAC `task_be1b5b951f7a499da6b995bed61871f9`.
+- [ ] **5.0 self-hosted source preservation through path aliases.** My input
+      overwrite guard still compares lexical spellings. I reproduce and reject
+      absolute/relative, symlink and hard-link input/output aliases before any
+      native or source-only write. Canonical import paths alone do not establish
+      this boundary. MAC `task_507117859a0642f4882b7015296d8af6`.
+- [ ] **5.0 self-hosted string-search builtin lowering.** A use of
+      `str_index_of` typechecks but emits an undefined `nl_str_index_of`
+      call. I test first/last search, empty and missing needles from source
+      through native output. My bootstrap helpers implement substring search
+      themselves; passing their shadows does not establish builtin parity.
+      MAC `task_a9b152cf5299491694d96a2385527e98`.
 - [x] **5.0 interpreted indexed-read alias.** I route `array_get` to the
       same reader as `at`. My FFI map fixture exposed that typing accepted the
       alias while interpreted shadow execution reported an unimplemented

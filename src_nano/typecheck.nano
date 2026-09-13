@@ -20,6 +20,7 @@
  */
 
 import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/ast_shared.nano"
 import "src_nano/compiler/ir.nano"
 import "src_nano/compiler/module_bindings.nano"
@@ -2645,6 +2646,16 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             }
         } else { (print "") }
+        if (and (== fn_name "array_push") (== call_node.arg_count 2)) {
+            let first: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
+            let array_type: NSType = (check_expr_node parser first.node_id first.node_type symbols diags file_name)
+            if (and (== array_type.kind TypeKind.TYPE_ARRAY) (!= array_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
+                return array_type
+            }
+            let second: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start 1))
+            let value_type: NSType = (check_expr_node parser second.node_id second.node_type symbols diags file_name)
+            return (type_array value_type.kind value_type.name)
+        }
         if (or (== fn_name "at") (== fn_name "array_get")) {
             if (>= call_node.arg_count 1) {
                 let first_arg: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)

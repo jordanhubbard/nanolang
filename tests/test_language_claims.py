@@ -17,8 +17,8 @@ COMPILERS = {
 
 
 class LanguageClaims(unittest.TestCase):
-    def test_c_frontend_canonical_import_paths(self):
-        for backend in ("c-seed", "bytecode"):
+    def test_canonical_import_paths(self):
+        for backend in COMPILERS:
             for duplicate in (False, True):
                 with self.subTest(backend=backend, duplicate=duplicate), tempfile.TemporaryDirectory(prefix="nano-canonical-import-") as tmp:
                     directory = Path(tmp)
@@ -139,10 +139,9 @@ fn main() -> int {{ assert (== (helper.{function}) 42) return 0 }}
 shadow main {{ assert (== (helper.{function}) 42) }}
 '''
                     compiled, output = self.compile_source(backend, source, directory)
-                    if backend in ("c-seed", "bytecode"):
-                        self.assertNotEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
-                        self.assertFalse(output.exists())
-                        compiled, output = self.compile_source(backend, source, directory, ("--root-shadows-only",))
+                    self.assertNotEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    self.assertFalse(output.exists())
+                    compiled, output = self.compile_source(backend, source, directory, ("--root-shadows-only",))
                     self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                     executed = self.execute(backend, output)
                     self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)

@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L  /* For strdup(), strtok_r() */
+#define _XOPEN_SOURCE 700       /* For realpath() */
 
 #include "fs.h"
 #include <stdio.h>
@@ -54,6 +55,14 @@ DynArray* fs_walkdir(const char* root) {
     
     walkdir_recursive(root, result);
     return result;
+}
+
+/* I resolve existing paths physically; failure is an empty string, never a
+ * lexical approximation of the requested identity. */
+const char* path_canonical(const char* path) {
+    if (!path || !path[0]) return strdup("");
+    char *resolved = realpath(path, NULL);
+    return resolved ? resolved : strdup("");
 }
 
 /* Internal helper: normalize path into caller-provided buffer */
