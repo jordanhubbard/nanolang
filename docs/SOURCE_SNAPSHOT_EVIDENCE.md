@@ -1076,3 +1076,30 @@ production builder probe (three expected skips). The two focused allocation
 failure methods also pass with leak detection enabled (2026-09-13).
 Darwin's rebuilt native tools and C reference compiler pass the 143-method
 compiler, shadow, cache and assembler regression suite (24 expected skips).
+
+## Aggregate linker arguments: reproduced, not repaired
+
+I measure four linker groups with:
+
+```sh
+python3 -m tests.characterize_link_argument_transport --require-consistent
+```
+
+On Apple Clang 21 and Debian GCC 12.2 (2026-09-13), all four module builds
+fail while direct driver links succeed and return 42. Common, active-platform
+and package groups contain 1200 search flags followed by `-lm -lc -lm`
+(19,211 bytes). The system-library group contains 1200 `m,c` pairs followed
+by `m` (9,603 bytes). The shared-link command still has a fixed-size buffer.
+
+Source-free returned flags retain every argument in order, including repeated
+libraries. A later compiler process uses them successfully and returns 42.
+Failed module builds and explicit invalid-tail replacements leave the old
+published generation intact. None of this establishes working cold builds
+or warm reuse for these long groups: the acceptance command exits nonzero.
+
+Two unit methods check the acceptance gate, including each status, each cold,
+warm, direct and later answer, each invariant, and an empty measurement. They
+pass on both hosts and run with the bytecode-shadow make gate. The next change
+must repair shared-link transport while preserving these observations and
+Darwin linker-input validation. Raw linker response files, other dialects and
+larger budgets remain separate unfinished requirements.

@@ -2101,6 +2101,7 @@ test-bytecode-shadows: nano_virt nano_vm $(COMPILER_C) $(OBJ_DIR)/test_module_ge
 	@python3 -m unittest tests.test_module_cache_publication
 	@python3 -m unittest tests.test_linux_link_cache
 	@python3 -m unittest tests.test_source_snapshots
+	@python3 -m unittest tests.test_link_argument_transport
 
 .PHONY: test-native-shadow-emitter
 test-native-shadow-emitter:

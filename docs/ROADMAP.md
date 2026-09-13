@@ -1077,6 +1077,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       ordered header search and later consumers, and test allocation rollback.
       The 200-directory fixture preserves quoted paths and header precedence;
       its compiled variant fails against the previous revision on GCC 12.
+      I next retain aggregate literal common and platform linker flags without
+      changing their order, returned-flag lifetime or linker cache observation.
+      I test long search lists, repeated libraries, later native consumers and
+      failed replacements before extending transport to other linker groups.
+      My new characterization reproduces shared-link rejection on Apple Clang
+      21 and GCC 12 for common, platform, package and system-library groups.
+      Direct links and later native consumers return 42 with those same flags;
+      the builder preserves the old generation but cannot publish a new one.
+      The explicit acceptance gate remains red until cold/warm answers, reuse,
+      returned argument order and failed-replacement preservation all pass.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
