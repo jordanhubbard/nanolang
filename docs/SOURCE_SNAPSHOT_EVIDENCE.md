@@ -2383,3 +2383,45 @@ python3 -m tests.characterize_integrated_assembler --text-instruction --require-
 This is a baseline and a more precise counterexample, not a debug-preserving
 production repair. The strict trial correctly fails. Debug section presence
 and source names are useful checks, not complete DWARF semantic equivalence.
+
+### Debug-preserving final-assembly candidate
+
+I extend the production-debug characterization with `--candidate`. It starts
+from the production-retained unit, copies it into a private directory under
+its original basename, and assembles it with the original debug selector.
+It maps the private directory back to the native source directory through
+`-Wa,--debug-prefix-map=` for GNU as and `-Wa,-fdebug-prefix-map=` for Apple's
+selected external assembler. When capture canonicalized a source-directory
+alias, a second mapping preserves the spelling used by the native control.
+
+Two rejected trials inform this recipe. Mapping the synthetic snapshot's
+full filename did not restore GNU raw `.s` source names. Passing Apple's
+`-fdebug-prefix-map` as a compiler-only option in external mode produced an
+unused-argument warning and did not forward the mapping to `as`; it must be
+an assembler argument. The driver dry-run confirms that distinction.
+
+I strengthen evidence collection to hash the complete decoded debug-info and
+line-table output, replacing only the dump's object-path heading. I retain a
+unified diff for unequal candidate output. I do not normalize source names,
+directory aliases, line rows or DIE offsets. Candidate acceptance additionally
+requires byte-identical complete native objects, so matching debug-section
+names cannot hide changed instructions or other object data.
+
+The final candidate passes all eight combinations of `.s`/`.S`, local/shared
+cache roots, and Apple Clang 21 external/GCC 12.2 GNU as 2.40 on arm64. Native
+and candidate objects are byte-identical, decoded debug hashes match, and
+source names and compilation-unit counts agree. During candidate assembly
+the original unit file is deleted; I restore its bytes afterward for the warm
+build check. These fixtures have one instruction and one payload byte, not
+nested includes or macro-generated source locations.
+
+```sh
+python3 -m tests.characterize_assembler_debug --candidate --require-debug
+```
+
+Both host commands now exit zero. The non-candidate production measurement
+still reports missing debug sections: this experiment has not changed the
+builder. Integration must apply per-source debug flags and retained path
+identity consistently in capture, replay and validation, then cover nested
+source provenance, debug-option precedence and actual cache reuse. The
+existing integrated text-expansion failure remains separately unresolved.

@@ -2,9 +2,13 @@
 
 --require-debug fails if production drops native debug sections or source
 provenance. Matching these observations is not full DWARF equivalence.
+--candidate instead tests debug flags, retained original basenames and explicit
+assembler directory remapping, requiring byte-identical native objects too.
 """
 
 import argparse
+import difflib
+import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -23,7 +27,7 @@ def run(argv, cwd, env=None):
     return result.stdout.decode()
 
 
-def evidence(obj, source, cwd):
+def evidence(obj, source, cwd, text=None):
     listing = run(["objdump", "-h", obj], cwd)
     sections = [words[1] for line in listing.splitlines()
                 if len(words := line.split()) > 1 and words[0].isdigit()
@@ -31,11 +35,15 @@ def evidence(obj, source, cwd):
     command = ["dwarfdump", "--debug-info", "--debug-line"] if sys.platform == "darwin" else [
         "readelf", "--debug-dump=info", "--debug-dump=decodedline"]
     decoded = run([*command, obj], cwd)
+    normalized = decoded.replace(str(obj), "@object")
+    if text is not None: text.extend(normalized.splitlines(keepends=True))
     return {"sections": sections, "source_named": source.name in decoded,
+            "decoded_debug_sha256": hashlib.sha256(normalized.encode()).hexdigest(),
+            "private_snapshot_named": "__snapshot_" in decoded or "__assembler_" in decoded,
             "compile_units": decoded.count("DW_TAG_compile_unit")}
 
 
-def measure(compiler):
+def measure(compiler, candidate=False):
     version = run([compiler, "--version"], ROOT).splitlines()[0]
     flags = ["-g"] + (["-fno-integrated-as"] if "clang" in version else [])
     cases = []
@@ -58,13 +66,38 @@ def measure(compiler):
                     "c_sources": ["answer.c", source.name], "cflags": flags}))
                 native = directory / "native.o"
                 run([compiler, "-c", "-fPIC", *flags, source, "-o", native], directory)
-                expected = evidence(native, source, directory)
+                native_text = []
+                expected = evidence(native, source, directory, native_text)
                 if not expected["sections"] or not expected["source_named"]:
                     raise RuntimeError("I need a native object with debug sections and source provenance")
                 probe = ROOT / "obj/test_module_generation_probe"
                 run([probe, "build", module], directory, env)
                 generation = Path(run([probe, "directory", module], directory, env).strip())
                 observed = evidence(generation / "answer_native_1.o", source, directory)
+                candidate_evidence = None
+                candidate_diff = None
+                candidate_identical = None
+                if candidate:
+                    retained = generation / "__snapshot_0_1.s"
+                    private = directory / "retained unit"
+                    private.mkdir()
+                    replay_source = private / source.name
+                    replay_source.write_bytes(retained.read_bytes())
+                    option = "-Wa,-fdebug-prefix-map=" if "clang" in version and sys.platform == "darwin" else "-Wa,--debug-prefix-map="
+                    remaps = [option + str(private) + "=" + str(source.parent)]
+                    if source.parent.resolve() != source.parent:
+                        remaps.append(option + str(source.parent.resolve()) + "=" + str(source.parent))
+                    output = directory / "candidate.o"
+                    original = source.read_bytes()
+                    source.unlink()
+                    try:
+                        run([compiler, "-c", "-fPIC", *flags, *remaps, "-x", "assembler", replay_source, "-o", output], directory)
+                    finally:
+                        source.write_bytes(original)
+                    candidate_text = []
+                    candidate_evidence = evidence(output, source, directory, candidate_text)
+                    candidate_identical = native.read_bytes() == output.read_bytes()
+                    candidate_diff = ''.join(difflib.unified_diff(native_text, candidate_text, fromfile="native", tofile="candidate"))
                 library = run([probe, "library", module], directory, env).strip()
                 value = run([sys.executable, "-c", "import ctypes,sys; l=ctypes.CDLL(sys.argv[1]); "
                     "l.nano_build_answer.restype=ctypes.c_int64; print(l.nano_build_answer())", library], directory)
@@ -72,6 +105,10 @@ def measure(compiler):
                 reused = generation == Path(run([probe, "directory", module], directory, env).strip())
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
                               "native": expected, "production": observed,
+                              "candidate": candidate_evidence,
+                              "candidate_debug_diff": candidate_diff,
+                              "candidate_object_identical": candidate_identical,
+                              "candidate_source_deleted": candidate,
                               "answer": int(value), "generation_reused": reused})
     return {"compiler": compiler, "version": version, "platform": sys.platform, "cases": cases}
 
@@ -80,11 +117,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("compiler", nargs="?", default="cc")
     parser.add_argument("--require-debug", action="store_true")
+    parser.add_argument("--candidate", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler")
-    result = measure(compiler)
+    result = measure(compiler, candidate=args.candidate)
     print(json.dumps(result, indent=2))
-    if args.require_debug and any(case["native"] != case["production"] or case["answer"] != 42
-                                  or not case["generation_reused"] for case in result["cases"]):
+    if args.require_debug and any(case["native"] != case["candidate" if args.candidate else "production"] or case["answer"] != 42
+                                  or not case["generation_reused"] or (args.candidate and not case["candidate_object_identical"])
+                                  for case in result["cases"]):
         raise SystemExit("I did not retain the native debug evidence and reusable result")

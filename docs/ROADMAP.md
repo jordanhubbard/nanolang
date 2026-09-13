@@ -1243,6 +1243,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       under both cache roots. Adding a `nop` to the integrated text trial
       does not resolve Apple's undefined section-end label. The defect is
       therefore not confined to an empty text section in that tested backend.
+      A candidate now reproduces byte-identical native objects and decoded
+      debug data for simple `.s`/`.S` units on GCC 12 and Apple Clang 21
+      external assembly, even with the original unit temporarily deleted.
+      It retains the original basename, remaps private directories through
+      the selected assembler, and supplies debug flags during final assembly.
+      Production integration, nested-source provenance and flag precedence
+      remain open; `--candidate` is an experiment, not a repaired build path.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
