@@ -798,7 +798,9 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             result = subprocess.run([str(self.support.probe), "shared-link-command", str(module)],
                                     env=env, capture_output=True, timeout=15)
             self.assertEqual(result.returncode, 0, result.stderr)
-            words = shlex.split(result.stdout.decode())
+            words = []
+            for word in shlex.split(result.stdout.decode()):
+                words.extend(shlex.split(Path(word[1:]).read_text()) if word.startswith("@") else [word])
             self.assertEqual([word for word in words if word.startswith("-l")], ["-lm", "-lc", "-lm"])
             self.assertIn("-Wl,-nano-invalid-option", words)
             too_small = subprocess.run([str(self.support.probe), "shared-link-command", str(module), "64"],

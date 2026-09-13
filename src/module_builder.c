@@ -430,7 +430,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v25-include-transport");
+    hash_context_field(&hash, "nanolang-c-build-context-v26-link-transport");
     for (size_t i = 0; i < meta->cflags_count; i++) hash_context_field(&hash, meta->cflags[i]);
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) hash_context_field(&hash, meta->cflags_macos[i]);
@@ -2684,18 +2684,70 @@ static bool module_append_compiler_fragment(const ModuleBuildMetadata *meta, con
     return ok;
 }
 
+/* I preserve the existing shared-link group order, including repeated libraries.
+ * This is driver argument transport, not capture of indirect linker inputs. */
+static char *module_shared_link_fragment(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags) {
+    const size_t capacity = 65537;
+    char *fragment = calloc(capacity, 1);
+    if (!fragment) return NULL;
+    size_t platform_count;
+    char **platform = module_platform_ldflags(meta, &platform_count);
+    size_t counts[] = {meta->pkg_config_count, meta->system_libs_count, meta->ldflags_count,
+                       platform_count,
+#ifdef __APPLE__
+                       meta->frameworks_count
+#else
+                       0
+#endif
+    };
+    bool ok = true;
+    for (size_t group = 0; group < 5 && ok; group++) {
+        for (size_t i = 0; i < counts[group] && ok; i++) {
+#ifdef __APPLE__
+            if (group == 0 && module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+            const char *value = group == 0 ? flags->libs[i] : group == 1 ? meta->system_libs[i] :
+                group == 2 ? meta->ldflags[i] : group == 3 ? platform[i] : meta->frameworks[i];
+            const char *prefix = group == 1 ? "-l" : group == 4 ? "-framework " : "";
+            ok = value && module_build_append(fragment, capacity, " %s%s", prefix, value);
+        }
+    }
+    if (!ok) { free(fragment); return NULL; }
+    return fragment;
+}
+
+static char *module_shared_link_transport(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                          const char *fragment) {
+    /* I do not hide user response inputs from Darwin's linker observation. */
+    if (strchr(fragment, '@')) return strdup(fragment);
+    return module_response_transport(meta, flags, fragment);
+}
+
 #ifdef __APPLE__
 /* My linker observation still declines indirect user arguments. The only @
  * words I admit are exact transports of this invocation's captured flags. */
 static bool module_link_response_safe(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                       const char *command) {
     if (!strchr(command, '@')) return true;
+    char link_word[4096] = {0};
+    char *fragment = module_shared_link_fragment(meta, flags);
+    char *transport = fragment ? module_shared_link_transport(meta, flags, fragment) : NULL;
+    if (!transport) { free(fragment); return false; }
+    if (strcmp(fragment, transport)) {
+        const char *p = transport;
+        char extra[4096];
+        if (module_flag_word(&p, link_word, sizeof(link_word)) != 1 || link_word[0] != '@' ||
+            module_flag_word(&p, extra, sizeof(extra)) != 0) link_word[0] = 0;
+    }
+    free(transport);
+    free(fragment);
     const char *cursor = command;
     char word[4096];
     int status;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
         if (!strchr(word, '@')) continue;
         if (word[0] != '@') return false;
+        if (link_word[0] && !strcmp(word, link_word)) continue;
         bool found = false;
         for (size_t group = 0; group < 3 && !found; group++) {
             size_t count = group == 0 ? flags->count : meta->cflags_count;
@@ -3531,28 +3583,11 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
         command_ok &= module_append_compiler_fragment(meta, flags, flags->cflags[i], false, lib_cmd, capacity);
     }
 
-    for (size_t i = 0; i < meta->pkg_config_count; i++) {
-#ifdef __APPLE__
-        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
-#endif
-        if (!flags->libs[i]) return false;
-        command_ok &= module_build_append(lib_cmd, capacity, " %s", flags->libs[i]);
-    }
-    for (size_t i = 0; i < meta->system_libs_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity, " -l%s", meta->system_libs[i]);
-    }
-    for (size_t i = 0; i < meta->ldflags_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity, " %s", meta->ldflags[i]);
-    }
-    size_t platform_count;
-    char **platform = module_platform_ldflags(meta, &platform_count);
-    for (size_t i = 0; i < platform_count; i++)
-        command_ok &= module_build_append(lib_cmd, capacity, " %s", platform[i]);
-    #ifdef __APPLE__
-    for (size_t i = 0; i < meta->frameworks_count; i++) {
-        command_ok &= module_build_append(lib_cmd, capacity, " -framework %s", meta->frameworks[i]);
-    }
-    #endif
+    char *fragment = module_shared_link_fragment(meta, flags);
+    char *transport = fragment ? module_shared_link_transport(meta, flags, fragment) : NULL;
+    command_ok &= transport && module_build_append(lib_cmd, capacity, " %s", transport);
+    free(transport);
+    free(fragment);
     /* Add custom cflags (all platforms) */
     for (size_t i = 0; i < meta->cflags_count; i++) {
         if (!meta->cflags[i][0]) continue;

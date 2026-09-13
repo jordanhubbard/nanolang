@@ -1069,15 +1069,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       allocation rollback and unchanged unsupported shell/driver-mode paths.
       The aggregate fixture passes for 1300 short flags, forty small response
       references and forty package fragments; all four variants fail against
-      the previous revision. Linker fragments and groups beyond the 64 KiB
-      budget remain outside this coalescing boundary.
+      the previous revision. Groups beyond the 64 KiB budget remain outside
+      this coalescing boundary.
       I quote include-directory arguments consistently for compilation
       and returned native flags, then coalesce them through retained sidecars.
       I keep original include paths in metadata and cache validation, verify
       ordered header search and later consumers, and test allocation rollback.
       The 200-directory fixture preserves quoted paths and header precedence;
       its compiled variant fails against the previous revision on GCC 12.
-      I next retain aggregate literal common and platform linker flags without
+      I retain aggregate literal common and platform linker flags without
       changing their order, returned-flag lifetime or linker cache observation.
       I test long search lists, repeated libraries, later native consumers and
       failed replacements before extending transport to other linker groups.
@@ -1085,8 +1085,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       21 and GCC 12 for common, platform, package and system-library groups.
       Direct links and later native consumers return 42 with those same flags;
       the builder preserves the old generation but cannot publish a new one.
-      The explicit acceptance gate remains red until cold/warm answers, reuse,
+      The explicit acceptance gate rejects failure until cold/warm answers, reuse,
       returned argument order and failed-replacement preservation all pass.
+      I implement one ordered shared-link argument fragment through retained
+      driver transport, including package libraries and system-library names.
+      Darwin observation must recognize only its exact retained fragment;
+      raw indirect response arguments remain on their previous path.
+      The four long-link cases now pass on both drivers with cold/warm/later
+      answers of 42, complete returned argument order and generation reuse.
+      I reject changed retained linker files before publishing a replacement
+      and recover after removal. The allocation-failure retry and indirect
+      response visibility checks pass. Larger groups and indirect linker
+      response capture remain open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

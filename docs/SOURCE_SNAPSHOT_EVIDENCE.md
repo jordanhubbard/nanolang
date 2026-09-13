@@ -1103,3 +1103,38 @@ pass on both hosts and run with the bytecode-shadow make gate. The next change
 must repair shared-link transport while preserving these observations and
 Darwin linker-input validation. Raw linker response files, other dialects and
 larger budgets remain separate unfinished requirements.
+
+## Shared-link group transport
+
+I now serialize the shared-link argument group in its original order: package
+libraries, system libraries, common linker flags, active-platform linker flags,
+then Darwin framework pairs. Literal groups use my retained driver response
+transport within a 64 KiB input budget. This does not expand raw linker response
+files. Any user `@` keeps the group on its previous path, so I do not hide an
+indirect input from Darwin observation. Build-context version 26 identifies
+this recipe. Returned native linker flags keep their previous spelling and
+ownership; no temporary link sidecar escapes into them.
+
+Darwin observation admits the exact retained shared-link fragment in addition
+to the existing captured compiler fragments. It still rejects other indirect
+arguments. The four-case characterization now passes on Apple Clang 21 and
+GCC 12: direct, cold, warm and later answers are 42; warm generations are
+reused; returned argument sequences are complete; failed replacements preserve
+the prior generation. The formerly failing acceptance command now exits zero.
+
+Tests also corrupt a retained linker file before a source replacement, check
+that publication fails without changing the old generation, remove the damaged
+file and verify recovery. A fragment allocation failure permits a clean retry.
+The existing shared-link tail test decodes my response transport before checking
+repeated library order and the final invalid option. Framework-pair tests remain
+unchanged. Unsupported dialects, indirect linker input capture and larger
+argument budgets remain open.
+
+The 47-method snapshot/link suite passes normally on Darwin and GCC 12
+(eleven and three expected skips). With the added corruption-recovery test,
+all 48 methods pass under Linux ASan/UBSan on the production builder probe;
+the focused fragment-allocation test also passes with leak detection enabled
+(2026-09-13).
+Darwin's rebuilt native tools and C reference compiler pass the complete
+149-method compiler, shadow, cache, assembler and linker regression set
+(24 expected skips).

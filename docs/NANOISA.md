@@ -547,13 +547,18 @@ remain stable. Allocation failure leaves the original strings untouched.
 This handles many short compiler fragments as well as individual long ones.
 I also quote and coalesce include-directory arguments in search order for
 compilation and returned native flags. Original paths remain in metadata for
-dependency validation. Linker fragments are not coalesced here.
+dependency validation. For shared-library linking, I combine package libraries,
+system libraries, common and platform linker flags, and Darwin framework pairs
+in their existing order. Literal groups up to 64 KiB use the same transport;
+raw user `@` arguments stay visible and do not gain linker-cache eligibility.
+Returned native linker flags retain their existing spelling and ownership.
 I publish complete read-only files with content-derived
 names, verify their bytes before reuse, and leave them alive until that cache
 is removed. Returned native flags therefore remain usable after build-info
 cleanup. Decoded arguments remain in cache identity and phase selection;
 sidecar paths are only transport. I use the same transport for shared linking,
-and Darwin linker observation admits only exact sidecars of captured flags.
+and Darwin linker observation admits only exact sidecars of captured flags or
+the current shared-link group.
 Larger budgets, other response dialects and indirect linker response files
 remain open. This is argument retention,
 not retention of every external input named by an argument.

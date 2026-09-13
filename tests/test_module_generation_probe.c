@@ -176,6 +176,24 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 3 && !strcmp(argv[1], "link-fragment-allocation")) {
+        char *libs[] = {"-lpkg"}, *system[] = {"m", "c", "m"}, *common[] = {"-L/common"};
+        ModuleBuildMetadata meta = {0};
+        meta.pkg_config_count = 1;
+        char *packages[] = {"fixture"};
+        meta.pkg_config = packages;
+        meta.system_libs = system; meta.system_libs_count = 3;
+        meta.ldflags = common; meta.ldflags_count = 1;
+        ModulePkgFlags flags = {.libs = libs, .count = 1};
+        generation_allocation_limit = 0;
+        char *failed = module_shared_link_fragment(&meta, &flags);
+        generation_allocation_limit = -1;
+        if (failed) { free(failed); return 1; }
+        char *retry = module_shared_link_fragment(&meta, &flags);
+        bool ok = retry && !strcmp(retry, " -lpkg -lm -lc -lm -L/common");
+        free(retry);
+        return ok ? 0 : 1;
+    }
     if (argc == 3 && !strcmp(argv[1], "coalesce-allocation")) {
         char left[700], right[700];
         memset(left, 'x', sizeof(left) - 1); left[sizeof(left) - 1] = 0;
