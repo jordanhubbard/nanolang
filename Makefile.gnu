@@ -572,9 +572,19 @@ $(OBJ_DIR)/nanovm/cop_main.o: $(NANOVM_DIR)/cop_main.c $(NANOVM_DIR)/cop_protoco
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: test-nanovm-daemon
-test-nanovm-daemon: nano_vm nano_vmd
+test-nanovm-daemon: nano_vm nano_vmd test-vmd-server
 	@echo "Running NanoVM daemon integration tests..."
 	@scripts/test_nanovm_daemon.sh
+
+.PHONY: test-vmd-server
+test-vmd-server: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_server.o
+	@echo "Running NanoVM daemon server unit tests..."
+	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_vmd_server \
+		tests/nanovm/test_vmd_server.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o \
+		$(OBJ_DIR)/nanovm/vmd_server.o $(LDFLAGS) -lpthread
+	@./tests/nanovm/test_vmd_server
+	@rm -f tests/nanovm/test_vmd_server
 
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop

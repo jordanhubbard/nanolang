@@ -20,6 +20,9 @@ int main(int argc, char *argv[]) {
         .idle_timeout_sec = VMD_DEFAULT_IDLE_TIMEOUT,
         .foreground = false,
         .verbose = false,
+        .socket_path = NULL,
+        .pid_path = NULL,
+        .bind_fn = NULL,
     };
 
     for (int i = 1; i < argc; i++) {

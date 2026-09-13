@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <sys/socket.h>
 
 /* ========================================================================
  * Server Configuration
@@ -20,6 +21,9 @@ typedef struct {
     int  idle_timeout_sec;   /* Shut down after N seconds with no clients (0=never) */
     bool foreground;         /* Stay in foreground (don't daemonize) */
     bool verbose;            /* Verbose logging */
+    const char *socket_path; /* Optional socket path override (primarily for tests) */
+    const char *pid_path;    /* Optional PID path override (primarily for tests) */
+    int (*bind_fn)(int, const struct sockaddr *, socklen_t); /* Optional bind override */
 } VmdServerConfig;
 
 /* Default config values */
