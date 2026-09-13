@@ -66,6 +66,11 @@ LDFLAGS = -lm -lcrypto
 ifneq ($(filter command line override,$(origin LDFLAGS)),)
 override LDFLAGS += -lcrypto
 endif
+# I use libffi for typed native calls in my interpreter, including doubles.
+LIBFFI_CFLAGS ?= $(shell pkg-config --cflags libffi 2>/dev/null)
+LIBFFI_LIBS ?= $(shell pkg-config --libs libffi 2>/dev/null || printf '%s' '-lffi')
+override CFLAGS += $(LIBFFI_CFLAGS)
+override LDFLAGS += $(LIBFFI_LIBS)
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
@@ -805,7 +810,10 @@ test-effects: stage1
 	@rm -f tests/test_effects
 
 .PHONY: test-ffi
-test-ffi: stage1
+$(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<
+
+test-ffi: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so
 	@echo "Running interpreter FFI unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_ffi tests/test_ffi.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_ffi

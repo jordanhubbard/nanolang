@@ -159,7 +159,8 @@ shadow main {{ assert (== (main) 0) }}
         absolute = "llabs" if sys.platform == "darwin" else "labs"
         cases = {
             "missing": ("extern fn nano_missing_shadow_symbol() -> void", "(nano_missing_shadow_symbol)"),
-            "float": ("extern fn erf(x: float) -> float", "(erf 0.0)"),
+            "float": ("extern fn erf(x: float) -> float", "assert (== (erf 0.0) 0.0)"),
+            "float_failure": ("extern fn erf(x: float) -> float", "assert (== (erf 0.0) 1.0)"),
             "resolved": (f"extern fn {absolute}(x: int) -> int", f"assert (== ({absolute} -42) 42)"),
         }
         for name, (declaration, call) in cases.items():
@@ -178,7 +179,7 @@ shadow main {{ assert (== (main) 0) }}
                                                        ["--llm-shadow-json", str(report)])
                 self.assertTrue(report.exists(), compiled.stdout + compiled.stderr)
                 evidence = json.loads(report.read_text())
-                if name == "resolved":
+                if name in ("resolved", "float"):
                     self.assertTrue(evidence["success"])
                     self.assertEqual(evidence["failures"], [])
                     self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)

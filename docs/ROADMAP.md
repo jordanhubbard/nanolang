@@ -209,13 +209,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       propagation, foreign isolation or proof of the declared C signature.
       The final Darwin language/native-shadow rerun passes all 17 tests.
       MAC `task_48a773d48f4843ea92039b6b4dd381e3`.
-- [ ] **5.0 interpreter FFI — signature-correct native dispatch.** I replace
-      integer-returning pointer casts with ABI-correct calls for declared
-      argument and result types. My existing dispatch cannot pass or return
-      floating-point values correctly; until replaced I reject those calls
-      before invocation. I test mixed scalar signatures, void results and
-      malformed metadata on Darwin and Linux, and do not infer ABI correctness
-      from integer-only tests. I also remove unaligned marshaling accesses.
+- [x] **5.0 interpreter FFI — signature-correct native dispatch.** I replace
+      integer-returning pointer casts and unaligned byte buffers with libffi
+      calls and aligned typed slots. My fixed-arity scalar/pointer calls now
+      handle doubles, bools and void correctly in the tested signatures.
+      Eleven FFI tests include real mixed native signatures, pointer/string
+      results and ten-argument integer/float calls; these and 95 evaluator
+      tests pass on Darwin arm64 and Linux arm64 GCC. Ten focused compiler
+      cases pass on both; my full Darwin language/native-shadow suite passes
+      all 17 tests. Bootstrap smoke/no-C-seed checks pass; native binaries differ.
+      Editor-session tests and shared-session library builds pass on both.
+      Linux ASan/UBSan passes with the bridge and driver instrumented; other
+      objects and libffi are not instrumented, and leak detection is disabled.
+      My Makefile, Linux CI package lists and build guide record the libffi
+      dependency. Workflow YAML parses; hosted CI has not run in this check.
+      Array arguments, non-opaque aggregates and variadic calls are outside
+      this fixed-arity boundary. Native declarations remain trusted, not proved.
       MAC `task_b6f54605c59c4e1abff628422c77922f`.
 - [ ] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
       make failing shadow assertions observable on every supported compiler
@@ -224,8 +233,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I preserve the requirement for useful tests; documenting a gap does
       not satisfy it.
       The failing-shadow characterization is now rejected by the C seed,
-      bytecode CLI and Stage 2 native driver. Imported-shadow policy and
-      signature-correct interpreted foreign calls remain open; source-only emission
+      bytecode CLI and Stage 2 native driver. Imported-shadow policy remains
+      open; source-only emission
       typechecks root shadows but deliberately does not execute them.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**

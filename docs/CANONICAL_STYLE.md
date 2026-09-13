@@ -297,10 +297,12 @@ invoke a native compiler. Imported shadows are not automatically selected by
 these drivers; imported-shadow policy remains open. My C-seed shadow runner
 records failed foreign dispatch even when the test ignores its result, and
 includes the call location in shadow JSON. I distinguish this failure from a
-successful void return. My interpreter still uses limited integer/pointer
-dispatch: it rejects floating-point signatures before calling foreign code.
-Signature-correct native dispatch and general interpreter error propagation
-remain separate work; a successful shadow is not an ABI safety guarantee.
+successful void return. My interpreter uses libffi for fixed-arity scalar and
+pointer signatures, including floating-point arguments and results. I reject
+array arguments and non-opaque aggregate signatures. My native declarations
+remain trusted: I cannot infer a C function's signature from its address.
+General interpreter error propagation remains separate work; a successful
+shadow is not an ABI safety guarantee.
 My `test_imported_shadow_selection` characterizes direct and transitive pure
 imports on Darwin: all three drivers skip a failing dependency shadow, but
 reject it when its source is compiled as the root. Passing a consumer's

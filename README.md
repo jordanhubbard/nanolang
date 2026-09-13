@@ -221,6 +221,11 @@ I treat optimization as: profile a real workload, change source, run tests, prof
 
 ## Building & Testing
 
+My native interpreter uses libffi for fixed-arity foreign calls. I need its
+development headers and library (`libffi-dev` on Debian/Ubuntu, `libffi` via
+Homebrew when the macOS SDK package is unavailable). My Makefile reads
+`pkg-config libffi`; `LIBFFI_CFLAGS` and `LIBFFI_LIBS` allow an explicit toolchain.
+
 ```bash
 make build          # Build my compiler (bin/nanoc)
 make lsp            # Build my language server (bin/nanolang-lsp)
