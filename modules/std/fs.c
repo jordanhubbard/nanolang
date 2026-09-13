@@ -87,8 +87,9 @@ static int destination_stat(const char* path, struct stat* info) {
 }
 
 /* I compare stable destination entries, including files not yet created.
- * Missing entries use parent inode + basename, not lexical normalization.
- * I reject unresolved parents and dangling links rather than guess identity. */
+ * An exclusive empty-directory probe asks the filesystem about absent names.
+ * I remove it before returning; unresolved identity or cleanup fails closed.
+ * This is not protection against concurrent namespace replacement. */
 int64_t file_compare_destinations(const char* first, const char* second) {
     if (!first || !first[0] || !second || !second[0]) return -1;
     struct stat a, b;
@@ -99,26 +100,15 @@ int64_t file_compare_destinations(const char* first, const char* second) {
         return a.st_dev == b.st_dev && a.st_ino == b.st_ino;
     if (a_exists || b_exists) return 0;
 
-    char* a_path = strdup(first);
-    char* b_path = strdup(second);
+    if (mkdir(first, 0700) != 0) return -1;
     int64_t result = -1;
-    if (!a_path || !b_path) goto done;
-    char* a_slash = strrchr(a_path, '/');
-    char* b_slash = strrchr(b_path, '/');
-    const char* a_name = a_slash ? a_slash + 1 : a_path;
-    const char* b_name = b_slash ? b_slash + 1 : b_path;
-    if (!a_name[0] || !b_name[0]) goto done;
-    if (a_slash) *a_slash = '\0';
-    if (b_slash) *b_slash = '\0';
-    const char* a_parent = a_slash ? (a_slash == a_path ? "/" : a_path) : ".";
-    const char* b_parent = b_slash ? (b_slash == b_path ? "/" : b_path) : ".";
-    if (stat(a_parent, &a) != 0 || !S_ISDIR(a.st_mode) ||
-        stat(b_parent, &b) != 0 || !S_ISDIR(b.st_mode)) goto done;
-    result = a.st_dev == b.st_dev && a.st_ino == b.st_ino &&
-             strcmp(a_name, b_name) == 0;
-done:
-    free(a_path);
-    free(b_path);
+    if (stat(first, &a) == 0) {
+        b_exists = destination_stat(second, &b);
+        if (b_exists == 0) result = 0;
+        else if (b_exists > 0)
+            result = a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+    }
+    if (rmdir(first) != 0) return -1;
     return result;
 }
 

@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import subprocess
 import shutil
+import sys
 import tempfile
 import unittest
 
@@ -15,6 +16,23 @@ shadow main { assert (== (main) 0) }
 
 
 class SelfhostCliTests(unittest.TestCase):
+    def test_destination_probe_lifecycle_and_failures(self):
+        with tempfile.TemporaryDirectory(prefix="nano-destination-unit-") as tmp:
+            directory = Path(tmp)
+            executable = directory / "probe-test"
+            fixture = directory / "fixture"
+            fixture.mkdir()
+            stripping = "-Wl,-dead_strip" if sys.platform == "darwin" else "-Wl,--gc-sections"
+            command = ["cc", "-std=c99", "-Wall", "-Wextra", "-Werror",
+                       "-ffunction-sections", "-fdata-sections", stripping,
+                       "-I", str(ROOT / "src"),
+                       str(ROOT / "tests/test_fs_destination_identity.c"), "-o", str(executable)]
+            compiled = subprocess.run(command, capture_output=True, text=True, timeout=60)
+            self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+            result = subprocess.run([str(executable), str(fixture)], capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(list(fixture.iterdir()), [])
+
     def invoke(self, args, directory, cwd=ROOT):
         return subprocess.run([str(COMPILER), *map(str, args)], cwd=cwd,
                               env=dict(os.environ, TMPDIR=str(directory), NANO_CC="/bin/false"),
@@ -151,6 +169,41 @@ class SelfhostCliTests(unittest.TestCase):
                         executed = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
                         self.assertEqual(executed.returncode, 0, executed.stderr)
                         self.assertEqual(executed.stdout, "cli-source-ok\n")
+                    self.assertEqual(source.read_text(), SOURCE)
+
+    def test_missing_destination_filesystem_name_equivalence(self):
+        pairs = (("Output", "output"), ("\u00e9", "e\u0301"))
+        for first, second in pairs:
+            for target in ("c", "native"):
+                with self.subTest(first=first, second=second, target=target), tempfile.TemporaryDirectory(prefix="nano-name-equivalence-") as tmp:
+                    directory = Path(tmp)
+                    source = directory / "input.nano"
+                    source.write_text(SOURCE)
+                    output = directory / first
+                    report = directory / second
+                    # I measure this filesystem, not the host platform's default.
+                    output.write_text("identity probe")
+                    aliases = report.exists() and os.path.samefile(output, report)
+                    output.unlink()
+                    result = subprocess.run([str(COMPILER), str(source), "--target", target,
+                                             "-o", str(output), "--llm-diags-json", str(report)],
+                                            cwd=ROOT, env=dict(os.environ, TMPDIR=tmp, NANO_CC=shutil.which("cc")),
+                                            capture_output=True, text=True, timeout=120)
+                    if aliases:
+                        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertIn("I require separate", result.stdout + result.stderr)
+                        self.assertFalse(output.exists())
+                        self.assertFalse(report.exists())
+                        self.assertEqual(list(directory.iterdir()), [source])
+                    else:
+                        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                        self.assertTrue(json.loads(report.read_text())["success"])
+                        if target == "c":
+                            self.assertIn("int main(", output.read_text())
+                        else:
+                            executed = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
+                            self.assertEqual(executed.returncode, 0, executed.stderr)
+                            self.assertEqual(executed.stdout, "cli-source-ok\n")
                     self.assertEqual(source.read_text(), SOURCE)
 
     def test_output_collision_precedes_parse_diagnostics(self):

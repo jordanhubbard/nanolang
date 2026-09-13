@@ -17,7 +17,9 @@ const char* path_canonical(const char* path);
 /* I return 1 for the same file, 0 for distinct/missing candidate, -1 on error. */
 int64_t file_compare_identity(const char* source, const char* candidate);
 
-/* I return 1 for colliding destinations, 0 for distinct entries, -1 on error. */
+/* I return 1 for colliding destinations, 0 for distinct entries, -1 on error.
+ * When both are missing, I create and remove an empty directory at first to
+ * query filesystem name equivalence. Cleanup failure can leave that probe. */
 int64_t file_compare_destinations(const char* first, const char* second);
 
 /* Join two path components */

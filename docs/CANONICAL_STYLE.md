@@ -363,10 +363,15 @@ I reject aliases through relative paths, symlinks and hard links, and stop if
 file identity cannot be checked. This preflight covers stable filesystem
 entries; it does not prevent concurrent path replacement. I also compare
 artifact and diagnostic destinations by inode when both exist. When neither
-exists, I compare parent-directory identity and the basename bytes. I reject
-unresolved identity, including dangling destination links. Missing names that
-the filesystem equates through case or Unicode normalization remain an open
-boundary; this preflight is not yet complete destination isolation.
+exists, I exclusively create an empty directory at the requested output path,
+look up the diagnostic spelling, compare identities, and remove the probe
+before continuing. The filesystem decides case and Unicode name equivalence;
+I do not guess it from the operating system or normalize names myself. I reject
+unresolved identity, including dangling destination links, and stop if probe
+creation, lookup or removal fails. A cleanup failure or killed compiler can
+leave that empty probe directory at the output path. Existing destinations are
+never replaced by a probe. This remains a stable-filesystem check, not atomic
+publication or protection against concurrent path replacement.
 
 My C-seed shadow JSON aggregates the selected graph. Completed runs report
 `completed: true`, `test_count`, and failed tests with their owning

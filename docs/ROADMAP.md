@@ -478,22 +478,36 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       bootstraps pass with dependency shadows enabled. This checks stable
       filesystem entries, not concurrent hostile namespace replacement.
       MAC `task_507117859a0642f4882b7015296d8af6`.
-- [ ] **5.0 separate artifact and diagnostic destinations.** I must prevent
+- [x] **5.0 separate artifact and diagnostic destinations.** I prevent
       diagnostics from replacing a published artifact. I reject equal paths,
       symlinks and hard links, including initially nonexistent equal paths,
-      while preserving prior artifacts. Source identity checks do not cover
+      while preserving prior artifacts in a stable filesystem. I do not claim
+      atomic publication or protection from concurrent namespace replacement.
+      Source identity checks do not cover
       this pair. MAC `task_f38c6358bf944c218f179daf1490ebe2`.
       - [x] I reject existing-file aliases by inode and initially missing files
-        by parent identity and byte-identical basename, before diagnostics or
+        with identical destination spellings, before diagnostics or
         shadow execution. Twelve native/C-source collision cases, distinct
         outputs, syntax-error preservation and dangling links pass within 57
         driver/emitter tests on each of Darwin and Linux. Both bootstraps pass
         with dependency shadows enabled; strict C warning checks also pass.
-      - [ ] I honor filesystem name equivalence for initially missing names.
-        A private Darwin probe confirms case and Unicode-normalization aliases;
-        bytewise basename comparison does not cover them. I retain this gate
-        until equivalent missing destinations are rejected without guessing
-        filesystem semantics. MAC `task_a6419f0b3c764b6d9e3036cf13ae0be8`.
+      - [x] I honor filesystem name equivalence for initially missing names.
+        An exclusive empty-directory probe at the absent output path lets the
+        filesystem resolve the other spelling; I remove it before continuing.
+        Four Darwin native/C-source case and Unicode alias cases fail on the
+        baseline and pass after repair. Distinct names remain usable on Linux.
+        Injected creation, lookup and cleanup failures stop the helper; cleanup
+        failure or a killed compiler can leave the empty probe directory.
+        Both rebuilt bootstraps and 59 regression methods per platform pass.
+        My 18-test CLI gate now includes the probe lifecycle test. This checks
+        stable filesystem entries, not concurrent hostile replacement.
+        MAC `task_a6419f0b3c764b6d9e3036cf13ae0be8`.
+- [ ] **5.0 bootstrap runtime dependency invalidation.** Changing only
+      `modules/std/fs.c` left `make bootstrap3` satisfied without rebuilding
+      Stage2. I establish the linked runtime/module dependency closure and test
+      that helper/header edits invalidate the affected bootstrap stages. A
+      forced rebuild verifies one change, not this dependency graph.
+      MAC `task_85191b435c95480d9db52e3671d1e740`.
 - [ ] **5.0 self-hosted string-search builtin lowering.** A use of
       `str_index_of` typechecks but emits an undefined `nl_str_index_of`
       call. I test first/last search, empty and missing needles from source
