@@ -74,3 +74,10 @@ Three files serve different jobs:
 | `module.manifest.json` | Discovery metadata, stability, capabilities, and examples |
 
 `module.json` stays build metadata. Isolation, restart, budgets, and required capabilities live on `module.manifest.json` in a portable `nsi` block. See [Secure Runtime](08_secure_runtime.md) and the generated [module inventory](../generated/modules.md) for what exists now.
+
+For Clang C builds admitted to my retained-input path with `-fno-integrated-as`,
+failed capture stops the build before object compilation. I preserve the previous
+successful generation and report the failure, including compiler or assembler
+diagnostics when available. Check missing inputs, assembler support, and tool
+failures before retrying. Source and flag modes outside this path retain their
+existing compatibility behavior; they have no retained-input guarantee.

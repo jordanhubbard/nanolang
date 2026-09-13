@@ -657,24 +657,33 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(self.answer(replay), 42)
 
-    def test_apple_failed_capture_keeps_cold_consistency_gate_open(self):
+    def test_apple_failed_capture_refuses_uncaptured_cold_output(self):
         if not self.clang or sys.platform != "darwin":
             self.skipTest("I characterize failed Apple capture with restored inputs")
         for case in measure(shutil.which("cc"), ("assembler-external-macro-query-failure",))["cases"]:
             with self.subTest(case=case):
-                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
-                self.assertFalse(case["reuse_record"])
-                self.assertFalse(case["generation_reused"])
-                self.assertFalse(case["retained_assembly"])
+                self.assertTrue(case.get("build_failed"), case)
+                self.assertIn("I could not retain external-assembler inputs", case["diagnostic"])
+                for key in ("total_object_compilations", "published_generations", "leaked_stages"):
+                    self.assertEqual(case[key], 0, key)
+                self.assertFalse(case["current_exists"])
+                self.assertFalse(case["mutation_started"])
+                for key in ("bytes_restored", "size_preserved", "mtime_preserved"):
+                    self.assertTrue(case[key], key)
                 with self.assertRaises(SystemExit): require_consistent({"cases": [case]})
 
     def test_apple_external_query_failure_and_recovery(self):
         if not self.clang or sys.platform != "darwin":
             self.skipTest("I exercise selected Apple backend query failures")
-        for failure in ("empty", "multiple", "truncated", "oversize", "error", "timeout"):
-            with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-as-query-failure-") as tmp:
+        failures = ("empty", "multiple", "truncated", "oversize", "error", "timeout")
+        for failure, shared in ((failure, shared) for failure in failures for shared in (False, True)):
+            with self.subTest(failure=failure, shared=shared), tempfile.TemporaryDirectory(prefix="nano-as-query-failure-") as tmp:
                 directory = Path(tmp)
                 module, _, env = self.support.support.foreign_build_fixture(directory)
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                temporary = directory / "temporary"
+                temporary.mkdir()
+                env["TMPDIR"] = str(temporary)
                 payload = module / "payload.bin"
                 payload.write_bytes(b"42")
                 assembly = '.data\n.globl _snapshot_payload\n_snapshot_payload:\n.macro payload file\n.incbin "\\file"\n.endm\n' + f'payload "{payload}"\n.text\n'
@@ -684,9 +693,12 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
                                                                "cflags": ["-fno-integrated-as"]}))
                 wrapper = directory / "cc"
+                calls = directory / "object-calls"
                 banner = 'Apple clang version 21.0.0 (fixture)\n'
                 wrapper.write_text(f'''#!{sys.executable}
 import os, subprocess, sys, time
+if "-c" in sys.argv and "-###" not in sys.argv:
+    with open({str(calls)!r}, "a") as log: log.write("C\\n")
 failure = os.getenv("NANO_QUERY_FAILURE")
 if "-###" in sys.argv and failure:
     if failure == "timeout": time.sleep(60)
@@ -700,13 +712,16 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 env["NANO_CC"] = str(wrapper)
                 env["NANO_QUERY_FAILURE"] = failure
                 started = time.monotonic()
-                self.support.probe_path("build", module, env, timeout=20)
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(failed.returncode, 0, failed.stdout)
+                self.assertIn(b"I could not retain external-assembler inputs", failed.stderr)
                 self.assertLess(time.monotonic() - started, 15)
-                generation = self.support.probe_path("directory", module, env)
-                self.assertFalse((generation / "source_hashes.json").exists())
-                self.assertFalse(list(generation.glob("__expanded_*")))
-                self.assertFalse(list(generation.glob("__snapshot_*.s")))
-                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                root = self.support.probe_path("root", module, env)
+                self.assertFalse(os.path.lexists(root / "current"))
+                self.assertFalse(list(root.glob(".nano-build-*")))
+                self.assertFalse(list(root.glob(".nano-gen-*")))
+                self.assertFalse(calls.exists())
+                self.assertFalse(list(temporary.glob("nano-gcc-check-*")))
                 del env["NANO_QUERY_FAILURE"]
                 self.support.probe_path("build", module, env, timeout=20)
                 recovered = self.support.probe_path("directory", module, env)
@@ -714,6 +729,72 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 self.assertTrue((recovered / "__expanded_0_0.s").is_file())
                 self.support.probe_path("build", module, env, timeout=20)
                 self.assertEqual(self.support.probe_path("directory", module, env), recovered)
+                library = self.support.probe_path("library", module, env)
+                previous_library = library.read_bytes()
+                previous_record = (recovered / "source_hashes.json").read_bytes()
+                previous_calls = calls.read_bytes()
+                payload.write_bytes(b"43")
+                env["NANO_QUERY_FAILURE"] = failure
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=25)
+                self.assertNotEqual(failed.returncode, 0, failed.stdout)
+                self.assertIn(b"I could not retain external-assembler inputs", failed.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), recovered)
+                self.assertEqual(library.read_bytes(), previous_library)
+                self.assertEqual((recovered / "source_hashes.json").read_bytes(), previous_record)
+                self.assertEqual(calls.read_bytes(), previous_calls)
+                self.assertFalse(list(root.glob(".nano-build-*")))
+                self.assertFalse(list(temporary.glob("nano-gcc-check-*")))
+                del env["NANO_QUERY_FAILURE"]
+                self.support.probe_path("build", module, env, timeout=20)
+                replacement = self.support.probe_path("directory", module, env)
+                self.assertNotEqual(replacement, recovered)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                self.support.probe_path("build", module, env, timeout=20)
+                self.assertEqual(self.support.probe_path("directory", module, env), replacement)
+
+    def test_external_unadmitted_flags_keep_the_original_path(self):
+        if not self.clang: self.skipTest("I exercise Clang's external assembler selector")
+        with tempfile.TemporaryDirectory(prefix="nano-external-unadmitted-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
+                "cflags": ["-fno-integrated-as", "-fno-strict-aliasing"]}))
+            wrapper, queried = directory / "cc", directory / "queried"
+            wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, sys
+if "-###" in sys.argv:
+    pathlib.Path({str(queried)!r}).touch()
+    sys.exit(1)
+os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
+''')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            self.support.probe_path("build", module, env)
+            self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+            generation = self.support.probe_path("directory", module, env)
+            self.assertFalse(list(generation.glob("__snapshot_*")))
+            self.assertFalse(queried.exists())
+
+    def test_apple_external_capture_preserves_tool_diagnostics(self):
+        if not self.clang or sys.platform != "darwin":
+            self.skipTest("I preserve selected Apple capture diagnostics")
+        for failure in ("c-error", "missing-assembly"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-capture-diagnostic-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                marker = "missing_capture_identifier" if failure == "c-error" else str(module / "missing_capture_include.s")
+                contents = 'long long nano_build_answer(void) { return missing_capture_identifier; }\n' if failure == "c-error" else (
+                    '__asm__(' + json.dumps(f'.include "{marker}"\n') + ');\nlong long nano_build_answer(void) { return 42; }\n')
+                (module / "answer.c").write_text(contents)
+                (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
+                                                               "cflags": ["-fno-integrated-as"]}))
+                result = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn(marker.encode(), result.stderr)
+                self.assertIn(b"I could not retain external-assembler inputs", result.stderr)
+                root = self.support.probe_path("root", module, env)
+                self.assertFalse(os.path.lexists(root / "current"))
+                self.assertFalse(list(root.glob(".nano-build-*")))
 
     def test_apple_external_assembler_report_boundaries(self):
         if sys.platform != "darwin": self.skipTest("I decode the Apple driver report here")

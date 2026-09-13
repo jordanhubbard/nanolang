@@ -1067,7 +1067,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Both full gates pass 194 methods; the separately added failed-query
       restored-edit control exposes the remaining umbrella defect below.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 external-assembler stale cache.** I repair the measured
+- [x] **5.0 external-assembler stale cache.** I repair the measured
       `-fno-integrated-as` cold/warm/fresh 43/43/42 mismatch on Apple Clang 21
       under local and shared caches. Both publish a reuse record despite no
       retained assembler inputs. Flag exclusion is not containment. I bind
@@ -1079,12 +1079,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and the external selector on all three object compilations. Nested
       literal reads, replacement and failed-build recovery are tested separately.
       Fixed-width octal debug data and selected-backend macro expansion now
-      pass their acceptance work. This item remains open for capture failure:
-      forcing an admitted external driver's dry-run query to fail still sends
-      compilation through uncaptured source. The restored-edit regression gives
-      43/42/42 without reuse under both caches. I must distinguish an unsupported
-      mode from a failed admitted capture and prevent the latter from publishing
-      an uncaptured cold result. Successful-capture tests cannot close this gap.
+      pass their acceptance work. At v31, forcing an admitted external driver's
+      dry-run query to fail still compiled uncaptured source and produced
+      43/42/42 without reuse under both caches. My v32 context refuses that
+      build before object compilation. I distinguish an unsupported mode from
+      a failed admitted capture; the latter cannot publish an uncaptured result.
+      I keep unsupported source/flag modes distinct from admitted external
+      capture. I test refusal before any object compilation, cold-cache absence,
+      preservation of a previous generation on warm failure, both cache roots,
+      diagnostics and recovery to a newly captured reusable generation.
+      All 197 gate methods are covered by passing Darwin runs (fifteen skips)
+      and one Linux full-gate run (twenty-three skips). Three focused Darwin
+      methods pass ASan/UBSan with leak detection disabled. My user-guide build
+      and validation pass; broader assembler-input capture remains open below.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 escaped assembler debug data.** I distinguish fixed-width octal
       byte escapes in data-string directives from macro and filename expansion.
@@ -1110,8 +1117,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       resolves file reads, whether replay survives deletion, and whether the
       selected external assembler remains selected. I admit
       `-fno-integrated-as` only through the existing bounded capture paths;
-      unsupported capture falls back without a reuse record. That is not a
-      guarantee of cold-build snapshot consistency.
+      failed admitted external capture now stops the build. Unadmitted source
+      and flag modes retain compatibility behavior, not a guarantee of
+      cold-build snapshot consistency. Other compiler variants remain open.
 - [x] **5.0 retained GCC PCH inputs.** I replace external PCH references in
       retained translation units with private copies and bind their bytes to
       cache identity. Before integration I verify that GCC accepts relocated

@@ -436,7 +436,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v31-selected-assembler-expansion");
+    hash_context_field(&hash, "nanolang-c-build-context-v32-external-capture-failure");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3749,8 +3749,7 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
                 module_build_append(object, sizeof(object), "%s/__as_query_%zu_%zu.o", directory, group, i) &&
                 module_build_append(command, sizeof(command), "%s%s -x cpp-output", retained, group ? " -fvisibility=hidden" : "") &&
                 module_append_path_flag(command, sizeof(command), "", input) &&
-                module_append_path_flag(command, sizeof(command), "-o ", raw) &&
-                module_build_append(command, sizeof(command), " 2>/dev/null") && !system(command);
+                module_append_path_flag(command, sizeof(command), "-o ", raw) && !system(command);
             command[0] = 0;
             if (ok) ok = module_build_append(command, sizeof(command), "%s -x assembler", assemble) &&
                 module_append_path_flag(command, sizeof(command), "", raw) &&
@@ -3786,8 +3785,12 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
             /* I name temporary labels in text mode only. Object assembly keeps
              * the selected assembler's original symbol-retention policy. */
             args[words] = "-msave-temp-labels"; args[words + 1] = NULL;
-            if (!module_process_output(args, report, sizeof(report), deadline, true, false) ||
-                !module_capture_assembly_file(&capture, expanded, frozen, false, 0)) goto failed;
+            report[0] = 0;
+            if (!module_process_output(args, report, sizeof(report), deadline, true, false)) {
+                if (report[0]) fputs(report, stderr);
+                goto failed;
+            }
+            if (!module_capture_assembly_file(&capture, expanded, frozen, false, 0)) goto failed;
         }
     }
     return capture.hash;
@@ -4575,10 +4578,17 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 
     if (needs_rebuild) {
         ModuleSnapshotMode mode = preprocessing_before ? module_snapshot_mode(meta, flags) : MODULE_SNAPSHOT_NONE;
+        bool external_capture = mode == MODULE_SNAPSHOT_CLANG_EXTERNAL;
         bool snapshots = mode != MODULE_SNAPSHOT_NONE;
         if (preprocessing_before) *preprocessing_before = snapshots
             ? module_snapshot_sources(meta, flags, build_dir, mode, &mode) : module_preprocess_fingerprint(meta, flags);
         snapshots = snapshots && *preprocessing_before;
+        if (external_capture && !snapshots) {
+            fprintf(stderr, "I could not retain external-assembler inputs for %s; I will not compile live sources after capture failure\n",
+                    meta->name ? meta->name : "unknown");
+            free(build_dir);
+            return NULL;
+        }
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }

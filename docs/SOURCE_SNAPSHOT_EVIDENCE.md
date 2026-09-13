@@ -1797,7 +1797,7 @@ originals for ordinary and shared source groups. Permanent edits, missing
 inputs, preservation of the previous library, query failure cleanup and later
 recovery are checked. Warm validation repeats capture in private storage.
 
-Unknown report families or failed capture still use the existing uncaptured
+At v31, unknown report families or failed capture still used the uncaptured
 fallback without a reuse record. That fallback does not establish cold-build
 snapshot consistency. This repair covers the tested Apple selection; other
 assembler implementations, unadmitted flags and source modes still need their
@@ -1813,7 +1813,7 @@ instrumented, and this Darwin run disables leak detection. I removed the
 disposable Linux container and moved the sanitizer scratch directory to Trash.
 
 An additional restored-edit control forces the admitted driver's dry-run query
-to fail. The current fallback still gives cold/warm/fresh 43/42/42 under both
+to fail. That v31 fallback gives cold/warm/fresh 43/42/42 under both
 caches, without a reuse record. The consistency gate rejects it. This is why
 the external-assembler umbrella remains open even though successful selected
 backend capture now handles macro reads: a failed admitted capture must not
@@ -1825,3 +1825,45 @@ seconds of reported test time. Its 53 snapshot methods pass. The failed-query
 restored-edit control was added after that suite loaded and passes separately
 in 4.230 seconds; it deliberately verifies that the consistency gate rejects
 the remaining defect, not that the cold result is correct.
+
+## Failed admitted external capture
+
+My v32 build context keeps external-capture admission separate from the actual
+retained format returned by capture. If admitted Clang external capture fails,
+I stop before object compilation, report the module, and remove private staging.
+I no longer silently compile live source. Source/flag modes classified outside
+the retained path keep their existing compatibility behavior; this change does
+not establish snapshot consistency for those modes.
+
+The forced-query restored-edit regression now returns a build failure before
+the mutation hook or any object compilation runs. Neither local nor shared
+cache publishes a generation or current pointer, and no staging directory leaks.
+The characterization gate reports a failed build explicitly rather than calling
+absence of an answer consistent.
+
+Twelve query-failure cases cover empty, multiple, truncated, oversized, failed
+and timed-out reports in both cache roots. Cold failure leaves no artifact.
+Warm failure leaves the previous library and reuse record byte-for-byte intact,
+does not add object compilations, and cleans validation and build staging.
+Repairing the query permits changed input to produce 43 and then reuse that
+new generation. Compiler errors and missing assembler-input diagnostics remain
+visible; an unadmitted-flag control still uses the original build path.
+
+The Linux full gate passes 197 methods with twenty-three platform/configuration
+skips in 111.619 seconds of reported test time. A separate Darwin ASan/UBSan
+probe passes three failure/recovery, diagnostic and unadmitted-mode methods in
+118.647 seconds. Supporting objects and external compilers are not sanitizer
+instrumented, and leak detection is disabled in this Darwin run. I removed the
+disposable Linux container and moved the sanitizer scratch directory to Trash.
+
+My user-guide build and validation pass for thirteen pages in six editions.
+The new capture-failure explanation is English authority text; this check does
+not establish that the localized drafts have been translated.
+
+On Darwin, the rebuilt gate's shadow, publication, Linux-link and snapshot
+suites pass 148 methods with fifteen platform skips. Their reported times are
+52.774, 141.823, 0.000 and 256.652 seconds. The final gate output was lost after
+the snapshot suite; I do not claim an observed exit status for that invocation.
+I reran the remaining transport, response-graph and response-query suites:
+all 49 methods pass in 111.956 seconds. Together these verified runs cover all
+197 methods in the gate with fifteen skips.

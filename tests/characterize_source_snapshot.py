@@ -158,7 +158,24 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                         "print(lib.nano_build_answer())", library], directory)
                     return int(result.stdout)
 
-                query("build")
+                if kind == "assembler-external-macro-query-failure":
+                    built = subprocess.run([probe, "build", module], cwd=directory, env=env, capture_output=True, timeout=20)
+                    if built.returncode:
+                        root = query("root")
+                        cases.append({
+                            "input": kind, "cache": "shared" if shared else "local", "build_failed": True,
+                            "diagnostic": built.stderr.decode(), "mutation_started": marker.exists(),
+                            "total_object_compilations": calls.read_text().splitlines().count("C") if calls.exists() else 0,
+                            "published_generations": len(list(root.glob(".nano-gen-*"))),
+                            "leaked_stages": len(list(root.glob(".nano-build-*"))),
+                            "current_exists": os.path.lexists(root / "current"),
+                            "bytes_restored": target.read_bytes() == original,
+                            "size_preserved": target.stat().st_size == stamp.st_size,
+                            "mtime_preserved": target.stat().st_mtime_ns == stamp.st_mtime_ns,
+                        })
+                        continue
+                else:
+                    query("build")
                 cold_generation = query("directory")
                 cold_answer = answer(query("library"))
                 cold_calls = calls.read_text().splitlines()
@@ -198,6 +215,8 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
 
 
 def require_consistent(result):
+    if any(case.get("build_failed") for case in result["cases"]):
+        raise SystemExit("I could not complete a characterized build.")
     if any(not (case["cold_answer"] == case["warm_answer"] == case["fresh_answer"])
            for case in result["cases"]):
         raise SystemExit("I compiled or reused code that differs from the restored inputs.")
