@@ -175,7 +175,7 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
                                                   &pool_used, mark);
         ims[i].module_name_idx = im->module_name_idx;
         ims[i].symbol_name_idx = im->function_name_idx;
-        ims[i].kind            = NVM_V2_IMPORT_FFI;
+        ims[i].kind            = mod->imports[i].kind;
     }
 
     /* LINKS: a v1 module ref names a dependency, not a symbol or a call shape,
@@ -326,8 +326,13 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
         const NvmV2Import *im = &m->imports.items[i];
         const NvmV2Signature *s = &m->signatures.items[im->signature_idx];
         uint8_t ret = s->result_count ? s->result_tags[0] : TAG_VOID;
-        nvm_add_import(mod, im->module_name_idx, im->symbol_name_idx,
-                       s->param_count, ret, s->param_tags);
+        uint32_t index = nvm_add_import(mod, im->module_name_idx, im->symbol_name_idx,
+                                       s->param_count, ret, s->param_tags);
+        if (index == UINT32_MAX) {
+            nvm_module_free(mod);
+            return NVM_V2_ERR_TRUNCATED;
+        }
+        mod->imports[index].kind = im->kind;
     }
 
     for (uint32_t i = 0; i < m->links.count; i++)

@@ -1,0 +1,110 @@
+# I share one invocation's function bindings between checking and C emission.
+# Like the bootstrap compiler's other phase state, this is sequential, not reentrant.
+let mut mb_enabled: bool = false
+let mut mb_file_starts: array<int> = []
+let mut mb_owners: array<int> = []
+let mut mb_names: array<string> = []
+let mut mb_targets: array<string> = []
+
+pub fn mb_active() -> bool {
+    return mb_enabled
+}
+shadow mb_active {
+    (mb_reset [])
+    assert (not (mb_active))
+    (mb_reset [1])
+    assert (mb_active)
+    (mb_reset [])
+}
+
+pub fn mb_reset(starts: array<int>) -> void {
+    set mb_file_starts starts
+    set mb_owners []
+    set mb_names []
+    set mb_targets []
+    set mb_enabled (> (array_length starts) 0)
+}
+shadow mb_reset {
+    (mb_reset [1])
+    assert (== (array_length mb_file_starts) 1)
+    assert (== (array_length mb_names) 0)
+    (mb_reset [])
+}
+
+pub fn mb_owner(line: int) -> int {
+    if (not (mb_active)) { return (- 0 1) }
+    let mut owner: int = (- 0 1)
+    let mut i: int = 0
+    while (< i (array_length mb_file_starts)) {
+        if (<= (at mb_file_starts i) line) { set owner i }
+        set i (+ i 1)
+    }
+    return owner
+}
+shadow mb_owner {
+    (mb_reset [1, 8, 8])
+    assert (== (mb_owner 0) (- 0 1))
+    assert (== (mb_owner 7) 0)
+    assert (== (mb_owner 8) 2)
+    (mb_reset [])
+    assert (== (mb_owner 1) (- 0 1))
+}
+
+pub fn mb_add(owner: int, name: string, target: string) -> void {
+    if (not (mb_active)) { return }
+    # I install local declarations before imports, so local definitions win.
+    let mut i: int = 0
+    while (< i (array_length mb_names)) {
+        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) { return }
+        set i (+ i 1)
+    }
+    set mb_owners (array_push mb_owners owner)
+    set mb_names (array_push mb_names name)
+    set mb_targets (array_push mb_targets target)
+}
+shadow mb_add {
+    (mb_reset [1])
+    (mb_add 0 "answer" "local_answer")
+    (mb_add 0 "answer" "imported_answer")
+    assert (== (array_length mb_names) 1)
+    assert (== (at mb_targets 0) "local_answer")
+    (mb_reset [])
+}
+
+pub fn mb_lookup(owner: int, name: string) -> string {
+    if (not (mb_active)) { return name }
+    let mut i: int = 0
+    while (< i (array_length mb_names)) {
+        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
+            return (at mb_targets i)
+        }
+        set i (+ i 1)
+    }
+    return name
+}
+shadow mb_lookup {
+    (mb_reset [1, 8])
+    (mb_add 0 "lib.answer" "first")
+    (mb_add 1 "lib.answer" "second")
+    assert (== (mb_lookup 0 "lib.answer") "first")
+    assert (== (mb_lookup 1 "lib.answer") "second")
+    assert (== (mb_lookup 0 "unknown") "unknown")
+    (mb_reset [])
+    assert (== (mb_lookup 0 "lib.answer") "lib.answer")
+}
+
+pub fn mb_resolve(name: string, line: int, locals: array<string>) -> string {
+    let mut i: int = 0
+    while (< i (array_length locals)) {
+        if (== (at locals i) name) { return name }
+        set i (+ i 1)
+    }
+    return (mb_lookup (mb_owner line) name)
+}
+shadow mb_resolve {
+    (mb_reset [1])
+    (mb_add 0 "answer" "module_answer")
+    assert (== (mb_resolve "answer" 1 []) "module_answer")
+    assert (== (mb_resolve "answer" 1 ["answer"]) "answer")
+    (mb_reset [])
+}

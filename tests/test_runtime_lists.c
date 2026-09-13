@@ -6,7 +6,6 @@
  * value round-trip check. Repeating every trivial wrapper operation for every
  * generated type adds volume, not defect-detection value.
  *
- * Note: list_ASTMatchClause.c is NOT in RUNTIME_SOURCES and is excluded here.
  */
 
 #include "../src/nanolang.h"

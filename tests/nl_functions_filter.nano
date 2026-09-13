@@ -62,7 +62,33 @@ shadow pipeline_filter_map_reduce {
     assert (== (pipeline_filter_map_reduce) 12)
 }
 
+fn positive_float(value: float) -> bool { return (> value 0.0) }
+shadow positive_float {
+    assert (positive_float 2.5)
+    assert (not (positive_float 0.0))
+}
+
+fn nonempty_text(value: string) -> bool { return (> (str_length value) 0) }
+shadow nonempty_text {
+    assert (nonempty_text "value")
+    assert (not (nonempty_text ""))
+}
+
 fn main() -> int {
+    # I execute callback checks in the native program as well as in shadows.
+    let evens: array<int> = (filter_basic)
+    assert (== (array_length evens) 3)
+    assert (== (at evens 2) 6)
+    assert (== (filter_empty_returns_empty) 0)
+    assert (== (pipeline_filter_map_reduce) 12)
+    let floats: array<float> = [0.0, 2.5]
+    let positive: array<float> = (filter floats positive_float)
+    assert (== (array_length positive) 1)
+    assert (== (at positive 0) 2.5)
+    let words: array<string> = ["", "value"]
+    let nonempty: array<string> = (filter words nonempty_text)
+    assert (== (array_length nonempty) 1)
+    assert (== (at nonempty 0) "value")
     (println "nl_functions_filter: All filter tests passed!")
     return 0
 }

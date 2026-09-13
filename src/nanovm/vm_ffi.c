@@ -9,6 +9,7 @@
 /* usleep(), kill(), fork(), pipe(), exec*() need _GNU_SOURCE */
 
 #include "vm_ffi.h"
+#include "module_builder.h"
 #include "runtime/dyn_array.h"
 #include "runtime/ffi_loader.h"
 #include "ffi_dispatch_generated.h"
@@ -36,13 +37,46 @@ void vm_ffi_shutdown(void) {
     ffi_loader_shutdown();
 }
 
+bool vm_ffi_load_import(const NvmModule *module, uint32_t import_idx) {
+    if (!module || import_idx >= module->import_count) return false;
+    const NvmImportEntry *imp = &module->imports[import_idx];
+    const char *name = nvm_get_string(module, imp->module_name_idx);
+    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (!name || name[0] != '/' ||
+            strlen(name) != nvm_get_string_len(module, imp->module_name_idx)) return false;
+        if (!ffi_loader_is_initialized()) ffi_loader_init(false);
+        return ffi_loader_open(name, name);
+    }
+    if (imp->kind > NVM_IMPORT_ARTIFACT) return false;
+    return vm_ffi_load_module(name);
+}
+
 bool vm_ffi_load_module(const char *module_name) {
+    if (!module_name || !module_name[0]) return false;
     if (!ffi_loader_is_initialized()) ffi_loader_init(false);
     if (ffi_loader_find(module_name)) return true;
 
-    /* Find library using the shared search logic (no module_dir for VM) */
+    /* I retain source-path context, as the interpreter does. Logical module
+     * names still use the shared loader's standard-module fallbacks. */
+    char *module_dir = NULL;
+    size_t name_len = strlen(module_name);
+    if (name_len >= 5 && strcmp(module_name + name_len - 5, ".nano") == 0) {
+        module_dir = strdup(module_name);
+        if (!module_dir) return false;
+        char *slash = strrchr(module_dir, '/');
+        if (slash == module_dir) slash[1] = '\0';
+        else if (slash) *slash = '\0';
+        else strcpy(module_dir, ".");
+    }
     char path[1024];
-    if (!ffi_loader_find_library(module_name, NULL, path, sizeof(path))) {
+    /* I read build metadata to resolve its library name; I never build or
+     * install dependencies from the runtime loader. */
+    ModuleBuildMetadata *meta = module_dir ? module_load_metadata(module_dir) : NULL;
+    bool found = ffi_loader_find_library(meta ? meta->name : module_name,
+                                         module_dir, path, sizeof(path));
+    module_metadata_free(meta);
+    free(module_dir);
+    if (!found) {
         /* Not fatal - function might be in main executable or already-loaded lib */
         return false;
     }
@@ -131,7 +165,8 @@ static int marshal_args(NanoValue *args, int arg_count,
 
 /* Convert C int64_t result to NanoValue based on return type tag */
 static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
-                                VmHeap *heap) {
+                                VmHeap *heap, bool *success) {
+    *success = true;
     switch (return_tag) {
         case TAG_INT:
             return val_int(raw_result);
@@ -175,6 +210,7 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
                 default:          vm_elem_tag = TAG_INT;     break;
             }
             VmArray *varr = vm_array_new(heap, vm_elem_tag, (uint32_t)darr->length);
+            if (!varr) { *success = false; return val_void(); }
             for (int64_t ai = 0; ai < darr->length; ai++) {
                 NanoValue elem;
                 switch (darr->elem_type) {
@@ -201,7 +237,12 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
                         elem = val_int(dyn_array_get_int(darr, ai));
                         break;
                 }
-                vm_array_push(heap, varr, elem);
+                if (!vm_array_push(heap, varr, elem)) {
+                    vm_release(heap, elem);
+                    vm_release(heap, val_array(varr));
+                    *success = false;
+                    return val_void();
+                }
                 /* push retains, so the reference vm_string_new handed back
                  * has no owner once the array holds its own. Without this,
                  * every string element of a marshalled array kept a reference
@@ -353,8 +394,9 @@ static bool ffi_call_mixed(void *func_ptr, NanoValue *args, int arg_count,
 
     int64_t r = 0;
     if (!ffi_dispatch_gp(func_ptr, slots, arg_count, &r)) return false;
-    *result = marshal_result(r, imp->return_type, heap);
-    return true;
+    bool converted;
+    *result = marshal_result(r, imp->return_type, heap, &converted);
+    return converted;
 }
 
 /* ========================================================================
@@ -514,13 +556,15 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
         return NULL;
     }
 
-    /* Load the backing module once (best-effort; the symbol may live in the
-     * main executable or an already-loaded library). */
-    if (mod_name && mod_name[0] != '\0') {
-        vm_ffi_load_module(mod_name);
+    /* I require exact loading for artifacts. Only logical imports retain
+     * best-effort loading and the legacy global symbol search. */
+    bool loaded = vm_ffi_load_import(module, import_idx);
+    void *func_ptr = NULL;
+    if (imp->kind == NVM_IMPORT_ARTIFACT) {
+        if (loaded) func_ptr = ffi_loader_resolve_module(func_name, mod_name);
+    } else if (imp->kind <= NVM_IMPORT_COPROCESS) {
+        func_ptr = ffi_loader_resolve(func_name);
     }
-
-    void *func_ptr = ffi_loader_resolve(func_name);
     if (!func_ptr) {
         desc->state = NVM_CALL_FAILED;
         snprintf(error_msg, error_msg_size,
@@ -550,7 +594,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     /* Module introspection functions (___module_*) are environment- and
      * argument-dependent, so they are dispatched directly and never cached. */
-    if (vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
+    if (imp->kind == NVM_IMPORT_FFI &&
+        vm_ffi_try_module_introspection(func_name, args, arg_count, result, heap)) {
         return true;
     }
 
@@ -653,8 +698,10 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     }
 
     /* Marshal result */
-    *result = marshal_result(raw_result, imp->return_type, heap);
-    return true;
+    bool converted;
+    *result = marshal_result(raw_result, imp->return_type, heap, &converted);
+    if (!converted) snprintf(error_msg, error_msg_size, "I could not allocate the foreign array result.");
+    return converted;
 }
 
 /* ========================================================================

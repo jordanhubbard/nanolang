@@ -402,6 +402,13 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         if (imp->function_name_idx >= mod->string_count)
             return fail("import[%u] function_name_idx %u >= string_count %u",
                         i, imp->function_name_idx, mod->string_count);
+        if (imp->kind > NVM_IMPORT_ARTIFACT)
+            return fail("import[%u] has unknown kind %u", i, imp->kind);
+        if (imp->kind == NVM_IMPORT_ARTIFACT) {
+            const char *path = nvm_get_string(mod, imp->module_name_idx);
+            if (!path || path[0] != '/' || strlen(path) != nvm_get_string_len(mod, imp->module_name_idx))
+                return fail("import[%u] artifact path must be absolute and contain no NUL", i);
+        }
         if (imp->return_type >= TAG_COUNT)
             return fail("import[%u] return_type %u is not a valid value tag",
                         i, imp->return_type);

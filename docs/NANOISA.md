@@ -349,6 +349,334 @@ module declaring less depth than it uses is rejected, because a disagreement
 between producer and verifier otherwise surfaces as a stack overflow at run
 time. A declared 0 means the producer had nothing to declare.
 
+### Foreign artifact bindings in 5.0
+
+I encode import kind `0` for logical FFI, `1` for coprocess imports, and `2`
+for an exact foreign artifact. For kind `2`, `module_name_idx` names an
+absolute library path with no embedded NUL. I retain this kind through my v2
+reader and writer; my legacy v1 writer refuses nonzero kinds rather than
+erasing them. Older v2 readers reject kind `2` as unknown.
+
+My bytecode CLI retains the generation returned by each imported C-module
+build. Both root shadows and production imports use that generation's
+library. At runtime I open that path and resolve its entry symbol through
+that library handle, without falling back to an unrelated loaded symbol.
+A missing library or entry symbol is an execution failure.
+
+These are local absolute bindings, not relocatable packages or authenticated
+artifacts. Library dependencies and internal C symbol interposition still
+follow the platform loader. My source-level imported-name isolation remains
+roadmap work; handle-scoped lookup does not repair merged source declarations.
+
+My packaged interpreter links the prebuilt runtime objects and their crypto
+dependency. I retain the build's optional Homebrew OpenSSL library directory
+for this link; system installations use the compiler's normal library search.
+I test a generated standalone executable from another working directory,
+including retention after a foreign rebuild and failure after artifact removal.
+Both standalone and daemon wrapper builders compile in a private directory
+beside the output and publish by rename only after a successful compiler exit
+and executable-file checks. Failed builds do not replace the destination.
+Overlapping successes follow last-successful-publication order; a destination
+symlink is replaced, not followed. I quote path arguments and encode imported
+paths as C-string bytes. `NANO_CC` and `CC` remain trusted shell command
+configuration. Killed builds can leave private stages, which later builds
+ignore; I retain unknown compiler side artifacts with a diagnostic rather
+than recursively deleting them. This is not relocatable deployment,
+power-loss durability, or protection from a malicious configured compiler.
+
+For foreign C-module cache generations, I now check ordered `fsync` barriers:
+regular generation files, then the generation directory, then the cache
+directory and its ancestors after naming the generation, then the cache
+directory again after switching `current`.
+When removing a failed private build, I open its directory without following
+a root symlink and remove entries relative to that descriptor. I unlink
+symlink entries themselves, never their targets, and do not recurse into
+nested directories. I report retained private files if cleanup cannot finish.
+My boundary tests include replacing the directory path with a symlink after
+opening it: entry removal stays in the original directory. This does not
+isolate arbitrary compiler code or make the enclosing cache namespace safe
+against a hostile process with write access.
+
+A released module-build lock does not mean every private stage is abandoned.
+My controlled compiler test kills only the builder, obtains a new acknowledgement
+from its surviving child, and publishes a replacement through another builder
+while that child remains paused. After release, the child successfully writes
+its original private output. The old and new published generations remain
+byte-for-byte unchanged, and warm reuse keeps the replacement. I test local and
+shared caches. Killing the whole process group would not exercise this case.
+I therefore do not collect leftover stages merely because I acquired the module
+lock, or because their creator PID is gone. Automatic collection needs a
+descendant-aware lifetime mechanism or an explicit quiescence contract first.
+Published generations also remain retained: copied bytecode can reference their
+absolute paths outside the cache owner's inventory. Retention can consume
+unbounded disk space; a size or age limit cannot safely infer those references.
+Ordinary project and example `make clean` targets therefore preserve local
+module caches, the default `obj/module_cache`, and the configured shared cache.
+My project clean removes unrelated compiler trees and files but keeps cache
+ancestors. It does not recursively invoke another recipe that can delete the
+retained cache. I also retain earlier cache locations identified by my lock,
+generation or private-stage names; changing the configured cache must not
+discard an older generation or a surviving compiler child's stage. This is a
+conservative retention hint, not a liveness test. The cleanup helper validates tree boundaries before removing
+anything and does not traverse directory symlinks. I test the actual recipes
+in disposable workspaces, then load a retained foreign library in a fresh
+process and verify warm generation reuse. Manual cache reset requires retiring
+dependent artifacts and quiescing compiler descendants; it is not a normal
+clean operation.
+
+I do not follow symlinks or recurse into unexpected directories while flushing
+generation contents. Interrupted barriers retry; failed barriers fail the build.
+Failure before the pointer switch leaves the old current generation intact.
+Failure after the switch retains the newly referenced generation and reports
+that its cache-directory barrier was not confirmed. I never delete that
+generation and leave a dangling `current`. A subsequent warm build retries the
+cache-directory and ancestor barriers before returning success. I resolve each
+parent with `openat` from the current directory descriptor, proceeding from
+child to parent until the root or a filesystem boundary. I repeat this chain
+even when the directories already exist: existence does not establish that an
+earlier creation was flushed. Establishing mounts belongs to the host.
+
+On Darwin, I require `fcntl(F_FULLFSYNC)` after each successful `fsync`,
+including directory barriers. I retry interruptions and fail unsupported or
+failed requests; I do not silently fall back to the weaker operation. My v13
+build context invalidates generations built before this requirement. Other
+hosts retain their `fsync` path. Apple's
+[fsync contract](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/fsync.2.html)
+distinguishes flushing host buffers from requesting that the drive flush its
+cache. Successful requests still depend on filesystem and device behavior;
+they are not a physical power-loss test.
+
+I test syscall ordering, injected failures, retry and retained artifact reads.
+My process-crash matrix sends `SIGKILL` to the actual builder at seven points:
+file and generation-directory barriers, generation rename, the first cache
+barrier, an ancestor barrier, pointer rename and the final cache barrier.
+I cover both first publication and replacement in local and shared caches.
+Before the pointer switch, readers see the previous generation or no published
+generation. After the switch, fresh processes load a complete new library.
+Recovery reacquires the released advisory lock and succeeds; subsequent warm
+reuse retains the recovered generation. I also link and execute the native
+objects and check retained old libraries in fresh processes, so already-loaded
+code cannot hide a missing artifact.
+These tests do not simulate device power loss. Physical device durability,
+wrapper/output-file persistence and full crash-recovery acceptance remain open;
+successful directory barriers alone do
+not establish those broader claims.
+
+On Linux, I validate a source-cache hit with one private shared-library link
+using the retained native and shared-only objects. I construct that command
+with the same recipe as a cold build. A byte-for-byte equal library keeps its
+generation without recompiling C; changed bytes trigger rebuilding. A failed
+validation link fails the build without retrying past that failure or changing
+the current pointer. This catches the tested archive, earlier-search-candidate,
+thin-member and response-file changes without interpreting GNU ld's lossy
+dependency file. Warm builds now pay for one shared link. Nondeterministic
+link output can prevent generation reuse.
+
+This checks a link result, not a complete input inventory or an atomic source
+snapshot. It does not pin the external dynamic libraries used later by the
+runtime. Other linker modes and the full input-identity contract remain open.
+I preserve configured flag fragments as trusted shell text, including quoted
+newlines, rather than splitting their bytes on whitespace. My v14 cache context
+rebuilds generations created with the earlier flag-splitting behavior.
+
+My foreign-module builder also quotes source, object, dependency, library and
+declared include paths. It refuses oversized commands before invoking the
+compiler. Compiler commands and explicit flag fragments remain trusted
+configuration. I request user and system header dependencies with
+[`-MD`](https://clang.llvm.org/docs/ClangCommandLineReference.html#dependency-file-generation),
+including transitive headers reached through `-isystem`. Cache reuse requires
+all expected dependency records to decode and hash successfully. This checks
+reported header contents, not the identity of the whole SDK or toolchain.
+Known backslash or newline paths still compile, but I
+withhold reuse records because compiler Make-format output can lose their
+identity. I also capture `-H` include traces from the original compilation and
+hash unambiguously decoded header paths alongside Make dependencies. This
+repairs the tested backslash/slash alias without enabling saved-input mode.
+Missing, malformed or ambiguous trace evidence withholds reuse; compiler
+warnings and errors still reach stderr. Diagnostics mixed into a trace can
+also withhold reuse. Lossless capture across all compiler modes remains
+roadmap work. My [compiler-input experiment](COMPILER_INPUT_EVIDENCE.md)
+records the original failure and explains why enabling saved preprocessed
+inputs unconditionally is not a semantics-preserving repair.
+
+For cache-eligible `.c` builds with supported literal flags, including captured
+pkg-config flags, I retain Clang assembly (`.s`) or GCC preprocessed C (`.i`) in
+private staging and compile those files. I hash the bytes while writing them
+and require fresh capture to match before recording reuse evidence. The retained files
+cover ordinary, multiple and shared-only C sources. Capture emits the original
+dependency records and reports C diagnostics against the original source paths.
+Failed or empty capture falls back to original compilation without a reuse
+record. A failed retained-input compilation fails the build. My v20 context
+invalidates older records. I identify the supported compiler family through
+a successful version query; that query is not authentication.
+
+My [configured flag boundary](SOURCE_SNAPSHOT_EVIDENCE.md#configured-scalar-flags)
+lists the supported spellings. I retain optimization, standard, debug and
+warning flags through GCC C code generation. Simple `-D`, `-U` and `-I` tokens, along with
+declared include directories, apply during capture but not compilation of
+already preprocessed input. Only common and active-platform flags choose this
+mode. I decode literal words, quotes and escapes, including paired `-D`, `-U`
+and `-I` arguments within a fragment. I do not evaluate shell expansions,
+commands or globs to decode flags. Those forms, unlisted
+options and words exceeding 4095 bytes keep their original compilation path.
+This eligibility parser does not sandbox the original trusted shell text.
+
+For recognized Clang/GCC drivers, literal `@file` arguments in common,
+active-platform and package compiler flags are expanded once into invocation-local
+argument strings. I parse GNU-style response words separately from shell words,
+then quote each argument for my command runner. Nested response paths resolve
+from the compiler working directory. Build and public rebuild checks capture
+their own argument sets; selected metadata arguments join cache identity.
+Missing, cyclic and nonregular response inputs fail without replacing an old
+generation. Caller-owned metadata is not rewritten.
+
+I exclude named `clang-cl` drivers and explicit `--driver-mode` overrides.
+If metadata or package flags leave an unresolved response or shell fragment,
+I preserve the original argument set instead of mixing response dialects or
+partially expanded argument groups.
+
+This path is bounded to 16 response nesting levels, 64 KiB cumulative input,
+4095-byte words and a 64 KiB serialized fragment. Over-budget fragments,
+unterminated quotes, trailing escapes, embedded NULs and shell-expanded
+fragments keep the previous compiler path and do not gain snapshot eligibility
+from this capture. Literal fragments over 1024 bytes use GNU response sidecars
+under the module cache. Before transport, I coalesce eligible common, active-
+platform and package compiler groups above 1024 bytes, within a 64 KiB combined
+budget. Argument order stays intact; array slots and native-framework NULLs
+remain stable. Allocation failure leaves the original strings untouched.
+This handles many short compiler fragments as well as individual long ones.
+I also quote and coalesce include-directory arguments in search order for
+compilation and returned native flags. Original paths remain in metadata for
+dependency validation. For shared-library linking, I combine package libraries,
+system libraries, common and platform linker flags, and Darwin framework pairs
+in their existing order. Literal groups up to 64 KiB use the same transport;
+unexpanded linker `@` arguments stay visible and do not gain linker-cache eligibility.
+I capture driver response arguments in common/platform linker metadata and
+package libraries with the compiler-flag response set. Returned native linker
+flags own those decoded arguments, so removing the original response file does
+not change them. Package compiler and linker candidates are published together
+or discarded together. This does not decode forwarded `-Wl,@file` syntax.
+I publish complete read-only files with content-derived
+names, verify their bytes before reuse, and leave them alive until that cache
+is removed. Returned native flags therefore remain usable after build-info
+cleanup. Decoded arguments remain in cache identity and phase selection;
+sidecar paths are only transport. I use the same transport for shared linking,
+and Darwin linker observation admits only exact sidecars of captured flags or
+the current shared-link group.
+Larger budgets, other response dialects and indirect linker response files
+remain open. This is argument retention,
+not retention of every external input named by an argument.
+
+Clang applies all supported C flags during `-S` capture, then assembles without
+C-only flags. Its assembly output expands the tested inline `.incbin`, nested
+assembler includes and macros into retained bytes. Warm validation runs C code
+generation again; it avoids another object assembly, not another C compilation.
+GCC's `-S` output retains external directives and needs the separate literal-file
+capture described below. See my [assembly capture evidence](SOURCE_SNAPSHOT_EVIDENCE.md#production-clang-assembly-capture)
+for the tested boundary and remaining assembler work.
+
+For supported GCC builds, I also fingerprint the actual ordinary and shared
+objects before linking. Fresh validation privately captures C and compiles
+objects again, then requires matching combined input/object fingerprints. I
+also emit assembly from retained C and copy literal, line-leading `.include`
+and `.incbin` inputs recursively into private staging. The assembler reads
+those copies; binary offset/count expressions remain its responsibility.
+Captured bytes join the fingerprint. Final assembly receives no C-only flags.
+The tested restored literal-file edits now produce cold/warm/fresh 42.
+
+This path is bounded: 16 MiB per file, 64 MiB total, 256 file visits and 16
+include levels. Backslashes in assembly text, alternate macro/MRI modes, nonliteral or
+non-line-leading file directives, unrepresentable private paths, nonregular
+inputs and capture failures first try the Linux GNU-as read-capture path below,
+then retain the earlier C/object validation path when that is unavailable.
+That fallback can still produce a changed cold result; I withhold reuse when
+validation differs. Captured assembly contains private staging paths and is
+build evidence, not a relocatable replay bundle. Broader assembler semantics
+and variants remain an [open boundary](SOURCE_SNAPSHOT_EVIDENCE.md#gcc-literal-assembler-file-capture).
+Validation repeats a full C compilation after cold builds and on warm reuse. Private
+checks use `TMPDIR` (or `/tmp`) and are removed after normal success or failure;
+process termination can leave an orphan. This is not an atomic source snapshot.
+
+On Linux, when literal capture cannot represent the input, I also support a
+read-capture/replay path for dynamically linked ELF64 little-endian GNU as 2.40
+and 2.42. I require an exact supported version token on the first banner line;
+this selects compatibility, not executable authenticity.
+GCC identifies its assembler with `-print-prog-name=as` and still supplies the
+assembly arguments. A private `-B` wrapper loads my copied helper only in the
+assembler child, through an inherited descriptor; paths may contain spaces.
+I validate the sealed capture before selecting replay, and require both child
+success and replay completion before accepting each replayed object. Fresh
+validation repeats this recipe and compares combined capture/object evidence.
+Helper bytes and the selected assembler path/content join the fingerprint.
+
+Linux builds and installs place `nano_as_capture.so` beside the compiler/VM
+drivers. `NANO_AS_CAPTURE_HELPER` can select another helper file and is part of
+build-context identity. Ambient `LD_PRELOAD` or `LD_AUDIT`, unavailable helpers,
+unidentified assemblers and unsupported versions keep the prior fallback.
+The helper's stdio and size limits, trusted private storage, and remaining
+variant boundary are described in my [capture evidence](SOURCE_SNAPSHOT_EVIDENCE.md#production-gnu-assembler-read-replay).
+This is not a syscall sandbox or complete toolchain snapshot.
+
+For GCC I add `-fpch-preprocess` to capture and warm validation. A
+`#pragma GCC pch_preprocess` marker means the output still references external
+PCH bytes. For canonical pragmas with unescaped paths I copy those bytes into
+private staging and rewrite the retained input to reference the copies. Original
+path spellings and copied bytes join the fingerprint; private destination names
+do not. Selected-PCH include traces also record the PCH and root source. This
+invalidates an earlier ordinary cache hit when a usable PCH appears, and detects
+PCH replacement or removal. The marker check crosses input-buffer boundaries.
+Malformed pragmas, escaped paths and failed or oversized copies retain the
+original-compilation/no-reuse fallback. PCH copies use the existing regular-file
+capture limits: 16 MiB per file, 64 MiB per translation unit, and 256 visits.
+This is retained GCC PCH support, not arbitrary compiler-module retention.
+
+Other compilers and configured modes keep their original path. I fingerprint
+fresh preprocessing and its include trace before
+warm reuse. This detects newly selected headers that an old dependency list
+could not name. I use the same configured compile flags, including shared-only
+flags; I do not compile the probe output. Cold builds require equal probe
+observations before and after compilation before I store reuse evidence.
+Failed, empty or changed observations withhold reuse, while normal compilation
+still determines whether I can publish code. Each warm-cache validation costs
+one preprocessing invocation per source; a cacheable cold build uses two. The
+configured compiler remains trusted. Matching observations are not an atomic
+snapshot and do not establish complete PCH, module or toolchain identity.
+My [source snapshot experiment](SOURCE_SNAPSHOT_EVIDENCE.md) distinguishes the
+repaired ordinary-C edit-and-restore cases from the remaining modes. Even
+retained translation units do not snapshot assembler inputs, linker inputs,
+the compiler itself, or the entire source tree at one instant.
+
+`PKG_CONFIG` can select a pkg-config executable name or path. It is not a
+shell-command fragment. When unset or empty, I keep my existing installation
+lookup order. I quote the tool, package and search-path arguments, and require
+successful query exit, complete reads and NUL-free output of at most 64 KiB.
+A successful empty flag response is valid. A failed required flag query aborts
+the build instead of supplying partial compile or link flags; an existing
+generation stays intact. I capture each required compiler/linker response once
+per build and share that set across preprocessing, compilation, shared linking
+and returned build information, including source-free modules. Both responses
+enter my cache fingerprint, so a link-only response change invalidates reuse.
+Before recording a cold build as reusable, I query a fresh set: changed or
+failed responses withhold reuse evidence without changing the flags used to
+build the published artifacts. Capturing sequential responses is not an atomic
+snapshot of the package database, and I do not yet identify selected library
+bytes or all toolchain inputs across supported platforms.
+
+On Darwin, my shared link now supplies tagged dependency records. I hash its
+regular external inputs, record missing search candidates, and check both
+before warm reuse. The same-size/time archive edit and newly earlier library
+regressions now produce new generations. If capture is unsupported, I discard
+its record and retry ordinary linking without reuse evidence. Invalid or
+incomplete records likewise withhold reuse. Link commands containing `@` remain
+uncacheable pending indirect response-file capture. Cacheable cold builds use
+a private discovery link and an identical final link; their input observations
+must agree. I retain and revalidate those hashes before recording reuse, rather
+than labeling linked code with later hashes. A failed final link preserves the
+previous generation. Warm reuse skips both links. These checks do not pin
+runtime dynamic-library bytes or snapshot files during linking; other linker
+formats and full toolchain identity remain open. My
+[linker evidence](LINKER_INPUT_EVIDENCE.md) records the tested boundary.
+
 ### Cross-section validation
 
 A section codec sees one section and cannot check an index into another, so the

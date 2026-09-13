@@ -77,6 +77,9 @@ typedef struct {
     int loop_depth;         /* Track if we're inside a loop (for break/continue validation) */
 } TypeChecker;
 
+/* I retain the enclosing function context when checking expression blocks. */
+static _Thread_local TypeChecker *active_statement_checker;
+
 static char *typeinfo_to_generic_arg_name(TypeInfo *param) {
     if (!param) return strdup("unknown");
 
@@ -602,6 +605,22 @@ static bool types_match(Type t1, Type t2) {
     return false;
 }
 
+/* I validate the inferred literal kind before annotation propagation changes it. */
+static bool check_array_literal_annotation(TypeChecker *tc, ASTNode *literal, Type expected) {
+    if (literal->as.array_literal.element_count > 0 &&
+            !types_match(literal->as.array_literal.element_type, expected)) {
+        char message[256];
+        snprintf(message, sizeof message, "I expected array elements of type %s, but found %s.",
+                 type_to_string(expected), type_to_string(literal->as.array_literal.element_type));
+        emit_context_error("E001 TYPE MISMATCH", literal->line, literal->column, 1,
+                           message, "Use elements matching the array annotation.");
+        tc->has_error = true;
+        return false;
+    }
+    literal->as.array_literal.element_type = expected;
+    return true;
+}
+
 static bool hashmap_extract_kv(TypeInfo *hm_info, Type *out_key, Type *out_value) {
     if (out_key) *out_key = TYPE_UNKNOWN;
     if (out_value) *out_value = TYPE_UNKNOWN;
@@ -619,6 +638,18 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     
     switch (expr->type) {
+        case AST_BLOCK:
+            if (expr->as.block.count > 0) {
+                ASTNode *tail = expr->as.block.statements[expr->as.block.count - 1];
+                if (ast_is_value_expression(tail->type)) return get_struct_type_name(tail, env);
+            }
+            return NULL;
+        case AST_MATCH:
+            for (int i = 0; i < expr->as.match_expr.arm_count; i++) {
+                const char *name = get_struct_type_name(expr->as.match_expr.arm_bodies[i], env);
+                if (name) return name;
+            }
+            return NULL;
         case AST_STRUCT_LITERAL:
             return expr->as.struct_literal.struct_name;
             
@@ -824,6 +855,46 @@ Type check_expression(ASTNode *expr, Environment *env) {
     Type result = check_expression_impl(expr, env);
     g_check_expr_depth--;
     return result;
+}
+
+/* I borrow declared signatures; the parser/environment owns their storage. */
+static FunctionSignature *function_result_signature(ASTNode *call, Environment *env) {
+    if (!call || call->type != AST_CALL) return NULL;
+    if (call->as.call.func_expr) {
+        FunctionSignature *callee = function_result_signature(call->as.call.func_expr, env);
+        return callee ? callee->return_fn_sig : NULL;
+    }
+    if (!call->as.call.name) return NULL;
+    Function *func = env_get_function(env, call->as.call.name);
+    if (func) return func->return_fn_sig;
+    Symbol *sym = env_get_var_visible_at(env, call->as.call.name, call->line, call->column);
+    FunctionSignature *sig = sym && sym->type_info ? sym->type_info->fn_sig : NULL;
+    return sig ? sig->return_fn_sig : NULL;
+}
+
+static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignature *sig) {
+    if (!sig) {
+        emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+                           "I cannot determine this function value's signature.",
+                           "Declare the function value's parameter and return types.");
+        return TYPE_UNKNOWN;
+    }
+    if (sig->param_count != call->as.call.arg_count) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+                           "I require the declared number of arguments for this function value.",
+                           "Match the function signature.");
+        return TYPE_UNKNOWN;
+    }
+    for (int i = 0; i < call->as.call.arg_count; i++) {
+        Type actual = check_expression(call->as.call.args[i], env);
+        if (!types_match(actual, sig->param_types[i])) {
+            emit_context_error("E001 TYPE MISMATCH", call->as.call.args[i]->line,
+                               call->as.call.args[i]->column, 1,
+                               "I require the declared argument type for this function value.",
+                               "Match the function signature.");
+        }
+    }
+    return sig->return_type;
 }
 
 /* Internal implementation of check_expression */
@@ -1274,14 +1345,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
                 
-                /* Check argument types */
-                for (int i = 0; i < expr->as.call.arg_count; i++) {
-                    check_expression(expr->as.call.args[i], env);
-                }
-                
-                /* Return type will be determined at runtime */
-                /* For now, assume it returns int */
-                return TYPE_INT;
+                return check_indirect_call(expr, env, function_result_signature(expr->as.call.func_expr, env));
             }
             
             /* Regular function call */
@@ -1458,21 +1522,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     /* Mark the variable as used */
                     sym->is_used = true;
                     
-                    /* This is a call to a function parameter - check arguments */
-                    for (int i = 0; i < expr->as.call.arg_count; i++) {
-                        check_expression(expr->as.call.args[i], env);
-                    }
-                    /* If this is a call with no arguments (just getting the function), return TYPE_FUNCTION */
-                    if (expr->as.call.arg_count == 0) {
-                        return TYPE_FUNCTION;
-                    }
-                    /* Get return type from the function signature in type_info */
-                    if (sym->type_info && sym->type_info->fn_sig) {
-                        return sym->type_info->fn_sig->return_type;
-                    }
-                    /* Fallback if no signature available */
-                    /* Return TYPE_INT for legacy compatibility (used in let statement checks) */
-                    return TYPE_INT;
+                    return check_indirect_call(expr, env, sym->type_info ? sym->type_info->fn_sig : NULL);
                 }
                 
                 /* Special handling for dynamic array builtins */
@@ -2063,7 +2113,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         
                         /* Create signature from passed function */
-                        FunctionSignature passed_sig;
+                        FunctionSignature passed_sig = {0};
                         passed_sig.param_count = passed_func->param_count;
                         passed_sig.param_types = malloc(sizeof(Type) * passed_func->param_count);
                         passed_sig.param_struct_names = malloc(sizeof(char*) * passed_func->param_count);
@@ -2073,6 +2123,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         }
                         passed_sig.return_type = passed_func->return_type;
                         passed_sig.return_struct_name = passed_func->return_struct_type_name;
+                        passed_sig.return_fn_sig = passed_func->return_fn_sig;
                         
                         /* Compare signatures */
                         if (!function_signatures_equal(func->params[i].fn_sig, &passed_sig)) {
@@ -3040,6 +3091,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_MATCH: {
+            /* Code generation may ask again without a function-checking context. */
+            if (!active_statement_checker && expr->as.match_expr.result_type_checked)
+                return expr->as.match_expr.result_type;
             /* Check the expression being matched */
             Type match_type = check_expression(expr->as.match_expr.expr, env);
             /* Allow int-pattern match: any arm variant starts with "INT:" */
@@ -3172,12 +3226,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                  * This is safe because each arm's binding uses a unique name from the source code.
                  */
                 
-                /* First arm determines return type */
-                if (i == 0) {
+                /* A definite function exit contributes no match value. */
+                if (ast_always_returns(expr->as.match_expr.arm_bodies[i])) continue;
+                if (return_type == TYPE_UNKNOWN) {
                     return_type = arm_type;
-                } else if (arm_type != return_type && arm_type != TYPE_VOID) {
+                } else if (arm_type != return_type) {
                     fprintf(stderr, "Error at line %d, column %d: Match arms must all return the same type\n",
                             expr->line, expr->column);
+                    if (active_statement_checker) active_statement_checker->has_error = true;
                 }
             }
 
@@ -3262,33 +3318,33 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
 
+            expr->as.match_expr.result_type = return_type;
+            expr->as.match_expr.result_type_checked = true;
             return return_type;
         }
 
         case AST_BLOCK: {
             /* Blocks can be used as expressions in match arms
-             * Type check all statements and return the type of the last expression/return
+             * I check statements in function context; only the final expression yields a value.
              */
             Type block_type = TYPE_VOID;
             
-            /* Create a temporary TypeChecker for statement type checking */
-            TypeChecker temp_tc;
+            /* I inherit return/unsafe context, rather than inventing a function. */
+            TypeChecker temp_tc = active_statement_checker ? *active_statement_checker : (TypeChecker){0};
             temp_tc.env = env;
             temp_tc.has_error = false;
-            temp_tc.loop_depth = 0;
             
             for (int i = 0; i < expr->as.block.count; i++) {
                 ASTNode *stmt = expr->as.block.statements[i];
-                if (stmt->type == AST_RETURN && stmt->as.return_stmt.value) {
-                    block_type = check_expression(stmt->as.return_stmt.value, env);
+                if (i == expr->as.block.count - 1 && ast_is_value_expression(stmt->type)) {
+                    block_type = check_expression(stmt, env);
                 } else {
-                    /* Type check the statement (for side effects) */
-                    Type stmt_type = check_statement(&temp_tc, stmt);
-                    /* If it's the last statement and not a return, use its type */
-                    if (i == expr->as.block.count - 1 && stmt_type != TYPE_VOID) {
-                        block_type = stmt_type;
-                    }
+                    check_statement(&temp_tc, stmt);
                 }
+            }
+            if (temp_tc.has_error) {
+                if (active_statement_checker) active_statement_checker->has_error = true;
+                return TYPE_UNKNOWN;
             }
             return block_type;
         }
@@ -3584,7 +3640,10 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
         return TYPE_VOID;
     }
 
+    TypeChecker *previous = active_statement_checker;
+    active_statement_checker = tc;
     Type result = check_statement_impl(tc, stmt);
+    active_statement_checker = previous;
     g_check_stmt_depth--;
     return result;
 }
@@ -3916,13 +3975,21 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (declared_type == TYPE_ARRAY && element_type != TYPE_UNKNOWN) {
                 if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.let.value;
-                    /* Set element type on array literal so transpiler knows what to generate */
-                    array_lit->as.array_literal.element_type = element_type;
+                    check_array_literal_annotation(tc, array_lit, element_type);
                 }
             }
             
             /* Create TypeInfo for tuples or use existing from parser for generic types */
             TypeInfo *type_info = stmt->as.let.type_info;  /* Use parser's TypeInfo if available */
+            if (!type_info && declared_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+                /* The AST owns this metadata; symbols borrow it. I keep the
+                 * direct signature alias for existing lowering consumers. */
+                type_info = calloc(1, sizeof(TypeInfo));
+                if (!type_info) { tc->has_error = true; return TYPE_UNKNOWN; }
+                type_info->base_type = TYPE_FUNCTION;
+                type_info->fn_sig = stmt->as.let.fn_sig;
+                stmt->as.let.type_info = type_info;
+            }
             if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
                 /* Create TypeInfo from tuple literal */
                 ASTNode *tuple_lit = stmt->as.let.value;
@@ -4039,7 +4106,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
                 if (stmt->as.set.value->type == AST_ARRAY_LITERAL) {
                     ASTNode *array_lit = stmt->as.set.value;
-                    array_lit->as.array_literal.element_type = sym->element_type;
+                    check_array_literal_annotation(tc, array_lit, sym->element_type);
                 }
             }
 
@@ -5805,6 +5872,60 @@ static bool functions_match(Function *f1, Function *f2) {
     return true;
 }
 
+/* I check only the root's shadows here, after its declarations and functions.
+ * I retain inferred metadata just as the ordinary function checker does;
+ * the bytecode emitter still needs it when choosing operand/array kinds. */
+bool type_check_root_shadows(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    bool ok = true;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_SHADOW) continue;
+        TypeChecker tc = {0};
+        tc.env = env;
+        tc.current_function_return_type = TYPE_VOID;
+        check_statement(&tc, item->as.shadow.body);
+        if (tc.has_error) ok = false;
+    }
+    return ok && g_typecheck_error_count == 0;
+}
+
+/* I check selected shadows in their source and authority context, then restore
+ * the root context. Module declarations have already been checked by loading. */
+bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                             const char *input_file, bool include_imports) {
+    if (!env) return false;
+    char *root_owner = env->current_module;
+    bool root_unsafe = env->current_module_is_unsafe;
+    env_set_current_file(env, input_file);
+    typecheck_set_current_file(input_file);
+    bool typed = type_check_root_shadows(program, env);
+    int count = include_imports && modules ? modules->count : 0;
+    for (int i = 0; i < count && typed; i++) {
+        const char *file = modules->module_paths[i];
+        ASTNode *dependency = get_cached_module_ast(file);
+        char *owner = module_program_name(dependency, file);
+        env->current_module = owner;
+        env->current_module_is_unsafe = false;
+        if (dependency) {
+            for (int j = 0; j < dependency->as.program.count; j++) {
+                ASTNode *item = dependency->as.program.items[j];
+                if (item->type == AST_IMPORT && item->as.import_stmt.is_unsafe)
+                    env->current_module_is_unsafe = true;
+            }
+        }
+        env_set_current_file(env, file);
+        typecheck_set_current_file(file);
+        typed = owner && type_check_root_shadows(dependency, env);
+        env->current_module = root_owner;
+        free(owner);
+    }
+    env_set_current_file(env, input_file);
+    env->current_module_is_unsafe = root_unsafe;
+    typecheck_set_current_file(input_file);
+    return typed;
+}
+
 bool type_check(ASTNode *program, Environment *env) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program AST\n");
@@ -6244,6 +6365,11 @@ register_function_pass1:;
             
             /* Check if function is already defined */
             Function *existing = env_get_function(env, func_name);
+            /* I distinguish an imported name from a duplicate in this module. */
+            if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
+                (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
             if (existing) {
                 /* If both are extern and signatures match, it's fine (idempotent) */
                 if (item->as.function.is_extern && existing->is_extern) {
@@ -7005,6 +7131,11 @@ register_function_pass2:;
             
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
+            /* I distinguish an imported name from a duplicate in this module. */
+            if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
+                (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
+                existing = NULL;
+            }
             if (existing) {
                 /* If both are extern and signatures match, it's fine (idempotent) */
                 if (item->as.function.is_extern && existing->is_extern) {

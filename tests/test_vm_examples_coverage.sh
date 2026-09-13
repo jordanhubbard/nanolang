@@ -115,15 +115,21 @@ while read -r src; do
     if (cd "$EXAMPLES_DIR" && "$REPO_ROOT/$VM_COMPILER" "$src" --emit-nvm \
             -o "$work_dir/out.nvm") > "$log" 2>&1; then
         continue
+    else
+        rc=$?
     fi
-    rc=$?
     reason=$(grep -m1 '^error:' "$log" | sed 's/^error: //')
+    if [ -z "$reason" ]; then
+        reason=$(sed -n '/[^[:space:]]/ { p; q; }' "$log")
+    fi
     if [ -z "$reason" ]; then
         if [ "$rc" -gt 128 ]; then
             reason="nano_virt died on signal $((rc - 128)) with no diagnostic"
         else
             reason="nano_virt exited $rc with no diagnostic"
         fi
+    else
+        reason="exit $rc: $reason"
     fi
     skipped_list="$skipped_list
        $src: $reason"

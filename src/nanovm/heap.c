@@ -18,6 +18,7 @@ void vm_heap_init(VmHeap *heap) {
     heap->intern_bucket_count = VM_INTERN_INITIAL_BUCKETS;
     heap->intern_count = 0;
     heap->intern_buckets = calloc(heap->intern_bucket_count, sizeof(VmString *));
+    if (!heap->intern_buckets) heap->intern_bucket_count = 0;
 }
 
 void vm_heap_destroy(VmHeap *heap) {
@@ -69,6 +70,7 @@ static void vm_intern_maybe_grow(VmHeap *heap) {
         (uint64_t)heap->intern_bucket_count * VM_INTERN_MAX_LOAD_NUM) {
         return;
     }
+    if (heap->intern_bucket_count > UINT32_MAX / 2) return;
     uint32_t new_count = heap->intern_bucket_count ? heap->intern_bucket_count * 2 : 256;
     VmString **new_buckets = calloc(new_count, sizeof(VmString *));
     if (!new_buckets) return;
@@ -102,12 +104,14 @@ static VmString *vm_intern_lookup(VmHeap *heap, uint32_t hash,
 }
 
 /* Insert a freshly allocated string into its bucket chain. */
-static void vm_intern_insert(VmHeap *heap, VmString *s) {
+static bool vm_intern_insert(VmHeap *heap, VmString *s) {
     vm_intern_maybe_grow(heap);
+    if (!heap->intern_bucket_count) return false;
     uint32_t idx = s->hash & (heap->intern_bucket_count - 1);
     s->intern_next = heap->intern_buckets[idx];
     heap->intern_buckets[idx] = s;
     heap->intern_count++;
+    return true;
 }
 
 /* Remove a string from its bucket chain in O(1) expected time. */
@@ -292,6 +296,9 @@ static void release_hashmap(VmHeap *heap, VmHashMap *m) {
  * ======================================================================== */
 
 VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
+    if ((uint64_t)length + sizeof(VmString) + 1 > SIZE_MAX || (!data && length))
+        return NULL;
+    if (!data) data = "";
     uint32_t hash = fnv1a(data, length);
 
     /* Check intern table for dedup (O(1) expected via bucket chain). */
@@ -315,18 +322,25 @@ VmString *vm_string_new(VmHeap *heap, const char *data, uint32_t length) {
     memcpy(s->data, data, length);
     s->data[length] = '\0';
 
+    /* A failed initial table allocation must not publish an untracked string. */
+    if (!vm_intern_insert(heap, s)) {
+        free(s);
+        return NULL;
+    }
     heap->stats.allocated += sz;
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
-
-    /* Add to intern table (O(1) amortized, doubling to bound load factor). */
-    vm_intern_insert(heap, s);
 
     return s;
 }
 
 VmString *vm_string_concat(VmHeap *heap, VmString *a, VmString *b) {
-    uint32_t new_len = a->length + b->length;
+    if (!a || !b) return NULL;
+    uint64_t length = (uint64_t)a->length + b->length;
+    if (length > UINT32_MAX || length + sizeof(VmString) + 1 > SIZE_MAX)
+        return NULL;
+    uint32_t new_len = (uint32_t)length;
+    if (!new_len) return vm_string_new(heap, "", 0);
     char *buf = malloc(new_len);
     if (!buf) return NULL;
     memcpy(buf, a->data, a->length);
@@ -520,20 +534,20 @@ static bool array_grow(VmArray *a) {
     return true;
 }
 
-void vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
+bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {
+    if (!a) return false;
     if (a->length >= a->capacity) {
-        /* On grow failure keep the array intact and drop the push rather than
-         * writing past the buffer (heap overflow). */
-        if (!array_grow(a)) return;
+        if (!array_grow(a)) return false;
     }
     if (a->unboxed) {
         packed_store(a, a->length, v);
         a->length++;
         /* Unboxed payloads own no references; nothing to retain. */
-        return;
+        return true;
     }
     a->elements[a->length++] = v;
     vm_retain(heap, v);
+    return true;
 }
 
 NanoValue vm_array_pop(VmArray *a) {
@@ -622,6 +636,10 @@ VmStruct *vm_struct_new(VmHeap *heap, uint32_t def_idx, uint32_t field_count) {
     s->field_count = field_count;
     s->field_names = NULL;
     s->fields = calloc(field_count, sizeof(NanoValue));
+    if (field_count && !s->fields) {
+        free(s);
+        return NULL;
+    }
     heap->stats.allocated += sizeof(VmStruct) + field_count * sizeof(NanoValue);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
@@ -643,6 +661,10 @@ VmUnion *vm_union_new(VmHeap *heap, uint32_t def_idx, uint16_t variant, uint16_t
     u->variant = variant;
     u->field_count = field_count;
     u->fields = calloc(field_count, sizeof(NanoValue));
+    if (field_count && !u->fields) {
+        free(u);
+        return NULL;
+    }
     heap->stats.allocated += sizeof(VmUnion) + field_count * sizeof(NanoValue);
     heap->stats.allocation_calls++;
     heap->stats.num_objects++;
@@ -830,18 +852,26 @@ void vm_hashmap_delete(VmHeap *heap, VmHashMap *m, NanoValue key) {
 
 VmArray *vm_hashmap_keys(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->key_type, m->count > 0 ? m->count : 8);
+    if (!result) return NULL;
     for (uint32_t i = 0; i < m->bucket_count; i++) {
         VmHMEntry *entry = &m->entries[i];
-        if (entry->state == 1) vm_array_push(heap, result, entry->key);
+        if (entry->state == 1 && !vm_array_push(heap, result, entry->key)) {
+            vm_release(heap, val_array(result));
+            return NULL;
+        }
     }
     return result;
 }
 
 VmArray *vm_hashmap_values(VmHeap *heap, VmHashMap *m) {
     VmArray *result = vm_array_new(heap, m->val_type, m->count > 0 ? m->count : 8);
+    if (!result) return NULL;
     for (uint32_t i = 0; i < m->bucket_count; i++) {
         VmHMEntry *entry = &m->entries[i];
-        if (entry->state == 1) vm_array_push(heap, result, entry->value);
+        if (entry->state == 1 && !vm_array_push(heap, result, entry->value)) {
+            vm_release(heap, val_array(result));
+            return NULL;
+        }
     }
     return result;
 }

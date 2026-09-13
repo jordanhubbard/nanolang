@@ -1,5 +1,88 @@
 # NanoLang presentation QA ledger
 
+## 5.0 local visual acceptance
+
+I completed the remaining render gate with LibreOffice 24.2.7.2 in a disposable
+Ubuntu 24.04 ARM64 container. I used the document skill's `render_docx.py` with
+pdf2image 1.17.0 and Pillow 11.3.0; Impress PDF export and Poppler rendered the
+deck. Liberation and Carlito fonts supplied substitutions for Arial, Courier
+New and Calibri. This is local LibreOffice acceptance, not identical rendering
+in Microsoft Office or Google Workspace.
+
+I inspected all sixteen full-size slide images and all five narrative pages.
+The first narrative render split the final command block across pages. I set
+code paragraphs to keep their lines together and moved the closing section to
+a new page. I rendered again and inspected both changed pages; the first three
+page images were byte-identical to those already inspected. No clipping,
+overlap, missing glyphs or broken code blocks remain in these renders.
+
+The extracted example still passes and rejects a false assertion on all three
+backends. Artifact tests check code paragraph pagination and the closing page
+break alongside the existing claims and geometry checks. I have not published
+either member or cut a tag. The accepted local artifact SHA-256 hashes are:
+
+- PPTX: `20f7b45363b7952541a19162b5ef01ee2a021698bd059125fa7c2cbbf48bd24d`
+- DOCX: `6f5748d136e8faed7fbb81f0fc2a85fe399b666cff8b8c171a1af72913b686ad`
+
+The earlier checkpoint below records the state before this render recovery.
+
+## 5.0 claims correction checkpoint (local, unpublished)
+
+I regenerated both members from the existing Python builders and preserved
+their visual design. I distinguish shadow policy from warnings and exemptions,
+tests from proof, abstract reference balance from ownership, and runtime
+laboratory evidence from production isolation. I corrected the bounds guard
+and #211 status. Both members now share `examples/gcd.nano`.
+
+I extracted the actual DOCX example and compiled and executed it on my C seed,
+Stage 2 native compiler and bytecode path. All returned six. Deliberately false
+assertions were rejected on every path without replacing previous output.
+Artifact regression checks also inspect the PPTX claims and shared example.
+The header-dependency gate passes. Mechanical acceptance is not visual acceptance.
+
+I inspected the contact sheet and all sixteen full-size Pillow renders. Text
+fits those renders without frame overlaps. This renderer is a layout aid, not
+a pixel-identical PowerPoint renderer. Native DOCX/PPTX visual acceptance is
+still open: `/opt/homebrew/bin/soffice` is a launcher whose LibreOffice application
+is missing. The pinned toolchain also lacks the optional DOCX renderer's
+`pdf2image` dependency. The managed dependency loader is unavailable; I used
+the repository-prescribed portable authoring path. No external publication
+or tag was made. I retain the roadmap item until the remaining review passes.
+
+## 5.0 acceptance-gate repair (local, unpublished)
+
+I found that the portable regeneration script wrote `accepted: true` after
+checking a constant count and the narrative's existence. The verifier named
+in my authoring skill was missing, and the narrative manifest discarded the
+deck path. I now retain both paths, derive the slide count from the PPTX, and
+run `scripts/verify_document_pair.py` before reporting mechanical acceptance.
+
+The verifier reads ordered slide relationships, checks the actual count,
+flat unrotated shape geometry and text-frame intersections, and requires body
+speaker notes on every slide. It checks narrative heading levels and explicit
+placeholder/credential patterns in text. Unsupported shapes fail closed.
+Pattern checks are not a comprehensive secret audit, and geometric checks do
+not establish text fit, appearance, factual accuracy or visual acceptance.
+
+The retained local pair passes these mechanical checks with 16 slides and
+34 headings. Mutation tests reject count/path/package failures, off-surface
+and overlapping frames, unsupported transforms, empty notes, invalid heading
+levels, placeholder and credential patterns, and invalid slide relationships.
+The CLI replaces stale success reports with failure. Real regeneration builds
+both members in isolated outputs; an induced narrative-authoring failure leaves
+acceptance false instead of retaining success from the preceding invocation.
+
+I have not regenerated or visually accepted a corrected edition in this
+checkpoint. The managed presentation/document dependency loader is unavailable.
+I bootstrapped the repository's pinned, ignored authoring environment as the
+portable fallback and ran the real builders in the integration test. Shadow claims, the
+narrative example and the stale #211 note remain the next repair. I have not
+changed external Google artifacts or their publication records.
+
+Ten document-pair tests pass. The wider `make test-release-gates` run exposed
+CONTRIBUTING staleness, now tracked separately on the roadmap. I do not bypass
+that failure or treat this mechanical gate as release readiness.
+
 ## 4.5 developer edition
 
 - Rebuilt the deck and narrative from NanoLang source, `docs/PERSONA.md`,

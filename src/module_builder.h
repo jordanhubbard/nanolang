@@ -151,10 +151,6 @@ char** module_get_compile_flags(ModuleBuildInfo **modules, size_t count, size_t 
 // Check if module needs rebuild
 bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta);
 
-// Update the on-disk content-hash cache after a successful build
-// (called automatically by module_build; also callable manually)
-void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta);
-
 // Get module build directory path (honors NANO_BUILD_CACHE)
 char* module_get_build_dir(const char *module_dir);
 

@@ -28,19 +28,30 @@ Use the repository skills before working. In particular, use
 direct, and approve the result, but a code contribution without the required
 agent workflow is incomplete.
 
-### 1. One Implementation
+### 1. One Language Contract Across Implementations
 
-I am a compiled language. Every language feature you add must live in my compiler. `bin/nano` is a tree-walking interpreter used for shadows and quick runs; it is not a second language implementation. Production native code is generated C. I also host a secure runtime (NSI, capabilities, POSIX fabric, trap journal) that is C library code with tests, not extra syntax.
+I have a C-seed compiler and interpreter, a self-hosted native compiler,
+a NanoISA bytecode frontend and NanoVM, and an AOT path. These are distinct
+implementations that must agree on my language contract. Agreement is a
+requirement, not a claim that every feature already has backend parity.
+My NSI, capabilities, POSIX fabric and trap journal are runtime components;
+their laboratory tests do not establish production isolation.
 
-If you add a feature, you must implement it in:
-- The compiler (`src/transpiler.c`, `src/parser.c`, `src/typechecker.c`)
+For a language change, identify every affected parser, typechecker, evaluator,
+lowering path and runtime. Implement and test each supported path, or record
+the unimplemented boundary on my roadmap. A frontend accepting syntax is not
+evidence that the generated code executes it correctly.
 
-I expect shadow tests to compile into the final binary and run at execution time. Before you claim a feature is finished, verify those tests pass.
+My normal compilation paths run shadows before publishing output. The C seed
+uses a supervised interpreter child; the bytecode CLI runs a separate verified
+test module in NanoVM; the self-hosted native driver uses a separate test
+executable. Dependency shadows run by default, with an explicit root-only
+opt-out. Source-only C emission does not execute shadows. These supervised
+processes have deadlines, but are not security sandboxes. See
+`docs/CANONICAL_STYLE.md` for the current flags and boundaries.
 
-**Example**: Generic `List<T>` support
-- Compiler: Generates C code with `list_TypeName_*` functions
-- Shadow tests: Compile into binary, validate at runtime
-- Result: One clean implementation
+Before calling a feature complete, compare actual results and failure behavior
+across the supported paths. Passing one path does not establish the others.
 
 ### 2. No Warnings
 
@@ -59,9 +70,9 @@ make clean && make
 
 ### 3. Bootstrap and Self-Hosting
 
-I have two versions of myself. You must update both.
+My bootstrap has two compiler implementations. You must update both.
 1. **C Reference Implementation** (`src/`) - This is how I bootstrap.
-2. **Self-Hosted Implementation** (`src_nano/`) - This is how I prove I am complete.
+2. **Self-Hosted Implementation** (`src_nano/`) - This exercises my ability to express and build my compiler.
 
 I use the C version to build my first stage. Then I use that stage to build myself again. If I cannot express a feature in my own syntax, then I am not finished.
 
@@ -71,6 +82,11 @@ Your workflow:
 3. Implement the same feature using my own syntax in `src_nano/`.
 4. Verify my self-hosted components can use it.
 5. Use the feature in my codebase.
+
+Apply the same contract to affected bytecode, VM and AOT paths. Bootstrap smoke
+tests, canonical artifact equality and semantic correctness are separate
+claims. Record which checks actually ran; a successful bootstrap does not by
+itself prove a fixed point or compiler correctness.
 
 My structure:
 ```
@@ -87,7 +103,9 @@ src_nano/     - NanoLang self-hosted implementation
 
 ### 4. Shadow Tests are Mandatory
 
-I do not trust code that has not been asked to prove itself. Every function you write must have a shadow test. This is a core design principle, not a suggestion.
+My project policy requires a useful shadow for every added or changed named
+non-extern function. A shadow checks its assertions on the exercised inputs;
+it is not a proof of correctness for every input.
 
 I require shadow tests for:
 - All functions in my libraries
@@ -96,10 +114,15 @@ I require shadow tests for:
 - All helper functions
 - All demonstration programs
 
-The only exception is `extern` functions. I cannot test what happens in the C world.
+Compiler enforcement is narrower than project policy. Missing shadows normally
+produce warnings, with exemptions for externs, `main`, generated lambdas and
+functions using extern calls, as documented in `docs/CANONICAL_STYLE.md`.
+An exemption does not establish correctness. Foreign wrappers need boundary
+and integration tests; an explicit shadow is not skipped merely because the
+function or test contains a foreign call.
 
 Why I require this:
-- Shadow tests prove correctness during compilation.
+- Shadow tests check selected behavior during normal compilation.
 - They are executable specifications.
 - They allow me to validate myself during the bootstrap process.
 - They prevent bad design. If a function is hard to test, it is poorly written.
@@ -107,9 +130,9 @@ Why I require this:
 If my compiler warns you about a missing shadow test, it is not a mistake. Add the test. If you are an LLM generating code for me, you will include shadow tests for every function.
 
 My test hierarchy:
-1. **Shadow Tests** (Inlined in functions) - Mandatory. These run during compilation.
+1. **Shadow Tests** (Declared beside functions) - Required by project policy; normal compilation runs them before publishing output.
 2. **Integration Tests** (`tests/*.nano`) - These test how features work together.
-3. **Self-Hosting Tests** - These verify the bootstrap and fixed-point identity.
+3. **Self-Hosting Tests** - These exercise the bootstrap. Fixed-point identity needs its own artifact comparison.
 
 For repository tests, start at my public boundary:
 
@@ -157,12 +180,21 @@ and each had been passing every test in this repository.
 `tests/`. If your change makes a program compile but not verify, that is your
 bug and not the verifier's.
 
-What I prove before a module executes:
+My bytecode verifier checks the invariants it models before execution:
+
 - Stack height through every basic block, with merge states required to agree.
-- Operand types, where a definite contradiction is refused. Unknown never fails.
+- Operand types, where a definite contradiction is refused. Unknown types
+  remain unknown; accepting them is not evidence of type safety for those values.
 - Return shape: every exit leaves exactly what the function declares.
 - Maximum operand depth, declared by the producer and confirmed by the loader.
-- Ownership: retain and release balance on every path.
+- An abstract balance of explicit retain/release instructions across the
+  modeled control flow. This counter is not object-identity tracking, a complete
+  source ownership analysis, or a proof of leak freedom.
+
+These executable checks are separate from my formal NanoCore theorems and
+their hypotheses. Neither a passing verifier nor a shadow test proves that
+every compiler/backend implements the formal model. See `formal/README.md`
+and the open correspondence work in `docs/ROADMAP.md`.
 
 Two rules about the verifier itself, both learned the expensive way:
 - An unknown stack effect is a hard failure, never a skip. Mine skipped 129 of
@@ -174,8 +206,17 @@ Two rules about the verifier itself, both learned the expensive way:
 If you add a surface that parses input -- a decoder, a loader, an assembler, a
 wire format -- fuzz it. `tests/nanoisa/test_fuzz_malformed.c` and
 `tests/nanovm/test_cop_fuzz.c` show the shape. Write every range check as
-`size > total - offset`, never `offset + size > total`, which wraps and admits
-exactly the input the check exists to reject.
+`offset > total || size > total - offset`, so the subtraction is reached only
+after the offset is bounded. An unchecked addition or subtraction can wrap.
+
+For parser changes, run `make fuzz-parser-check` with a libFuzzer-capable
+compiler selected through `FUZZ_CC` when necessary. This replays the seed
+corpus without mutation. The harness, lexer and parser are instrumented with
+ASan/UBSan; linked support objects are not, and this target disables leak
+detection. A successful replay is not a fuzzing campaign or proof for arbitrary
+input. Use a private working corpus for mutation runs and preserve minimized
+regressions. `tests/fuzzing/README.md` records commands and the unvalidated
+AFL++ parser build boundary.
 
 ### 6. Documentation
 
@@ -235,8 +276,9 @@ I value correctness over performance, but I do not tolerate waste.
 - Use the right data structures.
 - Avoid slow algorithms where input size might grow.
 - Memory leaks are bugs. Free what you allocate, and balance every retain with
-  a release. I now prove that balance rather than trusting it, and I collect
-  the reference cycles that counting alone can never reclaim.
+  a release. My verifier's abstract balance check does not replace cleanup
+  tests, sanitizer runs or audits of foreign/native code. My cycle collector
+  handles tested reference cycles; it is not a guarantee against every leak.
 
 If you are making a change *because* it should be faster,
 `docs/NANOISA_OPTIMIZATION_POLICY.md` governs and
@@ -310,7 +352,9 @@ make test-nsi-policy test-nsi-journal test-nsi-obs
 make test-nano-eval test-nano-emacs-worker
 ```
 
-Capabilities are unforgeable tokens, not integers or host pointers. The SDL
+Use capability handles through their checked APIs; an integer or host pointer
+is not authority. My laboratory capability tests do not establish production
+isolation. The SDL
 editor does not `dlopen` the interpreter; eval goes through
 `bin/nano_emacs_worker`. The trap journal is a tested library; it is not
 hooked into every `vm.c` trap. I do not claim a Forth Standard System, GNU

@@ -107,14 +107,12 @@ When I determine build flags, I apply this priority. Later items override earlie
 
 1. **I parse module.json** if it exists in the module directory.
 2. **I check dependencies** and recursively process any dependent modules.
-3. **I check my build cache**:
-   - Module build directory: `modules/module_name/.build/`
-   - Object file: `modules/module_name/.build/module_name.o`
-   - Metadata: `modules/module_name/.build/.build_info.json`
-4. **I rebuild if necessary**:
-   - I find a C source that is newer than the object file.
-   - The `module.json` file has changed.
-   - A dependency has been rebuilt.
+3. **I check my build cache** using content and build-context evidence, not
+   source timestamps alone. The cache root is local or selected by
+   `NANO_BUILD_CACHE`; `current` names a complete immutable generation.
+4. **I rebuild if necessary** in a private staging directory. Missing,
+   damaged or changed dependency evidence prevents reuse. A completed build
+   publishes a new generation without overwriting the previous one.
 5. **I track the results for linking**:
    - I add the object file to my link list.
    - I add `system_libs` to my link list.
@@ -122,38 +120,34 @@ When I determine build flags, I apply this priority. Later items override earlie
 
 ### Build Cache
 
-I create a `.build/` directory for each module that contains C sources:
+Without a shared cache setting, I keep C artifacts beneath the module's
+`.build` directory. A generation contains native objects, a shared library,
+dependency evidence and, when reuse can be justified, `source_hashes.json`.
+For example, on Darwin:
 
 ```
-modules/sdl_ttf/
-├── .build/
-│   ├── sdl_ttf.o              # Compiled object file
-│   ├── .build_info.json       # Build metadata
-│   └── .compile_commands.json # Compile commands (optional)
+modules/example/.build/
+├── .build.lock
+├── current -> .nano-gen-ABC123
+└── .nano-gen-ABC123/
+    ├── example.o
+    ├── libexample.dylib
+    └── source_hashes.json
 ```
 
-**`.build_info.json`**:
-```json
-{
-  "sources": {
-    "sdl_ttf_helpers.c": {
-      "mtime": 1234567890,
-      "size": 12345
-    }
-  },
-  "module_json_mtime": 1234567890,
-  "compile_command": "gcc ...",
-  "timestamp": "2025-11-17T12:00:00Z"
-}
-```
+The abbreviated tree omits per-source objects and dependency records. On other
+supported POSIX hosts the shared library uses `.so`. My current builder does
+not use the historical `.build_info.json` layout. Shared roots use a versioned
+SHA-256 key of the module directory's canonical path; generation names are
+private publication identities, not content-addressed hashes.
 
 ### Incremental Compilation
 
-I only recompile when I must. Specifically:
-- A source file has been modified (mtime or size changed).
-- The `module.json` has been modified.
-- The object file is missing.
-- A dependency was rebuilt.
+I compare source, manifest, dependency and build-context evidence before reuse.
+Same-size edits with restored timestamps still invalidate recorded content.
+If I cannot establish the required evidence, I rebuild rather than treating a
+timestamp as proof. Source snapshots and complete toolchain discovery remain
+open; the detailed limitations are in my [NanoISA cache contract](NANOISA.md).
 
 ### Parallel Builds
 
@@ -236,10 +230,24 @@ export NANO_BUILD_CACHE="/tmp/nano_build_cache"
 If you do not set this, I default to `.build/` within each module directory.
 
 When you build through my Makefile I export `NANO_BUILD_CACHE` as
-`obj/module_cache` so `make clean` (which removes `obj/`) and `nanoc` share
-one cache. `NANO_CC` and `NANO_VERBOSE_BUILD` already reach every compile
-path that honors them. `NANO_BUILD_CACHE` is the matching knob for *where*
-those artifacts land.
+`obj/module_cache`. Ordinary `make clean` and `make -C examples clean`
+retain this cache, the configured cache, and local module `.build` directories.
+Existing bytecode can contain absolute references to their immutable library
+generations. Deleting them is not an ordinary compiler-object cleanup.
+I remove unrelated compiler objects and binaries, preserving the directory
+ancestors needed by retained caches. I conservatively retain earlier cache
+locations containing my lock, generation or private-stage names even when the
+current environment selects another cache. Those names authorize retention,
+not collection. I reject cleanup trees outside the
+workspace and paths through directory symlinks before removing anything.
+The build workspace and Make configuration remain trusted inputs.
+
+Cache retention has no automatic size or age limit. Before manually resetting
+a cache, stop its builders and compiler descendants, retire every dependent
+bytecode artifact, and accept that those artifacts will need rebuilding.
+A released build lock or a dead builder PID does not establish quiescence.
+My [NanoISA cache contract](NANOISA.md) records the tested generation,
+publication and lifetime boundaries; automatic collection remains unfinished.
 
 ### NANO_CC
 
@@ -357,4 +365,3 @@ NANO_VERBOSE_BUILD=1 nanoc my_app.nano -o my_app
 - [ ] Automatic dependency installation
 - [ ] Binary module distribution (.a/.so files)
 - [ ] Module versioning and compatibility checking
-

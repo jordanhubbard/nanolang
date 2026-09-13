@@ -10,6 +10,7 @@
  */
 
 #include "nanolang.h"
+#include "module_builder.h"
 #include "nanovirt/codegen.h"
 #include "nanovirt/wrapper_gen.h"
 #include "nanoisa/nvm_format.h"
@@ -22,6 +23,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <time.h>
 
 /* Forward declarations for interpreter FFI (already linked) */
 extern bool ffi_init(bool verbose);
@@ -58,6 +64,8 @@ static void usage(const char *prog) {
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
     fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
+    fprintf(stderr, "  --test-imports     I run dependency shadows before root shadows (default)\n");
+    fprintf(stderr, "  --root-shadows-only I run only root-file shadows\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
     fprintf(stderr, "  -v                 Verbose output\n");
 }
@@ -68,6 +76,191 @@ static bool has_nvm_extension(const char *path) {
     return (len >= 4 && strcmp(path + len - 4, ".nvm") == 0);
 }
 
+/* I already lower NanoLang imports into bytecode. Here I build only their
+ * manifest-backed foreign support, including transitive imports. */
+static void free_ffi_bindings(char **bindings, int count) {
+    if (!bindings) return;
+    for (int i = 0; i < count; i++) free(bindings[i]);
+    free(bindings);
+}
+
+static bool bind_ffi_imports(NvmModule *module, ModuleList *modules,
+                             char **bindings, const char *input) {
+    for (uint32_t i = 0; i < module->import_count; i++) {
+        NvmImportEntry *imp = &module->imports[i];
+        const char *name = nvm_get_string(module, imp->module_name_idx);
+        if (!name || !name[0]) continue;
+        const char *resolved = resolve_module_path(name, input);
+        char *canonical = realpath(resolved ? resolved : name, NULL);
+        free((void *)resolved);
+        for (int j = 0; j < modules->count; j++) {
+            if (!bindings[j]) continue;
+            char *candidate = realpath(modules->module_paths[j], NULL);
+            bool match = strcmp(name, modules->module_paths[j]) == 0 ||
+                         (canonical && candidate && strcmp(canonical, candidate) == 0);
+            free(candidate);
+            if (!match) continue;
+            uint32_t idx = nvm_add_string(module, bindings[j], (uint32_t)strlen(bindings[j]));
+            if (idx == UINT32_MAX) { free(canonical); return false; }
+            imp->module_name_idx = idx;
+            imp->kind = NVM_IMPORT_ARTIFACT;
+            break;
+        }
+        free(canonical);
+    }
+    return true;
+}
+
+static bool build_ffi_modules(ModuleList *modules, char **bindings) {
+    for (int i = 0; i < modules->count; i++) {
+        char *dir = strdup(modules->module_paths[i]);
+        if (!dir) return false;
+        char *slash = strrchr(dir, '/');
+        if (slash == dir) slash[1] = '\0';
+        else if (slash) *slash = '\0';
+        else strcpy(dir, ".");
+
+        char manifest[1024];
+        int length = snprintf(manifest, sizeof(manifest), "%s/module.json", dir);
+        if (length < 0 || (size_t)length >= sizeof(manifest)) {
+            fprintf(stderr, "I could not represent the imported module manifest path\n");
+            free(dir);
+            return false;
+        }
+        ModuleBuildMetadata *meta = module_load_metadata(dir);
+        free(dir);
+        if (!meta) {
+            if (access(manifest, F_OK) == 0 || errno != ENOENT) {
+                fprintf(stderr, "I could not read imported module metadata: %s\n", manifest);
+                return false;
+            }
+            continue;
+        }
+        if (!meta->name || !meta->name[0]) {
+            fprintf(stderr, "I require a name in imported module metadata: %s\n", manifest);
+            module_metadata_free(meta);
+            return false;
+        }
+        bool ok = true;
+        if (meta->c_sources_count > 0) {
+            ModuleBuildInfo *info = module_build(NULL, meta);
+            ok = info != NULL;
+            if (ok) {
+                /* I derive the library from the returned object generation,
+                 * never from a second read of the mutable current pointer. */
+                char *generation = info->object_file ? strdup(info->object_file) : NULL;
+                char *end = generation ? strrchr(generation, '/') : NULL;
+                ok = end != NULL;
+                if (ok) {
+                    *end = '\0';
+                    char library[1024];
+#ifdef __APPLE__
+                    const char *extension = "dylib";
+#else
+                    const char *extension = "so";
+#endif
+                    int n = snprintf(library, sizeof(library), "%s/lib%s.%s", generation, meta->name, extension);
+                    ok = n > 0 && (size_t)n < sizeof(library);
+                    if (ok) {
+                        bindings[i] = realpath(library, NULL);
+                        ok = bindings[i] != NULL;
+                    }
+                }
+                free(generation);
+            }
+            module_build_info_free(info);
+        }
+        module_metadata_free(meta);
+        if (!ok) {
+            fprintf(stderr, "I could not build foreign support for %s\n", modules->module_paths[i]);
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
+                           const char *input, char **bindings, bool include_imports) {
+    bool present = false;
+    for (int i = 0; i < program->as.program.count; i++) {
+        if (program->as.program.items[i]->type == AST_SHADOW) present = true;
+    }
+    if (!present && !include_imports) return true;
+    CodegenResult tests = codegen_compile_shadow_scope(program, env, modules, input, include_imports);
+    if (!tests.ok) {
+        fprintf(stderr, "I could not compile shadows at line %d: %s\n", tests.error_line, tests.error_msg);
+        return false;
+    }
+    if (!bind_ffi_imports(tests.module, modules, bindings, input)) {
+        fprintf(stderr, "I could not bind shadow foreign imports\n");
+        nvm_module_free(tests.module);
+        return false;
+    }
+    NvmVerifyResult verified = nvm_verify(tests.module);
+    if (!verified.ok) {
+        fprintf(stderr, "I could not verify shadow bytecode: %s\n", verified.error_msg);
+        nvm_module_free(tests.module);
+        return false;
+    }
+    fflush(NULL);
+    pid_t child = fork();
+    if (child == 0) {
+        /* I bound test execution, not its authority: this is not a sandbox. */
+        signal(SIGALRM, SIG_DFL);
+        alarm(10);
+        if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
+        vm_ffi_set_env(env);
+        VmState vm;
+        vm_init(&vm, tests.module);
+        VmResult status = vm_execute(&vm);
+        if (status != VM_OK) {
+            fprintf(stderr, "I failed a shadow: %s\n", vm.error_msg[0] ? vm.error_msg : vm_error_string(status));
+        }
+        if (vm.cop_pid > 0) vm_ffi_cop_stop(&vm);
+        vm_destroy(&vm);
+        vm_ffi_shutdown();
+        fflush(NULL);
+        _exit(status == VM_OK ? 0 : 1);
+    }
+    int status = 0;
+    pid_t waited = -1;
+    bool timed_out = false;
+    bool clock_failed = false;
+    if (child > 0) {
+        struct timespec start, now, pause = {0, 10000000};
+        bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
+        for (;;) {
+            waited = waitpid(child, &status, WNOHANG);
+            if (waited == child || (waited < 0 && errno != EINTR)) break;
+            clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
+            timed_out = !clock_failed && (now.tv_sec - start.tv_sec > 10 ||
+                (now.tv_sec - start.tv_sec == 10 && now.tv_nsec >= start.tv_nsec));
+            if (clock_failed || timed_out) {
+                kill(child, SIGKILL);
+                do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
+                break;
+            }
+            nanosleep(&pause, NULL);
+        }
+    }
+    int supervision_error = errno;
+    nvm_module_free(tests.module);
+    if (child < 0 || waited < 0) {
+        fprintf(stderr, "I could not supervise shadow execution: %s\n", strerror(supervision_error));
+        return false;
+    }
+    if (clock_failed || timed_out || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        if (clock_failed)
+            fprintf(stderr, "I could not measure the shadow execution deadline\n");
+        else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
+            fprintf(stderr, "I stopped shadow execution after 10 seconds\n");
+        else
+            fprintf(stderr, "I will not publish output after failed shadow execution\n");
+        return false;
+    }
+    return true;
+}
+
 int main(int argc, char **argv) {
     const char *input = NULL;
     const char *output = NULL;
@@ -76,10 +269,15 @@ int main(int argc, char **argv) {
     bool strip_debug = false;
     bool daemon_wrapper = false;
     bool verbose = false;
+    bool test_imports = true;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output = argv[++i];
+        } else if (strcmp(argv[i], "--test-imports") == 0) {
+            test_imports = true;
+        } else if (strcmp(argv[i], "--root-shadows-only") == 0) {
+            test_imports = false;
         } else if (strcmp(argv[i], "--run") == 0) {
             run = true;
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {
@@ -148,8 +346,30 @@ int main(int argc, char **argv) {
 
     /* Type Checking */
     typecheck_set_current_file(input);
-    if (!type_check(program, env)) {
+    env_set_current_file(env, input);
+    bool has_main = false, has_shadows = false;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_SHADOW) has_shadows = true;
+        if (item->type == AST_FUNCTION && strcmp(item->as.function.name, "main") == 0) has_main = true;
+    }
+    bool typed = has_shadows && !has_main ? type_check_module(program, env) : type_check(program, env);
+    if (typed) typed = type_check_shadow_scope(program, env, modules, input, test_imports);
+    if (!typed) {
         fprintf(stderr, "error: type check failed\n");
+        free_ast(program);
+        free_environment(env);
+        free_module_list(modules);
+        clear_module_cache();
+        free_tokens(tokens, token_count);
+        free(source);
+        return 1;
+    }
+
+    char **bindings = calloc(modules->count ? (size_t)modules->count : 1, sizeof(char *));
+    if (!bindings || !build_ffi_modules(modules, bindings) ||
+        !check_shadows(program, env, modules, input, bindings, test_imports)) {
+        free_ffi_bindings(bindings, modules->count);
         free_ast(program);
         free_environment(env);
         free_module_list(modules);
@@ -161,6 +381,12 @@ int main(int argc, char **argv) {
 
     /* Codegen */
     CodegenResult cg = codegen_compile(program, env, modules, input);
+    if (cg.ok && !bind_ffi_imports(cg.module, modules, bindings, input)) {
+        fprintf(stderr, "I could not bind production foreign imports\n");
+        nvm_module_free(cg.module);
+        cg.ok = false;
+    }
+    free_ffi_bindings(bindings, modules->count);
     if (!cg.ok) {
         fprintf(stderr, "error: codegen failed at line %d: %s\n",
                 cg.error_line, cg.error_msg);
@@ -267,11 +493,7 @@ int main(int argc, char **argv) {
 
         /* Load modules referenced in import table */
         for (uint32_t i = 0; i < cg.module->import_count; i++) {
-            const char *mod_name = nvm_get_string(cg.module,
-                                                   cg.module->imports[i].module_name_idx);
-            if (mod_name && mod_name[0] != '\0') {
-                vm_ffi_load_module(mod_name);
-            }
+            vm_ffi_load_import(cg.module, i);
         }
 
         /* Also scan for AST_IMPORT nodes to load modules by path.
