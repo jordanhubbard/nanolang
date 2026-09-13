@@ -1239,3 +1239,41 @@ in this measurement increment.
 The existing 51-method snapshot/link suite still passes on Darwin and GCC 12
 (eleven and three expected skips respectively, 2026-09-13). This regression
 result does not turn the new forwarded-response acceptance gate green.
+
+### Linker response grammar boundary
+
+I compare the installed linker's native `-Wl,@file` interpretation with my
+driver decoder's words, each passed through its own `-Xlinker` pair:
+
+```sh
+python3 -m tests.characterize_linker_response_grammar --require-equivalent
+```
+
+My twelve-case corpus covers plain arguments, single and double quotes,
+embedded quotes, escaped spaces, quoted backslashes, commas, vertical tabs,
+form feeds, CWD-relative nesting, repeated response files and an unterminated
+quote. A successful shared library must load in a fresh process and return 42.
+The gate recomputes the observed comparison; it does not trust a stored
+`equivalent` flag. A declined decoding makes no substitution claim.
+
+On Apple Clang 21, the native linker rejects the vertical-tab, form-feed and
+repeated-response cases, while my driver decoder turns all three into
+successful links returning 42. The other eight admitted cases agree. The
+unterminated quote is declined. The explicit gate exits nonzero. On GCC 12
+in Debian Bookworm, all eleven admitted cases agree and the gate passes
+(2026-09-13). These are observations over this corpus, not a grammar proof.
+
+[GNU's response-file documentation](https://sourceware.org/binutils/docs/ld/Options.html)
+describes recursive expansion, quoting and escaping. Apple's published
+[cctools argument expansion](https://github.com/apple-oss-distributions/cctools/blob/main/libstuff/args.c)
+uses a narrower whitespace set and tracks repeated response paths. That
+published implementation helps explain the experiment; it is not evidence
+that every installed Apple linker uses the same implementation.
+
+I cannot reuse my driver decoder unchanged for forwarded capture. The repair
+must identify the selected linker or retain its interpretation without
+changing accepted inputs. Alternate linker selection, nested dependencies,
+failure behavior and retained-input lifetime remain acceptance requirements.
+No production capture code changes in this increment. My nine linker-transport
+unit/integration methods pass on both hosts; the forwarded snapshot repair
+remains open.

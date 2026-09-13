@@ -1129,6 +1129,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The forwarded-response fixture reproduces cold/warm/fresh 43/42/42 in
       all six cases on Apple Clang 21 and GCC 12. The explicit acceptance gate
       remains red; driver-response capture does not repair this linker boundary.
+      I compare native linker interpretation against my driver-response decoder
+      for quoting, control whitespace, relative nesting and repeated response
+      files. Published GNU and Apple implementations are not a shared parser
+      contract. My twelve-case experiment finds three admitted substitutions
+      that change Apple linker rejection into success (vertical tab, form feed,
+      repeated response); all eleven admitted GNU cases agree. Unchanged driver
+      decoder reuse is therefore not a valid cross-platform repair. Selected
+      linker identity and preserved failure behavior remain required.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

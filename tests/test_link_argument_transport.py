@@ -12,9 +12,21 @@ import tempfile
 
 from tests.characterize_link_argument_transport import measure, require_consistent
 from tests import test_bytecode_shadows as shadows
+from tests.characterize_linker_response_grammar import require_equivalent
 
 
 class LinkArgumentAcceptance(unittest.TestCase):
+    def test_linker_grammar_gate_checks_observed_results(self):
+        result = {"driver_decoder_admitted": True, "native": {"status": 0, "answer": 42},
+                  "candidate": {"status": 0, "answer": 42}, "equivalent": True}
+        require_equivalent({"cases": [result]})
+        for candidate in ({"status": 1, "answer": None}, {"status": 0, "answer": 43},
+                          {"status": 0, "answer": None}):
+            with self.subTest(candidate=candidate), self.assertRaises(SystemExit):
+                require_equivalent({"cases": [{**result, "candidate": candidate}]})
+        with self.assertRaises(SystemExit): require_equivalent({"cases": []})
+        require_equivalent({"cases": [{"driver_decoder_admitted": False}]})
+
     def test_link_response_metadata_allocation_rollback(self):
         result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
                                  "link-response-allocation", "all"], capture_output=True, timeout=30)
