@@ -327,6 +327,12 @@ int vmd_server_run(const VmdServerConfig *cfg) {
     char sock_path[256], pid_file[256];
     vmd_socket_path(sock_path, sizeof(sock_path));
     vmd_pid_path(pid_file, sizeof(pid_file));
+    struct sockaddr_un addr;
+    size_t socket_length = strlen(sock_path);
+    if (socket_length >= sizeof(addr.sun_path)) {
+        fprintf(stderr, "[vmd] I cannot represent this Unix socket path without truncation.\n");
+        return 1;
+    }
 
     /* Check for existing daemon */
     pid_t existing = check_pid_file(pid_file);
@@ -344,10 +350,9 @@ int vmd_server_run(const VmdServerConfig *cfg) {
         return 1;
     }
 
-    struct sockaddr_un addr;
     memset(&addr, 0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, sock_path, sizeof(addr.sun_path) - 1);
+    memcpy(addr.sun_path, sock_path, socket_length + 1);
 
     /* Remove stale socket */
     unlink(sock_path);

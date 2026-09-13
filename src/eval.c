@@ -26,6 +26,7 @@
 #include <sys/wait.h>
 #include <spawn.h>
 #include <math.h>
+#include <limits.h>
 
 /* g_argc/g_argv are defined in main.c / nano_main.c */
 extern int g_argc;
@@ -59,6 +60,7 @@ static Value coro_trampoline(void *raw_arg, int coro_id) {
 
 typedef struct {
     const char *test_name;
+    const char *source_file;
     int first_line;
     int first_column;
     int fail_count;
@@ -106,6 +108,26 @@ static const char *g_shadow_current_test = NULL;
 static int g_shadow_current_fail_count = 0;
 static int g_shadow_current_first_line = 0;
 static int g_shadow_current_first_column = 0;
+/* Like shadow accounting, my interpreted call context is sequential. */
+static ASTNode *g_eval_call_site = NULL;
+
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column);
+
+/* I keep checked dispatch and shadow failure accounting shared by every call route. */
+static Value eval_foreign_call(Function *func, Value *args, int arg_count,
+                               Environment *env, int line, int column) {
+    bool success = false;
+    Value result = ffi_call_extern_checked(func->name, args, arg_count, func, env, &success);
+    if (!success && g_in_shadow_tests) {
+        g_shadow_current_fail_count++;
+        if (g_shadow_current_first_line == 0) {
+            g_shadow_current_first_line = line;
+            g_shadow_current_first_column = column;
+        }
+    }
+    return result;
+}
 
 static void shadow_json_escape(FILE *out, const char *s) {
     if (!s) return;
@@ -124,19 +146,22 @@ static void shadow_json_escape(FILE *out, const char *s) {
     }
 }
 
-static void shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success) {
-    if (!path || path[0] == '\0') return;
+static bool shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success, int test_count) {
+    if (!path || path[0] == '\0') return true;
     FILE *f = fopen(path, "w");
-    if (!f) return;
+    if (!f) return false;
 
     fprintf(f, "{");
     fprintf(f, "\"tool\":\"nanoc_c\",");
     fprintf(f, "\"success\":%s,", success ? "true" : "false");
+    fprintf(f, "\"completed\":true,");
+    fprintf(f, "\"test_count\":%d,", test_count);
     fprintf(f, "\"failures\":[");
     for (int i = 0; i < fail_len; i++) {
         if (i > 0) fprintf(f, ",");
         fprintf(f, "{");
         fprintf(f, "\"test\":\""); shadow_json_escape(f, fails[i].test_name); fprintf(f, "\",");
+        fprintf(f, "\"source_file\":\""); shadow_json_escape(f, fails[i].source_file); fprintf(f, "\",");
         fprintf(f, "\"fail_count\":%d,", fails[i].fail_count);
         fprintf(f, "\"first_location\":{");
         fprintf(f, "\"line\":%d,", fails[i].first_line);
@@ -145,7 +170,9 @@ static void shadow_write_json_file(const char *path, const ShadowFailure *fails,
         fprintf(f, "}");
     }
     fprintf(f, "]}");
-    fclose(f);
+    bool written = !ferror(f);
+    if (fclose(f) != 0) written = false;
+    return written;
 }
 
 
@@ -1012,14 +1039,53 @@ static Value builtin_array_new(Value *args) {
     return arr;
 }
 
+static ElementType value_type_to_elem_type(ValueType vtype);
+
 static Value builtin_array_set(Value *args) {
     /* array_set(array, index, value) -> void */
-    if (args[0].type != VAL_ARRAY) {
+    if (args[1].type != VAL_INT) {
+        fprintf(stderr, "Error: array_set() requires an integer index\n");
+        return create_void();
+    }
+    if (args[0].type != VAL_ARRAY && args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_set() requires an array as first argument\n");
         return create_void();
     }
-    if (args[1].type != VAL_INT) {
-        fprintf(stderr, "Error: array_set() requires an integer index\n");
+
+    if (args[0].type == VAL_DYN_ARRAY) {
+        DynArray *arr = args[0].as.dyn_array_val;
+        long long index = args[1].as.int_val;
+        if (index < 0 || index >= dyn_array_length(arr)) {
+            fprintf(stderr, "I cannot write array index %lld outside [0..%lld).\n",
+                    index, (long long)dyn_array_length(arr));
+            exit(1);
+        }
+        if (value_type_to_elem_type(args[2].type) != dyn_array_get_elem_type(arr)) {
+            fprintf(stderr, "I cannot assign a different element type to this array.\n");
+            exit(1);
+        }
+        switch (args[2].type) {
+            case VAL_INT: dyn_array_set_int(arr, index, args[2].as.int_val); break;
+            case VAL_FLOAT: dyn_array_set_float(arr, index, args[2].as.float_val); break;
+            case VAL_BOOL: dyn_array_set_bool(arr, index, args[2].as.bool_val); break;
+            case VAL_STRING: {
+                char *copy = strdup(args[2].as.string_val);
+                if (!copy) { fprintf(stderr, "I cannot allocate an array string.\n"); exit(1); }
+                dyn_array_set_string(arr, index, copy);
+                break;
+            }
+            case VAL_DYN_ARRAY: dyn_array_set_array(arr, index, args[2].as.dyn_array_val); break;
+            case VAL_STRUCT: {
+                StructValue *sv = args[2].as.struct_val;
+                Value copy = create_struct(sv->struct_name, sv->field_names, sv->field_values, sv->field_count);
+                StructValue *stored = copy.as.struct_val;
+                dyn_array_set_struct(arr, index, &stored, sizeof(stored));
+                break;
+            }
+            default:
+                fprintf(stderr, "I cannot write this array element representation.\n");
+                exit(1);
+        }
         return create_void();
     }
     
@@ -1260,6 +1326,37 @@ static Value builtin_array_push(Value *args) {
         return create_dyn_array(arr);
     }
     
+    if (args[0].type == VAL_ARRAY) {
+        Array *arr = args[0].as.array_val;
+        size_t width;
+        switch (arr->element_type) {
+            case VAL_INT: width = sizeof(long long); break;
+            case VAL_FLOAT: width = sizeof(double); break;
+            case VAL_BOOL: width = sizeof(bool); break;
+            case VAL_STRING: width = sizeof(char*); break;
+            case VAL_STRUCT: width = sizeof(StructValue*); break;
+            default:
+                fprintf(stderr, "I cannot append this array element representation.\n");
+                exit(1);
+        }
+        if (args[1].type != arr->element_type || arr->length == INT_MAX ||
+            (size_t)arr->length + 1 > SIZE_MAX / width) {
+            fprintf(stderr, "I cannot append this value to the array.\n");
+            exit(1);
+        }
+        if (arr->length == arr->capacity) {
+            void *data = realloc(arr->data, ((size_t)arr->length + 1) * width);
+            if (!data) { fprintf(stderr, "I cannot grow the array.\n"); exit(1); }
+            arr->data = data;
+            arr->capacity++;
+        }
+        memset((char*)arr->data + (size_t)arr->length * width, 0, width);
+        Value set_args[] = {args[0], create_int(arr->length), args[1]};
+        arr->length++;
+        builtin_array_set(set_args);
+        return args[0];
+    }
+
     /* Must be a dynamic array */
     if (args[0].type != VAL_DYN_ARRAY) {
         fprintf(stderr, "Error: array_push() requires a dynamic array (use [] to create one)\n");
@@ -2769,8 +2866,19 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
     return create_void();
 }
 
-/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env);
+
+/* I retain the invoking source node while native builtins call back into me. */
 static Value eval_call(ASTNode *node, Environment *env) {
+    ASTNode *saved_site = g_eval_call_site;
+    g_eval_call_site = node;
+    Value result = eval_call_impl(node, env);
+    g_eval_call_site = saved_site;
+    return result;
+}
+
+/* Evaluate function call */
+static Value eval_call_impl(ASTNode *node, Environment *env) {
     /* Check if this is a function call returning a function: ((func_call) arg1 arg2) */
     if (node->as.call.func_expr) {
         /* Evaluate the inner function call to get the function */
@@ -2811,7 +2919,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
             return create_void();
         }
         
-        Value result = call_function(func_name, args, node->as.call.arg_count, env);
+        Value result = call_function_at(func_name, args, node->as.call.arg_count, env,
+                                        node->line, node->column);
         free(args);
         return result;
     }
@@ -3148,6 +3257,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_starts_with") == 0) return builtin_str_starts_with(args);
     if (strcmp(name, "str_ends_with") == 0) return builtin_str_ends_with(args);
     if (strcmp(name, "str_index_of") == 0) return builtin_str_index_of(args);
+    if (strcmp(name, "str_last_index_of") == 0) return builtin_str_last_index_of(args);
     if (strcmp(name, "str_trim") == 0) return builtin_str_trim(args);
     if (strcmp(name, "str_trim_left") == 0) return builtin_str_trim_left(args);
     if (strcmp(name, "str_trim_right") == 0) return builtin_str_trim_right(args);
@@ -3392,7 +3502,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
     
     /* Array operations */
-    if (strcmp(name, "at") == 0) return builtin_at(args);
+    if (strcmp(name, "at") == 0 || strcmp(name, "array_get") == 0) return builtin_at(args);
     if (strcmp(name, "array_length") == 0) return builtin_array_length(args);
     if (strcmp(name, "array_new") == 0) return builtin_array_new(args);
     if (strcmp(name, "array_set") == 0) return builtin_array_set(args);
@@ -4419,8 +4529,10 @@ static Value eval_call(ASTNode *node, Environment *env) {
     /* If built-in with no body, already handled above */
     if (func->body == NULL && !(func->is_extern && strncmp(name, "List_", 5) == 0)) {
         /* Try FFI for extern functions */
-        if (func->is_extern && ffi_is_available()) {
-            return ffi_call_extern(name, args, node->as.call.arg_count, func, env);
+        if (func->is_extern) {
+            Value result = eval_foreign_call(func, args, node->as.call.arg_count,
+                                            env, node->line, node->column);
+            return result;
         }
         
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
@@ -4460,6 +4572,8 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
 
     /* Execute function body */
+    char *saved_module_context = env->current_module;
+    env->current_module = func->module_name;
     Value result = create_void();
     for (int i = 0; i < func->body->as.block.count; i++) {
         ASTNode *stmt = func->body->as.block.statements[i];
@@ -4477,6 +4591,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
     }
 
     /* Pop call stack */
+    env->current_module = saved_module_context;
     tracing_pop_call();
 
     /*
@@ -4635,7 +4750,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 }
             }
 
-            Value result = call_function(qualified_name, args, arg_count, env);
+            Value result = call_function_at(qualified_name, args, arg_count, env,
+                                            expr->line, expr->column);
             free(args);
             free(qualified_name);
             return result;
@@ -4660,7 +4776,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Set elements */
             for (int i = 0; i < count; i++) {
-                Value elem = eval_expression(expr->as.array_literal.elements[i], env);
+                Value elem = i == 0 ? first : eval_expression(expr->as.array_literal.elements[i], env);
                 
                 /* Store element in array data */
                 switch (elem_type) {
@@ -4676,6 +4792,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     case VAL_STRING:
                         ((char**)arr.as.array_val->data)[i] = strdup(elem.as.string_val);
                         break;
+                    case VAL_STRUCT: {
+                        StructValue *sv = elem.as.struct_val;
+                        Value copy = create_struct(sv->struct_name, sv->field_names,
+                                                   sv->field_values, sv->field_count);
+                        ((StructValue**)arr.as.array_val->data)[i] = copy.as.struct_val;
+                        break;
+                    }
                     default:
                         fprintf(stderr, "Error: Unsupported array element type\n");
                         break;
@@ -4894,6 +5017,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Find field in struct */
             for (int i = 0; i < sv->field_count; i++) {
                 if (strcmp(sv->field_names[i], field_name) == 0) {
+                    /* I return an owned string, not a record's borrowed storage.
+                     * A local binding releases its value when its call ends. */
+                    if (sv->field_values[i].type == VAL_STRING) {
+                        return create_string(sv->field_values[i].as.string_val);
+                    }
                     return sv->field_values[i];
                 }
             }
@@ -5108,17 +5236,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_BLOCK: {
             /* Blocks can be used as expressions in match arms
-             * Execute statements and return the last return value
+             * I yield the final expression and preserve function-scoped control flow.
              */
             Value result = create_void();
             for (int i = 0; i < expr->as.block.count; i++) {
                 result = eval_statement(expr->as.block.statements[i], env);
                 /* If statement returned a value, propagate it immediately */
-                if (result.is_return) {
-                    /* Clear the return flag since we're handling it */
-                    result.is_return = false;
-                    result.is_break = false;
-                    result.is_continue = false;
+                if (result.is_return || result.is_break || result.is_continue) {
                     return result;
                 }
             }
@@ -5133,7 +5257,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             } else {
                 result = create_void();
             }
-            /* Don't set is_return flag here - let the block handler deal with it */
+            result.is_return = true;
             return result;
         }
 
@@ -5766,67 +5890,14 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
     }
 }
 
-/* Check if an AST node contains calls to extern functions */
-static bool contains_extern_calls(ASTNode *node, Environment *env) {
-    if (!node) return false;
-    
-    switch (node->type) {
-        case AST_CALL: {
-            const char *func_name = node->as.call.name;
-            Function *func = env_get_function(env, func_name);
-            if (func && func->is_extern) {
-                return true;
-            }
-            /* Check arguments recursively */
-            for (int i = 0; i < node->as.call.arg_count; i++) {
-                if (contains_extern_calls(node->as.call.args[i], env)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        case AST_BLOCK:
-            for (int i = 0; i < node->as.block.count; i++) {
-                if (contains_extern_calls(node->as.block.statements[i], env)) {
-                    return true;
-                }
-            }
-            return false;
-        case AST_IF:
-            if (contains_extern_calls(node->as.if_stmt.condition, env)) return true;
-            if (contains_extern_calls(node->as.if_stmt.then_branch, env)) return true;
-            if (node->as.if_stmt.else_branch && contains_extern_calls(node->as.if_stmt.else_branch, env)) return true;
-            return false;
-        case AST_WHILE:
-            if (contains_extern_calls(node->as.while_stmt.condition, env)) return true;
-            if (contains_extern_calls(node->as.while_stmt.body, env)) return true;
-            return false;
-        case AST_RETURN:
-            if (node->as.return_stmt.value && contains_extern_calls(node->as.return_stmt.value, env)) return true;
-            return false;
-        case AST_PREFIX_OP:
-            for (int i = 0; i < node->as.prefix_op.arg_count; i++) {
-                if (contains_extern_calls(node->as.prefix_op.args[i], env)) return true;
-            }
-            return false;
-        case AST_ARRAY_LITERAL:
-            for (int i = 0; i < node->as.array_literal.element_count; i++) {
-                if (contains_extern_calls(node->as.array_literal.elements[i], env)) return true;
-            }
-            return false;
-        case AST_FIELD_ACCESS:
-            return contains_extern_calls(node->as.field_access.object, env);
-        case AST_LET:
-            return contains_extern_calls(node->as.let.value, env);
-        case AST_SET:
-            return contains_extern_calls(node->as.set.value, env);
-        default:
-            return false;
-    }
-}
 
 /* Run shadow tests */
 bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
+    return run_shadow_tests_scope(program, env, NULL, env_current_file(env), false, verbose);
+}
+
+bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                            const char *input_file, bool include_imports, bool verbose) {
     if (!program || program->type != AST_PROGRAM) {
         fprintf(stderr, "Error: Invalid program for shadow tests\n");
         return false;
@@ -5843,136 +5914,143 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose) {
     int failure_count = 0;
     int failure_cap = 0;
     int test_count = 0;
-    int skipped_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
+    ASTNode *root_program = program;
+    char *root_owner = env->current_module;
+    const char *root_file = env_current_file(env);
+    int imported_count = include_imports && modules ? modules->count : 0;
 
-    /* First pass: Evaluate top-level constants */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_LET) {
-            eval_statement(item, env);  /* Evaluate the constant */
+    for (int source = 0; source <= imported_count; source++) {
+        bool imported = source < imported_count;
+        const char *file = imported ? modules->module_paths[source] : input_file;
+        program = imported ? get_cached_module_ast(file) : root_program;
+        char *owner = imported ? module_program_name(program, file) : NULL;
+        if (!program || (imported && !owner)) {
+            fprintf(stderr, "I cannot load a selected shadow module: %s\n", file ? file : "");
+            free(owner);
+            all_passed = false;
+            break;
         }
-    }
+        env->current_module = imported ? owner : root_owner;
+        env_set_current_file(env, file);
 
-    /* Second pass: Register all enum definitions so they're available in shadow tests */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
+        /* First pass: Evaluate top-level constants */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
         
-        if (item->type == AST_ENUM_DEF) {
-            eval_statement(item, env);  /* This will register the enum */
-        }
-    }
-
-    /* Third pass: Register all union definitions so they're available in shadow tests */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_UNION_DEF) {
-            eval_statement(item, env);  /* This will register the union */
-        }
-    }
-
-    /* Fourth pass: Run each shadow test */
-    for (int i = 0; i < program->as.program.count; i++) {
-        ASTNode *item = program->as.program.items[i];
-        
-        if (item->type == AST_SHADOW) {
-            const char *func_name = item->as.shadow.function_name;
-            Function *func = env_get_function(env, func_name);
-            
-            /* Check if shadow test or function body uses extern functions */
-            bool uses_extern = false;
-            if (func && func->body && contains_extern_calls(func->body, env)) {
-                uses_extern = true;
+            if (item->type == AST_LET) {
+                eval_statement(item, env);  /* Evaluate the constant */
             }
-            if (contains_extern_calls(item->as.shadow.body, env)) {
-                uses_extern = true;
+        }
+
+        /* Second pass: Register all enum definitions so they're available in shadow tests */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+        
+            if (item->type == AST_ENUM_DEF) {
+                eval_statement(item, env);  /* This will register the enum */
             }
+        }
+
+        /* Third pass: Register all union definitions so they're available in shadow tests */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+        
+            if (item->type == AST_UNION_DEF) {
+                eval_statement(item, env);  /* This will register the union */
+            }
+        }
+
+        /* Fourth pass: Run each shadow test */
+        for (int i = 0; i < program->as.program.count; i++) {
+            ASTNode *item = program->as.program.items[i];
+        
+            if (item->type == AST_SHADOW) {
+                const char *func_name = item->as.shadow.function_name;
+                /* I execute explicit shadows; foreign syntax does not exempt them. */
             
-            if (uses_extern) {
+                test_count++;
                 if (verbose) {
-                    fprintf(stdout, "Testing %s... SKIPPED (uses extern functions)\n", func_name);
+                    fprintf(stdout, "Testing %s... ", func_name);
                 }
-                skipped_count++;
-                continue;
-            }
             
-            test_count++;
-            if (verbose) {
-                fprintf(stdout, "Testing %s... ", func_name);
-            }
-            
-            /* Execute shadow test */
-            g_shadow_current_test = func_name;
-            g_shadow_current_fail_count = 0;
-            g_shadow_current_first_line = 0;
-            g_shadow_current_first_column = 0;
+                /* Execute shadow test */
+                g_shadow_current_test = func_name;
+                g_shadow_current_fail_count = 0;
+                g_shadow_current_first_line = 0;
+                g_shadow_current_first_column = 0;
 
-            /* When not verbose, suppress stdout from test body execution */
-            int saved_stdout_fd = -1;
-            if (!verbose) {
-                fflush(stdout);
-                saved_stdout_fd = dup(STDOUT_FILENO);
-                int devnull = open("/dev/null", O_WRONLY);
-                if (devnull >= 0) {
-                    dup2(devnull, STDOUT_FILENO);
-                    close(devnull);
-                }
-            }
-
-            eval_statement(item->as.shadow.body, env);
-
-            if (!verbose && saved_stdout_fd >= 0) {
-                fflush(stdout);
-                dup2(saved_stdout_fd, STDOUT_FILENO);
-                close(saved_stdout_fd);
-            }
-
-            if (g_shadow_current_fail_count > 0) {
-                all_passed = false;
-                if (verbose) {
-                    fprintf(stdout, "FAILED\n");
-                }
-                fprintf(stdout, "  Shadow test '%s' FAILED: %d assertion(s) failed\n", func_name, g_shadow_current_fail_count);
-                if (g_shadow_current_first_line > 0) {
-                    fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
-                }
-
-                if (failure_count >= failure_cap) {
-                    int new_cap = failure_cap == 0 ? 8 : failure_cap * 2;
-                    ShadowFailure *new_arr = realloc(failures, sizeof(ShadowFailure) * (size_t)new_cap);
-                    if (new_arr) {
-                        failures = new_arr;
-                        failure_cap = new_cap;
+                /* When not verbose, suppress stdout from test body execution */
+                int saved_stdout_fd = -1;
+                if (!verbose) {
+                    fflush(stdout);
+                    saved_stdout_fd = dup(STDOUT_FILENO);
+                    int devnull = open("/dev/null", O_WRONLY);
+                    if (devnull >= 0) {
+                        dup2(devnull, STDOUT_FILENO);
+                        close(devnull);
                     }
                 }
-                if (failure_count < failure_cap) {
-                    failures[failure_count].test_name = func_name;
-                    failures[failure_count].fail_count = g_shadow_current_fail_count;
-                    failures[failure_count].first_line = g_shadow_current_first_line;
-                    failures[failure_count].first_column = g_shadow_current_first_column;
-                    failure_count++;
+
+                eval_statement(item->as.shadow.body, env);
+
+                if (!verbose && saved_stdout_fd >= 0) {
+                    fflush(stdout);
+                    dup2(saved_stdout_fd, STDOUT_FILENO);
+                    close(saved_stdout_fd);
                 }
-            } else {
-                if (verbose) {
-                    fprintf(stdout, "PASSED\n");
+
+                if (g_shadow_current_fail_count > 0) {
+                    all_passed = false;
+                    if (verbose) {
+                        fprintf(stdout, "FAILED\n");
+                    }
+                    fprintf(stdout, "  Shadow test '%s' FAILED: %d failure(s)\n", func_name, g_shadow_current_fail_count);
+                    if (g_shadow_current_first_line > 0) {
+                        fprintf(stdout, "  First failure at line %d, column %d\n", g_shadow_current_first_line, g_shadow_current_first_column);
+                    }
+
+                    if (failure_count >= failure_cap) {
+                        int new_cap = failure_cap == 0 ? 8 : failure_cap * 2;
+                        ShadowFailure *new_arr = realloc(failures, sizeof(ShadowFailure) * (size_t)new_cap);
+                        if (new_arr) {
+                            failures = new_arr;
+                            failure_cap = new_cap;
+                        }
+                    }
+                    if (failure_count < failure_cap) {
+                        failures[failure_count].test_name = func_name;
+                        failures[failure_count].source_file = file;
+                        failures[failure_count].fail_count = g_shadow_current_fail_count;
+                        failures[failure_count].first_line = g_shadow_current_first_line;
+                        failures[failure_count].first_column = g_shadow_current_first_column;
+                        failure_count++;
+                    }
+                } else {
+                    if (verbose) {
+                        fprintf(stdout, "PASSED\n");
+                    }
                 }
             }
+            /* Note: We do NOT execute non-shadow items here - they're already registered
+             * in the environment by the type checker. Only shadow test bodies need execution. */
         }
-        /* Note: We do NOT execute non-shadow items here - they're already registered
-         * in the environment by the type checker. Only shadow test bodies need execution. */
+        env->current_module = root_owner;
+        free(owner);
     }
+    env_set_current_file(env, root_file);
 
     if (all_passed) {
         if (verbose) {
             fprintf(stdout, "All shadow tests passed! (%d tests", test_count);
-            if (skipped_count > 0) fprintf(stdout, ", %d skipped", skipped_count);
             fprintf(stdout, ")\n");
         }
     }
 
-    shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed);
+    if (!shadow_write_json_file(shadow_json_path, failures, failure_count, all_passed, test_count)) {
+        fprintf(stderr, "I cannot write the completed shadow report.\n");
+        all_passed = false;
+    }
     free(failures);
     g_in_shadow_tests = false;
 
@@ -6023,7 +6101,8 @@ bool run_program(ASTNode *program, Environment *env) {
 }
 
 /* Call a function by name with arguments */
-Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+static Value call_function_at(const char *name, Value *args, int arg_count,
+                             Environment *env, int line, int column) {
     /* Check if this is a generic list function (List_TypeName_new, List_TypeName_push, etc.) */
     if (strncmp(name, "List_", 5) == 0) {
         /* Extract element type name and operation from function name */
@@ -6109,6 +6188,10 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
         return create_void();
     }
 
+    if (func->is_extern && func->body == NULL) {
+        return eval_foreign_call(func, args, arg_count, env, line, column);
+    }
+
     /* Check argument count */
     if (arg_count != func->param_count) {
         fprintf(stderr, "Error: Function '%s' expects %d arguments, got %d\n",
@@ -6132,7 +6215,10 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     }
 
     /* Execute the function body */
+    char *saved_module_context = env->current_module;
+    env->current_module = func->module_name;
     Value result = eval_statement(func->body, env);
+    env->current_module = saved_module_context;
 
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
     Value return_value = result;
@@ -6160,6 +6246,13 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
     env->symbol_count = original_symbol_count;
 
     return return_value;
+}
+
+Value call_function(const char *name, Value *args, int arg_count, Environment *env) {
+    /* A builtin callback inherits its invoking call. Host calls have no location. */
+    return call_function_at(name, args, arg_count, env,
+                            g_eval_call_site ? g_eval_call_site->line : 0,
+                            g_eval_call_site ? g_eval_call_site->column : 0);
 }
 
 /* ============================================================================

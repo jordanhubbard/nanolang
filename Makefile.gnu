@@ -62,6 +62,15 @@ DEPFLAGS ?= -MMD -MP
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
+# I need libcrypto for cache namespace identity, including sanitizer overrides.
+ifneq ($(filter command line override,$(origin LDFLAGS)),)
+override LDFLAGS += -lcrypto
+endif
+# I use libffi for typed native calls in my interpreter, including doubles.
+LIBFFI_CFLAGS ?= $(shell pkg-config --cflags libffi 2>/dev/null)
+LIBFFI_LIBS ?= $(shell pkg-config --libs libffi 2>/dev/null || printf '%s' '-lffi')
+override CFLAGS += $(LIBFFI_CFLAGS)
+override LDFLAGS += $(LIBFFI_LIBS)
 
 # On Linux, dlopened module shared libraries rely on host-exported runtime symbols
 # (e.g. dyn_array_new). Ensure the main binaries export their symbols.
@@ -84,8 +93,16 @@ ifeq ($(UNAME_S),Darwin)
 # Homebrew OpenSSL is keg-only on macOS — add include/lib paths
 OPENSSL_PREFIX := $(shell brew --prefix openssl 2>/dev/null)
 ifneq ($(OPENSSL_PREFIX),)
-CFLAGS  += -I$(OPENSSL_PREFIX)/include
+ifneq ($(filter command line override,$(origin CFLAGS)),)
+override CFLAGS += -I$(OPENSSL_PREFIX)/include
+else
+CFLAGS += -I$(OPENSSL_PREFIX)/include
+endif
+ifneq ($(filter command line override,$(origin LDFLAGS)),)
+override LDFLAGS += -L$(OPENSSL_PREFIX)/lib
+else
 LDFLAGS += -L$(OPENSSL_PREFIX)/lib
+endif
 endif
 endif
 # Note: -fblocks/-ldispatch/-lBlocksRuntime are only needed when compiling programs
@@ -107,8 +124,8 @@ DEPENDENCY_FILES := $(shell find $(OBJ_DIR) -type f -name '*.d' 2>/dev/null)
 -include $(DEPENDENCY_FILES)
 
 $(OBJ_DIR)/%.o: override CFLAGS += $(DEPFLAGS)
-# Module FFI cache. nanoc honors NANO_BUILD_CACHE; Make exports this so
-# `make clean` (rm -rf $(OBJ_DIR)) and module compiles share one tree.
+# I retain the module FFI cache across ordinary clean: bytecode may still
+# reference immutable generations here after its source build is removed.
 MODULE_BUILD_CACHE ?= $(OBJ_DIR)/module_cache
 export NANO_BUILD_CACHE ?= $(abspath $(MODULE_BUILD_CACHE))
 COV_DIR = coverage
@@ -136,6 +153,11 @@ SENTINEL_BOOTSTRAP3 = .bootstrap3.built
 
 # Bootstrap binaries
 NANOC_SOURCE = $(SRC_NANO_DIR)/nanoc_v06.nano
+# I conservatively track compiler/runtime/library inputs, not just Nano imports.
+# Directory mtimes notice source additions/removals, including old-dated files.
+# Wildcards exclude hidden build caches; their payloads are not source inputs.
+bootstrap_input_tree = $(if $(wildcard $(1)/.),$(1)/. $(wildcard $(addprefix $(1)/,*.nano *.c *.h *.json)) $(foreach child,$(wildcard $(1)/*),$(call bootstrap_input_tree,$(child))))
+SELFHOST_SOURCES := $(sort $(foreach root,$(SRC_NANO_DIR) $(SRC_DIR) modules std stdlib,$(call bootstrap_input_tree,$(root))))
 NANOC_STAGE1 = $(BIN_DIR)/nanoc_stage1
 NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
@@ -489,12 +511,28 @@ $(OBJ_DIR)/nanovm:
 	mkdir -p $(OBJ_DIR)/nanovm
 
 .PHONY: test-nanovm
+SAIL_VM_ORACLE ?= $(OBJ_DIR)/nanovm/sail_vm_oracle
+.PHONY: sail-vm-oracle
+sail-vm-oracle: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o "$(SAIL_VM_ORACLE)" tests/nanovm/sail_vm_oracle.c \
+		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
 test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
 		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovm/test_vm
+	@$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/nanovm/test_heap_allocation_failure \
+		tests/nanovm/test_heap_allocation_failure.c \
+		$(filter-out $(OBJ_DIR)/nanovm/heap.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/nanovm/test_heap_allocation_failure
+	@$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/nanovm/test_stack_allocation_failure \
+		tests/nanovm/test_stack_allocation_failure.c \
+		$(filter-out $(OBJ_DIR)/nanovm/vm.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
 
 .PHONY: test-cop-protocol
@@ -525,6 +563,8 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 
 .PHONY: test-vm-ffi
 test-vm-ffi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=42 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_first.so $(LDFLAGS)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=43 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_second.so $(LDFLAGS)
 	@echo "Running vm_ffi unit tests..."
 	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_vm_ffi \
 		tests/nanovm/test_vm_ffi.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -533,13 +573,14 @@ test-vm-ffi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 	@rm -f tests/nanovm/test_vm_ffi
 
 .PHONY: test-wrapper-gen
-test-wrapper-gen: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o
 	@echo "Running wrapper_gen unit tests..."
 	$(CC) $(CFLAGS) -I$(NANOVIRT_DIR) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovirt/test_wrapper_gen \
 		tests/nanovirt/test_wrapper_gen.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/nanovirt/test_wrapper_gen
 	@rm -f tests/nanovirt/test_wrapper_gen
+	@python3 -m unittest tests.test_wrapper_publication
 
 # ── NanoVM Daemon (vmd) objects ───────────────────────────────────────────────
 VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
@@ -569,6 +610,12 @@ $(OBJ_DIR)/nanovm/cop_main.o: $(NANOVM_DIR)/cop_main.c $(NANOVM_DIR)/cop_protoco
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: test-nanovm-daemon
+.PHONY: test-vmd-socket-path
+test-vmd-socket-path: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_vmd_socket_path tests/nanovm/test_vmd_socket_path.c \
+		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(LDFLAGS) -pthread
+	@$(OBJ_DIR)/test_vmd_socket_path
+
 test-nanovm-daemon: nano_vm nano_vmd
 	@echo "Running NanoVM daemon integration tests..."
 	@scripts/test_nanovm_daemon.sh
@@ -615,6 +662,11 @@ NANOVIRT_OBJECTS = $(patsubst $(NANOVIRT_DIR)/%.c,$(OBJ_DIR)/nanovirt/%.o,$(NANO
 
 $(OBJ_DIR)/nanovirt/%.o: $(NANOVIRT_DIR)/%.c $(NANOVIRT_DIR)/codegen.h $(NANOVIRT_DIR)/wrapper_gen.h | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# I retain the same optional OpenSSL library directory as my compiler link,
+# including when callers override CFLAGS or LDFLAGS.
+$(OBJ_DIR)/nanovirt/wrapper_gen.o: $(NANOVIRT_DIR)/wrapper_gen.c $(NANOVIRT_DIR)/wrapper_gen.h $(SRC_DIR)/shell_path.h Makefile.gnu | $(OBJ_DIR)/nanovirt
+	$(CC) $(CFLAGS) $(if $(OPENSSL_PREFIX),-DNANO_WRAPPER_CRYPTO_DIR='"$(OPENSSL_PREFIX)/lib"') -c $< -o $@
 
 $(OBJ_DIR)/nanovirt:
 	mkdir -p $(OBJ_DIR)/nanovirt
@@ -672,7 +724,7 @@ test-coroutine-scheduler: stage1
 	@rm -f tests/test_coroutine_scheduler
 
 .PHONY: test-eval
-test-eval: stage1
+test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so
 	@echo "Running interpreter (eval.c) unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_eval
@@ -766,7 +818,10 @@ test-effects: stage1
 	@rm -f tests/test_effects
 
 .PHONY: test-ffi
-test-ffi: stage1
+$(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<
+
+test-ffi: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so
 	@echo "Running interpreter FFI unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_ffi tests/test_ffi.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_ffi
@@ -1070,12 +1125,17 @@ test-nvm-v2-module: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_nvm_v2_module
 
 .PHONY: test-nvm-v2-convert
-test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc
 	@echo "Running NanoISA v1<->v2 bridge tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_convert \
 		tests/nanoisa/test_nvm_v2_convert.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	@./tests/nanoisa/test_nvm_v2_convert
 	@rm -f tests/nanoisa/test_nvm_v2_convert
+
+.PHONY: test-nvm-pool-alloc
+test-nvm-pool-alloc: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_nvm_pool_alloc tests/nanoisa/test_nvm_pool_alloc.c $(LDFLAGS)
+	@./obj/test_nvm_pool_alloc
 
 .PHONY: test-nvm-v2-endtoend
 test-nvm-v2-endtoend: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -1698,8 +1758,13 @@ test-launcher-makefile:
 
 # A cached module object says nothing about whether this host still has the
 # dev package, so system dependencies must be re-checked on every build.
+.PHONY: test-module-install-policy
+test-module-install-policy: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_install_policy tests/test_module_install_policy.c $^ $(LDFLAGS)
+	@$(OBJ_DIR)/test_module_install_policy
+
 .PHONY: test-module-dep-recheck
-test-module-dep-recheck: $(COMPILER_C)
+test-module-dep-recheck: $(COMPILER_C) test-module-install-policy
 	@bash tests/test_module_dep_recheck.sh
 
 .PHONY: test-negative
@@ -1738,6 +1803,7 @@ test-verify-all-programs: nano_virt nano_vm
 
 .PHONY: test-vm-examples
 test-vm-examples: nano_virt nano_vm $(COMPILER_C)
+	@python3 tests/test_vm_example_reporting.py
 	@bash tests/test_vm_examples_coverage.sh
 
 # Ring-buffer unit tests (no compiler or VM required)
@@ -1804,6 +1870,12 @@ test-forth-wordsets:
 .PHONY: test-impl
 test-impl: test-units
 	@bash tests/test_make_header_dependencies.sh
+	@python3 tests/test_bootstrap_source_dependencies.py
+	@python3 tests/test_bootstrap_messages.py
+	@python3 tests/test_module_compile_invocation.py
+	@$(MAKE) --no-print-directory test-parser-recovery
+	@python3 tests/test_list_generator.py
+	@python3 tests/test_runtime_list_boundaries.py
 	@$(MAKE) --no-print-directory test-locale-cli
 	@$(MAKE) --no-print-directory test-src-utf8
 	@$(MAKE) --no-print-directory test-locale-catalog
@@ -1905,17 +1977,17 @@ TEST_TIMEOUT ?= 1800
 USERGUIDE_TIMEOUT ?= 2400
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 600
-TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
+TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 # Bootstrap2 needs extended timeout due to self-hosted compiler performance
 # See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
 BOOTSTRAP2_TIMEOUT ?= 3600
-BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV'
+BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 # Examples need extended timeout since they build 100+ programs across multiple compilers
 EXAMPLES_TIMEOUT ?= 2400
-EXAMPLES_TIMEOUT_CMD ?= perl -e 'alarm $(EXAMPLES_TIMEOUT); exec @ARGV'
+EXAMPLES_TIMEOUT_CMD ?= perl -e 'alarm $(EXAMPLES_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 # Release needs extended timeout since it runs tests + git/gh operations
 RELEASE_TIMEOUT ?= 2400
-RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV'
+RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"'
 test: build shadow-check userguide-export
 	@echo ""
 	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c)"
@@ -1968,11 +2040,82 @@ test-c-backend: $(COMPILER_C)
 
 # Cross-backend compile suite: compile canonical test programs across all 5 backends
 .PHONY: test-cross-backend
-test-cross-backend: $(COMPILER)
+test-cross-backend: $(COMPILER) test-cross-backend-runner
 	@echo "🔀 Running direct cross-backend compile suite (riscv, c, ptx)..."
 	@chmod +x tests/cross-backend/run-all.sh
 	@bash tests/cross-backend/run-all.sh $(COMPILER)
 	@echo "✅ Cross-backend tests PASSED"
+
+.PHONY: test-cross-backend-runner
+test-cross-backend-runner:
+	@python3 tests/test_cross_backend_runner.py
+
+.PHONY: test-selfhost-cli
+test-selfhost-cli: bootstrap3
+	@python3 tests/test_selfhost_cli.py
+
+.PHONY: test-selfhost-module-bindings
+test-selfhost-module-bindings: bootstrap3
+	@python3 -m unittest tests.test_selfhost_module_bindings
+
+# I keep tool builds ordered until compiler-private generic-list generation is verified.
+.PHONY: test-language-contract test-language-contract-runner
+test-language-contract: test-language-contract-runner
+	@$(MAKE) bootstrap3
+	@$(MAKE) nano_virt nano_vm nvm2c
+	@python3 tests/run_language_contract.py
+
+test-language-contract-runner:
+	@python3 tests/test_language_contract_runner.py
+
+.PHONY: test-language-claims
+test-language-claims:
+	@python3 tests/test_language_claims.py
+
+.PHONY: test-cseed-import-shadows
+test-cseed-import-shadows: $(COMPILER_C)
+	@python3 -m unittest tests.test_cseed_import_shadows
+
+.PHONY: test-bytecode-shadows
+.PHONY: test-assembler-snapshot-trial
+test-assembler-snapshot-trial:
+	@python3 -m unittest tests.test_assembler_snapshot_trial
+
+.PHONY: test-assembler-capture-records
+test-assembler-capture-records:
+	@python3 -m unittest tests.test_assembler_capture_records
+
+ifeq ($(UNAME_S),Linux)
+$(COMPILER_C) nano_virt $(OBJ_DIR)/test_module_generation_probe: $(BIN_DIR)/nano_as_capture.so
+$(BIN_DIR)/nano_as_capture.so: $(RUNTIME_DIR)/assembler_capture.c $(RUNTIME_DIR)/assembler_capture.h | $(BIN_DIR)
+	$(CC) -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o $@ $< -ldl
+endif
+
+MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
+
+$(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/module_builder.h $(SRC_DIR)/module_link_response.h $(RUNTIME_DIR)/module_build_dir.h $(HEADERS) $(MODULE_GENERATION_PROBE_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ tests/test_module_generation_probe.c $(MODULE_GENERATION_PROBE_OBJECTS) $(LDFLAGS) -pthread $(if $(filter Linux,$(UNAME_S)),-ldl)
+
+test-bytecode-shadows: nano_virt nano_vm $(COMPILER_C) $(OBJ_DIR)/test_module_generation_probe
+	@python3 tests/test_bytecode_shadows.py
+	@python3 -m unittest tests.test_module_cache_publication
+	@python3 -m unittest tests.test_linux_link_cache
+	@python3 -m unittest tests.test_source_snapshots
+	@python3 -m unittest tests.test_link_argument_transport
+	@python3 -m unittest tests.test_link_response_graph
+	@python3 -m unittest tests.test_link_response_query
+
+.PHONY: test-native-shadow-emitter
+test-native-shadow-emitter:
+	@python3 tests/test_native_shadow_emitter.py
+
+.PHONY: test-native-shadows
+test-native-shadows:
+	@python3 -m unittest tests.test_native_shadows tests.test_shadow_runner tests.test_make_timeouts
+
+.PHONY: test-selfhost-build-isolation
+test-selfhost-build-isolation:
+	@python3 tests/test_selfhost_build_isolation.py
 
 # ── Benchmark suite ──────────────────────────────────────────────────────
 # Run the full benchmark suite and write results to bench/results.json
@@ -2198,6 +2341,9 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@$(MAKE) --no-print-directory test-parser-parenthesized
+	@$(MAKE) --no-print-directory test-transpiler-externs
+	@$(MAKE) --no-print-directory test-module-introspection
 	@bash tests/test_make_header_dependencies.sh
 	@bash tests/test_release_workflow.sh
 	@$(MAKE) --no-print-directory test-glut-init
@@ -2228,6 +2374,36 @@ else
 endif
 
 .PHONY: test-make-header-dependencies
+.PHONY: test-parser-parenthesized
+.PHONY: test-transpiler-externs
+.PHONY: test-module-introspection
+test-module-introspection: $(COMPILER_C)
+	$(COMPILER_C) tests/module_introspection.nano -o $(BIN_DIR)/module_introspection_test
+	$(BIN_DIR)/module_introspection_test
+
+test-transpiler-externs: $(COMPILER_C)
+	$(COMPILER_C) tests/transpiler_externs.nano -o $(BIN_DIR)/transpiler_externs_test
+	$(BIN_DIR)/transpiler_externs_test
+
+test-parser-parenthesized: $(COMPILER_C)
+	$(COMPILER_C) tests/parser_parenthesized.nano -o $(BIN_DIR)/parser_parenthesized_test
+	$(BIN_DIR)/parser_parenthesized_test
+
+.PHONY: test-parser-recovery
+test-parser-recovery: $(COMPILER_C) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	@python3 tests/test_parser_error_recovery.py
+	# I instrument lexer/parser code; linked runtime objects are not instrumented here.
+	$(CC) $(CFLAGS) -O1 $(SANITIZE_FLAGS) -fno-sanitize-recover=all \
+		-o $(BIN_DIR)/parser_recovery_test tests/test_parser_recovery.c \
+		src/parser.c src/lexer.c \
+		$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/lexer.o,$(COMMON_OBJECTS)) \
+		$(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=0 $(BIN_DIR)/parser_recovery_test
+
+.PHONY: test-clean-cache-retention
+test-clean-cache-retention:
+	@python3 -m unittest tests.test_clean_cache_retention
+
 test-make-header-dependencies:
 	@echo "Checking incremental C header dependencies..."
 	@MAKE_BIN="$(MAKE)" bash tests/test_make_header_dependencies.sh
@@ -2461,21 +2637,19 @@ module-self-test: $(COMPILER_C) modules-index
 # Backwards-compatible alias
 module-mvp: module-self-test
 
-# Clean: Remove all build artifacts and sentinels
+# I clean compiler artifacts and sentinels, not retained runtime generations.
 clean:
-	@echo "Cleaning all build artifacts..."
-	rm -rf $(OBJ_DIR) $(BUILD_DIR) $(COV_DIR)
-	rm -rf $(BIN_DIR)/*
-	rm -f *.out *.out.c tests/*.out tests/*.out.c
-	rm -f $(SENTINEL_STAGE1) $(SENTINEL_STAGE2) $(SENTINEL_STAGE3)
-	rm -f $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
-	rm -f $(SCHEMA_STAMP)
-	rm -f *.gcda *.gcno *.gcov coverage.info
-	rm -f test.nano test_output.c test_program
-	rm -rf .test_output
-	find tests -name "*.out" -o -name "*.out.c" 2>/dev/null | xargs rm -f || true
-	rm -f formal/*.vo formal/*.vok formal/*.vos formal/*.glob formal/.*.aux
-	@$(TIMEOUT_CMD) $(MAKE) -C examples clean 2>/dev/null || true
+	@echo "I clean compiler artifacts and retain module runtime caches."
+	python3 scripts/clean_build_trees.py --root "$(OBJ_DIR)" --root "$(BUILD_DIR)" \
+		--root "$(COV_DIR)" --root "$(BIN_DIR)" \
+		--cache "$(OBJ_DIR)/module_cache" --cache "$(NANO_BUILD_CACHE)" \
+		$(foreach file,$(SENTINEL_STAGE1) $(SENTINEL_STAGE2) $(SENTINEL_STAGE3) $(SENTINEL_BOOTSTRAP0) $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3),--file "$(file)") \
+		--file "$(SCHEMA_STAMP)" --file coverage.info --file test.nano \
+		--file test_output.c --file test_program --root .test_output \
+		--glob '*.out' --glob '*.out.c' --glob 'tests/**/*.out' --glob 'tests/**/*.out.c' \
+		--glob '*.gcda' --glob '*.gcno' --glob '*.gcov' \
+		--glob 'formal/*.vo' --glob 'formal/*.vok' --glob 'formal/*.vos' \
+		--glob 'formal/*.glob' --glob 'formal/.*.aux'
 	@echo "✅ Clean complete - ready for fresh build"
 
 # Rebuild: Clean and build from scratch
@@ -2521,6 +2695,11 @@ $(COMPILER): $(COMPILER_C) | $(BIN_DIR)
 		ln -sf nanoc_c $(COMPILER); \
 		echo "✓ Compiler: $(COMPILER) -> $(COMPILER_C) (C reference)"; \
 	fi
+
+# Once bootstrap is installed, a normal build must refresh it before use.
+ifneq ($(wildcard $(SENTINEL_BOOTSTRAP3)),)
+$(COMPILER): | $(SENTINEL_BOOTSTRAP3)
+endif
 
 # Interpreter removed - NanoLang is a compiled language
 
@@ -2608,7 +2787,7 @@ $(OBJ_DIR)/eval/%.o: $(SRC_DIR)/eval/%.c $(HEADERS) | $(OBJ_DIR) $(OBJ_DIR)/eval
 
 stage2: $(SENTINEL_STAGE2)
 
-$(SENTINEL_STAGE2): $(SENTINEL_STAGE1)
+$(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo ""
 	@echo "=========================================="
 	@echo "Stage 2: Building Self-Hosted Components"
@@ -2701,6 +2880,16 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 
 .PHONY: bootstrap bootstrap0 bootstrap1 bootstrap2 bootstrap3
 
+# I do not trust a stamp when its compiler artifact has disappeared, even
+# when a later stage was requested directly.
+.PHONY: missing-bootstrap-artifact
+ifeq ($(wildcard $(NANOC_STAGE1)),)
+$(SENTINEL_BOOTSTRAP1): missing-bootstrap-artifact
+endif
+ifeq ($(wildcard $(NANOC_STAGE2)),)
+$(SENTINEL_BOOTSTRAP2): missing-bootstrap-artifact
+endif
+
 # Full bootstrap: Run all stages
 bootstrap: $(SENTINEL_BOOTSTRAP3)
 	@echo ""
@@ -2746,7 +2935,7 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0)
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
@@ -2823,7 +3012,7 @@ verify-no-nanoc_c: $(SENTINEL_BOOTSTRAP3)
 verify-no-nanoc_c-check:
 	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
-# Bootstrap Stage 3: Verify reproducible build
+# Bootstrap Stage 3: Compare native artifacts and check installed execution
 bootstrap3:
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ ! -f $(NANOC_STAGE2) ]; then \
 		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP3)"; \
@@ -2841,11 +3030,10 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
 	@echo ""
 	@if cmp -s $(NANOC_STAGE1) $(NANOC_STAGE2); then \
-		echo "✅ BOOTSTRAP VERIFIED: Binaries are identical!"; \
+		echo "I compared the stage binaries: they are byte-identical in this build."; \
 		echo ""; \
-		echo "This proves reproducible builds - the compiler compiled"; \
-		echo "by the C compiler is IDENTICAL to the compiler compiled"; \
-		echo "by itself. This is TRUE SELF-HOSTING!"; \
+		echo "I have not established reproducibility across clean environments"; \
+		echo "or proved compiler semantic correctness."; \
 		echo ""; \
 	else \
 		if [ "$(BOOTSTRAP_DETERMINISTIC)" = "1" ]; then \
@@ -2857,12 +3045,13 @@ $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
 		echo "Stage 1 size: $$(stat -f%z $(NANOC_STAGE1) 2>/dev/null || stat -c%s $(NANOC_STAGE1))"; \
 		echo "Stage 2 size: $$(stat -f%z $(NANOC_STAGE2) 2>/dev/null || stat -c%s $(NANOC_STAGE2))"; \
 		echo ""; \
-		echo "This is expected if:"; \
-		echo "  - Timestamps are embedded in binary"; \
-		echo "  - Non-deterministic codegen"; \
+		echo "I have not diagnosed the difference. These causes remain hypotheses:"; \
+		echo "  - Embedded timestamps or other native artifact metadata"; \
+		echo "  - Non-deterministic code generation"; \
 		echo "  - Different compiler optimizations"; \
 		echo ""; \
-		echo "Both compilers work correctly, which proves self-hosting!"; \
+		echo "Both stages passed the configured smoke test; that is not a correctness proof."; \
+		echo "Canonical NanoISA artifact equality remains a separate 5.0 gate."; \
 		echo ""; \
 	fi; \
 	echo "==========================================";\
@@ -2908,9 +3097,9 @@ bootstrap-status:
 		echo "  ❌ Stage 2: Not built"; \
 	fi
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ]; then \
-		echo "  ✅ Stage 3: Bootstrap verified!"; \
+		echo "  Stage 3: recorded comparison and installed-compiler smoke checks passed."; \
 		echo ""; \
-		echo "  🎉 TRUE SELF-HOSTING ACHIEVED!"; \
+		echo "  I do not infer compiler correctness or release readiness from this stamp."; \
 	else \
 		echo "  ❌ Stage 3: Not verified"; \
 	fi
@@ -3123,9 +3312,15 @@ install: $(COMPILER) vm
 	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
 	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
 	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
+ifeq ($(UNAME_S),Linux)
+	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
+endif
 	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa)"
 
 uninstall:
+ifeq ($(UNAME_S),Linux)
+	rm -f $(PREFIX)/bin/nano_as_capture.so
+endif
 	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd $(PREFIX)/bin/nanoisa
 	@echo "Uninstalled from $(PREFIX)/bin"
 
@@ -3140,6 +3335,19 @@ valgrind: $(COMPILER)
 	@echo "Valgrind checks complete"
 
 # Fuzzing targets
+FUZZ_CC ?= clang
+.PHONY: fuzz-parser-build fuzz-parser-check
+fuzz-parser-build: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) | $(BIN_DIR)
+	$(FUZZ_CC) $(CFLAGS) -O1 -fsanitize=fuzzer,address,undefined \
+		-fno-sanitize-recover=all -fno-omit-frame-pointer \
+		-o $(BIN_DIR)/fuzz_parser tests/fuzzing/fuzz_parser.c src/lexer.c src/parser.c \
+		$(filter-out $(OBJ_DIR)/parser.o $(OBJ_DIR)/lexer.o,$(COMMON_OBJECTS)) \
+		$(RUNTIME_OBJECTS) $(LDFLAGS)
+
+fuzz-parser-check: fuzz-parser-build
+	$(BIN_DIR)/fuzz_parser -runs=0 -detect_leaks=0 -timeout=5 \
+		tests/fuzzing/corpus_parser
+
 fuzz-build:
 	@echo "Building fuzzing targets..."
 	@mkdir -p tests/fuzzing
@@ -3465,7 +3673,7 @@ release-docs-check:
 # check fails now rather than at the next release.
 .PHONY: test-release-gates
 test-release-gates:
-	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates tests.test_check_markdown_links
+	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates tests.test_check_markdown_links tests.test_document_pair
 
 release:
 	@echo "Creating patch release..."

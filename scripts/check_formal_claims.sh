@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# check_formal_claims.sh — keep the formal-verification docs honest.
+# I perform a legacy source-token/documentation consistency check only.
+# Compilation, theorem contracts, and assumption closure are enforced by
+# scripts/check_proofs_container.sh, not by this token scan.
 #
 # The formal/README.md previously advertised "0 Admitted / axiom-free" while
 # Equivalence.v carried an `Admitted`. Documentation claims about proof
@@ -19,9 +21,8 @@ if [ ! -d "$FORMAL_DIR" ]; then
     exit 0
 fi
 
-# Number of incomplete proofs = number of `Admitted.` proof-closers. An `admit.`
-# tactic always ends its proof in `Admitted`, so counting the closer avoids
-# double-counting an `admit`/`Admitted` pair as two incomplete proofs.
+# I count tokens, including any occurrences in comments. These counts are not
+# counts of checked proof terms and cannot establish theorem completeness.
 # `|| true`: grep exits non-zero when there are no matches, which (under
 # `set -e` + `pipefail`) would otherwise abort the script — a no-match is the
 # healthy case here, not an error.
@@ -59,4 +60,4 @@ if [ "$fail" -ne 0 ]; then
     exit 1
 fi
 
-echo "check_formal_claims: OK — formal docs match the proof state."
+echo "check_formal_claims: token consistency passed; proof evidence requires scripts/check_proofs_container.sh."

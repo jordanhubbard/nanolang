@@ -878,11 +878,12 @@ $(BIN_DIR)/mujoco_%$(BIN_SUFFIX)$(BIN_EXT): mujoco/mujoco_%.nano $(COMPILER)
 
 clean:
 	@echo "Cleaning example binaries..."
-	rm -f $(ALL_EXAMPLES)
-	rm -rf $(GPU_KERNEL_DIR)
-	rm -rf $(BIN_DIR)/*.dSYM
-	rm -rf ../modules/*/.build/ ../std/*/.build/
-	rm -rf $(NANO_BUILD_CACHE)
+	cd .. && python3 scripts/clean_build_trees.py \
+		$(foreach file,$(ALL_EXAMPLES),--file "$(abspath $(file))") \
+		--root "$(abspath $(GPU_KERNEL_DIR))" \
+		$(foreach file,$(wildcard $(BIN_DIR)/*.dSYM),--root "$(abspath $(file))") \
+		--cache "$(abspath ../obj/module_cache)" --cache "$(abspath $(NANO_BUILD_CACHE))"
+	@echo "I retain local and shared module caches for existing bytecode."
 	@echo "Done"
 
 # === Help ===

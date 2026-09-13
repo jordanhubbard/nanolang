@@ -108,6 +108,14 @@ static void test_vm_str_index_of(void) {
     ASSERT(pos == 6, "world should be at position 6");
     int64_t notfound = vm_str_index_of("hello", "xyz");
     ASSERT(notfound == -1, "not found should return -1");
+    ASSERT(vm_str_index_of("abc", "") == 0, "I find an empty needle at the start");
+    ASSERT(vm_str_index_of(NULL, "a") == -1, "I reject a null haystack");
+    ASSERT(vm_str_last_index_of("ababa", "aba") == 2, "I include overlapping matches");
+    ASSERT(vm_str_last_index_of("abc", "") == 3, "I find an empty last needle at the end");
+    ASSERT(vm_str_last_index_of("", "") == 0, "I search an empty string");
+    ASSERT(vm_str_last_index_of("a", "ab") == -1, "I reject a longer needle");
+    ASSERT(vm_str_last_index_of("abc", NULL) == -1, "I reject a null needle");
+    ASSERT(vm_str_last_index_of(NULL, "a") == -1, "I reject a null haystack");
     PASS(test_name);
 }
 

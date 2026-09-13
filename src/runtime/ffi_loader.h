@@ -72,6 +72,9 @@ void *ffi_loader_resolve(const char *symbol_name);
  */
 void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module);
 
+/* I resolve only through the named library handle, without global fallback. */
+void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name);
+
 /**
  * Access the loaded module array (for callers that need to iterate,
  * e.g., to free user_data before shutdown).

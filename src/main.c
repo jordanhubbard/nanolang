@@ -2,6 +2,7 @@
 #include "colors.h"
 #include "version.h"
 #include "module_builder.h"
+#include "shell_path.h"
 #include "interpreter_ffi.h"
 #include "reflection.h"
 #include "emit_typed_ast.h"
@@ -26,6 +27,10 @@
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
+#include <signal.h>
+#include <sys/wait.h>
+#include <time.h>
+#include <fcntl.h>
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
@@ -73,6 +78,7 @@ typedef struct {
     bool verbose;
     bool keep_c;
     bool show_intermediate_code;
+    bool test_imports;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
@@ -371,6 +377,98 @@ static int determinize_macho_uuid_and_signature(const char *path) {
 }
 #endif
 
+static bool check_interpreted_shadows(ASTNode *program, Environment *env,
+                                      ModuleList *modules, const char *input,
+                                      CompilerOptions *opts) {
+    if (opts->llm_shadow_json_path) {
+        FILE *report = fopen(opts->llm_shadow_json_path, "w");
+        if (!report) {
+            fprintf(stderr, "I cannot initialize the shadow report: %s\n", strerror(errno));
+            return false;
+        }
+        fputs("{\"tool\":\"nanoc_c\",\"success\":false,\"completed\":false,"
+              "\"test_count\":null,\"failures\":[]}\n", report);
+        bool report_ok = !ferror(report);
+        if (fclose(report) != 0) report_ok = false;
+        if (!report_ok) {
+            fprintf(stderr, "I cannot write the shadow report.\n");
+            return false;
+        }
+    }
+    int completion[2];
+    if (pipe(completion) != 0) {
+        fprintf(stderr, "I cannot create the shadow completion channel.\n");
+        return false;
+    }
+    if (fcntl(completion[0], F_SETFL, O_NONBLOCK) < 0 ||
+        fcntl(completion[0], F_SETFD, FD_CLOEXEC) < 0 ||
+        fcntl(completion[1], F_SETFD, FD_CLOEXEC) < 0) {
+        close(completion[0]);
+        close(completion[1]);
+        fprintf(stderr, "I cannot configure the shadow completion channel.\n");
+        return false;
+    }
+    fflush(NULL);
+    pid_t child = fork();
+    if (child == 0) {
+        close(completion[0]);
+        /* I isolate compiler state, not host authority. */
+        signal(SIGALRM, SIG_DFL);
+        alarm(10);
+        if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
+        bool passed = run_shadow_tests_scope(program, env, modules, input,
+                                             opts->test_imports, opts->verbose);
+        unsigned char done = 1;
+        if (passed && write(completion[1], &done, 1) != 1) passed = false;
+        close(completion[1]);
+        fflush(NULL);
+        _exit(passed ? 0 : 1);
+    }
+    int fork_error = errno;
+    close(completion[1]);
+    if (child < 0) {
+        close(completion[0]);
+        fprintf(stderr, "I cannot start shadow execution: %s\n", strerror(fork_error));
+        return false;
+    }
+    struct timespec start, now, pause = {0, 10000000};
+    bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
+    bool timed_out = false, clock_failed = false;
+    int status = 0;
+    pid_t waited;
+    for (;;) {
+        waited = waitpid(child, &status, WNOHANG);
+        if (waited == child || (waited < 0 && errno != EINTR)) break;
+        clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
+        timed_out = !clock_failed && (now.tv_sec - start.tv_sec > 10 ||
+            (now.tv_sec - start.tv_sec == 10 && now.tv_nsec >= start.tv_nsec));
+        if (clock_failed || timed_out) {
+            kill(child, SIGKILL);
+            do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
+            break;
+        }
+        nanosleep(&pause, NULL);
+    }
+    int wait_error = errno;
+    unsigned char done = 0;
+    bool completed = read(completion[0], &done, 1) == 1 && done == 1;
+    close(completion[0]);
+    if (waited < 0) {
+        fprintf(stderr, "I cannot supervise shadow execution: %s\n", strerror(wait_error));
+        return false;
+    }
+    if (clock_failed || timed_out || !completed || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        if (clock_failed)
+            fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
+        else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
+            fprintf(stderr, "I stopped shadow execution after 10 seconds.\n");
+        else
+            fprintf(stderr, "I will not publish output after failed shadow execution.\n");
+        return false;
+    }
+    return true;
+}
+
 /* Compile nanolang source to executable */
 static int compile_file(const char *input_file, const char *output_file, CompilerOptions *opts) {
     List_CompilerDiagnostic *diags = nl_list_CompilerDiagnostic_new();
@@ -509,10 +607,22 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4: Type Checking */
     typecheck_set_current_file(input_file);
+    env_set_current_file(env, input_file);
     /* Use type_check_module if reflection or doc-md is requested (no main needed) */
     bool typecheck_success = (opts->reflect_output_path || opts->doc_md) ?
         type_check_module(program, env) :
         type_check(program, env);
+    if (typecheck_success) {
+        int production_symbols = env->symbol_count;
+        typecheck_success = type_check_shadow_scope(program, env, modules, input_file, opts->test_imports);
+        /* I do not lower shadow bodies in this backend. Their checked local
+         * declarations must not replace production metadata by short name. */
+        for (int i = production_symbols; i < env->symbol_count; i++) {
+            free(env->symbols[i].name);
+            free(env->symbols[i].struct_type_name);
+        }
+        env->symbol_count = production_symbols;
+    }
     
     if (!typecheck_success) {
         human_diag(NL_DIAG_TYPE_FAILED);
@@ -953,7 +1063,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     } else {
         unsetenv("NANO_LLM_SHADOW_JSON");
     }
-    if (!run_shadow_tests(program, env, opts->verbose)) {
+    if (!check_interpreted_shadows(program, env, modules, input_file, opts)) {
         human_diag(NL_DIAG_SHADOW_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_SHADOW_FAILED);
         free_ast(program);
@@ -1077,12 +1187,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
     
     /* Build include flags */
-    char include_flags[8192];
-    snprintf(include_flags, sizeof(include_flags), "-I%s/src", get_project_root());
+    char include_flags[8192] = "";
+    char root_include[4096];
+    int root_length = snprintf(root_include, sizeof(root_include), "%s/src", get_project_root());
+    bool include_paths_valid = root_length >= 0 && (size_t)root_length < sizeof(root_include);
+    include_paths_valid = module_append_include(include_flags, sizeof(include_flags), root_include) && include_paths_valid;
     for (int i = 0; i < opts->include_count; i++) {
-        char temp[512];
-        snprintf(temp, sizeof(temp), " -I%s", opts->include_paths[i]);
-        strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
+        include_paths_valid = module_append_include(include_flags, sizeof(include_flags), opts->include_paths[i]) && include_paths_valid;
     }
     
     /* Add module directories to include path (for FFI headers) */
@@ -1099,6 +1210,10 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             
             /* Extract directory from module path */
             char dir_path[512];
+            if (strlen(module_path) >= sizeof(dir_path)) {
+                include_paths_valid = false;
+                continue;
+            }
             strncpy(dir_path, module_path, sizeof(dir_path) - 1);
             dir_path[sizeof(dir_path) - 1] = '\0';
             
@@ -1121,9 +1236,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     unique_count++;
                     
                     /* Add -I flag for this directory */
-                    char temp[1024];
-                    snprintf(temp, sizeof(temp), " -I%s", dir_path);
-                    strncat(include_flags, temp, sizeof(include_flags) - strlen(include_flags) - 1);
+                    include_paths_valid = module_append_include(include_flags, sizeof(include_flags), dir_path) && include_paths_valid;
                     
                     if (opts->verbose) {
                         printf("Adding module include path: %s\n", dir_path);
@@ -1148,17 +1261,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Build library path flags */
     char lib_path_flags[2048] = "";
     for (int i = 0; i < opts->library_path_count; i++) {
-        char temp[512];
-        snprintf(temp, sizeof(temp), " -L%s", opts->library_paths[i]);
-        strncat(lib_path_flags, temp, sizeof(lib_path_flags) - strlen(lib_path_flags) - 1);
+        include_paths_valid = module_append_path_flag(lib_path_flags, sizeof(lib_path_flags), "-L", opts->library_paths[i]) && include_paths_valid;
     }
     
     /* Build library flags */
     char lib_flags[2048] = "-lm";
     for (int i = 0; i < opts->library_count; i++) {
-        char temp[512];
-        snprintf(temp, sizeof(temp), " -l%s", opts->libraries[i]);
-        strncat(lib_flags, temp, sizeof(lib_flags) - strlen(lib_flags) - 1);
+        include_paths_valid = module_append_path_flag(lib_flags, sizeof(lib_flags), "-l", opts->libraries[i]) && include_paths_valid;
     }
     
     /* Detect and generate generic list types from the C code AND compiler_schema.h */
@@ -1391,8 +1500,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                 
                 /* Add wrapper to compile list */
                 char list_file[256];
-                snprintf(list_file, sizeof(list_file), " %s/list_%s_wrapper.c", get_tmp_dir(), type_name);
-                strncat(generated_lists, list_file, sizeof(generated_lists) - strlen(generated_lists) - 1);
+                int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
+                if (list_length < 0 || (size_t)list_length >= sizeof(list_file)) include_paths_valid = false;
+                include_paths_valid = module_append_path_flag(generated_lists, sizeof(generated_lists), "", list_file) && include_paths_valid;
             }
         }
     }
@@ -1435,15 +1545,18 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     runtime_files[0] = '\0';
     for (int i = 0; runtime_basenames[i]; i++) {
         char entry[8192];
-        snprintf(entry, sizeof(entry), "%s%s/src/%s",
-                 i > 0 ? " " : "", get_project_root(), runtime_basenames[i]);
-        strncat(runtime_files, entry, sizeof(runtime_files) - strlen(runtime_files) - 1);
+        int entry_length = snprintf(entry, sizeof(entry), "%s/src/%s",
+                                    get_project_root(), runtime_basenames[i]);
+        if (entry_length < 0 || (size_t)entry_length >= sizeof(entry)) include_paths_valid = false;
+        include_paths_valid = module_append_path_flag(runtime_files, sizeof(runtime_files), "", entry) && include_paths_valid;
     }
-    strncat(runtime_files, generated_lists, sizeof(runtime_files) - strlen(runtime_files) - 1);
+    if (strlen(generated_lists) >= sizeof(runtime_files) - strlen(runtime_files)) include_paths_valid = false;
+    else strcat(runtime_files, generated_lists);
 
     /* Add TMPDIR to include path for generated list headers */
-    char include_flags_with_tmp[2560];
-    snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s -I%s", include_flags, get_tmp_dir());
+    char include_flags_with_tmp[12288];
+    snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s", include_flags);
+    include_paths_valid = module_append_include(include_flags_with_tmp, sizeof(include_flags_with_tmp), get_tmp_dir()) && include_paths_valid;
     
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
@@ -1479,13 +1592,17 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     const char *nano_cflags = getenv("NANO_CFLAGS");
     if (!nano_cflags) nano_cflags = "";
 
-    int cmd_len = snprintf(compile_cmd, sizeof(compile_cmd),
+    char *quoted_output = module_quote_path(output_file);
+    char *quoted_temp_source = module_quote_path(temp_c_file);
+    int cmd_len = quoted_output && quoted_temp_source ? snprintf(compile_cmd, sizeof(compile_cmd),
             "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
-            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, output_file, temp_c_file, module_objs, runtime_files, lib_path_flags, lib_flags);
+            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs, runtime_files, lib_path_flags, lib_flags) : -1;
+    free(quoted_output);
+    free(quoted_temp_source);
     
-    if (cmd_len >= (int)sizeof(compile_cmd)) {
+    if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
         human_diag(NL_DIAG_CC_CMD);
-        fprintf(stderr, "Error: Compile command too long (%d bytes, max %zu)\n", cmd_len, sizeof(compile_cmd));
+        fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
         diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
         free(c_code);
@@ -1644,6 +1761,8 @@ int main(int argc, char *argv[]) {
         printf("  --llm-diags-json <p>   Write machine-readable diagnostics JSON (agent-only)\n");
         printf("  --llm-diags-toon <p>   Write diagnostics in TOON format (~40%% fewer tokens)\n");
         printf("  --llm-shadow-json <p>  Write machine-readable shadow failure summary JSON (agent-only)\n");
+        printf("  --test-imports        I run dependency shadows before root shadows (default)\n");
+        printf("  --root-shadows-only   I run only root-file shadows\n");
         printf("\nExamples:\n");
         printf("  %s hello.nano -o hello\n", argv[0]);
         printf("  %s program.nano --verbose -S          # Show steps and save C code\n", argv[0]);
@@ -1730,6 +1849,7 @@ int main(int argc, char *argv[]) {
         .verbose = false,
         .keep_c = false,
         .show_intermediate_code = false,
+        .test_imports = true,
         .save_asm = false,
         .json_errors = false,
         .profile_gprof = false,
@@ -1869,6 +1989,10 @@ int main(int argc, char *argv[]) {
             opts.llm_diags_toon_path = argv[i + 1];
             toon_diagnostics_enable();
             i++;
+        } else if (strcmp(argv[i], "--test-imports") == 0) {
+            opts.test_imports = true;
+        } else if (strcmp(argv[i], "--root-shadows-only") == 0) {
+            opts.test_imports = false;
         } else if (strcmp(argv[i], "--llm-shadow-json") == 0 && i + 1 < argc) {
             opts.llm_shadow_json_path = argv[i + 1];
             i++;

@@ -4,14 +4,24 @@ I am an LLM-first language. My compiler, `nanoc`, supports a set of agent-focuse
 
 ## Stable user-facing flags (today)
 
-- **`-v`, `--verbose`**: I provide more verbose output, including phase prints and extra debug artifacts.
-- **`-k`, `--keep-c`**: I keep the C code I generate.
+- **`-v`, `--verbose`**: I provide more verbose output, including phase prints.
+- **`-k`, `--keep-c`**: My self-hosted native driver retains generated C in a private directory and reports its path. I remove the test executable after shadow execution.
 - **`-fshow-intermediate-code`**: I print the generated C code to stdout.
 - **`-h`, `--help`**: I show my help menu.
 
-## Always-on debug artifacts (today)
+## Self-hosted source and staging
 
-- **`/tmp/merged_debug.nano`**: I may write my merged import graph as a single file. You can use this to inspect how I map diagnostics that report merged line numbers.
+I merge imports in memory and tokenize that text directly. I no longer write
+shared `nanolang_merge_tmp.nano`, `nanolang_merged.nano`, or `merged_debug.nano`
+files. Source-only `--target c` needs no temporary directory or native compiler.
+Native compilation uses private staging under `TMPDIR` and removes it on normal
+success and handled failures unless `--keep-c` was requested. Abrupt process
+termination can leave private staging behind.
+
+My flattened-source diagnostics still use merged line numbers, now labelled
+with the root input path. They are not original imported-file source locations.
+`make test-selfhost-build-isolation` checks overlapping source and native
+compiles, legacy scratch-path preservation and failure cleanup.
 
 ## Reserved namespace for agent-only flags
 
@@ -59,4 +69,3 @@ When I add a new agent-only flag, I follow these principles:
 - I prefer machine-readable output like JSON over text meant only for humans.
 - I keep my outputs deterministic with stable ordering and keys.
 - I ensure my outputs can be used to auto-file `mac task` issues. They are fingerprintable and actionable.
-

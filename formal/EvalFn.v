@@ -1,15 +1,16 @@
 (** * NanoCore: Computable Evaluator with Soundness Proof
 
-    This file defines a fuel-based computable evaluator [eval_fn] and proves
-    it sound with respect to the relational big-step semantics in Semantics.v.
+    I define a fuel-based computable evaluator [eval_fn] and prove it sound
+    with respect to the relational semantics in Semantics.v.
 
     The evaluator can be extracted to OCaml and used as a reference interpreter
     for testing the C implementation.
 
-    Key result:
-      eval_fn_sound_simple : soundness for literals, variables, unops, if, seq,
-                             lambda, fix, construct, string indexing
-      (Full soundness for all 25 cases outlined but deferred for binop/let/while/app)
+    [eval_fn_sound_simple] covers literals and variables. Other named lemmas
+    cover selected compound cases, assuming sound recursive evaluations.
+    [eval_fn_and_short] and [eval_fn_or_short] establish skipped-right-operand
+    behavior directly. Strong fuel induction connects all expression cases
+    in [eval_fn_sound], without a recursive-soundness premise.
 
     Design decisions:
     - Fuel-based: standard technique (CompCert, CertiCoq). Fuel decreases on
@@ -54,7 +55,29 @@ Fixpoint eval_fn (fuel : nat) (renv : env) (e : expr) {struct fuel}
       | None   => None
       end
 
-    (* ── Binary operations ── *)
+    (* I evaluate a logical right operand only when its value is needed. *)
+    | EBinOp OpAnd e1 e2 =>
+      match eval_fn n renv e1 with
+      | Some (renv1, VBool false) => Some (renv1, VBool false)
+      | Some (renv1, VBool true) =>
+        match eval_fn n renv1 e2 with
+        | Some (renv2, VBool b) => Some (renv2, VBool b)
+        | _ => None
+        end
+      | _ => None
+      end
+    | EBinOp OpOr e1 e2 =>
+      match eval_fn n renv e1 with
+      | Some (renv1, VBool true) => Some (renv1, VBool true)
+      | Some (renv1, VBool false) =>
+        match eval_fn n renv1 e2 with
+        | Some (renv2, VBool b) => Some (renv2, VBool b)
+        | _ => None
+        end
+      | _ => None
+      end
+
+    (* ── Remaining binary operations ── *)
     | EBinOp op e1 e2 =>
       match eval_fn n renv e1 with
       | Some (renv1, v1) =>
@@ -75,8 +98,6 @@ Fixpoint eval_fn (fuel : nat) (renv : env) (e : expr) {struct fuel}
             else None
           | VBool b1, VBool b2 =>
             match op with
-            | OpAnd => Some (renv2, VBool (andb b1 b2))
-            | OpOr  => Some (renv2, VBool (orb b1 b2))
             | OpEq  => Some (renv2, VBool (Bool.eqb b1 b2))
             | OpNe  => Some (renv2, VBool (negb (Bool.eqb b1 b2)))
             | _     => None
@@ -374,6 +395,18 @@ Fixpoint eval_fn (fuel : nat) (renv : env) (e : expr) {struct fuel}
     end
   end.
 
+(** I preserve the left evaluation's environment without inspecting the right
+    expression when its value cannot affect the logical result. *)
+Theorem eval_fn_and_short : forall n r e1 e2 r1,
+  eval_fn n r e1 = Some (r1, VBool false) ->
+  eval_fn (S n) r (EBinOp OpAnd e1 e2) = Some (r1, VBool false).
+Proof. intros n r e1 e2 r1 H. simpl. rewrite H. reflexivity. Qed.
+
+Theorem eval_fn_or_short : forall n r e1 e2 r1,
+  eval_fn n r e1 = Some (r1, VBool true) ->
+  eval_fn (S n) r (EBinOp OpOr e1 e2) = Some (r1, VBool true).
+Proof. intros n r e1 e2 r1 H. simpl. rewrite H. reflexivity. Qed.
+
 (** ** Soundness proofs *)
 
 (** Soundness for literal and variable cases *)
@@ -395,6 +428,62 @@ Proof.
     + destruct (env_lookup s renv) eqn:Hl; [| discriminate].
       injection Heval; intros; subst.
       constructor. assumption.
+Qed.
+
+(** I prove logical-operator soundness assuming sound recursive evaluations. *)
+Theorem eval_fn_sound_logic : forall fuel renv op e1 e2 renv' v,
+  is_logic_op op = true ->
+  eval_fn fuel renv (EBinOp op e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EBinOp op e1 e2) renv' v.
+Proof.
+  intros fuel renv op e1 e2 renv' v Hop Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in IH.
+  destruct op; simpl in Hop; try discriminate;
+    simpl in Heval;
+    destruct (eval_fn n renv e1) as [[r1 v1]|] eqn:Hleft; try discriminate;
+    destruct v1; try discriminate;
+    apply IH in Hleft; destruct b.
+  - destruct (eval_fn n r1 e2) as [[r2 v2]|] eqn:Hright; [| discriminate].
+    destruct v2; try discriminate.
+    inversion Heval; subst. apply IH in Hright. eapply E_And_True; eassumption.
+  - inversion Heval; subst. apply E_And_Short. assumption.
+  - inversion Heval; subst. apply E_Or_Short. assumption.
+  - destruct (eval_fn n r1 e2) as [[r2 v2]|] eqn:Hright; [| discriminate].
+    destruct v2; try discriminate.
+    inversion Heval; subst. apply IH in Hright. eapply E_Or_False; eassumption.
+Qed.
+
+(** I cover every binary operator, including arithmetic failure cases. *)
+Theorem eval_fn_sound_binop : forall fuel renv op e1 e2 renv' v,
+  eval_fn fuel renv (EBinOp op e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EBinOp op e1 e2) renv' v.
+Proof.
+  intros fuel renv op e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  destruct op;
+    try solve [eapply eval_fn_sound_logic; [reflexivity | exact Heval | exact IH]].
+  all: simpl in Heval; simpl in IH;
+    destruct (eval_fn n renv e1) as [[r1 v1]|] eqn:Hleft; try discriminate;
+    destruct (eval_fn n r1 e2) as [[r2 v2]|] eqn:Hright; try discriminate;
+    destruct v1, v2; try discriminate;
+    apply IH in Hleft; apply IH in Hright.
+  all: repeat match goal with
+    | H : context [if ?b then _ else _] |- _ =>
+      destruct b eqn:?; try discriminate
+    end.
+  all: inversion Heval; subst;
+    try solve [first [eapply E_BinArith; [eassumption | eassumption | unfold eval_arith_binop; congruence]
+          |eapply E_BinCmp; [eassumption | eassumption | reflexivity]
+          |eapply E_BinEqBool; [eassumption | eassumption | reflexivity]
+          |eapply E_BinNeBool; [eassumption | eassumption | reflexivity]
+          |eapply E_BinEqStr; [eassumption | eassumption | reflexivity]
+          |eapply E_BinNeStr; [eassumption | eassumption | reflexivity]
+          |eapply E_StrCat; eassumption]].
+  all: eapply E_BinArith; [eassumption | eassumption |];
+    unfold eval_arith_binop; rewrite Heqb; reflexivity.
 Qed.
 
 (** Soundness for unary operations *)
@@ -424,8 +513,8 @@ Proof.
   intros fuel renv cond e_then e_else renv' v Heval IH.
   destruct fuel as [|n]; [simpl in Heval; discriminate |].
   simpl in Heval. simpl in IH.
-  destruct (eval_fn n renv cond) as [[renv1 [| | | | | | | | ]]|] eqn:Hc;
-    try discriminate.
+  destruct (eval_fn n renv cond) as [[renv1 vc]|] eqn:Hc; [| discriminate].
+  destruct vc; try discriminate.
   apply IH in Hc.
   destruct b.
   - apply IH in Heval. eapply E_IfTrue; eassumption.
@@ -487,10 +576,10 @@ Proof.
   intros fuel renv e1 e2 renv' v Heval IH.
   destruct fuel as [|n]; [simpl in Heval; discriminate |].
   simpl in Heval. simpl in IH.
-  destruct (eval_fn n renv e1) as [[renv1 [| | | | | | | | ]]|] eqn:He1;
-    try discriminate.
-  destruct (eval_fn n renv1 e2) as [[renv2 [| | | | | | | | ]]|] eqn:He2;
-    try discriminate.
+  destruct (eval_fn n renv e1) as [[renv1 v1]|] eqn:He1; [| discriminate].
+  destruct v1; try discriminate.
+  destruct (eval_fn n renv1 e2) as [[renv2 v2]|] eqn:He2; [| discriminate].
+  destruct v2; try discriminate.
   injection Heval; intros; subst.
   apply IH in He1. apply IH in He2.
   eapply E_StrIndex; eassumption.
@@ -510,6 +599,290 @@ Proof.
   injection Heval; intros; subst.
   apply IH in He0.
   eapply E_Set; eassumption.
+Qed.
+
+(** I keep binding names and their order while changing stored values. This
+    invariant lets a let-binding pop its own slot after evaluating its body. *)
+Fixpoint env_names (r : env) : list string :=
+  match r with
+  | ENil => []
+  | ECons x _ rest => x :: env_names rest
+  end.
+
+Lemma env_update_names : forall r x v,
+  env_names (env_update x v r) = env_names r.
+Proof.
+  induction r; intros; simpl; [reflexivity |].
+  destruct (String.eqb x s); simpl; f_equal; auto.
+Qed.
+
+Lemma eval_preserves_env_names : forall r e r' v,
+  eval r e r' v -> env_names r' = env_names r.
+Proof.
+  intros r e r' v Heval. induction Heval; simpl in *;
+    try rewrite env_update_names; congruence.
+Qed.
+
+Theorem eval_fn_sound_let : forall fuel renv x e1 e2 renv' v,
+  eval_fn fuel renv (ELet x e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (ELet x e1 e2) renv' v.
+Proof.
+  intros fuel renv x e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv e1) as [[r1 v1]|] eqn:Hfirst; [| discriminate].
+  destruct (eval_fn n (ECons x v1 r1) e2) as [[r2 v2]|] eqn:Hbody; [| discriminate].
+  destruct r2 as [|y vy rest]; [discriminate |].
+  apply IH in Hfirst. apply IH in Hbody.
+  pose proof (eval_preserves_env_names _ _ _ _ Hbody) as Hnames.
+  simpl in Hnames. injection Hnames as Hname Htail. subst y.
+  inversion Heval; subst. eapply E_Let; eassumption.
+Qed.
+
+(** I thread the environment through every executed loop iteration. *)
+Theorem eval_fn_sound_while : forall fuel renv cond body renv' v,
+  eval_fn fuel renv (EWhile cond body) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EWhile cond body) renv' v.
+Proof.
+  intros fuel renv cond body renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv cond) as [[r1 vc]|] eqn:Hcond; [| discriminate].
+  destruct vc; try discriminate. apply IH in Hcond. destruct b.
+  - destruct (eval_fn n r1 body) as [[r2 vb]|] eqn:Hbody; [| discriminate].
+    apply IH in Hbody. apply IH in Heval. eapply E_WhileTrue; eassumption.
+  - inversion Heval; subst. apply E_WhileFalse. assumption.
+Qed.
+
+(** I evaluate closure bodies lexically and return the caller's environment. *)
+Theorem eval_fn_sound_app : forall fuel renv e1 e2 renv' v,
+  eval_fn fuel renv (EApp e1 e2) = Some (renv', v) ->
+  (forall r e r' v0, eval_fn (pred fuel) r e = Some (r', v0) -> eval r e r' v0) ->
+  eval renv (EApp e1 e2) renv' v.
+Proof.
+  intros fuel renv e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv e1) as [[r1 vf]|] eqn:Hfn; [| discriminate].
+  destruct vf; try discriminate.
+  all: repeat match type of Heval with
+    | context [eval_fn ?fuel0 ?r ?e] =>
+      let H := fresh "Hcall" in
+      destruct (eval_fn fuel0 r e) as [[? ?]|] eqn:H; try discriminate
+    end.
+  all: repeat match goal with
+    | H : eval_fn _ _ _ = Some (_, _) |- _ => apply IH in H
+    end.
+  all: inversion Heval; subst; eauto using E_App, E_AppFix.
+Qed.
+
+Theorem eval_fn_sound_match : forall fuel renv e branches renv' v,
+  eval_fn fuel renv (EMatch e branches) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (EMatch e branches) renv' v.
+Proof.
+  intros fuel renv e branches renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  destruct (eval_fn n renv e) as [[r1 vc]|] eqn:Hscrut; [| discriminate].
+  destruct vc as [| | | | | | | |tag payload|]; try discriminate.
+  destruct (find_branch tag branches) as [[x body]|] eqn:Hbranch; [| discriminate].
+  destruct (eval_fn n (ECons x payload r1) body) as [[r2 result]|] eqn:Hbody;
+    [| discriminate].
+  destruct r2 as [|y vy rest]; [discriminate |].
+  apply IH in Hscrut. apply IH in Hbody.
+  pose proof (eval_preserves_env_names _ _ _ _ Hbody) as Hnames.
+  simpl in Hnames. injection Hnames as Hname Htail. subst y.
+  inversion Heval; subst. eapply E_Match; eassumption.
+Qed.
+
+(** I split only the computations inspected by the evaluator, then use the
+    corresponding relational rules for aggregate reads and updates. *)
+Ltac solve_eval_fn_access IH Heval :=
+  repeat match type of Heval with
+  | context [match ?scrut with _ => _ end] =>
+    let H := fresh "Hcase" in destruct scrut eqn:H; try discriminate
+  end;
+  repeat match goal with
+  | H : eval_fn _ _ _ = Some (_, _) |- _ => apply IH in H
+  end;
+  inversion Heval; subst;
+  eauto using E_Index, E_ArraySet, E_ArrayPush, E_Field, E_SetField, E_TupleIndex.
+
+Theorem eval_fn_sound_index : forall fuel renv e1 e2 renv' v,
+  eval_fn fuel renv (EIndex e1 e2) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (EIndex e1 e2) renv' v.
+Proof.
+  intros fuel renv e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  solve_eval_fn_access IH Heval.
+Qed.
+
+Theorem eval_fn_sound_arrayset : forall fuel renv e1 e2 e3 renv' v,
+  eval_fn fuel renv (EArraySet e1 e2 e3) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (EArraySet e1 e2 e3) renv' v.
+Proof.
+  intros fuel renv e1 e2 e3 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  solve_eval_fn_access IH Heval.
+Qed.
+
+Theorem eval_fn_sound_arraypush : forall fuel renv e1 e2 renv' v,
+  eval_fn fuel renv (EArrayPush e1 e2) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (EArrayPush e1 e2) renv' v.
+Proof.
+  intros fuel renv e1 e2 renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  solve_eval_fn_access IH Heval.
+Qed.
+
+Theorem eval_fn_sound_field : forall fuel renv e f renv' v,
+  eval_fn fuel renv (EField e f) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (EField e f) renv' v.
+Proof.
+  intros fuel renv e f renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  solve_eval_fn_access IH Heval.
+Qed.
+
+Theorem eval_fn_sound_setfield : forall fuel renv x f e renv' v,
+  eval_fn fuel renv (ESetField x f e) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (ESetField x f e) renv' v.
+Proof.
+  intros fuel renv x f e renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  solve_eval_fn_access IH Heval.
+Qed.
+
+Theorem eval_fn_sound_tupleindex : forall fuel renv e i renv' v,
+  eval_fn fuel renv (ETupleIndex e i) = Some (renv', v) ->
+  (forall r e0 r' v0, eval_fn (pred fuel) r e0 = Some (r', v0) -> eval r e0 r' v0) ->
+  eval renv (ETupleIndex e i) renv' v.
+Proof.
+  intros fuel renv e i renv' v Heval IH.
+  destruct fuel as [|n]; [simpl in Heval; discriminate |].
+  simpl in Heval, IH.
+  solve_eval_fn_access IH Heval.
+Qed.
+
+Theorem eval_fn_sound_array : forall es fuel renv renv' v,
+  (forall m, (m < fuel)%nat -> forall r e r' v0,
+    eval_fn m r e = Some (r', v0) -> eval r e r' v0) ->
+  eval_fn fuel renv (EArray es) = Some (renv', v) ->
+  eval renv (EArray es) renv' v.
+Proof.
+  induction es as [|e es IHes]; intros fuel renv renv' v IH Heval;
+    destruct fuel as [|n]; try discriminate.
+  - destruct n; simpl in Heval; inversion Heval; subst; constructor.
+  - destruct n as [|m]; [discriminate |].
+    cbn [eval_fn] in Heval.
+    destruct (eval_fn m renv e) as [[r1 v1]|] eqn:Hhead; [| discriminate].
+    match type of Heval with
+    | context [?loop m r1 es] =>
+      destruct (loop m r1 es) as [[r2 vs]|] eqn:Htail; [| discriminate]
+    end.
+    inversion Heval; subst.
+    eapply E_ArrayCons.
+    + eapply (IH m); [lia | exact Hhead].
+    + eapply (IHes (S m)).
+      * intros k Hk. apply IH. lia.
+      * cbn [eval_fn]. rewrite Htail. reflexivity.
+Qed.
+
+Theorem eval_fn_sound_record : forall es fuel renv renv' v,
+  (forall m, (m < fuel)%nat -> forall r e r' v0,
+    eval_fn m r e = Some (r', v0) -> eval r e r' v0) ->
+  eval_fn fuel renv (ERecord es) = Some (renv', v) ->
+  eval renv (ERecord es) renv' v.
+Proof.
+  induction es as [|[f e] es IHes]; intros fuel renv renv' v IH Heval;
+    destruct fuel as [|n]; try discriminate.
+  - destruct n; simpl in Heval; inversion Heval; subst; constructor.
+  - destruct n as [|m]; [discriminate |].
+    cbn [eval_fn] in Heval.
+    destruct (eval_fn m renv e) as [[r1 v1]|] eqn:Hhead; [| discriminate].
+    match type of Heval with
+    | context [?loop m r1 es] =>
+      destruct (loop m r1 es) as [[r2 vs]|] eqn:Htail; [| discriminate]
+    end.
+    inversion Heval; subst.
+    eapply E_RecordCons.
+    + eapply (IH m); [lia | exact Hhead].
+    + eapply (IHes (S m)).
+      * intros k Hk. apply IH. lia.
+      * cbn [eval_fn]. rewrite Htail. reflexivity.
+Qed.
+
+Theorem eval_fn_sound_tuple : forall es fuel renv renv' v,
+  (forall m, (m < fuel)%nat -> forall r e r' v0,
+    eval_fn m r e = Some (r', v0) -> eval r e r' v0) ->
+  eval_fn fuel renv (ETuple es) = Some (renv', v) ->
+  eval renv (ETuple es) renv' v.
+Proof.
+  induction es as [|e es IHes]; intros fuel renv renv' v IH Heval;
+    destruct fuel as [|n]; try discriminate.
+  - simpl in Heval. inversion Heval; subst. constructor.
+  - cbn [eval_fn] in Heval.
+    destruct (eval_fn n renv e) as [[r1 v1]|] eqn:Hhead; [| discriminate].
+    match type of Heval with
+    | context [?loop n r1 es] =>
+      destruct (loop n r1 es) as [[r2 vs]|] eqn:Htail; [| discriminate]
+    end.
+    inversion Heval; subst.
+    eapply E_TupleCons.
+    + eapply (IH n); [lia | exact Hhead].
+    + eapply (IHes (S n)); [exact IH |].
+      cbn [eval_fn]. rewrite Htail. reflexivity.
+Qed.
+
+(** I connect every expression case by strong induction on fuel. No recursive
+    soundness premise remains in this theorem. *)
+Theorem eval_fn_sound : forall fuel renv e renv' v,
+  eval_fn fuel renv e = Some (renv', v) ->
+  eval renv e renv' v.
+Proof.
+  intro fuel. induction fuel using lt_wf_ind.
+  intros renv e renv' v Heval.
+  destruct fuel as [|n]; [discriminate |].
+  assert (IH : forall r e0 r' v0,
+    eval_fn n r e0 = Some (r', v0) -> eval r e0 r' v0).
+  { apply H. lia. }
+  destruct e;
+    try exact (eval_fn_sound_simple _ _ _ _ _ Heval).
+  all: first [eapply eval_fn_sound_binop; eassumption
+          |eapply eval_fn_sound_unop; eassumption
+          |eapply eval_fn_sound_if; eassumption
+          |eapply eval_fn_sound_let; eassumption
+          |eapply eval_fn_sound_set; eassumption
+          |eapply eval_fn_sound_seq; eassumption
+          |eapply eval_fn_sound_while; eassumption
+          |eapply eval_fn_sound_lam; eassumption
+          |eapply eval_fn_sound_app; eassumption
+          |eapply eval_fn_sound_fix; eassumption
+          |eapply eval_fn_sound_index; eassumption
+          |eapply eval_fn_sound_arrayset; eassumption
+          |eapply eval_fn_sound_arraypush; eassumption
+          |eapply eval_fn_sound_field; eassumption
+          |eapply eval_fn_sound_setfield; eassumption
+          |eapply eval_fn_sound_construct; eassumption
+          |eapply eval_fn_sound_match; eassumption
+          |eapply eval_fn_sound_strindex; eassumption
+          |eapply eval_fn_sound_tupleindex; eassumption
+          |eapply eval_fn_sound_array; [exact H | exact Heval]
+          |eapply eval_fn_sound_record; [exact H | exact Heval]
+          |eapply eval_fn_sound_tuple; [exact H | exact Heval]].
 Qed.
 
 (** ** Extraction directives *)

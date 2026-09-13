@@ -277,10 +277,11 @@ NvmV2Result nvm_v2_globals_encode(const NvmV2Globals *g,
 
 typedef enum {
     NVM_V2_IMPORT_FFI       = 0,
-    NVM_V2_IMPORT_COPROCESS = 1
+    NVM_V2_IMPORT_COPROCESS = 1,
+    NVM_V2_IMPORT_ARTIFACT  = 2
 } NvmV2ImportKind;
 
-#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_COPROCESS
+#define NVM_V2_IMPORT_KIND_MAX NVM_V2_IMPORT_ARTIFACT
 
 /* A weak link may resolve to nothing. Encoded and validated now; nothing
  * consumes it until the 4.4 capability work. */

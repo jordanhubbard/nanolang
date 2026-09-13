@@ -293,6 +293,34 @@ void test_embed_metadata_before_main(void) {
     ASSERT(meta_pos < main_pos);
 }
 
+void test_serialize_long_identifiers(void) {
+    char name[3001], constant[3001], expected[6200];
+    memset(name, 'm', sizeof(name) - 1);
+    name[sizeof(name) - 1] = '\0';
+    memset(constant, 'c', sizeof(constant) - 1);
+    constant[sizeof(constant) - 1] = '\0';
+    ModuleMetadata meta = make_empty_meta(name);
+    ConstantDef constants[2] = {0};
+    constants[0].name = constant;
+    constants[0].type = TYPE_INT;
+    constants[0].value = 42;
+    constants[1].name = constant;
+    constants[1].type = TYPE_FLOAT;
+    union { double d; int64_t i; } value = {.d = 1.5};
+    constants[1].value = value.i;
+    meta.constants = constants;
+    meta.constant_count = 2;
+    char *output = serialize_module_metadata_to_c(&meta);
+    ASSERT_NOT_NULL(output);
+    snprintf(expected, sizeof(expected), "ModuleMetadata _module_metadata_%s = {\n", name);
+    ASSERT_CONTAINS(output, expected);
+    snprintf(expected, sizeof(expected), "static const int64_t _module_const_%s_%s = 42LL;\n", name, constant);
+    ASSERT_CONTAINS(output, expected);
+    snprintf(expected, sizeof(expected), "static const double _module_const_%s_%s = 1.5;\n", name, constant);
+    ASSERT_CONTAINS(output, expected);
+    free(output);
+}
+
 void test_deserialize_stub_returns_false(void) {
     ModuleMetadata *out = NULL;
     bool ok = deserialize_module_metadata_from_c("/* some c code */", &out);
@@ -343,6 +371,7 @@ int main(void) {
     TEST(serialize_memory_annotations);
     TEST(serialize_int_constant);
     TEST(serialize_float_constant);
+    TEST(serialize_long_identifiers);
     TEST(serialize_multiple_functions);
     TEST(serialize_param_with_struct_type);
     TEST(embed_null_inputs_return_false);

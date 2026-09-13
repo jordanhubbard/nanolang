@@ -266,9 +266,60 @@ static void test_an_unverifiable_function_declares_no_depth(void) {
     nvm_module_free(v1);
 }
 
+static void test_import_kinds_and_bindings(void) {
+    NvmModule *m = nvm_module_new();
+    const char *path = "/cache/.nano-gen-abcdef/libanswer.so";
+    uint32_t p = nvm_add_string(m, path, (uint32_t)strlen(path));
+    uint32_t f = nvm_add_string(m, "answer", 6);
+    nvm_add_import(m, p, f, 0, TAG_INT, NULL);
+    for (uint8_t kind = NVM_IMPORT_FFI; kind <= NVM_IMPORT_ARTIFACT; kind++) {
+        m->imports[0].kind = kind;
+        NvmV2Module v2;
+        CHECK_RESULT(nvm_v2_from_nvm_module(m, &v2), NVM_V2_OK, "I convert the import kind");
+        uint8_t bytes[2048]; size_t size = 0;
+        CHECK_RESULT(nvm_v2_module_serialize(&v2, bytes, sizeof bytes, &size), NVM_V2_OK,
+                     "I serialize the import kind");
+        NvmV2Module decoded;
+        CHECK_RESULT(nvm_v2_module_deserialize(bytes, size, &decoded), NVM_V2_OK,
+                     "I decode the import kind");
+        NvmModule *back = NULL;
+        CHECK_RESULT(nvm_v2_to_nvm_module(&decoded, &back), NVM_V2_OK, "I restore the import kind");
+        if (back) {
+            CHECK(back->imports[0].kind == kind, "I preserve the kind");
+            CHECK(strcmp(nvm_get_string(back, back->imports[0].module_name_idx), path) == 0,
+                  "I preserve the exact artifact path");
+            nvm_module_free(back);
+        }
+        uint32_t legacy_size = 99;
+        uint8_t *legacy = nvm_serialize(m, &legacy_size);
+        CHECK(kind == NVM_IMPORT_FFI ? legacy != NULL : legacy == NULL && legacy_size == 0,
+              "I reject lossy legacy output");
+        free(legacy);
+        nvm_v2_module_free(&decoded);
+        nvm_v2_module_free(&v2);
+    }
+    const char *invalid[] = {"relative.so", "", "/a\0hidden"};
+    uint32_t lengths[] = {11, 0, 9};
+    for (int i = 0; i < 3; i++) {
+        m->imports[0].module_name_idx = nvm_add_string(m, invalid[i], lengths[i]);
+        CHECK(!nvm_verify(m).ok, "I reject an invalid artifact path in memory");
+        NvmV2Module v2;
+        CHECK_RESULT(nvm_v2_from_nvm_module(m, &v2), NVM_V2_OK, "I construct invalid path fixture");
+        uint8_t bytes[2048]; size_t size = 0;
+        CHECK_RESULT(nvm_v2_module_serialize(&v2, bytes, sizeof bytes, &size), NVM_V2_OK,
+                     "I encode the invalid fixture");
+        NvmV2Module decoded;
+        CHECK(nvm_v2_module_deserialize(bytes, size, &decoded) != NVM_V2_OK,
+              "I reject an invalid artifact path while loading");
+        nvm_v2_module_free(&v2);
+    }
+    nvm_module_free(m);
+}
+
 int main(void) {
     printf("\n[nvm_v2_convert] NvmModule <-> v2 bridge tests...\n\n");
     test_round_trip_through_v2();
+    test_import_kinds_and_bindings();
     test_header_flags_are_derived();
     test_a_module_without_main_gains_no_entry_point();
     test_identical_shapes_share_a_signature();

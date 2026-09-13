@@ -151,6 +151,88 @@ static void test_same_name_in_many_files(void) {
     free_environment(env);
 }
 
+static char **one_export(const char *name) {
+    char **names = malloc(sizeof(*names));
+    names[0] = strdup(name);
+    return names;
+}
+
+static void test_import_alias_owners(void) {
+    Environment *env = create_environment();
+    Function left = {0}, right = {0};
+    left.name = right.name = "answer";
+    left.module_name = "LeftValue";
+    right.module_name = "RightValue";
+    env_define_function(env, left);
+    env_define_function(env, right);
+    StructDef record = {0};
+    EnumDef enumeration = {0};
+    UnionDef choice = {0};
+    record.name = strdup("Record");
+    enumeration.name = strdup("Enumeration");
+    choice.name = strdup("Choice");
+    record.module_name = enumeration.module_name = choice.module_name = "LeftValue";
+    env_define_struct(env, record);
+    env_define_enum(env, enumeration);
+    env_define_union(env, choice);
+
+    env->current_module = "LeftWrapper";
+    env_register_namespace(env, "lib", "LeftValue", one_export("answer"), 1,
+                           one_export("Record"), 1, one_export("Enumeration"), 1,
+                           one_export("Choice"), 1);
+    env->current_module = "RightWrapper";
+    env_register_namespace(env, "lib", "RightValue", one_export("answer"), 1,
+                           NULL, 0, NULL, 0, NULL, 0);
+    CHECK(env->namespace_count == 2, "I retain the same alias in distinct importers");
+    Function *found = env_get_function(env, "lib.answer");
+    CHECK(found && strcmp(found->module_name, "RightValue") == 0,
+          "I resolve the right importer's alias");
+    CHECK(env_get_struct(env, "lib.Record") == NULL, "I do not borrow another importer's struct alias");
+    CHECK(env_get_enum(env, "lib.Enumeration") == NULL, "I do not borrow another importer's enum alias");
+    CHECK(env_get_union(env, "lib.Choice") == NULL, "I do not borrow another importer's union alias");
+    env->current_module = "LeftWrapper";
+    found = env_get_function(env, "lib.answer");
+    CHECK(found && strcmp(found->module_name, "LeftValue") == 0,
+          "I resolve the left importer's alias");
+    CHECK(env_get_struct(env, "lib.Record") != NULL, "I resolve an owned struct alias");
+    CHECK(env_get_enum(env, "lib.Enumeration") != NULL, "I resolve an owned enum alias");
+    CHECK(env_get_union(env, "lib.Choice") != NULL, "I resolve an owned union alias");
+    env->current_module = NULL;
+    CHECK(env_get_function(env, "lib.answer") == NULL,
+          "I do not expose a dependency's alias at the root");
+    env_register_namespace(env, "lib", "LeftValue", one_export("answer"), 1,
+                           NULL, 0, NULL, 0, NULL, 0);
+    CHECK(env_get_function(env, "lib.answer") != NULL, "I resolve a root-owned alias");
+    env->current_module = "Unrelated";
+    CHECK(env_get_function(env, "lib.answer") == NULL,
+          "I do not inherit a root alias into an unrelated module");
+    env->current_module = NULL;
+    free_environment(env);
+}
+
+static void test_import_owner_restoration(void) {
+    const char *sources[] = {
+        "module Declared\n",
+        "module Declared\nmodule \"/__nano_missing_owner_test__/absent.nano\" as lib\n"
+    };
+    for (int i = 0; i < 2; i++) {
+        Environment *env = create_environment();
+        char *owner = "Caller";
+        env->current_module = owner;
+        int count = 0;
+        Token *tokens = tokenize(sources[i], &count);
+        ASTNode *program = parse_program(tokens, count);
+        CHECK(program != NULL, "I parse the import-context fixture");
+        bool ok = process_imports(program, env, NULL, "owner.nano");
+        CHECK(ok == (i == 0), "I distinguish successful and failed import processing");
+        CHECK(env->current_module == owner, "I restore the caller after either outcome");
+        env->current_module = NULL;
+        free_environment(env);
+        free_ast(program);
+        free_tokens(tokens, count);
+    }
+}
+
 int main(void) {
     printf("\n[env_scoping] symbol visibility is confined to one file...\n\n");
     test_lookup_ignores_other_files();
@@ -158,6 +240,8 @@ int main(void) {
     test_fileless_symbols_stay_visible();
     test_redefinition_does_not_inherit_across_files();
     test_same_name_in_many_files();
+    test_import_alias_owners();
+    test_import_owner_restoration();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }

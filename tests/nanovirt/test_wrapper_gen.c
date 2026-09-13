@@ -23,8 +23,8 @@ const char *get_project_root(void) { return g_project_root; }
 
 static int g_pass = 0, g_fail = 0;
 #define TEST(name) static void test_##name(void)
-#define RUN(name)  do { test_##name(); \
-    printf("  %-55s PASS\n", #name "..."); g_pass++; } while(0)
+#define RUN(name)  do { int before = g_fail; test_##name(); \
+    if (g_fail == before) { printf("  %-55s PASS\n", #name "..."); g_pass++; } } while(0)
 #define ASSERT(cond) do { if (!(cond)) { \
     printf("  FAIL: %s  (%s:%d)\n", #cond, __FILE__, __LINE__); \
     g_fail++; return; } } while(0)
@@ -107,30 +107,15 @@ TEST(wrapper_generate_no_lib_path_no_obj) {
 }
 
 TEST(wrapper_generate_from_project_root) {
-    /*
-     * With NANO_VIRT_LIB unset, run from project root where ./obj/ exists.
-     * find_obj_dir falls through to CWD fallback and finds ./obj.
-     * Then wrapper_generate checks for obj/nanovm/vm.o.
-     *
-     * If obj/nanovm/vm.o exists (post-build), wrapper_generate proceeds to
-     * write a temp C file, build the obj list, find src/, and try to compile.
-     *
-     * We call it with verbose=false and don't assert on success — the goal
-     * is to exercise write_wrapper_c, build_obj_list, and the cc step.
-     */
+    /* I require a real link from the object files built by this test target. */
     unsetenv("NANO_VIRT_LIB");
 
     NvmModule *mod = nvm_module_new();
     ASSERT(mod != NULL);
     /* Use an empty module (no imports, no functions) */
-    uint32_t *out_size = NULL;
     uint32_t bsize = 0;
     uint8_t *blob = nvm_serialize(mod, &bsize);
-    if (!blob || bsize == 0) {
-        /* Serialization failed — skip compilation test */
-        nvm_module_free(mod);
-        return;
-    }
+    ASSERT(blob && bsize);
 
     /* Output to a temp path */
     char out_path[256];
@@ -138,15 +123,14 @@ TEST(wrapper_generate_from_project_root) {
 
     bool ok = wrapper_generate(mod, blob, bsize, out_path, "test.nano",
                                NULL, false);
-    /* ok may be true (compilation succeeded) or false (obj files missing,
-     * cc not found, etc.) — both outcomes are valid for this test. */
-    (void)ok;
+    /* I require the positive linking gate to produce an executable. */
+    ASSERT(ok);
+    ASSERT(access(out_path, X_OK) == 0);
 
     /* Clean up generated binary if it was created */
     remove(out_path);
     free(blob);
     nvm_module_free(mod);
-    (void)out_size;
 }
 
 TEST(wrapper_generate_daemon_from_project_root) {
@@ -161,8 +145,8 @@ TEST(wrapper_generate_daemon_from_project_root) {
     snprintf(out_path, sizeof(out_path), "/tmp/test_wgen_daemon_%d", (int)getpid());
 
     bool ok = wrapper_generate_daemon(blob, sizeof(blob), out_path, false);
-    /* ok may be true or false — just must not crash */
-    (void)ok;
+    ASSERT(ok);
+    ASSERT(access(out_path, X_OK) == 0);
 
     remove(out_path);
 }

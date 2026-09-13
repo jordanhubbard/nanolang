@@ -95,11 +95,7 @@ static int run_standalone(const char *path) {
 
         /* Load modules referenced by name in the import table */
         for (uint32_t i = 0; i < module->import_count; i++) {
-            const char *mod_name = nvm_get_string(module,
-                                                   module->imports[i].module_name_idx);
-            if (mod_name && mod_name[0] != '\0') {
-                vm_ffi_load_module(mod_name);
-            }
+            vm_ffi_load_import(module, i);
         }
 
         /* For imports with empty module names (bare extern fn declarations),
@@ -190,16 +186,15 @@ static int run_standalone(const char *path) {
 
     int exit_code = 0;
     if (result != VM_OK) {
-        bool has_debug = !!(module->header.flags & NVM_FLAG_DEBUG_INFO);
-        /* Stack trace is already printed inside vm_call_function when debug_mode
-         * or NVM_FLAG_DEBUG_INFO is set; only fall back to plain error otherwise. */
-        if (!has_debug && !g_debug_mode) {
-            fprintf(stderr, "Runtime error: %s\n", vm_error_string(result));
-            if (vm.error_msg[0]) {
-                fprintf(stderr, "  %s\n", vm.error_msg);
-            }
+        /* I report failures even when debug metadata exists but no trace ran. */
+        fprintf(stderr, "I could not execute the module: %s\n", vm_error_string(result));
+        if (vm.error_msg[0]) {
+            fprintf(stderr, "  %s\n", vm.error_msg);
         }
         exit_code = 1;
+    } else {
+        NanoValue value = vm_get_result(&vm);
+        if (value.tag == TAG_INT) exit_code = (int)value.as.i64;
     }
 
     /* Stop co-process if it was launched */

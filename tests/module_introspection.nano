@@ -1,0 +1,36 @@
+# I execute source-fact checks independently of imported shadow policy.
+import "src_nano/compiler/module_introspection.nano"
+
+fn main() -> int {
+    let source: string = "unsafe module origin\n# pub fn fake()\npub struct Visible { x: int } struct Hidden { y: int } pub enum Colour { Red } fn private_fn() -> int { let f = fn() -> int { return 1 } return (f) } pub fn first() -> int { return 1 } pub extern fn foreign(x: int) -> int"
+    let info: ModuleIntrospection = (mi_scan source "source.nano" "fallback")
+    assert info.ok
+    assert (== info.name "origin")
+    assert info.is_unsafe
+    assert info.has_ffi
+    assert (== (array_length info.functions) 2)
+    assert (== (at info.functions 0) "first")
+    assert (== (at info.functions 1) "foreign")
+    assert (== (array_length info.structs) 1)
+    assert (== (at info.structs 0) "Visible")
+    let emitted: string = (mi_emit info)
+    assert (str_contains emitted "___module_function_count_origin")
+    assert (str_contains emitted "___module_struct_name_origin")
+    assert (str_contains emitted "return true;")
+    let bad: ModuleIntrospection = (mi_scan "module a module b" "bad.nano" "bad")
+    assert (not bad.ok)
+    assert (== (mi_emit bad) "")
+    let malformed: ModuleIntrospection = (mi_scan "fn f() {" "bad.nano" "bad")
+    assert (not malformed.ok)
+    let imports: ModuleIntrospection = (mi_scan "unsafe module \"dep.nano\" as dep" "main.nano" "main")
+    assert imports.ok
+    assert (not imports.is_unsafe)
+    assert (== (array_length imports.unsafe_imports) 1)
+    assert (== (at imports.unsafe_imports 0) "dep.nano")
+    assert (not (mi_identifier "bad-name"))
+    assert (== (mi_quote "a\"b\\c") "\"a\\\"b\\\\c\"")
+    (println "I passed source-level module introspection checks.")
+    return 0
+}
+
+shadow main { assert (mi_identifier "origin") }

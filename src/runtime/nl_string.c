@@ -5,6 +5,7 @@
 #define _POSIX_C_SOURCE 200809L  /* For strdup() */
 
 #include "nl_string.h"
+#include "string_search.h"
 #include "../utf8.h"
 #include <stdlib.h>
 #include <string.h>
@@ -405,9 +406,11 @@ bool nl_cstr_contains(const char *haystack, const char *needle) {
 }
 
 int64_t nl_cstr_index_of(const char *haystack, const char *needle) {
-    if (!haystack || !needle) return -1;
-    const char *p = strstr(haystack, needle);
-    return p ? (int64_t)(p - haystack) : -1;
+    return nl_str_index_of(haystack, needle);
+}
+
+int64_t nl_cstr_last_index_of(const char *haystack, const char *needle) {
+    return nl_str_last_index_of(haystack, needle);
 }
 
 int64_t nl_cstr_char_at(const char *s, int64_t index) {
