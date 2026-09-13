@@ -1980,11 +1980,37 @@ shadow genenv_new {
     assert (== env.scope "main")
 }
 
+fn genenv_copy(env: GenEnv) -> GenEnv {
+    let mut names: array<string> = []
+    let mut types: array<string> = []
+    let mut flags: array<bool> = []
+    let mut globals: array<bool> = []
+    let mut i: int = 0
+    while (< i (array_length env.names)) {
+        set names (array_push names (at env.names i))
+        set types (array_push types (at env.types i))
+        set flags (array_push flags (at env.mut_flags i))
+        set globals (array_push globals (at env.global_flags i))
+        set i (+ i 1)
+    }
+    return GenEnv { names: names, types: types, mut_flags: flags, global_flags: globals, scope: env.scope }
+}
+
+shadow genenv_copy {
+    let outer: GenEnv = (genenv_put (genenv_new "outer") "selected" "fn() -> int" false)
+    let inner: GenEnv = (genenv_put outer "selected" "int" false)
+    assert (== (array_length outer.names) 1)
+    assert (== (array_length inner.names) 2)
+    assert (== (genenv_get outer "selected") "fn() -> int")
+    assert (== (genenv_get inner "selected") "int")
+}
+
 fn genenv_put(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
-    let new_names: array<string> = (array_push env.names name)
-    let new_types: array<string> = (array_push env.types t)
-    let new_flags: array<bool> = (array_push env.mut_flags is_mut)
-    let new_globals: array<bool> = (array_push env.global_flags false)
+    let copy: GenEnv = (genenv_copy env)
+    let new_names: array<string> = (array_push copy.names name)
+    let new_types: array<string> = (array_push copy.types t)
+    let new_flags: array<bool> = (array_push copy.mut_flags is_mut)
+    let new_globals: array<bool> = (array_push copy.global_flags false)
     return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
 }
 
@@ -1997,15 +2023,17 @@ shadow genenv_put {
     assert (== (at env2.mut_flags 0) false)
     assert (== (at env2.global_flags 0) false)
     let env3: GenEnv = (genenv_put env2 "y" "int" true)
+    assert (== (array_length env2.names) 1)
     assert (== (at env3.mut_flags 1) true)
     assert (== (at env3.global_flags 1) false)
 }
 
 fn genenv_put_global(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
-    let new_names: array<string> = (array_push env.names name)
-    let new_types: array<string> = (array_push env.types t)
-    let new_flags: array<bool> = (array_push env.mut_flags is_mut)
-    let new_globals: array<bool> = (array_push env.global_flags true)
+    let copy: GenEnv = (genenv_copy env)
+    let new_names: array<string> = (array_push copy.names name)
+    let new_types: array<string> = (array_push copy.types t)
+    let new_flags: array<bool> = (array_push copy.mut_flags is_mut)
+    let new_globals: array<bool> = (array_push copy.global_flags true)
     return GenEnv { names: new_names, types: new_types, mut_flags: new_flags, global_flags: new_globals, scope: env.scope }
 }
 
