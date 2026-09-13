@@ -114,7 +114,7 @@ if "-S" in sys.argv or "-E" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write(("S" if "-S" in sys.argv else "E") + "\\n")
 if "-c" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write("C\\n")
-if {"('-shared' in sys.argv or '-dynamiclib' in sys.argv)" if kind.startswith("link-response") else "'-c' in sys.argv"}:
+if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "'-c' in sys.argv"}:
     marker = pathlib.Path({str(marker)!r})
     if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":
         target = pathlib.Path({str(target)!r})

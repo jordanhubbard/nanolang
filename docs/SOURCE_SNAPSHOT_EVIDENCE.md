@@ -1605,3 +1605,59 @@ detection in 111.323 seconds (2026-09-13). The latter includes allocation
 recovery, deadlines, cleanup, native tool overrides and the new admission
 cases. I did not rerun the preceding full 175-method gate for this option
 check. No ordinary compilation or cache-reuse path invokes this query yet.
+
+### Installing forwarded arguments in ordinary builds
+
+I now use the captured argument graph in ordinary module builds and public
+rebuild checks. I collect `-Wl,@path` roots across common/platform compiler
+and linker flags and package compiler/linker flags in shared-link contribution
+order. I prepare complete GNU and Apple candidates before querying either.
+Each candidate owns its metadata and package fragments; I install only the
+candidate whose selected linker confirms that candidate's grammar.
+
+The query uses the shared-link flag recipe with a controlled empty C input,
+`-x c /dev/null -x none`, and private primary output pins. It does not compile
+module sources or require module objects to exist. Explicit native inputs,
+configured compiler wrappers and toolchains remain trusted. I classify options;
+I do not sandbox native input contents. The two grammar captures are separate
+transactions, not an atomic observation of the whole filesystem.
+
+My v28 build context includes the captured common/platform linker fragments
+as well as compiler fragments. Package fragments remain in the preprocessing
+fingerprint. Post-build validation uses the selected owned package arguments;
+the next invocation captures fresh arguments. Editing a response without
+changing its size or modification time therefore changes selection identity.
+Returned fragments own their strings and do not depend on the response paths.
+
+I remove confirmed linker-only `-Xlinker` pairs from source phases, not from
+the shared link. The new Darwin compiler-group cases initially produced the
+right results but no reuse record: unused-linker-argument diagnostics polluted
+the dependency evidence. The source-phase filter repairs that measured gap.
+It applies only after successful invocation-wide grammar admission.
+
+Unadmitted options, unsupported drivers and incomplete candidates leave the
+complete preceding flag path intact. This fallback does not acquire a new
+snapshot guarantee. A confirmed Apple linker with repeated resolved response
+identities is explicitly rejected; repairing the response permits a later build.
+Allocation checks exercise 180 budgets, require unchanged caller metadata and
+all-original or all-captured argument groups, and retry in the same process.
+
+My restored-selection fixture changes the response during actual shared
+linking, not during version queries. Apple's first GNU-version attempt is
+expected to fail; counting that probe as the publication link would invalidate
+the experiment. The six cases require cold, warm and fresh answers of 42,
+restored bytes/size/mtime, a reuse record and actual generation reuse.
+Additional cases edit responses across all six argument groups in a directory
+containing a comma and space, test source-less returned-flag lifetime, reject
+Apple repeated roots without publishing, and decline cyclic or unclassified
+controls without starting a linker query. These checks do not close arbitrary
+compiler modes, native-library snapshots or the entire cache transaction item.
+
+The rebuilt tools pass the full `make test-bytecode-shadows` target on both
+hosts (2026-09-13): 184 methods each, fifteen skips and 421.594 seconds of
+reported test time on Darwin; twelve skips and 109.158 seconds on Linux.
+Platform/configuration skips are not evidence for the skipped behavior.
+Linux also passes 32 graph/query/invocation methods with ASan/UBSan and leak
+detection in 269.241 seconds. That run includes allocation rollback,
+source-less returned-flag lifetime and unadmitted-candidate fallback. Native
+fixture tools and the assembler preload helper are not sanitizer-instrumented.

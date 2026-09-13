@@ -602,6 +602,52 @@ int main(int argc, char **argv) {
     ModuleBuildMetadata *meta = module_load_metadata(argv[2]);
     if (!meta) return 1;
     int status = 1;
+    if (!strcmp(argv[1], "forwarded-invocation-allocation")) {
+        ModuleBuildMetadata original = *meta;
+        unsigned declined = 0, captured_count = 0;
+        bool valid = true;
+        for (long limit = 0; limit < 180 && valid; limit++) {
+            ModuleBuildMetadata captured;
+            ModulePkgFlags flags;
+            generation_allocation_limit = limit;
+            bool ok = module_capture_invocation(meta, &captured, &flags);
+            generation_allocation_limit = -1;
+            valid = !memcmp(meta, &original, sizeof(original));
+            for (size_t group = 0; group < 4 && valid; group++) {
+                size_t count;
+                char **values = module_response_group(meta, group, &count);
+                valid = count == 1 && !strcmp(values[0], "-Wl,@link.rsp");
+            }
+            if (ok) {
+                bool installed = flags.linker_grammar == MODULE_LINK_RESPONSE_GNU;
+                for (size_t group = 0; group < 6 && valid; group++) {
+                    size_t count;
+                    char **values = module_forwarded_group(&captured, &flags, group, &count);
+                    valid = count == 1 && values && values[0];
+                    if (valid && installed) valid = strstr(values[0], "-Xlinker") && !strchr(values[0], '@');
+                    else if (valid) {
+                        const char *cursor = values[0];
+                        char word[4096];
+                        valid = module_flag_word(&cursor, word, sizeof(word)) == 1 &&
+                            !strcmp(word, "-Wl,@link.rsp") && module_flag_word(&cursor, word, sizeof(word)) == 0;
+                    }
+                }
+                captured_count += installed;
+                declined += !installed;
+                module_response_metadata_free(meta, &captured);
+                module_pkg_flags_free(&flags);
+            } else declined++;
+            if (!module_capture_invocation(meta, &captured, &flags)) { valid = false; break; }
+            valid = valid && flags.linker_grammar == MODULE_LINK_RESPONSE_GNU;
+            module_response_metadata_free(meta, &captured);
+            module_pkg_flags_free(&flags);
+            if (!valid) fprintf(stderr, "I failed invocation rollback at allocation budget %ld\n", limit);
+        }
+        if (!valid || !declined || !captured_count)
+            fprintf(stderr, "I observed valid=%d, declined=%u, captured=%u\n", valid, declined, captured_count);
+        module_metadata_free(meta);
+        return valid && declined && captured_count ? 0 : 1;
+    }
     if (!strcmp(argv[1], "shared-link-command")) {
         size_t capacity = argc == 4 ? (size_t)strtoul(argv[3], NULL, 10) : 131072;
         ModulePkgFlags flags;

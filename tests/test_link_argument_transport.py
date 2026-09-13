@@ -12,6 +12,7 @@ import sys
 import tempfile
 
 from tests.characterize_link_argument_transport import measure, require_consistent
+from tests.characterize_source_snapshot import measure as measure_snapshot
 from tests import test_bytecode_shadows as shadows
 from tests.characterize_linker_response_grammar import (
     materialize, require_argument_equivalent, require_equivalent, require_retained_equivalent,
@@ -19,6 +20,172 @@ from tests.characterize_linker_response_grammar import (
 
 
 class LinkArgumentAcceptance(unittest.TestCase):
+    def test_forwarded_invocation_allocation_is_atomic_and_retryable(self):
+        with tempfile.TemporaryDirectory(prefix="nano-forwarded-allocation-") as tmp:
+            directory = Path(tmp)
+            module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
+            compiler, pkg = directory / "cc", directory / "pkg-config"
+            compiler.write_text("#!/bin/sh\nif [ \"$1\" = --version ]; then\n"
+                "printf 'Free Software Foundation\\n'\nelse\nprintf 'GNU ld (fixture) 2.40\\n'\nfi\n")
+            pkg.write_text("#!/bin/sh\nprintf '%s\\n' '-Wl,@link.rsp'\n")
+            compiler.chmod(0o700)
+            pkg.chmod(0o700)
+            env.update(NANO_CC=str(compiler), PKG_CONFIG=str(pkg))
+            platform = "macos" if sys.platform == "darwin" else "linux"
+            metadata = {"name": "answer_native", "c_sources": [], "pkg_config": ["fixture"]}
+            metadata.update({group: ["-Wl,@link.rsp"] for group in
+                ("cflags", "ldflags", "cflags_" + platform, "ldflags_" + platform)})
+            (module / "module.json").write_text(json.dumps(metadata))
+            (directory / "link.rsp").write_text("-lm\n")
+            result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                "forwarded-invocation-allocation", str(module)], cwd=directory, env=env,
+                capture_output=True, timeout=180)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_forwarded_restored_inputs_preserve_results_and_reuse(self):
+        result = measure_snapshot(shutil.which("cc"), (
+            "link-response-forwarded", "link-response-forwarded-platform", "link-response-forwarded-pkg"))
+        self.assertEqual(len(result["cases"]), 6)
+        for case in result["cases"]:
+            with self.subTest(input=case["input"], cache=case["cache"]):
+                for field in ("cold_answer", "warm_answer", "fresh_answer"):
+                    self.assertEqual(case[field], 42)
+                for field in ("bytes_restored", "size_preserved", "mtime_preserved",
+                              "reuse_record", "generation_reused"):
+                    self.assertTrue(case[field], field)
+
+    def test_forwarded_response_edits_invalidate_all_argument_groups(self):
+        platform = "macos" if sys.platform == "darwin" else "linux"
+        for origin in ("ldflags", "ldflags_" + platform, "cflags", "cflags_" + platform,
+                       "pkg_cflags", "pkg_libs"):
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory(prefix="nano-forwarded-edit-") as tmp:
+                directory = Path(tmp) / "comma, space"
+                directory.mkdir()
+                module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
+                compiler = shutil.which("cc")
+                env["NANO_CC"] = compiler
+
+                def run(argv):
+                    result = subprocess.run([str(word) for word in argv], cwd=directory, env=env,
+                                            capture_output=True, timeout=30)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    return result.stdout.decode().strip()
+
+                for value in (42, 43):
+                    member, obj = directory / "member.c", directory / "member.o"
+                    member.write_text(f"long long selected(void) {{ return {value}; }}\n")
+                    run([compiler, "-fPIC", "-c", member, "-o", obj])
+                    run(["ar", "rcs", directory / f"selected{value}.a", obj])
+                (module / "answer.c").write_text("extern long long selected(void);\n"
+                    "long long nano_build_answer(void) { return selected(); }\n")
+                response = directory / "link.rsp"
+                response.write_text(json.dumps(str(directory / "selected42.a")) + "\n")
+                stamp = response.stat()
+                metadata = {"name": "answer_native", "c_sources": ["answer.c"]}
+                if origin.startswith("pkg_"):
+                    metadata["pkg_config"] = ["link-fixture"]
+                    pkg = directory / "pkg-config"
+                    selector = "--cflags" if origin == "pkg_cflags" else "--libs"
+                    pkg.write_text(f"#!{sys.executable}\nimport sys\n"
+                                   f"if {selector!r} in sys.argv: print('-Wl,@link.rsp')\n")
+                    pkg.chmod(0o700)
+                    env["PKG_CONFIG"] = str(pkg)
+                else:
+                    metadata[origin] = ["-Wl,@link.rsp"]
+                (module / "module.json").write_text(json.dumps(metadata))
+
+                def probe(mode):
+                    return run([shadows.ROOT / "obj/test_module_generation_probe", mode, module])
+
+                def answer():
+                    return int(run([sys.executable, "-c", "import ctypes,sys; "
+                        "lib=ctypes.CDLL(sys.argv[1]); lib.nano_build_answer.restype=ctypes.c_int64; "
+                        "print(lib.nano_build_answer())", probe("library")]))
+
+                probe("build")
+                first = probe("directory")
+                self.assertEqual(answer(), 42)
+                response.write_text(json.dumps(str(directory / "selected43.a")) + "\n")
+                os.utime(response, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                self.assertEqual(response.stat().st_size, stamp.st_size)
+                probe("build")
+                second = probe("directory")
+                self.assertNotEqual(first, second)
+                self.assertEqual(answer(), 43)
+                probe("build")
+                self.assertEqual(probe("directory"), second)
+                self.assertEqual(answer(), 43)
+
+    def test_forwarded_source_less_flags_outlive_response(self):
+        with tempfile.TemporaryDirectory(prefix="nano-forwarded-lifetime-") as tmp:
+            directory = Path(tmp)
+            module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
+            env["NANO_CC"] = shutil.which("cc")
+            response = directory / "link.rsp"
+            response.write_text("-lm -lc -lm\n")
+            (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": [],
+                "ldflags": ["-Wl,@link.rsp"]}))
+            result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                "build-info", str(module)], cwd=directory, env=env, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            words = [word for line in result.stdout.decode().splitlines() if line.startswith("link:")
+                     for word in shlex.split(line[len("link:"):])]
+            response.unlink()
+            self.assertEqual(words, ["-Xlinker", "-lm", "-Xlinker", "-lc", "-Xlinker", "-lm"])
+            later = subprocess.run([shutil.which("cc"), "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                "-fPIC", str(module / "answer.c"), "-o", str(directory / "later.so"), *words],
+                cwd=directory, env=env, capture_output=True, timeout=30)
+            self.assertEqual(later.returncode, 0, later.stderr)
+
+    def test_forwarded_unadmitted_candidate_keeps_original_flags(self):
+        with tempfile.TemporaryDirectory(prefix="nano-forwarded-decline-") as tmp:
+            directory = Path(tmp)
+            module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
+            compiler, marker = directory / "cc", directory / "queried"
+            compiler.write_text(f"#!{sys.executable}\nimport sys\nfrom pathlib import Path\n"
+                "if '--version' in sys.argv: print('Free Software Foundation')\n"
+                f"else: Path({str(marker)!r}).touch(); print('GNU ld (fixture) 2.40')\n")
+            compiler.chmod(0o700)
+            env["NANO_CC"] = str(compiler)
+            (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": [],
+                "cflags": ["-O2"], "ldflags": ["-Wl,@link.rsp"]}))
+            for contents in ("-lm -Map forbidden\n", "@link.rsp\n"):
+                with self.subTest(contents=contents):
+                    (directory / "link.rsp").write_text(contents)
+                    result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                        "build-info", str(module)], cwd=directory, env=env, capture_output=True, timeout=15)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn(b"compile:-O2\n", result.stdout)
+                    words = [word for line in result.stdout.decode().splitlines() if line.startswith("link:")
+                             for word in shlex.split(line[len("link:"):])]
+                    self.assertEqual(words, ["-Wl,@link.rsp"])
+                    self.assertFalse(marker.exists())
+                    self.assertFalse((directory / "forbidden").exists())
+
+    @unittest.skipUnless(sys.platform == "darwin", "I test Apple repeated-root rejection on Darwin")
+    def test_forwarded_apple_repeated_root_rejects_and_recovers(self):
+        with tempfile.TemporaryDirectory(prefix="nano-forwarded-repeat-") as tmp:
+            directory = Path(tmp)
+            module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
+            env["NANO_CC"] = shutil.which("cc")
+            metadata = {"name": "answer_native", "c_sources": ["answer.c"],
+                        "ldflags": ["-Wl,@link.rsp,@link.rsp"]}
+            (directory / "link.rsp").write_text("-lm\n")
+            (module / "module.json").write_text(json.dumps(metadata))
+
+            def build():
+                return subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                    "build", str(module)], cwd=directory, env=env, capture_output=True, timeout=30)
+
+            result = build()
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b"I reject repeated or cyclic response identities", result.stderr)
+            self.assertEqual(list((module / ".build").glob(".nano-gen-*")), [])
+            metadata["ldflags"] = ["-Wl,@link.rsp"]
+            (module / "module.json").write_text(json.dumps(metadata))
+            retry = build()
+            self.assertEqual(retry.returncode, 0, retry.stderr)
+
     def test_argument_gate_distinguishes_identity_rejection_from_capture_failure(self):
         success, failure = {"status": 0, "answer": 42}, {"status": 1, "answer": None}
         require_argument_equivalent({"cases": [

@@ -93,6 +93,7 @@ class LinkResponseQuery(unittest.TestCase):
                 "-o", "-L", "-B", "-Xlinker", "-Wl,", "-Wl,-lm,", "-Wl,-L",
                 "-Xlinker -L fixture.o", "-Xlinker -o -Xlinker --", "-o @output.rsp",
                 "-Wl,-lm,-Map,map", "-Xlinker -L -Xlinker lib -Xlinker -plugin",
+                "-x", "-x assembler", "-x c++", "-x @language.rsp",
                 " ; touch forbidden", "x" * 4096, " ".join(["x"] * 2048))
             controls = ("--", "@raw.rsp", "-Map", "-Map=map", "--Map=map", "-map", "-dependency_info",
                 "--dependency-file=deps", "--out-implib=exports", "--reproduce=repro", "-object_path_lto",
@@ -113,6 +114,7 @@ class LinkResponseQuery(unittest.TestCase):
                 f"Path({str(record)!r}).write_text(json.dumps(sys.argv[1:]))\n"
                 "print('GNU ld (fixture) 2.40')\n")
             cases = (["-shared", "fixture.o", "-fPIC", "-O2", "-D", "ANSWER=42", "-Iinclude"],
+                ["-shared", "-x", "c", "/dev/null", "-x", "none"],
                 ["-B", "tools", "-fuse-ld=custom", "--target=aarch64-linux-gnu", "--sysroot=/sdk"],
                 ["-Wl,-L,lib,-l,selected,-o,published.so"],
                 ["-Xlinker", "-L", "-Xlinker", "comma, path", "-Xlinker", "-l", "-Xlinker", "selected"],

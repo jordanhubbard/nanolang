@@ -45,6 +45,7 @@ static bool module_response_pending(const char *fragment);
 static bool module_response_metadata_pending(const ModuleBuildMetadata *meta);
 static bool module_flags_need_capture(char **flags, size_t count);
 static bool module_coalesce_cflags(char **flags, size_t count);
+static char **module_response_group(const ModuleBuildMetadata *meta, size_t group, size_t *count);
 
 /* I require explicit host authority before running package-registry probes,
  * install overrides, package managers, or sudo from the module builder. */
@@ -435,15 +436,14 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v27-link-response");
-    for (size_t i = 0; i < meta->cflags_count; i++) hash_context_field(&hash, meta->cflags[i]);
-#ifdef __APPLE__
-    for (size_t i = 0; i < meta->cflags_macos_count; i++) hash_context_field(&hash, meta->cflags_macos[i]);
-#elif defined(__FreeBSD__)
-    for (size_t i = 0; i < meta->cflags_freebsd_count; i++) hash_context_field(&hash, meta->cflags_freebsd[i]);
-#else
-    for (size_t i = 0; i < meta->cflags_linux_count; i++) hash_context_field(&hash, meta->cflags_linux[i]);
-#endif
+    hash_context_field(&hash, "nanolang-c-build-context-v28-forwarded-arguments");
+    const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
+    for (size_t group = 0; group < 4; group++) {
+        size_t count;
+        char **flags = module_response_group(meta, group, &count);
+        hash_context_field(&hash, groups[group]);
+        for (size_t i = 0; i < count; i++) hash_context_field(&hash, flags[i]);
+    }
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -830,7 +830,11 @@ typedef struct {
     char **cflags;
     char **libs;
     size_t count;
+    ModuleLinkResponseGrammar linker_grammar;
 } ModulePkgFlags;
+
+static bool module_capture_invocation(const ModuleBuildMetadata *meta, ModuleBuildMetadata *captured,
+                                      ModulePkgFlags *flags);
 
 #ifdef __APPLE__
 /* I read tagged NUL-terminated paths, not human-readable archive(member)
@@ -2128,10 +2132,12 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
 }
 
 bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
-    if (!meta) return false;
+    if (!meta || !meta->c_sources_count) return false;
     ModuleBuildMetadata captured;
-    if (!module_response_metadata(meta, &captured)) return true;
-    bool result = module_needs_rebuild_with_flags(module_dir, &captured, NULL);
+    ModulePkgFlags flags;
+    if (!module_capture_invocation(meta, &captured, &flags)) return true;
+    bool result = module_needs_rebuild_with_flags(module_dir, &captured, &flags);
+    module_pkg_flags_free(&flags);
     module_response_metadata_free(meta, &captured);
     return result;
 }
@@ -2492,12 +2498,16 @@ static ModuleFlagPhase module_snapshot_flag(const char *flag) {
 
 /* NULL output validates eligibility. Otherwise I emit only the flags needed
  * after preprocessing, quoting each decoded argument independently. */
-static bool module_retained_flags(const char *fragment, char *output, size_t capacity) {
+static bool module_retained_flags(const char *fragment, char *output, size_t capacity, bool linker_captured) {
     if (!fragment) return false;
     const char *cursor = fragment;
     char word[4096], argument[4096], combined[4096];
     int status;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (linker_captured && !strcmp(word, "-Xlinker")) {
+            if (module_flag_word(&cursor, argument, sizeof(argument)) != 1 || argument[0] == '@') return false;
+            continue;
+        }
         if (!strcmp(word, "-D") || !strcmp(word, "-U") || !strcmp(word, "-I")) {
             if (module_flag_word(&cursor, argument, sizeof(argument)) != 1) return false;
             int n = snprintf(combined, sizeof(combined), "%s%s", word, argument);
@@ -3046,7 +3056,9 @@ static bool module_append_compiler_fragment(const ModuleBuildMetadata *meta, con
         if (size > (SIZE_MAX - 16) / 4) return false;
         size = size * 4 + 16;
         filtered = calloc(size, 1);
-        if (!filtered || !module_retained_flags(fragment, filtered, size)) { free(filtered); return false; }
+        if (!filtered || !module_retained_flags(fragment, filtered, size, flags && flags->linker_grammar)) {
+            free(filtered); return false;
+        }
         fragment = filtered;
     }
     char *transport = module_response_transport(meta, flags, fragment);
@@ -3177,6 +3189,31 @@ static bool module_append_include_arguments(const ModuleBuildMetadata *meta, con
     return ok;
 }
 
+static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                          const char *fragment, bool retained,
+                                          char *output, size_t capacity) {
+    if (!flags->linker_grammar || retained)
+        return module_append_compiler_fragment(meta, flags, fragment, retained, output, capacity);
+    size_t length = strlen(fragment);
+    if (length > (SIZE_MAX - 16) / 4) return false;
+    size_t size = length * 4 + 16;
+    char *filtered = calloc(size, 1);
+    if (!filtered) return false;
+    const char *cursor = fragment;
+    char word[4096];
+    int status;
+    bool ok = true;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0 && ok) {
+        if (!strcmp(word, "-Xlinker")) {
+            ok = module_flag_word(&cursor, word, sizeof(word)) == 1 && word[0] != '@';
+        } else ok = module_append_path_flag(filtered, size, "", word);
+    }
+    ok = ok && status == 0 &&
+        module_append_compiler_fragment(meta, flags, filtered, false, output, capacity);
+    free(filtered);
+    return ok;
+}
+
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
@@ -3195,7 +3232,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
 #endif
         const char *flags = snapshot->cflags[i];
         if (flags && flags[0]) {
-            ok &= module_append_compiler_fragment(meta, snapshot, flags, retained, prefix, capacity);
+            ok &= module_append_source_fragment(meta, snapshot, flags, retained, prefix, capacity);
         } else if (!flags) ok = false;
     }
     if (!retained) ok &= module_append_include_arguments(meta, snapshot, prefix, capacity);
@@ -3204,7 +3241,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
         for (size_t i = 0; i < count; i++) {
             if (!flags[i][0]) continue;
-            ok &= module_append_compiler_fragment(meta, snapshot, flags[i], retained, prefix, capacity);
+            ok &= module_append_source_fragment(meta, snapshot, flags[i], retained, prefix, capacity);
         }
     }
     return ok;
@@ -3262,13 +3299,13 @@ static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, 
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
-        if (!module_retained_flags(captured->cflags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
+        if (!module_retained_flags(captured->cflags[i], NULL, 0, captured->linker_grammar)) return MODULE_SNAPSHOT_NONE;
     }
     for (size_t group = 0; group < 2; group++) {
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
         for (size_t i = 0; i < count; i++)
-            if (!module_retained_flags(flags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
+            if (!module_retained_flags(flags[i], NULL, 0, captured->linker_grammar)) return MODULE_SNAPSHOT_NONE;
     }
     for (size_t group = 0; group < 2; group++) {
         char **sources = group ? meta->shared_c_sources : meta->c_sources;
@@ -3930,6 +3967,7 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
                                       const char *object_file, const char *shared_lib,
                                       const char *build_dir, char *lib_cmd, size_t capacity) {
     bool command_ok = true;
+    bool query = object_file == NULL;
     const char *cc = module_selected_compiler(meta);
     lib_cmd[0] = 0;
     #ifdef __APPLE__
@@ -3943,8 +3981,9 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
                        "%s -shared -fPIC -Wl,--allow-shlib-undefined", cc);
     #endif
     /* Link the shared library from the module object (supports multi-source modules) */
-    command_ok &= module_append_path_flag(lib_cmd, capacity, "-o ", shared_lib);
-    command_ok &= module_append_path_flag(lib_cmd, capacity, "", object_file);
+    if (shared_lib) command_ok &= module_append_path_flag(lib_cmd, capacity, "-o ", shared_lib);
+    if (object_file) command_ok &= module_append_path_flag(lib_cmd, capacity, "", object_file);
+    else command_ok &= module_build_append(lib_cmd, capacity, " -x c /dev/null -x none");
     /* I append captured package fragments without tokenizing their contents. */
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
 #ifdef __APPLE__
@@ -3952,37 +3991,42 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
 #endif
         if (!flags->cflags[i]) return false;
         if (!flags->cflags[i][0]) continue;
-        command_ok &= module_append_compiler_fragment(meta, flags, flags->cflags[i], false, lib_cmd, capacity);
+        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", flags->cflags[i]) :
+            module_append_compiler_fragment(meta, flags, flags->cflags[i], false, lib_cmd, capacity);
     }
 
     char *fragment = module_shared_link_fragment(meta, flags);
-    char *transport = fragment ? module_shared_link_transport(meta, flags, fragment) : NULL;
+    char *transport = fragment ? (query ? strdup(fragment) : module_shared_link_transport(meta, flags, fragment)) : NULL;
     command_ok &= transport && module_build_append(lib_cmd, capacity, " %s", transport);
     free(transport);
     free(fragment);
     /* Add custom cflags (all platforms) */
     for (size_t i = 0; i < meta->cflags_count; i++) {
         if (!meta->cflags[i][0]) continue;
-        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags[i], false, lib_cmd, capacity);
+        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags[i]) :
+            module_append_compiler_fragment(meta, flags, meta->cflags[i], false, lib_cmd, capacity);
     }
     /* Add platform-specific cflags */
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) {
         if (!meta->cflags_macos[i][0]) continue;
-        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_macos[i], false, lib_cmd, capacity);
+        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags_macos[i]) :
+            module_append_compiler_fragment(meta, flags, meta->cflags_macos[i], false, lib_cmd, capacity);
     }
 #elif defined(__FreeBSD__)
     for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
         if (!meta->cflags_freebsd[i][0]) continue;
-        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_freebsd[i], false, lib_cmd, capacity);
+        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags_freebsd[i]) :
+            module_append_compiler_fragment(meta, flags, meta->cflags_freebsd[i], false, lib_cmd, capacity);
     }
 #else
     for (size_t i = 0; i < meta->cflags_linux_count; i++) {
         if (!meta->cflags_linux[i][0]) continue;
-        command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_linux[i], false, lib_cmd, capacity);
+        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags_linux[i]) :
+            module_append_compiler_fragment(meta, flags, meta->cflags_linux[i], false, lib_cmd, capacity);
     }
 #endif
-    for (size_t i = 0; i < meta->shared_c_sources_count; i++) {
+    for (size_t i = 0; !query && i < meta->shared_c_sources_count; i++) {
         char object[2048] = {0};
         command_ok &= module_build_append(object, sizeof(object), "%s/__shared_%zu.o", build_dir, i);
         command_ok &= module_append_path_flag(lib_cmd, capacity, "", object);
@@ -4087,6 +4131,11 @@ static bool module_link_query_options_admitted(const char *command) {
         }
         /* I do not guess driver reordering for a dangling linker operand. */
         if (linker_operand) return false;
+        if (!strcmp(word, "-x")) {
+            if (++count > 2048 || module_flag_word(&cursor, value, sizeof(value)) != 1 ||
+                (strcmp(value, "c") && strcmp(value, "none"))) return false;
+            continue;
+        }
         const char *paired[] = {"-o", "-B", "-target", "--target", "-arch", "-isysroot", "--sysroot",
             "-D", "-U", "-I", "-L", "-l", "-F", "-framework", "-undefined"};
         bool consumes = false;
@@ -4732,7 +4781,7 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
                 object_index < info->link_flags_count &&
                 module_validate_artifacts(stage, meta);
             if (ok && context_before && preprocessing_before &&
-                preprocessing_before == module_preprocess_fingerprint(meta, NULL) &&
+                preprocessing_before == module_preprocess_fingerprint(meta, flags->linker_grammar ? flags : NULL) &&
                 context_before == module_build_context(meta))
                 module_update_hash_cache(meta->module_dir, meta, stage, preprocessing_before, link_observation);
             /* I never mutate a published generation. The old pointer remains
@@ -4778,31 +4827,205 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
     return info;
 }
 
+typedef struct {
+    char *sources[64];
+    char **arguments;
+    size_t count, next;
+} ModuleForwardedRoots;
+
+static char **module_forwarded_group(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                     size_t group, size_t *count) {
+    if (group < 4) return module_response_group(meta, group, count);
+    *count = flags->count;
+    return group == 4 ? flags->cflags : flags->libs;
+}
+
+/* A NULL output collects roots without opening them. The second pass installs
+ * their complete owned argument fragments, preserving every field's position. */
+static bool module_forwarded_fragment(const char *fragment, ModuleForwardedRoots *roots, char *output) {
+    const char *cursor = fragment;
+    char word[4096];
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (word[0] == '@' || strstr(word, "--driver-mode")) { errno = EINVAL; return false; }
+        if (!strncmp(word, "-Wl,", 4)) {
+            char *part = word + 4;
+            do {
+                char *comma = strchr(part, ',');
+                if (comma) *comma = 0;
+                if (!part[0]) { errno = EINVAL; return false; }
+                if (part[0] == '@') {
+                    if (!part[1]) { errno = EINVAL; return false; }
+                    if (!output) {
+                        if (roots->count == 64) { errno = E2BIG; return false; }
+                        char *source = strdup(part + 1);
+                        if (!source) return false;
+                        roots->sources[roots->count++] = source;
+                    } else if (roots->next >= roots->count ||
+                        !module_build_append(output, 65537, "%s", roots->arguments[roots->next++])) {
+                        errno = E2BIG; return false;
+                    }
+                } else if (output && !module_append_path_flag(output, 65537, "-Xlinker ", part)) return false;
+                part = comma ? comma + 1 : NULL;
+            } while (part);
+        } else if (output && !module_append_path_flag(output, 65537, "", word)) return false;
+    }
+    if (status < 0) errno = EINVAL;
+    return status == 0;
+}
+
+/* This is the shared link's contribution order, not the metadata struct order. */
+static const size_t module_forwarded_order[] = {4, 5, 2, 3, 0, 1};
+
+static bool module_forwarded_candidate(const ModuleBuildMetadata *base, const ModulePkgFlags *original,
+                                       ModuleBuildMetadata *meta, ModulePkgFlags *flags, ModuleForwardedRoots *roots) {
+    *meta = *base;
+    memset(flags, 0, sizeof(*flags));
+    flags->count = original->count;
+    for (size_t group = 0; group < 4; group++) {
+        size_t count;
+        (void)module_response_group(base, group, &count);
+        char ***slot = module_response_group_slot(meta, group);
+        *slot = count ? calloc(count, sizeof(char *)) : NULL;
+        if (count && !*slot) return false;
+    }
+    if (flags->count) {
+        flags->cflags = calloc(flags->count, sizeof(char *));
+        flags->libs = calloc(flags->count, sizeof(char *));
+        if (!flags->cflags || !flags->libs) return false;
+    }
+    char *output = calloc(65537, 1);
+    if (!output) return false;
+    size_t bytes = 0;
+    bool ok = true;
+    roots->next = 0;
+    for (size_t index = 0; index < 6 && ok; index++) {
+        size_t count, ignored, group = module_forwarded_order[index];
+        char **source = module_forwarded_group(base, original, group, &count);
+        char **target = module_forwarded_group(meta, flags, group, &ignored);
+        for (size_t i = 0; i < count && ok; i++) {
+            if (!source[i]) continue;
+            output[0] = 0;
+            ok = module_forwarded_fragment(source[i], roots, output);
+            size_t length = strlen(output);
+            if (length > 65536 - bytes) { errno = E2BIG; ok = false; }
+            if (ok) { bytes += length; ok = (target[i] = strdup(output)) != NULL; }
+        }
+    }
+    free(output);
+    return ok && roots->next == roots->count;
+}
+
+static bool module_install_forwarded(const ModuleBuildMetadata *original, ModuleBuildMetadata *meta,
+                                     ModulePkgFlags *flags) {
+    ModuleForwardedRoots roots = {0};
+    size_t bytes = 0, slots = 0;
+    bool literal = true;
+    for (size_t index = 0; index < 6 && literal; index++) {
+        size_t count;
+        char **source = module_forwarded_group(meta, flags, module_forwarded_order[index], &count);
+        if (count > 2048 - slots) { literal = false; break; }
+        slots += count;
+        for (size_t i = 0; i < count && literal; i++) {
+            if (!source[i]) continue;
+            size_t length = strnlen(source[i], 65537);
+            if (length > 65536 - bytes) { literal = false; break; }
+            bytes += length;
+            literal = module_forwarded_fragment(source[i], &roots, NULL);
+        }
+    }
+    if (!literal || !roots.count || !module_response_driver(meta)) {
+        for (size_t i = 0; i < roots.count; i++) free(roots.sources[i]);
+        return true; /* I leave the complete previous path intact on decline. */
+    }
+    ModuleBuildMetadata candidate[2] = {*meta, *meta};
+    ModulePkgFlags packages[2] = {{0}, {0}};
+    bool ready[2] = {false, false};
+    int capture_error[2] = {0, 0};
+    /* Both candidates own their selected inputs before either tool query can
+     * mutate an original response. I do not claim one filesystem-wide epoch. */
+    for (size_t index = 0; index < 2; index++) {
+        roots.arguments = module_capture_link_arguments((const char *const *)roots.sources,
+            roots.count, index == 0 ? MODULE_LINK_RESPONSE_GNU : MODULE_LINK_RESPONSE_APPLE);
+        if (!roots.arguments) { capture_error[index] = errno; continue; }
+        ready[index] = module_forwarded_candidate(meta, flags, &candidate[index], &packages[index], &roots);
+        for (size_t i = 0; i < roots.count; i++) free(roots.arguments[i]);
+        free(roots.arguments);
+    }
+    for (size_t i = 0; i < roots.count; i++) free(roots.sources[i]);
+    int chosen = -1;
+    bool ok = true;
+    char *parent = NULL, *command = NULL;
+    if ((ready[0] || ready[1]) && module_ensure_build_dir(meta->module_dir)) {
+        parent = module_get_build_dir(meta->module_dir);
+        command = calloc(65537, 1);
+    }
+    for (size_t index = 0; parent && command && index < 2; index++) {
+        if (!ready[index]) continue;
+        if (!module_shared_link_command(&candidate[index], &packages[index], NULL, NULL, NULL, command, 65537)) continue;
+        ModuleLinkResponseGrammar grammar = module_query_link_response_grammar(command, parent);
+        if (grammar == (index == 0 ? MODULE_LINK_RESPONSE_GNU : MODULE_LINK_RESPONSE_APPLE)) {
+            chosen = (int)index;
+            packages[index].linker_grammar = grammar;
+            break;
+        }
+        if (grammar == MODULE_LINK_RESPONSE_APPLE && capture_error[1] == ELOOP) {
+            fprintf(stderr, "I reject repeated or cyclic response identities for the selected Apple linker\n");
+            ok = false;
+            break;
+        }
+    }
+    free(parent);
+    free(command);
+    for (size_t index = 0; index < 2; index++) {
+        if ((int)index == chosen) continue;
+        module_response_metadata_free(meta, &candidate[index]);
+        module_pkg_flags_free(&packages[index]);
+    }
+    if (chosen >= 0) {
+        module_response_metadata_free(original, meta);
+        *meta = candidate[chosen];
+        module_pkg_flags_free(flags);
+        *flags = packages[chosen];
+    }
+    return ok;
+}
+
+static bool module_capture_invocation(const ModuleBuildMetadata *meta, ModuleBuildMetadata *captured,
+                                      ModulePkgFlags *flags) {
+    if (!module_response_metadata(meta, captured)) return false;
+    if (!module_pkg_flags_capture(captured, flags)) {
+        module_response_metadata_free(meta, captured);
+        return false;
+    }
+    for (size_t i = 0; i < flags->count; i++) {
+        if (module_response_pending(flags->cflags[i]) || module_response_pending(flags->libs[i])) {
+            module_response_metadata_free(meta, captured);
+            *captured = *meta;
+            break;
+        }
+    }
+    if (!module_install_forwarded(meta, captured, flags)) {
+        module_response_metadata_free(meta, captured);
+        module_pkg_flags_free(flags);
+        return false;
+    }
+    return true;
+}
+
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
     if (!meta || !ensure_module_system_deps(meta)) return NULL;
     ModuleBuildMetadata captured;
-    if (!module_response_metadata(meta, &captured)) return NULL;
     ModulePkgFlags flags;
-    ModuleBuildInfo *info = NULL;
-    if (module_pkg_flags_capture(&captured, &flags)) {
-        /* A response or driver-mode override left in package flags can choose
-         * a different response dialect for the entire driver invocation. */
-        for (size_t i = 0; i < flags.count; i++) {
-            if (module_response_pending(flags.cflags[i]) || module_response_pending(flags.libs[i])) {
-                module_response_metadata_free(meta, &captured);
-                captured = *meta;
-                break;
-            }
-        }
-        info = module_build_with_flags(builder, &captured, &flags);
-        for (size_t i = 0; info && i < info->compile_flags_count; i++) {
-            char *transport = module_response_transport(&captured, &flags, info->compile_flags[i]);
-            if (!transport) { module_build_info_free(info); info = NULL; break; }
-            free(info->compile_flags[i]);
-            info->compile_flags[i] = transport;
-        }
-        module_pkg_flags_free(&flags);
+    if (!module_capture_invocation(meta, &captured, &flags)) return NULL;
+    ModuleBuildInfo *info = module_build_with_flags(builder, &captured, &flags);
+    for (size_t i = 0; info && i < info->compile_flags_count; i++) {
+        char *transport = module_response_transport(&captured, &flags, info->compile_flags[i]);
+        if (!transport) { module_build_info_free(info); info = NULL; break; }
+        free(info->compile_flags[i]);
+        info->compile_flags[i] = transport;
     }
+    module_pkg_flags_free(&flags);
     module_response_metadata_free(meta, &captured);
     return info;
 }

@@ -1239,6 +1239,28 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       methods and thirteen query methods with leak-enabled sanitizers. The
       native-input trust boundary and actual invocation installation remain
       open; I have not enabled reuse through this query API.
+      I install complete owned metadata/package candidates in ordinary
+      builds and rebuild checks. I prepare both grammar candidates before
+      querying either, use a controlled empty C input with the shared-link
+      flag recipe, and select only a self-confirmed grammar. The query keeps
+      my existing trusted native-module/toolchain boundary; it is not a native
+      input sandbox. I include linker flags in build identity and retain the
+      selected package arguments during post-build validation. I require the
+      six restored-selection cases, response edits, returned-flag lifetime,
+      rejection, rollback and both-platform regressions before acceptance.
+      My new compiler-group cases expose a Darwin reuse defect: linker-only
+      arguments reach C capture, and their unused-argument diagnostics prevent
+      complete dependency evidence. I remove confirmed linker-only pairs from
+      source phases while preserving them in the actual shared link.
+      The supported path now passes all six restored-selection cases, edited
+      responses across all six argument groups, returned-flag lifetime,
+      explicit Apple repeated-root rejection, complete fallback and 180
+      allocation budgets with same-process retry. Both full shadow/cache gates
+      pass 184 methods: Darwin has fifteen skips and Linux twelve. Unsupported
+      forms, broader budgets and native input snapshots remain open; this
+      checkpoint does not complete the whole retained-response item.
+      Linux also passes thirty-two graph/query/invocation methods with
+      leak-enabled ASan/UBSan, including allocation rollback and lifetime.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
