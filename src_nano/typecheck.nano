@@ -1368,7 +1368,7 @@ shadow tc_str_starts_with {
 }
 
 /* Find last occurrence of character in string */
-fn str_last_index_of(s: string, ch: string) -> int {
+fn tc_str_last_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
     let mut i: int = (- len 1)
     
@@ -1385,9 +1385,9 @@ fn str_last_index_of(s: string, ch: string) -> int {
     return -1
 }
 
-shadow str_last_index_of {
-    assert (== (str_last_index_of "list_Point_new" "_") 10)  /* Fixed: last _ is at index 10, not 11 */
-    assert (== (str_last_index_of "hello" "x") -1)
+shadow tc_str_last_index_of {
+    assert (== (tc_str_last_index_of "list_Point_new" "_") 10)  /* Fixed: last _ is at index 10, not 11 */
+    assert (== (tc_str_last_index_of "hello" "x") -1)
 }
 
 /* Check type of a generic list function call
@@ -1788,7 +1788,7 @@ fn extract_list_type_from_function(fn_name: string) -> string {
     let after_prefix: string = (str_substring fn_name 5 (- (str_length fn_name) 5))
     
     /* Find last underscore to separate type from operation */
-    let last_underscore: int = (str_last_index_of after_prefix "_")
+    let last_underscore: int = (tc_str_last_index_of after_prefix "_")
     if (> last_underscore 0) {
         return (str_substring after_prefix 0 last_underscore)
     } else {
@@ -2857,7 +2857,7 @@ fn array_elem_type_from_array_decl(t: string) -> string {
     if (str_contains t "array<array<") {
         /* Extract the inner array type: array<array<int>> -> array<int> */
         let start: int = (+ (tc_str_index_of t "array<") 6)
-        let end: int = (str_last_index_of t ">")
+        let end: int = (tc_str_last_index_of t ">")
         if (and (>= start 0) (> end start)) {
             return (str_substring t start (- end start))
         } else {
@@ -2879,7 +2879,7 @@ fn array_elem_type_from_array_decl(t: string) -> string {
                         /* Generic: array<SomeType> -> "SomeType" */
                         if (str_contains t "array<") {
                             let lt: int = (tc_str_index_of t "<")
-                            let gt: int = (str_last_index_of t ">")
+                            let gt: int = (tc_str_last_index_of t ">")
                             if (and (>= lt 0) (> gt lt)) {
                                 let start: int = (+ lt 1)
                                 let len: int = (- gt start)

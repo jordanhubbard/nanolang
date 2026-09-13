@@ -459,13 +459,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    return strncmp(s + slen - suflen, suffix, suflen) == 0;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "/* String index_of - returns index of first occurrence of needle, or -1 */\n");
-    sb_append(sb, "static int64_t nl_str_index_of(const char* haystack, const char* needle) {\n");
-    sb_append(sb, "    if (!haystack || !needle) return -1;\n");
-    sb_append(sb, "    const char* p = strstr(haystack, needle);\n");
-    sb_append(sb, "    if (!p) return -1;\n");
-    sb_append(sb, "    return (int64_t)(p - haystack);\n");
-    sb_append(sb, "}\n\n");
+    sb_append(sb, "#include \"runtime/string_search.h\"\n\n");
 
     /* Bytes (array<u8>) helpers */
     sb_append(sb, "static DynArray* nl_bytes_from_string(const char* s) {\n");

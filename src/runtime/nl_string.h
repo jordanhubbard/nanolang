@@ -193,6 +193,9 @@ bool        nl_cstr_contains(const char *haystack, const char *needle);
 /** Index of needle in haystack, or -1. */
 int64_t     nl_cstr_index_of(const char *haystack, const char *needle);
 
+/** Last index of needle in haystack, or -1. */
+int64_t     nl_cstr_last_index_of(const char *haystack, const char *needle);
+
 /** ASCII code of character at byte index, or -1 if out of range. */
 int64_t     nl_cstr_char_at(const char *s, int64_t index);
 

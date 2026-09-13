@@ -1588,6 +1588,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             {"getenv",     "vm_getenv",       1, TAG_STRING},
             {"setenv",     "vm_setenv",       2, TAG_INT},
             {"str_index_of","vm_str_index_of",2, TAG_INT},
+            {"str_last_index_of","vm_str_last_index_of",2, TAG_INT},
             {"process_run","vm_process_run",  1, TAG_ARRAY},
             {NULL, NULL, 0, 0}
         };

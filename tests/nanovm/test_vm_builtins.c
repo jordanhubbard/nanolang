@@ -108,6 +108,18 @@ static void test_vm_str_index_of(void) {
     ASSERT(pos == 6, "world should be at position 6");
     int64_t notfound = vm_str_index_of("hello", "xyz");
     ASSERT(notfound == -1, "not found should return -1");
+    ASSERT(vm_str_index_of(NULL, "x") == -1, "NULL haystack should return -1");
+    ASSERT(vm_str_index_of("x", NULL) == -1, "NULL needle should return -1");
+    PASS(test_name);
+}
+
+static void test_vm_str_last_index_of(void) {
+    const char *test_name = "vm_str_last_index_of: finds last substring";
+    ASSERT(vm_str_last_index_of("ababa", "aba") == 2, "overlap should be found");
+    ASSERT(vm_str_last_index_of("hello", "") == 5, "empty needle should return length");
+    ASSERT(vm_str_last_index_of("abc", "abcd") == -1, "long needle should not match");
+    ASSERT(vm_str_last_index_of(NULL, "x") == -1, "NULL haystack should return -1");
+    ASSERT(vm_str_last_index_of("x", NULL) == -1, "NULL needle should return -1");
     PASS(test_name);
 }
 
@@ -201,6 +213,7 @@ int main(void) {
     test_vm_mktemp_dir();
     test_vm_getenv();
     test_vm_str_index_of();
+    test_vm_str_last_index_of();
     test_vm_string_from_char();
     test_vm_char_classification();
     test_vm_digit_value();

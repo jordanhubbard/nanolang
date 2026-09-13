@@ -96,6 +96,22 @@ fn test_str_index_of() -> int {
 
 shadow test_str_index_of {
     assert (== (test_str_index_of) 0)
+    assert (== (str_index_of "ababa" "aba") 0)
+    assert (== (str_index_of "abc" "abcd") -1)
+    assert (== (str_index_of "café" "é") 3)
+}
+
+fn test_str_last_index_of() -> int {
+    if (!= (str_last_index_of "ababa" "aba") 2) { return 1 } else {}
+    if (!= (str_last_index_of "hello" "") 5) { return 1 } else {}
+    if (!= (str_last_index_of "hello" "xyz") -1) { return 1 } else {}
+    if (!= (str_last_index_of "abc" "abcd") -1) { return 1 } else {}
+    if (!= (str_last_index_of "café café" "é") 9) { return 1 } else {}
+    return 0
+}
+
+shadow test_str_last_index_of {
+    assert (== (test_str_last_index_of) 0)
 }
 
 fn test_str_trim() -> string {
@@ -179,6 +195,7 @@ fn main() -> int {
     let r1: int = (test_str_starts_with)
     let r2: int = (test_str_ends_with)
     let r3: int = (test_str_index_of)
+    let r4: int = (test_str_last_index_of)
     (println (str_trim "  hello  "))
     (println (str_trim_left "  hello  "))
     (println (str_trim_right "  hello  "))
@@ -191,7 +208,7 @@ fn main() -> int {
     set arr (array_push arr "x")
     set arr (array_push arr "y")
     (println (str_join arr "+"))
-    return (+ (+ r1 r2) r3)
+    return (+ (+ (+ r1 r2) r3) r4)
 }
 
 shadow main {
