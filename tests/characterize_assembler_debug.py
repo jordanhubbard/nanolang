@@ -105,6 +105,9 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 production_object = generation / "answer_native_1.o"
                 production_text = []
                 observed = evidence(production_object, source, directory, production_text)
+                native_retained = generation / "__native_unit_0_1.o"
+                retained_evidence = evidence(native_retained, physical_source, directory) if native_retained.is_file() else None
+                retained_identical = physical_native.read_bytes() == native_retained.read_bytes() if native_retained.is_file() else None
                 captured_evidence = None
                 captured_identical = None
                 captured_value = None
@@ -182,6 +185,8 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
                               "published_unit_aliases": [p.name for p in generation.glob("__unit_*")],
                               "native": expected, "production": observed,
+                              "retained_native_object": retained_evidence,
+                              "retained_native_object_identical": retained_identical,
                               "captured_object": captured_evidence,
                               "captured_object_identical": captured_identical,
                               "captured_object_value": captured_value,

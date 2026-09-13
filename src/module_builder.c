@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v40-unit-source-basename");
+    hash_context_field(&hash, "nanolang-c-build-context-v41-native-unit-observation");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3947,8 +3947,19 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
 #else
     const char *option = "--debug-prefix-map=";
 #endif
+    /* I place the broad source alias first: the selected assemblers give
+     * later mappings priority, and my staging directory can live below it. */
+    char *canonical = realpath(original[0] ? original : "/", NULL);
+    if (!canonical) return false;
+    if (strcmp(canonical, original)) {
+        ok = !strchr(canonical, '=') &&
+            module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, canonical, original) &&
+            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+    }
+    free(canonical);
     if (strchr(directory, '=')) return false;
-    ok = module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, directory, original) &&
+    mapping[0] = 0;
+    ok = ok && module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, directory, original) &&
         module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
     char *private_canonical = realpath(directory, NULL);
     if (!private_canonical) return false;
@@ -3970,15 +3981,6 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
     }
     free(cwd);
     free(private_canonical);
-    char *canonical = realpath(original[0] ? original : "/", NULL);
-    if (!canonical) return false;
-    if (ok && strcmp(canonical, original)) {
-        mapping[0] = 0;
-        ok = !strchr(canonical, '=') &&
-            module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, canonical, original) &&
-            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
-    }
-    free(canonical);
     return ok;
 }
 
@@ -4056,7 +4058,7 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
     if (!module_compile_prefix(meta, retained, sizeof(retained), MODULE_C_RETAINED_ASSEMBLY, flags) ||
         !module_compile_prefix(meta, assemble, sizeof(assemble), MODULE_C_ASSEMBLE, flags)) return 0;
     ModuleAssemblyCapture capture = {directory, 0, 0, fingerprint};
-    hash_context_field(&capture.hash, "apple-selected-assembler-expanded-v1");
+    hash_context_field(&capture.hash, "apple-selected-assembler-expanded-native-v2");
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count; i++) {
@@ -4099,6 +4101,33 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
                     !strcmp(args[j], object) ? "@private-output" : args[j]);
             }
             if (!format || !output || sources != 1) goto failed;
+            const char *source = group ? meta->shared_c_sources[i] : meta->c_sources[i];
+            if (module_source_kind(source) > 1) {
+                /* I retain native debug emission before text expansion loses
+                 * source locations. Final object use is a separate phase. */
+                char alias[2048], parent[2048], native[2048] = {0}, unit_prefix[4096];
+                char native_storage[16384], *native_args[256];
+                command[0] = 0;
+                if (!module_capture_assembly_file(&capture, raw, frozen, false, 0) ||
+                    !module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent)) ||
+                    !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix)) ||
+                    !module_build_append(native, sizeof(native), "%s/__native_unit_%zu_%zu.o", directory, group, i) ||
+                    !module_build_append(command, sizeof(command), "/usr/bin/env NANO_AS_CAPTURE_PHASE=capture %s -x assembler", unit_prefix) ||
+                    !module_append_path_flag(command, sizeof(command), "", alias) ||
+                    !module_append_path_flag(command, sizeof(command), "-o ", native)) goto failed;
+                if (!module_assembler_argv(command, native_args, native_storage, sizeof(native_storage))) goto failed;
+                report[0] = 0;
+                if (!module_process_output(native_args, report, sizeof(report), deadline, true, false)) {
+                    if (report[0]) fputs(report, stderr);
+                    goto failed;
+                }
+                uint64_t object_hash = hash_file_fnv1a(native);
+                if (!object_hash) goto failed;
+                char digest[24];
+                snprintf(digest, sizeof(digest), "%llu", (unsigned long long)object_hash);
+                hash_context_field(&capture.hash, "native-unit-object-v1");
+                hash_context_field(&capture.hash, digest);
+            }
             args[format] = "asm"; args[output] = expanded;
             /* I name temporary labels in text mode only. Object assembly keeps
              * the selected assembler's original symbol-retention policy. */
@@ -4120,6 +4149,8 @@ failed:
             snprintf(path, sizeof(path), "%s/__expanded_%zu_%zu.s", directory, group, i);
             (void)unlink(path);
             snprintf(path, sizeof(path), "%s/__snapshot_%zu_%zu.s", directory, group, i);
+            (void)unlink(path);
+            snprintf(path, sizeof(path), "%s/__native_unit_%zu_%zu.o", directory, group, i);
             (void)unlink(path);
         }
     }

@@ -2637,3 +2637,43 @@ The two existing physical-object/macro-reuse regression methods pass in
 candidate commands pass on both hosts; incomplete CLI mode combinations are
 rejected. Python syntax, whitespace and six-edition guide checks pass. No
 production C code changes in this checkpoint.
+
+### Native unit observation and overlapping debug maps
+
+Build context v41 captures Apple external-assembler standalone objects before
+text expansion. I retain the pre-expansion input identity, the native object
+as `__native_unit_<group>_<index>.o`, and the existing expanded observation.
+The fingerprint includes the native object's bytes. Capture uses literal
+arguments under the existing supervised child deadline; a failed capture
+does not replace the published generation. Final compilation still uses
+expanded text. Retaining an unused object is not the debug-provenance repair.
+
+My characterizer exposes the retained object's decoded debug evidence and
+whole-object comparison against the independent physical-source native
+control. The regression covers inline and nested macros, `.s` and `.S`, both
+cache roots and alias imports. Recovery coverage exercises ordinary and
+shared units: a failed replacement preserves the prior library and pointer,
+cleans staging, and permits a later replacement followed by warm reuse.
+
+That recovery test exposed a separate mapping-order defect. For an absolute
+shared source spelled through Darwin's `/var` alias, the broad physical-to-
+lexical source mapping overrode the more specific staging-directory mapping.
+Three diagnostic repetitions showed changing `.nano-build-*` paths in the
+final shared object's line table, with no difference in the retained native
+object. I now put the broad mapping first so the later, specific mappings
+win. The regression rejects private staging paths in final unit objects.
+I preserve the existing physical module-root and explicit source-path policy.
+
+Native object transport, post-capture mutation checks and final macro debug
+parity remain required before I close the parent roadmap item. This capture
+step does not establish atomic filesystem observations or an assembler input
+inventory.
+
+Validation: six focused Darwin methods pass in 165.353 seconds. The complete
+Linux bytecode-shadow target passes all 227 methods with 27 platform skips;
+its 86-method source-snapshot suite completes in 103.351 seconds. Three
+Linux unit-copy, cleanup and failure-recovery methods pass with AddressSanitizer,
+UndefinedBehaviorSanitizer and leak detection in 31.083 seconds, with no
+sanitizer reports. That instrumentation covers the builder/probe, not every
+linked support object. Strict builds, Python syntax, whitespace and the
+six-edition guide check pass.

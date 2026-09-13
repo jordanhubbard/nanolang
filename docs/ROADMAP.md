@@ -1302,6 +1302,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I must integrate this serialization boundary without dropping retained
       input identity, restored-input checks, dependency observation or cache
       recovery. The candidate is not a production repair.
+      I integrate native unit capture before changing final object use: retain
+      the pre-expansion identity and expanded observation, fingerprint the
+      selected native object, and verify exact debug/object identity and warm
+      validation. Final object transport and post-capture mutation tests remain
+      a separate required step; retaining an unused object is not the repair.
+      I also correct shared-unit debug mapping under Darwin's lexical `/var`
+      alias: macro expansion can retain the private staging directory in the
+      final object's line table and defeat warm reuse. I compare actual line
+      tables and require recovery followed by reuse for both source groups
+      and cache roots before accepting native capture.
+      Context v41 now retains native objects with exact physical-control
+      debug/object identity across eight Darwin suffix/cache/macro cases.
+      I fixed the overlapping-map priority and verified ordinary/shared
+      capture-failure recovery, staging cleanup and subsequent warm reuse.
+      Six focused Darwin methods and the full 227-method Linux target pass;
+      three instrumented Linux lifecycle methods report no sanitizer errors.
+      Final objects still come from expanded text, so this parent stays open.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

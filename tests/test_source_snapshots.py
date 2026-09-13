@@ -302,6 +302,13 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(valuable.read_bytes(), b"I remain outside the build.")
 
     def test_unit_alias_failed_build_retains_published_generation(self):
+        self.unit_alias_failed_build_retains_published_generation()
+
+    def test_apple_native_unit_capture_failure_recovery(self):
+        if sys.platform != "darwin": self.skipTest("I exercise the selected Apple native unit capture")
+        self.unit_alias_failed_build_retains_published_generation(macro=True)
+
+    def unit_alias_failed_build_retains_published_generation(self, macro=False):
         for shared_unit in (False, True):
             for shared_cache in (False, True):
                 with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache), tempfile.TemporaryDirectory(prefix="nano-unit-failure-") as tmp:
@@ -311,6 +318,8 @@ class SourceSnapshots(unittest.TestCase):
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                     source = module / "payload.s"
                     assembly = f'.data\n.globl {symbol}\n{symbol}:\n.byte 42\n'
+                    if macro:
+                        assembly = '.macro emit number\n.byte \\number\n.endm\n' + assembly.replace('.byte 42', 'emit 42')
                     source.write_text(assembly)
                     (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
                         'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')
@@ -323,12 +332,14 @@ class SourceSnapshots(unittest.TestCase):
                     wrapper.write_text(f'#!{sys.executable}\nimport os,sys\n'
                         'if os.environ.get("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
                         'any("/__unit_" in arg and arg.endswith("/payload.s") for arg in sys.argv):\n'
-                        '    print("I failed final unit assembly", file=sys.stderr)\n    sys.exit(1)\n'
+                        '    print("I failed unit assembly", file=sys.stderr)\n    sys.exit(1)\n'
                         f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
                     wrapper.chmod(0o700)
                     env["NANO_CC"] = str(wrapper)
                     self.support.probe_path("build", module, env, timeout=30)
                     first = self.support.probe_path("directory", module, env)
+                    if macro:
+                        self.assertTrue((first / f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o").is_file())
                     library = self.support.probe_path("library", module, env)
                     saved = library.read_bytes()
                     source.write_text(assembly.replace("42", "43"))
@@ -336,7 +347,7 @@ class SourceSnapshots(unittest.TestCase):
                     result = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
                                             capture_output=True, timeout=30)
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn(b"I failed final unit assembly", result.stderr)
+                    self.assertIn(b"I failed unit assembly", result.stderr)
                     self.assertEqual(self.support.probe_path("directory", module, env), first)
                     self.assertEqual(library.read_bytes(), saved)
                     self.assertEqual(self.answer(library), 42)
@@ -346,6 +357,8 @@ class SourceSnapshots(unittest.TestCase):
                     second = self.support.probe_path("directory", module, env)
                     self.assertNotEqual(first, second)
                     self.assertEqual(list(second.glob("__unit_*")), [])
+                    unit_object = second / ("__shared_0.o" if shared_unit else "answer_native_1.o")
+                    self.assertNotIn(b".nano-build-", unit_object.read_bytes())
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
                     self.support.probe_path("build", module, env, timeout=30)
                     self.assertEqual(self.support.probe_path("directory", module, env), second)
@@ -382,6 +395,17 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(case["production"]["compile_units"], case["native"]["compile_units"])
                 self.assertEqual(case["answer"], 42)
                 self.assertTrue(case["generation_reused"])
+
+    def test_apple_native_unit_capture_debug_identity(self):
+        if sys.platform != "darwin": self.skipTest("I exercise the selected Apple external assembler capture")
+        from tests.characterize_assembler_debug import measure as measure_debug
+        for nested in (False, True):
+            for case in measure_debug(shutil.which("cc"), macro_read=True, nested_read=nested, module_alias=True)["cases"]:
+                with self.subTest(nested=nested, suffix=case["suffix"], cache=case["cache"]):
+                    self.assertEqual(case["retained_native_object"], case["physical_native"])
+                    self.assertTrue(case["retained_native_object_identical"])
+                    self.assertEqual(case["answer"], 42)
+                    self.assertTrue(case["generation_reused"])
 
     def test_assembler_include_flag_phases(self):
         assembler = ["-Wa,-I,first path,-Isecond", "-Xassembler", "-I", "-Xassembler", "third path,comma",
