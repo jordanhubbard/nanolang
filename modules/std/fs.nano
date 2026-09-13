@@ -16,6 +16,7 @@ extern fn file_read(_path: string) -> string
 extern fn file_write(_path: string, _content: string) -> int
 extern fn file_append(_path: string, _content: string) -> int
 extern fn file_exists(_path: string) -> bool
+extern fn file_identity_equal(_first: string, _second: string) -> int
 extern fn file_delete(_path: string) -> int
 extern fn fs_mkdir_p(_path: string) -> int
 extern fn file_copy(_src: string, _dst: string) -> int

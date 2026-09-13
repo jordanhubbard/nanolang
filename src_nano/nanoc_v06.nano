@@ -30,6 +30,7 @@ extern fn get_argv(index: int) -> string
 extern fn file_read(path: string) -> string
 extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
+extern fn file_identity_equal(first: string, second: string) -> int
 extern fn file_append(path: string, content: string) -> int
 
 /* Path operations */
@@ -1438,6 +1439,16 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (print "")
     }
     
+    let root_output_identity: int = (file_identity_equal input_file output_file)
+    let mut root_diags_identity: int = 0
+    if (not (== llm_diags_json_path "")) {
+        set root_diags_identity (file_identity_equal input_file llm_diags_json_path)
+    } else { (print "") }
+    if (or (not (== root_output_identity 0)) (not (== root_diags_identity 0))) {
+        (println "Error: I cannot verify distinct input and output file identities")
+        return 1
+    } else { (print "") }
+
     /* Step 0: Merge imports into single source */
     /* Find repository root for absolute paths to runtime sources  */
     /* Start search from current working directory, not input file location */
@@ -1468,6 +1479,21 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
         (println "Error: import resolution failed")
         return 1
     } else {
+        let mut identity_i: int = 0
+        while (< identity_i (array_length merged_files)) {
+            let source_path: string = (at merged_files identity_i)
+            let output_identity: int = (file_identity_equal source_path output_file)
+            let mut diags_identity: int = 0
+            if (not (== llm_diags_json_path "")) {
+                set diags_identity (file_identity_equal source_path llm_diags_json_path)
+            } else { (print "") }
+            if (or (not (== output_identity 0)) (not (== diags_identity 0))) {
+                (println "Error: I cannot verify distinct source and output file identities")
+                return 1
+            } else { (print "") }
+            set identity_i (+ identity_i 1)
+        }
+
         /* Imports resolved - use merged file */
         if verbose {
             (print "  ✓ Merged source: ")
