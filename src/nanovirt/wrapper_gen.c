@@ -442,7 +442,7 @@ static bool build_wrapper(const NvmModule *module, const uint8_t *blob,
     if (!daemon) platform = "-Wl,-E";
 #endif
     n = snprintf(command + used, sizeof(command) - used, " %s %s %s", objects,
-                 daemon ? "" : "-lm -pthread -lcrypto", platform);
+                 daemon ? "" : "-lm -pthread -lcrypto -lffi", platform);
     if (n < 0 || (size_t)n >= sizeof(command) - used) goto cleanup;
     if (verbose) printf("I compile a private wrapper: %s\n", command);
     if (system(command) != 0) goto cleanup;

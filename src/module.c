@@ -42,24 +42,33 @@ static void init_module_cache(void) {
     }
 }
 
-static bool is_module_cached(const char *module_path) {
-    if (!module_cache) return false;
+static int cached_module_index(const char *module_path) {
+    if (!module_cache || !module_path) return -1;
     for (int i = 0; i < module_cache->count; i++) {
         if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
-            return true;
+            return i;
         }
     }
-    return false;
+    char *canonical = realpath(module_path, NULL);
+    if (!canonical) return -1;
+    int found = -1;
+    for (int i = 0; i < module_cache->count; i++) {
+        if (strcmp(module_cache->loaded_paths[i], canonical) == 0) {
+            found = i;
+            break;
+        }
+    }
+    free(canonical);
+    return found;
+}
+
+static bool is_module_cached(const char *module_path) {
+    return cached_module_index(module_path) >= 0;
 }
 
 ASTNode *get_cached_module_ast(const char *module_path) {
-    if (!module_cache) return NULL;
-    for (int i = 0; i < module_cache->count; i++) {
-        if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
-            return module_cache->loaded_asts[i];
-        }
-    }
-    return NULL;
+    int index = cached_module_index(module_path);
+    return index < 0 ? NULL : module_cache->loaded_asts[index];
 }
 
 static void cache_module(const char *module_path) {
@@ -73,7 +82,8 @@ static void cache_module(const char *module_path) {
         module_cache->loaded_asts = realloc(module_cache->loaded_asts,
                                             sizeof(ASTNode*) * module_cache->capacity);
     }
-    module_cache->loaded_paths[module_cache->count] = strdup(module_path);
+    char *key = realpath(module_path, NULL);
+    module_cache->loaded_paths[module_cache->count] = key ? key : strdup(module_path);
     module_cache->loaded_asts[module_cache->count] = NULL;  /* Set later */
     module_cache->count++;
 }
@@ -82,11 +92,10 @@ static void cache_module_with_ast(const char *module_path, ASTNode *ast) {
     init_module_cache();
     
     /* Check if already cached - if so, update AST */
-    for (int i = 0; i < module_cache->count; i++) {
-        if (strcmp(module_cache->loaded_paths[i], module_path) == 0) {
-            module_cache->loaded_asts[i] = ast;
-            return;
-        }
+    int index = cached_module_index(module_path);
+    if (index >= 0) {
+        module_cache->loaded_asts[index] = ast;
+        return;
     }
     
     /* Not cached yet - add new entry */
@@ -97,7 +106,8 @@ static void cache_module_with_ast(const char *module_path, ASTNode *ast) {
         module_cache->loaded_asts = realloc(module_cache->loaded_asts,
                                             sizeof(ASTNode*) * module_cache->capacity);
     }
-    module_cache->loaded_paths[module_cache->count] = strdup(module_path);
+    char *key = realpath(module_path, NULL);
+    module_cache->loaded_paths[module_cache->count] = key ? key : strdup(module_path);
     module_cache->loaded_asts[module_cache->count] = ast;
     module_cache->count++;
 }
@@ -555,6 +565,16 @@ static char *module_name_from_path(const char *module_path) {
     return strdup(module_path);
 }
 
+/* I return an owned module name for checking or emitting one imported program. */
+char *module_program_name(ASTNode *program, const char *module_path) {
+    if (!program || program->type != AST_PROGRAM) return NULL;
+    for (int i = 0; i < program->as.program.count; i++) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type == AST_MODULE_DECL) return strdup(item->as.module_decl.name);
+    }
+    return module_name_from_path(module_path);
+}
+
 static Function *find_module_function(Environment *env, const char *module_name, const char *func_name) {
     if (!env || !func_name) {
         return NULL;
@@ -783,7 +803,11 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
 
 /* Public wrapper for load_module that uses cache */
 ASTNode *load_module(const char *module_path, Environment *env) {
-    return load_module_internal(module_path, env, true, NULL);
+    if (!module_path) return NULL;
+    char *canonical = realpath(module_path, NULL);
+    ASTNode *program = load_module_internal(canonical ? canonical : module_path, env, true, NULL);
+    free(canonical);
+    return program;
 }
 
 /* Load module from a package file */
@@ -887,6 +911,14 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 }
                 free(unpacked_dirs);
                 return false;
+            }
+
+            /* I identify an existing imported file once, independent of spelling.
+             * Dependencies of a symlinked file belong to its target directory. */
+            char *canonical_path = realpath(module_path, NULL);
+            if (canonical_path) {
+                free(module_path);
+                module_path = canonical_path;
             }
             
             ASTNode *module_ast = NULL;

@@ -358,13 +358,45 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       from colliding nominal identity, which remains open. These owner names
       are not canonical path identities; dependency-shadow selection remains open.
       MAC `task_8064e9156d1246ada3673b4014802040`.
-- [ ] **5.0 explicit transitive shadow execution.** I expose a consistent
-      selection mode across C-seed, VM and self-hosted native compilation,
+- [x] **5.0 packaged interpreter link dependency.** I link wrappers with
+      libffi. The generation-retention regression exposed unresolved `ffi_call`
+      and type symbols after checked interpreted foreign dispatch gained that
+      dependency. The packaged-wrapper regression and wrapper-generation gates
+      now pass on Darwin and Linux. MAC `task_309856ab8480437aab712e39001d2dd9`.
+- [ ] **5.0 transitive shadow execution by default.** I run dependency shadows
+      by default across C-seed, VM and self-hosted native compilation,
       exercise direct, transitive and diamond imports exactly once, preserve
       ownership and prior output on failure, and document execution order,
-      source-only behavior and side effects. The ordinary-compilation default
-      is a separate policy choice; root-only remains the current behavior.
+      source-only behavior and side effects. My creator chose this default;
+      I retain `--root-shadows-only` as an explicit opt-out. C-seed and Stage2
+      still need the new selection implementation and default.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+      - [x] I canonicalize resolved imports before cache lookup, graph
+        registration, owner inference and C forward declarations. I reproduced
+        duplicate typechecking and mismatched prototypes through equivalent
+        paths. Dot segments and symlinks now pass C-seed/VM fixtures, including
+        dependencies relative to a symlink target and exactly-once VM shadows.
+        My public resolver remains unchanged; Stage2 path parity remains open.
+        MAC `task_8ae80d436b1342b3b25ed8839f8694fd`.
+      - [x] I select dependency shadows by default in my bytecode driver,
+        retain `--test-imports` and add `--root-shadows-only`, check and compile
+        dependency shadows in owner context, execute a deduplicated graph
+        dependency-first and root-last, and test failure publication boundaries
+        and production separation. I do not let selected dependencies inherit
+        the root's unsafe context. C-seed and Stage2 parity remain required.
+        Darwin runs all 103 shadow/cache/language test methods successfully;
+        Linux runs the same suite with eight platform-specific skips. Environment,
+        typechecker, code-generation and wrapper gates pass on both platforms.
+        Both bootstraps pass smoke and no-C-seed checks; native binaries differ.
+        MAC `task_e74afc2a7ccb4b16941f5d34f314998d`.
+      - [ ] I apply dependency-shadow selection and the default to C-seed,
+        preserving owner context, aggregate shadow JSON and prior output on
+        failure. I verify library shadows and bootstrap without bypassing the
+        default. MAC `task_b331d5925b504d379e21b24d0710d03c`.
+      - [ ] I apply the same default, flags and dependency order to Stage2,
+        establish canonical source identity in its merger, and verify library
+        shadows, native publication and bootstrap. Source-only C emission stays
+        non-executing. MAC `task_be1b5b951f7a499da6b995bed61871f9`.
 - [x] **5.0 interpreted indexed-read alias.** I route `array_get` to the
       same reader as `at`. My FFI map fixture exposed that typing accepted the
       alias while interpreted shadow execution reported an unimplemented

@@ -17,6 +17,26 @@ COMPILERS = {
 
 
 class LanguageClaims(unittest.TestCase):
+    def test_c_frontend_canonical_import_paths(self):
+        for backend in ("c-seed", "bytecode"):
+            for duplicate in (False, True):
+                with self.subTest(backend=backend, duplicate=duplicate), tempfile.TemporaryDirectory(prefix="nano-canonical-import-") as tmp:
+                    directory = Path(tmp)
+                    target = directory / "target"
+                    target.mkdir()
+                    (target / "helper.nano").write_text("pub fn answer() -> int { return 41 }\nshadow answer { assert (== (answer) 41) }\n")
+                    leaf = target / "leaf.nano"
+                    leaf.write_text('module "helper.nano" as dep\npub fn answer() -> int { return (+ (dep.answer) 1) }\n'
+                                    'shadow answer { assert (== (answer) 42) }\n')
+                    link = directory / "link.nano"
+                    link.symlink_to(leaf)
+                    prefix = f'module "{leaf}" as original\n' if duplicate else ""
+                    source = prefix + f'module "{link}" as lib\nfn main() -> int {{ return (lib.answer) }}\nshadow main {{ assert (== (main) 42) }}\n'
+                    compiled, output = self.compile_source(backend, source, directory)
+                    self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    executed = self.execute(backend, output)
+                    self.assertEqual(executed.returncode, 42, executed.stdout + executed.stderr)
+
     def compile_source(self, backend, source, directory, extra_args=()):
         path = directory / "claim.nano"
         path.write_text(source)
@@ -119,6 +139,10 @@ fn main() -> int {{ assert (== (helper.{function}) 42) return 0 }}
 shadow main {{ assert (== (helper.{function}) 42) }}
 '''
                     compiled, output = self.compile_source(backend, source, directory)
+                    if backend == "bytecode":
+                        self.assertNotEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                        self.assertFalse(output.exists())
+                        compiled, output = self.compile_source(backend, source, directory, ("--root-shadows-only",))
                     self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                     executed = self.execute(backend, output)
                     self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)

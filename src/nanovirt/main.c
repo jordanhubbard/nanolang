@@ -64,6 +64,8 @@ static void usage(const char *prog) {
     fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
     fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
+    fprintf(stderr, "  --test-imports     I run dependency shadows before root shadows (default)\n");
+    fprintf(stderr, "  --root-shadows-only I run only root-file shadows\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
     fprintf(stderr, "  -v                 Verbose output\n");
 }
@@ -178,13 +180,13 @@ static bool build_ffi_modules(ModuleList *modules, char **bindings) {
 }
 
 static bool check_shadows(ASTNode *program, Environment *env, ModuleList *modules,
-                           const char *input, char **bindings) {
+                           const char *input, char **bindings, bool include_imports) {
     bool present = false;
     for (int i = 0; i < program->as.program.count; i++) {
         if (program->as.program.items[i]->type == AST_SHADOW) present = true;
     }
-    if (!present) return true;
-    CodegenResult tests = codegen_compile_shadows(program, env, modules, input);
+    if (!present && !include_imports) return true;
+    CodegenResult tests = codegen_compile_shadow_scope(program, env, modules, input, include_imports);
     if (!tests.ok) {
         fprintf(stderr, "I could not compile shadows at line %d: %s\n", tests.error_line, tests.error_msg);
         return false;
@@ -267,10 +269,15 @@ int main(int argc, char **argv) {
     bool strip_debug = false;
     bool daemon_wrapper = false;
     bool verbose = false;
+    bool test_imports = true;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output = argv[++i];
+        } else if (strcmp(argv[i], "--test-imports") == 0) {
+            test_imports = true;
+        } else if (strcmp(argv[i], "--root-shadows-only") == 0) {
+            test_imports = false;
         } else if (strcmp(argv[i], "--run") == 0) {
             run = true;
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {
@@ -348,6 +355,32 @@ int main(int argc, char **argv) {
     }
     bool typed = has_shadows && !has_main ? type_check_module(program, env) : type_check(program, env);
     if (typed && has_shadows) typed = type_check_root_shadows(program, env);
+    if (typed && test_imports) {
+        char *root_owner = env->current_module;
+        bool root_unsafe = env->current_module_is_unsafe;
+        for (int i = 0; i < modules->count && typed; i++) {
+            const char *file = modules->module_paths[i];
+            ASTNode *dependency = get_cached_module_ast(file);
+            char *owner = module_program_name(dependency, file);
+            env->current_module = owner;
+            env->current_module_is_unsafe = false;
+            if (dependency) {
+                for (int j = 0; j < dependency->as.program.count; j++) {
+                    ASTNode *item = dependency->as.program.items[j];
+                    if (item->type == AST_IMPORT && item->as.import_stmt.is_unsafe)
+                        env->current_module_is_unsafe = true;
+                }
+            }
+            env_set_current_file(env, file);
+            typecheck_set_current_file(file);
+            typed = owner && type_check_root_shadows(dependency, env);
+            env->current_module = root_owner;
+            free(owner);
+        }
+        env_set_current_file(env, input);
+        env->current_module_is_unsafe = root_unsafe;
+        typecheck_set_current_file(input);
+    }
     if (!typed) {
         fprintf(stderr, "error: type check failed\n");
         free_ast(program);
@@ -361,7 +394,7 @@ int main(int argc, char **argv) {
 
     char **bindings = calloc(modules->count ? (size_t)modules->count : 1, sizeof(char *));
     if (!bindings || !build_ffi_modules(modules, bindings) ||
-        !check_shadows(program, env, modules, input, bindings)) {
+        !check_shadows(program, env, modules, input, bindings, test_imports)) {
         free_ffi_bindings(bindings, modules->count);
         free_ast(program);
         free_environment(env);

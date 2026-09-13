@@ -311,15 +311,40 @@ the function for all inputs.
 
 Execution is currently backend-dependent. My C seed executes selected shadows
 during compilation; foreign-call syntax no longer exempts an explicit shadow.
-My `nano_virt` CLI runs root-file shadows in a separate
+My `nano_virt` CLI runs dependency and root-file shadows in a separate
 verified NanoVM test module before publishing output, with a 10-second parent
 deadline. Production bytecode omits that test harness. This child process is
 not a security sandbox: tests can have side effects. My self-hosted native
 driver also runs root shadows in a separate test executable with a ten-second
 parent deadline before publishing native output. Test stdout is redirected to
 stderr. Source-only `--target c` checks types but does not execute shadows or
-invoke a native compiler. Imported shadows are not automatically selected by
-these drivers; imported-shadow policy remains open. My C-seed shadow runner
+invoke a native compiler. My creator chose dependency shadows by default for
+5.0. My bytecode driver implements that choice; C-seed and self-hosted native
+parity remain required work.
+
+My bytecode driver includes imports by default; `--test-imports` selects that
+behavior explicitly, and `--root-shadows-only` opts out:
+
+```sh
+bin/nano_virt app.nano --test-imports --emit-nvm -o app.nvm
+```
+
+I check the selected dependency shadows before execution, then run them in
+source-import traversal order: dependencies before importers, root last, each
+loaded source file once. Within a file I preserve shadow source order. Existing
+file paths are canonicalized before C-frontend cache and graph registration;
+dot segments and symlinks do not select the same file twice. Relative imports
+inside a symlinked module resolve from the target directory. This does not
+establish colliding nominal type identity or self-hosted loader parity.
+
+All selected VM shadows share one test VM and its ten-second parent deadline.
+Foreign calls, printing and other side effects still happen with host authority;
+the test child is not a sandbox. A failed type check, assertion, runtime trap or
+deadline prevents publication. I do not put shadow entry functions in production
+bytecode. C-seed and self-hosted `--test-imports` parity remain roadmap work;
+source-only C emission still does not execute tests.
+
+My C-seed shadow runner
 records failed foreign dispatch even when the test ignores its result, and
 includes the call location in shadow JSON. I distinguish this failure from a
 successful void return. My interpreter uses libffi for fixed-arity scalar and
@@ -335,8 +360,9 @@ ignored missing-symbol failures through these routes, including `map`.
 General interpreter error propagation remains separate work; a successful
 shadow is not an ABI safety guarantee.
 My `test_imported_shadow_selection` characterizes direct and transitive pure
-imports on Darwin: all three drivers skip a failing dependency shadow, but
-reject it when its source is compiled as the root. Passing a consumer's
+imports: my VM rejects a failing dependency shadow by default and allows the
+explicit root-only opt-out. C-seed and Stage2 still skip it on import and
+reject it when compiled as the root. Passing a consumer's
 compilation therefore does not establish that its dependencies' shadows passed.
 Until execution is consistent, execute important assertions from an explicit
 test entry point as well as writing the shadow.

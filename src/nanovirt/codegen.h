@@ -38,5 +38,9 @@ CodegenResult codegen_compile(ASTNode *program, Environment *env,
  * I do not change the normal program entry or insert tests into production. */
 CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
                                       ModuleList *modules, const char *input_file);
+/* I include dependency shadows when requested, before the root's shadows. */
+CodegenResult codegen_compile_shadow_scope(ASTNode *program, Environment *env,
+                                          ModuleList *modules, const char *input_file,
+                                          bool include_imports);
 
 #endif /* NANOVIRT_CODEGEN_H */

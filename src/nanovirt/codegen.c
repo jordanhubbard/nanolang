@@ -2968,7 +2968,7 @@ static void register_imported_struct(Environment *env, ASTNode *item) {
 
 static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env,
                                               ModuleList *modules, const char *input_file,
-                                              bool shadows) {
+                                              bool shadows, bool include_imports) {
     CodegenResult result = {0};
 
     if (!program || program->type != AST_PROGRAM) {
@@ -3570,16 +3570,29 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     if (shadows && !cg.had_error) {
         uint32_t shadow_functions[MAX_FUNCTIONS];
         int shadow_count = 0;
-        env_set_current_file(env, input_file);
-        for (int i = 0; i < program->as.program.count; i++) {
-            ASTNode *shadow = program->as.program.items[i];
+        char *outer_module = env->current_module;
+        int imported_count = include_imports && modules ? modules->count : 0;
+        for (int source = 0; source <= imported_count && !cg.had_error; source++) {
+          bool imported = source < imported_count;
+          const char *file = imported ? modules->module_paths[source] : input_file;
+          ASTNode *selected = imported ? get_cached_module_ast(file) : program;
+          char *owner = imported ? module_program_name(selected, file) : NULL;
+          if (!selected || (imported && !owner)) {
+              free(owner);
+              cg_error(&cg, 0, "I cannot load a selected shadow module: %s", file);
+              break;
+          }
+          env_set_current_file(env, file);
+          env->current_module = imported ? owner : outer_module;
+          for (int i = 0; i < selected->as.program.count; i++) {
+            ASTNode *shadow = selected->as.program.items[i];
             if (shadow->type != AST_SHADOW) continue;
             if (cg.fn_count >= MAX_FUNCTIONS) {
                 cg_error(&cg, shadow->line, "I cannot register another shadow function");
                 break;
             }
             char name[64];
-            snprintf(name, sizeof name, "$shadow_%d_%.32s", i, shadow->as.shadow.function_name);
+            snprintf(name, sizeof name, "$shadow_%d_%.32s", shadow_count, shadow->as.shadow.function_name);
             uint32_t name_idx = nvm_add_string(cg.module, name, (uint32_t)strlen(name));
             NvmFunctionEntry entry = {0};
             entry.name_idx = name_idx;
@@ -3598,6 +3611,9 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             compile_function(&cg, &function);
             if (cg.had_error) break;
             shadow_functions[shadow_count++] = index;
+          }
+          env->current_module = outer_module;
+          free(owner);
         }
         if (!cg.had_error) {
             NvmFunctionEntry entry = {0};
@@ -3685,10 +3701,16 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
 
 CodegenResult codegen_compile(ASTNode *program, Environment *env,
                               ModuleList *modules, const char *input_file) {
-    return codegen_compile_internal(program, env, modules, input_file, false);
+    return codegen_compile_internal(program, env, modules, input_file, false, false);
 }
 
 CodegenResult codegen_compile_shadows(ASTNode *program, Environment *env,
                                       ModuleList *modules, const char *input_file) {
-    return codegen_compile_internal(program, env, modules, input_file, true);
+    return codegen_compile_shadow_scope(program, env, modules, input_file, false);
+}
+
+CodegenResult codegen_compile_shadow_scope(ASTNode *program, Environment *env,
+                                          ModuleList *modules, const char *input_file,
+                                          bool include_imports) {
+    return codegen_compile_internal(program, env, modules, input_file, true, include_imports);
 }

@@ -963,6 +963,7 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 ASTNode *load_module(const char *module_path, Environment *env);
 ASTNode *load_module_from_package(const char *package_path, Environment *env, char *temp_dir_out, size_t temp_dir_size);
 ASTNode *get_cached_module_ast(const char *module_path);
+char *module_program_name(ASTNode *program, const char *module_path);
 int64_t module_get_import_count(const char *module_path);
 const char *module_get_import_path(const char *module_path, int64_t index);
 const char *module_generate_forward_declarations(const char *module_path);

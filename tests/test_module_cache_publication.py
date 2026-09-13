@@ -412,6 +412,12 @@ shadow main {{ assert (== (main) 42) }}
                 self.assertIn(str(old_library).encode(), old_output.read_bytes())
                 c_source = module / "answer.c"
                 c_source.write_text(c_source.read_text().replace("42", "43"))
+                if transitive:
+                    stale, output = self.support.compile(source.replace(" 42)", " 43)"), directory, env=env)
+                    self.assertNotEqual(stale.returncode, 0, stale.stderr)
+                    self.assertIn(b"shadow", stale.stderr)
+                    self.assertEqual(output.read_bytes(), old_output.read_bytes())
+                    helper.write_text(helper.read_text().replace(" 42)", " 43)"))
                 result, output = self.support.compile(source.replace(" 42)", " 43)"), directory, "--run", env=env)
                 self.assertEqual(result.returncode, 43, result.stderr)
                 self.assertNotEqual(old_library, self.probe_path("library", module, env))

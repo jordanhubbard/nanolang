@@ -3153,6 +3153,13 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
         const char *resolved = resolve_module_path(item->as.import_stmt.module_path, current_file);
         if (!resolved) continue;
 
+        /* I use the same target-file identity as the module loader. */
+        char *canonical = realpath(resolved, NULL);
+        if (canonical) {
+            free((char *)resolved);
+            resolved = canonical;
+        }
+
         /* Extract module name from file path BEFORE freeing resolved */
         char module_name_from_path[256];
         const char *last_slash = strrchr(resolved, '/');

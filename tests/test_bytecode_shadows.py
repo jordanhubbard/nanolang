@@ -14,6 +14,113 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BytecodeShadows(unittest.TestCase):
+    def test_import_selection_failures_preserve_output(self):
+        for transitive in (False, True):
+            for failure in ("assert false", 'let wrong: int = "no"', "assert (== (at [1] 9) 0)"):
+                with self.subTest(transitive=transitive, failure=failure), tempfile.TemporaryDirectory(prefix="nano-import-shadows-") as tmp:
+                    directory = Path(tmp)
+                    leaf = directory / "leaf.nano"
+                    leaf.write_text(f"pub fn answer() -> int {{ return 42 }}\nshadow answer {{ {failure} }}\n")
+                    imported = leaf
+                    if transitive:
+                        imported = directory / "wrapper.nano"
+                        imported.write_text(f'module "{leaf}" as lib\npub fn answer() -> int {{ return (lib.answer) }}\n'
+                                            'shadow answer { assert (== (answer) 42) }\n')
+                    source = f'module "{imported}" as lib\nfn main() -> int {{ return (lib.answer) }}\n'
+                    ordinary, output = self.compile(source, directory, "--root-shadows-only")
+                    self.assertEqual(ordinary.returncode, 0, ordinary.stderr)
+                    prior = output.read_bytes()
+                    selected, output = self.compile(source, directory)
+                    self.assertNotEqual(selected.returncode, 0, selected.stderr)
+                    self.assertEqual(output.read_bytes(), prior)
+
+    def test_import_diamond_order_owners_and_product_separation(self):
+        for declared in (False, True):
+            with self.subTest(declared=declared), tempfile.TemporaryDirectory(prefix="nano-import-shadows-") as tmp:
+                directory = Path(tmp)
+                leaf = directory / "leaf.nano"
+                leaf.write_text(('module Leaf\n' if declared else '') +
+                                'pub fn answer() -> int { return 11 }\n'
+                                'shadow answer { assert (== (answer) 11) (println "leaf-shadow") }\n')
+                for name, value in (("left", 12), ("right", 13)):
+                    (directory / f"{name}.nano").write_text(
+                        (f'module {name.title()}\n' if declared else '') +
+                        f'module "{leaf}" as lib\npub fn answer() -> int {{ return (+ (lib.answer) {value - 11}) }}\n'
+                        f'shadow answer {{ assert (== (answer) {value}) assert (== (lib.answer) 11) (println "{name}-shadow") }}\n')
+                source = (f'module "{directory / "left.nano"}" as left\n'
+                          f'module "{directory / "right.nano"}" as right\n'
+                          'fn main() -> int { return (+ (left.answer) (right.answer)) }\n'
+                          'shadow main { assert (== (main) 25) (println "root-shadow") }\n')
+                result, output = self.compile(source, directory, "--test-imports")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                markers = [line for line in result.stderr.splitlines() if line.endswith(b"-shadow")]
+                self.assertEqual(markers, [b"leaf-shadow", b"left-shadow", b"right-shadow", b"root-shadow"])
+                self.assertNotIn(b"$shadow_", output.read_bytes())
+                product = self.execute(output)
+                self.assertEqual(product.returncode, 25, product.stderr)
+                self.assertEqual(product.stdout, b"")
+
+    def test_import_path_spelling_does_not_repeat_shadows(self):
+        with tempfile.TemporaryDirectory(prefix="nano-import-shadows-") as tmp:
+            directory = Path(tmp)
+            leaf = directory / "leaf.nano"
+            leaf.write_text('pub fn answer() -> int { return 42 }\n'
+                            'shadow answer { assert (== (answer) 42) (println "leaf-shadow") }\n')
+            link = directory / "link.nano"
+            link.symlink_to(leaf)
+            for alternate in (f"{directory}/./leaf.nano", str(link)):
+                source = (f'module "{leaf}" as first\nmodule "{alternate}" as second\n'
+                          'fn main() -> int { return (+ (first.answer) (second.answer)) }\n')
+                result, output = self.compile(source, directory, "--test-imports")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stderr.splitlines().count(b"leaf-shadow"), 1)
+                self.assertEqual(self.execute(output).returncode, 84)
+
+    def test_imported_foreign_shadow_failure(self):
+        with tempfile.TemporaryDirectory(prefix="nano-import-shadows-") as tmp:
+            directory = Path(tmp)
+            module_dir, _, env = self.foreign_build_fixture(directory)
+            wrapper = directory / "wrapper.nano"
+            for expected in (42, 41):
+                wrapper.write_text(f'module "{module_dir / "api.nano"}" as lib\n'
+                                   'pub fn answer() -> int { unsafe { return (lib.nano_build_answer) } }\n'
+                                   f'shadow answer {{ assert (== (answer) {expected}) }}\n')
+                source = f'module "{wrapper}" as lib\nfn main() -> int {{ return (lib.answer) }}\n'
+                output = directory / "program.nvm"
+                output.write_bytes(b"prior output")
+                result, output = self.compile(source, directory, "--test-imports", env=env)
+                self.assertEqual(result.returncode == 0, expected == 42, result.stderr)
+                if expected == 42:
+                    self.assertEqual(self.execute(output, env=env).returncode, 42)
+                else:
+                    self.assertEqual(output.read_bytes(), b"prior output")
+
+    def test_imported_nonterminating_shadow_is_bounded(self):
+        with tempfile.TemporaryDirectory(prefix="nano-import-shadows-") as tmp:
+            directory = Path(tmp)
+            leaf = directory / "leaf.nano"
+            leaf.write_text("pub fn answer() -> int { return 42 }\nshadow answer { while true {} }\n")
+            source = f'module "{leaf}" as lib\nfn main() -> int {{ return (lib.answer) }}\n'
+            result, output = self.compile(source, directory, "--test-imports")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b"after 10 seconds", result.stderr)
+            self.assertFalse(output.exists())
+
+    def test_dependency_shadow_does_not_inherit_root_unsafe_context(self):
+        with tempfile.TemporaryDirectory(prefix="nano-import-shadows-") as tmp:
+            directory = Path(tmp)
+            leaf = directory / "leaf.nano"
+            for explicit in (False, True):
+                call = "unsafe { (erf 0.0) }" if explicit else "(erf 0.0)"
+                leaf.write_text('extern fn erf(value: float) -> float\npub fn answer() -> int { return 42 }\n'
+                                f'shadow answer {{ {call} assert (== (answer) 42) }}\n')
+                source = f'unsafe module "{leaf}" as lib\nfn main() -> int {{ return (lib.answer) }}\n'
+                result, output = self.compile(source, directory, "--test-imports")
+                self.assertEqual(result.returncode == 0, explicit, result.stderr)
+                if not explicit:
+                    self.assertIn(b"requires unsafe", result.stderr)
+                    self.assertFalse(output.exists())
+
     def compile(self, source, directory, *options, env=None, cwd=ROOT):
         path = directory / "program.nano"
         path.write_text(source)
