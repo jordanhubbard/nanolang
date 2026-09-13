@@ -1345,6 +1345,12 @@ Compiler product:
 - [x] `nvm2c` runs a Cut A list of records (`ARR_PUSH` of `nrec_t`)
       without `nano_vm`. Nested records stay refused.
       `make test-nvm2c` (306 passed).
+- [x] I classify direct-call aggregate parameters and flat record/variant
+      results from `AGG_PACK` use and declared NanoISA tags. VM and AOT fixtures
+      cover both aggregate kinds. Nested fields, path-varying field kinds,
+      arrays crossing aggregate signatures, and unresolved or separately linked
+      metadata stay refused; generated field access keeps its runtime guard.
+      `make test-nvm2c` (326 passed).
 
 Module richness:
 - [ ] I store local names, not only slot numbers.
