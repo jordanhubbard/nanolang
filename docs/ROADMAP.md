@@ -147,6 +147,26 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with `make rebuild`, `make test-make-header-dependencies`, and
       `make test-quick`. GitHub #211.
       MAC `task_9f8a6bf48d4c4117b1a551ee35c0b055`.
+- [x] **5.0 / native match-block scalar acceptance.** Function-scoped return
+      and final-expression arm values work in the C seed and self-hosted
+      compiler. I repaired evaluator return propagation and direct
+      union-variant field lookup. Five positive and three negative cases pass
+      through the C seed, rebuilt Stage 1, and rebuilt Stage 2. Serial
+      `make bootstrap3` passes its configured smoke and no-C-seed gates; the
+      native stage binaries differ, so I do not claim a fixed point. The full
+      self-host suite passes 15 tests, including five import tests, and the
+      type-inference, effects, NanoCore, and parser-recovery gates pass.
+      MAC `task_e7a7395191d44cf793d684e21ea16a79`.
+- [ ] **5.0 / native match-block full backend acceptance.** I still need
+      nested operand and call-argument returns, matches where every arm exits,
+      guards and exhaustiveness, aggregate and resource escape and scope,
+      NanoISA lowering, and an explicit reentrant checker context. I will not
+      claim full match-block parity until those paths pass through the C seed,
+      rebuilt self-hosted stages, and the no-C-seed gates.
+- [x] **5.0 release — GCC logic frontend alias warning.** GCC can trace a rule
+      head name back into the compiler context and rejects copying it into the
+      relation table with restrict-qualified `snprintf`. I use overlap-safe
+      bounded copying instead. `make test-logic`.
 - [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
       the only compiler product. Native AOT does not embed `nano_vm`.
       Public GitHub Release `v5.0.0` after 4.6 and this phase close.
