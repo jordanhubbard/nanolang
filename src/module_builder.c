@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v36-alternate-assembler");
+    hash_context_field(&hash, "nanolang-c-build-context-v37-assembler-units");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -922,6 +922,13 @@ static bool module_link_inputs_match(const cJSON *inputs) {
 static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
                                              const ModulePkgFlags *flags);
 
+static uint64_t module_source_hash(const char *directory, const char *source) {
+    char path[4096];
+    int n = source[0] == '/' ? snprintf(path, sizeof(path), "%s", source)
+                            : snprintf(path, sizeof(path), "%s/%s", directory, source);
+    return n >= 0 && (size_t)n < sizeof(path) ? hash_file_fnv1a(path) : 0;
+}
+
 /* Update the on-disk hash cache after a successful build */
 static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta,
                                      const char *build_dir, uint64_t preprocessing,
@@ -943,9 +950,8 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
         char **sources = shared ? meta->shared_c_sources : meta->c_sources;
         size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count; i++) {
-            char src[1024];
-            snprintf(src, sizeof(src), "%s/%s", module_dir, sources[i]);
-            uint64_t h = hash_file_fnv1a(src);
+            uint64_t h = module_source_hash(module_dir, sources[i]);
+            if (!h) { cJSON_Delete(root); return; }
             char hstr[24];
             snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
             cJSON_AddStringToObject(root, sources[i], hstr);
@@ -994,9 +1000,7 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta,
         char **sources = shared ? meta->shared_c_sources : meta->c_sources;
         size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count && match; i++) {
-            char src[1024];
-            snprintf(src, sizeof(src), "%s/%s", module_dir, sources[i]);
-            uint64_t h = hash_file_fnv1a(src);
+            uint64_t h = module_source_hash(module_dir, sources[i]);
             char hstr[24];
             snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
             cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, sources[i]);
@@ -3490,6 +3494,14 @@ static bool module_response_driver(const ModuleBuildMetadata *meta) {
     return module_driver_snapshot_mode(meta) != MODULE_SNAPSHOT_NONE;
 }
 
+/* Zero is unsupported, one is C, two is raw assembler, three is preprocessed assembler. */
+static unsigned module_source_kind(const char *source) {
+    size_t length = strlen(source);
+    if (length < 2 || source[length - 2] != '.') return 0;
+    return source[length - 1] == 'c' ? 1 : source[length - 1] == 's' ? 2 :
+           source[length - 1] == 'S' ? 3 : 0;
+}
+
 static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, const ModulePkgFlags *captured) {
     if (!captured || captured->count != meta->pkg_config_count) return MODULE_SNAPSHOT_NONE;
     for (size_t i = 0; i < captured->count; i++) {
@@ -3504,16 +3516,20 @@ static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, 
         for (size_t i = 0; i < count; i++)
             if (!module_retained_flags(flags[i], NULL, 0, captured->linker_grammar)) return MODULE_SNAPSHOT_NONE;
     }
+    bool assembler_sources = false;
     for (size_t group = 0; group < 2; group++) {
         char **sources = group ? meta->shared_c_sources : meta->c_sources;
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count; i++) {
-            size_t length = strlen(sources[i]);
-            if (length < 2 || strcmp(sources[i] + length - 2, ".c")) return MODULE_SNAPSHOT_NONE;
+            unsigned kind = module_source_kind(sources[i]);
+            if (!kind) return MODULE_SNAPSHOT_NONE;
+            assembler_sources |= kind != 1;
         }
     }
     if (!meta->c_sources_count) return MODULE_SNAPSHOT_NONE;
     ModuleSnapshotMode mode = module_driver_snapshot_mode(meta);
+    if (assembler_sources && mode == MODULE_SNAPSHOT_CLANG && !module_external_assembler(meta, captured))
+        return MODULE_SNAPSHOT_NONE;
     return mode == MODULE_SNAPSHOT_CLANG && module_external_assembler(meta, captured)
         ? MODULE_SNAPSHOT_CLANG_EXTERNAL : mode;
 }
@@ -3762,6 +3778,22 @@ static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const c
     return ok;
 }
 
+/* I lower retained C, but copy already-preprocessed assembler without changing
+ * its grammar. The destination is always private to this capture. */
+static bool module_prepare_assembly(ModuleBuildMetadata *meta, const char *prefix,
+                                    const char *input, const char *output, size_t group, size_t index) {
+    const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
+    if (module_source_kind(source) != 1) {
+        ModuleAssemblyCapture copy = {NULL, 0, 0, 14695981039346656037ULL};
+        return module_capture_assembly_file(&copy, input, output, false, 0);
+    }
+    char command[8192] = {0};
+    return module_build_append(command, sizeof(command), "%s%s -x cpp-output", prefix,
+                               group ? " -fvisibility=hidden" : "") &&
+        module_append_path_flag(command, sizeof(command), "", input) &&
+        module_append_path_flag(command, sizeof(command), "-o ", output) && !system(command);
+}
+
 static uint64_t module_gcc_capture_assembly(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                            const char *directory, uint64_t fingerprint) {
     /* These characters would need assembler string escaping in retained paths. */
@@ -3773,15 +3805,12 @@ static uint64_t module_gcc_capture_assembly(ModuleBuildMetadata *meta, const Mod
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count; i++) {
-            char input[2048] = {0}, raw[2048] = {0}, frozen[2048] = {0}, command[8192] = {0};
+            char input[2048] = {0}, raw[2048] = {0}, frozen[2048] = {0};
             bool ok = module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
                 module_build_append(raw, sizeof(raw), "%s/__assembly_%zu_%zu.s", directory, group, i) &&
                 module_build_append(frozen, sizeof(frozen), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
-                module_build_append(command, sizeof(command), "%s%s -x cpp-output", prefix,
-                                    group ? " -fvisibility=hidden" : "") &&
-                module_append_path_flag(command, sizeof(command), "", input) &&
-                module_append_path_flag(command, sizeof(command), "-o ", raw);
-            if (!ok || system(command) || !module_capture_assembly_file(&capture, raw, frozen, true, 0)) goto failed;
+                module_prepare_assembly(meta, prefix, input, raw, group, i);
+            if (!ok || !module_capture_assembly_file(&capture, raw, frozen, true, 0)) goto failed;
         }
     }
     return capture.hash;
@@ -3911,9 +3940,7 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
                 module_build_append(expanded, sizeof(expanded), "%s/__expanded_%zu_%zu.s", directory, group, i) &&
                 module_build_append(frozen, sizeof(frozen), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
                 module_build_append(object, sizeof(object), "%s/__as_query_%zu_%zu.o", directory, group, i) &&
-                module_build_append(command, sizeof(command), "%s%s -x cpp-output", retained, group ? " -fvisibility=hidden" : "") &&
-                module_append_path_flag(command, sizeof(command), "", input) &&
-                module_append_path_flag(command, sizeof(command), "-o ", raw) && !system(command);
+                module_prepare_assembly(meta, retained, input, raw, group, i);
             command[0] = 0;
             if (ok) ok = module_build_append(command, sizeof(command), "%s -x assembler", assemble) &&
                 module_append_path_flag(command, sizeof(command), "", raw) &&
@@ -4079,10 +4106,7 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
                 module_build_append(assembly, sizeof(assembly), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
                 module_build_append(object, sizeof(object), "%s/__as_capture_%zu_%zu.o", directory, group, i) &&
                 module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i) &&
-                module_build_append(command, sizeof(command), "%s%s -x cpp-output", retained, group ? " -fvisibility=hidden" : "") &&
-                module_append_path_flag(command, sizeof(command), "", input) &&
-                module_append_path_flag(command, sizeof(command), "-o ", assembly) &&
-                !system(command) &&
+                module_prepare_assembly(meta, retained, input, assembly, group, i) &&
                 module_read_command(command, sizeof(command), assemble, directory, group, i, object, true) &&
                 !system(command);
             unsigned captured = 0;
@@ -4155,6 +4179,31 @@ static uint64_t module_snapshot_pch(const char *snapshot, const char *directory,
     return ok ? capture.hash : 0;
 }
 
+/* Raw assembler has no compiler-generated depfile. I record its captured root
+ * explicitly; nested reads are bound separately by assembler capture/replay. */
+static uint64_t module_raw_assembly(const char *source, const char *snapshot, const char *dependency) {
+    if (strpbrk(source, "\r\n")) return 0;
+    ModuleAssemblyCapture copy = {NULL, 0, 0, 14695981039346656037ULL};
+    if (!module_capture_assembly_file(&copy, source, snapshot, false, 0)) return 0;
+    FILE *file = fopen(dependency, "wb");
+    if (!file) return 0;
+    bool ok = fputs("nano_module_dependencies: ", file) >= 0;
+    for (const char *p = source; ok && *p; p++) {
+        if (strchr(" \t#\\", *p)) ok = fputc('\\', file) != EOF;
+        if (*p == '$') ok = fputc('$', file) != EOF;
+        if (ok) ok = fputc(*p, file) != EOF;
+    }
+    if (fputc('\n', file) == EOF) ok = false;
+    if (fclose(file)) ok = false;
+    char trace[2060];
+    int n = snprintf(trace, sizeof(trace), "%s.includes", dependency);
+    if (n < 0 || (size_t)n >= sizeof(trace)) return 0;
+    file = fopen(trace, "wb");
+    if (!file) return 0;
+    if (fclose(file)) ok = false;
+    return ok ? copy.hash : 0;
+}
+
 /* I hash the retained input: Clang assembly or GCC preprocessed C. A later
  * capture must reproduce those bytes, not just hashes of restored source. */
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
@@ -4184,6 +4233,14 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
         hash_context_field(&fingerprint, group ? "shared" : "ordinary");
         for (size_t i = 0; i < count; i++) {
             char command[8192] = {0}, snapshot[2048] = {0}, dependency[2048] = {0};
+            unsigned kind = module_source_kind(sources[i]);
+            char unit_prefix[4096];
+            const char *selected_prefix = prefix;
+            if (kind == 3) {
+                if (!module_compile_prefix(meta, unit_prefix, sizeof(unit_prefix), MODULE_C_PREPROCESS, flags) ||
+                    !module_build_append(unit_prefix, sizeof(unit_prefix), " -x assembler-with-cpp")) return 0;
+                selected_prefix = unit_prefix;
+            }
             bool ok = true;
             if (directory) {
                 ok = module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.%s", directory, group, i,
@@ -4191,14 +4248,27 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
                 if (group) ok &= module_build_append(dependency, sizeof(dependency), "%s/__shared_%zu.d", directory, i);
                 else if (count == 1) ok &= module_build_append(dependency, sizeof(dependency), "%s/%s.d", directory, meta->name);
                 else ok &= module_build_append(dependency, sizeof(dependency), "%s/%s_%zu.d", directory, meta->name, i);
-                ok &= module_source_command(command, sizeof(command), prefix, meta->module_dir,
+                if (kind == 2) {
+                    char source[2048] = {0};
+                    ok &= sources[i][0] == '/'
+                        ? module_build_append(source, sizeof(source), "%s", sources[i])
+                        : module_build_append(source, sizeof(source), "%s/%s", meta->module_dir, sources[i]);
+                    uint64_t hash = ok ? module_raw_assembly(source, snapshot, dependency) : 0;
+                    if (!hash) return 0;
+                    char digest[24];
+                    snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
+                    hash_context_field(&fingerprint, sources[i]);
+                    hash_context_field(&fingerprint, digest);
+                    continue;
+                }
+                ok &= module_source_command(command, sizeof(command), selected_prefix, meta->module_dir,
                                             sources[i], "-", dependency, group != 0);
             } else {
                 char source[2048] = {0};
                 ok = sources[i][0] == '/'
                     ? module_build_append(source, sizeof(source), "%s", sources[i])
                     : module_build_append(source, sizeof(source), "%s/%s", meta->module_dir, sources[i]);
-                ok &= module_build_append(command, sizeof(command), "%s%s -o -", prefix,
+                ok &= module_build_append(command, sizeof(command), "%s%s -o -", selected_prefix,
                     group ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "");
                 ok &= module_append_path_flag(command, sizeof(command), "", source);
                 ok &= module_build_append(command, sizeof(command), " 2>/dev/null");

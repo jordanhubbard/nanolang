@@ -210,6 +210,11 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if (argc == 4 && !strcmp(argv[1], "source-hash")) {
+        uint64_t hash = module_source_hash(argv[2], argv[3]);
+        printf("%llu\n", (unsigned long long)hash);
+        return hash ? 0 : 1;
+    }
     if (argc >= 3 && !strcmp(argv[1], "coalesce-flags")) {
         size_t count = (size_t)argc - 2;
         char **flags = calloc(count, sizeof(char *));

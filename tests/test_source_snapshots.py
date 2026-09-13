@@ -85,6 +85,40 @@ class SourceSnapshots(unittest.TestCase):
                 if self.clang:
                     self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
 
+    def test_assembler_translation_units_restored_inputs(self):
+        kinds = (("assembler-external-unit", "assembler-external-preprocessed-unit") if self.clang
+                 else ("assembler-unit", "assembler-preprocessed-unit"))
+        for shared_unit in (False, True):
+            for removed in (False, True):
+                result = measure(shutil.which("cc"), kinds, shared_unit=shared_unit, remove_input=removed)
+                require_consistent(result)
+                for case in result["cases"]:
+                    with self.subTest(shared_unit=shared_unit, removed=removed, case=case):
+                        self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                        for key in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record",
+                                    "generation_reused", "retained_assembly"):
+                            self.assertTrue(case[key], key)
+
+    def test_absolute_source_hash_and_overflow(self):
+        with tempfile.TemporaryDirectory(prefix="nano-source-hash-") as tmp:
+            root = Path(tmp)
+            source = root / "source.c"
+            source.write_text("first bytes")
+            def digest(directory, name):
+                return subprocess.run([str(self.support.probe), "source-hash", str(directory), str(name)],
+                                      capture_output=True, timeout=10)
+            relative = digest(root, source.name)
+            absolute = digest(root / "not a directory", source)
+            self.assertEqual(relative.returncode, 0, relative.stderr)
+            self.assertEqual(absolute.returncode, 0, absolute.stderr)
+            self.assertEqual(relative.stdout, absolute.stdout)
+            source.write_text("changed bytes")
+            self.assertNotEqual(digest(root, source).stdout, absolute.stdout)
+            for directory, name in ((root, "x" * 4096), ("x" * 4096, "source.c")):
+                failed = digest(directory, name)
+                self.assertNotEqual(failed.returncode, 0)
+                self.assertEqual(failed.stdout, b"0\n")
+
     def test_assembler_filename_spelling_restored_inputs(self):
         kinds = ("assembler", "assembler-external") if self.clang else ("assembler",)
         names = ("space name.bin", "single'quote.bin", 'double"quote.bin', r"back\slash.bin", "naïve-λ.bin")
@@ -106,12 +140,19 @@ class SourceSnapshots(unittest.TestCase):
         if not self.gnu_read_replay: self.skipTest("I need supported GNU assembler read replay")
         self.assembler_filename_spelling_and_cache_recovery(alternate=True)
 
-    def assembler_filename_spelling_and_cache_recovery(self, alternate=False):
+    def test_assembler_translation_units_cache_recovery(self):
+        for unit in ("s", "S"):
+            self.assembler_filename_spelling_and_cache_recovery(unit=unit)
+
+    def assembler_filename_spelling_and_cache_recovery(self, alternate=False, unit=None):
         modes = (False, True) if self.clang else (False,)
         names = ("space name.bin", "single'quote.bin", 'double"quote.bin', r"back\slash.bin", "naïve-λ.bin")
         if alternate:
             modes = (True,) if self.clang else (False,)
             names = ("alternate payload.bin",)
+        if unit:
+            modes = (True,) if self.clang else (False,)
+            names = ("unit payload.bin",)
         for external, shared, name in ((external, shared, name) for external in modes
                                       for shared in (False, True) for name in names):
             with self.subTest(external=external, shared=shared, name=name), tempfile.TemporaryDirectory(prefix="nano-assembler-path-") as tmp:
@@ -126,16 +167,25 @@ class SourceSnapshots(unittest.TestCase):
                 if alternate:
                     assembly = (f'.data\n.globl {symbol}\n{symbol}:\n.macro emit file\n'
                                 '.incbin "\\file"\n.endm\nemit <' + str(payload) + '>\n.text\n')
+                extra_sources = []
+                if unit:
+                    assembly = (f'.data\n.globl {symbol}\n{symbol}:\n.macro emit file\n'
+                                '.incbin "\\file"\n.endm\nemit "' + str(payload) + '"\n.text\n')
+                    if unit == "S":
+                        assembly = '#define PAYLOAD ' + json.dumps(str(payload)) + '\n' + assembly.replace('emit "' + str(payload) + '"', 'emit PAYLOAD')
+                    assembly_source = module / ("payload." + unit)
+                    assembly_source.write_text(assembly)
+                    extra_sources = [str(assembly_source)]
                 source = module / "answer.c"
                 source.write_text('extern const unsigned char snapshot_payload[];\n'
-                    '__asm__(' + json.dumps(assembly) + ');\n'
+                    + ('' if unit else '__asm__(' + json.dumps(assembly) + ');\n') +
                     'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
                 flags = ["-fno-integrated-as"] if external else []
                 if alternate: flags.append("-Wa,--alternate")
-                (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"], "cflags": flags}))
+                (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"] + extra_sources, "cflags": flags}))
                 direct = directory / ("direct.dylib" if sys.platform == "darwin" else "direct.so")
                 result = subprocess.run([shutil.which("cc"), "-dynamiclib" if sys.platform == "darwin" else "-shared",
-                    "-fPIC", *flags, str(source), "-o", str(direct)], capture_output=True, timeout=20)
+                    "-fPIC", *flags, str(source), *extra_sources, "-o", str(direct)], capture_output=True, timeout=20)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(self.answer(direct), 42)
                 self.support.probe_path("build", module, env, timeout=20)

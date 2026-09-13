@@ -28,7 +28,7 @@ from tests.characterize_linker_inputs import run
 from tests import test_bytecode_shadows as shadows
 
 
-def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False):
+def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False, shared_unit=False):
     probe = shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
@@ -138,15 +138,15 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                             directory / "missing-helper.so" if kind == "assembler-fallback"
                             else shadows.ROOT / "bin/nano_as_capture.so")
                     assembly = f'.data\n.globl {symbol}\n{symbol}:\n{directive}\n.text\n'
-                    standalone = kind in ("assembler-unit", "assembler-preprocessed-unit")
+                    standalone = kind.endswith("-unit")
                     if standalone:
-                        unit = module / ("payload.S" if kind == "assembler-preprocessed-unit" else "payload.s")
-                        if kind == "assembler-preprocessed-unit":
+                        unit = module / ("payload.S" if "preprocessed" in kind else "payload.s")
+                        if "preprocessed" in kind:
                             assembly = '#define PAYLOAD ' + json.dumps(str(target)) + '\n' + assembly.replace(directive, '.incbin PAYLOAD')
                         unit.write_text(assembly)
                         extra_sources.append(unit)
                         metadata = json.loads((module / "module.json").read_text())
-                        metadata["c_sources"].append(unit.name)
+                        metadata.setdefault("shared_c_sources" if shared_unit else "c_sources", []).append(str(unit) if shared_unit else unit.name)
                         (module / "module.json").write_text(json.dumps(metadata))
                         env["NANO_AS_CAPTURE_HELPER"] = str(shadows.ROOT / "bin/nano_as_capture.so")
                     source.write_text('extern const unsigned char snapshot_payload[];\n'
@@ -179,7 +179,7 @@ if "-c" in sys.argv and "-###" not in sys.argv and "-S" not in sys.argv:
             log.write(("external" if "-fno-integrated-as" in sys.argv else "integrated") + "\\n")
 if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "('-c' in sys.argv and '-###' not in sys.argv and '-S' not in sys.argv)"}:
     marker = pathlib.Path({str(marker)!r})
-    if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture" and ({not extra_sources!r} or any(pathlib.Path(arg).name in {[path.name for path in extra_sources]!r} for arg in sys.argv[1:])):
+    if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture" and ({not extra_sources!r} or any(pathlib.Path(arg).name in {([path.name for path in extra_sources] + ['__snapshot_1_0.s' if shared_unit else '__snapshot_0_1.s'])!r} for arg in sys.argv[1:])):
         target = pathlib.Path({str(target)!r})
         original, stamp = target.read_bytes(), target.stat()
         changed = original.replace({(b"selected42.a" if kind.startswith("link-response") else b"42")!r},
@@ -222,7 +222,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                         raise RuntimeError("I need the mixed-source native baseline to return 42")
 
                 if kind in ("assembler-external-macro-query-failure", "assembler-fallback", "capture-failure",
-                            "assembler-unit", "assembler-preprocessed-unit"):
+                            "assembler-unit", "assembler-preprocessed-unit", "assembler-external-unit", "assembler-external-preprocessed-unit"):
                     built = subprocess.run([probe, "build", module], cwd=directory, env=env, capture_output=True, timeout=20)
                     if built.returncode:
                         root = query("root")
@@ -306,7 +306,9 @@ if __name__ == "__main__":
         raise SystemExit("I need a C compiler executable")
     kinds = ("source", "header")
     if args.assembler: kinds += ("assembler",)
-    if args.assembler_units: kinds += ("assembler-unit", "assembler-preprocessed-unit")
+    if args.assembler_units:
+        kinds += (("assembler-external-unit", "assembler-external-preprocessed-unit") if args.external_assembler
+                  else ("assembler-unit", "assembler-preprocessed-unit"))
     if args.external_assembler: kinds += ("assembler-external",)
     if args.alternate_assembler:
         kinds += ("assembler-external-alternate" if args.external_assembler else "assembler-alternate",)

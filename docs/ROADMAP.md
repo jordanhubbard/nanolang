@@ -1201,6 +1201,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       open below.
       MAC rejects completion while unclaimed; ledger closure still needs a
       verified agent identity.
+- [x] **5.0 absolute native-source cache paths.** I use the same absolute or
+      module-relative source path for compilation and cache hashing. My new
+      mixed-source recovery test finds zero hashes and perpetual rebuilds for
+      absolute sources because recording and validation prepend the module
+      directory. I verify unchanged reuse and edits for ordinary/shared paths,
+      and reject path-format overflow instead of hashing truncated names.
+      MAC `task_61fc127a19be474ea666c678c45f4780`.
+      Both cache paths now use a bounded resolver and reject failed source
+      hashes. Absolute ordinary/shared assembler reuse and hash-path
+      equivalence, edits and overflow checks pass on GCC and external Clang.
+      MAC rejects completion while unclaimed; a verified agent identity is
+      still needed for ledger closure.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
@@ -1214,6 +1226,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       native mixed-source controls return 42. I must supply source-appropriate
       dependency evidence, not merely remove the `.c` admission check. Baseline
       commands and measured limits are in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`.
+      GCC and explicit external-Clang paths now retain raw/preprocessed
+      assembler units and their C siblings. Restored replacement/deletion,
+      ordinary/shared units, macro recovery and absolute-source cache paths
+      pass on Linux GCC 12/Clang 14 and Darwin Apple Clang 21. Integrated
+      Clang still needs source-kind-specific capture; broader flag/include
+      matrices also remain open. This item is not complete.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

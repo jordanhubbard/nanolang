@@ -100,5 +100,11 @@ by `-Wa,--alternate` or `-Xassembler --alternate`, including combinations with
 assembler include paths. I keep this grammar selector in assembler phases,
 not separate C preprocessing or link-only jobs. Apple Clang rejects this GNU
 option; admitting its spelling does not add support to that backend.
+With GCC or Clang's explicit external-assembler mode, I also retain `.s` and
+`.S` sources alongside C sources, including shared-only assembler inputs.
+I copy raw `.s` bytes without preprocessing and preprocess `.S` as assembler,
+then apply the selected assembler's capture path. Raw roots get explicit
+dependency records; nested assembler reads remain part of capture evidence.
+Integrated-Clang assembler translation-unit capture remains unfinished.
 Source and flag modes outside this path retain their existing compatibility
 behavior; they have no retained-input guarantee.

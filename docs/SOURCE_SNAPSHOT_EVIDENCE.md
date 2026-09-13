@@ -2234,3 +2234,57 @@ return 42/42/42 with reuse. This is a reproduced failure, not a production
 repair. Source-specific capture, shared-only assembler sources, include and
 flag semantics, permanent edits and recovery remain work under MAC
 `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+
+### External-assembler translation-unit capture
+
+I now admit mixed `.c`, `.s` and `.S` sources through GCC and explicitly
+selected external-Clang capture. Raw `.s` bytes are copied without C
+preprocessing; `.S` uses assembler-with-cpp preprocessing. Both then enter
+the existing selected-assembler capture path without being lowered as C.
+I share that preparation step across literal capture, GNU read replay and
+Apple external expansion. The build context advances to v37.
+
+For raw `.s`, I emit a depfile naming the root I captured, with make-word
+escaping and checked writes. That root record does not stand in for nested
+reads: assembler capture/replay still binds those. I preserve the existing
+publication requirement for a complete per-source depfile. I do not synthesize
+an empty dependency set or change which assembler the driver selects.
+
+Restored payload replacement and deletion pass for ordinary and shared-only
+assembler sources, both source kinds and both cache roots, returning 42/42/42
+with actual reuse and retained C-sibling assembly. The recovery fixtures
+require assembler macros, test permanent payload changes, preserve the old
+generation byte-for-byte after missing-input failure, then recover and reuse.
+GCC 12.2/GNU as 2.40 and Clang 14 with external GNU as 2.40 pass on Linux
+arm64; Apple Clang 21's external assembler path passes on Darwin arm64.
+
+The recovery fixture also exposed a separate absolute-source path defect:
+compilation accepted an absolute path, but cache recording prepended the
+module directory and stored a zero hash. Unchanged builds therefore repeated
+despite identical records. Recording and validation now share a bounded
+source-path resolver; failed source reads no longer publish zero source
+hashes. Tests cover absolute ordinary and shared assembler sources, direct
+relative/absolute hash equivalence, changed bytes and path overflow. This
+defect is tracked as MAC `task_61fc127a19be474ea666c678c45f4780`.
+
+Three focused methods pass on external Clang 14 in 13.653 seconds and Apple
+Clang 21 in 80.741 seconds. Two focused methods pass under leak-enabled
+ASan/UBSan in 36.288 seconds with no report files. The sanitizer probe
+instruments the production builder, not supporting objects or child tools.
+The guide builds and validates thirteen pages in six editions; validation
+does not establish translation acceptance.
+
+This is partial translation-unit acceptance. Integrated-Clang `.s`/`.S`
+capture remains on the compatibility path and still needs implementation;
+I have not changed its reproduced stale-cache behavior. Source-kind flag and
+include-search matrices and broader assembler variants remain open. MAC
+`task_3f96ba3373db49a6b1c2a1987c1c0349` stays open.
+
+The final GCC 12 full gate passes 217 methods with 24 platform skips:
+35 bytecode, 53 publication, four Linux link-cache, 76 source-snapshot,
+20 transport, 16 response-graph and 13 guarded-query methods. The snapshots
+take 93.833 seconds. Three existing Darwin external-assembler regressions
+(restored inputs, selected backend macro expansion and nested recovery) pass
+in 31.038 seconds after the preparation-step refactor.
+The final Clang 14 Linux snapshot suite passes all 76 methods with nineteen
+platform skips in 164.938 seconds.
