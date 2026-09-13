@@ -2705,8 +2705,9 @@ static char *module_response_transport(const ModuleBuildMetadata *meta, const Mo
 typedef struct {
     const ModuleBuildMetadata *meta;
     ModuleLinkResponseGrammar grammar;
-    size_t count, bytes;
+    size_t count, bytes, alias_count;
     struct { char *source, *retained; } nodes[64];
+    struct { char *spelling; size_t node; } aliases[128];
 } ModuleLinkResponseGraph;
 
 /* I locate nested-reference token spans without rewriting surrounding bytes.
@@ -2749,18 +2750,31 @@ static bool module_link_response_copy(char *output, size_t *used, const char *da
 
 static const char *module_link_response_node(ModuleLinkResponseGraph *graph, const char *source,
                                               unsigned depth) {
+    if (strnlen(source, 4096) == 4096) { errno = ENAMETOOLONG; return NULL; }
+    for (size_t i = 0; i < graph->alias_count; i++) {
+        if (strcmp(source, graph->aliases[i].spelling)) continue;
+        const char *retained = graph->nodes[graph->aliases[i].node].retained;
+        if (!retained) errno = ELOOP;
+        return retained;
+    }
+    if (graph->alias_count == 128) { errno = E2BIG; return NULL; }
     char *resolved = realpath(source, NULL);
     if (!resolved) return NULL;
-    for (size_t i = 0; i < graph->count; i++) {
-        if (strcmp(resolved, graph->nodes[i].source)) continue;
-        free(resolved);
-        if (!graph->nodes[i].retained) errno = ELOOP;
-        return graph->nodes[i].retained;
-    }
-    if (depth >= 16 || graph->count == 64) {
+    size_t index = 0;
+    while (index < graph->count && strcmp(resolved, graph->nodes[index].source)) index++;
+    if (index == graph->count && (depth >= 16 || graph->count == 64)) {
         free(resolved); errno = E2BIG; return NULL;
     }
-    size_t index = graph->count++;
+    char *spelling = strdup(source);
+    if (!spelling) { free(resolved); return NULL; }
+    graph->aliases[graph->alias_count].spelling = spelling;
+    graph->aliases[graph->alias_count++].node = index;
+    if (index < graph->count) {
+        free(resolved);
+        if (!graph->nodes[index].retained) errno = ELOOP;
+        return graph->nodes[index].retained;
+    }
+    graph->count++;
     graph->nodes[index].source = resolved;
     int fd = open(resolved, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
     if (fd < 0) return NULL;
@@ -2823,19 +2837,41 @@ static const char *module_link_response_node(ModuleLinkResponseGraph *graph, con
 /* I expose this internal capture mechanism to the production probe first.
  * Invocation ownership and selected-linker admission are separate integration
  * gates: this helper alone must not authorize cache reuse. */
-char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *source,
-                                   ModuleLinkResponseGrammar grammar) {
-    if (!meta || !meta->module_dir || !source || !source[0] ||
+char **module_capture_link_responses(const ModuleBuildMetadata *meta, const char *const *sources,
+                                     size_t count, ModuleLinkResponseGrammar grammar) {
+    if (!meta || !meta->module_dir || !sources || !count || count > 64 ||
         (grammar != MODULE_LINK_RESPONSE_GNU && grammar != MODULE_LINK_RESPONSE_APPLE)) {
         errno = EINVAL; return NULL;
     }
+    for (size_t i = 0; i < count; i++)
+        if (!sources[i] || !sources[i][0]) { errno = EINVAL; return NULL; }
+    char **result = calloc(count, sizeof(char *));
+    if (!result) return NULL;
     ModuleLinkResponseGraph graph = {.meta = meta, .grammar = grammar};
-    const char *root = module_link_response_node(&graph, source, 0);
-    char *result = root ? strdup(root) : NULL;
+    bool ok = true;
+    for (size_t i = 0; i < count && ok; i++) {
+        const char *root = module_link_response_node(&graph, sources[i], 0);
+        ok = root && (result[i] = strdup(root));
+    }
     for (size_t i = 0; i < graph.count; i++) {
         free(graph.nodes[i].source);
         free(graph.nodes[i].retained);
     }
+    for (size_t i = 0; i < graph.alias_count; i++) free(graph.aliases[i].spelling);
+    if (!ok) {
+        for (size_t i = 0; i < count; i++) free(result[i]);
+        free(result);
+        return NULL;
+    }
+    return result;
+}
+
+char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *source,
+                                   ModuleLinkResponseGrammar grammar) {
+    char **paths = module_capture_link_responses(meta, &source, 1, grammar);
+    if (!paths) return NULL;
+    char *result = paths[0];
+    free(paths);
     return result;
 }
 

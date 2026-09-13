@@ -4,7 +4,9 @@ import json
 import os
 from pathlib import Path
 import shlex
+import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -12,6 +14,143 @@ from tests import test_bytecode_shadows as shadows
 
 
 class LinkResponseGraph(unittest.TestCase):
+    def batch(self, directory, sources, grammar="gnu", env=None, budget=None):
+        mode = "capture-link-responses" if budget is None else "capture-link-responses-allocation"
+        args = [str(shadows.ROOT / "obj/test_module_generation_probe"), mode, grammar, str(directory)]
+        if budget is not None: args.append(str(budget))
+        return subprocess.run([*args, *map(str, sources)], cwd=directory, env=env,
+                              capture_output=True, timeout=10)
+
+    def test_batch_freezes_shared_inputs_between_roots(self):
+        for action in ("rewrite", "remove", "retarget"):
+            for grammar in ("gnu", "apple"):
+                with self.subTest(action=action, grammar=grammar), tempfile.TemporaryDirectory(prefix="nano-batch-freeze-") as tmp:
+                    directory = Path(tmp)
+                    shared = directory / "shared.rsp"
+                    shared.write_text("-lm\n")
+                    other = directory / "other.rsp"
+                    other.write_text("-lc\n")
+                    if action == "retarget":
+                        shared.rename(directory / "original.rsp")
+                        shared.symlink_to("original.rsp")
+                    for name in ("first.rsp", "second.rsp"):
+                        (directory / name).write_text("@shared.rsp\n")
+                    env = os.environ.copy()
+                    env.update(NANO_TEST_RESPONSE_MUTATE=str(shared), NANO_TEST_RESPONSE_ACTION=action,
+                               NANO_TEST_RESPONSE_TARGET=str(other))
+                    sources = ["first.rsp", "second.rsp", "first.rsp", "shared.rsp"]
+                    result = self.batch(directory, sources, grammar, env)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    paths = [Path(line) for line in result.stdout.decode().splitlines()]
+                    self.assertEqual(len(paths), len(sources))
+                    self.assertEqual(paths[0], paths[2])
+                    self.assertNotEqual(paths[0], paths[1])
+                    nested = [Path(shlex.split(path.read_text())[0][1:]) for path in paths[:2]]
+                    self.assertEqual(nested, [paths[3], paths[3]])
+                    self.assertEqual(paths[3].read_bytes(), b"-lm\n")
+                    if action == "remove": self.assertFalse(shared.exists())
+                    else: self.assertEqual(shared.read_bytes(), b"-lc\n")
+                    retry = self.batch(directory, sources, grammar)
+                    if action == "remove":
+                        self.assertNotEqual(retry.returncode, 0)
+                        self.assertEqual(retry.stdout, b"")
+                    else:
+                        self.assertEqual(retry.returncode, 0, retry.stderr)
+                        replacement = Path(retry.stdout.decode().splitlines()[3])
+                        self.assertEqual(replacement.read_bytes(), b"-lc\n")
+                        self.assertNotEqual(replacement, paths[3])
+
+    def test_batch_failure_is_not_a_partial_result_and_budgets_are_shared(self):
+        with tempfile.TemporaryDirectory(prefix="nano-batch-bounds-") as tmp:
+            directory = Path(tmp)
+            (directory / "first.rsp").write_bytes(b"a" * 40000)
+            (directory / "second.rsp").write_bytes(b"b" * 26000)
+            for sources in (["first.rsp", "missing.rsp"], ["first.rsp", "second.rsp"],
+                            ["first.rsp"] * 65, ["./" * 2048 + "first.rsp"], [""]):
+                result = self.batch(directory, sources)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, b"")
+            result = self.batch(directory, ["first.rsp"] * 64)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(len(result.stdout.splitlines()), 64)
+            self.assertEqual(len(set(result.stdout.splitlines())), 1)
+            (directory / "missing.rsp").write_text("-lm\n")
+            self.assertEqual(self.batch(directory, ["first.rsp", "missing.rsp"]).returncode, 0)
+
+    def test_source_spelling_budget(self):
+        with tempfile.TemporaryDirectory(prefix="nano-batch-aliases-") as tmp:
+            directory = Path(tmp)
+            (directory / "inner.rsp").write_text("-lm\n")
+            for index in range(128):
+                (directory / f"alias-{index}.rsp").symlink_to("inner.rsp")
+            outer = directory / "outer.rsp"
+            outer.write_text(" ".join(f"@alias-{index}.rsp" for index in range(128)))
+            self.assertNotEqual(self.capture(directory, outer).returncode, 0)
+            outer.write_text(" ".join(f"@alias-{index}.rsp" for index in range(127)))
+            self.captured_path(directory, outer)
+
+    def test_batch_allocation_failure_retries_without_partial_paths(self):
+        with tempfile.TemporaryDirectory(prefix="nano-batch-allocation-") as tmp:
+            directory = Path(tmp)
+            (directory / "shared.rsp").write_text("-lm\n")
+            for name in ("first.rsp", "second.rsp"):
+                (directory / name).write_text("@shared.rsp\n")
+            outcomes = set()
+            for budget in range(64):
+                result = self.batch(directory, ["first.rsp", "second.rsp", "shared.rsp"], budget=budget)
+                self.assertEqual(result.returncode, 0, (budget, result.stderr))
+                outcomes.add(result.stdout.strip())
+            self.assertEqual(outcomes, {b"failed", b"captured"})
+
+    def test_native_multi_root_order_identity_and_lifetime(self):
+        with tempfile.TemporaryDirectory(prefix="nano-batch-native-") as tmp:
+            directory = Path(tmp)
+            compiler = shutil.which("cc")
+            grammar = "apple" if sys.platform == "darwin" else "gnu"
+
+            def run(args):
+                return subprocess.run(list(map(str, args)), cwd=directory, capture_output=True, timeout=15)
+
+            for name, answer in (("a", 42), ("b", 43)):
+                library = directory / name
+                library.mkdir()
+                source = library / "member.c"
+                source.write_text(f"long long selected(void) {{ return {answer}; }}\n")
+                for args in ([compiler, "-fPIC", "-c", source, "-o", library / "member.o"],
+                             ["ar", "rcs", library / "libselected.a", library / "member.o"]):
+                    result = run(args)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+            source = directory / "main.c"
+            source.write_text("extern long long selected(void); long long answer(void) { return selected(); }\n")
+
+            def link(name, paths):
+                output = directory / (name + ".so")
+                result = run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                              "-fPIC", source, "-o", output, *["-Wl,@" + str(path) for path in paths]])
+                answer = None
+                if result.returncode == 0:
+                    loaded = run([sys.executable, "-c", "import ctypes,sys; lib=ctypes.CDLL(sys.argv[1]); "
+                                  "lib.answer.restype=ctypes.c_int64; print(lib.answer())", output])
+                    self.assertEqual(loaded.returncode, 0, loaded.stderr)
+                    answer = int(loaded.stdout)
+                return result.returncode, answer
+
+            for names, expected in ((["a.rsp", "b.rsp"], (0, 42)), (["b.rsp", "a.rsp"], (0, 43)),
+                                    (["same.rsp", "same.rsp"], (1, None) if sys.platform == "darwin" else (0, 42)),
+                                    (["same.rsp", "distinct.rsp"], (0, 42))):
+                with self.subTest(names=names):
+                    (directory / "a.rsp").write_text("-La\n")
+                    (directory / "b.rsp").write_text("-Lb -lselected\n")
+                    for name in ("same.rsp", "distinct.rsp"):
+                        (directory / name).write_text("-La -lselected\n")
+                    originals = [directory / name for name in names]
+                    self.assertEqual(link("native", originals), expected)
+                    captured = self.batch(directory, originals, grammar)
+                    self.assertEqual(captured.returncode, 0, captured.stderr)
+                    paths = [Path(line) for line in captured.stdout.decode().splitlines()]
+                    for path in set(originals): path.unlink()
+                    self.assertEqual(link("retained", paths), expected)
+
     def capture(self, directory, source, grammar="gnu", budget=None):
         mode = "capture-link-response" if budget is None else "capture-link-response-allocation"
         args = [str(shadows.ROOT / "obj/test_module_generation_probe"), mode, grammar,

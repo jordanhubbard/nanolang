@@ -36,6 +36,24 @@ static int generation_test_fsync(int fd) {
     const char *failure = getenv("NANO_TEST_SYNC_FAILURE");
     const char *event = "file";
     if (fstat(fd, &st) != 0) return -1;
+    static bool response_mutated = false;
+    const char *response = getenv("NANO_TEST_RESPONSE_MUTATE");
+    if (response && !response_mutated && S_ISREG(st.st_mode)) {
+        response_mutated = true;
+        const char *action = getenv("NANO_TEST_RESPONSE_ACTION");
+        if (action && !strcmp(action, "remove")) {
+            if (unlink(response)) return -1;
+        } else if (action && !strcmp(action, "retarget")) {
+            const char *target = getenv("NANO_TEST_RESPONSE_TARGET");
+            if (!target || unlink(response) || symlink(target, response)) return -1;
+        } else {
+            FILE *changed = fopen(response, "wb");
+            if (!changed) return -1;
+            bool ok = fputs("-lc\n", changed) >= 0;
+            if (fclose(changed)) ok = false;
+            if (!ok) return -1;
+        }
+    }
     if (S_ISDIR(st.st_mode)) {
         if (root && stat(root, &cache) == 0 && cache.st_ino == st.st_ino && cache.st_dev == st.st_dev)
             event = ++cache_calls == 1 ? "cache-1" : "cache-2";
@@ -171,6 +189,33 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if ((argc >= 5 && !strcmp(argv[1], "capture-link-responses")) ||
+        (argc >= 6 && !strcmp(argv[1], "capture-link-responses-allocation"))) {
+        bool allocation = !strcmp(argv[1], "capture-link-responses-allocation");
+        size_t first = allocation ? 5 : 4, count = (size_t)argc - first;
+        ModuleBuildMetadata meta = {.module_dir = argv[3]};
+        ModuleLinkResponseGrammar grammar = !strcmp(argv[2], "gnu") ? MODULE_LINK_RESPONSE_GNU :
+            !strcmp(argv[2], "apple") ? MODULE_LINK_RESPONSE_APPLE : 0;
+        const char *const *sources = (const char *const *)(argv + first);
+        if (allocation) generation_allocation_limit = strtol(argv[4], NULL, 10);
+        char **paths = module_capture_link_responses(&meta, sources, count, grammar);
+        generation_allocation_limit = -1;
+        if (allocation) puts(paths ? "captured" : "failed");
+        if (paths) {
+            for (size_t i = 0; i < count; i++) {
+                if (!allocation) puts(paths[i]);
+                free(paths[i]);
+            }
+            free(paths);
+        } else if (!allocation) return 1;
+        if (allocation) {
+            paths = module_capture_link_responses(&meta, sources, count, grammar);
+            if (!paths) return 1;
+            for (size_t i = 0; i < count; i++) free(paths[i]);
+            free(paths);
+        }
+        return 0;
+    }
 #ifdef __APPLE__
     if (argc == 5 && strcmp(argv[1], "link-inputs") == 0) {
         cJSON *inputs = module_link_inputs(argv[2], argv[3], argv[4]);

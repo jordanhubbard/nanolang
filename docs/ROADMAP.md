@@ -1182,6 +1182,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       timestamps on both hosts; private-directory cleanup and thirty-two
       allocation budgets pass. The query's indirect inputs still need retained
       validation before execution, not a check followed by a mutable reread.
+      I capture multiple response roots in one transaction, sharing resolved
+      identities, frozen source spellings and input budgets across the whole
+      invocation. A failed root or allocation must return no partial path set;
+      I test repeated/shared roots, intervening mutation and recovery.
+      The batch API now returns a complete owned path set or nothing. Repeated
+      source spellings retain their first binding across mutation, removal and
+      symlink retargeting; a new transaction sees the new state. Native
+      multi-root order, identity and lifetime checks pass on both hosts, along
+      with allocation and shared-budget tests. Flag installation and admission
+      remain separate open work.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

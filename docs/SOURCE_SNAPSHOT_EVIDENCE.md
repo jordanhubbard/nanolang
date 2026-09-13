@@ -1448,3 +1448,38 @@ retention before a query runs. A validated original response must not be
 reread from a mutable path during execution. Invocation-wide installation of
 captured flags, returned-flag lifetime and cache admission remain open; the
 six forwarded restored-selection failures are not repaired by this wrapper.
+
+### Transactional response-root sets
+
+I implement `module_capture_link_responses` for an ordered set of one to
+sixty-four roots. The single-root API delegates to it. All roots share one
+resolved-path map and a 64 KiB unique-input budget. I also freeze each source
+spelling at its first observed binding, so later references do not resolve a
+removed or retargeted path again. I bound this table to 128 spellings of at
+most 4095 bytes each; the existing sixty-four-node and sixteen-level bounds
+remain.
+
+I return the complete owned path array or NULL. A later missing input,
+exceeded shared budget or allocation failure cannot expose an earlier partial
+path set. Verified content-addressed files can already exist in the cache
+when a later root fails; the transaction governs the returned set, not an
+atomic filesystem publication or a filesystem-wide point-in-time snapshot.
+
+Six controlled cases rewrite, remove or retarget a shared response between
+root captures, under both explicit grammars. Later roots retain the first
+observed input; a new transaction observes its replacement or fails if it is
+gone. Sixty-four allocation budgets check same-process retry. Root-count,
+spelling-count, spelling-length and shared-byte limits are exercised.
+
+Native multi-root links on Apple Clang 21 and GCC 12 preserve search order:
+one root order returns 42, and its reverse returns 43. Distinct equal-content
+roots remain distinct; repeated roots preserve Apple's rejection and GNU's
+success. Retained links still produce those outcomes after the original roots
+are removed. The existing sixteen-case single-root comparison stays green.
+
+The final rebuilt Darwin tools pass all thirty-two graph/query/link methods.
+On Linux, all twelve graph methods pass with ASan/UBSan and leak detection
+(82.885 seconds); the ten linker-transport methods also pass with sanitizers
+and leak detection disabled (2026-09-13). This does not replace the earlier
+full regression gate or complete invocation-wide flag installation. Indirect
+option admission, returned flag transport and cache eligibility remain open.
