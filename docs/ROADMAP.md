@@ -1289,6 +1289,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       rejects Darwin macro expansion: native line 5 becomes expanded line 10,
       with an added checksum for expanded text. That is genuine provenance
       loss, distinct from the import-alias policy.
+      Before adding a source-location rewriter, I compare native object capture
+      from retained pre-expansion units against the physical native control.
+      I test debug data, whole-object bytes and execution after unit inputs are
+      removed. Any integration must still satisfy capture timing, dependency
+      observation, validation and failure-recovery contracts; object equality
+      alone does not establish those guarantees.
+      The native-object candidate now matches physical native object bytes
+      and debug data on both hosts for `.s`/`.S`, both cache roots, and a
+      nested macro/binary include. Linking and execution return 42 after the
+      original unit, retained alias, macro include and binary are removed.
+      I must integrate this serialization boundary without dropping retained
+      input identity, restored-input checks, dependency observation or cache
+      recovery. The candidate is not a production repair.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

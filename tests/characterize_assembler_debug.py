@@ -7,6 +7,8 @@ observations alone is not full DWARF equivalence.
 assembler directory remapping, requiring byte-identical native objects too.
 --require-physical-debug compares production with my physical-module-root
 source policy, retaining the lexical control as a separate observation.
+--capture-object tests a native object from retained pre-expansion text; it
+does not change production capture timing or dependency observation.
 """
 
 import argparse
@@ -46,7 +48,10 @@ def evidence(obj, source, cwd, text=None):
             "compile_units": decoded.count("DW_TAG_compile_unit")}
 
 
-def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False, module_alias=False):
+def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False, module_alias=False,
+            capture_object=False, nested_read=False):
+    if nested_read and not macro_read:
+        raise ValueError("I require macro reads for the nested include fixture")
     if flat and not candidate:
         raise ValueError("I require candidate mode for the flat-path experiment")
     version = run([compiler, "--version"], ROOT).splitlines()[0]
@@ -70,7 +75,12 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 if macro_read:
                     payload = directory / "debug payload.bin"
                     payload.write_bytes(b"*")
-                    assembly = '.macro read_payload path\n.incbin "\\path"\n.endm\n' + assembly.replace(
+                    macro_text = '.macro read_payload path\n.incbin "\\path"\n.endm\n'
+                    if nested_read:
+                        macro_source = directory / "debug macro.s"
+                        macro_source.write_text(macro_text)
+                        macro_text = '.include "' + str(macro_source) + '"\n'
+                    assembly = macro_text + assembly.replace(
                         '.byte 42', 'read_payload "' + str(payload) + '"')
                 if suffix == "S": assembly = '#define INSTRUCTION nop\n' + assembly.replace('nop', 'INSTRUCTION')
                 source.write_text(assembly)
@@ -95,6 +105,43 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 production_object = generation / "answer_native_1.o"
                 production_text = []
                 observed = evidence(production_object, source, directory, production_text)
+                captured_evidence = None
+                captured_identical = None
+                captured_value = None
+                captured_diff = None
+                removed_inputs = []
+                if capture_object:
+                    private = directory / "object capture"
+                    private.mkdir()
+                    retained_unit = private / source.name
+                    retained_unit.write_bytes((generation / "__snapshot_0_1.i").read_bytes())
+                    captured_object = directory / "captured.o"
+                    map_option = "-fdebug-prefix-map=" if sys.platform == "darwin" else "--debug-prefix-map="
+                    remaps = ["-Xassembler", map_option + str(private) + "=" + str(physical_source.parent)]
+                    if private.resolve() != private:
+                        remaps += ["-Xassembler", map_option + str(private.resolve()) + "=" + str(physical_source.parent)]
+                    run([compiler, "-c", "-fPIC", *flags, *remaps, "-x", "assembler",
+                         retained_unit, "-o", captured_object], directory)
+                    captured_text = []
+                    captured_evidence = evidence(captured_object, physical_source, directory, captured_text)
+                    captured_identical = physical_native.read_bytes() == captured_object.read_bytes()
+                    captured_diff = ''.join(difflib.unified_diff(physical_text, captured_text,
+                                                               fromfile="physical-native", tofile="captured-object"))
+                    unit_inputs = [source, retained_unit]
+                    if macro_read: unit_inputs.append(payload)
+                    if nested_read: unit_inputs.append(macro_source)
+                    saved_inputs = {path: path.read_bytes() for path in unit_inputs}
+                    try:
+                        for path in unit_inputs:
+                            path.unlink()
+                            removed_inputs.append(str(path))
+                        library = directory / ("captured.dylib" if sys.platform == "darwin" else "captured.so")
+                        run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared", "-fPIC",
+                             module / "answer.c", captured_object, "-o", library], directory)
+                        captured_value = int(run([sys.executable, "-c", "import ctypes,sys; l=ctypes.CDLL(sys.argv[1]); "
+                            "l.nano_build_answer.restype=ctypes.c_int64; print(l.nano_build_answer())", library], directory))
+                    finally:
+                        for path, contents in saved_inputs.items(): path.write_bytes(contents)
                 candidate_evidence = None
                 candidate_diff = None
                 candidate_identical = None
@@ -135,6 +182,11 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
                               "published_unit_aliases": [p.name for p in generation.glob("__unit_*")],
                               "native": expected, "production": observed,
+                              "captured_object": captured_evidence,
+                              "captured_object_identical": captured_identical,
+                              "captured_object_value": captured_value,
+                              "captured_object_debug_diff": captured_diff,
+                              "captured_object_removed_inputs": removed_inputs,
                               "lexical_source": str(source), "physical_source": str(physical_source),
                               "requested_module": str(requested_module),
                               "physical_native": physical_expected,
@@ -163,6 +215,9 @@ if __name__ == "__main__":
     parser.add_argument("--require-physical-debug", action="store_true")
     parser.add_argument("--module-alias", action="store_true")
     parser.add_argument("--macro-read", action="store_true")
+    parser.add_argument("--nested-read", action="store_true")
+    parser.add_argument("--capture-object", action="store_true")
+    parser.add_argument("--require-captured-object", action="store_true")
     parser.add_argument("--candidate", action="store_true")
     parser.add_argument("--flat", action="store_true",
                         help="I test directory and basename remaps without copying the retained unit")
@@ -171,10 +226,15 @@ if __name__ == "__main__":
         parser.error("I require --candidate with --flat")
     if args.require_physical_debug and args.candidate:
         parser.error("I compare the physical control with production, not a candidate")
+    if args.require_captured_object and not args.capture_object:
+        parser.error("I require --capture-object for captured-object acceptance")
+    if args.nested_read and not args.macro_read:
+        parser.error("I require --macro-read with --nested-read")
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler")
     result = measure(compiler, candidate=args.candidate, flat=args.flat,
-                     module_alias=args.module_alias, macro_read=args.macro_read)
+                     module_alias=args.module_alias, macro_read=args.macro_read, capture_object=args.capture_object,
+                     nested_read=args.nested_read)
     print(json.dumps(result, indent=2))
     if args.require_debug and any(case["native"] != case["candidate" if args.candidate else "production"] or case["answer"] != 42
                                   or not case["generation_reused"] or (args.candidate and not case["candidate_object_identical"])
@@ -184,3 +244,8 @@ if __name__ == "__main__":
                                           not case["physical_object_identical"] or case["answer"] != 42 or
                                           not case["generation_reused"] for case in result["cases"]):
         raise SystemExit("I did not retain the physical-source native object and debug evidence")
+    if args.require_captured_object and any(case["physical_native"] != case["captured_object"] or
+                                           not case["captured_object_identical"] or case["captured_object_value"] != 42 or
+                                           len(case["captured_object_removed_inputs"]) != 2 + args.macro_read + args.nested_read
+                                           for case in result["cases"]):
+        raise SystemExit("I did not retain the native object, debug evidence and source-free execution")

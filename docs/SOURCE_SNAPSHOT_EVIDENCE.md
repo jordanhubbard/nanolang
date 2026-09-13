@@ -2595,3 +2595,45 @@ The original-basename candidate still passes its strict lexical control on
 both hosts. Conflicting candidate/physical-control CLI modes are rejected.
 Python syntax, whitespace and six-edition guide checks pass. This checkpoint
 changes measurement and regression coverage, not production compilation.
+
+### Native-object capture candidate for expansion provenance
+
+`--capture-object` assembles the retained **pre-expansion** unit
+`__snapshot_0_1.i` under its original basename, with native debug flags and
+physical source-directory mapping. Unlike the text-expansion path, the
+selected assembler writes its native object directly. I compare complete
+object bytes and decoded debug data with the independent physical-source
+native control. This does not copy the control object or patch debug labels.
+
+I then delete the original standalone unit and its retained alias. With
+`--macro-read --nested-read`, I also delete the included macro file and its
+binary input. While those four paths are absent, I link the captured object
+with the fixture's C wrapper and execute it in a fresh process. I restore the
+inputs only afterward for the existing production warm check. The C wrapper
+remains an explicit link-build input; this is not a source-free whole-module
+build claim.
+
+```sh
+python3 -m tests.characterize_assembler_debug --capture-object --require-captured-object --macro-read --nested-read
+```
+
+All eight suffix/cache/host combinations pass on Apple Clang 21 external
+assembly and GCC 12.2/GNU as 2.40: captured objects are byte-identical to
+native controls, debug hashes match, and execution after input removal
+returns 42. Apple's four inline-macro cases also pass. The genuine production
+expanded-text line/checksum differences remain visible in the same JSON.
+
+This selects a viable serialization boundary, not a completed implementation.
+The experiment reads the included files during its native capture; it does
+not establish an input-read inventory, atomic filesystem snapshot, correct
+production capture timing, or cache invalidation. Integration must preserve
+the retained-input and validation contracts, exercise restored nested reads
+and failed replacements, and avoid treating object equality alone as proof
+of those independent guarantees. I do not add a source-location rewriter or
+guess positions for the backend's missing debug labels.
+
+The two existing physical-object/macro-reuse regression methods pass in
+26.402 seconds on Darwin and 1.267 seconds on Linux. The strict nested
+candidate commands pass on both hosts; incomplete CLI mode combinations are
+rejected. Python syntax, whitespace and six-edition guide checks pass. No
+production C code changes in this checkpoint.
