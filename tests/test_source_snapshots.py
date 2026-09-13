@@ -84,7 +84,7 @@ class SourceSnapshots(unittest.TestCase):
 
     def test_clang_assembler_cache_restored_inputs(self):
         if not self.clang: self.skipTest("I exercise GCC literal capture separately")
-        for case in measure(shutil.which("cc"), ("assembler",))["cases"]:
+        for case in measure(shutil.which("cc"), ("assembler", "assembler-macro"))["cases"]:
             with self.subTest(case=case):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
                 for key in ("bytes_restored", "mtime_preserved", "size_preserved", "generation_reused", "reuse_record", "retained_assembly"):
@@ -449,9 +449,9 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
         version = subprocess.run([compiler, "--version"], capture_output=True, check=True).stdout
         if b"clang version" not in version:
             self.skipTest("I test the Clang assembly-output candidate here")
-        for nested in (False, True):
+        for spelling in ("literal", "nested", "macro-argument"):
             for flags in ([], ["-O2", "-g", "-std=c11", "-Wall", "-Wextra", "-Werror"]):
-                with self.subTest(nested=nested, flags=flags), tempfile.TemporaryDirectory(prefix="nano-assembly-trial-") as tmp:
+                with self.subTest(spelling=spelling, flags=flags), tempfile.TemporaryDirectory(prefix="nano-assembly-trial-") as tmp:
                     directory = Path(tmp)
                     binary = directory / "payload with 'quotes'.bin"
                     binary.write_bytes(b"xx42yy")
@@ -460,7 +460,11 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     include.write_text(f'.macro payload\n.incbin "{binary}", 2, 2\n.endm\npayload\n')
                     outer.write_text(f'.include "{include}"\n')
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
-                    directive = f'.include "{outer}"' if nested else f'.incbin "{binary}", 2, 2'
+                    if spelling == "macro-argument":
+                        include.write_text('.macro payload file\n.incbin "\\file", 2, 2\n.endm\n'
+                                           f'.if 0\n.incbin "{directory / "missing.bin"}"\n.endif\n'
+                                           f'payload "{binary}"\n')
+                    directive = f'.include "{outer}"' if spelling != "literal" else f'.incbin "{binary}", 2, 2'
                     assembly = f'.data\n.globl {symbol}\n{symbol}:\n{directive}\n.text\n'
                     source = directory / "answer.c"
                     source.write_text('extern const unsigned char snapshot_payload[];\n'

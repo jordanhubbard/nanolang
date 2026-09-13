@@ -289,16 +289,24 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Array arguments, non-opaque aggregates and variadic calls are outside
       this fixed-arity boundary. Native declarations remain trusted, not proved.
       MAC `task_b6f54605c59c4e1abff628422c77922f`.
-- [ ] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
+- [x] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
       make failing shadow assertions observable on every supported compiler
       path. My C-seed driver runs shadows during compilation; I measure the
       self-hosted and VM paths before claiming consistent execution or order.
       I preserve the requirement for useful tests; documenting a gap does
       not satisfy it.
       The failing-shadow characterization is now rejected by the C seed,
-      bytecode CLI and Stage 2 native driver. Imported-shadow policy remains
-      open; source-only emission
-      typechecks root shadows but deliberately does not execute them.
+      bytecode CLI and Stage 2 native driver. The later transitive-default
+      work implements my creator's imported-shadow policy, dependency-first
+      execution, explicit root-only opt-out and production separation.
+      Source-only emission deliberately does not execute tests. I re-ran
+      85 methods across C-seed imports, native shadows, bytecode shadows,
+      native shadow emission, supervision and language claims on Darwin:
+      all pass in 281.286 seconds with no skips. These tests include failing
+      assertions, deadlines, prior-output preservation, diamond order and
+      source-only selection. Complete language/backend parity remains open
+      under its own acceptance items; this closes shadow execution, not that
+      broader claim.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [x] **5.0 imported shadow prerequisite — function ownership.** I repair
       same-named pure wrappers across qualified imports, preserving module
@@ -1023,6 +1031,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       payload bytes, nonempty listings, and dependency output, not only object
       equality. The 22 production snapshots still pass on GNU as 2.40 with
       two expected skips. No production code changed (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Clang assembler macro-argument capture.** I verify that retained
+      assembly resolves file arguments after macro expansion, including nested
+      includes and inactive missing inputs. I remove the original files before
+      replay and check the resulting library's payload, rather than inferring
+      capture from textual directives. I exercise plain and optimized/debug
+      compiler flags; broader assembler variant coverage remains below.
+      All six replay cases pass on Apple Clang 21 ARM64: direct 42, changed
+      43, and retained 42 after originals are deleted. The production cache
+      fixture also preserves cold/warm/fresh 42 and actual generation reuse
+      for macro arguments under local and shared caches. All 43 snapshot
+      methods pass with eleven platform skips; the expanded cache case passes
+      separately after the full run started. No production code changed.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation

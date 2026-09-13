@@ -1661,3 +1661,22 @@ Linux also passes 32 graph/query/invocation methods with ASan/UBSan and leak
 detection in 269.241 seconds. That run includes allocation rollback,
 source-less returned-flag lifetime and unadmitted-candidate fallback. Native
 fixture tools and the assembler preload helper are not sanitizer-instrumented.
+
+## Clang macro-argument capture acceptance
+
+On Apple Clang 21.0.0, ARM64 Darwin, I expanded the retained-assembly trial to
+literal inputs, nested includes and macro-supplied binary paths. The macro case
+also contains an inactive reference to a missing file. Plain flags and
+`-O2 -g -std=c11 -Wall -Wextra -Werror` pass all six cases. Direct libraries
+return 42, changing the input produces 43, and retained assembly returns 42
+after the source, nested includes and binary payload have all been removed.
+This checks actual replay, not the appearance of captured assembly text.
+
+The production restored-edit fixture now includes macro arguments under both
+local and shared caches. Cold, warm and fresh results are 42, bytes/size/mtime
+are restored, and the cache generation is actually reused. The full snapshot
+suite passes 43 methods with eleven platform/configuration skips in 88.555
+seconds; the expanded production case passes separately in 4.045 seconds.
+This adds acceptance evidence without changing production code. It does not
+establish arbitrary assembler file-read coverage, external assembler modes,
+other Clang versions, or completion of the general snapshot requirement.
