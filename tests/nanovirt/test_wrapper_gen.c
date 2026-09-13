@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 /* Required by runtime/cli.c */
@@ -115,8 +116,8 @@ TEST(wrapper_generate_from_project_root) {
      * If obj/nanovm/vm.o exists (post-build), wrapper_generate proceeds to
      * write a temp C file, build the obj list, find src/, and try to compile.
      *
-     * We call it with verbose=false and don't assert on success — the goal
-     * is to exercise write_wrapper_c, build_obj_list, and the cc step.
+     * Use a compiler shim to verify the generated link command retains libffi
+     * without requiring the development library on every test host.
      */
     unsetenv("NANO_VIRT_LIB");
 
@@ -136,13 +137,24 @@ TEST(wrapper_generate_from_project_root) {
     char out_path[256];
     snprintf(out_path, sizeof(out_path), "/tmp/test_wgen_%d", (int)getpid());
 
+    char cc_path[256];
+    snprintf(cc_path, sizeof(cc_path), "/tmp/test_wgen_cc_%d", (int)getpid());
+    FILE *cc = fopen(cc_path, "w");
+    ASSERT(cc != NULL);
+    fprintf(cc, "#!/bin/sh\n");
+    fprintf(cc, "for arg in \"$@\"; do [ \"$arg\" = -lffi ] && exit 0; done\n");
+    fprintf(cc, "exit 1\n");
+    ASSERT(fclose(cc) == 0);
+    ASSERT(chmod(cc_path, 0700) == 0);
+    setenv("NANO_CC", cc_path, 1);
+
     bool ok = wrapper_generate(mod, blob, bsize, out_path, "test.nano",
                                NULL, false);
-    /* ok may be true (compilation succeeded) or false (obj files missing,
-     * cc not found, etc.) — both outcomes are valid for this test. */
-    (void)ok;
+    ASSERT(ok);
 
     /* Clean up generated binary if it was created */
+    unsetenv("NANO_CC");
+    remove(cc_path);
     remove(out_path);
     free(blob);
     nvm_module_free(mod);
