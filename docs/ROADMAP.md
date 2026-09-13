@@ -1146,6 +1146,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       identity. Apple distinguishes hardlink paths but rejects symlink aliases;
       content-only and spelling-only prototypes change native outcomes.
       Production graph capture and general nested-token rewriting remain open.
+      I implement bounded graph capture with explicit GNU/Apple token grammar,
+      resolved-path memoization, verbatim non-reference bytes and retained-file
+      verification. I exercise that mechanism through the production probe
+      before wiring invocation ownership and cache eligibility to it.
+      The C mechanism matches all sixteen native-linker outcomes and retains
+      original-file independence. Allocation recovery, bounds and tamper checks
+      pass under sanitizers. I still need invocation-wide admission and returned
+      transport, including retained cache paths containing commas that cannot
+      be inserted unchanged into a `-Wl,` argument.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

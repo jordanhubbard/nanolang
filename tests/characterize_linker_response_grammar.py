@@ -3,6 +3,7 @@
 Run python3 -m tests.characterize_linker_response_grammar [compiler].
 --require-equivalent rejects any admitted decoding that changes native results.
 --require-retained-equivalent checks the byte-preserving fixture prototype.
+--require-captured-equivalent checks my C graph-capture mechanism.
 This is an experiment, not production forwarded-response capture.
 """
 
@@ -101,6 +102,10 @@ def measure(compiler):
             admitted = not any(word.startswith("@") for word in words)
             native = link(name + "-native", ["-Wl,@" + str(response)])
             candidate = link(name + "-candidate", [word for value in words for word in ("-Xlinker", value)]) if admitted else None
+            graph = run([probe, "capture-link-response", "apple" if sys.platform == "darwin" else "gnu",
+                         directory, response])
+            if graph.returncode: raise RuntimeError("I could not capture the fixture response graph")
+            graph_path = Path(graph.stdout.decode().strip())
             retained_contents = contents
             collapsed_contents = contents
             for spelling, path in retained_nested.items():
@@ -113,14 +118,16 @@ def measure(compiler):
             retained_response = retained_dir / "outer.rsp"
             retained_response.write_text(retained_contents)
             retained = link(name + "-retained", ["-Wl,@" + str(retained_response)])
+            captured_graph = link(name + "-captured", ["-Wl,@" + str(graph_path)])
             retained_response.write_text(collapsed_contents)
             collapsed = link(name + "-collapsed", ["-Wl,@" + str(retained_response)])
             case = {"case": name, "driver_decoder_admitted": admitted, "decoded_words": words,
                     "native": native, "candidate": candidate, "retained": retained,
-                    "collapsed": collapsed}
+                    "collapsed": collapsed, "captured": captured_graph}
             case["equivalent"] = equivalent(case)
             case["retained_equivalent"] = outcomes_agree(native, retained)
             case["collapsed_equivalent"] = outcomes_agree(native, collapsed)
+            case["captured_equivalent"] = outcomes_agree(native, captured_graph)
             cases.append(case)
     return {"platform": sys.platform, "compiler": compiler, "cases": cases}
 
@@ -140,8 +147,8 @@ def require_equivalent(result):
         raise SystemExit("I cannot substitute my driver decoder for this linker response grammar.")
 
 
-def require_retained_equivalent(result):
-    if not result["cases"] or any(not outcomes_agree(case["native"], case["retained"])
+def require_retained_equivalent(result, field="retained"):
+    if not result["cases"] or any(not outcomes_agree(case["native"], case[field])
                                   for case in result["cases"]):
         raise SystemExit("I cannot substitute these retained linker responses.")
 
@@ -151,6 +158,7 @@ if __name__ == "__main__":
     parser.add_argument("compiler", nargs="?", default="cc")
     parser.add_argument("--require-equivalent", action="store_true")
     parser.add_argument("--require-retained-equivalent", action="store_true")
+    parser.add_argument("--require-captured-equivalent", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler executable")
@@ -158,3 +166,4 @@ if __name__ == "__main__":
     print(json.dumps(result, indent=2))
     if args.require_equivalent: require_equivalent(result)
     if args.require_retained_equivalent: require_retained_equivalent(result)
+    if args.require_captured_equivalent: require_retained_equivalent(result, "captured")

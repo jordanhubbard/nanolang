@@ -175,7 +175,9 @@ int main(int argc, char **argv) {
         return status;
     }
 #endif
-    if (argc != 3 && argc != 4) return 2;
+    if (argc != 3 && argc != 4 &&
+        !(argc == 5 && !strcmp(argv[1], "capture-link-response")) &&
+        !(argc == 6 && !strcmp(argv[1], "capture-link-response-allocation"))) return 2;
     if (argc == 3 && !strcmp(argv[1], "link-response-allocation")) {
         char large[1300];
         memset(large, 'x', sizeof(large) - 1); large[sizeof(large) - 1] = 0;
@@ -324,6 +326,30 @@ int main(int argc, char **argv) {
         char *captured = module_capture_response_fragment(argv[2]);
         if (!captured) return 1;
         puts(captured);
+        free(captured);
+        return 0;
+    }
+    if (argc == 5 && !strcmp(argv[1], "capture-link-response")) {
+        ModuleBuildMetadata meta = {.module_dir = argv[3]};
+        ModuleLinkResponseGrammar grammar = !strcmp(argv[2], "gnu") ? MODULE_LINK_RESPONSE_GNU :
+            !strcmp(argv[2], "apple") ? MODULE_LINK_RESPONSE_APPLE : 0;
+        char *captured = module_capture_link_response(&meta, argv[4], grammar);
+        if (!captured) return 1;
+        puts(captured);
+        free(captured);
+        return 0;
+    }
+    if (argc == 6 && !strcmp(argv[1], "capture-link-response-allocation")) {
+        ModuleBuildMetadata meta = {.module_dir = argv[3]};
+        ModuleLinkResponseGrammar grammar = !strcmp(argv[2], "gnu") ? MODULE_LINK_RESPONSE_GNU :
+            !strcmp(argv[2], "apple") ? MODULE_LINK_RESPONSE_APPLE : 0;
+        generation_allocation_limit = strtol(argv[5], NULL, 10);
+        char *captured = module_capture_link_response(&meta, argv[4], grammar);
+        generation_allocation_limit = -1;
+        puts(captured ? "captured" : "failed");
+        free(captured);
+        captured = module_capture_link_response(&meta, argv[4], grammar);
+        if (!captured) return 1;
         free(captured);
         return 0;
     }

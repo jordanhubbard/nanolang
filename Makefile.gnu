@@ -2093,7 +2093,7 @@ endif
 
 MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
 
-$(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/module_builder.h $(RUNTIME_DIR)/module_build_dir.h $(HEADERS) $(MODULE_GENERATION_PROBE_OBJECTS)
+$(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/module_builder.h $(SRC_DIR)/module_link_response.h $(RUNTIME_DIR)/module_build_dir.h $(HEADERS) $(MODULE_GENERATION_PROBE_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ tests/test_module_generation_probe.c $(MODULE_GENERATION_PROBE_OBJECTS) $(LDFLAGS) -pthread $(if $(filter Linux,$(UNAME_S)),-ldl)
 
 test-bytecode-shadows: nano_virt nano_vm $(COMPILER_C) $(OBJ_DIR)/test_module_generation_probe
@@ -2102,6 +2102,7 @@ test-bytecode-shadows: nano_virt nano_vm $(COMPILER_C) $(OBJ_DIR)/test_module_ge
 	@python3 -m unittest tests.test_linux_link_cache
 	@python3 -m unittest tests.test_source_snapshots
 	@python3 -m unittest tests.test_link_argument_transport
+	@python3 -m unittest tests.test_link_response_graph
 
 .PHONY: test-native-shadow-emitter
 test-native-shadow-emitter:

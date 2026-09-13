@@ -6,6 +6,7 @@
 #endif
 
 #include "module_builder.h"
+#include "module_link_response.h"
 #include "runtime/module_build_dir.h"
 #ifdef __linux__
 #include "runtime/assembler_capture.h"
@@ -2598,43 +2599,25 @@ failed:
     return false;
 }
 
-/* I retain transport files in the module cache, not an invocation's staging
- * directory: returned native flags can outlive both metadata and build info.
- * Decoded argument strings, not these paths, remain my build identity. */
-static char *module_response_transport(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
-                                       const char *fragment) {
-    if (!fragment) return NULL;
-    if (strlen(fragment) <= 1024 || module_response_metadata_pending(meta) ||
-        !module_response_driver(meta)) return strdup(fragment);
-    for (size_t i = 0; flags && i < flags->count; i++)
-        if (module_response_pending(flags->cflags[i]) || module_response_pending(flags->libs[i])) return strdup(fragment);
-    if (module_response_pending(fragment)) return strdup(fragment);
-    size_t length = strlen(fragment);
-    if (length > 65536) return strdup(fragment);
-    char *data = malloc(length * 4 + 16);
-    if (!data) return NULL;
-    size_t used = 0;
-    const char *cursor = fragment;
-    char word[4096];
-    int status;
-    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
-        data[used++] = '"';
-        for (const char *p = word; *p; p++) {
-            if (*p == '\\' || *p == '"') data[used++] = '\\';
-            data[used++] = *p;
-        }
-        data[used++] = '"';
-        data[used++] = '\n';
-    }
-    if (status < 0) { free(data); return strdup(fragment); }
+/* I share publication and byte verification, not driver/linker token grammars.
+ * A linker response includes its resolved source path in retained identity:
+ * equal bytes at distinct paths must not become a repeated response input. */
+static char *module_retain_response_bytes(const ModuleBuildMetadata *meta, const char *data,
+                                         size_t used, const char *identity) {
     uint64_t hash = 14695981039346656037ULL;
+    if (identity) {
+        for (const unsigned char *p = (const unsigned char *)identity; *p; p++) {
+            hash ^= *p; hash *= 1099511628211ULL;
+        }
+        hash ^= 0; hash *= 1099511628211ULL;
+    }
     for (size_t i = 0; i < used; i++) { hash ^= (unsigned char)data[i]; hash *= 1099511628211ULL; }
     char *root = module_ensure_build_dir(meta->module_dir) ? module_get_build_dir(meta->module_dir) : NULL;
     char *directory = root ? realpath(root, NULL) : NULL;
     free(root);
     char path[2048] = {0}, temporary[2048] = {0};
-    bool ok = directory && module_build_append(path, sizeof(path), "%s/.nano-args-%016llx.rsp",
-        directory, (unsigned long long)hash) &&
+    bool ok = directory && module_build_append(path, sizeof(path), "%s/.nano-%s-%016llx.rsp",
+        directory, identity ? "link-response" : "args", (unsigned long long)hash) &&
         module_build_append(temporary, sizeof(temporary), "%s/.nano-args-XXXXXX", directory);
     free(directory);
     int fd = ok ? open(path, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK) : -1;
@@ -2675,10 +2658,181 @@ static char *module_response_transport(const ModuleBuildMetadata *meta, const Mo
         if (n != 0) ok = false;
     }
     if (fd >= 0 && close(fd)) ok = false;
+    return ok ? strdup(path) : NULL;
+}
+
+/* I retain transport files in the module cache, not an invocation's staging
+ * directory: returned native flags can outlive both metadata and build info.
+ * Decoded argument strings, not these paths, remain my build identity. */
+static char *module_response_transport(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                       const char *fragment) {
+    if (!fragment) return NULL;
+    if (strlen(fragment) <= 1024 || module_response_metadata_pending(meta) ||
+        !module_response_driver(meta)) return strdup(fragment);
+    for (size_t i = 0; flags && i < flags->count; i++)
+        if (module_response_pending(flags->cflags[i]) || module_response_pending(flags->libs[i])) return strdup(fragment);
+    if (module_response_pending(fragment)) return strdup(fragment);
+    size_t length = strlen(fragment);
+    if (length > 65536) return strdup(fragment);
+    char *data = malloc(length * 4 + 16);
+    if (!data) return NULL;
+    size_t used = 0;
+    const char *cursor = fragment;
+    char word[4096];
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        data[used++] = '"';
+        for (const char *p = word; *p; p++) {
+            if (*p == '\\' || *p == '"') data[used++] = '\\';
+            data[used++] = *p;
+        }
+        data[used++] = '"';
+        data[used++] = '\n';
+    }
+    if (status < 0) { free(data); return strdup(fragment); }
+    char *path = module_retain_response_bytes(meta, data, used, NULL);
     free(data);
     char result[8192] = {0};
-    if (!ok || !module_append_path_flag(result, sizeof(result), "@", path)) return NULL;
-    return strdup(result);
+    bool ok = path && module_append_path_flag(result, sizeof(result), "@", path);
+    free(path);
+    return ok ? strdup(result) : NULL;
+}
+
+typedef struct {
+    const ModuleBuildMetadata *meta;
+    ModuleLinkResponseGrammar grammar;
+    size_t count, bytes;
+    struct { char *source, *retained; } nodes[64];
+} ModuleLinkResponseGraph;
+
+/* I locate nested-reference token spans without rewriting surrounding bytes.
+ * These two explicit grammars differ in their unquoted whitespace set. */
+static int module_link_response_word(const char **cursor, const char **begin, const char **end,
+                                     char *word, size_t capacity, ModuleLinkResponseGrammar grammar) {
+    const char *space = grammar == MODULE_LINK_RESPONSE_APPLE ? " \t\r\n" : " \t\r\n\v\f";
+    const char *p = *cursor;
+    while (*p && strchr(space, *p)) p++;
+    *begin = p;
+    if (!*p) { *cursor = *end = p; return 0; }
+    size_t used = 0;
+    char quote = 0;
+    while (*p) {
+        char c = *p;
+        if (!quote && strchr(space, c)) break;
+        p++;
+        if (c == '\\') {
+            if (!*p) { errno = EINVAL; return -1; }
+            c = *p++;
+        } else if (quote) {
+            if (c == quote) { quote = 0; continue; }
+        } else if (c == '\'' || c == '"') { quote = c; continue; }
+        if (used + 1 >= capacity) { errno = E2BIG; return -1; }
+        word[used++] = c;
+    }
+    if (quote) { errno = EINVAL; return -1; }
+    word[used] = 0;
+    *cursor = *end = p;
+    return 1;
+}
+
+static bool module_link_response_copy(char *output, size_t *used, const char *data, size_t size) {
+    if (size > 65536 - *used) { errno = E2BIG; return false; }
+    memcpy(output + *used, data, size);
+    *used += size;
+    output[*used] = 0;
+    return true;
+}
+
+static const char *module_link_response_node(ModuleLinkResponseGraph *graph, const char *source,
+                                              unsigned depth) {
+    char *resolved = realpath(source, NULL);
+    if (!resolved) return NULL;
+    for (size_t i = 0; i < graph->count; i++) {
+        if (strcmp(resolved, graph->nodes[i].source)) continue;
+        free(resolved);
+        if (!graph->nodes[i].retained) errno = ELOOP;
+        return graph->nodes[i].retained;
+    }
+    if (depth >= 16 || graph->count == 64) {
+        free(resolved); errno = E2BIG; return NULL;
+    }
+    size_t index = graph->count++;
+    graph->nodes[index].source = resolved;
+    int fd = open(resolved, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+    if (fd < 0) return NULL;
+    struct stat st;
+    if (fstat(fd, &st) || !S_ISREG(st.st_mode) || st.st_size < 0) {
+        close(fd); errno = EIO; return NULL;
+    }
+    if ((uint64_t)st.st_size > 65536 - graph->bytes) {
+        close(fd); errno = E2BIG; return NULL;
+    }
+    size_t length = (size_t)st.st_size, used = 0;
+    char *data = malloc(length + 1);
+    if (!data) { close(fd); return NULL; }
+    bool ok = true;
+    while (used <= length) {
+        ssize_t n = read(fd, data + used, length + 1 - used);
+        if (n < 0 && errno == EINTR) continue;
+        if (n < 0) { ok = false; break; }
+        if (!n) break;
+        used += (size_t)n;
+        if (used > length) { ok = false; errno = E2BIG; break; }
+    }
+    if (close(fd)) ok = false;
+    if (ok && (used != length || memchr(data, 0, used))) { ok = false; errno = EINVAL; }
+    if (!ok) { free(data); return NULL; }
+    data[used] = 0;
+    graph->bytes += used;
+    char *rewritten = NULL;
+    if (strchr(data, '@')) {
+        rewritten = calloc(65537, 1);
+        if (!rewritten) { free(data); return NULL; }
+        const char *cursor = data, *previous = data, *begin, *end;
+        char word[4096];
+        size_t output_size = 0;
+        int status = 0;
+        while (ok && (status = module_link_response_word(&cursor, &begin, &end, word,
+                                                        sizeof(word), graph->grammar)) > 0) {
+            if (word[0] != '@') continue;
+            const char *nested = module_link_response_node(graph, word + 1, depth + 1);
+            ok = nested && module_link_response_copy(rewritten, &output_size, previous, (size_t)(begin - previous)) &&
+                module_link_response_copy(rewritten, &output_size, "\"@", 2);
+            for (const char *p = nested; ok && *p; p++) {
+                if (*p == '\\' || *p == '"') ok = module_link_response_copy(rewritten, &output_size, "\\", 1);
+                if (ok) ok = module_link_response_copy(rewritten, &output_size, p, 1);
+            }
+            if (ok) ok = module_link_response_copy(rewritten, &output_size, "\"", 1);
+            previous = end;
+        }
+        if (status < 0) ok = false;
+        if (ok) ok = module_link_response_copy(rewritten, &output_size, previous, strlen(previous));
+        used = output_size;
+    }
+    if (ok) graph->nodes[index].retained = module_retain_response_bytes(graph->meta,
+        rewritten ? rewritten : data, used, resolved);
+    free(rewritten);
+    free(data);
+    return graph->nodes[index].retained;
+}
+
+/* I expose this internal capture mechanism to the production probe first.
+ * Invocation ownership and selected-linker admission are separate integration
+ * gates: this helper alone must not authorize cache reuse. */
+char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *source,
+                                   ModuleLinkResponseGrammar grammar) {
+    if (!meta || !meta->module_dir || !source || !source[0] ||
+        (grammar != MODULE_LINK_RESPONSE_GNU && grammar != MODULE_LINK_RESPONSE_APPLE)) {
+        errno = EINVAL; return NULL;
+    }
+    ModuleLinkResponseGraph graph = {.meta = meta, .grammar = grammar};
+    const char *root = module_link_response_node(&graph, source, 0);
+    char *result = root ? strdup(root) : NULL;
+    for (size_t i = 0; i < graph.count; i++) {
+        free(graph.nodes[i].source);
+        free(graph.nodes[i].retained);
+    }
+    return result;
 }
 
 static bool module_append_compiler_fragment(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,

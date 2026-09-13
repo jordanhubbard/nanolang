@@ -1312,3 +1312,59 @@ empty measurement, changed success/failure, missing loaded answers and wrong
 answers. Ten linker-transport methods pass on Darwin and GCC 12. This selects a
 capture representation to implement; it does not repair production forwarded
 capture or close the six restored-selection failures.
+
+### Bounded C graph-capture mechanism
+
+I now implement the retained graph in `module_capture_link_response`, with an
+internal contract in `src/module_link_response.h`. The caller selects a GNU or
+Apple grammar explicitly; I do not infer the selected linker from the host OS.
+The probe selects the known grammar for the installed toolchain experiment:
+
+```sh
+python3 -m tests.characterize_linker_response_grammar --require-captured-equivalent
+python3 -m unittest tests.test_link_response_graph
+```
+
+I retain every non-reference byte. When I find a decoded token beginning with
+`@`, I capture its CWD-resolved input and replace that token span with a quoted
+retained path. Resolved-path memoization preserves repeated references and
+distinguishes equal-content and hardlink paths. The sixteen native-linker cases
+match on Apple Clang 21 and GCC 12 after original root and nested responses
+are removed. Unlike the earlier fixture prototype, this path uses my C token
+scanner and graph traversal.
+
+I bound capture to sixteen active levels, sixty-four distinct resolved paths,
+64 KiB of unique input bytes and 64 KiB per rewritten response. Missing inputs,
+cycles, non-regular files, embedded NULs, unsupported nested-token quoting and
+over-budget graphs return failure. Non-reference leaf bytes retain their
+original quoting, including malformed quoting for the linker to interpret.
+I use the existing private-file publication and exact-byte verification for
+both driver transports and retained linker files; linker identity additionally
+includes the resolved source path. Retained files live with the module cache.
+This preserves the existing trusted-local-cache boundary, not hostile-owner
+protection or a cryptographic identity claim.
+
+Seven focused tests cover quoted/escaped paths, both whitespace rules,
+resolved-path identity, original-file removal, depth/node/byte bounds,
+malformed inputs, FIFO and directory rejection, changed/symlinked retained
+children, recovery and thirty-two allocation budgets with same-process retry.
+They pass with ASan/UBSan and leak detection on Linux. The sixteen-case C
+capture comparison also passes with the probe instrumented. All fifty-three
+snapshot/link methods pass under ASan/UBSan, with three expected skips and
+leak detection disabled for that broader set. An initial run instrumented the
+assembler preload helper too and failed three assembler-capture assertions;
+rebuilding that helper normally restored the passing broader result.
+
+Darwin's rebuilt tools pass the 159-method regression set with 24 expected
+skips and no failures (285.254 seconds). After the final argument guard and
+two additional boundary tests, I rebuild again: all seventeen graph/link
+methods and the sixteen-case native capture comparison pass.
+
+Invocation-wide ownership, selected-linker admission, returned flag rewriting
+and Darwin cache eligibility are not wired to this helper yet. The six
+forwarded restored-selection failures remain open. A captured graph is not,
+by itself, permission to reuse a cached library.
+Retained cache paths containing commas also need deliberate driver transport:
+inserting such a path into `-Wl,` splits it, and this Apple driver rejects the
+joined spelling `-Xlinker=@path`. I retain that integration requirement on the
+roadmap rather than claiming the graph helper solves argument transport.
