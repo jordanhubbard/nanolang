@@ -187,4 +187,35 @@ else
     fail "--bench-json response contract"
 fi
 
+alias_artifact="$WORK/alias-output"
+alias_diagnostic="$WORK/alias-diagnostic.json"
+touch "$alias_artifact"
+ln "$alias_artifact" "$alias_diagnostic"
+if ! "$COMPILER" "$WORK/module.nano" -o "$alias_artifact" \
+        --llm-diags-json "$alias_diagnostic" >/dev/null 2>&1; then
+    pass "existing artifact and diagnostic aliases are rejected"
+else
+    fail "existing artifact and diagnostic alias contract"
+fi
+
+missing_artifact="$WORK/MissingOutput.JSON"
+missing_diagnostic="$WORK/missingoutput.json"
+if [ "$(uname -s)" = Darwin ]; then
+    if ! "$COMPILER" "$WORK/module.nano" -o "$missing_artifact" \
+            --llm-diags-json "$missing_diagnostic" >/dev/null 2>&1 \
+            && [ ! -e "$missing_artifact" ]; then
+        pass "filesystem-equivalent missing artifact and diagnostic names are rejected cleanly"
+    else
+        fail "missing artifact and diagnostic alias contract"
+    fi
+else
+    if "$COMPILER" "$WORK/module.nano" -o "$missing_artifact" \
+            --llm-diags-json "$missing_diagnostic" >/dev/null 2>&1 \
+            && [ -f "$missing_artifact" ] && [ -f "$missing_diagnostic" ]; then
+        pass "filesystem-distinct artifact and diagnostic names remain usable"
+    else
+        fail "distinct artifact and diagnostic destination contract"
+    fi
+fi
+
 test "$failures" -eq 0
