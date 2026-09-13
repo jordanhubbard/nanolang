@@ -1797,12 +1797,13 @@ originals for ordinary and shared source groups. Permanent edits, missing
 inputs, preservation of the previous library, query failure cleanup and later
 recovery are checked. Warm validation repeats capture in private storage.
 
-Unknown report families or failed capture still use the existing uncaptured
-fallback without a reuse record. That fallback does not establish cold-build
-snapshot consistency. This repair covers the tested Apple selection; other
-assembler implementations, unadmitted flags and source modes still need their
-own acceptance. I trust the configured tools and their reports; this is not
-executable authentication or a filesystem-wide snapshot.
+Unknown report families encountered after external Clang admission fail the
+build before object compilation. They do not publish an uncaptured cold result.
+Unsupported compiler or flag modes remain on the ordinary compatibility path
+because they are not admitted as external snapshots. This repair covers the
+tested Apple selection; other assembler implementations, unadmitted flags and
+source modes still need their own acceptance. I trust the configured tools and
+their reports; this is not executable authentication or a filesystem-wide snapshot.
 
 The Linux full gate passes 194 methods with twenty platform/configuration
 skips in 108.702 seconds of reported test time. Those skips include the
@@ -1813,15 +1814,16 @@ instrumented, and this Darwin run disables leak detection. I removed the
 disposable Linux container and moved the sanitizer scratch directory to Trash.
 
 An additional restored-edit control forces the admitted driver's dry-run query
-to fail. The current fallback still gives cold/warm/fresh 43/42/42 under both
-caches, without a reuse record. The consistency gate rejects it. This is why
-the external-assembler umbrella remains open even though successful selected
-backend capture now handles macro reads: a failed admitted capture must not
-silently publish an uncaptured cold result. Unsupported-mode compatibility and
-failure of an admitted capture need separate outcomes.
+to fail. Cold builds now fail without compiling an object or publishing a
+library, reuse record, generation or retained input. Warm failures preserve the
+previous library and record bytes, and a repaired query publishes the changed
+input before later reuse. Empty, multiple, truncated, oversized, failed and
+timed-out query reports exercise local and shared caches. This distinguishes
+unsupported-mode compatibility from failure after external capture admission.
 
-The rebuilt Darwin full gate passes 194 methods with fifteen skips in 516.378
-seconds of reported test time. Its 53 snapshot methods pass. The failed-query
-restored-edit control was added after that suite loaded and passes separately
-in 4.230 seconds; it deliberately verifies that the consistency gate rejects
-the remaining defect, not that the cold result is correct.
+The rebuilt Darwin full gate before the failure-policy repair passed 194 methods
+with fifteen skips in 516.378 seconds. Its 53 snapshot methods passed. After the
+repair, focused cold-failure, report-boundary and ordinary restored-source tests
+pass on the local Darwin host. The Apple 21 query matrix is skipped here because
+this host reports Apple Clang 17; its exact Apple 21 run remains host-finalizer
+work rather than evidence inferred from a different toolchain.

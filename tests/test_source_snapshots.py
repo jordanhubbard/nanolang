@@ -24,6 +24,7 @@ class SourceSnapshots(unittest.TestCase):
                                       b"Free Software Foundation" in result.stdout):
             raise unittest.SkipTest("I exercise ordinary Clang and GCC C here")
         cls.clang = b"clang version" in result.stdout
+        cls.apple_external_capture = b"Apple clang version 21.0.0 " in result.stdout
         cls.snapshot_suffix = ".s" if cls.clang else ".i"
         cls.read_replay = False
         if not cls.clang and sys.platform == "linux":
@@ -657,19 +658,37 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(self.answer(replay), 42)
 
-    def test_apple_failed_capture_keeps_cold_consistency_gate_open(self):
+    def test_apple_failed_capture_rejects_cold_build(self):
         if not self.clang or sys.platform != "darwin":
-            self.skipTest("I characterize failed Apple capture with restored inputs")
-        for case in measure(shutil.which("cc"), ("assembler-external-macro-query-failure",))["cases"]:
-            with self.subTest(case=case):
-                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
-                self.assertFalse(case["reuse_record"])
-                self.assertFalse(case["generation_reused"])
-                self.assertFalse(case["retained_assembly"])
-                with self.assertRaises(SystemExit): require_consistent({"cases": [case]})
+            self.skipTest("I reject failed Apple capture with restored inputs")
+        with tempfile.TemporaryDirectory(prefix="nano-as-cold-query-failure-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            payload = module / "payload.bin"
+            payload.write_bytes(b"42")
+            assembly = '.data\n.globl _snapshot_payload\n_snapshot_payload:\n.macro payload file\n.incbin "\\file"\n.endm\n' + f'payload "{payload}"\n.text\n'
+            (module / "answer.c").write_text('__asm__(' + json.dumps(assembly) + ');\n'
+                'extern const unsigned char snapshot_payload[];\n'
+                'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+            metadata = json.loads((module / "module.json").read_text())
+            metadata["cflags"] = ["-fno-integrated-as"]
+            (module / "module.json").write_text(json.dumps(metadata))
+            wrapper = directory / "cc"
+            wrapper.write_text(f'''#!{sys.executable}
+import os, sys
+if "-###" in sys.argv: sys.exit(1)
+os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
+''')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
+                                    capture_output=True, timeout=20)
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertFalse(list(directory.rglob("source_hashes.json")))
+            self.assertFalse(list(directory.rglob("libanswer_native.*")))
 
     def test_apple_external_query_failure_and_recovery(self):
-        if not self.clang or sys.platform != "darwin":
+        if not self.apple_external_capture or sys.platform != "darwin":
             self.skipTest("I exercise selected Apple backend query failures")
         for failure in ("empty", "multiple", "truncated", "oversize", "error", "timeout"):
             with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-as-query-failure-") as tmp:
@@ -700,13 +719,14 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 env["NANO_CC"] = str(wrapper)
                 env["NANO_QUERY_FAILURE"] = failure
                 started = time.monotonic()
-                self.support.probe_path("build", module, env, timeout=20)
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
+                                        capture_output=True, timeout=20)
+                self.assertNotEqual(failed.returncode, 0)
                 self.assertLess(time.monotonic() - started, 15)
-                generation = self.support.probe_path("directory", module, env)
-                self.assertFalse((generation / "source_hashes.json").exists())
-                self.assertFalse(list(generation.glob("__expanded_*")))
-                self.assertFalse(list(generation.glob("__snapshot_*.s")))
-                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                self.assertFalse(list(directory.rglob("source_hashes.json")))
+                self.assertFalse(list(directory.rglob("__expanded_*")))
+                self.assertFalse(list(directory.rglob("__snapshot_*.s")))
+                self.assertFalse(list(directory.rglob("libanswer_native.*")))
                 del env["NANO_QUERY_FAILURE"]
                 self.support.probe_path("build", module, env, timeout=20)
                 recovered = self.support.probe_path("directory", module, env)

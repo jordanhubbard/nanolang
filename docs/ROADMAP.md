@@ -1067,7 +1067,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Both full gates pass 194 methods; the separately added failed-query
       restored-edit control exposes the remaining umbrella defect below.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 external-assembler stale cache.** I repair the measured
+- [x] **5.0 external-assembler stale cache.** I repair the measured
       `-fno-integrated-as` cold/warm/fresh 43/43/42 mismatch on Apple Clang 21
       under local and shared caches. Both publish a reuse record despite no
       retained assembler inputs. Flag exclusion is not containment. I bind
@@ -1079,12 +1079,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and the external selector on all three object compilations. Nested
       literal reads, replacement and failed-build recovery are tested separately.
       Fixed-width octal debug data and selected-backend macro expansion now
-      pass their acceptance work. This item remains open for capture failure:
-      forcing an admitted external driver's dry-run query to fail still sends
-      compilation through uncaptured source. The restored-edit regression gives
-      43/42/42 without reuse under both caches. I must distinguish an unsupported
-      mode from a failed admitted capture and prevent the latter from publishing
-      an uncaptured cold result. Successful-capture tests cannot close this gap.
+      pass their acceptance work. Once external Clang is admitted, a failed
+      private capture now fails before object compilation instead of reverting
+      to mutable source. Cold failures leave no library, reuse record, generation
+      or staging input; warm failures preserve the last complete generation and
+      recover after the query succeeds. Unsupported modes retain their ordinary
+      compatibility path because they are never admitted as external snapshots.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 escaped assembler debug data.** I distinguish fixed-width octal
       byte escapes in data-string directives from macro and filename expansion.

@@ -436,7 +436,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v31-selected-assembler-expansion");
+    hash_context_field(&hash, "nanolang-c-build-context-v32-required-assembler-capture");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -4102,8 +4102,8 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             return frozen;
         }
 #endif
-        /* External Clang cannot claim retained assembly when the copier cannot
-         * resolve the input language. Keep the uncaptured fallback explicit. */
+        /* Selection already admitted external Clang. A failed private capture
+         * is a failed build, not permission to compile mutable source. */
         if (mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) return 0;
     }
     return fingerprint;
@@ -4579,6 +4579,11 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         if (preprocessing_before) *preprocessing_before = snapshots
             ? module_snapshot_sources(meta, flags, build_dir, mode, &mode) : module_preprocess_fingerprint(meta, flags);
         snapshots = snapshots && *preprocessing_before;
+        if (preprocessing_before && mode == MODULE_SNAPSHOT_CLANG_EXTERNAL && !snapshots) {
+            fprintf(stderr, "I could not retain external assembler inputs for %s\n", meta->name);
+            free(build_dir);
+            return NULL;
+        }
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }
