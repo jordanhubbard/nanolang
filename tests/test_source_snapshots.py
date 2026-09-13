@@ -44,6 +44,64 @@ class SourceSnapshots(unittest.TestCase):
                     self.assertTrue(case[key], key)
                 self.assertEqual(case["total_compilations"], 1)
 
+    def test_configured_flags_preserve_retained_input_and_phases(self):
+        active = "cflags_macos" if sys.platform == "darwin" else "cflags_linux"
+        inactive = "cflags_linux" if sys.platform == "darwin" else "cflags_macos"
+        for placement in ("common", "platform", "inactive"):
+            with self.subTest(placement=placement), tempfile.TemporaryDirectory(prefix="nano-retained-flags-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                include = directory / "include"
+                include.mkdir()
+                (include / "offset.h").write_text("#define OFFSET 2\n")
+                declared = directory / "declared includes"
+                declared.mkdir()
+                (declared / "check.h").write_text("#ifdef REMOVED\n#error I expected REMOVED to be undefined\n#endif\n")
+                flags = ["-O2", "-g", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                         "-DANSWER=40", "-DREMOVED=1", "-UREMOVED", "-I" + str(include)]
+                metadata = {"name": "answer_native", "c_sources": ["answer.c"],
+                            "include_dirs": [str(declared)]}
+                metadata[active if placement == "platform" else "cflags"] = flags
+                if placement == "inactive": metadata[inactive] = ["-not-a-supported-option"]
+                (module / "module.json").write_text(json.dumps(metadata))
+                source = module / "answer.c"
+                source.write_text('#include <offset.h>\n#include <check.h>\n'
+                                  'long long nano_build_answer(void) { return ANSWER + OFFSET; }\n')
+                wrapper, calls = directory / "cc", directory / "calls"
+                wrapper.write_text(f'''#!{sys.executable}
+import json, os, pathlib, subprocess, sys
+if "-c" in sys.argv or "-E" in sys.argv:
+    with open({str(calls)!r}, "a") as log: log.write(json.dumps(sys.argv[1:]) + "\\n")
+if "-c" in sys.argv:
+    source = pathlib.Path({str(source)!r})
+    data, stamp = source.read_bytes(), source.stat()
+    try:
+        source.write_bytes(data.replace(b"ANSWER + OFFSET", b"ANSWER + OFFSET + 1"))
+        result = subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:])
+    finally:
+        source.write_bytes(data)
+        os.utime(source, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+    sys.exit(result.returncode)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+                wrapper.chmod(0o700)
+                env["NANO_CC"] = str(wrapper)
+                self.support.probe_path("build", module, env)
+                generation = self.support.probe_path("directory", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                self.assertTrue((generation / "source_hashes.json").is_file())
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.support.probe_path("directory", module, env), generation)
+                commands = [json.loads(line) for line in calls.read_text().splitlines()]
+                compiled = [argv for argv in commands if "-c" in argv]
+                self.assertEqual(len(compiled), 1)
+                self.assertTrue(any(arg.endswith(".i") for arg in compiled[0]))
+                for argv in commands:
+                    for flag in flags[:6]: self.assertIn(flag, argv)
+                    for flag in flags[6:]:
+                        if "-E" in argv: self.assertIn(flag, argv)
+                        else: self.assertNotIn(flag, argv)
+
     def test_multiple_and_shared_only_sources(self):
         with tempfile.TemporaryDirectory(prefix="nano-retained-multiple-") as tmp:
             directory = Path(tmp)
@@ -81,6 +139,70 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(self.support.probe_path("directory", module, env), generation)
             self.assertEqual(len(calls.read_text().splitlines()), 3)
             self.assertTrue((generation / "source_hashes.json").is_file())
+
+    def test_supported_scalar_flag_spellings(self):
+        flags = ["-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
+                 "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic",
+                 "-std=c89", "-std=c90", "-std=c99", "-std=c11", "-std=c17", "-std=c18",
+                 "-std=gnu89", "-std=gnu90", "-std=gnu99", "-std=gnu11", "-std=gnu17", "-std=gnu18",
+                 "-Wall", "-Wextra", "-Werror", "-Wpedantic",
+                 "-Wno-unused-parameter", "-Wno-unused-variable", "-Wno-unused-function"]
+        with tempfile.TemporaryDirectory(prefix="nano-retained-scalar-flags-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            for flag in flags:
+                with self.subTest(flag=flag):
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                        "c_sources": ["answer.c"], "cflags": [flag]}))
+                    self.support.probe_path("build", module, env)
+                    generation = self.support.probe_path("directory", module, env)
+                    self.assertTrue((generation / "__snapshot_0_0.i").is_file())
+                    self.assertTrue((generation / "source_hashes.json").is_file())
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+
+    def test_unknown_fragments_keep_original_compilation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-retained-unknown-flags-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            response = directory / "flags.rsp"
+            response.write_text("-O2\n")
+            for flags in (["-fno-builtin"], ["-O2 -g"], ["'-O2'"], ["-DNAME='a b'"],
+                          ["-D", "NAME=42"], ["@" + str(response)]):
+                with self.subTest(flags=flags):
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                        "c_sources": ["answer.c"], "cflags": flags}))
+                    self.support.probe_path("build", module, env)
+                    generation = self.support.probe_path("directory", module, env)
+                    self.assertEqual(list(generation.glob("__snapshot_*.i")), [])
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+
+    def test_configured_warning_errors_preserve_generation(self):
+        cases = [
+            (["-Wall", "-Wextra", "-Werror"], "int nano_build_answer(void) { int unused; return 42; }\n"),
+            (["-Werror", "-DANSWER=41"], "#define ANSWER 42\nint nano_build_answer(void) { return ANSWER; }\n"),
+            (["-std=c89", "-Wpedantic", "-Werror"], "// I require a newer comment form.\nint nano_build_answer(void) { return 42; }\n"),
+        ]
+        for flags, body in cases:
+            with self.subTest(flags=flags), tempfile.TemporaryDirectory(prefix="nano-retained-warning-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                self.support.probe_path("build", module, env)
+                generation = self.support.probe_path("directory", module, env)
+                original = self.support.snapshot(generation)
+                source = module / "answer.c"
+                source.write_text(body)
+                (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                    "c_sources": ["answer.c"], "cflags": flags}))
+                direct = subprocess.run([shutil.which("cc"), *flags, "-c", str(source),
+                    "-o", str(directory / "direct.o")], capture_output=True, timeout=10)
+                self.assertNotEqual(direct.returncode, 0, direct.stderr)
+                result = subprocess.run([str(self.support.probe), "build", str(module)],
+                    env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(result.returncode, 0, result.stderr)
+                self.assertIn(str(source).encode(), result.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), generation)
+                self.assertEqual(self.support.snapshot(generation), original)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
 
     def test_compile_diagnostics_preserve_previous_generation(self):
         with tempfile.TemporaryDirectory(prefix="nano-retained-failure-") as tmp:

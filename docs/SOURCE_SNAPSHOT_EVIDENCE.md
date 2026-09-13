@@ -132,3 +132,57 @@ absent and that this target built it before passing. Darwin's corresponding
 gates pass too, with four ordinary snapshot methods and two GCC-specific
 skips. These results do not establish complete source snapshots or release
 readiness.
+
+## Configured scalar flags
+
+Against `648eb106`, a restored source edit still produced 43 instead of 42
+when ordinary flags selected the original compilation path. I reproduced it
+with common flags, active-platform flags, and common flags alongside an
+inactive-platform option. I now recognize these individual token spellings:
+
+| Kind | Spellings | Capture | Retained compilation |
+| --- | --- | --- | --- |
+| Optimization | `-O0`, `-O1`, `-O2`, `-O3`, `-Os`, `-Oz`, `-Og` | Keep | Keep |
+| Debug | `-g`, `-g0`, `-g1`, `-g2`, `-g3` | Keep | Keep |
+| PIC | `-fPIC`, `-fpic` | Keep | Keep |
+| C dialect | `-std=` with `c89`, `c90`, `c99`, `c11`, `c17`, `c18`, or their `gnu` counterparts | Keep | Keep |
+| Warnings | `-Wall`, `-Wextra`, `-Werror`, `-Wpedantic`, `-Wno-unused-parameter`, `-Wno-unused-variable`, `-Wno-unused-function` | Keep | Keep |
+| Macro/include tokens | Simple `-DNAME`, `-DNAME=value`, `-UNAME`, `-Idirectory` | Keep | Omit |
+| Declared include directories | Manifest `include_dirs` | Keep, with existing path quoting | Omit |
+
+Macro/include flag tokens use only ASCII letters, digits, `_`, `.`, `/`, `=`,
+`+` and `-`; macro names must be C identifiers. Bare `-D`, `-U` and `-I`,
+the special `-I-`, quoted tokens, whitespace fragments and response files are
+not recognized for this mode. They still reach the original compiler path
+unchanged. I am not interpreting arbitrary shell syntax or changing the
+shared-link recipe. Pkg-config entries still select the original path.
+
+I preserve flag order and consider only common plus active-platform flags.
+Inactive-platform flags cannot disable a supported mode or leak into its
+command. I omit preprocessor-only options when compiling the retained `.i`
+file, including my own platform macro for shared-only inputs. This avoids
+unused-command-line diagnostics under `-Werror` without disabling warnings.
+My v17 context invalidates older records.
+
+The regression checks cold result 42, unchanged warm reuse, exactly one C
+compilation, actual phase argument vectors, and a declared include directory
+containing spaces. Every one of the 33 scalar spellings above executes a real
+build. Six unrecognized forms verify original compilation rather than a silent
+conversion to retained input. These tests establish the exercised compilation
+and result behavior, not complete debugger metadata equivalence or support
+for all configured compiler modes.
+
+All ten snapshot methods pass on GCC 12; Darwin Clang 21 passes eight and skips
+the two GCC-specific PCH methods. Negative cases compare against direct compiler
+rejection for unused variables, macro redefinition and C89 comments under
+`-Werror`, then verify that the old generation remains byte-for-byte intact.
+GCC ASan/UBSan passes the nine-method suite plus the added warning-error method,
+with production-builder and support-source instrumentation as described above.
+I separately reran the strengthened reuse-record assertion for all 33 spellings
+normally on both compilers.
+
+The full Darwin/Linux compiler and VM gates pass: 28 shadows, cache acceptance
+(53 on Darwin; 45 plus eight skips on Linux), Linux's four linker methods,
+wrappers, 63 codegen tests, 19 FFI tests and dependency gates. The gate runs
+preceded the added negative method and stricter record assertion; both additions
+were verified afterward. No production code changed between those checks.

@@ -397,6 +397,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       contents and configured modes remain open; the full snapshot item is
       not complete.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 configured C snapshots — common scalar flags.** I extend retained
+      translation units to an explicit set of optimization, language-standard,
+      debug and warning flags plus simple macro/include tokens. I keep
+      preprocessing-only flags out of retained compilation, test restored
+      edits and warm reuse under `-Werror`, and preserve unknown flag fragments
+      on the original path. I test active platform selection rather than
+      letting inactive flags choose the compiler mode. Pkg-config fragments,
+      shell quoting and other configured modes remain separate work.
+      Three restored-edit placements fail before the repair and pass afterward.
+      All 33 scalar spellings create retained input and reuse records on Clang
+      21 and GCC 12; six unknown forms keep original compilation. Ten snapshot
+      methods pass on GCC, with two GCC-specific skips on Darwin. GCC ASan/UBSan
+      covers the nine-method suite and added warning-error method; the stronger
+      reuse-record assertion is rerun normally on both platforms. Full Darwin
+      and Linux shadow/cache/wrapper/codegen/FFI/dependency gates pass
+      (2026-09-12). This does not complete configured-mode or snapshot acceptance.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
       and timestamps before final validation. I compare actual cold, warm and

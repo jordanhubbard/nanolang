@@ -454,7 +454,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v16-gcc-retained-c");
+    hash_context_field(&hash, "nanolang-c-build-context-v17-configured-retained-c");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2224,14 +2224,60 @@ static bool module_build_append(char *buffer, size_t capacity, const char *forma
     return n >= 0 && (size_t)n < capacity - used;
 }
 
-static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
-                                  bool preprocessing, const ModulePkgFlags *snapshot) {
-    prefix[0] = 0;
-    bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
-                                   module_selected_compiler(meta), preprocessing ? "-E" : "-c");
-#if !defined(__APPLE__)
-    ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
+typedef enum { MODULE_FLAG_UNKNOWN, MODULE_FLAG_PREPROCESS, MODULE_FLAG_BOTH } ModuleFlagPhase;
+
+/* I recognize individual shell-literal tokens, not arbitrary flag fragments.
+ * Unknown or quoted forms keep their original compilation path. */
+static ModuleFlagPhase module_snapshot_flag(const char *flag) {
+    if (!flag) return MODULE_FLAG_UNKNOWN;
+    const char *both[] = {
+        "-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
+        "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic",
+        "-std=c89", "-std=c90", "-std=c99", "-std=c11", "-std=c17", "-std=c18",
+        "-std=gnu89", "-std=gnu90", "-std=gnu99", "-std=gnu11", "-std=gnu17", "-std=gnu18",
+        "-Wall", "-Wextra", "-Werror", "-Wpedantic",
+        "-Wno-unused-parameter", "-Wno-unused-variable", "-Wno-unused-function"
+    };
+    for (size_t i = 0; i < sizeof(both) / sizeof(both[0]); i++)
+        if (!strcmp(flag, both[i])) return MODULE_FLAG_BOTH;
+    size_t length = strlen(flag);
+    if (length < 3 || flag[0] != '-' ||
+        strspn(flag, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./=+-") != length)
+        return MODULE_FLAG_UNKNOWN;
+    if (flag[1] == 'I' && strcmp(flag, "-I-")) return MODULE_FLAG_PREPROCESS;
+    if (flag[1] != 'D' && flag[1] != 'U') return MODULE_FLAG_UNKNOWN;
+    const char *name = flag + 2;
+    if (!strchr("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_", *name)) return MODULE_FLAG_UNKNOWN;
+    name += strspn(name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+    if (!*name || (flag[1] == 'D' && *name == '=')) return MODULE_FLAG_PREPROCESS;
+    return MODULE_FLAG_UNKNOWN;
+}
+
+static char **module_platform_cflags(const ModuleBuildMetadata *meta, size_t *count) {
+#ifdef __APPLE__
+    *count = meta->cflags_macos_count;
+    return meta->cflags_macos;
+#elif defined(__FreeBSD__)
+    *count = meta->cflags_freebsd_count;
+    return meta->cflags_freebsd;
+#else
+    *count = meta->cflags_linux_count;
+    return meta->cflags_linux;
 #endif
+}
+
+typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED } ModuleCPhase;
+
+static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
+                                  ModuleCPhase phase, const ModulePkgFlags *snapshot) {
+    prefix[0] = 0;
+    bool retained = phase == MODULE_C_RETAINED;
+    bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
+                                   module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" : "-c");
+#if !defined(__APPLE__)
+    if (!retained) ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
+#endif
+    if (retained && meta->pkg_config_count) return false;
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
@@ -2241,20 +2287,17 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
             ok &= module_build_append(prefix, capacity, " %s", flags);
         } else ok = false;
     }
-    for (size_t i = 0; i < meta->include_dirs_count; i++)
+    if (!retained) for (size_t i = 0; i < meta->include_dirs_count; i++)
         ok &= module_append_include(prefix, capacity, meta->include_dirs[i]);
-    for (size_t i = 0; i < meta->cflags_count; i++)
-        ok &= module_build_append(prefix, capacity, " %s", meta->cflags[i]);
-#ifdef __APPLE__
-    for (size_t i = 0; i < meta->cflags_macos_count; i++)
-        ok &= module_build_append(prefix, capacity, " %s", meta->cflags_macos[i]);
-#elif defined(__FreeBSD__)
-    for (size_t i = 0; i < meta->cflags_freebsd_count; i++)
-        ok &= module_build_append(prefix, capacity, " %s", meta->cflags_freebsd[i]);
-#else
-    for (size_t i = 0; i < meta->cflags_linux_count; i++)
-        ok &= module_build_append(prefix, capacity, " %s", meta->cflags_linux[i]);
-#endif
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count;
+        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        for (size_t i = 0; i < count; i++) {
+            ModuleFlagPhase kind = retained ? module_snapshot_flag(flags[i]) : MODULE_FLAG_BOTH;
+            if (kind == MODULE_FLAG_UNKNOWN) return false;
+            if (kind == MODULE_FLAG_BOTH) ok &= module_build_append(prefix, capacity, " %s", flags[i]);
+        }
+    }
     return ok;
 }
 
@@ -2265,8 +2308,13 @@ typedef enum {
 } ModuleSnapshotMode;
 
 static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta) {
-    if (meta->pkg_config_count || meta->cflags_count || meta->cflags_macos_count ||
-        meta->cflags_linux_count || meta->cflags_freebsd_count) return false;
+    if (meta->pkg_config_count) return MODULE_SNAPSHOT_NONE;
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count;
+        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        for (size_t i = 0; i < count; i++)
+            if (module_snapshot_flag(flags[i]) == MODULE_FLAG_UNKNOWN) return MODULE_SNAPSHOT_NONE;
+    }
     for (size_t group = 0; group < 2; group++) {
         char **sources = group ? meta->shared_c_sources : meta->c_sources;
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
@@ -2319,7 +2367,7 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
     ModuleSnapshotMode mode = module_snapshot_mode(meta);
     if (mode != MODULE_SNAPSHOT_NONE) return module_snapshot_sources(meta, flags, NULL, mode);
     char prefix[4096];
-    if (!module_compile_prefix(meta, prefix, sizeof(prefix), true, flags)) return 0;
+    if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_PREPROCESS, flags)) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
     for (size_t i = 0; i < flags->count; i++) {
         hash_context_field(&fingerprint, meta->pkg_config[i]);
@@ -2423,7 +2471,7 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
                                        const ModulePkgFlags *flags, const char *directory,
                                        ModuleSnapshotMode mode) {
     char prefix[4096];
-    if (!module_compile_prefix(meta, prefix, sizeof(prefix), true, flags)) return 0;
+    if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_PREPROCESS, flags)) return 0;
     if (mode == MODULE_SNAPSHOT_GCC &&
         !module_build_append(prefix, sizeof(prefix), " -fpch-preprocess")) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
@@ -2502,7 +2550,7 @@ static bool module_snapshot_command(char *command, size_t capacity, const char *
     command[0] = 0;
     return module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.i", directory, group, index) &&
         module_build_append(command, capacity, "%s%s -x cpp-output", prefix,
-                            group ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "") &&
+                            group ? " -fvisibility=hidden" : "") &&
         module_append_path_flag(command, capacity, "", snapshot) &&
         module_append_path_flag(command, capacity, "-o ", object);
 }
@@ -2827,7 +2875,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         // Build a reusable compile prefix (flags only)
         bool command_ok;
         char compile_prefix[4096] = {0};
-        command_ok = module_compile_prefix(meta, compile_prefix, sizeof(compile_prefix), false, flags);
+        command_ok = module_compile_prefix(meta, compile_prefix, sizeof(compile_prefix),
+            snapshots ? MODULE_C_RETAINED : MODULE_C_COMPILE, flags);
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
