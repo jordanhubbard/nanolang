@@ -129,6 +129,28 @@ shadow main {{ assert (== (helper.{function}) 42) }}
                     self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
                     self.assertFalse(output.exists())
 
+    def test_foreign_function_does_not_exempt_explicit_shadow(self):
+        for body in ("if false { return (erf 0.0) } return 0.0",
+                     "unsafe { if false { return (erf 0.0) } } return 0.0",
+                     "return 0.0"):
+            for passed in (False, True):
+                with self.subTest(body=body, passed=passed), tempfile.TemporaryDirectory(prefix="nano-foreign-shadow-") as tmp:
+                    shadow_prefix = "if false { let unused: float = (erf 0.0) }" if body == "return 0.0" else ""
+                    source = f'''extern fn erf(x: float) -> float
+fn root() -> float {{ {body} }}
+shadow root {{ {shadow_prefix} assert (== (root) {0.0 if passed else 3.0}) }}
+fn main() -> int {{ return 0 }}
+shadow main {{ assert (== (main) 0) }}
+'''
+                    compiled, output = self.compile_source("c-seed", source, Path(tmp))
+                    if passed:
+                        self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                        self.assertEqual(self.execute("c-seed", output).returncode, 0)
+                    else:
+                        self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                        self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
+                        self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

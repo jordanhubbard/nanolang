@@ -759,7 +759,7 @@ These checks do not make artifacts independent of their recorded import paths,
 provide a build sandbox, or establish atomic/concurrent C-library cache updates.
 Production bytecode retains the original entry and omits the test harness.
 Shadow-only root files are accepted by this CLI. Imported shadows are not
-automatically included; import policy and C-seed FFI exemptions remain gaps.
+automatically included; import policy and interpreted foreign-call error propagation remain gaps.
 My AOT translator consumes the emitted bytecode; it cannot recover omitted
 shadows or certify that a producer ran them.
 

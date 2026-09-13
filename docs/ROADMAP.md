@@ -181,6 +181,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pass. I use distinct wrapper names to isolate selection from the open
       namespace defect below; this is not Linux or FFI acceptance evidence.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [x] **5.0 C-seed shadows — remove foreign-call skipping.** I execute
+      explicit root shadows regardless of foreign calls in the tested function
+      or shadow body. I test passing and failing assertions with unreachable
+      foreign calls and retain the broader FFI error and isolation gates.
+      Six C-seed compiler cases cover calls in function bodies, unsafe blocks
+      and shadow bodies. Seven language-claim tests and all 95 evaluator tests
+      pass on Darwin with the rebuilt C seed. Bootstrap Stage 1/2 smoke and
+      no-C-seed checks pass; native binaries still differ. This does not
+      establish foreign error propagation, isolation or Linux acceptance.
+      The post-bootstrap rerun passes all 16 language-claim/native-shadow tests;
+      all nine interpreter FFI tests also pass.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [ ] **5.0 interpreted shadows — foreign failures are test failures.** I
+      propagate failed symbol resolution and marshaling into shadow results
+      instead of returning an ordinary void value that a test can ignore.
+      A non-builtin `erf(0.0)` fixture did not yield its expected zero on my
+      Darwin C seed; I must verify resolved and unavailable pure foreign calls,
+      including ignored results, before claiming foreign shadow acceptance.
+      MAC `task_48a773d48f4843ea92039b6b4dd381e3`.
 - [ ] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
       make failing shadow assertions observable on every supported compiler
       path. My C-seed driver runs shadows during compilation; I measure the
@@ -189,7 +208,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       not satisfy it.
       The failing-shadow characterization is now rejected by the C seed,
       bytecode CLI and Stage 2 native driver. Imported-shadow policy and
-      C-seed foreign-call exemptions remain open; source-only emission
+      interpreted foreign-call failure handling remain open; source-only emission
       typechecks root shadows but deliberately does not execute them.
       MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**

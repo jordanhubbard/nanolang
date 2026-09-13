@@ -285,7 +285,8 @@ variants. A shadow shows behavior for the cases it executes. It does not prove
 the function for all inputs.
 
 Execution is currently backend-dependent. My C seed executes selected shadows
-during compilation. My `nano_virt` CLI runs root-file shadows in a separate
+during compilation; foreign-call syntax no longer exempts an explicit shadow.
+My `nano_virt` CLI runs root-file shadows in a separate
 verified NanoVM test module before publishing output, with a 10-second parent
 deadline. Production bytecode omits that test harness. This child process is
 not a security sandbox: tests can have side effects. My self-hosted native
@@ -293,7 +294,8 @@ driver also runs root shadows in a separate test executable with a ten-second
 parent deadline before publishing native output. Test stdout is redirected to
 stderr. Source-only `--target c` checks types but does not execute shadows or
 invoke a native compiler. Imported shadows are not automatically selected by
-these drivers; imported-shadow policy and C-seed FFI exemptions remain open.
+these drivers; imported-shadow policy and interpreted foreign-call error
+propagation remain open.
 My `test_imported_shadow_selection` characterizes direct and transitive pure
 imports on Darwin: all three drivers skip a failing dependency shadow, but
 reject it when its source is compiled as the root. Passing a consumer's
