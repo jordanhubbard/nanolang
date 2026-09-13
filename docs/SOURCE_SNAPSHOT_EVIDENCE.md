@@ -47,3 +47,43 @@ indirect flags and compiler-specific inputs need explicit treatment. I must
 test their behavior rather than silently changing or declaring support for
 them. Link input snapshots and runtime dynamic-library retention remain
 separate requirements. This experiment changes no production cache behavior.
+
+## Retained ordinary Clang C
+
+I now capture preprocessed `.c` translation units into private `.i` files and
+compile those exact retained files for ordinary Clang builds. Eligibility
+requires a successful Clang version query, no custom compiler flags on any
+platform, and no pkg-config entries. Declared include directories still work.
+Other modes retain their original compilation and cache checks; the full
+snapshot requirement remains open.
+
+I compute the preprocessing fingerprint while writing the retained bytes,
+then require a fresh matching fingerprint before recording reuse. This closes
+the experiment's observation gap: a restored edit during actual C compilation
+cannot change the retained input. If an edit occurs during capture instead,
+I compile the captured bytes but withhold reuse when the later observation
+differs. Failed or empty capture falls back to the original compile without
+reuse evidence. Failed compilation preserves the previous generation.
+
+`python3 -m unittest tests.test_source_snapshots` checks the four restored-edit
+cases, multiple and shared-only sources, edits during capture, original-source
+diagnostics, failed replacement preservation, recovery, and unchanged reuse.
+On ordinary Clang, the original consistency experiment now returns 42 for
+cold, warm and fresh builds and retains its generation with one C compilation.
+These tests explicitly skip other compilers; they are not GCC acceptance.
+
+The retained files are part of the immutable generation. My v15 build context
+invalidates older records. Compiler/version wrappers remain trusted; this is
+not compiler authentication, filesystem isolation, or an atomic snapshot of
+all inputs. Implicit PCH selection on GCC, custom compiler modes, assembler
+inputs and transitive tool identity need separate acceptance before widening
+this boundary.
+
+All four methods pass on Apple clang 21 normally and with ASan/UBSan at `-O1`
+and recovery disabled. The sanitizer build instruments the production builder
+through its probe and the linked cJSON, UTF-8, module-build-directory and FFI
+loader support sources. Fixture compilers/libraries and system libraries are
+not instrumented. A separate isolated, network-disabled Linux GCC 12 `-O3
+-Werror` probe passes all four Linux linker tests and explicitly skips the
+Clang-only snapshot suite. That verifies the tested Linux fallback behavior,
+not a Linux snapshot repair.

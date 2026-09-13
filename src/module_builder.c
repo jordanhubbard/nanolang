@@ -454,7 +454,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v14-link-validation");
+    hash_context_field(&hash, "nanolang-c-build-context-v15-retained-c");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2258,10 +2258,42 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
     return ok;
 }
 
-/* This is a supplemental veto, not a claim that -E reproduces every compiler
- * mode. I still compile the original source and require its dependency hashes.
- * Capturing the include trace also detects search changes when -P hides line
- * markers. No probe output is compiled or written into a published generation. */
+static bool module_snapshot_supported(const ModuleBuildMetadata *meta) {
+    if (meta->pkg_config_count || meta->cflags_count || meta->cflags_macos_count ||
+        meta->cflags_linux_count || meta->cflags_freebsd_count) return false;
+    for (size_t group = 0; group < 2; group++) {
+        char **sources = group ? meta->shared_c_sources : meta->c_sources;
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            size_t length = strlen(sources[i]);
+            if (length < 2 || strcmp(sources[i] + length - 2, ".c")) return false;
+        }
+    }
+    if (!meta->c_sources_count) return false;
+    /* I have verified this split for Clang's ordinary C mode. In particular,
+     * I do not silently change GCC's implicit precompiled-header selection. */
+    char *driver = module_compiler_path(module_selected_compiler(meta));
+    if (!driver) return false;
+    char command[8192] = {0};
+    bool ok = module_append_path_flag(command, sizeof(command), "", driver) &&
+              module_build_append(command, sizeof(command), " --version 2>/dev/null");
+    free(driver);
+    if (!ok) return false;
+    FILE *pipe = popen(command, "r");
+    if (!pipe) return false;
+    char line[2048], discard[2048];
+    bool clang = fgets(line, sizeof(line), pipe) && strstr(line, "clang version");
+    while (fread(discard, 1, sizeof(discard), pipe) > 0) {}
+    ok = !ferror(pipe) && feof(pipe);
+    return pclose(pipe) == 0 && ok && clang;
+}
+
+static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
+                                       const ModulePkgFlags *flags, const char *directory);
+
+/* Other modes keep their supplemental veto and original compilation command.
+ * Their include traces detect search changes even when -P hides line markers;
+ * they do not acquire the retained-input guarantee from ordinary Clang C. */
 static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
                                              const ModulePkgFlags *flags) {
     if (!meta || !meta->c_sources_count) return 0;
@@ -2272,6 +2304,7 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
         module_pkg_flags_free(&captured);
         return result;
     }
+    if (module_snapshot_supported(meta)) return module_snapshot_sources(meta, flags, NULL);
     char prefix[4096];
     if (!module_compile_prefix(meta, prefix, sizeof(prefix), true, flags)) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
@@ -2369,6 +2402,79 @@ static int module_run_source_command(const char *command, const char *dependency
     free(line);
     if (fclose(fp) != 0 && !result) result = -1;
     return result;
+}
+
+/* I hash precisely the preprocessed bytes I retain and compile. A later probe
+ * must reproduce those bytes; it cannot substitute hashes of restored source. */
+static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
+                                       const ModulePkgFlags *flags, const char *directory) {
+    char prefix[4096];
+    if (!module_compile_prefix(meta, prefix, sizeof(prefix), true, flags)) return 0;
+    uint64_t fingerprint = 14695981039346656037ULL;
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        char **sources = group ? meta->shared_c_sources : meta->c_sources;
+        hash_context_field(&fingerprint, group ? "shared" : "ordinary");
+        for (size_t i = 0; i < count; i++) {
+            char command[8192] = {0}, snapshot[2048] = {0}, dependency[2048] = {0};
+            bool ok = true;
+            if (directory) {
+                ok = module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.i", directory, group, i);
+                if (group) ok &= module_build_append(dependency, sizeof(dependency), "%s/__shared_%zu.d", directory, i);
+                else if (count == 1) ok &= module_build_append(dependency, sizeof(dependency), "%s/%s.d", directory, meta->name);
+                else ok &= module_build_append(dependency, sizeof(dependency), "%s/%s_%zu.d", directory, meta->name, i);
+                ok &= module_source_command(command, sizeof(command), prefix, meta->module_dir,
+                                            sources[i], "-", dependency, group != 0);
+            } else {
+                char source[2048] = {0};
+                ok = sources[i][0] == '/'
+                    ? module_build_append(source, sizeof(source), "%s", sources[i])
+                    : module_build_append(source, sizeof(source), "%s/%s", meta->module_dir, sources[i]);
+                ok &= module_build_append(command, sizeof(command), "%s%s -o -", prefix,
+                    group ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "");
+                ok &= module_append_path_flag(command, sizeof(command), "", source);
+                ok &= module_build_append(command, sizeof(command), " 2>/dev/null");
+            }
+            if (!ok) return 0;
+            FILE *output = directory ? fopen(snapshot, "wb") : NULL;
+            if (directory && !output) return 0;
+            FILE *pipe = popen(command, "r");
+            if (!pipe) {
+                if (output) fclose(output);
+                return 0;
+            }
+            unsigned char buffer[4096];
+            size_t amount;
+            uint64_t hash = 14695981039346656037ULL;
+            bool nonempty = false;
+            while ((amount = fread(buffer, 1, sizeof(buffer), pipe)) > 0) {
+                nonempty = true;
+                if (output && fwrite(buffer, 1, amount, output) != amount) ok = false;
+                for (size_t j = 0; j < amount; j++) { hash ^= buffer[j]; hash *= 1099511628211ULL; }
+            }
+            ok &= !ferror(pipe) && feof(pipe);
+            int status = pclose(pipe);
+            if (output && fclose(output) != 0) ok = false;
+            if (!ok || status != 0 || !nonempty) return 0;
+            char digest[24];
+            snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
+            hash_context_field(&fingerprint, sources[i]);
+            hash_context_field(&fingerprint, digest);
+        }
+    }
+    return fingerprint;
+}
+
+static bool module_snapshot_command(char *command, size_t capacity, const char *prefix,
+                                    const char *directory, size_t group, size_t index,
+                                    const char *object) {
+    char snapshot[2048] = {0};
+    command[0] = 0;
+    return module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.i", directory, group, index) &&
+        module_build_append(command, capacity, "%s%s -x cpp-output", prefix,
+                            group ? " -fvisibility=hidden -D_POSIX_C_SOURCE=200809L" : "") &&
+        module_append_path_flag(command, capacity, "", snapshot) &&
+        module_append_path_flag(command, capacity, "-o ", object);
 }
 
 /* I use one link recipe for publication and Linux warm validation. */
@@ -2676,7 +2782,10 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #endif
 
     if (needs_rebuild) {
-        if (preprocessing_before) *preprocessing_before = module_preprocess_fingerprint(meta, flags);
+        bool snapshots = preprocessing_before && module_snapshot_supported(meta);
+        if (preprocessing_before) *preprocessing_before = snapshots
+            ? module_snapshot_sources(meta, flags, build_dir) : module_preprocess_fingerprint(meta, flags);
+        snapshots = snapshots && *preprocessing_before;
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }
@@ -2697,6 +2806,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             char compile_cmd[8192];
             command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[0], object_file, dep_path, false);
+            if (snapshots) command_ok &= module_snapshot_command(compile_cmd, sizeof(compile_cmd),
+                compile_prefix, build_dir, 0, 0, object_file);
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] %s\n", compile_cmd);
@@ -2728,6 +2839,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 char compile_cmd[8192];
                 command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[i], obj_path, dep_path, false);
+                if (snapshots) command_ok &= module_snapshot_command(compile_cmd, sizeof(compile_cmd),
+                    compile_prefix, build_dir, 0, i, obj_path);
 
                 if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                     printf("[Module] %s\n", compile_cmd);
@@ -2807,6 +2920,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                     char sc_cmd[8192];
                     command_ok &= module_source_command(sc_cmd, sizeof(sc_cmd), compile_prefix,
                                       meta->module_dir, meta->shared_c_sources[sci], sc_obj, sc_dep, true);
+                    if (snapshots) command_ok &= module_snapshot_command(sc_cmd, sizeof(sc_cmd),
+                        compile_prefix, build_dir, 1, sci, sc_obj);
 
                     if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                         printf("[Module] (shared-only) %s\n", sc_cmd);

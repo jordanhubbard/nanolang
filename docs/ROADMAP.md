@@ -352,6 +352,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       package-installation policy and C-seed dependency/recovery gates pass
       (2026-09-12). Cache transaction and toolchain identity work stays open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 ordinary Clang C retained translation units.** For `.c` sources without
+      custom or pkg-config compiler flags, I capture preprocessing into private
+      files, compile those files, and bind reuse evidence to their bytes.
+      I cover ordinary, multiple and shared-only sources, restored edits,
+      diagnostics and capture/compile failure recovery. Other compiler modes
+      retain their existing behavior pending a separate supported-mode audit.
+      Compiler identification requires a successful version query identifying
+      Clang; GCC's implicit PCH selection must not silently change. The broad
+      snapshot item remains open for other compilers and configured modes.
+      All four new methods pass normally and with ASan/UBSan on the production
+      builder and linked support sources. Darwin passes 28 shadows, 53 cache
+      tests, four snapshot methods, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and dependency gates.
+      GCC 12 `-O3 -Werror` passes the four Linux linker methods and explicitly
+      skips the Clang snapshot suite (2026-09-12). I retain existing behavior
+      for other compiler modes; this is not full snapshot or release acceptance.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
       and timestamps before final validation. I compare actual cold, warm and
@@ -359,10 +376,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       authorize a generation compiled from different input bytes. I record
       reproduced failures before implementing a supported snapshot boundary.
       `python3 -m tests.characterize_source_snapshot --require-consistent`
-      fails on Apple clang 21: all four cases publish/reuse 43 despite restored
+      failed against `34fab3e9` on Apple clang 21: all four cases publish/reuse 43 despite restored
       input bytes and timestamps; fresh compilation returns 42. Warm builds
-      perform no additional C compilation. This is reproduced incorrect reuse,
-      not a completed snapshot repair (2026-09-12).
+      perform no additional C compilation. The ordinary-Clang repair above
+      now passes those cases; configured modes and other compilers still need
+      snapshot acceptance (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 C-library cache transactions.** Content invalidation and private
       writes are addressed in adjacent items. Per-module generation publication
