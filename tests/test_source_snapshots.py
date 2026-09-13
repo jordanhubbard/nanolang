@@ -157,7 +157,11 @@ class SourceSnapshots(unittest.TestCase):
         for unit in ("s", "S"):
             self.assembler_filename_spelling_and_cache_recovery(unit=unit)
 
-    def assembler_filename_spelling_and_cache_recovery(self, alternate=False, unit=None):
+    def test_equals_path_cache_recovery(self):
+        for unit in ("s", "S"):
+            self.assembler_filename_spelling_and_cache_recovery(unit=unit, equals_paths=True)
+
+    def assembler_filename_spelling_and_cache_recovery(self, alternate=False, unit=None, equals_paths=False):
         modes = (False, True) if self.clang else (False,)
         names = ("space name.bin", "single'quote.bin", 'double"quote.bin', r"back\slash.bin", "naïve-λ.bin")
         if alternate:
@@ -168,7 +172,7 @@ class SourceSnapshots(unittest.TestCase):
             names = ("unit payload.bin",)
         for external, shared, name in ((external, shared, name) for external in modes
                                       for shared in (False, True) for name in names):
-            with self.subTest(external=external, shared=shared, name=name), tempfile.TemporaryDirectory(prefix="nano-assembler-path-") as tmp:
+            with self.subTest(external=external, shared=shared, name=name), tempfile.TemporaryDirectory(prefix="nano=assembler-path-" if equals_paths else "nano-assembler-path-") as tmp:
                 directory = Path(tmp)
                 module, _, env = self.support.support.foreign_build_fixture(directory)
                 if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
@@ -194,6 +198,7 @@ class SourceSnapshots(unittest.TestCase):
                     + ('' if unit else '__asm__(' + json.dumps(assembly) + ');\n') +
                     'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
                 flags = ["-fno-integrated-as"] if external else []
+                if equals_paths: flags.append("-g")
                 if alternate: flags.append("-Wa,--alternate")
                 (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"] + extra_sources, "cflags": flags}))
                 direct = directory / ("direct.dylib" if sys.platform == "darwin" else "direct.so")
@@ -318,12 +323,17 @@ class SourceSnapshots(unittest.TestCase):
         if not shutil.which("clang"): self.skipTest("I require integrated Clang")
         self.native_unit_post_capture_reads(integrated=True)
 
-    def native_unit_post_capture_reads(self, integrated=False):
+    def test_equals_path_post_capture_reads(self):
+        if not shutil.which("clang"): self.skipTest("I require selected Clang native capture")
+        for integrated in ((False, True) if self.clang else (True,)):
+            self.native_unit_post_capture_reads(integrated=integrated, equals_paths=True)
+
+    def native_unit_post_capture_reads(self, integrated=False, equals_paths=False):
         compiler = shutil.which("clang" if integrated else "cc")
         for shared_unit in (False, True):
             for shared_cache in (False, True):
                 for suffix in (".s", ".S"):
-                    with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache, suffix=suffix), tempfile.TemporaryDirectory(prefix="nano-native-timing-") as tmp:
+                    with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache, suffix=suffix), tempfile.TemporaryDirectory(prefix="nano=native-timing-" if equals_paths else "nano-native-timing-") as tmp:
                         root = Path(tmp)
                         module, _, env = self.support.support.foreign_build_fixture(root)
                         if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
@@ -626,6 +636,80 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
         self.assertTrue(requested_location("0x00000000 137 5 1 0 is_stmt\n", "darwin"))
         self.assertFalse(requested_location("0x00000000 138 5 1 0 is_stmt\n", "darwin"))
         self.assertFalse(requested_location("0x00000000 137 6 1 0 is_stmt\n", "darwin"))
+
+    def test_equals_path_native_debug_identity(self):
+        from tests.characterize_assembler_debug import measure as measure_debug
+        compilers = [(shutil.which("cc"), False, ("-g",))]
+        if shutil.which("clang"):
+            compilers.append((shutil.which("clang"), True, ("-g",)))
+            if sys.platform == "linux":
+                # This selected driver does not give GNU as automatic -g data.
+                compilers.append((shutil.which("clang"), False, ("-g0",)))
+        for compiler, integrated, options in compilers:
+            for layout in ("source", "cache", "all"):
+                for macro, explicit in ((False, False), (True, False), (True, True)):
+                    for case in measure_debug(compiler, integrated=integrated, debug_options=options,
+                                              equals_paths=layout, macro_read=macro, nested_read=macro,
+                                              instruction_macro=macro, explicit_locations=explicit,
+                                              module_alias=True)["cases"]:
+                        with self.subTest(compiler=compiler, integrated=integrated, layout=layout,
+                                          macro=macro, explicit=explicit, suffix=case["suffix"], cache=case["cache"]):
+                            self.assertTrue(case["physical_object_identical"], case["physical_debug_diff"])
+                            self.assertEqual(case["production"], case["physical_native"])
+                            self.assertEqual(case["published_unit_aliases"], [])
+                            self.assertEqual(case["answer"], 42)
+                            self.assertTrue(case["generation_reused"], case["warm_debug_diff"])
+                            if explicit:
+                                self.assertTrue(case["native_requested_location"])
+                                self.assertTrue(case["production_requested_location"])
+
+    def test_compiler_path_equals_is_not_an_assignment(self):
+        with tempfile.TemporaryDirectory(prefix="nano-compiler-path-") as tmp:
+            root = Path(tmp)
+            wrapper = root / "cc=wrapper"
+            wrapper.write_text("#!/bin/sh\nexit 99\n")
+            wrapper.chmod(0o700)
+            for spelling, accepted in ((str(wrapper), True), ("./cc=wrapper", True),
+                                       ("cc=wrapper", False), ("NAME=value/cc", False),
+                                       ("CC=cc ./cc=wrapper", False), (str(wrapper) + ";exit 0", False)):
+                result = subprocess.run([str(self.support.probe), "compiler-path", spelling],
+                                        cwd=root, capture_output=True, timeout=10)
+                self.assertEqual(result.returncode == 0, accepted, result.stderr)
+                if accepted: self.assertEqual(result.stdout.decode().strip(), str(wrapper.resolve()))
+
+    def test_capture_environment_is_child_local(self):
+        command = shlex.join([sys.executable, "-c", "import os; print(os.environ['NANO_AS_CAPTURE_PHASE']); print(os.environ['NANO_TEST_UNRELATED'])"])
+        for inherited in (None, "replay"):
+            env = os.environ.copy()
+            env["NANO_TEST_UNRELATED"] = "preserved"
+            env.pop("NANO_AS_CAPTURE_PHASE", None)
+            if inherited is not None: env["NANO_AS_CAPTURE_PHASE"] = inherited
+            result = subprocess.run([str(self.support.probe), "capture-environment", command],
+                                    env=env, capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout, b"capture\npreserved\n")
+
+    def test_assembler_descriptor_directory_boundaries(self):
+        if sys.platform != "linux": self.skipTest("I use procfs names only for GNU descriptor transport")
+        for kind in ("directory", "missing", "file", "fifo", "symlink", "failure", "overflow", "timeout"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-descriptor-") as tmp:
+                parent = Path(tmp) / "alias=directory"
+                if kind in ("directory", "failure", "overflow", "timeout"):
+                    parent.mkdir()
+                    (parent / "input").write_text("retained")
+                elif kind == "file": parent.write_text("not a directory")
+                elif kind == "fifo": os.mkfifo(parent)
+                elif kind == "symlink": parent.symlink_to(Path(tmp), target_is_directory=True)
+                code = ("import os,subprocess,sys; assert open(os.environ['NANO_TEST_READ_DIRECTORY']+'/input').read() == 'retained'; "
+                        "assert not sys.stdin.read(); assert os.getcwd() == " + repr(str(cache.ROOT)) + "; "
+                        "subprocess.run([sys.executable,'-c',\"import os; assert open(os.environ['NANO_TEST_READ_DIRECTORY']+'/input').read() == 'retained'\"],check=True,close_fds=True)")
+                if kind == "failure": code = "raise SystemExit(1)"
+                elif kind == "overflow": code = "print('x'*20000)"
+                elif kind == "timeout": code = "import time; time.sleep(20)"
+                result = subprocess.run([str(self.support.probe), "read-execute", str(parent),
+                                         shlex.join([sys.executable, "-c", code])],
+                                        cwd=cache.ROOT, capture_output=True, timeout=8)
+                self.assertEqual(result.returncode == 0, kind == "directory", result.stderr)
 
     def test_assembler_instruction_and_location_provenance(self):
         self.assembler_instruction_and_location_provenance(shutil.which("cc"), integrated=False)
@@ -1086,6 +1170,18 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                             "generation_reused", "retained_read_manifest"):
                     self.assertTrue(case[key], key)
                 self.assertEqual(case["total_object_compilations"], 6)
+
+    def test_equals_path_restored_assembler_inputs(self):
+        if not self.read_replay: self.skipTest("I require GNU captured-read replay")
+        for shared_unit in (False, True):
+            for removed in (False, True):
+                result = measure(shutil.which("cc"), ("assembler-unit", "assembler-preprocessed-unit"),
+                                 shared_unit=shared_unit, remove_input=removed, equals_paths=True)
+                require_consistent(result)
+                for case in result["cases"]:
+                    self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                    self.assertTrue(case["retained_read_manifest"])
+                    self.assertTrue(case["generation_reused"])
 
     def test_gcc_missing_capture_helper_preserves_generation_and_recovers(self):
         if not self.read_replay: self.skipTest("I need supported GNU assembler read capture")

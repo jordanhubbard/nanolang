@@ -15,6 +15,7 @@ static unsigned read_count, replay_at;
 static uint64_t total_bytes, record_hash = NAC_SEED;
 static int replay, active, failed;
 static pid_t owner;
+static const char *primary_input;
 
 static FILE *nac_fail(void) { failed = 1; errno = EIO; return NULL; }
 
@@ -26,6 +27,9 @@ __attribute__((constructor)) static void nac_start(void) {
     active = 1; owner = getpid();
     const char *input = getenv("NANO_AS_CAPTURE_INPUT");
     if (!capture_prefix || !phase || !input || !*input) { nac_fail(); return; }
+    primary_input = getenv("NANO_AS_CAPTURE_PRIMARY");
+    if (!primary_input) primary_input = input;
+    if (!*primary_input || strlen(primary_input) >= NAC_PATH) { nac_fail(); return; }
     replay = !strcmp(phase, "replay");
     char path[NAC_PATH];
     if (!native_fopen || (!replay && strcmp(phase, "capture"))) { nac_fail(); return; }
@@ -34,7 +38,7 @@ __attribute__((constructor)) static void nac_start(void) {
         if (!retained || !nac_name(path, capture_prefix, "replayed", 0)) { nac_fail(); return; }
         completion = nac_file(path, O_WRONLY | O_CREAT, "wb");
         if (!completion || ftruncate(fileno(completion), 0) ||
-            !nac_load(capture_prefix, getenv("NANO_AS_CAPTURE_INPUT"), retained, &read_count, &record_hash)) nac_fail();
+            !nac_load(capture_prefix, primary_input, retained, &read_count, &record_hash)) nac_fail();
     } else {
         if (!nac_name(path, capture_prefix, "partial", 0)) { nac_fail(); return; }
         journal = nac_file(path, O_WRONLY | O_CREAT | O_EXCL, "wb");
@@ -84,7 +88,8 @@ static FILE *nac_open_input(const char *path, const char *mode) {
     if (!replay && !read_count && strcmp(path, getenv("NANO_AS_CAPTURE_INPUT"))) return nac_fail();
     char copy[NAC_PATH];
     if (replay) {
-        if (replay_at >= read_count || strcmp(path, retained[replay_at].path)) return nac_fail();
+        if (replay_at >= read_count || strcmp(path, replay_at ? retained[replay_at].path :
+                                              getenv("NANO_AS_CAPTURE_INPUT"))) return nac_fail();
         NacRead *entry = &retained[replay_at];
         unsigned index = replay_at++;
         if (entry->error) { errno = (int)entry->error; return NULL; }
@@ -125,15 +130,18 @@ static FILE *nac_open_input(const char *path, const char *mode) {
         if (!result) return nac_fail();
     }
     unsigned char header[32] = {0};
-    size_t length = strlen(path);
+    /* The first source has a stable logical identity and an invocation-private
+     * descriptor spelling. All later ordered opens retain their exact names. */
+    const char *recorded = read_count ? path : primary_input;
+    size_t length = strlen(recorded);
     nac_put(header, 1, 4); nac_put(header + 4, length, 4); nac_put(header + 8, error, 4);
     nac_put(header + 16, size, 8); nac_put(header + 24, hash, 8);
     if (!journal || (!input && (!error || error > 4095)) ||
-        fwrite(header, 1, 32, journal) != 32 || fwrite(path, 1, length, journal) != length || fflush(journal)) {
+        fwrite(header, 1, 32, journal) != 32 || fwrite(recorded, 1, length, journal) != length || fflush(journal)) {
         if (result) fclose(result);
         return nac_fail();
     }
-    record_hash = nac_record_hash(record_hash, header, path, read_count++);
+    record_hash = nac_record_hash(record_hash, header, recorded, read_count++);
     total_bytes += size;
     errno = (int)error;
     return result;

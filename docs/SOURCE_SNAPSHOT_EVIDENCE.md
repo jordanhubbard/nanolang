@@ -2832,3 +2832,79 @@ double-quoted Unicode basename; malformed fixture arguments are rejected.
 Python syntax, whitespace and six-edition guide checks pass. This checkpoint
 changes test and evidence code, not production capture code; it does not
 add a new sanitizer claim.
+
+### Equals-containing paths and descriptor transport
+
+Context v44 removes the debug-map delimiter limitation from the tested
+source/cache layouts. I use the existing Clang native-object boundary and
+GNU captured-read replay, without adding another scratch-directory lifecycle.
+
+Selected Clang backends receive retained bytes on stdin with the original
+logical filename. Apple `.s` must retain its native preprocessing: feeding
+raw text in the trial changed the root name and checksum, while feeding the
+preprocessed unit reproduced the native object. I now use this transport
+for selected Apple integrated/external native capture as well as Linux
+integrated capture. Debug selectors remain owned by standalone assembly.
+Literal Apple replay switches to native capture when the requested paths
+require it; source/cache/TMPDIR names select the same capture family in fresh
+builds and validation.
+
+GNU stdin retains `{standard input}` instead of the native filename. A
+directory on child stdin can preserve a basename but prevents Python compiler
+wrappers from starting. I reject that trial. My GNU path instead opens the
+retained directory with no-follow checks in the supervising parent and names
+the input through `/proc/<parent-pid>/fd/<fd>/<original-basename>`. The directory
+mapping has no `=` in its source operand; the original path is its replacement.
+Compiler cwd and stdin remain ordinary, and wrapper subprocesses may close
+inherited descriptors. The parent holds the directory until the supervised
+command finishes, then closes it. This requires Linux procfs access to the
+supervising process; an inaccessible descriptor fails the private build.
+
+`NANO_AS_CAPTURE_PRIMARY` names the logical retained input in the sealed
+manifest. `NANO_AS_CAPTURE_INPUT` names this invocation's actual first open.
+Capture checks that actual open; replay checks both the declared logical
+identity and the actual transport spelling. Every later ordered pathname
+remains exact. The new record regression changes descriptors between capture
+and replay, removes original inputs, reproduces the object, and rejects wrong
+logical identities, wrong first opens and oversized/empty primary names.
+The serialized format and first-input content seal remain unchanged.
+
+Lifecycle tests also exposed two compiler-wrapper path defects. My identity
+classifier rejected `=` inside absolute executable paths and silently declined
+snapshot admission. I now admit it after a directory separator, while still
+rejecting assignment prefixes and shell syntax. `/usr/bin/env` then interpreted
+the executable path as another assignment. Selected native capture now spawns
+literal compiler argv with a child-only environment overlay; the parent and
+unrelated variables remain unchanged.
+
+The matrix separates source-only, shared-cache-only and combined `=` layouts,
+both suffixes and cache roots, simple units, nested instruction macros and
+explicit source locations. Macro and binary names in these fixtures resolve
+relative to the unchanged compiler cwd. GCC and integrated Clang controls
+use `-g`; the selected Debian Clang external driver uses `-g0` because its
+native `-g` invocation does not supply GNU as automatic debug information.
+Explicit `.file`/`.loc` directives still contribute their own line data.
+Whole native object/debug identity, runtime value 42, flat publication and
+actual warm reuse remain acceptance requirements.
+
+Final Linux validation passes the complete bytecode-shadow target: 245
+methods with 29 platform skips, including 104 snapshot methods in 208.299
+seconds. All 108 equals-layout object/debug cases and the descriptor-boundary
+checks also pass as uid/gid 65534 in 41.152 seconds. Five instrumented
+builder/probe methods pass in 74.334 seconds with AddressSanitizer,
+UndefinedBehaviorSanitizer and leak detection enabled, with no report files.
+They cover child-local environment handling, compiler-path classification,
+descriptor boundaries, cache recovery and post-capture mutations. The ten
+assembler-record methods pass separately, including a UBSan build of the
+loader helper (0.231 seconds). Builder/probe instrumentation does not cover
+every support object. An additional four-case Darwin assembler-only fixture
+passes under an equals-containing root in 9.860 seconds.
+
+The final ten-method Darwin selection passes in 869.266 seconds. It includes
+all 72 equals-layout cases, cache recovery, post-capture mutations, both
+ordinary instruction/location matrices, capture/copy/report failure recovery,
+compiler identity, child-local environment and selected-report boundaries.
+Strict builds, Python syntax, whitespace and six-edition guide checks pass.
+I close the standalone debug-provenance and equals-path gates on these tested
+toolchains. Broader standalone flag/include coverage and a complete assembler
+input inventory remain separate open requirements.

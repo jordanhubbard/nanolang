@@ -210,6 +210,33 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if (argc == 3 && !strcmp(argv[1], "capture-environment")) {
+        const char *value = getenv("NANO_AS_CAPTURE_PHASE");
+        char *before = value ? strdup(value) : NULL;
+        if (value && !before) return 1;
+        char report[16384] = {0}, *args[] = {"/bin/sh", "-c", argv[2], NULL};
+        int64_t now = module_link_query_clock();
+        bool ok = now >= 0 && module_process_output_options(args, report, sizeof(report), now + 5000,
+                                                            true, true, -1, true);
+        const char *after = getenv("NANO_AS_CAPTURE_PHASE");
+        ok = ok && (before ? after && !strcmp(before, after) : !after);
+        free(before); fputs(report, stdout); return ok ? 0 : 1;
+    }
+    if (argc == 3 && !strcmp(argv[1], "compiler-path")) {
+        char *path = module_compiler_path(argv[2]);
+        if (!path) return 1;
+        puts(path); free(path); return 0;
+    }
+#ifdef __linux__
+    if (argc == 4 && !strcmp(argv[1], "read-execute")) {
+        char directory[128];
+        int fd = module_read_directory(argv[2], directory, sizeof(directory));
+        if (fd < 0) return 1;
+        bool ok = !setenv("NANO_TEST_READ_DIRECTORY", directory, 1) && module_read_execute(argv[3]);
+        if (close(fd)) ok = false;
+        return ok ? 0 : 1;
+    }
+#endif
     if (argc == 4 && !strcmp(argv[1], "copy-native-unit"))
         return module_copy_native_unit(argv[2], 0, 0, argv[3]) ? 0 : 1;
     if (argc == 5 && !strcmp(argv[1], "unit-input")) {

@@ -65,7 +65,9 @@ def requested_location(decoded, platform=sys.platform):
 
 def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False, module_alias=False,
             capture_object=False, nested_read=False, integrated=False, instruction_macro=False,
-            explicit_locations=False, source_stem="payload"):
+            explicit_locations=False, source_stem="payload", equals_paths=None):
+    if equals_paths not in (None, "source", "cache", "all"):
+        raise ValueError("I require source, cache or all for equals-containing paths")
     if instruction_macro and not (macro_read and nested_read):
         raise ValueError("I require nested macro reads for instruction provenance")
     if not source_stem or Path(source_stem).name != source_stem:
@@ -81,16 +83,20 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
     cases = []
     for suffix in ("s", "S"):
         for shared in (False, True):
-            with tempfile.TemporaryDirectory(prefix="nano-assembler-debug-") as tmp:
+            with tempfile.TemporaryDirectory(prefix="nano=assembler-debug-" if equals_paths == "all" else "nano-assembler-debug-") as tmp:
                 directory = Path(tmp)
                 module, _, env = BytecodeShadows().foreign_build_fixture(directory)
+                if equals_paths == "source":
+                    renamed = directory / "foreign=source"
+                    module.rename(renamed)
+                    module = renamed
                 requested_module = module
                 if module_alias:
                     requested_module = directory / "import alias"
                     requested_module.symlink_to(module, target_is_directory=True)
                 env["NANO_CC"] = compiler
                 env["NANO_AS_CAPTURE_HELPER"] = str(ROOT / "bin/nano_as_capture.so")
-                if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / ("cache=shared" if equals_paths == "cache" else "cache"))
                 source = module / (source_stem + "." + suffix)
                 debug_source = Path("logical source.c") if explicit_locations else source
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
@@ -105,9 +111,9 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                     if nested_read:
                         macro_source = directory / "debug macro.s"
                         macro_source.write_text(macro_text)
-                        macro_text = '.include "' + str(macro_source) + '"\n'
+                        macro_text = '.include "' + (macro_source.name if equals_paths else str(macro_source)) + '"\n'
                     assembly = macro_text + assembly.replace(
-                        '.byte 42', 'read_payload "' + str(payload) + '"')
+                        '.byte 42', 'read_payload "' + (payload.name if equals_paths else str(payload)) + '"')
                 if explicit_locations:
                     assembly = '.file 1 "logical source.c"\n' + assembly.replace('.text\n', '.text\n.loc 1 137 5\n')
                 if suffix == "S": assembly = '#define INSTRUCTION nop\n' + assembly.replace('nop', 'INSTRUCTION')
@@ -226,6 +232,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                               "lexical_source": str(source), "physical_source": str(physical_source),
                               "debug_source": str(debug_source), "instruction_macro": instruction_macro,
                               "explicit_locations": explicit_locations,
+                              "equals_paths": equals_paths,
                               "native_requested_location": native_location,
                               "production_requested_location": requested_location(''.join(production_text)) if explicit_locations else None,
                               "requested_module": str(requested_module),
@@ -260,6 +267,7 @@ if __name__ == "__main__":
     parser.add_argument("--instruction-macro", action="store_true")
     parser.add_argument("--explicit-locations", action="store_true")
     parser.add_argument("--source-stem", default="payload")
+    parser.add_argument("--equals-paths", nargs="?", const="all", choices=("source", "cache", "all"))
     parser.add_argument("--capture-object", action="store_true")
     parser.add_argument("--require-captured-object", action="store_true")
     parser.add_argument("--candidate", action="store_true")
@@ -284,7 +292,7 @@ if __name__ == "__main__":
                      module_alias=args.module_alias, macro_read=args.macro_read, capture_object=args.capture_object,
                      nested_read=args.nested_read, integrated=args.integrated,
                      instruction_macro=args.instruction_macro, explicit_locations=args.explicit_locations,
-                     source_stem=args.source_stem)
+                     source_stem=args.source_stem, equals_paths=args.equals_paths)
     print(json.dumps(result, indent=2))
     if args.require_debug and any(case["native"] != case["candidate" if args.candidate else "production"] or case["answer"] != 42
                                   or not case["generation_reused"] or (args.candidate and not case["candidate_object_identical"])

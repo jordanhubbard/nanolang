@@ -28,14 +28,15 @@ from tests.characterize_linker_inputs import run
 from tests import test_bytecode_shadows as shadows
 
 
-def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False, shared_unit=False, preprocess_raw=False):
+def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False, shared_unit=False, preprocess_raw=False, equals_paths=False):
     probe = shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
     cases = []
     for kind in kinds:
         for shared in (False, True):
-            with tempfile.TemporaryDirectory(prefix="nano-source42-snapshot-" if kind.startswith("link-response") else "nano-source-snapshot-") as tmp:
+            with tempfile.TemporaryDirectory(prefix="nano=source-snapshot-" if equals_paths else
+                                              "nano-source42-snapshot-" if kind.startswith("link-response") else "nano-source-snapshot-") as tmp:
                 directory = Path(tmp)
                 module, _, env = shadows.BytecodeShadows().foreign_build_fixture(directory)
                 env.pop("NANO_VERBOSE_BUILD", None)

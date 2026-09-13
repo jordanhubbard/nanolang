@@ -396,7 +396,10 @@ static void hash_context_field(uint64_t *hash, const char *value) {
 /* I resolve only a simple executable token. Shell expressions still execute
  * through the existing build path, but I cannot identify their tools safely. */
 static char *module_compiler_path(const char *cc) {
-    if (!cc[0] || strspn(cc, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./+-") != strlen(cc)) return NULL;
+    if (!cc[0] || strspn(cc, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./+-=") != strlen(cc)) return NULL;
+    const char *equals = strchr(cc, '='), *slash = strchr(cc, '/');
+    /* A separator before '=' makes this a path, not a shell assignment. */
+    if (equals && (!slash || equals < slash)) return NULL;
     if (strchr(cc, '/')) return access(cc, X_OK) == 0 ? realpath(cc, NULL) : NULL;
     const char *path = getenv("PATH");
     if (!path) return NULL;
@@ -437,7 +440,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v43-integrated-native-units");
+    hash_context_field(&hash, "nanolang-c-build-context-v44-assembler-descriptor-names");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3070,8 +3073,8 @@ static int64_t module_link_query_clock(void) {
 /* I execute literal argv, not a shell, and supervise one private process group.
  * The caller supplies the shared deadline and output policy. Query requests
  * are not universally read-only; their caller owns disposable output paths. */
-static bool module_process_output_input(char **args, char *output, size_t capacity, int64_t deadline,
-                                        bool diagnostics, bool require_output, int input) {
+static bool module_process_output_options(char **args, char *output, size_t capacity, int64_t deadline,
+                                          bool diagnostics, bool require_output, int input, bool capture_phase) {
     int64_t now = module_link_query_clock();
     if (now < 0 || now >= deadline) return false;
     int descriptors[2];
@@ -3102,7 +3105,22 @@ static bool module_process_output_input(char **args, char *output, size_t capaci
         posix_spawnattr_setpgroup(&attributes, 0) == 0;
     pid_t child = -1;
     extern char **environ;
-    if (ok) ok = posix_spawnp(&child, args[0], &actions, &attributes, args, environ) == 0;
+    char **child_environment = NULL;
+    if (ok && capture_phase) {
+        size_t count = 0, used = 0;
+        while (environ && environ[count]) count++;
+        if (count > SIZE_MAX / sizeof(char *) - 2) ok = false;
+        else child_environment = calloc(count + 2, sizeof(char *));
+        if (!child_environment) ok = false;
+        if (ok) {
+            for (size_t i = 0; i < count; i++)
+                if (strncmp(environ[i], "NANO_AS_CAPTURE_PHASE=", 22)) child_environment[used++] = environ[i];
+            child_environment[used] = "NANO_AS_CAPTURE_PHASE=capture";
+        }
+    }
+    if (ok) ok = posix_spawnp(&child, args[0], &actions, &attributes, args,
+                              child_environment ? child_environment : environ) == 0;
+    free(child_environment);
     if (have_actions) posix_spawn_file_actions_destroy(&actions);
     if (have_attributes) posix_spawnattr_destroy(&attributes);
     close(descriptors[1]);
@@ -3139,6 +3157,11 @@ static bool module_process_output_input(char **args, char *output, size_t capaci
     if (!reaped) while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
     output[used] = 0;
     return ok;
+}
+
+static bool module_process_output_input(char **args, char *output, size_t capacity, int64_t deadline,
+                                        bool diagnostics, bool require_output, int input) {
+    return module_process_output_options(args, output, capacity, deadline, diagnostics, require_output, input, false);
 }
 
 static bool module_process_output(char **args, char *output, size_t capacity, int64_t deadline,
@@ -3926,7 +3949,7 @@ static bool module_unit_input(ModuleBuildMetadata *meta, const char *directory,
 /* I retain standalone debug-option ownership without replaying C diagnostics. */
 static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                          const char *source, const char *directory,
-                                         char *prefix, size_t capacity, bool integrated) {
+                                         char *prefix, size_t capacity, const char *descriptor) {
     if (!module_compile_prefix(meta, prefix, capacity, MODULE_C_ASSEMBLE_UNIT, flags)) return false;
     bool debug = false;
     for (size_t group = 0; group < 3; group++) {
@@ -3957,9 +3980,14 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
 #ifdef __APPLE__
     const char *option = "-fdebug-prefix-map=";
 #else
-    const char *option = integrated ? "-fdebug-prefix-map=" : "--debug-prefix-map=";
+    const char *option = "--debug-prefix-map=";
 #endif
-    const char *forward = integrated ? "" : "-Xassembler ";
+    const char *forward = "-Xassembler ";
+    if (descriptor) {
+        /* I name the parent-held directory through its descriptor. */
+        return module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, descriptor, original) &&
+            module_append_path_flag(prefix, capacity, forward, mapping);
+    }
     /* I place the broad source alias first: the selected assemblers give
      * later mappings priority, and my staging directory can live below it. */
     char *canonical = realpath(original[0] ? original : "/", NULL);
@@ -4000,9 +4028,36 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
 /* GCC still chooses assembler arguments; my private -B entry changes only the
  * executable receiving them. Loader configuration starts inside that wrapper,
  * never in the compiler driver, preprocessor, linker or calling process. */
+#ifdef __linux__
+static int module_read_directory(const char *parent, char *name, size_t capacity) {
+    name[0] = 0;
+    int fd = open(parent, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+    if (fd < 0) return -1;
+    if (fd < 3) {
+        int copy = fcntl(fd, F_DUPFD_CLOEXEC, 3);
+        close(fd); fd = copy;
+        if (fd < 0) return -1;
+    }
+    if (!module_build_append(name, capacity, "/proc/%ld/fd/%d", (long)getpid(), fd)) {
+        close(fd); return -1;
+    }
+    return fd;
+}
+
+/* I keep cwd and stdin ordinary, including for compiler wrappers that close
+ * inherited descriptors before invoking their selected compiler. */
+static bool module_read_execute(const char *command) {
+    char report[16384] = {0}, *args[] = {"/bin/sh", "-c", (char *)command, NULL};
+    int64_t now = module_link_query_clock();
+    bool ok = now >= 0 && module_process_output(args, report, sizeof(report), now + 5000, true, false);
+    if (report[0]) fputs(report, stderr);
+    return ok;
+}
+#endif
+
 static bool module_read_command(char *command, size_t capacity, const char *prefix,
                                  const char *directory, size_t group, size_t index,
-                                 const char *object, const char *input, bool capture) {
+                                 const char *object, const char *input, const char *primary, bool capture) {
     char record[2048] = {0}, tools[2048] = {0};
     command[0] = 0;
     return module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, index) &&
@@ -4010,6 +4065,7 @@ static bool module_read_command(char *command, size_t capacity, const char *pref
         module_build_append(command, capacity, "NANO_AS_CAPTURE_PHASE=%s", capture ? "capture" : "replay") &&
         module_append_path_flag(command, capacity, "NANO_AS_CAPTURE_PREFIX=", record) &&
         module_append_path_flag(command, capacity, "NANO_AS_CAPTURE_INPUT=", input) &&
+        module_append_path_flag(command, capacity, "NANO_AS_CAPTURE_PRIMARY=", primary) &&
         module_build_append(command, capacity, " %s -x assembler", prefix) &&
         module_append_path_flag(command, capacity, "-B", tools) &&
         module_append_path_flag(command, capacity, "", input) &&
@@ -4067,17 +4123,22 @@ static bool module_assembler_tool_hash(uint64_t *hash, const char *tool) {
     return true;
 }
 
-#ifdef __linux__
-/* Clang 14 does not remap its generated raw-assembly root filename. I give
- * its selected backend retained bytes on stdin and the original logical name,
- * without preprocessing raw assembly or editing its line directives. */
+/* I give the selected Clang backend retained bytes on stdin and the original
+ * logical name. No private pathname needs a debug map, including paths with
+ * '='. Platform preprocessing has already happened; I do not edit line data. */
 static bool module_clang_native_stdin(char **args, size_t words, char *report, size_t report_size,
                                       int64_t deadline, const char *input, const char *original,
-                                      const char *object, uint64_t *fingerprint) {
+                                      const char *object, uint64_t *fingerprint, bool integrated) {
     args[words] = "-###"; args[words + 1] = NULL;
-    if (!module_process_output(args, report, report_size, deadline, true, true)) return false;
+    if (!module_process_output_options(args, report, report_size, deadline, true, true, -1, true)) return false;
     char storage[16384], *job[256];
     words = module_assembler_report(report, job, storage, sizeof(storage));
+    if (!words || !module_assembler_tool_hash(fingerprint, job[0])) return false;
+    if (!integrated) {
+        job[words] = "-###"; job[words + 1] = NULL;
+        if (!module_process_output_options(job, report, report_size, deadline, true, true, -1, true)) return false;
+        words = module_assembler_report(report, job, storage, sizeof(storage));
+    }
     if (words < 2 || strcmp(job[1], "-cc1as") || !module_assembler_tool_hash(fingerprint, job[0])) return false;
     size_t name = 0, source = 0, format = 0, output = 0;
     for (size_t i = 2; i < words; i++) {
@@ -4111,11 +4172,10 @@ static bool module_clang_native_stdin(char **args, size_t words, char *report, s
         ok = fd >= 0;
     }
     report[0] = 0;
-    if (ok) ok = module_process_output_input(job, report, report_size, deadline, true, false, fd);
+    if (ok) ok = module_process_output_options(job, report, report_size, deadline, true, false, fd, true);
     if (fd >= 0 && close(fd)) ok = false;
     return ok;
 }
-#endif
 
 static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                       const char *directory, uint64_t fingerprint, bool integrated) {
@@ -4180,25 +4240,19 @@ static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePk
                 command[0] = 0;
                 if (!module_capture_assembly_file(&capture, raw, frozen, false, 0) ||
                     !module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent)) ||
-                    !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix), integrated) ||
+                    !module_compile_prefix(meta, unit_prefix, sizeof(unit_prefix), MODULE_C_ASSEMBLE_UNIT, flags) ||
                     !module_build_append(native, sizeof(native), "%s/__native_unit_%zu_%zu.o", directory, group, i) ||
-                    !module_build_append(command, sizeof(command), "/usr/bin/env NANO_AS_CAPTURE_PHASE=capture %s -x assembler", unit_prefix) ||
+                    !module_build_append(command, sizeof(command), "%s -x assembler", unit_prefix) ||
                     !module_append_path_flag(command, sizeof(command), "", alias) ||
                     !module_append_path_flag(command, sizeof(command), "-o ", native)) goto failed;
                 size_t native_words = module_assembler_argv(command, native_args, native_storage, sizeof(native_storage));
                 if (!native_words) goto failed;
                 report[0] = 0;
-                bool native_ok;
-#ifdef __linux__
-                if (integrated) {
-                    char original[4096] = {0};
-                    native_ok = source[0] == '/' ? module_build_append(original, sizeof(original), "%s", source) :
-                        module_build_append(original, sizeof(original), "%s/%s", meta->module_dir, source);
-                    native_ok = native_ok && module_clang_native_stdin(native_args, native_words, report, sizeof(report),
-                                                                     deadline, alias, original, native, &capture.hash);
-                } else
-#endif
-                    native_ok = module_process_output(native_args, report, sizeof(report), deadline, true, false);
+                char original[4096] = {0};
+                bool native_ok = source[0] == '/' ? module_build_append(original, sizeof(original), "%s", source) :
+                    module_build_append(original, sizeof(original), "%s/%s", meta->module_dir, source);
+                native_ok = native_ok && module_clang_native_stdin(native_args, native_words, report, sizeof(report),
+                    deadline, alias, original, native, &capture.hash, integrated);
                 if (!native_ok) {
                     if (report[0]) fputs(report, stderr);
                     goto failed;
@@ -4340,23 +4394,35 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
         for (size_t i = 0; ok && i < count; i++) {
             char input[2048] = {0}, assembly[2048] = {0}, object[2048] = {0}, record[2048] = {0};
             const char *source = group ? meta->shared_c_sources[i] : meta->c_sources[i];
-            char unit_prefix[4096], alias[2048] = {0}, parent[2048];
+            char unit_prefix[4096], alias[2048] = {0}, parent[2048] = {0};
             const char *selected = assemble;
             command[0] = 0;
             ok = ok && module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
+                module_build_append(parent, sizeof(parent), "%s", directory) &&
                 module_build_append(assembly, sizeof(assembly), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
                 module_build_append(object, sizeof(object), "%s/__as_capture_%zu_%zu.o", directory, group, i) &&
                 module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i) &&
                 module_prepare_assembly(meta, retained, input, assembly, group, i);
             const char *selected_input = assembly;
             if (ok && module_source_kind(source) > 1) {
-                ok = module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent)) &&
-                    module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix), false);
+                ok = module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent));
                 selected = unit_prefix;
                 selected_input = alias;
             }
+            char descriptor[128] = {0}, named_input[2048] = {0};
+            int fd = -1;
+            if (ok && (module_source_kind(source) > 1 || strchr(parent, '='))) {
+                fd = module_read_directory(parent, descriptor, sizeof(descriptor));
+                ok = fd >= 0 && module_build_append(named_input, sizeof(named_input), "%s/%s",
+                                                     descriptor, strrchr(selected_input, '/') + 1);
+            }
+            if (ok && module_source_kind(source) > 1)
+                ok = module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix),
+                                                  fd >= 0 ? descriptor : NULL);
             if (ok) ok = module_read_command(command, sizeof(command), selected, directory, group, i,
-                                             object, selected_input, true) && !system(command);
+                                             object, fd >= 0 ? named_input : selected_input, selected_input, true) &&
+                (fd >= 0 ? module_read_execute(command) : !system(command));
+            if (fd >= 0 && close(fd)) ok = false;
             unsigned captured = 0;
             uint64_t hash = 0;
             if (ok) ok = nac_load(record, selected_input, reads, &captured, &hash);
@@ -4575,7 +4641,26 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
     }
     if (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL ||
         mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS) {
-        uint64_t frozen = mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS ? 0 :
+        bool native_units = mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS;
+        /* Literal standalone replay needs representable private debug maps.
+         * Clang native stdin and GNU descriptor replay preserve input naming. */
+        if (directory) {
+            char *cache_root = module_get_build_dir(meta->module_dir);
+            if (!cache_root) return 0;
+            const char *temporary = getenv("TMPDIR");
+            bool descriptor_paths = strchr(directory, '=') || strchr(cache_root, '=') ||
+                (temporary && strchr(temporary, '='));
+            free(cache_root);
+            for (size_t group = 0; group < 2; group++) {
+                char **sources = group ? meta->shared_c_sources : meta->c_sources;
+                size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+                for (size_t i = 0; i < count; i++)
+                    if (module_source_kind(sources[i]) > 1 &&
+                        (descriptor_paths || strchr(meta->module_dir, '=') || strchr(sources[i], '=')))
+                        native_units = true;
+            }
+        }
+        uint64_t frozen = native_units ? 0 :
             module_gcc_capture_assembly(meta, flags, directory, fingerprint);
         if (frozen) {
             if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
@@ -4611,7 +4696,7 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
 static bool module_snapshot_command(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                     char *command, size_t capacity, const char *prefix,
                                     const char *directory, size_t group, size_t index,
-                                    const char *object, ModuleSnapshotMode mode) {
+                                    const char *object, ModuleSnapshotMode mode, const char *descriptor) {
     /* Standalone units bypass C lowering, so their debug selector belongs to
      * final assembly. C-generated assembly already contains its debug data. */
     const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
@@ -4621,11 +4706,16 @@ static bool module_snapshot_command(ModuleBuildMetadata *meta, const ModulePkgFl
                               assembly ? "s" : "i")) return false;
     if (module_source_kind(source) > 1 && mode != MODULE_SNAPSHOT_GCC) {
         if (!module_unit_input(meta, directory, group, index, snapshot, sizeof(snapshot), parent, sizeof(parent)) ||
-            !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix), false)) return false;
+            !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix), descriptor)) return false;
         prefix = unit_prefix;
     }
-    if (mode == MODULE_SNAPSHOT_GCC_REPLAY)
-        return module_read_command(command, capacity, prefix, directory, group, index, object, snapshot, false);
+    if (mode == MODULE_SNAPSHOT_GCC_REPLAY) {
+        char named_input[2048] = {0};
+        if (descriptor && !module_build_append(named_input, sizeof(named_input), "%s/%s", descriptor,
+                                               strrchr(snapshot, '/') + 1)) return false;
+        return module_read_command(command, capacity, prefix, directory, group, index, object,
+                                   descriptor ? named_input : snapshot, snapshot, false);
+    }
     command[0] = 0;
     return module_build_append(command, capacity, "%s%s -x %s", prefix,
                             group && !assembly ? " -fvisibility=hidden" : "", assembly ? "assembler" : "cpp-output") &&
@@ -4689,8 +4779,26 @@ static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *
             printf("[Module] I copy captured native unit %s\n", source);
         return module_copy_native_unit(directory, group, index, object) ? 0 : -1;
     }
+#ifdef __linux__
+    if (mode == MODULE_SNAPSHOT_GCC_REPLAY && (module_source_kind(source) > 1 || strchr(directory, '='))) {
+        char parent[2048] = {0}, descriptor[128];
+        bool named = module_source_kind(source) > 1 ?
+            module_build_append(parent, sizeof(parent), "%s/__unit_%zu_%zu", directory, group, index) :
+            module_build_append(parent, sizeof(parent), "%s", directory);
+        if (!named) return -1;
+        int fd = module_read_directory(parent, descriptor, sizeof(descriptor));
+        if (fd < 0) return -1;
+        bool ok = module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index,
+                                           object, mode, descriptor);
+        if (ok && (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))) printf("[Module] %s\n", command);
+        if (ok) ok = module_read_execute(command);
+        if (close(fd)) ok = false;
+        int status = ok ? 0 : -1;
+        return dependency ? module_source_diagnostics(status, dependency) : status;
+    }
+#endif
     if (mode != MODULE_SNAPSHOT_NONE &&
-        !module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index, object, mode)) return -1;
+        !module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index, object, mode, NULL)) return -1;
     if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) printf("[Module] %s\n", command);
     if (dependency) return module_run_source_command(command, dependency);
     return module_build_append(command, capacity, " 2>/dev/null") ? system(command) : -1;

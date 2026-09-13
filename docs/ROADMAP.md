@@ -1228,7 +1228,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC ledger closure is unresolved: an external worker marked the task
       failed after receiving an unrelated checkout. My local implementation
       and validation evidence are recorded; I did not override that history.
-- [ ] **5.0 standalone assembler debug parity.** I preserve native debug
+- [x] **5.0 standalone assembler debug parity.** I preserve native debug
       sections and source provenance through standalone-source capture/replay.
       Selected integrated text expansion reproduces ordinary objects, but
       data-only `-g` replay fails with undefined section-end labels on Apple
@@ -1362,8 +1362,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       missing debug information.
       The expanded 48-case matrix passes on each host, including both quote
       forms, implicit locations and explicit logical source locations. I
-      retain complete native-object/debug equality and warm reuse. The
-      mapping-source `=` limitation below still prevents parent completion.
+      retain complete native-object/debug equality and warm reuse. Context
+      v44 closes the remaining `=`-path requirement below through selected
+      Clang stdin capture and GNU parent-held descriptor transport. Ten final
+      Darwin methods and the complete 245-method Linux target pass, with
+      separate sanitizer and unprivileged checks recorded in
+      `docs/SOURCE_SNAPSHOT_EVIDENCE.md`. I close this debug-provenance gate,
+      not the broader input-inventory or standalone flag/include acceptance.
 - [x] **5.0 assembler provenance measurement — native zero addresses.** I
       recognize `readelf`'s bare `0` address in explicit source-line rows,
       while rejecting wrong filenames and line numbers. I test both quote
@@ -1372,13 +1377,45 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Three focused Darwin methods pass; the complete Linux target passes
       238 methods with 29 platform skips. I record escaped native Unicode
       spellings separately, without normalizing debug data.
-- [ ] **5.0 assembler debug maps — equals-containing source paths.** I give
+- [x] **5.0 assembler debug maps — equals-containing source paths.** I give
       retained inputs representable names when source or cache paths contain
       `=`, preserving native include lookup, physical-root debug provenance,
       native object identity, warm reuse and failure cleanup. Native Apple
       Clang 21, Debian Clang 14 and GNU assembler 2.40 all split debug maps at
       the first `=`; simply removing my guard produces the wrong directory.
       MAC `task_da2ca60a6acf481ab6d9e3f2fd276a31` retains this requirement.
+      I first test selected Clang stdin transport with retained preprocessing
+      and the original logical filename on both hosts. Darwin does not allow
+      basename access below `/dev/fd/<directory-fd>`, so that alias is not a
+      portable solution. Any stdin integration must retain the selected
+      backend, debug selectors, include lookup, supervised deadline and
+      failure recovery; GNU assembler remains a separate required path.
+      GNU stdin controls retain `{standard input}`, not the native filename.
+      I instead test a no-follow retained directory on child stdin, addressed
+      as `/proc/self/fd/0/<original-basename>`, with an unambiguous directory
+      map. Capture and replay must name the same primary input and validate
+      the same sealed read manifest, without changing the compiler cwd.
+      The descriptor-on-stdin trial passes direct compiler controls but
+      prevents Python compiler wrappers from starting. I reject that transport
+      and instead hold the descriptor in the supervising parent, naming it
+      through `/proc/<parent-pid>/fd/<fd>/<basename>`. Wrapper subprocesses
+      must work with ordinary stdin and may close inherited descriptors.
+      Context v44 passes 72 native object/debug cases on Darwin and 108 on
+      Linux, plus relative-read, restored-input, failure/recovery, warm-reuse,
+      descriptor-boundary and unprivileged controls. Logical first-input
+      identity remains checked separately from transient descriptor spelling.
+- [x] **5.0 compiler identity — equals inside executable paths.** My simple
+      compiler-token classifier rejects absolute wrapper paths containing
+      `=`, silently declining snapshot admission in the new lifecycle tests.
+      I admit `=` after a directory separator while continuing to reject
+      assignment prefixes and shell syntax. I verify compiler identity,
+      captured-input timing and cache recovery with wrappers in these paths.
+      MAC `task_da2ca60a6acf481ab6d9e3f2fd276a31` records the reproducer.
+      Admission then exposes `/usr/bin/env` treating the executable pathname
+      as another assignment. I pass the capture marker in the spawned
+      process environment and execute the literal compiler argv directly.
+      The classifier, child-local environment, restored-input and post-capture
+      regressions pass. I do not admit assignment prefixes or shell syntax.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
@@ -1395,13 +1432,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       GCC and explicit external-Clang paths now retain raw/preprocessed
       assembler units and their C siblings. Restored replacement/deletion,
       ordinary/shared units, macro recovery and absolute-source cache paths
-      pass on Linux GCC 12/Clang 14 and Darwin Apple Clang 21. Integrated
-      Clang still needs source-kind-specific capture; broader flag/include
-      matrices also remain open. This item is not complete.
+      pass on Linux GCC 12/Clang 14 and Darwin Apple Clang 21. Context v43
+      also admits source-kind-specific integrated Clang capture, including
+      retained C-sibling assembler search flags. Broader standalone flag/include
+      matrices remain open. This item is not complete.
       Before integrated-Clang admission I compare native objects with selected
       `-cc1as` text expansion and replay after deleting source/include/payload
       inputs. I check both `.s` and `.S`, ordinary/debug modes, runtime bytes
       and object differences; an expansion exit status alone is insufficient.
+      My existing search-order recovery matrix emits inline assembly from C.
+      I next extend those controls to standalone `.s`/`.S`: paired/joined
+      `-Wa,-I`, split `-Xassembler`, common/platform/package flag placement,
+      an earlier search candidate appearing, missing-input recovery, both
+      cache roots and ordinary/shared units. Native controls must distinguish
+      C header lookup from assembler include lookup.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

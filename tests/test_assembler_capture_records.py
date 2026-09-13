@@ -212,6 +212,39 @@ int main(int argc, char **argv) {
         del self.environment["NANO_AS_CAPTURE_INPUT"]
         self.invoke("capture", success=False)
 
+    def test_descriptor_spelling_does_not_replace_primary_identity(self):
+        self.environment["NANO_AS_CAPTURE_PRIMARY"] = str(self.input)
+        fd = os.open(self.directory, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            first = f"/proc/{os.getpid()}/fd/{fd}/{self.input.name}"
+            self.environment["NANO_AS_CAPTURE_INPUT"] = first
+            self.invoke("capture", [self.assembler, first, "-o", self.directory / "output.o"])
+            original = (self.directory / "output.o").read_bytes()
+            manifest = Path(str(self.prefix) + ".manifest0").read_bytes()
+            length = struct.unpack_from("<I", manifest, 12)[0]
+            self.assertEqual(manifest[40:40 + length].decode(), str(self.input))
+        finally: os.close(fd)
+        blocker = os.open(os.devnull, os.O_RDONLY)
+        fd = os.open(self.directory, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            second = f"/proc/{os.getpid()}/fd/{fd}/{self.input.name}"
+            self.assertNotEqual(first, second)
+            self.input.unlink()
+            self.binary.unlink()
+            self.environment["NANO_AS_CAPTURE_INPUT"] = second
+            command = [self.assembler, second, "-o", self.directory / "output.o"]
+            self.invoke("replay", command)
+            self.assertEqual((self.directory / "output.o").read_bytes(), original)
+            for wrong in (str(self.binary), "", "x" * 4096):
+                self.environment["NANO_AS_CAPTURE_PRIMARY"] = wrong
+                self.invoke("replay", command, success=False)
+            self.environment["NANO_AS_CAPTURE_PRIMARY"] = str(self.input)
+            self.environment["NANO_AS_CAPTURE_INPUT"] = first
+            self.invoke("replay", command, success=False)
+        finally:
+            os.close(fd)
+            os.close(blocker)
+
     def test_path_bytes_survive_the_sealed_format(self):
         unusual = self.directory / 'payload " \' $ # \\\n.bin'
         self.binary.rename(unusual)

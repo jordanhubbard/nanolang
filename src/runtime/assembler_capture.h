@@ -3,8 +3,9 @@
 
 /* I describe ordered file opens, not an atomic snapshot of a source tree.
  * All integers are little-endian. A seal binds every record and retained copy.
- * My first pathname is invocation-private; its bytes still bind through its
- * content hash, and callers check its spelling against the expected input. */
+ * My first pathname is the logical retained input, not a transient descriptor
+ * spelling. Its bytes bind through its content hash and callers check its
+ * logical spelling. Every later pathname describes the actual ordered open. */
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
