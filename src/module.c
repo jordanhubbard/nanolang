@@ -929,9 +929,9 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 module_ast = load_module_internal(module_path, env, true, modules);
             }
             
-            /* NULL return means module was already loaded - this is OK */
-            if (module_ast == NULL && !is_module_cached(module_path)) {
-                /* Only error if module wasn't cached (i.e., actual failure) */
+            /* Completed cached loads return their AST. A NULL result is always
+             * a failed load, even if its in-progress cache marker remains. */
+            if (module_ast == NULL) {
                 fprintf(stderr, "Error at line %d, column %d: Failed to load module '%s'\n",
                         item->line, item->column, module_path);
                 free(module_path);
@@ -948,15 +948,6 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 module_list_add(modules, module_path);
             }
 
-            /* If module was already cached and returned NULL, try to grab cached AST for alias handling */
-            if (module_ast == NULL) {
-                module_ast = get_cached_module_ast(module_path);
-                if (!module_ast) {
-                    free(module_path);
-                    continue;
-                }
-            }
-            
             char *orig_module_name = NULL;
             for (int j = 0; j < module_ast->as.program.count; j++) {
                 ASTNode *node = module_ast->as.program.items[j];
