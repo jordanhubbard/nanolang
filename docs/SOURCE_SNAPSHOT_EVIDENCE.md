@@ -2425,3 +2425,35 @@ builder. Integration must apply per-source debug flags and retained path
 identity consistently in capture, replay and validation, then cover nested
 source provenance, debug-option precedence and actual cache reuse. The
 existing integrated text-expansion failure remains separately unresolved.
+
+### Flat debug-path remapping counterexample
+
+I test a smaller storage change with `--candidate --flat`: assemble the
+existing synthetic snapshot directly and forward two mappings, one for its
+parent directory and one for its basename. I keep the source-deletion,
+complete-object and decoded-debug comparisons from the candidate above.
+
+On GCC 12.2/GNU as 2.40, raw `.s` fails in both cache roots: the line table
+still names `__snapshot_0_1.s`, the original source name is absent, and the
+object bytes differ. Preprocessed `.S` passes both comparisons in both cache
+roots. Apple Clang 21 external assembly passes for both suffixes and cache
+roots; that driver preprocesses both suffixes. All eight cases still return
+42 and reuse the production generation. This rejects the flat recipe as a
+general replacement for the original-basename candidate, not as a claim that
+every preprocessed source is covered.
+
+```sh
+python3 -m tests.characterize_assembler_debug --candidate --flat --require-debug
+```
+
+The strict command exits one on GCC and zero on Apple Clang. My JSON output
+identifies the candidate mode so these results cannot be mistaken for the
+original-basename recipe. `--flat` without `--candidate` is an argument error.
+
+My production generation barrier accepts regular files only, and staging
+cleanup unlinks flat entries relative to an opened directory descriptor.
+Persistent per-unit directories would therefore fail publication and remain
+after cleanup. The existing experiment uses a temporary directory outside
+the generation. Production integration must own its creation and cleanup
+across capture, replay, validation and failures, or explicitly extend and
+test the storage contract. No production behavior changes in this experiment.

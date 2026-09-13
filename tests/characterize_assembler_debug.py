@@ -43,7 +43,9 @@ def evidence(obj, source, cwd, text=None):
             "compile_units": decoded.count("DW_TAG_compile_unit")}
 
 
-def measure(compiler, candidate=False):
+def measure(compiler, candidate=False, flat=False):
+    if flat and not candidate:
+        raise ValueError("I require candidate mode for the flat-path experiment")
     version = run([compiler, "--version"], ROOT).splitlines()[0]
     flags = ["-g"] + (["-fno-integrated-as"] if "clang" in version else [])
     cases = []
@@ -80,11 +82,16 @@ def measure(compiler, candidate=False):
                 if candidate:
                     retained = generation / "__snapshot_0_1.s"
                     private = directory / "retained unit"
-                    private.mkdir()
                     replay_source = private / source.name
-                    replay_source.write_bytes(retained.read_bytes())
+                    if not flat:
+                        private.mkdir()
+                        replay_source.write_bytes(retained.read_bytes())
                     option = "-Wa,-fdebug-prefix-map=" if "clang" in version and sys.platform == "darwin" else "-Wa,--debug-prefix-map="
                     remaps = [option + str(private) + "=" + str(source.parent)]
+                    if flat:
+                        replay_source = retained
+                        remaps = [option + str(retained.parent) + "=" + str(source.parent),
+                                  option + retained.name + "=" + source.name]
                     if source.parent.resolve() != source.parent:
                         remaps.append(option + str(source.parent.resolve()) + "=" + str(source.parent))
                     output = directory / "candidate.o"
@@ -110,7 +117,9 @@ def measure(compiler, candidate=False):
                               "candidate_object_identical": candidate_identical,
                               "candidate_source_deleted": candidate,
                               "answer": int(value), "generation_reused": reused})
-    return {"compiler": compiler, "version": version, "platform": sys.platform, "cases": cases}
+    return {"compiler": compiler, "version": version, "platform": sys.platform,
+            "candidate_mode": ("flat" if flat else "original-basename") if candidate else None,
+            "cases": cases}
 
 
 if __name__ == "__main__":
@@ -118,10 +127,14 @@ if __name__ == "__main__":
     parser.add_argument("compiler", nargs="?", default="cc")
     parser.add_argument("--require-debug", action="store_true")
     parser.add_argument("--candidate", action="store_true")
+    parser.add_argument("--flat", action="store_true",
+                        help="I test directory and basename remaps without copying the retained unit")
     args = parser.parse_args()
+    if args.flat and not args.candidate:
+        parser.error("I require --candidate with --flat")
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler")
-    result = measure(compiler, candidate=args.candidate)
+    result = measure(compiler, candidate=args.candidate, flat=args.flat)
     print(json.dumps(result, indent=2))
     if args.require_debug and any(case["native"] != case["candidate" if args.candidate else "production"] or case["answer"] != 42
                                   or not case["generation_reused"] or (args.candidate and not case["candidate_object_identical"])

@@ -1248,6 +1248,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       external assembly, even with the original unit temporarily deleted.
       It retains the original basename, remaps private directories through
       the selected assembler, and supplies debug flags during final assembly.
+      A flat-path alternative with separate directory/basename mappings fails
+      GNU raw `.s` provenance in both cache roots; preprocessed sources pass.
+      I retain that counterexample as `--candidate --flat`. Integration must
+      respect my flat-only publication barrier and descriptor-relative cleanup:
+      adding persistent nested directories without changing those contracts
+      is not a valid implementation.
       Production integration, nested-source provenance and flag precedence
       remain open; `--candidate` is an experiment, not a repaired build path.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
