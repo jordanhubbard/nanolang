@@ -1915,17 +1915,17 @@ TEST_TIMEOUT ?= 1800
 USERGUIDE_TIMEOUT ?= 2400
 SHADOW_CHECK_TIMEOUT ?= 120
 CMD_TIMEOUT ?= 600
-TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV'
+TIMEOUT_CMD ?= perl -e 'alarm $(CMD_TIMEOUT); exec @ARGV; exit 127'
 # Bootstrap2 needs extended timeout due to self-hosted compiler performance
 # See docs/BOOTSTRAP_PROFILING_2026-01-21.md for analysis
 BOOTSTRAP2_TIMEOUT ?= 3600
-BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV'
+BOOTSTRAP2_TIMEOUT_CMD ?= perl -e 'alarm $(BOOTSTRAP2_TIMEOUT); exec @ARGV; exit 127'
 # Examples need extended timeout since they build 100+ programs across multiple compilers
 EXAMPLES_TIMEOUT ?= 2400
-EXAMPLES_TIMEOUT_CMD ?= perl -e 'alarm $(EXAMPLES_TIMEOUT); exec @ARGV'
+EXAMPLES_TIMEOUT_CMD ?= perl -e 'alarm $(EXAMPLES_TIMEOUT); exec @ARGV; exit 127'
 # Release needs extended timeout since it runs tests + git/gh operations
 RELEASE_TIMEOUT ?= 2400
-RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV'
+RELEASE_TIMEOUT_CMD ?= perl -e 'alarm $(RELEASE_TIMEOUT); exec @ARGV; exit 127'
 test: build shadow-check userguide-export
 	@echo ""
 	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c)"
