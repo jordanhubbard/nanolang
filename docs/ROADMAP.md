@@ -426,6 +426,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       wrapper and dependency gates pass. A final Darwin framework-backed package
       regression and strengthened phase assertions pass separately (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 assembler-input snapshot evidence.** I test inline assembly that
+      reads an external binary through `.incbin`, changes that binary only
+      during compilation, and restores its bytes and timestamps. I compare
+      cold, warm and independent fresh results on Clang and GCC before choosing
+      assembler-input capture. A retained C translation unit alone does not
+      establish that those later inputs were retained.
+      Against `5259507d`, Clang 21 and GCC 12 both reuse 43 while independent
+      fresh compilation returns 42, in local and shared caches. The binary is
+      absent from reuse records; its bytes, size and mtime are restored.
+      `--assembler --require-consistent` fails on both platforms (2026-09-12).
+      This is a reproduced defect, not assembler snapshot acceptance.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
+      by assembler file reads, including inline `.incbin`, and bind compilation
+      and reuse to those captured inputs. I test restored edits and permanent
+      replacements, nested includes, path spelling and compiler/assembler
+      variants. Rehashing the C preprocessor output cannot satisfy this gate;
+      merely withholding reuse is containment, not completed snapshot support.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
       and timestamps before final validation. I compare actual cold, warm and

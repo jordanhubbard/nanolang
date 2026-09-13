@@ -236,3 +236,48 @@ I added a framework-backed CoreFoundation package subcase and strengthened the
 phase assertions to check every paired preprocessing argument. The configured
 regression passes again on Darwin and on Linux normally and under ASan/UBSan. Production code is
 unchanged between these checks.
+
+## Assembler inputs: reproduced gap
+
+Against `5259507d`, I can still reuse code compiled from restored external
+input bytes. Inline assembly reads `answer.bin` through `.incbin`; that read
+happens after C preprocessing. The retained `.i` contains the directive, not
+the binary payload. My experiment changes the payload from ASCII `42` to
+`43` only during the first C compilation and restores its bytes, size and
+nanosecond mtime before compilation returns. It loads each resulting library
+in a fresh process and independently compiles the restored source.
+
+```sh
+make obj/test_module_generation_probe
+python3 -m tests.characterize_source_snapshot --assembler --require-consistent
+```
+
+Both Apple Clang 21 and Debian GCC 12.2.0 report these results:
+
+| Input | Cache | Cold | Warm | Independent fresh | Reuse record contains input |
+| --- | --- | --- | --- | --- | --- |
+| C source | Local and shared | 42 | 42 | 42 | Yes |
+| C header | Local and shared | 42 | 42 | 42 | Yes |
+| Assembler binary | Local and shared | 43 | 43 | 42 | No |
+
+All cases retain a translation unit, reuse the same generation and execute
+exactly one C compilation across cold and warm builds. Every controlled edit
+is restored. The command exits nonzero because the assembler cases disagree;
+it is deliberately not part of the passing snapshot acceptance suite yet.
+Without `--assembler`, the original four-case acceptance remains unchanged.
+
+I ran GCC in the network-disconnected, disposable Linux environment described
+above, using a production-builder probe built at `-O3 -Werror`. My first GCC
+fixture left assembly in the data section and failed to execute the library;
+after explicitly returning to `.text`, both platforms reproduced the same
+cache defect. That failed fixture run is not cache evidence.
+
+Capturing C preprocessing alone is insufficient even with no custom flags,
+PCH or package metadata. I need to capture assembler-consumed bytes and make
+the assembler use them. Merely adding a post-build hash, or excluding a few
+directive spellings, does not establish that invariant. The capture and
+compiler-variant acceptance work remains open in my roadmap.
+
+After adding the experiment, the existing 11-method snapshot suite passes on
+GCC and passes on Darwin with its two GCC-specific skips. No production
+compiler code changed in this characterization step.

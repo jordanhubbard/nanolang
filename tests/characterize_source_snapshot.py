@@ -2,6 +2,7 @@
 
 Run with python3 -m tests.characterize_source_snapshot [C-compiler].
 Add --require-consistent to fail when warm and fresh answers differ.
+Add --assembler to include external binary input read by inline assembly.
 I execute the production builder and load each library in a fresh process.
 """
 
@@ -17,12 +18,12 @@ from tests.characterize_linker_inputs import run
 from tests import test_bytecode_shadows as shadows
 
 
-def measure(compiler):
+def measure(compiler, kinds=("source", "header")):
     probe = shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
     cases = []
-    for kind in ("source", "header"):
+    for kind in kinds:
         for shared in (False, True):
             with tempfile.TemporaryDirectory(prefix="nano-source-snapshot-") as tmp:
                 directory = Path(tmp)
@@ -37,6 +38,15 @@ def measure(compiler):
                     target.write_text("#define ANSWER 42\n")
                     source.write_text('#include <stdint.h>\n#include "answer.h"\n'
                                       'int64_t nano_build_answer(void) { return ANSWER; }\n')
+                elif kind == "assembler":
+                    target = module / "answer.bin"
+                    target.write_bytes(b"42")
+                    symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                    assembly = f'.data\n.globl {symbol}\n{symbol}:\n.incbin "{target}"\n.text\n'
+                    source.write_text('extern const unsigned char snapshot_payload[];\n'
+                        '__asm__(' + json.dumps(assembly) + ');\n'
+                        'long long nano_build_answer(void) {\n'
+                        'return (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n')
                 original, stamp = target.read_bytes(), target.stat()
                 wrapper, marker = directory / "cc", directory / "mutated"
                 calls = directory / "calls"
@@ -95,6 +105,9 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     "cold_answer": cold_answer, "warm_answer": warm_answer,
                     "fresh_answer": answer(fresh), "reuse_record": record,
                     "generation_reused": cold_generation == warm_generation,
+                    "retained_translation_unit": (cold_generation / "__snapshot_0_0.i").is_file(),
+                    "target_in_reuse_record": record and str(target) in
+                        (cold_generation / "source_hashes.json").read_text(),
                     "cold_compilations": cold_calls,
                     "total_compilations": len(calls.read_text().splitlines()),
                 })
@@ -107,11 +120,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("compiler", nargs="?", default="cc")
     parser.add_argument("--require-consistent", action="store_true")
+    parser.add_argument("--assembler", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler:
         raise SystemExit("I need a C compiler executable")
-    result = measure(compiler)
+    result = measure(compiler, ("source", "header", "assembler") if args.assembler else ("source", "header"))
     print(json.dumps(result, indent=2))
     if args.require_consistent and any(case["warm_answer"] != case["fresh_answer"]
                                        for case in result["cases"]):
