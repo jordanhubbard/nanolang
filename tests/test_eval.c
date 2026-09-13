@@ -607,6 +607,34 @@ void test_eval_struct_creation_and_access(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_struct_string_field_lifetime(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "struct Message { text: string }\n"
+        "fn read_text(message: Message) -> string { return message.text }\n"
+        "fn read_repeatedly(message: Message) -> string {\n"
+        "    let mut result: string = \"\"\n"
+        "    let mut count: int = 0\n"
+        "    while (< count 100) {\n"
+        "        set result message.text\n"
+        "        set count (+ count 1)\n"
+        "    }\n"
+        "    return result\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow read_text {\n"
+        "    let message: Message = Message { text: \"owned\" }\n"
+        "    assert (== (read_text message) \"owned\")\n"
+        "}\n"
+        "shadow read_repeatedly {\n"
+        "    let message: Message = Message { text: \"stable\" }\n"
+        "    assert (== (read_repeatedly message) \"stable\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
 void test_eval_struct_pythagorean(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2023,6 +2051,7 @@ int main(void) {
     TEST(eval_program_with_top_level_let);
     TEST(eval_negative_zero);
     TEST(eval_struct_creation_and_access);
+    TEST(eval_struct_string_field_lifetime);
     TEST(eval_struct_pythagorean);
     TEST(eval_match_expression);
     TEST(eval_list_iteration);

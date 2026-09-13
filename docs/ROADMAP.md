@@ -24,6 +24,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **Interpreter reliability.** I return an owned string from record field
+      access so call-frame cleanup cannot free record-owned storage. Evaluator
+      coverage checks direct returns, local reassignment, 100 repeated reads,
+      and shadow execution. MAC `task_de992b992c064ceb917bda531312f531`.
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
       System / conflicting Forth-IDE work unmerged. I do not merge MAC lease
