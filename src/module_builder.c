@@ -374,10 +374,10 @@ static time_t get_mtime(const char *path) {
  * even when mtime is newer (e.g. after git checkout).
  * ============================================================ */
 
-/* FNV-1a 64-bit hash of file contents */
-static uint64_t hash_file_fnv1a(const char *path) {
+/* FNV-1a 64-bit hash of file contents. Zero is reserved for failure. */
+static bool hash_file_fnv1a(const char *path, uint64_t *hash_out) {
     FILE *fp = fopen(path, "rb");
-    if (!fp) return 0;
+    if (!fp) return false;
 
     uint64_t h = 14695981039346656037ULL;
     unsigned char buf[4096];
@@ -388,8 +388,26 @@ static uint64_t hash_file_fnv1a(const char *path) {
             h *= 1099511628211ULL;
         }
     }
-    fclose(fp);
-    return h;
+    if (ferror(fp) || fclose(fp) != 0 || h == 0) return false;
+    *hash_out = h;
+    return true;
+}
+
+static bool resolve_native_source(const char *module_dir, const char *source,
+                                  char *path, size_t path_size) {
+    int written;
+    if (!module_dir || !source || !path || path_size == 0) return false;
+    written = source[0] == '/'
+        ? snprintf(path, path_size, "%s", source)
+        : snprintf(path, path_size, "%s/%s", module_dir, source);
+    return written >= 0 && (size_t)written < path_size;
+}
+
+bool module_hash_native_source(const char *module_dir, const char *source,
+                               uint64_t *hash_out) {
+    char path[1024];
+    return hash_out && resolve_native_source(module_dir, source, path, sizeof(path)) &&
+           hash_file_fnv1a(path, hash_out);
 }
 
 /* Path to the hash cache file for a module */
@@ -496,7 +514,8 @@ static void hash_system_headers(cJSON *root, ModuleBuildMetadata *meta) {
         const char *hdr = meta->headers[i];
         char *path = find_system_header_path(hdr, meta);
         if (!path) continue;
-        uint64_t h = hash_file_fnv1a(path);
+        uint64_t h;
+        if (!hash_file_fnv1a(path, &h)) { free(path); continue; }
         free(path);
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
@@ -521,7 +540,8 @@ static bool system_headers_match(cJSON *cache, ModuleBuildMetadata *meta) {
             /* Header was cached but is now gone → rebuild. */
             return false;
         }
-        uint64_t h = hash_file_fnv1a(path);
+        uint64_t h;
+        if (!hash_file_fnv1a(path, &h)) { free(path); return false; }
         free(path);
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
@@ -571,7 +591,8 @@ static void hash_depfile_into_cache(cJSON *root, const char *depfile_path) {
             if (ti > 0) {
                 token[ti] = '\0';
                 if (access(token, R_OK) == 0) {
-                    uint64_t h = hash_file_fnv1a(token);
+                    uint64_t h;
+                    if (!hash_file_fnv1a(token, &h)) { ti = 0; p++; continue; }
                     char hstr[24];
                     snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
                     char key[4096 + 5];
@@ -591,7 +612,8 @@ static void hash_depfile_into_cache(cJSON *root, const char *depfile_path) {
     if (ti > 0) {
         token[ti] = '\0';
         if (access(token, R_OK) == 0) {
-            uint64_t h = hash_file_fnv1a(token);
+            uint64_t h;
+            if (!hash_file_fnv1a(token, &h)) { free(buf); return; }
             char hstr[24];
             snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
             char key[4096 + 5];
@@ -631,7 +653,8 @@ static bool dep_hashes_match(cJSON *cache) {
             const char *path = item->string + 4;
             if (access(path, R_OK) != 0)
                 return false; /* previously-tracked header is gone */
-            uint64_t h = hash_file_fnv1a(path);
+            uint64_t h;
+            if (!hash_file_fnv1a(path, &h)) return false;
             char hstr[24];
             snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
             if (!cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
@@ -660,9 +683,11 @@ void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta)
     cJSON *root = cJSON_CreateObject();
     if (!root) return;
     for (size_t i = 0; i < meta->c_sources_count; i++) {
-        char src[1024];
-        snprintf(src, sizeof(src), "%s/%s", module_dir, meta->c_sources[i]);
-        uint64_t h = hash_file_fnv1a(src);
+        uint64_t h;
+        if (!module_hash_native_source(module_dir, meta->c_sources[i], &h)) {
+            cJSON_Delete(root);
+            return;
+        }
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
         cJSON_AddStringToObject(root, meta->c_sources[i], hstr);
@@ -670,7 +695,8 @@ void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta)
     /* Also hash module.json itself */
     char mj[1024];
     snprintf(mj, sizeof(mj), "%s/module.json", module_dir);
-    uint64_t mj_hash = hash_file_fnv1a(mj);
+    uint64_t mj_hash;
+    if (!hash_file_fnv1a(mj, &mj_hash)) { cJSON_Delete(root); return; }
     char mj_hstr[24];
     snprintf(mj_hstr, sizeof(mj_hstr), "%llu", (unsigned long long)mj_hash);
     cJSON_AddStringToObject(root, "module.json", mj_hstr);
@@ -688,9 +714,11 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
     if (!cache) return false;
     bool match = true;
     for (size_t i = 0; i < meta->c_sources_count && match; i++) {
-        char src[1024];
-        snprintf(src, sizeof(src), "%s/%s", module_dir, meta->c_sources[i]);
-        uint64_t h = hash_file_fnv1a(src);
+        uint64_t h;
+        if (!module_hash_native_source(module_dir, meta->c_sources[i], &h)) {
+            match = false;
+            break;
+        }
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
         cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, meta->c_sources[i]);
@@ -702,17 +730,22 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
     if (match) {
         char mj[1024];
         snprintf(mj, sizeof(mj), "%s/module.json", module_dir);
-        uint64_t h = hash_file_fnv1a(mj);
+        uint64_t h;
+        if (!hash_file_fnv1a(mj, &h)) match = false;
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
         cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, "module.json");
-        if (!item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
+        if (match && (!item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0))
             match = false;
     }
     if (match) match = system_headers_match(cache, meta);
     if (match) match = dep_hashes_match(cache);
     cJSON_Delete(cache);
     return match;
+}
+
+bool module_source_hashes_match(const char *module_dir, ModuleBuildMetadata *meta) {
+    return meta && hashes_match(module_dir, meta);
 }
 
 // Helper: Create directory (mkdir -p)
@@ -1778,7 +1811,11 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
     // Check if any C source is newer
     for (size_t i = 0; i < meta->c_sources_count; i++) {
         char source_path[1024];
-        snprintf(source_path, sizeof(source_path), "%s/%s", module_dir, meta->c_sources[i]);
+        if (!resolve_native_source(module_dir, meta->c_sources[i], source_path,
+                                   sizeof(source_path))) {
+            fprintf(stderr, "Error: C source path is too long: %s\n", meta->c_sources[i]);
+            return true;
+        }
 
         if (!file_exists(source_path)) {
             fprintf(stderr, "Error: C source not found: %s\n", source_path);

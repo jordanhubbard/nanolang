@@ -155,6 +155,12 @@ bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta);
 // (called automatically by module_build; also callable manually)
 void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata *meta);
 
+// Resolve and hash one native source. Zero is never a successful digest.
+bool module_hash_native_source(const char *module_dir, const char *source, uint64_t *hash_out);
+
+// Return whether native source contents match the recorded cache.
+bool module_source_hashes_match(const char *module_dir, ModuleBuildMetadata *meta);
+
 // Get module build directory path (honors NANO_BUILD_CACHE)
 char* module_get_build_dir(const char *module_dir);
 
