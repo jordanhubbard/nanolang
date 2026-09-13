@@ -78,9 +78,10 @@ def measure(compiler, kinds=("source", "header")):
                     metadata["cflags"] = fresh_flags
                     (module / "module.json").write_text(json.dumps(metadata))
                 elif kind.startswith("assembler"):
-                    if kind == "assembler-external":
+                    if kind.startswith("assembler-external"):
                         metadata = json.loads((module / "module.json").read_text())
                         fresh_flags = ["-fno-integrated-as"]
+                        if kind == "assembler-external-debug": fresh_flags += ["-O2", "-g"]
                         metadata["cflags"] = fresh_flags
                         (module / "module.json").write_text(json.dumps(metadata))
                     target = module / "answer.bin"
@@ -99,7 +100,7 @@ def measure(compiler, kinds=("source", "header")):
                         if kind == "assembler-include":
                             inner.write_text('.ascii "42"\n')
                             target = inner
-                    elif kind in ("assembler-fallback", "assembler-macro"):
+                    elif kind in ("assembler-fallback", "assembler-macro", "assembler-external-macro"):
                         include = module / "macro.s"
                         include.write_text('.macro payload file\n.incbin "\\file"\n.endm\npayload "' + str(target) + '"\n')
                         directive = f'.include "{include}"'
@@ -120,6 +121,9 @@ if "-S" in sys.argv or "-E" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write(("S" if "-S" in sys.argv else "E") + "\\n")
 if "-c" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write("C\\n")
+    if "assembler" in sys.argv:
+        with open({str(calls)!r}, "a") as log:
+            log.write(("external" if "-fno-integrated-as" in sys.argv else "integrated") + "\\n")
 if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "'-c' in sys.argv"}:
     marker = pathlib.Path({str(marker)!r})
     if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":
@@ -182,6 +186,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                         (cold_generation / "source_hashes.json").read_text(),
                     "cold_object_compilations": cold_calls.count("C"),
                     "total_object_compilations": calls.read_text().splitlines().count("C"),
+                    "external_assembly_compilations": calls.read_text().splitlines().count("external"),
                     "cold_assembly_captures": cold_calls.count("S"),
                     "total_assembly_captures": calls.read_text().splitlines().count("S"),
                 })

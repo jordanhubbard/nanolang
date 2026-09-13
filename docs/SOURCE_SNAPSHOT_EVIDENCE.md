@@ -1690,15 +1690,36 @@ assembly fail. The existing `capture-assembly` helper retains this literal
 input; replay with the external assembler then returns 42 after the source and
 payload are deleted. That trial is not production integration.
 
-The production builder currently excludes this flag from retained-input mode
+Before the v29 build-context repair, my production builder excluded this flag from retained-input mode
 but still publishes and reuses a cache record. The restored-edit fixture gives
 cold/warm/fresh **43/43/42** under both local and shared caches, with restored
 bytes, size and mtime, no retained assembly, and actual generation reuse.
-The exclusion is not containment. This is an unresolved cache defect.
+The exclusion was not containment.
 
 `python3 -m tests.characterize_source_snapshot --external-assembler --require-consistent`
-reproduces and rejects the mismatch. A repair must preserve external assembler
-selection in the final command and capture inputs in private storage during
-warm validation; the current directory-free Clang assembly-text hash cannot
-establish those external bytes. Macro and nonliteral read coverage remains
-part of the general assembler-input requirement.
+now accepts the literal case: cold/warm/fresh 42/42/42 under both caches,
+one retained binary input, and actual generation reuse. I preprocess C into
+private storage, emit assembly, copy literal assembler inputs with my existing
+bounded copier, and assemble the rewritten input. Warm validation repeats
+private capture and hashes the resulting object. The invocation fixture checks
+that all three object compilations preserve `-fno-integrated-as`.
+
+I also exercise nested includes, quoted binary paths, offset/count reads,
+ordinary and shared source groups, permanent replacement, missing inputs,
+preservation of the previous library on failure, and recovery. These cases use
+`-O2 -std=c11 -Wall -Wextra -Werror` with the external selector.
+
+This is a bounded repair, not completed external-assembler support. On this
+Apple toolchain, macro-supplied filenames and `-O2 -g` still exceed my literal
+copier's grammar: debug assembly contains octal escapes in `.ascii` strings,
+and I conservatively reject backslashes. Both restored-edit variants give
+43/42/42 without a reuse record under local and shared caches. My consistency
+gate rejects them. Declining reuse does not repair their cold compilation.
+Those variants and general assembler file-read coverage remain open.
+
+The rebuilt tools pass `make test-bytecode-shadows` on ARM64 Darwin:
+188 methods, fifteen platform/configuration skips, and 375.944 seconds of
+reported test time. This includes all 47 snapshot methods, publication,
+argument transport and response graph/query checks. I have not rerun this
+repair's full gate on Linux; earlier Linux results above belong to earlier
+commits.

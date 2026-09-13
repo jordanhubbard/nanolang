@@ -436,7 +436,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v28-forwarded-arguments");
+    hash_context_field(&hash, "nanolang-c-build-context-v29-external-assembly");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -2477,7 +2477,7 @@ static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     if (!flag) return MODULE_FLAG_UNKNOWN;
     const char *both[] = {
         "-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
-        "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic",
+        "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic", "-fno-integrated-as",
         "-std=c89", "-std=c90", "-std=c99", "-std=c11", "-std=c17", "-std=c18",
         "-std=gnu89", "-std=gnu90", "-std=gnu99", "-std=gnu11", "-std=gnu17", "-std=gnu18",
         "-Wall", "-Wextra", "-Werror", "-Wpedantic",
@@ -3214,6 +3214,30 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
     return ok;
 }
 
+/* I preserve the assembler selector after C capture. I inspect argument words,
+ * not substrings in definitions or arguments forwarded to another tool. */
+static bool module_external_assembler(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags) {
+    for (size_t group = 0; group < 3; group++) {
+        size_t count = group == 0 ? flags->count : meta->cflags_count;
+        char **fragments = group == 0 ? flags->cflags : meta->cflags;
+        if (group == 2) fragments = module_platform_cflags(meta, &count);
+        for (size_t i = 0; i < count; i++) {
+            if (!fragments[i]) continue;
+            const char *cursor = fragments[i];
+            char word[4096];
+            while (module_flag_word(&cursor, word, sizeof(word)) > 0) {
+                if (!strcmp(word, "-Xlinker") || !strcmp(word, "-D") ||
+                    !strcmp(word, "-U") || !strcmp(word, "-I")) {
+                    if (module_flag_word(&cursor, word, sizeof(word)) != 1) break;
+                    continue;
+                }
+                if (!strcmp(word, "-fno-integrated-as")) return true;
+            }
+        }
+    }
+    return false;
+}
+
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
@@ -3222,7 +3246,11 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
                                    module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" :
                                    (phase == MODULE_C_EMIT_ASSEMBLY || phase == MODULE_C_RETAINED_ASSEMBLY) ? "-S" : "-c");
     /* I already applied C code-generation and diagnostic flags during capture. */
-    if (phase == MODULE_C_ASSEMBLE) return ok;
+    if (phase == MODULE_C_ASSEMBLE) {
+        if (snapshot && module_external_assembler(meta, snapshot))
+            ok &= module_build_append(prefix, capacity, " -fno-integrated-as");
+        return ok;
+    }
 #if !defined(__APPLE__)
     if (!retained) ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
 #endif
@@ -3250,6 +3278,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
 typedef enum {
     MODULE_SNAPSHOT_NONE = 0,
     MODULE_SNAPSHOT_CLANG,
+    MODULE_SNAPSHOT_CLANG_EXTERNAL,
     MODULE_SNAPSHOT_GCC,
     MODULE_SNAPSHOT_GCC_ASSEMBLY,
     MODULE_SNAPSHOT_GCC_REPLAY
@@ -3316,13 +3345,15 @@ static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, 
         }
     }
     if (!meta->c_sources_count) return MODULE_SNAPSHOT_NONE;
-    return module_driver_snapshot_mode(meta);
+    ModuleSnapshotMode mode = module_driver_snapshot_mode(meta);
+    return mode == MODULE_SNAPSHOT_CLANG && module_external_assembler(meta, captured)
+        ? MODULE_SNAPSHOT_CLANG_EXTERNAL : mode;
 }
 
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
                                        const ModulePkgFlags *flags, const char *directory,
                                        ModuleSnapshotMode mode, ModuleSnapshotMode *actual_mode);
-static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkgFlags *flags);
+static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkgFlags *flags, ModuleSnapshotMode mode);
 
 /* Other modes keep their supplemental veto and original compilation command.
  * Their include traces detect search changes even when -P hides line markers;
@@ -3338,7 +3369,8 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
         return result;
     }
     ModuleSnapshotMode mode = module_snapshot_mode(meta, flags);
-    if (mode == MODULE_SNAPSHOT_GCC) return module_gcc_validation(meta, flags);
+    if (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL)
+        return module_gcc_validation(meta, flags, mode);
     if (mode != MODULE_SNAPSHOT_NONE) return module_snapshot_sources(meta, flags, NULL, mode, NULL);
     char prefix[4096];
     if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_PREPROCESS, flags)) return 0;
@@ -3804,7 +3836,8 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
     if (mode == MODULE_SNAPSHOT_GCC &&
         !module_build_append(prefix, sizeof(prefix), " -fpch-preprocess")) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
-    hash_context_field(&fingerprint, mode == MODULE_SNAPSHOT_GCC ? "gcc-retained-v1" : "clang-assembly-v1");
+    hash_context_field(&fingerprint, mode == MODULE_SNAPSHOT_GCC ? "gcc-retained-v1" :
+        mode == MODULE_SNAPSHOT_CLANG_EXTERNAL ? "clang-external-retained-v1" : "clang-assembly-v1");
     for (size_t i = 0; i < flags->count; i++) {
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
@@ -3882,7 +3915,7 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             hash_context_field(&fingerprint, digest);
         }
     }
-    if (mode == MODULE_SNAPSHOT_GCC) {
+    if (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) {
         uint64_t frozen = module_gcc_capture_assembly(meta, flags, directory, fingerprint);
         if (frozen) {
             if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
@@ -3895,6 +3928,9 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             return frozen;
         }
 #endif
+        /* External Clang cannot claim retained assembly when the copier cannot
+         * resolve the input language. Keep the uncaptured fallback explicit. */
+        if (mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) return 0;
     }
     return fingerprint;
 }
@@ -3949,13 +3985,12 @@ static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFla
     return fingerprint;
 }
 
-static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkgFlags *flags) {
+static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkgFlags *flags, ModuleSnapshotMode mode) {
     const char *temporary = getenv("TMPDIR");
     if (!temporary || !*temporary) temporary = "/tmp";
     char directory[2048] = {0};
     if (!module_build_append(directory, sizeof(directory), "%s/nano-gcc-check-XXXXXX", temporary) ||
         !mkdtemp(directory)) return 0;
-    ModuleSnapshotMode mode = MODULE_SNAPSHOT_GCC;
     uint64_t fingerprint = module_snapshot_sources(meta, flags, directory, mode, &mode);
     fingerprint = module_gcc_objects(meta, flags, directory, fingerprint, true, mode);
     module_remove_staging(directory);

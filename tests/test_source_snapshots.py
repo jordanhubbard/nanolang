@@ -92,7 +92,38 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(case["total_object_compilations"], 1)
                 self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
 
+    def test_clang_external_assembler_cache_restored_inputs(self):
+        if not self.clang: self.skipTest("I need Clang's external assembler selector")
+        for case in measure(shutil.which("cc"), ("assembler-external",))["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                for key in ("bytes_restored", "mtime_preserved", "size_preserved", "generation_reused",
+                            "reuse_record", "retained_translation_unit", "retained_assembly"):
+                    self.assertTrue(case[key], key)
+                self.assertEqual(case["retained_assembler_files"], 1)
+                self.assertEqual(case["total_object_compilations"], 3)
+                self.assertEqual(case["external_assembly_compilations"], 3)
+
     def test_assembler_cache_nested_changes_and_recovery(self):
+        self.assembler_cache_nested_changes_and_recovery(False)
+
+    def test_external_assembler_cache_nested_changes_and_recovery(self):
+        if not self.clang: self.skipTest("I need Clang's external assembler selector")
+        self.assembler_cache_nested_changes_and_recovery(True)
+
+    def test_apple_external_uncaptured_inputs_decline_reuse(self):
+        if not self.clang or sys.platform != "darwin":
+            self.skipTest("I characterize Apple's uncaptured macro and debug fallback")
+        for case in measure(shutil.which("cc"), ("assembler-external-macro", "assembler-external-debug"))["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
+                self.assertFalse(case["reuse_record"])
+                self.assertFalse(case["generation_reused"])
+                self.assertFalse(case["retained_assembly"])
+                self.assertEqual(case["retained_assembler_files"], 0)
+                with self.assertRaises(SystemExit): require_consistent({"cases": [case]})
+
+    def assembler_cache_nested_changes_and_recovery(self, external):
         for shared in (False, True):
             with self.subTest(shared=shared), tempfile.TemporaryDirectory(prefix="nano-assembly-cache-") as tmp:
                 directory = Path(tmp)
@@ -105,6 +136,9 @@ class SourceSnapshots(unittest.TestCase):
                 assembly = '__asm__(' + json.dumps(f'.data\n.globl {symbol}\n{symbol}:\n.include "{include}"\n.text\n') + ');\n'
                 body = 'extern const unsigned char snapshot_payload[];\nlong long nano_build_answer(void) {\nreturn (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n'
                 metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": ["-O2 -g -std=c11 -Wall -Wextra -Werror"]}
+                if external:
+                    # I keep escaped debug strings outside the literal copier's accepted grammar.
+                    metadata["cflags"] = ["-O2 -std=c11 -Wall -Wextra -Werror -fno-integrated-as"]
                 if shared:
                     (module / "private.c").write_text(assembly)
                     metadata["shared_c_sources"] = ["private.c"]

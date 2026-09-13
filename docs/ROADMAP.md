@@ -1052,9 +1052,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       final compilation and warm validation to retained inputs while preserving
       external assembler selection, and test literal/nested/macro inputs,
       deletion, restored edits and failure recovery. The existing literal
-      copier passes a standalone deleted-input replay trial, not production
-      integration. `--external-assembler` in the characterization CLI reproduces
-      this defect; `--require-consistent` must reject it until repaired.
+      copier now serves production literal capture: the restored-edit fixture
+      returns 42/42/42 with actual local/shared reuse, private payload bytes,
+      and the external selector on all three object compilations. Nested
+      literal reads, replacement and failed-build recovery are tested separately.
+      This item remains open: macro-supplied filenames and `-g` assembly with
+      octal-escaped `.ascii` debug strings exceed the copier's grammar. Those
+      cases decline reuse but still yield cold/warm/fresh 43/42/42; I must
+      capture their actual reads before accepting these variants.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
@@ -1065,9 +1070,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
       I first characterize Clang's external-assembler mode: whether `-S`
       resolves file reads, whether replay survives deletion, and whether the
-      selected external assembler remains selected. The current flag filter
-      excludes `-fno-integrated-as`; admitting it without these checks would
-      turn fallback behavior into an unsupported snapshot claim.
+      selected external assembler remains selected. I admit
+      `-fno-integrated-as` only through the existing bounded capture paths;
+      unsupported capture falls back without a reuse record. That is not a
+      guarantee of cold-build snapshot consistency.
 - [x] **5.0 retained GCC PCH inputs.** I replace external PCH references in
       retained translation units with private copies and bind their bytes to
       cache identity. Before integration I verify that GCC accepts relocated
