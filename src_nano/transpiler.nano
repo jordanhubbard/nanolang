@@ -2789,10 +2789,22 @@ shadow gen_number {
 
 /* Generate code for a string literal */
 fn gen_string(value: string) -> string {
-    /* For now, return as-is. In production, need to escape special chars */
+    # I preserve source escape spellings and escape physical control bytes for C.
     let mut parts: array<string> = []
     set parts (cg_append parts "\"")
-    set parts (cg_append parts value)
+    let mut start: int = 0
+    let mut i: int = 0
+    while (< i (str_length value)) {
+        let c: int = (char_at value i)
+        if (or (== c 10) (== c 13)) {
+            set parts (cg_append parts (str_substring value start (- i start)))
+            if (== c 10) { set parts (cg_append parts "\\n") }
+            else { set parts (cg_append parts "\\r") }
+            set start (+ i 1)
+        }
+        set i (+ i 1)
+    }
+    set parts (cg_append parts (str_substring value start (- i start)))
     set parts (cg_append parts "\"")
     return (cg_build parts)
 }
@@ -2800,6 +2812,8 @@ fn gen_string(value: string) -> string {
 shadow gen_string {
     let code: string = (gen_string "hello")
     assert (== code "\"hello\"")
+    assert (== (gen_string "a\nb\rc") "\"a\\nb\\rc\"")
+    assert (== (gen_string "a\\nb") "\"a\\nb\"")
 }
 
 /* Generate code for a boolean literal */
@@ -4450,11 +4464,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
             if (str_contains s.value "{") {
                 return (expand_string_interp s.value env)
             } else {
-                let mut parts: array<string> = []
-                set parts (cg_append parts "\"")
-                set parts (cg_append parts s.value)
-                set parts (cg_append parts "\"")
-                return (cg_build parts)
+                return (gen_string s.value)
             }
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
@@ -7303,11 +7313,7 @@ fn global_init_literal(parser: Parser, let_node: ASTLet) -> string {
         } else {
             if (== let_node.value_type ParseNodeType.PNODE_STRING) {
                 let str_node: ASTString = (parser_get_string parser let_node.value)
-                let mut parts: array<string> = []
-                set parts (cg_append parts "\"")
-                set parts (cg_append parts str_node.value)
-                set parts (cg_append parts "\"")
-                return (cg_build parts)
+                return (gen_string str_node.value)
             } else {
                 if (== let_node.value_type ParseNodeType.PNODE_BOOL) {
                     let bool_node: ASTBool = (parser_get_bool parser let_node.value)
@@ -7325,10 +7331,10 @@ fn global_init_literal(parser: Parser, let_node: ASTLet) -> string {
 }
 
 shadow global_init_literal {
-    let src: string = "fn main() -> int { return 0 }"
+    let src: string = "let banner: string = \"a\nb\""
     let toks: List<LexerToken> = (tokenize_string src)
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
-    assert (>= (str_length (global_init_literal p (parser_get_let p 0))) 0)
+    assert (== (global_init_literal p (parser_get_let p 0)) "\"a\\nb\"")
 }
 
 /* Generate global constant declarations for top-level let statements.
