@@ -6,6 +6,12 @@ Give a developer the technical account behind the companion deck. Explain my
 syntax, compiler and VM pipeline, runtime boundaries, tests, diagnostics, and
 release evidence without turning future roadmap items into current features.
 
+This local member is an unpublished 5.0 development draft. I retain historical
+release sections, distinguish shadow policy from enforcement and tests from
+proof, and use the shared `examples/gcd.nano` source rather than an untested
+code-shaped placeholder. #211's header dependency repair is implemented, not
+an outstanding limitation. Full runtime isolation and backend parity remain open.
+
 ## Heading hierarchy
 
 1. NanoLang: the language, compiler, and VM

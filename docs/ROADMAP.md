@@ -220,6 +220,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I also reconcile the companion narrative's shadow statement and its
       incorrect `gcd` example, which returns its first argument while claiming
       a result of six. The shared claim ledger's open #211 statement is stale.
+      Full source review also finds claims of whole-program proof, complete
+      ownership and production runtime security, plus a bounds example missing
+      the offset precondition. I reconcile these in the same unpublished 5.0
+      development draft, retain labeled historical measurements, share one
+      executable example between both artifacts, and test the extracted code.
+      The local pair is regenerated; extracted DOCX code passes on all three
+      backends, and false assertions preserve prior outputs. Mechanical checks
+      pass. Full-size Pillow slide review is available, but native artifact
+      visual acceptance remains open: the host's soffice launcher points to a
+      missing LibreOffice application. I do not treat a launcher as a renderer.
 - [x] **5.0 imported shadows — selection characterization.** I test direct
       and transitive imports with failing dependency shadows on the C seed,
       Stage 2 native driver and bytecode CLI, then compile that dependency as

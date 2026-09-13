@@ -7,6 +7,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from xml.etree import ElementTree as ET
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPILERS = {
@@ -17,6 +19,30 @@ COMPILERS = {
 
 
 class LanguageClaims(unittest.TestCase):
+    def test_developer_document_example(self):
+        with ZipFile(ROOT / "docs/presentation/nanolang-developer-overview.docx") as archive:
+            document = ET.fromstring(archive.read("word/document.xml"))
+        namespace = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+        paragraphs = ["".join("\n" if node.tag.endswith("}br") else node.text or ""
+                              for node in paragraph.iter()
+                              if node.tag in (f"{{{namespace['w']}}}t", f"{{{namespace['w']}}}br"))
+                      for paragraph in document.findall(".//w:p", namespace)]
+        examples = [value for value in paragraphs if value.startswith("fn gcd(")]
+        self.assertEqual(len(examples), 1)
+        example = examples[0]
+        self.assertEqual(example, (ROOT / "docs/presentation/examples/gcd.nano").read_text().strip())
+        source = example + "\nfn main() -> int { return (gcd 48 18) }\nshadow main { assert (== (main) 6) }\n"
+        for backend in COMPILERS:
+            with self.subTest(backend=backend), tempfile.TemporaryDirectory(prefix="nano-document-code-") as tmp:
+                compiled, output = self.compile_source(backend, source, Path(tmp))
+                self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                self.assertEqual(self.execute(backend, output).returncode, 6)
+                previous = output.read_bytes()
+                broken = source.replace("(gcd 48 18) 6", "(gcd 48 18) 7")
+                rejected, output = self.compile_source(backend, broken, Path(tmp))
+                self.assertGreater(rejected.returncode, 0, rejected.stdout + rejected.stderr)
+                self.assertEqual(output.read_bytes(), previous)
+
     def test_canonical_import_paths(self):
         for backend in COMPILERS:
             for duplicate in (False, True):

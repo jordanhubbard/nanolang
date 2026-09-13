@@ -1,5 +1,28 @@
 # NanoLang presentation QA ledger
 
+## 5.0 claims correction checkpoint (local, unpublished)
+
+I regenerated both members from the existing Python builders and preserved
+their visual design. I distinguish shadow policy from warnings and exemptions,
+tests from proof, abstract reference balance from ownership, and runtime
+laboratory evidence from production isolation. I corrected the bounds guard
+and #211 status. Both members now share `examples/gcd.nano`.
+
+I extracted the actual DOCX example and compiled and executed it on my C seed,
+Stage 2 native compiler and bytecode path. All returned six. Deliberately false
+assertions were rejected on every path without replacing previous output.
+Artifact regression checks also inspect the PPTX claims and shared example.
+The header-dependency gate passes. Mechanical acceptance is not visual acceptance.
+
+I inspected the contact sheet and all sixteen full-size Pillow renders. Text
+fits those renders without frame overlaps. This renderer is a layout aid, not
+a pixel-identical PowerPoint renderer. Native DOCX/PPTX visual acceptance is
+still open: `/opt/homebrew/bin/soffice` is a launcher whose LibreOffice application
+is missing. The pinned toolchain also lacks the optional DOCX renderer's
+`pdf2image` dependency. The managed dependency loader is unavailable; I used
+the repository-prescribed portable authoring path. No external publication
+or tag was made. I retain the roadmap item until the remaining review passes.
+
 ## 5.0 acceptance-gate repair (local, unpublished)
 
 I found that the portable regeneration script wrote `accepted: true` after

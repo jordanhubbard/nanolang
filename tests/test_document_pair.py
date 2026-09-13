@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
 from scripts.verify_document_pair import NS, REL, verify
@@ -15,6 +16,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DocumentPairAcceptance(unittest.TestCase):
+    def test_retained_deck_states_shadow_and_verifier_boundaries(self):
+        with ZipFile(ROOT / "docs/presentation/nanolang-developer-overview.pptx") as archive:
+            def text(part):
+                return "\n".join(node.text or "" for node in ET.fromstring(archive.read(part)).findall(".//a:t", NS))
+            second = text("ppt/slides/slide2.xml")
+            self.assertIn("TESTS", second)
+            self.assertNotIn("PROOF", second)
+            shadows = text("ppt/slides/slide10.xml")
+            for claim in ("project policy", "warnings", "Exemptions", "tested by default", "source-only"):
+                self.assertIn(claim, shadows)
+            verifier = text("ppt/slides/slide6.xml")
+            for boundary in ("not whole-program proof", "not object identity", "unknown stays unknown"):
+                self.assertIn(boundary, verifier)
+            self.assertIn("5.0 DRAFT", text("ppt/slides/slide1.xml"))
+            source = (ROOT / "docs/presentation/examples/gcd.nano").read_text().strip()
+            slide = ET.fromstring(archive.read("ppt/slides/slide10.xml"))
+            frames = ["\n".join("".join(node.text or "" for node in p.findall(".//a:t", NS))
+                                  for p in body.findall("a:p", NS))
+                      for body in slide.findall(".//p:txBody", NS)]
+            self.assertIn(source, frames)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="nano-document-pair-")
         self.addCleanup(self.temporary.cleanup)
