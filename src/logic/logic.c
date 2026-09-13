@@ -230,6 +230,7 @@ static int parse_atom(Cc *cc, Atom *a) {
 
 static int rel_lookup(Cc *cc, const char *n, int arity) {
     int i;
+    size_t nlen;
     for (i = 0; i < cc->nrel; i++) {
         if (strcmp(cc->rels[i].name, n) == 0) {
             if (cc->rels[i].arity != arity)
@@ -238,7 +239,10 @@ static int rel_lookup(Cc *cc, const char *n, int arity) {
         }
     }
     if (cc->nrel >= LG_REL) return cc_fail(cc, "I refuse too many relations");
-    snprintf(cc->rels[cc->nrel].name, LG_NAME, "%s", n);
+    nlen = strlen(n);
+    if (nlen >= LG_NAME) nlen = LG_NAME - 1;
+    memmove(cc->rels[cc->nrel].name, n, nlen);
+    cc->rels[cc->nrel].name[nlen] = '\0';
     cc->rels[cc->nrel].arity = arity;
     cc->rels[cc->nrel].ntup = 0;
     cc->nrel++;
