@@ -986,6 +986,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       24 Darwin skips), with final rewrite rejection checks on both hosts.
       Other configured compiler inputs remain open (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 retained compiler response files.** I measure restored edits to
+      `@file` arguments on Clang and GCC, including local and shared caches.
+      I retain the selected arguments before compilation, preserving compiler
+      response-file quoting and nested-path semantics rather than applying
+      shell parsing to their contents. I verify restoration, permanent changes,
+      missing/cyclic response files and phase-specific flags before accepting
+      response-file builds as snapshots.
+      The restored `-DANSWER=42` response file reproduces cold/warm/fresh
+      43/43/42 on GCC 12 and 43/42/42 on Apple Clang 21. Both local and shared
+      caches fail the cold-output requirement. My characterization CLI also
+      checked only warm versus fresh output, incorrectly passing Clang's cold
+      mismatch; I require both cold and warm results to match fresh output.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
       and timestamps before final validation. I compare actual cold, warm and

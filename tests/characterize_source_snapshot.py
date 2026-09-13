@@ -1,8 +1,9 @@
 """I measure restored source changes; exit zero is not cache acceptance.
 
 Run with python3 -m tests.characterize_source_snapshot [C-compiler].
-Add --require-consistent to fail when warm and fresh answers differ.
+Add --require-consistent to fail when cold or warm answers differ from fresh.
 Add --assembler to include external binary input read by inline assembly.
+Add --response to include compiler arguments read from a response file.
 I execute the production builder and load each library in a fresh process.
 """
 
@@ -34,11 +35,20 @@ def measure(compiler, kinds=("source", "header")):
                     env["NANO_BUILD_CACHE"] = str(directory / "cache")
                 source = module / "answer.c"
                 target = source
+                fresh_flags = []
                 if kind == "header":
                     target = module / "answer.h"
                     target.write_text("#define ANSWER 42\n")
                     source.write_text('#include <stdint.h>\n#include "answer.h"\n'
                                       'int64_t nano_build_answer(void) { return ANSWER; }\n')
+                elif kind == "response":
+                    target = module / "flags.rsp"
+                    target.write_text("-DANSWER=42\n")
+                    source.write_text('long long nano_build_answer(void) { return ANSWER; }\n')
+                    metadata = json.loads((module / "module.json").read_text())
+                    fresh_flags = ["@" + str(target)]
+                    metadata["cflags"] = fresh_flags
+                    (module / "module.json").write_text(json.dumps(metadata))
                 elif kind.startswith("assembler"):
                     target = module / "answer.bin"
                     target.write_bytes(b"42")
@@ -117,7 +127,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 warm_answer = answer(query("library"))
                 fresh = directory / ("fresh.dylib" if sys.platform == "darwin" else "fresh.so")
                 run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared",
-                     "-fPIC", source, "-o", fresh], directory)
+                     "-fPIC", *fresh_flags, source, "-o", fresh], directory)
                 if marker.read_text() != "0" or target.read_bytes() != original:
                     raise RuntimeError("I did not complete and restore the controlled compilation")
                 cases.append({
@@ -144,17 +154,26 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
             "cases": cases}
 
 
+def require_consistent(result):
+    if any(not (case["cold_answer"] == case["warm_answer"] == case["fresh_answer"])
+           for case in result["cases"]):
+        raise SystemExit("I compiled or reused code that differs from the restored inputs.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("compiler", nargs="?", default="cc")
     parser.add_argument("--require-consistent", action="store_true")
     parser.add_argument("--assembler", action="store_true")
+    parser.add_argument("--response", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler:
         raise SystemExit("I need a C compiler executable")
-    result = measure(compiler, ("source", "header", "assembler") if args.assembler else ("source", "header"))
+    kinds = ("source", "header")
+    if args.assembler: kinds += ("assembler",)
+    if args.response: kinds += ("response",)
+    result = measure(compiler, kinds)
     print(json.dumps(result, indent=2))
-    if args.require_consistent and any(case["warm_answer"] != case["fresh_answer"]
-                                       for case in result["cases"]):
-        raise SystemExit("I reused code from input bytes that are no longer present.")
+    if args.require_consistent:
+        require_consistent(result)

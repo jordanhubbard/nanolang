@@ -751,3 +751,39 @@ and 126-method bytecode/cache/link/snapshot/helper regression set pass with ten
 expected skips (2026-09-13).
 Darwin also passes its bootstrap and final 126-method regression set with 24
 expected skips; its production probe exercises the rewrite rejection checks.
+
+## Restored compiler response-file arguments
+
+At `16d932e1`, I measured `@flags.rsp` containing `-DANSWER=42`. The compiler
+wrapper changes it to `-DANSWER=43` only while the final object compilation
+runs, then restores its bytes, size and nanosecond modification time. The source
+returns `ANSWER`. Fresh compilation uses the same restored response file.
+
+On GCC 12.2 / GNU as 2.40, Linux arm64, both local and shared caches publish
+43 and reuse that generation, while fresh compilation returns 42. On Apple
+Clang 21, Darwin arm64, both caches publish 43 but withhold the reuse record;
+the next build and fresh compilation return 42. Neither compiler retains the
+response-file arguments in this path. Withholding Clang reuse contains later
+reuse, but does not make the cold output a snapshot.
+
+My previous `--require-consistent` condition compared only warm and fresh
+answers, so it incorrectly passed the Clang cold mismatch. I now require cold,
+warm and fresh answers to agree. Four predicate cases distinguish a consistent
+run, a cold-only mismatch, a warm-only mismatch and both mismatches. With the
+corrected gate, this command fails on both tested compilers:
+
+```sh
+python3 -m tests.characterize_source_snapshot --response --require-consistent
+```
+
+This is a reproduced production defect and a repaired acceptance gate, not
+response-file retention. The repair must capture arguments once for the build
+and use them consistently across compilation phases, preserving compiler
+response-file quoting, nested-file lookup and error semantics. Reusing my
+literal-shell-word parser for response contents would change their meaning.
+The roadmap response-file item remains open (2026-09-13).
+
+All 26 snapshot regression methods pass on GCC 12 Linux arm64 and Apple Clang
+21 Darwin arm64, with two and eleven expected skips respectively. The default
+source/header consistency gate remains green; the response-file gate above is
+intentionally red until argument retention is implemented.

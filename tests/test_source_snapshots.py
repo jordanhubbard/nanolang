@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 from tests import test_module_cache_publication as cache
-from tests.characterize_source_snapshot import measure
+from tests.characterize_source_snapshot import measure, require_consistent
 
 
 class SourceSnapshots(unittest.TestCase):
@@ -59,6 +59,15 @@ class SourceSnapshots(unittest.TestCase):
             with self.subTest(banner=banner):
                 result = subprocess.run([str(self.support.probe), "assembler-version", banner], capture_output=True, timeout=10)
                 self.assertEqual(result.returncode, 0 if banner in accepted else 1, result.stderr)
+
+    def test_consistency_gate_checks_cold_and_warm_answers(self):
+        for cold, warm, fresh in ((42, 42, 42), (43, 42, 42), (42, 43, 42), (43, 43, 42)):
+            with self.subTest(cold=cold, warm=warm, fresh=fresh):
+                result = {"cases": [{"cold_answer": cold, "warm_answer": warm, "fresh_answer": fresh}]}
+                if cold == warm == fresh:
+                    require_consistent(result)
+                else:
+                    with self.assertRaises(SystemExit): require_consistent(result)
 
     def test_restored_source_and_header_changes(self):
         observed = measure(shutil.which("cc"))
