@@ -65,6 +65,7 @@ typedef struct {
     char **field_names;      /* Array of field names */
     Value *field_values;     /* Array of field values */
     int field_count;         /* Number of fields */
+    int owner_count;         /* Number of interpreter values sharing this allocation */
 } StructValue;
 
 /* Union value (tagged union) */

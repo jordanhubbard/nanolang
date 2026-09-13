@@ -635,6 +635,35 @@ void test_eval_struct_string_field_lifetime(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_struct_alias_reassignment_lifetime(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "struct Pair { left: int, right: int }\n"
+        "fn alias_after_reassignment() -> int {\n"
+        "    let original: Pair = Pair { left: 20, right: 22 }\n"
+        "    let mut alias: Pair = original\n"
+        "    set alias Pair { left: 1, right: 2 }\n"
+        "    return (+ original.left original.right)\n"
+        "}\n"
+        "fn read_pair(pair: Pair) -> int { return (+ pair.left pair.right) }\n"
+        "fn alias_across_call() -> int {\n"
+        "    let pair: Pair = Pair { left: 19, right: 23 }\n"
+        "    let result: int = (read_pair pair)\n"
+        "    return (+ result pair.left)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow alias_after_reassignment { assert (== (alias_after_reassignment) 42) }\n"
+        "shadow alias_across_call { assert (== (alias_across_call) 61) }\n"
+    );
+    ASSERT(ok);
+
+    Value r = call_function("alias_after_reassignment", NULL, 0, ctx.env);
+    ASSERT_EQ(r.as.int_val, 42);
+    r = call_function("alias_across_call", NULL, 0, ctx.env);
+    ASSERT_EQ(r.as.int_val, 61);
+    run_ctx_free(&ctx);
+}
+
 void test_eval_struct_pythagorean(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2079,6 +2108,7 @@ int main(void) {
     TEST(eval_negative_zero);
     TEST(eval_struct_creation_and_access);
     TEST(eval_struct_string_field_lifetime);
+    TEST(eval_struct_alias_reassignment_lifetime);
     TEST(eval_struct_pythagorean);
     TEST(eval_match_expression);
     TEST(eval_list_iteration);

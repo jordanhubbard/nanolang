@@ -93,6 +93,7 @@ static void env_free_value(Value v) {
     if (v.type == VAL_STRUCT) {
         StructValue *sv = v.as.struct_val;
         if (!sv) return;
+        if (--sv->owner_count > 0) return;
         free(sv->struct_name);
         for (int j = 0; j < sv->field_count; j++) {
             free(sv->field_names[j]);
@@ -350,6 +351,15 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
             }
         }
     }
+    if (value.type == VAL_STRUCT && value.as.struct_val) {
+        for (int i = 0; i < env->symbol_count; i++) {
+            if (env->symbols[i].value.type == VAL_STRUCT &&
+                env->symbols[i].value.as.struct_val == value.as.struct_val) {
+                value.as.struct_val->owner_count++;
+                break;
+            }
+        }
+    }
 
     env->symbols[env->symbol_count++] = sym;
 }
@@ -442,6 +452,21 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value) {
     Symbol *sym = env_get_var(env, name);
     if (sym) {
+        if (value.type == VAL_STRUCT && value.as.struct_val &&
+            (sym->value.type != VAL_STRUCT || sym->value.as.struct_val != value.as.struct_val)) {
+            for (int i = 0; i < env->symbol_count; i++) {
+                if (&env->symbols[i] != sym &&
+                    env->symbols[i].value.type == VAL_STRUCT &&
+                    env->symbols[i].value.as.struct_val == value.as.struct_val) {
+                    value.as.struct_val->owner_count++;
+                    break;
+                }
+            }
+        }
+        if (sym->value.type == VAL_STRUCT && value.type == VAL_STRUCT &&
+            sym->value.as.struct_val == value.as.struct_val) {
+            return;
+        }
         env_free_value(sym->value);
         sym->value = value;
 
@@ -696,6 +721,7 @@ Value create_struct(const char *struct_name, char **field_names, Value *field_va
     v.is_break = false;
     v.is_continue = false;
     v.as.struct_val = malloc(sizeof(StructValue));
+    v.as.struct_val->owner_count = 1;
     v.as.struct_val->struct_name = strdup(struct_name);
     v.as.struct_val->field_count = field_count;
     

@@ -3648,6 +3648,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
                 if (args[1].type == VAL_STRUCT) {
                     /* Allocate struct on heap and store pointer */
                     StructValue *sv_copy = malloc(sizeof(StructValue));
+                    sv_copy->owner_count = 1;
                     sv_copy->struct_name = strdup(args[1].as.struct_val->struct_name);
                     sv_copy->field_count = args[1].as.struct_val->field_count;
                     sv_copy->field_names = malloc(sizeof(char*) * sv_copy->field_count);
@@ -4451,6 +4452,11 @@ static Value eval_call(ASTNode *node, Environment *env) {
         if (param_value.type == VAL_STRING) {
             param_value = create_string(args[i].as.string_val);
         }
+        if (param_value.type == VAL_STRUCT && param_value.as.struct_val) {
+            StructValue *sv = param_value.as.struct_val;
+            param_value = create_struct(sv->struct_name, sv->field_names,
+                                        sv->field_values, sv->field_count);
+        }
         if (param_value.type == VAL_FUNCTION) {
             FunctionSignature *sig_copy = copy_function_signature(param_value.as.function_val.signature);
             param_value = create_function(param_value.as.function_val.function_name, sig_copy);
@@ -4501,6 +4507,7 @@ static Value eval_call(ASTNode *node, Environment *env) {
         }
         dst->struct_name = strdup(src->struct_name);
         dst->field_count = src->field_count;
+        dst->owner_count = 1;
         dst->field_names = malloc(sizeof(char*) * dst->field_count);
         dst->field_values = malloc(sizeof(Value) * dst->field_count);
         for (int i = 0; i < dst->field_count; i++) {
@@ -6129,6 +6136,11 @@ Value call_function(const char *name, Value *args, int arg_count, Environment *e
         /* Make a deep copy of string values to avoid memory corruption */
         if (param_value.type == VAL_STRING) {
             param_value = create_string(args[i].as.string_val);
+        }
+        if (param_value.type == VAL_STRUCT && param_value.as.struct_val) {
+            StructValue *sv = param_value.as.struct_val;
+            param_value = create_struct(sv->struct_name, sv->field_names,
+                                        sv->field_values, sv->field_count);
         }
 
         env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
