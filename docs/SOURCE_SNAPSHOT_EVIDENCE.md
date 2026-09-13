@@ -1744,8 +1744,8 @@ fixture now returns cold/warm/fresh 42/42/42 under local and shared caches,
 retains the binary input, preserves the external selector and actually reuses
 the generation. Optimized/debug nested includes also pass permanent replacement,
 missing-input recovery and last-good-library checks for ordinary and shared
-source groups. Macro-expanded filenames still give 43/42/42 without reuse;
-their cold-build capture remains open. Numeric debug data is not general
+source groups. At v30, macro-expanded filenames still gave 43/42/42 without
+reuse and their cold-build capture remained open. Numeric debug data is not general
 assembler macro support.
 
 The Linux full `make test-bytecode-shadows` gate passes 190 methods with sixteen
@@ -1760,3 +1760,68 @@ The rebuilt Darwin tools also pass the full gate: 190 methods, fifteen skips
 and 426.654 seconds of reported test time, including all 49 snapshot methods.
 These are tested toolchain boundaries, not proof of arbitrary assembler syntax
 or identical semantics across every supported platform.
+
+## Selected Apple external-assembler expansion
+
+My v31 path follows the selected external assembler's dry-run report, then
+that assembler's backend report. On the tested Xcode toolchain, `as` is a
+wrapper around its Clang assembler. I do not infer a backend path from the
+driver's installation directory or silently switch to another assembler.
+I admit a single literal command from the Apple Clang 21.0.0 report family,
+decode bounded arguments without a shell, and hash the selected assembler,
+backend bytes and backend arguments into the capture fingerprint.
+
+I request assembly-text output from that backend and retain the expanded
+bytes privately. Text mode initially produced repeated empty labels in debug
+assembly. Naming temporary labels during text capture fixes that failure;
+final object assembly retains the selected assembler's original symbol policy.
+I do not apply `-msave-temp-labels` to final object assembly. My existing
+supervised-process helper gives the queries and normalization a shared
+five-second subprocess deadline, bounded output and process-group cleanup.
+Each report must describe one command; malformed, multiple, oversized,
+truncated, failed and timed-out reports decline this capture path.
+
+Six direct/replay cases cover literal, nested and macro-supplied paths with
+plain and optimized/debug C flags. They include all 256 payload byte values,
+an inactive missing-file reference, offset/count operands and a temporary-label
+relocation. Direct output returns 42, replacement returns 43, and replay after
+deleting source and input files returns 42. Direct and replayed object bytes
+are identical, including the debug cases.
+
+Production restored-edit tests now return 42/42/42 for plain and debug macro
+inputs under local and shared caches, with actual generation reuse and the
+external selector on all three object compilations. The mutation fixture
+explicitly excludes `-###`: it changes input during real object compilation,
+not a dry run. Production-retained assembly also replays after deleting
+originals for ordinary and shared source groups. Permanent edits, missing
+inputs, preservation of the previous library, query failure cleanup and later
+recovery are checked. Warm validation repeats capture in private storage.
+
+Unknown report families or failed capture still use the existing uncaptured
+fallback without a reuse record. That fallback does not establish cold-build
+snapshot consistency. This repair covers the tested Apple selection; other
+assembler implementations, unadmitted flags and source modes still need their
+own acceptance. I trust the configured tools and their reports; this is not
+executable authentication or a filesystem-wide snapshot.
+
+The Linux full gate passes 194 methods with twenty platform/configuration
+skips in 108.702 seconds of reported test time. Those skips include the
+Apple-only capture path. On Darwin, a separate ASan/UBSan production probe
+passes three report-boundary, retained-macro/recovery and query-failure methods
+in 53.122 seconds. Supporting objects and external compilers are not sanitizer
+instrumented, and this Darwin run disables leak detection. I removed the
+disposable Linux container and moved the sanitizer scratch directory to Trash.
+
+An additional restored-edit control forces the admitted driver's dry-run query
+to fail. The current fallback still gives cold/warm/fresh 43/42/42 under both
+caches, without a reuse record. The consistency gate rejects it. This is why
+the external-assembler umbrella remains open even though successful selected
+backend capture now handles macro reads: a failed admitted capture must not
+silently publish an uncaptured cold result. Unsupported-mode compatibility and
+failure of an admitted capture need separate outcomes.
+
+The rebuilt Darwin full gate passes 194 methods with fifteen skips in 516.378
+seconds of reported test time. Its 53 snapshot methods pass. The failed-query
+restored-edit control was added after that suite loaded and passes separately
+in 4.230 seconds; it deliberately verifies that the consistency gate rejects
+the remaining defect, not that the cold result is correct.

@@ -81,7 +81,7 @@ def measure(compiler, kinds=("source", "header")):
                     if kind.startswith("assembler-external"):
                         metadata = json.loads((module / "module.json").read_text())
                         fresh_flags = ["-fno-integrated-as"]
-                        if kind == "assembler-external-debug": fresh_flags += ["-O2", "-g"]
+                        if kind.endswith("-debug"): fresh_flags += ["-O2", "-g"]
                         metadata["cflags"] = fresh_flags
                         (module / "module.json").write_text(json.dumps(metadata))
                     target = module / "answer.bin"
@@ -100,7 +100,7 @@ def measure(compiler, kinds=("source", "header")):
                         if kind == "assembler-include":
                             inner.write_text('.ascii "42"\n')
                             target = inner
-                    elif kind in ("assembler-fallback", "assembler-macro", "assembler-external-macro"):
+                    elif kind in ("assembler-fallback", "assembler-macro", "assembler-external-macro", "assembler-external-macro-debug", "assembler-external-macro-query-failure"):
                         include = module / "macro.s"
                         include.write_text('.macro payload file\n.incbin "\\file"\n.endm\npayload "' + str(target) + '"\n')
                         directive = f'.include "{include}"'
@@ -117,14 +117,16 @@ def measure(compiler, kinds=("source", "header")):
                 calls = directory / "calls"
                 wrapper.write_text(f'''#!{sys.executable}
 import os, pathlib, subprocess, sys
+if {kind == "assembler-external-macro-query-failure"!r} and "-###" in sys.argv:
+    sys.exit(1)
 if "-S" in sys.argv or "-E" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write(("S" if "-S" in sys.argv else "E") + "\\n")
-if "-c" in sys.argv:
+if "-c" in sys.argv and "-###" not in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write("C\\n")
     if "assembler" in sys.argv:
         with open({str(calls)!r}, "a") as log:
             log.write(("external" if "-fno-integrated-as" in sys.argv else "integrated") + "\\n")
-if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "'-c' in sys.argv"}:
+if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "('-c' in sys.argv and '-###' not in sys.argv)"}:
     marker = pathlib.Path({str(marker)!r})
     if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":
         target = pathlib.Path({str(target)!r})

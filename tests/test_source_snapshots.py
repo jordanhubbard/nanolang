@@ -8,6 +8,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 
@@ -111,19 +112,26 @@ class SourceSnapshots(unittest.TestCase):
         if not self.clang: self.skipTest("I need Clang's external assembler selector")
         self.assembler_cache_nested_changes_and_recovery(True)
 
-    def test_apple_external_uncaptured_inputs_decline_reuse(self):
+    def test_apple_external_macro_inputs_use_selected_backend_capture(self):
         if not self.clang or sys.platform != "darwin":
-            self.skipTest("I characterize Apple's uncaptured macro fallback")
-        for case in measure(shutil.which("cc"), ("assembler-external-macro",))["cases"]:
+            self.skipTest("I exercise the selected Apple external assembler backend")
+        for case in measure(shutil.which("cc"), ("assembler-external-macro", "assembler-external-macro-debug"))["cases"]:
             with self.subTest(case=case):
-                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
-                self.assertFalse(case["reuse_record"])
-                self.assertFalse(case["generation_reused"])
-                self.assertFalse(case["retained_assembly"])
+                require_consistent({"cases": [case]})
+                self.assertEqual(case["cold_answer"], 42)
+                for key in ("reuse_record", "generation_reused", "retained_assembly", "retained_translation_unit",
+                            "bytes_restored", "mtime_preserved", "size_preserved"):
+                    self.assertTrue(case[key], key)
                 self.assertEqual(case["retained_assembler_files"], 0)
-                with self.assertRaises(SystemExit): require_consistent({"cases": [case]})
+                self.assertEqual(case["total_object_compilations"], 3)
+                self.assertEqual(case["external_assembly_compilations"], 3)
 
-    def assembler_cache_nested_changes_and_recovery(self, external):
+    def test_apple_external_macro_nested_changes_and_recovery(self):
+        if not self.clang or sys.platform != "darwin":
+            self.skipTest("I exercise the selected Apple external assembler backend")
+        self.assembler_cache_nested_changes_and_recovery(True, True)
+
+    def assembler_cache_nested_changes_and_recovery(self, external, macro=False):
         for shared in (False, True):
             with self.subTest(shared=shared), tempfile.TemporaryDirectory(prefix="nano-assembly-cache-") as tmp:
                 directory = Path(tmp)
@@ -131,6 +139,8 @@ class SourceSnapshots(unittest.TestCase):
                 binary, include = module / "payload with 'quotes'.bin", module / "nested include.s"
                 binary.write_bytes(b"xx42yy")
                 include_text = f'.macro payload\n.incbin "{binary}", 2, 2\n.endm\npayload\n'
+                if macro:
+                    include_text = '.macro payload file\n.incbin "\\file", 2, 2\n.endm\n' + f'payload "{binary}"\n'
                 include.write_text(include_text)
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                 assembly = '__asm__(' + json.dumps(f'.data\n.globl {symbol}\n{symbol}:\n.include "{include}"\n.text\n') + ');\n'
@@ -152,6 +162,22 @@ class SourceSnapshots(unittest.TestCase):
                     self.assertEqual(self.support.probe_path("directory", module, env), generation)
                     return generation
                 first = build(42)
+                if macro:
+                    self.assertTrue((first / "__expanded_0_0.s").is_file())
+                    originals = [module / "answer.c", binary, include]
+                    if shared: originals.append(module / "private.c")
+                    saved = {path: path.read_bytes() for path in originals}
+                    try:
+                        for path in originals: path.unlink()
+                        replay = directory / "deleted-originals.so"
+                        snapshots = [first / "__snapshot_0_0.s"]
+                        if shared: snapshots.append(first / "__snapshot_1_0.s")
+                        result = subprocess.run([shutil.which("cc"), "-fno-integrated-as", "-dynamiclib",
+                            *map(str, snapshots), "-o", str(replay)], capture_output=True, timeout=20)
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        self.assertEqual(self.answer(replay), 42)
+                    finally:
+                        for path, contents in saved.items(): path.write_bytes(contents)
                 binary.write_bytes(b"xx43yy")
                 second = build(43)
                 self.assertNotEqual(first, second)
@@ -630,6 +656,153 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                                      str(frozen), "-o", str(replay)], capture_output=True, timeout=20)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(self.answer(replay), 42)
+
+    def test_apple_failed_capture_keeps_cold_consistency_gate_open(self):
+        if not self.clang or sys.platform != "darwin":
+            self.skipTest("I characterize failed Apple capture with restored inputs")
+        for case in measure(shutil.which("cc"), ("assembler-external-macro-query-failure",))["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
+                self.assertFalse(case["reuse_record"])
+                self.assertFalse(case["generation_reused"])
+                self.assertFalse(case["retained_assembly"])
+                with self.assertRaises(SystemExit): require_consistent({"cases": [case]})
+
+    def test_apple_external_query_failure_and_recovery(self):
+        if not self.clang or sys.platform != "darwin":
+            self.skipTest("I exercise selected Apple backend query failures")
+        for failure in ("empty", "multiple", "truncated", "oversize", "error", "timeout"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory(prefix="nano-as-query-failure-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                payload = module / "payload.bin"
+                payload.write_bytes(b"42")
+                assembly = '.data\n.globl _snapshot_payload\n_snapshot_payload:\n.macro payload file\n.incbin "\\file"\n.endm\n' + f'payload "{payload}"\n.text\n'
+                (module / "answer.c").write_text('__asm__(' + json.dumps(assembly) + ');\n'
+                    'extern const unsigned char snapshot_payload[];\n'
+                    'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+                (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
+                                                               "cflags": ["-fno-integrated-as"]}))
+                wrapper = directory / "cc"
+                banner = 'Apple clang version 21.0.0 (fixture)\n'
+                wrapper.write_text(f'''#!{sys.executable}
+import os, subprocess, sys, time
+failure = os.getenv("NANO_QUERY_FAILURE")
+if "-###" in sys.argv and failure:
+    if failure == "timeout": time.sleep(60)
+    if failure == "multiple": sys.stderr.write({banner!r} + ' "/missing/tool"\\n "/missing/other"\\n')
+    if failure == "truncated": sys.stderr.write({banner!r} + ' "/unterminated')
+    if failure == "oversize": sys.stderr.write("x" * 20000)
+    sys.exit(1 if failure == "error" else 0)
+os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
+''')
+                wrapper.chmod(0o700)
+                env["NANO_CC"] = str(wrapper)
+                env["NANO_QUERY_FAILURE"] = failure
+                started = time.monotonic()
+                self.support.probe_path("build", module, env, timeout=20)
+                self.assertLess(time.monotonic() - started, 15)
+                generation = self.support.probe_path("directory", module, env)
+                self.assertFalse((generation / "source_hashes.json").exists())
+                self.assertFalse(list(generation.glob("__expanded_*")))
+                self.assertFalse(list(generation.glob("__snapshot_*.s")))
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                del env["NANO_QUERY_FAILURE"]
+                self.support.probe_path("build", module, env, timeout=20)
+                recovered = self.support.probe_path("directory", module, env)
+                self.assertTrue((recovered / "source_hashes.json").is_file())
+                self.assertTrue((recovered / "__expanded_0_0.s").is_file())
+                self.support.probe_path("build", module, env, timeout=20)
+                self.assertEqual(self.support.probe_path("directory", module, env), recovered)
+
+    def test_apple_external_assembler_report_boundaries(self):
+        if sys.platform != "darwin": self.skipTest("I decode the Apple driver report here")
+        banner = "Apple clang version 21.0.0 (fixture)\nTarget: arm64-apple-darwin\nThread model: posix\nInstalledDir: /fixture\n"
+        command = ' "/fixture/compiler with space" "-cc1as" "-o" "object with \'quotes\'.o"\n'
+        accepted = banner + command
+        accepted_reports = [accepted, banner + "clang: warning: argument unused during compilation: '-fPIC' [-Wunused-command-line-argument]\n" + command]
+        reports = accepted_reports + ["", banner, command, accepted + command, accepted + "unexpected command\n",
+                   accepted.replace("21.0.0", "22.0.0"), banner + ' "/unterminated\n',
+                   accepted.replace("21.0.0", "21.0.01"),
+                   banner + ' "/fixture/tool" "$(touch forbidden)"\n',
+                   banner + ' "/fixture/tool"; touch forbidden\n',
+                   banner + ' "/fixture/tool" "' + "x" * 4096 + '"\n',
+                   banner + ' "/fixture/tool"' + ' "x"' * 252 + '\n']
+        for report in reports:
+            with self.subTest(report=report[:90]):
+                result = subprocess.run([str(self.support.probe), "assembler-report", report], capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0 if report in accepted_reports else 1, result.stderr)
+                self.assertEqual(result.stderr, b"")
+                if result.returncode == 0:
+                    self.assertEqual(json.loads(result.stdout), ["/fixture/compiler with space", "-cc1as", "-o", "object with 'quotes'.o"])
+
+    def test_apple_selected_external_backend_expands_macro_reads(self):
+        if not self.clang or sys.platform != "darwin":
+            self.skipTest("I characterize the selected Apple external assembler backend")
+        compiler = shutil.which("cc")
+        for spelling in ("literal", "nested", "macro"):
+            for flags in ([], ["-O2", "-g", "-std=c11", "-Wall", "-Wextra", "-Werror"]):
+                with self.subTest(spelling=spelling, flags=flags), tempfile.TemporaryDirectory(prefix="nano-selected-as-") as tmp:
+                    directory = Path(tmp)
+                    payload, inner, outer = (directory / name for name in ("payload with 'quotes'.bin", "inner.s", "outer.s"))
+                    payload_bytes = b"xx42yy" + bytes(range(256))
+                    payload.write_bytes(payload_bytes)
+                    literal = f'.incbin "{payload}", 2, {len(payload_bytes) - 2}\n'
+                    inner.write_text(literal if spelling != "macro" else
+                        '.macro read_payload file\n.incbin "\\file", 2, ' + str(len(payload_bytes) - 2) + '\n.endm\n' +
+                        f'read_payload "{payload}"\n.if 0\n.incbin "missing.bin"\n.endif\n')
+                    outer.write_text(f'.include "{inner}"\n')
+                    directive = literal if spelling == "literal" else f'.include "{outer}"\n'
+                    source, raw, captured = (directory / name for name in ("answer.c", "raw.s", "captured.s"))
+                    source.write_text('__asm__(' + json.dumps('.data\n.globl _snapshot_payload\n_snapshot_payload:\n' +
+                        directive + '.p2align 3\n1:\n.quad 1b\n.text\n') + ');\nextern const unsigned char snapshot_payload[];\n'
+                        'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+                    def run(args):
+                        result = subprocess.run(args, capture_output=True, timeout=20)
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        return result
+                    def query(args):
+                        result = run([*args, "-###"])
+                        commands = [shlex.split(line) for line in result.stderr.decode().splitlines()
+                                    if line.lstrip().startswith('"')]
+                        self.assertEqual(len(commands), 1, result.stderr)
+                        return commands[0]
+                    run([compiler, "-fno-integrated-as", "-fPIC", *flags, "-S", str(source), "-o", str(raw)])
+                    direct_object = directory / "direct.o"
+                    external = query([compiler, "-fno-integrated-as", "-fPIC", "-c", "-x", "assembler",
+                                      str(raw), "-o", str(direct_object)])
+                    self.assertNotIn("-cc1as", external)
+                    backend = query(external)
+                    self.assertEqual(backend[1], "-cc1as")
+                    self.assertEqual(backend.count("-filetype"), 1)
+                    self.assertEqual(backend.count("-o"), 1)
+                    self.assertEqual(backend[backend.index("-filetype") + 1], "obj")
+                    run(external)
+                    expanded = backend.copy()
+                    expanded[expanded.index("-filetype") + 1] = "asm"
+                    expanded[expanded.index("-o") + 1] = str(captured)
+                    self.assertEqual(sum(a != b for a, b in zip(backend, expanded)), 2)
+                    expanded.append("-msave-temp-labels")
+                    run(expanded)
+                    for path in (payload, inner, outer): self.assertNotIn(str(path), captured.read_text())
+                    def answer(obj, library):
+                        run([compiler, "-dynamiclib", str(obj), "-o", str(library)])
+                        return self.answer(library)
+                    self.assertEqual(answer(direct_object, directory / "direct.so"), 42)
+                    payload.write_bytes(payload_bytes.replace(b"42", b"43", 1))
+                    changed_object = directory / "changed.o"
+                    changed = external.copy()
+                    changed[changed.index("-o") + 1] = str(changed_object)
+                    run(changed)
+                    self.assertEqual(answer(changed_object, directory / "changed.so"), 43)
+                    for path in (payload, inner, outer, source, raw): path.unlink()
+                    replay_object = directory / "replay.o"
+                    replay = external.copy()
+                    replay[replay.index("-o") + 1] = str(replay_object)
+                    replay[replay.index(str(raw))] = str(captured)
+                    run(replay)
+                    self.assertEqual(answer(replay_object, directory / "replay.so"), 42)
+                    self.assertEqual(direct_object.read_bytes(), replay_object.read_bytes())
 
     def test_gcc_retained_object_reproducibility_and_external_inputs(self):
         if self.clang: self.skipTest("I test the GCC compiler-output candidate here")

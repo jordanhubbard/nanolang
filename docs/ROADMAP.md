@@ -1045,6 +1045,28 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       methods pass with eleven platform skips; the expanded cache case passes
       separately after the full run started. No production code changed.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 selected external-assembler expansion.** I query the actual
+      external assembler invocation and test its assembly-text output after
+      macro expansion. I require replay after deleting original files, literal,
+      nested and macro inputs and plain/debug flags. I preserve the selected
+      backend and its target/assembly arguments; text capture changes output
+      format/path and temporary-label naming, with identical object bytes after
+      ordinary replay. I integrate private capture and warm validation; I do not substitute a different assembler
+      merely because it accepts the fixture.
+      The initial selected-backend trial replays plain literal/nested/macro
+      inputs with identical object bytes, but debug output emits repeated empty
+      symbol names and fails reassembly. I must resolve that backend output
+      mode before admitting it to production, not strip debug information.
+      I test temporary-label naming only during text capture and require
+      reassembled object bytes to equal direct assembly; the backend warns
+      that retaining temporary symbols during object assembly can change
+      semantics, so that object-output option is not an acceptable shortcut.
+      Six trials include all byte values and a temporary-label relocation.
+      Production plain/debug restored macros yield 42/42/42 with actual
+      local/shared reuse; retained files replay after originals are deleted.
+      Both full gates pass 194 methods; the separately added failed-query
+      restored-edit control exposes the remaining umbrella defect below.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 external-assembler stale cache.** I repair the measured
       `-fno-integrated-as` cold/warm/fresh 43/43/42 mismatch on Apple Clang 21
       under local and shared caches. Both publish a reuse record despite no
@@ -1056,10 +1078,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       returns 42/42/42 with actual local/shared reuse, private payload bytes,
       and the external selector on all three object compilations. Nested
       literal reads, replacement and failed-build recovery are tested separately.
-      Fixed-width octal debug data now passes the acceptance work below.
-      This item remains open: macro-supplied filenames exceed the copier's
-      grammar. Those cases decline reuse but still yield cold/warm/fresh
-      43/42/42; I must capture their actual reads before accepting that variant.
+      Fixed-width octal debug data and selected-backend macro expansion now
+      pass their acceptance work. This item remains open for capture failure:
+      forcing an admitted external driver's dry-run query to fail still sends
+      compilation through uncaptured source. The restored-edit regression gives
+      43/42/42 without reuse under both caches. I must distinguish an unsupported
+      mode from a failed admitted capture and prevent the latter from publishing
+      an uncaptured cold result. Successful-capture tests cannot close this gap.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [x] **5.0 escaped assembler debug data.** I distinguish fixed-width octal
       byte escapes in data-string directives from macro and filename expansion.

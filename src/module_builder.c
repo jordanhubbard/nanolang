@@ -436,7 +436,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v30-assembler-octal-data");
+    hash_context_field(&hash, "nanolang-c-build-context-v31-selected-assembler-expansion");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -2932,9 +2932,10 @@ static int64_t module_link_query_clock(void) {
 }
 
 /* I execute literal argv, not a shell, and supervise one private process group.
- * Both version requests share the caller's five-second deadline. Version
- * requests are not universally read-only; the caller owns disposable outputs. */
-static bool module_link_query_output(char **args, char *output, size_t capacity, int64_t deadline) {
+ * The caller supplies the shared deadline and output policy. Query requests
+ * are not universally read-only; their caller owns disposable output paths. */
+static bool module_process_output(char **args, char *output, size_t capacity, int64_t deadline,
+                                  bool diagnostics, bool require_output) {
     int64_t now = module_link_query_clock();
     if (now < 0 || now >= deadline) return false;
     int descriptors[2];
@@ -2956,7 +2957,8 @@ static bool module_link_query_output(char **args, char *output, size_t capacity,
     ok = ok && have_actions && have_attributes;
     if (ok) ok = posix_spawn_file_actions_addopen(&actions, STDIN_FILENO, "/dev/null", O_RDONLY, 0) == 0 &&
         posix_spawn_file_actions_adddup2(&actions, descriptors[1], STDOUT_FILENO) == 0 &&
-        posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0) == 0 &&
+        (diagnostics ? posix_spawn_file_actions_adddup2(&actions, descriptors[1], STDERR_FILENO) :
+                       posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0)) == 0 &&
         posix_spawn_file_actions_addclose(&actions, descriptors[0]) == 0 &&
         posix_spawn_file_actions_addclose(&actions, descriptors[1]) == 0 &&
         posix_spawnattr_setflags(&attributes, POSIX_SPAWN_SETPGROUP) == 0 &&
@@ -2993,13 +2995,17 @@ static bool module_link_query_output(char **args, char *output, size_t capacity,
         }
     }
     close(descriptors[0]);
-    ok = ok && eof && reaped && WIFEXITED(status) && WEXITSTATUS(status) == 0 && used;
+    ok = ok && eof && reaped && WIFEXITED(status) && WEXITSTATUS(status) == 0 && (!require_output || used);
     /* A successful reporter can leave descendants after closing its pipe too.
      * I retain no background process from this private query group. */
     (void)kill(-child, SIGKILL);
     if (!reaped) while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
     output[used] = 0;
     return ok;
+}
+
+static bool module_link_query_output(char **args, char *output, size_t capacity, int64_t deadline) {
+    return module_process_output(args, output, capacity, deadline, false, true);
 }
 
 static ModuleLinkResponseGrammar module_link_response_grammar_command(const char *command) {
@@ -3675,6 +3681,131 @@ static bool module_read_command(char *command, size_t capacity, const char *pref
         module_append_path_flag(command, capacity, "-o ", object);
 }
 
+#ifdef __APPLE__
+/* I decode one dry-run command from the tested Apple driver's report. I never
+ * execute the report as shell text, accept multiple commands, or guess a
+ * backend executable from an installation directory. */
+static size_t module_assembler_argv(const char *command, char **args, char *storage, size_t capacity) {
+    char word[4096];
+    size_t count = 0, used = 0;
+    int status;
+    while ((status = module_flag_word(&command, word, sizeof(word))) > 0) {
+        size_t length = strlen(word) + 1;
+        if (count >= 252 || length > capacity - used) return 0;
+        args[count++] = storage + used;
+        memcpy(storage + used, word, length);
+        used += length;
+    }
+    args[count] = NULL;
+    return status == 0 ? count : 0;
+}
+
+static size_t module_assembler_report(char *report, char **args, char *storage, size_t capacity) {
+    if (strncmp(report, "Apple clang version 21.0.0 ", 27)) return 0;
+    char *selected = NULL;
+    for (char *line = report; line && *line;) {
+        char *end = strchr(line, '\n');
+        if (end) *end = 0;
+        while (*line == ' ' || *line == '\t') line++;
+        if (*line == '"') {
+            if (selected) return 0;
+            selected = line;
+        } else if (*line && strncmp(line, "Apple clang version 21.0.0 ", 27) &&
+                   strncmp(line, "Target: ", 8) && strncmp(line, "Thread model: ", 14) &&
+                   strncmp(line, "InstalledDir: ", 14) &&
+                   strcmp(line, "clang: warning: argument unused during compilation: '-fPIC' [-Wunused-command-line-argument]")) return 0;
+        line = end ? end + 1 : NULL;
+    }
+    return selected ? module_assembler_argv(selected, args, storage, capacity) : 0;
+}
+
+static bool module_assembler_tool_hash(uint64_t *hash, const char *tool) {
+    uint64_t bytes = tool[0] == '/' ? hash_file_fnv1a(tool) : 0;
+    if (!bytes) return false;
+    char digest[24];
+    snprintf(digest, sizeof(digest), "%llu", (unsigned long long)bytes);
+    hash_context_field(hash, tool);
+    hash_context_field(hash, digest);
+    return true;
+}
+
+static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                                const char *directory, uint64_t fingerprint) {
+    if (!directory) return 0;
+    char retained[4096], assemble[4096];
+    if (!module_compile_prefix(meta, retained, sizeof(retained), MODULE_C_RETAINED_ASSEMBLY, flags) ||
+        !module_compile_prefix(meta, assemble, sizeof(assemble), MODULE_C_ASSEMBLE, flags)) return 0;
+    ModuleAssemblyCapture capture = {directory, 0, 0, fingerprint};
+    hash_context_field(&capture.hash, "apple-selected-assembler-expanded-v1");
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            char input[2048] = {0}, raw[2048] = {0}, expanded[2048] = {0}, frozen[2048] = {0}, object[2048] = {0};
+            char command[8192] = {0}, report[16384], storage[16384], *args[256];
+            bool ok = module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
+                module_build_append(raw, sizeof(raw), "%s/__assembly_%zu_%zu.s", directory, group, i) &&
+                module_build_append(expanded, sizeof(expanded), "%s/__expanded_%zu_%zu.s", directory, group, i) &&
+                module_build_append(frozen, sizeof(frozen), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
+                module_build_append(object, sizeof(object), "%s/__as_query_%zu_%zu.o", directory, group, i) &&
+                module_build_append(command, sizeof(command), "%s%s -x cpp-output", retained, group ? " -fvisibility=hidden" : "") &&
+                module_append_path_flag(command, sizeof(command), "", input) &&
+                module_append_path_flag(command, sizeof(command), "-o ", raw) &&
+                module_build_append(command, sizeof(command), " 2>/dev/null") && !system(command);
+            command[0] = 0;
+            if (ok) ok = module_build_append(command, sizeof(command), "%s -x assembler", assemble) &&
+                module_append_path_flag(command, sizeof(command), "", raw) &&
+                module_append_path_flag(command, sizeof(command), "-o ", object);
+            size_t words = ok ? module_assembler_argv(command, args, storage, sizeof(storage)) : 0;
+            int64_t now = module_link_query_clock(), deadline = now + 5000;
+            if (!words || now < 0) goto failed;
+            args[words] = "-###"; args[words + 1] = NULL;
+            if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
+            words = module_assembler_report(report, args, storage, sizeof(storage));
+            if (!words || !module_assembler_tool_hash(&capture.hash, args[0])) goto failed;
+            args[words] = "-###"; args[words + 1] = NULL;
+            if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
+            words = module_assembler_report(report, args, storage, sizeof(storage));
+            if (words < 2 || strcmp(args[1], "-cc1as") ||
+                !module_assembler_tool_hash(&capture.hash, args[0])) goto failed;
+            size_t format = 0, output = 0, sources = 0;
+            for (size_t j = 1; j < words; j++) {
+                if (!strcmp(args[j], "-filetype")) {
+                    if (format || j + 1 == words || strcmp(args[j + 1], "obj")) goto failed;
+                    format = j + 1;
+                }
+                if (!strcmp(args[j], "-o")) {
+                    if (output || j + 1 == words || strcmp(args[j + 1], object)) goto failed;
+                    output = j + 1;
+                }
+                if (!strcmp(args[j], raw)) sources++;
+                hash_context_field(&capture.hash, !strcmp(args[j], raw) ? "@retained-input" :
+                    !strcmp(args[j], object) ? "@private-output" : args[j]);
+            }
+            if (!format || !output || sources != 1) goto failed;
+            args[format] = "asm"; args[output] = expanded;
+            /* I name temporary labels in text mode only. Object assembly keeps
+             * the selected assembler's original symbol-retention policy. */
+            args[words] = "-msave-temp-labels"; args[words + 1] = NULL;
+            if (!module_process_output(args, report, sizeof(report), deadline, true, false) ||
+                !module_capture_assembly_file(&capture, expanded, frozen, false, 0)) goto failed;
+        }
+    }
+    return capture.hash;
+failed:
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            char path[2048];
+            snprintf(path, sizeof(path), "%s/__expanded_%zu_%zu.s", directory, group, i);
+            (void)unlink(path);
+            snprintf(path, sizeof(path), "%s/__snapshot_%zu_%zu.s", directory, group, i);
+            (void)unlink(path);
+        }
+    }
+    return 0;
+}
+#endif
+
 #ifdef __linux__
 static bool module_dynamic_elf(const char *path) {
     FILE *file = fopen(path, "rb");
@@ -3955,6 +4086,15 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
             return frozen;
         }
+#ifdef __APPLE__
+        if (mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) {
+            frozen = module_clang_external_expansion(meta, flags, directory, fingerprint);
+            if (frozen) {
+                if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
+                return frozen;
+            }
+        }
+#endif
 #ifdef __linux__
         frozen = module_gcc_read_capture(meta, flags, directory, fingerprint);
         if (frozen) {

@@ -526,6 +526,21 @@ int main(int argc, char **argv) {
     if (argc == 3 && !strcmp(argv[1], "assembler-version"))
         return module_assembler_version_supported(argv[2]) ? 0 : 1;
 #endif
+#ifdef __APPLE__
+    if (argc == 3 && !strcmp(argv[1], "assembler-report")) {
+        char *report = strdup(argv[2]);
+        if (!report) return 1;
+        char storage[16384], *args[256];
+        size_t count = module_assembler_report(report, args, storage, sizeof(storage));
+        cJSON *words = count ? cJSON_CreateArray() : NULL;
+        for (size_t i = 0; words && i < count; i++) cJSON_AddItemToArray(words, cJSON_CreateString(args[i]));
+        char *output = words ? cJSON_PrintUnformatted(words) : NULL;
+        if (output) puts(output);
+        bool ok = output != NULL;
+        free(output); cJSON_Delete(words); free(report);
+        return ok ? 0 : 1;
+    }
+#endif
     if (argc == 4 && strcmp(argv[1], "capture-assembly") == 0) {
         char *directory = strdup(argv[3]);
         if (!directory) return 1;
