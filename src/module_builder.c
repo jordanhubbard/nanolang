@@ -436,7 +436,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v29-external-assembly");
+    hash_context_field(&hash, "nanolang-c-build-context-v30-assembler-octal-data");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3472,8 +3472,8 @@ static int module_run_source_command(const char *command, const char *dependency
 }
 
 /* I capture a deliberately bounded assembler spelling, not the assembler
- * language. Literal file directives must start a line; backslash expansion and
- * alternate macro syntax fall back to retained C plus object validation. I copy
+ * language. Literal file directives must start a line; macro expansion and
+ * alternate macro syntax decline this capture path. I copy
  * whole binary files so the assembler still evaluates offset/count expressions.
  * Relative paths resolve in the compiler's working directory, as in GNU as with
  * no assembler include-search flags (those flags already reject this mode). */
@@ -3483,6 +3483,39 @@ typedef struct {
     size_t bytes;
     uint64_t hash;
 } ModuleAssemblyCapture;
+
+/* I leave data strings verbatim. Three octal digits denote a byte, not a
+ * named macro argument. Short escapes, filename escapes and other expansion
+ * syntax remain outside this copier's grammar (including MRI macros). */
+static bool module_assembly_octal_data(const char *line) {
+    while (*line == ' ' || *line == '\t') line++;
+    size_t keyword = !strncmp(line, ".ascii", 6) || !strncmp(line, ".asciz", 6) ? 6 :
+                     !strncmp(line, ".string", 7) ? 7 : 0;
+    if (!keyword || (line[keyword] != ' ' && line[keyword] != '\t')) return false;
+    line += keyword;
+    while (*line == ' ' || *line == '\t') line++;
+    if (*line++ != '"') return false;
+    while (*line && *line != '"') {
+        if (*line == '\\') {
+            line++;
+            for (unsigned i = 0; i < 3; i++) {
+                if (*line < '0' || *line > (i ? '7' : '3')) return false;
+                line++;
+            }
+        } else line++;
+    }
+    if (*line++ != '"') return false;
+    while (*line == ' ' || *line == '\t' || *line == '\r') line++;
+    if (!*line) return true;
+    if (strchr(line, '\\')) return false;
+    /* I do not mistake a GNU statement separator for an Apple comment. */
+#ifdef __APPLE__
+    if (*line == ';') return true;
+#else
+    if (*line == '#') return true;
+#endif
+    return line[0] == '/' && line[1] == '/';
+}
 
 static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const char *source,
                                          const char *destination, bool text, unsigned depth) {
@@ -3513,7 +3546,7 @@ static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const c
     if (!ok) { free(data); return false; }
     capture->bytes += size;
     data[size] = 0;
-    if (text && (memchr(data, 0, size) || memchr(data, '\\', size) ||
+    if (text && (memchr(data, 0, size) ||
                  strstr((char *)data, ".altmacro") || strstr((char *)data, ".mri"))) { free(data); return false; }
     char length[24];
     snprintf(length, sizeof(length), "%zu", size);
@@ -3525,6 +3558,7 @@ static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const c
     else for (char *line = (char *)data; ok && *line;) {
         char *end = strchr(line, '\n');
         if (end) *end = 0;
+        if (strchr(line, '\\') && !module_assembly_octal_data(line)) { ok = false; break; }
         char *directive = line;
         while (*directive == ' ' || *directive == '\t') directive++;
         char *include = strstr(line, ".include"), *binary = strstr(line, ".incbin");

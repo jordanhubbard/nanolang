@@ -94,7 +94,7 @@ class SourceSnapshots(unittest.TestCase):
 
     def test_clang_external_assembler_cache_restored_inputs(self):
         if not self.clang: self.skipTest("I need Clang's external assembler selector")
-        for case in measure(shutil.which("cc"), ("assembler-external",))["cases"]:
+        for case in measure(shutil.which("cc"), ("assembler-external", "assembler-external-debug"))["cases"]:
             with self.subTest(case=case):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
                 for key in ("bytes_restored", "mtime_preserved", "size_preserved", "generation_reused",
@@ -113,8 +113,8 @@ class SourceSnapshots(unittest.TestCase):
 
     def test_apple_external_uncaptured_inputs_decline_reuse(self):
         if not self.clang or sys.platform != "darwin":
-            self.skipTest("I characterize Apple's uncaptured macro and debug fallback")
-        for case in measure(shutil.which("cc"), ("assembler-external-macro", "assembler-external-debug"))["cases"]:
+            self.skipTest("I characterize Apple's uncaptured macro fallback")
+        for case in measure(shutil.which("cc"), ("assembler-external-macro",))["cases"]:
             with self.subTest(case=case):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
                 self.assertFalse(case["reuse_record"])
@@ -137,8 +137,7 @@ class SourceSnapshots(unittest.TestCase):
                 body = 'extern const unsigned char snapshot_payload[];\nlong long nano_build_answer(void) {\nreturn (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n'
                 metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": ["-O2 -g -std=c11 -Wall -Wextra -Werror"]}
                 if external:
-                    # I keep escaped debug strings outside the literal copier's accepted grammar.
-                    metadata["cflags"] = ["-O2 -std=c11 -Wall -Wextra -Werror -fno-integrated-as"]
+                    metadata["cflags"].append("-fno-integrated-as")
                 if shared:
                     (module / "private.c").write_text(assembly)
                     metadata["shared_c_sources"] = ["private.c"]
@@ -291,6 +290,63 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(self.support.probe_path("directory", module, env), recovered)
             self.assertEqual(list(scratch.iterdir()), [])
 
+    def test_assembler_octal_data_capture_boundaries(self):
+        comment = "; debug data" if sys.platform == "darwin" else "# debug data"
+        accepted = [f'{directive} "\\000\\042\\134\\202\\377|" {comment}\n'
+                    for directive in (".ascii", ".asciz", ".string")]
+        accepted += ['\t.ascii "\\064\\062"\n', '.ascii "\\000" // debug data\n']
+        rejected = ['.ascii "\\file"\n', '.ascii "\\0"\n', '.ascii "\\00"\n',
+                    '.ascii "\\400"\n', '.ascii "\\128"\n', '.ascii "\\x42"\n',
+                    '.ascii "\\064\n', '.ascii "\\\n', '.ascii "\\"\n',
+                    '.ascii "\\064", "more"\n', 'label: .ascii "\\064"\n',
+                    '.ascii_suffix "\\064"\n', '.incbin "\\064"\n',
+                    '.ascii "\\064" .incbin "missing"\n',
+                    '.ascii "\\064"; .incbin "missing"\n',
+                    '.macro read file\n.incbin "\\file"\n.endm\n',
+                    '.mri 1\n.ascii "\\064"\n', '.altmacro\n.ascii "\\064"\n']
+        if sys.platform != "darwin": rejected += ['.ascii "\\064"; nop\n']
+        for contents in accepted + rejected:
+            with self.subTest(contents=contents), tempfile.TemporaryDirectory(prefix="nano-octal-capture-") as tmp:
+                directory = Path(tmp)
+                source, retained = directory / "source.s", directory / "retained.s"
+                source.write_text(contents)
+                result = subprocess.run([str(self.support.probe), "capture-assembly", str(source), str(retained)],
+                                        capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0 if contents in accepted else 1, result.stderr)
+                self.assertEqual(result.stderr, b"")
+                if result.returncode == 0: self.assertEqual(retained.read_bytes(), source.read_bytes())
+
+    def test_assembler_octal_data_replay_bytes(self):
+        for directive in (".ascii", ".asciz", ".string"):
+            with self.subTest(directive=directive), tempfile.TemporaryDirectory(prefix="nano-octal-replay-") as tmp:
+                directory = Path(tmp)
+                source, retained = directory / "source.s", directory / "retained.s"
+                symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                octets = "".join(f"\\{value:03o}" for value in range(256))
+                data = f'{directive} "{octets}"\n'
+                if directive == ".ascii":
+                    data = '.macro data_bytes file\n' + data + '.endm\ndata_bytes unused\n'
+                source.write_text(f'.data\n.globl {symbol}\n{symbol}:\n' + data)
+                flags = ["-fno-integrated-as"] if self.clang else []
+                def assemble(path, name):
+                    library = directory / name
+                    result = subprocess.run([shutil.which("cc"), *flags, "-fPIC",
+                        "-dynamiclib" if sys.platform == "darwin" else "-shared", str(path), "-o", str(library)],
+                        capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    result = subprocess.run([sys.executable, "-c",
+                        "import ctypes,sys; lib=ctypes.CDLL(sys.argv[1]); "
+                        "print(bytes((ctypes.c_ubyte * 256).in_dll(lib, 'snapshot_payload')).hex())", str(library)],
+                        capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout.decode().strip(), bytes(range(256)).hex())
+                assemble(source, "direct.so")
+                result = subprocess.run([str(self.support.probe), "capture-assembly", str(source), str(retained)],
+                                        capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                source.unlink()
+                assemble(retained, "retained.so")
+
     def test_literal_assembler_capture_boundaries(self):
         for spelling in ("literal", "empty", "semicolon", "label", "macro", "altmacro", "mri",
                          "missing", "fifo", "cycle", "nul", "oversize"):
@@ -320,6 +376,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 result = subprocess.run([str(self.support.probe), "capture-assembly", str(source),
                     str(private / "input.s")], capture_output=True, timeout=10)
                 self.assertEqual(result.returncode, 0 if spelling in ("literal", "empty") else 1, result.stderr)
+                self.assertEqual(result.stderr, b"")
                 if result.returncode == 0:
                     copies = list(private.glob("*.bin"))
                     self.assertEqual(len(copies), 1)

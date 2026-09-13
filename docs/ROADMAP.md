@@ -1056,10 +1056,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       returns 42/42/42 with actual local/shared reuse, private payload bytes,
       and the external selector on all three object compilations. Nested
       literal reads, replacement and failed-build recovery are tested separately.
-      This item remains open: macro-supplied filenames and `-g` assembly with
-      octal-escaped `.ascii` debug strings exceed the copier's grammar. Those
-      cases decline reuse but still yield cold/warm/fresh 43/42/42; I must
-      capture their actual reads before accepting these variants.
+      Fixed-width octal debug data now passes the acceptance work below.
+      This item remains open: macro-supplied filenames exceed the copier's
+      grammar. Those cases decline reuse but still yield cold/warm/fresh
+      43/42/42; I must capture their actual reads before accepting that variant.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 escaped assembler debug data.** I distinguish fixed-width octal
+      byte escapes in data-string directives from macro and filename expansion.
+      I preserve accepted assembly bytes, reject malformed and ambiguous forms,
+      and check direct/replayed output, deleted originals, restored edits,
+      optimized/debug nested inputs and actual warm reuse. I do not treat this
+      lexical repair as general macro-input capture.
+      All 190 full-gate methods pass on ARM64 Darwin and Linux (fifteen and
+      sixteen platform/configuration skips). Three capture boundary/replay
+      methods also pass ASan/UBSan with leak detection and explicit diagnostic
+      checks. I preserve all 256 byte values through each supported directive,
+      including numeric data inside a named-parameter macro. Apple external
+      `-O2 -g` restored edits now yield 42/42/42 with actual local/shared reuse.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation

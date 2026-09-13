@@ -1709,17 +1709,54 @@ ordinary and shared source groups, permanent replacement, missing inputs,
 preservation of the previous library on failure, and recovery. These cases use
 `-O2 -std=c11 -Wall -Wextra -Werror` with the external selector.
 
-This is a bounded repair, not completed external-assembler support. On this
+At v29 this was a bounded repair, not completed external-assembler support. On this
 Apple toolchain, macro-supplied filenames and `-O2 -g` still exceed my literal
 copier's grammar: debug assembly contains octal escapes in `.ascii` strings,
 and I conservatively reject backslashes. Both restored-edit variants give
 43/42/42 without a reuse record under local and shared caches. My consistency
 gate rejects them. Declining reuse does not repair their cold compilation.
-Those variants and general assembler file-read coverage remain open.
+Both variants and general assembler file-read coverage remained open at v29.
 
 The rebuilt tools pass `make test-bytecode-shadows` on ARM64 Darwin:
 188 methods, fifteen platform/configuration skips, and 375.944 seconds of
 reported test time. This includes all 47 snapshot methods, publication,
-argument transport and response graph/query checks. I have not rerun this
-repair's full gate on Linux; earlier Linux results above belong to earlier
+argument transport and response graph/query checks. At that checkpoint I had
+not rerun the repair's full gate on Linux; Linux results above belong to earlier
 commits.
+
+## Fixed-width octal debug data
+
+My v30 capture parser accepts three-digit octal byte escapes (`\000` through
+`\377`) in a single `.ascii`, `.asciz` or `.string` string. I retain the line
+verbatim; I do not decode bytes into assembler source. I still decline short
+or non-octal escapes, escaped file paths, named macro substitutions, malformed
+strings, alternate/MRI macro modes and ambiguous trailing statements. Apple
+semicolon comments and GNU statement separators receive different treatment.
+
+Direct and retained assembly reproduce all 256 byte values through each data
+directive after I delete the original assembly. The `.ascii` case also passes
+inside a named-parameter macro, without interpreting numeric escapes as that
+parameter. These checks pass with Apple Clang 21's external assembler on
+ARM64 Darwin and GCC 12.2/GNU assembler 2.40 on ARM64 Linux.
+
+On the Apple toolchain, the production `-fno-integrated-as -O2 -g` restored-edit
+fixture now returns cold/warm/fresh 42/42/42 under local and shared caches,
+retains the binary input, preserves the external selector and actually reuses
+the generation. Optimized/debug nested includes also pass permanent replacement,
+missing-input recovery and last-good-library checks for ordinary and shared
+source groups. Macro-expanded filenames still give 43/42/42 without reuse;
+their cold-build capture remains open. Numeric debug data is not general
+assembler macro support.
+
+The Linux full `make test-bytecode-shadows` gate passes 190 methods with sixteen
+platform/configuration skips in 108.938 seconds of reported test time. A
+separate ASan/UBSan build of the production capture probe passes three boundary
+and replay methods with leak detection in 20.693 seconds. Rejected inputs must
+produce no diagnostics, so a sanitizer failure cannot masquerade as an expected
+exit code. Supporting object files and external assemblers are not sanitizer
+instrumented. I removed the disposable Linux build container after these checks.
+
+The rebuilt Darwin tools also pass the full gate: 190 methods, fifteen skips
+and 426.654 seconds of reported test time, including all 49 snapshot methods.
+These are tested toolchain boundaries, not proof of arbitrary assembler syntax
+or identical semantics across every supported platform.
