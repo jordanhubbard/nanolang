@@ -18,8 +18,10 @@
  */
 
 import "src_nano/compiler/ir.nano"
+import "src_nano/compiler/module_bindings.nano"
 import "src_nano/ast_shared.nano"
 import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 
 /* =============================================================================
@@ -54,7 +56,7 @@ fn register_extern_names(parser: Parser) -> int {
 }
 
 shadow register_extern_names {
-    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int")
+let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int" "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let n: int = (register_extern_names p)
     assert (>= n 0)
@@ -478,7 +480,7 @@ shadow gen_indent {
 
 /* StringBuilder: Array-based string accumulator for O(n) performance
  * Instead of: set result (+ result "text")  // O(n²) - copies entire string each time
- * Use: (cg_append parts "text")              // O(n) - just appends to array
+ * Use: set parts (cg_append parts "text")    // Preserve the returned array
  */
 fn cg_append(parts: array<string>, text: string) -> array<string> {
     return (array_push parts text)
@@ -624,10 +626,11 @@ shadow transp_str_starts_with {
 
 fn transp_str_index_of(s: string, ch: string) -> int {
     let len: int = (str_length s)
+    let needle_length: int = (str_length ch)
     let mut i: int = 0
     
-    while (< i len) {
-        let char_at: string = (str_substring s i 1)
+    while (<= i (- len needle_length)) {
+        let char_at: string = (str_substring s i needle_length)
         if (== char_at ch) {
             return i
         } else {
@@ -643,6 +646,10 @@ shadow transp_str_index_of {
     assert (== (transp_str_index_of "array<int>" "<") 5)
     assert (== (transp_str_index_of "test" "e") 1)
     assert (== (transp_str_index_of "test" "z") -1)
+    assert (== (transp_str_index_of "array<Point>" "array<") 0)
+    assert (== (transp_str_index_of "ababa" "aba") 0)
+    assert (== (transp_str_index_of "a" "ab") -1)
+    assert (== (transp_str_index_of "" "") 0)
 }
 
 fn transp_extract_list_element_type(s: string) -> string {
@@ -786,8 +793,9 @@ fn hashset_new_string() -> HashMap<string, int> {
 
 shadow hashset_new_string {
     let s: HashMap<string, int> = (hashset_new_string)
-    assert (!= s 0)
     assert (not (hashset_has_string s "test"))
+    (map_put s "test" 1)
+    assert (hashset_has_string s "test")
 }
 
 fn hashset_has_string(map: HashMap<string, int>, key: string) -> bool {
@@ -924,6 +932,7 @@ shadow module_name_from_path {
 fn build_module_alias_map(parser: Parser) -> int {
     (reset_module_aliases)
     (reset_func_aliases)
+    if (mb_active) { return 0 }
     let import_count: int = (parser_get_import_count parser)
     let mut i: int = 0
     while (< i import_count) {
@@ -963,7 +972,7 @@ fn build_module_alias_map(parser: Parser) -> int {
 }
 
 shadow build_module_alias_map {
-    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }")
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }" "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let r: int = (build_module_alias_map p)
     assert (== r 0)
@@ -1075,8 +1084,11 @@ fn c_name_for_qualified_function(func_name: string) -> string {
 
 shadow c_name_for_qualified_function {
     (reset_module_aliases)
-    assert (== (c_name_for_qualified_function "std::io::print") "std__io__nl_print")
-    assert (== (c_name_for_qualified_function "file.read") "file__nl_read")
+    assert (== (c_name_for_qualified_function "std::io::print") "std__io__print")
+    assert (== (c_name_for_qualified_function "file.read") "nl_read")
+    (add_module_alias "file" "std_fs")
+    assert (== (c_name_for_qualified_function "file.read") "std_fs__read")
+    (reset_module_aliases)
 }
 
 /* Map builtin function names to their C implementation names */
@@ -1197,8 +1209,8 @@ shadow map_builtin_func_name {
     assert (== (map_builtin_func_name "int_to_string") "nl_int_to_string")
     assert (== (map_builtin_func_name "is_digit") "nl_is_digit")
     assert (== (map_builtin_func_name "getenv") "nl_getenv")
-    assert (== (map_builtin_func_name "file_read") "file_read")
-    assert (== (map_builtin_func_name "path_join") "path_join")
+    assert (== (map_builtin_func_name "file_read") "nl_file_read")
+    assert (== (map_builtin_func_name "path_join") "nl_path_join")
     assert (== (map_builtin_func_name "map_set") "nl_map_put")
     assert (== (map_builtin_func_name "unknown_func") "")
 }
@@ -1302,6 +1314,7 @@ fn func_returns_string(name: string) -> bool {
     if (== name "str_substring") { return true } else { (print "") }
     if (== name "str_slice") { return true } else { (print "") }
     if (== name "str_concat") { return true } else { (print "") }
+    if (== name "str_trim") { return true } else { (print "") }
     if (== name "string_from_char") { return true } else { (print "") }
     return false
 }
@@ -1352,6 +1365,8 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
     if (== node_type ParseNodeType.PNODE_CALL) {
         let ic: ASTCall = (parser_get_call parser node_id)
         let if_id: ASTIdentifier = (parser_get_identifier parser ic.function)
+        let declared: string = (lookup_func_return_type_in_parser parser (mb_resolve if_id.name if_id.line env.names))
+        if (!= declared "") { return declared }
         if (func_returns_string if_id.name) { return "string" } else { (print "") }
         if (func_returns_float if_id.name) { return "float" } else { (print "") }
         return "int"
@@ -1369,6 +1384,9 @@ shadow infer_expr_type {
 }
 
 shadow func_returns_string {
+    assert (func_returns_string "str_trim")
+    assert (func_returns_string "string_from_char")
+    assert (not (func_returns_string "str_ends_with"))
     assert (func_returns_string "int_to_string")
     assert (func_returns_string "str_substring")
     assert (not (func_returns_string "print"))
@@ -1467,8 +1485,8 @@ fn parse_type_c_from_tokens(parser: Parser, start_pos: int) -> TypeCParseResult 
 
 shadow parse_type_c_from_tokens {
     /* Minimal sanity: require a token stream with `int` at position 0. */
-    let toks: List<LexerToken> = (tokenize_string "int")
-    let p: Parser = (parser_new toks (list_LexerToken_length toks))
+    let toks: List<LexerToken> = (tokenize_string "int" "t.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parser_new toks (list_LexerToken_length toks) "t.nano")
     let r: TypeCParseResult = (parse_type_c_from_tokens p 0)
     assert r.ok
 }
@@ -1673,8 +1691,8 @@ fn generate_struct_definitions_from_tokens(parser: Parser) -> string {
 
 shadow generate_struct_definitions_from_tokens {
     let src: string = "struct Foo { x: int, y: bool }"
-    let toks: List<LexerToken> = (tokenize_string src)
-    let p: Parser = (parser_new toks (list_LexerToken_length toks))
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parser_new toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_struct_definitions_from_tokens p)
     assert (> (str_length c) 0)
 }
@@ -1691,34 +1709,33 @@ fn has_function_named(parser: Parser, name: string) -> bool {
 }
 
 shadow has_function_named {
-    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }")
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 0 }" "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "test.nano")
     assert (has_function_named p "main")
 }
 
 fn is_runtime_declared_extern(name: string) -> bool {
-    /* Prefix-based: module introspection functions */
-    if (str_contains name "___module_") { return true } else { (print "") }
+    /* Module-specific introspection functions need their own declarations. */
     /* Prefix-based: json module functions */
-    if (str_contains name "nl_json_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_json_") { return true } else { (print "") }
     /* Prefix-based: runtime list functions (included via headers) */
-    if (str_contains name "list_int_") { return true } else { (print "") }
-    if (str_contains name "list_string_") { return true } else { (print "") }
-    if (str_contains name "list_token_") { return true } else { (print "") }
-    if (str_contains name "list_LexerToken_") { return true } else { (print "") }
-    if (str_contains name "list_AST") { return true } else { (print "") }
-    if (str_contains name "list_Compiler") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_int_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_string_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_token_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_LexerToken_") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_AST") { return true } else { (print "") }
+    if (transp_str_starts_with name "list_Compiler") { return true } else { (print "") }
     /* Prefix-based: collections.h (nl_sb_, nl_hm_, nl_set_) */
-    if (str_contains name "nl_sb_") { return true } else { (print "") }
-    if (str_contains name "nl_hm_") { return true } else { (print "") }
-    if (str_contains name "nl_set_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_sb_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_hm_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_set_") { return true } else { (print "") }
     /* Prefix-based: nl_os_ functions from cli.c */
-    if (str_contains name "nl_os_") { return true } else { (print "") }
+    if (transp_str_starts_with name "nl_os_") { return true } else { (print "") }
     /* Prefix-based: fs/path/file functions from fs.c */
-    if (str_contains name "fs_") { return true } else { (print "") }
-    if (str_contains name "path_") { return true } else { (print "") }
-    if (str_contains name "file_") { return true } else { (print "") }
-    if (str_contains name "dir_") { return true } else { (print "") }
+    if (transp_str_starts_with name "fs_") { return true } else { (print "") }
+    if (transp_str_starts_with name "path_") { return true } else { (print "") }
+    if (transp_str_starts_with name "file_") { return true } else { (print "") }
+    if (transp_str_starts_with name "dir_") { return true } else { (print "") }
     /* gen_c_runtime declared: CLI functions */
     if (== name "get_argc") { return true } else { (print "") }
     if (== name "get_argv") { return true } else { (print "") }
@@ -1816,6 +1833,9 @@ shadow is_runtime_declared_extern {
     assert (is_runtime_declared_extern "nl_sb_new")
     assert (is_runtime_declared_extern "list_int_new")
     assert (not (is_runtime_declared_extern "my_custom_func"))
+    assert (not (is_runtime_declared_extern "nl_fs_list_files_ci"))
+    assert (not (is_runtime_declared_extern "my_list_int_hook"))
+    assert (not (is_runtime_declared_extern "___module_function_count_probe"))
 }
 
 fn generate_function_prototypes(parser: Parser) -> string {
@@ -1914,7 +1934,7 @@ fn generate_function_prototypes(parser: Parser) -> string {
 }
 
 shadow generate_function_prototypes {
-    let toks: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return x }")
+    let toks: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return x }" "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_function_prototypes p)
     assert (> (str_length c) 0)
@@ -1942,12 +1962,32 @@ fn lookup_struct_field_type(parser: Parser, struct_name: string, field_name: str
 
 shadow lookup_struct_field_type {
     let src: string = "struct Point { x: int, y: bool } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let t: string = (lookup_struct_field_type p "Point" "x")
     assert (== t "int")
     let t2: string = (lookup_struct_field_type p "Point" "z")
     assert (== t2 "")
+}
+
+fn declared_call_argument_type(parser: Parser, name: string, index: int) -> string {
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let func: ASTFunction = (parser_get_function parser i)
+        if (and (== func.name name) (and (>= index 0) (< index func.param_count))) {
+            return (parser_get_let parser (+ func.param_start index)).var_type
+        }
+        set i (+ i 1)
+    }
+    return ""
+}
+
+shadow declared_call_argument_type {
+    let tokens: List<LexerToken> = (tokenize_string "fn names(xs: array<string>) -> int { return (array_length xs) }" "args.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "args.nano")
+    assert (== (declared_call_argument_type parser "names" 0) "array<string>")
+    assert (== (declared_call_argument_type parser "names" 1) "")
+    assert (== (declared_call_argument_type parser "missing" 0) "")
 }
 
 fn is_extern_function(parser: Parser, name: string) -> bool {
@@ -1962,7 +2002,7 @@ fn is_extern_function(parser: Parser, name: string) -> bool {
 }
 
 shadow is_extern_function {
-    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int")
+    let toks: List<LexerToken> = (tokenize_string "extern fn foo() -> int" "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (is_extern_function p "foo")
 }
@@ -1995,14 +2035,13 @@ fn genenv_copy(env: GenEnv) -> GenEnv {
     }
     return GenEnv { names: names, types: types, mut_flags: flags, global_flags: globals, scope: env.scope }
 }
-
 shadow genenv_copy {
-    let outer: GenEnv = (genenv_put (genenv_new "outer") "selected" "fn() -> int" false)
-    let inner: GenEnv = (genenv_put outer "selected" "int" false)
+    let outer: GenEnv = (genenv_put (genenv_new "outer") "first" "int" false)
+    let copy: GenEnv = (genenv_copy outer)
+    let extended: array<string> = (array_push copy.names "inner")
     assert (== (array_length outer.names) 1)
-    assert (== (array_length inner.names) 2)
-    assert (== (genenv_get outer "selected") "fn() -> int")
-    assert (== (genenv_get inner "selected") "int")
+    assert (== (array_length extended) 2)
+    assert (== (at copy.types 0) "int")
 }
 
 fn genenv_put(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {
@@ -2311,7 +2350,7 @@ shadow elem_enum_from_elem_type {
     assert (== (elem_enum_from_elem_type "bool") "ELEM_BOOL")
     assert (== (elem_enum_from_elem_type "array") "ELEM_ARRAY")
     assert (== (elem_enum_from_elem_type "int") "ELEM_INT")
-    assert (== (elem_enum_from_elem_type "Point") "ELEM_POINTER")
+    assert (== (elem_enum_from_elem_type "Point") "ELEM_INT")
 }
 
 fn get_fn_from_elem_type(elem_type: string) -> string {
@@ -2564,7 +2603,7 @@ fn type_to_c(nano_type: string) -> string {
             return "double"
         } else {
             if (== nano_type "bool") {
-                return "int"
+                return "bool"
             } else {
                 if (== nano_type "string") {
                     return "const char*"
@@ -2631,7 +2670,7 @@ fn type_to_c(nano_type: string) -> string {
 
 shadow type_to_c {
     assert (== (type_to_c "int") "int64_t")
-    assert (== (type_to_c "bool") "int")
+    assert (== (type_to_c "bool") "bool")
     assert (== (type_to_c "MyStruct") "nl_MyStruct")
     assert (== (type_to_c "Result<int,string>") "nl_Result_int_string")
 }
@@ -2793,7 +2832,7 @@ fn gen_tuple_typedefs(parser: Parser) -> string {
 
 shadow gen_tuple_typedefs {
     let source: string = (+ "f" "n main() -> (int,int) { return (1, 2) }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (gen_tuple_typedefs p)
     assert (str_contains code "Tuple_int_int")
@@ -2817,7 +2856,7 @@ shadow gen_number {
 
 /* Generate code for a string literal */
 fn gen_string(value: string) -> string {
-    # I preserve source escape spellings and escape physical control bytes for C.
+    # I retain source escape spellings and escape physical line breaks for C.
     let mut parts: array<string> = []
     set parts (cg_append parts "\"")
     let mut start: int = 0
@@ -3141,6 +3180,7 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "#include <mach/mach_time.h>\n")
     set parts (cg_append parts "#endif\n")
     set parts (cg_append parts "#include \"nanolang.h\"\n")
+    set parts (cg_append parts "#include \"runtime/string_edges.h\"\n")
     set parts (cg_append parts "#include \"collections/collections.h\"\n")
     set parts (cg_append parts "#include \"json/json.h\"\n")
     set parts (cg_append parts "#include \"runtime/hashmap_bootstrap.h\"\n")
@@ -3224,6 +3264,9 @@ fn gen_c_includes() -> string {
      * does not depend on module include paths when a program does not import them. */
     set parts (cg_append parts "DynArray* fs_walkdir(const char* root);\n")
     set parts (cg_append parts "const char* path_normalize(const char* path);\n")
+    set parts (cg_append parts "const char* path_canonical(const char* path);\n")
+    set parts (cg_append parts "int64_t file_compare_identity(const char* source, const char* candidate);\n")
+    set parts (cg_append parts "int64_t file_compare_destinations(const char* first, const char* second);\n")
     set parts (cg_append parts "const char* path_join(const char* a, const char* b);\n")
     set parts (cg_append parts "const char* path_basename(const char* path);\n")
     set parts (cg_append parts "const char* path_dirname(const char* path);\n")
@@ -3371,6 +3414,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "bool nl_str_contains(const char* str, const char* substr) {\n")
     set sb (cg_append sb "    return strstr(str, substr) != NULL;\n")
     set sb (cg_append sb "}\n\n")
+    set sb (cg_append sb "#include \"runtime/string_search.h\"\n")
     /* nl_str_slice(str, start, end) - slice from start to end (end-exclusive) */
     set sb (cg_append sb "char* nl_str_slice(const char* s, int64_t start, int64_t end_pos) {\n")
     set sb (cg_append sb "    if (!s) return \"\";\n")
@@ -3581,7 +3625,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return acc;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static DynArray* nl_filter(DynArray* arr, int (*fn)(int64_t)) {\n")
+    set sb (cg_append sb "static DynArray* nl_filter(DynArray* arr, bool (*fn)(int64_t)) {\n")
     set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_INT);\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -3608,7 +3652,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return acc;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static DynArray* nl_filter_str(DynArray* arr, int (*fn)(const char*)) {\n")
+    set sb (cg_append sb "static DynArray* nl_filter_str(DynArray* arr, bool (*fn)(const char*)) {\n")
     set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_STRING);\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -3635,7 +3679,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    return acc;\n")
     set sb (cg_append sb "}\n\n")
-    set sb (cg_append sb "static DynArray* nl_filter_float(DynArray* arr, int (*fn)(double)) {\n")
+    set sb (cg_append sb "static DynArray* nl_filter_float(DynArray* arr, bool (*fn)(double)) {\n")
     set sb (cg_append sb "    DynArray* result = dyn_array_new(ELEM_FLOAT);\n")
     set sb (cg_append sb "    int64_t len = dyn_array_length(arr);\n")
     set sb (cg_append sb "    for (int64_t i = 0; i < len; i++) {\n")
@@ -3695,8 +3739,7 @@ fn gen_c_runtime() -> string {
 
 shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
-    /* Just verify it generates something */
-    assert (== 1 1)
+    assert (str_contains runtime "#include \"runtime/string_search.h\"")
 }
 
 /*
@@ -3735,7 +3778,7 @@ fn generate_module_forward_declarations(parser: Parser) -> string {
 
 shadow generate_module_forward_declarations {
     let source: string = (+ "from \"modules/std/fs.nano\" import walkdir\nf" "n main() -> int { return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_module_forward_declarations p)
     assert (str_contains code "Module forward declarations")
@@ -3771,7 +3814,7 @@ fn parser_has_guarded_globals(parser: Parser) -> bool {
 
 shadow parser_has_guarded_globals {
     let src: string = "fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (parser_has_guarded_globals p) false)
 }
@@ -3838,7 +3881,7 @@ fn gen_c_program_with_modules(parser: Parser, functions: string) -> string {
 
 shadow gen_c_program_with_modules {
     let source: string = (+ "from \"modules/std/fs.nano\" import walkdir\nf" "n helper() -> int { return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (gen_c_program_with_modules p "int64_t nl_helper() { return 0; }\n")
     assert (str_contains code "Module forward declarations")
@@ -3883,7 +3926,7 @@ fn detect_list_types(parser: Parser) -> array<string> {
 
 shadow detect_list_types {
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let types: array<string> = (detect_list_types p)
     assert (== (array_length types) 1)
@@ -3947,7 +3990,7 @@ fn scan_block_for_lists(parser: Parser, block_id: int, list_types: array<string>
 
 shadow scan_block_for_lists {
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let seen: HashMap<string, int> = (hashset_new_string)
@@ -3991,7 +4034,7 @@ fn generate_list_specializations(parser: Parser) -> string {
 
 shadow generate_list_specializations {
     let source: string = (+ "f" "n main() -> int { let xs: List<Point> = [] return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (generate_list_specializations p)
     assert (str_contains code "List_Point")
@@ -4108,7 +4151,7 @@ shadow substitute_union_field_type {
     let args: array<string> = (array_push (array_push [] "int") "string")
     assert (== (substitute_union_field_type "T" params args) "int64_t")
     assert (== (substitute_union_field_type "E" params args) "const char*")
-    assert (== (substitute_union_field_type "bool" params args) "int")
+    assert (== (substitute_union_field_type "bool" params args) "bool")
 }
 
 /* Find all unique instantiations of a generic union in the codebase */
@@ -4161,7 +4204,7 @@ fn find_union_instantiations(parser: Parser, base_name: string) -> array<string>
 }
 
 shadow find_union_instantiations {
-    let parser: Parser = (parser_init_ast_lists)
+    let parser: Parser = (parser_new (list_LexerToken_new) 0 "t.nano")
     let results: array<string> = (find_union_instantiations parser "Result")
     assert (== (array_length results) 0)
 }
@@ -4299,7 +4342,7 @@ fn generate_union_definitions(parser: Parser) -> string {
 }
 
 shadow generate_union_definitions {
-    let parser: Parser = (parser_init_ast_lists)
+    let parser: Parser = (parser_new (list_LexerToken_new) 0 "t.nano")
     let code: string = (generate_union_definitions parser)
     assert (== code "")
 }
@@ -4489,11 +4532,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         } else {
         if (== node_type ParseNodeType.PNODE_STRING) {
             let s: ASTString = (parser_get_string parser node_id)
-            if (str_contains s.value "{") {
-                return (expand_string_interp s.value env)
-            } else {
-                return (gen_string s.value)
-            }
+            # My lexer already expands f-strings. Ordinary strings stay literal.
+            return (gen_string s.value)
         } else {
         if (== node_type ParseNodeType.PNODE_BOOL) {
             let b: ASTBool = (parser_get_bool parser node_id)
@@ -4506,7 +4546,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
         if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
             /* Identifier — guarded globals use NL_GUARDED_READ for thread-safe reads */
             let id: ASTIdentifier = (parser_get_identifier parser node_id)
-            let c_var: string = (+ "nl_" (mangle_name id.name))
+            let c_var: string = (+ "nl_" (mangle_name (mb_resolve id.name id.line env.names)))
             if (and (genenv_get_global env id.name) (is_guarded_primitive (genenv_get env id.name))) {
                 let c_type: string = (type_to_c (genenv_get env id.name))
                 let mut rd: array<string> = []
@@ -4579,25 +4619,9 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 
                 /* Special case: + for string concatenation */
                 if (== binop.op LexerTokenType.TOKEN_PLUS) {
-                    /* Check if either operand looks like a string */
-                    let left_is_str: bool = (and (> (str_length left_code) 0) (== (char_at left_code 0) 34))
-                    let right_is_str: bool = (and (> (str_length right_code) 0) (== (char_at right_code 0) 34))
-                    /* Also check if either operand is a string-returning function call */
-                    let left_is_str_fn: bool = (or (str_contains left_code "nl_str_concat") (or (str_contains left_code "nl_int_to_string") (or (str_contains left_code "nl_float_to_string") (str_contains left_code "nl_bool_to_string"))))
-                    let right_is_str_fn: bool = (or (str_contains right_code "nl_str_concat") (or (str_contains right_code "nl_int_to_string") (or (str_contains right_code "nl_float_to_string") (str_contains right_code "nl_bool_to_string"))))
-                    /* Also check if either identifier operand has string type in GenEnv */
-                    let mut left_is_str_var: bool = false
-                    let mut right_is_str_var: bool = false
-                    if (== binop.left_type ParseNodeType.PNODE_IDENTIFIER) {
-                        let lid: ASTIdentifier = (parser_get_identifier parser binop.left)
-                        let lt: string = (genenv_get env lid.name)
-                        if (== lt "string") { set left_is_str_var true } else { (print "") }
-                    } else { (print "") }
-                    if (== binop.right_type ParseNodeType.PNODE_IDENTIFIER) {
-                        let rid: ASTIdentifier = (parser_get_identifier parser binop.right)
-                        let rt: string = (genenv_get env rid.name)
-                        if (== rt "string") { set right_is_str_var true } else { (print "") }
-                    } else { (print "") }
+                    # I classify values from source types, not generated C substrings.
+                    let left_is_str: bool = (== (infer_expr_type parser binop.left binop.left_type env) "string")
+                    let right_is_str: bool = (== (infer_expr_type parser binop.right binop.right_type env) "string")
                     /* Check struct field access for string type */
                     let mut left_is_str_field: bool = false
                     let mut right_is_str_field: bool = false
@@ -4626,7 +4650,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         } else { (print "") }
                     } else { (print "") }
 
-                    let either_is_str: bool = (or (or left_is_str right_is_str) (or (or left_is_str_fn right_is_str_fn) (or (or left_is_str_var right_is_str_var) (or left_is_str_field right_is_str_field))))
+                    let either_is_str: bool = (or (or left_is_str right_is_str) (or left_is_str_field right_is_str_field))
                     if either_is_str {
                         let mut parts: array<string> = []
                         set parts (cg_append parts "nl_str_concat(")
@@ -4687,7 +4711,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     let has_literal: bool = (or left_is_lit right_is_lit)
                     let any_str_var: bool = (or left_is_str_var2 right_is_str_var2)
                     let any_str_field: bool = (or left_is_str_field right_is_str_field)
-                    let use_strcmp: bool = (or has_literal (or any_str_var any_str_field))
+                    let left_semantic: string = (infer_expr_type parser binop.left binop.left_type env)
+                    let right_semantic: string = (infer_expr_type parser binop.right binop.right_type env)
+                    let string_call: bool = (or (== left_semantic "string") (== right_semantic "string"))
+                    let use_strcmp: bool = (or string_call (or has_literal (or any_str_var any_str_field)))
                     if use_strcmp {
                         let mut parts: array<string> = []
                         set parts (cg_append parts "(strcmp(")
@@ -4736,7 +4763,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     
                     /* Get function name from identifier */
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                    let func_name: string = func_id.name
+                    let func_name: string = (mb_resolve func_id.name func_id.line env.names)
 
                     /* Special-case: unary not is represented as a call */
                     if (== func_name "not") {
@@ -4918,9 +4945,6 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         if (== call.arg_count 2) {
                             let a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-                            let arr_code: string = (generate_expression parser a0.node_id a0.node_type env "")
-                            let val_code: string = (generate_expression parser a1.node_id a1.node_type env "")
-
                             let mut arr_t: string = ""
                             if (is_array_type expected_type) {
                                 set arr_t expected_type
@@ -4947,6 +4971,8 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     } else { (print "") }
                                 }
                             } else { (print "") }
+                            let arr_code: string = (generate_expression parser a0.node_id a0.node_type env (+ "array<" (+ elem_t ">")))
+                            let val_code: string = (generate_expression parser a1.node_id a1.node_type env elem_t)
                             let push_fn: string = (push_fn_from_elem_type elem_t)
 
                             let mut parts: array<string> = []
@@ -5129,7 +5155,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                     } else { (print "") }
 
                     /* array_filter: (array_filter arr pred) -> filtered array */
-                    if (== func_name "array_filter") {
+                    if (or (== func_name "array_filter") (== func_name "filter")) {
                         if (== call.arg_count 2) {
                             let af_a0: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                             let af_a1: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
@@ -5333,12 +5359,12 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         }
 
                         let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-                        let mut arg_expected: string = ""
+                        let mut arg_expected: string = (declared_call_argument_type parser func_name i)
                         if (or (== func_name "print") (== func_name "println")) {
                             set arg_expected "string"
                         } else { (print "") }
                         let mut arg_code: string = (generate_expression parser aref.node_id aref.node_type env arg_expected)
-                        if (== arg_expected "string") {
+                        if (or (== func_name "print") (== func_name "println")) {
                             if (== aref.node_type ParseNodeType.PNODE_IDENTIFIER) {
                                 let arg_id: ASTIdentifier = (parser_get_identifier parser aref.node_id)
                                 let arg_t: string = (genenv_get env arg_id.name)
@@ -5352,7 +5378,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                 if (== aref.node_type ParseNodeType.PNODE_CALL) {
                                     let arg_call: ASTCall = (parser_get_call parser aref.node_id)
                                     let arg_call_id: ASTIdentifier = (parser_get_identifier parser arg_call.function)
-                                    let call_ret_t: string = (lookup_func_return_type_in_parser parser arg_call_id.name)
+                                    let call_ret_t: string = (lookup_func_return_type_in_parser parser (mb_resolve arg_call_id.name arg_call_id.line env.names))
                                     if (or (func_returns_float arg_call_id.name) (== call_ret_t "float")) {
                                         set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
                                     } else {
@@ -5465,8 +5491,16 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                         let mqc: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
                         
                         /* Use function_name which contains full qualified name */
-                        let qualified_name: string = mqc.function_name
-                        let c_func_name: string = (c_name_for_qualified_function qualified_name)
+                        let qualified_name: string = (mb_lookup (mb_owner mqc.line) mqc.function_name)
+                        let mut c_func_name: string = (c_name_for_qualified_function qualified_name)
+                        if (!= qualified_name mqc.function_name) {
+                            set c_func_name (c_func_name_for_call qualified_name)
+                            if (is_extern_function parser qualified_name) {
+                                set c_func_name qualified_name
+                                let mapped: string = (map_builtin_func_name qualified_name)
+                                if (!= mapped "") { set c_func_name mapped }
+                            }
+                        }
                         
                         let mut parts: array<string> = []
                         set parts (cg_append parts c_func_name)
@@ -5583,10 +5617,10 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             /* Array literal -> DynArray* */
                             let arr: ASTArrayLiteral = (parser_get_array_literal parser node_id)
 
-                            /* Prefer typechecker-propagated element_type; fall back to expected_type for empty literals. */
+                            /* I retain the declared element type for nonempty literals too. */
                             let mut elem_t: string = arr.element_type
                             if (== elem_t "") {
-                                if (and (== arr.element_count 0) (is_array_type expected_type)) {
+                                if (is_array_type expected_type) {
                                     set elem_t (array_elem_type_from_array_type expected_type)
                                 } else { (print "") }
                             } else { (print "") }
@@ -5862,7 +5896,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
 
 shadow generate_expression {
     let source: string = (+ "f" "n main() -> int { return 42 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let ret: ASTReturn = (parser_get_return p 0)
     let env: GenEnv = (genenv_new "test")
@@ -5900,7 +5934,7 @@ fn generate_return_stmt(parser: Parser, ret: ASTReturn, indent: int, env: GenEnv
 
 shadow generate_return_stmt {
     let source: string = (+ "f" "n main() -> int { return 42 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let ret: ASTReturn = (parser_get_return p 0)
     let env: GenEnv = (genenv_new "test")
@@ -5980,7 +6014,7 @@ fn generate_let_stmt(parser: Parser, let_stmt: ASTLet, indent: int, env: GenEnv)
 
 shadow generate_let_stmt {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let l: ASTLet = (parser_get_let p 0)
     let env: GenEnv = (genenv_new "test")
@@ -6000,12 +6034,48 @@ fn generate_assert_stmt(parser: Parser, a: ASTAssert, indent: int, env: GenEnv) 
 
 shadow generate_assert_stmt {
     let source: string = (+ "f" "n main() -> int { assert true return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let a: ASTAssert = (parser_get_assert p 0)
     let env: GenEnv = (genenv_new "test")
     let code: string = (generate_assert_stmt p a 0 env)
     assert (== code "assert(1);\n")
+}
+
+# I emit statements in order; only a final expression assigns the arm value.
+fn generate_match_arm_value(parser: Parser, body_id: int, body_type: int, env: GenEnv, expected_type: string) -> string {
+    if (!= body_type ParseNodeType.PNODE_BLOCK) {
+        return (+ "_out = " (+ (generate_expression parser body_id body_type env expected_type) "; "))
+    }
+    let block: ASTBlock = (parser_get_block parser body_id)
+    let count: int = (list_ASTStmtRef_length block.statements)
+    let mut env_cur: GenEnv = env
+    let mut parts: array<string> = []
+    let return_type: string = (lookup_func_return_type_in_parser parser env.scope)
+    let mut i: int = 0
+    while (< i count) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        if (and (== i (- count 1)) (parser_is_value_expression stmt.node_type)) {
+            set parts (cg_append parts "_out = ")
+            set parts (cg_append parts (generate_expression parser stmt.node_id stmt.node_type env_cur expected_type))
+            set parts (cg_append parts "; ")
+        } else {
+            let generated: StmtGenResult = (generate_statement parser stmt 0 env_cur return_type)
+            set parts (cg_append parts generated.code)
+            set env_cur generated.env
+        }
+        set i (+ i 1)
+    }
+    return (cg_build parts)
+}
+
+shadow generate_match_arm_value {
+    let toks: List<LexerToken> = (tokenize_string "fn value() -> void { let n: int = 7 n }" "t.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program toks (list_LexerToken_length toks) "block.nano")
+    let func: ASTFunction = (parser_get_function parser 0)
+    let code: string = (generate_match_arm_value parser func.body ParseNodeType.PNODE_BLOCK (genenv_new "value") "int")
+    assert (str_contains code "n = 7")
+    assert (str_contains code "_out = nl_n;")
 }
 
 fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: string) -> string {
@@ -6082,14 +6152,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
         if (== variant "_") {
             set parts (cg_append parts "default: { ")
 
-            if (== body_type ParseNodeType.PNODE_BLOCK) {
-                set parts (cg_append parts "/* unsupported match arm block */ ")
-            } else {
-                let expr_code: string = (generate_expression parser body_id body_type env expected_type)
-                set parts (cg_append parts "_out = ")
-                set parts (cg_append parts expr_code)
-                set parts (cg_append parts "; ")
-            }
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env expected_type))
 
             set parts (cg_append parts "break; } ")
         } else if (transp_str_starts_with variant "INT:") {
@@ -6099,14 +6162,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
             set parts (cg_append parts int_val)
             set parts (cg_append parts ": { ")
 
-            if (== body_type ParseNodeType.PNODE_BLOCK) {
-                set parts (cg_append parts "/* unsupported match arm block */ ")
-            } else {
-                let expr_code: string = (generate_expression parser body_id body_type env expected_type)
-                set parts (cg_append parts "_out = ")
-                set parts (cg_append parts expr_code)
-                set parts (cg_append parts "; ")
-            }
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env expected_type))
 
             set parts (cg_append parts "break; } ")
         } else {
@@ -6129,15 +6185,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
             let binding_type_expr: string = (get_variant_field_type parser union_name variant)
             let env_arm: GenEnv = (genenv_put env binding binding_type_expr false)
 
-            if (== body_type ParseNodeType.PNODE_BLOCK) {
-                /* Block bodies in expression match aren't supported here; assume they return */
-                set parts (cg_append parts "/* unsupported match arm block */ ")
-            } else {
-                let expr_code: string = (generate_expression parser body_id body_type env_arm expected_type)
-                set parts (cg_append parts "_out = ")
-                set parts (cg_append parts expr_code)
-                set parts (cg_append parts "; ")
-            }
+            set parts (cg_append parts (generate_match_arm_value parser body_id body_type env_arm expected_type))
 
             set parts (cg_append parts "break; } ")
         }
@@ -6150,7 +6198,7 @@ fn generate_match_expr(parser: Parser, m: ASTMatch, env: GenEnv, expected_type: 
 
 shadow generate_match_expr {
     let source: string = (+ "f" "n main() -> int { let x: Option = 0 match x { Some(y) => y } return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let m: ASTMatch = (parser_get_match p 0)
     let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
@@ -6200,9 +6248,10 @@ fn get_variant_field_type(parser: Parser, union_name: string, variant: string) -
 }
 
 shadow get_variant_field_type {
-    let source: string = "union Color { Red, Green, Blue(val: int) } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string source)
+    let source: string = "union Color { Red {}, Green {}, Blue { val: int } } fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (not (parser_has_error p))
     /* Unit variant — returns "Color.Red" */
     let t1: string = (get_variant_field_type p "Color" "Red")
     assert (== t1 "Color.Red")
@@ -6251,15 +6300,16 @@ fn get_variant_first_field_access(parser: Parser, union_name: string, variant: s
 }
 
 shadow get_variant_first_field_access {
-    let source: string = "union Result { Ok(_0: int), Err } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string source)
+    let source: string = "union Result { Ok { _0: int }, Err {} } fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (not (parser_has_error p))
     /* Unit variant — no field access */
     let a1: string = (get_variant_first_field_access p "Result" "Err")
     assert (== a1 "")
     /* Positional _0 field — returns ".fieldname" */
     let a2: string = (get_variant_first_field_access p "Result" "Ok")
-    assert (str_starts_with a2 ".")
+    assert (== a2 "._0")
     /* Unknown union — returns "" */
     let a3: string = (get_variant_first_field_access p "NoSuchUnion" "X")
     assert (== a3 "")
@@ -6382,9 +6432,10 @@ fn gen_match_variant_binding(parser: Parser, union_name: string, variant: string
 }
 
 shadow gen_match_variant_binding {
-    let source: string = "union Opt { Some(_0: int), None } fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string source)
+    let source: string = "union Opt { Some { _0: int }, None {} } fn main() -> int { return 0 }"
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
+    assert (not (parser_has_error p))
     /* Unit variant — no binding needed */
     let b1: string = (gen_match_variant_binding p "Opt" "None" "x" "  ")
     assert (== b1 "")
@@ -6551,7 +6602,7 @@ fn generate_match_stmt(parser: Parser, m: ASTMatch, indent: int, env: GenEnv, re
 
 shadow generate_match_stmt {
     let source: string = (+ "f" "n main() -> int { let x: Option = 0 match x { Some(y) => y } return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let m: ASTMatch = (parser_get_match p 0)
     let env0: GenEnv = (genenv_put (genenv_new "test") "x" "Option" false)
@@ -6623,7 +6674,7 @@ fn get_stmt_line(parser: Parser, stmt: ASTStmtRef) -> int {
 
 shadow get_stmt_line {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let block: ASTBlock = (parser_get_block p func.body)
@@ -6735,7 +6786,7 @@ fn generate_statement(parser: Parser, stmt: ASTStmtRef, indent: int, env: GenEnv
 
 shadow generate_statement {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let block: ASTBlock = (parser_get_block p func.body)
@@ -6773,7 +6824,7 @@ fn generate_block(parser: Parser, block_id: int, indent: int, env: GenEnv, retur
 
 shadow generate_block {
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let env: GenEnv = (genenv_new "test")
@@ -6818,7 +6869,7 @@ fn generate_set_stmt(parser: Parser, set_stmt: ASTSet, indent: int, env: GenEnv)
 
 shadow generate_set_stmt {
     let source: string = (+ "f" "n main() -> int { let mut x: int = 1 set x 2 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let s: ASTSet = (parser_get_set p 0)
     /* Non-mut local x: expect direct assignment */
@@ -6874,7 +6925,7 @@ fn generate_if_stmt(parser: Parser, if_stmt: ASTIf, indent: int, env: GenEnv, re
 
 shadow generate_if_stmt {
     let source: string = (+ "f" "n main() -> int { if true { return 1 } else { return 0 } }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let if_stmt: ASTIf = (parser_get_if p 0)
     let env: GenEnv = (genenv_new "test")
@@ -7058,7 +7109,7 @@ fn generate_while_stmt(parser: Parser, while_stmt: ASTWhile, indent: int, env: G
 
 shadow generate_while_stmt {
     let source: string = (+ "f" "n main() -> int { while true { return 1 } return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let w: ASTWhile = (parser_get_while p 0)
     let env: GenEnv = (genenv_new "test")
@@ -7171,7 +7222,7 @@ fn generate_block_tail_return(parser: Parser, block_id: int, indent: int, env: G
 shadow generate_block_tail_return {
     /* Test: expression tail return */
     let src: string = (+ "f" "n f(x: int) -> int { (* x 2) }")
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let env: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
@@ -7191,7 +7242,7 @@ fn generate_function_body(parser: Parser, body_id: int, env: GenEnv, return_type
 shadow generate_function_body {
     /* Test: explicit return still works */
     let source: string = (+ "f" "n main() -> int { let x: int = 1 return x }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let func: ASTFunction = (parser_get_function p 0)
     let env: GenEnv = (genenv_new "test")
@@ -7199,7 +7250,7 @@ shadow generate_function_body {
     assert (str_contains code "return")
     /* Test: implicit return — last expression used as return value */
     let source2: string = (+ "f" "n double(x: int) -> int { (* x 2) }")
-    let toks2: List<LexerToken> = (tokenize_string source2)
+    let toks2: List<LexerToken> = (tokenize_string source2 "t.nano" (list_CompilerDiagnostic_new))
     let p2: Parser = (parse_program toks2 (list_LexerToken_length toks2) "t.nano")
     let func2: ASTFunction = (parser_get_function p2 0)
     let env2: GenEnv = (genenv_put (genenv_new "test") "x" "int" false)
@@ -7281,7 +7332,7 @@ fn is_let_in_block(parser: Parser, block_id: int, let_idx: int) -> bool {
 
 shadow is_let_in_block {
     let src: string = "fn main() -> int { let x: int = 1 return x }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (not (is_let_in_block p -1 0))
 }
@@ -7319,7 +7370,7 @@ fn is_let_in_function(parser: Parser, let_idx: int) -> bool {
 
 shadow is_let_in_function {
     let src: string = "fn main() -> int { let x: int = 1 return x }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (is_let_in_function p 0)
 }
@@ -7360,7 +7411,7 @@ fn global_init_literal(parser: Parser, let_node: ASTLet) -> string {
 
 shadow global_init_literal {
     let src: string = "let banner: string = \"a\nb\""
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (global_init_literal p (parser_get_let p 0)) "\"a\\nb\"")
 }
@@ -7444,7 +7495,7 @@ fn generate_global_constants(parser: Parser) -> string {
 
 shadow generate_global_constants {
     let src: string = "fn main() -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let c: string = (generate_global_constants p)
     assert (>= (str_length c) 0)
@@ -7465,7 +7516,7 @@ fn lookup_func_return_type_in_parser(parser: Parser, name: string) -> string {
 
 shadow lookup_func_return_type_in_parser {
     let src: string = "fn add(a: int, b: int) -> int { return 0 }"
-    let toks: List<LexerToken> = (tokenize_string src)
+    let toks: List<LexerToken> = (tokenize_string src "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     assert (== (lookup_func_return_type_in_parser p "add") "int")
     assert (== (lookup_func_return_type_in_parser p "nonexistent") "")
@@ -7530,7 +7581,7 @@ shadow parser_has_peg2_import {
     assert (== (parser_has_peg2_import p) 0)
 }
 
-pub fn transpile_parser(parser: Parser) -> string {
+fn transpile_parser_mode(parser: Parser, first_shadow: int) -> string {
     (build_module_alias_map parser)
     (reset_fn_types)
 
@@ -7623,12 +7674,68 @@ pub fn transpile_parser(parser: Parser) -> string {
     }
     let all_functions: string = (cg_build sb)
 
-    return (gen_c_program_with_modules parser all_functions)
+    let product: string = (gen_c_program_with_modules parser all_functions)
+    if (< first_shadow 0) { return product }
+
+    # I keep NanoLang main callable; only the C process entry is renamed.
+    let mut tests: array<string> = []
+    set tests (cg_append tests "#undef NDEBUG\n#define main __nano_product_entry\n")
+    set tests (cg_append tests product)
+    set tests (cg_append tests "\n#undef main\n#include \"runtime/shadow_runner.h\"\n")
+    let mut si: int = first_shadow
+    while (< si parser.shadows_count) {
+        let sh: ASTShadow = (list_ASTShadow_get parser.shadows si)
+        let scope: string = (+ "__nano_shadow_" (int_to_string si))
+        let env: GenEnv = GenEnv { names: global_env.names, types: global_env.types, mut_flags: global_env.mut_flags, global_flags: global_env.global_flags, scope: scope }
+        set tests (cg_append tests (+ "static void " (+ scope "(void) {\n")))
+        set tests (cg_append tests (generate_block parser sh.body 1 env "void"))
+        set tests (cg_append tests "}\n")
+        set si (+ si 1)
+    }
+    set tests (cg_append tests "static int __nano_shadow_entry(void) {\n")
+    set si first_shadow
+    while (< si parser.shadows_count) {
+        let label: string = (gen_string (+ "I am testing shadow " (+ (list_ASTShadow_get parser.shadows si).target_name "\n")))
+        set tests (cg_append tests (+ "    if (getenv(\"NANO_SHADOW_TRACE\")) fputs(" (+ label ", stderr);\n")))
+        set tests (cg_append tests (+ "    __nano_shadow_" (+ (int_to_string si) "();\n")))
+        set si (+ si 1)
+    }
+    set tests (cg_append tests "    return 0;\n}\n")
+    set tests (cg_append tests "int main(int argc, char **argv) {\n    g_argc = argc;\n    g_argv = argv;\n    return nl_run_shadow_entry(__nano_shadow_entry, 10);\n}\n")
+    return (cg_build tests)
+}
+
+shadow transpile_parser_mode {
+    let toks: List<LexerToken> = (tokenize_string "fn main() -> int { return 7 } shadow main { assert (== (main) 7) }" "shadow.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "shadow.nano")
+    assert (not (str_contains (transpile_parser_mode p -1) "__nano_shadow_"))
+    assert (str_contains (transpile_parser_mode p 0) "__nano_shadow_0();")
+}
+
+pub fn transpile_parser(parser: Parser) -> string {
+    return (transpile_parser_mode parser -1)
+}
+
+# I accept an explicit suffix of shadows; the driver owns root/import policy.
+# An invalid selection fails without emitting a misleading empty test program.
+pub fn transpile_parser_shadows(parser: Parser, first_shadow: int) -> string {
+    if (or (< first_shadow 0) (> first_shadow parser.shadows_count)) { return "" }
+    return (transpile_parser_mode parser first_shadow)
+}
+
+shadow transpile_parser_shadows {
+    let toks: List<LexerToken> = (tokenize_string "fn f() -> int { return 1 } shadow f { assert false } shadow f { assert true }" "shadow.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program toks (list_LexerToken_length toks) "shadow.nano")
+    let code: string = (transpile_parser_shadows p 1)
+    assert (not (str_contains code "__nano_shadow_0"))
+    assert (str_contains code "__nano_shadow_1();")
+    assert (== (transpile_parser_shadows p -1) "")
+    assert (== (transpile_parser_shadows p 3) "")
 }
 
 shadow transpile_parser {
     let source: string = (+ "f" "n main() -> int { return 0 }")
-    let toks: List<LexerToken> = (tokenize_string source)
+    let toks: List<LexerToken> = (tokenize_string source "t.nano" (list_CompilerDiagnostic_new))
     let p: Parser = (parse_program toks (list_LexerToken_length toks) "t.nano")
     let code: string = (transpile_parser p)
     assert (str_contains code "int main(")
@@ -7654,8 +7761,8 @@ pub fn transpile_phase(parser: Parser, output_path: string, file_name: string) -
 }
 
 shadow transpile_phase {
-    let parser: Parser = (parser_init_ast_lists)
-    let output: TranspilePhaseOutput = (transpile_phase parser "a.out.c")
+    let parser: Parser = (parser_new (list_LexerToken_new) 0 "t.nano")
+    let output: TranspilePhaseOutput = (transpile_phase parser "a.out.c" "t.nano")
     assert (== output.had_error false)
 }
 

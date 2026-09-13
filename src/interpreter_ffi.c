@@ -17,6 +17,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <ffi.h>
 
 static bool ffi_verbose = false;
 
@@ -251,91 +252,72 @@ bool ffi_load_module(const char *module_name, const char *module_path,
     return true;
 }
 
-/* Marshal nanolang Value to C type and store in buffer 
- * Returns number of bytes used */
-static size_t marshal_value_to_c(Value val, Type expected_type, 
-                                  unsigned char *buffer, size_t buffer_size) {
-    switch (expected_type) {
-        case TYPE_INT:
-            if (buffer_size < sizeof(int64_t)) return 0;
-            *((int64_t*)buffer) = val.as.int_val;
-            return sizeof(int64_t);
-            
-        case TYPE_FLOAT:
-            if (buffer_size < sizeof(double)) return 0;
-            *((double*)buffer) = val.as.float_val;
-            return sizeof(double);
-            
-        case TYPE_BOOL:
-            if (buffer_size < sizeof(bool)) return 0;
-            *((bool*)buffer) = val.as.bool_val;
-            return sizeof(bool);
-            
-        case TYPE_STRING:
-            if (buffer_size < sizeof(const char*)) return 0;
-            *((const char**)buffer) = val.as.string_val;
-            return sizeof(const char*);
+/* I give libffi aligned storage matching each declared scalar type. */
+typedef union {
+    ffi_arg word;
+    int64_t integer;
+    double floating;
+    uint8_t boolean;
+    void *pointer;
+} InterpreterFFISlot;
 
+static ffi_type *interpreter_ffi_type(Type type) {
+    switch (type) {
+        case TYPE_INT: return &ffi_type_sint64;
+        case TYPE_FLOAT: return &ffi_type_double;
+        case TYPE_BOOL: return &ffi_type_uint8;
+        case TYPE_STRING:
         case TYPE_OPAQUE:
-            /* Opaque values are represented as pointer-sized ints in the interpreter */
-            if (buffer_size < sizeof(int64_t)) return 0;
-            *((int64_t*)buffer) = val.as.int_val;
-            return sizeof(int64_t);
-            
-        case TYPE_VOID:
-            return 0;  /* No marshaling needed */
-            
-        default:
-            fprintf(stderr, "Error: Unsupported FFI type for marshaling: %d\n", expected_type);
-            return 0;
+        case TYPE_ARRAY: return &ffi_type_pointer;
+        case TYPE_VOID: return &ffi_type_void;
+        default: return NULL;
     }
 }
 
-/* Marshal C return value back to nanolang Value */
-static Value marshal_c_to_value(void *c_result, Type return_type) {
-    switch (return_type) {
+static bool interpreter_ffi_argument(Value value, Type type, InterpreterFFISlot *slot) {
+    switch (type) {
         case TYPE_INT:
-            return create_int(*((int64_t*)c_result));
-            
+            if (value.type != VAL_INT) return false;
+            slot->integer = value.as.int_val;
+            return true;
         case TYPE_FLOAT:
-            return create_float(*((double*)c_result));
-            
+            if (value.type != VAL_FLOAT) return false;
+            slot->floating = value.as.float_val;
+            return true;
         case TYPE_BOOL:
-            return create_bool(*((bool*)c_result));
-            
-        case TYPE_STRING: {
-            const char *str = *((const char**)c_result);
-            return str ? create_string(str) : create_void();
-        }
-            
-        case TYPE_VOID:
-            return create_void();
-
+            if (value.type != VAL_BOOL) return false;
+            slot->boolean = value.as.bool_val ? 1 : 0;
+            return true;
+        case TYPE_STRING:
+            if (value.type != VAL_STRING) return false;
+            slot->pointer = value.as.string_val;
+            return true;
         case TYPE_OPAQUE:
-            return create_int(*((int64_t*)c_result));
-
-        case TYPE_ARRAY: {
-            /* Arrays are represented as DynArray* in the C runtime/stdlib. */
-            int64_t raw = *((int64_t*)c_result);
-            DynArray *arr = (DynArray*)(intptr_t)raw;
-            Value v;
-            v.type = VAL_DYN_ARRAY;
-            v.is_return = false;
-            v.is_break = false;
-            v.is_continue = false;
-            v.as.dyn_array_val = arr;
-            return v;
-        }
-            
+            if (value.type != VAL_INT) return false;
+            slot->pointer = gc_unwrap((void *)(intptr_t)value.as.int_val);
+            return true;
         default:
-            fprintf(stderr, "Error: Unsupported FFI return type: %d\n", return_type);
-            return create_void();
+            return false;
     }
 }
 
 /* Call an extern function via FFI */
 Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
                       Function *func_info, Environment *env) {
+    bool success;
+    return ffi_call_extern_checked(function_name, args, arg_count, func_info, env, &success);
+}
+
+Value ffi_call_extern_checked(const char *function_name, Value *args, int arg_count,
+                             Function *func_info, Environment *env, bool *success) {
+    if (!success) return create_void();
+    *success = false;
+    if (!function_name || !func_info || !env || arg_count < 0 ||
+        arg_count > NANO_MAX_FFI_ARGS || arg_count != func_info->param_count ||
+        (arg_count && (!args || !func_info->params))) {
+        fprintf(stderr, "I cannot call FFI with invalid signature metadata or arguments.\n");
+        return create_void();
+    }
     if (!ffi_loader_is_initialized()) {
         fprintf(stderr, "Error: FFI not initialized\n");
         return create_void();
@@ -352,182 +334,53 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
         }
         Value v;
         if (ffi_try_module_introspection(function_name, args, arg_count, func_info, env, &v)) {
+            *success = true;
             return v;
         }
+        fprintf(stderr, "I cannot resolve foreign function '%s'.\n", function_name);
         return create_void();
     }
-
-    if (ffi_verbose) {
-        if (module) {
-            printf("[FFI] Calling %s from module %s\n", function_name, module->name);
-        } else {
-            printf("[FFI] Calling %s from RTLD_DEFAULT\n", function_name);
-        }
-    }
-    
-    /* Marshal arguments to C types */
-    unsigned char arg_buffer[1024];  /* Stack buffer for marshaled args */
-    size_t arg_offsets[NANO_MAX_FFI_ARGS]; /* Track where each arg starts */
-    size_t total_size = 0;
-    
-    if (arg_count > NANO_MAX_FFI_ARGS) {
-        fprintf(stderr, "Error: Too many FFI arguments (%d > %d)\n",
-                arg_count, NANO_MAX_FFI_ARGS);
-        return create_void();
-    }
-    
-    for (int i = 0; i < arg_count; i++) {
-        arg_offsets[i] = total_size;
-
-        Type param_type = func_info->params[i].type;
-        if (param_type == TYPE_STRUCT && func_info->params[i].struct_type_name) {
-            if (env_get_opaque_type(env, func_info->params[i].struct_type_name)) {
-                param_type = TYPE_OPAQUE;
-            }
-        }
-
-        size_t size = marshal_value_to_c(args[i], param_type,
-                                         arg_buffer + total_size,
-                                         sizeof(arg_buffer) - total_size);
-        if (size == 0) {
-            fprintf(stderr, "Error: Failed to marshal argument %d for %s\n", 
-                    i, function_name);
-            return create_void();
-        }
-        total_size += size;
-    }
-    
-    /* Call the C function based on signature 
-     * Extract actual values from buffer for calling */
-    unsigned char result_buffer[64];
-    memset(result_buffer, 0, sizeof(result_buffer));
-    
-    /* Extract argument values based on their types */
-    void *arg_ptrs[NANO_MAX_FFI_ARGS];  /* Actual values to pass */
-    for (int i = 0; i < arg_count; i++) {
-        Type param_type = func_info->params[i].type;
-        if (param_type == TYPE_STRUCT && func_info->params[i].struct_type_name) {
-            if (env_get_opaque_type(env, func_info->params[i].struct_type_name)) {
-                param_type = TYPE_OPAQUE;
-            }
-        }
-        switch (param_type) {
-            case TYPE_INT:
-                /* Pass int64_t by value (cast to pointer-sized int) */
-                arg_ptrs[i] = (void*)(*((int64_t*)(arg_buffer + arg_offsets[i])));
-                break;
-            case TYPE_FLOAT:
-                /* Pass double by value - NOT SUPPORTED in simple casting */
-                /* This is a limitation - need libffi for proper float support */
-                arg_ptrs[i] = (void*)(arg_buffer + arg_offsets[i]);
-                break;
-            case TYPE_BOOL:
-                /* Pass bool by value (cast to pointer-sized int) */
-                arg_ptrs[i] = (void*)(intptr_t)(*((bool*)(arg_buffer + arg_offsets[i])) ? 1 : 0);
-                break;
-            case TYPE_STRING:
-                /* Strings are already pointers - extract the pointer */
-                arg_ptrs[i] = (void*)(*((const char**)(arg_buffer + arg_offsets[i])));
-                break;
-
-            case TYPE_OPAQUE: {
-                /* Extract opaque pointer */
-                void* opaque_ptr = (void*)(intptr_t)(*((int64_t*)(arg_buffer + arg_offsets[i])));
-
-                /* ARC: Unwrap if it's a GC-managed wrapper */
-                void* unwrapped = gc_unwrap(opaque_ptr);
-                arg_ptrs[i] = unwrapped;
-                break;
-            }
-            default:
-                arg_ptrs[i] = NULL;
-                break;
-        }
-    }
-    
-    /* Call function with extracted arguments */
-    typedef int64_t (*FFI_Func_NoArgs)(void);
-    typedef int64_t (*FFI_Func_1Arg)(void*);
-    typedef int64_t (*FFI_Func_2Args)(void*, void*);
-    typedef int64_t (*FFI_Func_3Args)(void*, void*, void*);
-    typedef int64_t (*FFI_Func_4Args)(void*, void*, void*, void*);
-    typedef int64_t (*FFI_Func_5Args)(void*, void*, void*, void*, void*);
-    typedef int64_t (*FFI_Func_6Args)(void*, void*, void*, void*, void*, void*);
-    typedef int64_t (*FFI_Func_7Args)(void*, void*, void*, void*, void*, void*, void*);
-    typedef int64_t (*FFI_Func_8Args)(void*, void*, void*, void*, void*, void*, void*,
-                                      void*);
-    typedef int64_t (*FFI_Func_9Args)(void*, void*, void*, void*, void*, void*, void*,
-                                      void*, void*);
-    typedef int64_t (*FFI_Func_10Args)(void*, void*, void*, void*, void*, void*, void*,
-                                       void*, void*, void*);
-    
-    int64_t result = 0;
-    
-    switch (arg_count) {
-        case 0:
-            result = ((FFI_Func_NoArgs)func_ptr)();
-            break;
-        case 1:
-            result = ((FFI_Func_1Arg)func_ptr)(arg_ptrs[0]);
-            break;
-        case 2:
-            result = ((FFI_Func_2Args)func_ptr)(arg_ptrs[0], arg_ptrs[1]);
-            break;
-        case 3:
-            result = ((FFI_Func_3Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2]);
-            break;
-        case 4:
-            result = ((FFI_Func_4Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], 
-                                                arg_ptrs[2], arg_ptrs[3]);
-            break;
-        case 5:
-            result = ((FFI_Func_5Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], 
-                                                arg_ptrs[2], arg_ptrs[3], arg_ptrs[4]);
-            break;
-        case 6:
-            result = ((FFI_Func_6Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5]);
-            break;
-        case 7:
-            result = ((FFI_Func_7Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
-                                                arg_ptrs[6]);
-            break;
-        case 8:
-            result = ((FFI_Func_8Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
-                                                arg_ptrs[6], arg_ptrs[7]);
-            break;
-        case 9:
-            result = ((FFI_Func_9Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
-                                                arg_ptrs[6], arg_ptrs[7], arg_ptrs[8]);
-            break;
-        case 10:
-            result = ((FFI_Func_10Args)func_ptr)(arg_ptrs[0], arg_ptrs[1], arg_ptrs[2],
-                                                 arg_ptrs[3], arg_ptrs[4], arg_ptrs[5],
-                                                 arg_ptrs[6], arg_ptrs[7], arg_ptrs[8],
-                                                 arg_ptrs[9]);
-            break;
-        default:
-            fprintf(stderr,
-                    "Error: FFI does not support %d arguments yet (max %d)\n",
-                    arg_count, NANO_MAX_FFI_ARGS);
-            return create_void();
-    }
-    
-    /* Marshal result back */
-    *((int64_t*)result_buffer) = result;
 
     Type ret_type = func_info->return_type;
-    if (ret_type == TYPE_STRUCT && func_info->return_struct_type_name) {
-        if (env_get_opaque_type(env, func_info->return_struct_type_name)) {
-            ret_type = TYPE_OPAQUE;
-        }
+    if (ret_type == TYPE_STRUCT && func_info->return_struct_type_name &&
+        env_get_opaque_type(env, func_info->return_struct_type_name)) {
+        ret_type = TYPE_OPAQUE;
+    }
+    ffi_type *result_type = interpreter_ffi_type(ret_type);
+    if (!result_type) {
+        fprintf(stderr, "I cannot dispatch foreign result type %d for '%s'.\n", ret_type, function_name);
+        return create_void();
     }
 
+    InterpreterFFISlot slots[NANO_MAX_FFI_ARGS] = {0};
+    void *values[NANO_MAX_FFI_ARGS] = {0};
+    ffi_type *types[NANO_MAX_FFI_ARGS] = {0};
+    for (int i = 0; i < arg_count; i++) {
+        Type type = func_info->params[i].type;
+        if (type == TYPE_STRUCT && func_info->params[i].struct_type_name &&
+            env_get_opaque_type(env, func_info->params[i].struct_type_name)) {
+            type = TYPE_OPAQUE;
+        }
+        types[i] = interpreter_ffi_type(type);
+        if (!types[i] || !interpreter_ffi_argument(args[i], type, &slots[i])) {
+            fprintf(stderr, "I cannot marshal foreign argument %d for '%s'.\n", i, function_name);
+            return create_void();
+        }
+        values[i] = &slots[i];
+    }
+
+    ffi_cif cif;
+    if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned int)arg_count,
+                     result_type, types) != FFI_OK) {
+        fprintf(stderr, "I cannot prepare the native signature for '%s'.\n", function_name);
+        return create_void();
+    }
+    InterpreterFFISlot native_result = {0};
+    ffi_call(&cif, FFI_FN(func_ptr), &native_result, values);
+    *success = true;
+
     if (ret_type == TYPE_STRING) {
-        const char *str = (const char*)(intptr_t)result;
+        const char *str = native_result.pointer;
         Value v = str ? create_string(str) : create_void();
         ModuleBuildMetadata *meta = module ? (ModuleBuildMetadata *)module->user_data : NULL;
         if (str && module_owns_string_return(meta, function_name)) {
@@ -538,7 +391,7 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
 
     /* ARC: Wrap opaque return values if they require manual free */
     if (ret_type == TYPE_OPAQUE && func_info->requires_manual_free && !func_info->returns_borrowed) {
-        void* external_ptr = (void*)(intptr_t)result;
+        void* external_ptr = native_result.pointer;
 
         if (external_ptr && func_info->cleanup_function) {
             /* Look up the cleanup function through the shared resolver */
@@ -559,6 +412,21 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
         }
     }
 
-    return marshal_c_to_value(result_buffer, ret_type);
+    switch (ret_type) {
+        case TYPE_INT: return create_int(native_result.integer);
+        case TYPE_FLOAT: return create_float(native_result.floating);
+        /* I read libffi's widened result for sub-register integer types. */
+        case TYPE_BOOL: return create_bool(native_result.word != 0);
+        case TYPE_OPAQUE: return create_int((int64_t)(intptr_t)native_result.pointer);
+        case TYPE_ARRAY: {
+            Value value = create_void();
+            value.type = VAL_DYN_ARRAY;
+            value.as.dyn_array_val = native_result.pointer;
+            return value;
+        }
+        case TYPE_VOID: return create_void();
+        default:
+            *success = false;
+            return create_void();
+    }
 }
-

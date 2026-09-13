@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L  /* For strdup(), strtok_r() */
+#define _XOPEN_SOURCE 700       /* For realpath() */
 
 #include "fs.h"
 #include <stdio.h>
@@ -53,6 +54,61 @@ DynArray* fs_walkdir(const char* root) {
     if (!result) return NULL;
     
     walkdir_recursive(root, result);
+    return result;
+}
+
+/* I resolve existing paths physically; failure is an empty string, never a
+ * lexical approximation of the requested identity. */
+const char* path_canonical(const char* path) {
+    if (!path || !path[0]) return strdup("");
+    char *resolved = realpath(path, NULL);
+    return resolved ? resolved : strdup("");
+}
+
+/* I compare existing file identities without opening either file for writing.
+ * A missing candidate is distinct; unavailable source identity is an error.
+ * This is a snapshot check, not protection against concurrent path replacement. */
+int64_t file_compare_identity(const char* source, const char* candidate) {
+    struct stat source_stat, candidate_stat;
+    if (!source || !source[0] || !candidate || !candidate[0]) return -1;
+    if (stat(source, &source_stat) != 0) return -1;
+    if (stat(candidate, &candidate_stat) != 0)
+        return errno == ENOENT || errno == ENOTDIR ? 0 : -1;
+    return source_stat.st_dev == candidate_stat.st_dev &&
+           source_stat.st_ino == candidate_stat.st_ino ? 1 : 0;
+}
+
+/* I distinguish absent entries from dangling links and lookup failures. */
+static int destination_stat(const char* path, struct stat* info) {
+    if (stat(path, info) == 0) return 1;
+    if (errno != ENOENT) return -1;
+    if (lstat(path, info) == 0 || errno != ENOENT) return -1;
+    return 0;
+}
+
+/* I compare stable destination entries, including files not yet created.
+ * An exclusive empty-directory probe asks the filesystem about absent names.
+ * I remove it before returning; unresolved identity or cleanup fails closed.
+ * This is not protection against concurrent namespace replacement. */
+int64_t file_compare_destinations(const char* first, const char* second) {
+    if (!first || !first[0] || !second || !second[0]) return -1;
+    struct stat a, b;
+    int a_exists = destination_stat(first, &a);
+    int b_exists = destination_stat(second, &b);
+    if (a_exists < 0 || b_exists < 0) return -1;
+    if (a_exists && b_exists)
+        return a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+    if (a_exists || b_exists) return 0;
+
+    if (mkdir(first, 0700) != 0) return -1;
+    int64_t result = -1;
+    if (stat(first, &a) == 0) {
+        b_exists = destination_stat(second, &b);
+        if (b_exists == 0) result = 0;
+        else if (b_exists > 0)
+            result = a.st_dev == b.st_dev && a.st_ino == b.st_ino;
+    }
+    if (rmdir(first) != 0) return -1;
     return result;
 }
 

@@ -24,10 +24,6 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
-- [x] **Interpreter reliability.** I return an owned string from record field
-      access so call-frame cleanup cannot free record-owned storage. Evaluator
-      coverage checks direct returns, local reassignment, 100 repeated reads,
-      and shadow execution. MAC `task_de992b992c064ceb917bda531312f531`.
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
       System / conflicting Forth-IDE work unmerged. I do not merge MAC lease
@@ -151,30 +147,2783 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with `make rebuild`, `make test-make-header-dependencies`, and
       `make test-quick`. GitHub #211.
       MAC `task_9f8a6bf48d4c4117b1a551ee35c0b055`.
-- [x] **5.0 / native match-block scalar acceptance.** Function-scoped return
-      and final-expression arm values work in the C seed and self-hosted
-      compiler. I repaired evaluator return propagation and direct
-      union-variant field lookup. Five positive and three negative cases pass
-      through the C seed, rebuilt Stage 1, and rebuilt Stage 2. Serial
-      `make bootstrap3` passes its configured smoke and no-C-seed gates; the
-      native stage binaries differ, so I do not claim a fixed point. The full
-      self-host suite passes 15 tests, including five import tests, and the
-      type-inference, effects, NanoCore, and parser-recovery gates pass.
+- [ ] **5.0 audit — language contract and claims.** I reconcile PERSONA,
+      README, specification, guide, and compiler behavior; version one
+      executable language contract and test each claim on the C seed,
+      self-hosted compiler, VM, and AOT where applicable. I distinguish
+      project policy, implementation, and proof. MAC
+      `task_2b291a75ca2840519d47e08bf991c021` tracks this audit program.
+      On 2026-09-12, MAC marked that task failed after a dispatcher-managed
+      agent lease expired without captured evidence; it requests manual
+      ledger repair. My repository audit and remaining roadmap work stay
+      active. This is not a failed compiler or test result.
+      My bootstrap reporting now names the checks performed; canonical
+      artifact equality and semantic correctness remain separate.
+- [x] **5.0 contributor contract — current compiler and verification rules.**
+      I reconcile CONTRIBUTING with current shadow execution, backend scope,
+      verifier limits and fuzzing practice. `make test-release-gates` currently
+      rejects its staleness relative to verifier/fuzzing changes. Its claims
+      that shadows prove correctness, only externs are exempt, and tests run
+      in the final binary also contradict the tested contract. I repair those
+      claims and rerun the gate without a release acknowledgement override.
+      I now distinguish the compiler paths, separate shadow test processes,
+      default dependency selection, warning exemptions, formal correspondence,
+      abstract reference balance and parser fuzzing limits. Sixteen language
+      claim methods, all ninety-three verifier tests and all twenty-two release
+      gate methods pass on Darwin (2026-09-13), without an acknowledgement.
+      The four parser seeds also replay successfully with the installed LLVM
+      libFuzzer target; this is not a mutation campaign or leak-freedom claim.
+      MAC `task_bb0635cd76e04f898ea7886298377a01`.
+- [x] **5.0 release freshness — preserve Git paths.** I repair the shared
+      release helper's stripping of the leading porcelain status space, which
+      truncates the first unstaged path and still calls edited CONTRIBUTING
+      untouched. I use NUL-delimited Git output for committed and working paths,
+      preserve both rename endpoints, and test real temporary repositories
+      with unstaged edits, renames, spaces and newline-containing filenames.
+      Real Git tests now retain the first unstaged path and both rename
+      endpoints before and after commit, including literal arrows, leading/
+      trailing spaces and CR/LF names. Raw Git output avoids text-mode newline
+      conversion. All twenty-two release-gate methods pass.
+      MAC `task_04bd7f1a9f5f4396b7ba9fb14dd5d370`.
+- [x] **5.0 contract claims — typing and shadow execution evidence.** I
+      characterize inferred locals, explicit function boundaries, immutable
+      assignment, boolean conditions and shadow handling on the C seed,
+      Stage 2 and bytecode frontend. I reconcile specification, canonical
+      style and persona with those observations, distinguishing intended
+      language rules and project shadow policy from current enforcement.
+      Five test methods cover 22 compiler cases, including the specification's
+      unsafe math wrapper on the C seed. `make test-language-claims` passes
+      with the existing tools (2026-09-12). README, persona, canonical style
+      and the specification now agree about this observed shadow gap; the
+      specification remains a draft with broader coverage explicitly open.
+- [x] **5.0 document-pair acceptance — inspect the artifacts.** I replace
+      the regeneration script's unconditional acceptance record with checks
+      of the actual PPTX and DOCX: slide count and geometry, text-frame
+      intersections, speaker notes, heading hierarchy and explicit placeholder
+      and credential patterns. I preserve both artifact paths in the manifest
+      and test malformed artifacts and nonzero gate exits. Mechanical acceptance
+      does not replace rendering or visual inspection. The documented verifier
+      was missing; the renderer printed overlaps without failing. I now run
+      the actual verifier from regeneration, invalidate prior acceptance before
+      authoring, and preserve both artifact paths with the actual slide count.
+      Ten tests pass, including real builder success and authoring-failure
+      recovery in isolated outputs. The retained pair passes mechanical checks
+      with sixteen slides and thirty-four headings. The full release-gate suite
+      still rejects CONTRIBUTING staleness, tracked above; no override is used.
+      MAC `task_8708bf8104604c278ad846f2b7f476a9`.
+- [x] **5.0 developer deck — shadow enforcement claims.** I replace the
+      slide-two `PROOF` label and the claim that an unshadowed function cannot
+      compile in `docs/presentation/build_deck.py` with my tested policy,
+      warning and exemption boundary. I regenerate and visually verify the
+      local artifacts and add a claim regression check before publication.
+      MAC `task_467da218e63ea9836c2fa6412c9026b0`.
+      I also reconcile the companion narrative's shadow statement and its
+      incorrect `gcd` example, which returns its first argument while claiming
+      a result of six. The shared claim ledger's open #211 statement is stale.
+      Full source review also finds claims of whole-program proof, complete
+      ownership and production runtime security, plus a bounds example missing
+      the offset precondition. I reconcile these in the same unpublished 5.0
+      development draft, retain labeled historical measurements, share one
+      executable example between both artifacts, and test the extracted code.
+      The local pair is regenerated; extracted DOCX code passes on all three
+      backends, and false assertions preserve prior outputs. Mechanical checks
+      pass. The host's soffice launcher points to a missing application; I used
+      LibreOffice 24.2.7.2 in a disposable Ubuntu container instead. I inspected
+      all sixteen slides and five narrative pages, fixed the split command
+      block, and gave the closing section its own page. Code excerpts stay
+      together, with an artifact regression check. QA records exact artifact
+      hashes and renderer scope; neither member is externally published.
+- [x] **5.0 imported shadows — selection characterization.** I test direct
+      and transitive imports with failing dependency shadows on the C seed,
+      Stage 2 native driver and bytecode CLI, then compile that dependency as
+      the root to check rejection. This measures selection, not a complete
+      imported-shadow policy. On Darwin, all three paths skip the failing
+      imported shadow at both depths, run the root assertion using its helper,
+      and reject that dependency's shadow when compiled as root (12 compiler
+      cases in `test_imported_shadow_selection`). My six language-claim tests
+      pass. I use distinct wrapper names to isolate selection from the open
+      namespace defect below; this is not Linux or FFI acceptance evidence.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [x] **5.0 C-seed shadows — remove foreign-call skipping.** I execute
+      explicit root shadows regardless of foreign calls in the tested function
+      or shadow body. I test passing and failing assertions with unreachable
+      foreign calls and retain the broader FFI error and isolation gates.
+      Six C-seed compiler cases cover calls in function bodies, unsafe blocks
+      and shadow bodies. Seven language-claim tests and all 95 evaluator tests
+      pass on Darwin with the rebuilt C seed. Bootstrap Stage 1/2 smoke and
+      no-C-seed checks pass; native binaries still differ. This does not
+      establish foreign error propagation, isolation or Linux acceptance.
+      The post-bootstrap rerun passes all 16 language-claim/native-shadow tests;
+      all nine interpreter FFI tests also pass.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [x] **5.0 interpreted shadows — foreign failures are test failures.** I
+      propagate failed symbol resolution and marshaling into shadow results
+      instead of returning an ordinary void value that a test can ignore.
+      My checked call API separates failure from a successful void return.
+      I test ignored missing-symbol and unsupported-float calls, JSON failure
+      locations and preservation of existing output, with a resolved native
+      integer-call control. Ten FFI tests cover malformed metadata, mismatched
+      value tags, uninitialized dispatch, recovery, introspection and void.
+      Those tests and all 95 evaluator tests pass on Darwin and Linux GCC;
+      the nine focused compiler cases pass on both. My Darwin bootstrap smoke
+      and no-C-seed checks pass; native binaries still differ. The prior `erf`
+      result came from unsupported native dispatch, which remains work below.
+      This is shadow failure accounting, not general interpreter exception
+      propagation, foreign isolation or proof of the declared C signature.
+      The final Darwin language/native-shadow rerun passes all 17 tests.
+      MAC `task_48a773d48f4843ea92039b6b4dd381e3`.
+- [x] **5.0 interpreter FFI — signature-correct native dispatch.** I replace
+      integer-returning pointer casts and unaligned byte buffers with libffi
+      calls and aligned typed slots. My fixed-arity scalar/pointer calls now
+      handle doubles, bools and void correctly in the tested signatures.
+      Eleven FFI tests include real mixed native signatures, pointer/string
+      results and ten-argument integer/float calls; these and 95 evaluator
+      tests pass on Darwin arm64 and Linux arm64 GCC. Ten focused compiler
+      cases pass on both; my full Darwin language/native-shadow suite passes
+      all 17 tests. Bootstrap smoke/no-C-seed checks pass; native binaries differ.
+      Editor-session tests and shared-session library builds pass on both.
+      Linux ASan/UBSan passes with the bridge and driver instrumented; other
+      objects and libffi are not instrumented, and leak detection is disabled.
+      My Makefile, Linux CI package lists and build guide record the libffi
+      dependency. Workflow YAML parses; hosted CI has not run in this check.
+      Array arguments, non-opaque aggregates and variadic calls are outside
+      this fixed-arity boundary. Native declarations remain trusted, not proved.
+      MAC `task_b6f54605c59c4e1abff628422c77922f`.
+- [x] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
+      make failing shadow assertions observable on every supported compiler
+      path. My C-seed driver runs shadows during compilation; I measure the
+      self-hosted and VM paths before claiming consistent execution or order.
+      I preserve the requirement for useful tests; documenting a gap does
+      not satisfy it.
+      The failing-shadow characterization is now rejected by the C seed,
+      bytecode CLI and Stage 2 native driver. The later transitive-default
+      work implements my creator's imported-shadow policy, dependency-first
+      execution, explicit root-only opt-out and production separation.
+      Source-only emission deliberately does not execute tests. I re-ran
+      85 methods across C-seed imports, native shadows, bytecode shadows,
+      native shadow emission, supervision and language claims on Darwin:
+      all pass in 281.286 seconds with no skips. These tests include failing
+      assertions, deadlines, prior-output preservation, diamond order and
+      source-only selection. Complete language/backend parity remains open
+      under its own acceptance items; this closes shadow execution, not that
+      broader claim.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+- [x] **5.0 imported shadow prerequisite — function ownership.** I repair
+      same-named pure wrappers across qualified imports, preserving module
+      ownership in lookup and rejecting true local duplicates. I test root,
+      imported and transitive calls through compiler execution; the broader
+      namespace-isolation gate below remains open for foreign declarations
+      and colliding module identities.
+      I now preserve pure function ownership in C-seed lookup, both interpreted
+      call paths, module C emission and bytecode registration/lowering. My
+      three-level wrapper and same-named private-helper fixture executes with
+      inferred and declared module names on Darwin and Linux. True local
+      duplicates are rejected. At that checkpoint Stage2 still failed the
+      fixture's useful root shadow; the following gate owns its implementation.
+      That Stage2 gate now passes the pure wrapper fixture on both platforms;
+      foreign-name and nominal isolation remain in the broader gate.
+      The 63 codegen tests, evaluator, typechecker, environment and 28 bytecode
+      shadow tests pass on Linux. Darwin bootstrap smoke tests pass, but its
+      Stage1 and Stage2 binaries still differ. This is not full module isolation.
+      All 48 Darwin language-claim, native-shadow and bytecode-shadow methods
+      pass, including the explicit Stage2 boundary characterization; Linux
+      passes the 39 applicable language-claim and bytecode-shadow methods
+      without a self-hosted compiler build.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 Stage2 declaration ownership prerequisite.** I retain each input
+      file's start in merged source and reject duplicate non-extern function
+      declarations within that owner. I distinguish these from same-named
+      declarations in different files, test root and imported duplicates,
+      and preserve prior output on rejection. This does not resolve calls.
+      My old Stage2 accepted duplicate declarations at all three
+      tested depths. The rebuilt compiler rejects them in native and C-source
+      modes, preserves the prior bytes and reports `M0001` in JSON. Root and
+      direct-import rejection also runs across all three compilers. A repeated
+      compatible extern declaration remains accepted. My owner helper tests
+      cover empty input and empty-file boundaries. Darwin bootstrap smoke and
+      no-C-seed checks pass; native binaries still differ.
+      All 40 language-claim, native-shadow, CLI, import-path and build-isolation
+      methods pass on Darwin with Stage2. No Linux bootstrap was run in this
+      increment.
+      MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
+- [x] **5.0 Stage2 physical string emission.** I escape physical newline and
+      carriage-return bytes in plain string literals without double-escaping
+      source escape spellings. I execute a multiline imported function and
+      preserve its value; a multiline global is also checked at runtime.
+      Darwin and Linux pass. Interpolation escaping remains a separate boundary.
+      MAC `task_634c83a18dbb4a47ae1597a07549cca5`.
+- [x] **5.0 Stage2 physical token positions.** I count physical newlines
+      consumed inside literals before locating subsequent tokens. I reproduce
+      owner drift across merged-file boundaries, test escaped versus physical
+      newlines, and resolve the introspection lexer call in both bootstraps.
+      I check subsequent token lines and columns; this is not complete original
+      source provenance or interpolation-internal location coverage.
+      MAC `task_9c6fae270c964a25b8949c5929e2f686`.
+- [x] **5.0 Stage2 emitter lexical environments.** I prevent inner bindings
+      from mutating the outer `GenEnv` arrays. My selective-alias fixture
+      exposed an inner local leaking into resolution after the block. Copying
+      the environment arrays fixes ordinary blocks, loop and match bindings;
+      those cases execute through Stage2 on Darwin and Linux.
+      MAC `task_123d7299a3824f0f9383e5de4401360a`.
+- [x] **5.0 standalone Linux fixture flags.** I compile small runtime-free
+      emitted fixtures at `-O2`, as in my CLI source-output test. GCC otherwise
+      retains unused static array helpers whose runtime objects this small
+      harness does not link. I retain the `NDEBUG` assertion controls; this
+      does not establish general unoptimized, runtime-free C linkage. My
+      native driver links runtime sources; these small harnesses do not.
+      MAC `task_bc02b0a4d83141ceb2153abc107f2f92`.
+- [x] **5.0 Stage2 inactive binding state.** I let library callers use my
+      transpiler without driver initialization. My standalone emitter test
+      exposed a NULL-array read in the new binding table. I guard inactive
+      lookups and verify all nine standalone emitter methods through C-seed
+      and Stage2 compilation on Darwin and Linux.
+      MAC `task_4949e598ba254bd2a4f7f7dfa8abf5d9`.
+- [x] **5.0 Stage2 syntax-aware function alias binding.** I replace raw
+      `apply_all_aliases` source rewriting with name resolution that preserves
+      local bindings, strings, comments and field labels. Inspection found
+      that the old replacement scanned those bytes without syntax context.
+      I retain import declarations for the binding pass and test qualified,
+      selective and reused aliases with distinct importer identities. Both
+      platforms pass; selective type aliases remain in the broader gate.
+      MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
+- [x] **5.0 Stage2 unresolved qualified calls.** I reject qualified calls
+      without an importer binding before native or C-source publication,
+      including calls inside aggregates. Before the repair, my controls
+      accepted a missing member and an unknown alias by calling a root
+      function with the same short name. Six cases now preserve prior output
+      and report `M0002` in JSON on Darwin and Linux.
+      MAC `task_4d3c007828e445c5bf748c0b6f6bb44e`.
+- [x] **5.0 Stage2 pure module function identity.** I preserve declaration,
+      call, alias and shadow ownership instead of flattening same-named
+      functions into one scope. My three-level wrapper now executes its root
+      shadow on all three compiler paths with inferred and declared names.
+      Checker and emitter both resolve function references, including function
+      values and aggregate calls; checker-only rewriting would miss children.
+      Nine binding methods and the existing driver/emitter suites total 58
+      passing methods on each of Darwin and Linux. Both bootstraps pass smoke
+      and no-C-seed checks; native binaries still differ. The new Make target
+      runs the binding suite against the bootstrapped compiler.
+      These sequential tables and merged offsets do not establish reentrancy,
+      original-file provenance, private visibility, conflicting-alias policy,
+      nominal type identity or foreign-name isolation. The broader gate remains
+      open; same-basename tests retain distinct declared introspection names.
+      MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
+- [x] **5.0 imported module failure propagation.** I reject failed loads
+      before publishing bytecode. An in-progress cache marker must not turn
+      a duplicate-definition error into successful compilation. I cover
+      direct and transitive invalid imports and preserve existing output.
+      Twenty compiler cases per platform on Darwin and Linux cover duplicates, wrong
+      return types, malformed syntax, missing files and cycles through C-seed
+      and bytecode drivers. A completed cached load returns an AST; I no longer
+      accept a NULL result merely because a loading marker exists.
+      MAC `task_60c31b34d18c4e698194a9dd1ba691c4`.
+- [x] **5.0 importer-scoped namespace prerequisite.** I distinguish identical
+      import aliases declared by different modules in the C environment and
+      its consumers. I establish inferred or declared ownership before processing
+      imports and restore the caller on success or failure. Six compiler cases
+      exercise reused aliases through C-seed, VM and Stage2 on Darwin and Linux;
+      the baseline failed both C-seed and VM cases. All 60 driver-test methods,
+      32 environment checks, and the evaluator, typechecker and code-generation
+      gates pass on both platforms. Both bootstraps pass smoke and no-C-seed
+      checks; native binaries still differ. Type alias visibility is tested separately
+      from colliding nominal identity, which remains open. These owner names
+      are not canonical path identities; dependency-shadow selection remains open.
+      MAC `task_8064e9156d1246ada3673b4014802040`.
+- [x] **5.0 packaged interpreter link dependency.** I link wrappers with
+      libffi. The generation-retention regression exposed unresolved `ffi_call`
+      and type symbols after checked interpreted foreign dispatch gained that
+      dependency. The packaged-wrapper regression and wrapper-generation gates
+      now pass on Darwin and Linux. MAC `task_309856ab8480437aab712e39001d2dd9`.
+- [x] **5.0 transitive shadow execution by default.** I run dependency shadows
+      by default across C-seed, VM and self-hosted native compilation,
+      exercise direct, transitive and diamond imports exactly once, preserve
+      ownership and prior output on failure, and document execution order,
+      source-only behavior and side effects. My creator chose this default;
+      I retain `--root-shadows-only` as an explicit opt-out. C-seed and VM
+      now use this default, as does Stage2 with canonical source paths.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
+      - [x] I canonicalize resolved imports before cache lookup, graph
+        registration, owner inference and C forward declarations. I reproduced
+        duplicate typechecking and mismatched prototypes through equivalent
+        paths. Dot segments and symlinks now pass C-seed/VM fixtures, including
+        dependencies relative to a symlink target and exactly-once VM shadows.
+        My public resolver remains unchanged; Stage2 adopts physical-path
+        identity in the later checkpoint below.
+        MAC `task_8ae80d436b1342b3b25ed8839f8694fd`.
+      - [x] I select dependency shadows by default in my bytecode driver,
+        retain `--test-imports` and add `--root-shadows-only`, check and compile
+        dependency shadows in owner context, execute a deduplicated graph
+        dependency-first and root-last, and test failure publication boundaries
+        and production separation. I do not let selected dependencies inherit
+        the root's unsafe context. At this checkpoint C-seed and Stage2 parity
+        remained required.
+        Darwin runs all 103 shadow/cache/language test methods successfully;
+        Linux runs the same suite with eight platform-specific skips. Environment,
+        typechecker, code-generation and wrapper gates pass on both platforms.
+        Both bootstraps pass smoke and no-C-seed checks; native binaries differ.
+        MAC `task_e74afc2a7ccb4b16941f5d34f314998d`.
+      - [x] I repair previously skipped bootstrap shadows as behavioral tests.
+        The first failure compared a `HashMap` with integer zero. I check its
+        observable collection behavior, replace filesystem shadows' fixed
+        temporary paths and repository-cwd assumptions with private fixtures,
+        and keep transitive selection enabled through both bootstraps.
+        MAC `task_601070f4e9904943b1e2ca1ebeea5f4f`.
+      - [x] I repair the interpreter array failure exposed by default bootstrap
+        shadow execution. I reproduce the unsupported-element diagnostic and
+        subsequent crash, add a minimal regression, and verify the default
+        without suppressing dependency tests.
+        MAC `task_fdb1477733a44a9fb9ef1881abf4757c`.
+      - [x] I isolate interpreted shadows from production compiler state.
+        Checked shadow locals contaminated C lowering; I discard their extra
+        metadata before lowering and execute shadows in a child. A parent
+        deadline and completion handshake reject crashes, hangs and early
+        `exit(0)` without replacing prior output. I retain graph-wide JSON and
+        mark interrupted runs incomplete. This is not a security sandbox.
+        MAC `task_795f49013a5d4ac294c6e25e0363f7ec`.
+      - [x] I repair interpreted record alias lifetimes. Full bootstrap shadows
+        reached an invalid free when reassigning `env_cur` in nested transpiler
+        calls. Record bindings now copy before replacement, including nested
+        records. Alias, self-assignment and callee regressions pass; complete
+        aggregate reclamation remains outside this repair.
+        MAC `task_1ac1c2fd6bc04b5e81932553901b0d4b`.
+      - [x] I repair remaining bootstrap contracts exposed by full shadow
+        execution: substring search in array type extraction, interpreted
+        static append and dynamic indexed writes, obsolete C-name and boolean
+        expectations, invalid union fixtures, and cwd-dependent module-cache
+        tests. I verify behavior instead of removing failing assertions.
+        MAC `task_ef3a7b277592408988a2b4dbd5642034`.
+      - [x] I preserve declared signatures when checking indirect calls in
+        shadows. Previously unchecked float function-variable and returned
+        function calls were incorrectly typed as integers. I retain valid FFI
+        regressions and reject invalid indirect arities and scalar argument
+        types. Complete aggregate and higher-order signature checking remains
+        separate work. MAC `task_4027a8e02a744178b8f99d83a92395d7`.
+      - [x] I apply dependency-shadow selection and the default to C-seed,
+        preserving owner context, aggregate shadow JSON and prior output on
+        failure. I verify library shadows and bootstrap without bypassing the
+        default. Both platforms pass bootstrap smoke and no-C-seed checks;
+        native binaries differ, so I do not claim equivalence.
+        My 157-method shadow/cache/native-driver suite passes on macOS and
+        Linux (eight platform-specific skips on Linux). Evaluator, typechecker,
+        environment, parser, transpiler and 63 VM codegen tests pass on both.
+        The 101 evaluator tests also pass macOS ASan/UBSan with the changed
+        environment, evaluator, parser and typechecker instrumented at O1;
+        other linked objects are uninstrumented and leak detection is disabled.
+        MAC `task_b331d5925b504d379e21b24d0710d03c`.
+      - [x] I require a completion handshake from native shadow entry points.
+        A dependency calling `exit(0)` previously passed the native supervisor
+        without finishing the selected tests. I reject early exit and exec
+        replacement, retain crash/deadline handling, and test the production
+        supervisor and driver publication boundary.
+        MAC `task_32e7e4b9a93d49dfa4e15d7c83ed1678`.
+      - [x] I fail timeout wrappers when their requested command cannot start.
+        A `noexec` scratch mount exposed zero exits from failed Perl `exec`
+        calls and false bootstrap success messages. I test missing and
+        non-executable commands, normal exit propagation and deadlines for
+        each Makefile timeout wrapper.
+        MAC `task_e0f2c52ae84842f084d49cff3394d7e1`.
+      - [x] I repair self-hosted lowering exposed by full bootstrap shadows:
+        physical-path extern declarations, explicit imports used by shadows,
+        record-array literal and call-argument element types, inferred append
+        results losing their input array type, and plain strings incorrectly
+        interpolated from their braces. I retain the dependency default and
+        verify minimal source regressions before accepting bootstrap.
+        MAC `task_c1dcaff808164681b70a093c9ca75113`.
+      - [x] I apply the same default, flags and dependency order to Stage2,
+        establish canonical source identity in its merger, and verify library
+        shadows, native publication and bootstrap. Source-only C emission stays
+        non-executing. All 164 shadow/cache/native-driver/supervisor/timeout
+        regression methods pass on macOS and Linux, with eight Linux skips.
+        Both full bootstraps execute dependency shadows and pass installed
+        smoke and no-C-seed checks. Native stage binaries still differ; this
+        is not a semantic-equivalence claim. Opt-in `NANO_SHADOW_TRACE` prints
+        each generated native shadow target before execution.
+        MAC `task_be1b5b951f7a499da6b995bed61871f9`.
+- [x] **5.0 self-hosted source preservation through path aliases.** I compare
+      device/inode identities before diagnostics or shadows execute, checking
+      artifact and diagnostic paths against the root and loaded dependencies.
+      I reject relative, symlink and hard-link aliases for native and source-only
+      output, and fail closed when existing file identity cannot be checked.
+      All 24 alias combinations, syntax-error diagnostics and uncheckable-path
+      regressions pass within 44 driver tests on Darwin and Linux. Both
+      bootstraps pass with dependency shadows enabled. This checks stable
+      filesystem entries, not concurrent hostile namespace replacement.
+      MAC `task_507117859a0642f4882b7015296d8af6`.
+- [x] **5.0 separate artifact and diagnostic destinations.** I prevent
+      diagnostics from replacing a published artifact. I reject equal paths,
+      symlinks and hard links, including initially nonexistent equal paths,
+      while preserving prior artifacts in a stable filesystem. I do not claim
+      atomic publication or protection from concurrent namespace replacement.
+      Source identity checks do not cover
+      this pair. MAC `task_f38c6358bf944c218f179daf1490ebe2`.
+      - [x] I reject existing-file aliases by inode and initially missing files
+        with identical destination spellings, before diagnostics or
+        shadow execution. Twelve native/C-source collision cases, distinct
+        outputs, syntax-error preservation and dangling links pass within 57
+        driver/emitter tests on each of Darwin and Linux. Both bootstraps pass
+        with dependency shadows enabled; strict C warning checks also pass.
+      - [x] I honor filesystem name equivalence for initially missing names.
+        An exclusive empty-directory probe at the absent output path lets the
+        filesystem resolve the other spelling; I remove it before continuing.
+        Four Darwin native/C-source case and Unicode alias cases fail on the
+        baseline and pass after repair. Distinct names remain usable on Linux.
+        Injected creation, lookup and cleanup failures stop the helper; cleanup
+        failure or a killed compiler can leave the empty probe directory.
+        Both rebuilt bootstraps and 59 regression methods per platform pass.
+        My 18-test CLI gate now includes the probe lifecycle test. This checks
+        stable filesystem entries, not concurrent hostile replacement.
+        MAC `task_a6419f0b3c764b6d9e3036cf13ae0be8`.
+- [x] **5.0 bootstrap runtime dependency invalidation.** I conservatively
+      track Nano/C/header/manifest files and directory membership under compiler,
+      runtime and library roots, excluding hidden cache contents and non-source
+      artifacts. The baseline missed 67 edit/invalidation checks. Eight
+      dependency tests now cover all self-hosted stages, additions, deletions,
+      cache exclusions and no-op builds on Darwin and Linux. Ordinary bootstraps
+      and 30 selected build/CLI tests pass on each platform. A header-only change
+      in the Linux repository copy advances all self-hosted stage stamps; the
+      following unchanged build preserves them. Darwin's unchanged build also
+      preserves its stamps. Directory tests use `/.` to avoid old Make wildcard
+      behavior and collisions with phony target names. This is conservative
+      modification-time invalidation, not a toolchain/content-addressed key.
+      MAC `task_85191b435c95480d9db52e3671d1e740`.
+- [x] **5.0 self-hosted string-search builtin lowering.** My shared search
+      header supplies first/last byte-offset search to both C emitters and the
+      interpreter/VM string primitives. I register last-search in the shared
+      frontend and rename the typechecker's private character helper to avoid
+      a runtime-name collision. Eighteen assertions cover overlaps, empty and
+      missing needles, longer needles and UTF-8 byte offsets through C-seed,
+      Stage1, Stage2, separately compiled emitted C, and VM shadows/production.
+      Both bootstraps, interpreter/typechecker/string/VM-builtin unit gates and
+      55 CLI/bytecode-shadow regressions per platform pass on Darwin and Linux.
+      These helpers consume NUL-terminated strings, not embedded-NUL byte spans
+      or Unicode character positions. The baseline native output lacked both
+      runtime declarations; passing bootstrap helpers alone had missed it.
+      MAC `task_a9b152cf5299491694d96a2385527e98`.
+- [x] **5.0 interpreted indexed-read alias.** I route `array_get` to the
+      same reader as `at`. My FFI map fixture exposed that typing accepted the
+      alias while interpreted shadow execution reported an unimplemented
+      builtin. Static and dynamic integer-array assertions for both names
+      pass, along with indexed reads of mapped floats, on Darwin and Linux.
+      MAC `task_a6d2c314d94542a48f11a2bac05af8c2`.
+- [x] **5.0 qualified and indirect interpreted FFI.** I route the separate
+      `call_function` path through checked foreign dispatch. Before the repair,
+      qualified and returned-function calls lost successful foreign results and
+      ignored failures escaped shadow reporting. Eight compiler cases per
+      platform now cover qualified, returned, variable and `map` callback calls,
+      valid floating results, ignored missing symbols, shadow failure locations
+      and preservation of prior output. Native API tests check void-call side
+      effects, bool/string results, invalid count/storage/type rejection and
+      unchanged interpreter bindings. I retain the invoking source call for
+      builtin callbacks; host calls without a source node do not invent one.
+      Darwin and Linux each pass 97 evaluator tests, 11 FFI tests and 59
+      driver/emitter/binding methods. Both bootstrap smoke and no-C-seed checks
+      pass; native binaries still differ. Darwin ASan/UBSan also passes all 97
+      evaluator tests with production `eval.c` and the test driver instrumented;
+      other linked objects, libffi and the native fixture are uninstrumented,
+      and leak detection is disabled. This sequential call context does not
+      establish reentrancy, complete interpreter error propagation, exact foreign
+      library isolation or safety of declarations supplied for native symbols.
+      MAC `task_17fe744141024df08c2ef3de7599865a`.
+- [x] **5.0 audit defect — borrowed record strings in interpreted shadows.**
+      My native-emitter build exposed SIGABRT in `eval_call` cleanup. A field
+      read borrowed record-owned string storage that a callee's local then
+      released. I copy string field values before returning them. My small
+      `nl_shadow_struct_string_lifetime.nano` regression now compiles and runs;
+      all 95 evaluator and ten GC-struct tests pass, including repeated reads
+      and local mutation. This does not establish general aggregate ownership.
+      MAC `task_de992b992c064ceb917bda531312f531`.
+- [x] **5.0 native shadows — string builder result handling.** I preserve
+      `array_push`'s returned array in `cg_append`. My interpreter converts an
+      empty static array to a new dynamic array on its first push, so ignoring
+      that result leaves the original accumulator empty. I test generated
+      source from an interpreted shadow and from compiled emitters.
+      The interpreted emitter shadow and nine native-emitter integration
+      tests pass with rebuilt C-seed and Stage 2 tools.
+      MAC `task_589709f18d304e6bb828a56583be7755`.
+- [x] **5.0 native shadows — separate C test entry.** I add a self-hosted
+      transpiler entry that emits selected shadow bodies as independent void
+      functions and calls them from a private C test entry. I preserve the
+      production entry, allow shadows to call NanoLang main, isolate local
+      scopes and test emitted C by compiling and executing it. This is a
+      prerequisite, not driver enforcement: selection, shadow typechecking,
+      bounded execution and publication ordering remain required below.
+      `make test-native-shadow-emitter` passes nine tests, building emitters
+      with the C seed and Stage 2 and executing their generated C. It covers
+      assertion failures with `NDEBUG`, helper assertions, independent locals,
+      selected suffixes and invalid selection, calls to main, and production
+      output without the harness. My bootstrap smoke and no-C-seed checks
+      pass; the native binaries still differ (2026-09-12).
+- [x] **5.0 shadow typing — lexical environments.** My self-hosted checker
+      registered non-parameter local lets as globals and shared
+      mutable symbol arrays across function and block scopes. I classify lets
+      from statement ownership, copy environments at scope boundaries and
+      test sibling shadows, branches, parameters and undeclared names. I also
+      check assertions inside unsafe blocks instead of skipping them.
+      My rebuilt Stage 2 rejects seven malformed-shadow cases before C-source
+      publication, including scope leaks with no native compiler available.
+      This is bounded lexical coverage, not a claim of full checker soundness.
+      MAC `task_a16bb6229928482080df35058afb5a52`.
+- [x] **5.0 native shadows — driver enforcement.** I typecheck root shadows,
+      compile and supervise their private test executable, and reject errors
+      before publishing native output. I test imported helper visibility,
+      root/import selection, malformed shadows, output preservation, traps
+      and deadlines. Source-only output retains its no-native-toolchain
+      contract and explicitly reports that shadows were not executed.
+      All nine native-driver tests pass on rebuilt Stage 2, including a
+      foreign call cancelling an alarm: my parent still enforces ten seconds.
+      My test executable uses private staging and sends shadow stdout to
+      stderr. Foreign calls retain user privileges; this is not a sandbox.
+      My bootstrap smoke/no-C-seed checks, nine emitter tests, five language
+      claim tests, all 28 four-path contract rows and nine CLI tests pass
+      (2026-09-12). Native bootstrap binaries still differ.
+- [x] **5.0 bytecode shadows — verified test module before publication.** I
+      lower root-file shadows as separate zero-argument NanoISA functions and
+      execute a private test entry before publishing bytecode or wrappers.
+      I verify the test module and bound its execution in a child process.
+      Production output retains its original entry and omits the harness.
+      I test assertion failure, helper calls, main shadows, output preservation,
+      test-only sources, traps and timeouts. Imported-shadow policy remains
+      part of the open enforcement item above.
+      My ten integration tests pass, including a foreign call cancelling the
+      child alarm: the parent still enforces the ten-second deadline.
+- [x] **5.0 execution contract — standalone VM exit value.** I propagate a
+      successful integer entry result as the standalone `nano_vm` process
+      status, matching `nano_virt --run` and native execution. The new main
+      shadow regression exposed that standalone execution discarded `7` and
+      exited zero. I test 0, 7, -1 and 256 through both execution paths and
+      retain trap failures as nonzero;
+      daemon-mode result propagation requires separate verification.
+- [x] **5.0 array literal typing — validate annotations before stamping.**
+      My shared checker overwrites an array literal's inferred element kind
+      with a let/set annotation without comparing them. I reject incompatible
+      literal elements before assigning metadata, preserve empty-array typing,
+      and test both C-seed and VM rejection plus successful matching literals.
+      Nested generic identity and non-literal array assignment remain separate.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 function signatures — initialized nested return metadata.**
+      Checking factory arguments uses an uninitialized temporary signature's
+      nested return pointer, producing either a crash or a false mismatch.
+      I initialize the record and borrow the declared nested return signature.
+      I also initialize parser signature cleanup state before error paths.
+      I test matching/mismatched factories and incomplete signatures.
+      Repeated nested-factory execution and rejected mismatches/incomplete
+      signatures pass. The original function-factory example compiles and
+      runs, and the parser-recovery gate passes with parser/lexer ASan/UBSan
+      instrumentation (linked support objects are not instrumented).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM shadow typing — check bodies before lowering.** I run the
+      shared statement checker on root shadow bodies before bytecode emission
+      so local inference, array element metadata and malformed statements
+      receive the same checks as function bodies. I test inferred string/int
+      arrays, sibling names and rejected malformed shadows before publication.
+      A same-named integer parameter still overrides a shadow-local float
+      during lowering; I re-establish checked local metadata at each let and
+      retain the executable collision regression.
+      This does not complete the shared checker's lexical-scope architecture.
+      My expanded bytecode-shadow suite passes, including string/int array
+      inference, malformed statements, parameter/local metadata collisions
+      and output preservation. The original array-inference example now
+      compiles and executes its shadows and production entry.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM numeric builtins — min/max operand preservation.** Running
+      the repaired float example exposes `min(2.5, 7.8)` returning `7.8`.
+      Both builtins rotate the stack incorrectly and discard the first
+      operand. I preserve both values, compare copies, and select the correct
+      original. I test both branches, equality, negative int/float values and
+      left-to-right exactly-once evaluation through shadows and product runs.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM numeric builtins — typed absolute value.** My `abs` lowering
+      always emits integer negation. I select float operations for float
+      operands and test negative, positive and zero operands through actual
+      shadow and product execution, retaining integer boundary semantics.
+      Negative/positive/zero int and float cases and integer minimum wrapping
+      pass. Min/max assertions cover both orders, equality, negative values
+      and observable evaluation order. The original float example executes
+      with `abs(-3.14) = 3.14` and `min(2.5, 7.8) = 2.5`.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM FFI source-path lookup.** I retain the directory of a `.nano`
+      import when resolving its shared library, including absolute paths and
+      relative nested modules. I test real foreign calls in shadows and
+      standalone bytecode, with default and explicit build-cache locations,
+      and preserve an existing artifact when the foreign assertion fails.
+      All four path/cache combinations fail before the repair and pass after
+      it, including compiler-run and standalone execution. My 20 shadow
+      tests, 63 codegen tests and 18 FFI unit tests pass (2026-09-12).
+      Missing-library builds and general module packaging remain separate.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 module dependencies — explicit installation authority.** My
+      module builder can invoke system package managers during compilation,
+      including when discovering a missing `pkg-config`. Before extending
+      automatic library builds to the VM, I make installation opt-in with
+      `NANO_ALLOW_PACKAGE_INSTALL=1`. I test missing/available dependencies,
+      missing tooling, legacy and registry installation paths, and explicit
+      opt-in without invoking a real package manager. I retain warm-cache
+      dependency checks and document that this is not a build sandbox.
+      My intercepted-command regression fails against the previous builder
+      and passes with the repair. Missing/available dependency and recovery
+      checks pass through the C seed with a warm cache; rebuilt VM tools and
+      all 20 shadow tests pass (2026-09-12). No real package manager is invoked
+      by the policy regression; actual installation success is not claimed.
+      MAC rejects direct `open` to `completed` closure; I leave the task open
+      with implementation evidence rather than fabricate an agent claim.
+      MAC `task_d6f0090c3b8345f7a4bd75dbd154202a`.
+- [x] **5.0 VM imported C libraries — build before publication.** I build
+      imported manifest-backed C libraries before root shadows or bytecode
+      publication, using my existing builder without transpiling NanoLang
+      imports to C. I reject shared-source and shared-link failures rather
+      than returning successful build information, and resolve the manifest's
+      library name at VM load time. I test cold/warm builds, transitive imports,
+      differing source/library names, failed builds preserving output, and
+      recovery. A rejected empty library was then accepted as a cache hit;
+      I require a regular nonempty library on both fresh and cached paths.
+      This does not finish shell-argument or cache-transaction work.
+      All 23 shadow tests, 63 codegen tests, 18 FFI tests, package-installation
+      policy and C-seed warm-cache dependency/recovery gates pass. The original
+      cold-cache datetime example gets past library loading but fails on an
+      opaque signature, tracked below. I have not rerun full example coverage
+      in this increment (2026-09-12).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 C-library cache — content invalidation and retry.** I treat a
+      missing, unreadable or mismatching content-hash record as a cache miss,
+      not permission to trust timestamps. I include shared-only C sources
+      and their header dependencies. I test same-timestamp source, header,
+      manifest and shared-source changes, damaged cache records and failed
+      link recovery through actual compilation and execution.
+      All nine scenarios fail before the repair and pass afterward: five
+      same-timestamp content changes, three hash-record damage cases and a
+      failed-link retry. All 28 shadow tests, 63 codegen tests, 18 FFI tests,
+      package-installation policy and C-seed dependency/recovery gates pass
+      (2026-09-12). Cache transaction and toolchain identity work stays open.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 ordinary Clang C retained translation units.** For `.c` sources without
+      custom or pkg-config compiler flags, I capture preprocessing into private
+      files, compile those files, and bind reuse evidence to their bytes.
+      I cover ordinary, multiple and shared-only sources, restored edits,
+      diagnostics and capture/compile failure recovery. Other compiler modes
+      retain their existing behavior pending a separate supported-mode audit.
+      Compiler identification requires a successful version query identifying
+      Clang; GCC's implicit PCH selection must not silently change. The broad
+      snapshot item remains open for other compilers and configured modes.
+      All four new methods pass normally and with ASan/UBSan on the production
+      builder and linked support sources. Darwin passes 28 shadows, 53 cache
+      tests, four snapshot methods, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and dependency gates.
+      GCC 12 `-O3 -Werror` passes the four Linux linker methods and explicitly
+      skips the Clang snapshot suite (2026-09-12). I retain existing behavior
+      for other compiler modes; this is not full snapshot or release acceptance.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 shadow gate C-seed prerequisite.** My shadow gate invokes
+      `bin/nanoc_c` for array type-contract checks but does not build it.
+      A clean Linux run fails five subcases with `FileNotFoundError`. I add
+      the actual compiler prerequisite and verify the gate builds it from
+      an environment where it is absent, without requiring an earlier gate.
+      The Linux rerun confirms absence, builds the seed through this target,
+      and passes all 28 shadow methods plus the remaining integration gates
+      (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 ordinary GCC C retained translation units.** I verify GCC's
+      implicit PCH selection before extending retained compilation. I use
+      preprocessing that exposes PCH use, retain ordinary translation units,
+      and withhold snapshot reuse when preprocessing references external PCH
+      bytes. I test cold/warm restored edits, PCH appearance/removal, original
+      results, diagnostics, failures and recovery on Linux.
+      The baseline fails on GCC 12: a newly usable `.gch` leaves the old
+      generation cached while fresh compilation returns the PCH's result.
+      Plain `-E` misses that selection; `-fpch-preprocess` exposes it.
+      All six snapshot methods pass on GCC 12 normally and with ASan/UBSan
+      on the production builder and linked support sources. Linux passes
+      28 shadows, 45 cache methods (8 platform-specific skips), four Linux
+      linker methods, six snapshot methods, five wrapper link tests, seven
+      wrapper boundaries, 63 codegen tests, 19 FFI tests and dependency gates.
+      Darwin passes its full corresponding gates, with the four ordinary
+      snapshot methods and two GCC-specific skips (2026-09-12). Retained PCH
+      contents and configured modes remain open; the full snapshot item is
+      not complete.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 configured C snapshots — common scalar flags.** I extend retained
+      translation units to an explicit set of optimization, language-standard,
+      debug and warning flags plus simple macro/include tokens. I keep
+      preprocessing-only flags out of retained compilation, test restored
+      edits and warm reuse under `-Werror`, and preserve unknown flag fragments
+      on the original path. I test active platform selection rather than
+      letting inactive flags choose the compiler mode. Pkg-config fragments,
+      shell quoting and other configured modes remain separate work.
+      Three restored-edit placements fail before the repair and pass afterward.
+      All 33 scalar spellings create retained input and reuse records on Clang
+      21 and GCC 12; six unknown forms keep original compilation. Ten snapshot
+      methods pass on GCC, with two GCC-specific skips on Darwin. GCC ASan/UBSan
+      covers the nine-method suite and added warning-error method; the stronger
+      reuse-record assertion is rerun normally on both platforms. Full Darwin
+      and Linux shadow/cache/wrapper/codegen/FFI/dependency gates pass
+      (2026-09-12). This does not complete configured-mode or snapshot acceptance.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 configured C snapshots — literal flag fragments.** I decode
+      shell-literal words, quotes and escapes without evaluating expansions,
+      commands or globs. I use that boundary for captured pkg-config flags
+      and manifest fragments, preserve preprocessing-only options and flag
+      order, and test against actual shell/compiler arguments. I reject
+      ambiguous or oversized decoding for snapshot eligibility, preserve the
+      original fallback, and verify cold/warm results and package consistency.
+      Eleven snapshot methods pass on GCC, including ASan/UBSan; Darwin passes
+      nine with two GCC-specific skips. Full Darwin/Linux compiler, VM, cache,
+      wrapper and dependency gates pass. A final Darwin framework-backed package
+      regression and strengthened phase assertions pass separately (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 assembler-input snapshot evidence.** I test inline assembly that
+      reads an external binary through `.incbin`, changes that binary only
+      during compilation, and restores its bytes and timestamps. I compare
+      cold, warm and independent fresh results on Clang and GCC before choosing
+      assembler-input capture. A retained C translation unit alone does not
+      establish that those later inputs were retained.
+      Against `5259507d`, Clang 21 and GCC 12 both reuse 43 while independent
+      fresh compilation returns 42, in local and shared caches. The binary is
+      absent from reuse records; its bytes, size and mtime are restored.
+      `--assembler --require-consistent` fails on both platforms (2026-09-12).
+      This is a reproduced defect, not assembler snapshot acceptance.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Clang retained-assembly trial.** I exercise normal Clang `-S`
+      output as a candidate retained input. I compare executed direct and
+      retained builds, including nested assembler includes, binary ranges,
+      missing inputs and configured flags. I remove original assembler inputs
+      before assembling the retained output. This trial must establish the
+      pipeline boundary before production integration; it is not that integration.
+      Four Clang 21 subcases pass: direct/nested assembler reads with default
+      and optimization/debug/strict-warning flags. Retained output executes 42
+      after deleting all original inputs; changed direct compilation executes
+      43 and missing-input capture fails. GCC 12 keeps `.incbin` in its `-S`
+      output and cannot use this boundary unchanged (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Clang retained-assembly integration.** I capture supported Clang
+      builds with `-S`, hash and retain those assembly bytes, and compile them
+      without C-only flags. I preserve dependency/diagnostic evidence and test
+      restored assembler inputs through the production cache, permanent changes,
+      capture failures and existing configured builds before marking this complete.
+      Fourteen snapshot methods pass on Darwin Clang 21 (two GCC-specific skips),
+      including ASan/UBSan on the production builder and support sources. Full
+      Darwin and Linux GCC compiler/VM gates pass; Linux Clang 14 passes snapshot,
+      cache and linker tests. Warm validation now performs C code generation;
+      I report assembly-capture and object-build counts separately (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GCC retained-object trial.** I test whether compiler object output
+      is reproducible across private output paths with supported flags, includes
+      assembler-read bytes, and can be linked after deleting original inputs.
+      I compare changed and restored inputs and execution results. I distinguish
+      this compiler-output boundary from a source-file snapshot and report the
+      full-compilation cost before deciding production integration.
+      Four GCC 12 subcases pass, including nested macro/include reads and debug
+      flags. Both platforms pass the 15-method snapshot suite with three
+      compiler-specific skips each. Median cJSON capture time is 214 ms for
+      object generation versus 12 ms for preprocessing in the Linux fixture;
+      this is not an incremental compilation speedup (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GCC compiler-output validation integration.** I bind reuse to the
+      actual objects compiled from retained C and validate them against fresh
+      private captures. I preserve cold compilation failures and old generations,
+      test restored/permanent assembler input changes and cleanup, and report
+      the extra compilation work. This closes an output-consistency gap, not
+      the separate requirement for complete source-file snapshots.
+      Seventeen snapshot methods pass on GCC 12 with two Clang-only skips,
+      normally and with production-builder/support ASan/UBSan. Darwin passes
+      with five GCC-specific skips. Full compiler/VM gates pass on both
+      platforms; compiler-count assertions now include validation work. The
+      restored assembler edit yields cold 43 without reuse evidence, then
+      warm/fresh 42. Temporary success/failure cleanup and cold failure without
+      retry are tested (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GCC literal assembler-file capture.** I emit assembly from retained
+      C, recursively copy literal `.include` and `.incbin` inputs into the
+      private generation, and assemble only those copies. I preserve assembler
+      offset/count expressions and bind reuse to captured bytes. I test restored
+      and permanent edits, nested macro includes, relative and quoted paths,
+      capture fallback and cleanup. Unsupported syntax retains object validation;
+      this bounded path does not close general assembler-input acceptance.
+      Nineteen snapshot methods pass on GCC 12 (two skips) and Apple Clang
+      (six skips); GCC ASan/UBSan passes with production builder/support
+      instrumentation. Both bootstraps and 111-method cache/bytecode/link
+      suites pass, with ten platform skips each. Final allocation/MRI guards
+      pass the full snapshot suites again, plus leak-enabled copier boundaries.
+      Restored literal binary/include edits now yield cold/warm/fresh 42;
+      macro-argument fallback still yields cold 43 without reuse, then 42.
+      Dependency-rebuild and FFI gates pass on both hosts (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 assembler read-boundary trial.** I test capture/replay at GNU
+      assembler file opens, after macro expansion, without parsing its source
+      language. I retain exact input bytes and file-name boundaries, replay
+      with originals replaced or absent, and reject unrecorded reads. I record
+      the supported executable/host boundary and integration costs before
+      selecting a production mechanism. This trial alone is not integration.
+      GNU as 2.40 on Linux arm64 passes four macro/path subcases and a
+      deterministic repeated-path edit, normally and with UBSan on the capture
+      helper. Replay matches object bytes and executes retained 42/4243 after
+      originals are deleted; absent copies and unrecorded inputs fail. Names
+      containing spaces, quotes, dollar/hash, backslash and newline survive
+      length-delimited records. Production snapshots remain unchanged; their
+      19-method suite passes on both hosts. Darwin skips the Linux-only trial
+      (2026-09-13). MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 assembler capture record lifecycle.** I replace the trial's
+      append-only records with a versioned, bounded, sealed capture format.
+      I preserve failed opens and ordered repeated reads, validate copy contents,
+      reject interrupted/truncated captures, and require replay completion.
+      I build the helper from runtime sources and exercise it with real GNU as
+      before connecting it to the production builder. The integration gate
+      below remains open until compilation actually selects the helper.
+      Eight Linux methods pass against the built helper and with helper UBSan,
+      including real GNU-as macro/path replay, ordered failures and repeated
+      reads, killed capture, malformed records, changed/missing/symlink copies,
+      FIFO replacement and stale-completion rejection. The original trial and
+      19 production snapshot methods still pass on both hosts with their
+      platform skips. Private replay storage remains trusted; this is not
+      hostile-writer isolation or authenticated evidence (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 daemon socket-path length validation.** I reject a Unix-domain
+      socket name that cannot fit before unlink/bind, rather than truncating it.
+      Linux GCC 12 `make install` failed its `-Werror` build at the truncating
+      copy in `vmd_server_run`. The current UID-derived path is short; three
+      injected boundary cases test exact fit and oversized-name rejection,
+      preserving existing files, on Darwin and Linux. Linux installation now
+      passes (2026-09-13). MAC `task_8babad5374294e02ab0e8147a6d717ed`.
+- [x] **5.0 GNU assembler capture/replay integration.** I bind a supported
+      assembler executable to an isolated read-capture helper, preserving
+      ordered repeated reads and exact path bytes. I package and identify the
+      helper, scope loader settings to the assembler child, handle failed reads
+      and truncated/partial records, and bind object generation and reuse to
+      the completed capture. I test macro/conditional inputs, restoration during
+      final assembly, missing inputs, driver/tool selection, cleanup and failure
+      recovery. I do not promote the single-threaded trial's trusted records
+      or its two stdio hooks into a general file-access guarantee.
+      Linux selects read replay after literal capture cannot represent an input,
+      for dynamic ELF64 little-endian GNU as 2.40. Macro restoration now yields
+      cold/warm/fresh 42 with reuse, at six object assemblies across cold/warm
+      capture, replay and validation. Both bootstraps and 121-method regression
+      sets pass (ten Linux/twenty Darwin skips). All 21 snapshot methods pass
+      with production-builder/support ASan/UBSan on GCC. Expanded checks cover
+      ignored helper loads, shared-only and inactive inputs, lookup failure,
+      adjacent discovery, cleanup and recovery. Linux install includes the
+      helper; other assembler variants and general read coverage remain open
+      in the acceptance gate below (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GNU assembler variant acceptance.** I exercise sealed capture,
+      replay and the production cache with a second GNU toolchain, including
+      restored macro inputs and failure recovery. I widen the supported version
+      set only after those gates pass, retaining rejection of unidentified
+      executables and untested versions. I record compiler, assembler and host
+      versions; this does not close arbitrary compiler-mode snapshots.
+      GCC 13.3 / GNU as 2.42 on Ubuntu 24.04 Linux arm64 passes 22 snapshot
+      methods (two skips), eight capture-record and two replay-trial methods,
+      including helper UBSan. GCC 12.2 / GNU as 2.40 on Debian bookworm arm64
+      passes those same gates. I accept exact first-line 2.40/2.42 tokens;
+      lookalike versions and later-line matches are rejected. GCC 13.3 exposed
+      a discarded diagnostic `write` result; I handle partial writes/EINTR
+      without suppressing warnings. The Linux bootstrap and 122-method
+      bytecode/cache/link/snapshot/helper suite pass (ten skips). General
+      assembler reads and other variants remain open. Darwin bootstrap and
+      22 snapshot methods pass with nine skips (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GNU assembler read-mode acceptance.** I exercise real include
+      search failures, nested includes, repeated macro expansion, binary
+      offset/count expressions, listing/debug and dependency-output modes.
+      I remove captured originals and introduce earlier search candidates
+      before replay, then compare object bytes and auxiliary outputs. I record
+      the tested toolchain and keep arbitrary syscall coverage separate.
+      All nine capture-record methods pass normally and with helper UBSan on
+      GCC 12.2 / GNU as 2.40 (Debian bookworm) and GCC 13.3 / GNU as 2.42
+      (Ubuntu 24.04), both Linux arm64. The matrix checks actual repeated
+      payload bytes, nonempty listings, and dependency output, not only object
+      equality. The 22 production snapshots still pass on GNU as 2.40 with
+      two expected skips. No production code changed (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Clang assembler macro-argument capture.** I verify that retained
+      assembly resolves file arguments after macro expansion, including nested
+      includes and inactive missing inputs. I remove the original files before
+      replay and check the resulting library's payload, rather than inferring
+      capture from textual directives. I exercise plain and optimized/debug
+      compiler flags; broader assembler variant coverage remains below.
+      All six replay cases pass on Apple Clang 21 ARM64: direct 42, changed
+      43, and retained 42 after originals are deleted. The production cache
+      fixture also preserves cold/warm/fresh 42 and actual generation reuse
+      for macro arguments under local and shared caches. All 43 snapshot
+      methods pass with eleven platform skips; the expanded cache case passes
+      separately after the full run started. No production code changed.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 selected external-assembler expansion.** I query the actual
+      external assembler invocation and test its assembly-text output after
+      macro expansion. I require replay after deleting original files, literal,
+      nested and macro inputs and plain/debug flags. I preserve the selected
+      backend and its target/assembly arguments; text capture changes output
+      format/path and temporary-label naming, with identical object bytes after
+      ordinary replay. I integrate private capture and warm validation; I do not substitute a different assembler
+      merely because it accepts the fixture.
+      The initial selected-backend trial replays plain literal/nested/macro
+      inputs with identical object bytes, but debug output emits repeated empty
+      symbol names and fails reassembly. I must resolve that backend output
+      mode before admitting it to production, not strip debug information.
+      I test temporary-label naming only during text capture and require
+      reassembled object bytes to equal direct assembly; the backend warns
+      that retaining temporary symbols during object assembly can change
+      semantics, so that object-output option is not an acceptable shortcut.
+      Six trials include all byte values and a temporary-label relocation.
+      Production plain/debug restored macros yield 42/42/42 with actual
+      local/shared reuse; retained files replay after originals are deleted.
+      Both full gates pass 194 methods; the separately added failed-query
+      restored-edit control exposes the remaining umbrella defect below.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 external-assembler stale cache.** I repair the measured
+      `-fno-integrated-as` cold/warm/fresh 43/43/42 mismatch on Apple Clang 21
+      under local and shared caches. Both publish a reuse record despite no
+      retained assembler inputs. Flag exclusion is not containment. I bind
+      final compilation and warm validation to retained inputs while preserving
+      external assembler selection, and test literal/nested/macro inputs,
+      deletion, restored edits and failure recovery. The existing literal
+      copier now serves production literal capture: the restored-edit fixture
+      returns 42/42/42 with actual local/shared reuse, private payload bytes,
+      and the external selector on all three object compilations. Nested
+      literal reads, replacement and failed-build recovery are tested separately.
+      Fixed-width octal debug data and selected-backend macro expansion now
+      pass their acceptance work. At v31, forcing an admitted external driver's
+      dry-run query to fail still compiled uncaptured source and produced
+      43/42/42 without reuse under both caches. My v32 context refuses that
+      build before object compilation. I distinguish an unsupported mode from
+      a failed admitted capture; the latter cannot publish an uncaptured result.
+      I keep unsupported source/flag modes distinct from admitted external
+      capture. I test refusal before any object compilation, cold-cache absence,
+      preservation of a previous generation on warm failure, both cache roots,
+      diagnostics and recovery to a newly captured reusable generation.
+      All 197 gate methods are covered by passing Darwin runs (fifteen skips)
+      and one Linux full-gate run (twenty-three skips). Three focused Darwin
+      methods pass ASan/UBSan with leak detection disabled. My user-guide build
+      and validation pass; broader assembler-input capture remains open below.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 escaped assembler debug data.** I distinguish fixed-width octal
+      byte escapes in data-string directives from macro and filename expansion.
+      I preserve accepted assembly bytes, reject malformed and ambiguous forms,
+      and check direct/replayed output, deleted originals, restored edits,
+      optimized/debug nested inputs and actual warm reuse. I do not treat this
+      lexical repair as general macro-input capture.
+      All 190 full-gate methods pass on ARM64 Darwin and Linux (fifteen and
+      sixteen platform/configuration skips). Three capture boundary/replay
+      methods also pass ASan/UBSan with leak detection and explicit diagnostic
+      checks. I preserve all 256 byte values through each supported directive,
+      including numeric data inside a named-parameter macro. Apple external
+      `-O2 -g` restored edits now yield 42/42/42 with actual local/shared reuse.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 admitted snapshot failure consistency.** I remove the remaining
+      path from failed GCC assembly capture to preprocessed C with live
+      assembler reads, and from failed ordinary capture to live C. The existing
+      missing-helper GCC regression expects cold/warm/fresh 43/42/42. I require
+      failure before final object compilation, preservation of a previous
+      generation, useful diagnostics, and recovery under both cache roots.
+      Successful literal and macro capture must still produce reusable 42/42/42
+      results. Unadmitted source/flag compatibility remains separate; refusal
+      does not complete broader snapshot support.
+      My v33 context and diagnostic reporting pass the GCC/Linux 201-method
+      full gate (twenty-four skips), Darwin's 200-method full gate (sixteen
+      skips) and the added Linux-only method's Darwin skip. Linux Clang passes
+      all 59 existing snapshot methods plus the new plain/debug external-macro
+      regression: four local/shared cases yield reusable 42/42/42. Four focused
+      Linux methods pass ASan/UBSan with leak detection enabled. My user-guide
+      build and validation pass. `docs/SOURCE_SNAPSHOT_EVIDENCE.md` records scope.
+      MAC `task_1251873d28334037b9c02b640d3669c6`.
+      MAC rejects `open` to `completed`; ledger closure needs an ownership
+      repair. The task description records the verified repository evidence.
+- [x] **5.0 assembler filename spelling acceptance.** I compare direct compiler
+      results with retained builds for spaces, quotes, backslashes and UTF-8 in input
+      filenames. I test ordinary Clang, external Clang and GCC where applicable,
+      local/shared caches, restored edits, permanent replacement and deletion.
+      I distinguish native assembler rejection from capture rejection; a passing
+      simple-path fixture does not establish filename fidelity.
+      Five spellings pass with native baseline 42, actual reuse, replacement,
+      missing-input failure preserving the previous generation, and recovery.
+      Forced edits and deletion during final compilation yield 42/42/42 after
+      restoration. GCC 12.2 and Clang 14 Linux pass all 62 snapshot methods
+      (fifteen and nineteen skips); Apple Clang 21 passes seven targeted
+      methods. Final external-selector assertions pass separately on both
+      Clang hosts. No production changes were needed. Full evidence is in
+      `docs/SOURCE_SNAPSHOT_EVIDENCE.md`; broader snapshot support remains open.
+      MAC `task_fa906fc996d843d1bb4cbefc72503f95`.
+      MAC rejects completion while unclaimed; the task records the evidence
+      and needs a verified agent identity for ledger closure.
+- [x] **5.0 assembler include-search capture.** I carry literal assembler
+      include-search arguments through the correct compiler phases and retain
+      the selected input bytes. I measure `-Wa` and `-Xassembler` spellings,
+      ordered search directories, metadata/platform/package flags, restored
+      edits and new earlier candidates, failure/recovery and actual reuse on
+      Clang and GCC. Low-level helper replay alone does not establish production
+      support when the module flag classifier declines these arguments.
+      Apple Clang 21 (ordinary/external) and GCC 12.2 both reproduce
+      cold/warm/fresh 43/43/42 with actual stale reuse under both cache roots.
+      My v34 phase selection repairs the admitted flag fragments to 42/42/42
+      with actual reuse, preserves native C-header precedence, and keeps
+      strict-warning link jobs free of assembler options. The linker grammar
+      query uses a private C input instead of a trailing language reset.
+      Darwin and GCC/Linux full gates each pass 206 methods (seventeen and
+      twenty-four skips); Linux Clang passes all 65 snapshot methods with
+      nineteen skips. Two leak-enabled ASan/UBSan methods pass. The user guide
+      builds and validates; details and limits are in
+      `docs/SOURCE_SNAPSHOT_EVIDENCE.md`.
+      MAC `task_92e6817607cf4071ab614289911a9a41`.
+      MAC rejects completion while unclaimed; a verified agent identity is
+      still needed for ledger closure.
+- [x] **5.0 paired compiler flag fragments.** I make adjacent metadata flag
+      fragments preserve the same operand pairing and capture semantics as
+      their joined spelling, independently of transport-size thresholds.
+      I measure restored assembler inputs first, then test invocation-owned
+      normalization, C/assembler/linker operands, split/joined argv, malformed
+      forms, failure/recovery and local/shared reuse before documenting support.
+      I reproduced Apple Clang 21 rejecting split assembler include arguments:
+      metadata loading rewrote bare `-I` as an empty relative C include path.
+      My v35 operand tracking and owned-fragment normalization repair this;
+      restored inputs now yield 42/42/42 with actual reuse.
+      An unclassified fragment must not disable existing include fallback for
+      later literal flags; I test that compatibility boundary explicitly.
+      Darwin and GCC/Linux full gates each pass 211 methods (seventeen and
+      twenty-four skips); Linux Clang passes all 70 snapshot methods with
+      nineteen skips. Four leak-enabled sanitizer methods and an isolated
+      twelve-case Darwin rerun pass. I record an initial reader timeout without
+      claiming its cause in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`. The updated
+      guide builds and validates. Broader assembler-input capture remains open.
+      MAC `task_8500a5ea65584cc3a5cfb02a7812b16b`.
+      MAC rejects completion while unclaimed; a verified agent identity is
+      still needed for ledger closure.
+- [x] **5.0 GNU alternate-macro production capture.** I first measure restored
+      assembler input changes with `--alternate`, using source that requires
+      its macro grammar. I admit its literal `-Wa` and `-Xassembler` spellings
+      through phase-specific capture, including paired metadata fragments and
+      include-search combinations. I verify native semantics, cold/warm/fresh
+      results, actual reuse, and failure recovery on supported GNU assemblers
+      before accepting the change. I retain explicit limits for other backends.
+      MAC `task_8c4127e1aeea4325acda9bca51eacf76`.
+      The baseline is 43/43/42 with stale reuse; the repair produces 42/42/42
+      with retained reads and reuse on GCC 12/GNU as 2.40, Clang 14/external
+      GNU as 2.40, and GCC 13/GNU as 2.42. The 214-method Linux gate, full
+      73-method Clang snapshot suite, Darwin include-path matrices and three
+      leak-enabled sanitizer methods pass. I record exact scope and timings
+      in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`. Arbitrary assembler modes remain
+      open below.
+      MAC rejects completion while unclaimed; ledger closure still needs a
+      verified agent identity.
+- [ ] **5.0 assembler translation-unit snapshots.** I first characterize
+      mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
+      I retain raw and preprocessed assembler translation units without
+      disabling capture for their C siblings, preserving native source/flag
+      semantics. I verify cold/warm/fresh results, actual reuse, dependency
+      changes, missing-input recovery and both cache roots on Darwin and Linux.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+      At `8724288c`, Darwin `.s` and `.S` and Linux `.S` reproduce 43/43/42
+      with actual stale reuse under both cache roots. Linux raw `.s` instead
+      fails publication: GCC emits an object but no required depfile. All
+      native mixed-source controls return 42. I must supply source-appropriate
+      dependency evidence, not merely remove the `.c` admission check. Baseline
+      commands and measured limits are in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`.
+- [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
+      by assembler file reads, including inline `.incbin`, and bind compilation
+      and reuse to those captured inputs. I test restored edits and permanent
+      replacements, nested includes, path spelling and compiler/assembler
+      variants. Rehashing the C preprocessor output cannot satisfy this gate;
+      merely withholding reuse is containment, not completed snapshot support.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      I first characterize Clang's external-assembler mode: whether `-S`
+      resolves file reads, whether replay survives deletion, and whether the
+      selected external assembler remains selected. I admit
+      `-fno-integrated-as` only through the existing bounded capture paths;
+      failed admitted external capture now stops the build. Unadmitted source
+      and flag modes retain compatibility behavior, not a guarantee of
+      cold-build snapshot consistency. Other compiler variants remain open.
+- [x] **5.0 retained GCC PCH inputs.** I replace external PCH references in
+      retained translation units with private copies and bind their bytes to
+      cache identity. Before integration I verify that GCC accepts relocated
+      PCH bytes with the original header and PCH removed, and that restored
+      PCH replacement cannot affect compilation of that retained input.
+      My include-trace parser also rejects GCC's selected-PCH `! ` record
+      and following root-source line; I capture those dependencies to make
+      retained PCH reuse possible.
+      Production capture, restored edits, failure/recovery and reuse now pass
+      for ordinary and shared-only C sources under local and shared caches.
+      All 25 snapshots pass on GCC 12.2 and 13.3 Linux arm64 (two skips each),
+      and again with the GCC 12 production builder/support under ASan/UBSan,
+      leak detection disabled. Canonical unescaped PCH paths are retained;
+      malformed, escaped and over-limit inputs keep the no-reuse fallback.
+      Both bootstraps and the 126-method regression set pass (ten Linux and
+      24 Darwin skips), with final rewrite rejection checks on both hosts.
+      Other configured compiler inputs remain open (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 native compile-flag collection capacity.** Before extending aggregate
+      argument transport, I remove the fixed 1024-pointer compile-flag buffers
+      in both source-free and compiled-module result paths. Metadata loops can
+      write beyond their allocation. I preserve ordering and complete include
+      paths, propagate allocation failure, and test lists above 1024 entries
+      under sanitizers. Both returned paths now share a size-checked collector.
+      Tests cover 1300 entries, long include paths, five allocation failures,
+      count overflow and clean retry. The 136-method regression set passes on
+      Darwin and Linux; Linux ASan/UBSan passes all 35 snapshots and focused
+      leak-enabled failure checks (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 native link-flag collection capacity.** I remove the remaining fixed
+      pointer budgets in returned link flags and shared-link flag assembly.
+      System-library and framework append loops still use unchecked increments,
+      while bounded fragment appenders can silently drop flags. I measure the
+      boundaries, preserve ordering, and verify allocation failure and retry
+      before accepting aggregate native argument lists.
+      I replace duplicate returned-link collectors with size-checked ownership,
+      and append shared-link fragments directly through checked command writes.
+      Shared framework deduplication currently separates names from their
+      repeated `-framework` markers; I preserve complete pairs and explicit
+      library repetitions, then test a real two-framework Darwin link.
+      Both returned paths now use checked allocation, and shared linking has
+      no temporary fixed-pointer lists. Tests cover 1300 entries, long library
+      names, all collector allocation failures, overflow, retry, framework
+      pairs, repeated libraries and rejected tail flags preserving old code.
+      Both 140-method regression sets pass; all 39 Linux snapshot methods pass
+      under ASan/UBSan, with focused leak-enabled checks (2026-09-13).
+      MAC `task_641f3a82b3474cd28c895dd9ffcb290b`.
+- [x] **5.0 Darwin driver-response regression gate.** My rebuilt tools at
+      `d9bfd86c` pass the full 152-method compiler/shadow/cache/assembler/linker
+      run in 341.417 seconds, with 24 expected skips and no failures or
+      timeouts (2026-09-13). Ordinary probe deadlines remain unchanged; only
+      the existing 40-package stress builds use their thirty-second bound.
+      MAC `task_44c2d5851e1948e6a474036e263a0a73`.
+- [x] **5.0 linker response end-of-input tokens.** I preserve the tested
+      GNU/Apple behavior for unclosed quotes and trailing backslashes at end
+      of a response. Both linkers accept the tested archive spellings, while
+      my strict graph scanner previously declined them. I correct the scanner
+      and cover nested references and exact decoded words. All twenty-two
+      retained-graph native comparisons pass on Apple Clang 21 and GCC 12;
+      Darwin passes thirty-six targeted methods and Linux passes sixteen
+      graph/scanner methods with leak-enabled sanitizers (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 retained compiler response files.** I measure restored edits to
+      `@file` arguments on Clang and GCC, including local and shared caches.
+      I retain the selected arguments before compilation, preserving compiler
+      response-file quoting and nested-path semantics rather than applying
+      shell parsing to their contents. I verify restoration, permanent changes,
+      missing/cyclic response files and phase-specific flags before accepting
+      response-file builds as snapshots.
+      The restored `-DANSWER=42` response file reproduces cold/warm/fresh
+      43/43/42 on GCC 12 and 43/42/42 on Apple Clang 21. Both local and shared
+      caches fail the cold-output requirement. My characterization CLI also
+      checked only warm versus fresh output, incorrectly passing Clang's cold
+      mismatch; I require both cold and warm results to match fresh output.
+      I implement invocation-local metadata flag copies and fresh rebuild-check
+      captures, expand literal GNU-style response words without shell evaluation,
+      and keep package flag captures consistent with the same rule. Unsupported
+      shell fragments remain on their existing path rather than being evaluated
+      by the capture parser.
+      The initial bounded literal path repaired the measured mismatch. Its
+      limits were 16 nested files, 64 KiB cumulative file bytes, 4095-byte words
+      and a 2048-byte serialized fragment. Transport below removes the last
+      limit; I still need broader budgets and capture of shell-expanded or
+      noncanonical response forms. Over-budget and noncanonical forms
+      keep the previous path. Missing/cyclic/nonregular inputs fail capture.
+      A Clang version banner alone does not establish GNU response syntax:
+      I exclude named `clang-cl` drivers and explicit `--driver-mode` overrides
+      from this capture boundary. Metadata and package captures roll back
+      together if an unresolved response, shell fragment or driver-mode
+      override remains; decoded escaped overrides follow the same rule.
+      I next measure long literal argument lists through the production build,
+      comparing cold, warm and fresh results in local and shared caches. The
+      transport must survive phase filtering and the returned `ModuleBuildInfo`
+      flags; increasing one parser buffer does not satisfy this lifetime.
+      The 10,212-byte literal reproducer now confirms cold/warm/fresh
+      43/43/42 with reuse on GCC 12 and 43/42/42 without reuse on Apple Clang
+      21, in both local and shared caches. The explicit
+      `--response-large --require-consistent` gate was red before transport.
+      A passing characterization-instrument test did not satisfy that gate.
+      I implement content-addressed GNU response sidecars under the module cache,
+      keeping decoded arguments in identity and phase selection. Compilation,
+      shared linking and returned native flags use the same transport; sidecars
+      outlive build-info objects and are removed with the module cache. I verify
+      byte equality on reuse and reject altered or nonregular sidecars. Tests
+      cover long restored inputs, later consumers, phase filtering and recovery.
+      The 10 KiB reproducer now returns 42/42/42 with reuse on both drivers.
+      The remaining serialized-fragment budget is 64 KiB; many short fragments
+      can still exceed aggregate command limits. Shell-expanded/noncanonical
+      forms and other response dialects remain outside the retained boundary.
+      I coalesce eligible common, active-platform and package compiler
+      fragments in their invocation-owned arrays, preserving argument order
+      and package slots. The combined strings use existing retained transport.
+      I verify many short flags, many small response references, later consumers,
+      allocation rollback and unchanged unsupported shell/driver-mode paths.
+      The aggregate fixture passes for 1300 short flags, forty small response
+      references and forty package fragments; all four variants fail against
+      the previous revision. Groups beyond the 64 KiB budget remain outside
+      this coalescing boundary.
+      I quote include-directory arguments consistently for compilation
+      and returned native flags, then coalesce them through retained sidecars.
+      I keep original include paths in metadata and cache validation, verify
+      ordered header search and later consumers, and test allocation rollback.
+      The 200-directory fixture preserves quoted paths and header precedence;
+      its compiled variant fails against the previous revision on GCC 12.
+      I retain aggregate literal common and platform linker flags without
+      changing their order, returned-flag lifetime or linker cache observation.
+      I test long search lists, repeated libraries, later native consumers and
+      failed replacements before extending transport to other linker groups.
+      My new characterization reproduces shared-link rejection on Apple Clang
+      21 and GCC 12 for common, platform, package and system-library groups.
+      Direct links and later native consumers return 42 with those same flags;
+      the builder preserves the old generation but cannot publish a new one.
+      The explicit acceptance gate rejects failure until cold/warm answers, reuse,
+      returned argument order and failed-replacement preservation all pass.
+      I implement one ordered shared-link argument fragment through retained
+      driver transport, including package libraries and system-library names.
+      Darwin observation must recognize only its exact retained fragment;
+      raw indirect response arguments remain on their previous path.
+      The four long-link cases now pass on both drivers with cold/warm/later
+      answers of 42, complete returned argument order and generation reuse.
+      I reject changed retained linker files before publishing a replacement
+      and recover after removal. The allocation-failure retry and indirect
+      response visibility checks pass. Larger groups and indirect linker
+      response capture remain open.
+      I next measure response arguments supplied through linker metadata,
+      restoring an archive-selection change during the shared link. I compare
+      cold, warm and fresh results in local and shared caches before extending
+      invocation-owned capture to these arguments.
+      Apple Clang 21 reproduces cold/warm/fresh 43/42/42 in both caches.
+      I extend atomic metadata/package captures to driver response arguments
+      in common and platform linker flags and package libraries, retaining
+      decoded arguments for later consumers. Forwarded linker response syntax
+      remains distinct from driver response syntax.
+      I also correct the characterization's fresh-link archive order: archive
+      arguments follow the source/object that refers to them on GNU linkers.
+      The corrected GCC baseline reproduces 43/42/42 for common/platform/package
+      driver responses in both cache locations. My capture now returns 42/42/42
+      with reuse. I test owned returned arguments after input removal, missing,
+      cyclic and FIFO inputs, recovery, and metadata allocation rollback.
+      I replace the old Darwin fallback expectation for captured driver
+      `-Xlinker @file` arguments with explicit reuse-record and warm-reuse checks.
+      The 40-package stress fixture exceeded its ten-second per-build timeout
+      once; its isolated recheck passed. I give only those stress builds a
+      thirty-second test bound, leaving ordinary probe deadlines unchanged.
+      I next measure `-Wl,@file` separately from driver `@file` arguments,
+      including common/platform flags and package libraries. I require actual
+      linker evidence before sharing a response parser across those boundaries.
+      The forwarded-response fixture reproduces cold/warm/fresh 43/42/42 in
+      all six cases on Apple Clang 21 and GCC 12. The explicit acceptance gate
+      remains red; driver-response capture does not repair this linker boundary.
+      I compare native linker interpretation against my driver-response decoder
+      for quoting, control whitespace, relative nesting and repeated response
+      files. Published GNU and Apple implementations are not a shared parser
+      contract. My twelve-case experiment finds three admitted substitutions
+      that change Apple linker rejection into success (vertical tab, form feed,
+      repeated response); all eleven admitted GNU cases agree. Unchanged driver
+      decoder reuse is therefore not a valid cross-platform repair. Selected
+      linker identity and preserved failure behavior remain required.
+      I next compare byte-preserving retained responses, including distinct
+      files with identical bytes and repeated references. Retention must not
+      collapse path identity or leave nested inputs mutable; I test those
+      constraints before selecting the capture representation.
+      My sixteen-case prototype preserves native outcomes on both hosts after
+      removing original response files when retention uses resolved-path
+      identity. Apple distinguishes hardlink paths but rejects symlink aliases;
+      content-only and spelling-only prototypes change native outcomes.
+      Production graph capture and general nested-token rewriting remain open.
+      I implement bounded graph capture with explicit GNU/Apple token grammar,
+      resolved-path memoization, verbatim non-reference bytes and retained-file
+      verification. I exercise that mechanism through the production probe
+      before wiring invocation ownership and cache eligibility to it.
+      The C mechanism matches all sixteen native-linker outcomes and retains
+      original-file independence. Allocation recovery, bounds and tamper checks
+      pass under sanitizers. I still need invocation-wide admission and returned
+      transport, including retained cache paths containing commas that cannot
+      be inserted unchanged into a `-Wl,` argument.
+      I query the selected linker through the complete literal link command,
+      with bounded output and a supervised deadline. Clang's
+      `-print-prog-name=ld` still names Apple ld under `-fuse-ld=lld`, while
+      its actual recipe selects ld64.lld; that lookup cannot authorize a grammar.
+      Apple's version-details query can complete a link. Query integration
+      therefore needs disposable outputs and must never target a published
+      generation; a version flag is not a read-only guarantee.
+      My bounded query mechanism now recognizes tested native tools through
+      the complete command, including `-B` and response-file-hidden selectors,
+      and rejects unsupported selected linkers. Query/graph sanitizer checks
+      and the 168-method Darwin gate pass. Private probe construction and
+      atomic invocation integration remain open.
+      I construct disposable query directories and pin primary output at both
+      driver and linker layers, preserving complete flag order. I test metadata
+      output overrides and cleanup before using this in cache admission.
+      Auxiliary outputs and unclassified option controls still need admission
+      rules; a private primary output is not filesystem isolation.
+      Twenty-four primary-output override combinations preserve bytes and
+      timestamps on both hosts; private-directory cleanup and thirty-two
+      allocation budgets pass. The query's indirect inputs still need retained
+      validation before execution, not a check followed by a mutable reread.
+      I capture multiple response roots in one transaction, sharing resolved
+      identities, frozen source spellings and input budgets across the whole
+      invocation. A failed root or allocation must return no partial path set;
+      I test repeated/shared roots, intervening mutation and recovery.
+      The batch API now returns a complete owned path set or nothing. Repeated
+      source spellings retain their first binding across mutation, removal and
+      symlink retargeting; a new transaction sees the new state. Native
+      multi-root order, identity and lifetime checks pass on both hosts, along
+      with allocation and shared-budget tests. Flag installation and admission
+      remain separate open work.
+      I next measure explicit `-Xlinker` argument materialization from retained
+      graphs, including comma-containing cache paths, control whitespace,
+      malformed quoting and repeated resolved identities. I require observed
+      native outcomes before replacing response-file transport; decoder
+      refusal alone is not evidence of equivalent linker rejection.
+      My twenty-two-case comparison matches every GNU result after correcting
+      end-of-input token semantics. Nineteen Apple cases execute equivalently;
+      three repeated/aliased-response cases are deliberately refused, so the
+      full Apple materialization gate remains red. Comma/space cache paths
+      and quoted CRLF filenames are covered. Production transport is not yet
+      installed, and the six restored-selection failures remain open.
+      I implement C argument capture within the existing graph transaction:
+      ordered owned fragments, no response-file reread, shared input limits,
+      bounded aggregate expansion, and explicit Apple repeated-identity
+      rejection. I test native links after input removal, exact quoting,
+      comma/space paths, root order, allocation rollback and retry before
+      installing this representation in the invocation.
+      The C argument transaction now passes all twenty-two native outcome
+      checks on both hosts: Apple rejects three repeated identities explicitly,
+      while the other cases execute matching links after input removal. Exact
+      output bounds, eighty allocation budgets and six read-boundary mutation
+      cases pass. My Darwin bytecode/shadow/cache target passes 175 methods
+      (fifteen skips); Linux passes seventeen graph/acceptance methods and the
+      native comparison with leak-enabled sanitizers. I still need to admit
+      and install the captured arguments across the actual invocation.
+      I enforce literal option admission at the public linker-query boundary.
+      I reject unresolved responses, indirect controls, auxiliary outputs,
+      plugins and unknown switches before starting a tool; I test direct,
+      `-Wl,` and `-Xlinker` spellings and operand boundaries. The raw
+      primary-output mechanism remains separately testable. Option admission
+      does not establish safety of native input contents or compiler wrappers.
+      Public admission now rejects the tested controls before tool execution
+      and preserves admitted native linker overrides. A real query succeeds
+      using captured C arguments after response removal. Darwin passes all
+      forty-three targeted methods; Linux passes twenty-nine normal graph/query
+      methods and thirteen query methods with leak-enabled sanitizers. The
+      native-input trust boundary and actual invocation installation remain
+      open; I have not enabled reuse through this query API.
+      I install complete owned metadata/package candidates in ordinary
+      builds and rebuild checks. I prepare both grammar candidates before
+      querying either, use a controlled empty C input with the shared-link
+      flag recipe, and select only a self-confirmed grammar. The query keeps
+      my existing trusted native-module/toolchain boundary; it is not a native
+      input sandbox. I include linker flags in build identity and retain the
+      selected package arguments during post-build validation. I require the
+      six restored-selection cases, response edits, returned-flag lifetime,
+      rejection, rollback and both-platform regressions before acceptance.
+      My new compiler-group cases expose a Darwin reuse defect: linker-only
+      arguments reach C capture, and their unused-argument diagnostics prevent
+      complete dependency evidence. I remove confirmed linker-only pairs from
+      source phases while preserving them in the actual shared link.
+      The supported path now passes all six restored-selection cases, edited
+      responses across all six argument groups, returned-flag lifetime,
+      explicit Apple repeated-root rejection, complete fallback and 180
+      allocation budgets with same-process retry. Both full shadow/cache gates
+      pass 184 methods: Darwin has fifteen skips and Linux twelve. Unsupported
+      forms, broader budgets and native input snapshots remain open; this
+      checkpoint does not complete the whole retained-response item.
+      Linux also passes thirty-two graph/query/invocation methods with
+      leak-enabled ASan/UBSan, including allocation rollback and lifetime.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 cache source snapshot acceptance.** I test source and header
+      changes restored during compilation, preserving their original bytes
+      and timestamps before final validation. I compare actual cold, warm and
+      fresh library results. Matching preprocessing observations must not
+      authorize a generation compiled from different input bytes. I record
+      reproduced failures before implementing a supported snapshot boundary.
+      `python3 -m tests.characterize_source_snapshot --require-consistent`
+      failed against `34fab3e9` on Apple clang 21: all four cases publish/reuse 43 despite restored
+      input bytes and timestamps; fresh compilation returns 42. Warm builds
+      perform no additional C compilation. The ordinary-Clang repair above
+      now passes those cases, as does ordinary GCC; configured modes still need
+      snapshot acceptance (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 C-library cache transactions.** Content invalidation and private
+      writes are addressed in adjacent items. Per-module generation publication
+      and exact bytecode generation bindings are addressed below. I still need
+      generation retention/collection policy, source snapshots and
+      power-loss durability before I claim complete cache transactions.
+      Driver and documented environment identity are addressed below. Automatic
+      tracking of transitive compiler tools, linker/library bytes, SDK contents,
+      pkg-config results and arbitrary wrapper inputs remains open. An explicit
+      toolchain stamp supplies invalidation, not discovery or authentication.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 metadata identifier truncation.** I append exported metadata and
+      constant identifiers directly to the dynamic output buffer. I test long
+      3,000-character names and build with GCC 12 at `-O3 -Werror`, which
+      rejected their passage through a 2048-byte formatting buffer. All 18
+      metadata tests pass on Linux and macOS (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Linux compiler/VM cache acceptance.** I build the actual bytecode
+      compiler and VM in isolated Linux storage and run shadows, the complete
+      cache suite, wrappers, code generation and FFI. I distinguish probe-only
+      evidence from CLI/runtime integration and record any portability defects
+      before fixing them. Dependency installation stays inside the disposable
+      environment; test execution has no network access.
+      On Linux arm64, GCC 12.2/ld 2.40, 28 shadows, 45 cache tests (8
+      platform-specific skips), 4 Linux linker tests, dependency rechecks,
+      5 wrapper link tests, 7 wrapper boundaries, 63 codegen tests and 19 FFI
+      tests pass. This is not a full release or sanitizer gate (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache Linux linker evidence.** I run the existing archive/search,
+      unusual-path, response-file and thin-archive experiment on an actual GNU
+      linker before choosing its dependency-record integration. I record the
+      compiler/linker versions and distinguish successful experiments from
+      safe cache acceptance. I use read-only source input and disposable Linux
+      build storage; the Darwin parser does not establish Linux behavior.
+      GCC 12.2 / GNU ld 2.40 on Linux arm64 reproduces cached 42 versus fresh
+      43/44 after archive/search changes. Dependency files omit the tested
+      negative candidate, response file and external thin-archive member;
+      unusual paths appear unescaped. Raw normalized JSON and reproduction
+      steps are in `docs/LINKER_INPUT_EVIDENCE.md`. Six production-builder
+      methods pass under GCC `-O3`, including the 28-case crash matrix and
+      surviving-child cases. This is neither the Linux invalidation repair
+      nor a full Linux compiler/VM or sanitizer gate (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 module flag fragments — preserve quoted bytes.** My whitespace
+      tokenizer changed a quoted newline in an archive path into a space.
+      I preserve supplied flag fragments intact and in order instead of
+      tokenizing them without a shell grammar. I test the unusual archive
+      through cold and warm Linux links and keep package/foreign-build gates.
+      This does not make configured shell fragments untrusted or sandboxed.
+      Cold/warm archive replacement through a quoted space, quote, backslash
+      and newline path passes on Darwin and Linux. The package and foreign
+      build gates below pass. My v14 cache context invalidates the old
+      flag-splitting semantics (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Linux warm-link validation.** Before reusing cached C artifacts,
+      I run the original shared-link recipe against their objects into private
+      staging and compare the library bytes. Equal output retains the current
+      generation; changed output triggers rebuilding; a failed validation link
+      fails without publishing or retrying past the failure. I test archive
+      edits, earlier search candidates, thin members, response files, unchanged
+      reuse, shared-only objects and failed-link recovery. Warm Linux builds
+      pay for one link. This does not replace full input identity or snapshots.
+      All four new Linux methods pass under GCC 12.2 `-O3` and ASan/UBSan;
+      the sanitizer build instruments the production builder and linked
+      support sources, not fixture libraries or system libraries. Eleven
+      optimized Linux methods pass including prior barrier/crash/cleanup
+      boundaries. Darwin passes 28 shadows, 53 cache tests, five wrapper link
+      tests, seven wrapper boundary tests, 63 codegen tests, 19 FFI tests and
+      package/dependency gates. The four Linux-specific methods skip on
+      Darwin, rather than claiming that platform executes them (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 GNU linker cache invalidation.** I repair the reproduced stale
+      archive and search-selection results, including thin members and
+      indirect flag inputs. I establish a lossless supported-mode boundary
+      rather than treating GNU ld's readable dependency file as complete.
+      I require actual changed results, unchanged reuse, failed-build
+      preservation and recovery on Linux before marking this complete.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache retention — ordinary build cleanup.** `make clean` previously
+      removed `obj/module_cache`, invalidating existing bytecode bindings. I
+      preserve the default and configured runtime caches while cleaning build
+      trees, reject unsafe cleanup roots, and test actual clean invocations in
+      isolated workspaces. Runtime-cache reset remains a separate destructive
+      action requiring quiescence and acceptance of invalidated artifacts.
+      I also replace the module guide's obsolete timestamp-only and
+      `.build_info.json` descriptions with the current generation layout.
+      Project/example recipes preserve six configured cache placements, local
+      and default caches, earlier marked cache locations and private stages.
+      Four cleanup methods cover those cases, direct generation/stage roots,
+      unsafe roots and symlink ancestors. A real library loads in a fresh
+      process after clean and the next build reuses its generation. The full
+      normal gates pass: header invalidation, 28 shadows, 52 cache tests,
+      five wrapper link tests, seven wrapper boundary tests, 63 codegen tests,
+      19 FFI tests and package/dependency gates (Darwin, 2026-09-12). After
+      extending conservative retention markers, I reran all cleanup methods
+      and the real-library clean/reuse test successfully. Automatic collection
+      and the broader transaction item remain open; no new sanitizer claim.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache retention — surviving compiler evidence.** I kill only the
+      builder while a controlled compiler child is paused, then require a new
+      acknowledgement from that child. I test whether another builder can
+      publish while the child still uses its private stage, and verify that
+      the child's late writes do not change published generations. I cover
+      local and shared caches before choosing an abandoned-stage collection
+      rule; a released module lock alone is not sufficient evidence.
+      Both cases pass: a new builder publishes while the acknowledged child
+      remains paused; the child then successfully writes its private object.
+      Old and new generation bytes stay unchanged and warm reuse retains the
+      replacement. All 51 cache tests pass on Darwin (2026-09-12). This
+      increment changes tests and documentation only; it does not implement
+      collection or claim a new sanitizer or power-loss result.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache cleanup — no symlink traversal.** My private-directory
+      cleanup followed a substituted root symlink. I anchor cleanup
+      to an opened directory descriptor, refuse symlink roots and never
+      recurse into nested directories. I test external-file preservation,
+      ordinary files, symlink entries, FIFOs and retained nested artifacts
+      before adding abandoned-build collection. This does not complete the
+      generation retention/collection policy above.
+      The old implementation deletes an external fixture file; the repaired
+      implementation passes all six cases, including directory-path replacement
+      after opening. The same method passes with ASan/UBSan on the production
+      builder probe; linked support objects remain uninstrumented. All 28
+      shadows, 50 cache tests, five wrapper link tests, seven wrapper boundary
+      tests, 63 codegen tests, 19 FFI tests and package/dependency gates pass
+      on Darwin (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache publication persistence barriers.** I flush generation files
+      and the generation directory before publishing its name, then flush the
+      cache directory before and after switching the current pointer. I test
+      barrier ordering, interrupted calls, failure before/after the pointer
+      switch, retained generations and retry. A post-switch failure must not
+      delete the generation now referenced by current. Warm reuse must retry
+      the cache-directory barrier. Ancestor barriers are addressed below;
+      device-level power-loss behavior remains separate acceptance work.
+      File, generation-directory, pre-pointer and post-pointer barrier failures,
+      interrupted-call retry and warm barrier retry pass. I reject symlink,
+      directory and FIFO entries without following them or blocking on a FIFO.
+      All 28 shadows, 45 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency gates
+      pass on Darwin (2026-09-12). Both new persistence methods pass with
+      ASan/UBSan on the production builder through the probe; linked support
+      objects and fixture libraries are uninstrumented. These tests exercise
+      syscall ordering and failures, not physical power loss.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache ancestor-directory barriers.** I flush the cache directory
+      and its descriptor-resolved parents before switching current, and repeat
+      the chain on warm reuse. I stop at the filesystem boundary or root;
+      establishing the mount namespace is not a cache-build operation. I test
+      newly created nested shared-cache directories, ancestor failure before
+      first publication, retry, warm failure and barrier ordering. Device-level
+      power-loss and full crash-recovery acceptance remain open.
+      I verify the device/inode identities and child-to-parent order of newly
+      created shared-cache ancestors. Injected ancestor failure before first
+      publication and on warm reuse, retry and prior barrier ordering pass.
+      All 28 shadows, 46 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency gates
+      pass on Darwin (2026-09-12). Three persistence methods also pass with
+      ASan/UBSan on the production builder through the probe; linked support
+      objects and fixture libraries remain uninstrumented. This establishes
+      tested syscall ordering, not a physical power-loss result.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Darwin cache device-flush requests.** I require `F_FULLFSYNC`
+      after successful file and directory `fsync` barriers on Darwin, retry
+      interruptions, and reject unsupported or failed device-flush requests
+      without silently weakening the operation. I test actual host support,
+      injected failures, publication preservation and warm retry. A successful
+      request is not evidence of physical power-loss survival.
+      Actual host calls, six injected barrier-failure/interruption cases,
+      unsupported-operation rejection and retry pass. All 28 shadows,
+      49 cache tests, five wrapper link tests, seven wrapper boundary tests,
+      63 codegen tests, 19 FFI tests and package/dependency gates pass on
+      Darwin (2026-09-12). Three barrier methods also pass with ASan/UBSan
+      on the production builder through the probe; linked support objects
+      and fixture libraries remain uninstrumented. My v13 cache context
+      rebuilds older generations. Darwin filesystems that reject the stronger
+      operation now fail the build; other hosts retain their `fsync` path.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache process-crash recovery.** I terminate the production builder
+      at file/directory barriers and generation/pointer renames. I test first
+      publication and replacement in local and shared caches, complete visible
+      artifacts, retained old paths, lock release, recovery and warm reuse.
+      Process termination is not a simulated filesystem or device power loss.
+      All 28 combinations pass: seven boundaries, initial/replacement builds,
+      local/shared caches. I verify actual SIGKILL and the last reached event,
+      load libraries in fresh processes, and link/execute new and retained
+      native objects. Recovery completes within the test timeout and subsequent
+      warm reuse retains the recovered generation. No production repair was
+      needed for these cases. All 28 shadows, 47 cache tests, five wrapper link
+      tests, seven wrapper boundary tests, 63 codegen tests, 19 FFI tests and
+      package/dependency gates pass on Darwin (2026-09-12). This increment does
+      not add a sanitizer or physical power-loss result.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 binding string-pool and import-table allocation safety.** Adding
+      binding paths exposed paired `realloc` growth that could leave dangling
+      arrays after partial failure. I preserve existing entries on failed
+      growth and return an unambiguous failure index. Six injected failures
+      and retries pass, also under AddressSanitizer/UndefinedBehaviorSanitizer
+      on the production pool implementation (2026-09-12). This is not a full
+      audit of allocation propagation across every producer.
+      MAC `task_0ba46839aee94135aaa99a9b7c207499`.
+- [x] **5.0 bytecode foreign-generation bindings.** I retain the generation
+      returned by each foreign build and bind both shadows and production
+      imports to its library. I encode an explicit artifact import kind, preserve
+      it through v2 conversion, reject lossy v1 output, and resolve bound symbols
+      only through their library handle. I test rebuild stability, missing
+      artifacts, transitive imports, isolation from unrelated loaded symbols,
+      and wire-format validation. Relocatable packaging and artifact content
+      authentication remain distinct requirements.
+      My 28 shadow tests, 22 cache tests, 63 codegen tests, 19 FFI tests,
+      v2 codec/conversion/end-to-end tests, verifier, nvm2c, package policy and
+      C-seed dependency gates pass on Darwin (2026-09-12). I also test direct
+      and transitive retained imports in co-process mode and a rebuild while
+      a shadow is paused. Packaged-wrapper execution is checked below.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 standalone VM failure diagnostics.** Debug metadata does not
+      establish that a stack trace was printed. I always report execution
+      failure and its detail, including a missing bound foreign library.
+      Direct and transitive missing-library regressions pass with debug
+      metadata, including co-process failure exits (2026-09-12).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 packaged-interpreter link acceptance.** I repaired missing UTF-8
+      and module-build-directory objects and added crypto/thread/loader linkage.
+      My wrapper compiler retains the build's optional OpenSSL library search
+      directory, including with caller flag overrides in the checked dry run.
+      Both positive standalone and daemon link tests now require success;
+      the standalone positive gate failed before the repair and passes after it.
+      An executed standalone wrapper retains its foreign generation after a
+      rebuild and reports a missing artifact from a different working directory.
+      Five wrapper tests, 28 shadows, 23 cache tests and 63 codegen tests pass
+      on Darwin (2026-09-12). Daemon execution and cross-platform execution are
+      not established by these link checks.
+      MAC `task_4524b827bf464fe7bf4d0d43d6f88fd1`.
+- [x] **5.0 wrapper command and publication boundaries.** Both wrapper modes
+      share private sibling staging and atomic executable replacement. I quote
+      filesystem arguments with my existing shell-path helpers and encode
+      source import paths as C-string bytes. Compiler command fragments remain
+      trusted configuration. I reject absent, empty, non-executable, symlinked
+      and multiply-linked compiler outputs before publishing.
+      Seven boundary tests cover literal paths (including option-like relative
+      object directories), compiler failure, overlapping failure/success,
+      interruption, destination symlinks, failed rename and import escaping.
+      Five wrapper link tests, 28 shadows, 23 cache tests and 63 codegen tests
+      also pass on Darwin (2026-09-12). Interrupted private stages are ignored,
+      not automatically collected; unknown compiler side artifacts are retained
+      with a diagnostic. I do not claim power-loss durability, a compiler
+      sandbox or cross-platform execution from these tests.
+      MAC `task_0750c33a06a14dd39baf4d3e77e37a0d`.
+- [x] **5.0 foreign-module compiler path boundaries.** I quote filesystem
+      arguments through ordinary compilation, relocatable-object combination,
+      shared-only compilation and shared-library linking. Shared-only sources
+      now receive the common include and platform compile settings. Five
+      single/multi-source path cases cover quotes, dollar expressions,
+      backslashes and newlines in source, include and cache locations. The
+      original two cases fail before the repair; all five now execute and
+      observe subsequent header edits. Compiler and flag command fragments
+      remain trusted configuration, not a sandbox boundary.
+      MAC `task_8c10a946dfa14d92b491fd80f4635187`.
+- [x] **5.0 foreign command and dependency record bounds.** I reject truncated
+      compiler commands before execution, decode supported Make escapes and
+      require every expected dependency record. Malformed, missing, unreadable,
+      NUL-containing or overlong records cannot establish reuse. My context
+      version invalidates older evidence. The header-edit regression fails
+      before this repair and passes afterward. Clang emits lossy dependency
+      paths for literal backslashes: affected manifest paths (and newline
+      paths) still compile but deliberately receive no reusable hash record.
+      Parser boundary cases and oversized-command preservation pass alongside
+      28 shadows, 26 cache tests, five wrapper link tests, seven wrapper boundary
+      tests, 63 codegen tests, 19 FFI tests and package/dependency gates on Darwin
+      (2026-09-12). These checks validate records, not compiler truthfulness.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 foreign system-header dependency coverage.** I record compiler
+      dependencies for system headers as well as user headers. I test a
+      transitive `-isystem` header edit without changing the manifest or source,
+      and require new bytecode to observe its new value. `-MMD` omits these
+      inputs; manually listed top-level headers do not cover their contents.
+      I now request `-MD` for ordinary and shared-only compilations and bump
+      the cache context version to invalidate older incomplete evidence.
+      The regression fails before the repair and passes afterward, including
+      unchanged-generation warm reuse and standalone VM execution. All 28
+      shadows, 27 cache tests, five wrapper link tests, seven wrapper boundary
+      tests, 63 codegen tests, 19 FFI tests and package/dependency gates pass
+      on Darwin (2026-09-12). Lossless path reporting and full SDK/toolchain
+      identity remain open; this does not establish either.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 transitive dependency alias rejection.** I capture include traces
+      during the original compilation, without enabling saved-input mode.
+      I decode supported escaped paths and hash the actual trace input as well
+      as Make dependencies. Ambiguous trace paths must withhold cache evidence,
+      not authorize reuse through a different readable dependency path.
+      I preserve compiler diagnostics and test ordinary, multi-source and
+      shared-only alias edits plus warm reuse for ordinary paths. This closes
+      the reproduced stale-reuse case, not full lossless input capture.
+      The three alias cases fail before the repair and pass afterward. The
+      parser tests quoted, backslash, tab, newline and octal paths, ambiguous
+      same-inode spellings, malformed records and missing files. GCC guard
+      advice is accepted only for already recorded paths (format-fixture test,
+      not a Linux end-to-end claim). Warning/error
+      preservation and retry pass. All 28 shadows, 30 cache tests, five wrapper
+      link tests, seven wrapper boundary tests, 63 codegen tests, 19 FFI tests
+      and package/dependency gates pass on Darwin (2026-09-12).
+      Both dependency-parser boundary methods also pass with ASan/UBSan on
+      the production module builder; linked support objects are uninstrumented.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 fresh include-search validation.** I add fresh preprocessing as
+      a supplemental cache veto, never as the original compilation's input.
+      I compare observations before/after a cold build and before warm reuse,
+      using the same configured flags for ordinary and shared-only sources.
+      I test new earlier headers, unchanged reuse, failed observations and
+      retained compilation mode. This is not an atomic source snapshot or
+      complete PCH/module/toolchain identity.
+      The twelve include-search cases fail before the repair and pass
+      afterward. I also test failed/empty probes, a same-timestamp header
+      mutation after compilation, retry and original Clang PCH behavior.
+      My shared flag helper preserves successful empty pkg-config flags;
+      the C-seed dependency gate caught and verified that regression repair.
+      All 28 shadows, 34 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency
+      gates pass on Darwin (2026-09-12). Existing uncacheable configurations
+      do not acquire extra probe invocations. Warm reuse now includes a
+      preprocessing pass; original compilation and linking are still skipped.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 pkg-config query status.** I distinguish a successful empty flag
+      response from failure, reject partial/invalid output, and propagate query
+      failure through cold, warm and source-free module builds. I preserve
+      existing artifacts on failure and test recovery without installing any
+      packages. Query arguments and environment paths remain literal data.
+      I support an explicit `PKG_CONFIG` executable override so builds and
+      tests can select their tool without replacing a host installation.
+      I also correct the compiler-input experiment's build command to use
+      `make nano_virt nano_vm`: file targets alone did not rebuild stale tools.
+      The partial-output/nonzero-exit regression fails before the repair and
+      passes afterward. Cold/warm/source-free failure and recovery, signals,
+      NUL/oversized output, the 64-KiB boundary and literal arguments pass.
+      All 28 shadows, 36 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency
+      gates pass on Darwin (2026-09-12). The two new query methods also pass
+      with ASan/UBSan on the production module builder through the probe;
+      linked support objects and CLI binaries remain uninstrumented.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 single-build package flag snapshot.** I capture required package
+      compiler and linker responses once, then use that set for preprocessing,
+      compilation, shared linking and returned build information. I include
+      both responses in reuse evidence and withhold new evidence when fresh
+      post-build responses differ or fail. I test changing successful responses,
+      link-only invalidation, source-free builds and recovery. This does not
+      establish selected library byte identity or an atomic source snapshot.
+      All 28 shadows, 38 cache tests, five wrapper link tests, seven wrapper
+      boundary tests, 63 codegen tests, 19 FFI tests and package/dependency
+      gates pass on Darwin (2026-09-12). The expanded snapshot test also checks
+      actual shared-link arguments and failed post-build queries with recovery.
+      Four package-query methods pass with ASan/UBSan on the production module
+      builder through the probe; linked support objects and CLI binaries remain
+      uninstrumented. I capture sequential responses, not an atomic package
+      database transaction.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 lossless transitive compiler dependency evidence.** My current
+      cache excludes known lossy manifest paths and supplements Make records
+      with include traces. I still need a verified compiler-mode boundary for
+      PCH, modules and other external inputs before claiming every cached
+      input is the input the compiler actually read. Newly earlier include
+      files, source snapshots and complete toolchain identity remain open.
+      Query status and per-build response consistency are addressed above;
+      the identity of selected libraries remains open.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      - [x] I reproduce unchanged-flag library mutations and new earlier
+        library-search candidates through the actual cache. I compare linker
+        input traces and dependency records against selected archive bytes,
+        member paths and unusual filenames before choosing a lossless boundary.
+        I record tool/platform identity and distinguish characterization from
+        acceptance; changing runtime dependencies remains a separate boundary.
+        Apple clang 21 / ld-1267 retains cached 42 after a same-size,
+        same-timestamp archive edit and an earlier search candidate; fresh
+        links return 43 and 44. Binary records preserve unusual paths and
+        absent candidates but omit the supplied response file. Line traces
+        contain literal newlines. My host's successful `ar rcsT` produces a
+        regular archive, so thin-archive coverage is not established.
+        `python3 -m tests.characterize_linker_inputs` and all 38 existing cache
+        tests complete on Darwin (2026-09-12). Those green tests do not cover
+        these stale-library cases. `docs/LINKER_INPUT_EVIDENCE.md` records the
+        evidence and implementation requirements; this is not the repair.
+      - [ ] I capture and validate selected linker-input bytes, negative
+        search state and indirect flag inputs. Same-timestamp archive edits
+        and newly earlier libraries must change actual cached results; warm
+        reuse, malformed evidence, unusual paths, failed builds and recovery
+        must be tested. I handle each supported linker mode explicitly and
+        do not infer completeness from a readable trace or dependency file.
+        - [x] I integrate Darwin tagged linker records as an additional cache
+          requirement, checking external input hashes and absent candidates.
+          Unsupported capture preserves ordinary linking without reuse evidence.
+          Response-file commands remain uncacheable until their indirect inputs
+          are captured. I test actual archive/search changes, warm reuse,
+          malformed records, literal paths and failed-capture recovery. Other
+          linkers, indirect inputs and snapshots remain explicit unfinished work.
+          The reproducer now returns 43 and 44 for the archive/search edits,
+          with unchanged generation reuse. Fourteen parser cases plus actual
+          unsupported/malformed capture, response-file bypass and recovery pass.
+          All 28 shadows, 41 cache tests, five wrapper link tests, seven wrapper
+          boundary tests, 63 codegen tests, 19 FFI tests and package/dependency
+          gates pass on Darwin (2026-09-12). The three new linker methods also
+          pass with ASan/UBSan on the production builder through the probe;
+          linked support objects and fixture libraries are uninstrumented.
+          I hash files after linking; this is not a linker-input snapshot.
+        - [x] I reproduce library replacement during the link, then require
+          matching observed linker inputs around the final link before storing
+          reuse evidence. I retain that observation rather than replacing it
+          with later hashes. I test mutation, recovery, unchanged reuse and
+          failed final links. Matching observations are not an atomic snapshot;
+          changes that occur and revert still require captured input bytes.
+          Changes after the original link and during later preprocessing
+          reproduce incorrect code/hash pairing before the repair. Tests now
+          cover discovery/final/postprocessing mutations, retry and warm reuse,
+          plus failed final links preserving the prior generation without an
+          extra retry. All 28 shadows, 43 cache tests, five wrapper link tests,
+          seven wrapper boundary tests, 63 codegen tests, 19 FFI tests and
+          package/dependency gates pass on Darwin (2026-09-12). Three timing,
+          final-failure and fallback methods also pass with ASan/UBSan on the
+          production builder through the probe; linked support objects and
+          fixture libraries remain uninstrumented.
+      - [x] I reproduce a transitive backslash/slash alias against the actual
+        compiler and cache, then measure preprocessed-input snapshots as a
+        candidate boundary. I check unchanged replay, header edits, include
+        search changes and external precompiled-header references before
+        selecting an implementation. Characterization is not cache acceptance.
+        `python3 -m tests.characterize_compiler_inputs` confirms stale code
+        on Apple clang 21.0.0 and shows that `-save-temps=obj` changes the
+        result of a stale-PCH build from 42 to 43. DOT keeps backslash bytes
+        but exposes logical SDK paths. I reject an unconditional snapshot
+        switch; compiler modes need explicit handling. The observations and
+        implementation acceptance requirements are in
+        `docs/COMPILER_INPUT_EVIDENCE.md` (2026-09-12).
+- [x] **5.0 C-library cache — atomic generation publication.** I publish
+      object, library, dependency files and reuse evidence as one generation
+      through an atomic current-pointer replacement. Native link inputs and
+      runtime library lookup resolve a retained generation path. I test failed
+      publication, concurrent readers/builders, recovery and old-path stability.
+      Bytecode-to-exact-generation binding, source snapshots, retention policy
+      and power-loss durability remain separate acceptance requirements.
+      I test stable native object and runtime library paths after replacement,
+      a live reader during a blocked build, final-pointer rename failure with
+      the old pointer intact, malformed pointers, corrupted cached artifacts,
+      and recovery. All 28 shadow tests, 15 cache tests, 63 codegen tests, 18
+      FFI tests, installation policy and C-seed dependency gates pass on Darwin
+      (2026-09-12). I make no power-loss or full toolchain-identity claim.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache fixture path preservation.** My tests replaced every `42`
+      in generated source, including random temporary import paths. I now
+      change only the expected shadow value and exercise an import path that
+      deliberately contains `42`. A missing-module failure was test corruption,
+      not evidence of a compiler lookup defect.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 cache namespace identity.** I replace slash-to-underscore keys
+      with `v2-<SHA-256 of realpath(module_dir)>`. I reject unresolvable
+      directories and undersized destination buffers. I leave ambiguous legacy
+      shared caches untouched and rebuild in the new namespace. Metadata include
+      fallback also uses the physical module directory; a context-version bump
+      invalidates old local records that could depend on alias spelling.
+      Four initial namespace tests and the additional alias-header regression
+      fail before their repairs and pass afterward. Tests cover distinct paths
+      with different headers, canonical aliases, long paths, buffer bounds,
+      migration and actual library/bytecode execution. All 28 shadow tests,
+      20 cache tests, 63 codegen tests, 18 FFI tests, installation policy and
+      C-seed dependency gates pass on Darwin (2026-09-12). Make builds the cache
+      probe with project flags; required OpenSSL flags survive caller overrides
+      in the checked dry run. This is namespace identity, not artifact trust.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 C-library cache — driver and build-environment identity.** I
+      invalidate cached C artifacts when the selected compiler command,
+      resolved driver bytes, working directory or documented build environment
+      changes. I treat unresolved shell compiler expressions as uncacheable,
+      preserve warm reuse for unchanged inputs, and test actual changed output
+      as well as failure/recovery. I document the remaining transitive
+      toolchain and wrapper-input boundary rather than claiming hermeticity.
+      Six initial scenarios fail against the previous compiler and pass with
+      the repair. Expanded tests cover PATH resolution, same-timestamp driver
+      replacement, CPATH, working directory, explicit toolchain stamp, missing
+      and shell-expression compilers, old/malformed context records, and driver
+      mutation during compilation. All 28 shadow tests, 10 cache tests, 63
+      codegen tests, 18 FFI tests, installation policy and C-seed dependency
+      gates pass (2026-09-12). Warm tests no longer change the selected compiler
+      as a no-build sentinel; damaged-record tests keep driver identity fixed.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 C-library cache — private writes and publication lock.** I
+      compile into a private directory, validate the expected artifacts, and
+      serialize cache validation/build/publication across compiler processes.
+      I publish complete files by rename and invalidate hash evidence before
+      publication so a partial publication forces rebuilding. This initial
+      per-file publication is superseded by generation publication above.
+      I test partial
+      object/library failures, an interrupted compiler, overlapping builders,
+      cleanup and recovery. Per-file rename is not an atomic multi-file
+      transaction or an immutable artifact binding for later consumers.
+      Five publication tests cover these boundaries, symlink rejection,
+      multi-source artifacts and failed-publication hash invalidation. They
+      pass with 28 shadow tests, 63 codegen tests, 18 FFI tests, installation
+      policy and C-seed dependency/recovery gates (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 foreign-cache test environment parity.** I pass the fixture's
+      cache environment to standalone execution as well as compilation.
+      Make's exported cache path previously caused six existing scenarios
+      to read a different cache. The full Make gate now passes with its
+      exported environment; the new publication tests follow the same rule.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 VM opaque signature representation.** With its foreign library
+      built, `advanced/datetime_demo.nano` reaches execution but fails in `now`:
+      an imported opaque `DateTime` return is declared as a struct in bytecode
+      and arrives as an integer. I preserve the declared opaque runtime kind
+      in local, imported and extern signatures, with round-trip and rejected
+      wrong-kind tests rather than weakening runtime return checks.
+      Local malloc/free and foreign-library direct/transitive round trips
+      pass, as do wrong-kind rejection and ordinary record returns in the same
+      program. The original datetime example executes root shadows and main;
+      its standalone bytecode exits zero. All 25 shadow tests, 63 codegen
+      tests, 18 FFI tests, 272215 VM checks and failure/recovery suites, and
+      all 28 cross-backend contract rows pass (2026-09-12).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 opaque nominal identity and null boundaries.** My environment
+      resolves qualified opaque names by global short-name fallback. My
+      argument checker accepts any struct or integer for an opaque parameter,
+      despite describing only the declared handle or zero as valid. I require
+      module-aware nominal identity and exact null handling through checker
+      and backend metadata, with colliding-name and wrong-handle rejections.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 imported function namespace isolation.** A helper that imports
+      a module as `foreign` cannot define its own `make`, `echo` or `read`
+      when that imported module has those names: short names leak into the
+      helper's declaration scope. I preserve module ownership through lookup
+      and lowering, with same-named wrapper tests instead of renaming APIs.
+      The imported-shadow characterization also reproduced this for a pure
+      `answer` wrapper on the C seed and bytecode CLI; Stage 2 accepted it.
+      My bytecode extern table also deduplicates declarations by bare function
+      name across modules. I must preserve distinct source declarations before
+      exact library bindings can isolate same-named qualified foreign calls.
+      Pure function binding is now addressed by the earlier backend gates.
+      Private visibility, conflicting aliases in one importer, selective type
+      aliases and nominal identities still need acceptance tests and consistent
+      rejection. Sequential Stage2 binding state is not a reentrant context.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 shadow-enabled VM example acceptance.** My rebuilt quick gate
+      rejects 98 of 229 eligible examples after shadow execution is enabled.
+      Direct checks expose integer negation emitted for floats and missing
+      shadow locals. I repair source/compiler/runtime failures without
+      bypassing shadows or hiding examples in exclusions. Six previously
+      excluded library inputs now compile as shadow-only sources; I reconcile
+      their eligibility with the build contract. I rerun the full example gate.
+      The isolated rerun reports 101 failures, including unresolved FFI
+      functions, shadow-bytecode verification failures, type errors and
+      assertions. These are execution-dependent results, not a stable
+      compile-only acceptance count. I retain both observations.
+      After root-shadow typing, array-annotation checks, numeric builtin and
+      nested-signature repairs, the latest rerun reports 87 failures of 229
+      and seven excluded shadow-only sources now accepted. No compiler
+      crash appears in this rerun. Many failures are unresolved FFI functions;
+      verifier, assertion and type failures also remain. The expanded shadow
+      suite, 63 codegen tests, shared-checker unit tests, parser-recovery gate,
+      272215 VM checks, bootstrap smoke/no-C-seed checks and all 28 contract
+      rows pass. Native bootstrap binaries still differ; the full quick and
+      release gates are not green (2026-09-12).
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 VM example evidence — actual failure status.** My coverage loop
+      reads status after an `if` statement, reporting failed compiles as
+      `exited 0`, and recognizes only legacy diagnostics. I retain the failed
+      invocation's status and show modern diagnostics, test silent and
+      structured failures, then rerun coverage without weakening acceptance.
+      A regression exercises the production loop with silent status 7,
+      modern-diagnostic status 42, legacy-diagnostic status 3 and success.
+      It passes; the real coverage rerun remains nonzero with actual failure
+      statuses and diagnostics. This test runs in `test-vm-examples`.
+      MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [ ] **5.0 execution contract — daemon exit status parity.** I verify entry
+      values and traps end-to-end through `nano_vm --daemon` and the vmd
+      protocol without confusing RPC success with the program's result.
+      MAC `task_6ac194c20d284641ad2798bf780177bd`.
+- [x] **5.0 contract evidence — versioned executable matrix.** I version
+      the existing seven-program corpus and check exact stdout and successful
+      execution with the C seed, Stage 2, VM, and actual NanoISA-to-C AOT.
+      I run VM and AOT from the same bytecode artifact, expose unsupported
+      AOT cases as failures rather than conformance passes, and
+      test runner failure handling, timeouts, and manifest validation. This
+      initial corpus does not complete specification reconciliation or cover
+      the whole language; I retain the umbrella contract item above.
+      Ten runner tests pass. The real matrix reports 25 passing rows and
+      three AOT failures and exits nonzero (2026-09-11); this checks existing
+      rebuilt tools, not a new bootstrap or full release gate.
+- [x] **5.0 AOT prerequisite — classifier control flow.** I preserve operand
+      stack state across branches, stop interpreting terminated paths, and
+      reject incompatible joins before C emission. I test both outcomes of a
+      branch carrying a live operand, unreachable instructions, malformed
+      joins and classifier local-count bounds. This does not establish
+      flow-sensitive local or interprocedural aggregate type inference.
+      My AOT suite passes 335 checks, also with the translator and harness
+      instrumented by ASan/UBSan (leak detection disabled; linked support
+      objects and emitted programs are not instrumented) (2026-09-11).
+- [x] **5.0 AOT prerequisite — executable edge transfers.** I emit join
+      assignments before unconditional jumps and inside conditional taken
+      edges. I copy incoming values simultaneously so loop-carried stack
+      permutations cannot overwrite one another. Native regressions must
+      exercise a live accumulator and a swapped pair across backedges.
+      All four accumulator/permutation and unconditional/conditional
+      combinations compile under C11 warnings-as-errors and execute with
+      expected status. This is tested behavior, not a correspondence proof.
+- [x] **5.0 contract defect — AOT source corpus aggregates.** I make the
+      record-return and two variant corpus programs compile and execute via
+      `nvm2c`. All three now execute with exact expected stdout. The required
+      seven-program matrix passes all 28 rows on C seed, Stage 2, VM and AOT
+      (2026-09-12). This checks the rebuilt translator and existing compiler
+      tools, not a new bootstrap or complete language conformance.
+      MAC `task_9a7214c876e24c3491f8d1d49c1384a1`.
+      MAC rejects direct closure from `open`; verified evidence awaits its
+      normal claim/review workflow.
+- [x] **5.0 AOT record calls — converged type facts.** I propagate parameter
+      kinds and flat aggregate fields across direct calls, converge return
+      field facts before emission, and support record/variant value returns.
+      I test caller/callee ordering, multi-hop string fields, tail returns,
+      conflicting layouts and unresolved fields. I retain runtime field
+      guards and explicit rejection outside this representable subset.
+      My structured-C suite passes 371 checks, including recursive returns
+      and branch joins with initially unknown field kinds. The translator
+      and harness also pass with ASan/UBSan, leak detection disabled; linked
+      support objects and generated programs are not instrumented. A known
+      string-as-integer return now fails translation before its runtime guard.
+- [ ] **5.0 AOT aggregate breadth — declared layouts and richer fields.** I
+      extend the flat direct-call subset to nested aggregates, field kinds
+      varying by variant or control flow, arrays across aggregate signatures,
+      separately linked parameter metadata and path-sensitive local facts.
+      I use declared NanoISA type/layout evidence where available and add
+      corresponding VM/AOT semantic fixtures without weakening rejection.
+      MAC `task_a4fde0d59ad24fe18c285a76ad58c176`.
+- [x] **5.0 AOT aggregate boundaries — unreachable labels and field kinds.**
+      I omit labels reached only by jumps in dead code after returning match
+      arms. I retain runtime field kinds so incomplete static classification
+      traps instead of reading the wrong parallel field storage. I test
+      variant tags, payloads, empty variants, and non-variant tag rejection;
+      richer interprocedural field classification remains required above.
+      My structured-C suite passes 356 checks, including full-width variant
+      tags, integer/string payloads, dead labels at function end and two
+      runtime guard failures. Generated programs compile with C11
+      warnings-as-errors and execute; source variant cases pass the matrix
+      (2026-09-11).
+- [x] **5.0 contract evidence — cross-backend runner failures.** I reject
+      execution failures even when stdout matches, reject unknown or empty
+      backend selections, and use private scratch paths. I retain explicit
+      XFAIL/XPASS and validation-only reporting. Eight tests exercise the real
+      runner with controlled compiler/executor fixtures; all four executor
+      failure cases falsely succeed with the previous runner and fail correctly
+      after repair. `make test-cross-backend-runner` passes and is a prerequisite
+      of the full runner. The real C seed passes all seven C corpus programs;
+      fixture success alone is not compiler conformance (2026-09-11).
+- [x] **5.0 contract defect — self-hosted CLI output modes.** I parse
+      options before compilation and reject unknown options, missing operands,
+      unsupported targets and extra input files. `--target c` writes C source
+      without invoking the native toolchain; `--target native` retains native
+      compilation. I derive a sibling `.c` filename when `-o` is absent and
+      accept `--` before a hyphen-prefixed input path. Nine CLI tests pass on
+      rebuilt Stage 1 and Stage 2, covering output preservation on bad options,
+      source compilation/execution with native compilation disabled in the
+      driver, default paths, explicit native execution and write errors.
+      `make test-selfhost-cli` passes; my full self-hosted suite reports
+      16 passed, 0 failed. Both the C seed and Stage 2 compile and execute all
+      seven C corpus programs using repository runtime headers. Eight runner
+      fixture tests pass. The serial bootstrap passes its smoke/no-C-seed gates;
+      native stage binaries still differ. README distinguishes self-hosted
+      modes from C-seed-only target, documentation and profiling switches.
+      MAC rejects direct closure from `open`; verified evidence awaits its
+      normal claim/review workflow (2026-09-11).
+      MAC `task_09aa81ed3aa442cba41a53d2c4b646e6`.
+- [x] **5.0 bootstrap — evidence-bounded reporting.** I report native
+      byte equality only for the artifacts compared in this build, label
+      possible difference causes as hypotheses, and distinguish smoke checks
+      from compiler correctness and canonical NanoISA equality. Three
+      isolated reporting tests exercise identical and differing artifacts
+      and preserve deterministic-mode rejection. Four source-dependency
+      tests also pass; fake reporting fixtures do not test compiler semantics.
+- [ ] **5.0 audit — formal foundations.** I assess Rocq, Lean,
+      Isabelle/HOL, and HOL4 against my existing NanoCore development,
+      then record a reproducible proof build, theorem assumptions, and
+      implementation correspondence limits. I evaluate Sail on real NanoISA
+      decoding and execution, with differential tests against the VM and
+      explicit ownership of the ISA source of truth. I retain useful existing
+      proofs and adopt additional frameworks only with demonstrated benefit.
+- [x] **5.0 audit defect — quick gate after bootstrap.** On 2026-09-11,
+      my three-stage build passes but `make test-quick` reports six language
+      passes and eight failures through the selected `bin/nanoc`: five parser
+      failures, a module-relative import failure, and two audio-example C
+      compilation failures with undeclared string/filesystem helpers. I
+      reproduce these against explicit compiler stages, repair their causes,
+      and rerun the full quick gate without skipping tests. Bootstrap success
+      is not evidence that the selected compiler passes my language corpus.
+      Explicit `nanoc_c` compilation passes for control flow, enums, and
+      module metadata; `bin/nanoc` selects the older `nanoc_stage2` binary.
+      A fresh C-seed-built NanoLang compiler with the parenthesized-expression
+      repair below now compiles and runs 11 of 14 language tests. Module
+      metadata and the two audio examples still fail. I can select a compiler
+      explicitly with `NANOLANG_COMPILER` in `tests/run_all_tests.sh`; the
+      default remains `bin/nanoc` and the runner prints the selected path.
+      After the relative-import repair, the candidate passes 12 of 15 tests
+      including the new import regression. Metadata now resolves its import
+      but fails on missing introspection declarations; both audio examples
+      still fail on missing generated-C declarations (2026-09-11).
+      The declaration/string-runtime increment now passes 16/16 language tests
+      on the C seed and 15/16 on the fresh NanoLang candidate. Both audio
+      examples pass; metadata fails at link time on absent `___module_*`
+      definitions. The installed stage-two compiler is still unchanged.
+      MAC `task_b11b688543574e82a96c0fb4f782d234` tracks this repair.
+      Final verification on 2026-09-11: the dependency-aware `make test-quick`
+      rebuilds both compiler stages and all three components, then exits 0.
+      Selected `bin/nanoc` passes all 17 language programs, explicit native
+      parser/extern/introspection regressions, VM example coverage, frontend
+      checks, Jackson evidence and Forth PTY liveness. Gforth comparison skips
+      because Gforth is absent; GLUT interactive launch is not requested;
+      IDE graphical initialization skips without xvfb-run/timeout. This gate
+      is not the full release suite or proof of compiler correctness.
+      MAC rejected direct closure from `open`; I retain the verified evidence
+      and leave ledger closure to its normal claim/review workflow.
+- [x] **5.0 parser parity — grouped identifiers and tuple projections.**
+      I no longer commit to a prefix call merely because `(` is followed
+      by an identifier. Operator, comma, and tuple-projection continuations
+      use the existing expression/tuple parser. Eight AST-shape cases,
+      seven call-classification cases, equal-precedence left association,
+      and malformed grouping now execute in `make test-parser-parenthesized`.
+      I corrected the earlier evidence claim: the imported empty driver did
+      not establish shadow execution. The explicit test also exposed outdated
+      lexer/parser argument counts in those shadows, which I corrected.
+      A fresh compiler candidate compiles and runs the five previously
+      parse-failing language tests (2026-09-11). This does not establish
+      complete compiler parity or install a new stage-two compiler.
+- [x] **5.0 audit defect — imported parser shadow evidence.** I run the
+      parenthesized-parser assertions explicitly from a compiled test entry
+      point. A successful importer build or empty driver run does not establish
+      that imported shadows ran; the C seed skips extern-dependent shadows.
+      `make test-parser-parenthesized` passes and is included in `test-quick`.
+- [ ] **5.0 audit — component test execution.** I audit remaining component
+      shadows and bootstrap validation claims, execute meaningful assertions
+      explicitly, and distinguish skipped from executed checks. MAC
+      `task_56a065134a6e4394ae5c307c05e9597d`.
+      Older transpiler shadows still call `tokenize_string` with one argument;
+      its current signature requires source, filename and diagnostics.
+- [x] **5.0 import parity — bare relative paths.** I try a bare import path
+      beside its importing file before falling back to the repository root.
+      `tests/nl_functions_relative_import.nano` compiles and runs through both
+      the C seed and a fresh NanoLang compiler candidate. Module metadata
+      emission remains a separate failing case in the language gate.
+- [x] **5.0 generated-C parity — declarations and string helpers.** I
+      stop treating an interior runtime-family substring as a supplied C
+      declaration. I share trim and suffix-test runtime implementations across
+      the C seed and self-hosted emitter, test boundary behavior through both
+      compilers, and rerun the audio regressions. Metadata definitions remain
+      a separate module-emission requirement, not satisfied by a prototype.
+      Shared `runtime/string_edges.h` preserves the seed's trim/suffix behavior.
+      The compiled string-boundary program passes on both compilers, both
+      candidate audio regressions pass, and `make test-transpiler-externs`
+      executes and passes declaration-selection and prototype assertions.
+      That native test is now part of `test-quick` (2026-09-11).
+- [ ] **5.0 audit defect — string-call equality.** The new compiled string
+      boundary test exposes pointer comparison for two string-returning calls
+      in the self-hosted C emitter. I use semantic operand types for string
+      equality, retain a runtime regression, and audit similar text-based
+      type guesses in arithmetic and comparison lowering.
+      Direct string-call equality now uses inferred types and declared function
+      return types. Compiled trim/character and user-function equality and
+      inequality cases pass on both compilers. The broader inference audit
+      remains open under MAC `task_e7a7395191d44cf793d684e21ea16a79`.
+- [x] **5.0 audit defect — string-call concatenation.** Stage-two bootstrap
+      emitted C pointer addition for `(mi_inventory ...) + (mi_inventory ...)`.
+      I use semantic operand types for concatenation, retain a native
+      string-returning-call regression, and rerun the actual bootstrap.
+      The old stage one rejects the regression; the C seed passes it. With
+      generated-text guesses removed, rebuilt stage one compiles and executes
+      all 17 language programs, including nested concatenation and an
+      integer-returning function named `str_concat_count`. Actual stage two
+      now compiles successfully and passes its executable smoke test
+      (2026-09-11). This does not establish canonical artifact equality.
+- [ ] **5.0 audit defect — interpreted versus native codegen assertions.**
+      Calling the extern-prototype regression's `main` from a C-seed shadow
+      failed its three generated-text assertions, while the compiled entry
+      point passes them. I investigate the evaluator/AST-list correspondence
+      and retain distinct native and interpreted evidence; running only the
+      compiled assertions does not establish interpreter parity.
       MAC `task_e7a7395191d44cf793d684e21ea16a79`.
-- [ ] **5.0 / native match-block full backend acceptance.** I still need
-      nested operand and call-argument returns, matches where every arm exits,
-      guards and exhaustiveness, aggregate and resource escape and scope,
-      NanoISA lowering, and an explicit reentrant checker context. I will not
-      claim full match-block parity until those paths pass through the C seed,
-      rebuilt self-hosted stages, and the no-C-seed gates.
-- [x] **5.0 release — GCC logic frontend alias warning.** GCC can trace a rule
-      head name back into the compiler context and rejects copying it into the
-      relation table with restrict-qualified `snprintf`. I use overlap-safe
-      bounded copying instead. `make test-logic`.
+- [x] **5.0 audit defect — bootstrap source invalidation.** My stage-two
+      component and bootstrap-stage-one sentinels depend on prior-stage
+      sentinels, not the NanoLang sources they compile. I add source dependency
+      tracking and test that parser/import changes rebuild the affected
+      compiler stages. A stale selected binary must not survive a successful
+      source rebuild unnoticed. MAC `task_a98f6940228e47b3a503472d0ba5d2a4`.
+      I also check missing stage binaries through transitive dependencies:
+      the current wrapper only checks the stage named directly by the user.
+      Source dependencies and selected-compiler bootstrap ordering are now
+      implemented. Four isolated tests query the real make rules for clean
+      state, changed sources/build rules, unrelated examples, and missing
+      artifacts. Stage one rebuilds and passes its executable smoke test.
+      Stage-two recompilation now succeeds and its smoke test passes. The
+      full selected-compiler `make test-quick` now exits 0 (2026-09-11),
+      with the optional-tool/display limits recorded above. I do not count
+      dependency queries as compiler validation.
+- [x] **5.0 module introspection parity.** I derive module name/path,
+      public function and struct inventories, unsafe status, and FFI status
+      from each original module before import flattening. I emit the complete
+      eight-operation introspection surface, test private/nested declarations,
+      comments, names, counts and index bounds, and reject ambiguous legacy
+      module identities. This does not replace the separate typed-module ABI
+      and import-authority work. The source-fact native test passes; both
+      compiler candidates execute all eight operations and flag regressions.
+      The self-hosted candidate rejects duplicate identities (2026-09-11).
+- [x] **5.0 audit defect — boolean C ABI.** Module introspection exposed
+      self-hosted `bool` declarations emitted as C `int`, conflicting with the
+      seed's C `bool` definitions. I reconcile boolean declaration/field
+      mappings and verify generated prototypes and executable behavior.
+      `make test-transpiler-externs` passes explicit C `bool` assertions.
+      Boolean filter callbacks agree with their generated function signatures.
+- [x] **5.0 self-hosted build isolation — in-memory merged source.** I remove
+      shared merger files and the unconditional debug dump, reuse my existing
+      string accumulator, and lex the result directly. I test overlapping
+      source/native compilations with distinct imports, preservation of legacy
+      scratch paths, failure cleanup and source-only compilation without a
+      writable temporary directory. I rebuild the compiler and rerun native
+      shadow, CLI and language-contract gates before claiming isolation.
+      I update the import-path regression that still reads the removed fixed
+      C filename, and verify the reported private `--keep-c` artifact instead.
+      Four isolation tests pass, including confirmed live overlapping source
+      and native compiles with distinct executable outputs. The legacy-symlink
+      regression overwrites its protected target on the old compiler and
+      preserves it after repair. Bootstrap smoke/no-C-seed checks, five import
+      tests, nine native-shadow tests, nine CLI tests, five language-claim
+      tests and all 28 contract rows pass. The broader quick gate passes
+      17 native language programs but fails VM example coverage as recorded
+      above; I do not claim a green quick or release gate (2026-09-12).
+      Generic-list generation remains separate under the broader item below.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 self-hosted diagnostics — original source provenance.** My
+      flattened import stream uses merged line numbers, now labelled with
+      the root input path rather than a temporary filename. I retain original
+      paths and positions through merging/tokenization and translate lexer,
+      parser and type diagnostics, including machine-readable output. I test
+      root and nested imports, removed declarations and escaped path bytes.
+      MAC `task_3c235c2533a5499093804b26da53801b`.
+- [ ] **5.0 audit defect — compiler build isolation.** Concurrent C-seed
+      compilations shared `obj/nano_modules/transpiler.o.c`; one compilation
+      removed it before the other invoked clang. I isolate intermediate module
+      files and publish cache entries atomically, then test concurrent builds.
+      The self-hosted merger also uses predictable shared temporary paths;
+      I replace those and remove its unconditional merged-source debug dump.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      The C seed also invokes each module C compilation twice: once via
+      `popen` for diagnostics and again via `system` for status. I execute
+      it once, drain diagnostics, and use that same invocation's exit status.
+- [x] **5.0 module build — one invocation, one status.** I execute the C
+      compiler once per module, drain all diagnostic output while retaining
+      a bounded prefix, and use that invocation's exit status. Three isolated
+      integration tests cover success, a first failure that a second call
+      would hide, and 32768 diagnostic lines. The old binary fails the
+      single-invocation checks; the rebuilt seed passes all three tests.
+      Shared intermediate paths and atomic publication remain open above.
+- [x] **5.0 module build — private intermediates and atomic objects.** I
+      create a private build directory beside each destination object, compile
+      into it, and rename only a successful object into the cache. I test
+      overlapping module compilations and preserve an existing cached object
+      after a compiler writes partial output and fails. This does not complete
+      generic-list generation or self-hosted temporary-file isolation.
+      Six integration tests pass, including deterministic overlap, partial
+      output failure preserving cached bytes, and rejected success without an
+      output object. Private directories have mode 0700; successful normal
+      builds remove their intermediates. Failure retains only private C for
+      diagnosis. The rebuilt C seed also passes module introspection, extern
+      declaration selection and parenthesized-parser regressions (2026-09-11).
+- [ ] **5.0 module build — command argument boundaries.** My C-seed module
+      compiler still concatenates source/include paths and flags into a shell
+      command. I must preserve paths containing spaces or shell metacharacters
+      as data and reject truncated arguments, with execution tests. Private
+      staging and atomic object publication do not repair this boundary.
+      I now quote module object/source/include paths and top-level module
+      include paths, with executable import tests below. Top-level artifact
+      and CLI library paths are repaired below. Runtime-source paths,
+      generator invocations, manifest package names used in shell probes, and raw flag
+      fragments still require their own boundary audit; this item stays open.
+- [x] **5.0 module imports — literal shell paths.** I share one literal
+      path-quoting helper between module compilation and top-level include
+      construction, reject oversized module commands and dropped flags, and
+      keep NANO_CC command-fragment compatibility for configured wrappers.
+      Nine module-build tests pass, including executable imports from a
+      directory with spaces/apostrophes, literal command-substitution syntax
+      that must not create a marker, and a rejected oversized command before
+      compiler invocation (2026-09-11). The first run exposed the still-unquoted
+      top-level include path after module compilation; both callers are now
+      covered. This does not make all compiler commands shell-free.
+      Rebuilt C-seed module introspection, extern selection and compiled
+      parenthesized-parser regressions also pass.
+- [x] **5.0 C output — literal artifact and CLI library paths.** I quote
+      the executable and temporary C paths in the final compile command and
+      append CLI `-L`/`-l` values as literal words with overflow rejection.
+      Fourteen module/build tests pass, including output names and TMPDIR with
+      spaces, apostrophes and shell-substitution syntax, plus library names
+      and directories with the same characters (2026-09-11). The native
+      library test calls a real function from its archive and verifies its
+      result; its compile-time shadow checks only the pure module assertion
+      because the evaluator cannot execute that linked archive. Marker files
+      must remain absent. This does not cover generated-list command paths,
+      runtime-source paths or all raw compiler/linker flag fragments.
+- [x] **5.0 C link paths — runtime sources and module objects.** Runtime
+      sources and generated-wrapper paths now enter the command as quoted
+      words, and NanoLang module-object lists quote and deduplicate complete
+      arguments while rejecting overflow. Copied compiler installations under
+      spaces/apostrophes and shell-substitution paths compile and execute.
+      The first expanded suite passed 16 of 18 tests; two filename tests
+      failed in metadata C generation below, after checking no shell marker
+      was created. With the metadata repair, all 20 tests now pass without
+      an expected-failure exemption (2026-09-11).
+- [x] **5.0 module metadata — filenames versus C identifiers.** The C
+      transpiler previously used raw module filenames in `___module_*` symbols.
+      Filenames containing spaces, apostrophes or command-substitution syntax
+      produced invalid C even when shell arguments were quoted correctly.
+      I now share an injective reserved-prefix/hex encoding across helper
+      definitions, C function mapping, extern declarations and serialized
+      metadata suffixes. Ordinary suffixes retain their spelling; reserved
+      prefix names are encoded too. The 20 build tests pass, including the
+      two previous failures, collision cases and an encoded helper call that
+      reports the original module name. C-seed module introspection, extern
+      selection and parenthesized-parser gates pass; 17 metadata unit tests
+      linked against rebuilt objects also pass (2026-09-11). This is tested
+      C-backend behavior, not complete self-hosted/VM metadata parity.
+- [x] **5.0 metadata — module name/path C text boundaries.** I encode module
+      names and paths with fixed-width octal escapes and omit their raw text
+      from generated comments. All 255 nonzero byte values survive a compiled
+      C round trip under UBSan; a module path containing `*/` compiles and runs.
+      All 22 module build regressions pass (2026-09-11). This covers my C-seed
+      module name/path metadata, not every serialized field or import syntax.
+      Module introspection, extern selection and parenthesized-parser gates
+      also pass; I did not run a full bootstrap for this change.
+- [ ] **5.0 imports — escaped path parity.** My C-seed lookup previously used
+      raw escape spellings; decoding exposed raw filenames in generated `#line`
+      directives. Both C-seed boundaries are repaired below. I must carry the
+      same path contract through self-hosted parsing and source merging, with
+      executable parity tests; C-seed success does not establish that parity.
+      My line-based merger also chose the last quote (including comment text)
+      and could silently remove malformed module imports. I must scan escaped
+      closing quotes and fail dependency collection on invalid quoted paths.
+      The first Stage 2 run rejected plain paths because it dropped `break`;
+      the repair below passes five driver/helper tests on both Stage 1 and
+      Stage 2 after a fresh bootstrap (2026-09-11). The self-hosted runner now
+      includes these tests. Full syntax-aware discovery remains open.
+- [x] **5.0 self-hosted loop control — frontend nodes.** My lexer previously
+      treated `break` as an identifier and emitted no loop-control node, despite
+      existing C emitters. I connect break/continue keywords and parser nodes.
+      Compiled parser assertions and self-hosted execution of continue, break
+      and nested-loop break pass. The production path-helper regression now
+      executes correctly after Stage 1 compilation and the rebuilt Stage 2
+      passes all five import tests (2026-09-11).
+- [ ] **5.0 self-hosted loop control — context validation.** I must reject
+      break/continue outside loops in the language frontend and test nested
+      function boundaries. C compiler rejection is not a frontend diagnostic.
+- [x] **5.0 native match blocks — scalar acceptance.** I follow the approved
+      rule: `return` exits the enclosing function; an expression arm yields
+      its expression, and a block arm yields its final expression after its
+      preceding statements. I replaced the C emitter's return scan and the
+      self-hosted emitter's placeholder with ordered statement/value emission.
+      I preserve the enclosing return context while checking block statements,
+      retain nonlocal return flags in my shadow evaluator, and type C match
+      temporaries independently of the enclosing function's return type.
+      I also resolve named union-variant fields in my self-hosted checker.
+      Five executable cases cover locals, effects, conditional returns,
+      string values in integer functions, and return-only arms. Three
+      negative cases reject wrong function returns, incompatible arm values,
+      and missing final values. `tests/test_match_block_semantics.py` passes
+      on the C seed with rebuilt Stage 1 and again with rebuilt Stage 2.
+      The combined fixture and migrated match-bindings fixture execute from
+      `main`. My full self-hosted runner reports 15 passed, 0 failed, including
+      five import-path checks. A serial `make bootstrap3` passes its configured
+      gates, including operation without the C seed; native binaries still
+      differ. Type-inference, effects, NanoCore and parser-recovery gates pass.
+      These are tests, not a compiler correctness proof (2026-09-11).
+- [ ] **5.0 match control flow — full backend acceptance.** I still need
+      acceptance cases for nonlocal returns nested in operands and call
+      arguments, matches whose every arm exits, guarded/exhaustive matches,
+      aggregate and resource values, and NanoISA lowering. I must verify
+      arm-local scope and escaped ownership beyond directly yielded locals.
+      My bootstrap checker saves/restores function return context in sequential
+      global state; I must pass explicit context before enabling parallel or
+      reentrant checking. The scalar native cases do not complete this work.
+- [x] **5.0 self-hosted unary expressions.** I parse bare `not` and unary
+      minus at primary precedence, reusing my existing call and binary nodes.
+      Compiled parser assertions verify the grouping of `not false and true`.
+      The infix fixture now executes its arithmetic, comparison, logic, unary,
+      else-if and mixed-syntax assertions from `main`. It passes when compiled
+      by rebuilt Stage 1 and Stage 2. Full bootstrap passes; the self-hosted
+      suite improves to 13 passing entries and one failure, match bindings,
+      with all five import/helper regressions passing (2026-09-11).
+- [x] **5.0 parser recovery — failed prefix arguments.** During import-path work
+      I used `byte` (a type keyword) as a local name. My C seed diagnosed the
+      syntax error but then exited with a bus error while parsing the compiler
+      driver. I now reject the minimized malformed declarations without a signal.
+      The minimized failure is a prefix argument that cannot parse: the loop
+      appends NULL without advancing and doubles storage until signed overflow
+      (UBSan, `parse_prefix_op`). Both operator and function-call loops have
+      this pattern. My shared argument parser stops on failure/no progress,
+      checks allocation growth and frees prior arguments before returning failure.
+      `make test-parser-recovery` passes 13 CLI rejection cases and 10 direct
+      parser cases with lexer/parser ASan/UBSan instrumentation, including valid
+      list growth. Leak detection is disabled; linked runtime objects are not
+      instrumented. Module introspection, extern selection and parenthesized
+      parser gates also pass (2026-09-11). No full bootstrap was run here.
+- [x] **5.0 parser fuzzing — production API alignment.** My legacy
+      `tests/fuzzing/fuzz_parser.c` declares a TokenList-based `tokenize` and
+      `parse` API, while production uses `Token *tokenize(..., int *)` and
+      `parse_program`. I rebuilt the target against current headers and ran a
+      bounded corpus; an obsolete harness was not fuzz coverage.
+      The harness now includes production headers and shares one input path
+      between libFuzzer and its retained AFL++ entry point. `make fuzz-parser-check`
+      builds the harness/lexer/parser with coverage, ASan and UBSan and replays
+      four seeds. Installed LLVM clang passes replay and a 1000-run campaign
+      (`-seed=211 -max_len=4096 -timeout=5 -detect_leaks=0`, 2026-09-11).
+      Apple's clang lacks libFuzzer here; `FUZZ_CC` selects the installed LLVM.
+      Support/runtime objects are not instrumented; leak freedom, AFL++ build
+      validation and unbounded input coverage remain unestablished.
+- [ ] **5.0 C lowering — string length result type.** A direct comparison
+      between an `int` index and `(str_length line)` lowers to signed `int64_t`
+      versus unsigned `strlen`, failing the driver's `-Werror` build. An
+      explicitly typed local restores this call site. I must make builtin
+      lowering honor the language result type consistently and test it.
+- [x] **5.0 C-seed imports — decoded paths and safe line directives.** I decode
+      quoted import paths once, preserve unknown escapes as the evaluator does,
+      and reject NUL escapes before lookup. I encode filenames in generated
+      `#line` directives. All 24 module build regressions pass, including an
+      executable import whose filename contains quotes, backslashes, newline,
+      tab and carriage return, and NUL rejection before C compilation
+      (2026-09-11). Self-hosted and merger parity remain open above.
+      Module introspection, extern selection and parenthesized-parser gates
+      pass against the rebuilt C seed; no full bootstrap was run here.
+- [x] **5.0 generic-list generator — publication boundaries.** I stage both
+      generated files privately before replacing either published file, reject
+      type names that can escape the output directory, and test overlapping
+      generation and executable output. Individual file replacement is not a
+      transaction across a header/source pair; compiler-private generation
+      directories remain required for distinct type definitions.
+      Five tests pass: executable generated C in a quoted/space-containing
+      directory, rejected path-like type names, literal substitution of sed
+      metacharacters, failure preserving both previous files, and deterministic
+      overlapping generators that never expose templates. The checks run in
+      `test-impl`; shell syntax and six module-compiler tests pass (2026-09-11).
+- [x] **5.0 generic-list runtime — capacity boundaries.** My generator now
+      rejects negative/unrepresentable capacities, checks push/insert length
+      before addition, and clamps growth before signed or byte-size overflow.
+      Zero capacity starts with null data and grows on first insertion. I
+      preserve the existing fail-fast API rather than silently lose values.
+      Six generator tests pass, including compiled UBSan cases for negative
+      capacity, maximum-length push/insert, zero-capacity growth through 33
+      values, and a checked large allocation request intercepted without
+      allocating gigabytes (2026-09-11). This checks newly generated code,
+      not every checked-in runtime list implementation.
+- [x] **5.0 runtime lists — checked-in capacity correspondence.** I use
+      one internal checked-capacity helper across all 39 retained list
+      implementations, preserve their APIs, and support zero-capacity growth.
+      Each implementation passes five compiled UBSan scenarios: normal growth,
+      negative capacity, maximum-length push/insert, and intercepted large
+      growth. All six generator tests also pass. `make test-runtime-lists`
+      rebuilds the bootstrap and passes 33 AST-list and six non-AST-list
+      API/value tests (2026-09-11). The direct checks run in `test-impl`.
+      I removed the orphaned `list_ASTMatchClause` source/header: its struct
+      was absent from the schema, it was absent from RUNTIME_SOURCES, and
+      the old tests explicitly excluded it. Git preserves that unused pair.
+      These checks establish tested capacity behavior, not full heap safety.
+- [x] **5.0 runtime lists — string-copy allocation boundaries.** I check
+      string duplication before publishing an element or shifting insertion
+      slots, and copy replacements before freeing the old value. `set` now
+      accepts a value borrowed from itself or a substring without dangling
+      access. The API remains fail-fast, not recoverable allocation handling.
+      An ASan/UBSan harness intercepts that exit boundary and checks failed
+      push/insert/set, unchanged element pointers/content, successful aliased
+      updates, ownership transfer on removal/pop and zero remaining tracked
+      copies. All 39 list capacity cases also pass. The C seed rebuild and
+      normal 33 AST/six non-AST value tests against rebuilt runtime objects
+      pass (2026-09-11); I did not rerun the full bootstrap for this change.
+- [x] **5.0 audit defect — typed filter dispatch.** My executable callback
+      tests exposed float and string arrays routed to the integer filter
+      helper. I select the helper from the array element type and retain
+      native integer, float, and string callback regressions. The `filter`
+      spelling now shares `array_filter` dispatch. Both the C seed and a fresh
+      NanoLang compiler candidate compile and execute all 17 language programs,
+      including these callbacks (2026-09-11). General collection-expression
+      inference remains part of the wider typing audit. My installed stage-two
+      binary is unchanged; this is not a passing full `test-quick` gate.
+- [ ] **Formal audit — Sail adoption trial.** I record a sourced framework
+      decision, run a pinned Sail toolchain on a NanoISA stack/constant slice,
+      then extend it to schema-checked decoding and differential VM execution.
+      I test truncated encodings, unsupported instructions, stack underflow,
+      integer boundaries, branches, and traps before promoting any model to
+      an ISA authority. A typechecked smoke model alone does not complete this item.
+      `docs/FORMAL_TOOLING_DECISION.md` assesses all five tools and retains Rocq.
+      The pinned Sail 0.20.2 stack slice typechecks, generates C, compiles, and
+      passes seven smoke assertions via `bash scripts/check_sail_container.sh`
+      (2026-09-11). The same runner now checks the schema and matches production
+      `isa_decode` on 1,524 deterministic byte sequences; nine schema-drift tests
+      pass. The runner also matches NanoVM on 1,140 integer stack cases,
+      including 34 underflows and frames with locals (2026-09-11). Broader
+      execution semantics and prover exports remain unverified; this trial
+      is not a complete ISA model.
+- [x] **Formal audit — Sail/Rocq export boundary.** I exercise the pinned
+      Sail Rocq backend on my actual stack model, inspect its definitions and
+      required support-library imports, then pin that library and compile the
+      generated development with Rocq. Generation alone does not complete
+      this item; I also need checked model lemmas and assumption reports.
+      The first real export fails inside Sail 0.20.2 rewriting a literal-byte
+      list pattern (`Cannot infer type of: p0# :: rest`). I retain a
+      reproducible export-only command and test a type-explicit representation
+      before changing semantics or upgrading the pinned toolchain.
+      An explicit decoder input annotation reproduces the same error; I
+      reverted that ineffective experiment. MAC
+      `task_c692a020a81a4b11bea6d7c99f98689e` tracks export and proof checking.
+      A whole-pattern annotation also fails. Separating the opcode byte
+      from its payload before matching it now permits actual Rocq export.
+      The emitted decoder and executor import SailStdpp.
+      `--rocq-check` now provisions exact support-package versions in the
+      disposable proof container and attempts compilation, eight stack laws,
+      assumption reports, and independent `coqchk`.
+      I also make the runner reject missing or axiom-bearing assumption
+      reports, reusing the existing NanoCore checker with an explicit Sail
+      theorem inventory; printing assumptions alone is not a proof gate.
+      The first run compiled both generated files and all eight lemmas,
+      printed eight closed reports, and passed independent `coqchk`. A fresh
+      report also passed the shared checker. The outer shell failed after a
+      live edit of its runner; I require an unchanged-script rerun before
+      marking the end-to-end check complete. Twelve proof-gate tests pass.
+      The frozen rerun exited zero on 2026-09-11: generated definitions and
+      eight lemmas compiled, all eight named reports were closed and accepted
+      by the shared checker, and independent `coqchk` succeeded. Decoder
+      correctness and VM refinement remain separate, unproved obligations.
+- [x] **Formal audit defect — stack-slice underflow.** My unverified VM
+      silently accepted insufficient operands for `DUP`, `POP`, and `SWAP`.
+      These operations now trap without consuming locals or caller values.
+      All 736 NanoVM assertions pass, including underflow regressions with
+      empty and singleton operand stacks, locals, and a caller stack prefix.
+      Executable Sail agrees on 1,140 bounded integer stack cases; three
+      corpus tests check determinism, boundaries, and non-vacuous coverage.
+- [x] **Formal audit — Sail frame-extension law.** I prove that whenever
+      an instruction succeeds on its operand stack, appending arbitrary
+      caller-frame values leaves those values untouched in the result.
+      I require compilation against the generated executor, a closed named
+      assumption report and independent checking. This is a model theorem,
+      not production-VM refinement or a claim about failing instructions.
+      The first compilation rejects overloaded `++` as string concatenation
+      under Sail's imports. I use explicit `List.app` and require a fresh
+      proof-gate run; the theorem remains unchecked until that run succeeds.
+      The next run accepts the statement but rejects the case script's use
+      of `rest`. I explicitly destruct unit constructor payloads and stack
+      shapes in one case split; the revised proof still needs checking.
+      Its next run stops before proof compilation because the stdpp archive
+      server returns HTTP 429. I retain the revised proof as unverified and
+      defer another fetch rather than treating rate limiting as proof evidence.
+      The next unchanged-runner attempt exited zero (2026-09-11): generated
+      definitions and all nine lemmas compiled, all nine named assumption
+      reports were closed and accepted, and independent `coqchk` succeeded.
+      Twelve proof-gate, nine schema-drift and three VM-corpus tests also pass.
+      This establishes the stated success-only law of the five-instruction
+      model, not underflow preservation when a suffix is added or C VM
+      refinement. Broader Sail adoption remains open above.
+- [x] **Formal audit defect — indexed and rotating stack boundaries.** I
+      make `ROT3`, `PICK`, and `ROLL` check frame-relative operands before
+      mutation. My tests cover insufficient operands with locals and caller
+      prefixes, including indexed depths zero and 65,535, and check that
+      every surviving operand remains unchanged. `make test-nanovm` passes
+      1,360 assertions (2026-09-11). This does not close the broader audit.
+- [x] **Formal audit defect — fixed-effect operand preflight.** I check
+      fixed input requirements using existing ISA metadata before dispatch
+      of unverified instructions, before handlers can consume locals or caller
+      values. I test every operand-free primary instruction with a positive
+      fixed requirement on insufficient stacks, including preservation of
+      remaining operands. `make test-nanovm` passes 6,801 assertions
+      (2026-09-11). These tests rely on the declared metadata; they do not
+      prove that every handler agrees with it.
+- [x] **Formal audit defect — aggregate input bounds and capture width.**
+      I preflight frame-relative inputs for array, struct, union, tuple,
+      aggregate and closure construction before allocation or popping.
+      Insufficient-stack tests preserve locals, caller prefixes and remaining
+      operands. My closure loop now uses a full-width index; tests inspect
+      every capture at counts 0, 32,768, 32,769 and 65,535. `make test-nanovm`
+      passes 269,537 assertions (mostly capture tags and values), 2026-09-11.
+- [x] **Formal audit defect — partial aggregate allocation.** Struct and
+      union helpers release their headers and return null when a nonempty
+      field allocation fails, without changing allocation statistics. An
+      isolated test compiles the actual heap implementation with a failing
+      allocator and checks cleanup, legal zero-field allocations and recovery.
+      `make test-nanovm` passes, including this failure test (2026-09-11).
+- [x] **Formal audit — VM boundary integration regression run.** After my
+      stack and call-boundary changes, `make test-nanovirt
+      test-frontend-matrix test-scheme test-ml test-actor test-dataflow
+      test-object test-shell test-logic` exits zero (2026-09-11). These are
+      current frontend laboratory checks, not production runtime guarantees.
+- [x] **5.0 audit — post-hardening quick-gate checkpoint.** A fresh
+      `make test-quick` exits zero on 2026-09-11 with native sources through
+      `a2296993` unchanged during execution. Both bootstrap stages pass smoke
+      checks; the installed compiler runs without the C seed. All three
+      self-hosted component driver checks and 17 selected language tests pass,
+      followed by compiled parser, extern selection, introspection, dependency,
+      release-workflow and Forth evidence checks, 280 Forth example cases and
+      PTY liveness. The IDE binary compiles; graphical initialization is skipped
+      without `xvfb-run`/`timeout`, and interactive GLUT launch is not requested.
+      Native stage binaries differ. Canonical NanoISA equality, complete
+      release checks and the remaining audit findings are not completed by
+      this checkpoint.
+- [x] **Formal audit defect — aggregate allocation error propagation.**
+      Array, struct, union, tuple and closure constructors reject null before
+      consuming operands. My isolated failing-heap test executes these five
+      instructions and aggregate pack through the actual VM, checking memory
+      errors, preserved caller/locals/integer inputs and unchanged heap size
+      and object counts. `make test-nanovm` passes (2026-09-11). This does not
+      establish recovery from stack-growth failure or every allocation site.
+- [x] **Formal audit defect — stack reserve and embedding entry atomicity.**
+      I share an overflow-safe reserve helper between pushes and embedding
+      entry points. Entry calls reserve all local slots before mutation and
+      reject invalid parameter storage. An isolated actual-VM test checks
+      zero capacity, unrepresentable sizes, allocation failure without buffer
+      replacement, unchanged direct/invoke entry state and successful retry.
+      `make test-nanovm` passes with both allocation-failure suites (2026-09-11).
+- [x] **Formal audit defect — internal call-frame reservation.** Direct,
+      tail, indirect and linked calls reserve local slots before argument
+      moves, callable consumption, frame teardown or local initialization.
+      Injected growth failures preserve the stack buffer, caller frame,
+      caller values, locals, arguments and indirect callable. My actual-VM
+      failure suite and `make test-nanovm` pass (2026-09-11).
+- [x] **Formal audit defect — instruction output reservation.** I reserve
+      positive net stack growth before dispatch for declared fixed effects,
+      aggregate constructors and indexed stack operations. Failure-injection
+      tests cover push, duplication, indexed duplication and empty tuple/closure
+      construction without operand mutation or heap allocation. Addition on
+      a full stack succeeds without reallocation. `make test-nanovm` passes
+      (2026-09-11). The check relies on the stated instruction effects and
+      does not prove every handler's intermediate stack usage agrees.
+- [x] **Formal audit defect — foreign result capacity preflight.** I reserve
+      the result slot before producing a foreign-call trap. Four actual-VM
+      trap-boundary cases cover zero/one argument and void/non-void results:
+      failed required growth traps before dispatch, and reusable argument slots
+      need no allocation. The final result push also releases the result on
+      failure; that defensive path is not directly fault-injected here.
+      `make test-nanovm` passes (2026-09-11). The tests invoke no host function.
+- [x] **Formal audit defect — movable embedding arguments.** `vm_invoke`
+      snapshots borrowed arguments before stack growth and accepts complete
+      live stack slices. I reject stack-backed result destinations and stack
+      aliases in the ownership-transferring low-level call; `vm.h` documents
+      the distinction. An actual-VM test forces relocation with a string
+      argument, checks original/result reference counts, and checks failed
+      growth and invalid slices without ownership changes. `make test-nanovm`
+      passes (2026-09-11).
+- [x] **Formal audit defect — explicit array append failure.** Array append
+      returns a boolean and retains its input only on success. Production VM,
+      co-process, FFI and hashmap-array builders now check failure and discard
+      partial results. A real-VM injected growth failure preserves a boxed
+      string array and its references; retry succeeds and cleanup returns to
+      the baseline live-object count. NanoVM, 32 protocol, eight protocol-fuzz
+      and 18 FFI tests pass (2026-09-11). Not every builder failure branch has
+      a dedicated injection test. Typed arithmetic storage remains separate.
+- [x] **Formal audit defect — typed vector arithmetic.** I replaced eight
+      duplicated array/broadcast paths with one borrowed-input, owned-result
+      implementation. I validate participating element pairs before allocation,
+      preserve packed int/float results and boxed string/mixed results, release
+      temporary strings after insertion, and keep scalar operand order and the
+      shorter-array rule. Vector integer operations wrap without signed C
+      overflow; division is total at zero and `INT64_MIN / -1`.
+      Tests cover both opcode families, three operand shapes, five numeric
+      representations, strings and ownership, unsupported element pairs,
+      integer boundaries, empty results and injected allocation failure with
+      successful retry. `make test-nanovm` passes 272,125 assertions plus the
+      allocation-failure suites; all 18 FFI tests pass (2026-09-11).
+      This is tested implementation behavior, not a VM refinement proof.
+- [ ] **Formal audit — allocation failure boundaries.** I repaired explicit
+      array append failure and migrated production callers. Nested decode
+      ownership passes 32 protocol tests, including truncated nested messages,
+      single-owner decoded references and collection back to baseline.
+      Typed vector storage and temporary string ownership are repaired above.
+      Other constructors and handlers still need allocation-result checks,
+      preflight or ownership-safe failure propagation. Embedding arguments
+      follow the relocation/aliasing contract above. I require deterministic
+      failure tests before claiming recoverable memory exhaustion. I track
+      this with runtime boundary task
+      `task_0ba46839aee94135aaa99a9b7c207499`.
+- [x] **Formal audit defect — scalar arithmetic and string boundaries.**
+      Dynamic and typed integer ADD/SUB/MUL now use unsigned intermediates
+      for modulo-2^64 arithmetic. My prior assumption that the typed handlers
+      already avoided signed C overflow was wrong. Thirty scalar boundary
+      cases check both opcode families, including total division/remainder.
+      String creation/concatenation rejects unrepresentable allocation sizes;
+      concatenation checks length before payload access and avoids malloc(0).
+      Both scalar concatenation opcodes propagate allocation failure. Failed
+      initial intern-table allocation/insertion remains unpublished and can
+      recover on retry. Tests cover synthetic overflowing lengths without
+      payloads, empty strings, each temporary/result allocation, partial
+      vector string results, input references and baseline object recovery.
+      NanoVM passes 272,215 assertions plus allocation-failure suites; all
+      18 FFI and 32 protocol tests pass (2026-09-11). The VM suite also passes
+      with production vm.c/heap.c and its test driver compiled using
+      `-fsanitize=undefined -fno-sanitize-recover=undefined` at O3; other linked
+      objects were not instrumented. These tests do not establish complete
+      runtime safety or correspondence with the formal arithmetic model.
+- [x] **Formal audit defect — call argument boundaries.** Direct, tail,
+      linked-module, indirect and foreign calls check frame-relative operands
+      before consuming arguments or changing frames. Indirect calls retain
+      the callable on the operand stack until validation succeeds. Forty
+      malformed-call cases check insufficient arguments with locals and caller
+      prefixes, unchanged frame counts and preserved arguments/callables.
+      `make test-nanovm` passes 269,805 assertions (2026-09-11); most assertions
+      remain capture-value checks, not distinct call scenarios.
+- [x] **Formal audit defect — linked call signature correspondence.** I use
+      the existing linked verifier, not separate module verification, to
+      establish the unchecked-path flag. Linked calls also check declared
+      arity and result count against the target before frame mutation.
+      Regressions use individually valid modules with mismatched linked
+      signatures and check preserved operands and frames. I corrected an
+      existing string-call fixture that declared zero results instead of one.
+      `make test-nanovm` and `make test-nanoisa` pass (2026-09-11).
+- [ ] **Formal audit — remaining unchecked boundaries.** Dynamic-effect call
+      handlers still require their own count and shape checks. I audit the
+      remaining checked stack handlers, which still
+      return void or skip operations on some insufficient-operand paths.
+      I establish a consistent failure contract, preserve frame boundaries,
+      and test malformed modules through the embedding API before claiming
+      complete runtime underflow protection. MAC
+      `task_0ba46839aee94135aaa99a9b7c207499`.
+- [x] **Formal audit defect — missing evaluator theorem.** My formal README
+      advertised `eval_fn_sound` while `EvalFn.v` contained only selected case
+      lemmas. I implemented all aggregate cases and strong fuel induction,
+      connecting the earlier control-flow, binding, and operator proofs. The
+      general theorem now covers every expression constructor with no recursive
+      soundness premise. Twenty-two regression examples and all eleven libraries
+      pass `bash scripts/check_proofs_container.sh` on pinned Rocq 9.0.1
+      (2026-09-11), with 38 closed assumption reports and independent library
+      checking. Production correspondence, completeness, and extraction
+      correctness are not consequences of this theorem. MAC
+      `task_2b291a75ca2840519d47e08bf991c021`.
+- [x] **Formal audit defect — eager reference logical operators.**
+      `EvalFn.v` evaluated both operands of `OpAnd` and `OpOr`, unlike
+      `Semantics.v`. I restored short-circuit evaluation and added seven
+      regression examples in `EvalFnTests.v`, covering truth tables, skipped
+      effects and stuck operands, required effects, left-side effects, and
+      operand types. `eval_fn_and_short` / `eval_fn_or_short` prove skipped-RHS
+      behavior for arbitrary expressions. `eval_fn_sound_logic` proves operator
+      soundness conditional on recursive soundness. The full pinned proof gate
+      passes on 2026-09-11, including 22 closed assumption reports and independent
+      checking of all eleven libraries. General evaluator soundness was completed
+      separately in the item above.
+- [x] **Formal audit defect — clean proof build fails.** A fresh Rocq 9.0.1
+      build found an unhandled empty-list case in `tuple_nth_type`, now
+      repaired without changing its statement; `Soundness.v` compiles.
+      `Progress.v` now compiles after correcting the tuple-tail statement,
+      proving tuple-step target shape, and repairing tuple-index induction.
+      `Determinism.v` also compiles. I removed a stale empty-tuple tactic in
+      `Equivalence.v`. I restored omitted tuple cases in value transfer,
+      substitution compatibility, step simulation, symmetry, and transitivity;
+      I extended strong expression induction and substitution identities to
+      tuples, repaired tuple closure proofs, and used related elements for
+      tuple-index simulation. I repaired value destructuring in `EvalFn.v`
+      (conditional and string-index cases omitted the tuple constructor) and
+      simplification/rewrite failures in `Exhaustiveness.v`'s wildcard and
+      complete-or-pattern lemmas, previously excluded from the build.
+      On 2026-09-11, `bash scripts/check_proofs_container.sh` passes: all nine
+      proof modules plus `Assumptions.v` compile, all 19 named reports are
+      closed under the global context, and `rocqchk` independently checks the
+      compiled libraries and dependencies. General evaluator soundness was later
+      completed separately; production implementation correspondence remains open.
+- [x] **Formal audit tooling — checker command.** The pinned Rocq 9.0.1
+      image rejects `rocq chk`; its `rocq check` launcher fails to execute
+      the installed checker. I invoke `rocqchk` directly in the container
+      wrapper and documented command. The full gate passes on 2026-09-11.
+- [x] **Formal audit — enforce the proof gate.** I add an unfiltered PR/push
+      CI job using the pinned proof image, enforce the advertised theorem
+      types, and reject non-closed or missing assumption reports. I test the
+      gate's failure paths as well as the complete proof build. Eleven negative/
+      positive gate tests pass; the pinned build and independent checker pass
+      all twelve libraries and 43 closed reports on 2026-09-11. GitHub run
+      `34591153105` also passed in 2m22s. It identified checkout v4's deprecated
+      Node 20 runtime; I pin checkout v6 (Node 24) for the new job. Repository
+      branch-protection requirements remain a separate release-control check.
+- [ ] **5.0 audit — native runtime services.** I run a useful native
+      NanoLang service in a separate worker through typed NSI calls, with
+      scoped capabilities, restart supervision, tracing, and module packaging.
+      I expose mailboxes, monitoring, links, supervision, and upgrade behavior
+      through native NanoLang runtime APIs; laboratory frontends remain tests.
+      Acceptance exercises real operations, worker death, recovery, denied
+      authority, bounded queues, and version compatibility end to end.
+- [ ] **5.0 audit — FFI authority.** I resolve declared typed imports by
+      module identity, remove ambient symbol fallback from the secure path,
+      validate manifests, and isolate untrusted native code. I test symbol
+      collisions, undeclared imports, unload lifetime, and crash containment.
+- [ ] **5.0 audit — measured ergonomics.** I benchmark human authoring and
+      LLM generation/repair with representative programs and recorded compiler
+      diagnostics. I use correctness, repair rounds, and author feedback to
+      improve imports, operator grouping, shadow policy, and standard-library
+      consistency; I publish migrations for changed accepted syntax.
 - [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
       the only compiler product. Native AOT does not embed `nano_vm`.
       Public GitHub Release `v5.0.0` after 4.6 and this phase close.
       `docs/NANOISA_ONLY.md`.
+
+- [ ] **5.0 audit — enforceable release evidence.** I require successful
+      CI and review before merging, make lint and proof gates blocking, pin
+      build dependencies and Actions, and publish reproducible artifacts with
+      signed checksums, SBOMs, and provenance. I remove destructive release
+      synchronization and predictable temporary files, reconcile task evidence,
+      and verify clean installation and rollback before the public release.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and

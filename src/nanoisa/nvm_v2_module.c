@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "nvm_v2_sections.h"
+#include "isa.h"
 #include "nvm_format.h"   /* nvm_crc32 */
 
 /* One row per section we may emit, in ascending type order. */
@@ -189,9 +190,16 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
 
     for (uint32_t i = 0; i < m->imports.count; i++) {
         const NvmV2Import *im = &m->imports.items[i];
+        if (im->kind > NVM_V2_IMPORT_KIND_MAX) return NVM_V2_ERR_SECTION_TYPE;
         if (!index_ok(im->module_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
         if (!index_ok(im->symbol_name_idx, nc, false)) return NVM_V2_ERR_INDEX_RANGE;
         if (!index_ok(im->signature_idx, ns, false)) return NVM_V2_ERR_INDEX_RANGE;
+        if (im->kind == NVM_V2_IMPORT_ARTIFACT) {
+            const NvmV2Constant *path = &m->constants.items[im->module_name_idx];
+            if (path->tag != TAG_STRING || !path->length || !path->payload ||
+                path->payload[0] != '/' || memchr(path->payload, 0, path->length))
+                return NVM_V2_ERR_SECTION_TYPE;
+        }
     }
 
     for (uint32_t i = 0; i < m->links.count; i++) {

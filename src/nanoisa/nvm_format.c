@@ -146,6 +146,8 @@ void nvm_call_descriptors_reset(NvmModule *mod) {
  * ======================================================================== */
 
 uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length) {
+    if (!mod || (!str && length)) return UINT32_MAX;
+    if (!str) str = "";
     /* Deduplicate */
     for (uint32_t i = 0; i < mod->string_count; i++) {
         if (mod->string_lengths[i] == length &&
@@ -156,22 +158,33 @@ uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length) {
 
     /* Grow if needed */
     if (mod->string_count >= mod->string_capacity) {
-        uint32_t new_cap = mod->string_capacity * 2;
-        char **new_strs = realloc(mod->strings, new_cap * sizeof(char *));
-        uint32_t *new_lens = realloc(mod->string_lengths, new_cap * sizeof(uint32_t));
+        if (mod->string_capacity > UINT32_MAX / 2) return UINT32_MAX;
+        uint32_t new_cap = mod->string_capacity ? mod->string_capacity * 2 : 16;
+#if SIZE_MAX <= UINT32_MAX
+        if (new_cap > SIZE_MAX / sizeof(char *) || new_cap > SIZE_MAX / sizeof(uint32_t)) return UINT32_MAX;
+#endif
+        char **new_strs = malloc((size_t)new_cap * sizeof(char *));
+        uint32_t *new_lens = malloc((size_t)new_cap * sizeof(uint32_t));
         if (!new_strs || !new_lens) {
             free(new_strs);
             free(new_lens);
-            return 0; /* error */
+            return UINT32_MAX;
         }
+        if (mod->string_count) {
+            memcpy(new_strs, mod->strings, (size_t)mod->string_count * sizeof(char *));
+            memcpy(new_lens, mod->string_lengths, (size_t)mod->string_count * sizeof(uint32_t));
+        }
+        free(mod->strings);
+        free(mod->string_lengths);
         mod->strings = new_strs;
         mod->string_lengths = new_lens;
         mod->string_capacity = new_cap;
     }
 
     uint32_t idx = mod->string_count;
-    mod->strings[idx] = malloc(length + 1);
-    if (!mod->strings[idx]) return 0;
+    if ((size_t)length + 1 < length) return UINT32_MAX;
+    mod->strings[idx] = malloc((size_t)length + 1);
+    if (!mod->strings[idx]) return UINT32_MAX;
     memcpy(mod->strings[idx], str, length);
     mod->strings[idx][length] = '\0';
     mod->string_lengths[idx] = length;
@@ -270,11 +283,26 @@ void nvm_strip_debug_info(NvmModule *mod) {
 uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
                         uint32_t function_name_idx, uint16_t param_count,
                         uint8_t return_type, const uint8_t *param_types) {
+    if (!mod) return UINT32_MAX;
     if (mod->import_count >= mod->import_capacity) {
-        uint32_t new_cap = mod->import_capacity * 2;
-        NvmImportEntry *new_imp = realloc(mod->imports, new_cap * sizeof(NvmImportEntry));
-        uint8_t **new_pt = realloc(mod->import_param_types, new_cap * sizeof(uint8_t *));
-        if (!new_imp || !new_pt) return 0;
+        if (mod->import_capacity > UINT32_MAX / 2) return UINT32_MAX;
+        uint32_t new_cap = mod->import_capacity ? mod->import_capacity * 2 : 16;
+#if SIZE_MAX <= UINT32_MAX
+        if (new_cap > SIZE_MAX / sizeof(NvmImportEntry) || new_cap > SIZE_MAX / sizeof(uint8_t *)) return UINT32_MAX;
+#endif
+        NvmImportEntry *new_imp = malloc((size_t)new_cap * sizeof(NvmImportEntry));
+        uint8_t **new_pt = malloc((size_t)new_cap * sizeof(uint8_t *));
+        if (!new_imp || !new_pt) {
+            free(new_imp);
+            free(new_pt);
+            return UINT32_MAX;
+        }
+        if (mod->import_count) {
+            memcpy(new_imp, mod->imports, (size_t)mod->import_count * sizeof(NvmImportEntry));
+            memcpy(new_pt, mod->import_param_types, (size_t)mod->import_count * sizeof(uint8_t *));
+        }
+        free(mod->imports);
+        free(mod->import_param_types);
         mod->imports = new_imp;
         mod->import_param_types = new_pt;
         mod->import_capacity = new_cap;
@@ -285,12 +313,12 @@ uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
     mod->imports[idx].function_name_idx = function_name_idx;
     mod->imports[idx].param_count = param_count;
     mod->imports[idx].return_type = return_type;
+    mod->imports[idx].kind = NVM_IMPORT_FFI;
 
     if (param_count > 0 && param_types) {
         mod->import_param_types[idx] = malloc(param_count);
-        if (mod->import_param_types[idx]) {
-            memcpy(mod->import_param_types[idx], param_types, param_count);
-        }
+        if (!mod->import_param_types[idx]) return UINT32_MAX;
+        memcpy(mod->import_param_types[idx], param_types, param_count);
     } else {
         mod->import_param_types[idx] = NULL;
     }
@@ -425,6 +453,13 @@ uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx) {
 }
 
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
+    /* I cannot erase an exact binding or coprocess kind in legacy output. */
+    for (uint32_t i = 0; i < mod->import_count; i++) {
+        if (mod->imports[i].kind != NVM_IMPORT_FFI) {
+            if (out_size) *out_size = 0;
+            return NULL;
+        }
+    }
     /* Count sections we'll write */
     uint32_t nsections = 0;
     bool has_strings   = (mod->string_count > 0);
@@ -790,6 +825,7 @@ NvmModule *nvm_deserialize(const uint8_t *data, uint32_t size) {
                     mod->imports[idx].function_name_idx  = le_read_u32(sec_data + pos); pos += 4;
                     mod->imports[idx].param_count        = le_read_u16(sec_data + pos); pos += 2;
                     mod->imports[idx].return_type        = sec_data[pos++];
+                    mod->imports[idx].kind               = NVM_IMPORT_FFI;
 
                     if (pos + mod->imports[idx].param_count > sec_size) break;
 

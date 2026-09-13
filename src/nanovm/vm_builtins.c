@@ -139,6 +139,10 @@ int64_t vm_str_index_of(const char *haystack, const char *needle) {
     return nl_cstr_index_of(haystack, needle);
 }
 
+int64_t vm_str_last_index_of(const char *haystack, const char *needle) {
+    return nl_cstr_last_index_of(haystack, needle);
+}
+
 /* ── String building ──────────────────────────────────────────────── */
 
 char *vm_string_from_char(int64_t code) {

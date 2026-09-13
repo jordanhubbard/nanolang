@@ -19,7 +19,7 @@ import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 from "src_nano/typecheck.nano" import tc_str_starts_with, symbol_new, Symbol, NSType, TypeKind, type_void
 from "src_nano/transpiler.nano" import transp_str_ends_with
-from "std/fs.nano" import exists, read, cwd
+from "std/fs.nano" import exists, read, cwd, write, delete
 
 extern fn nl_os_getenv(_name: string) -> string
 
@@ -87,8 +87,8 @@ shadow module_cache_add {
     let updated: ModuleCache = (module_cache_add cache "test.nano")
     assert (== updated.count 1)
     assert (module_cache_contains updated "test.nano")
-    let retrieved: Parser = (module_cache_get updated "test.nano")
-    assert (== retrieved.token_count 0)
+    assert (== (array_length updated.paths) 1)
+    assert (== (at updated.parsers 0) "test.nano")
 }
 
 fn module_cache_get(cache: ModuleCache, path: string) -> Parser {
@@ -100,7 +100,7 @@ fn module_cache_get(cache: ModuleCache, path: string) -> Parser {
             let module_tokens: List<LexerToken> = (tokenize_string module_source path diags)
             let token_count: int = (list_LexerToken_length module_tokens)
             if (> token_count 0) {
-                return (parse_program module_tokens token_count module_source)
+                return (parse_program module_tokens token_count path)
             } else {
                 (print "")
             }
@@ -114,9 +114,21 @@ fn module_cache_get(cache: ModuleCache, path: string) -> Parser {
 
 shadow module_cache_get {
     let cache: ModuleCache = (module_cache_new)
-    let updated: ModuleCache = (module_cache_add cache "test.nano")
-    let retrieved: Parser = (module_cache_get updated "test.nano")
-    assert (== retrieved.token_count 10)
+    assert (== (module_cache_get cache "absent.nano").token_count 0)
+    let directory: string = (mktemp_dir "nano_module_cache_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let path: string = (+ directory "/fixture.nano")
+        assert (== (write path "fn answer() -> int { return 42 }") 0)
+        let updated: ModuleCache = (module_cache_add cache path)
+        let retrieved: Parser = (module_cache_get updated path)
+        assert (not (parser_has_error retrieved))
+        assert (== (parser_get_function_count retrieved) 1)
+        assert (== (parser_get_function retrieved 0).name "answer")
+        assert (== retrieved.file_name path)
+        assert (== (delete path) 0)
+        assert (== (delete directory) 0)
+    }
 }
 
 /* =============================================================================

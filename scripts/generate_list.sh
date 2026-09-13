@@ -15,10 +15,18 @@ fi
 TYPE_NAME="$1"
 OUTPUT_DIR="$2"
 TYPE_DEF="${3:-$TYPE_NAME}"  # Default to TypeName if not provided
+if [[ ! "$TYPE_NAME" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+    echo 'I require a C identifier as the list type name.' >&2
+    exit 1
+fi
 TYPE_NAME_UPPER=$(echo "$TYPE_NAME" | tr '[:lower:]' '[:upper:]')
 
-HEADER_FILE="$OUTPUT_DIR/list_$TYPE_NAME.h"
-SOURCE_FILE="$OUTPUT_DIR/list_$TYPE_NAME.c"
+# I never expose an unfinished template or share sed backup files with another
+# generator. Each rename publishes one complete file, not a two-file transaction.
+list_stage=$(mktemp -d "$OUTPUT_DIR/.nanolang-list.XXXXXX")
+trap 'rm -rf -- "$list_stage"' EXIT
+HEADER_FILE="$list_stage/list_$TYPE_NAME.h"
+SOURCE_FILE="$list_stage/list_$TYPE_NAME.c"
 
 # Generate header file
 cat > "$HEADER_FILE" << EOF
@@ -87,6 +95,7 @@ cat > "$SOURCE_FILE" << 'EOF'
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 /* Note: The actual struct nl_TYPENAME definition must be included */
 /* before this file in the compilation */
@@ -96,6 +105,11 @@ cat > "$SOURCE_FILE" << 'EOF'
 
 /* Helper: Ensure the list has enough capacity */
 static void ensure_capacity_TYPENAME(List_TYPENAME *list, int min_capacity) {
+    if (min_capacity < 0 || list->capacity < 0 ||
+        (size_t)min_capacity > SIZE_MAX / sizeof($TYPE_DEF)) {
+        fprintf(stderr, "I cannot represent this list capacity.\n");
+        exit(1);
+    }
     if (list->capacity >= min_capacity) {
         return;
     }
@@ -104,8 +118,16 @@ static void ensure_capacity_TYPENAME(List_TYPENAME *list, int min_capacity) {
     if (new_capacity == 0) {
         new_capacity = INITIAL_CAPACITY;
     }
+    if ((size_t)new_capacity > SIZE_MAX / sizeof($TYPE_DEF)) {
+        new_capacity = min_capacity;
+    }
     
     while (new_capacity < min_capacity) {
+        if (new_capacity > INT_MAX / GROWTH_FACTOR ||
+            (size_t)new_capacity > (SIZE_MAX / sizeof($TYPE_DEF)) / GROWTH_FACTOR) {
+            new_capacity = min_capacity;
+            break;
+        }
         new_capacity *= GROWTH_FACTOR;
     }
     
@@ -126,14 +148,18 @@ List_TYPENAME* nl_list_TYPENAME_new(void) {
 
 /* Create a new list with specified initial capacity */
 List_TYPENAME* nl_list_TYPENAME_with_capacity(int capacity) {
+    if (capacity < 0 || (size_t)capacity > SIZE_MAX / sizeof($TYPE_DEF)) {
+        fprintf(stderr, "I cannot represent this list capacity.\n");
+        exit(1);
+    }
     List_TYPENAME *list = malloc(sizeof(List_TYPENAME));
     if (!list) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
-    list->data = malloc(sizeof($TYPE_DEF) * capacity);
-    if (!list->data) {
+    list->data = capacity ? malloc(sizeof($TYPE_DEF) * (size_t)capacity) : NULL;
+    if (capacity && !list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
     }
@@ -146,6 +172,10 @@ List_TYPENAME* nl_list_TYPENAME_with_capacity(int capacity) {
 
 /* Append an element to the end of the list */
 void nl_list_TYPENAME_push(List_TYPENAME *list, $TYPE_DEF value) {
+    if (list->length < 0 || list->length == INT_MAX) {
+        fprintf(stderr, "I cannot grow this list length.\n");
+        exit(1);
+    }
     ensure_capacity_TYPENAME(list, list->length + 1);
     list->data[list->length] = value;
     list->length++;
@@ -170,6 +200,10 @@ void nl_list_TYPENAME_insert(List_TYPENAME *list, int index, $TYPE_DEF value) {
         exit(1);
     }
     
+    if (list->length == INT_MAX) {
+        fprintf(stderr, "I cannot grow this list length.\n");
+        exit(1);
+    }
     ensure_capacity_TYPENAME(list, list->length + 1);
     
     /* Shift elements to the right */
@@ -251,9 +285,12 @@ EOF
 
 # Replace TYPENAME and TYPE_DEF with actual values
 sed -i.bak "s|TYPENAME|$TYPE_NAME|g" "$SOURCE_FILE"
-sed -i.bak "s|\$TYPE_DEF|$TYPE_DEF|g" "$SOURCE_FILE"
-sed -i.bak "s|\$TYPE_NAME|$TYPE_NAME|g" "$HEADER_FILE"
-sed -i.bak "s|\$TYPE_DEF|$TYPE_DEF|g" "$HEADER_FILE"
+type_replacement=${TYPE_DEF//\\/\\\\}
+type_replacement=${type_replacement//&/\\&}
+type_replacement=${type_replacement//|/\\|}
+sed -i.bak "s|\$TYPE_DEF|$type_replacement|g" "$SOURCE_FILE"
 rm -f "$SOURCE_FILE.bak" "$HEADER_FILE.bak"
+mv -f -- "$HEADER_FILE" "$OUTPUT_DIR/list_$TYPE_NAME.h"
+mv -f -- "$SOURCE_FILE" "$OUTPUT_DIR/list_$TYPE_NAME.c"
 
 echo "Generated list_$TYPE_NAME.h and list_$TYPE_NAME.c in $OUTPUT_DIR"

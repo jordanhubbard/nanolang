@@ -102,6 +102,7 @@ const BuiltinEntry builtin_registry[] = {
     {"str_starts_with", "nl_str_starts_with", 2, {S,S,U,U}, B, OP_NOP, L|BUILTIN_PURE},
     {"str_ends_with",   "nl_str_ends_with",   2, {S,S,U,U}, B, OP_NOP, L|BUILTIN_PURE},
     {"str_index_of",    "nl_str_index_of",    2, {S,S,U,U}, I, OP_NOP, L|BUILTIN_PURE},
+    {"str_last_index_of", "nl_str_last_index_of", 2, {S,S,U,U}, I, OP_NOP, L|BUILTIN_PURE},
     {"str_replace",     "nl_str_replace",    3, {S,S,S,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_to_lower",    "nl_str_to_lower",   1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},
     {"str_to_upper",    "nl_str_to_upper",   1, {S,U,U,U}, S, OP_NOP, L|BUILTIN_PURE},

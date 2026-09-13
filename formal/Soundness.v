@@ -140,7 +140,8 @@ Proof.
   revert vs ts.
   induction i; intros vs ts v t HF2 Hv Ht.
   - inversion HF2; subst; simpl in *; inversion Hv; inversion Ht; subst; assumption.
-  - inversion HF2; subst; simpl in *; eapply IHi; eassumption.
+  - inversion HF2; subst; simpl in *; try discriminate.
+    eapply IHi; eassumption.
 Qed.
 
 (** ** Environment lookup agrees with context lookup *)

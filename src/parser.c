@@ -3,6 +3,7 @@
 #include "diag_id.h"
 #include <stdarg.h>
 #include <stdint.h>
+#include <limits.h>
 
 /* Maximum recursion depth to prevent stack overflow */
 #define MAX_RECURSION_DEPTH 1000
@@ -206,6 +207,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     sig->param_struct_names = NULL;
     sig->return_type = TYPE_UNKNOWN;
     sig->return_struct_name = NULL;
+    sig->return_fn_sig = NULL;
     
     /* Parse parameter types */
     tok = current_token(p);
@@ -1111,6 +1113,50 @@ static bool is_infix_binary_op(TokenType type) {
             type == TOKEN_AND || type == TOKEN_OR);
 }
 
+/* I publish an argument list only after every argument and its delimiter parse. */
+static ASTNode **parse_prefix_arguments(Stage1Parser *p, int *arg_count) {
+    int capacity = 4;
+    int count = 0;
+    ASTNode **args = malloc(sizeof(*args) * capacity);
+    *arg_count = 0;
+    if (!args) {
+        parser_error(p, 0, 0, "I cannot allocate prefix arguments.\n");
+        return NULL;
+    }
+    while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
+        if (count == capacity) {
+            if (capacity > INT_MAX / 2 || (size_t)capacity > SIZE_MAX / 2 / sizeof(*args)) {
+                parser_error(p, 0, 0, "I cannot represent this many prefix arguments.\n");
+                goto fail;
+            }
+            int next_capacity = capacity * 2;
+            ASTNode **grown = realloc(args, sizeof(*args) * (size_t)next_capacity);
+            if (!grown) {
+                parser_error(p, 0, 0, "I cannot grow prefix arguments.\n");
+                goto fail;
+            }
+            args = grown;
+            capacity = next_capacity;
+        }
+        int start = p->pos;
+        ASTNode *arg = parse_expression(p);
+        if (!arg) goto fail;
+        if (p->pos <= start) {
+            free_ast(arg);
+            parser_error(p, 0, 0, "I cannot parse a prefix argument without advancing.\n");
+            goto fail;
+        }
+        args[count++] = arg;
+    }
+    if (!expect(p, TOKEN_RPAREN, "Expected ')' after prefix arguments")) goto fail;
+    *arg_count = count;
+    return args;
+fail:
+    for (int i = 0; i < count; i++) free_ast(args[i]);
+    free(args);
+    return NULL;
+}
+
 /* Parse prefix operation: (op arg1 arg2 ...) */
 static ASTNode *parse_prefix_op(Stage1Parser *p) {
     Token *tok = current_token(p);
@@ -1137,22 +1183,9 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
         advance(p);
 
         /* Parse arguments */
-        int capacity = 4;
         int count = 0;
-        ASTNode **args = malloc(sizeof(ASTNode*) * capacity);
-
-        while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
-            if (count >= capacity) {
-                capacity *= 2;
-                args = realloc(args, sizeof(ASTNode*) * capacity);
-            }
-            args[count++] = parse_expression(p);
-        }
-
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after prefix operation")) {
-            free(args);
-            return NULL;
-        }
+        ASTNode **args = parse_prefix_arguments(p, &count);
+        if (!args) return NULL;
 
         ASTNode *node = create_node(AST_PREFIX_OP, line, column);
         node->as.prefix_op.op = op;
@@ -1178,21 +1211,10 @@ static ASTNode *parse_prefix_op(Stage1Parser *p) {
         char *func_name = strdup(tok->value ? tok->value : "unknown");
         advance(p);
 
-        int capacity = 4;
         int count = 0;
-        ASTNode **args = malloc(sizeof(ASTNode*) * capacity);
-
-        while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_EOF)) {
-            if (count >= capacity) {
-                capacity *= 2;
-                args = realloc(args, sizeof(ASTNode*) * capacity);
-            }
-            args[count++] = parse_expression(p);
-        }
-
-        if (!expect(p, TOKEN_RPAREN, "Expected ')' after function call")) {
+        ASTNode **args = parse_prefix_arguments(p, &count);
+        if (!args) {
             free(func_name);
-            free(args);
             return NULL;
         }
 
@@ -4758,7 +4780,7 @@ static ASTNode *inject_postconditions_at_return(ASTNode *return_node, ASTNode **
 }
 
 /* Returns true if an AST node type is a value-producing expression */
-static bool is_expression_node(ASTNodeType type) {
+bool ast_is_value_expression(ASTNodeType type) {
     switch (type) {
         case AST_NUMBER:
         case AST_FLOAT:
@@ -4773,10 +4795,7 @@ static bool is_expression_node(ASTNodeType type) {
         case AST_STRUCT_LITERAL:
         case AST_FIELD_ACCESS:
         case AST_UNION_CONSTRUCT:
-        /* AST_MATCH excluded: match arm bodies need the full TypeChecker context
-         * (current_function_return_type) for proper return-statement type checking.
-         * Wrapping match in an implicit return causes arms to be evaluated through
-         * check_expression with an uninitialised temp TypeChecker, breaking type inference. */
+        case AST_MATCH:
         case AST_TUPLE_LITERAL:
         case AST_TUPLE_INDEX:
         case AST_QUALIFIED_NAME:
@@ -4785,6 +4804,20 @@ static bool is_expression_node(ASTNodeType type) {
         default:
             return false;
     }
+}
+
+/* I recognize definite function exits, without assuming that loops terminate. */
+bool ast_always_returns(const ASTNode *node) {
+    if (!node) return false;
+    if (node->type == AST_RETURN) return true;
+    if (node->type == AST_IF)
+        return ast_always_returns(node->as.if_stmt.then_branch) &&
+               ast_always_returns(node->as.if_stmt.else_branch);
+    if (node->type == AST_BLOCK) {
+        for (int i = 0; i < node->as.block.count; i++)
+            if (ast_always_returns(node->as.block.statements[i])) return true;
+    }
+    return false;
 }
 
 /* Recursively inject implicit returns at tail positions of a block.
@@ -4801,7 +4834,7 @@ static void inject_implicit_return(ASTNode *block) {
     ASTNode *stmt = block->as.block.statements[last];
     if (!stmt) return;
 
-    if (is_expression_node(stmt->type)) {
+    if (stmt->type != AST_MATCH && ast_is_value_expression(stmt->type)) {
         /* Wrap bare expression in return */
         ASTNode *ret = create_node(AST_RETURN, stmt->line, stmt->column);
         ret->as.return_stmt.value = stmt;
@@ -5147,8 +5180,34 @@ static ASTNode *parse_import(Stage1Parser *p) {
     char *module_path = NULL;
 
     if (match(p, TOKEN_STRING)) {
-        /* module "module.nano" */
-        module_path = strdup(current_token(p)->value);
+        /* I decode path data once; expression strings remain raw in the AST. */
+        const char *raw = current_token(p)->value;
+        size_t length = strlen(raw);
+        module_path = malloc(length + 1);
+        if (!module_path) {
+            parser_error(p, line, column, "I cannot allocate this module path.\n");
+            return NULL;
+        }
+        size_t out = 0;
+        for (size_t i = 0; i < length; i++) {
+            char byte = raw[i];
+            if (byte == '\\' && i + 1 < length) {
+                byte = raw[++i];
+                switch (byte) {
+                    case 'n': byte = '\n'; break;
+                    case 't': byte = '\t'; break;
+                    case 'r': byte = '\r'; break;
+                    case '0':
+                        parser_error(p, line, column, "I cannot use a NUL byte in a module path.\n");
+                        free(module_path);
+                        return NULL;
+                    case '\\': case '\'': case '"': break;
+                    default: module_path[out++] = '\\'; break;
+                }
+            }
+            module_path[out++] = byte;
+        }
+        module_path[out] = '\0';
         advance(p);
     } else if (match(p, TOKEN_IDENTIFIER)) {
         /* module foo (treat as "modules/foo/foo.nano") */
@@ -5706,7 +5765,8 @@ void free_ast(ASTNode *node) {
             if (node->as.let.type_name) {
                 free(node->as.let.type_name);
             }
-            if (node->as.let.fn_sig) {
+            if (node->as.let.fn_sig &&
+                (!node->as.let.type_info || node->as.let.type_info->fn_sig != node->as.let.fn_sig)) {
                 free_function_signature(node->as.let.fn_sig);
             }
             if (node->as.let.type_info) {

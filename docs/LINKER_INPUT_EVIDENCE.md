@@ -1,0 +1,248 @@
+# My Foreign Linker Input Evidence
+
+My package flags now remain consistent within one build. That does not identify
+the library bytes those flags select. I reproduce the remaining cache defect
+and measure candidate linker records before choosing an implementation.
+
+```sh
+make obj/test_module_generation_probe
+python3 -m tests.characterize_linker_inputs
+```
+
+The optional argument selects a C compiler executable. I create temporary C
+objects and archives, exercise my production module builder, and load only the
+fixture libraries in fresh subprocesses. I print JSON observations. Exit zero
+means the experiment ran, not that cache acceptance passed. I do not require a
+known defect to remain present for this experiment to succeed.
+
+## Measured results
+
+On Darwin with Apple clang 21.0.0 (`clang-2100.1.1.101`) and linker `ld-1267`,
+against `212e6b10` on 2026-09-12:
+
+| Change | Cached library | Fresh link |
+| --- | --- | --- |
+| Unchanged inputs | 42; same generation reused | 42 |
+| Replace the selected static archive with different bytes, preserving size and timestamp | 42; same generation reused | 43 |
+| Add a library in an earlier `-L` directory without changing flags | 42; same generation reused | 44 |
+
+The original cache record exists but does not name the selected archive. These
+are actual stale function results, not just metadata differences. The flags,
+caller C source, compiler driver and preprocessing observations remain
+unchanged. Archive content and search-selection evidence are both needed.
+
+## Candidate records
+
+Adding `-Wl,-t` preserves the fixture's return values, but the output is not a
+lossless line-oriented file inventory. I observe archive-member notation such
+as `libselected.a(member.o)`. A directory containing a quote, space, literal
+backslash and newline links successfully and prints its literal newline in
+the trace. Splitting that trace into paths by newline loses the boundary.
+
+Adding `-Xlinker -dependency_info -Xlinker <file>` also preserves all five
+measured return values. Its binary records retain the unusual archive path as
+one tagged, NUL-terminated value. I observe:
+
+- Tag 0 with the linker version string.
+- Tag 16 with the selected archive, caller object and physical SDK `.tbd`
+  paths. The archive is named without the member suffix.
+- Tag 17 with absent library-search candidates, including the initially
+  missing earlier archive. After creating that archive, it appears under tag
+  16 instead.
+- Tag 64 with the output path.
+
+These are observations of this linker, not a version-independent format
+contract. My characterization decoder records the tags without using them to
+authorize reuse. JSON contains record counts, relevant fixture records, tool
+identity, selected system examples and trace excerpts; it is not a complete
+dump of every SDK search attempt.
+
+There is an important omission: when I supply the selected archive through a
+linker response file, the archive appears in the dependency record but the
+response file itself does not. I cannot treat this record alone as a complete
+inventory of flags and indirect inputs.
+
+My host's `ar rcsT` exits successfully but produces a regular archive, not one
+with thin-archive magic. I do not count that as thin-archive coverage. The
+experiment only runs its thin-archive link case when the produced format is
+actually thin. The non-Darwin dependency-file branch is not verified by this
+Darwin run.
+
+## Implementation requirements
+
+I need a compiler/linker-mode boundary that can establish selected library
+content and search state without silently changing the original link:
+
+- Capture original-link input evidence and hash selected external bytes,
+  including archive contents and applicable member dependencies.
+- Detect newly available earlier candidates, not only edits to previously
+  selected inputs. Negative search records need explicit validation.
+- Identify response files and other indirect flag inputs separately when the
+  linker omits them. A readable dependency record is not proof of completeness.
+- Validate the record format, full reads and literal path boundaries. Unknown
+  or incomplete evidence must not authorize reuse.
+- Preserve published generations on build/capture failure and verify recovery,
+  unchanged reuse and before/after input changes through actual execution.
+
+This is still not a snapshot of input bytes during the link. Nor does a hash
+of a linked dynamic library pin the runtime loader to those same bytes for an
+old executable. Runtime dependency retention, source snapshots, transitive
+tool identity and other compiler modes remain separate unfinished boundaries.
+
+## Darwin cache repair
+
+I request tagged dependency records from a private Darwin discovery link, then
+run the same command for the final link. I require equal input observations
+around that final link before recording reuse evidence. If discovery fails,
+I discard its record and retry the ordinary link; a successful fallback does
+not create reuse evidence. A failed final link fails the build and preserves
+the previous generation. I do not publish the discovery output instead.
+Malformed, truncated, unknown-tag or contradictory records also withhold reuse
+evidence. A cacheable cold build now uses two shared links; warm reuse skips
+both. Already uncacheable configurations do not acquire discovery links.
+
+I require a linker header, an input in my private build directory and the exact
+expected output record. I hash regular external inputs and record absent
+search candidates. Duplicate records must agree. I check those hashes and
+absences again before warm reuse. Paths remain literal strings, including
+newlines and backslashes; I do not parse archive-member display notation.
+Record paths are limited to 8191 bytes, with bounded record count and payload.
+
+The reproducer now returns 43 after the archive edit and 44 after the earlier
+candidate appears, while unchanged inputs retain their generation. These
+results have an acceptance test. Parser tests cover literal unusual paths,
+unknown/missing/truncated records, wrong outputs, missing or non-regular
+inputs, existing negative candidates and overlong paths. Unsupported capture,
+malformed capture, response-file bypass and recovery exercise actual builds.
+
+I also reproduce replacement during linking: after `5f15a029`, changing an
+archive after the link or during later preprocessing could store its new hash
+beside old code. I now retain the observation checked around the final link
+and validate it again before storing it. I never replace it with later hashes.
+Tests cover changes after discovery, after the final link and during later
+preprocessing, followed by recovery and warm reuse. A failed final link keeps
+the previous generation and does not trigger another link attempt.
+
+I conservatively withhold reuse evidence when the link command contains `@`;
+response-file inputs are not captured yet. This also excludes literal `@`
+characters that are not response-file syntax. I preserve ordinary compilation
+and linking for those commands. The check is not a general shell-input audit.
+
+This integration is Darwin-specific. Other linker formats remain open. Matching
+before/after observations are not an atomic snapshot of the bytes the linker
+read, and I do not yet capture changes that occur and revert during a build.
+The linker binary and arbitrary wrapper inputs also need separate identity.
+The full implementation requirements above remain in my roadmap and MAC task.
+
+## Linux / GNU ld evidence
+
+On 2026-09-12 I ran the same experiment against `ff7774a1` on Linux arm64,
+using GCC 12.2.0 (`Debian 12.2.0-14+deb12u1`) and GNU ld 2.40. I used the
+locally available `python:3.12-bookworm` image, immutable local image ID
+`sha256:581429e3df12d76e6af4be5ab7d0e7fc2013eb57dc23d2de691411c8efdbb970`.
+Networking was disabled, the source mount was read-only, and build storage was
+disposable. I installed no packages. My [normalized JSON observations](evidence/linux-gcc12-ld240-linker.json)
+retain dependency-file contents and trace excerpts.
+
+| Change | Cached result | Fresh link |
+| --- | --- | --- |
+| Unchanged inputs | 42; same generation | 42 |
+| Same-size, same-timestamp selected archive edit | 42; same generation | 43 |
+| New earlier library candidate | 42; same generation | 44 |
+
+The Linux cache writes a reusable record without the selected archive. This
+is a reproduced defect, not a passing invalidation test.
+
+GNU ld accepts `--dependency-file` in this image, but the observed file is not
+enough to close the gap:
+
+- It records the selected archive, but not the absent earlier candidate.
+- It records the archive supplied through a response file, but not that
+  response file itself.
+- The unusual archive pathname contains its literal space, backslash and
+  newline in the file. I cannot treat it as an escaped Make token inventory.
+- GNU `ar rcsT` produces an actual thin archive. The dependency file records
+  that archive but omits the external `member.o` it selects. The trace names
+  the member, but retains the separate line-boundary problem.
+
+Plain, traced and dependency-record links preserve the fixture answers. That
+establishes observed output behavior, not completeness of either record.
+Selected-input hashing alone cannot detect a newly earlier candidate, and
+hashing only thin-archive container bytes cannot track an omitted member.
+The GNU implementation must address these requirements before I call reuse
+safe; I have not enabled a dependency-file-only approximation.
+
+To repeat the experiment with that image already present locally:
+
+```sh
+docker run --rm --pull never --network none \
+  --mount type=bind,src="$PWD",dst=/source,readonly \
+  --tmpfs /work:exec,size=512m -w /work \
+  sha256:581429e3df12d76e6af4be5ab7d0e7fc2013eb57dc23d2de691411c8efdbb970 \
+  sh -c 'cp -R /source/src /source/tests . && mkdir obj &&
+    cc -Wall -Wextra -Werror -std=c99 -O1 -D_GNU_SOURCE -Isrc \
+      -o obj/test_module_generation_probe tests/test_module_generation_probe.c \
+      src/cJSON.c src/utf8.c src/runtime/module_build_dir.c \
+      src/runtime/ffi_loader.c -lm -lcrypto -pthread -ldl &&
+    python3 -m tests.characterize_linker_inputs'
+```
+
+I separately rebuilt that probe with `-O3` and passed six cache-boundary
+methods: nonregular generation entries, symlink-safe cleanup, publication
+barrier failures/retry, ancestor barriers, the 28-case process-crash matrix,
+and surviving compiler children in local/shared caches. These are Linux
+builder results, not a full Linux compiler/VM gate or a sanitizer result.
+
+## Linux link-result repair
+
+I now validate source-cache hits with the actual linker. I link the retained
+native and shared-only objects into private staging using the same command
+recipe as a cold build, then compare the library bytes with the published
+library. Equal output retains the generation and avoids C compilation. Changed
+output triggers rebuilding. Failed links fail the build without another link
+attempt or publication; the previous generation remains usable.
+
+The archive/search reproducer now returns 43 and 44 and retains its generation
+when unchanged. Additional tests replace a thin member without changing archive
+bytes, change a response file, and use a quoted archive pathname containing a
+newline and backslash. A counted multi-source/shared-only fixture verifies three
+initial C compilations, no additional warm C compilation, one warm link, failure
+preservation and recovery. File-comparison tests reject different, empty,
+missing, symlink and FIFO inputs.
+
+The unusual pathname also exposed whitespace tokenization of supplied flag
+fragments. I preserve those fragments intact and in order now; the shell still
+interprets this trusted configuration. The same cold/warm unusual-path test
+runs on Darwin. My v14 build context invalidates older flag-splitting behavior.
+
+This costs one shared link per warm Linux build. It is deliberately a
+link-result check, not a claim that I captured every input byte or took an
+atomic snapshot. I have not replaced the remaining GNU input-identity work
+with a claim about dependency-file completeness. Runtime dynamic-library
+retention and nondeterministic-link performance remain separate concerns.
+
+## Linux compiler and VM acceptance
+
+On 2026-09-12 I expanded verification from the standalone builder probe to
+the actual compiler and VM. I exported commit `3b034eff` into a disposable
+container using the same image ID above, with 2 GiB of executable tmpfs and
+no host mounts. I installed `PyYAML==6.0.2` for schema generation inside that
+container, then disconnected its bridge network before building and testing.
+The image supplied libffi 3.4.4 and OpenSSL 3.0.20.
+
+The clean GCC `-O3 -Werror` build found metadata identifier truncation through
+a 2048-byte formatting buffer. I copied the repaired serializer and its
+3,000-character identifier regression into the container and reran:
+
+```sh
+make -j4 nano_virt nano_vm
+make test-module-metadata test-bytecode-shadows test-module-dep-recheck \
+  test-wrapper-gen test-nanovirt test-vm-ffi
+```
+
+Both commands exited successfully. I passed 18 metadata tests, 28 shadows,
+45 cache tests with 8 platform-specific skips, all 4 Linux linker tests,
+dependency rechecks, 5 wrapper link tests, 7 wrapper boundary tests, 63 codegen
+tests and 19 FFI tests. The skipped cache tests are not Linux evidence. These
+CLI/runtime gates extend the earlier probe results; they do not establish
+whole-roadmap completion, complete input snapshots, or release readiness.
