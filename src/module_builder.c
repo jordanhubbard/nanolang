@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v39-unit-debug-phase");
+    hash_context_field(&hash, "nanolang-c-build-context-v40-unit-source-basename");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3859,6 +3859,58 @@ static bool module_assembler_version_supported(const char *version) {
 }
 #endif
 
+/* My aliases live only while building or validating. Each unit gets its own
+ * directory, so equal source basenames never share a retained input. */
+static bool module_unit_input(ModuleBuildMetadata *meta, const char *directory,
+                               size_t group, size_t index, char *input, size_t capacity,
+                               char *parent, size_t parent_capacity) {
+    const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
+    const char *basename = strrchr(source, '/');
+    basename = basename ? basename + 1 : source;
+    char unit[80] = {0}, retained[80] = {0};
+    input[0] = parent[0] = 0;
+    if (!*basename || !strcmp(basename, ".") || !strcmp(basename, "..") ||
+        !module_build_append(unit, sizeof(unit), "__unit_%zu_%zu", group, index) ||
+        !module_build_append(retained, sizeof(retained), "__snapshot_%zu_%zu.s", group, index) ||
+        !module_build_append(parent, parent_capacity, "%s/%s", directory, unit) ||
+        !module_build_append(input, capacity, "%s/%s", parent, basename)) return false;
+    int stage = open(directory, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (stage < 0) return false;
+    bool ok = mkdirat(stage, unit, 0700) == 0 || errno == EEXIST;
+    int alias = ok ? openat(stage, unit, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW) : -1;
+    int from = alias >= 0 ? openat(stage, retained, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK) : -1;
+    struct stat st;
+    ok = from >= 0 && fstat(from, &st) == 0 && S_ISREG(st.st_mode) &&
+        st.st_size >= 0 && (uint64_t)st.st_size <= 32ULL * 1024 * 1024;
+    if (ok && unlinkat(alias, basename, 0) != 0 && errno != ENOENT) ok = false;
+    int to = ok ? openat(alias, basename, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW, 0600) : -1;
+    if (to < 0) ok = false;
+    size_t total = 0;
+    unsigned char bytes[8192];
+    while (ok) {
+        ssize_t amount = read(from, bytes, sizeof(bytes));
+        if (amount < 0 && errno == EINTR) continue;
+        if (amount < 0) { ok = false; break; }
+        if (!amount) break;
+        if ((size_t)amount > 32ULL * 1024 * 1024 - total) { ok = false; break; }
+        total += (size_t)amount;
+        size_t sent = 0;
+        while (sent < (size_t)amount) {
+            ssize_t written = write(to, bytes + sent, (size_t)amount - sent);
+            if (written < 0 && errno == EINTR) continue;
+            if (written <= 0) { ok = false; break; }
+            sent += (size_t)written;
+        }
+    }
+    if (ok) ok = total == (uint64_t)st.st_size && fchmod(to, 0400) == 0;
+    if (to >= 0 && close(to) != 0) ok = false;
+    if (from >= 0 && close(from) != 0) ok = false;
+    if (!ok && alias >= 0 && to >= 0) (void)unlinkat(alias, basename, 0);
+    if (alias >= 0 && close(alias) != 0) ok = false;
+    if (close(stage) != 0) ok = false;
+    return ok;
+}
+
 /* I retain standalone debug-option ownership without replaying C diagnostics. */
 static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                          const char *source, const char *directory,
@@ -3935,11 +3987,10 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
  * never in the compiler driver, preprocessor, linker or calling process. */
 static bool module_read_command(char *command, size_t capacity, const char *prefix,
                                  const char *directory, size_t group, size_t index,
-                                 const char *object, bool capture) {
-    char input[2048] = {0}, record[2048] = {0}, tools[2048] = {0};
+                                 const char *object, const char *input, bool capture) {
+    char record[2048] = {0}, tools[2048] = {0};
     command[0] = 0;
-    return module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.s", directory, group, index) &&
-        module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, index) &&
+    return module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, index) &&
         module_build_append(tools, sizeof(tools), "%s/", directory) &&
         module_build_append(command, capacity, "NANO_AS_CAPTURE_PHASE=%s", capture ? "capture" : "replay") &&
         module_append_path_flag(command, capacity, "NANO_AS_CAPTURE_PREFIX=", record) &&
@@ -4178,23 +4229,26 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
         for (size_t i = 0; ok && i < count; i++) {
             char input[2048] = {0}, assembly[2048] = {0}, object[2048] = {0}, record[2048] = {0};
             const char *source = group ? meta->shared_c_sources[i] : meta->c_sources[i];
-            char unit_prefix[4096];
+            char unit_prefix[4096], alias[2048] = {0}, parent[2048];
             const char *selected = assemble;
-            if (module_source_kind(source) > 1) {
-                ok = module_unit_assembly_prefix(meta, flags, source, directory, unit_prefix, sizeof(unit_prefix));
-                selected = unit_prefix;
-            }
             command[0] = 0;
             ok = ok && module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
                 module_build_append(assembly, sizeof(assembly), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
                 module_build_append(object, sizeof(object), "%s/__as_capture_%zu_%zu.o", directory, group, i) &&
                 module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i) &&
-                module_prepare_assembly(meta, retained, input, assembly, group, i) &&
-                module_read_command(command, sizeof(command), selected, directory, group, i, object, true) &&
-                !system(command);
+                module_prepare_assembly(meta, retained, input, assembly, group, i);
+            const char *selected_input = assembly;
+            if (ok && module_source_kind(source) > 1) {
+                ok = module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent)) &&
+                    module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix));
+                selected = unit_prefix;
+                selected_input = alias;
+            }
+            if (ok) ok = module_read_command(command, sizeof(command), selected, directory, group, i,
+                                             object, selected_input, true) && !system(command);
             unsigned captured = 0;
             uint64_t hash = 0;
-            if (ok) ok = nac_load(record, assembly, reads, &captured, &hash);
+            if (ok) ok = nac_load(record, selected_input, reads, &captured, &hash);
             if (ok) {
                 snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
                 hash_context_field(&bytes.hash, digest);
@@ -4442,19 +4496,19 @@ static bool module_snapshot_command(ModuleBuildMetadata *meta, const ModulePkgFl
     /* Standalone units bypass C lowering, so their debug selector belongs to
      * final assembly. C-generated assembly already contains its debug data. */
     const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
-    char unit_prefix[4096];
+    char unit_prefix[4096], snapshot[2048] = {0}, parent[2048];
+    bool assembly = mode != MODULE_SNAPSHOT_GCC;
+    if (!module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.%s", directory, group, index,
+                              assembly ? "s" : "i")) return false;
     if (module_source_kind(source) > 1 && mode != MODULE_SNAPSHOT_GCC) {
-        if (!module_unit_assembly_prefix(meta, flags, source, directory, unit_prefix, sizeof(unit_prefix))) return false;
+        if (!module_unit_input(meta, directory, group, index, snapshot, sizeof(snapshot), parent, sizeof(parent)) ||
+            !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix))) return false;
         prefix = unit_prefix;
     }
     if (mode == MODULE_SNAPSHOT_GCC_REPLAY)
-        return module_read_command(command, capacity, prefix, directory, group, index, object, false);
-    char snapshot[2048] = {0};
-    bool assembly = mode == MODULE_SNAPSHOT_CLANG || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY;
+        return module_read_command(command, capacity, prefix, directory, group, index, object, snapshot, false);
     command[0] = 0;
-    return module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.%s", directory, group, index,
-                               assembly ? "s" : "i") &&
-        module_build_append(command, capacity, "%s%s -x %s", prefix,
+    return module_build_append(command, capacity, "%s%s -x %s", prefix,
                             group && !assembly ? " -fvisibility=hidden" : "", assembly ? "assembler" : "cpp-output") &&
         module_append_path_flag(command, capacity, "", snapshot) &&
         module_append_path_flag(command, capacity, "-o ", object);
@@ -5206,6 +5260,53 @@ static bool module_validate_artifacts(const char *stage, ModuleBuildMetadata *me
     return true;
 }
 
+/* I remove only my reserved one-level alias directories. I never traverse
+ * substituted symlinks or make arbitrary nested trees publishable. */
+static bool module_remove_unit_aliases_fd(int parent) {
+    int fd = openat(parent, ".", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0) return false;
+    DIR *dir = fdopendir(fd);
+    if (!dir) { close(fd); return false; }
+    bool ok = true;
+    struct dirent *entry;
+    errno = 0;
+    while ((entry = readdir(dir))) {
+        const char *name = entry->d_name;
+        if (strncmp(name, "__unit_", 7) || (name[7] != '0' && name[7] != '1') || name[8] != '_' ||
+            !name[9] || strspn(name + 9, "0123456789") != strlen(name + 9)) continue;
+        int child = openat(fd, name, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        if (child < 0) {
+            if (unlinkat(fd, name, 0) != 0) ok = false;
+            errno = 0;
+            continue;
+        }
+        DIR *contents = fdopendir(child);
+        if (!contents) { close(child); ok = false; errno = 0; continue; }
+        struct dirent *file;
+        errno = 0;
+        while ((file = readdir(contents))) {
+            if (!strcmp(file->d_name, ".") || !strcmp(file->d_name, "..")) continue;
+            if (unlinkat(child, file->d_name, 0) != 0) ok = false;
+            errno = 0;
+        }
+        if (errno) ok = false;
+        if (closedir(contents) != 0) ok = false;
+        if (unlinkat(fd, name, AT_REMOVEDIR) != 0) ok = false;
+        errno = 0;
+    }
+    if (errno) ok = false;
+    if (closedir(dir) != 0) ok = false;
+    return ok;
+}
+
+static bool module_remove_unit_aliases(const char *stage) {
+    int fd = open(stage, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0) return errno == ENOENT;
+    bool ok = module_remove_unit_aliases_fd(fd);
+    if (close(fd) != 0) ok = false;
+    return ok;
+}
+
 static void module_remove_staging(const char *stage) {
     /* I never follow a substituted staging symlink. All entry removal stays
      * relative to this descriptor even if the directory is renamed. */
@@ -5214,6 +5315,7 @@ static void module_remove_staging(const char *stage) {
         if (errno != ENOENT) fprintf(stderr, "I retained private build files in %s\n", stage);
         return;
     }
+    (void)module_remove_unit_aliases_fd(fd);
     DIR *dir = fdopendir(fd);
     if (!dir) {
         close(fd);
@@ -5344,6 +5446,7 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
                     strcmp(info->link_flags[object_index], info->object_file) != 0)) object_index++;
             bool ok = paths_ok && object && link_object &&
                 object_index < info->link_flags_count &&
+                module_remove_unit_aliases(stage) &&
                 module_validate_artifacts(stage, meta);
             if (ok && context_before && preprocessing_before &&
                 preprocessing_before == module_preprocess_fingerprint(meta, flags->linker_grammar ? flags : NULL) &&

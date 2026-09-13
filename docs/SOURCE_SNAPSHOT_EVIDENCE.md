@@ -2508,3 +2508,46 @@ precedence, macro reads, include-flag phases, restored standalone inputs and
 cache recovery. Python syntax, whitespace and six-edition guide checks pass.
 I did not run the full Darwin release gate or claim native debug provenance
 complete. The parent roadmap item stays open.
+
+### Original-basename aliases in production
+
+Context v40 assembles standalone units through
+`__unit_<group>_<index>/<original-basename>`. Each file is a bounded regular
+copy of the retained snapshot, not a read of the live original. Directory and
+file opens are descriptor-relative, refuse symlinks and avoid blocking on a
+substituted FIFO. The completed copy is read-only. Separate unit directories
+prevent equal basenames from sharing bytes. GNU capture and replay use the
+same alias pathname, including the manifest's first-input check.
+
+These directories are temporary. Before artifact validation and publication,
+I remove reserved one-level aliases, then retain the existing flat-file
+durability barrier. Failed builds and private validation remove aliases using
+the opened staging descriptor; a substituted pathname does not redirect
+cleanup. Unexpected nested directories remain untouched and unpublishable.
+I do not add general recursive cleanup or persistent nested cache storage.
+
+The simple GCC 12.2/GNU as 2.40 fixtures now produce byte-identical native
+objects and matching complete decoded debug data for `.s` and `.S` in both
+cache roots. All four cases reuse generations and publish no alias
+directories. Darwin retains original basenames, debug sections and reuse,
+but its canonical directory spelling still differs from the native control.
+Expanded macro line locations and integrated debug replay remain open.
+
+New lifecycle checks cover duplicate basenames with distinct bytes, read-only
+copies, source symlinks/FIFOs/directories, alias directory/file symlinks,
+unexpected nested entries, and unchanged publication rejection before alias
+removal. Failed final assembly is tested for ordinary/shared units and both
+cache roots: the old generation and its bytes remain usable, staging files
+are removed, recovery produces the edited value, and the new generation
+reuses. Existing restored-input tests still exercise replacement/deletion
+after capture.
+
+Final v40 validation: strict compiler/probe builds pass on Darwin and Linux.
+The Linux `make test-bytecode-shadows` gate passes 225 methods with 25 skips;
+its 84-method snapshot suite takes 98.901 seconds with 16 platform skips.
+Nine focused Darwin methods pass in 132.927 seconds, including the existing
+staging-path substitution cleanup check. Three alias lifecycle/failure methods
+pass in 30.488 seconds with ASan/UBSan and leak detection, with no report
+files; this instruments the builder/probe, not child compilers or every
+support object. Python syntax, whitespace and six-edition guide checks pass.
+I have not established complete nested-source or cross-backend debug parity.

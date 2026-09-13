@@ -228,6 +228,128 @@ class SourceSnapshots(unittest.TestCase):
                 self.support.probe_path("build", module, env, timeout=20)
                 self.assertEqual(self.support.probe_path("directory", module, env), recovered)
 
+    def test_standalone_original_basename_and_flat_publication(self):
+        from tests.characterize_assembler_debug import measure as measure_debug
+        for case in measure_debug(shutil.which("cc"))["cases"]:
+            with self.subTest(suffix=case["suffix"], cache=case["cache"]):
+                self.assertEqual(case["published_unit_aliases"], [])
+                self.assertTrue(case["production"]["source_named"])
+                self.assertFalse(case["production"]["private_snapshot_named"])
+                self.assertTrue(case["generation_reused"])
+                if sys.platform == "linux":
+                    self.assertEqual(case["production"], case["native"])
+                    self.assertTrue(case["production_object_identical"])
+
+    def test_unit_alias_copy_isolation_and_cleanup(self):
+        with tempfile.TemporaryDirectory(prefix="nano-unit-alias-") as tmp:
+            stage = Path(tmp) / "stage"
+            stage.mkdir()
+            paths = []
+            for index in range(2):
+                (stage / f"__snapshot_0_{index}.s").write_bytes(bytes([42 + index]))
+                result = subprocess.run([str(self.support.probe), "unit-input", str(stage),
+                                         f"/original/{index}/same name.s", str(index)], capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                paths.append(Path(result.stdout.decode().strip()))
+            self.assertNotEqual(paths[0], paths[1])
+            self.assertEqual([p.read_bytes() for p in paths], [b"*", b"+"])
+            self.assertTrue(all(p.name == "same name.s" and p.stat().st_mode & 0o777 == 0o400 for p in paths))
+            result = subprocess.run([str(self.support.probe), "sync-generation", str(stage)], capture_output=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            result = subprocess.run([str(self.support.probe), "remove-unit-aliases", str(stage)], capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(sorted(p.name for p in stage.iterdir()), ["__snapshot_0_0.s", "__snapshot_0_1.s"])
+            nested = stage / "__unit_0_0" / "unexpected"
+            nested.mkdir(parents=True)
+            valuable = nested / "keep"
+            valuable.write_bytes(b"I require explicit recursive cleanup.")
+            result = subprocess.run([str(self.support.probe), "remove-unit-aliases", str(stage)], capture_output=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(valuable.read_bytes(), b"I require explicit recursive cleanup.")
+            result = subprocess.run([str(self.support.probe), "sync-generation", str(stage)], capture_output=True, timeout=10)
+            self.assertNotEqual(result.returncode, 0)
+
+    def test_unit_aliases_do_not_follow_substituted_paths(self):
+        for kind in ("source-link", "source-fifo", "source-directory", "alias-directory-link", "alias-file-link"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-unit-safe-") as tmp:
+                root = Path(tmp)
+                stage = root / "stage"
+                stage.mkdir()
+                external = root / "external"
+                external.mkdir()
+                valuable = external / "payload.s"
+                valuable.write_bytes(b"I remain outside the build.")
+                retained = stage / "__snapshot_0_0.s"
+                alias = stage / "__unit_0_0"
+                if kind == "source-link": retained.symlink_to(valuable)
+                elif kind == "source-fifo": os.mkfifo(retained)
+                elif kind == "source-directory": retained.mkdir()
+                else:
+                    retained.write_bytes(b"*")
+                    if kind == "alias-directory-link": alias.symlink_to(external, target_is_directory=True)
+                    else:
+                        alias.mkdir()
+                        (alias / "payload.s").symlink_to(valuable)
+                result = subprocess.run([str(self.support.probe), "unit-input", str(stage),
+                                         "/original/payload.s", "0"], capture_output=True, timeout=5)
+                self.assertEqual(result.returncode == 0, kind == "alias-file-link", result.stderr)
+                self.assertEqual(valuable.read_bytes(), b"I remain outside the build.")
+                if kind == "alias-file-link": self.assertEqual((alias / "payload.s").read_bytes(), b"*")
+                result = subprocess.run([str(self.support.probe), "remove-unit-aliases", str(stage)],
+                                        capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertFalse(alias.exists())
+                self.assertEqual(valuable.read_bytes(), b"I remain outside the build.")
+
+    def test_unit_alias_failed_build_retains_published_generation(self):
+        for shared_unit in (False, True):
+            for shared_cache in (False, True):
+                with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache), tempfile.TemporaryDirectory(prefix="nano-unit-failure-") as tmp:
+                    root = Path(tmp)
+                    module, _, env = self.support.support.foreign_build_fixture(root)
+                    if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
+                    symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                    source = module / "payload.s"
+                    assembly = f'.data\n.globl {symbol}\n{symbol}:\n.byte 42\n'
+                    source.write_text(assembly)
+                    (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
+                        'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')
+                    metadata = {"name": "answer_native", "c_sources": ["answer.c"],
+                                "cflags": ["-g"] + (["-fno-integrated-as"] if self.clang else [])}
+                    if shared_unit: metadata["shared_c_sources"] = [str(source)]
+                    else: metadata["c_sources"].append(source.name)
+                    (module / "module.json").write_text(json.dumps(metadata))
+                    wrapper = root / "cc-wrapper"
+                    wrapper.write_text(f'#!{sys.executable}\nimport os,sys\n'
+                        'if os.environ.get("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
+                        'any("/__unit_" in arg and arg.endswith("/payload.s") for arg in sys.argv):\n'
+                        '    print("I failed final unit assembly", file=sys.stderr)\n    sys.exit(1)\n'
+                        f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
+                    wrapper.chmod(0o700)
+                    env["NANO_CC"] = str(wrapper)
+                    self.support.probe_path("build", module, env, timeout=30)
+                    first = self.support.probe_path("directory", module, env)
+                    library = self.support.probe_path("library", module, env)
+                    saved = library.read_bytes()
+                    source.write_text(assembly.replace("42", "43"))
+                    env["NANO_TEST_UNIT_FAIL"] = "1"
+                    result = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
+                                            capture_output=True, timeout=30)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(b"I failed final unit assembly", result.stderr)
+                    self.assertEqual(self.support.probe_path("directory", module, env), first)
+                    self.assertEqual(library.read_bytes(), saved)
+                    self.assertEqual(self.answer(library), 42)
+                    self.assertEqual(list(first.parent.glob(".nano-build-*")), [])
+                    env.pop("NANO_TEST_UNIT_FAIL")
+                    self.support.probe_path("build", module, env, timeout=30)
+                    second = self.support.probe_path("directory", module, env)
+                    self.assertNotEqual(first, second)
+                    self.assertEqual(list(second.glob("__unit_*")), [])
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                    self.support.probe_path("build", module, env, timeout=30)
+                    self.assertEqual(self.support.probe_path("directory", module, env), second)
+
     def test_standalone_assembler_debug_flag_phases(self):
         words = ["-g3", "-D", "VALUE=-g0", "-O2", "-g0", "-g", "-g1", "-g2",
                  "-Xassembler", "-I", "-Xassembler", "-g3"]

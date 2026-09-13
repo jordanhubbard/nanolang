@@ -210,6 +210,20 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if (argc == 5 && !strcmp(argv[1], "unit-input")) {
+        if (strcmp(argv[4], "0") && strcmp(argv[4], "1")) return 2;
+        char *sources[] = {argv[3], argv[3]};
+        ModuleBuildMetadata meta = {0};
+        meta.c_sources = sources;
+        meta.c_sources_count = 2;
+        char input[2048], parent[2048];
+        bool ok = module_unit_input(&meta, argv[2], 0, (size_t)(argv[4][0] - '0'),
+                                    input, sizeof(input), parent, sizeof(parent));
+        if (ok) puts(input);
+        return ok ? 0 : 1;
+    }
+    if (argc == 3 && !strcmp(argv[1], "remove-unit-aliases"))
+        return module_remove_unit_aliases(argv[2]) ? 0 : 1;
     if (argc == 4 && !strcmp(argv[1], "source-hash")) {
         uint64_t hash = module_source_hash(argv[2], argv[3]);
         printf("%llu\n", (unsigned long long)hash);

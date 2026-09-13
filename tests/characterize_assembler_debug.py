@@ -121,6 +121,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 warm_text = []
                 evidence(warm_generation / "answer_native_1.o", source, directory, warm_text)
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
+                              "published_unit_aliases": [p.name for p in generation.glob("__unit_*")],
                               "native": expected, "production": observed,
                               "production_object_identical": native.read_bytes() == production_object.read_bytes(),
                               "production_debug_diff": ''.join(difflib.unified_diff(native_text, production_text,

@@ -1268,6 +1268,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       private filenames after expansion. Explicit relative-directory mapping
       restores reuse in that regression; it does not restore original line
       locations or basenames.
+      I now integrate per-unit original-basename aliases: copy retained bytes
+      through descriptor-relative regular-file checks, use the same alias for
+      capture/replay, and remove private alias directories before publication.
+      I test same-basename units, failed builds, substituted symlinks and warm
+      validation without weakening the flat-generation publication barrier.
+      Context v40 implements those aliases. Simple GNU `.s` and `.S` objects
+      now match native bytes and decoded debug data in both cache roots, with
+      reuse and no published alias directories. Darwin basename, debug-section
+      and reuse checks pass; native directory-alias spelling and macro-expanded
+      source locations still need work. I keep this parent open.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
