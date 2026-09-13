@@ -92,6 +92,43 @@ shadow main { assert (== (main) 0) }
             self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
             self.assertEqual(self.execute("c-seed", output).returncode, 0)
 
+    def test_imported_shadow_selection(self):
+        dependency = '''pub fn answer() -> int { return 42 }
+shadow answer { assert false }
+'''
+        for backend in COMPILERS:
+            for transitive in (False, True):
+                with self.subTest(backend=backend, transitive=transitive), tempfile.TemporaryDirectory(prefix="nano-import-shadows-") as tmp:
+                    directory = Path(tmp)
+                    leaf = directory / "leaf.nano"
+                    leaf.write_text(dependency)
+                    imported = leaf
+                    function = "answer"
+                    if transitive:
+                        imported = directory / "middle.nano"
+                        function = "forward_answer"
+                        imported.write_text(f'''module "{leaf}" as leaf
+pub fn forward_answer() -> int {{ return (leaf.answer) }}
+shadow forward_answer {{ assert (== (forward_answer) 42) }}
+''')
+                    source = f'''module "{imported}" as helper
+fn main() -> int {{ assert (== (helper.{function}) 42) return 0 }}
+shadow main {{ assert (== (helper.{function}) 42) }}
+'''
+                    compiled, output = self.compile_source(backend, source, directory)
+                    self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    executed = self.execute(backend, output)
+                    self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
+
+                    root_directory = directory / "root-control"
+                    root_directory.mkdir()
+                    compiled, output = self.compile_source(
+                        backend, dependency + "fn main() -> int { return 0 }\nshadow main { assert true }\n",
+                        root_directory)
+                    self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                    self.assertIn(b"shadow", (compiled.stdout + compiled.stderr).lower())
+                    self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -294,6 +294,10 @@ parent deadline before publishing native output. Test stdout is redirected to
 stderr. Source-only `--target c` checks types but does not execute shadows or
 invoke a native compiler. Imported shadows are not automatically selected by
 these drivers; imported-shadow policy and C-seed FFI exemptions remain open.
+My `test_imported_shadow_selection` characterizes direct and transitive pure
+imports on Darwin: all three drivers skip a failing dependency shadow, but
+reject it when its source is compiled as the root. Passing a consumer's
+compilation therefore does not establish that its dependencies' shadows passed.
 Until execution is consistent, execute important assertions from an explicit
 test entry point as well as writing the shadow.
 

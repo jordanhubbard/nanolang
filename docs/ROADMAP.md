@@ -170,6 +170,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with the existing tools (2026-09-12). README, persona, canonical style
       and the specification now agree about this observed shadow gap; the
       specification remains a draft with broader coverage explicitly open.
+- [x] **5.0 imported shadows — selection characterization.** I test direct
+      and transitive imports with failing dependency shadows on the C seed,
+      Stage 2 native driver and bytecode CLI, then compile that dependency as
+      the root to check rejection. This measures selection, not a complete
+      imported-shadow policy. On Darwin, all three paths skip the failing
+      imported shadow at both depths, run the root assertion using its helper,
+      and reject that dependency's shadow when compiled as root (12 compiler
+      cases in `test_imported_shadow_selection`). My six language-claim tests
+      pass. I use distinct wrapper names to isolate selection from the open
+      namespace defect below; this is not Linux or FFI acceptance evidence.
+      MAC `task_53197aae0a914dfcaafe490af1a18d3a`.
 - [ ] **5.0 shadow execution — consistent compiler/runtime enforcement.** I
       make failing shadow assertions observable on every supported compiler
       path. My C-seed driver runs shadows during compilation; I measure the
@@ -1034,6 +1045,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       when that imported module has those names: short names leak into the
       helper's declaration scope. I preserve module ownership through lookup
       and lowering, with same-named wrapper tests instead of renaming APIs.
+      The imported-shadow characterization also reproduced this for a pure
+      `answer` wrapper on the C seed and bytecode CLI; Stage 2 accepted it.
       My bytecode extern table also deduplicates declarations by bare function
       name across modules. I must preserve distinct source declarations before
       exact library bindings can isolate same-named qualified foreign calls.
