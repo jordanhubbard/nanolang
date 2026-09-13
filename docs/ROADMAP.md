@@ -161,6 +161,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       self-host suite passes 15 tests, including five import tests, and the
       type-inference, effects, NanoCore, and parser-recovery gates pass.
       MAC `task_e7a7395191d44cf793d684e21ea16a79`.
+- [x] **5.0 / self-hosted lexer physical string positions.** I account for
+      newlines consumed by plain and interpolated strings before assigning
+      later tokens to merged modules. A Stage 2 regression compiles and runs
+      multiline literals across an import boundary.
+      `tests/test_selfhost_module_bindings.py`.
 - [ ] **5.0 / native match-block full backend acceptance.** I still need
       nested operand and call-argument returns, matches where every arm exits,
       guards and exhaustiveness, aggregate and resource escape and scope,
