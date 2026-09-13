@@ -1702,6 +1702,10 @@ test-launcher-makefile:
 test-module-dep-recheck: $(COMPILER_C)
 	@bash tests/test_module_dep_recheck.sh
 
+.PHONY: test-failed-import-publication
+test-failed-import-publication: nano_virt
+	@bash tests/test_failed_import_publication.sh
+
 .PHONY: test-negative
 test-negative: $(COMPILER)
 	@bash tests/run_negative_tests.sh
@@ -1849,6 +1853,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing module dependency re-checks against a warm object cache..."
 	@bash tests/test_module_dep_recheck.sh
+	@echo ""
+	@echo "Testing failed imports reject bytecode publication..."
+	@bash tests/test_failed_import_publication.sh
 	@echo ""
 	@echo "Checking NanoVM example coverage..."
 	@$(MAKE) --no-print-directory test-vm-examples
