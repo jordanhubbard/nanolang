@@ -230,15 +230,15 @@ class SourceSnapshots(unittest.TestCase):
 
     def test_standalone_original_basename_and_flat_publication(self):
         from tests.characterize_assembler_debug import measure as measure_debug
-        for case in measure_debug(shutil.which("cc"))["cases"]:
-            with self.subTest(suffix=case["suffix"], cache=case["cache"]):
-                self.assertEqual(case["published_unit_aliases"], [])
-                self.assertTrue(case["production"]["source_named"])
-                self.assertFalse(case["production"]["private_snapshot_named"])
-                self.assertTrue(case["generation_reused"])
-                if sys.platform == "linux":
-                    self.assertEqual(case["production"], case["native"])
-                    self.assertTrue(case["production_object_identical"])
+        for alias in (False, True):
+            for case in measure_debug(shutil.which("cc"), module_alias=alias)["cases"]:
+                with self.subTest(alias=alias, suffix=case["suffix"], cache=case["cache"]):
+                    self.assertEqual(case["published_unit_aliases"], [])
+                    self.assertTrue(case["production"]["source_named"])
+                    self.assertFalse(case["production"]["private_snapshot_named"])
+                    self.assertTrue(case["generation_reused"])
+                    self.assertEqual(case["production"], case["physical_native"])
+                    self.assertTrue(case["physical_object_identical"], case["physical_debug_diff"])
 
     def test_unit_alias_copy_isolation_and_cleanup(self):
         with tempfile.TemporaryDirectory(prefix="nano-unit-alias-") as tmp:
@@ -372,7 +372,7 @@ class SourceSnapshots(unittest.TestCase):
                     self.assertEqual(case["answer"], 42)
                     self.assertTrue(case["generation_reused"])
                     # I leave strict source provenance in the characterization:
-                    # raw GNU basenames and Darwin path aliases remain open.
+                    # Expanded-source locations remain a separate requirement.
 
     def test_standalone_assembler_debug_macro_reads(self):
         from tests.characterize_assembler_debug import measure as measure_debug

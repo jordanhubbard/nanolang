@@ -1276,8 +1276,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Context v40 implements those aliases. Simple GNU `.s` and `.S` objects
       now match native bytes and decoded debug data in both cache roots, with
       reuse and no published alias directories. Darwin basename, debug-section
-      and reuse checks pass; native directory-alias spelling and macro-expanded
-      source locations still need work. I keep this parent open.
+      and reuse checks pass; the initial lexical-path control differs from my
+      physical-root policy, audited below. Macro-expanded source locations
+      still need work. I keep this parent open.
+      I audit the Darwin spelling comparison against my existing physical-root
+      policy before changing metadata: native controls must identify which
+      source argument they used. I retain the lexical comparison and add a
+      physical-source control plus alias-to-physical warm-reuse checks.
+      Policy-matched simple `.s`/`.S` controls now establish byte-identical
+      native objects on both hosts, without changing production metadata or
+      normalizing source paths in debug dumps. The physical control still
+      rejects Darwin macro expansion: native line 5 becomes expanded line 10,
+      with an added checksum for expanded text. That is genuine provenance
+      loss, distinct from the import-alias policy.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

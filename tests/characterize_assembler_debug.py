@@ -1,9 +1,12 @@
 """I compare native and production standalone-assembler debug evidence.
 
---require-debug fails if production drops native debug sections or source
-provenance. Matching these observations is not full DWARF equivalence.
+--require-debug retains the original lexical-source comparison; its source
+argument can differ from production's physical module root. Matching debug
+observations alone is not full DWARF equivalence.
 --candidate instead tests debug flags, retained original basenames and explicit
 assembler directory remapping, requiring byte-identical native objects too.
+--require-physical-debug compares production with my physical-module-root
+source policy, retaining the lexical control as a separate observation.
 """
 
 import argparse
@@ -43,7 +46,7 @@ def evidence(obj, source, cwd, text=None):
             "compile_units": decoded.count("DW_TAG_compile_unit")}
 
 
-def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False):
+def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False, module_alias=False):
     if flat and not candidate:
         raise ValueError("I require candidate mode for the flat-path experiment")
     version = run([compiler, "--version"], ROOT).splitlines()[0]
@@ -54,6 +57,10 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
             with tempfile.TemporaryDirectory(prefix="nano-assembler-debug-") as tmp:
                 directory = Path(tmp)
                 module, _, env = BytecodeShadows().foreign_build_fixture(directory)
+                requested_module = module
+                if module_alias:
+                    requested_module = directory / "import alias"
+                    requested_module.symlink_to(module, target_is_directory=True)
                 env["NANO_CC"] = compiler
                 env["NANO_AS_CAPTURE_HELPER"] = str(ROOT / "bin/nano_as_capture.so")
                 if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
@@ -75,11 +82,16 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 run([compiler, "-c", "-fPIC", *flags, source, "-o", native], directory)
                 native_text = []
                 expected = evidence(native, source, directory, native_text)
+                physical_source = module.resolve() / source.name
+                physical_native = directory / "physical-native.o"
+                run([compiler, "-c", "-fPIC", *flags, physical_source, "-o", physical_native], directory)
+                physical_text = []
+                physical_expected = evidence(physical_native, physical_source, directory, physical_text)
                 if debug_options and debug_options[-1] != "-g0" and (not expected["sections"] or not expected["source_named"]):
                     raise RuntimeError("I need a native object with debug sections and source provenance")
                 probe = ROOT / "obj/test_module_generation_probe"
-                run([probe, "build", module], directory, env)
-                generation = Path(run([probe, "directory", module], directory, env).strip())
+                run([probe, "build", requested_module], directory, env)
+                generation = Path(run([probe, "directory", requested_module], directory, env).strip())
                 production_object = generation / "answer_native_1.o"
                 production_text = []
                 observed = evidence(production_object, source, directory, production_text)
@@ -112,17 +124,23 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                     candidate_evidence = evidence(output, source, directory, candidate_text)
                     candidate_identical = native.read_bytes() == output.read_bytes()
                     candidate_diff = ''.join(difflib.unified_diff(native_text, candidate_text, fromfile="native", tofile="candidate"))
-                library = run([probe, "library", module], directory, env).strip()
+                library = run([probe, "library", requested_module], directory, env).strip()
                 value = run([sys.executable, "-c", "import ctypes,sys; l=ctypes.CDLL(sys.argv[1]); "
                     "l.nano_build_answer.restype=ctypes.c_int64; print(l.nano_build_answer())", library], directory)
-                run([probe, "build", module], directory, env)
-                warm_generation = Path(run([probe, "directory", module], directory, env).strip())
+                run([probe, "build", module.resolve()], directory, env)
+                warm_generation = Path(run([probe, "directory", module.resolve()], directory, env).strip())
                 reused = generation == warm_generation
                 warm_text = []
                 evidence(warm_generation / "answer_native_1.o", source, directory, warm_text)
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
                               "published_unit_aliases": [p.name for p in generation.glob("__unit_*")],
                               "native": expected, "production": observed,
+                              "lexical_source": str(source), "physical_source": str(physical_source),
+                              "requested_module": str(requested_module),
+                              "physical_native": physical_expected,
+                              "physical_object_identical": physical_native.read_bytes() == production_object.read_bytes(),
+                              "physical_debug_diff": ''.join(difflib.unified_diff(physical_text, production_text,
+                                                                                  fromfile="physical-native", tofile="production")),
                               "production_object_identical": native.read_bytes() == production_object.read_bytes(),
                               "production_debug_diff": ''.join(difflib.unified_diff(native_text, production_text,
                                                                                      fromfile="native", tofile="production")),
@@ -142,17 +160,27 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("compiler", nargs="?", default="cc")
     parser.add_argument("--require-debug", action="store_true")
+    parser.add_argument("--require-physical-debug", action="store_true")
+    parser.add_argument("--module-alias", action="store_true")
+    parser.add_argument("--macro-read", action="store_true")
     parser.add_argument("--candidate", action="store_true")
     parser.add_argument("--flat", action="store_true",
                         help="I test directory and basename remaps without copying the retained unit")
     args = parser.parse_args()
     if args.flat and not args.candidate:
         parser.error("I require --candidate with --flat")
+    if args.require_physical_debug and args.candidate:
+        parser.error("I compare the physical control with production, not a candidate")
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler")
-    result = measure(compiler, candidate=args.candidate, flat=args.flat)
+    result = measure(compiler, candidate=args.candidate, flat=args.flat,
+                     module_alias=args.module_alias, macro_read=args.macro_read)
     print(json.dumps(result, indent=2))
     if args.require_debug and any(case["native"] != case["candidate" if args.candidate else "production"] or case["answer"] != 42
                                   or not case["generation_reused"] or (args.candidate and not case["candidate_object_identical"])
                                   for case in result["cases"]):
         raise SystemExit("I did not retain the native debug evidence and reusable result")
+    if args.require_physical_debug and any(case["physical_native"] != case["production"] or
+                                          not case["physical_object_identical"] or case["answer"] != 42 or
+                                          not case["generation_reused"] for case in result["cases"]):
+        raise SystemExit("I did not retain the physical-source native object and debug evidence")

@@ -2551,3 +2551,47 @@ pass in 30.488 seconds with ASan/UBSan and leak detection, with no report
 files; this instruments the builder/probe, not child compilers or every
 support object. Python syntax, whitespace and six-edition guide checks pass.
 I have not established complete nested-source or cross-backend debug parity.
+
+### Physical source policy versus lexical-path controls
+
+I correct the interpretation of the Darwin directory-spelling difference.
+`module_load_metadata` intentionally resolves the module root physically for
+cache identity and relative include fallback. The existing
+`test_alias_metadata_uses_physical_module_directory` verifies both physical
+header selection and reuse across an import alias. Preserving that behavior
+does not require an additional lexical debug-root field in metadata.
+
+The earlier native fixture passed its lexical `/var/...` source pathname to
+the compiler, while production passed the physical `/private/var/...` module
+root. Those are different compiler arguments. I retain that lexical control
+and its debug diff, and add a separate native control using
+`module.resolve() / source.name`, the builder's source-path policy for these
+relative-source fixtures. I report both paths, both comparisons, and whole
+object identity. I do not normalize paths or line rows in decoded debug data.
+
+The simple physical-source controls produce byte-identical native and
+production objects for `.s` and `.S` under both cache roots on Apple Clang 21
+external assembly and GCC 12.2/GNU as 2.40. The regression also builds through
+an explicit symlink import and warms through the physical module path,
+requiring the same generation. This strengthens Darwin's prior section/name
+checks to complete-object equality without changing production metadata.
+
+```sh
+python3 -m tests.characterize_assembler_debug --require-physical-debug --module-alias
+```
+
+The distinction does not excuse expanded-source provenance loss. With
+`--macro-read`, the physical-source comparison still fails all four Darwin
+suffix/cache cases: the line table attributes native line 5 to expanded line
+10 and adds a checksum of the expanded text. Objects differ despite correct
+runtime output and generation reuse. The equivalent GNU macro-read comparison
+passes. These results direct the next repair at expansion provenance, not
+the established physical-root policy.
+
+Validation: four focused methods pass on Darwin in 48.651 seconds and Linux
+in 2.961 seconds, covering physical object equality, alias reuse, debug
+selector precedence, macro runtime/reuse and the existing metadata policy.
+The original-basename candidate still passes its strict lexical control on
+both hosts. Conflicting candidate/physical-control CLI modes are rejected.
+Python syntax, whitespace and six-edition guide checks pass. This checkpoint
+changes measurement and regression coverage, not production compilation.
