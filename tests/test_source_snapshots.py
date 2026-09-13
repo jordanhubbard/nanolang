@@ -312,6 +312,14 @@ class SourceSnapshots(unittest.TestCase):
 
     def test_native_unit_post_capture_reads(self):
         if sys.platform != "darwin": self.skipTest("I exercise selected Apple native unit transport")
+        self.native_unit_post_capture_reads()
+
+    def test_integrated_native_unit_post_capture_reads(self):
+        if not shutil.which("clang"): self.skipTest("I require integrated Clang")
+        self.native_unit_post_capture_reads(integrated=True)
+
+    def native_unit_post_capture_reads(self, integrated=False):
+        compiler = shutil.which("clang" if integrated else "cc")
         for shared_unit in (False, True):
             for shared_cache in (False, True):
                 for suffix in (".s", ".S"):
@@ -324,10 +332,12 @@ class SourceSnapshots(unittest.TestCase):
                         nested = module / "macro.s"
                         nested.write_text('.macro emit path\n.incbin "\\path"\n.endm\n')
                         source = module / ("payload" + suffix)
-                        source.write_text(f'.include "{nested}"\n.data\n.globl _snapshot_payload\n_snapshot_payload:\nemit "{payload}"\n')
+                        symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                        source.write_text(f'.include "{nested}"\n.data\n.globl {symbol}\n{symbol}:\nemit "{payload}"\n')
                         (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
                             'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')
-                        metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": ["-g", "-fno-integrated-as"]}
+                        metadata = {"name": "answer_native", "c_sources": ["answer.c"],
+                                    "cflags": ["-g"] + ([] if integrated else ["-fno-integrated-as"])}
                         metadata.setdefault("shared_c_sources" if shared_unit else "c_sources", []).append(str(source) if shared_unit else source.name)
                         (module / "module.json").write_text(json.dumps(metadata))
                         marker, restored = root / "mutated", root / "restored"
@@ -344,16 +354,16 @@ if '-c' in sys.argv and '-###' not in sys.argv and os.getenv('NANO_AS_CAPTURE_PH
             payload.write_bytes(b'+')
             nested.rename(nested.with_suffix('.missing'))
             marker.write_text('I changed the binary and removed the macro after native capture.')
-if '-dynamiclib' in sys.argv and '-###' not in sys.argv and marker.exists() and not restored.exists():
+if any(flag in sys.argv for flag in ('-dynamiclib', '-shared')) and '-###' not in sys.argv and marker.exists() and not restored.exists():
     assert payload.read_bytes() == b'+' and not nested.exists()
     try:
-        result = subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:])
+        result = subprocess.run([{compiler!r}] + sys.argv[1:])
     finally:
         payload.write_bytes(b'*')
         nested.with_suffix('.missing').rename(nested)
         restored.write_text('I kept both changes through final linking.')
     sys.exit(result.returncode)
-os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
 ''')
                         wrapper.chmod(0o700)
                         env["NANO_CC"] = str(wrapper)
@@ -435,7 +445,15 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
         if sys.platform != "darwin": self.skipTest("I exercise selected Apple native unit transport")
         self.unit_alias_failed_build_retains_published_generation(macro=True, copy_failure=True)
 
-    def unit_alias_failed_build_retains_published_generation(self, macro=False, copy_failure=False):
+    def test_integrated_native_unit_failure_recovery(self):
+        if not shutil.which("clang"): self.skipTest("I require integrated Clang")
+        for copy_failure, report_failure in ((False, False), (True, False), (False, True)):
+            with self.subTest(copy_failure=copy_failure, report_failure=report_failure):
+                self.unit_alias_failed_build_retains_published_generation(macro=True, copy_failure=copy_failure,
+                                                                         integrated=True, report_failure=report_failure)
+
+    def unit_alias_failed_build_retains_published_generation(self, macro=False, copy_failure=False, integrated=False, report_failure=False):
+        compiler = shutil.which("clang" if integrated else "cc")
         for shared_unit in (False, True):
             for shared_cache in (False, True):
                 with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache), tempfile.TemporaryDirectory(prefix="nano-unit-failure-") as tmp:
@@ -451,7 +469,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
                         'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')
                     metadata = {"name": "answer_native", "c_sources": ["answer.c"],
-                                "cflags": ["-g"] + (["-fno-integrated-as"] if self.clang else [])}
+                                "cflags": ["-g"] + (["-fno-integrated-as"] if self.clang and not integrated else [])}
                     if shared_unit: metadata["shared_c_sources"] = [str(source)]
                     else: metadata["c_sources"].append(source.name)
                     (module / "module.json").write_text(json.dumps(metadata))
@@ -459,6 +477,8 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     copy_marker = root / "copy-failed"
                     native_name = f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
                     wrapper.write_text(f'#!{sys.executable}\nimport os,sys,pathlib\n'
+                        f'if {report_failure!r} and os.getenv("NANO_TEST_UNIT_FAIL") and "-###" in sys.argv:\n'
+                        '    print("I returned an unsupported assembler report", file=sys.stderr)\n    sys.exit(0)\n'
                         f'if {copy_failure!r} and os.getenv("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
                         '"-###" not in sys.argv and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":\n'
                         '    for arg in sys.argv[1:]:\n'
@@ -469,7 +489,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                         f'if {not copy_failure!r} and os.environ.get("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
                         'any("/__unit_" in arg and arg.endswith("/payload.s") for arg in sys.argv):\n'
                         '    print("I failed unit assembly", file=sys.stderr)\n    sys.exit(1)\n'
-                        f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
+                        f'os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])\n')
                     wrapper.chmod(0o700)
                     env["NANO_CC"] = str(wrapper)
                     self.support.probe_path("build", module, env, timeout=30)
@@ -483,7 +503,8 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     result = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
                                             capture_output=True, timeout=30)
                     self.assertNotEqual(result.returncode, 0)
-                    if copy_failure: self.assertTrue(copy_marker.is_file())
+                    if report_failure: self.assertIn(b"I could not retain", result.stderr)
+                    elif copy_failure: self.assertTrue(copy_marker.is_file())
                     else: self.assertIn(b"I failed unit assembly", result.stderr)
                     self.assertEqual(self.support.probe_path("directory", module, env), first)
                     self.assertEqual(library.read_bytes(), saved)
@@ -545,6 +566,54 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     self.assertTrue(case["physical_object_identical"])
                     self.assertEqual(case["answer"], 42)
                     self.assertTrue(case["generation_reused"])
+
+    def test_integrated_native_unit_debug_identity(self):
+        compiler = shutil.which("clang")
+        if not compiler: self.skipTest("I require integrated Clang")
+        from tests.characterize_assembler_debug import measure as measure_debug
+        for macro, nested in ((False, False), (True, False), (True, True)):
+            for case in measure_debug(compiler, macro_read=macro, nested_read=nested,
+                                      module_alias=True, integrated=True)["cases"]:
+                with self.subTest(macro=macro, nested=nested, suffix=case["suffix"], cache=case["cache"]):
+                    self.assertTrue(case["retained_native_object_identical"])
+                    self.assertEqual(case["production"], case["physical_native"])
+                    self.assertTrue(case["physical_object_identical"])
+                    self.assertEqual(case["answer"], 42)
+                    self.assertTrue(case["generation_reused"])
+
+    def test_integrated_units_preserve_c_assembler_search(self):
+        compiler = shutil.which("clang")
+        if not compiler: self.skipTest("I require integrated Clang")
+        for shared_cache in (False, True):
+            with self.subTest(shared_cache=shared_cache), tempfile.TemporaryDirectory(prefix="nano-integrated-sibling-") as tmp:
+                root = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(root)
+                env["NANO_CC"] = compiler
+                if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
+                includes = root / "assembler search"
+                includes.mkdir()
+                (includes / "sibling.s").write_text('.byte 1\n')
+                prefix = "_" if sys.platform == "darwin" else ""
+                inline = f'.data\n.globl {prefix}sibling_payload\n{prefix}sibling_payload:\n.include "sibling.s"\n.text\n'
+                csource = module / "answer.c"
+                csource.write_text('extern unsigned char snapshot_payload[], sibling_payload[];\n'
+                    '__asm__(' + json.dumps(inline) + ');\n'
+                    'long long nano_build_answer(void) { return snapshot_payload[0] + sibling_payload[0]; }\n')
+                unit = module / "payload.s"
+                unit.write_text(f'.data\n.globl {prefix}snapshot_payload\n{prefix}snapshot_payload:\n.byte 42\n')
+                flags = ["-g", "-Wa,-I," + str(includes)]
+                (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": [csource.name, unit.name],
+                    "cflags": [shlex.quote(flag) for flag in flags]}))
+                control = root / ("control.dylib" if sys.platform == "darwin" else "control.so")
+                result = subprocess.run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                    "-fPIC", *flags, str(csource), str(unit), "-o", str(control)], capture_output=True, timeout=30)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(self.answer(control), 43)
+                self.support.probe_path("build", module, env, timeout=30)
+                first = self.support.probe_path("directory", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                self.support.probe_path("build", module, env, timeout=30)
+                self.assertEqual(self.support.probe_path("directory", module, env), first)
 
     def test_assembler_include_flag_phases(self):
         assembler = ["-Wa,-I,first path,-Isecond", "-Xassembler", "-I", "-Xassembler", "third path,comma",
@@ -1617,13 +1686,16 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 self.assertFalse(os.path.lexists(root / "current"))
                 self.assertFalse(list(root.glob(".nano-build-*")))
 
-    def test_apple_external_assembler_report_boundaries(self):
-        if sys.platform != "darwin": self.skipTest("I decode the Apple driver report here")
+    def test_selected_clang_assembler_report_boundaries(self):
         banner = "Apple clang version 21.0.0 (fixture)\nTarget: arm64-apple-darwin\nThread model: posix\nInstalledDir: /fixture\n"
         command = ' "/fixture/compiler with space" "-cc1as" "-o" "object with \'quotes\'.o"\n'
         accepted = banner + command
         accepted_reports = [accepted, banner + "clang: warning: argument unused during compilation: '-fPIC' [-Wunused-command-line-argument]\n" + command]
+        debian = "Debian clang version 14.0.6\nTarget: aarch64-unknown-linux-gnu\nThread model: posix\nInstalledDir: /usr/bin\n (in-process)\n"
+        accepted_reports.append(debian + command)
         reports = accepted_reports + ["", banner, command, accepted + command, accepted + "unexpected command\n",
+                   debian.replace("14.0.6", "14.0.61") + command, debian.replace("14.0.6", "18.0.0") + command,
+                   debian + command + command, debian.replace("(in-process)", "(unknown)") + command,
                    accepted.replace("21.0.0", "22.0.0"), banner + ' "/unterminated\n',
                    accepted.replace("21.0.0", "21.0.01"),
                    banner + ' "/fixture/tool" "$(touch forbidden)"\n',

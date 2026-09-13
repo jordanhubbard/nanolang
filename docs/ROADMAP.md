@@ -1332,6 +1332,29 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       the generation. Failed-copy recovery and single-source units also pass.
       Integrated admission and broader provenance coverage remain open; this
       does not establish atomic input observations or an input-read inventory.
+      I next admit integrated Clang standalone units through selected native
+      capture, preserving platform preprocessing and C siblings. I compare
+      complete native objects/debug data, test post-capture nested mutations
+      and recovery, and verify both Apple Clang and Linux Clang before treating
+      integrated support as complete. Driver-report parsing remains bounded
+      and literal; unsupported reports must fail capture without live fallback.
+      Initial Linux Clang 14 raw `.s` capture retained private paths despite
+      driver debug maps, breaking object equality and warm reuse; `.S` passed.
+      I must preserve native raw-source provenance without enabling C
+      preprocessing or weakening the equality/reuse checks.
+      Mixed integrated modules also expose a C-sibling regression: retained
+      C lowering drops assembler include-search flags that native compilation
+      uses. I preserve those flags in the retained integrated lowering phase
+      and test the native control, runtime value and warm reuse on both hosts.
+      Context v43 now admits integrated units on tested Apple Clang 21 and
+      Debian Clang 14. Linux retained stdin plus the original logical filename
+      restores raw-source identity without preprocessing or line rewriting.
+      Integrated retained-C lowering preserves assembler search flags. Native
+      object/debug, post-capture mutation and capture/copy/report-recovery
+      checks pass; wider source-provenance coverage remains open.
+      I next extend native debug controls to instruction-emitting nested
+      macros and explicit `.file`/`.loc` directives, including quoted and
+      Unicode source names, before closing the provenance parent.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

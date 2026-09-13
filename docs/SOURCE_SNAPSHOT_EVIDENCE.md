@@ -2727,3 +2727,57 @@ Instrumentation covers the builder/probe rather than every support object.
 The final Linux bytecode-shadow target passes 231 methods with 30 platform
 skips; its 90-method source-snapshot suite takes 105.662 seconds. Strict
 builds, Python syntax, whitespace and six-edition guide checks pass.
+
+### Integrated Clang native-unit admission
+
+Context v43 admits standalone `.s`/`.S` units with integrated Clang. I retain
+preprocessed C and assembler input, capture selected native unit objects and
+expanded observations, then use the same native-object transport in fresh
+builds and validation. Apple raw `.s` retains its native preprocessing step;
+Linux raw `.s` is copied without enabling C preprocessing. C-only integrated
+modules retain their existing capture path.
+
+My bounded report parser accepts the tested Apple Clang 21.0.0 and Debian
+Clang 14.0.6 reports, including Debian's in-process annotation. It requires
+one literal selected job, rejects unsupported banners and extra commands,
+and hashes the selected backend executable. Native-job input/output and
+action arguments are checked before Linux stdin transport. Unsupported
+reports fail capture without compiling live sources or replacing the old
+generation. This is compatibility selection, not compiler authentication.
+
+Integrated debug maps belong to the driver; `-Xassembler` forwarding is
+rejected by the integrated driver. Debian Clang 14 then exposes a separate
+raw-source naming issue: directory maps do not rewrite the generated root
+filename. `-main-file-name` alone still prepends the private input directory.
+The upstream [LLVM 14 root-file implementation](https://github.com/llvm/llvm-project/blob/llvmorg-14.0.6/llvm/lib/MC/MCContext.cpp#L765)
+explains that observed behavior. A controlled stdin experiment instead
+produces a byte-identical native object with the original logical filename.
+I now pass a checked regular retained-input descriptor to the selected Linux
+backend's stdin and supply that logical filename. I neither insert line
+directives nor preprocess raw assembly. The same supervised process-group
+deadline and bounded diagnostic reader remain in use.
+
+Mixed modules require another distinction: integrated C lowering can consume
+assembler includes itself. A native C-sibling control succeeded while my
+first retained implementation dropped its assembler search flags and failed.
+The retained-integrated lowering phase now keeps those flags, preserving the
+selected C frontend action while requesting assembly output. Native control
+and production both return 43 and reuse the generation under both cache roots
+on Darwin and Linux.
+
+The integrated regression matrix requires complete native object/debug
+identity for simple, inline-macro and nested-macro units, both suffixes and
+cache roots. Separate tests hold binary changes and a removed macro through
+final linking, and exercise capture, copy and unsupported-report failures
+without replacing the published library. These remain distinct from input
+inventory or atomic-filesystem claims.
+
+Final validation: the complete Linux bytecode-shadow target passes 235
+methods with 29 platform skips; its 94-method source-snapshot suite takes
+139.545 seconds. Six focused Darwin methods pass in 280.642 seconds, in
+addition to the C-sibling test (7.760 seconds on Darwin, 0.966 on Linux).
+Four instrumented Linux copy, integrated-timing, recovery and C-sibling
+methods pass in 119.672 seconds with AddressSanitizer, UndefinedBehaviorSanitizer
+and leak detection enabled, with no reports. Instrumentation covers the
+builder/probe, not every support object. Strict builds, Python syntax,
+whitespace and six-edition guide checks pass.

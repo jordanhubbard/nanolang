@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v42-native-unit-output");
+    hash_context_field(&hash, "nanolang-c-build-context-v43-integrated-native-units");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3070,8 +3070,8 @@ static int64_t module_link_query_clock(void) {
 /* I execute literal argv, not a shell, and supervise one private process group.
  * The caller supplies the shared deadline and output policy. Query requests
  * are not universally read-only; their caller owns disposable output paths. */
-static bool module_process_output(char **args, char *output, size_t capacity, int64_t deadline,
-                                  bool diagnostics, bool require_output) {
+static bool module_process_output_input(char **args, char *output, size_t capacity, int64_t deadline,
+                                        bool diagnostics, bool require_output, int input) {
     int64_t now = module_link_query_clock();
     if (now < 0 || now >= deadline) return false;
     int descriptors[2];
@@ -3091,7 +3091,8 @@ static bool module_process_output(char **args, char *output, size_t capacity, in
     bool have_actions = posix_spawn_file_actions_init(&actions) == 0;
     bool have_attributes = posix_spawnattr_init(&attributes) == 0;
     ok = ok && have_actions && have_attributes;
-    if (ok) ok = posix_spawn_file_actions_addopen(&actions, STDIN_FILENO, "/dev/null", O_RDONLY, 0) == 0 &&
+    if (ok) ok = (input < 0 ? posix_spawn_file_actions_addopen(&actions, STDIN_FILENO, "/dev/null", O_RDONLY, 0) :
+                              posix_spawn_file_actions_adddup2(&actions, input, STDIN_FILENO)) == 0 &&
         posix_spawn_file_actions_adddup2(&actions, descriptors[1], STDOUT_FILENO) == 0 &&
         (diagnostics ? posix_spawn_file_actions_adddup2(&actions, descriptors[1], STDERR_FILENO) :
                        posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0)) == 0 &&
@@ -3138,6 +3139,11 @@ static bool module_process_output(char **args, char *output, size_t capacity, in
     if (!reaped) while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
     output[used] = 0;
     return ok;
+}
+
+static bool module_process_output(char **args, char *output, size_t capacity, int64_t deadline,
+                                  bool diagnostics, bool require_output) {
+    return module_process_output_input(args, output, capacity, deadline, diagnostics, require_output, -1);
 }
 
 static bool module_link_query_output(char **args, char *output, size_t capacity, int64_t deadline) {
@@ -3301,7 +3307,8 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
 #endif
 
 typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED, MODULE_C_RETAINED_ASSEMBLY,
-               MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE, MODULE_C_ASSEMBLE_UNIT } ModuleCPhase;
+               MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE, MODULE_C_ASSEMBLE_UNIT,
+               MODULE_C_RETAINED_INTEGRATED_ASSEMBLY } ModuleCPhase;
 
 /* The caller owns a zeroed array and frees every slot on failure. I retain
  * original include paths in metadata for dependency and cache validation. */
@@ -3408,20 +3415,22 @@ static bool module_external_assembler(const ModuleBuildMetadata *meta, const Mod
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
-    bool retained = phase == MODULE_C_RETAINED || phase == MODULE_C_RETAINED_ASSEMBLY;
+    bool integrated_retained = phase == MODULE_C_RETAINED_INTEGRATED_ASSEMBLY;
+    bool retained = phase == MODULE_C_RETAINED || phase == MODULE_C_RETAINED_ASSEMBLY || integrated_retained;
     bool assembler = phase == MODULE_C_ASSEMBLE || phase == MODULE_C_ASSEMBLE_UNIT;
     unsigned phases = assembler ? MODULE_FLAG_ASSEMBLER |
-        (phase == MODULE_C_ASSEMBLE_UNIT ? MODULE_FLAG_DEBUG : 0) : retained ? MODULE_FLAG_C :
+        (phase == MODULE_C_ASSEMBLE_UNIT ? MODULE_FLAG_DEBUG : 0) : retained ?
+        MODULE_FLAG_C | (integrated_retained ? MODULE_FLAG_ASSEMBLER : 0) :
         phase == MODULE_C_PREPROCESS ? MODULE_FLAG_BOTH : (MODULE_FLAG_BOTH | MODULE_FLAG_ASSEMBLER);
     /* Clang drops -Wa include paths from its -S driver job. I preserve the
      * real integrated -c job's frontend search order, changing only its output
      * action to assembly. External assembly keeps its separate search phase. */
-    bool search_capture = phase == MODULE_C_EMIT_ASSEMBLY && snapshot &&
+    bool search_capture = (phase == MODULE_C_EMIT_ASSEMBLY || integrated_retained) && snapshot &&
         module_assembler_option(meta, snapshot, true);
     bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
                                    module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" :
                                    search_capture ? "-c -Xclang -S" :
-                                   (phase == MODULE_C_EMIT_ASSEMBLY || phase == MODULE_C_RETAINED_ASSEMBLY) ? "-S" : "-c");
+                                   (phase == MODULE_C_EMIT_ASSEMBLY || phase == MODULE_C_RETAINED_ASSEMBLY || integrated_retained) ? "-S" : "-c");
     /* I already applied C code-generation and diagnostic flags during capture. */
     if (assembler) {
         if (snapshot && module_external_assembler(meta, snapshot))
@@ -3458,7 +3467,8 @@ typedef enum {
     MODULE_SNAPSHOT_GCC,
     MODULE_SNAPSHOT_GCC_ASSEMBLY,
     MODULE_SNAPSHOT_GCC_REPLAY,
-    MODULE_SNAPSHOT_NATIVE_UNITS
+    MODULE_SNAPSHOT_NATIVE_UNITS,
+    MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS
 } ModuleSnapshotMode;
 
 static ModuleSnapshotMode module_driver_snapshot_mode(const ModuleBuildMetadata *meta) {
@@ -3535,7 +3545,7 @@ static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, 
     if (!meta->c_sources_count) return MODULE_SNAPSHOT_NONE;
     ModuleSnapshotMode mode = module_driver_snapshot_mode(meta);
     if (assembler_sources && mode == MODULE_SNAPSHOT_CLANG && !module_external_assembler(meta, captured))
-        return MODULE_SNAPSHOT_NONE;
+        return MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS;
     return mode == MODULE_SNAPSHOT_CLANG && module_external_assembler(meta, captured)
         ? MODULE_SNAPSHOT_CLANG_EXTERNAL : mode;
 }
@@ -3559,7 +3569,8 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
         return result;
     }
     ModuleSnapshotMode mode = module_snapshot_mode(meta, flags);
-    if (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL)
+    if (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL ||
+        mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS)
         return module_gcc_validation(meta, flags, mode);
     if (mode != MODULE_SNAPSHOT_NONE) return module_snapshot_sources(meta, flags, NULL, mode, NULL);
     char prefix[4096];
@@ -3915,7 +3926,7 @@ static bool module_unit_input(ModuleBuildMetadata *meta, const char *directory,
 /* I retain standalone debug-option ownership without replaying C diagnostics. */
 static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                          const char *source, const char *directory,
-                                         char *prefix, size_t capacity) {
+                                         char *prefix, size_t capacity, bool integrated) {
     if (!module_compile_prefix(meta, prefix, capacity, MODULE_C_ASSEMBLE_UNIT, flags)) return false;
     bool debug = false;
     for (size_t group = 0; group < 3; group++) {
@@ -3946,8 +3957,9 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
 #ifdef __APPLE__
     const char *option = "-fdebug-prefix-map=";
 #else
-    const char *option = "--debug-prefix-map=";
+    const char *option = integrated ? "-fdebug-prefix-map=" : "--debug-prefix-map=";
 #endif
+    const char *forward = integrated ? "" : "-Xassembler ";
     /* I place the broad source alias first: the selected assemblers give
      * later mappings priority, and my staging directory can live below it. */
     char *canonical = realpath(original[0] ? original : "/", NULL);
@@ -3955,20 +3967,20 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
     if (strcmp(canonical, original)) {
         ok = !strchr(canonical, '=') &&
             module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, canonical, original) &&
-            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+            module_append_path_flag(prefix, capacity, forward, mapping);
     }
     free(canonical);
     if (strchr(directory, '=')) return false;
     mapping[0] = 0;
     ok = ok && module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, directory, original) &&
-        module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+        module_append_path_flag(prefix, capacity, forward, mapping);
     char *private_canonical = realpath(directory, NULL);
     if (!private_canonical) return false;
     if (ok && strcmp(private_canonical, directory)) {
         mapping[0] = 0;
         ok = !strchr(private_canonical, '=') &&
             module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, private_canonical, original) &&
-            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+            module_append_path_flag(prefix, capacity, forward, mapping);
     }
     char *cwd = getcwd(NULL, 0);
     if (!cwd) { free(private_canonical); return false; }
@@ -3978,7 +3990,7 @@ static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModuleP
         mapping[0] = 0;
         ok = module_build_append(mapping, sizeof(mapping), "%s%s=%s", option,
                                   private_canonical + cwd_length + 1, original) &&
-            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+            module_append_path_flag(prefix, capacity, forward, mapping);
     }
     free(cwd);
     free(private_canonical);
@@ -4004,8 +4016,7 @@ static bool module_read_command(char *command, size_t capacity, const char *pref
         module_append_path_flag(command, capacity, "-o ", object);
 }
 
-#ifdef __APPLE__
-/* I decode one dry-run command from the tested Apple driver's report. I never
+/* I decode one dry-run command from a tested Clang driver's report. I never
  * execute the report as shell text, accept multiple commands, or guess a
  * backend executable from an installation directory. */
 static size_t module_assembler_argv(const char *command, char **args, char *storage, size_t capacity) {
@@ -4024,7 +4035,10 @@ static size_t module_assembler_argv(const char *command, char **args, char *stor
 }
 
 static size_t module_assembler_report(char *report, char **args, char *storage, size_t capacity) {
-    if (strncmp(report, "Apple clang version 21.0.0 ", 27)) return 0;
+    const char *banner = !strncmp(report, "Apple clang version 21.0.0 ", 27)
+        ? "Apple clang version 21.0.0 " : !strncmp(report, "Debian clang version 14.0.6\n", 28)
+        ? "Debian clang version 14.0.6" : NULL;
+    if (!banner) return 0;
     char *selected = NULL;
     for (char *line = report; line && *line;) {
         char *end = strchr(line, '\n');
@@ -4033,9 +4047,10 @@ static size_t module_assembler_report(char *report, char **args, char *storage, 
         if (*line == '"') {
             if (selected) return 0;
             selected = line;
-        } else if (*line && strncmp(line, "Apple clang version 21.0.0 ", 27) &&
+        } else if (*line && strncmp(line, banner, strlen(banner)) &&
                    strncmp(line, "Target: ", 8) && strncmp(line, "Thread model: ", 14) &&
                    strncmp(line, "InstalledDir: ", 14) &&
+                   strcmp(line, "(in-process)") &&
                    strcmp(line, "clang: warning: argument unused during compilation: '-fPIC' [-Wunused-command-line-argument]")) return 0;
         line = end ? end + 1 : NULL;
     }
@@ -4052,14 +4067,66 @@ static bool module_assembler_tool_hash(uint64_t *hash, const char *tool) {
     return true;
 }
 
-static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
-                                                const char *directory, uint64_t fingerprint) {
+#ifdef __linux__
+/* Clang 14 does not remap its generated raw-assembly root filename. I give
+ * its selected backend retained bytes on stdin and the original logical name,
+ * without preprocessing raw assembly or editing its line directives. */
+static bool module_clang_native_stdin(char **args, size_t words, char *report, size_t report_size,
+                                      int64_t deadline, const char *input, const char *original,
+                                      const char *object, uint64_t *fingerprint) {
+    args[words] = "-###"; args[words + 1] = NULL;
+    if (!module_process_output(args, report, report_size, deadline, true, true)) return false;
+    char storage[16384], *job[256];
+    words = module_assembler_report(report, job, storage, sizeof(storage));
+    if (words < 2 || strcmp(job[1], "-cc1as") || !module_assembler_tool_hash(fingerprint, job[0])) return false;
+    size_t name = 0, source = 0, format = 0, output = 0;
+    for (size_t i = 2; i < words; i++) {
+        if (!strcmp(job[i], "-main-file-name")) {
+            if (name || i + 1 == words) return false;
+            name = i + 1;
+        }
+        if (!strcmp(job[i], "-filetype")) {
+            if (format || i + 1 == words || strcmp(job[i + 1], "obj")) return false;
+            format = i + 1;
+        }
+        if (!strcmp(job[i], "-o")) {
+            if (output || i + 1 == words || strcmp(job[i + 1], object)) return false;
+            output = i + 1;
+        }
+        if (!strcmp(job[i], input)) {
+            if (source) return false;
+            source = i;
+        }
+    }
+    if (!name || !source || !format || !output) return false;
+    job[name] = (char *)original;
+    job[source] = "-";
+    int fd = open(input, O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC);
+    struct stat st;
+    bool ok = fd >= 0 && !fstat(fd, &st) && S_ISREG(st.st_mode) &&
+        st.st_size >= 0 && st.st_size <= 32LL * 1024 * 1024;
+    if (ok && fd < 3) {
+        int copy = fcntl(fd, F_DUPFD_CLOEXEC, 3);
+        close(fd); fd = copy;
+        ok = fd >= 0;
+    }
+    report[0] = 0;
+    if (ok) ok = module_process_output_input(job, report, report_size, deadline, true, false, fd);
+    if (fd >= 0 && close(fd)) ok = false;
+    return ok;
+}
+#endif
+
+static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                      const char *directory, uint64_t fingerprint, bool integrated) {
     if (!directory) return 0;
     char retained[4096], assemble[4096];
-    if (!module_compile_prefix(meta, retained, sizeof(retained), MODULE_C_RETAINED_ASSEMBLY, flags) ||
+    if (!module_compile_prefix(meta, retained, sizeof(retained), integrated ? MODULE_C_RETAINED_INTEGRATED_ASSEMBLY :
+                               MODULE_C_RETAINED_ASSEMBLY, flags) ||
         !module_compile_prefix(meta, assemble, sizeof(assemble), MODULE_C_ASSEMBLE, flags)) return 0;
     ModuleAssemblyCapture capture = {directory, 0, 0, fingerprint};
-    hash_context_field(&capture.hash, "apple-selected-assembler-expanded-native-v2");
+    hash_context_field(&capture.hash, integrated ? "clang-integrated-expanded-native-v1" :
+                                                 "apple-selected-assembler-expanded-native-v2");
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; i < count; i++) {
@@ -4082,9 +4149,11 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
             if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
             words = module_assembler_report(report, args, storage, sizeof(storage));
             if (!words || !module_assembler_tool_hash(&capture.hash, args[0])) goto failed;
-            args[words] = "-###"; args[words + 1] = NULL;
-            if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
-            words = module_assembler_report(report, args, storage, sizeof(storage));
+            if (!integrated) {
+                args[words] = "-###"; args[words + 1] = NULL;
+                if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
+                words = module_assembler_report(report, args, storage, sizeof(storage));
+            }
             if (words < 2 || strcmp(args[1], "-cc1as") ||
                 !module_assembler_tool_hash(&capture.hash, args[0])) goto failed;
             size_t format = 0, output = 0, sources = 0;
@@ -4111,14 +4180,26 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
                 command[0] = 0;
                 if (!module_capture_assembly_file(&capture, raw, frozen, false, 0) ||
                     !module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent)) ||
-                    !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix)) ||
+                    !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix), integrated) ||
                     !module_build_append(native, sizeof(native), "%s/__native_unit_%zu_%zu.o", directory, group, i) ||
                     !module_build_append(command, sizeof(command), "/usr/bin/env NANO_AS_CAPTURE_PHASE=capture %s -x assembler", unit_prefix) ||
                     !module_append_path_flag(command, sizeof(command), "", alias) ||
                     !module_append_path_flag(command, sizeof(command), "-o ", native)) goto failed;
-                if (!module_assembler_argv(command, native_args, native_storage, sizeof(native_storage))) goto failed;
+                size_t native_words = module_assembler_argv(command, native_args, native_storage, sizeof(native_storage));
+                if (!native_words) goto failed;
                 report[0] = 0;
-                if (!module_process_output(native_args, report, sizeof(report), deadline, true, false)) {
+                bool native_ok;
+#ifdef __linux__
+                if (integrated) {
+                    char original[4096] = {0};
+                    native_ok = source[0] == '/' ? module_build_append(original, sizeof(original), "%s", source) :
+                        module_build_append(original, sizeof(original), "%s/%s", meta->module_dir, source);
+                    native_ok = native_ok && module_clang_native_stdin(native_args, native_words, report, sizeof(report),
+                                                                     deadline, alias, original, native, &capture.hash);
+                } else
+#endif
+                    native_ok = module_process_output(native_args, report, sizeof(report), deadline, true, false);
+                if (!native_ok) {
                     if (report[0]) fputs(report, stderr);
                     goto failed;
                 }
@@ -4157,8 +4238,6 @@ failed:
     }
     return 0;
 }
-#endif
-
 #ifdef __linux__
 static bool module_dynamic_elf(const char *path) {
     FILE *file = fopen(path, "rb");
@@ -4272,7 +4351,7 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
             const char *selected_input = assembly;
             if (ok && module_source_kind(source) > 1) {
                 ok = module_unit_input(meta, directory, group, i, alias, sizeof(alias), parent, sizeof(parent)) &&
-                    module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix));
+                    module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix), false);
                 selected = unit_prefix;
                 selected_input = alias;
             }
@@ -4387,7 +4466,8 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
         !module_build_append(prefix, sizeof(prefix), " -fpch-preprocess")) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
     hash_context_field(&fingerprint, mode == MODULE_SNAPSHOT_GCC ? "gcc-retained-v1" :
-        mode == MODULE_SNAPSHOT_CLANG_EXTERNAL ? "clang-external-retained-v1" : "clang-assembly-v1");
+        mode == MODULE_SNAPSHOT_CLANG_EXTERNAL ? "clang-external-retained-v1" :
+        mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS ? "clang-integrated-retained-v1" : "clang-assembly-v1");
     for (size_t i = 0; i < flags->count; i++) {
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
@@ -4407,7 +4487,8 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
 #ifdef __APPLE__
             /* Apple Clang preprocesses lowercase .s by default too. Retained
              * replay explicitly uses -x assembler to avoid doing that twice. */
-            if (kind == 2 && mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) kind = 3;
+            if (kind == 2 && (mode == MODULE_SNAPSHOT_CLANG_EXTERNAL ||
+                              mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS)) kind = 3;
 #endif
             const char *selected_prefix = prefix;
             if (kind == 3) {
@@ -4492,21 +4573,27 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             hash_context_field(&fingerprint, digest);
         }
     }
-    if (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) {
-        uint64_t frozen = module_gcc_capture_assembly(meta, flags, directory, fingerprint);
+    if (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL ||
+        mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS) {
+        uint64_t frozen = mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS ? 0 :
+            module_gcc_capture_assembly(meta, flags, directory, fingerprint);
         if (frozen) {
             if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
             return frozen;
         }
+        if (mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS
 #ifdef __APPLE__
-        if (mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) {
-            frozen = module_clang_external_expansion(meta, flags, directory, fingerprint);
+            || mode == MODULE_SNAPSHOT_CLANG_EXTERNAL
+#endif
+        ) {
+            frozen = module_clang_expansion(meta, flags, directory, fingerprint,
+                                            mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS);
             if (frozen) {
                 if (actual_mode) *actual_mode = MODULE_SNAPSHOT_NATIVE_UNITS;
                 return frozen;
             }
+            return 0;
         }
-#endif
 #ifdef __linux__
         frozen = module_gcc_read_capture(meta, flags, directory, fingerprint);
         if (frozen) {
@@ -4534,7 +4621,7 @@ static bool module_snapshot_command(ModuleBuildMetadata *meta, const ModulePkgFl
                               assembly ? "s" : "i")) return false;
     if (module_source_kind(source) > 1 && mode != MODULE_SNAPSHOT_GCC) {
         if (!module_unit_input(meta, directory, group, index, snapshot, sizeof(snapshot), parent, sizeof(parent)) ||
-            !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix))) return false;
+            !module_unit_assembly_prefix(meta, flags, source, parent, unit_prefix, sizeof(unit_prefix), false)) return false;
         prefix = unit_prefix;
     }
     if (mode == MODULE_SNAPSHOT_GCC_REPLAY)

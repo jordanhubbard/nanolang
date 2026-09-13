@@ -49,13 +49,15 @@ def evidence(obj, source, cwd, text=None):
 
 
 def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False, module_alias=False,
-            capture_object=False, nested_read=False):
+            capture_object=False, nested_read=False, integrated=False):
     if nested_read and not macro_read:
         raise ValueError("I require macro reads for the nested include fixture")
     if flat and not candidate:
         raise ValueError("I require candidate mode for the flat-path experiment")
     version = run([compiler, "--version"], ROOT).splitlines()[0]
-    flags = list(debug_options) + (["-fno-integrated-as"] if "clang" in version else [])
+    if integrated and "clang" not in version:
+        raise ValueError("I require Clang for integrated assembler measurement")
+    flags = list(debug_options) + (["-fno-integrated-as"] if "clang" in version and not integrated else [])
     cases = []
     for suffix in ("s", "S"):
         for shared in (False, True):
@@ -119,10 +121,11 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                     retained_unit = private / source.name
                     retained_unit.write_bytes((generation / "__snapshot_0_1.i").read_bytes())
                     captured_object = directory / "captured.o"
-                    map_option = "-fdebug-prefix-map=" if sys.platform == "darwin" else "--debug-prefix-map="
-                    remaps = ["-Xassembler", map_option + str(private) + "=" + str(physical_source.parent)]
+                    map_option = "-fdebug-prefix-map=" if sys.platform == "darwin" or integrated else "--debug-prefix-map="
+                    forward = [] if integrated else ["-Xassembler"]
+                    remaps = forward + [map_option + str(private) + "=" + str(physical_source.parent)]
                     if private.resolve() != private:
-                        remaps += ["-Xassembler", map_option + str(private.resolve()) + "=" + str(physical_source.parent)]
+                        remaps += forward + [map_option + str(private.resolve()) + "=" + str(physical_source.parent)]
                     run([compiler, "-c", "-fPIC", *flags, *remaps, "-x", "assembler",
                          retained_unit, "-o", captured_object], directory)
                     captured_text = []
@@ -155,7 +158,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                     if not flat:
                         private.mkdir()
                         replay_source.write_bytes(retained.read_bytes())
-                    option = "-Wa,-fdebug-prefix-map=" if "clang" in version and sys.platform == "darwin" else "-Wa,--debug-prefix-map="
+                    option = "-fdebug-prefix-map=" if integrated else "-Wa,-fdebug-prefix-map=" if "clang" in version and sys.platform == "darwin" else "-Wa,--debug-prefix-map="
                     remaps = [option + str(private) + "=" + str(source.parent)]
                     if flat:
                         replay_source = retained
@@ -208,7 +211,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                               "candidate_object_identical": candidate_identical,
                               "candidate_source_deleted": candidate,
                               "answer": int(value), "generation_reused": reused})
-    return {"compiler": compiler, "version": version, "platform": sys.platform,
+    return {"compiler": compiler, "version": version, "platform": sys.platform, "integrated": integrated,
             "candidate_mode": ("flat" if flat else "original-basename") if candidate else None,
             "cases": cases}
 
@@ -219,6 +222,7 @@ if __name__ == "__main__":
     parser.add_argument("--require-debug", action="store_true")
     parser.add_argument("--require-physical-debug", action="store_true")
     parser.add_argument("--module-alias", action="store_true")
+    parser.add_argument("--integrated", action="store_true")
     parser.add_argument("--macro-read", action="store_true")
     parser.add_argument("--nested-read", action="store_true")
     parser.add_argument("--capture-object", action="store_true")
@@ -239,7 +243,7 @@ if __name__ == "__main__":
     if not compiler: raise SystemExit("I need a C compiler")
     result = measure(compiler, candidate=args.candidate, flat=args.flat,
                      module_alias=args.module_alias, macro_read=args.macro_read, capture_object=args.capture_object,
-                     nested_read=args.nested_read)
+                     nested_read=args.nested_read, integrated=args.integrated)
     print(json.dumps(result, indent=2))
     if args.require_debug and any(case["native"] != case["candidate" if args.candidate else "production"] or case["answer"] != 42
                                   or not case["generation_reused"] or (args.candidate and not case["candidate_object_identical"])

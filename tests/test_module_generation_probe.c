@@ -569,7 +569,6 @@ int main(int argc, char **argv) {
     if (argc == 3 && !strcmp(argv[1], "assembler-version"))
         return module_assembler_version_supported(argv[2]) ? 0 : 1;
 #endif
-#ifdef __APPLE__
     if (argc == 3 && !strcmp(argv[1], "assembler-report")) {
         char *report = strdup(argv[2]);
         if (!report) return 1;
@@ -583,7 +582,6 @@ int main(int argc, char **argv) {
         free(output); cJSON_Delete(words); free(report);
         return ok ? 0 : 1;
     }
-#endif
     if (argc == 4 && strcmp(argv[1], "capture-assembly") == 0) {
         char *directory = strdup(argv[3]);
         if (!directory) return 1;
