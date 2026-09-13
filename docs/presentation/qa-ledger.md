@@ -1,5 +1,39 @@
 # NanoLang presentation QA ledger
 
+## 5.0 acceptance-gate repair (local, unpublished)
+
+I found that the portable regeneration script wrote `accepted: true` after
+checking a constant count and the narrative's existence. The verifier named
+in my authoring skill was missing, and the narrative manifest discarded the
+deck path. I now retain both paths, derive the slide count from the PPTX, and
+run `scripts/verify_document_pair.py` before reporting mechanical acceptance.
+
+The verifier reads ordered slide relationships, checks the actual count,
+flat unrotated shape geometry and text-frame intersections, and requires body
+speaker notes on every slide. It checks narrative heading levels and explicit
+placeholder/credential patterns in text. Unsupported shapes fail closed.
+Pattern checks are not a comprehensive secret audit, and geometric checks do
+not establish text fit, appearance, factual accuracy or visual acceptance.
+
+The retained local pair passes these mechanical checks with 16 slides and
+34 headings. Mutation tests reject count/path/package failures, off-surface
+and overlapping frames, unsupported transforms, empty notes, invalid heading
+levels, placeholder and credential patterns, and invalid slide relationships.
+The CLI replaces stale success reports with failure. Real regeneration builds
+both members in isolated outputs; an induced narrative-authoring failure leaves
+acceptance false instead of retaining success from the preceding invocation.
+
+I have not regenerated or visually accepted a corrected edition in this
+checkpoint. The managed presentation/document dependency loader is unavailable.
+I bootstrapped the repository's pinned, ignored authoring environment as the
+portable fallback and ran the real builders in the integration test. Shadow claims, the
+narrative example and the stale #211 note remain the next repair. I have not
+changed external Google artifacts or their publication records.
+
+Ten document-pair tests pass. The wider `make test-release-gates` run exposed
+CONTRIBUTING staleness, now tracked separately on the roadmap. I do not bypass
+that failure or treat this mechanical gate as release readiness.
+
 ## 4.5 developer edition
 
 - Rebuilt the deck and narrative from NanoLang source, `docs/PERSONA.md`,

@@ -159,6 +159,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       active. This is not a failed compiler or test result.
       My bootstrap reporting now names the checks performed; canonical
       artifact equality and semantic correctness remain separate.
+- [ ] **5.0 contributor contract — current compiler and verification rules.**
+      I reconcile CONTRIBUTING with current shadow execution, backend scope,
+      verifier limits and fuzzing practice. `make test-release-gates` currently
+      rejects its staleness relative to verifier/fuzzing changes. Its claims
+      that shadows prove correctness, only externs are exempt, and tests run
+      in the final binary also contradict the tested contract. I repair those
+      claims and rerun the gate without a release acknowledgement override.
+      MAC `task_bb0635cd76e04f898ea7886298377a01`.
 - [x] **5.0 contract claims — typing and shadow execution evidence.** I
       characterize inferred locals, explicit function boundaries, immutable
       assignment, boolean conditions and shadow handling on the C seed,
@@ -170,12 +178,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       with the existing tools (2026-09-12). README, persona, canonical style
       and the specification now agree about this observed shadow gap; the
       specification remains a draft with broader coverage explicitly open.
+- [x] **5.0 document-pair acceptance — inspect the artifacts.** I replace
+      the regeneration script's unconditional acceptance record with checks
+      of the actual PPTX and DOCX: slide count and geometry, text-frame
+      intersections, speaker notes, heading hierarchy and explicit placeholder
+      and credential patterns. I preserve both artifact paths in the manifest
+      and test malformed artifacts and nonzero gate exits. Mechanical acceptance
+      does not replace rendering or visual inspection. The documented verifier
+      was missing; the renderer printed overlaps without failing. I now run
+      the actual verifier from regeneration, invalidate prior acceptance before
+      authoring, and preserve both artifact paths with the actual slide count.
+      Ten tests pass, including real builder success and authoring-failure
+      recovery in isolated outputs. The retained pair passes mechanical checks
+      with sixteen slides and thirty-four headings. The full release-gate suite
+      still rejects CONTRIBUTING staleness, tracked above; no override is used.
+      MAC `task_8708bf8104604c278ad846f2b7f476a9`.
 - [ ] **5.0 developer deck — shadow enforcement claims.** I replace the
       slide-two `PROOF` label and the claim that an unshadowed function cannot
       compile in `docs/presentation/build_deck.py` with my tested policy,
       warning and exemption boundary. I regenerate and visually verify the
       local artifacts and add a claim regression check before publication.
       MAC `task_467da218e63ea9836c2fa6412c9026b0`.
+      I also reconcile the companion narrative's shadow statement and its
+      incorrect `gcd` example, which returns its first argument while claiming
+      a result of six. The shared claim ledger's open #211 statement is stale.
 - [x] **5.0 imported shadows — selection characterization.** I test direct
       and transitive imports with failing dependency shadows on the C seed,
       Stage 2 native driver and bytecode CLI, then compile that dependency as

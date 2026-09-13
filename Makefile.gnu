@@ -3673,7 +3673,7 @@ release-docs-check:
 # check fails now rather than at the next release.
 .PHONY: test-release-gates
 test-release-gates:
-	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates tests.test_check_markdown_links
+	@$(TIMEOUT_CMD) python3 -m unittest tests.test_release_gates tests.test_check_markdown_links tests.test_document_pair
 
 release:
 	@echo "Creating patch release..."

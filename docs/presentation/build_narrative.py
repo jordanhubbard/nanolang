@@ -123,7 +123,10 @@ def main() -> None:
         raise SystemExit(f"presentation artifact missing: {PPTX}")
     manifest = Path(os.environ.get("OBJ_DIR", str(REPO / "_build"))) / "nanolang-developer-overview" / "capability-manifest.json"
     manifest.parent.mkdir(parents=True, exist_ok=True)
-    manifest.write_text(json.dumps({"schema": "nanolang/developer-document-pair@1", "slides": 16, "narrative": str(output)}, indent=2) + "\n")
+    from pptx import Presentation
+    manifest.write_text(json.dumps({"schema": "nanolang/developer-document-pair@1",
+        "slides": len(Presentation(str(PPTX)).slides), "local_artifact": str(PPTX.resolve()),
+        "narrative": str(output.resolve())}, indent=2) + "\n")
     print(f"built narrative -> {output}")
 
 
