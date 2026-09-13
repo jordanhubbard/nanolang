@@ -1201,6 +1201,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       open below.
       MAC rejects completion while unclaimed; ledger closure still needs a
       verified agent identity.
+- [ ] **5.0 assembler translation-unit snapshots.** I first characterize
+      mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
+      I retain raw and preprocessed assembler translation units without
+      disabling capture for their C siblings, preserving native source/flag
+      semantics. I verify cold/warm/fresh results, actual reuse, dependency
+      changes, missing-input recovery and both cache roots on Darwin and Linux.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+      At `8724288c`, Darwin `.s` and `.S` and Linux `.S` reproduce 43/43/42
+      with actual stale reuse under both cache roots. Linux raw `.s` instead
+      fails publication: GCC emits an object but no required depfile. All
+      native mixed-source controls return 42. I must supply source-appropriate
+      dependency evidence, not merely remove the `.c` admission check. Baseline
+      commands and measured limits are in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

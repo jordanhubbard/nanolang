@@ -5,6 +5,7 @@ Add --require-consistent to fail when cold or warm answers differ from fresh.
 Add --assembler to include external binary input read by inline assembly.
 Add --external-assembler to measure Clang's non-integrated assembler mode.
 Add --alternate-assembler to measure GNU alternate-macro input capture.
+Add --assembler-units to measure mixed C and standalone .s/.S sources.
 Add --split-search to forward assembler operands in separate metadata entries.
 Add --response to include compiler arguments read from a response file.
 Add --response-large to exercise argument lists beyond inline capture limits.
@@ -43,6 +44,7 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                 source = module / "answer.c"
                 target = source
                 fresh_flags = []
+                extra_sources = []
                 if kind.startswith("link-response"):
                     for value in (42, 43):
                         member, obj = directory / "member.c", directory / "member.o"
@@ -136,8 +138,19 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                             directory / "missing-helper.so" if kind == "assembler-fallback"
                             else shadows.ROOT / "bin/nano_as_capture.so")
                     assembly = f'.data\n.globl {symbol}\n{symbol}:\n{directive}\n.text\n'
+                    standalone = kind in ("assembler-unit", "assembler-preprocessed-unit")
+                    if standalone:
+                        unit = module / ("payload.S" if kind == "assembler-preprocessed-unit" else "payload.s")
+                        if kind == "assembler-preprocessed-unit":
+                            assembly = '#define PAYLOAD ' + json.dumps(str(target)) + '\n' + assembly.replace(directive, '.incbin PAYLOAD')
+                        unit.write_text(assembly)
+                        extra_sources.append(unit)
+                        metadata = json.loads((module / "module.json").read_text())
+                        metadata["c_sources"].append(unit.name)
+                        (module / "module.json").write_text(json.dumps(metadata))
+                        env["NANO_AS_CAPTURE_HELPER"] = str(shadows.ROOT / "bin/nano_as_capture.so")
                     source.write_text('extern const unsigned char snapshot_payload[];\n'
-                        '__asm__(' + json.dumps(assembly) + ');\n'
+                        + ('' if standalone else '__asm__(' + json.dumps(assembly) + ');\n') +
                         'long long nano_build_answer(void) {\n'
                         'return (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n')
                     if kind in ("assembler-alternate", "assembler-external-alternate"):
@@ -166,7 +179,7 @@ if "-c" in sys.argv and "-###" not in sys.argv and "-S" not in sys.argv:
             log.write(("external" if "-fno-integrated-as" in sys.argv else "integrated") + "\\n")
 if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "('-c' in sys.argv and '-###' not in sys.argv and '-S' not in sys.argv)"}:
     marker = pathlib.Path({str(marker)!r})
-    if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":
+    if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture" and ({not extra_sources!r} or any(pathlib.Path(arg).name in {[path.name for path in extra_sources]!r} for arg in sys.argv[1:])):
         target = pathlib.Path({str(target)!r})
         original, stamp = target.read_bytes(), target.stat()
         changed = original.replace({(b"selected42.a" if kind.startswith("link-response") else b"42")!r},
@@ -199,12 +212,23 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                         "print(lib.nano_build_answer())", library], directory)
                     return int(result.stdout)
 
-                if kind in ("assembler-external-macro-query-failure", "assembler-fallback", "capture-failure"):
+                native_answer = None
+                if extra_sources:
+                    native = directory / ("native.dylib" if sys.platform == "darwin" else "native.so")
+                    run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                         "-fPIC", source, *extra_sources, *fresh_flags, "-o", native], directory)
+                    native_answer = answer(native)
+                    if native_answer != 42:
+                        raise RuntimeError("I need the mixed-source native baseline to return 42")
+
+                if kind in ("assembler-external-macro-query-failure", "assembler-fallback", "capture-failure",
+                            "assembler-unit", "assembler-preprocessed-unit"):
                     built = subprocess.run([probe, "build", module], cwd=directory, env=env, capture_output=True, timeout=20)
                     if built.returncode:
                         root = query("root")
                         cases.append({
                             "input": kind, "cache": "shared" if shared else "local", "build_failed": True,
+                            "native_answer": native_answer,
                             "diagnostic": built.stderr.decode(), "mutation_started": marker.exists(),
                             "total_object_compilations": calls.read_text().splitlines().count("C") if calls.exists() else 0,
                             "published_generations": len(list(root.glob(".nano-gen-*"))),
@@ -226,7 +250,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 warm_answer = answer(query("library"))
                 fresh = directory / ("fresh.dylib" if sys.platform == "darwin" else "fresh.so")
                 run([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared",
-                     "-fPIC", source, *fresh_flags, "-o", fresh], directory)
+                     "-fPIC", source, *extra_sources, *fresh_flags, "-o", fresh], directory)
                 if marker.read_text() != "0" or target.read_bytes() != original:
                     raise RuntimeError("I did not complete and restore the controlled compilation")
                 cases.append({
@@ -270,6 +294,7 @@ if __name__ == "__main__":
     parser.add_argument("--assembler", action="store_true")
     parser.add_argument("--external-assembler", action="store_true")
     parser.add_argument("--alternate-assembler", action="store_true")
+    parser.add_argument("--assembler-units", action="store_true")
     parser.add_argument("--split-search", action="store_true")
     parser.add_argument("--response", action="store_true")
     parser.add_argument("--response-large", action="store_true")
@@ -281,6 +306,7 @@ if __name__ == "__main__":
         raise SystemExit("I need a C compiler executable")
     kinds = ("source", "header")
     if args.assembler: kinds += ("assembler",)
+    if args.assembler_units: kinds += ("assembler-unit", "assembler-preprocessed-unit")
     if args.external_assembler: kinds += ("assembler-external",)
     if args.alternate_assembler:
         kinds += ("assembler-external-alternate" if args.external_assembler else "assembler-alternate",)

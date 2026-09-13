@@ -2191,3 +2191,46 @@ pass in 409.515 seconds: three methods covering 48 production build/recovery
 cases plus the phase assertions. This checks the shared parser and preserves
 integrated/external Clang include behavior; it is not a GNU alternate-mode
 execution claim on Darwin.
+
+### Mixed C and assembler translation-unit baseline
+
+At `8724288c`, snapshot admission requires every ordinary and shared source
+to have a `.c` suffix. A standalone assembler input disables capture for the
+whole module. I add `--assembler-units` to the characterization CLI to measure
+one C function reading a payload defined by a separate `.s` or `.S` file.
+The `.S` fixture requires preprocessing to expand its payload filename macro.
+The wrapper changes the payload only during compilation of that assembler
+unit, then restores bytes, length and mtime. Changing it during the C sibling
+compile would not exercise this defect.
+
+Native mixed-source builds return 42 on Apple Clang 21 and Debian GCC 12.2,
+both arm64. Production results under both local and shared cache roots are:
+
+| Driver | Unit | Cold / warm / fresh | Publication |
+| --- | --- | --- | --- |
+| Apple Clang 21 | `.s` | 43 / 43 / 42 | stale generation reused |
+| Apple Clang 21 | `.S` | 43 / 43 / 42 | stale generation reused |
+| GCC 12.2 | `.s` | unavailable | rejected incomplete artifacts |
+| GCC 12.2 | `.S` | 43 / 43 / 42 | stale generation reused |
+
+Each successful cold build compiles two objects; the warm build compiles
+neither. No retained assembly or translation unit exists for the C sibling,
+and the payload is absent from its reuse record. Raw `.s` failures on Linux
+leave no published generation, current pointer or staging directory. Their
+native control succeeds, so rejection is not snapshot acceptance.
+
+A separate GCC invocation with the builder's `-c -H -MD -MT
+nano_module_dependencies -MF payload.d` options emits `payload.o` successfully
+but no `payload.d` for raw `.s`. My publication path requires the per-source
+depfile. Source-kind-aware capture must supply genuine dependency evidence;
+an empty placeholder or a relaxed publication check cannot establish it.
+
+```sh
+python3 -m tests.characterize_source_snapshot --assembler-units --require-consistent
+```
+
+The command exits one on both hosts. Existing source/header controls still
+return 42/42/42 with reuse. This is a reproduced failure, not a production
+repair. Source-specific capture, shared-only assembler sources, include and
+flag semantics, permanent edits and recovery remain work under MAC
+`task_3f96ba3373db49a6b1c2a1987c1c0349`.
