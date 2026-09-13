@@ -43,11 +43,11 @@ def evidence(obj, source, cwd, text=None):
             "compile_units": decoded.count("DW_TAG_compile_unit")}
 
 
-def measure(compiler, candidate=False, flat=False):
+def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_read=False):
     if flat and not candidate:
         raise ValueError("I require candidate mode for the flat-path experiment")
     version = run([compiler, "--version"], ROOT).splitlines()[0]
-    flags = ["-g"] + (["-fno-integrated-as"] if "clang" in version else [])
+    flags = list(debug_options) + (["-fno-integrated-as"] if "clang" in version else [])
     cases = []
     for suffix in ("s", "S"):
         for shared in (False, True):
@@ -60,6 +60,11 @@ def measure(compiler, candidate=False, flat=False):
                 source = module / ("payload." + suffix)
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                 assembly = f'.text\nnop\n.data\n.globl {symbol}\n{symbol}:\n.byte 42\n'
+                if macro_read:
+                    payload = directory / "debug payload.bin"
+                    payload.write_bytes(b"*")
+                    assembly = '.macro read_payload path\n.incbin "\\path"\n.endm\n' + assembly.replace(
+                        '.byte 42', 'read_payload "' + str(payload) + '"')
                 if suffix == "S": assembly = '#define INSTRUCTION nop\n' + assembly.replace('nop', 'INSTRUCTION')
                 source.write_text(assembly)
                 (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
@@ -70,12 +75,14 @@ def measure(compiler, candidate=False, flat=False):
                 run([compiler, "-c", "-fPIC", *flags, source, "-o", native], directory)
                 native_text = []
                 expected = evidence(native, source, directory, native_text)
-                if not expected["sections"] or not expected["source_named"]:
+                if debug_options and debug_options[-1] != "-g0" and (not expected["sections"] or not expected["source_named"]):
                     raise RuntimeError("I need a native object with debug sections and source provenance")
                 probe = ROOT / "obj/test_module_generation_probe"
                 run([probe, "build", module], directory, env)
                 generation = Path(run([probe, "directory", module], directory, env).strip())
-                observed = evidence(generation / "answer_native_1.o", source, directory)
+                production_object = generation / "answer_native_1.o"
+                production_text = []
+                observed = evidence(production_object, source, directory, production_text)
                 candidate_evidence = None
                 candidate_diff = None
                 candidate_identical = None
@@ -109,9 +116,17 @@ def measure(compiler, candidate=False, flat=False):
                 value = run([sys.executable, "-c", "import ctypes,sys; l=ctypes.CDLL(sys.argv[1]); "
                     "l.nano_build_answer.restype=ctypes.c_int64; print(l.nano_build_answer())", library], directory)
                 run([probe, "build", module], directory, env)
-                reused = generation == Path(run([probe, "directory", module], directory, env).strip())
+                warm_generation = Path(run([probe, "directory", module], directory, env).strip())
+                reused = generation == warm_generation
+                warm_text = []
+                evidence(warm_generation / "answer_native_1.o", source, directory, warm_text)
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
                               "native": expected, "production": observed,
+                              "production_object_identical": native.read_bytes() == production_object.read_bytes(),
+                              "production_debug_diff": ''.join(difflib.unified_diff(native_text, production_text,
+                                                                                     fromfile="native", tofile="production")),
+                              "warm_debug_diff": ''.join(difflib.unified_diff(production_text, warm_text,
+                                                                               fromfile="cold", tofile="warm")),
                               "candidate": candidate_evidence,
                               "candidate_debug_diff": candidate_diff,
                               "candidate_object_identical": candidate_identical,

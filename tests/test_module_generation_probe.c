@@ -582,7 +582,7 @@ int main(int argc, char **argv) {
     if (argc == 4 && !strcmp(argv[1], "phase-flags")) {
         char *end = NULL;
         unsigned long phases = strtoul(argv[2], &end, 10);
-        if (!end || *end || phases > 7) return 2;
+        if (!end || *end || phases > 31) return 2;
         size_t length = strlen(argv[3]);
         if (length > (SIZE_MAX - 16) / 4) return 2;
         size_t capacity = length * 4 + 16;

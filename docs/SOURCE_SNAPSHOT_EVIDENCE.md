@@ -2457,3 +2457,54 @@ after cleanup. The existing experiment uses a temporary directory outside
 the generation. Production integration must own its creation and cleanup
 across capture, replay, validation and failures, or explicitly extend and
 test the storage contract. No production behavior changes in this experiment.
+
+### Standalone debug-option ownership in production
+
+Cache context v39 separates standalone-unit assembly from assembly of
+C-generated text. I retain the admitted `-g`, `-g0`, `-g1`, `-g2` and `-g3`
+selectors in their original order for standalone final assembly and GNU
+read capture. C-generated text does not receive these selectors a second
+time. Definitions and forwarded include operands that happen to spell a
+debug option remain operands, not selectors.
+
+When debugging is enabled, I forward directory mappings with `-Xassembler`
+so commas remain within a single argument. I map private generation paths
+before object hashing; the validation generation must produce the same
+object bytes. I do not change flat cache storage or its publication barrier.
+The mapping source cannot contain `=`; I reject that unrepresentable mapping
+instead of publishing an object with unstable private-path identity. Disabled
+debugging does not introduce this path restriction.
+
+The simple `.s`/`.S` production fixtures now retain their native debug-section
+sets and compilation-unit counts on GCC 12.2/GNU as 2.40 and Apple Clang 21
+external assembly. They return 42 and reuse generations under both cache
+roots. The regression repeats each case with `-g`, `-g -g0`, and `-g0 -g`:
+the final selector controls debug emission. These checks deliberately do not
+stand in for the strict provenance comparison.
+
+Strict characterization remains incomplete. GNU raw `.s` still names the
+synthetic snapshot basename. Darwin retains canonical `/private/var/...`
+source spelling where the native control uses `/var/...`; complete decoded
+debug diffs identify this difference. I now expose production whole-object
+identity and debug diffs in the JSON alongside candidate evidence. The simple
+GNU preprocessed `.S` cases match decoded native debug data. Nested source
+provenance and integrated text replay remain open.
+
+The macro-driven binary-read regression exercises GNU read capture and
+Apple external expansion with `-g`. Its first Darwin run fails all four warm
+reuse checks. Cold/warm debug diffs expose relative names such as
+`foreign/.build/.nano-build-.../__snapshot_0_1.s`; absolute mapping alone
+does not rewrite them. I now map canonical and cwd-relative private directory
+spellings too. The four Darwin cases then reuse their generation, as do the
+four GNU cases. This restores stable object identity, not native source
+locations: the expanded Darwin line table still describes expanded text.
+
+Final validation uses the source with both canonical and relative private
+mapping fixes. Strict compiler/probe builds pass on both hosts. The Linux
+`make test-bytecode-shadows` gate passes 221 methods with 25 platform skips,
+including all 80 snapshot methods (96.630 seconds, 16 skips). Six focused
+Darwin methods pass in 111.841 seconds: debug phase ownership, selector
+precedence, macro reads, include-flag phases, restored standalone inputs and
+cache recovery. Python syntax, whitespace and six-edition guide checks pass.
+I did not run the full Darwin release gate or claim native debug provenance
+complete. The parent roadmap item stays open.

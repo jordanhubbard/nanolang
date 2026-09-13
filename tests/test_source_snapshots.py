@@ -228,6 +228,39 @@ class SourceSnapshots(unittest.TestCase):
                 self.support.probe_path("build", module, env, timeout=20)
                 self.assertEqual(self.support.probe_path("directory", module, env), recovered)
 
+    def test_standalone_assembler_debug_flag_phases(self):
+        words = ["-g3", "-D", "VALUE=-g0", "-O2", "-g0", "-g", "-g1", "-g2",
+                 "-Xassembler", "-I", "-Xassembler", "-g3"]
+        debug = ["-g3", "-g0", "-g", "-g1", "-g2"]
+        for phases, expected in ((16, debug), (4, words[-4:]), (20, debug + words[-4:]),
+                                 (2, ["-g3", "-O2", "-g0", "-g", "-g1", "-g2"]), (7, words)):
+            with self.subTest(phases=phases):
+                result = subprocess.run([str(self.support.probe), "phase-flags", str(phases), shlex.join(words)],
+                                        capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(shlex.split(result.stdout.decode()), expected)
+
+    def test_standalone_assembler_debug_sections_and_precedence(self):
+        from tests.characterize_assembler_debug import measure as measure_debug
+        for options in (("-g",), ("-g", "-g0"), ("-g0", "-g")):
+            for case in measure_debug(shutil.which("cc"), debug_options=options)["cases"]:
+                with self.subTest(options=options, suffix=case["suffix"], cache=case["cache"]):
+                    self.assertEqual(case["production"]["sections"], case["native"]["sections"])
+                    self.assertEqual(case["production"]["compile_units"], case["native"]["compile_units"])
+                    self.assertEqual(case["answer"], 42)
+                    self.assertTrue(case["generation_reused"])
+                    # I leave strict source provenance in the characterization:
+                    # raw GNU basenames and Darwin path aliases remain open.
+
+    def test_standalone_assembler_debug_macro_reads(self):
+        from tests.characterize_assembler_debug import measure as measure_debug
+        for case in measure_debug(shutil.which("cc"), macro_read=True)["cases"]:
+            with self.subTest(suffix=case["suffix"], cache=case["cache"]):
+                self.assertEqual(case["production"]["sections"], case["native"]["sections"])
+                self.assertEqual(case["production"]["compile_units"], case["native"]["compile_units"])
+                self.assertEqual(case["answer"], 42)
+                self.assertTrue(case["generation_reused"])
+
     def test_assembler_include_flag_phases(self):
         assembler = ["-Wa,-I,first path,-Isecond", "-Xassembler", "-I", "-Xassembler", "third path,comma",
                      "-Xassembler", "-Ifourth", "-Wa,--alternate", "-Xassembler", "--alternate",

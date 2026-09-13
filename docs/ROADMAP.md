@@ -1254,8 +1254,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       respect my flat-only publication barrier and descriptor-relative cleanup:
       adding persistent nested directories without changing those contracts
       is not a valid implementation.
-      Production integration, nested-source provenance and flag precedence
-      remain open; `--candidate` is an experiment, not a repaired build path.
+      Production context v39 now gives standalone units their debug selectors
+      during assembly and GNU read capture, preserving selector order and
+      excluding them from final assembly of C-generated text. Directory maps
+      make private-object validation stable. This is a partial repair:
+      original raw-source basenames, Darwin source-directory alias spelling,
+      nested-source provenance and complete integration remain open. Debug
+      mapping also requires representable map-source paths (no `=`). I retain
+      strict characterization failures instead of accepting section counts
+      as complete provenance evidence.
+      The new debug macro-read regression found Darwin warm rebuilds in all
+      four suffix/cache cases. Cold/warm debug diffs exposed cwd-relative
+      private filenames after expansion. Explicit relative-directory mapping
+      restores reuse in that regression; it does not restore original line
+      locations or basenames.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

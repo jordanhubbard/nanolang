@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v38-apple-assembler-preprocessing");
+    hash_context_field(&hash, "nanolang-c-build-context-v39-unit-debug-phase");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -2277,7 +2277,7 @@ static bool module_build_append(char *buffer, size_t capacity, const char *forma
 typedef enum {
     MODULE_FLAG_UNKNOWN = 0, MODULE_FLAG_PREPROCESS = 1,
     MODULE_FLAG_C = 2, MODULE_FLAG_BOTH = 3, MODULE_FLAG_ASSEMBLER = 4,
-    MODULE_FLAG_LINKER = 8
+    MODULE_FLAG_LINKER = 8, MODULE_FLAG_DEBUG = 16
 } ModuleFlagPhase;
 
 /* I decode literal shell words only. Expansions, operators and globbing remain
@@ -2550,9 +2550,12 @@ static bool module_wa_options(const char *word, bool search_only) {
 static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     if (!flag) return MODULE_FLAG_UNKNOWN;
     if (module_wa_options(flag, false)) return MODULE_FLAG_ASSEMBLER;
+    if (!strcmp(flag, "-g") || !strcmp(flag, "-g0") || !strcmp(flag, "-g1") ||
+        !strcmp(flag, "-g2") || !strcmp(flag, "-g3"))
+        return MODULE_FLAG_BOTH | MODULE_FLAG_DEBUG;
     const char *both[] = {
         "-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
-        "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic", "-fno-integrated-as",
+        "-fPIC", "-fpic", "-fno-integrated-as",
         "-std=c89", "-std=c90", "-std=c99", "-std=c11", "-std=c17", "-std=c18",
         "-std=gnu89", "-std=gnu90", "-std=gnu99", "-std=gnu11", "-std=gnu17", "-std=gnu18",
         "-Wall", "-Wextra", "-Werror", "-Wpedantic",
@@ -3298,7 +3301,7 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
 #endif
 
 typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED, MODULE_C_RETAINED_ASSEMBLY,
-               MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE } ModuleCPhase;
+               MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE, MODULE_C_ASSEMBLE_UNIT } ModuleCPhase;
 
 /* The caller owns a zeroed array and frees every slot on failure. I retain
  * original include paths in metadata for dependency and cache validation. */
@@ -3343,7 +3346,7 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
         bool admitted = module_phase_flags(fragment, selected, size, flags->linker_grammar, phases);
         bool ok = admitted && module_append_compiler_fragment(meta, flags, selected, false, output, capacity);
         free(selected);
-        if (admitted || phases == MODULE_FLAG_ASSEMBLER) return ok;
+        if (admitted || (phases & MODULE_FLAG_ASSEMBLER)) return ok;
         /* Unadmitted compatibility fragments retain their original handling. */
     }
     if (!flags->linker_grammar || retained)
@@ -3406,8 +3409,9 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
     bool retained = phase == MODULE_C_RETAINED || phase == MODULE_C_RETAINED_ASSEMBLY;
-    bool assembler = phase == MODULE_C_ASSEMBLE;
-    unsigned phases = assembler ? MODULE_FLAG_ASSEMBLER : retained ? MODULE_FLAG_C :
+    bool assembler = phase == MODULE_C_ASSEMBLE || phase == MODULE_C_ASSEMBLE_UNIT;
+    unsigned phases = assembler ? MODULE_FLAG_ASSEMBLER |
+        (phase == MODULE_C_ASSEMBLE_UNIT ? MODULE_FLAG_DEBUG : 0) : retained ? MODULE_FLAG_C :
         phase == MODULE_C_PREPROCESS ? MODULE_FLAG_BOTH : (MODULE_FLAG_BOTH | MODULE_FLAG_ASSEMBLER);
     /* Clang drops -Wa include paths from its -S driver job. I preserve the
      * real integrated -c job's frontend search order, changing only its output
@@ -3419,7 +3423,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
                                    search_capture ? "-c -Xclang -S" :
                                    (phase == MODULE_C_EMIT_ASSEMBLY || phase == MODULE_C_RETAINED_ASSEMBLY) ? "-S" : "-c");
     /* I already applied C code-generation and diagnostic flags during capture. */
-    if (phase == MODULE_C_ASSEMBLE) {
+    if (assembler) {
         if (snapshot && module_external_assembler(meta, snapshot))
             ok &= module_build_append(prefix, capacity, " -fno-integrated-as");
     }
@@ -3855,6 +3859,77 @@ static bool module_assembler_version_supported(const char *version) {
 }
 #endif
 
+/* I retain standalone debug-option ownership without replaying C diagnostics. */
+static bool module_unit_assembly_prefix(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                         const char *source, const char *directory,
+                                         char *prefix, size_t capacity) {
+    if (!module_compile_prefix(meta, prefix, capacity, MODULE_C_ASSEMBLE_UNIT, flags)) return false;
+    bool debug = false;
+    for (size_t group = 0; group < 3; group++) {
+        size_t count = group ? meta->cflags_count : flags->count;
+        char **fragments = group ? meta->cflags : flags->cflags;
+        if (group == 2) fragments = module_platform_cflags(meta, &count);
+        for (size_t i = 0; i < count; i++) {
+#ifdef __APPLE__
+            if (!group && module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+            char selected[4096] = {0}, word[4096];
+            if (!module_phase_flags(fragments[i], selected, sizeof(selected), flags->linker_grammar,
+                                    MODULE_FLAG_DEBUG)) return false;
+            const char *cursor = selected;
+            while (module_flag_word(&cursor, word, sizeof(word)) > 0) debug = strcmp(word, "-g0") != 0;
+        }
+    }
+    if (!debug) return true;
+    char original[4096] = {0}, mapping[8192] = {0};
+    bool ok = source[0] == '/' ? module_build_append(original, sizeof(original), "%s", source) :
+        module_build_append(original, sizeof(original), "%s/%s", meta->module_dir, source);
+    char *slash = ok ? strrchr(original, '/') : NULL;
+    if (!slash) return false;
+    if (slash == original) slash[1] = 0;
+    else *slash = 0;
+    /* I map invocation-private directories before object hashing. This keeps
+     * validation reproducible; raw-source basename provenance remains separate. */
+#ifdef __APPLE__
+    const char *option = "-fdebug-prefix-map=";
+#else
+    const char *option = "--debug-prefix-map=";
+#endif
+    if (strchr(directory, '=')) return false;
+    ok = module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, directory, original) &&
+        module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+    char *private_canonical = realpath(directory, NULL);
+    if (!private_canonical) return false;
+    if (ok && strcmp(private_canonical, directory)) {
+        mapping[0] = 0;
+        ok = !strchr(private_canonical, '=') &&
+            module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, private_canonical, original) &&
+            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+    }
+    char *cwd = getcwd(NULL, 0);
+    if (!cwd) { free(private_canonical); return false; }
+    size_t cwd_length = strlen(cwd);
+    if (ok && !strncmp(private_canonical, cwd, cwd_length) && private_canonical[cwd_length] == '/') {
+        /* Apple's automatic assembler debug names can be cwd-relative. */
+        mapping[0] = 0;
+        ok = module_build_append(mapping, sizeof(mapping), "%s%s=%s", option,
+                                  private_canonical + cwd_length + 1, original) &&
+            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+    }
+    free(cwd);
+    free(private_canonical);
+    char *canonical = realpath(original[0] ? original : "/", NULL);
+    if (!canonical) return false;
+    if (ok && strcmp(canonical, original)) {
+        mapping[0] = 0;
+        ok = !strchr(canonical, '=') &&
+            module_build_append(mapping, sizeof(mapping), "%s%s=%s", option, canonical, original) &&
+            module_append_path_flag(prefix, capacity, "-Xassembler ", mapping);
+    }
+    free(canonical);
+    return ok;
+}
+
 /* GCC still chooses assembler arguments; my private -B entry changes only the
  * executable receiving them. Loader configuration starts inside that wrapper,
  * never in the compiler driver, preprocessor, linker or calling process. */
@@ -4102,13 +4177,20 @@ static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModuleP
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         for (size_t i = 0; ok && i < count; i++) {
             char input[2048] = {0}, assembly[2048] = {0}, object[2048] = {0}, record[2048] = {0};
+            const char *source = group ? meta->shared_c_sources[i] : meta->c_sources[i];
+            char unit_prefix[4096];
+            const char *selected = assemble;
+            if (module_source_kind(source) > 1) {
+                ok = module_unit_assembly_prefix(meta, flags, source, directory, unit_prefix, sizeof(unit_prefix));
+                selected = unit_prefix;
+            }
             command[0] = 0;
-            ok = module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
+            ok = ok && module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
                 module_build_append(assembly, sizeof(assembly), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
                 module_build_append(object, sizeof(object), "%s/__as_capture_%zu_%zu.o", directory, group, i) &&
                 module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i) &&
                 module_prepare_assembly(meta, retained, input, assembly, group, i) &&
-                module_read_command(command, sizeof(command), assemble, directory, group, i, object, true) &&
+                module_read_command(command, sizeof(command), selected, directory, group, i, object, true) &&
                 !system(command);
             unsigned captured = 0;
             uint64_t hash = 0;
@@ -4353,9 +4435,18 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
     return fingerprint;
 }
 
-static bool module_snapshot_command(char *command, size_t capacity, const char *prefix,
+static bool module_snapshot_command(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                    char *command, size_t capacity, const char *prefix,
                                     const char *directory, size_t group, size_t index,
                                     const char *object, ModuleSnapshotMode mode) {
+    /* Standalone units bypass C lowering, so their debug selector belongs to
+     * final assembly. C-generated assembly already contains its debug data. */
+    const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
+    char unit_prefix[4096];
+    if (module_source_kind(source) > 1 && mode != MODULE_SNAPSHOT_GCC) {
+        if (!module_unit_assembly_prefix(meta, flags, source, directory, unit_prefix, sizeof(unit_prefix))) return false;
+        prefix = unit_prefix;
+    }
     if (mode == MODULE_SNAPSHOT_GCC_REPLAY)
         return module_read_command(command, capacity, prefix, directory, group, index, object, false);
     char snapshot[2048] = {0};
@@ -4390,7 +4481,7 @@ static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFla
             else if (count == 1) ok = module_build_append(object, sizeof(object), "%s/%s.o", directory, meta->name);
             else ok = module_build_append(object, sizeof(object), "%s/%s_%zu.o", directory, meta->name, i);
             if (!ok) return 0;
-            if (compile && (!module_snapshot_command(command, sizeof(command), prefix, directory,
+            if (compile && (!module_snapshot_command(meta, flags, command, sizeof(command), prefix, directory,
                                 group, i, object, mode) ||
                             !module_build_append(command, sizeof(command), " 2>/dev/null") || system(command))) return 0;
             uint64_t hash = hash_file_fnv1a(object);
@@ -4865,7 +4956,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             char compile_cmd[8192];
             command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[0], object_file, dep_path, false);
-            if (snapshots) command_ok &= module_snapshot_command(compile_cmd, sizeof(compile_cmd),
+            if (snapshots) command_ok &= module_snapshot_command(meta, flags, compile_cmd, sizeof(compile_cmd),
                 compile_prefix, build_dir, 0, 0, object_file, mode);
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
@@ -4898,7 +4989,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 char compile_cmd[8192];
                 command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[i], obj_path, dep_path, false);
-                if (snapshots) command_ok &= module_snapshot_command(compile_cmd, sizeof(compile_cmd),
+                if (snapshots) command_ok &= module_snapshot_command(meta, flags, compile_cmd, sizeof(compile_cmd),
                     compile_prefix, build_dir, 0, i, obj_path, mode);
 
                 if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
@@ -4979,7 +5070,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                     char sc_cmd[8192];
                     command_ok &= module_source_command(sc_cmd, sizeof(sc_cmd), compile_prefix,
                                       meta->module_dir, meta->shared_c_sources[sci], sc_obj, sc_dep, true);
-                    if (snapshots) command_ok &= module_snapshot_command(sc_cmd, sizeof(sc_cmd),
+                    if (snapshots) command_ok &= module_snapshot_command(meta, flags, sc_cmd, sizeof(sc_cmd),
                         compile_prefix, build_dir, 1, sci, sc_obj, mode);
 
                     if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
