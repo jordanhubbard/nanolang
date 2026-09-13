@@ -16,6 +16,34 @@ shadow main { assert (== (main) 0) }
 
 
 class SelfhostCliTests(unittest.TestCase):
+    def test_string_search_native_stages(self):
+        for compiler in (ROOT / "bin/nanoc_c", ROOT / "bin/nanoc_stage1", COMPILER):
+            with self.subTest(compiler=compiler.name), tempfile.TemporaryDirectory(prefix="nano-search-") as tmp:
+                output = Path(tmp) / "search"
+                result = subprocess.run([str(compiler), str(ROOT / "tests/string_search.nano"), "-o", str(output)],
+                                        cwd=ROOT, env=dict(os.environ, TMPDIR=tmp, NANO_CC=shutil.which("cc")),
+                                        capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                executed = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
+                self.assertEqual(executed.returncode, 0, executed.stderr)
+                self.assertEqual(executed.stdout, "search-ok\n")
+
+    def test_string_search_emitted_c(self):
+        with tempfile.TemporaryDirectory(prefix="nano-search-c-") as tmp:
+            directory = Path(tmp)
+            output = directory / "search.c"
+            result = self.invoke([ROOT / "tests/string_search.nano", "--target", "c", "-o", output], directory)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('#include "runtime/string_search.h"', output.read_text())
+            binary = directory / "search"
+            compiled = subprocess.run(["cc", "-O2", "-std=gnu11", "-I", str(ROOT / "src"),
+                                       "-I", str(ROOT / "modules/std"), str(output), "-lm", "-o", str(binary)],
+                                      capture_output=True, text=True, timeout=60)
+            self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+            executed = subprocess.run([str(binary)], capture_output=True, text=True, timeout=10)
+            self.assertEqual(executed.returncode, 0, executed.stderr)
+            self.assertEqual(executed.stdout, "search-ok\n")
+
     def test_destination_probe_lifecycle_and_failures(self):
         with tempfile.TemporaryDirectory(prefix="nano-destination-unit-") as tmp:
             directory = Path(tmp)

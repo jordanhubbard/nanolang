@@ -14,6 +14,14 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BytecodeShadows(unittest.TestCase):
+    def test_string_search_shadows_and_production(self):
+        with tempfile.TemporaryDirectory(prefix="nano-search-vm-") as tmp:
+            result, output = self.compile((ROOT / "tests/string_search.nano").read_text(), Path(tmp))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            product = self.execute(output)
+            self.assertEqual(product.returncode, 0, product.stderr)
+            self.assertEqual(product.stdout, b"search-ok\n")
+
     def test_import_selection_failures_preserve_output(self):
         for transitive in (False, True):
             for failure in ("assert false", 'let wrong: int = "no"', "assert (== (at [1] 9) 0)"):

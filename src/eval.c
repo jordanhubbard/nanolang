@@ -3257,6 +3257,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
     if (strcmp(name, "str_starts_with") == 0) return builtin_str_starts_with(args);
     if (strcmp(name, "str_ends_with") == 0) return builtin_str_ends_with(args);
     if (strcmp(name, "str_index_of") == 0) return builtin_str_index_of(args);
+    if (strcmp(name, "str_last_index_of") == 0) return builtin_str_last_index_of(args);
     if (strcmp(name, "str_trim") == 0) return builtin_str_trim(args);
     if (strcmp(name, "str_trim_left") == 0) return builtin_str_trim_left(args);
     if (strcmp(name, "str_trim_right") == 0) return builtin_str_trim_right(args);

@@ -515,11 +515,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       behavior and collisions with phony target names. This is conservative
       modification-time invalidation, not a toolchain/content-addressed key.
       MAC `task_85191b435c95480d9db52e3671d1e740`.
-- [ ] **5.0 self-hosted string-search builtin lowering.** A use of
-      `str_index_of` typechecks but emits an undefined `nl_str_index_of`
-      call. I test first/last search, empty and missing needles from source
-      through native output. My bootstrap helpers implement substring search
-      themselves; passing their shadows does not establish builtin parity.
+- [x] **5.0 self-hosted string-search builtin lowering.** My shared search
+      header supplies first/last byte-offset search to both C emitters and the
+      interpreter/VM string primitives. I register last-search in the shared
+      frontend and rename the typechecker's private character helper to avoid
+      a runtime-name collision. Eighteen assertions cover overlaps, empty and
+      missing needles, longer needles and UTF-8 byte offsets through C-seed,
+      Stage1, Stage2, separately compiled emitted C, and VM shadows/production.
+      Both bootstraps, interpreter/typechecker/string/VM-builtin unit gates and
+      55 CLI/bytecode-shadow regressions per platform pass on Darwin and Linux.
+      These helpers consume NUL-terminated strings, not embedded-NUL byte spans
+      or Unicode character positions. The baseline native output lacked both
+      runtime declarations; passing bootstrap helpers alone had missed it.
       MAC `task_a9b152cf5299491694d96a2385527e98`.
 - [x] **5.0 interpreted indexed-read alias.** I route `array_get` to the
       same reader as `at`. My FFI map fixture exposed that typing accepted the

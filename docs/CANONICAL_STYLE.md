@@ -99,6 +99,24 @@ named records with `Type { field: value }` and read fields with `value.field`.
 Named types and variants start with an uppercase letter because the parser uses
 that convention when distinguishing constructors from ordinary identifiers.
 
+## String Search
+
+`str_index_of` finds the first occurrence; `str_last_index_of` finds the last,
+including overlapping matches. I return a byte offset or `-1` when no match
+exists. An empty needle matches at zero for first-search and at the byte length
+for last-search:
+
+```nano
+assert (== (str_index_of "ababa" "aba") 0)
+assert (== (str_last_index_of "ababa" "aba") 2)
+assert (== (str_last_index_of "abc" "") 3)
+assert (== (str_index_of "éx" "x") 2)
+```
+
+My C-seed, self-hosted native emitter and VM builtin bridge share these search
+helpers. They consume NUL-terminated strings; this is not Unicode-position
+search or a length-aware search through embedded NUL bytes.
+
 ## Control Flow
 
 An `if` may omit `else`:

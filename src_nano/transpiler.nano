@@ -3414,6 +3414,7 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "bool nl_str_contains(const char* str, const char* substr) {\n")
     set sb (cg_append sb "    return strstr(str, substr) != NULL;\n")
     set sb (cg_append sb "}\n\n")
+    set sb (cg_append sb "#include \"runtime/string_search.h\"\n")
     /* nl_str_slice(str, start, end) - slice from start to end (end-exclusive) */
     set sb (cg_append sb "char* nl_str_slice(const char* s, int64_t start, int64_t end_pos) {\n")
     set sb (cg_append sb "    if (!s) return \"\";\n")
@@ -3738,8 +3739,7 @@ fn gen_c_runtime() -> string {
 
 shadow gen_c_runtime {
     let runtime: string = (gen_c_runtime)
-    /* Just verify it generates something */
-    assert (== 1 1)
+    assert (str_contains runtime "#include \"runtime/string_search.h\"")
 }
 
 /*
