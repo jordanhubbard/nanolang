@@ -650,7 +650,46 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(result.returncode, 0, result.stderr)
                 returned = [line[len("compile:"):] for line in result.stdout.decode().splitlines()
                             if line.startswith("compile:")]
+                if any(value.lstrip().startswith("@") for value in returned):
+                    decoded = []
+                    for value in returned:
+                        for word in shlex.split(value):
+                            decoded.extend(shlex.split(Path(word[1:]).read_text()) if word.startswith("@") else [word])
+                    returned = decoded
                 self.assertEqual(returned, ["-I" + value for value in values] if origin == "include_dirs" else values)
+
+    def test_aggregate_compiler_fragments_preserve_order_and_reuse(self):
+        platform = "cflags_macos" if sys.platform == "darwin" else "cflags_linux"
+        for origin in ("cflags", platform, "responses", "pkg_config"):
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory(prefix="nano-aggregate-flags-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                (module / "answer.c").write_text("long long nano_build_answer(void) { return ANSWER; }\n")
+                values = ["-DNANO_PAD=1"] * 1300 + ["-DANSWER=42", "-UANSWER", "-DANSWER=43"]
+                metadata = {"name": "answer_native", "c_sources": ["answer.c"]}
+                if origin == "responses":
+                    response = directory / "small.rsp"
+                    response.write_text("-DNANO_PAD=1\n" * 30)
+                    metadata["cflags"] = ["@" + str(response)] * 40 + values[-3:]
+                elif origin == "pkg_config":
+                    metadata["pkg_config"] = [f"fixture-{i}" for i in range(40)]
+                    pkg = directory / "pkg-config"
+                    pkg.write_text(f'#!{sys.executable}\nimport sys\n'
+                        'if "--cflags" in sys.argv:\n'
+                        ' index=int(sys.argv[-1].rsplit("-",1)[1])\n'
+                        ' print("-DNANO_PAD=1 "*30 + ("-DANSWER=42 -UANSWER -DANSWER=43" if index == 39 else ""))\n')
+                    pkg.chmod(0o700)
+                    env["PKG_CONFIG"] = str(pkg)
+                else: metadata[origin] = values
+                (module / "module.json").write_text(json.dumps(metadata))
+                original = (module / "module.json").read_bytes()
+                self.support.probe_path("build", module, env)
+                generation = self.support.probe_path("directory", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.support.probe_path("directory", module, env), generation)
+                self.assertTrue((generation / "source_hashes.json").is_file())
+                self.assertEqual((module / "module.json").read_bytes(), original)
 
     def test_compile_flag_allocation_failures_are_atomic(self):
         for failure in (*map(str, range(5)), "overflow"):
@@ -658,6 +697,11 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 result = subprocess.run([str(self.support.probe), "compile-flags-allocation", failure],
                                         capture_output=True, timeout=10)
                 self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_coalesced_flag_allocation_failures_are_atomic(self):
+        result = subprocess.run([str(self.support.probe), "coalesce-allocation", "all"],
+                                capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_many_returned_link_flags_preserve_count_and_order(self):
         platform = "ldflags_macos" if sys.platform == "darwin" else "ldflags_linux"

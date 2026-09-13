@@ -1015,3 +1015,37 @@ skips. Darwin's rebuilt native tools, C reference compiler and 140-method broad
 suite pass with 24 expected skips; its final long-library-name fixture also
 passes. The link-flag capacity roadmap item is complete; aggregate command
 transport remains open.
+
+## Coalesced compiler fragments
+
+I now combine eligible common, active-platform and package compiler groups when
+their combined size exceeds 1024 bytes, up to the existing 64 KiB budget. The
+first nonempty slot holds the ordered sequence; other owned strings become
+empty, and native-framework NULL slots remain NULL. This keeps package indexing
+stable and lets the existing response sidecars carry many short fragments.
+Compilation and shared linking skip those empty slots. Caller-owned metadata
+and `module.json` are unchanged. Build-context version 24 identifies this recipe.
+
+The regression covers 1300 short flags, forty references to a small response
+file, and forty package compiler fragments. The final `-DANSWER=42`, `-UANSWER`,
+`-DANSWER=43` sequence returns 43 and reuses its generation. Returned compiler
+flags from the large-list fixture decode to the complete original argument
+sequence, including order.
+
+Four injected allocation failures retain every original pointer and string;
+each is followed by a successful retry. The fixture includes an empty slot and
+a NULL slot. The full 41-method snapshot suite passes on Darwin and under Linux
+ASan/UBSan (eleven and three expected skips respectively); the focused Linux
+coalescing test also passes with leak detection enabled (2026-09-13).
+
+This is not unbounded aggregate transport. Include-directory lists and linker
+fragments are not coalesced, and over-budget, shell-expanded, noncanonical and
+other-driver forms remain on their previous path. The parent response-file
+roadmap item stays open.
+Against the previous revision (`a897aa3e`), all four aggregate fixture variants
+fail to compile on GCC 12. The same variants pass with coalescing enabled.
+The Linux bootstrap and 142-method regression set pass with eleven expected
+skips. The complete 41-method snapshot sanitizer run and leak-enabled allocation
+checks use the same production code.
+Darwin's rebuilt native tools and C reference compiler also pass the 142-method
+regression set, with 24 expected skips (2026-09-13).

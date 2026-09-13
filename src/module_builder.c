@@ -38,6 +38,8 @@ static void module_response_metadata_free(const ModuleBuildMetadata *meta, Modul
 static bool module_response_driver(const ModuleBuildMetadata *meta);
 static bool module_response_pending(const char *fragment);
 static bool module_response_metadata_pending(const ModuleBuildMetadata *meta);
+static bool module_flags_need_capture(char **flags, size_t count);
+static bool module_coalesce_cflags(char **flags, size_t count);
 
 /* I require explicit host authority before running package-registry probes,
  * install overrides, package managers, or sudo from the module builder. */
@@ -428,7 +430,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v23-link-arguments");
+    hash_context_field(&hash, "nanolang-c-build-context-v24-coalesced-cflags");
     for (size_t i = 0; i < meta->cflags_count; i++) hash_context_field(&hash, meta->cflags[i]);
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) hash_context_field(&hash, meta->cflags_macos[i]);
@@ -1590,7 +1592,7 @@ static bool module_pkg_flags_capture(ModuleBuildMetadata *meta, ModulePkgFlags *
         flags->libs[i] = get_pkg_config_flags(meta->pkg_config[i], "--libs");
         if (!flags->libs[i]) goto failed;
     }
-    bool needed = false;
+    bool needed = module_flags_need_capture(flags->cflags, flags->count);
     for (size_t i = 0; i < flags->count; i++) {
         if (!flags->cflags[i]) continue;
         if (strstr(flags->cflags[i], "--driver-mode")) return true;
@@ -1606,6 +1608,7 @@ static bool module_pkg_flags_capture(ModuleBuildMetadata *meta, ModulePkgFlags *
         if (!expanded[i]) success = false;
         else if (module_response_pending(expanded[i])) complete = false;
     }
+    if (success && complete) success = module_coalesce_cflags(expanded, flags->count);
     if (success && complete) {
         char **original = flags->cflags;
         flags->cflags = expanded;
@@ -2400,6 +2403,59 @@ static bool module_response_pending(const char *fragment) {
     return status < 0;
 }
 
+static bool module_flags_need_capture(char **flags, size_t count) {
+    size_t bytes = 0;
+    for (size_t i = 0; i < count; i++) {
+        if (!flags[i] || !flags[i][0]) continue;
+        size_t length = strlen(flags[i]);
+        if (strchr(flags[i], '@') || length >= 1024 - bytes) return true;
+        bytes += length + 1;
+    }
+    return false;
+}
+
+/* I keep array slots (including native-framework NULLs) stable, but put a
+ * large literal argument sequence in its first nonempty slot for transport.
+ * Allocation failure leaves every original string untouched. */
+static bool module_coalesce_cflags(char **flags, size_t count) {
+    size_t bytes = 0, first = count;
+    for (size_t i = 0; i < count; i++) {
+        if (!flags[i] || !flags[i][0]) continue;
+        if (module_response_pending(flags[i])) return true;
+        size_t length = strlen(flags[i]);
+        if (length >= 65536 - bytes) return true;
+        if (first == count) first = i;
+        bytes += length + 1;
+    }
+    if (bytes <= 1024 || first == count || count < 2) return true;
+    char *joined = malloc(bytes + 1);
+    char **replacement = calloc(count, sizeof(char *));
+    if (!joined || !replacement) { free(joined); free(replacement); return false; }
+    size_t used = 0;
+    for (size_t i = 0; i < count; i++) {
+        if (!flags[i] || !flags[i][0]) continue;
+        size_t length = strlen(flags[i]);
+        if (used) joined[used++] = ' ';
+        memcpy(joined + used, flags[i], length);
+        used += length;
+    }
+    joined[used] = 0;
+    replacement[first] = joined;
+    bool ok = true;
+    for (size_t i = 0; i < count && ok; i++) {
+        if (flags[i] && i != first) {
+            replacement[i] = strdup("");
+            if (!replacement[i]) ok = false;
+        }
+    }
+    for (size_t i = 0; i < count; i++) {
+        if (ok) { free(flags[i]); flags[i] = replacement[i]; }
+        else free(replacement[i]);
+    }
+    free(replacement);
+    return ok;
+}
+
 /* I classify decoded literal tokens, not unevaluated shell fragments. */
 static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     if (!flag) return MODULE_FLAG_UNKNOWN;
@@ -2497,7 +2553,7 @@ static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuil
     for (size_t group = 0; group < 2; group++) {
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
-        for (size_t i = 0; i < count; i++) if (strchr(flags[i], '@')) needed = true;
+        if (module_flags_need_capture(flags, count)) needed = true;
     }
     if (!needed || !module_response_driver(meta)) return true;
     for (size_t group = 0; group < 2; group++) {
@@ -2512,6 +2568,12 @@ static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuil
     if (module_response_metadata_pending(copy)) {
         module_response_metadata_free(meta, copy);
         *copy = *meta;
+    } else {
+        for (size_t group = 0; group < 2; group++) {
+            size_t count = copy->cflags_count;
+            char **flags = group ? module_platform_cflags(copy, &count) : copy->cflags;
+            if (!module_coalesce_cflags(flags, count)) goto failed;
+        }
     }
     return true;
 failed:
@@ -2677,9 +2739,9 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
         const char *flags = snapshot->cflags[i];
-        if (flags) {
+        if (flags && flags[0]) {
             ok &= module_append_compiler_fragment(meta, snapshot, flags, retained, prefix, capacity);
-        } else ok = false;
+        } else if (!flags) ok = false;
     }
     if (!retained) for (size_t i = 0; i < meta->include_dirs_count; i++)
         ok &= module_append_include(prefix, capacity, meta->include_dirs[i]);
@@ -2687,6 +2749,7 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
         for (size_t i = 0; i < count; i++) {
+            if (!flags[i][0]) continue;
             ok &= module_append_compiler_fragment(meta, snapshot, flags[i], retained, prefix, capacity);
         }
     }
@@ -3434,6 +3497,7 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
         if (!flags->cflags[i]) return false;
+        if (!flags->cflags[i][0]) continue;
         command_ok &= module_append_compiler_fragment(meta, flags, flags->cflags[i], false, lib_cmd, capacity);
     }
 
@@ -3461,19 +3525,23 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
     #endif
     /* Add custom cflags (all platforms) */
     for (size_t i = 0; i < meta->cflags_count; i++) {
+        if (!meta->cflags[i][0]) continue;
         command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags[i], false, lib_cmd, capacity);
     }
     /* Add platform-specific cflags */
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) {
+        if (!meta->cflags_macos[i][0]) continue;
         command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_macos[i], false, lib_cmd, capacity);
     }
 #elif defined(__FreeBSD__)
     for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
+        if (!meta->cflags_freebsd[i][0]) continue;
         command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_freebsd[i], false, lib_cmd, capacity);
     }
 #else
     for (size_t i = 0; i < meta->cflags_linux_count; i++) {
+        if (!meta->cflags_linux[i][0]) continue;
         command_ok &= module_append_compiler_fragment(meta, flags, meta->cflags_linux[i], false, lib_cmd, capacity);
     }
 #endif

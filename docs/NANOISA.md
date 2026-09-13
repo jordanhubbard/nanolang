@@ -540,7 +540,13 @@ This path is bounded to 16 response nesting levels, 64 KiB cumulative input,
 unterminated quotes, trailing escapes, embedded NULs and shell-expanded
 fragments keep the previous compiler path and do not gain snapshot eligibility
 from this capture. Literal fragments over 1024 bytes use GNU response sidecars
-under the module cache. I publish complete read-only files with content-derived
+under the module cache. Before transport, I coalesce eligible common, active-
+platform and package compiler groups above 1024 bytes, within a 64 KiB combined
+budget. Argument order stays intact; array slots and native-framework NULLs
+remain stable. Allocation failure leaves the original strings untouched.
+This handles many short compiler fragments as well as individual long ones;
+include-directory lists and linker fragments are not coalesced here.
+I publish complete read-only files with content-derived
 names, verify their bytes before reuse, and leave them alive until that cache
 is removed. Returned native flags therefore remain usable after build-info
 cleanup. Decoded arguments remain in cache identity and phase selection;

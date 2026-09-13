@@ -1062,6 +1062,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The remaining serialized-fragment budget is 64 KiB; many short fragments
       can still exceed aggregate command limits. Shell-expanded/noncanonical
       forms and other response dialects remain outside the retained boundary.
+      I coalesce eligible common, active-platform and package compiler
+      fragments in their invocation-owned arrays, preserving argument order
+      and package slots. The combined strings use existing retained transport.
+      I verify many short flags, many small response references, later consumers,
+      allocation rollback and unchanged unsupported shell/driver-mode paths.
+      The aggregate fixture passes for 1300 short flags, forty small response
+      references and forty package fragments; all four variants fail against
+      the previous revision. Include-directory lists, linker fragments and
+      groups beyond the 64 KiB budget remain outside this coalescing boundary.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

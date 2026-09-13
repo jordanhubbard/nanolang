@@ -176,6 +176,31 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 3 && !strcmp(argv[1], "coalesce-allocation")) {
+        char left[700], right[700];
+        memset(left, 'x', sizeof(left) - 1); left[sizeof(left) - 1] = 0;
+        memset(right, 'y', sizeof(right) - 1); right[sizeof(right) - 1] = 0;
+        memcpy(left, "-DLEFT=", 7); memcpy(right, "-DRIGHT=", 8);
+        for (long failure = 0; failure < 4; failure++) {
+            char *flags[] = {NULL, strdup(""), strdup(left), strdup(right)};
+            if (!flags[1] || !flags[2] || !flags[3]) {
+                for (size_t i = 0; i < 4; i++) free(flags[i]);
+                return 1;
+            }
+            char *original[] = {flags[0], flags[1], flags[2], flags[3]};
+            generation_allocation_limit = failure;
+            bool result = module_coalesce_cflags(flags, 4);
+            generation_allocation_limit = -1;
+            bool ok = !result;
+            for (size_t i = 0; i < 4; i++) ok = ok && flags[i] == original[i];
+            ok = ok && !strcmp(flags[1], "") && !strcmp(flags[2], left) && !strcmp(flags[3], right);
+            ok = ok && module_coalesce_cflags(flags, 4) && flags[0] == NULL && !flags[1][0] &&
+                !strncmp(flags[2], left, strlen(left)) && strstr(flags[2], " -DRIGHT=") && !flags[3][0];
+            for (size_t i = 0; i < 4; i++) free(flags[i]);
+            if (!ok) return 1;
+        }
+        return 0;
+    }
     if (argc == 3 && !strcmp(argv[1], "link-flags-allocation")) {
         char *packages[] = {"-lpackage", ""}, *common[] = {"-Lcommon"};
         char *platform[] = {"-Lplatform"}, *libraries[] = {"fixture"};
