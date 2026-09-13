@@ -499,20 +499,20 @@ roadmap work. My [compiler-input experiment](COMPILER_INPUT_EVIDENCE.md)
 records the original failure and explains why enabling saved preprocessed
 inputs unconditionally is not a semantics-preserving repair.
 
-For cache-eligible Clang and GCC `.c` builds with supported literal flags,
-including captured pkg-config flags, I retain preprocessed translation units in private staging and
-compile those `.i` files. I hash the bytes while writing them and require fresh
-preprocessing to match before recording reuse evidence. The retained files
-cover ordinary, multiple and shared-only C sources. Preprocessing emits the
-original dependency records; line markers preserve original diagnostic paths.
+For cache-eligible `.c` builds with supported literal flags, including captured
+pkg-config flags, I retain Clang assembly (`.s`) or GCC preprocessed C (`.i`) in
+private staging and compile those files. I hash the bytes while writing them
+and require fresh capture to match before recording reuse evidence. The retained files
+cover ordinary, multiple and shared-only C sources. Capture emits the original
+dependency records and reports C diagnostics against the original source paths.
 Failed or empty capture falls back to original compilation without a reuse
-record. A failed retained-input compilation fails the build. My v18 context
+record. A failed retained-input compilation fails the build. My v19 context
 invalidates older records. I identify the supported compiler family through
 a successful version query; that query is not authentication.
 
 My [configured flag boundary](SOURCE_SNAPSHOT_EVIDENCE.md#configured-scalar-flags)
 lists the supported spellings. I retain optimization, standard, debug and
-warning flags in both phases. Simple `-D`, `-U` and `-I` tokens, along with
+warning flags in both GCC phases. Simple `-D`, `-U` and `-I` tokens, along with
 declared include directories, apply during capture but not compilation of
 already preprocessed input. Only common and active-platform flags choose this
 mode. I decode literal words, quotes and escapes, including paired `-D`, `-U`
@@ -520,6 +520,14 @@ and `-I` arguments within a fragment. I do not evaluate shell expansions,
 commands or globs to decode flags. Those forms, response files, unlisted
 options and words exceeding 4095 bytes keep their original compilation path.
 This eligibility parser does not sandbox the original trusted shell text.
+
+Clang applies all supported C flags during `-S` capture, then assembles without
+C-only flags. Its assembly output expands the tested inline `.incbin`, nested
+assembler includes and macros into retained bytes. Warm validation runs C code
+generation again; it avoids another object assembly, not another C compilation.
+GCC's `-S` output retains external directives, so I have not applied this path
+to GCC. See my [assembly capture evidence](SOURCE_SNAPSHOT_EVIDENCE.md#production-clang-assembly-capture)
+for the tested boundary and remaining assembler work.
 
 For GCC I add `-fpch-preprocess` to capture and warm validation. A
 `#pragma GCC pch_preprocess` marker means the output still references external

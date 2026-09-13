@@ -454,7 +454,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v18-literal-flags");
+    hash_context_field(&hash, "nanolang-c-build-context-v19-clang-assembly");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2330,14 +2330,18 @@ static char **module_platform_cflags(const ModuleBuildMetadata *meta, size_t *co
 #endif
 }
 
-typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED } ModuleCPhase;
+typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED,
+               MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE } ModuleCPhase;
 
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
     bool retained = phase == MODULE_C_RETAINED;
     bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
-                                   module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" : "-c");
+                                   module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" :
+                                   phase == MODULE_C_EMIT_ASSEMBLY ? "-S" : "-c");
+    /* I already applied C code-generation and diagnostic flags during capture. */
+    if (phase == MODULE_C_ASSEMBLE) return ok;
 #if !defined(__APPLE__)
     if (!retained) ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
 #endif
@@ -2534,17 +2538,19 @@ static int module_run_source_command(const char *command, const char *dependency
     return result;
 }
 
-/* I hash precisely the preprocessed bytes I retain and compile. A later probe
- * must reproduce those bytes; it cannot substitute hashes of restored source. */
+/* I hash the retained input: Clang assembly or GCC preprocessed C. A later
+ * capture must reproduce those bytes, not just hashes of restored source. */
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
                                        const ModulePkgFlags *flags, const char *directory,
                                        ModuleSnapshotMode mode) {
     char prefix[4096];
-    if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_PREPROCESS, flags)) return 0;
+    bool assembly = mode == MODULE_SNAPSHOT_CLANG;
+    if (!module_compile_prefix(meta, prefix, sizeof(prefix),
+        assembly ? MODULE_C_EMIT_ASSEMBLY : MODULE_C_PREPROCESS, flags)) return 0;
     if (mode == MODULE_SNAPSHOT_GCC &&
         !module_build_append(prefix, sizeof(prefix), " -fpch-preprocess")) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
-    hash_context_field(&fingerprint, mode == MODULE_SNAPSHOT_GCC ? "gcc-retained-v1" : "clang-retained-v1");
+    hash_context_field(&fingerprint, mode == MODULE_SNAPSHOT_GCC ? "gcc-retained-v1" : "clang-assembly-v1");
     for (size_t i = 0; i < flags->count; i++) {
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
@@ -2561,7 +2567,8 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             char command[8192] = {0}, snapshot[2048] = {0}, dependency[2048] = {0};
             bool ok = true;
             if (directory) {
-                ok = module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.i", directory, group, i);
+                ok = module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.%s", directory, group, i,
+                                         assembly ? "s" : "i");
                 if (group) ok &= module_build_append(dependency, sizeof(dependency), "%s/__shared_%zu.d", directory, i);
                 else if (count == 1) ok &= module_build_append(dependency, sizeof(dependency), "%s/%s.d", directory, meta->name);
                 else ok &= module_build_append(dependency, sizeof(dependency), "%s/%s_%zu.d", directory, meta->name, i);
@@ -2622,12 +2629,14 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
 
 static bool module_snapshot_command(char *command, size_t capacity, const char *prefix,
                                     const char *directory, size_t group, size_t index,
-                                    const char *object) {
+                                    const char *object, ModuleSnapshotMode mode) {
     char snapshot[2048] = {0};
+    bool assembly = mode == MODULE_SNAPSHOT_CLANG;
     command[0] = 0;
-    return module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.i", directory, group, index) &&
-        module_build_append(command, capacity, "%s%s -x cpp-output", prefix,
-                            group ? " -fvisibility=hidden" : "") &&
+    return module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.%s", directory, group, index,
+                               assembly ? "s" : "i") &&
+        module_build_append(command, capacity, "%s%s -x %s", prefix,
+                            group && !assembly ? " -fvisibility=hidden" : "", assembly ? "assembler" : "cpp-output") &&
         module_append_path_flag(command, capacity, "", snapshot) &&
         module_append_path_flag(command, capacity, "-o ", object);
 }
@@ -2953,7 +2962,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         bool command_ok;
         char compile_prefix[4096] = {0};
         command_ok = module_compile_prefix(meta, compile_prefix, sizeof(compile_prefix),
-            snapshots ? MODULE_C_RETAINED : MODULE_C_COMPILE, flags);
+            snapshots ? (mode == MODULE_SNAPSHOT_CLANG ? MODULE_C_ASSEMBLE : MODULE_C_RETAINED) : MODULE_C_COMPILE, flags);
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
@@ -2964,7 +2973,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[0], object_file, dep_path, false);
             if (snapshots) command_ok &= module_snapshot_command(compile_cmd, sizeof(compile_cmd),
-                compile_prefix, build_dir, 0, 0, object_file);
+                compile_prefix, build_dir, 0, 0, object_file, mode);
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                 printf("[Module] %s\n", compile_cmd);
@@ -2997,7 +3006,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[i], obj_path, dep_path, false);
                 if (snapshots) command_ok &= module_snapshot_command(compile_cmd, sizeof(compile_cmd),
-                    compile_prefix, build_dir, 0, i, obj_path);
+                    compile_prefix, build_dir, 0, i, obj_path, mode);
 
                 if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                     printf("[Module] %s\n", compile_cmd);
@@ -3078,7 +3087,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                     command_ok &= module_source_command(sc_cmd, sizeof(sc_cmd), compile_prefix,
                                       meta->module_dir, meta->shared_c_sources[sci], sc_obj, sc_dep, true);
                     if (snapshots) command_ok &= module_snapshot_command(sc_cmd, sizeof(sc_cmd),
-                        compile_prefix, build_dir, 1, sci, sc_obj);
+                        compile_prefix, build_dir, 1, sci, sc_obj, mode);
 
                     if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
                         printf("[Module] (shared-only) %s\n", sc_cmd);

@@ -21,6 +21,8 @@ class SourceSnapshots(unittest.TestCase):
         if result.returncode or not (b"clang version" in result.stdout or
                                       b"Free Software Foundation" in result.stdout):
             raise unittest.SkipTest("I exercise ordinary Clang and GCC C here")
+        cls.clang = b"clang version" in result.stdout
+        cls.snapshot_suffix = ".s" if cls.clang else ".i"
 
     def setUp(self):
         self.support = cache.ModuleCachePublication()
@@ -43,7 +45,61 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
                 for key in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record", "generation_reused"):
                     self.assertTrue(case[key], key)
-                self.assertEqual(case["total_compilations"], 1)
+                self.assertEqual(case["total_object_compilations"], 1)
+                if self.clang:
+                    self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
+
+    def test_clang_assembler_cache_restored_inputs(self):
+        if not self.clang: self.skipTest("I have not integrated GCC assembler-input capture")
+        for case in measure(shutil.which("cc"), ("assembler",))["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                for key in ("bytes_restored", "mtime_preserved", "size_preserved", "generation_reused", "reuse_record", "retained_assembly"):
+                    self.assertTrue(case[key], key)
+                self.assertEqual(case["total_object_compilations"], 1)
+                self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
+
+    def test_clang_assembler_cache_nested_changes_and_recovery(self):
+        if not self.clang: self.skipTest("I have not integrated GCC assembler-input capture")
+        for shared in (False, True):
+            with self.subTest(shared=shared), tempfile.TemporaryDirectory(prefix="nano-assembly-cache-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                binary, include = module / "payload with 'quotes'.bin", module / "nested include.s"
+                binary.write_bytes(b"xx42yy")
+                include_text = f'.macro payload\n.incbin "{binary}", 2, 2\n.endm\npayload\n'
+                include.write_text(include_text)
+                symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                assembly = '__asm__(' + json.dumps(f'.data\n.globl {symbol}\n{symbol}:\n.include "{include}"\n.text\n') + ');\n'
+                body = 'extern const unsigned char snapshot_payload[];\nlong long nano_build_answer(void) {\nreturn (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n'
+                metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": ["-O2 -g -std=c11 -Wall -Wextra -Werror"]}
+                if shared:
+                    (module / "private.c").write_text(assembly)
+                    metadata["shared_c_sources"] = ["private.c"]
+                (module / "answer.c").write_text(body if shared else assembly + body)
+                (module / "module.json").write_text(json.dumps(metadata))
+                def build(answer):
+                    self.support.probe_path("build", module, env)
+                    generation = self.support.probe_path("directory", module, env)
+                    self.assertTrue((generation / "source_hashes.json").is_file())
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), answer)
+                    self.support.probe_path("build", module, env)
+                    self.assertEqual(self.support.probe_path("directory", module, env), generation)
+                    return generation
+                first = build(42)
+                binary.write_bytes(b"xx43yy")
+                second = build(43)
+                self.assertNotEqual(first, second)
+                include.write_text('.ascii "44"\n')
+                third = build(44)
+                self.assertNotEqual(second, third)
+                include.unlink()
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(failed.returncode, 0)
+                self.assertEqual(self.support.probe_path("directory", module, env), third)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 44)
+                include.write_text(include_text)
+                self.assertNotEqual(build(43), third)
 
     def test_configured_flags_preserve_retained_input_and_phases(self):
         active = "cflags_macos" if sys.platform == "darwin" else "cflags_linux"
@@ -89,7 +145,7 @@ class SourceSnapshots(unittest.TestCase):
                 wrapper, calls = directory / "cc", directory / "calls"
                 wrapper.write_text(f'''#!{sys.executable}
 import json, os, pathlib, subprocess, sys
-if "-c" in sys.argv or "-E" in sys.argv:
+if any(phase in sys.argv for phase in ("-c", "-E", "-S")):
     with open({str(calls)!r}, "a") as log: log.write(json.dumps(sys.argv[1:]) + "\\n")
 if "-c" in sys.argv:
     source = pathlib.Path({str(source)!r})
@@ -114,13 +170,15 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 commands = [json.loads(line) for line in calls.read_text().splitlines()]
                 compiled = [argv for argv in commands if "-c" in argv]
                 self.assertEqual(len(compiled), 1)
-                self.assertTrue(any(arg.endswith(".i") for arg in compiled[0]))
+                self.assertTrue(any(arg.endswith(self.snapshot_suffix) for arg in compiled[0]))
                 for argv in commands:
-                    for flag in flags[:6]: self.assertIn(flag, argv)
+                    for flag in flags[:6]:
+                        if "-c" in argv and self.clang: self.assertNotIn(flag, argv)
+                        else: self.assertIn(flag, argv)
                     preprocessing = flags[6:] if placement not in ("literal", "package") else [
                         "-D", "ANSWER=40", "-DREMOVED=1", "-U", "REMOVED", "-I", str(include), 'TEXT="a b"']
                     for flag in preprocessing:
-                        if "-E" in argv: self.assertIn(flag, argv)
+                        if "-E" in argv or "-S" in argv: self.assertIn(flag, argv)
                         else: self.assertNotIn(flag, argv)
 
     def test_literal_words_match_shell_arguments(self):
@@ -220,7 +278,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             env["NANO_CC"] = str(wrapper)
             self.support.probe_path("build", module, env)
             generation = self.support.probe_path("directory", module, env)
-            self.assertEqual(len(list(generation.glob("__snapshot_*.i"))), 3)
+            self.assertEqual(len(list(generation.glob("__snapshot_*" + self.snapshot_suffix))), 3)
             self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
             self.support.probe_path("build", module, env)
             self.assertEqual(self.support.probe_path("directory", module, env), generation)
@@ -243,7 +301,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                         "c_sources": ["answer.c"], "cflags": [flag]}))
                     self.support.probe_path("build", module, env)
                     generation = self.support.probe_path("directory", module, env)
-                    self.assertTrue((generation / "__snapshot_0_0.i").is_file())
+                    self.assertTrue((generation / ("__snapshot_0_0" + self.snapshot_suffix)).is_file())
                     self.assertTrue((generation / "source_hashes.json").is_file())
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
 
@@ -260,7 +318,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                         "c_sources": ["answer.c"], "cflags": flags}))
                     self.support.probe_path("build", module, env)
                     generation = self.support.probe_path("directory", module, env)
-                    self.assertEqual(list(generation.glob("__snapshot_*.i")), [])
+                    self.assertEqual(list(generation.glob("__snapshot_*")), [])
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
 
     def test_configured_warning_errors_preserve_generation(self):
@@ -324,7 +382,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             wrapper.write_text(f'''#!{sys.executable}
 import os, pathlib, subprocess, sys
 marker = pathlib.Path({str(marker)!r})
-if "-E" in sys.argv and not marker.exists():
+if ("-E" in sys.argv or "-S" in sys.argv) and not marker.exists():
     source = pathlib.Path({str(source)!r})
     data, stamp = source.read_bytes(), source.stat()
     try:

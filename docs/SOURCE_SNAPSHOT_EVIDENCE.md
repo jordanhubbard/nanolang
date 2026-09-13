@@ -312,3 +312,51 @@ passing them blindly to assembly. GCC needs a separately tested capture path.
 The expanded 12-method snapshot suite passes on Darwin with two GCC-specific
 skips. The new trial skips compilers whose version output does not identify
 Clang; a skip does not establish an equivalent GCC path.
+
+## Production Clang assembly capture
+
+My v19 context replaces Clang's retained preprocessed C with retained assembly.
+I run the supported compiler with `-S` and all configured C flags, preserve
+the source dependency and include-trace records, and hash the exact assembly
+bytes written to private `__snapshot_<group>_<index>.s` files. Final object
+assembly reads those files with `-x assembler`, without C-only flags. GCC keeps
+its existing preprocessed-C path. Unknown compiler modes retain their existing
+fallback; this does not finish the broader source-snapshot requirement.
+
+The original restored `.incbin` experiment now produces 42 for cold, warm and
+independent fresh builds on Clang, in both local and shared caches. Nested
+assembler-input tests through the production builder also check permanent
+binary changes (42 to 43), include changes (43 to 44), missing-input failure
+with the old generation still executable, and recovery. They exercise ordinary
+and shared-only sources with optimization, debug and strict-warning flags.
+
+I validate reuse with fresh assembly capture. This runs C code generation on
+warm builds, not just preprocessing. The experiment now reports object-build
+and assembly-capture counts separately, and asserts that warm validation adds
+an assembly capture without adding an object build. This is a correctness
+tradeoff, not a performance improvement. C source/header dependencies remain
+recorded; external assembler bytes are covered by the assembly fingerprint,
+not by a newly invented dependency-path inventory.
+
+Failures during capture retain the original compilation fallback without a
+reuse record. Errors compiling retained input fail the build without replacing
+the prior generation. The existing warning-error, capture-edit, scalar-flag,
+package-response, source-diagnostic and multiple-source regressions remain
+part of acceptance. GCC assembler snapshots and complete debug-metadata/tool
+equivalence remain open.
+
+The 14-method snapshot suite passes on Darwin Clang 21, with two GCC-specific
+skips, normally and with Clang `-O1` ASan/UBSan and recovery disabled. The
+instrumented build includes production `module_builder.c` and cJSON, UTF-8,
+module-build-directory and FFI-loader support; fixture libraries and system
+libraries are not instrumented. Full Darwin and Linux GCC compiler/VM gates
+pass: 28 shadows, cache acceptance, platform linker tests, snapshots, wrapper
+tests, 63 codegen cases, 19 FFI cases and dependency checks. GCC skips the three
+Clang-only snapshot methods. After the Linux GCC full gate, the clarified
+capture counters were rerun through its snapshot suite.
+
+I also installed Debian Clang 14 only inside the disposable Linux container,
+disconnected its network, and passed the snapshot, cache and Linux linker
+suites using that compiler. This exercises the new assembly path on Linux;
+the GCC pass alone would not. The temporary compiler is not a new product
+dependency.

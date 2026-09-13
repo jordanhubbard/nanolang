@@ -450,6 +450,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       43 and missing-input capture fails. GCC 12 keeps `.incbin` in its `-S`
       output and cannot use this boundary unchanged (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 Clang retained-assembly integration.** I capture supported Clang
+      builds with `-S`, hash and retain those assembly bytes, and compile them
+      without C-only flags. I preserve dependency/diagnostic evidence and test
+      restored assembler inputs through the production cache, permanent changes,
+      capture failures and existing configured builds before marking this complete.
+      Fourteen snapshot methods pass on Darwin Clang 21 (two GCC-specific skips),
+      including ASan/UBSan on the production builder and support sources. Full
+      Darwin and Linux GCC compiler/VM gates pass; Linux Clang 14 passes snapshot,
+      cache and linker tests. Warm validation now performs C code generation;
+      I report assembly-capture and object-build counts separately (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

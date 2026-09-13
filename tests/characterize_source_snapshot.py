@@ -52,6 +52,8 @@ def measure(compiler, kinds=("source", "header")):
                 calls = directory / "calls"
                 wrapper.write_text(f'''#!{sys.executable}
 import os, pathlib, subprocess, sys
+if "-S" in sys.argv or "-E" in sys.argv:
+    with open({str(calls)!r}, "a") as log: log.write(("S" if "-S" in sys.argv else "E") + "\\n")
 if "-c" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write("C\\n")
     marker = pathlib.Path({str(marker)!r})
@@ -87,7 +89,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 query("build")
                 cold_generation = query("directory")
                 cold_answer = answer(query("library"))
-                cold_calls = len(calls.read_text().splitlines())
+                cold_calls = calls.read_text().splitlines()
                 record = (cold_generation / "source_hashes.json").is_file()
                 query("build")
                 warm_generation = query("directory")
@@ -106,10 +108,13 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     "fresh_answer": answer(fresh), "reuse_record": record,
                     "generation_reused": cold_generation == warm_generation,
                     "retained_translation_unit": (cold_generation / "__snapshot_0_0.i").is_file(),
+                    "retained_assembly": (cold_generation / "__snapshot_0_0.s").is_file(),
                     "target_in_reuse_record": record and str(target) in
                         (cold_generation / "source_hashes.json").read_text(),
-                    "cold_compilations": cold_calls,
-                    "total_compilations": len(calls.read_text().splitlines()),
+                    "cold_object_compilations": cold_calls.count("C"),
+                    "total_object_compilations": calls.read_text().splitlines().count("C"),
+                    "cold_assembly_captures": cold_calls.count("S"),
+                    "total_assembly_captures": calls.read_text().splitlines().count("S"),
                 })
     return {"platform": sys.platform, "compiler": compiler,
             "compiler_version": run([compiler, "--version"], shadows.ROOT).stdout.decode().splitlines()[0],

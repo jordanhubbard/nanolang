@@ -856,7 +856,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                 compiler, calls = directory / "cc", directory / "calls"
                 compiler.write_text(f'''#!{sys.executable}
 import os, pathlib, sys
-if "-E" in sys.argv:
+if "-E" in sys.argv or "-S" in sys.argv:
     if {failure!r} == "partial":
         print("partial preprocessor output")
         sys.exit(23)
@@ -981,7 +981,7 @@ result = subprocess.run([{compiler!r}] + args)
 mode = {mode!r}
 mutate = ((mode == "first" and "-dynamiclib" in args and count == 1) or
           (mode == "second" and "-dynamiclib" in args and count == 2) or
-          (mode == "postprocess" and "-E" in args and count > 0))
+          (mode == "postprocess" and ("-E" in args or "-S" in args) and count > 0))
 if result.returncode == 0 and mutate and not changed.exists():
     archive = pathlib.Path({str(archive)!r})
     stamp = archive.stat()
