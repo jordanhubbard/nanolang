@@ -1123,6 +1123,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       The 40-package stress fixture exceeded its ten-second per-build timeout
       once; its isolated recheck passed. I give only those stress builds a
       thirty-second test bound, leaving ordinary probe deadlines unchanged.
+      I next measure `-Wl,@file` separately from driver `@file` arguments,
+      including common/platform flags and package libraries. I require actual
+      linker evidence before sharing a response parser across those boundaries.
+      The forwarded-response fixture reproduces cold/warm/fresh 43/42/42 in
+      all six cases on Apple Clang 21 and GCC 12. The explicit acceptance gate
+      remains red; driver-response capture does not repair this linker boundary.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

@@ -6,6 +6,7 @@ Add --assembler to include external binary input read by inline assembly.
 Add --response to include compiler arguments read from a response file.
 Add --response-large to exercise argument lists beyond inline capture limits.
 Add --link-response to exercise driver response files in linker metadata.
+Add --forwarded-response to exercise response files forwarded to the linker.
 I execute the production builder and load each library in a fresh process.
 """
 
@@ -48,9 +49,9 @@ def measure(compiler, kinds=("source", "header")):
                     target.write_text(str(directory / "selected42.a") + "\n")
                     source.write_text("extern long long selected(void);\n"
                                       "long long nano_build_answer(void) { return selected(); }\n")
-                    fresh_flags = ["@" + str(target)]
+                    fresh_flags = [("-Wl,@" if "-forwarded" in kind else "@") + str(target)]
                     metadata = {"name": "answer_native", "c_sources": ["answer.c"]}
-                    if kind == "link-response-pkg":
+                    if kind.endswith("-pkg"):
                         metadata["pkg_config"] = ["link-fixture"]
                         pkg = directory / "pkg-config"
                         pkg.write_text(f"#!{sys.executable}\nimport sys\n"
@@ -197,6 +198,7 @@ if __name__ == "__main__":
     parser.add_argument("--response", action="store_true")
     parser.add_argument("--response-large", action="store_true")
     parser.add_argument("--link-response", action="store_true")
+    parser.add_argument("--forwarded-response", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler:
@@ -206,6 +208,7 @@ if __name__ == "__main__":
     if args.response: kinds += ("response",)
     if args.response_large: kinds += ("response-large",)
     if args.link_response: kinds += ("link-response", "link-response-platform", "link-response-pkg")
+    if args.forwarded_response: kinds += ("link-response-forwarded", "link-response-forwarded-platform", "link-response-forwarded-pkg")
     result = measure(compiler, kinds)
     print(json.dumps(result, indent=2))
     if args.require_consistent:

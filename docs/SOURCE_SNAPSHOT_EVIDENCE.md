@@ -1209,3 +1209,33 @@ python3 -m unittest tests.test_bytecode_shadows tests.test_module_cache_publicat
 
 Forwarded linker response inputs and larger argument budgets remain separate
 open work. This is not a release-readiness claim.
+
+## Forwarded linker responses: reproduced, not repaired
+
+At `d352c643`, I measure response files passed as `-Wl,@file`, separately from
+the driver `@file` cases:
+
+```sh
+python3 -m tests.characterize_source_snapshot --forwarded-response --require-consistent
+```
+
+The forwarded cases cover common linker metadata, active-platform linker
+metadata and package-library output, each in local and shared caches. The
+controlled shared link changes `selected42.a` to `selected43.a` in the response
+file and restores its bytes, size and timestamp before returning.
+
+Apple Clang 21 and GCC 12 both produce cold/warm/fresh 43/42/42 in all six
+forwarded cases. Warm builds do not reuse the cold generation. The explicit
+acceptance command exits nonzero. The earlier driver-response capture remains
+separate: retaining a driver's arguments does not retain arguments that the
+linker reads from another file.
+
+This fixture establishes the archive-selection mismatch, not equivalence of
+driver and linker response grammars. The repair must preserve linker quoting,
+nested response resolution, selected-linker identity and argument order before
+forwarded inputs gain snapshot eligibility. No production capture code changes
+in this measurement increment.
+
+The existing 51-method snapshot/link suite still passes on Darwin and GCC 12
+(eleven and three expected skips respectively, 2026-09-13). This regression
+result does not turn the new forwarded-response acceptance gate green.
