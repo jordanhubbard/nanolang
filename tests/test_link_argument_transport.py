@@ -12,10 +12,68 @@ import tempfile
 
 from tests.characterize_link_argument_transport import measure, require_consistent
 from tests import test_bytecode_shadows as shadows
-from tests.characterize_linker_response_grammar import require_equivalent, require_retained_equivalent
+from tests.characterize_linker_response_grammar import materialize, require_equivalent, require_retained_equivalent
 
 
 class LinkArgumentAcceptance(unittest.TestCase):
+    def test_materialized_gate_does_not_turn_decline_into_linker_rejection(self):
+        for native in ({"status": 0, "answer": 42}, {"status": 1, "answer": None}):
+            with self.subTest(native=native), self.assertRaises(SystemExit):
+                require_retained_equivalent({"cases": [{"native": native, "materialized": None,
+                    "materialized_equivalent": True}]}, "materialized")
+
+    def test_materialized_graph_preserves_order_and_identity(self):
+        with tempfile.TemporaryDirectory(prefix="nano-materialized-order-") as tmp:
+            directory = Path(tmp) / "comma, space"
+            directory.mkdir()
+            left, right = directory / "left.rsp", directory / "right.rsp"
+            left.write_text("-Lfirst\n")
+            right.write_text("-Lsecond -lselected\n")
+            decode = shlex.split  # Only this literal fixture, not a linker grammar.
+            expected = ["-Xlinker", "-Lfirst", "-Xlinker", "-Lsecond", "-Xlinker", "-lselected"]
+            self.assertEqual(materialize([left, right], "gnu", decode), (expected, None))
+            self.assertEqual(materialize([right, left], "apple", decode),
+                (expected[2:] + expected[:2], None))
+            alias = directory / "alias.rsp"
+            alias.symlink_to(left)
+            self.assertEqual(materialize([left, alias], "gnu", decode),
+                (["-Xlinker", "-Lfirst"] * 2, None))
+            self.assertEqual(materialize([left, alias], "apple", decode),
+                (None, "repeated resolved response"))
+            distinct = directory / "distinct.rsp"
+            distinct.hardlink_to(left)
+            self.assertEqual(materialize([left, distinct], "apple", decode),
+                (["-Xlinker", "-Lfirst"] * 2, None))
+            right.write_text(shlex.quote("@" + str(right)))
+            self.assertEqual(materialize([left, right], "gnu", decode), (None, "cycle"))
+            left.write_bytes(b'"with\r\nline.a"')
+            self.assertEqual(materialize([left], "gnu", decode),
+                (["-Xlinker", "with\r\nline.a"], None))
+
+    def test_linker_word_probe_checks_exact_tokens_and_no_partial_result(self):
+        probe = str(shadows.ROOT / "obj/test_module_generation_probe")
+        for grammar in ("gnu", "apple"):
+            for payload, expected in (("'with space.a' sel\"ected\".a", ["with space.a", "selected.a"]),
+                    ("'' -lm", ["", "-lm"]), ("'$;x'", ["$;x"]),
+                    ("-lm 'last", ["-lm", "last"]), ("-lm last\\", ["-lm", "last"]),
+                    ("'@inner.rsp", ["@inner.rsp"]), ("@inner.rsp\\", ["@inner.rsp"]),
+                    ("-lm\v-lc\f", ["-lm", "-lc"] if grammar == "gnu" else ["-lm\v-lc\f"]),
+                    ("x" * 4095, ["x" * 4095])):
+                with self.subTest(grammar=grammar, payload=payload[:30]):
+                    result = subprocess.run([probe, "link-response-words", grammar, payload],
+                        capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(json.loads(result.stdout), expected)
+            for payload in ("x" * 4096, "-lm " + "x" * 4096):
+                result = subprocess.run([probe, "link-response-words", grammar, payload],
+                    capture_output=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, b"")
+        result = subprocess.run([probe, "link-response-words", "unknown", "-lm"],
+            capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, b"")
+
     def test_retained_grammar_gate_checks_observed_results(self):
         success = {"status": 0, "answer": 42}
         failure = {"status": 1, "answer": None}

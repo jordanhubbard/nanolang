@@ -4,6 +4,7 @@ Run python3 -m tests.characterize_linker_response_grammar [compiler].
 --require-equivalent rejects any admitted decoding that changes native results.
 --require-retained-equivalent checks the byte-preserving fixture prototype.
 --require-captured-equivalent checks my C graph-capture mechanism.
+--require-materialized-equivalent checks explicit linker-argument transport.
 This is an experiment, not production forwarded-response capture.
 """
 
@@ -17,6 +18,42 @@ import sys
 import tempfile
 
 from tests import test_bytecode_shadows as shadows
+
+
+def materialize(paths, grammar, decode):
+    """I measure a transport hypothesis, not a production admission rule.
+
+    decode exercises the C token scanner. I retain a separate decline outcome;
+    inability to decode must never masquerade as an observed linker failure.
+    """
+    seen, active, words = set(), set(), []
+
+    def visit(path):
+        path = Path(path).resolve(strict=True)
+        if path in active:
+            raise ValueError("cycle")
+        if grammar == "apple" and path in seen:
+            raise ValueError("repeated resolved response")
+        if len(active) >= 16 or len(seen) >= 64 and path not in seen:
+            raise ValueError("graph budget")
+        seen.add(path)
+        active.add(path)
+        # I preserve CRLF inside quoted words; text-mode newline conversion
+        # would change a filename before the C scanner sees it.
+        for word in decode(path.read_bytes().decode("utf-8")):
+            if word.startswith("@"):
+                visit(word[1:])
+            else:
+                words.append(word)
+                if len(words) > 4096:
+                    raise ValueError("expanded argument budget")
+        active.remove(path)
+
+    try:
+        for path in paths: visit(path)
+    except (OSError, ValueError) as error:
+        return None, str(error)
+    return [argument for word in words for argument in ("-Xlinker", word)], None
 
 
 def measure(compiler):
@@ -35,13 +72,13 @@ def measure(compiler):
             if result.returncode: raise RuntimeError(result.stderr.decode())
         source = directory / "main.c"
         source.write_text("extern long long selected(void); long long answer(void) { return selected(); }\n")
-        for name in ("with space.a", "back\\slash.a", "comma,name.a"):
+        for name in ("with space.a", "back\\slash.a", "comma,name.a", "with\r\nline.a"):
             shutil.copyfile(archive, directory / name)
         (directory / "inner.rsp").write_text("selected.a\n")
         (directory / "other.rsp").write_text("selected.a\n")
         (directory / "symlink.rsp").symlink_to("inner.rsp")
         (directory / "hardlink.rsp").hardlink_to(directory / "inner.rsp")
-        retained_dir = directory / "retained"
+        retained_dir = directory / "retained, cache with space"
         retained_dir.mkdir()
         # I know this fixture's nested graph explicitly. This is not a parser.
         # Resolved paths keep separate retained paths even when their payloads
@@ -59,6 +96,8 @@ def measure(compiler):
         response_dir = directory / "responses"
         response_dir.mkdir()
         response = response_dir / "outer.rsp"
+        graph_directory = directory / "captured, cache with space"
+        graph_directory.mkdir()
         inputs = {
             "plain": "selected.a\n",
             "single_quotes": "'with space.a'\n",
@@ -76,6 +115,12 @@ def measure(compiler):
             "symlink_response_alias": "@inner.rsp @symlink.rsp\n",
             "hardlink_response_alias": "@inner.rsp @hardlink.rsp\n",
             "unterminated_quote": "'selected.a\n",
+            "unterminated_quote_without_newline": "'selected.a",
+            "trailing_backslash": "selected.a\\",
+            "empty_quoted_argument": "'' selected.a\n",
+            "quoted_crlf": '"with\r\nline.a"\n',
+            "nested_unterminated_quote": "'@inner.rsp",
+            "nested_trailing_backslash": "@inner.rsp\\",
         }
 
         def link(label, arguments):
@@ -102,32 +147,52 @@ def measure(compiler):
             admitted = not any(word.startswith("@") for word in words)
             native = link(name + "-native", ["-Wl,@" + str(response)])
             candidate = link(name + "-candidate", [word for value in words for word in ("-Xlinker", value)]) if admitted else None
-            graph = run([probe, "capture-link-response", "apple" if sys.platform == "darwin" else "gnu",
-                         directory, response])
+            grammar = "apple" if sys.platform == "darwin" else "gnu"
+            graph = run([probe, "capture-link-response", grammar, graph_directory, response])
             if graph.returncode: raise RuntimeError("I could not capture the fixture response graph")
             graph_path = Path(graph.stdout.decode().strip())
             retained_contents = contents
             collapsed_contents = contents
             for spelling, path in retained_nested.items():
-                retained_contents = retained_contents.replace("@" + spelling, "@" + str(path))
-                collapsed_contents = collapsed_contents.replace("@" + spelling, "@" + str(retained_nested["inner.rsp"]))
+                retained_contents = retained_contents.replace("@" + spelling, '"@' + str(path) + '"')
+                collapsed_contents = collapsed_contents.replace("@" + spelling, '"@' + str(retained_nested["inner.rsp"]) + '"')
+            if name in ("nested_unterminated_quote", "nested_trailing_backslash"):
+                # This known fixture is one token; I replace its entire span,
+                # not a substring inside an unfinished quote or escape.
+                retained_contents = collapsed_contents = '"@' + str(retained_nested["inner.rsp"]) + '"'
             # Neither retained link may depend on the original response graph.
             response.unlink()
             for spelling in ("inner.rsp", "other.rsp", "hardlink.rsp"):
                 (directory / spelling).unlink()
             retained_response = retained_dir / "outer.rsp"
             retained_response.write_text(retained_contents)
-            retained = link(name + "-retained", ["-Wl,@" + str(retained_response)])
-            captured_graph = link(name + "-captured", ["-Wl,@" + str(graph_path)])
+            # A comma-free bridge lets the native linker open a graph stored
+            # beneath a comma-containing cache. This fixture bridge is not a
+            # proposed production lifetime or transport mechanism.
+            bridge = directory / "bridge.rsp"
+            def indirect(path):
+                bridge.write_text('"@' + str(path) + '"\n')
+                return ["-Wl,@" + str(bridge)]
+            retained = link(name + "-retained", indirect(retained_response))
+            captured_graph = link(name + "-captured", indirect(graph_path))
+            def decode(payload):
+                decoded = run([probe, "link-response-words", grammar, payload])
+                if decoded.returncode: raise ValueError("C token scanner declined")
+                return json.loads(decoded.stdout)
+            materialized_args, decline = materialize([graph_path], grammar, decode)
+            materialized = link(name + "-materialized", materialized_args) if materialized_args is not None else None
             retained_response.write_text(collapsed_contents)
-            collapsed = link(name + "-collapsed", ["-Wl,@" + str(retained_response)])
+            collapsed = link(name + "-collapsed", indirect(retained_response))
             case = {"case": name, "driver_decoder_admitted": admitted, "decoded_words": words,
                     "native": native, "candidate": candidate, "retained": retained,
-                    "collapsed": collapsed, "captured": captured_graph}
+                    "collapsed": collapsed, "captured": captured_graph,
+                    "materialized": materialized, "materialization_decline": decline,
+                    "materialized_arguments": materialized_args}
             case["equivalent"] = equivalent(case)
             case["retained_equivalent"] = outcomes_agree(native, retained)
             case["collapsed_equivalent"] = outcomes_agree(native, collapsed)
             case["captured_equivalent"] = outcomes_agree(native, captured_graph)
+            case["materialized_equivalent"] = materialized is not None and outcomes_agree(native, materialized)
             cases.append(case)
     return {"platform": sys.platform, "compiler": compiler, "cases": cases}
 
@@ -148,7 +213,7 @@ def require_equivalent(result):
 
 
 def require_retained_equivalent(result, field="retained"):
-    if not result["cases"] or any(not outcomes_agree(case["native"], case[field])
+    if not result["cases"] or any(case[field] is None or not outcomes_agree(case["native"], case[field])
                                   for case in result["cases"]):
         raise SystemExit("I cannot substitute these retained linker responses.")
 
@@ -159,6 +224,7 @@ if __name__ == "__main__":
     parser.add_argument("--require-equivalent", action="store_true")
     parser.add_argument("--require-retained-equivalent", action="store_true")
     parser.add_argument("--require-captured-equivalent", action="store_true")
+    parser.add_argument("--require-materialized-equivalent", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler executable")
@@ -167,3 +233,4 @@ if __name__ == "__main__":
     if args.require_equivalent: require_equivalent(result)
     if args.require_retained_equivalent: require_retained_equivalent(result)
     if args.require_captured_equivalent: require_retained_equivalent(result, "captured")
+    if args.require_materialized_equivalent: require_retained_equivalent(result, "materialized")

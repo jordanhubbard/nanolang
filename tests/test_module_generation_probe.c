@@ -189,6 +189,30 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if (argc == 4 && !strcmp(argv[1], "link-response-words")) {
+        ModuleLinkResponseGrammar grammar = !strcmp(argv[2], "gnu") ? MODULE_LINK_RESPONSE_GNU :
+            !strcmp(argv[2], "apple") ? MODULE_LINK_RESPONSE_APPLE : 0;
+        if (!grammar) return 2;
+        const char *cursor = argv[3], *begin, *end;
+        char word[4096];
+        int status;
+        cJSON *words = cJSON_CreateArray();
+        if (!words) return 1;
+        while ((status = module_link_response_word(&cursor, &begin, &end, word, sizeof(word), grammar)) > 0) {
+            cJSON *value = cJSON_CreateString(word);
+            if (!value || !cJSON_AddItemToArray(words, value)) {
+                cJSON_Delete(value);
+                status = -1;
+                break;
+            }
+        }
+        char *json = status < 0 ? NULL : cJSON_PrintUnformatted(words);
+        if (json) puts(json);
+        int result = json ? 0 : 1;
+        free(json);
+        cJSON_Delete(words);
+        return result;
+    }
     if ((argc >= 5 && !strcmp(argv[1], "capture-link-responses")) ||
         (argc >= 6 && !strcmp(argv[1], "capture-link-responses-allocation"))) {
         bool allocation = !strcmp(argv[1], "capture-link-responses-allocation");

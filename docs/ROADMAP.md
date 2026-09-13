@@ -1027,6 +1027,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       timeouts (2026-09-13). Ordinary probe deadlines remain unchanged; only
       the existing 40-package stress builds use their thirty-second bound.
       MAC `task_44c2d5851e1948e6a474036e263a0a73`.
+- [x] **5.0 linker response end-of-input tokens.** I preserve the tested
+      GNU/Apple behavior for unclosed quotes and trailing backslashes at end
+      of a response. Both linkers accept the tested archive spellings, while
+      my strict graph scanner previously declined them. I correct the scanner
+      and cover nested references and exact decoded words. All twenty-two
+      retained-graph native comparisons pass on Apple Clang 21 and GCC 12;
+      Darwin passes thirty-six targeted methods and Linux passes sixteen
+      graph/scanner methods with leak-enabled sanitizers (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 retained compiler response files.** I measure restored edits to
       `@file` arguments on Clang and GCC, including local and shared caches.
       I retain the selected arguments before compilation, preserving compiler
@@ -1192,6 +1201,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       multi-root order, identity and lifetime checks pass on both hosts, along
       with allocation and shared-budget tests. Flag installation and admission
       remain separate open work.
+      I next measure explicit `-Xlinker` argument materialization from retained
+      graphs, including comma-containing cache paths, control whitespace,
+      malformed quoting and repeated resolved identities. I require observed
+      native outcomes before replacing response-file transport; decoder
+      refusal alone is not evidence of equivalent linker rejection.
+      My twenty-two-case comparison matches every GNU result after correcting
+      end-of-input token semantics. Nineteen Apple cases execute equivalently;
+      three repeated/aliased-response cases are deliberately refused, so the
+      full Apple materialization gate remains red. Comma/space cache paths
+      and quoted CRLF filenames are covered. Production transport is not yet
+      installed, and the six restored-selection failures remain open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

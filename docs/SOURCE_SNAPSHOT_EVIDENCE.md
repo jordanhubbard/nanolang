@@ -1483,3 +1483,41 @@ On Linux, all twelve graph methods pass with ASan/UBSan and leak detection
 and leak detection disabled (2026-09-13). This does not replace the earlier
 full regression gate or complete invocation-wide flag installation. Indirect
 option admission, returned flag transport and cache eligibility remain open.
+
+### End-of-input tokens and explicit linker arguments
+
+I compare a second transport hypothesis: decode the retained graph with my
+C linker token scanner, then pass each resulting word as a separate
+`-Xlinker` argument. The experiment reads retained files after removing the
+original graph. Its cache paths contain commas and spaces; quoted CRLF in a
+filename remains two literal bytes, not text-mode newline normalization.
+This is a fixture prototype, not invocation admission or production transport.
+
+The experiment exposes a scanner mismatch. Apple Clang 21 and GCC 12 both
+successfully link `'selected.a` without a closing quote, and `selected.a\`
+with a trailing backslash. My scanner previously declined both spellings.
+I now accept an open quote at end of input and discard the final escape,
+matching those observed tools. I leave my separate compiler-driver response
+decoder unchanged. Nested references with either ending are captured and
+rewritten as complete token spans; the retained graph outlives the originals.
+
+I keep transport refusal separate from executed linker failure. My prototype
+refuses repeated resolved identities under the Apple profile. That is not a
+successful native-equivalence measurement, even when the native linker also
+rejects the original. The materialization gate rejects missing outcomes and
+does not trust a stored `materialized_equivalent` flag. Production handling of
+these rejections, selected-tool admission and installation remain open.
+
+All twenty-two native comparisons preserve retained-graph outcomes on Apple
+Clang 21 and GCC 12.2. Materialized arguments preserve all twenty-two GNU
+outcomes and the nineteen executed Apple outcomes. The other three Apple
+cases remain explicit refusals, leaving its full materialization gate red.
+I do not replace those missing executions with fabricated linker statuses.
+
+The rebuilt Darwin tools pass thirty-six targeted graph/query/link methods
+in 28.886 seconds. Linux passes sixteen graph/scanner/prototype methods with
+ASan/UBSan and leak detection in 98.277 seconds. The final twenty-two-case
+Linux comparison also passes with the sanitizer-instrumented probe, followed
+by the CRLF prototype regression. These are targeted gates, not a new full
+release gate (2026-09-13). The six forwarded restored-selection failures
+remain open; this parser correction does not install invocation-wide capture.

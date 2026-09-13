@@ -2711,7 +2711,8 @@ typedef struct {
 } ModuleLinkResponseGraph;
 
 /* I locate nested-reference token spans without rewriting surrounding bytes.
- * These two explicit grammars differ in their unquoted whitespace set. */
+ * These two explicit grammars differ in their unquoted whitespace set. Both
+ * tested linkers accept an open quote at EOF and discard a trailing escape. */
 static int module_link_response_word(const char **cursor, const char **begin, const char **end,
                                      char *word, size_t capacity, ModuleLinkResponseGrammar grammar) {
     const char *space = grammar == MODULE_LINK_RESPONSE_APPLE ? " \t\r\n" : " \t\r\n\v\f";
@@ -2726,7 +2727,7 @@ static int module_link_response_word(const char **cursor, const char **begin, co
         if (!quote && strchr(space, c)) break;
         p++;
         if (c == '\\') {
-            if (!*p) { errno = EINVAL; return -1; }
+            if (!*p) break;
             c = *p++;
         } else if (quote) {
             if (c == quote) { quote = 0; continue; }
@@ -2734,7 +2735,6 @@ static int module_link_response_word(const char **cursor, const char **begin, co
         if (used + 1 >= capacity) { errno = E2BIG; return -1; }
         word[used++] = c;
     }
-    if (quote) { errno = EINVAL; return -1; }
     word[used] = 0;
     *cursor = *end = p;
     return 1;

@@ -233,6 +233,23 @@ class LinkResponseGraph(unittest.TestCase):
             outer.write_text(" ".join(f"@node-{index}.rsp" for index in range(63)))
             self.captured_path(directory, outer)
 
+    def test_nested_end_of_input_tokens_are_captured(self):
+        for grammar in ("gnu", "apple"):
+            with tempfile.TemporaryDirectory(prefix="nano-graph-eof-") as tmp:
+                directory = Path(tmp) / "comma, space"
+                directory.mkdir()
+                inner, outer = directory / "inner file.rsp", directory / "outer.rsp"
+                inner.write_text("-lm\n")
+                for token in ("'@inner file.rsp", '"@inner file.rsp', "@inner\\ file.rsp\\"):
+                    with self.subTest(grammar=grammar, token=token):
+                        outer.write_text("-lc " + token)
+                        captured = self.captured_path(directory, outer, grammar)
+                        words = shlex.split(captured.read_text())
+                        self.assertEqual(words[0], "-lc")
+                        self.assertEqual(len(words), 2)
+                        self.assertTrue(words[1].startswith("@"))
+                        self.assertEqual(Path(words[1][1:]).read_bytes(), b"-lm\n")
+
     def test_invalid_inputs_and_budgets_fail_then_recover(self):
         with tempfile.TemporaryDirectory(prefix="nano-graph-failure-") as tmp:
             directory = Path(tmp)
