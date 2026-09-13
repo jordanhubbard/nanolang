@@ -1319,6 +1319,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Six focused Darwin methods and the full 227-method Linux target pass;
       three instrumented Linux lifecycle methods report no sanitizer errors.
       Final objects still come from expanded text, so this parent stays open.
+      I next route final native unit objects through a bounded, no-follow
+      copy in both fresh builds and validation, without a dummy assembler
+      invocation. I require physical native debug/object equality, explicit
+      post-capture input mutation evidence, and failed-copy recovery before
+      accepting this transport.
+      Context v42 now uses captured native objects for selected Apple external
+      macro units, with the same executor in fresh builds and warm validation.
+      Production debug data and whole-object bytes match all eight physical
+      native controls. Eight post-capture mutation cases keep changed binary
+      and missing macro inputs through linking and still return 42, then reuse
+      the generation. Failed-copy recovery and single-source units also pass.
+      Integrated admission and broader provenance coverage remain open; this
+      does not establish atomic input observations or an input-read inventory.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

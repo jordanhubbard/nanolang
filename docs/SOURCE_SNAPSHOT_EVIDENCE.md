@@ -2677,3 +2677,53 @@ UndefinedBehaviorSanitizer and leak detection in 31.083 seconds, with no
 sanitizer reports. That instrumentation covers the builder/probe, not every
 linked support object. Strict builds, Python syntax, whitespace and the
 six-edition guide check pass.
+
+### Native unit output transport
+
+Build context v42 uses the captured native object as the final standalone
+unit output when Apple external-assembler expansion is selected. Fresh builds
+and warm validation use the same executor. C siblings continue to assemble
+their retained text. I keep the existing pre-expansion and expanded
+observations; I do not issue a dummy compiler command for copied units.
+
+The transport opens the private stage and captured input without following
+symlinks, requires a nonempty regular object of at most 32 MiB, and creates a
+distinct output exclusively. I copy through bounded buffers, reject copied
+lengths that differ from the initial size, remove partial output on failure
+and make successful output read-only.
+The generation's existing synchronization/publication barrier remains in
+place. Oversized objects fail rather than falling back to live assembly.
+
+Production object bytes and full decoded debug data now match physical-source
+native controls in all eight Darwin inline/nested-macro, suffix/cache cases.
+The timing regression verifies a different property: after native capture,
+the C sibling's final compilation changes the binary payload from 42 to 43
+and removes the included macro. Both changes remain through final linking,
+then are restored. All eight ordinary/shared-unit, suffix/cache cases return
+42 and subsequently reuse their generation. An explicit mutation marker is
+required; the first fixture accidentally selected literal capture and failed
+that assertion, so it was corrected to use a macro argument.
+
+Removing the retained object between capture and copying fails all four
+ordinary/shared-unit and cache combinations without replacing the old library
+or pointer. Staging is removed, a later successful build returns the changed
+value, and the next build reuses it. Single-source assembler modules also
+copy byte-identically and return 42 through a fresh library load, including
+`-g -g0`. Transport tests cover nonregular/substituted paths, existing output,
+path escape, size limits and input truncation during the copy.
+
+This repairs the selected external-assembler macro path. Integrated-assembler
+admission and broader provenance/input-observation requirements remain open;
+these tests do not establish an atomic filesystem snapshot or a complete
+assembler input inventory.
+
+Ten focused Darwin methods pass in four groups (0.288, 63.240, 92.278 and
+75.461 seconds). Four instrumented Darwin copy/timing/recovery/single-source
+methods pass in 89.590 seconds with no AddressSanitizer or
+UndefinedBehaviorSanitizer reports. Darwin's runtime rejects leak detection;
+that run explicitly disables it. Four instrumented Linux copy/lifecycle
+methods pass in 38.111 seconds with leak detection enabled and no reports.
+Instrumentation covers the builder/probe rather than every support object.
+The final Linux bytecode-shadow target passes 231 methods with 30 platform
+skips; its 90-method source-snapshot suite takes 105.662 seconds. Strict
+builds, Python syntax, whitespace and six-edition guide checks pass.

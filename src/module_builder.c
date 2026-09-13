@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v41-native-unit-observation");
+    hash_context_field(&hash, "nanolang-c-build-context-v42-native-unit-output");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3457,7 +3457,8 @@ typedef enum {
     MODULE_SNAPSHOT_CLANG_EXTERNAL,
     MODULE_SNAPSHOT_GCC,
     MODULE_SNAPSHOT_GCC_ASSEMBLY,
-    MODULE_SNAPSHOT_GCC_REPLAY
+    MODULE_SNAPSHOT_GCC_REPLAY,
+    MODULE_SNAPSHOT_NATIVE_UNITS
 } ModuleSnapshotMode;
 
 static ModuleSnapshotMode module_driver_snapshot_mode(const ModuleBuildMetadata *meta) {
@@ -4104,7 +4105,7 @@ static uint64_t module_clang_external_expansion(ModuleBuildMetadata *meta, const
             const char *source = group ? meta->shared_c_sources[i] : meta->c_sources[i];
             if (module_source_kind(source) > 1) {
                 /* I retain native debug emission before text expansion loses
-                 * source locations. Final object use is a separate phase. */
+                 * source locations. Final unit output copies these bytes. */
                 char alias[2048], parent[2048], native[2048] = {0}, unit_prefix[4096];
                 char native_storage[16384], *native_args[256];
                 command[0] = 0;
@@ -4501,7 +4502,7 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
         if (mode == MODULE_SNAPSHOT_CLANG_EXTERNAL) {
             frozen = module_clang_external_expansion(meta, flags, directory, fingerprint);
             if (frozen) {
-                if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
+                if (actual_mode) *actual_mode = MODULE_SNAPSHOT_NATIVE_UNITS;
                 return frozen;
             }
         }
@@ -4547,6 +4548,67 @@ static bool module_snapshot_command(ModuleBuildMetadata *meta, const ModulePkgFl
 
 static void module_remove_staging(const char *stage);
 
+/* I copy one captured object within the opened private stage. I neither
+ * follow substituted files nor overwrite an existing output. */
+static bool module_copy_native_unit(const char *directory, size_t group, size_t index,
+                                    const char *object) {
+    size_t length = strlen(directory);
+    if (strncmp(object, directory, length) || object[length] != '/' ||
+        !object[length + 1] || strchr(object + length + 1, '/') ||
+        !strcmp(object + length + 1, ".") || !strcmp(object + length + 1, "..")) return false;
+    int stage = open(directory, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+    if (stage < 0) return false;
+    char source[128];
+    snprintf(source, sizeof(source), "__native_unit_%zu_%zu.o", group, index);
+    int from = openat(stage, source, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC);
+    struct stat st;
+    bool ok = from >= 0 && !fstat(from, &st) && S_ISREG(st.st_mode) &&
+        st.st_size > 0 && st.st_size <= 32LL * 1024 * 1024;
+    int to = ok ? openat(stage, object + length + 1,
+                         O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0600) : -1;
+    ok = ok && to >= 0;
+    size_t total = 0;
+    char bytes[8192];
+    while (ok) {
+        ssize_t amount = read(from, bytes, sizeof(bytes));
+        if (amount < 0 && errno == EINTR) continue;
+        if (amount < 0) { ok = false; break; }
+        if (!amount) break;
+        if ((size_t)amount > 32ULL * 1024 * 1024 - total) { ok = false; break; }
+        total += (size_t)amount;
+        size_t sent = 0;
+        while (sent < (size_t)amount) {
+            ssize_t written = write(to, bytes + sent, (size_t)amount - sent);
+            if (written < 0 && errno == EINTR) continue;
+            if (written <= 0) { ok = false; break; }
+            sent += (size_t)written;
+        }
+    }
+    if (ok) ok = total == (uint64_t)st.st_size && !fchmod(to, 0400);
+    if (from >= 0 && close(from)) ok = false;
+    if (to >= 0 && close(to)) ok = false;
+    if (!ok && to >= 0) (void)unlinkat(stage, object + length + 1, 0);
+    if (close(stage)) ok = false;
+    return ok;
+}
+
+static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                char *command, size_t capacity, const char *prefix,
+                                const char *directory, size_t group, size_t index,
+                                const char *object, ModuleSnapshotMode mode, const char *dependency) {
+    const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
+    if (mode == MODULE_SNAPSHOT_NATIVE_UNITS && module_source_kind(source) > 1) {
+        if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
+            printf("[Module] I copy captured native unit %s\n", source);
+        return module_copy_native_unit(directory, group, index, object) ? 0 : -1;
+    }
+    if (mode != MODULE_SNAPSHOT_NONE &&
+        !module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index, object, mode)) return -1;
+    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) printf("[Module] %s\n", command);
+    if (dependency) return module_run_source_command(command, dependency);
+    return module_build_append(command, capacity, " 2>/dev/null") ? system(command) : -1;
+}
+
 /* I include the actual GCC object bytes, not just the C input that preceded
  * assembler file reads. Validation builds private objects using the same recipe. */
 static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
@@ -4566,9 +4628,8 @@ static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFla
             else if (count == 1) ok = module_build_append(object, sizeof(object), "%s/%s.o", directory, meta->name);
             else ok = module_build_append(object, sizeof(object), "%s/%s_%zu.o", directory, meta->name, i);
             if (!ok) return 0;
-            if (compile && (!module_snapshot_command(meta, flags, command, sizeof(command), prefix, directory,
-                                group, i, object, mode) ||
-                            !module_build_append(command, sizeof(command), " 2>/dev/null") || system(command))) return 0;
+            if (compile && module_execute_unit(meta, flags, command, sizeof(command), prefix, directory,
+                                              group, i, object, mode, NULL)) return 0;
             uint64_t hash = hash_file_fnv1a(object);
             if (!hash) return 0;
             char digest[24];
@@ -5041,14 +5102,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             char compile_cmd[8192];
             command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[0], object_file, dep_path, false);
-            if (snapshots) command_ok &= module_snapshot_command(meta, flags, compile_cmd, sizeof(compile_cmd),
-                compile_prefix, build_dir, 0, 0, object_file, mode);
-
-            if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                printf("[Module] %s\n", compile_cmd);
-            }
-
-            int result = command_ok ? module_run_source_command(compile_cmd, dep_path) : -1;
+            int result = command_ok ? module_execute_unit(meta, flags, compile_cmd, sizeof(compile_cmd),
+                compile_prefix, build_dir, 0, 0, object_file, snapshots ? mode : MODULE_SNAPSHOT_NONE, dep_path) : -1;
             if (result != 0) {
                 fprintf(stderr, "Error: Failed to compile module %s\n", meta->name);
                 free(build_dir);
@@ -5074,14 +5129,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 char compile_cmd[8192];
                 command_ok &= module_source_command(compile_cmd, sizeof(compile_cmd), compile_prefix,
                          meta->module_dir, meta->c_sources[i], obj_path, dep_path, false);
-                if (snapshots) command_ok &= module_snapshot_command(meta, flags, compile_cmd, sizeof(compile_cmd),
-                    compile_prefix, build_dir, 0, i, obj_path, mode);
-
-                if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                    printf("[Module] %s\n", compile_cmd);
-                }
-
-                int result = command_ok ? module_run_source_command(compile_cmd, dep_path) : -1;
+                int result = command_ok ? module_execute_unit(meta, flags, compile_cmd, sizeof(compile_cmd),
+                    compile_prefix, build_dir, 0, i, obj_path, snapshots ? mode : MODULE_SNAPSHOT_NONE, dep_path) : -1;
                 if (result != 0) {
                     fprintf(stderr, "Error: Failed to compile module %s (%s)\n", meta->name, meta->c_sources[i]);
                     for (size_t j = 0; j < meta->c_sources_count; j++) free(src_objects[j]);
@@ -5155,14 +5204,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                     char sc_cmd[8192];
                     command_ok &= module_source_command(sc_cmd, sizeof(sc_cmd), compile_prefix,
                                       meta->module_dir, meta->shared_c_sources[sci], sc_obj, sc_dep, true);
-                    if (snapshots) command_ok &= module_snapshot_command(meta, flags, sc_cmd, sizeof(sc_cmd),
-                        compile_prefix, build_dir, 1, sci, sc_obj, mode);
-
-                    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                        printf("[Module] (shared-only) %s\n", sc_cmd);
-                    }
-
-                    if (!command_ok || module_run_source_command(sc_cmd, sc_dep) != 0) {
+                    if (!command_ok || module_execute_unit(meta, flags, sc_cmd, sizeof(sc_cmd), compile_prefix,
+                            build_dir, 1, sci, sc_obj, snapshots ? mode : MODULE_SNAPSHOT_NONE, sc_dep) != 0) {
                         fprintf(stderr,
                                 "I could not compile shared_c_source %s for %s\n",
                                 meta->shared_c_sources[sci], meta->name);
@@ -5172,7 +5215,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            if (snapshots && (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY || mode == MODULE_SNAPSHOT_GCC_REPLAY))
+            if (snapshots && (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY ||
+                              mode == MODULE_SNAPSHOT_GCC_REPLAY || mode == MODULE_SNAPSHOT_NATIVE_UNITS))
                 *preprocessing_before = module_gcc_objects(meta, flags, build_dir, *preprocessing_before, false, mode);
 
             /* Build shared library */

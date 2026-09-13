@@ -269,6 +269,129 @@ class SourceSnapshots(unittest.TestCase):
             result = subprocess.run([str(self.support.probe), "sync-generation", str(stage)], capture_output=True, timeout=10)
             self.assertNotEqual(result.returncode, 0)
 
+    def test_native_unit_copy_rejects_substitutions(self):
+        for kind in ("regular", "missing", "empty", "oversize", "source-shrink", "stage-link",
+                     "source-link", "source-fifo", "source-directory", "output-file", "output-link",
+                     "output-directory", "outside"):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-native-copy-") as tmp:
+                root = Path(tmp)
+                stage = root / "stage"
+                if kind == "stage-link":
+                    actual = root / "actual"
+                    actual.mkdir()
+                    stage.symlink_to(actual, target_is_directory=True)
+                else: stage.mkdir()
+                valuable = root / "valuable"
+                valuable.write_bytes(b"I stay unchanged.")
+                source = stage / "__native_unit_0_0.o"
+                output = stage / "output.o"
+                if kind == "source-link": source.symlink_to(valuable)
+                elif kind == "source-fifo": os.mkfifo(source)
+                elif kind == "source-directory": source.mkdir()
+                elif kind != "missing": source.write_bytes(b"" if kind == "empty" else bytes(range(256)) * 100)
+                if kind == "oversize":
+                    with source.open("r+b") as stream: stream.truncate(32 * 1024 * 1024 + 1)
+                if kind == "output-file": output.write_bytes(b"existing")
+                elif kind == "output-link": output.symlink_to(valuable)
+                elif kind == "output-directory": output.mkdir()
+                elif kind == "outside": output = stage / ".." / "valuable"
+                env = os.environ.copy()
+                if kind == "source-shrink":
+                    env.update(NANO_TEST_RESPONSE_MUTATE=str(source), NANO_TEST_RESPONSE_ON_READ="1")
+                result = subprocess.run([str(self.support.probe), "copy-native-unit", str(stage), str(output)],
+                                        env=env, capture_output=True, timeout=5)
+                self.assertEqual(result.returncode == 0, kind == "regular", result.stderr)
+                self.assertEqual(valuable.read_bytes(), b"I stay unchanged.")
+                if kind == "regular":
+                    self.assertEqual(source.read_bytes(), output.read_bytes())
+                    self.assertNotEqual(source.stat().st_ino, output.stat().st_ino)
+                    self.assertEqual(output.stat().st_mode & 0o777, 0o400)
+                elif kind == "output-file": self.assertEqual(output.read_bytes(), b"existing")
+                elif kind not in ("output-link", "output-directory", "outside"):
+                    self.assertFalse(output.exists())
+
+    def test_native_unit_post_capture_reads(self):
+        if sys.platform != "darwin": self.skipTest("I exercise selected Apple native unit transport")
+        for shared_unit in (False, True):
+            for shared_cache in (False, True):
+                for suffix in (".s", ".S"):
+                    with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache, suffix=suffix), tempfile.TemporaryDirectory(prefix="nano-native-timing-") as tmp:
+                        root = Path(tmp)
+                        module, _, env = self.support.support.foreign_build_fixture(root)
+                        if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
+                        payload = module / "payload.bin"
+                        payload.write_bytes(b"*")
+                        nested = module / "macro.s"
+                        nested.write_text('.macro emit path\n.incbin "\\path"\n.endm\n')
+                        source = module / ("payload" + suffix)
+                        source.write_text(f'.include "{nested}"\n.data\n.globl _snapshot_payload\n_snapshot_payload:\nemit "{payload}"\n')
+                        (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
+                            'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')
+                        metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": ["-g", "-fno-integrated-as"]}
+                        metadata.setdefault("shared_c_sources" if shared_unit else "c_sources", []).append(str(source) if shared_unit else source.name)
+                        (module / "module.json").write_text(json.dumps(metadata))
+                        marker, restored = root / "mutated", root / "restored"
+                        wrapper = root / "cc-wrapper"
+                        native_name = f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
+                        wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, subprocess, sys
+marker, restored = pathlib.Path({str(marker)!r}), pathlib.Path({str(restored)!r})
+payload, nested = pathlib.Path({str(payload)!r}), pathlib.Path({str(nested)!r})
+if '-c' in sys.argv and '-###' not in sys.argv and os.getenv('NANO_AS_CAPTURE_PHASE') != 'capture':
+    for arg in sys.argv[1:]:
+        unit = pathlib.Path(arg)
+        if unit.name == '__snapshot_0_0.s' and (unit.parent / {native_name!r}).is_file() and not marker.exists():
+            payload.write_bytes(b'+')
+            nested.rename(nested.with_suffix('.missing'))
+            marker.write_text('I changed the binary and removed the macro after native capture.')
+if '-dynamiclib' in sys.argv and '-###' not in sys.argv and marker.exists() and not restored.exists():
+    assert payload.read_bytes() == b'+' and not nested.exists()
+    try:
+        result = subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:])
+    finally:
+        payload.write_bytes(b'*')
+        nested.with_suffix('.missing').rename(nested)
+        restored.write_text('I kept both changes through final linking.')
+    sys.exit(result.returncode)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+                        wrapper.chmod(0o700)
+                        env["NANO_CC"] = str(wrapper)
+                        self.support.probe_path("build", module, env, timeout=30)
+                        first = self.support.probe_path("directory", module, env)
+                        self.assertTrue(marker.is_file())
+                        self.assertTrue(restored.is_file())
+                        self.assertEqual(payload.read_bytes(), b"*")
+                        self.assertTrue(nested.is_file())
+                        self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                        self.support.probe_path("build", module, env, timeout=30)
+                        self.assertEqual(self.support.probe_path("directory", module, env), first)
+
+    def test_native_single_source_output(self):
+        if sys.platform != "darwin": self.skipTest("I exercise selected Apple native unit transport")
+        for shared_cache in (False, True):
+            for suffix in (".s", ".S"):
+                with self.subTest(shared_cache=shared_cache, suffix=suffix), tempfile.TemporaryDirectory(prefix="nano-native-single-") as tmp:
+                    root = Path(tmp)
+                    module, _, env = self.support.support.foreign_build_fixture(root)
+                    if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
+                    source = module / ("payload" + suffix)
+                    source.write_text('.macro emit number\n.byte \\number\n.endm\n.data\n'
+                                      '.globl _snapshot_payload\n_snapshot_payload:\nemit 42\n')
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                        "c_sources": [source.name], "cflags": ["-g", "-g0", "-fno-integrated-as"]}))
+                    self.support.probe_path("build", module, env, timeout=30)
+                    first = self.support.probe_path("directory", module, env)
+                    self.assertEqual((first / "answer_native.o").read_bytes(), (first / "__native_unit_0_0.o").read_bytes())
+                    library = self.support.probe_path("library", module, env)
+                    result = subprocess.run([sys.executable, "-c", 'import ctypes,sys; '
+                        'print(ctypes.c_ubyte.in_dll(ctypes.CDLL(sys.argv[1]), "snapshot_payload").value)',
+                        str(library)], capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout.strip(), b"42")
+                    self.support.probe_path("build", module, env, timeout=30)
+                    self.assertEqual(self.support.probe_path("directory", module, env), first)
+
     def test_unit_aliases_do_not_follow_substituted_paths(self):
         for kind in ("source-link", "source-fifo", "source-directory", "alias-directory-link", "alias-file-link"):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-unit-safe-") as tmp:
@@ -308,7 +431,11 @@ class SourceSnapshots(unittest.TestCase):
         if sys.platform != "darwin": self.skipTest("I exercise the selected Apple native unit capture")
         self.unit_alias_failed_build_retains_published_generation(macro=True)
 
-    def unit_alias_failed_build_retains_published_generation(self, macro=False):
+    def test_apple_native_unit_copy_failure_recovery(self):
+        if sys.platform != "darwin": self.skipTest("I exercise selected Apple native unit transport")
+        self.unit_alias_failed_build_retains_published_generation(macro=True, copy_failure=True)
+
+    def unit_alias_failed_build_retains_published_generation(self, macro=False, copy_failure=False):
         for shared_unit in (False, True):
             for shared_cache in (False, True):
                 with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache), tempfile.TemporaryDirectory(prefix="nano-unit-failure-") as tmp:
@@ -329,8 +456,17 @@ class SourceSnapshots(unittest.TestCase):
                     else: metadata["c_sources"].append(source.name)
                     (module / "module.json").write_text(json.dumps(metadata))
                     wrapper = root / "cc-wrapper"
-                    wrapper.write_text(f'#!{sys.executable}\nimport os,sys\n'
-                        'if os.environ.get("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
+                    copy_marker = root / "copy-failed"
+                    native_name = f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
+                    wrapper.write_text(f'#!{sys.executable}\nimport os,sys,pathlib\n'
+                        f'if {copy_failure!r} and os.getenv("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
+                        '"-###" not in sys.argv and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":\n'
+                        '    for arg in sys.argv[1:]:\n'
+                        '        unit = pathlib.Path(arg)\n'
+                        f'        native = unit.parent / {native_name!r}\n'
+                        '        if unit.name == "__snapshot_0_0.s" and native.is_file():\n'
+                        f'            native.unlink()\n            pathlib.Path({str(copy_marker)!r}).touch()\n'
+                        f'if {not copy_failure!r} and os.environ.get("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
                         'any("/__unit_" in arg and arg.endswith("/payload.s") for arg in sys.argv):\n'
                         '    print("I failed unit assembly", file=sys.stderr)\n    sys.exit(1)\n'
                         f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
@@ -347,7 +483,8 @@ class SourceSnapshots(unittest.TestCase):
                     result = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
                                             capture_output=True, timeout=30)
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn(b"I failed unit assembly", result.stderr)
+                    if copy_failure: self.assertTrue(copy_marker.is_file())
+                    else: self.assertIn(b"I failed unit assembly", result.stderr)
                     self.assertEqual(self.support.probe_path("directory", module, env), first)
                     self.assertEqual(library.read_bytes(), saved)
                     self.assertEqual(self.answer(library), 42)
@@ -404,6 +541,8 @@ class SourceSnapshots(unittest.TestCase):
                 with self.subTest(nested=nested, suffix=case["suffix"], cache=case["cache"]):
                     self.assertEqual(case["retained_native_object"], case["physical_native"])
                     self.assertTrue(case["retained_native_object_identical"])
+                    self.assertEqual(case["production"], case["physical_native"])
+                    self.assertTrue(case["physical_object_identical"])
                     self.assertEqual(case["answer"], 42)
                     self.assertTrue(case["generation_reused"])
 

@@ -210,6 +210,8 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if (argc == 4 && !strcmp(argv[1], "copy-native-unit"))
+        return module_copy_native_unit(argv[2], 0, 0, argv[3]) ? 0 : 1;
     if (argc == 5 && !strcmp(argv[1], "unit-input")) {
         if (strcmp(argv[4], "0") && strcmp(argv[4], "1")) return 2;
         char *sources[] = {argv[3], argv[3]};
