@@ -1847,6 +1847,109 @@ static void test_nested_record_pack_is_refused(void) {
     nvm_module_free(m);
 }
 
+static void test_flat_record_result_and_parameter_run_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".entry 2\n"
+        ".function make_pair 0 0 0 struct 1\n"
+        "  PUSH_I64 40\n"
+        "  PUSH_STR hi\n"
+        "  AGG_PACK 0 0 0 2\n"
+        "  RET\n"
+        ".end\n"
+        ".function read_pair 1 1 0 int 1\n"
+        "  LOAD_LOCAL 0\n"
+        "  AGG_GET 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL make_pair\n"
+        "  CALL read_pair\n"
+        "  PUSH_I64 2\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "record signature fixture");
+    CHECK(m != NULL, "record signature fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for record result and parameter");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "static nrec_t nl_make_pair") != NULL,
+          "declared struct result becomes a record result");
+    CHECK(strstr(c, "nl_read_pair(nrec_t a0)") != NULL,
+          "direct-call use classifies the record parameter");
+    CHECK(strstr(c, "if (0 >= r[") != NULL,
+          "record field access retains its runtime guard");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "record signature C compiles and runs");
+    CHECK(status == 42, "record result and parameter preserve the field value");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_flat_variant_result_runs_without_nano_vm(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function make_some 0 0 0 union 1\n"
+        "  PUSH_I64 41\n"
+        "  AGG_PACK 1 0 3 1\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  CALL make_some\n"
+        "  AGG_GET 0\n"
+        "  PUSH_I64 1\n"
+        "  I64_ADD\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "variant result fixture");
+    CHECK(m != NULL, "variant result fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for a flat variant result");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "static nrec_t nl_make_some") != NULL,
+          "declared union result becomes a flat aggregate result");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "variant result C compiles and runs");
+    CHECK(status == 42, "variant result preserves its field value");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_direct_call_parameter_kind_conflict_is_refused(void) {
+    const char *src =
+        ".entry 1\n"
+        ".function take 1 1 0 int 1\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  CALL take\n"
+        "  POP\n"
+        "  PUSH_I64 2\n"
+        "  AGG_PACK 0 0 0 1\n"
+        "  CALL take\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "parameter conflict fixture");
+    CHECK(m != NULL, "parameter conflict fixture assembles");
+    if (!m) return;
+    char err[256];
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "path-varying direct-call parameter kinds stay refused");
+    CHECK(strstr(err, "disagree on parameter") != NULL,
+          "parameter-kind refusal identifies the disagreement");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_null_module(void) {
     char err[64];
     char *c = nvm2c_emit(NULL, err, sizeof err);
@@ -2203,6 +2306,9 @@ int main(int argc, char **argv) {
     test_grow_t_runs_without_nano_vm();
     test_one_t_result_runs_without_nano_vm();
     test_nested_record_pack_is_refused();
+    test_flat_record_result_and_parameter_run_without_nano_vm();
+    test_flat_variant_result_runs_without_nano_vm();
+    test_direct_call_parameter_kind_conflict_is_refused();
     test_null_module();
     test_choose_then_runs_without_nano_vm();
     test_choose_else_runs_without_nano_vm();
