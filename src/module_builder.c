@@ -2916,7 +2916,7 @@ static bool module_link_query_output(char **args, char *output, size_t capacity,
     return ok;
 }
 
-ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command) {
+static ModuleLinkResponseGrammar module_link_response_grammar_command(const char *command) {
     if (!command || strnlen(command, 65537) > 65536) return 0;
     char **args = calloc(2050, sizeof(char *));
     if (!args) return 0;
@@ -3912,6 +3912,49 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
         command_ok &= module_append_path_flag(lib_cmd, capacity, "", object);
     }
     return command_ok;
+}
+
+/* I pin the primary output at both layers without dropping selection flags.
+ * The caller still admits auxiliary output options and indirect controls; this
+ * is not a filesystem sandbox for arbitrary compiler/linker arguments. */
+ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command, const char *parent) {
+    if (!command || !parent || strnlen(command, 65537) > 65536) return 0;
+    const char *cursor = command;
+    char word[4096];
+    size_t words = 0;
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (!words++ && !word[0]) return 0;
+        /* End-of-options would prevent the appended output pins taking effect. */
+        if (!strcmp(word, "--")) return 0;
+        if (!strncmp(word, "-Wl,", 4)) {
+            const char *part = word + 4;
+            while (*part) {
+                size_t length = strcspn(part, ",");
+                if (length == 2 && !memcmp(part, "--", 2)) return 0;
+                part += length;
+                if (*part) part++;
+            }
+        }
+    }
+    if (status < 0 || !words) return 0;
+    char *resolved = realpath(parent, NULL);
+    char directory[2048] = {0}, output[2048] = {0};
+    bool ok = resolved && module_build_append(directory, sizeof(directory), "%s/.nano-link-query-XXXXXX", resolved);
+    free(resolved);
+    if (!ok || !mkdtemp(directory)) return 0;
+    char *query = calloc(65537, 1);
+    ok = query && module_build_append(output, sizeof(output), "%s/probe.so", directory) &&
+        module_build_append(query, 65537, "%s", command) &&
+        module_append_path_flag(query, 65537, "-o ", output) &&
+        module_build_append(query, 65537, " -Xlinker -o") &&
+        module_append_path_flag(query, 65537, "-Xlinker ", output);
+    ModuleLinkResponseGrammar grammar = ok ? module_link_response_grammar_command(query) : 0;
+    free(query);
+    module_remove_staging(directory);
+    struct stat st;
+    if (lstat(directory, &st) == 0 || errno != ENOENT) return 0;
+    return grammar;
 }
 
 #ifdef __linux__

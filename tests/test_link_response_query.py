@@ -29,6 +29,91 @@ class LinkResponseQuery(unittest.TestCase):
         path.chmod(0o700)
         return path
 
+    def private_query(self, command, directory, env=None):
+        result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+            "private-link-response-grammar", command, str(directory)], cwd=directory,
+            env=env, capture_output=True, timeout=8)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return int(result.stdout), result.stderr
+
+    def test_private_primary_output_preserves_metadata_artifacts(self):
+        with tempfile.TemporaryDirectory(prefix="nano-private-link-") as tmp:
+            directory = Path(tmp) / "comma, space"
+            directory.mkdir()
+            module = directory / "module"
+            module.mkdir()
+            compiler = shutil.which("cc")
+            env = os.environ.copy()
+            env["NANO_CC"] = compiler
+            compiled = subprocess.run([compiler, "-x", "c", "-c", "/dev/null", "-o", "fixture.o"],
+                                      cwd=directory, capture_output=True, timeout=15)
+            self.assertEqual(compiled.returncode, 0, compiled.stderr)
+            protected = [directory / "fixture.so", directory / "published.so"]
+            for path in protected: path.write_bytes(b"I retain this published artifact.\n")
+            before = [(path.read_bytes(), path.stat().st_mtime_ns) for path in protected]
+            platform = "macos" if sys.platform == "darwin" else "linux"
+            groups = ("cflags", "cflags_" + platform, "ldflags", "ldflags_" + platform,
+                      "pkg_cflags", "pkg_libs")
+            for group in groups:
+                for option in ("-o published.so", "-Wl,-o,published.so", "@driver.rsp", "-Wl,@link.rsp"):
+                    with self.subTest(group=group, option=option):
+                        (directory / "driver.rsp").write_text("-o published.so\n")
+                        (directory / "link.rsp").write_text("-o published.so\n")
+                        metadata = {"name": "fixture", "c_sources": []}
+                        if group.startswith("pkg_"):
+                            metadata["pkg_config"] = ["query-fixture"]
+                            mode = "--cflags" if group == "pkg_cflags" else "--libs"
+                            pkg = self.tool(directory, "import sys\n"
+                                f"if {mode!r} in sys.argv: print({option!r})\n", "pkg-config")
+                            env["PKG_CONFIG"] = str(pkg)
+                        else: metadata[group] = [option]
+                        (module / "module.json").write_text(json.dumps(metadata))
+                        recipe = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                            "shared-link-command", str(module)], cwd=directory, env=env,
+                            capture_output=True, timeout=8)
+                        self.assertEqual(recipe.returncode, 0, recipe.stderr)
+                        grammar, error = self.private_query(recipe.stdout.decode().strip(), directory, env)
+                        self.assertEqual(grammar, 2 if sys.platform == "darwin" else 1, error)
+                        self.assertEqual([(path.read_bytes(), path.stat().st_mtime_ns) for path in protected], before)
+                        self.assertEqual(list(directory.glob(".nano-link-query-*")), [])
+
+    def test_private_output_cleanup_and_visible_control_rejection(self):
+        with tempfile.TemporaryDirectory(prefix="nano-private-query-cleanup-") as tmp:
+            directory = Path(tmp)
+            tool = self.tool(directory, "from pathlib import Path\nimport sys\n"
+                "Path(sys.argv[sys.argv.index('-o')+1]).write_text('private')\n"
+                "print('GNU ld (fixture) 2.40')\n")
+            command = shlex.quote(str(tool))
+            self.assertEqual(self.private_query(command, directory)[0], 1)
+            self.assertEqual(list(directory.glob(".nano-link-query-*")), [])
+            for suffix in (" --", " -Xlinker --", " -Wl,--", " -Wl,-lm,--,-lc", " ; false"):
+                self.assertEqual(self.private_query(command + suffix, directory)[0], 0)
+                self.assertEqual(list(directory.glob(".nano-link-query-*")), [])
+            self.assertEqual(self.private_query("", directory)[0], 0)
+            tool = self.tool(directory, "from pathlib import Path\nimport sys\n"
+                "(Path(sys.argv[sys.argv.index('-o')+1]).parent/'nested').mkdir(exist_ok=True)\n"
+                "print('GNU ld (fixture) 2.40')\n")
+            grammar, error = self.private_query(shlex.quote(str(tool)), directory)
+            self.assertEqual(grammar, 0)
+            self.assertIn(b"retained private build files", error)
+            self.assertEqual(len(list(directory.glob(".nano-link-query-*"))), 1)
+
+    def test_private_query_allocation_failures_clean_up_and_retry(self):
+        with tempfile.TemporaryDirectory(prefix="nano-private-query-allocation-") as tmp:
+            directory = Path(tmp)
+            tool = self.tool(directory, "from pathlib import Path\nimport sys\n"
+                "Path(sys.argv[sys.argv.index('-o')+1]).write_text('private')\n"
+                "print('GNU ld (fixture) 2.40')\n")
+            outcomes = set()
+            for budget in range(32):
+                result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                    "private-link-response-allocation", shlex.quote(str(tool)), str(directory), str(budget)],
+                    cwd=directory, capture_output=True, timeout=8)
+                self.assertEqual(result.returncode, 0, (budget, result.stderr))
+                outcomes.add(int(result.stdout))
+                self.assertEqual(list(directory.glob(".nano-link-query-*")), [])
+            self.assertEqual(outcomes, {0, 1})
+
     def test_native_linker_and_selection_override(self):
         with tempfile.TemporaryDirectory(prefix="nano-link-query-native-") as tmp:
             directory = Path(tmp)

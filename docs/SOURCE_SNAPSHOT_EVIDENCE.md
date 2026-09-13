@@ -1411,3 +1411,40 @@ unwired; this query does not close the six forwarded snapshot failures.
 Darwin's rebuilt compiler/VM tools and generation probe pass the complete
 168-method regression set in 302.000 seconds, with 24 expected skips and no
 failures or timeouts.
+
+### Disposable primary query outputs
+
+My internal query API now accepts a parent directory and creates a private
+`.nano-link-query-*` directory beneath it. The unchecked complete-command
+runner is private to the builder implementation and its test probe. I append
+both a driver `-o` and a separately forwarded linker `-o` targeting the private
+file, without dropping or reordering the existing selection flags. Separate
+`-Xlinker` arguments preserve commas in that output path.
+
+The production shared-link recipe supplies the test commands. On Apple
+Clang 21 and GCC 12, twenty-four combinations cover common/platform compiler
+and linker metadata, package compiler/library flags, direct driver/linker
+output overrides and overrides inside driver/forwarded response files. Both
+the recipe's original output and a metadata-selected output retain their
+bytes and nanosecond timestamps. The query directory is removed after each
+successful case, including with a comma and space in its parent path.
+
+I reject visible end-of-options controls and nonliteral shell commands before
+creating a query directory. Thirty-two allocation budgets exercise cleanup
+and same-process retry. If cleanup cannot remove an owned directory, I report
+the retained files and decline grammar admission; I do not claim cleanup
+succeeded. A nested-directory fixture checks that failure path.
+
+The rebuilt Darwin compiler/VM tools pass all twenty-seven query/graph/link
+methods, and the sixteen-case native grammar comparison remains green. On
+Linux, all seventeen query/graph methods pass with ASan/UBSan and leak
+detection; the ten linker-transport methods pass with sanitizers and leak
+detection disabled (2026-09-13). The preceding 168-method Darwin gate remains
+separate evidence; I did not rerun that entire set for this API wrapper.
+
+This pins primary outputs, not every possible compiler side effect. Auxiliary
+outputs and controls hidden in indirect inputs still require admission and
+retention before a query runs. A validated original response must not be
+reread from a mutable path during execution. Invocation-wide installation of
+captured flags, returned-flag lifetime and cache admission remain open; the
+six forwarded restored-selection failures are not repaired by this wrapper.

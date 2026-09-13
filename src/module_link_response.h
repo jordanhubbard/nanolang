@@ -12,11 +12,12 @@ typedef enum { MODULE_LINK_RESPONSE_GNU = 1, MODULE_LINK_RESPONSE_APPLE = 2 } Mo
 char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *source,
                                    ModuleLinkResponseGrammar grammar);
 
-/* I query the selected linker through a complete literal compiler command.
- * The caller must supply disposable inputs/outputs: a version request can
- * still execute compilation or linking. Never pass a published artifact path.
+/* I query a complete literal command with a disposable primary output beneath
+ * parent. I pin driver and linker output, then remove the private directory.
+ * The caller must admit auxiliary outputs and indirect option controls first;
+ * this is not filesystem isolation for arbitrary flags or response contents.
  * Zero means unrecognized, invalid, failed, oversized or timed out. This
  * identifies a supported tool contract, not the authenticity of a toolchain. */
-ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command);
+ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command, const char *parent);
 
 #endif

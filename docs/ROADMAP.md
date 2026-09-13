@@ -1173,6 +1173,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and rejects unsupported selected linkers. Query/graph sanitizer checks
       and the 168-method Darwin gate pass. Private probe construction and
       atomic invocation integration remain open.
+      I construct disposable query directories and pin primary output at both
+      driver and linker layers, preserving complete flag order. I test metadata
+      output overrides and cleanup before using this in cache admission.
+      Auxiliary outputs and unclassified option controls still need admission
+      rules; a private primary output is not filesystem isolation.
+      Twenty-four primary-output override combinations preserve bytes and
+      timestamps on both hosts; private-directory cleanup and thirty-two
+      allocation budgets pass. The query's indirect inputs still need retained
+      validation before execution, not a check followed by a mutable reread.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

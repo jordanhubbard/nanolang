@@ -185,6 +185,7 @@ int main(int argc, char **argv) {
 #endif
     if (argc != 3 && argc != 4 &&
         !(argc == 5 && !strcmp(argv[1], "capture-link-response")) &&
+        !(argc == 5 && !strcmp(argv[1], "private-link-response-allocation")) &&
         !(argc == 6 && !strcmp(argv[1], "capture-link-response-allocation"))) return 2;
     if (argc == 3 && !strcmp(argv[1], "link-response-allocation")) {
         char large[1300];
@@ -338,15 +339,26 @@ int main(int argc, char **argv) {
         return 0;
     }
     if (argc == 3 && !strcmp(argv[1], "link-response-grammar")) {
-        printf("%d\n", module_query_link_response_grammar(argv[2]));
+        printf("%d\n", module_link_response_grammar_command(argv[2]));
         return 0;
+    }
+    if (argc == 4 && !strcmp(argv[1], "private-link-response-grammar")) {
+        printf("%d\n", module_query_link_response_grammar(argv[2], argv[3]));
+        return 0;
+    }
+    if (argc == 5 && !strcmp(argv[1], "private-link-response-allocation")) {
+        generation_allocation_limit = strtol(argv[4], NULL, 10);
+        ModuleLinkResponseGrammar grammar = module_query_link_response_grammar(argv[2], argv[3]);
+        generation_allocation_limit = -1;
+        printf("%d\n", grammar);
+        return module_query_link_response_grammar(argv[2], argv[3]) ? 0 : 1;
     }
     if (argc == 4 && !strcmp(argv[1], "link-response-query-allocation")) {
         generation_allocation_limit = strtol(argv[3], NULL, 10);
-        ModuleLinkResponseGrammar grammar = module_query_link_response_grammar(argv[2]);
+        ModuleLinkResponseGrammar grammar = module_link_response_grammar_command(argv[2]);
         generation_allocation_limit = -1;
         printf("%d\n", grammar);
-        return module_query_link_response_grammar(argv[2]) ? 0 : 1;
+        return module_link_response_grammar_command(argv[2]) ? 0 : 1;
     }
     if (argc == 5 && !strcmp(argv[1], "capture-link-response")) {
         ModuleBuildMetadata meta = {.module_dir = argv[3]};
