@@ -24,7 +24,7 @@ from tests.characterize_linker_inputs import run
 from tests import test_bytecode_shadows as shadows
 
 
-def measure(compiler, kinds=("source", "header")):
+def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False):
     probe = shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
@@ -84,10 +84,12 @@ def measure(compiler, kinds=("source", "header")):
                         if kind.endswith("-debug"): fresh_flags += ["-O2", "-g"]
                         metadata["cflags"] = fresh_flags
                         (module / "module.json").write_text(json.dumps(metadata))
-                    target = module / "answer.bin"
+                    target = module / (payload_name if payload_name is not None else "answer.bin")
+                    if payload_name is not None:
+                        env["NANO_AS_CAPTURE_HELPER"] = str(shadows.ROOT / "bin/nano_as_capture.so")
                     target.write_bytes(b"42")
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
-                    directive = f'.incbin "{target}"'
+                    directive = f'.incbin {json.dumps(str(target), ensure_ascii=False)}'
                     if kind in ("assembler-nested", "assembler-include"):
                         target.rename(module / "payload with 'quotes'.bin")
                         target = module / "payload with 'quotes'.bin"
@@ -138,8 +140,11 @@ if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.
                                    {(b"selected43.a" if kind.startswith("link-response") else b"43")!r})
         assert changed != original and len(changed) == len(original)
         try:
-            target.write_bytes(changed)
-            os.utime(target, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+            if {remove_input!r}:
+                target.unlink()
+            else:
+                target.write_bytes(changed)
+                os.utime(target, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
             result = subprocess.run([{compiler!r}] + sys.argv[1:])
         finally:
             target.write_bytes(original)

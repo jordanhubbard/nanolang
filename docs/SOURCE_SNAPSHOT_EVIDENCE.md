@@ -1932,3 +1932,45 @@ Linux Clang regression; that additional method separately confirms its Darwin
 skip in 0.026 seconds. Together these runs cover the current 201-method gate.
 I removed the disposable Linux container, including its sanitizer scratch and
 temporary Clang installation. No host toolchain installation changed.
+
+## Assembler filename spelling
+
+I compare direct native compilation with my production builder for five payload
+filenames: `space name.bin`, `single'quote.bin`, `double"quote.bin`,
+`back\slash.bin`, and `naïve-λ.bin`. I spell quote and backslash escapes in the
+assembler string, preserve literal UTF-8 there, then encode that assembly in a
+C string. A direct library must return 42 before I test its captured build.
+
+Each supported compiler/assembler mode runs under both local and shared caches.
+I require a retained generation, actual warm reuse, replacement to 43, failure
+after deletion without changing the previous generation, and recovery to a
+reusable 44. Separate characterization temporarily replaces 42 with 43 or removes
+the payload during real object compilation, restores its bytes and timestamps,
+and requires cold/warm/fresh 42/42/42 with actual reuse. Capture invocations are
+excluded from the mutation hook; changing an input during capture would test a
+different boundary.
+
+The initial four-spelling recovery test passes on Apple Clang 21 (64.973
+seconds) and GCC 12.2 Linux (2.902 seconds). The initial restored-edit/deletion
+method passes on Darwin in 51.303 seconds; both Linux methods pass in 8.465
+seconds. I then add UTF-8 and run the final checks below. No production code
+changes are needed: the selected Apple backend and GNU read-replay paths already
+handle escaped filenames that the literal copier declines.
+
+With all five spellings, the GCC/Linux snapshot suite passes 62 methods with
+fifteen skips in 43.268 seconds. Debian Clang 14 on the same ARM64 host passes
+62 methods with nineteen skips in 58.121 seconds. Both use the GCC-built
+production probe. Apple Clang 21 passes seven new and existing characterization
+methods in 161.665 seconds, including source/header restoration, literal and
+macro assembler reads, both assembler modes, and capture-failure refusal.
+
+I then strengthen the restored-input method to require the external selector on
+every real object invocation in external mode. That final method passes on
+Darwin in 59.286 seconds; both filename methods pass on Linux Clang in 28.746
+seconds. Each Clang host covers forty restored-edit/deletion cases and twenty
+native-baseline/recovery sequences; GCC covers twenty and ten respectively.
+These checks establish the five tested spellings with plain C flags, not every
+assembler string escape or toolchain mode. I changed only tests and evidence;
+the previous production gate results remain recorded above.
+I removed the disposable Linux container and its compiler installation and
+scratch files after verification; no host toolchain installation changed.

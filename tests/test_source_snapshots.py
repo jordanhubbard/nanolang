@@ -83,6 +83,72 @@ class SourceSnapshots(unittest.TestCase):
                 if self.clang:
                     self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
 
+    def test_assembler_filename_spelling_restored_inputs(self):
+        kinds = ("assembler", "assembler-external") if self.clang else ("assembler",)
+        names = ("space name.bin", "single'quote.bin", 'double"quote.bin', r"back\slash.bin", "naïve-λ.bin")
+        for name, remove_input in ((name, remove_input) for name in names for remove_input in (False, True)):
+            result = measure(shutil.which("cc"), kinds, payload_name=name, remove_input=remove_input)
+            require_consistent(result)
+            for case in result["cases"]:
+                with self.subTest(name=name, remove_input=remove_input, case=case):
+                    self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                    for key in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record", "generation_reused"):
+                        self.assertTrue(case[key], key)
+                    if case["input"] == "assembler-external":
+                        self.assertEqual(case["external_assembly_compilations"], case["total_object_compilations"])
+
+    def test_assembler_filename_spelling_and_cache_recovery(self):
+        modes = (False, True) if self.clang else (False,)
+        names = ("space name.bin", "single'quote.bin", 'double"quote.bin', r"back\slash.bin", "naïve-λ.bin")
+        for external, shared, name in ((external, shared, name) for external in modes
+                                      for shared in (False, True) for name in names):
+            with self.subTest(external=external, shared=shared, name=name), tempfile.TemporaryDirectory(prefix="nano-assembler-path-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
+                payload = module / name
+                payload.write_bytes(b"42")
+                symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                assembly = f'.data\n.globl {symbol}\n{symbol}:\n.incbin {json.dumps(str(payload), ensure_ascii=False)}\n.text\n'
+                source = module / "answer.c"
+                source.write_text('extern const unsigned char snapshot_payload[];\n'
+                    '__asm__(' + json.dumps(assembly) + ');\n'
+                    'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+                flags = ["-fno-integrated-as"] if external else []
+                (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"], "cflags": flags}))
+                direct = directory / ("direct.dylib" if sys.platform == "darwin" else "direct.so")
+                result = subprocess.run([shutil.which("cc"), "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                    "-fPIC", *flags, str(source), "-o", str(direct)], capture_output=True, timeout=20)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(self.answer(direct), 42)
+                self.support.probe_path("build", module, env, timeout=20)
+                first = self.support.probe_path("directory", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                self.assertTrue((first / "source_hashes.json").exists())
+                self.support.probe_path("build", module, env, timeout=20)
+                self.assertEqual(self.support.probe_path("directory", module, env), first)
+                payload.write_bytes(b"43")
+                self.support.probe_path("build", module, env, timeout=20)
+                changed = self.support.probe_path("directory", module, env)
+                self.assertNotEqual(changed, first)
+                library = self.support.probe_path("library", module, env)
+                self.assertEqual(self.answer(library), 43)
+                saved = self.support.snapshot(changed)
+                payload.unlink()
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(failed.returncode, 0, failed.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), changed)
+                self.assertEqual(self.support.snapshot(changed), saved)
+                self.assertFalse(list(changed.parent.glob(".nano-build-*")))
+                self.assertEqual(self.answer(library), 43)
+                payload.write_bytes(b"44")
+                self.support.probe_path("build", module, env, timeout=20)
+                recovered = self.support.probe_path("directory", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 44)
+                self.support.probe_path("build", module, env, timeout=20)
+                self.assertEqual(self.support.probe_path("directory", module, env), recovered)
+
     def test_clang_assembler_cache_restored_inputs(self):
         if not self.clang: self.skipTest("I exercise GCC literal capture separately")
         for case in measure(shutil.which("cc"), ("assembler", "assembler-macro"))["cases"]:

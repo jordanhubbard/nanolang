@@ -1125,6 +1125,23 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_1251873d28334037b9c02b640d3669c6`.
       MAC rejects `open` to `completed`; ledger closure needs an ownership
       repair. The task description records the verified repository evidence.
+- [x] **5.0 assembler filename spelling acceptance.** I compare direct compiler
+      results with retained builds for spaces, quotes, backslashes and UTF-8 in input
+      filenames. I test ordinary Clang, external Clang and GCC where applicable,
+      local/shared caches, restored edits, permanent replacement and deletion.
+      I distinguish native assembler rejection from capture rejection; a passing
+      simple-path fixture does not establish filename fidelity.
+      Five spellings pass with native baseline 42, actual reuse, replacement,
+      missing-input failure preserving the previous generation, and recovery.
+      Forced edits and deletion during final compilation yield 42/42/42 after
+      restoration. GCC 12.2 and Clang 14 Linux pass all 62 snapshot methods
+      (fifteen and nineteen skips); Apple Clang 21 passes seven targeted
+      methods. Final external-selector assertions pass separately on both
+      Clang hosts. No production changes were needed. Full evidence is in
+      `docs/SOURCE_SNAPSHOT_EVIDENCE.md`; broader snapshot support remains open.
+      MAC `task_fa906fc996d843d1bb4cbefc72503f95`.
+      MAC rejects completion while unclaimed; the task records the evidence
+      and needs a verified agent identity for ledger closure.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent
