@@ -110,6 +110,52 @@ int main(int argc, char **argv) {
         self.invoke("replay", [self.reader, "short", self.binary, missing], success=False)
         self.assertEqual(Path(str(self.prefix) + ".replayed0").read_bytes(), b"")
 
+    def test_search_macro_and_auxiliary_modes_replay_without_originals(self):
+        for mode, flags in (("ordinary", []), ("debug-listing", ["-g", "-alh"]),
+                            ("alternate-macros", ["--alternate"])):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory(dir=self.directory) as work:
+                directory = Path(work)
+                early, included = directory / "early", directory / "included"
+                early.mkdir()
+                included.mkdir()
+                source = directory / "input.s"
+                nested = included / "nested.s"
+                macro = included / "macro.s"
+                payload = included / "payload.bin"
+                source.write_text('.data\n.include "nested.s"\n')
+                nested.write_text('.include "macro.s"\n.rept 2\nemit\n.endr\n'
+                                  '.if 0\n.include "inactive.s"\n.endif\n')
+                macro.write_text('.set start, 1\n.set count, 2\n.macro emit\n'
+                                 f'.incbin "{payload}", start, count\n.endm\n')
+                payload.write_bytes(b"x42y")
+                prefix = directory / "record"
+                self.environment.update(NANO_AS_CAPTURE_PREFIX=str(prefix),
+                                        NANO_AS_CAPTURE_INPUT=str(source))
+                output, dependencies = directory / "output.o", directory / "output.d"
+                command = [self.assembler, *flags, "-I", early, "-I", included,
+                           "--MD", dependencies, source, "-o", output]
+                captured = self.invoke("capture", command)
+                original, original_deps = output.read_bytes(), dependencies.read_bytes()
+                self.assertIn(str(source).encode(), original_deps)
+                if mode == "debug-listing": self.assertTrue(captured.stdout)
+                # I require the payload twice, not merely an object that happens
+                # to remain unchanged after a silently skipped directive.
+                raw = directory / "data.bin"
+                subprocess.run(["objcopy", "--dump-section", f".data={raw}", output],
+                               capture_output=True, check=True, timeout=10)
+                self.assertEqual(raw.read_bytes(), b"4242")
+                for path in (source, nested, macro, payload): path.unlink()
+                for name in ("nested.s", "macro.s"):
+                    (early / name).write_text('.error "I must not read this new candidate"\n')
+                output.unlink()
+                dependencies.unlink()
+                replayed = self.invoke("replay", command)
+                self.assertEqual(output.read_bytes(), original)
+                self.assertEqual(dependencies.read_bytes(), original_deps)
+                self.assertEqual(replayed.stdout, captured.stdout)
+                self.assertEqual(replayed.stderr, captured.stderr)
+                self.assertEqual(Path(str(prefix) + ".replayed0").read_bytes(), b"NACDONE1")
+
     def test_partial_capture_cannot_replay(self):
         self.environment["NANO_AS_CAPTURE_INPUT"] = str(self.binary)
         missing = self.directory / "missing"

@@ -948,6 +948,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       assembler reads and other variants remain open. Darwin bootstrap and
       22 snapshot methods pass with nine skips (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GNU assembler read-mode acceptance.** I exercise real include
+      search failures, nested includes, repeated macro expansion, binary
+      offset/count expressions, listing/debug and dependency-output modes.
+      I remove captured originals and introduce earlier search candidates
+      before replay, then compare object bytes and auxiliary outputs. I record
+      the tested toolchain and keep arbitrary syscall coverage separate.
+      All nine capture-record methods pass normally and with helper UBSan on
+      GCC 12.2 / GNU as 2.40 (Debian bookworm) and GCC 13.3 / GNU as 2.42
+      (Ubuntu 24.04), both Linux arm64. The matrix checks actual repeated
+      payload bytes, nonempty listings, and dependency output, not only object
+      equality. The 22 production snapshots still pass on GNU as 2.40 with
+      two expected skips. No production code changed (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

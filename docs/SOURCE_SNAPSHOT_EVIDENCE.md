@@ -682,3 +682,28 @@ passes with ten expected skips. Initial suite attempts lacked those test
 executables; they were prerequisite failures, not passing runs.
 The Darwin bootstrap also passes, followed by all 22 snapshot methods with
 nine Linux/GCC-only skips on the final source.
+
+## GNU assembler input and auxiliary-output modes
+
+My real-assembler matrix now runs ordinary, `-g -alh` listing/debug, and
+`--alternate` macro modes, each with two include search directories and `--MD`
+dependency output. The fixture uses nested includes, repeated macro expansion,
+an inactive include, and `.incbin` offset/count expressions. I extract `.data`
+and require the repeated payload `4242`; I also require a nonempty debug
+listing and a dependency record naming the root source.
+
+After capture I delete the root, both includes and the binary payload. I add
+error-producing files to the earlier include search directory, then replay.
+The object, listing, diagnostics and dependency file must match capture
+byte-for-byte, and replay must produce its completion receipt. These checks
+exercise remembered search failures as well as successful reads; a new earlier
+candidate must not replace the captured include.
+
+All nine capture-record methods pass normally and with helper UBSan on Linux
+arm64 with GCC 12.2 / GNU as 2.40 (Debian bookworm) and GCC 13.3 / GNU as 2.42
+(Ubuntu 24.04). Both toolchains also pass the two historical trial methods
+under helper UBSan. The 22 production snapshot methods pass on GNU as 2.40
+with two expected skips. Darwin imports the new suite and skips all nine
+Linux-only methods; that is not runtime-helper evidence. No production code
+changed in this acceptance step. Arbitrary syscall reads and configured
+compiler-wrapper inputs remain separate work (2026-09-13).
