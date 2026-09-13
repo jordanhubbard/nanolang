@@ -4,6 +4,8 @@ Run with python3 -m tests.characterize_source_snapshot [C-compiler].
 Add --require-consistent to fail when cold or warm answers differ from fresh.
 Add --assembler to include external binary input read by inline assembly.
 Add --external-assembler to measure Clang's non-integrated assembler mode.
+Add --alternate-assembler to measure GNU alternate-macro input capture.
+Add --split-search to forward assembler operands in separate metadata entries.
 Add --response to include compiler arguments read from a response file.
 Add --response-large to exercise argument lists beyond inline capture limits.
 Add --link-response to exercise driver response files in linker metadata.
@@ -91,7 +93,19 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                     target.write_bytes(b"42")
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                     directive = f'.incbin {json.dumps(str(target), ensure_ascii=False)}'
-                    if kind in ("assembler-search", "assembler-external-search"):
+                    if kind in ("assembler-alternate", "assembler-external-alternate"):
+                        # Angle-bracket macro arguments require GNU alternate mode.
+                        # I do not enable .altmacro in source: the driver flag must work.
+                        include = module / "alternate.s"
+                        include.write_text('.macro payload file\n.incbin "\\file"\n.endm\npayload <' + str(target) + '>\n')
+                        directive = f'.include "{include}"'
+                        fresh_flags.extend(["-Xassembler", "--alternate"] if split_search
+                                           else ["-Wa,--alternate"])
+                        metadata = json.loads((module / "module.json").read_text())
+                        metadata["cflags"] = [shlex.quote(flag) for flag in fresh_flags]
+                        (module / "module.json").write_text(json.dumps(metadata))
+                        env["NANO_AS_CAPTURE_HELPER"] = str(shadows.ROOT / "bin/nano_as_capture.so")
+                    elif kind in ("assembler-search", "assembler-external-search"):
                         search = module / "assembler includes"
                         search.mkdir()
                         (search / "selected.s").write_text(directive + "\n")
@@ -126,6 +140,13 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                         '__asm__(' + json.dumps(assembly) + ');\n'
                         'long long nano_build_answer(void) {\n'
                         'return (snapshot_payload[0] - 48) * 10 + snapshot_payload[1] - 48;\n}\n')
+                    if kind in ("assembler-alternate", "assembler-external-alternate"):
+                        ordinary = subprocess.run([compiler, "-fPIC", "-c", source,
+                            *(["-fno-integrated-as"] if kind.startswith("assembler-external") else []),
+                            "-o", directory / "ordinary.o"], cwd=directory,
+                            capture_output=True, timeout=20)
+                        if ordinary.returncode == 0:
+                            raise RuntimeError("I need a fixture that requires alternate macro syntax")
                 original, stamp = target.read_bytes(), target.stat()
                 wrapper, marker = directory / "cc", directory / "mutated"
                 calls = directory / "calls"
@@ -248,6 +269,8 @@ if __name__ == "__main__":
     parser.add_argument("--require-consistent", action="store_true")
     parser.add_argument("--assembler", action="store_true")
     parser.add_argument("--external-assembler", action="store_true")
+    parser.add_argument("--alternate-assembler", action="store_true")
+    parser.add_argument("--split-search", action="store_true")
     parser.add_argument("--response", action="store_true")
     parser.add_argument("--response-large", action="store_true")
     parser.add_argument("--link-response", action="store_true")
@@ -259,11 +282,13 @@ if __name__ == "__main__":
     kinds = ("source", "header")
     if args.assembler: kinds += ("assembler",)
     if args.external_assembler: kinds += ("assembler-external",)
+    if args.alternate_assembler:
+        kinds += ("assembler-external-alternate" if args.external_assembler else "assembler-alternate",)
     if args.response: kinds += ("response",)
     if args.response_large: kinds += ("response-large",)
     if args.link_response: kinds += ("link-response", "link-response-platform", "link-response-pkg")
     if args.forwarded_response: kinds += ("link-response-forwarded", "link-response-forwarded-platform", "link-response-forwarded-pkg")
-    result = measure(compiler, kinds)
+    result = measure(compiler, kinds, split_search=args.split_search)
     print(json.dumps(result, indent=2))
     if args.require_consistent:
         require_consistent(result)

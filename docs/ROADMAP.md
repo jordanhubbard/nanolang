@@ -1184,6 +1184,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_8500a5ea65584cc3a5cfb02a7812b16b`.
       MAC rejects completion while unclaimed; a verified agent identity is
       still needed for ledger closure.
+- [ ] **5.0 GNU alternate-macro production capture.** I first measure restored
+      assembler input changes with `--alternate`, using source that requires
+      its macro grammar. I admit its literal `-Wa` and `-Xassembler` spellings
+      through phase-specific capture, including paired metadata fragments and
+      include-search combinations. I verify native semantics, cold/warm/fresh
+      results, actual reuse, and failure recovery on supported GNU assemblers
+      before accepting the change. I retain explicit limits for other backends.
+      MAC `task_8c4127e1aeea4325acda9bca51eacf76`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

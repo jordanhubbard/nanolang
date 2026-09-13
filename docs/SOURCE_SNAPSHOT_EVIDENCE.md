@@ -2115,3 +2115,34 @@ package-flags case. It reported no wrong answer. The final full gate and an
 isolated rerun of all twelve split-search cases pass with unchanged deadlines;
 the isolated method takes 132.640 seconds. I have not established the cause
 of that initial timeout.
+
+### GNU alternate-macro production baseline
+
+With production code at `d2082006`, I reproduce stale reuse on Debian arm64,
+GCC 12.2 and GNU assembler 2.40. My new `assembler-alternate` characterization
+uses a nested macro include whose `payload <path>` invocation requires GNU
+alternate syntax. I require compilation without the alternate flag to fail;
+the fresh native build with the flag must succeed. I do not insert `.altmacro`
+into the source and thereby bypass the driver option under test.
+
+Both `-Wa,--alternate` and separate metadata entries `-Xassembler`,
+`--alternate` produce cold/warm/fresh answers **43/43/42**, under both local
+and shared cache roots. Each warm build reuses the original generation and
+performs no additional object compilation. Input bytes, length and mtime are
+restored. No retained translation unit, assembly or assembler read manifest
+is present, and the payload is absent from the reuse record. The source and
+header controls remain **42/42/42** with actual generation reuse.
+
+I reproduce each spelling with:
+
+```sh
+python3 -m tests.characterize_source_snapshot /usr/bin/cc --alternate-assembler --require-consistent
+python3 -m tests.characterize_source_snapshot /usr/bin/cc --alternate-assembler --split-search --require-consistent
+```
+
+Both commands correctly exit one for the observed inconsistency. This is a
+failing production baseline, not acceptance. Apple Clang 21 rejects
+`-Wa,--alternate` in its native driver query; I do not claim this GNU mode is
+supported by that backend. Production admission, phase routing, failure
+recovery and the remaining compiler/metadata matrix are still open under
+MAC `task_8c4127e1aeea4325acda9bca51eacf76`.
