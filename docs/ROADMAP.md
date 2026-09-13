@@ -1184,7 +1184,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_8500a5ea65584cc3a5cfb02a7812b16b`.
       MAC rejects completion while unclaimed; a verified agent identity is
       still needed for ledger closure.
-- [ ] **5.0 GNU alternate-macro production capture.** I first measure restored
+- [x] **5.0 GNU alternate-macro production capture.** I first measure restored
       assembler input changes with `--alternate`, using source that requires
       its macro grammar. I admit its literal `-Wa` and `-Xassembler` spellings
       through phase-specific capture, including paired metadata fragments and
@@ -1192,6 +1192,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       results, actual reuse, and failure recovery on supported GNU assemblers
       before accepting the change. I retain explicit limits for other backends.
       MAC `task_8c4127e1aeea4325acda9bca51eacf76`.
+      The baseline is 43/43/42 with stale reuse; the repair produces 42/42/42
+      with retained reads and reuse on GCC 12/GNU as 2.40, Clang 14/external
+      GNU as 2.40, and GCC 13/GNU as 2.42. The 214-method Linux gate, full
+      73-method Clang snapshot suite, Darwin include-path matrices and three
+      leak-enabled sanitizer methods pass. I record exact scope and timings
+      in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`. Arbitrary assembler modes remain
+      open below.
+      MAC rejects completion while unclaimed; ledger closure still needs a
+      verified agent identity.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

@@ -2146,3 +2146,48 @@ failing production baseline, not acceptance. Apple Clang 21 rejects
 supported by that backend. Production admission, phase routing, failure
 recovery and the remaining compiler/metadata matrix are still open under
 MAC `task_8c4127e1aeea4325acda9bca51eacf76`.
+
+### GNU alternate-macro production repair
+
+I admit the literal `--alternate` selector in `-Wa` groups and paired
+`-Xassembler` arguments. My phase filter preserves it for assembler capture
+and replay, removes it from separate C and link-only phases, and does not
+mistake it for an include-search path. I advance the build context to v36 so
+old generations cannot satisfy the changed capture contract.
+
+The regression fixture requires angle-bracket macro arguments: without the
+selector, native compilation must fail. With the selector, restored edits and
+temporary deletion produce **42/42/42** with actual generation reuse and
+retained GNU read manifests. Both flag spellings and both cache roots pass on
+GCC 12.2/GNU as 2.40, Clang 14 with external GNU as 2.40, and GCC 13.3/GNU as
+2.42, all Linux arm64.
+
+Permanent payload edits produce a new generation. Missing payloads fail while
+preserving the previous generation byte-for-byte; restoring the payload
+recovers and permits reuse. A twelve-case matrix per compiler combines
+alternate syntax with include-search precedence, common/platform/package
+flags, mixed comma groups, split forwarded operands, and a captured linker
+response. It checks native results and phase arguments, introduces an earlier
+include, removes all matching includes, then restores one and verifies reuse.
+
+The final GCC 12 gate passes 214 methods with 24 platform skips: 35 bytecode,
+53 publication, four Linux link-cache, 73 source-snapshot, 20 transport,
+16 response-graph, and 13 guarded-query methods. The snapshot suite takes
+98.232 seconds. The full Clang 14 snapshot suite passes 73 methods with
+nineteen skips in 169.890 seconds. GCC 13/GNU as 2.42 passes the four focused
+phase, restored-input, payload-recovery and search-matrix methods in 19.414
+seconds.
+
+Three focused methods pass with leak-enabled ASan/UBSan in 155.278 seconds,
+with no sanitizer report files. This instruments the production builder in
+the probe, not its supporting objects or external compiler/helper processes.
+The guide builds and validates thirteen pages in each of six editions;
+validation is not translation acceptance. Apple Clang does not gain GNU
+alternate-mode support. Arbitrary assembler options and compiler variants
+remain outside this acceptance.
+
+On Darwin, the phase-filter method and both existing include-search matrices
+pass in 409.515 seconds: three methods covering 48 production build/recovery
+cases plus the phase assertions. This checks the shared parser and preserves
+integrated/external Clang include behavior; it is not a GNU alternate-mode
+execution claim on Darwin.

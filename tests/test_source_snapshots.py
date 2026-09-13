@@ -26,14 +26,16 @@ class SourceSnapshots(unittest.TestCase):
         cls.clang = b"clang version" in result.stdout
         cls.snapshot_suffix = ".s" if cls.clang else ".i"
         cls.read_replay = False
-        if not cls.clang and sys.platform == "linux":
+        cls.gnu_read_replay = False
+        if sys.platform == "linux":
             query = subprocess.run([shutil.which("cc"), "-print-prog-name=as"], capture_output=True, timeout=10)
             assembler = shutil.which(query.stdout.decode().strip()) if query.returncode == 0 else None
             if assembler:
                 version = subprocess.run([assembler, "--version"], capture_output=True, timeout=10)
-                cls.read_replay = version.returncode == 0 and subprocess.run(
+                cls.gnu_read_replay = version.returncode == 0 and subprocess.run(
                     [str(cache.ROOT / "obj/test_module_generation_probe"), "assembler-version", version.stdout.decode()],
                     capture_output=True, timeout=10).returncode == 0
+                cls.read_replay = cls.gnu_read_replay and not cls.clang
 
     def setUp(self):
         self.support = cache.ModuleCachePublication()
@@ -98,8 +100,18 @@ class SourceSnapshots(unittest.TestCase):
                         self.assertEqual(case["external_assembly_compilations"], case["total_object_compilations"])
 
     def test_assembler_filename_spelling_and_cache_recovery(self):
+        self.assembler_filename_spelling_and_cache_recovery()
+
+    def test_alternate_assembler_cache_recovery(self):
+        if not self.gnu_read_replay: self.skipTest("I need supported GNU assembler read replay")
+        self.assembler_filename_spelling_and_cache_recovery(alternate=True)
+
+    def assembler_filename_spelling_and_cache_recovery(self, alternate=False):
         modes = (False, True) if self.clang else (False,)
         names = ("space name.bin", "single'quote.bin", 'double"quote.bin', r"back\slash.bin", "naïve-λ.bin")
+        if alternate:
+            modes = (True,) if self.clang else (False,)
+            names = ("alternate payload.bin",)
         for external, shared, name in ((external, shared, name) for external in modes
                                       for shared in (False, True) for name in names):
             with self.subTest(external=external, shared=shared, name=name), tempfile.TemporaryDirectory(prefix="nano-assembler-path-") as tmp:
@@ -111,11 +123,15 @@ class SourceSnapshots(unittest.TestCase):
                 payload.write_bytes(b"42")
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                 assembly = f'.data\n.globl {symbol}\n{symbol}:\n.incbin {json.dumps(str(payload), ensure_ascii=False)}\n.text\n'
+                if alternate:
+                    assembly = (f'.data\n.globl {symbol}\n{symbol}:\n.macro emit file\n'
+                                '.incbin "\\file"\n.endm\nemit <' + str(payload) + '>\n.text\n')
                 source = module / "answer.c"
                 source.write_text('extern const unsigned char snapshot_payload[];\n'
                     '__asm__(' + json.dumps(assembly) + ');\n'
                     'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
                 flags = ["-fno-integrated-as"] if external else []
+                if alternate: flags.append("-Wa,--alternate")
                 (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"], "cflags": flags}))
                 direct = directory / ("direct.dylib" if sys.platform == "darwin" else "direct.so")
                 result = subprocess.run([shutil.which("cc"), "-dynamiclib" if sys.platform == "darwin" else "-shared",
@@ -151,7 +167,8 @@ class SourceSnapshots(unittest.TestCase):
 
     def test_assembler_include_flag_phases(self):
         assembler = ["-Wa,-I,first path,-Isecond", "-Xassembler", "-I", "-Xassembler", "third path,comma",
-                     "-Xassembler", "-Ifourth"]
+                     "-Xassembler", "-Ifourth", "-Wa,--alternate", "-Xassembler", "--alternate",
+                     "-Wa,--alternate,-I,fifth,-Isixth,--alternate"]
         cflags = ["-O2", "-D", "VALUE=-Xassembler", "-I", "C headers"]
         expected = {1: cflags, 2: ["-O2"], 4: assembler, 7: cflags + assembler}
         for phases, words in expected.items():
@@ -161,12 +178,27 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(shlex.split(result.stdout.decode()), words)
         for fragment in ("-Wa,", "-Wa,-I", "-Wa,-I,", "-Wa,-I,a,", "-Wa,-I,a,--MD,out.d",
-                         "-Wa,--alternate", "-Xassembler", "-Xassembler -I", "-Xassembler -I path",
+                         "-Wa,--alternate,", "-Wa,--alternate,--MD,out.d", "-Wa,--alternateX",
+                         "-Xassembler", "-Xassembler -I", "-Xassembler -I path",
                          "-Xassembler -I -Xassembler ''", "-Xassembler -o -Xassembler out.o"):
             with self.subTest(fragment=fragment):
                 result = subprocess.run([str(self.support.probe), "phase-flags", "7", fragment], capture_output=True, timeout=10)
                 self.assertNotEqual(result.returncode, 0, result.stdout)
                 self.assertEqual(result.stdout, b"")
+
+    def test_alternate_assembler_restored_inputs(self):
+        if not self.gnu_read_replay: self.skipTest("I need supported GNU assembler read replay")
+        kinds = ("assembler-external-alternate",) if self.clang else ("assembler-alternate",)
+        for split in (False, True):
+            for removed in (False, True):
+                result = measure(shutil.which("cc"), kinds, split_search=split, remove_input=removed)
+                require_consistent(result)
+                for case in result["cases"]:
+                    with self.subTest(split=split, removed=removed, case=case):
+                        self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                        for key in ("bytes_restored", "mtime_preserved", "size_preserved",
+                                    "generation_reused", "reuse_record", "retained_read_manifest"):
+                            self.assertTrue(case[key], key)
 
     def test_assembler_search_restored_inputs(self):
         kinds = ("assembler-search", "assembler-external-search") if self.clang else ("assembler-search",)
@@ -246,8 +278,13 @@ class SourceSnapshots(unittest.TestCase):
     def test_split_assembler_search_order_phases_and_recovery(self):
         self.assembler_search_order_phases_and_recovery(("xassembler-split",))
 
-    def assembler_search_order_phases_and_recovery(self, styles):
+    def test_alternate_assembler_search_phases_and_recovery(self):
+        if not self.gnu_read_replay: self.skipTest("I need supported GNU assembler read replay")
+        self.assembler_search_order_phases_and_recovery(("wa-paired", "xassembler-split"), alternate=True)
+
+    def assembler_search_order_phases_and_recovery(self, styles, alternate=False):
         modes = (False, True) if self.clang else (False,)
+        if alternate: modes = (True,) if self.clang else (False,)
         for style, placement, external, shared in ((style, placement, external, shared)
                 for style in styles
                 for placement in ("common", "platform", "package") for external in modes for shared in (False, True)):
@@ -258,12 +295,19 @@ class SourceSnapshots(unittest.TestCase):
                 env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
                 early, late, c_headers = (module / name for name in ("early includes", "late includes", "C headers"))
                 for folder in (early, late, c_headers): folder.mkdir()
-                (late / "selected.s").write_text('.ascii "42"\n')
+                def selected(value):
+                    if alternate:
+                        return '.macro emit value\n.ascii "\\value"\n.endm\nemit <' + str(value) + '>\n'
+                    return f'.ascii "{value}"\n'
+                (late / "selected.s").write_text(selected(42))
                 (late / "selection.h").write_text('#define ADJUST 100\n')
                 (c_headers / "selection.h").write_text('#define ADJUST 0\n')
                 asm_flags = [f"-Wa,-I,{early},-I,{late}"] if style == "wa-paired" else (
                     [f"-Wa,-I{early},-I{late}"] if style == "wa-joined" else
                     ["-Xassembler", "-I", "-Xassembler", str(early), "-Xassembler", "-I" + str(late)])
+                if alternate:
+                    if style.startswith("wa-"): asm_flags[0] = asm_flags[0].replace("-Wa,", "-Wa,--alternate,", 1)
+                    else: asm_flags += ["-Xassembler", "--alternate"]
                 cflags = ["-std=c11", "-Werror", "-I", str(c_headers)] + (["-fno-integrated-as"] if external else [])
                 split = style == "xassembler-split"
                 fragments = lambda words: [shlex.quote(word) for word in words] if split else [shlex.join(words)]
@@ -327,7 +371,7 @@ class SourceSnapshots(unittest.TestCase):
                     if "assembler" in argv and "-c" in argv:
                         self.assertEqual([arg for arg in argv if arg in asm_flags], asm_flags)
                         self.assertNotIn("-std=c11", argv)
-                (early / "selected.s").write_text('.ascii "43"\n')
+                (early / "selected.s").write_text(selected(43))
                 changed = build(baseline + 1)
                 self.assertNotEqual(first, changed)
                 saved = self.support.snapshot(changed)
@@ -338,7 +382,7 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(self.support.probe_path("directory", module, env), changed)
                 self.assertEqual(self.support.snapshot(changed), saved)
                 self.assertFalse(list(changed.parent.glob(".nano-build-*")))
-                (late / "selected.s").write_text('.ascii "44"\n')
+                (late / "selected.s").write_text(selected(44))
                 recovered = build(baseline + 2)
                 self.assertEqual(build(baseline + 2), recovered)
 

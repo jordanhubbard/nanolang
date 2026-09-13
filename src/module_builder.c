@@ -437,7 +437,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v35-paired-fragments");
+    hash_context_field(&hash, "nanolang-c-build-context-v36-alternate-assembler");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -2516,23 +2516,26 @@ static bool module_coalesce_cflags(char **flags, size_t count) {
     return ok;
 }
 
-/* I admit only include-search options from a comma-separated assembler group.
+/* I admit include-search and alternate-macro options from an assembler group.
  * Other assembler inputs and output options need their own phase contract. */
-static bool module_wa_includes(const char *word) {
+static bool module_wa_options(const char *word, bool search_only) {
     if (strncmp(word, "-Wa,", 4)) return false;
     const char *part = word + 4;
     if (!*part) return false;
+    bool includes = false;
     while (*part) {
         const char *comma = strchr(part, ',');
         size_t length = comma ? (size_t)(comma - part) : strlen(part);
-        if (length < 2 || strncmp(part, "-I", 2)) return false;
-        if (length == 2) {
+        bool alternate = length == 11 && !strncmp(part, "--alternate", 11);
+        if (!alternate && (length < 2 || strncmp(part, "-I", 2))) return false;
+        if (!alternate) includes = true;
+        if (!alternate && length == 2) {
             if (!comma || !comma[1]) return false;
             part = comma + 1;
             comma = strchr(part, ',');
             if (comma == part) return false;
         }
-        if (!comma) return true;
+        if (!comma) return !search_only || includes;
         part = comma + 1;
         if (!*part) return false;
     }
@@ -2542,7 +2545,7 @@ static bool module_wa_includes(const char *word) {
 /* I classify decoded literal tokens, not unevaluated shell fragments. */
 static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     if (!flag) return MODULE_FLAG_UNKNOWN;
-    if (module_wa_includes(flag)) return MODULE_FLAG_ASSEMBLER;
+    if (module_wa_options(flag, false)) return MODULE_FLAG_ASSEMBLER;
     const char *both[] = {
         "-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
         "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic", "-fno-integrated-as",
@@ -2564,9 +2567,11 @@ static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     return MODULE_FLAG_UNKNOWN;
 }
 
-static bool module_assembler_include_pair(const char **cursor, char *argument, char *third,
+static bool module_assembler_argument(const char **cursor, char *argument, char *third,
                                           char *fourth, size_t capacity, bool *paired) {
-    if (module_flag_word(cursor, argument, capacity) != 1 || strncmp(argument, "-I", 2)) return false;
+    if (module_flag_word(cursor, argument, capacity) != 1) return false;
+    if (!strcmp(argument, "--alternate")) { *paired = false; return true; }
+    if (strncmp(argument, "-I", 2)) return false;
     *paired = !argument[2];
     return !*paired || (module_flag_word(cursor, third, capacity) == 1 &&
         !strcmp(third, "-Xassembler") && module_flag_word(cursor, fourth, capacity) == 1 && fourth[0]);
@@ -2600,7 +2605,7 @@ static bool module_phase_flags(const char *fragment, char *output, size_t capaci
         }
         if (!strcmp(word, "-Xassembler")) {
             bool paired;
-            if (!module_assembler_include_pair(&cursor, argument, third, fourth, sizeof(argument), &paired)) return false;
+            if (!module_assembler_argument(&cursor, argument, third, fourth, sizeof(argument), &paired)) return false;
             if (output && (phases & MODULE_FLAG_ASSEMBLER)) {
                 if (!module_append_path_flag(output, capacity, "", word) ||
                     !module_append_path_flag(output, capacity, "", argument)) return false;
@@ -2630,7 +2635,7 @@ static char *module_link_cflags(const char *fragment) {
     char word[4096];
     bool assembler = false;
     while (module_flag_word(&cursor, word, sizeof(word)) > 0) {
-        if (module_wa_includes(word) || !strcmp(word, "-Xassembler")) { assembler = true; break; }
+        if (module_wa_options(word, false) || !strcmp(word, "-Xassembler")) { assembler = true; break; }
         if (!strcmp(word, "-D") || !strcmp(word, "-U") || !strcmp(word, "-I") ||
             !strcmp(word, "-Xlinker")) {
             if (module_flag_word(&cursor, word, sizeof(word)) != 1) break;
@@ -3371,7 +3376,12 @@ static bool module_assembler_option(const ModuleBuildMetadata *meta, const Modul
             const char *cursor = fragments[i];
             char word[4096];
             while (module_flag_word(&cursor, word, sizeof(word)) > 0) {
-                if (search && (module_wa_includes(word) || !strcmp(word, "-Xassembler"))) return true;
+                if (search && module_wa_options(word, true)) return true;
+                if (!strcmp(word, "-Xassembler")) {
+                    if (module_flag_word(&cursor, word, sizeof(word)) != 1) break;
+                    if (search && !strncmp(word, "-I", 2)) return true;
+                    continue;
+                }
                 if (!strcmp(word, "-Xlinker") || !strcmp(word, "-Xassembler") || !strcmp(word, "-D") ||
                     !strcmp(word, "-U") || !strcmp(word, "-I")) {
                     if (module_flag_word(&cursor, word, sizeof(word)) != 1) break;
@@ -4505,7 +4515,7 @@ static bool module_link_query_options_admitted(const char *command) {
         if (!strcmp(word, "-Xassembler")) {
             char third[4096], fourth[4096];
             bool paired;
-            if (!module_assembler_include_pair(&cursor, value, third, fourth, sizeof(value), &paired)) return false;
+            if (!module_assembler_argument(&cursor, value, third, fourth, sizeof(value), &paired)) return false;
             count += paired ? 3 : 1;
             if (count > 2048) return false;
             continue;

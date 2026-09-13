@@ -95,5 +95,10 @@ jobs. Integrated Clang capture
 preserves the native driver's C-header search order as well as assembler
 lookup. This does not admit arbitrary `-Wa` options or extend the supported
 compiler/assembler versions.
+For supported GNU assemblers, I also capture alternate-macro inputs selected
+by `-Wa,--alternate` or `-Xassembler --alternate`, including combinations with
+assembler include paths. I keep this grammar selector in assembler phases,
+not separate C preprocessing or link-only jobs. Apple Clang rejects this GNU
+option; admitting its spelling does not add support to that backend.
 Source and flag modes outside this path retain their existing compatibility
 behavior; they have no retained-input guarantee.
