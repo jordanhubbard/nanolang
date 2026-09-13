@@ -436,7 +436,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v33-complete-admitted-capture");
+    hash_context_field(&hash, "nanolang-c-build-context-v34-assembler-search");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -2261,7 +2261,11 @@ static bool module_build_append(char *buffer, size_t capacity, const char *forma
     return n >= 0 && (size_t)n < capacity - used;
 }
 
-typedef enum { MODULE_FLAG_UNKNOWN, MODULE_FLAG_PREPROCESS, MODULE_FLAG_BOTH } ModuleFlagPhase;
+typedef enum {
+    MODULE_FLAG_UNKNOWN = 0, MODULE_FLAG_PREPROCESS = 1,
+    MODULE_FLAG_C = 2, MODULE_FLAG_BOTH = 3, MODULE_FLAG_ASSEMBLER = 4,
+    MODULE_FLAG_LINKER = 8
+} ModuleFlagPhase;
 
 /* I decode literal shell words only. Expansions, operators and globbing remain
  * on the original path. I never execute a fragment to discover its words. */
@@ -2472,9 +2476,33 @@ static bool module_coalesce_cflags(char **flags, size_t count) {
     return ok;
 }
 
+/* I admit only include-search options from a comma-separated assembler group.
+ * Other assembler inputs and output options need their own phase contract. */
+static bool module_wa_includes(const char *word) {
+    if (strncmp(word, "-Wa,", 4)) return false;
+    const char *part = word + 4;
+    if (!*part) return false;
+    while (*part) {
+        const char *comma = strchr(part, ',');
+        size_t length = comma ? (size_t)(comma - part) : strlen(part);
+        if (length < 2 || strncmp(part, "-I", 2)) return false;
+        if (length == 2) {
+            if (!comma || !comma[1]) return false;
+            part = comma + 1;
+            comma = strchr(part, ',');
+            if (comma == part) return false;
+        }
+        if (!comma) return true;
+        part = comma + 1;
+        if (!*part) return false;
+    }
+    return false;
+}
+
 /* I classify decoded literal tokens, not unevaluated shell fragments. */
 static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     if (!flag) return MODULE_FLAG_UNKNOWN;
+    if (module_wa_includes(flag)) return MODULE_FLAG_ASSEMBLER;
     const char *both[] = {
         "-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
         "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic", "-fno-integrated-as",
@@ -2496,16 +2524,28 @@ static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     return MODULE_FLAG_UNKNOWN;
 }
 
-/* NULL output validates eligibility. Otherwise I emit only the flags needed
- * after preprocessing, quoting each decoded argument independently. */
-static bool module_retained_flags(const char *fragment, char *output, size_t capacity, bool linker_captured) {
+static bool module_assembler_include_pair(const char **cursor, char *argument, char *third,
+                                          char *fourth, size_t capacity, bool *paired) {
+    if (module_flag_word(cursor, argument, capacity) != 1 || strncmp(argument, "-I", 2)) return false;
+    *paired = !argument[2];
+    return !*paired || (module_flag_word(cursor, third, capacity) == 1 &&
+        !strcmp(third, "-Xassembler") && module_flag_word(cursor, fourth, capacity) == 1 && fourth[0]);
+}
+
+/* NULL output validates eligibility. Otherwise I select phases while keeping
+ * every forwarded operand paired and every decoded argument literal. */
+static bool module_phase_flags(const char *fragment, char *output, size_t capacity,
+                               bool linker_captured, unsigned phases) {
     if (!fragment) return false;
     const char *cursor = fragment;
-    char word[4096], argument[4096], combined[4096];
+    char word[4096], argument[4096], combined[4096], third[4096], fourth[4096];
     int status;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
         if (linker_captured && !strcmp(word, "-Xlinker")) {
             if (module_flag_word(&cursor, argument, sizeof(argument)) != 1 || argument[0] == '@') return false;
+            if (output && (phases & MODULE_FLAG_LINKER) &&
+                (!module_append_path_flag(output, capacity, "", word) ||
+                 !module_append_path_flag(output, capacity, "", argument))) return false;
             continue;
         }
         if (!strcmp(word, "-D") || !strcmp(word, "-U") || !strcmp(word, "-I")) {
@@ -2513,14 +2553,58 @@ static bool module_retained_flags(const char *fragment, char *output, size_t cap
             int n = snprintf(combined, sizeof(combined), "%s%s", word, argument);
             if (n < 0 || (size_t)n >= sizeof(combined) ||
                 module_snapshot_flag(combined) != MODULE_FLAG_PREPROCESS) return false;
+            if (output && (phases & MODULE_FLAG_PREPROCESS) &&
+                (!module_append_path_flag(output, capacity, "", word) ||
+                 !module_append_path_flag(output, capacity, "", argument))) return false;
+            continue;
+        }
+        if (!strcmp(word, "-Xassembler")) {
+            bool paired;
+            if (!module_assembler_include_pair(&cursor, argument, third, fourth, sizeof(argument), &paired)) return false;
+            if (output && (phases & MODULE_FLAG_ASSEMBLER)) {
+                if (!module_append_path_flag(output, capacity, "", word) ||
+                    !module_append_path_flag(output, capacity, "", argument)) return false;
+                if (paired && (!module_append_path_flag(output, capacity, "", third) ||
+                    !module_append_path_flag(output, capacity, "", fourth))) return false;
+            }
             continue;
         }
         ModuleFlagPhase kind = module_snapshot_flag(word);
         if (kind == MODULE_FLAG_UNKNOWN) return false;
-        if (kind == MODULE_FLAG_BOTH && output &&
+        if ((kind & phases) && output &&
             !module_append_path_flag(output, capacity, "", word)) return false;
     }
     return status == 0;
+}
+
+static bool module_retained_flags(const char *fragment, char *output, size_t capacity, bool linker_captured) {
+    return module_phase_flags(fragment, output, capacity, linker_captured, MODULE_FLAG_C);
+}
+
+/* I remove admitted assembler arguments from link-only jobs, including the
+ * grammar query. I keep forwarded linker operands before grammar selection;
+ * the query admission check still owns their safety. Compatibility fragments
+ * outside this bounded grammar retain their original spelling. */
+static char *module_link_cflags(const char *fragment) {
+    const char *cursor = fragment;
+    char word[4096];
+    bool assembler = false;
+    while (module_flag_word(&cursor, word, sizeof(word)) > 0) {
+        if (module_wa_includes(word) || !strcmp(word, "-Xassembler")) { assembler = true; break; }
+        if (!strcmp(word, "-D") || !strcmp(word, "-U") || !strcmp(word, "-I") ||
+            !strcmp(word, "-Xlinker")) {
+            if (module_flag_word(&cursor, word, sizeof(word)) != 1) break;
+        }
+    }
+    if (!assembler) return strdup(fragment);
+    size_t size = strlen(fragment);
+    if (size > (SIZE_MAX - 16) / 4) return NULL;
+    size = size * 4 + 16;
+    char *selected = calloc(size, 1);
+    if (!selected) return NULL;
+    if (module_phase_flags(fragment, selected, size, true, MODULE_FLAG_BOTH | MODULE_FLAG_LINKER)) return selected;
+    free(selected);
+    return strdup(fragment);
 }
 
 static char **module_platform_cflags(const ModuleBuildMetadata *meta, size_t *count) {
@@ -3144,15 +3228,18 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
             char **fragments = group == 0 ? flags->cflags :
                 group == 1 ? meta->cflags : module_platform_cflags(meta, &count);
             for (size_t i = 0; i < count && !found; i++) {
-                if (!fragments[i] || strlen(fragments[i]) <= 1024) continue;
-                char *transport = module_response_transport(meta, flags, fragments[i]);
-                if (!transport) return false;
+                if (!fragments[i]) continue;
+                char *selected = module_link_cflags(fragments[i]);
+                if (!selected) return false;
+                char *transport = module_response_transport(meta, flags, selected);
+                if (!transport) { free(selected); return false; }
                 const char *p = transport;
                 char expected[4096];
-                found = strcmp(transport, fragments[i]) != 0 &&
+                found = strcmp(transport, selected) != 0 &&
                     module_flag_word(&p, expected, sizeof(expected)) == 1 && !strcmp(expected, word) &&
                     module_flag_word(&p, expected, sizeof(expected)) == 0;
                 free(transport);
+                free(selected);
             }
         }
         if (!found) return false;
@@ -3196,8 +3283,20 @@ static bool module_append_include_arguments(const ModuleBuildMetadata *meta, con
 }
 
 static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
-                                          const char *fragment, bool retained,
+                                          const char *fragment, bool retained, unsigned phases,
                                           char *output, size_t capacity) {
+    if (phases != (MODULE_FLAG_BOTH | MODULE_FLAG_ASSEMBLER)) {
+        size_t length = strlen(fragment);
+        if (length > (SIZE_MAX - 16) / 4) return false;
+        size_t size = length * 4 + 16;
+        char *selected = calloc(size, 1);
+        if (!selected) return false;
+        bool admitted = module_phase_flags(fragment, selected, size, flags->linker_grammar, phases);
+        bool ok = admitted && module_append_compiler_fragment(meta, flags, selected, false, output, capacity);
+        free(selected);
+        if (admitted || phases == MODULE_FLAG_ASSEMBLER) return ok;
+        /* Unadmitted compatibility fragments retain their original handling. */
+    }
     if (!flags->linker_grammar || retained)
         return module_append_compiler_fragment(meta, flags, fragment, retained, output, capacity);
     size_t length = strlen(fragment);
@@ -3222,7 +3321,7 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
 
 /* I preserve the assembler selector after C capture. I inspect argument words,
  * not substrings in definitions or arguments forwarded to another tool. */
-static bool module_external_assembler(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags) {
+static bool module_assembler_option(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags, bool search) {
     for (size_t group = 0; group < 3; group++) {
         size_t count = group == 0 ? flags->count : meta->cflags_count;
         char **fragments = group == 0 ? flags->cflags : meta->cflags;
@@ -3232,33 +3331,46 @@ static bool module_external_assembler(const ModuleBuildMetadata *meta, const Mod
             const char *cursor = fragments[i];
             char word[4096];
             while (module_flag_word(&cursor, word, sizeof(word)) > 0) {
-                if (!strcmp(word, "-Xlinker") || !strcmp(word, "-D") ||
+                if (search && (module_wa_includes(word) || !strcmp(word, "-Xassembler"))) return true;
+                if (!strcmp(word, "-Xlinker") || !strcmp(word, "-Xassembler") || !strcmp(word, "-D") ||
                     !strcmp(word, "-U") || !strcmp(word, "-I")) {
                     if (module_flag_word(&cursor, word, sizeof(word)) != 1) break;
                     continue;
                 }
-                if (!strcmp(word, "-fno-integrated-as")) return true;
+                if (!search && !strcmp(word, "-fno-integrated-as")) return true;
             }
         }
     }
     return false;
 }
 
+static bool module_external_assembler(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags) {
+    return module_assembler_option(meta, flags, false);
+}
+
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
     bool retained = phase == MODULE_C_RETAINED || phase == MODULE_C_RETAINED_ASSEMBLY;
+    bool assembler = phase == MODULE_C_ASSEMBLE;
+    unsigned phases = assembler ? MODULE_FLAG_ASSEMBLER : retained ? MODULE_FLAG_C :
+        phase == MODULE_C_PREPROCESS ? MODULE_FLAG_BOTH : (MODULE_FLAG_BOTH | MODULE_FLAG_ASSEMBLER);
+    /* Clang drops -Wa include paths from its -S driver job. I preserve the
+     * real integrated -c job's frontend search order, changing only its output
+     * action to assembly. External assembly keeps its separate search phase. */
+    bool search_capture = phase == MODULE_C_EMIT_ASSEMBLY && snapshot &&
+        module_assembler_option(meta, snapshot, true);
     bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
                                    module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" :
+                                   search_capture ? "-c -Xclang -S" :
                                    (phase == MODULE_C_EMIT_ASSEMBLY || phase == MODULE_C_RETAINED_ASSEMBLY) ? "-S" : "-c");
     /* I already applied C code-generation and diagnostic flags during capture. */
     if (phase == MODULE_C_ASSEMBLE) {
         if (snapshot && module_external_assembler(meta, snapshot))
             ok &= module_build_append(prefix, capacity, " -fno-integrated-as");
-        return ok;
     }
 #if !defined(__APPLE__)
-    if (!retained) ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
+    if (!retained && !assembler) ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
 #endif
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
 #ifdef __APPLE__
@@ -3266,16 +3378,16 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
 #endif
         const char *flags = snapshot->cflags[i];
         if (flags && flags[0]) {
-            ok &= module_append_source_fragment(meta, snapshot, flags, retained, prefix, capacity);
+            ok &= module_append_source_fragment(meta, snapshot, flags, retained, phases, prefix, capacity);
         } else if (!flags) ok = false;
     }
-    if (!retained) ok &= module_append_include_arguments(meta, snapshot, prefix, capacity);
+    if (!retained && !assembler) ok &= module_append_include_arguments(meta, snapshot, prefix, capacity);
     for (size_t group = 0; group < 2; group++) {
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
         for (size_t i = 0; i < count; i++) {
             if (!flags[i][0]) continue;
-            ok &= module_append_source_fragment(meta, snapshot, flags[i], retained, prefix, capacity);
+            ok &= module_append_source_fragment(meta, snapshot, flags[i], retained, phases, prefix, capacity);
         }
     }
     return ok;
@@ -4178,11 +4290,20 @@ static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkg
 }
 
 /* I use one link recipe for publication and Linux warm validation. */
+static bool module_append_link_cflags(const ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                      const char *fragment, bool query, char *output, size_t capacity) {
+    char *selected = module_link_cflags(fragment);
+    bool ok = selected && (query ? module_build_append(output, capacity, " %s", selected) :
+        module_append_compiler_fragment(meta, flags, selected, false, output, capacity));
+    free(selected);
+    return ok;
+}
+
 static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                       const char *object_file, const char *shared_lib,
                                       const char *build_dir, char *lib_cmd, size_t capacity) {
     bool command_ok = true;
-    bool query = object_file == NULL;
+    bool query = shared_lib == NULL;
     const char *cc = module_selected_compiler(meta);
     lib_cmd[0] = 0;
     #ifdef __APPLE__
@@ -4198,16 +4319,15 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
     /* Link the shared library from the module object (supports multi-source modules) */
     if (shared_lib) command_ok &= module_append_path_flag(lib_cmd, capacity, "-o ", shared_lib);
     if (object_file) command_ok &= module_append_path_flag(lib_cmd, capacity, "", object_file);
-    else command_ok &= module_build_append(lib_cmd, capacity, " -x c /dev/null -x none");
-    /* I append captured package fragments without tokenizing their contents. */
+    else return false;
+    /* I preserve package order while selecting link-phase arguments. */
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
         if (!flags->cflags[i]) return false;
         if (!flags->cflags[i][0]) continue;
-        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", flags->cflags[i]) :
-            module_append_compiler_fragment(meta, flags, flags->cflags[i], false, lib_cmd, capacity);
+        command_ok &= module_append_link_cflags(meta, flags, flags->cflags[i], query, lib_cmd, capacity);
     }
 
     char *fragment = module_shared_link_fragment(meta, flags);
@@ -4218,27 +4338,23 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
     /* Add custom cflags (all platforms) */
     for (size_t i = 0; i < meta->cflags_count; i++) {
         if (!meta->cflags[i][0]) continue;
-        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags[i]) :
-            module_append_compiler_fragment(meta, flags, meta->cflags[i], false, lib_cmd, capacity);
+        command_ok &= module_append_link_cflags(meta, flags, meta->cflags[i], query, lib_cmd, capacity);
     }
     /* Add platform-specific cflags */
 #ifdef __APPLE__
     for (size_t i = 0; i < meta->cflags_macos_count; i++) {
         if (!meta->cflags_macos[i][0]) continue;
-        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags_macos[i]) :
-            module_append_compiler_fragment(meta, flags, meta->cflags_macos[i], false, lib_cmd, capacity);
+        command_ok &= module_append_link_cflags(meta, flags, meta->cflags_macos[i], query, lib_cmd, capacity);
     }
 #elif defined(__FreeBSD__)
     for (size_t i = 0; i < meta->cflags_freebsd_count; i++) {
         if (!meta->cflags_freebsd[i][0]) continue;
-        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags_freebsd[i]) :
-            module_append_compiler_fragment(meta, flags, meta->cflags_freebsd[i], false, lib_cmd, capacity);
+        command_ok &= module_append_link_cflags(meta, flags, meta->cflags_freebsd[i], query, lib_cmd, capacity);
     }
 #else
     for (size_t i = 0; i < meta->cflags_linux_count; i++) {
         if (!meta->cflags_linux[i][0]) continue;
-        command_ok &= query ? module_build_append(lib_cmd, capacity, " %s", meta->cflags_linux[i]) :
-            module_append_compiler_fragment(meta, flags, meta->cflags_linux[i], false, lib_cmd, capacity);
+        command_ok &= module_append_link_cflags(meta, flags, meta->cflags_linux[i], query, lib_cmd, capacity);
     }
 #endif
     for (size_t i = 0; !query && i < meta->shared_c_sources_count; i++) {
@@ -4346,6 +4462,14 @@ static bool module_link_query_options_admitted(const char *command) {
         }
         /* I do not guess driver reordering for a dangling linker operand. */
         if (linker_operand) return false;
+        if (!strcmp(word, "-Xassembler")) {
+            char third[4096], fourth[4096];
+            bool paired;
+            if (!module_assembler_include_pair(&cursor, value, third, fourth, sizeof(value), &paired)) return false;
+            count += paired ? 3 : 1;
+            if (count > 2048) return false;
+            continue;
+        }
         if (!strcmp(word, "-x")) {
             if (++count > 2048 || module_flag_word(&cursor, value, sizeof(value)) != 1 ||
                 (strcmp(value, "c") && strcmp(value, "none"))) return false;
@@ -5180,13 +5304,26 @@ static bool module_install_forwarded(const ModuleBuildMetadata *original, Module
     int chosen = -1;
     bool ok = true;
     char *parent = NULL, *command = NULL;
+    char source_dir[2048] = {0}, source_file[2048] = {0};
     if ((ready[0] || ready[1]) && module_ensure_build_dir(meta->module_dir)) {
         parent = module_get_build_dir(meta->module_dir);
         command = calloc(65537, 1);
     }
-    for (size_t index = 0; parent && command && index < 2; index++) {
+    /* An empty .c input needs no -x reset. Clang rejects a trailing -x none
+     * under -Werror; I do not weaken the user's warning policy to query ld. */
+    bool source_owned = parent && command &&
+        module_build_append(source_dir, sizeof(source_dir), "%s/.nano-link-source-XXXXXX", parent) &&
+        mkdtemp(source_dir);
+    bool source_ready = source_owned &&
+        module_build_append(source_file, sizeof(source_file), "%s/probe.c", source_dir);
+    if (source_ready) {
+        int fd = open(source_file, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW, 0600);
+        source_ready = fd >= 0;
+        if (fd >= 0 && close(fd)) source_ready = false;
+    }
+    for (size_t index = 0; source_ready && index < 2; index++) {
         if (!ready[index]) continue;
-        if (!module_shared_link_command(&candidate[index], &packages[index], NULL, NULL, NULL, command, 65537)) continue;
+        if (!module_shared_link_command(&candidate[index], &packages[index], source_file, NULL, NULL, command, 65537)) continue;
         ModuleLinkResponseGrammar grammar = module_query_link_response_grammar(command, parent);
         if (grammar == (index == 0 ? MODULE_LINK_RESPONSE_GNU : MODULE_LINK_RESPONSE_APPLE)) {
             chosen = (int)index;
@@ -5199,6 +5336,7 @@ static bool module_install_forwarded(const ModuleBuildMetadata *original, Module
             break;
         }
     }
+    if (source_owned) module_remove_staging(source_dir);
     free(parent);
     free(command);
     for (size_t index = 0; index < 2; index++) {

@@ -16,6 +16,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -90,7 +91,17 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                     target.write_bytes(b"42")
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                     directive = f'.incbin {json.dumps(str(target), ensure_ascii=False)}'
-                    if kind in ("assembler-nested", "assembler-include"):
+                    if kind in ("assembler-search", "assembler-external-search"):
+                        search = module / "assembler includes"
+                        search.mkdir()
+                        (search / "selected.s").write_text(directive + "\n")
+                        directive = '.include "selected.s"'
+                        fresh_flags.append("-Wa,-I," + str(search))
+                        metadata = json.loads((module / "module.json").read_text())
+                        metadata["cflags"] = [shlex.quote(flag) for flag in fresh_flags]
+                        (module / "module.json").write_text(json.dumps(metadata))
+                        env["NANO_AS_CAPTURE_HELPER"] = str(shadows.ROOT / "bin/nano_as_capture.so")
+                    elif kind in ("assembler-nested", "assembler-include"):
                         target.rename(module / "payload with 'quotes'.bin")
                         target = module / "payload with 'quotes'.bin"
                         target.write_bytes(b"xx42yy")
@@ -126,12 +137,12 @@ if {kind == "capture-failure"!r} and any(arg in sys.argv for arg in ("-S", "-E")
     sys.exit(1)
 if "-S" in sys.argv or "-E" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write(("S" if "-S" in sys.argv else "E") + "\\n")
-if "-c" in sys.argv and "-###" not in sys.argv:
+if "-c" in sys.argv and "-###" not in sys.argv and "-S" not in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write("C\\n")
     if "assembler" in sys.argv:
         with open({str(calls)!r}, "a") as log:
             log.write(("external" if "-fno-integrated-as" in sys.argv else "integrated") + "\\n")
-if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "('-c' in sys.argv and '-###' not in sys.argv)"}:
+if {"(('-shared' in sys.argv or '-dynamiclib' in sys.argv) and not any(a in sys.argv for a in ('-Wl,--version', '-Wl,-version_details')))" if kind.startswith("link-response") else "('-c' in sys.argv and '-###' not in sys.argv and '-S' not in sys.argv)"}:
     marker = pathlib.Path({str(marker)!r})
     if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":
         target = pathlib.Path({str(target)!r})

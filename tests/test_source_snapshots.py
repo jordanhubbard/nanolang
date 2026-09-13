@@ -149,6 +149,130 @@ class SourceSnapshots(unittest.TestCase):
                 self.support.probe_path("build", module, env, timeout=20)
                 self.assertEqual(self.support.probe_path("directory", module, env), recovered)
 
+    def test_assembler_include_flag_phases(self):
+        assembler = ["-Wa,-I,first path,-Isecond", "-Xassembler", "-I", "-Xassembler", "third path,comma",
+                     "-Xassembler", "-Ifourth"]
+        cflags = ["-O2", "-D", "VALUE=-Xassembler", "-I", "C headers"]
+        expected = {1: cflags, 2: ["-O2"], 4: assembler, 7: cflags + assembler}
+        for phases, words in expected.items():
+            with self.subTest(phases=phases):
+                result = subprocess.run([str(self.support.probe), "phase-flags", str(phases), shlex.join(cflags + assembler)],
+                                        capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(shlex.split(result.stdout.decode()), words)
+        for fragment in ("-Wa,", "-Wa,-I", "-Wa,-I,", "-Wa,-I,a,", "-Wa,-I,a,--MD,out.d",
+                         "-Wa,--alternate", "-Xassembler", "-Xassembler -I", "-Xassembler -I path",
+                         "-Xassembler -I -Xassembler ''", "-Xassembler -o -Xassembler out.o"):
+            with self.subTest(fragment=fragment):
+                result = subprocess.run([str(self.support.probe), "phase-flags", "7", fragment], capture_output=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertEqual(result.stdout, b"")
+
+    def test_assembler_search_restored_inputs(self):
+        kinds = ("assembler-search", "assembler-external-search") if self.clang else ("assembler-search",)
+        for remove_input in (False, True):
+            result = measure(shutil.which("cc"), kinds, remove_input=remove_input)
+            require_consistent(result)
+            for case in result["cases"]:
+                with self.subTest(remove_input=remove_input, case=case):
+                    self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                    self.assertTrue(case["generation_reused"])
+                    self.assertTrue(case["reuse_record"])
+                    self.assertTrue(case["retained_assembly"])
+                    if case["input"] == "assembler-external-search":
+                        self.assertEqual(case["external_assembly_compilations"], case["total_object_compilations"])
+
+    def test_assembler_search_order_phases_and_recovery(self):
+        modes = (False, True) if self.clang else (False,)
+        for style, placement, external, shared in ((style, placement, external, shared)
+                for style in ("wa-paired", "wa-joined", "xassembler")
+                for placement in ("common", "platform", "package") for external in modes for shared in (False, True)):
+            with self.subTest(style=style, placement=placement, external=external, shared=shared), tempfile.TemporaryDirectory(prefix="nano-as-search-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
+                early, late, c_headers = (module / name for name in ("early includes", "late includes", "C headers"))
+                for folder in (early, late, c_headers): folder.mkdir()
+                (late / "selected.s").write_text('.ascii "42"\n')
+                (late / "selection.h").write_text('#define ADJUST 100\n')
+                (c_headers / "selection.h").write_text('#define ADJUST 0\n')
+                asm_flags = [f"-Wa,-I,{early},-I,{late}"] if style == "wa-paired" else (
+                    [f"-Wa,-I{early},-I{late}"] if style == "wa-joined" else
+                    ["-Xassembler", "-I", "-Xassembler", str(early), "-Xassembler", "-I" + str(late)])
+                cflags = ["-std=c11", "-Werror", "-I", str(c_headers)] + (["-fno-integrated-as"] if external else [])
+                metadata = {"name": "answer_native", "c_sources": ["answer.c"], "cflags": [shlex.join(cflags)]}
+                if placement == "common": metadata["cflags"].append(shlex.join(asm_flags))
+                elif placement == "platform": metadata["cflags_macos" if sys.platform == "darwin" else "cflags_linux"] = [shlex.join(asm_flags)]
+                else:
+                    metadata["pkg_config"] = ["assembler-search-fixture"]
+                    pkg = directory / "pkg-config"
+                    pkg.write_text(f'#!{sys.executable}\nimport sys\nif "--cflags" in sys.argv: print({shlex.join(asm_flags)!r})\n')
+                    pkg.chmod(0o700)
+                    env["PKG_CONFIG"] = str(pkg)
+                # I also exercise the guarded linker query with assembler operands.
+                if style == "xassembler" and placement == "common":
+                    response = module / "link.rsp"
+                    response.write_text("-lm\n")
+                    metadata["ldflags"] = ["-Wl,@" + str(response)]
+                (module / "module.json").write_text(json.dumps(metadata))
+                symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                assembly = f'.data\n.globl {symbol}\n{symbol}:\n.include "selected.s"\n.text\n'
+                source = module / "answer.c"
+                source.write_text('#include "selection.h"\nextern const unsigned char snapshot_payload[];\n'
+                    '__asm__(' + json.dumps(assembly) + ');\n'
+                    'long long nano_build_answer(void) { return ADJUST + (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+                direct = directory / ("direct.dylib" if sys.platform == "darwin" else "direct.so")
+                native_flags = asm_flags + cflags if placement == "package" else cflags + asm_flags
+                result = subprocess.run([shutil.which("cc"), "-dynamiclib" if sys.platform == "darwin" else "-shared",
+                    "-fPIC", *native_flags, str(source), "-o", str(direct)], capture_output=True, timeout=20)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                baseline = self.answer(direct)
+                self.assertEqual(baseline, 142 if self.clang and not external else 42)
+                calls, wrapper = directory / "calls", directory / "cc"
+                wrapper.write_text(f'#!{sys.executable}\nimport json,os,sys\n'
+                    f'with open({str(calls)!r}, "a") as log: log.write(json.dumps(sys.argv[1:]) + "\\n")\n'
+                    f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
+                wrapper.chmod(0o700)
+                env["NANO_CC"] = str(wrapper)
+                def build(answer):
+                    self.support.probe_path("build", module, env, timeout=20)
+                    generation = self.support.probe_path("directory", module, env)
+                    self.assertTrue((generation / "source_hashes.json").exists())
+                    self.assertFalse(list(generation.parent.glob(".nano-link-source-*")))
+                    self.assertFalse(list(generation.parent.glob(".nano-link-query-*")))
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), answer)
+                    return generation
+                first = build(baseline)
+                self.assertEqual(build(baseline), first)
+                commands = [json.loads(line) for line in calls.read_text().splitlines()]
+                for argv in commands:
+                    source_phase = "-E" in argv or ("-S" in argv and not (self.clang and not external))
+                    if source_phase:
+                        for flag in asm_flags:
+                            if flag != "-I": self.assertNotIn(flag, argv)
+                    if ("-dynamiclib" in argv or "-shared" in argv) and "-c" not in argv:
+                        for flag in asm_flags:
+                            if flag != "-I": self.assertNotIn(flag, argv)
+                        self.assertIn("-Werror", argv)
+                    if "assembler" in argv and "-c" in argv:
+                        self.assertEqual([arg for arg in argv if arg in asm_flags], asm_flags)
+                        self.assertNotIn("-std=c11", argv)
+                (early / "selected.s").write_text('.ascii "43"\n')
+                changed = build(baseline + 1)
+                self.assertNotEqual(first, changed)
+                saved = self.support.snapshot(changed)
+                (early / "selected.s").unlink()
+                (late / "selected.s").unlink()
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(failed.returncode, 0, failed.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), changed)
+                self.assertEqual(self.support.snapshot(changed), saved)
+                self.assertFalse(list(changed.parent.glob(".nano-build-*")))
+                (late / "selected.s").write_text('.ascii "44"\n')
+                recovered = build(baseline + 2)
+                self.assertEqual(build(baseline + 2), recovered)
+
     def test_clang_assembler_cache_restored_inputs(self):
         if not self.clang: self.skipTest("I exercise GCC literal capture separately")
         for case in measure(shutil.which("cc"), ("assembler", "assembler-macro"))["cases"]:

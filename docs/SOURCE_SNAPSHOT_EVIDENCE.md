@@ -1974,3 +1974,72 @@ assembler string escape or toolchain mode. I changed only tests and evidence;
 the previous production gate results remain recorded above.
 I removed the disposable Linux container and its compiler installation and
 scratch files after verification; no host toolchain installation changed.
+
+## Assembler include-search phases
+
+My v34 build context admits literal `-Wa,-I,dir`, `-Wa,-Idir`,
+`-Xassembler -I -Xassembler dir`, and `-Xassembler -Idir` arguments. Before
+this repair, the production classifier declined them: restored payload edits
+produced cold/warm/fresh 43/43/42 with actual stale reuse. I measured both
+cache roots on Apple Clang 21, with ordinary and external assembly, and on
+GCC 12.2 / GNU as 2.40 Linux ARM64.
+
+I now classify preprocessing, C generation, assembler, and forwarded linker
+arguments separately. Search paths stay ordered within package, common and
+platform groups. Separate preprocessing and retained C generation do not get
+assembler arguments; actual assembly does. Link-only jobs and their grammar
+queries omit assembler search arguments while preserving linker operands.
+Unrelated and unadmitted compatibility fragments keep their existing spelling.
+Darwin's owned-response check derives its expected transport from the same
+filtered link fragment.
+
+Clang needs a separate capture detail. Its `-S` driver job drops assembler
+include paths, whereas its integrated `-c` job forwards them to the frontend
+before ordinary C include paths. When these search flags are present I use
+`-c -Xclang -S`: the real driver's search order with assembly output. The
+regression compares directly compiled code against captured builds with
+different headers in the assembler and C include directories. The native
+answer is 142 with integrated Clang and 42 with external Clang or GCC; I require
+the captured answer to match, not merely to compile.
+
+Strict `-Werror` testing exposed two additional phase errors. Assembler search
+flags reached link-only Clang jobs and failed as unused arguments. After
+filtering those, the linker-grammar query's trailing `-x none` still failed
+under `-Werror`. I now create a private empty `probe.c`, query with that input,
+and remove its owned directory afterward. I do not suppress user warnings.
+The combined search-path / forwarded linker-response regression requires
+actual reuse, not just successful output without a reuse record.
+
+The three new methods cover flag admission and malformed/output-option
+rejection; restored edits and deletion during final compilation; and search
+order, native header precedence, strict warnings, phase argv, new earlier
+candidates, missing-input preservation, cleanup and recovery. The latter
+matrix has 36 local/shared cases on Clang and 18 on GCC. General assembler
+options such as `--alternate` and auxiliary outputs are not newly admitted;
+the broader assembler snapshot item remains open.
+
+The final rebuilt GCC/Linux `make test-bytecode-shadows` gate passes all 206
+methods with 24 platform/configuration skips in 146.035 seconds of reported
+test time. This includes all 65 source snapshot methods, the strict-warning
+search matrix, and linker response/transport regressions. The user guide
+builds and validates thirteen pages in six editions; this is not acceptance
+of the localized draft translations.
+
+Two focused Linux ASan/UBSan methods pass with leak detection enabled in
+197.766 seconds: flag-phase admission/rejection and all eighteen GCC ordered
+search/failure/recovery sequences. Neither sanitizer produces a diagnostic
+log. The production builder is instrumented through a separate probe;
+supporting objects, native compilers and the assembler helper are not.
+
+Debian Clang 14.0.6 on Linux ARM64 passes all 65 snapshot methods with
+nineteen skips in 109.740 seconds, including ordinary/external search paths
+and the strict-warning response combination. I select Clang through a private
+`cc` symlink in the disposable container and use the GCC-built production
+probe; this is cross-driver capture evidence, not a Clang bootstrap.
+
+The final rebuilt Apple Clang 21 Darwin gate passes all 206 methods with
+seventeen platform skips in 885.141 seconds of reported test time. Its 65
+snapshot methods pass in 596.717 seconds, including the 36-case search matrix.
+The later transport, response-graph and guarded-query suites also pass. These
+results verify the admitted flag fragments; they do not establish arbitrary
+assembler option support or compiler/VM semantic equivalence.

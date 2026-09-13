@@ -552,6 +552,19 @@ int main(int argc, char **argv) {
         free(directory);
         return ok ? 0 : 1;
     }
+    if (argc == 4 && !strcmp(argv[1], "phase-flags")) {
+        char *end = NULL;
+        unsigned long phases = strtoul(argv[2], &end, 10);
+        if (!end || *end || phases > 7) return 2;
+        size_t length = strlen(argv[3]);
+        if (length > (SIZE_MAX - 16) / 4) return 2;
+        size_t capacity = length * 4 + 16;
+        char *output = calloc(capacity, 1);
+        bool ok = output && module_phase_flags(argv[3], output, capacity, false, (unsigned)phases);
+        if (ok) puts(output);
+        free(output);
+        return ok ? 0 : 1;
+    }
     if (strcmp(argv[1], "flag-words") == 0) {
         cJSON *words = cJSON_CreateArray();
         if (!words) return 1;

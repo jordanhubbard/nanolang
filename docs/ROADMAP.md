@@ -1142,6 +1142,27 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_fa906fc996d843d1bb4cbefc72503f95`.
       MAC rejects completion while unclaimed; the task records the evidence
       and needs a verified agent identity for ledger closure.
+- [x] **5.0 assembler include-search capture.** I carry literal assembler
+      include-search arguments through the correct compiler phases and retain
+      the selected input bytes. I measure `-Wa` and `-Xassembler` spellings,
+      ordered search directories, metadata/platform/package flags, restored
+      edits and new earlier candidates, failure/recovery and actual reuse on
+      Clang and GCC. Low-level helper replay alone does not establish production
+      support when the module flag classifier declines these arguments.
+      Apple Clang 21 (ordinary/external) and GCC 12.2 both reproduce
+      cold/warm/fresh 43/43/42 with actual stale reuse under both cache roots.
+      My v34 phase selection repairs the admitted flag fragments to 42/42/42
+      with actual reuse, preserves native C-header precedence, and keeps
+      strict-warning link jobs free of assembler options. The linker grammar
+      query uses a private C input instead of a trailing language reset.
+      Darwin and GCC/Linux full gates each pass 206 methods (seventeen and
+      twenty-four skips); Linux Clang passes all 65 snapshot methods with
+      nineteen skips. Two leak-enabled ASan/UBSan methods pass. The user guide
+      builds and validates; details and limits are in
+      `docs/SOURCE_SNAPSHOT_EVIDENCE.md`.
+      MAC `task_92e6817607cf4071ab614289911a9a41`.
+      MAC rejects completion while unclaimed; a verified agent identity is
+      still needed for ledger closure.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent
