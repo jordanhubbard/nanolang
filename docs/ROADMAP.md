@@ -1137,6 +1137,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       repeated response); all eleven admitted GNU cases agree. Unchanged driver
       decoder reuse is therefore not a valid cross-platform repair. Selected
       linker identity and preserved failure behavior remain required.
+      I next compare byte-preserving retained responses, including distinct
+      files with identical bytes and repeated references. Retention must not
+      collapse path identity or leave nested inputs mutable; I test those
+      constraints before selecting the capture representation.
+      My sixteen-case prototype preserves native outcomes on both hosts after
+      removing original response files when retention uses resolved-path
+      identity. Apple distinguishes hardlink paths but rejects symlink aliases;
+      content-only and spelling-only prototypes change native outcomes.
+      Production graph capture and general nested-token rewriting remain open.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

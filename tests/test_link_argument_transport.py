@@ -12,10 +12,23 @@ import tempfile
 
 from tests.characterize_link_argument_transport import measure, require_consistent
 from tests import test_bytecode_shadows as shadows
-from tests.characterize_linker_response_grammar import require_equivalent
+from tests.characterize_linker_response_grammar import require_equivalent, require_retained_equivalent
 
 
 class LinkArgumentAcceptance(unittest.TestCase):
+    def test_retained_grammar_gate_checks_observed_results(self):
+        success = {"status": 0, "answer": 42}
+        failure = {"status": 1, "answer": None}
+        require_retained_equivalent({"cases": [{"native": success, "retained": success},
+                                               {"native": failure, "retained": failure}]})
+        for native, retained in ((success, failure), (failure, success),
+                                 (success, {"status": 0, "answer": None}),
+                                 (success, {"status": 0, "answer": 43})):
+            with self.subTest(native=native, retained=retained), self.assertRaises(SystemExit):
+                require_retained_equivalent({"cases": [{"native": native, "retained": retained,
+                                                        "retained_equivalent": True}]})
+        with self.assertRaises(SystemExit): require_retained_equivalent({"cases": []})
+
     def test_linker_grammar_gate_checks_observed_results(self):
         result = {"driver_decoder_admitted": True, "native": {"status": 0, "answer": 42},
                   "candidate": {"status": 0, "answer": 42}, "equivalent": True}

@@ -1277,3 +1277,38 @@ failure behavior and retained-input lifetime remain acceptance requirements.
 No production capture code changes in this increment. My nine linker-transport
 unit/integration methods pass on both hosts; the forwarded snapshot repair
 remains open.
+
+### Retained response identity experiment
+
+I extend the grammar corpus to sixteen cases with distinct equal-content
+responses, alternate path spelling, a symlink alias and a hardlink alias:
+
+```sh
+python3 -m tests.characterize_linker_response_grammar --require-retained-equivalent
+```
+
+My prototype copies response bytes and rewrites only the fixture's explicitly
+known nested references. I remove the original root and nested response files
+before linking the retained graph. I do not infer nested references with a
+production parser in this experiment.
+
+Apple Clang 21 rejects repeated paths, `inner.rsp` plus `./inner.rsp`, and a
+symlink alias. It accepts two separate equal-content files and two distinct
+hardlink paths. GCC 12 accepts all five cases. An initial spelling-keyed
+prototype changed Apple's alternate-spelling rejection into success. A
+content-only prototype instead changes Apple's distinct-file and hardlink
+successes into rejection. Neither representation preserves the boundary.
+
+Retention keyed by resolved path preserves all sixteen observed native
+statuses and loaded answers on both hosts, including malformed quoting and
+control whitespace (2026-09-13). The hardlink case verifies equal inode numbers
+before the native link. This supports resolved-path identity for these tested
+linkers, not an identity contract for every selectable linker. Absolute nested
+references in this fixture contain no spaces; general nested token rewriting
+still needs quoting and selected-linker coverage.
+
+My retained acceptance gate recomputes native/retained outcomes and rejects an
+empty measurement, changed success/failure, missing loaded answers and wrong
+answers. Ten linker-transport methods pass on Darwin and GCC 12. This selects a
+capture representation to implement; it does not repair production forwarded
+capture or close the six restored-selection failures.
