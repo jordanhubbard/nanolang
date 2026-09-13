@@ -3,24 +3,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "list_capacity.h"
 
 #define INITIAL_CAPACITY 8
 #define GROWTH_FACTOR 2
 
 /* Helper: Ensure the list has enough capacity */
 static void ensure_capacity_CompilerDiagnostic(List_CompilerDiagnostic *list, int min_capacity) {
-    if (list->capacity >= min_capacity) {
-        return;
-    }
-    
-    int new_capacity = list->capacity;
-    if (new_capacity == 0) {
-        new_capacity = INITIAL_CAPACITY;
-    }
-    
-    while (new_capacity < min_capacity) {
-        new_capacity *= GROWTH_FACTOR;
-    }
+    int new_capacity = nl_list_grown_capacity(list->capacity, min_capacity, sizeof(*list->data));
+    if (new_capacity == list->capacity) return;
     
     struct nl_CompilerDiagnostic *new_data = realloc(list->data, sizeof(struct nl_CompilerDiagnostic) * new_capacity);
     if (!new_data) {
@@ -39,14 +30,15 @@ List_CompilerDiagnostic* nl_list_CompilerDiagnostic_new(void) {
 
 /* Create a new list with specified initial capacity */
 List_CompilerDiagnostic* nl_list_CompilerDiagnostic_with_capacity(int capacity) {
+    nl_list_validate_capacity(capacity, sizeof(*((List_CompilerDiagnostic *)0)->data));
     List_CompilerDiagnostic *list = malloc(sizeof(List_CompilerDiagnostic));
     if (!list) {
         fprintf(stderr, "Error: Failed to allocate memory for list\n");
         exit(1);
     }
     
-    list->data = malloc(sizeof(struct nl_CompilerDiagnostic) * capacity);
-    if (!list->data) {
+    list->data = capacity ? malloc(sizeof(*list->data) * (size_t)capacity) : NULL;
+    if (capacity && !list->data) {
         fprintf(stderr, "Error: Failed to allocate memory for list data\n");
         exit(1);
     }
@@ -59,7 +51,7 @@ List_CompilerDiagnostic* nl_list_CompilerDiagnostic_with_capacity(int capacity) 
 
 /* Append an element to the end of the list */
 void nl_list_CompilerDiagnostic_push(List_CompilerDiagnostic *list, struct nl_CompilerDiagnostic value) {
-    ensure_capacity_CompilerDiagnostic(list, list->length + 1);
+    ensure_capacity_CompilerDiagnostic(list, nl_list_next_length(list->length));
     list->data[list->length] = value;
     list->length++;
 }
@@ -83,7 +75,7 @@ void nl_list_CompilerDiagnostic_insert(List_CompilerDiagnostic *list, int index,
         exit(1);
     }
     
-    ensure_capacity_CompilerDiagnostic(list, list->length + 1);
+    ensure_capacity_CompilerDiagnostic(list, nl_list_next_length(list->length));
     
     /* Shift elements to the right */
     memmove(&list->data[index + 1], &list->data[index], 

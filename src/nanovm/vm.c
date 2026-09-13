@@ -54,6 +54,100 @@ const char *vm_error_string(VmResult result) {
     return "Unknown error";
 }
 
+/* Vector arithmetic borrows operands and returns one owned array. Validate
+ * every participating pair before allocating; preserve the existing shorter-
+ * array rule and scalar operand order. Mixed result tags use boxed storage. */
+static uint8_t arithmetic_pair_tag(NanoOpcode op, NanoValue a, NanoValue b) {
+    if (a.tag == TAG_INT && b.tag == TAG_INT) return TAG_INT;
+    if ((a.tag == TAG_INT || a.tag == TAG_FLOAT) &&
+        (b.tag == TAG_INT || b.tag == TAG_FLOAT)) return TAG_FLOAT;
+    if (op == OP_ADD && a.tag == TAG_STRING && b.tag == TAG_STRING &&
+        a.as.string && b.as.string) return TAG_STRING;
+    return TAG_VOID;
+}
+
+static VmResult vm_array_arithmetic(VmState *vm, NanoOpcode op,
+                                    NanoValue a, NanoValue b, NanoValue *out) {
+    VmArray *left = a.tag == TAG_ARRAY ? a.as.array : NULL;
+    VmArray *right = b.tag == TAG_ARRAY ? b.as.array : NULL;
+    if ((a.tag == TAG_ARRAY && !left) || (b.tag == TAG_ARRAY && !right))
+        return VM_ERR_TYPE_ERROR;
+    if ((!left && a.tag != TAG_INT && a.tag != TAG_FLOAT &&
+         !(op == OP_ADD && a.tag == TAG_STRING && a.as.string)) ||
+        (!right && b.tag != TAG_INT && b.tag != TAG_FLOAT &&
+         !(op == OP_ADD && b.tag == TAG_STRING && b.as.string)) ||
+        (!left && !right))
+        return VM_ERR_TYPE_ERROR;
+    uint32_t len = left ? left->length : right->length;
+    if (left && right && right->length < len) len = right->length;
+    uint8_t result_tag = TAG_VOID;
+    bool mixed = false;
+    for (uint32_t i = 0; i < len; i++) {
+        NanoValue ea = left ? vm_array_get(left, i) : a;
+        NanoValue eb = right ? vm_array_get(right, i) : b;
+        uint8_t tag = arithmetic_pair_tag(op, ea, eb);
+        if (tag == TAG_VOID) return VM_ERR_TYPE_ERROR;
+        if (i == 0) result_tag = tag;
+        else if (tag != result_tag) mixed = true;
+    }
+    /* Empty typed numeric/string arrays still carry a useful result type. */
+    if (!len) {
+        NanoValue ea = left ? val_void() : a;
+        NanoValue eb = right ? val_void() : b;
+        if (left) ea.tag = left->elem_type;
+        if (right) eb.tag = right->elem_type;
+        if (ea.tag == TAG_STRING && eb.tag == TAG_STRING && op == OP_ADD)
+            result_tag = TAG_STRING;
+        else
+            result_tag = arithmetic_pair_tag(op, ea, eb);
+    }
+    VmArray *result = vm_array_new(&vm->heap, mixed ? TAG_VOID : result_tag, len);
+    if (!result) return VM_ERR_MEMORY;
+    for (uint32_t i = 0; i < len; i++) {
+        NanoValue ea = left ? vm_array_get(left, i) : a;
+        NanoValue eb = right ? vm_array_get(right, i) : b;
+        NanoValue value;
+        uint8_t tag = arithmetic_pair_tag(op, ea, eb);
+        if (tag == TAG_STRING) {
+            VmString *s = vm_string_concat(&vm->heap, ea.as.string, eb.as.string);
+            if (!s) {
+                vm_release(&vm->heap, val_array(result));
+                return VM_ERR_MEMORY;
+            }
+            value = val_string(s);
+        } else if (tag == TAG_INT) {
+            uint64_t x = (uint64_t)ea.as.i64, y = (uint64_t)eb.as.i64;
+            switch (op) {
+                case OP_ADD: value = val_int((int64_t)(x + y)); break;
+                case OP_SUB: value = val_int((int64_t)(x - y)); break;
+                case OP_MUL: value = val_int((int64_t)(x * y)); break;
+                default:
+                    value = val_int(eb.as.i64 == 0 ? 0 :
+                        (ea.as.i64 == INT64_MIN && eb.as.i64 == -1) ?
+                        INT64_MIN : ea.as.i64 / eb.as.i64);
+                    break;
+            }
+        } else {
+            double x = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
+            double y = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
+            switch (op) {
+                case OP_ADD: value = val_float(x + y); break;
+                case OP_SUB: value = val_float(x - y); break;
+                case OP_MUL: value = val_float(x * y); break;
+                default: value = val_float(y == 0.0 ? 0.0 : x / y); break;
+            }
+        }
+        bool appended = vm_array_push(&vm->heap, result, value);
+        vm_release(&vm->heap, value); /* The array retains heap values. */
+        if (!appended) {
+            vm_release(&vm->heap, val_array(result));
+            return VM_ERR_MEMORY;
+        }
+    }
+    *out = val_array(result);
+    return VM_OK;
+}
+
 /* ========================================================================
  * Init / Destroy
  * ======================================================================== */
@@ -92,16 +186,19 @@ bool vm_ensure_globals(VmState *vm, uint32_t count) {
 
 /* Establish the safety proof for the whole program the VM is about to run.
  * The unchecked private stack handlers on the hot path are sound only when
- * every reachable module has passed nvm_verify(); this recomputes that fact
+ * every reachable module has passed nvm_verify_linked(); this recomputes that fact
  * over the root module and every linked module and records it on the VM.
  * Any module that fails verification (or is absent) clears the proof, so the
  * VM falls back to the checked handlers. */
 static void vm_recompute_verified(VmState *vm) {
     if (!vm) return;
     bool proven = vm->root_module != NULL
-        && nvm_verify(vm->root_module).ok;
+        && nvm_verify_linked(vm->root_module, vm->linked_modules,
+                             vm->linked_module_count).ok;
     for (uint32_t i = 0; proven && i < vm->linked_module_count; i++) {
-        if (!vm->linked_modules[i] || !nvm_verify(vm->linked_modules[i]).ok)
+        if (!vm->linked_modules[i]
+                || !nvm_verify_linked(vm->linked_modules[i], vm->linked_modules,
+                                      vm->linked_module_count).ok)
             proven = false;
     }
     vm->verified = proven;
@@ -695,16 +792,34 @@ bool vm_resolve_module_calls(VmState *vm) {
  * Stack Operations
  * ======================================================================== */
 
-static inline VmResult stack_push(VmState *vm, NanoValue v) {
-    if (vm->stack_size >= vm->stack_capacity) {
-        uint32_t new_cap = vm->stack_capacity * 2;
-        NanoValue *new_stack = realloc(vm->stack, new_cap * sizeof(NanoValue));
-        if (!new_stack) return vm_error(vm, VM_ERR_MEMORY, "Stack grow failed");
+static VmResult stack_reserve(VmState *vm, uint64_t required) {
+    if (required > UINT32_MAX || required > SIZE_MAX / sizeof(NanoValue))
+        return vm_error(vm, VM_ERR_MEMORY, "I cannot represent the requested stack size.");
+    if (required > vm->stack_capacity || (!vm->stack && required)) {
+        uint64_t new_cap = vm->stack_capacity ? vm->stack_capacity : VM_STACK_INITIAL;
+        while (new_cap < required) new_cap *= 2;
+        if (new_cap > UINT32_MAX || new_cap > SIZE_MAX / sizeof(NanoValue))
+            new_cap = required;
+        NanoValue *new_stack = realloc(vm->stack, (size_t)new_cap * sizeof(NanoValue));
+        if (!new_stack) return vm_error(vm, VM_ERR_MEMORY, "I could not grow the stack.");
         vm->stack = new_stack;
-        vm->stack_capacity = new_cap;
+        vm->stack_capacity = (uint32_t)new_cap;
     }
+    return VM_OK;
+}
+
+static inline VmResult stack_push(VmState *vm, NanoValue v) {
+    VmResult result = stack_reserve(vm, (uint64_t)vm->stack_size + 1);
+    if (result != VM_OK) return result;
     vm->stack[vm->stack_size++] = v;
     return VM_OK;
+}
+
+static VmResult stack_reserve_frame(VmState *vm, uint32_t base,
+                                    const NvmFunctionEntry *callee) {
+    if (callee->local_count < callee->arity)
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need enough callee parameter locals.");
+    return stack_reserve(vm, (uint64_t)base + callee->local_count);
 }
 
 /* Unchecked private handlers.
@@ -734,6 +849,17 @@ static inline NanoValue stack_peek(VmState *vm, uint32_t offset) {
     if (vm->verified) return stack_peek_unchecked(vm, offset);
     if (offset >= vm->stack_size) return val_void();
     return vm->stack[vm->stack_size - 1 - offset];
+}
+
+/* Locals and the caller's stack are not operands of the current frame. */
+static inline bool stack_has_operands(const VmState *vm, uint32_t count) {
+    if (vm->verified) return true;
+    uint32_t base = 0;
+    if (vm->frame_count) {
+        const VmCallFrame *frame = &vm->frames[vm->frame_count - 1];
+        base = frame->stack_base + frame->local_count;
+    }
+    return vm->stack_size >= base && vm->stack_size - base >= count;
 }
 
 static inline void profile_instruction(VmState *vm, uint8_t opcode) {
@@ -1234,6 +1360,52 @@ vm_dispatch_top:
         if (vm->opcode_trace)
             vm_trace_instruction(vm, instr_start, &instr, stack_before);
 
+        /* Check the whole input requirement before a handler mutates
+         * anything. A guarded pop alone cannot reject an operation atomically,
+         * and the caller's values and frame locals are not operands. */
+        {
+            const InstructionInfo *info = isa_get_info(instr.opcode);
+            int32_t required = info ? info->pop_count : -1;
+            int32_t produced = info ? info->push_count : -1;
+            switch (instr.opcode) {
+            case OP_ARR_LITERAL:
+            case OP_STRUCT_LITERAL:
+            case OP_CLOSURE_NEW:
+                required = instr.operands[1].u16;
+                produced = 1;
+                break;
+            case OP_UNION_CONSTRUCT:
+                required = instr.operands[2].u16;
+                produced = 1;
+                break;
+            case OP_TUPLE_NEW:
+                required = instr.operands[0].u16;
+                produced = 1;
+                break;
+            case OP_AGG_PACK:
+                required = instr.operands[3].u16;
+                produced = 1;
+                break;
+            case OP_PICK:
+            case OP_ROLL:
+                required = (int32_t)instr.operands[0].u16 + 1;
+                produced = required + (instr.opcode == OP_PICK ? 1 : 0);
+                break;
+            default:
+                break;
+            }
+            if (required >= 0
+                    && !stack_has_operands(vm, (uint32_t)required))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need %d operands for %s.",
+                                  required, info->name);
+            if (required >= 0 && produced > required
+                    && stack_reserve(vm, (uint64_t)vm->stack_size
+                                          + (uint32_t)(produced - required)) != VM_OK)
+                return trap_error(vm, VM_ERR_MEMORY,
+                                  "I could not reserve instruction output space.");
+        }
+
         /* Private superinstructions run before the portable opcode switch.
          * They are an internal fusion of already-verified steps, so they
          * reproduce the exact stack, heap, and ownership effects of the
@@ -1327,6 +1499,9 @@ vm_dispatch_top:
             VM_NEXT();
 
         VM_CASE(OP_DUP) {
+            if (!stack_has_operands(vm, 1))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need one operand for DUP.");
             NanoValue top = stack_peek(vm, 0);
             vm_retain(&vm->heap, top);
             stack_push(vm, top);
@@ -1334,13 +1509,18 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_POP) {
+            if (!stack_has_operands(vm, 1))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need one operand for POP.");
             NanoValue v = stack_pop(vm);
             vm_release(&vm->heap, v);
             VM_NEXT();
         }
 
         VM_CASE(OP_SWAP) {
-            if (vm->stack_size < 2) VM_NEXT();
+            if (!stack_has_operands(vm, 2))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need two operands for SWAP.");
             NanoValue a = vm->stack[vm->stack_size - 1];
             NanoValue b = vm->stack[vm->stack_size - 2];
             vm->stack[vm->stack_size - 1] = b;
@@ -1349,7 +1529,9 @@ vm_dispatch_top:
         }
 
         VM_CASE(OP_ROT3) {
-            if (vm->stack_size < 3) VM_NEXT();
+            if (!stack_has_operands(vm, 3))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need three operands for ROT3.");
             uint32_t top = vm->stack_size - 1;
             NanoValue a = vm->stack[top];
             vm->stack[top] = vm->stack[top - 1];
@@ -1360,10 +1542,9 @@ vm_dispatch_top:
 
         VM_CASE(OP_PICK) {
             uint16_t depth = instr.operands[0].u16;
-            if (depth >= vm->stack_size)
+            if (!stack_has_operands(vm, (uint32_t)depth + 1))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
-                                  "PICK depth %u exceeds stack depth %u",
-                                  depth, vm->stack_size);
+                                  "I have no operand at PICK depth %u.", depth);
             NanoValue value = vm->stack[vm->stack_size - 1 - depth];
             vm_retain(&vm->heap, value);
             stack_push(vm, value);
@@ -1372,10 +1553,9 @@ vm_dispatch_top:
 
         VM_CASE(OP_ROLL) {
             uint16_t depth = instr.operands[0].u16;
-            if (depth >= vm->stack_size)
+            if (!stack_has_operands(vm, (uint32_t)depth + 1))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
-                                  "ROLL depth %u exceeds stack depth %u",
-                                  depth, vm->stack_size);
+                                  "I have no operand at ROLL depth %u.", depth);
             uint32_t index = vm->stack_size - 1 - depth;
             NanoValue value = vm->stack[index];
             memmove(&vm->stack[index], &vm->stack[index + 1],
@@ -1486,7 +1666,8 @@ dynamic_add:
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
             if (b.tag == TAG_ENUM) { b = val_int((int64_t)b.as.enum_val); }
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                stack_push(vm, val_int(a.as.i64 + b.as.i64));
+                /* Compute the wrapped bits without signed C overflow. */
+                stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(a.as.f64 + b.as.f64));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
@@ -1497,76 +1678,19 @@ dynamic_add:
                 VmString *s = vm_string_concat(&vm->heap, a.as.string, b.as.string);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
+                if (!s)
+                    return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the concatenated string.");
                 stack_push(vm, val_string(s));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                /* Element-wise array addition (supports int, float, string) */
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_STRING && eb.tag == TAG_STRING) {
-                        VmString *s = vm_string_concat(&vm->heap, ea.as.string, eb.as.string);
-                        ev = val_string(s);
-                    } else if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 + eb.as.i64);
-                    else if (ea.tag == TAG_FLOAT && eb.tag == TAG_FLOAT)
-                        ev = val_float(ea.as.f64 + eb.as.f64);
-                    else if (ea.tag == TAG_FLOAT && eb.tag == TAG_INT)
-                        ev = val_float(ea.as.f64 + (double)eb.as.i64);
-                    else if (ea.tag == TAG_INT && eb.tag == TAG_FLOAT)
-                        ev = val_float((double)ea.as.i64 + eb.as.f64);
-                    else
-                        ev = val_int(ea.as.i64 + eb.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_ADD, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY &&
-                        (b.tag == TAG_INT || b.tag == TAG_FLOAT || b.tag == TAG_STRING)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT || a.tag == TAG_STRING) &&
-                        b.tag == TAG_ARRAY)) {
-                /* Scalar broadcast: array + scalar or scalar + array */
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_STRING && scalar.tag == TAG_STRING) {
-                        /* String concat broadcast */
-                        if (a.tag == TAG_ARRAY) {
-                            VmString *s = vm_string_concat(&vm->heap, ea.as.string, scalar.as.string);
-                            ev = val_string(s);
-                        } else {
-                            VmString *s = vm_string_concat(&vm->heap, scalar.as.string, ea.as.string);
-                            ev = val_string(s);
-                        }
-                    } else if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 + scalar.as.i64);
-                    else if (ea.tag == TAG_FLOAT || scalar.tag == TAG_FLOAT) {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                        ev = val_float(da + ds);
-                    } else
-                        ev = val_int(ea.as.i64 + scalar.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
@@ -1590,64 +1714,23 @@ dynamic_sub:
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
             if (b.tag == TAG_ENUM) { b = val_int((int64_t)b.as.enum_val); }
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                stack_push(vm, val_int(a.as.i64 - b.as.i64));
+                stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(a.as.f64 - b.as.f64));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
                 stack_push(vm, val_float(a.as.f64 - (double)b.as.i64));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float((double)a.as.i64 - b.as.f64));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 - eb.as.i64);
-                    else if (ea.tag == TAG_FLOAT || eb.tag == TAG_FLOAT) {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
-                        ev = val_float(da - db);
-                    } else
-                        ev = val_int(ea.as.i64 - eb.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_SUB, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY && (b.tag == TAG_INT || b.tag == TAG_FLOAT)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT) && b.tag == TAG_ARRAY)) {
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                bool arr_is_left = (a.tag == TAG_ARRAY);
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                    double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                    double dr = arr_is_left ? da - ds : ds - da;
-                    if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
-                        ev = val_int(arr_is_left ? ea.as.i64 - scalar.as.i64 : scalar.as.i64 - ea.as.i64);
-                    else
-                        ev = val_float(dr);
-                    vm_array_push(&vm->heap, result, ev);
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "SUB: type error");
             }
@@ -1668,63 +1751,23 @@ dynamic_mul:
             if (a.tag == TAG_ENUM) { a = val_int((int64_t)a.as.enum_val); }
             if (b.tag == TAG_ENUM) { b = val_int((int64_t)b.as.enum_val); }
             if (a.tag == TAG_INT && b.tag == TAG_INT) {
-                stack_push(vm, val_int(a.as.i64 * b.as.i64));
+                stack_push(vm, val_int((int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64)));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(a.as.f64 * b.as.f64));
             } else if (a.tag == TAG_FLOAT && b.tag == TAG_INT) {
                 stack_push(vm, val_float(a.as.f64 * (double)b.as.i64));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float((double)a.as.i64 * b.as.f64));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 * eb.as.i64);
-                    else if (ea.tag == TAG_FLOAT || eb.tag == TAG_FLOAT) {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
-                        ev = val_float(da * db);
-                    } else
-                        ev = val_int(ea.as.i64 * eb.as.i64);
-                    vm_array_push(&vm->heap, result, ev);
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_MUL, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY && (b.tag == TAG_INT || b.tag == TAG_FLOAT)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT) && b.tag == TAG_ARRAY)) {
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && scalar.tag == TAG_INT)
-                        ev = val_int(ea.as.i64 * scalar.as.i64);
-                    else {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                        ev = val_float(da * ds);
-                    }
-                    vm_array_push(&vm->heap, result, ev);
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "MUL: type error");
             }
@@ -1759,61 +1802,16 @@ dynamic_div:
                 stack_push(vm, val_float(b.as.i64 == 0 ? 0.0 : a.as.f64 / (double)b.as.i64));
             } else if (a.tag == TAG_INT && b.tag == TAG_FLOAT) {
                 stack_push(vm, val_float(b.as.f64 == 0.0 ? 0.0 : (double)a.as.i64 / b.as.f64));
-            } else if (a.tag == TAG_ARRAY && b.tag == TAG_ARRAY) {
-                VmArray *arr_a = a.as.array;
-                VmArray *arr_b = b.as.array;
-                uint32_t len = arr_a && arr_b ?
-                    (arr_a->length < arr_b->length ? arr_a->length : arr_b->length) : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr_a, ai);
-                    NanoValue eb = vm_array_get(arr_b, ai);
-                    NanoValue ev;
-                    if (ea.tag == TAG_INT && eb.tag == TAG_INT)
-                        ev = val_int(eb.as.i64 == 0 ? 0 : ea.as.i64 / eb.as.i64);
-                    else {
-                        double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                        double db = eb.tag == TAG_FLOAT ? eb.as.f64 : (double)eb.as.i64;
-                        ev = val_float(db == 0.0 ? 0.0 : da / db);
-                    }
-                    vm_array_push(&vm->heap, result, ev);
-                }
+            } else if (a.tag == TAG_ARRAY || b.tag == TAG_ARRAY) {
+                NanoValue result = val_void();
+                VmResult status = vm_array_arithmetic(vm, OP_DIV, a, b, &result);
                 vm_release(&vm->heap, a);
                 vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
-            } else if ((a.tag == TAG_ARRAY && (b.tag == TAG_INT || b.tag == TAG_FLOAT)) ||
-                       ((a.tag == TAG_INT || a.tag == TAG_FLOAT) && b.tag == TAG_ARRAY)) {
-                VmArray *arr = (a.tag == TAG_ARRAY) ? a.as.array : b.as.array;
-                NanoValue scalar = (a.tag == TAG_ARRAY) ? b : a;
-                bool arr_is_left = (a.tag == TAG_ARRAY);
-                uint32_t len = arr ? arr->length : 0;
-                VmArray *result = vm_array_new(&vm->heap, TAG_INT, len);
-                for (uint32_t ai = 0; ai < len; ai++) {
-                    NanoValue ea = vm_array_get(arr, ai);
-                    NanoValue ev;
-                    double da = ea.tag == TAG_FLOAT ? ea.as.f64 : (double)ea.as.i64;
-                    double ds = scalar.tag == TAG_FLOAT ? scalar.as.f64 : (double)scalar.as.i64;
-                    if (ea.tag == TAG_INT && scalar.tag == TAG_INT) {
-                        if (arr_is_left)
-                            ev = val_int(scalar.as.i64 == 0 ? 0 : ea.as.i64 / scalar.as.i64);
-                        else
-                            ev = val_int(ea.as.i64 == 0 ? 0 : scalar.as.i64 / ea.as.i64);
-                    } else {
-                        double dr = arr_is_left ? (ds == 0.0 ? 0.0 : da / ds)
-                                                : (da == 0.0 ? 0.0 : ds / da);
-                        ev = val_float(dr);
-                    }
-                    vm_array_push(&vm->heap, result, ev);
-                }
-                vm_release(&vm->heap, a);
-                vm_release(&vm->heap, b);
-                NanoValue rv = {0};
-                rv.tag = TAG_ARRAY;
-                rv.as.array = result;
-                stack_push(vm, rv);
+                if (status != VM_OK)
+                    return trap_error(vm, status, status == VM_ERR_MEMORY ?
+                        "I could not allocate the array result." :
+                        "I require compatible numeric elements, or strings for array addition.");
+                stack_push(vm, result);
             } else {
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "DIV: type error");
             }
@@ -1864,9 +1862,10 @@ dynamic_div:
                                   "%s requires two integers",
                                   isa_get_info(instr.opcode)->name);
             int64_t result = 0;
-            if (instr.opcode == OP_I64_ADD) result = a.as.i64 + b.as.i64;
-            else if (instr.opcode == OP_I64_SUB) result = a.as.i64 - b.as.i64;
-            else if (instr.opcode == OP_I64_MUL) result = a.as.i64 * b.as.i64;
+            /* Unsigned intermediates implement modulo-2^64 arithmetic. */
+            if (instr.opcode == OP_I64_ADD) result = (int64_t)((uint64_t)a.as.i64 + (uint64_t)b.as.i64);
+            else if (instr.opcode == OP_I64_SUB) result = (int64_t)((uint64_t)a.as.i64 - (uint64_t)b.as.i64);
+            else if (instr.opcode == OP_I64_MUL) result = (int64_t)((uint64_t)a.as.i64 * (uint64_t)b.as.i64);
             else if (instr.opcode == OP_I64_DIV_S) {
                 if (b.as.i64 == 0) result = 0;
                 else if (a.as.i64 == INT64_MIN && b.as.i64 == -1) result = INT64_MIN;
@@ -2234,7 +2233,7 @@ dynamic_div:
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
-            if (vm->stack_size < callee->arity) {
+            if (!stack_has_operands(vm, callee->arity)) {
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "Function %u needs %u arguments",
                                   callee_idx, callee->arity);
@@ -2242,6 +2241,9 @@ dynamic_div:
 
             /* Arguments are already on the stack, pop them into the new frame */
             uint32_t new_base = vm->stack_size - callee->arity;
+            VmResult reserved = stack_reserve_frame(vm, new_base, callee);
+            if (reserved != VM_OK)
+                return trap_error(vm, reserved, "I could not reserve the call frame.");
 
             /* Allocate space for remaining locals */
             for (uint16_t i = callee->arity; i < callee->local_count; i++) {
@@ -2279,11 +2281,14 @@ dynamic_div:
                     || callee->result_tag != cur_fn->result_tag)
                 return trap_error(vm, VM_ERR_TYPE_ERROR,
                                   "Tail-call result signature mismatch");
-            if (vm->stack_size < callee->arity)
+            if (!stack_has_operands(vm, callee->arity))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "Tail-call function %u needs %u arguments",
                                   callee_idx, callee->arity);
 
+            VmResult reserved = stack_reserve_frame(vm, frame->stack_base, callee);
+            if (reserved != VM_OK)
+                return trap_error(vm, reserved, "I could not reserve the tail-call frame.");
             NanoValue inline_args[16];
             NanoValue *args = callee->arity <= 16 ? inline_args
                 : malloc((size_t)callee->arity * sizeof(*args));
@@ -2324,7 +2329,10 @@ dynamic_div:
 
         VM_CASE(OP_CALL_INDIRECT) {
             if (vm->profile.enabled) vm->profile.indirect_calls++;
-            NanoValue fn_val = stack_pop(vm);
+            if (!stack_has_operands(vm, (uint32_t)instr.operands[0].u16 + 1))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need the callable and all indirect-call arguments.");
+            NanoValue fn_val = stack_peek(vm, 0);
             if (fn_val.tag == TAG_FUNCTION || fn_val.tag == TAG_CLOSURE) {
                 VmClosure *closure = NULL;
                 uint32_t callee_idx;
@@ -2358,13 +2366,18 @@ dynamic_div:
                 if (vm->frame_count >= VM_MAX_FRAMES) {
                     return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
                 }
-                if (vm->stack_size < callee->arity) {
+                if (!stack_has_operands(vm, (uint32_t)callee->arity + 1)) {
                     return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                       "Function %u needs %u arguments",
                                       callee_idx, callee->arity);
                 }
 
-                uint32_t new_base = vm->stack_size - callee->arity;
+                /* Transfer ownership only after every call validation passes. */
+                uint32_t new_base = vm->stack_size - 1 - callee->arity;
+                VmResult reserved = stack_reserve_frame(vm, new_base, callee);
+                if (reserved != VM_OK)
+                    return trap_error(vm, reserved, "I could not reserve the indirect-call frame.");
+                fn_val = stack_pop(vm);
                 for (uint16_t i = callee->arity; i < callee->local_count; i++) {
                     stack_push(vm, val_void());
                 }
@@ -2477,6 +2490,15 @@ dynamic_div:
 
             /* Pop arguments from stack (they were pushed left-to-right,
              * so pop in reverse to get them in order) */
+            if (!stack_has_operands(vm, (uint32_t)ext_argc))
+                return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
+                                  "I need %d operands for the foreign call.", ext_argc);
+            uint32_t result_slots = vm->module->imports[import_idx].return_type
+                == TAG_VOID ? 0 : 1;
+            if (stack_reserve(vm, (uint64_t)vm->stack_size - (uint32_t)ext_argc
+                                   + result_slots) != VM_OK)
+                return trap_error(vm, VM_ERR_MEMORY,
+                                  "I could not reserve the foreign-call result slot.");
             VmTrap t = { .type = TRAP_EXTERN_CALL };
             t.data.extern_call.import_idx = import_idx;
             t.data.extern_call.argc = ext_argc;
@@ -2509,16 +2531,26 @@ dynamic_div:
             uint32_t fn_idx_m = handle->function_index;
             const NvmFunctionEntry *callee = handle->function;
 
+            if (instr.operands[2].u16 != callee->arity
+                    || instr.operands[3].u16 != callee->result_count)
+                return trap_error(vm, VM_ERR_TYPE_ERROR,
+                                  "I declared a linked call %u->%u, but its target is %u->%u.",
+                                  instr.operands[2].u16, instr.operands[3].u16,
+                                  callee->arity, callee->result_count);
+
             if (vm->frame_count >= VM_MAX_FRAMES) {
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "Call depth exceeded");
             }
-            if (vm->stack_size < callee->arity) {
+            if (!stack_has_operands(vm, callee->arity)) {
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "Function %u needs %u arguments",
                                   fn_idx_m, callee->arity);
             }
 
             uint32_t new_base = vm->stack_size - callee->arity;
+            VmResult reserved = stack_reserve_frame(vm, new_base, callee);
+            if (reserved != VM_OK)
+                return trap_error(vm, reserved, "I could not reserve the linked-call frame.");
             for (uint16_t i = callee->arity; i < callee->local_count; i++) {
                 stack_push(vm, val_void());
             }
@@ -2574,6 +2606,8 @@ dynamic_div:
             VmString *result = vm_string_concat(&vm->heap, a.as.string, b.as.string);
             vm_release(&vm->heap, a);
             vm_release(&vm->heap, b);
+            if (!result)
+                return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the concatenated string.");
             stack_push(vm, val_string(result));
             VM_NEXT();
         }
@@ -2760,11 +2794,15 @@ dynamic_div:
             size_t slen = vmstring_len(s.as.string);
             size_t dlen = vmstring_len(delim_v.as.string);
             VmArray *arr = vm_array_new(&vm->heap, TAG_STRING, 8);
+            if (!arr) goto split_allocation_failed;
             if (dlen == 0) {
                 /* Empty delimiter: split into individual characters. */
                 for (size_t i = 0; i < slen; i++) {
                     VmString *ch = vm_string_new(&vm->heap, str + i, 1);
-                    vm_array_push(&vm->heap, arr, val_string(ch));
+                    if (!ch || !vm_array_push(&vm->heap, arr, val_string(ch))) {
+                        vm_release(&vm->heap, val_string(ch));
+                        goto split_allocation_failed;
+                    }
                     vm_release(&vm->heap, val_string(ch));
                 }
             } else {
@@ -2775,19 +2813,30 @@ dynamic_div:
                                             delim, dlen)) != NULL) {
                     VmString *seg = vm_string_new(&vm->heap, start,
                                                   (uint32_t)(found - start));
-                    vm_array_push(&vm->heap, arr, val_string(seg));
+                    if (!seg || !vm_array_push(&vm->heap, arr, val_string(seg))) {
+                        vm_release(&vm->heap, val_string(seg));
+                        goto split_allocation_failed;
+                    }
                     vm_release(&vm->heap, val_string(seg));
                     start = found + dlen;
                 }
                 VmString *rest = vm_string_new(&vm->heap, start,
                                                (uint32_t)(end - start));
-                vm_array_push(&vm->heap, arr, val_string(rest));
+                if (!rest || !vm_array_push(&vm->heap, arr, val_string(rest))) {
+                    vm_release(&vm->heap, val_string(rest));
+                    goto split_allocation_failed;
+                }
                 vm_release(&vm->heap, val_string(rest));
             }
             vm_release(&vm->heap, delim_v);
             vm_release(&vm->heap, s);
             stack_push(vm, val_array(arr));
             VM_NEXT();
+        split_allocation_failed:
+            vm_release(&vm->heap, val_array(arr));
+            vm_release(&vm->heap, delim_v);
+            vm_release(&vm->heap, s);
+            return trap_error(vm, VM_ERR_MEMORY, "I could not build the split result.");
         }
 
         VM_CASE(OP_STR_REPLACE) {
@@ -2874,7 +2923,11 @@ dynamic_div:
                 vm_release(&vm->heap, v);
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "ARR_PUSH: not an array");
             }
-            vm_array_push(&vm->heap, arr.as.array, v);
+            if (!vm_array_push(&vm->heap, arr.as.array, v)) {
+                vm_release(&vm->heap, v);
+                vm_release(&vm->heap, arr);
+                return trap_error(vm, VM_ERR_MEMORY, "I could not append the array element.");
+            }
             vm_release(&vm->heap, v); /* push retains */
             stack_push(vm, arr);
             VM_NEXT();
@@ -2974,6 +3027,7 @@ dynamic_div:
             uint8_t elem_type = instr.operands[0].u8;
             uint16_t count = instr.operands[1].u16;
             VmArray *a = vm_array_new(&vm->heap, elem_type, count > 0 ? count : 8);
+            if (!a) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the array.");
             /* Pop count values in reverse (they were pushed in order). The
              * popped values transfer their ownership into the array, so for
              * boxed storage we store without an extra retain; for unboxed
@@ -3039,6 +3093,7 @@ dynamic_div:
             uint32_t def_idx = instr.operands[0].u32;
             uint16_t field_count = instr.operands[1].u16;
             VmStruct *s = vm_struct_new(&vm->heap, def_idx, field_count);
+            if (!s) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the struct.");
             /* Pop fields in reverse order */
             for (uint16_t i = 0; i < field_count; i++) {
                 s->fields[field_count - 1 - i] = stack_pop(vm);
@@ -3056,6 +3111,7 @@ dynamic_div:
             uint16_t variant = instr.operands[1].u16;
             uint16_t fcount = instr.operands[2].u16;
             VmUnion *u = vm_union_new(&vm->heap, def_idx, variant, fcount);
+            if (!u) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the union.");
             for (uint16_t i = 0; i < fcount; i++) {
                 u->fields[fcount - 1 - i] = stack_pop(vm);
             }
@@ -3119,6 +3175,7 @@ dynamic_div:
         VM_CASE(OP_TUPLE_NEW) {
             uint16_t count = instr.operands[0].u16;
             VmTuple *t = vm_tuple_new(&vm->heap, count);
+            if (!t) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the tuple.");
             for (uint16_t i = 0; i < count; i++) {
                 t->elements[count - 1 - i] = stack_pop(vm);
             }
@@ -3149,7 +3206,7 @@ dynamic_div:
             uint32_t layout = instr.operands[1].u32;
             uint16_t variant = instr.operands[2].u16;
             uint16_t count = instr.operands[3].u16;
-            if (count > vm->stack_size - frame->stack_base - frame->local_count)
+            if (!stack_has_operands(vm, count))
                 return trap_error(vm, VM_ERR_STACK_UNDERFLOW,
                                   "AGG_PACK needs %u values", count);
             if (kind == AGG_RECORD) {
@@ -3326,6 +3383,7 @@ dynamic_div:
             }
             VmArray *keys = vm_hashmap_keys(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
+            if (!keys) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate hashmap keys.");
             stack_push(vm, val_array(keys));
             VM_NEXT();
         }
@@ -3338,6 +3396,7 @@ dynamic_div:
             }
             VmArray *vals = vm_hashmap_values(&vm->heap, map.as.hashmap);
             vm_release(&vm->heap, map);
+            if (!vals) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate hashmap values.");
             stack_push(vm, val_array(vals));
             VM_NEXT();
         }
@@ -3468,9 +3527,10 @@ dynamic_div:
             uint32_t fn_idx_c = instr.operands[0].u32;
             uint16_t capture_count = instr.operands[1].u16;
             VmClosure *c = vm_closure_new(&vm->heap, fn_idx_c, capture_count);
+            if (!c) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the closure.");
             /* Pop captures from stack (pushed in order, stored in order) */
-            for (int16_t i = (int16_t)(capture_count - 1); i >= 0; i--) {
-                c->captures[i] = stack_pop(vm);
+            for (uint32_t i = capture_count; i > 0; i--) {
+                c->captures[i - 1] = stack_pop(vm);
             }
             stack_push(vm, val_closure(c));
             VM_NEXT();
@@ -3744,7 +3804,16 @@ void vm_stack_trace(const VmState *vm, FILE *out) {
  * and communicate with the core over PCIe/AXI.
  * ======================================================================== */
 
+static bool vm_stack_address(const VmState *vm, const void *pointer) {
+    uintptr_t address = (uintptr_t)pointer, base = (uintptr_t)vm->stack;
+    return pointer && vm->stack && address >= base
+        && address - base <= (uint64_t)vm->stack_capacity * sizeof(NanoValue);
+}
+
 VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    if (arg_count && vm_stack_address(vm, args))
+        return vm_error(vm, VM_ERR_TYPE_ERROR,
+                        "I borrow stack arguments through vm_invoke, not vm_call_function.");
     /* Bind cross-module callable handles before executing. Guarded so
      * this only runs once per link configuration. */
     if (!vm->module_calls_resolved) vm_resolve_module_calls(vm);
@@ -3765,6 +3834,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     }
 
     uint32_t stack_base = vm->stack_size;
+
+    if (fn->local_count < arg_count || (arg_count && !args))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need valid arguments and enough parameter locals.");
+    VmResult reserve_result = stack_reserve(vm, (uint64_t)stack_base + fn->local_count);
+    if (reserve_result != VM_OK) return reserve_result;
 
     vm->halt_requested = false;
 
@@ -3878,7 +3952,11 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
                 vm_trace_ffi_result(vm, trap.data.extern_call.import_idx, ext_result);
             if (vm->module->imports[trap.data.extern_call.import_idx].return_type
                     != TAG_VOID) {
-                stack_push(vm, ext_result);
+                VmResult pushed = stack_push(vm, ext_result);
+                if (pushed != VM_OK) {
+                    vm_release(&vm->heap, ext_result);
+                    return pushed;
+                }
             } else {
                 /* A void import contributes nothing to the stack, so anything
                  * the dispatch allocated for the result has no other owner. */
@@ -3912,7 +3990,8 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result) {
     if (!vm || !vm->module) return VM_ERR_UNDEFINED_FUNCTION;
-    if (out_result) *out_result = val_void();
+    if (vm_stack_address(vm, out_result))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
     if (vm->frame_count != 0) {
         return vm_error(vm, VM_ERR_CALL_DEPTH,
                         "Cannot invoke a function while the VM is executing");
@@ -3938,23 +4017,32 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
     uint32_t saved_fn = vm->current_fn;
     const NvmModule *saved_module = vm->module;
 
-    uint32_t required = stack_base + fn->local_count;
-    if (required > vm->stack_capacity) {
-        uint32_t new_capacity = vm->stack_capacity;
-        while (new_capacity < required) new_capacity *= 2;
-        NanoValue *new_stack = realloc(vm->stack,
-                                       new_capacity * sizeof(NanoValue));
-        if (!new_stack) {
-            return vm_error(vm, VM_ERR_MEMORY, "Stack grow failed");
-        }
-        vm->stack = new_stack;
-        vm->stack_capacity = new_capacity;
+    if (fn->local_count < arg_count)
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need enough parameter locals.");
+    if (arg_count && vm_stack_address(vm, args)) {
+        uintptr_t offset = (uintptr_t)args - (uintptr_t)vm->stack;
+        if (offset % sizeof(NanoValue) || offset / sizeof(NanoValue) > vm->stack_size
+                || arg_count > vm->stack_size - offset / sizeof(NanoValue))
+            return vm_error(vm, VM_ERR_TYPE_ERROR, "I need a complete live stack argument slice.");
+    }
+    NanoValue inline_args[16];
+    NanoValue *stable_args = arg_count <= 16 ? inline_args
+        : malloc((size_t)arg_count * sizeof(NanoValue));
+    if (!stable_args)
+        return vm_error(vm, VM_ERR_MEMORY, "I could not snapshot invocation arguments.");
+    if (arg_count) memcpy(stable_args, args, (size_t)arg_count * sizeof(NanoValue));
+    if (out_result) *out_result = val_void();
+    VmResult reserve_result = stack_reserve(vm, (uint64_t)stack_base + fn->local_count);
+    if (reserve_result != VM_OK) {
+        if (stable_args != inline_args) free(stable_args);
+        return reserve_result;
     }
 
     /* vm_call_function consumes argument ownership through its frame cleanup. */
-    for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, args[i]);
+    for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
 
-    VmResult result = vm_call_function(vm, fn_idx, (NanoValue *)args, arg_count);
+    VmResult result = vm_call_function(vm, fn_idx, stable_args, arg_count);
+    if (stable_args != inline_args) free(stable_args);
     NanoValue returned = val_void();
     if (result == VM_OK && vm->stack_size > stack_base) {
         returned = stack_pop(vm);

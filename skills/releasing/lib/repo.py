@@ -19,13 +19,14 @@ class RepoError(RuntimeError):
     """A git query failed in a way the caller cannot sensibly continue past."""
 
 
-def _git(*args: str) -> str:
+def _git(*args: str, raw: bool = False) -> str:
     result = subprocess.run(
-        ("git", *args), capture_output=True, text=True, cwd=str(repo_root())
+        ("git", *args), capture_output=True, text=not raw, cwd=str(repo_root())
     )
     if result.returncode != 0:
-        raise RepoError(f"git {' '.join(args)}: {result.stderr.strip()}")
-    return result.stdout.strip()
+        error = os.fsdecode(result.stderr) if raw else result.stderr
+        raise RepoError(f"git {' '.join(args)}: {error.strip()}")
+    return os.fsdecode(result.stdout) if raw else result.stdout.strip()
 
 
 @lru_cache(maxsize=1)
@@ -78,11 +79,21 @@ def changed_since(tag: str) -> tuple[str, ...]:
     yet committed has been attended to and must not be reported as neglected.
     """
     head = head_ref()
-    committed = _git("diff", "--name-only", f"{tag}..{head}").splitlines()
+    committed = _git("diff", "--name-only", "--no-renames", "-z", f"{tag}..{head}", raw=True).split("\0")
     working: list[str] = []
     if head == "HEAD":
-        uncommitted = _git("status", "--porcelain").splitlines()
-        working = [line[3:].split(" -> ")[-1] for line in uncommitted if len(line) > 3]
+        records = iter(_git("status", "--porcelain=v1", "-z", "--untracked-files=all", raw=True).split("\0"))
+        for record in records:
+            if not record:
+                continue
+            if len(record) < 4 or record[2] != " ":
+                raise RepoError("I could not parse Git's working-tree status")
+            working.append(record[3:])
+            if "R" in record[:2] or "C" in record[:2]:
+                source = next(records, "")
+                if not source:
+                    raise RepoError("I need both paths in Git's rename status")
+                working.append(source)
     return tuple(sorted({p for p in (*committed, *working) if p}))
 
 

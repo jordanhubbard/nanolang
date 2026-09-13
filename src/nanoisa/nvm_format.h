@@ -136,11 +136,18 @@ typedef struct {
  * Import Entry (serialized in IMPORTS section)
  * ======================================================================== */
 
+typedef enum {
+    NVM_IMPORT_FFI = 0,
+    NVM_IMPORT_COPROCESS = 1,
+    NVM_IMPORT_ARTIFACT = 2
+} NvmImportKind;
+
 typedef struct {
-    uint32_t module_name_idx;   /* String pool index */
+    uint32_t module_name_idx;   /* Logical module, or absolute artifact path */
     uint32_t function_name_idx; /* String pool index */
     uint16_t param_count;
     uint8_t  return_type;       /* NanoValueTag */
+    uint8_t  kind;              /* NvmImportKind; nonzero requires v2 wire format */
     /* Followed by param_count bytes of param type tags */
 } NvmImportEntry;
 
@@ -241,8 +248,8 @@ NvmModule *nvm_module_new(void);
 /* Free a module and all its data */
 void nvm_module_free(NvmModule *mod);
 
-/* Add a string to the string pool. Returns the string index.
- * Deduplicates: returns existing index if string already present. */
+/* I return a deduplicated string index, or UINT32_MAX on allocation/input
+ * failure. Existing entries remain usable after failed growth. */
 uint32_t nvm_add_string(NvmModule *mod, const char *str, uint32_t length);
 
 /* Add a function entry. Returns the function index. */
@@ -273,7 +280,8 @@ bool nvm_validate_header(const NvmHeader *header);
 /* Compute CRC32 over a byte range */
 uint32_t nvm_crc32(const uint8_t *data, uint32_t size);
 
-/* Add an import entry. Returns the import table index. */
+/* I return the import index, or UINT32_MAX on allocation failure; existing
+ * entries and their parameter arrays remain usable after failed growth. */
 uint32_t nvm_add_import(NvmModule *mod, uint32_t module_name_idx,
                         uint32_t function_name_idx, uint16_t param_count,
                         uint8_t return_type, const uint8_t *param_types);

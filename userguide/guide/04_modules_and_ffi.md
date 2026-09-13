@@ -74,3 +74,24 @@ Three files serve different jobs:
 | `module.manifest.json` | Discovery metadata, stability, capabilities, and examples |
 
 `module.json` stays build metadata. Isolation, restart, budgets, and required capabilities live on `module.manifest.json` in a portable `nsi` block. See [Secure Runtime](08_secure_runtime.md) and the generated [module inventory](../generated/modules.md) for what exists now.
+
+For Clang and GCC C builds admitted to my retained-input path, failed capture
+stops the build before final object compilation. GCC must retain assembler reads
+as well as preprocessed C; Clang's external-assembler mode has the same rule.
+I preserve the previous successful generation and report capture diagnostics.
+Check missing inputs, assembler support, and tool failures before retrying.
+On supported Linux GNU assembler versions, macro reads can require my installed
+`nano_as_capture.so` beside the driver. `NANO_AS_CAPTURE_HELPER` selects another
+copy; a missing helper is a build failure when literal capture cannot suffice.
+I admit literal assembler include paths through `-Wa,-I,dir`, `-Wa,-Idir`,
+`-Xassembler -I -Xassembler dir`, and `-Xassembler -Idir`. I preserve their
+order across package, common, and platform C flags. Keep paired forms in one
+flag fragment, such as `"-Xassembler -I -Xassembler 'assembler includes'"`.
+Quote paths containing
+spaces; use `-Xassembler` for paths containing commas. I keep these arguments
+out of separate C preprocessing and link-only jobs. Integrated Clang capture
+preserves the native driver's C-header search order as well as assembler
+lookup. This does not admit arbitrary `-Wa` options or extend the supported
+compiler/assembler versions.
+Source and flag modes outside this path retain their existing compatibility
+behavior; they have no retained-input guarantee.

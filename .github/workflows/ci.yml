@@ -46,7 +46,7 @@ jobs:
             build-essential \
             valgrind \
             pkg-config \
-            libssl-dev \
+            libssl-dev libffi-dev \
             libsdl2-dev \
             libsdl2-mixer-dev \
             libsdl2-ttf-dev \
@@ -189,7 +189,7 @@ jobs:
           ./scripts/ci-apt-install.sh \
             build-essential \
             pkg-config \
-            libssl-dev \
+            libssl-dev libffi-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
@@ -320,7 +320,7 @@ jobs:
           ./scripts/ci-apt-install.sh \
             build-essential \
             pkg-config \
-            libssl-dev \
+            libssl-dev libffi-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
@@ -396,7 +396,7 @@ jobs:
             lcov \
             bc \
             pkg-config \
-            libssl-dev \
+            libssl-dev libffi-dev \
             libsdl2-dev \
             libsdl2-image-dev \
             libsdl2-mixer-dev \
@@ -502,7 +502,7 @@ jobs:
 
       - name: Install dependencies
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh build-essential bc
+        run: ./scripts/ci-apt-install.sh build-essential bc pkg-config libffi-dev
 
       - name: Download baseline benchmark
         id: baseline
@@ -640,7 +640,7 @@ jobs:
         run: |
           ./scripts/ci-apt-install.sh \
             clang \
-            libblocksruntime-dev \
+            libblocksruntime-dev libffi-dev \
             pkg-config \
             libsdl2-dev \
             libsdl2-image-dev \
@@ -678,7 +678,7 @@ jobs:
 
       - name: Install clang-tidy
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh build-essential clang-tidy
+        run: ./scripts/ci-apt-install.sh build-essential clang-tidy libffi-dev
 
       - name: Run clang-tidy
         run: |
@@ -702,7 +702,7 @@ jobs:
 
       - name: Install clang / build deps
         timeout-minutes: 10
-        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev
+        run: ./scripts/ci-apt-install.sh build-essential pkg-config libssl-dev libffi-dev
 
       - name: Build nanoc
         run: make nanoc

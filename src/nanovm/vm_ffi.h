@@ -29,6 +29,7 @@ void vm_ffi_shutdown(void);
 /* Load a module's shared library by name.
  * Searches standard module paths. Returns true on success. */
 bool vm_ffi_load_module(const char *module_name);
+bool vm_ffi_load_import(const NvmModule *module, uint32_t import_idx);
 
 /* Call an extern function.
  * import_idx: index into the NVM module's import table

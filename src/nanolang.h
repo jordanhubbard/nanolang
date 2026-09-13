@@ -427,6 +427,8 @@ struct ASTNode {
             ASTNode **arm_bodies;
             ASTNode **guard_exprs;  /* Per-arm guard: NULL if no guard, or boolean expression */
             char *union_type_name;  /* Filled during typechecking */
+            Type result_type;       /* Checked arm value, independent of function return */
+            bool result_type_checked;
         } match_expr;
         /* Import statement: import "module.nano" as alias or from "module.nano" import sym1, sym2 */
         struct {
@@ -707,6 +709,7 @@ typedef struct {
 /* Module namespace for import aliases */
 typedef struct {
     char *alias;               /* Module alias name (e.g., "Math", "Lexer") */
+    char *owner_module;        /* Declaring module; NULL is the root namespace. */
     char *module_name;         /* Original module name */
     char **function_names;     /* Functions from this module */
     int function_count;
@@ -835,12 +838,15 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
+bool ast_is_value_expression(ASTNodeType type);
+bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
 void free_ast(ASTNode *node);
 
 /* Type Checker */
 bool type_check(ASTNode *program, Environment *env);
 bool type_check_module(ASTNode *program, Environment *env);  /* Type check without requiring main */
+bool type_check_root_shadows(ASTNode *program, Environment *env);
 void typecheck_set_current_file(const char *path);
 Type check_expression(ASTNode *expr, Environment *env);
 
@@ -948,6 +954,11 @@ typedef struct {
     int capacity;
 } ModuleList;
 
+bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                             const char *input_file, bool include_imports);
+bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modules,
+                            const char *input_file, bool include_imports, bool verbose);
+
 ModuleList *create_module_list(void);
 void free_module_list(ModuleList *list);
 void module_list_add(ModuleList *list, const char *module_path);
@@ -957,6 +968,7 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 ASTNode *load_module(const char *module_path, Environment *env);
 ASTNode *load_module_from_package(const char *package_path, Environment *env, char *temp_dir_out, size_t temp_dir_size);
 ASTNode *get_cached_module_ast(const char *module_path);
+char *module_program_name(ASTNode *program, const char *module_path);
 int64_t module_get_import_count(const char *module_path);
 const char *module_get_import_path(const char *module_path, int64_t index);
 const char *module_generate_forward_declarations(const char *module_path);

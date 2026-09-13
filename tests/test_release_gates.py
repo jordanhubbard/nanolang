@@ -14,9 +14,12 @@ installed.
 from __future__ import annotations
 
 import os
+import json
+import shutil
 import subprocess
 import sys
 import unittest
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,6 +60,43 @@ NEEDS_HISTORY = "shallow clone: release tags unavailable"
 
 
 class ReleaseGateTest(unittest.TestCase):
+    def test_git_paths_survive_unstaged_edits_renames_and_special_characters(self):
+        with tempfile.TemporaryDirectory(prefix="nano-release-paths-") as tmp:
+            root = Path(tmp)
+            shutil.copytree(SKILLS / "releasing" / "lib", root / "skills/releasing/lib",
+                            ignore=shutil.ignore_patterns("__pycache__"))
+
+            def git(*arguments):
+                result = subprocess.run(["git", *arguments], cwd=root, capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+            git("init", "-q")
+            (root / "CONTRIBUTING.md").write_text("Original contract\n")
+            old, new, extra = "old -> name.md", "new name\r\nwith newline.md", " untracked\rfile.md "
+            (root / old).write_text("I retain this content.\n")
+            git("add", ".")
+            git("-c", "user.name=NanoLang Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "baseline")
+            git("tag", "v0.0.0")
+
+            def changed():
+                env = {**os.environ, "PYTHONPATH": str(root / "skills"), "PYTHONDONTWRITEBYTECODE": "1"}
+                env.pop("RELEASE_HEAD_REF", None)
+                result = subprocess.run([sys.executable, "-c", "import json; from releasing.lib import repo; "
+                    "print(json.dumps(repo.changed_since('v0.0.0')))"], cwd=root, env=env,
+                    capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                return set(json.loads(result.stdout))
+
+            (root / "CONTRIBUTING.md").write_text("Updated contract\n")
+            self.assertEqual(changed(), {"CONTRIBUTING.md"})
+            git("mv", old, new)
+            (root / extra).write_text("I am not tracked yet.\n")
+            expected = {"CONTRIBUTING.md", old, new, extra}
+            self.assertEqual(changed(), expected)
+            git("add", ".")
+            git("-c", "user.name=NanoLang Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "changes")
+            self.assertEqual(changed(), expected)
+
     def setUp(self) -> None:
         # Each test picks its own release boundary, and the lookups are cached.
         repo.latest_tag.cache_clear()
