@@ -29,9 +29,10 @@ class LinkResponseQuery(unittest.TestCase):
         path.chmod(0o700)
         return path
 
-    def private_query(self, command, directory, env=None):
+    def private_query(self, command, directory, env=None, unchecked=False):
         result = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
-            "private-link-response-grammar", command, str(directory)], cwd=directory,
+            "unchecked-private-link-response-grammar" if unchecked else "private-link-response-grammar",
+            command, str(directory)], cwd=directory,
             env=env, capture_output=True, timeout=8)
         self.assertEqual(result.returncode, 0, result.stderr)
         return int(result.stdout), result.stderr
@@ -72,10 +73,78 @@ class LinkResponseQuery(unittest.TestCase):
                             "shared-link-command", str(module)], cwd=directory, env=env,
                             capture_output=True, timeout=8)
                         self.assertEqual(recipe.returncode, 0, recipe.stderr)
-                        grammar, error = self.private_query(recipe.stdout.decode().strip(), directory, env)
+                        # I isolate output-pin behavior here. These raw indirect
+                        # fixtures intentionally do not meet public admission.
+                        grammar, error = self.private_query(recipe.stdout.decode().strip(), directory, env, unchecked=True)
                         self.assertEqual(grammar, 2 if sys.platform == "darwin" else 1, error)
                         self.assertEqual([(path.read_bytes(), path.stat().st_mtime_ns) for path in protected], before)
                         self.assertEqual(list(directory.glob(".nano-link-query-*")), [])
+
+    def test_public_query_rejects_unclassified_controls_before_execution(self):
+        with tempfile.TemporaryDirectory(prefix="nano-query-admission-") as tmp:
+            directory = Path(tmp)
+            marker = directory / "queried"
+            tool = self.tool(directory, "from pathlib import Path\n"
+                f"Path({str(marker)!r}).write_text('queried')\nprint('GNU ld (fixture) 2.40')\n")
+            prefix = shlex.quote(str(tool))
+            rejected = ("@raw.rsp", "-Wl,@raw.rsp", "-Xlinker @raw.rsp", "--driver-mode=cl",
+                "-Xclang -load", "-fplugin=plugin.so", "-specs=specs", "-save-temps", "-MD", "-MF deps",
+                "-Xassembler @assembler.rsp", "-Wa,-a=listing", "-unknown", "-lto_library plugin.so",
+                "-o", "-L", "-B", "-Xlinker", "-Wl,", "-Wl,-lm,", "-Wl,-L",
+                "-Xlinker -L fixture.o", "-Xlinker -o -Xlinker --", "-o @output.rsp",
+                "-Wl,-lm,-Map,map", "-Xlinker -L -Xlinker lib -Xlinker -plugin",
+                " ; touch forbidden", "x" * 4096, " ".join(["x"] * 2048))
+            controls = ("--", "@raw.rsp", "-Map", "-Map=map", "--Map=map", "-map", "-dependency_info",
+                "--dependency-file=deps", "--out-implib=exports", "--reproduce=repro", "-object_path_lto",
+                "-lto_library", "-plugin", "--plugin=plugin.so", "-filelist", "-T", "--script=script.ld",
+                "--version-script=exports", "-exported_symbols_list", "--unknown-control")
+            for suffix in (*rejected, *("-Wl," + flag for flag in controls),
+                           *("-Xlinker " + shlex.quote(flag) for flag in controls)):
+                with self.subTest(suffix=suffix):
+                    self.assertEqual(self.private_query(prefix + " " + suffix, directory)[0], 0)
+                    self.assertFalse(marker.exists())
+                    self.assertEqual(list(directory.glob(".nano-link-query-*")), [])
+
+    def test_public_query_admits_explicit_forms_and_preserves_selection(self):
+        with tempfile.TemporaryDirectory(prefix="nano-query-forms-") as tmp:
+            directory = Path(tmp)
+            record = directory / "arguments.json"
+            tool = self.tool(directory, "import json,sys\nfrom pathlib import Path\n"
+                f"Path({str(record)!r}).write_text(json.dumps(sys.argv[1:]))\n"
+                "print('GNU ld (fixture) 2.40')\n")
+            cases = (["-shared", "fixture.o", "-fPIC", "-O2", "-D", "ANSWER=42", "-Iinclude"],
+                ["-B", "tools", "-fuse-ld=custom", "--target=aarch64-linux-gnu", "--sysroot=/sdk"],
+                ["-Wl,-L,lib,-l,selected,-o,published.so"],
+                ["-Xlinker", "-L", "-Xlinker", "comma, path", "-Xlinker", "-l", "-Xlinker", "selected"],
+                ["-o", "published.so", "-Llib", "-l", "selected", "-lm", "-lc", "-pthread"],
+                ["-arch", "arm64", "-isysroot", "/sdk", "-framework", "Foundation", "-undefined", "dynamic_lookup"])
+            for arguments in cases:
+                with self.subTest(arguments=arguments):
+                    self.assertEqual(self.private_query(shlex.join([str(tool), *arguments]), directory)[0], 1)
+                    observed = json.loads(record.read_text())
+                    self.assertEqual(observed[:len(arguments)], arguments)
+                    self.assertEqual(observed[-1], "-Wl,--version")
+                    self.assertEqual(list(directory.glob(".nano-link-query-*")), [])
+
+    def test_public_query_with_captured_linker_arguments_uses_no_original_response(self):
+        with tempfile.TemporaryDirectory(prefix="nano-query-captured-") as tmp:
+            directory = Path(tmp) / "comma, space"
+            directory.mkdir()
+            compiler = shutil.which("cc")
+            result = subprocess.run([compiler, "-x", "c", "-c", "/dev/null", "-o", "fixture.o"],
+                cwd=directory, capture_output=True, timeout=15)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            response = directory / "link.rsp"
+            response.write_text("-lm\n")
+            grammar = "apple" if sys.platform == "darwin" else "gnu"
+            captured = subprocess.run([str(shadows.ROOT / "obj/test_module_generation_probe"),
+                "capture-link-arguments", grammar, str(response)], cwd=directory, capture_output=True, timeout=10)
+            self.assertEqual(captured.returncode, 0, captured.stderr)
+            response.unlink()
+            command = shlex.join([compiler, "-dynamiclib" if sys.platform == "darwin" else "-shared", "fixture.o"])
+            command += json.loads(captured.stdout)[0]
+            self.assertEqual(self.private_query(command, directory)[0], 2 if sys.platform == "darwin" else 1)
+            self.assertEqual(set(path.name for path in directory.iterdir()), {"fixture.o"})
 
     def test_private_output_cleanup_and_visible_control_rejection(self):
         with tempfile.TemporaryDirectory(prefix="nano-private-query-cleanup-") as tmp:
@@ -144,6 +213,8 @@ class LinkResponseQuery(unittest.TestCase):
             if sys.platform == "darwin": self.assertGreater(output.stat().st_size, 0)
             else: self.assertFalse(output.exists())
             output.unlink(missing_ok=True)
+            self.assertEqual(self.private_query(shlex.join(command), directory)[0], expected)
+            self.assertFalse(output.exists())
             alternate_log = directory / "alternate-called"
             alternate = "ld64.lld" if sys.platform == "darwin" else "ld.gold"
             self.tool(directory, "from pathlib import Path\n"
@@ -153,8 +224,14 @@ class LinkResponseQuery(unittest.TestCase):
             self.assertTrue(alternate_log.exists())
             self.assertFalse(output.exists())
             alternate_log.unlink()
+            self.assertEqual(self.private_query(shlex.join([*command, selector]), directory)[0], 0)
+            self.assertTrue(alternate_log.exists())
+            self.assertFalse(output.exists())
+            alternate_log.unlink()
             response = directory / "driver.rsp"
             response.write_text(selector + "\n")
+            self.assertEqual(self.private_query(shlex.join([*command, "@" + str(response)]), directory)[0], 0)
+            self.assertFalse(alternate_log.exists())
             self.assertEqual(self.query([*command, "@" + str(response)], directory), 0)
             self.assertTrue(alternate_log.exists())
             self.assertFalse(output.exists())

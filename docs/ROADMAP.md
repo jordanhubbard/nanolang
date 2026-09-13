@@ -1226,6 +1226,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       (fifteen skips); Linux passes seventeen graph/acceptance methods and the
       native comparison with leak-enabled sanitizers. I still need to admit
       and install the captured arguments across the actual invocation.
+      I enforce literal option admission at the public linker-query boundary.
+      I reject unresolved responses, indirect controls, auxiliary outputs,
+      plugins and unknown switches before starting a tool; I test direct,
+      `-Wl,` and `-Xlinker` spellings and operand boundaries. The raw
+      primary-output mechanism remains separately testable. Option admission
+      does not establish safety of native input contents or compiler wrappers.
+      Public admission now rejects the tested controls before tool execution
+      and preserves admitted native linker overrides. A real query succeeds
+      using captured C arguments after response removal. Darwin passes all
+      forty-three targeted methods; Linux passes twenty-nine normal graph/query
+      methods and thirteen query methods with leak-enabled sanitizers. The
+      native-input trust boundary and actual invocation installation remain
+      open; I have not enabled reuse through this query API.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

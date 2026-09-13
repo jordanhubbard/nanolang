@@ -478,6 +478,10 @@ int main(int argc, char **argv) {
         printf("%d\n", module_query_link_response_grammar(argv[2], argv[3]));
         return 0;
     }
+    if (argc == 4 && !strcmp(argv[1], "unchecked-private-link-response-grammar")) {
+        printf("%d\n", module_query_link_response_unchecked(argv[2], argv[3]));
+        return 0;
+    }
     if (argc == 5 && !strcmp(argv[1], "private-link-response-allocation")) {
         generation_allocation_limit = strtol(argv[4], NULL, 10);
         ModuleLinkResponseGrammar grammar = module_query_link_response_grammar(argv[2], argv[3]);

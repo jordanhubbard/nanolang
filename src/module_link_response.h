@@ -32,8 +32,12 @@ char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *
 
 /* I query a complete literal command with a disposable primary output beneath
  * parent. I pin driver and linker output, then remove the private directory.
- * The caller must admit auxiliary outputs and indirect option controls first;
- * this is not filesystem isolation for arbitrary flags or response contents.
+ * I admit explicit literal option forms and reject unresolved responses,
+ * indirect controls, plugins, auxiliary outputs and unknown switches before
+ * starting the tool. I accept canonical separate -l/value pairs and a small
+ * set of joined library forms; this is not a general compiler option parser.
+ * The caller still owns native-input admission and trust in the configured
+ * compiler/wrappers. This is not filesystem isolation or a contents check.
  * Zero means unrecognized, invalid, failed, oversized or timed out. This
  * identifies a supported tool contract, not the authenticity of a toolchain. */
 ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command, const char *parent);

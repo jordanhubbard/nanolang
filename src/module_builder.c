@@ -3993,7 +3993,7 @@ static bool module_shared_link_command(ModuleBuildMetadata *meta, const ModulePk
 /* I pin the primary output at both layers without dropping selection flags.
  * The caller still admits auxiliary output options and indirect controls; this
  * is not a filesystem sandbox for arbitrary compiler/linker arguments. */
-ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command, const char *parent) {
+static ModuleLinkResponseGrammar module_query_link_response_unchecked(const char *command, const char *parent) {
     if (!command || !parent || strnlen(command, 65537) > 65536) return 0;
     const char *cursor = command;
     char word[4096];
@@ -4031,6 +4031,91 @@ ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command
     struct stat st;
     if (lstat(directory, &st) == 0 || errno != ENOENT) return 0;
     return grammar;
+}
+
+/* I admit option controls, not arbitrary tool or native-input side effects.
+ * A positive result never substitutes for trusting the configured toolchain.
+ * I use explicit forms instead of broad prefixes such as -l*, which would
+ * accidentally include Apple's -lto_library plugin control. */
+static bool module_link_query_option(const char *word, bool *operand) {
+    if (!word[0] || word[0] == '@' || !strcmp(word, "--")) return false;
+    if (*operand) {
+        *operand = false;
+        return word[0] != '-';
+    }
+    const char *paired[] = {"-L", "-l", "-o", "-rpath", "-soname", "-install_name",
+        "-undefined", "-arch", "-syslibroot", "-e", "-u", "-framework", "-F"};
+    for (size_t i = 0; i < sizeof(paired) / sizeof(paired[0]); i++) {
+        if (!strcmp(word, paired[i])) { *operand = true; return true; }
+    }
+    const char *plain[] = {"-shared", "-dylib", "-static", "-Bstatic", "-Bdynamic", "-Bsymbolic",
+        "-Bsymbolic-functions", "--as-needed", "--no-as-needed", "--whole-archive", "--no-whole-archive",
+        "--start-group", "--end-group", "--allow-shlib-undefined", "--no-undefined", "-dead_strip",
+        "--gc-sections", "-lm", "-lc", "-ldl", "-lpthread"};
+    for (size_t i = 0; i < sizeof(plain) / sizeof(plain[0]); i++)
+        if (!strcmp(word, plain[i])) return true;
+    if ((!strncmp(word, "-L", 2) || !strncmp(word, "-F", 2)) && word[2]) return true;
+    /* A positional native input can itself contain linker controls. I do not
+     * certify its contents here or turn this check into a filesystem sandbox. */
+    return word[0] != '-';
+}
+
+static bool module_link_query_options_admitted(const char *command) {
+    if (!command || strnlen(command, 65537) > 65536) return false;
+    const char *cursor = command;
+    char word[4096], value[4096];
+    if (module_flag_word(&cursor, word, sizeof(word)) != 1 || !word[0]) return false;
+    bool linker_operand = false;
+    size_t count = 1;
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (++count > 2048 || !word[0] || word[0] == '@' || !strcmp(word, "--")) return false;
+        if (!strcmp(word, "-Xlinker")) {
+            if (++count > 2048 || module_flag_word(&cursor, value, sizeof(value)) != 1 ||
+                !module_link_query_option(value, &linker_operand)) return false;
+            continue;
+        }
+        if (!strncmp(word, "-Wl,", 4)) {
+            char *part = word + 4;
+            do {
+                char *comma = strchr(part, ',');
+                if (comma) *comma = 0;
+                if (!module_link_query_option(part, &linker_operand)) return false;
+                part = comma ? comma + 1 : NULL;
+            } while (part);
+            continue;
+        }
+        /* I do not guess driver reordering for a dangling linker operand. */
+        if (linker_operand) return false;
+        const char *paired[] = {"-o", "-B", "-target", "--target", "-arch", "-isysroot", "--sysroot",
+            "-D", "-U", "-I", "-L", "-l", "-F", "-framework", "-undefined"};
+        bool consumes = false;
+        for (size_t i = 0; i < sizeof(paired) / sizeof(paired[0]); i++)
+            if (!strcmp(word, paired[i])) { consumes = true; break; }
+        if (consumes) {
+            if (++count > 2048 || module_flag_word(&cursor, value, sizeof(value)) != 1 ||
+                !value[0] || value[0] == '@' || value[0] == '-') return false;
+            continue;
+        }
+        if (module_snapshot_flag(word) != MODULE_FLAG_UNKNOWN) continue;
+        const char *plain[] = {"-shared", "-dynamiclib", "-pthread", "-m32", "-m64",
+            "-lm", "-lc", "-ldl", "-lpthread"};
+        bool admitted = false;
+        for (size_t i = 0; i < sizeof(plain) / sizeof(plain[0]); i++)
+            if (!strcmp(word, plain[i])) { admitted = true; break; }
+        const char *joined[] = {"-B", "-L", "-F", "-fuse-ld=", "--target=", "--sysroot="};
+        for (size_t i = 0; i < sizeof(joined) / sizeof(joined[0]); i++) {
+            size_t length = strlen(joined[i]);
+            if (!strncmp(word, joined[i], length) && word[length]) { admitted = true; break; }
+        }
+        if (!admitted && word[0] == '-') return false;
+    }
+    return status == 0 && !linker_operand;
+}
+
+ModuleLinkResponseGrammar module_query_link_response_grammar(const char *command, const char *parent) {
+    if (!module_link_query_options_admitted(command)) return 0;
+    return module_query_link_response_unchecked(command, parent);
 }
 
 #ifdef __linux__

@@ -1565,3 +1565,43 @@ ASan/UBSan and leak detection in 146.355 seconds. Its final twenty-two-case
 native comparison also passes with the instrumented probe, including the
 stricter capture-status oracle (2026-09-13). The six restored-selection
 failures remain open; I have not enabled cache admission for this API.
+
+### Public query option admission
+
+I put a literal option check in front of `module_query_link_response_grammar`.
+Unresolved driver/linker responses, indirect controls, plugins, auxiliary
+output switches and unknown options return zero before I create a query
+directory or start the configured tool. I check both `-Wl,` fields and
+`-Xlinker` pairs, retain operand state between forwarded words, and refuse
+dangling operands or ambiguous interleaving with driver arguments.
+
+This is an explicit initial option profile, not a general compiler option
+parser. I admit the existing scalar snapshot flags, selected driver controls,
+canonical separate library/search/output operands and listed linker switches.
+I preserve the original command and selection flags after admission; the
+existing driver/linker primary-output pins still apply. I do not accept an
+arbitrary `-l` prefix as a library: Apple's published parser handles
+`-lto_library` as a libLTO override before its ordinary library handling.
+[Apple ld64 option parser](https://github.com/apple-oss-distributions/ld64/blob/main/src/ld/Options.cpp).
+
+The unclassified primary-output mechanism is now private and is exposed only
+through an explicitly unchecked test-probe mode. Its twenty-four raw-response
+fixtures still measure output pinning, not public admission. The public tests
+check refusal before tool execution, exact admitted argument order, operand
+boundaries and limits, native `-B`/`-fuse-ld` overrides, and queries using C
+captured arguments after the original response file is removed.
+
+I classify option controls, not the contents of positional native inputs.
+Those inputs may carry indirect linker behavior, and configured wrappers have
+their own authority. Their admission/retention remains the caller's boundary;
+this API is not a filesystem sandbox. I must resolve that boundary and install
+one captured set across the real invocation before claiming the six restored-
+selection failures repaired.
+
+The rebuilt Darwin tools pass all forty-three targeted query/graph/transport
+methods in 30.860 seconds. Linux passes twenty-nine normal graph/query methods
+in 8.889 seconds and all thirteen query methods with ASan/UBSan and leak
+detection in 111.323 seconds (2026-09-13). The latter includes allocation
+recovery, deadlines, cleanup, native tool overrides and the new admission
+cases. I did not rerun the preceding full 175-method gate for this option
+check. No ordinary compilation or cache-reuse path invokes this query yet.
