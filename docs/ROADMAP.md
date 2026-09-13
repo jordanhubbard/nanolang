@@ -267,7 +267,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       before publishing bytecode. An in-progress cache marker must not turn
       a duplicate-definition error into successful compilation. I cover
       direct and transitive invalid imports and preserve existing output.
-      Forty compiler cases on both Darwin and Linux cover duplicates, wrong
+      Twenty compiler cases per platform on Darwin and Linux cover duplicates, wrong
       return types, malformed syntax, missing files and cycles through C-seed
       and bytecode drivers. A completed cached load returns an AST; I no longer
       accept a NULL result merely because a loading marker exists.
