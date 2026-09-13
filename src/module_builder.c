@@ -2705,8 +2705,10 @@ static char *module_response_transport(const ModuleBuildMetadata *meta, const Mo
 typedef struct {
     const ModuleBuildMetadata *meta;
     ModuleLinkResponseGrammar grammar;
+    bool arguments;
     size_t count, bytes, alias_count;
-    struct { char *source, *retained; } nodes[64];
+    /* A result is either a retained path or an owned argument fragment. */
+    struct { char *source, *result; } nodes[64];
     struct { char *spelling; size_t node; } aliases[128];
 } ModuleLinkResponseGraph;
 
@@ -2753,9 +2755,11 @@ static const char *module_link_response_node(ModuleLinkResponseGraph *graph, con
     if (strnlen(source, 4096) == 4096) { errno = ENAMETOOLONG; return NULL; }
     for (size_t i = 0; i < graph->alias_count; i++) {
         if (strcmp(source, graph->aliases[i].spelling)) continue;
-        const char *retained = graph->nodes[graph->aliases[i].node].retained;
-        if (!retained) errno = ELOOP;
-        return retained;
+        const char *result = graph->nodes[graph->aliases[i].node].result;
+        if (!result || (graph->arguments && graph->grammar == MODULE_LINK_RESPONSE_APPLE)) {
+            errno = ELOOP; return NULL;
+        }
+        return result;
     }
     if (graph->alias_count == 128) { errno = E2BIG; return NULL; }
     char *resolved = realpath(source, NULL);
@@ -2771,8 +2775,10 @@ static const char *module_link_response_node(ModuleLinkResponseGraph *graph, con
     graph->aliases[graph->alias_count++].node = index;
     if (index < graph->count) {
         free(resolved);
-        if (!graph->nodes[index].retained) errno = ELOOP;
-        return graph->nodes[index].retained;
+        if (!graph->nodes[index].result || (graph->arguments && graph->grammar == MODULE_LINK_RESPONSE_APPLE)) {
+            errno = ELOOP; return NULL;
+        }
+        return graph->nodes[index].result;
     }
     graph->count++;
     graph->nodes[index].source = resolved;
@@ -2803,7 +2809,7 @@ static const char *module_link_response_node(ModuleLinkResponseGraph *graph, con
     data[used] = 0;
     graph->bytes += used;
     char *rewritten = NULL;
-    if (strchr(data, '@')) {
+    if (graph->arguments || strchr(data, '@')) {
         rewritten = calloc(65537, 1);
         if (!rewritten) { free(data); return NULL; }
         const char *cursor = data, *previous = data, *begin, *end;
@@ -2812,6 +2818,18 @@ static const char *module_link_response_node(ModuleLinkResponseGraph *graph, con
         int status = 0;
         while (ok && (status = module_link_response_word(&cursor, &begin, &end, word,
                                                         sizeof(word), graph->grammar)) > 0) {
+            if (graph->arguments) {
+                if (word[0] == '@') {
+                    const char *nested = module_link_response_node(graph, word + 1, depth + 1);
+                    ok = nested && module_link_response_copy(rewritten, &output_size, nested, strlen(nested));
+                } else {
+                    char *quoted = module_quote_path(word);
+                    ok = quoted && module_link_response_copy(rewritten, &output_size, " -Xlinker ", 10) &&
+                        module_link_response_copy(rewritten, &output_size, quoted, strlen(quoted));
+                    free(quoted);
+                }
+                continue;
+            }
             if (word[0] != '@') continue;
             const char *nested = module_link_response_node(graph, word + 1, depth + 1);
             ok = nested && module_link_response_copy(rewritten, &output_size, previous, (size_t)(begin - previous)) &&
@@ -2824,22 +2842,26 @@ static const char *module_link_response_node(ModuleLinkResponseGraph *graph, con
             previous = end;
         }
         if (status < 0) ok = false;
-        if (ok) ok = module_link_response_copy(rewritten, &output_size, previous, strlen(previous));
+        if (ok && !graph->arguments)
+            ok = module_link_response_copy(rewritten, &output_size, previous, strlen(previous));
         used = output_size;
     }
-    if (ok) graph->nodes[index].retained = module_retain_response_bytes(graph->meta,
+    if (ok && graph->arguments) {
+        graph->nodes[index].result = rewritten;
+        rewritten = NULL;
+    } else if (ok) graph->nodes[index].result = module_retain_response_bytes(graph->meta,
         rewritten ? rewritten : data, used, resolved);
     free(rewritten);
     free(data);
-    return graph->nodes[index].retained;
+    return graph->nodes[index].result;
 }
 
 /* I expose this internal capture mechanism to the production probe first.
  * Invocation ownership and selected-linker admission are separate integration
  * gates: this helper alone must not authorize cache reuse. */
-char **module_capture_link_responses(const ModuleBuildMetadata *meta, const char *const *sources,
-                                     size_t count, ModuleLinkResponseGrammar grammar) {
-    if (!meta || !meta->module_dir || !sources || !count || count > 64 ||
+static char **module_capture_link_graph(const ModuleBuildMetadata *meta, const char *const *sources,
+                                        size_t count, ModuleLinkResponseGrammar grammar, bool arguments) {
+    if ((!arguments && (!meta || !meta->module_dir)) || !sources || !count || count > 64 ||
         (grammar != MODULE_LINK_RESPONSE_GNU && grammar != MODULE_LINK_RESPONSE_APPLE)) {
         errno = EINVAL; return NULL;
     }
@@ -2847,23 +2869,41 @@ char **module_capture_link_responses(const ModuleBuildMetadata *meta, const char
         if (!sources[i] || !sources[i][0]) { errno = EINVAL; return NULL; }
     char **result = calloc(count, sizeof(char *));
     if (!result) return NULL;
-    ModuleLinkResponseGraph graph = {.meta = meta, .grammar = grammar};
+    ModuleLinkResponseGraph graph = {.meta = meta, .grammar = grammar, .arguments = arguments};
     bool ok = true;
+    size_t expanded = 0;
     for (size_t i = 0; i < count && ok; i++) {
         const char *root = module_link_response_node(&graph, sources[i], 0);
+        if (root && arguments) {
+            size_t length = strlen(root);
+            if (length > 65536 - expanded) { errno = E2BIG; ok = false; break; }
+            expanded += length;
+        }
         ok = root && (result[i] = strdup(root));
     }
+    int failure = errno;
     for (size_t i = 0; i < graph.count; i++) {
         free(graph.nodes[i].source);
-        free(graph.nodes[i].retained);
+        free(graph.nodes[i].result);
     }
     for (size_t i = 0; i < graph.alias_count; i++) free(graph.aliases[i].spelling);
     if (!ok) {
         for (size_t i = 0; i < count; i++) free(result[i]);
         free(result);
+        errno = failure;
         return NULL;
     }
     return result;
+}
+
+char **module_capture_link_responses(const ModuleBuildMetadata *meta, const char *const *sources,
+                                     size_t count, ModuleLinkResponseGrammar grammar) {
+    return module_capture_link_graph(meta, sources, count, grammar, false);
+}
+
+char **module_capture_link_arguments(const char *const *sources, size_t count,
+                                     ModuleLinkResponseGrammar grammar) {
+    return module_capture_link_graph(NULL, sources, count, grammar, true);
 }
 
 char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *source,

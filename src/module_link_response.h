@@ -15,6 +15,16 @@ typedef enum { MODULE_LINK_RESPONSE_GNU = 1, MODULE_LINK_RESPONSE_APPLE = 2 } Mo
 char **module_capture_link_responses(const ModuleBuildMetadata *meta, const char *const *sources,
                                      size_t count, ModuleLinkResponseGrammar grammar);
 
+/* I return count owned literal shell fragments of ordered -Xlinker/value
+ * pairs, or NULL with no partial result. I expand directly from captured
+ * bytes, without publishing or reopening response sidecars. Input bounds
+ * match graph capture; quoted output totals at most 64 KiB across all roots.
+ * GNU repeats expand in order; Apple repeated resolved identities fail with
+ * ELOOP, as do cycles. The caller frees each fragment and the array. This
+ * representation does not admit arbitrary linker options or authorize reuse. */
+char **module_capture_link_arguments(const char *const *sources, size_t count,
+                                     ModuleLinkResponseGrammar grammar);
+
 /* I return an owned path to a retained response graph, or NULL on failure.
  * The caller frees the path string; retained files live with the module cache. */
 char *module_capture_link_response(const ModuleBuildMetadata *meta, const char *source,

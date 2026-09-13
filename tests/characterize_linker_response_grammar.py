@@ -5,10 +5,13 @@ Run python3 -m tests.characterize_linker_response_grammar [compiler].
 --require-retained-equivalent checks the byte-preserving fixture prototype.
 --require-captured-equivalent checks my C graph-capture mechanism.
 --require-materialized-equivalent checks explicit linker-argument transport.
+--require-argument-equivalent checks my C argument transaction and explicit
+repeated/cyclic-identity rejection against native outcomes.
 This is an experiment, not production forwarded-response capture.
 """
 
 import argparse
+import errno
 import json
 from pathlib import Path
 import shlex
@@ -151,6 +154,10 @@ def measure(compiler):
             graph = run([probe, "capture-link-response", grammar, graph_directory, response])
             if graph.returncode: raise RuntimeError("I could not capture the fixture response graph")
             graph_path = Path(graph.stdout.decode().strip())
+            argument_capture = run([probe, "capture-link-arguments", grammar, response])
+            argument_fragments = json.loads(argument_capture.stdout) if argument_capture.returncode == 0 else None
+            argument_rejection = (argument_capture.returncode == 1 and
+                argument_capture.stderr.endswith(f"errno={errno.ELOOP}\n".encode()))
             retained_contents = contents
             collapsed_contents = contents
             for spelling, path in retained_nested.items():
@@ -181,18 +188,26 @@ def measure(compiler):
                 return json.loads(decoded.stdout)
             materialized_args, decline = materialize([graph_path], grammar, decode)
             materialized = link(name + "-materialized", materialized_args) if materialized_args is not None else None
+            captured_arguments = link(name + "-arguments", [word for fragment in argument_fragments
+                for word in shlex.split(fragment)]) if argument_fragments is not None else None
             retained_response.write_text(collapsed_contents)
             collapsed = link(name + "-collapsed", indirect(retained_response))
             case = {"case": name, "driver_decoder_admitted": admitted, "decoded_words": words,
                     "native": native, "candidate": candidate, "retained": retained,
                     "collapsed": collapsed, "captured": captured_graph,
                     "materialized": materialized, "materialization_decline": decline,
-                    "materialized_arguments": materialized_args}
+                    "materialized_arguments": materialized_args,
+                    "captured_arguments": captured_arguments,
+                    "argument_identity_rejection": argument_rejection,
+                    "argument_capture_status": argument_capture.returncode,
+                    "argument_capture_errno": errno.ELOOP if argument_rejection else None,
+                    "argument_capture_error": argument_capture.stderr.decode()}
             case["equivalent"] = equivalent(case)
             case["retained_equivalent"] = outcomes_agree(native, retained)
             case["collapsed_equivalent"] = outcomes_agree(native, collapsed)
             case["captured_equivalent"] = outcomes_agree(native, captured_graph)
             case["materialized_equivalent"] = materialized is not None and outcomes_agree(native, materialized)
+            case["argument_equivalent"] = argument_equivalent(case)
             cases.append(case)
     return {"platform": sys.platform, "compiler": compiler, "cases": cases}
 
@@ -218,6 +233,18 @@ def require_retained_equivalent(result, field="retained"):
         raise SystemExit("I cannot substitute these retained linker responses.")
 
 
+def argument_equivalent(case):
+    if case["captured_arguments"] is not None:
+        return case["argument_capture_status"] == 0 and outcomes_agree(case["native"], case["captured_arguments"])
+    return (case["argument_capture_status"] == 1 and case["argument_capture_errno"] == errno.ELOOP
+            and case["native"]["status"] != 0)
+
+
+def require_argument_equivalent(result):
+    if not result["cases"] or any(not argument_equivalent(case) for case in result["cases"]):
+        raise SystemExit("I cannot substitute these captured linker arguments.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("compiler", nargs="?", default="cc")
@@ -225,6 +252,7 @@ if __name__ == "__main__":
     parser.add_argument("--require-retained-equivalent", action="store_true")
     parser.add_argument("--require-captured-equivalent", action="store_true")
     parser.add_argument("--require-materialized-equivalent", action="store_true")
+    parser.add_argument("--require-argument-equivalent", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler: raise SystemExit("I need a C compiler executable")
@@ -234,3 +262,4 @@ if __name__ == "__main__":
     if args.require_retained_equivalent: require_retained_equivalent(result)
     if args.require_captured_equivalent: require_retained_equivalent(result, "captured")
     if args.require_materialized_equivalent: require_retained_equivalent(result, "materialized")
+    if args.require_argument_equivalent: require_argument_equivalent(result)

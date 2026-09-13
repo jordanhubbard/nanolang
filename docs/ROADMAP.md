@@ -1212,6 +1212,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       full Apple materialization gate remains red. Comma/space cache paths
       and quoted CRLF filenames are covered. Production transport is not yet
       installed, and the six restored-selection failures remain open.
+      I implement C argument capture within the existing graph transaction:
+      ordered owned fragments, no response-file reread, shared input limits,
+      bounded aggregate expansion, and explicit Apple repeated-identity
+      rejection. I test native links after input removal, exact quoting,
+      comma/space paths, root order, allocation rollback and retry before
+      installing this representation in the invocation.
+      The C argument transaction now passes all twenty-two native outcome
+      checks on both hosts: Apple rejects three repeated identities explicitly,
+      while the other cases execute matching links after input removal. Exact
+      output bounds, eighty allocation budgets and six read-boundary mutation
+      cases pass. My Darwin bytecode/shadow/cache target passes 175 methods
+      (fifteen skips); Linux passes seventeen graph/acceptance methods and the
+      native comparison with leak-enabled sanitizers. I still need to admit
+      and install the captured arguments across the actual invocation.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes

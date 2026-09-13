@@ -1,6 +1,7 @@
 """I reject incomplete or inconsistent linker transport measurements."""
 
 import unittest
+import errno
 import json
 import os
 from pathlib import Path
@@ -12,10 +13,27 @@ import tempfile
 
 from tests.characterize_link_argument_transport import measure, require_consistent
 from tests import test_bytecode_shadows as shadows
-from tests.characterize_linker_response_grammar import materialize, require_equivalent, require_retained_equivalent
+from tests.characterize_linker_response_grammar import (
+    materialize, require_argument_equivalent, require_equivalent, require_retained_equivalent,
+)
 
 
 class LinkArgumentAcceptance(unittest.TestCase):
+    def test_argument_gate_distinguishes_identity_rejection_from_capture_failure(self):
+        success, failure = {"status": 0, "answer": 42}, {"status": 1, "answer": None}
+        require_argument_equivalent({"cases": [
+            {"native": success, "captured_arguments": success, "argument_capture_status": 0, "argument_capture_errno": None},
+            {"native": failure, "captured_arguments": None, "argument_capture_status": 1, "argument_capture_errno": errno.ELOOP},
+        ]})
+        for native, candidate, status, error in ((success, None, 1, errno.ELOOP), (failure, None, 1, errno.ENOMEM),
+                (success, failure, 0, None), (failure, success, 0, None), (success, success, 1, errno.ELOOP),
+                (success, {"status": 0, "answer": 43}, 0, None), (failure, None, -9, errno.ELOOP)):
+            with self.subTest(native=native, candidate=candidate, status=status, error=error), self.assertRaises(SystemExit):
+                require_argument_equivalent({"cases": [{"native": native, "captured_arguments": candidate,
+                    "argument_capture_status": status, "argument_capture_errno": error,
+                    "argument_identity_rejection": True, "argument_equivalent": True}]})
+        with self.assertRaises(SystemExit): require_argument_equivalent({"cases": []})
+
     def test_materialized_gate_does_not_turn_decline_into_linker_rejection(self):
         for native in ({"status": 0, "answer": 42}, {"status": 1, "answer": None}):
             with self.subTest(native=native), self.assertRaises(SystemExit):

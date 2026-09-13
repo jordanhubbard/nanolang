@@ -1521,3 +1521,47 @@ Linux comparison also passes with the sanitizer-instrumented probe, followed
 by the CRLF prototype regression. These are targeted gates, not a new full
 release gate (2026-09-13). The six forwarded restored-selection failures
 remain open; this parser correction does not install invocation-wide capture.
+
+### Owned C linker-argument transactions
+
+I add `module_capture_link_arguments` as a second output form of my existing
+graph transaction. I parse the bytes already read for each node and return
+one owned literal shell fragment per root, containing ordered `-Xlinker`
+and value pairs. I do not publish a response sidecar or reopen one to decode
+it. The retained-path API keeps its existing behavior and shares the same
+source-identity map, frozen spellings, bounded reads and cleanup.
+
+I preserve the sixty-four-root/node, 128-spelling, sixteen-depth and 64 KiB
+unique-input limits. I also cap quoted output at 64 KiB across all roots,
+including repeated expansions. GNU repeats reuse the first captured value
+in order. Apple repeats of a resolved identity fail with `ELOOP`, even if
+the original spelling has since been removed or retargeted. Distinct paths
+to hardlinked files remain distinct. Any failure frees the whole returned
+set; an empty response returns an owned empty fragment, not failure.
+
+The tests cover exact empty/quoted/control-whitespace words, CRLF filenames,
+shell punctuation, no sidecar creation, aggregate expansion and input limits,
+nonregular inputs, eighty allocation budgets across both profiles and
+same-process retry. Six read-boundary mutation cases rewrite, remove or
+retarget a shared input after its first read. Native multi-root links preserve
+the 42/43 search-order distinction and remain independent of removed source
+responses.
+
+The native grammar comparison now checks the C transaction separately from
+the Python transport prototype. Its gate distinguishes capture failure,
+explicit identity rejection and executed linker results; allocation failure
+or process death cannot stand in for native rejection. All twenty-two GNU
+cases execute with matching results. Apple has nineteen matching executions
+and three explicit identity rejections agreeing with native failure. These
+are API-level rejection checks, not a claim that ordinary compilation already
+uses the new argument form. Invocation-wide installation, indirect-control
+admission and cache eligibility remain open.
+
+My rebuilt Darwin tools pass forty targeted methods and the complete
+`make test-bytecode-shadows` target: 175 methods, fifteen platform/configuration
+skips, and 278.132 seconds of reported test time. Linux passes twenty-six
+ordinary graph/query methods, then seventeen graph/acceptance methods with
+ASan/UBSan and leak detection in 146.355 seconds. Its final twenty-two-case
+native comparison also passes with the instrumented probe, including the
+stricter capture-status oracle (2026-09-13). The six restored-selection
+failures remain open; I have not enabled cache admission for this API.

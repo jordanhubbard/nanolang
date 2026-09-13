@@ -28,17 +28,10 @@ static void generation_test_event(const char *event) {
     if (crash && !strcmp(crash, event)) (void)kill(getpid(), SIGKILL);
 }
 
-static int generation_test_fsync(int fd) {
-    static unsigned cache_calls = 0;
-    static bool interrupted = false;
-    struct stat st, cache;
-    const char *root = getenv("NANO_TEST_SYNC_CACHE");
-    const char *failure = getenv("NANO_TEST_SYNC_FAILURE");
-    const char *event = "file";
-    if (fstat(fd, &st) != 0) return -1;
+static int generation_mutate_response(void) {
     static bool response_mutated = false;
     const char *response = getenv("NANO_TEST_RESPONSE_MUTATE");
-    if (response && !response_mutated && S_ISREG(st.st_mode)) {
+    if (response && !response_mutated) {
         response_mutated = true;
         const char *action = getenv("NANO_TEST_RESPONSE_ACTION");
         if (action && !strcmp(action, "remove")) {
@@ -54,6 +47,32 @@ static int generation_test_fsync(int fd) {
             if (!ok) return -1;
         }
     }
+    return 0;
+}
+
+/* I mutate only the named fixture, after its bytes have reached the reader.
+ * No production read path contains this test hook. */
+static ssize_t generation_test_read(int fd, void *buffer, size_t capacity) {
+    ssize_t amount = read(fd, buffer, capacity);
+    const char *response = getenv("NANO_TEST_RESPONSE_MUTATE");
+    if (amount > 0 && response && getenv("NANO_TEST_RESPONSE_ON_READ")) {
+        struct stat source, observed;
+        if (!stat(response, &source) && !fstat(fd, &observed) &&
+            source.st_dev == observed.st_dev && source.st_ino == observed.st_ino &&
+            generation_mutate_response()) return -1;
+    }
+    return amount;
+}
+
+static int generation_test_fsync(int fd) {
+    static unsigned cache_calls = 0;
+    static bool interrupted = false;
+    struct stat st, cache;
+    const char *root = getenv("NANO_TEST_SYNC_CACHE");
+    const char *failure = getenv("NANO_TEST_SYNC_FAILURE");
+    const char *event = "file";
+    if (fstat(fd, &st) != 0) return -1;
+    if (S_ISREG(st.st_mode) && !getenv("NANO_TEST_RESPONSE_ON_READ") && generation_mutate_response()) return -1;
     if (S_ISDIR(st.st_mode)) {
         if (root && stat(root, &cache) == 0 && cache.st_ino == st.st_ino && cache.st_dev == st.st_dev)
             event = ++cache_calls == 1 ? "cache-1" : "cache-2";
@@ -158,6 +177,7 @@ static int generation_test_unlinkat(int fd, const char *name, int flags) {
 #define unlinkat generation_test_unlinkat
 #define rename generation_test_rename
 #define fsync generation_test_fsync
+#define read generation_test_read
 static long generation_allocation_limit = -1;
 static bool generation_allocation_fails(void) {
     if (generation_allocation_limit < 0) return false;
@@ -183,12 +203,55 @@ static char *generation_test_strdup(const char *value) {
 #undef strdup
 #undef rename
 #undef fsync
+#undef read
 #undef unlinkat
 #ifdef __APPLE__
 #undef fcntl
 #endif
 
 int main(int argc, char **argv) {
+    if ((argc >= 4 && !strcmp(argv[1], "capture-link-arguments")) ||
+        (argc >= 5 && !strcmp(argv[1], "capture-link-arguments-allocation"))) {
+        bool allocation = !strcmp(argv[1], "capture-link-arguments-allocation");
+        size_t first = allocation ? 4 : 3, count = (size_t)argc - first;
+        ModuleLinkResponseGrammar grammar = !strcmp(argv[2], "gnu") ? MODULE_LINK_RESPONSE_GNU :
+            !strcmp(argv[2], "apple") ? MODULE_LINK_RESPONSE_APPLE : 0;
+        const char *const *sources = (const char *const *)(argv + first);
+        if (allocation) generation_allocation_limit = strtol(argv[3], NULL, 10);
+        char **arguments = module_capture_link_arguments(sources, count, grammar);
+        int failure = errno;
+        generation_allocation_limit = -1;
+        if (allocation) puts(arguments ? "captured" : "failed");
+        else if (!arguments) {
+            fprintf(stderr, "I could not capture linker arguments: errno=%d\n", failure);
+            return 1;
+        }
+        cJSON *array = allocation ? NULL : cJSON_CreateArray();
+        bool ok = allocation || array;
+        for (size_t i = 0; arguments && i < count; i++) {
+            if (!allocation && ok) {
+                cJSON *value = cJSON_CreateString(arguments[i]);
+                ok = value && cJSON_AddItemToArray(array, value);
+                if (!ok) cJSON_Delete(value);
+            }
+            free(arguments[i]);
+        }
+        free(arguments);
+        char *json = ok && !allocation ? cJSON_PrintUnformatted(array) : NULL;
+        if (!allocation) {
+            ok = json != NULL;
+            if (json) puts(json);
+        }
+        free(json);
+        cJSON_Delete(array);
+        if (allocation) {
+            arguments = module_capture_link_arguments(sources, count, grammar);
+            if (!arguments) return 1;
+            for (size_t i = 0; i < count; i++) free(arguments[i]);
+            free(arguments);
+        }
+        return ok ? 0 : 1;
+    }
     if (argc == 4 && !strcmp(argv[1], "link-response-words")) {
         ModuleLinkResponseGrammar grammar = !strcmp(argv[2], "gnu") ? MODULE_LINK_RESPONSE_GNU :
             !strcmp(argv[2], "apple") ? MODULE_LINK_RESPONSE_APPLE : 0;
