@@ -87,3 +87,48 @@ not instrumented. A separate isolated, network-disabled Linux GCC 12 `-O3
 -Werror` probe passes all four Linux linker tests and explicitly skips the
 Clang-only snapshot suite. That verifies the tested Linux fallback behavior,
 not a Linux snapshot repair.
+
+## GCC ordinary inputs and implicit PCH
+
+I extended ordinary retained translation units to GCC after reproducing an
+implicit-PCH cache defect against `397d7d17` on Linux arm64, GCC 12.2.0
+(`Debian 12.2.0-14+deb12u1`). With `answer.h` defining 43, I built a reusable
+generation returning 43. I then created a usable `answer.h.gch` defining 42
+and restored the header's bytes and modification time. Fresh compilation
+returned 42, but the old builder retained its 43 generation.
+
+Plain `-E` returned text containing 43. With `-fpch-preprocess`, GCC instead
+emitted `#pragma GCC pch_preprocess` naming the selected PCH. I now use that
+option for GCC capture and warm validation. A PCH marker makes capture
+ineligible: I compile the original source and withhold reuse evidence. I do
+not compile a purported snapshot that still loads live PCH bytes. Without
+the marker, I compile and validate the retained translation unit just as for
+ordinary Clang C. My v16 build context invalidates older records.
+
+All six snapshot methods pass on GCC, including the four restored source/header
+cases, multiple/shared-only sources, original-source diagnostics, failed
+replacement recovery, capture-time edits, PCH appearance/removal and every
+internal marker split across the 4096-byte read boundary. The PCH split test
+checks the actual compiler argument path, not only the absence of a cache
+record: compilation must use the original source. Removing the PCH restores
+ordinary capture and unchanged generation reuse.
+
+All six also pass with GCC `-O1` ASan/UBSan and recovery disabled. The production
+builder and linked cJSON, UTF-8, module-build-directory and FFI-loader support
+sources are instrumented; fixture and system libraries are not. Testing runs
+inside a disposable, network-disconnected container based on the same image
+recorded in [my Linux linker evidence](LINKER_INPUT_EVIDENCE.md).
+
+Retained PCH contents, custom compiler flags, pkg-config compiler flags,
+assembler inputs and transitive tool snapshots remain unfinished. Identifying
+Clang or GCC from version output does not authenticate a compiler or wrapper.
+
+The full Linux compiler/VM gates also pass: 28 shadows, 45 cache methods
+(8 platform-specific skips), four Linux linker methods, six snapshot methods,
+five wrapper link tests, seven wrapper boundaries, 63 codegen tests, 19 FFI
+tests and dependency gates. A clean run exposed a missing C-seed prerequisite
+in `test-bytecode-shadows`; after adding it, I confirmed that the seed was
+absent and that this target built it before passing. Darwin's corresponding
+gates pass too, with four ordinary snapshot methods and two GCC-specific
+skips. These results do not establish complete source snapshots or release
+readiness.

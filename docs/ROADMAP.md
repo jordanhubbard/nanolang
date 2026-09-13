@@ -369,6 +369,34 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       skips the Clang snapshot suite (2026-09-12). I retain existing behavior
       for other compiler modes; this is not full snapshot or release acceptance.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 shadow gate C-seed prerequisite.** My shadow gate invokes
+      `bin/nanoc_c` for array type-contract checks but does not build it.
+      A clean Linux run fails five subcases with `FileNotFoundError`. I add
+      the actual compiler prerequisite and verify the gate builds it from
+      an environment where it is absent, without requiring an earlier gate.
+      The Linux rerun confirms absence, builds the seed through this target,
+      and passes all 28 shadow methods plus the remaining integration gates
+      (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 ordinary GCC C retained translation units.** I verify GCC's
+      implicit PCH selection before extending retained compilation. I use
+      preprocessing that exposes PCH use, retain ordinary translation units,
+      and withhold snapshot reuse when preprocessing references external PCH
+      bytes. I test cold/warm restored edits, PCH appearance/removal, original
+      results, diagnostics, failures and recovery on Linux.
+      The baseline fails on GCC 12: a newly usable `.gch` leaves the old
+      generation cached while fresh compilation returns the PCH's result.
+      Plain `-E` misses that selection; `-fpch-preprocess` exposes it.
+      All six snapshot methods pass on GCC 12 normally and with ASan/UBSan
+      on the production builder and linked support sources. Linux passes
+      28 shadows, 45 cache methods (8 platform-specific skips), four Linux
+      linker methods, six snapshot methods, five wrapper link tests, seven
+      wrapper boundaries, 63 codegen tests, 19 FFI tests and dependency gates.
+      Darwin passes its full corresponding gates, with the four ordinary
+      snapshot methods and two GCC-specific skips (2026-09-12). Retained PCH
+      contents and configured modes remain open; the full snapshot item is
+      not complete.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
       and timestamps before final validation. I compare actual cold, warm and
@@ -379,7 +407,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       failed against `34fab3e9` on Apple clang 21: all four cases publish/reuse 43 despite restored
       input bytes and timestamps; fresh compilation returns 42. Warm builds
       perform no additional C compilation. The ordinary-Clang repair above
-      now passes those cases; configured modes and other compilers still need
+      now passes those cases, as does ordinary GCC; configured modes still need
       snapshot acceptance (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 C-library cache transactions.** Content invalidation and private

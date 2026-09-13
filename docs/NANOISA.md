@@ -499,16 +499,24 @@ roadmap work. My [compiler-input experiment](COMPILER_INPUT_EVIDENCE.md)
 records the original failure and explains why enabling saved preprocessed
 inputs unconditionally is not a semantics-preserving repair.
 
-For ordinary Clang `.c` builds without custom compiler flags or pkg-config
+For cache-eligible ordinary Clang and GCC `.c` builds without custom compiler flags or pkg-config
 entries, I now retain preprocessed translation units in private staging and
 compile those `.i` files. I hash the bytes while writing them and require fresh
 preprocessing to match before recording reuse evidence. The retained files
 cover ordinary, multiple and shared-only C sources. Preprocessing emits the
 original dependency records; line markers preserve original diagnostic paths.
 Failed or empty capture falls back to original compilation without a reuse
-record. A failed retained-input compilation fails the build. My v15 context
-invalidates records made before this change. I identify this compiler mode
-through a successful Clang version query; that query is not authentication.
+record. A failed retained-input compilation fails the build. My v16 context
+invalidates older records. I identify the supported compiler family through
+a successful version query; that query is not authentication.
+
+For GCC I add `-fpch-preprocess` to capture and warm validation. A
+`#pragma GCC pch_preprocess` marker means the output still references external
+PCH bytes. I then use original compilation without a reuse record, rather
+than treating that output as a self-contained snapshot. This also invalidates
+an earlier ordinary cache hit when a usable PCH appears. The marker check
+crosses input-buffer boundaries; even a literal mention conservatively
+withholds reuse. I have not implemented retained PCH files.
 
 Other compilers and configured modes keep their original path. I fingerprint
 fresh preprocessing and its include trace before
@@ -522,7 +530,7 @@ one preprocessing invocation per source; a cacheable cold build uses two. The
 configured compiler remains trusted. Matching observations are not an atomic
 snapshot and do not establish complete PCH, module or toolchain identity.
 My [source snapshot experiment](SOURCE_SNAPSHOT_EVIDENCE.md) distinguishes the
-repaired ordinary-Clang edit-and-restore cases from the remaining modes. Even
+repaired ordinary-C edit-and-restore cases from the remaining modes. Even
 retained translation units do not snapshot assembler inputs, linker inputs,
 the compiler itself, or the entire source tree at one instant.
 
