@@ -2071,6 +2071,10 @@ test-cseed-import-shadows: $(COMPILER_C)
 	@python3 -m unittest tests.test_cseed_import_shadows
 
 .PHONY: test-bytecode-shadows
+.PHONY: test-assembler-snapshot-trial
+test-assembler-snapshot-trial:
+	@python3 -m unittest tests.test_assembler_snapshot_trial
+
 MODULE_GENERATION_PROBE_OBJECTS = $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o $(OBJ_DIR)/runtime/ffi_loader.o
 
 $(OBJ_DIR)/test_module_generation_probe: tests/test_module_generation_probe.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/module_builder.h $(RUNTIME_DIR)/module_build_dir.h $(HEADERS) $(MODULE_GENERATION_PROBE_OBJECTS)

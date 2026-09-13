@@ -489,3 +489,53 @@ suite passes again normally on both hosts and with GCC ASan/UBSan (leak detectio
 off); the final copier-boundary method passes separately with leak detection
 on. Dependency-rebuild and FFI gates pass on both platforms. A file that grows
 beyond its observed size during a copy now triggers fallback (2026-09-13).
+
+## GNU assembler read-boundary trial
+
+The literal copier cannot expand a macro-argument filename. I tested a different
+boundary against GNU as 2.40 on Linux arm64: interpose its observed `fopen` and
+`fopen64` input reads, copy each regular input, and return a stream for the copy.
+Replay resolves reads only against that capture, never against live originals.
+The isolated helper lives in `tests/fixtures/assembler_snapshot_preload.c`.
+It is not linked into or selected by my production compiler.
+
+```sh
+make test-assembler-snapshot-trial
+NANO_AS_TRIAL_UBSAN=1 make test-assembler-snapshot-trial
+```
+
+Four subcases pass with macro-argument binary names containing ordinary text,
+spaces/apostrophes/dollar/hash, a backslash, or a newline. The assembler decodes
+the operands; I do not parse them. Native-endian, length-delimited records
+preserve the names it actually opened. Captured assembly, a relative include,
+and binary payload produce byte-identical replay objects after the originals
+are replaced, and again after they are deleted. The linked replay returns 42.
+An existing but unrecorded input fails replay.
+
+A pipe barrier pauses capture after the first read of a binary. I replace its
+42 with 43 before its second read. Two distinct copies are retained under the
+same pathname. Ordered replay matches the original object and exposes 4243
+after deletion of the originals. A pathname-to-single-copy map would lose this
+information. Removing one retained copy fails replay even when a live original
+is present. Both methods pass normally and with UBSan on the helper; GNU as
+itself is not instrumented. Darwin reports two platform skips. The unchanged
+production snapshot suite passes on both hosts (19 methods, six Darwin/two
+GCC skips).
+
+[GNU as dependency reporting](https://sourceware.org/binutils/docs/as/MD.html)
+provides dependency names, not a byte-retention mechanism. The read-boundary
+trial demonstrates a route beyond source parsing, but it adds a shared helper,
+dynamic-loader configuration, copy storage and an assembly capture/replay pass.
+The fixture first emits assembly with the C compiler, captures with the
+assembler, then replays; it does not establish end-to-end driver integration
+or a performance improvement.
+
+I will investigate this boundary for production rather than add macro expansion
+to the literal copier. Before integration I need executable/tool selection,
+helper build identity, child-only loader settings, complete read-hook coverage
+for supported assemblers, failed-read semantics and robust transactional
+records. The trial assumes a single-threaded assembler and a trusted private
+directory; it supports only the tested stdio modes, 256 opens and 32 MiB per
+input. It does not cover static assemblers, arbitrary direct syscalls, host
+sandboxing, concurrent writers to the capture, or other compiler/assembler
+variants. General assembler snapshot acceptance remains open (2026-09-13).

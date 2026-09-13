@@ -875,6 +875,30 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       macro-argument fallback still yields cold 43 without reuse, then 42.
       Dependency-rebuild and FFI gates pass on both hosts (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 assembler read-boundary trial.** I test capture/replay at GNU
+      assembler file opens, after macro expansion, without parsing its source
+      language. I retain exact input bytes and file-name boundaries, replay
+      with originals replaced or absent, and reject unrecorded reads. I record
+      the supported executable/host boundary and integration costs before
+      selecting a production mechanism. This trial alone is not integration.
+      GNU as 2.40 on Linux arm64 passes four macro/path subcases and a
+      deterministic repeated-path edit, normally and with UBSan on the capture
+      helper. Replay matches object bytes and executes retained 42/4243 after
+      originals are deleted; absent copies and unrecorded inputs fail. Names
+      containing spaces, quotes, dollar/hash, backslash and newline survive
+      length-delimited records. Production snapshots remain unchanged; their
+      19-method suite passes on both hosts. Darwin skips the Linux-only trial
+      (2026-09-13). MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [ ] **5.0 GNU assembler capture/replay integration.** I bind a supported
+      assembler executable to an isolated read-capture helper, preserving
+      ordered repeated reads and exact path bytes. I package and identify the
+      helper, scope loader settings to the assembler child, handle failed reads
+      and truncated/partial records, and bind object generation and reuse to
+      the completed capture. I test macro/conditional inputs, restoration during
+      final assembly, missing inputs, driver/tool selection, cleanup and failure
+      recovery. I do not promote the single-threaded trial's trusted records
+      or its two stdio hooks into a general file-access guarantee.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent
