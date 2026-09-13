@@ -481,8 +481,7 @@ shadow gen_indent {
  * Use: (cg_append parts "text")              // O(n) - just appends to array
  */
 fn cg_append(parts: array<string>, text: string) -> array<string> {
-    (array_push parts text)
-    return parts
+    return (array_push parts text)
 }
 
 fn cg_build(parts: array<string>) -> string {
