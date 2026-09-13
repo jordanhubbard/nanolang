@@ -787,3 +787,62 @@ All 26 snapshot regression methods pass on GCC 12 Linux arm64 and Apple Clang
 21 Darwin arm64, with two and eleven expected skips respectively. The default
 source/header consistency gate remains green; the response-file gate above is
 intentionally red until argument retention is implemented.
+
+## Literal response-file argument retention
+
+I now capture bounded literal Clang/GCC response arguments before entering the
+build. An invocation-local metadata copy owns expanded common and active-platform
+flag strings; package compiler flags use the same expansion during their existing
+capture. The original metadata remains caller-owned and unchanged. The public
+rebuild query captures fresh arguments too. I include selected metadata argument
+strings in build-context version 21; package arguments remain part of the
+preprocessing fingerprint. Compilation and linking use the captured strings.
+
+My response tokenizer is separate from my literal-shell-word parser. Quotes
+group response bytes; backslashes quote the following byte, including within
+quotes. Dollar signs and shell operators remain literal arguments. I quote each
+expanded argument before passing it to my shell command runner. Differential
+tests compare that actual shell transport with direct compiler `@file` handling
+for spaces, dollar signs, backslashes, macro strings and separated flags.
+Nested response names use the invocation's working directory, not the parent
+response file's directory; competing files in both places verify the choice.
+
+The restored-edit reproducer now reports cold/warm/fresh 42 with reuse for both
+local and shared caches. Root, active-platform and package flag tests cover
+same-timestamp permanent replacement, public rebuild decisions, missing files,
+cycles, FIFO rejection, old-generation preservation and recovery. The missing
+and cycle cases fail during argument capture instead of entering an incomplete
+replacement. FIFO inputs are opened nonblocking and rejected as nonregular.
+
+I do not silently label every response form retained. The current limits are
+16 nesting levels, 64 KiB cumulative response bytes, 4095-byte words and a
+2048-byte serialized fragment. Over-budget and noncanonical forms keep the old
+path, as do shell-expanded fragments and unrecognized drivers. Boundary tests
+verify that those fragments are preserved rather than partially expanded.
+The full roadmap response-file item remains open for large-argument transport,
+shell-expanded/noncanonical forms and other dialects. The default
+`--response --require-consistent` reproducer now passes for the implemented
+literal forms; that does not establish the remaining boundaries.
+
+I also exclude named `clang-cl` drivers and explicit `--driver-mode` overrides.
+Capture is transactional across metadata and package argument groups: a pending
+response or shell fragment keeps the original argument set. A source-free
+build-info regression checks metadata overrides, package overrides, nested
+package response overrides and a named `clang-cl` wrapper without asking the
+host compiler to execute another driver's dialect. Escaped spellings of those
+overrides are checked after literal argument decoding too.
+
+All 30 snapshot methods pass on GCC 12.2 and GCC 13.3, Linux arm64, with two
+expected skips each. The final GCC 12 production builder and support sources
+also pass those methods under ASan/UBSan with leak detection disabled. The
+Linux bootstrap and 130-method bytecode/cache/link/snapshot/helper suite pass
+with ten expected skips; the final boundary test was then added and included
+in the 30-method snapshot and sanitizer runs (2026-09-13).
+
+After the driver-mode rollback review, all 31 snapshot methods pass on GCC 12.2
+Linux arm64, both normally and under ASan/UBSan on the production builder and
+support sources (two expected skips; leak detection disabled). The broader
+Darwin bytecode/cache/link/snapshot/helper run passes 132 methods with 24 expected
+skips before the final escaped-override decoding guard.
+With that final guard, all 31 Darwin snapshot methods pass with eleven expected
+skips (Apple Clang 21, arm64, 2026-09-13).

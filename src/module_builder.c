@@ -32,6 +32,12 @@
 
 bool module_builder_verbose = false;
 static bool module_builder_can_prompt_sudo = false;
+static char *module_capture_response_fragment(const char *fragment);
+static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy);
+static void module_response_metadata_free(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy);
+static bool module_response_driver(const ModuleBuildMetadata *meta);
+static bool module_response_pending(const char *fragment);
+static bool module_response_metadata_pending(const ModuleBuildMetadata *meta);
 
 /* I require explicit host authority before running package-registry probes,
  * install overrides, package managers, or sudo from the module builder. */
@@ -458,7 +464,15 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v20-gcc-objects");
+    hash_context_field(&hash, "nanolang-c-build-context-v21-response-arguments");
+    for (size_t i = 0; i < meta->cflags_count; i++) hash_context_field(&hash, meta->cflags[i]);
+#ifdef __APPLE__
+    for (size_t i = 0; i < meta->cflags_macos_count; i++) hash_context_field(&hash, meta->cflags_macos[i]);
+#elif defined(__FreeBSD__)
+    for (size_t i = 0; i < meta->cflags_freebsd_count; i++) hash_context_field(&hash, meta->cflags_freebsd[i]);
+#else
+    for (size_t i = 0; i < meta->cflags_linux_count; i++) hash_context_field(&hash, meta->cflags_linux[i]);
+#endif
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -1612,6 +1626,30 @@ static bool module_pkg_flags_capture(ModuleBuildMetadata *meta, ModulePkgFlags *
         flags->libs[i] = get_pkg_config_flags(meta->pkg_config[i], "--libs");
         if (!flags->libs[i]) goto failed;
     }
+    bool needed = false;
+    for (size_t i = 0; i < flags->count; i++) {
+        if (!flags->cflags[i]) continue;
+        if (strstr(flags->cflags[i], "--driver-mode")) return true;
+        if (strchr(flags->cflags[i], '@')) needed = true;
+    }
+    if (!needed || module_response_metadata_pending(meta) || !module_response_driver(meta)) return true;
+    char **expanded = calloc(flags->count, sizeof(char *));
+    if (!expanded) goto failed;
+    bool complete = true, success = true;
+    for (size_t i = 0; i < flags->count && success; i++) {
+        if (!flags->cflags[i]) continue;
+        expanded[i] = module_capture_response_fragment(flags->cflags[i]);
+        if (!expanded[i]) success = false;
+        else if (module_response_pending(expanded[i])) complete = false;
+    }
+    if (success && complete) {
+        char **original = flags->cflags;
+        flags->cflags = expanded;
+        expanded = original;
+    }
+    for (size_t i = 0; i < flags->count; i++) free(expanded[i]);
+    free(expanded);
+    if (!success) goto failed;
     return true;
 failed:
     module_pkg_flags_free(flags);
@@ -2113,7 +2151,12 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
 }
 
 bool module_needs_rebuild(const char *module_dir, ModuleBuildMetadata *meta) {
-    return module_needs_rebuild_with_flags(module_dir, meta, NULL);
+    if (!meta) return false;
+    ModuleBuildMetadata captured;
+    if (!module_response_metadata(meta, &captured)) return true;
+    bool result = module_needs_rebuild_with_flags(module_dir, &captured, NULL);
+    module_response_metadata_free(meta, &captured);
+    return result;
 }
 
 // Build module
@@ -2281,6 +2324,119 @@ static int module_flag_word(const char **cursor, char *word, size_t capacity) {
     return started ? 1 : 0;
 }
 
+/* GNU response words are not shell words: dollar signs and operators are
+ * literal, and a backslash quotes the next byte even inside single quotes. */
+static int module_response_word(const char **cursor, char *word, size_t capacity) {
+    const unsigned char *p = (const unsigned char *)*cursor;
+    while (*p && strchr(" \t\r\n\v\f", *p)) p++;
+    if (!*p) { *cursor = (const char *)p; return 0; }
+    size_t used = 0;
+    unsigned char quote = 0;
+    while (*p) {
+        unsigned char c = *p++;
+        if (c == '\\') {
+            if (!*p) { errno = EINVAL; return -1; }
+            c = *p++;
+        } else if (quote) {
+            if (c == quote) { quote = 0; continue; }
+        } else if (c == '\'' || c == '"') { quote = c; continue; }
+        else if (strchr(" \t\r\n\v\f", c)) break;
+        if (used + 1 >= capacity) { errno = E2BIG; return -1; }
+        word[used++] = (char)c;
+    }
+    if (quote) { errno = EINVAL; return -1; }
+    word[used] = 0;
+    *cursor = (const char *)p;
+    return 1;
+}
+
+static bool module_expand_response_word(const char *word, char *output, size_t capacity,
+                                       unsigned depth, size_t *bytes) {
+    if (word[0] != '@') {
+        if (!module_append_path_flag(output, capacity, "", word)) { errno = E2BIG; return false; }
+        return true;
+    }
+    if (depth >= 16) { errno = ELOOP; return false; }
+    int fd = open(word + 1, O_RDONLY | O_CLOEXEC | O_NONBLOCK);
+    if (fd < 0) return false;
+    struct stat st;
+    if (fstat(fd, &st) || !S_ISREG(st.st_mode) || st.st_size < 0) {
+        close(fd); errno = EIO; return false;
+    }
+    if ((uint64_t)st.st_size > 65536 || (uint64_t)st.st_size > 65536 - *bytes) {
+        close(fd); errno = E2BIG; return false;
+    }
+    size_t limit = (size_t)st.st_size, used = 0;
+    char *data = malloc(limit + 1);
+    if (!data) { close(fd); return false; }
+    bool ok = true;
+    while (used <= limit) {
+        ssize_t amount = read(fd, data + used, limit + 1 - used);
+        if (amount < 0 && errno == EINTR) continue;
+        if (amount < 0) { ok = false; break; }
+        if (!amount) break;
+        used += (size_t)amount;
+        if (used > limit) { ok = false; errno = E2BIG; break; }
+    }
+    if (close(fd)) ok = false;
+    if (ok && memchr(data, 0, used)) { ok = false; errno = EINVAL; }
+    if (ok) {
+        data[used] = 0;
+        if (strstr(data, "--driver-mode")) { ok = false; errno = EINVAL; }
+    }
+    if (ok) {
+        *bytes += used;
+        const char *cursor = data;
+        char argument[4096];
+        int status = 0;
+        while (ok && (status = module_response_word(&cursor, argument, sizeof(argument))) > 0)
+            ok = module_expand_response_word(argument, output, capacity, depth + 1, bytes);
+        if (status < 0) ok = false;
+    }
+    int failure = errno;
+    free(data);
+    if (!ok) errno = failure;
+    return ok;
+}
+
+static char *module_capture_response_fragment(const char *fragment) {
+    if (!fragment) return NULL;
+    if (!strchr(fragment, '@') || strstr(fragment, "--driver-mode")) return strdup(fragment);
+    const char *cursor = fragment;
+    char word[4096];
+    int status;
+    /* I validate the entire shell fragment before opening any response file. */
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {}
+    if (status < 0) return strdup(fragment);
+    char *output = calloc(65536, 1);
+    if (!output) return NULL;
+    cursor = fragment;
+    size_t bytes = 0;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (!module_expand_response_word(word, output, 65536, 0, &bytes)) {
+            int failure = errno;
+            free(output);
+            /* Large command fragments and noncanonical response quoting keep
+             * the original compiler path, not a guessed argument sequence. */
+            if (failure == E2BIG || failure == EINVAL) return strdup(fragment);
+            return NULL;
+        }
+    }
+    if (strlen(output) > 2048) { free(output); return strdup(fragment); }
+    return output;
+}
+
+static bool module_response_pending(const char *fragment) {
+    if (!fragment) return false;
+    if (strstr(fragment, "--driver-mode")) return true;
+    const char *cursor = fragment;
+    char word[4096];
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0)
+        if (word[0] == '@' || strstr(word, "--driver-mode")) return true;
+    return status < 0;
+}
+
 /* I classify decoded literal tokens, not unevaluated shell fragments. */
 static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     if (!flag) return MODULE_FLAG_UNKNOWN;
@@ -2341,6 +2497,66 @@ static char **module_platform_cflags(const ModuleBuildMetadata *meta, size_t *co
 #endif
 }
 
+static char ***module_response_platform_slot(ModuleBuildMetadata *meta) {
+#ifdef __APPLE__
+    return &meta->cflags_macos;
+#elif defined(__FreeBSD__)
+    return &meta->cflags_freebsd;
+#else
+    return &meta->cflags_linux;
+#endif
+}
+
+static bool module_response_metadata_pending(const ModuleBuildMetadata *meta) {
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count;
+        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        for (size_t i = 0; i < count; i++) if (module_response_pending(flags[i])) return true;
+    }
+    return false;
+}
+
+static void module_response_metadata_free(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy) {
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count, copied_count = copy->cflags_count;
+        char **original = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        char **owned = group ? module_platform_cflags(copy, &copied_count) : copy->cflags;
+        if (owned && owned != original) {
+            for (size_t i = 0; i < copied_count; i++) free(owned[i]);
+            free(owned);
+        }
+    }
+}
+
+static bool module_response_metadata(const ModuleBuildMetadata *meta, ModuleBuildMetadata *copy) {
+    *copy = *meta;
+    bool needed = false;
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count;
+        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        for (size_t i = 0; i < count; i++) if (strchr(flags[i], '@')) needed = true;
+    }
+    if (!needed || !module_response_driver(meta)) return true;
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count;
+        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        char ***slot = group ? module_response_platform_slot(copy) : &copy->cflags;
+        *slot = count ? calloc(count, sizeof(char *)) : NULL;
+        if (count && !*slot) goto failed;
+        for (size_t i = 0; i < count; i++)
+            if (!((*slot)[i] = module_capture_response_fragment(flags[i]))) goto failed;
+    }
+    if (module_response_metadata_pending(copy)) {
+        module_response_metadata_free(meta, copy);
+        *copy = *meta;
+    }
+    return true;
+failed:
+    module_response_metadata_free(meta, copy);
+    fprintf(stderr, "I could not capture compiler response-file arguments\n");
+    return false;
+}
+
 typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED, MODULE_C_RETAINED_ASSEMBLY,
                MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE } ModuleCPhase;
 
@@ -2387,29 +2603,7 @@ typedef enum {
     MODULE_SNAPSHOT_GCC_REPLAY
 } ModuleSnapshotMode;
 
-static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, const ModulePkgFlags *captured) {
-    if (!captured || captured->count != meta->pkg_config_count) return MODULE_SNAPSHOT_NONE;
-    for (size_t i = 0; i < captured->count; i++) {
-#ifdef __APPLE__
-        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
-#endif
-        if (!module_retained_flags(captured->cflags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
-    }
-    for (size_t group = 0; group < 2; group++) {
-        size_t count = meta->cflags_count;
-        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
-        for (size_t i = 0; i < count; i++)
-            if (!module_retained_flags(flags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
-    }
-    for (size_t group = 0; group < 2; group++) {
-        char **sources = group ? meta->shared_c_sources : meta->c_sources;
-        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
-        for (size_t i = 0; i < count; i++) {
-            size_t length = strlen(sources[i]);
-            if (length < 2 || strcmp(sources[i] + length - 2, ".c")) return false;
-        }
-    }
-    if (!meta->c_sources_count) return false;
+static ModuleSnapshotMode module_driver_snapshot_mode(const ModuleBuildMetadata *meta) {
     /* I identify the supported driver family, not its authenticity. GCC's
      * capture must expose implicit PCH selection instead of ignoring it. */
     char *driver = module_compiler_path(module_selected_compiler(meta));
@@ -2431,6 +2625,46 @@ static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, 
     if (strstr(version, "clang version")) return MODULE_SNAPSHOT_CLANG;
     if (strstr(version, "Free Software Foundation")) return MODULE_SNAPSHOT_GCC;
     return MODULE_SNAPSHOT_NONE;
+}
+
+static bool module_response_driver(const ModuleBuildMetadata *meta) {
+    const char *driver = module_selected_compiler(meta);
+    const char *base = strrchr(driver, '/');
+    base = base ? base + 1 : driver;
+    if (!strncmp(base, "clang-cl", 8)) return false;
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count;
+        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        for (size_t i = 0; i < count; i++)
+            if (strstr(flags[i], "--driver-mode")) return false;
+    }
+    return module_driver_snapshot_mode(meta) != MODULE_SNAPSHOT_NONE;
+}
+
+static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, const ModulePkgFlags *captured) {
+    if (!captured || captured->count != meta->pkg_config_count) return MODULE_SNAPSHOT_NONE;
+    for (size_t i = 0; i < captured->count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+        if (!module_retained_flags(captured->cflags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
+    }
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = meta->cflags_count;
+        char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
+        for (size_t i = 0; i < count; i++)
+            if (!module_retained_flags(flags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
+    }
+    for (size_t group = 0; group < 2; group++) {
+        char **sources = group ? meta->shared_c_sources : meta->c_sources;
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            size_t length = strlen(sources[i]);
+            if (length < 2 || strcmp(sources[i] + length - 2, ".c")) return MODULE_SNAPSHOT_NONE;
+        }
+    }
+    if (!meta->c_sources_count) return MODULE_SNAPSHOT_NONE;
+    return module_driver_snapshot_mode(meta);
 }
 
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
@@ -3939,10 +4173,24 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
 
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
     if (!meta || !ensure_module_system_deps(meta)) return NULL;
+    ModuleBuildMetadata captured;
+    if (!module_response_metadata(meta, &captured)) return NULL;
     ModulePkgFlags flags;
-    if (!module_pkg_flags_capture(meta, &flags)) return NULL;
-    ModuleBuildInfo *info = module_build_with_flags(builder, meta, &flags);
-    module_pkg_flags_free(&flags);
+    ModuleBuildInfo *info = NULL;
+    if (module_pkg_flags_capture(&captured, &flags)) {
+        /* A response or driver-mode override left in package flags can choose
+         * a different response dialect for the entire driver invocation. */
+        for (size_t i = 0; i < flags.count; i++) {
+            if (module_response_pending(flags.cflags[i])) {
+                module_response_metadata_free(meta, &captured);
+                captured = *meta;
+                break;
+            }
+        }
+        info = module_build_with_flags(builder, &captured, &flags);
+        module_pkg_flags_free(&flags);
+    }
+    module_response_metadata_free(meta, &captured);
     return info;
 }
 

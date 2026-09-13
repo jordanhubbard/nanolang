@@ -154,6 +154,13 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 3 && !strcmp(argv[1], "capture-response")) {
+        char *captured = module_capture_response_fragment(argv[2]);
+        if (!captured) return 1;
+        puts(captured);
+        free(captured);
+        return 0;
+    }
     if (argc == 4 && !strcmp(argv[1], "capture-pch"))
         return module_snapshot_pch(argv[2], argv[3], 0, 0, 14695981039346656037ULL) ? 0 : 1;
 #ifdef __linux__
@@ -249,6 +256,9 @@ int main(int argc, char **argv) {
             status = 0;
         }
         module_build_info_free(info);
+    } else if (strcmp(argv[1], "needs-rebuild") == 0) {
+        puts(module_needs_rebuild(argv[2], meta) ? "1" : "0");
+        status = 0;
     } else if (strcmp(argv[1], "library") == 0) {
         char path[2048];
         if (ffi_loader_find_library(meta->name, argv[2], path, sizeof(path))) {

@@ -597,10 +597,8 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
         with tempfile.TemporaryDirectory(prefix="nano-retained-unknown-flags-") as tmp:
             directory = Path(tmp)
             module, _, env = self.support.support.foreign_build_fixture(directory)
-            response = directory / "flags.rsp"
-            response.write_text("-O2\n")
             for flags in (["-fno-builtin"], ["-O${NANO_TEST_LEVEL:-2}"],
-                          ["-D", "NAME=42"], ["@" + str(response)]):
+                          ["-D", "NAME=42"]):
                 with self.subTest(flags=flags):
                     (module / "module.json").write_text(json.dumps({"name": "answer_native",
                         "c_sources": ["answer.c"], "cflags": flags}))
@@ -608,6 +606,169 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     generation = self.support.probe_path("directory", module, env)
                     self.assertEqual(list(generation.glob("__snapshot_*")), [])
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+
+    def test_response_file_restored_arguments(self):
+        observed = measure(shutil.which("cc"), ("response",))
+        require_consistent(observed)
+        for case in observed["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual(case["cold_answer"], 42)
+                for field in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record", "generation_reused"):
+                    self.assertTrue(case[field], field)
+                self.assertTrue(case["retained_translation_unit"] or case["retained_assembly"])
+
+    def test_response_words_match_the_real_compiler(self):
+        with tempfile.TemporaryDirectory(prefix="nano-response-words-") as tmp:
+            directory = Path(tmp)
+            source, response = directory / "input.c", directory / "flags with spaces.rsp"
+            source.write_text("VALUE\n")
+            fragments = ["-DVALUE=42", "'-DVALUE=two words'", '"-DVALUE=cost$HOME"',
+                         r"'-DVALUE=a\b'", r'"-DVALUE=a\qb"', r"-DVALUE=one\ two",
+                         r'-DVALUE=\"literal\ text\"', "-DVALUE=42\r\n-U VALUE\n-D VALUE=43"]
+            for fragment in fragments:
+                with self.subTest(fragment=fragment):
+                    response.write_text(fragment)
+                    captured = subprocess.run([str(self.support.probe), "capture-response", shlex.quote("@" + str(response))],
+                                              cwd=directory, capture_output=True, timeout=10)
+                    self.assertEqual(captured.returncode, 0, captured.stderr)
+                    arguments = shlex.split(captured.stdout.decode())
+                    self.assertFalse(any(arg.startswith("@") for arg in arguments))
+                    prefix = [shutil.which("cc"), "-E", "-P", str(source)]
+                    native = subprocess.run(prefix + ["@" + str(response)], cwd=directory, capture_output=True, timeout=10)
+                    replay = subprocess.run(" ".join(shlex.quote(arg) for arg in prefix) + " " + captured.stdout.decode(),
+                                            shell=True, cwd=directory, capture_output=True, timeout=10)
+                    self.assertEqual(native.returncode, 0, native.stderr)
+                    self.assertEqual((replay.returncode, replay.stdout), (native.returncode, native.stdout), replay.stderr)
+            nested = directory / "nested.rsp"
+            nested.write_text("-DVALUE=42\n")
+            sub = directory / "sub"
+            sub.mkdir()
+            (sub / "nested.rsp").write_text("-DVALUE=43\n")
+            outer = sub / "outer.rsp"
+            outer.write_text("@nested.rsp\n")
+            captured = subprocess.run([str(self.support.probe), "capture-response", "@" + str(outer)],
+                                      cwd=directory, capture_output=True, timeout=10)
+            self.assertEqual(captured.returncode, 0, captured.stderr)
+            native = subprocess.run([shutil.which("cc"), "-E", "-P", str(source), "@" + str(outer)],
+                                    cwd=directory, capture_output=True, timeout=10)
+            self.assertEqual(native.returncode, 0, native.stderr)
+            self.assertEqual(native.stdout.strip(), b"42")
+            self.assertEqual(shlex.split(captured.stdout.decode()), ["-DVALUE=42"])
+
+    def test_response_rebuild_errors_and_recovery(self):
+        platform = "cflags_macos" if sys.platform == "darwin" else "cflags_linux"
+        for origin in ("cflags", platform, "pkg_config"):
+            with self.subTest(origin=origin), tempfile.TemporaryDirectory(prefix="nano-response-build-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                env["NANO_BUILD_CACHE"] = str(directory / "cache")
+                source, outer, nested = module / "answer.c", directory / "outer.rsp", directory / "nested.rsp"
+                source.write_text("long long nano_build_answer(void) { return ANSWER; }\n")
+                outer.write_text(shlex.quote("@" + str(nested)) + "\n")
+                nested.write_text("-D ANSWER=42\n-O2\n")
+                fragment = shlex.quote("@" + str(outer))
+                metadata = json.loads((module / "module.json").read_text())
+                if origin == "pkg_config":
+                    metadata["pkg_config"] = ["nano-response-fixture"]
+                    tool = directory / "pkg-config"
+                    tool.write_text(f'#!{sys.executable}\nimport sys\n'
+                                    f'if "--cflags" in sys.argv: print({fragment!r})\n'
+                                    'elif "--modversion" in sys.argv: print("1.0")\n')
+                    tool.chmod(0o700)
+                    env["PKG_CONFIG"] = str(tool)
+                else: metadata[origin] = [fragment]
+                (module / "module.json").write_text(json.dumps(metadata))
+                original_metadata = (module / "module.json").read_bytes()
+                def needs():
+                    result = subprocess.run([str(self.support.probe), "needs-rebuild", str(module)],
+                                            env=env, capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    return result.stdout.strip()
+                self.support.probe_path("build", module, env)
+                first = self.support.probe_path("directory", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+                self.assertEqual(needs(), b"0")
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.support.probe_path("directory", module, env), first)
+                stamp = nested.stat()
+                nested.write_text("-D ANSWER=43\n-O2\n")
+                os.utime(nested, ns=(stamp.st_atime_ns, stamp.st_mtime_ns))
+                self.assertEqual(needs(), b"1")
+                self.support.probe_path("build", module, env)
+                previous = self.support.probe_path("directory", module, env)
+                self.assertNotEqual(previous, first)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                for failure in ("missing", "cycle", "fifo"):
+                    with self.subTest(failure=failure):
+                        nested.unlink()
+                        if failure == "cycle": nested.write_text("@" + str(outer))
+                        if failure == "fifo": os.mkfifo(nested)
+                        self.assertEqual(needs(), b"1")
+                        result = subprocess.run([str(self.support.probe), "build", str(module)],
+                                                env=env, capture_output=True, timeout=10)
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertEqual(self.support.probe_path("directory", module, env), previous)
+                        self.assertFalse(list(previous.parent.glob(".nano-build-*")))
+                        if failure == "fifo": nested.unlink()
+                        nested.write_text("-D ANSWER=43\n-O2\n")
+                        self.support.probe_path("build", module, env)
+                        self.assertEqual(self.support.probe_path("directory", module, env), previous)
+                self.assertEqual((module / "module.json").read_bytes(), original_metadata)
+
+    def test_response_unsupported_fragments_keep_the_original_path(self):
+        with tempfile.TemporaryDirectory(prefix="nano-response-boundary-") as tmp:
+            directory = Path(tmp)
+            response = directory / "flags.rsp"
+            fragment = "@" + str(response)
+            for data in (b'"-DANSWER=42', b"-DANSWER=42\\", b"-O2 " * 600,
+                         b" " * 65537, b"-DANSWER=42\x00-O3", b"--driver-mode=cl -DANSWER=42"):
+                with self.subTest(size=len(data), prefix=data[:20]):
+                    response.write_bytes(data)
+                    result = subprocess.run([str(self.support.probe), "capture-response", fragment],
+                                            capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout.decode().strip(), fragment)
+            response.unlink()
+            shell_fragment = "-O${NANO_RESPONSE_LEVEL:-2} " + fragment
+            result = subprocess.run([str(self.support.probe), "capture-response", shell_fragment],
+                                    capture_output=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.decode().strip(), shell_fragment)
+
+    def test_response_driver_mode_declines_the_whole_argument_capture(self):
+        for placement in ("metadata", "escaped-metadata", "package", "escaped-package",
+                          "nested-package", "escaped-nested-package", "named-cl-driver"):
+            with self.subTest(placement=placement), tempfile.TemporaryDirectory(prefix="nano-response-mode-") as tmp:
+                directory = Path(tmp)
+                module, _, env = self.support.support.foreign_build_fixture(directory)
+                response, mode = directory / "flags.rsp", directory / "mode.rsp"
+                response.write_text("-DANSWER=42\n")
+                mode.write_text("--driv\\er-mode=cl\n" if placement == "escaped-nested-package" else "--driver-mode=cl\n")
+                metadata = {"name": "answer_native", "c_sources": [],
+                            "cflags": ["@" + str(response)]}
+                if placement == "metadata": metadata["cflags"].append("--driver-mode=cl")
+                elif placement == "escaped-metadata": metadata["cflags"].append("--driv\\er-mode=cl")
+                elif placement == "named-cl-driver":
+                    driver = directory / "clang-cl"
+                    compiler = shutil.which("cc")
+                    driver.write_text(f'#!{sys.executable}\nimport os,sys\nos.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])\n')
+                    driver.chmod(0o700)
+                    env["NANO_CC"] = str(driver)
+                else:
+                    metadata["pkg_config"] = ["mode-fixture", "response-fixture"]
+                    mode_flag = ("--driver-mode=cl" if placement == "package" else
+                                 "--driv\\er-mode=cl" if placement == "escaped-package" else "@" + str(mode))
+                    pkg = directory / "pkg-config"
+                    pkg.write_text(f'#!{sys.executable}\nimport sys\n'
+                        f'if "--cflags" in sys.argv: print({mode_flag!r} if "mode-fixture" in sys.argv else {("@" + str(response))!r})\n')
+                    pkg.chmod(0o700)
+                    env["PKG_CONFIG"] = str(pkg)
+                (module / "module.json").write_text(json.dumps(metadata))
+                result = subprocess.run([str(self.support.probe), "build-info", str(module)],
+                                        env=env, capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn(("@" + str(response)).encode(), result.stdout)
+                self.assertNotIn(b"-DANSWER=42", result.stdout)
 
     def test_configured_warning_errors_preserve_generation(self):
         cases = [

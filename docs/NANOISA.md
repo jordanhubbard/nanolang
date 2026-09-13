@@ -517,9 +517,31 @@ declared include directories, apply during capture but not compilation of
 already preprocessed input. Only common and active-platform flags choose this
 mode. I decode literal words, quotes and escapes, including paired `-D`, `-U`
 and `-I` arguments within a fragment. I do not evaluate shell expansions,
-commands or globs to decode flags. Those forms, response files, unlisted
+commands or globs to decode flags. Those forms, unlisted
 options and words exceeding 4095 bytes keep their original compilation path.
 This eligibility parser does not sandbox the original trusted shell text.
+
+For recognized Clang/GCC drivers, literal `@file` arguments in common,
+active-platform and package compiler flags are expanded once into invocation-local
+argument strings. I parse GNU-style response words separately from shell words,
+then quote each argument for my command runner. Nested response paths resolve
+from the compiler working directory. Build and public rebuild checks capture
+their own argument sets; selected metadata arguments join cache identity.
+Missing, cyclic and nonregular response inputs fail without replacing an old
+generation. Caller-owned metadata is not rewritten.
+
+I exclude named `clang-cl` drivers and explicit `--driver-mode` overrides.
+If metadata or package flags leave an unresolved response or shell fragment,
+I preserve the original argument set instead of mixing response dialects or
+partially expanded argument groups.
+
+This path is bounded to 16 response nesting levels, 64 KiB cumulative input,
+4095-byte words and a 2048-byte serialized fragment. Over-budget fragments,
+unterminated quotes, trailing escapes, embedded NULs and shell-expanded
+fragments keep the previous compiler path and do not gain snapshot eligibility
+from this capture. Retained transport for large lists, other response dialects
+and indirect linker response files remain open. This is argument retention,
+not retention of every external input named by an argument.
 
 Clang applies all supported C flags during `-S` capture, then assembles without
 C-only flags. Its assembly output expands the tested inline `.incbin`, nested

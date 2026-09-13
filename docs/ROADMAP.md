@@ -998,6 +998,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       caches fail the cold-output requirement. My characterization CLI also
       checked only warm versus fresh output, incorrectly passing Clang's cold
       mismatch; I require both cold and warm results to match fresh output.
+      I implement invocation-local metadata flag copies and fresh rebuild-check
+      captures, expand literal GNU-style response words without shell evaluation,
+      and keep package flag captures consistent with the same rule. Unsupported
+      shell fragments remain on their existing path rather than being evaluated
+      by the capture parser.
+      The bounded literal path now repairs the measured mismatch. I still need
+      retained transport for large argument lists and capture of shell-expanded
+      or noncanonical response forms before closing this full item. Current
+      limits are 16 nested files, 64 KiB cumulative file bytes, 4095-byte words
+      and a 2048-byte serialized fragment; over-budget and noncanonical forms
+      keep the previous path. Missing/cyclic/nonregular inputs fail capture.
+      A Clang version banner alone does not establish GNU response syntax:
+      I exclude named `clang-cl` drivers and explicit `--driver-mode` overrides
+      from this capture boundary. Metadata and package captures roll back
+      together if an unresolved response, shell fragment or driver-mode
+      override remains; decoded escaped overrides follow the same rule.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
