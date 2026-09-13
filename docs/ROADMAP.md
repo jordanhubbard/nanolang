@@ -859,6 +859,22 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       warm/fresh 42. Temporary success/failure cleanup and cold failure without
       retry are tested (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GCC literal assembler-file capture.** I emit assembly from retained
+      C, recursively copy literal `.include` and `.incbin` inputs into the
+      private generation, and assemble only those copies. I preserve assembler
+      offset/count expressions and bind reuse to captured bytes. I test restored
+      and permanent edits, nested macro includes, relative and quoted paths,
+      capture fallback and cleanup. Unsupported syntax retains object validation;
+      this bounded path does not close general assembler-input acceptance.
+      Nineteen snapshot methods pass on GCC 12 (two skips) and Apple Clang
+      (six skips); GCC ASan/UBSan passes with production builder/support
+      instrumentation. Both bootstraps and 111-method cache/bytecode/link
+      suites pass, with ten platform skips each. Final allocation/MRI guards
+      pass the full snapshot suites again, plus leak-enabled copier boundaries.
+      Restored literal binary/include edits now yield cold/warm/fresh 42;
+      macro-argument fallback still yields cold 43 without reuse, then 42.
+      Dependency-rebuild and FFI gates pass on both hosts (2026-09-13).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

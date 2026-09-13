@@ -50,7 +50,7 @@ class SourceSnapshots(unittest.TestCase):
                     self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
 
     def test_clang_assembler_cache_restored_inputs(self):
-        if not self.clang: self.skipTest("I have not integrated GCC assembler-input capture")
+        if not self.clang: self.skipTest("I exercise GCC literal capture separately")
         for case in measure(shutil.which("cc"), ("assembler",))["cases"]:
             with self.subTest(case=case):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
@@ -100,16 +100,67 @@ class SourceSnapshots(unittest.TestCase):
                 include.write_text(include_text)
                 self.assertNotEqual(build(43), third)
 
-    def test_gcc_assembler_restoration_withholds_stale_reuse(self):
-        if self.clang: self.skipTest("I exercise the GCC object-output check here")
-        for case in measure(shutil.which("cc"), ("assembler",))["cases"]:
+    def test_gcc_assembler_restoration_uses_captured_inputs(self):
+        if self.clang: self.skipTest("I exercise GCC literal assembler capture here")
+        for case in measure(shutil.which("cc"), ("assembler", "assembler-nested", "assembler-include"))["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                for key in ("bytes_restored", "mtime_preserved", "size_preserved", "retained_translation_unit",
+                            "retained_assembly", "reuse_record", "generation_reused"):
+                    self.assertTrue(case[key], key)
+                self.assertEqual(case["total_object_compilations"], 3)
+                self.assertEqual(case["total_assembly_captures"], 3)
+
+    def test_gcc_assembler_macro_argument_keeps_validation_fallback(self):
+        if self.clang: self.skipTest("I exercise the GCC object-output fallback here")
+        for case in measure(shutil.which("cc"), ("assembler-fallback",))["cases"]:
             with self.subTest(case=case):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
                 self.assertFalse(case["reuse_record"])
                 self.assertFalse(case["generation_reused"])
+                self.assertFalse(case["retained_assembly"])
+                self.assertEqual(case["retained_assembler_files"], 0)
                 for key in ("bytes_restored", "mtime_preserved", "size_preserved", "retained_translation_unit"):
                     self.assertTrue(case[key], key)
                 self.assertEqual(case["total_object_compilations"], 4)
+
+    def test_literal_assembler_capture_boundaries(self):
+        for spelling in ("literal", "empty", "semicolon", "label", "macro", "altmacro", "mri",
+                         "missing", "fifo", "cycle", "nul", "oversize"):
+            with self.subTest(spelling=spelling), tempfile.TemporaryDirectory(prefix="nano-assembler-boundary-") as tmp:
+                directory = Path(tmp)
+                private = directory / "capture"
+                private.mkdir()
+                source, binary = directory / "input.s", directory / "payload.bin"
+                binary.write_bytes(b"\x00\x01\xff42")
+                literal = f'.incbin "{binary}", (1+1), (3-1)\n'
+                contents = literal
+                if spelling == "empty": binary.write_bytes(b"")
+                elif spelling == "semicolon": contents = literal.rstrip() + ";" + literal
+                elif spelling == "label": contents = "label: " + literal
+                elif spelling == "macro": contents = '.macro read file\n.incbin "\\file"\n.endm\n'
+                elif spelling == "altmacro": contents = ".altmacro\n" + literal
+                elif spelling == "mri": contents = ".mri 1\n" + literal
+                elif spelling == "missing": binary.unlink()
+                elif spelling == "fifo":
+                    binary.unlink()
+                    os.mkfifo(binary)
+                elif spelling == "cycle": contents = f'.include "{source}"\n'
+                elif spelling == "nul": contents = literal + "\x00"
+                elif spelling == "oversize":
+                    with binary.open("wb") as output: output.truncate(17 * 1024 * 1024)
+                source.write_text(contents)
+                result = subprocess.run([str(self.support.probe), "capture-assembly", str(source),
+                    str(private / "input.s")], capture_output=True, timeout=10)
+                self.assertEqual(result.returncode, 0 if spelling in ("literal", "empty") else 1, result.stderr)
+                if result.returncode == 0:
+                    copies = list(private.glob("*.bin"))
+                    self.assertEqual(len(copies), 1)
+                    self.assertEqual(copies[0].read_bytes(), binary.read_bytes())
+                    retained = (private / "input.s").read_text()
+                    self.assertIn(str(copies[0]), retained)
+                    self.assertIn(", (1+1), (3-1)", retained)
+                    self.assertNotIn(str(binary), retained)
 
     def test_gcc_validation_cleanup_and_cold_failure(self):
         if self.clang: self.skipTest("I exercise the GCC private object checker here")
@@ -228,15 +279,15 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 commands = [json.loads(line) for line in calls.read_text().splitlines()]
                 compiled = [argv for argv in commands if "-c" in argv]
                 self.assertEqual(len(compiled), 1 if self.clang else 3)
-                self.assertTrue(any(arg.endswith(self.snapshot_suffix) for arg in compiled[0]))
+                self.assertTrue(any(arg.endswith(".s") for arg in compiled[0]))
                 for argv in commands:
                     for flag in flags[:6]:
-                        if "-c" in argv and self.clang: self.assertNotIn(flag, argv)
+                        if "-c" in argv: self.assertNotIn(flag, argv)
                         else: self.assertIn(flag, argv)
                     preprocessing = flags[6:] if placement not in ("literal", "package") else [
                         "-D", "ANSWER=40", "-DREMOVED=1", "-U", "REMOVED", "-I", str(include), 'TEXT="a b"']
                     for flag in preprocessing:
-                        if "-E" in argv or "-S" in argv: self.assertIn(flag, argv)
+                        if "-E" in argv or ("-S" in argv and self.clang): self.assertIn(flag, argv)
                         else: self.assertNotIn(flag, argv)
 
     def test_literal_words_match_shell_arguments(self):

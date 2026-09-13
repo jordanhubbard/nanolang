@@ -512,7 +512,7 @@ a successful version query; that query is not authentication.
 
 My [configured flag boundary](SOURCE_SNAPSHOT_EVIDENCE.md#configured-scalar-flags)
 lists the supported spellings. I retain optimization, standard, debug and
-warning flags in both GCC phases. Simple `-D`, `-U` and `-I` tokens, along with
+warning flags through GCC C code generation. Simple `-D`, `-U` and `-I` tokens, along with
 declared include directories, apply during capture but not compilation of
 already preprocessed input. Only common and active-platform flags choose this
 mode. I decode literal words, quotes and escapes, including paired `-D`, `-U`
@@ -525,17 +525,28 @@ Clang applies all supported C flags during `-S` capture, then assembles without
 C-only flags. Its assembly output expands the tested inline `.incbin`, nested
 assembler includes and macros into retained bytes. Warm validation runs C code
 generation again; it avoids another object assembly, not another C compilation.
-GCC's `-S` output retains external directives, so I have not applied this path
-to GCC. See my [assembly capture evidence](SOURCE_SNAPSHOT_EVIDENCE.md#production-clang-assembly-capture)
+GCC's `-S` output retains external directives and needs the separate literal-file
+capture described below. See my [assembly capture evidence](SOURCE_SNAPSHOT_EVIDENCE.md#production-clang-assembly-capture)
 for the tested boundary and remaining assembler work.
 
 For supported GCC builds, I also fingerprint the actual ordinary and shared
 objects before linking. Fresh validation privately captures C and compiles
-objects again, then requires matching combined C/object fingerprints. This
-detects the tested restored `.incbin` edit without pretending that retained C
-contains assembler-read bytes. Such an edit can affect the cold result; I
-withhold reuse when validation differs. The next build recompiles it. This
-repeats a full C compilation after cold builds and on warm validation. Private
+objects again, then requires matching combined input/object fingerprints. I
+also emit assembly from retained C and copy literal, line-leading `.include`
+and `.incbin` inputs recursively into private staging. The assembler reads
+those copies; binary offset/count expressions remain its responsibility.
+Captured bytes join the fingerprint. Final assembly receives no C-only flags.
+The tested restored literal-file edits now produce cold/warm/fresh 42.
+
+This path is bounded: 16 MiB per file, 64 MiB total, 256 file visits and 16
+include levels. Backslashes in assembly text, alternate macro/MRI modes, nonliteral or
+non-line-leading file directives, unrepresentable private paths, nonregular
+inputs and capture failures retain the earlier C/object validation path.
+That fallback can still produce a changed cold result; I withhold reuse when
+validation differs. Captured assembly contains private staging paths and is
+build evidence, not a relocatable replay bundle. Broader assembler semantics
+and variants remain an [open boundary](SOURCE_SNAPSHOT_EVIDENCE.md#gcc-literal-assembler-file-capture).
+Validation repeats a full C compilation after cold builds and on warm reuse. Private
 checks use `TMPDIR` (or `/tmp`) and are removed after normal success or failure;
 process termination can leave an orphan. This is not an atomic source snapshot.
 

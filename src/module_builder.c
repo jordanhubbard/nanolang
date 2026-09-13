@@ -2330,16 +2330,16 @@ static char **module_platform_cflags(const ModuleBuildMetadata *meta, size_t *co
 #endif
 }
 
-typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED,
+typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED, MODULE_C_RETAINED_ASSEMBLY,
                MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE } ModuleCPhase;
 
 static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_t capacity,
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
-    bool retained = phase == MODULE_C_RETAINED;
+    bool retained = phase == MODULE_C_RETAINED || phase == MODULE_C_RETAINED_ASSEMBLY;
     bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
                                    module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" :
-                                   phase == MODULE_C_EMIT_ASSEMBLY ? "-S" : "-c");
+                                   (phase == MODULE_C_EMIT_ASSEMBLY || phase == MODULE_C_RETAINED_ASSEMBLY) ? "-S" : "-c");
     /* I already applied C code-generation and diagnostic flags during capture. */
     if (phase == MODULE_C_ASSEMBLE) return ok;
 #if !defined(__APPLE__)
@@ -2371,7 +2371,8 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
 typedef enum {
     MODULE_SNAPSHOT_NONE = 0,
     MODULE_SNAPSHOT_CLANG,
-    MODULE_SNAPSHOT_GCC
+    MODULE_SNAPSHOT_GCC,
+    MODULE_SNAPSHOT_GCC_ASSEMBLY
 } ModuleSnapshotMode;
 
 static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, const ModulePkgFlags *captured) {
@@ -2422,7 +2423,7 @@ static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, 
 
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
                                        const ModulePkgFlags *flags, const char *directory,
-                                       ModuleSnapshotMode mode);
+                                       ModuleSnapshotMode mode, ModuleSnapshotMode *actual_mode);
 static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkgFlags *flags);
 
 /* Other modes keep their supplemental veto and original compilation command.
@@ -2440,7 +2441,7 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
     }
     ModuleSnapshotMode mode = module_snapshot_mode(meta, flags);
     if (mode == MODULE_SNAPSHOT_GCC) return module_gcc_validation(meta, flags);
-    if (mode != MODULE_SNAPSHOT_NONE) return module_snapshot_sources(meta, flags, NULL, mode);
+    if (mode != MODULE_SNAPSHOT_NONE) return module_snapshot_sources(meta, flags, NULL, mode, NULL);
     char prefix[4096];
     if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_PREPROCESS, flags)) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
@@ -2540,11 +2541,144 @@ static int module_run_source_command(const char *command, const char *dependency
     return result;
 }
 
+/* I capture a deliberately bounded assembler spelling, not the assembler
+ * language. Literal file directives must start a line; backslash expansion and
+ * alternate macro syntax fall back to retained C plus object validation. I copy
+ * whole binary files so the assembler still evaluates offset/count expressions.
+ * Relative paths resolve in the compiler's working directory, as in GNU as with
+ * no assembler include-search flags (those flags already reject this mode). */
+typedef struct {
+    const char *directory;
+    unsigned files;
+    size_t bytes;
+    uint64_t hash;
+} ModuleAssemblyCapture;
+
+static bool module_capture_assembly_file(ModuleAssemblyCapture *capture, const char *source,
+                                         const char *destination, bool text, unsigned depth) {
+    if (depth > 16 || ++capture->files > 256) return false;
+    int fd = open(source, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+    if (fd < 0) return false;
+    struct stat st;
+    const size_t limit = 16 * 1024 * 1024;
+    if (fstat(fd, &st) || !S_ISREG(st.st_mode) || st.st_size < 0 ||
+        (uint64_t)st.st_size > limit) { close(fd); return false; }
+    /* I reserve only the observed size plus one growth-detection byte. A file
+     * that grows during capture falls back instead of expanding this buffer. */
+    size_t capacity = (size_t)st.st_size;
+    unsigned char *data = malloc(capacity + 1);
+    if (!data) { close(fd); return false; }
+    size_t size = 0;
+    bool ok = true;
+    for (;;) {
+        ssize_t amount = read(fd, data + size, capacity + 1 - size);
+        if (amount < 0 && errno == EINTR) continue;
+        if (amount < 0) { ok = false; break; }
+        if (!amount) break;
+        size += (size_t)amount;
+        if (size > capacity) { ok = false; break; }
+    }
+    close(fd);
+    if (size > 64 * 1024 * 1024 - capture->bytes) ok = false;
+    if (!ok) { free(data); return false; }
+    capture->bytes += size;
+    data[size] = 0;
+    if (text && (memchr(data, 0, size) || memchr(data, '\\', size) ||
+                 strstr((char *)data, ".altmacro") || strstr((char *)data, ".mri"))) { free(data); return false; }
+    char length[24];
+    snprintf(length, sizeof(length), "%zu", size);
+    hash_context_field(&capture->hash, length);
+    for (size_t i = 0; i < size; i++) { capture->hash ^= data[i]; capture->hash *= 1099511628211ULL; }
+    FILE *output = fopen(destination, "wb");
+    if (!output) { free(data); return false; }
+    if (!text) ok = fwrite(data, 1, size, output) == size;
+    else for (char *line = (char *)data; ok && *line;) {
+        char *end = strchr(line, '\n');
+        if (end) *end = 0;
+        char *directive = line;
+        while (*directive == ' ' || *directive == '\t') directive++;
+        char *include = strstr(line, ".include"), *binary = strstr(line, ".incbin");
+        if (include || binary) {
+            bool is_include = include != NULL;
+            char *found = is_include ? include : binary;
+            size_t keyword = is_include ? 8 : 7;
+            if (found != directive || (include && binary) ||
+                strstr(found + keyword, ".include") || strstr(found + keyword, ".incbin") ||
+                (directive[keyword] != ' ' && directive[keyword] != '\t')) { ok = false; break; }
+            char *path = directive + keyword;
+            while (*path == ' ' || *path == '\t') path++;
+            if (*path++ != '"') { ok = false; break; }
+            char *quote = strchr(path, '"');
+            if (!quote || quote == path) { ok = false; break; }
+            *quote = 0;
+            char retained[2048] = {0};
+            ok = module_build_append(retained, sizeof(retained), "%s/__assembler_%u.%s",
+                    capture->directory, capture->files, is_include ? "s" : "bin");
+            hash_context_field(&capture->hash, path);
+            if (ok) ok = module_capture_assembly_file(capture, path, retained, is_include, depth + 1);
+            if (ok) ok = fprintf(output, "%.*s.%s \"%s\"%s%s", (int)(directive - line), line,
+                is_include ? "include" : "incbin", retained, quote + 1, end ? "\n" : "") >= 0;
+        } else ok = fprintf(output, "%s%s", line, end ? "\n" : "") >= 0;
+        if (!end) break;
+        line = end + 1;
+    }
+    if (fclose(output)) ok = false;
+    free(data);
+    return ok;
+}
+
+static uint64_t module_gcc_capture_assembly(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                           const char *directory, uint64_t fingerprint) {
+    /* These characters would need assembler string escaping in retained paths. */
+    if (!directory || strpbrk(directory, "\"\\\n\r")) return 0;
+    char prefix[4096];
+    if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_RETAINED_ASSEMBLY, flags)) return 0;
+    ModuleAssemblyCapture capture = {directory, 0, 0, fingerprint};
+    hash_context_field(&capture.hash, "gcc-literal-assembler-files-v1");
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            char input[2048] = {0}, raw[2048] = {0}, frozen[2048] = {0}, command[8192] = {0};
+            bool ok = module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
+                module_build_append(raw, sizeof(raw), "%s/__assembly_%zu_%zu.s", directory, group, i) &&
+                module_build_append(frozen, sizeof(frozen), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
+                module_build_append(command, sizeof(command), "%s%s -x cpp-output", prefix,
+                                    group ? " -fvisibility=hidden" : "") &&
+                module_append_path_flag(command, sizeof(command), "", input) &&
+                module_append_path_flag(command, sizeof(command), "-o ", raw) &&
+                module_build_append(command, sizeof(command), " 2>/dev/null");
+            if (!ok || system(command) || !module_capture_assembly_file(&capture, raw, frozen, true, 0)) goto failed;
+        }
+    }
+    return capture.hash;
+failed:
+    /* I remove only names reserved by this capture in my private directory. */
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; i < count; i++) {
+            char path[2048];
+            snprintf(path, sizeof(path), "%s/__assembly_%zu_%zu.s", directory, group, i);
+            (void)unlink(path);
+            snprintf(path, sizeof(path), "%s/__snapshot_%zu_%zu.s", directory, group, i);
+            (void)unlink(path);
+        }
+    }
+    for (unsigned i = 1; i <= capture.files; i++) {
+        char path[2048];
+        snprintf(path, sizeof(path), "%s/__assembler_%u.s", directory, i);
+        (void)unlink(path);
+        snprintf(path, sizeof(path), "%s/__assembler_%u.bin", directory, i);
+        (void)unlink(path);
+    }
+    return 0;
+}
+
 /* I hash the retained input: Clang assembly or GCC preprocessed C. A later
  * capture must reproduce those bytes, not just hashes of restored source. */
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
                                        const ModulePkgFlags *flags, const char *directory,
-                                       ModuleSnapshotMode mode) {
+                                       ModuleSnapshotMode mode, ModuleSnapshotMode *actual_mode) {
+    if (actual_mode) *actual_mode = mode;
     char prefix[4096];
     bool assembly = mode == MODULE_SNAPSHOT_CLANG;
     if (!module_compile_prefix(meta, prefix, sizeof(prefix),
@@ -2626,6 +2760,13 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             hash_context_field(&fingerprint, digest);
         }
     }
+    if (mode == MODULE_SNAPSHOT_GCC) {
+        uint64_t frozen = module_gcc_capture_assembly(meta, flags, directory, fingerprint);
+        if (frozen) {
+            if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
+            return frozen;
+        }
+    }
     return fingerprint;
 }
 
@@ -2633,7 +2774,7 @@ static bool module_snapshot_command(char *command, size_t capacity, const char *
                                     const char *directory, size_t group, size_t index,
                                     const char *object, ModuleSnapshotMode mode) {
     char snapshot[2048] = {0};
-    bool assembly = mode == MODULE_SNAPSHOT_CLANG;
+    bool assembly = mode == MODULE_SNAPSHOT_CLANG || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY;
     command[0] = 0;
     return module_build_append(snapshot, sizeof(snapshot), "%s/__snapshot_%zu_%zu.%s", directory, group, index,
                                assembly ? "s" : "i") &&
@@ -2648,10 +2789,11 @@ static void module_remove_staging(const char *stage);
 /* I include the actual GCC object bytes, not just the C input that preceded
  * assembler file reads. Validation builds private objects using the same recipe. */
 static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
-                                   const char *directory, uint64_t fingerprint, bool compile) {
+                                   const char *directory, uint64_t fingerprint, bool compile, ModuleSnapshotMode mode) {
     if (!fingerprint) return 0;
     char prefix[4096];
-    if (compile && !module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_RETAINED, flags)) return 0;
+    if (compile && !module_compile_prefix(meta, prefix, sizeof(prefix),
+        mode == MODULE_SNAPSHOT_GCC_ASSEMBLY ? MODULE_C_ASSEMBLE : MODULE_C_RETAINED, flags)) return 0;
     hash_context_field(&fingerprint, "gcc-object-output-v1");
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
@@ -2664,7 +2806,7 @@ static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFla
             else ok = module_build_append(object, sizeof(object), "%s/%s_%zu.o", directory, meta->name, i);
             if (!ok) return 0;
             if (compile && (!module_snapshot_command(command, sizeof(command), prefix, directory,
-                                group, i, object, MODULE_SNAPSHOT_GCC) ||
+                                group, i, object, mode) ||
                             !module_build_append(command, sizeof(command), " 2>/dev/null") || system(command))) return 0;
             uint64_t hash = hash_file_fnv1a(object);
             if (!hash) return 0;
@@ -2682,8 +2824,9 @@ static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkg
     char directory[2048] = {0};
     if (!module_build_append(directory, sizeof(directory), "%s/nano-gcc-check-XXXXXX", temporary) ||
         !mkdtemp(directory)) return 0;
-    uint64_t fingerprint = module_snapshot_sources(meta, flags, directory, MODULE_SNAPSHOT_GCC);
-    fingerprint = module_gcc_objects(meta, flags, directory, fingerprint, true);
+    ModuleSnapshotMode mode = MODULE_SNAPSHOT_GCC;
+    uint64_t fingerprint = module_snapshot_sources(meta, flags, directory, mode, &mode);
+    fingerprint = module_gcc_objects(meta, flags, directory, fingerprint, true, mode);
     module_remove_staging(directory);
     return fingerprint;
 }
@@ -2996,7 +3139,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         ModuleSnapshotMode mode = preprocessing_before ? module_snapshot_mode(meta, flags) : MODULE_SNAPSHOT_NONE;
         bool snapshots = mode != MODULE_SNAPSHOT_NONE;
         if (preprocessing_before) *preprocessing_before = snapshots
-            ? module_snapshot_sources(meta, flags, build_dir, mode) : module_preprocess_fingerprint(meta, flags);
+            ? module_snapshot_sources(meta, flags, build_dir, mode, &mode) : module_preprocess_fingerprint(meta, flags);
         snapshots = snapshots && *preprocessing_before;
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
             printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
@@ -3009,7 +3152,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         bool command_ok;
         char compile_prefix[4096] = {0};
         command_ok = module_compile_prefix(meta, compile_prefix, sizeof(compile_prefix),
-            snapshots ? (mode == MODULE_SNAPSHOT_CLANG ? MODULE_C_ASSEMBLE : MODULE_C_RETAINED) : MODULE_C_COMPILE, flags);
+            snapshots ? (mode == MODULE_SNAPSHOT_GCC ? MODULE_C_RETAINED : MODULE_C_ASSEMBLE) : MODULE_C_COMPILE, flags);
 
         if (meta->c_sources_count == 1) {
             // Single source can compile directly to the module object.
@@ -3150,8 +3293,8 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            if (snapshots && mode == MODULE_SNAPSHOT_GCC)
-                *preprocessing_before = module_gcc_objects(meta, flags, build_dir, *preprocessing_before, false);
+            if (snapshots && (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY))
+                *preprocessing_before = module_gcc_objects(meta, flags, build_dir, *preprocessing_before, false, mode);
 
             /* Build shared library */
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {

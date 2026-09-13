@@ -154,6 +154,17 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (argc == 4 && strcmp(argv[1], "capture-assembly") == 0) {
+        char *directory = strdup(argv[3]);
+        if (!directory) return 1;
+        char *slash = strrchr(directory, '/');
+        if (!slash) { free(directory); return 2; }
+        *slash = 0;
+        ModuleAssemblyCapture capture = {directory, 0, 0, 14695981039346656037ULL};
+        bool ok = module_capture_assembly_file(&capture, argv[2], argv[3], true, 0);
+        free(directory);
+        return ok ? 0 : 1;
+    }
     if (strcmp(argv[1], "flag-words") == 0) {
         cJSON *words = cJSON_CreateArray();
         if (!words) return 1;

@@ -444,3 +444,48 @@ validation-only trigger. After fixing that fixture prefix, the complete
 instrumented suite passed. No sanitizer finding was reported in that failure.
 The strengthened test verifies cleanup after validation failure and subsequent
 successful recovery, not just normal cleanup.
+
+## GCC literal assembler-file capture
+
+I now insert `-S -x cpp-output` between retained C and GCC object assembly.
+For literal, line-leading `.include` and `.incbin` directives, I copy the named
+files into private staging and rewrite only their path operands. Includes are
+processed recursively; binary payloads are copied whole, leaving offset/count
+expressions to the assembler. Relative input names resolve against the build
+working directory. I hash the original assembly and the bytes actually copied,
+not a later reread of the source files. I retain object-output validation.
+
+The copier accepts at most 16 MiB per file, 64 MiB cumulatively, 256 file visits
+and 16 include levels. It rejects nonregular inputs, NULs or backslashes in
+assembly text, alternate macro/MRI modes, nonliteral operands and file directives
+outside the supported line form. Rejection removes partial capture files and
+keeps the previous retained-C/object-validation path. Even an inactive or
+commented unsupported spelling can cause fallback. This is a bounded copier,
+not a complete assembler parser or an atomic snapshot of the source tree.
+Copied inputs survive generation publication, but assembly paths name the
+original private staging directory: these are evidence, not a portable replay
+bundle. Compiler/assembler variants remain separate acceptance work.
+
+The restored-edit fixture now checks direct binary reads, nested relative
+includes with literal macros and offset/count expressions, and changed include
+text, each with local and shared caches. GCC returns cold/warm/fresh 42 and
+reuses the generation. It performs three assembly captures and three object
+assemblies across the cold and warm builds. A macro-argument filename exercises
+fallback instead: cold 43 without reuse evidence, then warm/fresh 42, with no
+partial assembler capture left in the published generation.
+
+The direct copier tests include binary NUL/255 bytes, empty input, same-line
+multiple directives, labels, macro expansion, alternate macro/MRI modes, missing files,
+FIFOs, recursive includes, embedded textual NUL and oversized files. Existing
+tests retain permanent-edit invalidation, shared-only C sources, configured
+flag separation, failed-build preservation and validation cleanup.
+
+Both bootstraps and the 111-method bytecode/cache/link/snapshot regression set
+pass on Darwin and Linux, with ten platform skips each. The 19-method GCC
+snapshot suite also passes with production-builder/support ASan/UBSan and leak
+detection. After that run I reduced buffers to observed file size plus one
+growth-detection byte and rejected MRI mode explicitly. The final 19-method
+suite passes again normally on both hosts and with GCC ASan/UBSan (leak detection
+off); the final copier-boundary method passes separately with leak detection
+on. Dependency-rebuild and FFI gates pass on both platforms. A file that grows
+beyond its observed size during a copy now triggers fallback (2026-09-13).

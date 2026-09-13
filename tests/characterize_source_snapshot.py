@@ -8,6 +8,7 @@ I execute the production builder and load each library in a fresh process.
 
 import argparse
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -38,11 +39,28 @@ def measure(compiler, kinds=("source", "header")):
                     target.write_text("#define ANSWER 42\n")
                     source.write_text('#include <stdint.h>\n#include "answer.h"\n'
                                       'int64_t nano_build_answer(void) { return ANSWER; }\n')
-                elif kind == "assembler":
+                elif kind.startswith("assembler"):
                     target = module / "answer.bin"
                     target.write_bytes(b"42")
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
-                    assembly = f'.data\n.globl {symbol}\n{symbol}:\n.incbin "{target}"\n.text\n'
+                    directive = f'.incbin "{target}"'
+                    if kind in ("assembler-nested", "assembler-include"):
+                        target.rename(module / "payload with 'quotes'.bin")
+                        target = module / "payload with 'quotes'.bin"
+                        target.write_bytes(b"xx42yy")
+                        inner, outer = module / "inner.s", module / "outer.s"
+                        inner.write_text('.macro payload\n.incbin "' +
+                            os.path.relpath(target, directory) + '", (1+1), (3-1)\n.endm\npayload\n')
+                        outer.write_text(f'.include "{os.path.relpath(inner, directory)}"\n')
+                        directive = f'.include "{os.path.relpath(outer, directory)}"'
+                        if kind == "assembler-include":
+                            inner.write_text('.ascii "42"\n')
+                            target = inner
+                    elif kind == "assembler-fallback":
+                        include = module / "macro.s"
+                        include.write_text('.macro payload file\n.incbin "\\file"\n.endm\npayload "' + str(target) + '"\n')
+                        directive = f'.include "{include}"'
+                    assembly = f'.data\n.globl {symbol}\n{symbol}:\n{directive}\n.text\n'
                     source.write_text('extern const unsigned char snapshot_payload[];\n'
                         '__asm__(' + json.dumps(assembly) + ');\n'
                         'long long nano_build_answer(void) {\n'
@@ -109,6 +127,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     "generation_reused": cold_generation == warm_generation,
                     "retained_translation_unit": (cold_generation / "__snapshot_0_0.i").is_file(),
                     "retained_assembly": (cold_generation / "__snapshot_0_0.s").is_file(),
+                    "retained_assembler_files": len(list(cold_generation.glob("__assembler_*"))),
                     "target_in_reuse_record": record and str(target) in
                         (cold_generation / "source_hashes.json").read_text(),
                     "cold_object_compilations": cold_calls.count("C"),
