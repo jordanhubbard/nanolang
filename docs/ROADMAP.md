@@ -257,11 +257,40 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       passes the 39 applicable language-claim and bytecode-shadow methods
       without a self-hosted compiler build.
       MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
+- [x] **5.0 Stage2 declaration ownership prerequisite.** I retain each input
+      file's start in merged source and reject duplicate non-extern function
+      declarations within that owner. I distinguish these from same-named
+      declarations in different files, test root and imported duplicates,
+      and preserve prior output on rejection. This does not resolve calls.
+      My old Stage2 accepted duplicate declarations at all three
+      tested depths. The rebuilt compiler rejects them in native and C-source
+      modes, preserves the prior bytes and reports `M0001` in JSON. Root and
+      direct-import rejection also runs across all three compilers. A repeated
+      compatible extern declaration remains accepted. My owner helper tests
+      cover empty input and empty-file boundaries. Darwin bootstrap smoke and
+      no-C-seed checks pass; native binaries still differ.
+      All 40 language-claim, native-shadow, CLI, import-path and build-isolation
+      methods pass on Darwin with Stage2. No Linux bootstrap was run in this
+      increment.
+      MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
+- [ ] **5.0 Stage2 syntax-aware alias binding.** I replace raw
+      `apply_all_aliases` source rewriting with name resolution that preserves
+      local bindings, strings, comments and field labels. Inspection found
+      that the current replacement scans those bytes without syntax context.
+      I retain import declarations for the binding pass and test qualified,
+      selective and reused aliases with distinct importer identities.
+      MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
 - [ ] **5.0 Stage2 module function identity.** I preserve declaration,
       call, alias and shadow ownership instead of flattening same-named
       functions into one scope. My three-level wrapper regression currently
       fails its useful root shadow on Stage2; that rejection is evidence of
       the gap, not support for this program.
+      I now retain `MergeResult.file_starts` for per-invocation ownership.
+      Binding must cover checker and emitter references, including function
+      values and calls inside aggregate expressions: inspection shows that
+      `check_expr_node` does not visit every expression child, so checker-only
+      AST mutation would leave some emitted references unresolved. These
+      merged offsets do not establish original-file diagnostic provenance.
       MAC `task_9706ba834a2444a7a613d701ba5eceb8`.
 - [x] **5.0 imported module failure propagation.** I reject failed loads
       before publishing bytecode. An in-progress cache marker must not turn

@@ -191,7 +191,10 @@ My C-seed and bytecode paths now keep distinct pure functions with the same
 short name across qualified imports. I test a root wrapper, a transitive
 wrapper and their private helpers with inferred and declared module names.
 My Stage2 source merger still flattens those declarations: the same fixture
-fails its root shadow. Reused module aliases, colliding module identities and
+fails its root shadow. I now retain declaration ownership and reject duplicate
+non-extern function definitions within one input file before native or C-source
+publication. This does not resolve calls between different owners.
+Reused module aliases, colliding module identities and
 foreign-name isolation remain open; qualification is not yet a universal
 isolation guarantee across my backends.
 

@@ -833,8 +833,64 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
 struct MergeResult {
     source: string
     files: array<string>
+    file_starts: array<int>
     repo_root: string
     root_line: int
+}
+
+# I use merged source positions only to identify the owning input file.
+# These are not original-file diagnostic line numbers.
+fn merged_file_owner(file_starts: array<int>, line: int) -> int {
+    let mut owner: int = (- 0 1)
+    let mut i: int = 0
+    while (< i (array_length file_starts)) {
+        if (<= (at file_starts i) line) { set owner i }
+        set i (+ i 1)
+    }
+    return owner
+}
+
+shadow merged_file_owner {
+    let starts: array<int> = [1, 8, 8, 20]
+    assert (== (merged_file_owner starts 0) (- 0 1))
+    assert (== (merged_file_owner starts 7) 0)
+    assert (== (merged_file_owner starts 8) 2)
+    assert (== (merged_file_owner starts 20) 3)
+    assert (== (merged_file_owner [] 1) (- 0 1))
+}
+
+fn merged_function_names_valid(parser: Parser, file_starts: array<int>) -> bool {
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let current: ASTFunction = (parser_get_function parser i)
+        if (>= current.body 0) {
+            let owner: int = (merged_file_owner file_starts current.line)
+            if (< owner 0) { return false }
+            let mut j: int = 0
+            while (< j i) {
+                let previous: ASTFunction = (parser_get_function parser j)
+                if (and (>= previous.body 0) (== previous.name current.name)) {
+                    if (== (merged_file_owner file_starts previous.line) owner) {
+                        (println (+ "I cannot define a function twice in one module: " current.name))
+                        return false
+                    }
+                }
+                set j (+ j 1)
+            }
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+
+shadow merged_function_names_valid {
+    let source: string = "fn answer() -> int { return 1 }\nfn answer() -> int { return 2 }\n"
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens: List<LexerToken> = (tokenize_string source "owners.nano" diags)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "owners.nano")
+    assert (not (parser_has_error parser))
+    assert (not (merged_function_names_valid parser [1]))
+    assert (merged_function_names_valid parser [1, 2])
 }
 
 struct ModuleBuildFlags {
@@ -1178,14 +1234,16 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true max_files max_lines max_lines_per_file 0 trace)
     let files: array<string> = res.order
     if (not res.ok) {
-        return MergeResult { source: "", files: [], repo_root: repo_root, root_line: 0 }
+        return MergeResult { source: "", files: [], file_starts: [], repo_root: repo_root, root_line: 0 }
     } else { (print "") }
     # I retain source in this invocation; no other compiler can replace it.
     let mut parts: array<string> = []
     let mut i: int = 0
     let mut merged_lines: int = 0
     let mut root_line: int = 1
+    let mut file_starts: array<int> = []
     while (< i (array_length files)) {
+        set file_starts (array_push file_starts (+ merged_lines 1))
         if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
         let src: string = (file_read (at files i))
         let lines: array<string> = (split_lines src)
@@ -1208,7 +1266,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         }
         set i (+ i 1)
     }
-    return MergeResult { source: (cg_build parts), files: files, repo_root: repo_root, root_line: root_line }
+    return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, repo_root: repo_root, root_line: root_line }
 }
 
 shadow merge_with_imports {
@@ -1216,6 +1274,8 @@ shadow merge_with_imports {
     assert (> (str_length result.source) 0)
     assert (> (array_length result.files) 0)
     assert (== result.root_line 1)
+    assert (== (array_length result.file_starts) (array_length result.files))
+    assert (== (at result.file_starts 0) 1)
 }
 
 struct IntrospectionOutput { ok: bool, code: string }
@@ -1604,6 +1664,14 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
+            if (not (merged_function_names_valid parser merge_result.file_starts)) {
+                if (!= llm_diags_json_path "") {
+                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "M0001" "I require unique function declarations within each module" (Diagnostics.diag_location input_file 0 0)))
+                    (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
+                }
+                return 1
+            }
+
             /* Step 2.5: Process imports recursively - CRITICAL FOR TRANSITIVE TYPE VISIBILITY */
             if verbose {
                 (println "[2.5/5] Processing imports...")

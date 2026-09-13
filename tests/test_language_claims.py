@@ -166,7 +166,7 @@ shadow main {{ assert (== (main) 0) }}
                 self.assertEqual(result.returncode, 0, (result.stdout + result.stderr)[:4000])
 
     def test_local_duplicate_function_is_rejected(self):
-        for backend in ("c-seed", "bytecode"):
+        for backend in COMPILERS:
             for imported in (False, True):
                 with self.subTest(backend=backend, imported=imported), tempfile.TemporaryDirectory(prefix="nano-duplicate-") as tmp:
                     directory = Path(tmp)
@@ -178,6 +178,36 @@ shadow main {{ assert (== (main) 0) }}
                     compiled, output = self.compile_source(backend, body + "fn main() -> int { return 0 }\nshadow main { assert true }\n", directory)
                     self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
                     self.assertFalse(output.exists())
+
+    def test_selfhost_duplicate_owner_preserves_output(self):
+        for depth, emit_c in ((depth, emit_c) for depth in (0, 1, 2) for emit_c in (False, True)):
+            with self.subTest(depth=depth, emit_c=emit_c), tempfile.TemporaryDirectory(prefix="nano-owner-duplicate-") as tmp:
+                directory = Path(tmp)
+                body = "fn duplicate() -> int { return 1 }\nfn duplicate() -> int { return 2 }\n"
+                for level in range(depth):
+                    target = directory / f"dependency{level}.nano"
+                    target.write_text(body)
+                    body = f'module "{target}" as dependency{level}\n'
+                output = directory / "claim"
+                output.write_bytes(b"previous executable")
+                report = directory / "diagnostics.json"
+                args = ["--llm-diags-json", str(report)]
+                if emit_c:
+                    args.extend(["--target", "c"])
+                compiled, actual = self.compile_source("selfhost", body + "fn main() -> int { return 0 }\nshadow main { assert true }\n", directory, args)
+                self.assertGreater(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                self.assertIn(b"twice in one module", compiled.stdout + compiled.stderr)
+                self.assertEqual(actual.read_bytes(), b"previous executable")
+                diagnostic = json.loads(report.read_text())
+                self.assertEqual(diagnostic["exit_code"], 1)
+                self.assertIn("M0001", [item["code"] for item in diagnostic["diagnostics"]])
+
+    def test_selfhost_repeated_extern_declaration(self):
+        source = "extern fn erf(x: float) -> float\nextern fn erf(x: float) -> float\nfn main() -> int { return 0 }\nshadow main { assert true }\n"
+        with tempfile.TemporaryDirectory(prefix="nano-owner-extern-") as tmp:
+            compiled, output = self.compile_source("selfhost", source, Path(tmp))
+            self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+            self.assertEqual(self.execute("selfhost", output).returncode, 0)
 
     def test_failed_import_preserves_output(self):
         for backend in ("c-seed", "bytecode"):
