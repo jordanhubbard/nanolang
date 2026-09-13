@@ -2341,3 +2341,45 @@ path intact. The probe builds with strict warning flags on both hosts, Python
 syntax checks pass, and the guide builds/validates thirteen pages in six
 editions. I did not rerun a full release gate for this host-specific change.
 The debug follow-up is MAC `task_da2ca60a6acf481ab6d9e3f2fd276a31`.
+
+### Production standalone-assembler debug loss
+
+`tests/characterize_assembler_debug.py` compares the standalone unit object,
+not the combined module object whose C sibling can mask missing assembler
+debug information. I compile native `.s` and `.S` fixtures with `-g`, a `nop`
+in text and a payload byte in data. I inspect section headers and decode
+debug information/line tables, then compare the corresponding production
+`answer_native_1.o`. I also load the built library in a fresh process and
+check warm generation reuse.
+
+At `8f9069c3`, all eight host/source-kind/cache cases lose debug information:
+
+| Driver | Native unit | Production unit | Runtime / warm reuse |
+| --- | --- | --- | --- |
+| Apple Clang 21, external | five debug sections, one compilation unit, source named | no debug sections, no compilation unit, source absent | 42 / yes |
+| GCC 12.2, GNU as 2.40 | six debug sections, one compilation unit, source named | no debug sections, no compilation unit, source absent | 42 / yes |
+
+Each row covers `.s` and `.S` under local and shared cache roots on arm64.
+The native section sets include debug info, line tables, abbreviations and
+address ranges. This turns the flag-ownership concern into a measured
+production defect. Successful runtime output and reuse are insufficient.
+The strict characterization exits one on both hosts:
+
+```sh
+python3 -m tests.characterize_assembler_debug --require-debug
+```
+
+I also add `--text-instruction` to the integrated text experiment. On Apple
+Clang 21, adding `nop` to the text section still produces an undefined
+`Lsec_end0` during debug replay for both source suffixes. Non-debug objects
+remain byte-identical and retain payload `4242` after the inputs are deleted.
+I have not established the backend's internal cause, and do not repair its
+generated debug text by guessing a missing label's location.
+
+```sh
+python3 -m tests.characterize_integrated_assembler --text-instruction --require-identical
+```
+
+This is a baseline and a more precise counterexample, not a debug-preserving
+production repair. The strict trial correctly fails. Debug section presence
+and source names are useful checks, not complete DWARF semantic equivalence.

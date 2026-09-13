@@ -1236,6 +1236,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       copying retained assembler bypasses C lowering. I do not equate payload
       equality or omission of debug flags with native debug parity.
       MAC `task_da2ca60a6acf481ab6d9e3f2fd276a31`.
+      At `8f9069c3`, native GCC 12 and Apple Clang 21 external `.s`/`.S`
+      objects have debug sections and source provenance; production unit
+      objects have neither, despite returning 42 and reusing generations.
+      `tests/characterize_assembler_debug.py --require-debug` reproduces this
+      under both cache roots. Adding a `nop` to the integrated text trial
+      does not resolve Apple's undefined section-end label. The defect is
+      therefore not confined to an empty text section in that tested backend.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without

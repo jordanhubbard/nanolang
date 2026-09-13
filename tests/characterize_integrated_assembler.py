@@ -21,7 +21,7 @@ def run(argv, cwd):
     return result
 
 
-def measure(compiler):
+def measure(compiler, text_instruction=False):
     cases = []
     for suffix in ("s", "S"):
         for debug in (False, True):
@@ -39,6 +39,7 @@ def measure(compiler):
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                 source = root / ("input." + suffix)
                 assembly = f'.data\n.globl {symbol}\n{symbol}:\n.include "nested.s"\n.text\n'
+                if text_instruction: assembly += 'nop\n'
                 if suffix == "S":
                     assembly = '#define SECTION .data\n' + assembly.replace('.data', 'SECTION', 1)
                 source.write_text(assembly)
@@ -96,7 +97,8 @@ def measure(compiler):
                               "object_identical": native.read_bytes() == replay.read_bytes(),
                               "expanded_bytes": len(expanded_bytes),
                               "remaining_file_reads": any(word in expanded_bytes for word in (b".incbin", b".include"))})
-    return {"compiler": compiler, "version": run([compiler, "--version"], Path.cwd()).stdout.decode().splitlines()[0],
+    return {"compiler": compiler, "text_instruction": text_instruction,
+            "version": run([compiler, "--version"], Path.cwd()).stdout.decode().splitlines()[0],
             "platform": sys.platform, "cases": cases}
 
 
@@ -104,11 +106,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("compiler", nargs="?", default="clang")
     parser.add_argument("--require-identical", action="store_true")
+    parser.add_argument("--text-instruction", action="store_true")
     args = parser.parse_args()
     compiler = shutil.which(args.compiler)
     if not compiler:
         raise SystemExit("I need a Clang executable")
-    result = measure(compiler)
+    result = measure(compiler, text_instruction=args.text_instruction)
     print(json.dumps(result, indent=2))
     if args.require_identical and any(not case["object_identical"] or case["remaining_file_reads"] or
                                      case["native_payload"] != "34323432" or case["replay_payload"] != "34323432"
