@@ -35,6 +35,7 @@ extern fn file_write(path: string, content: string) -> int
 extern fn file_exists(path: string) -> bool
 extern fn file_delete(path: string) -> int
 extern fn file_compare_identity(source: string, candidate: string) -> int
+extern fn file_compare_destinations(first: string, second: string) -> int
 
 /* Path operations */
 extern fn path_normalize(path: string) -> string
@@ -1738,6 +1739,39 @@ fn outputs_preserve_sources(sources: array<string>, output: string, diagnostics:
     return true
 }
 
+fn output_destinations_distinct(output: string, diagnostics: string) -> bool {
+    if (== diagnostics "") { return true }
+    let mut identity: int = -1
+    unsafe { set identity (file_compare_destinations output diagnostics) }
+    if (== identity 0) { return true }
+    if (> identity 0) {
+        (println "I require separate artifact and diagnostic destinations")
+    } else {
+        (println "I cannot check artifact/diagnostic destination identity")
+    }
+    return false
+}
+
+shadow output_destinations_distinct {
+    let directory: string = (mktemp_dir "nano_output_guard_")
+    assert (!= directory "")
+    if (!= directory "") {
+        let output: string = (+ directory "/output")
+        let report: string = (+ directory "/report")
+        assert (output_destinations_distinct output "")
+        assert (output_destinations_distinct output report)
+        assert (not (output_destinations_distinct output output))
+        unsafe { assert (== (file_write output "prior") 0) }
+        assert (output_destinations_distinct output report)
+        assert (not (output_destinations_distinct output output))
+        unsafe {
+            assert (== (file_read output) "prior")
+            assert (== (file_delete output) 0)
+            assert (== (file_delete directory) 0)
+        }
+    }
+}
+
 shadow outputs_preserve_sources {
     let directory: string = (mktemp_dir "nano_source_guard_")
     assert (!= directory "")
@@ -1799,6 +1833,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
 
     # I reject aliases before parsing can write diagnostics or shadows can run.
     if (not (outputs_preserve_sources merged_files output_file llm_diags_json_path)) { return 1 }
+    if (not (output_destinations_distinct output_file llm_diags_json_path)) { return 1 }
     
     if (== merged_source "") {
         (println "Error: import resolution failed")

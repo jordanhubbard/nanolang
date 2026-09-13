@@ -3266,6 +3266,7 @@ fn gen_c_includes() -> string {
     set parts (cg_append parts "const char* path_normalize(const char* path);\n")
     set parts (cg_append parts "const char* path_canonical(const char* path);\n")
     set parts (cg_append parts "int64_t file_compare_identity(const char* source, const char* candidate);\n")
+    set parts (cg_append parts "int64_t file_compare_destinations(const char* first, const char* second);\n")
     set parts (cg_append parts "const char* path_join(const char* a, const char* b);\n")
     set parts (cg_append parts "const char* path_basename(const char* path);\n")
     set parts (cg_append parts "const char* path_dirname(const char* path);\n")

@@ -1,5 +1,6 @@
 """I check CLI rejection and C-source output before trusting driver success."""
 import os
+import json
 from pathlib import Path
 import subprocess
 import shutil
@@ -90,6 +91,95 @@ class SelfhostCliTests(unittest.TestCase):
             result = self.invoke(["--help"], Path(tmp))
             self.assertEqual(result.returncode, 0)
             self.assertIn("--target", result.stdout)
+
+    def test_artifact_report_collisions(self):
+        for target in ("c", "native"):
+            for kind in ("equal", "relative", "symlink", "hardlink", "missing", "parent_alias"):
+                with self.subTest(target=target, kind=kind), tempfile.TemporaryDirectory(prefix="nano-output-alias-") as tmp:
+                    directory = Path(tmp)
+                    source = directory / "input.nano"
+                    source.write_text(SOURCE)
+                    output = directory / "output"
+                    existing = kind not in ("missing", "parent_alias")
+                    if existing:
+                        output.write_bytes(b"prior artifact")
+                    report = output
+                    if kind == "relative":
+                        report = Path("./output")
+                    elif kind in ("symlink", "hardlink"):
+                        report = directory / "report"
+                        if kind == "symlink":
+                            report.symlink_to(output)
+                        else:
+                            os.link(output, report)
+                    elif kind == "parent_alias":
+                        parent = directory / "alias"
+                        parent.symlink_to(directory, target_is_directory=True)
+                        report = parent / "output"
+                    result = self.invoke([source, "--target", target, "-o", output,
+                                          "--llm-diags-json", report], directory, cwd=directory)
+                    self.assertEqual(source.read_text(), SOURCE)
+                    if existing:
+                        self.assertEqual(output.read_bytes(), b"prior artifact")
+                    else:
+                        self.assertFalse(output.exists())
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn("I require separate artifact and diagnostic destinations", result.stdout + result.stderr)
+                    self.assertFalse(list(directory.glob("nano_native_*")))
+
+    def test_distinct_artifact_and_report(self):
+        for target in ("c", "native"):
+            for existing in (False, True):
+                with self.subTest(target=target, existing=existing), tempfile.TemporaryDirectory(prefix="nano-output-alias-") as tmp:
+                    directory = Path(tmp)
+                    source = directory / "input.nano"
+                    source.write_text(SOURCE)
+                    output = directory / "output"
+                    report = directory / "report.json"
+                    if existing:
+                        output.write_text("prior artifact")
+                        report.write_text("prior report")
+                    result = subprocess.run([str(COMPILER), str(source), "--target", target,
+                                             "-o", str(output), "--llm-diags-json", str(report)],
+                                            cwd=ROOT, env=dict(os.environ, TMPDIR=tmp, NANO_CC=shutil.which("cc")),
+                                            capture_output=True, text=True, timeout=120)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertTrue(json.loads(report.read_text())["success"])
+                    if target == "c":
+                        self.assertIn("int main(", output.read_text())
+                    else:
+                        executed = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
+                        self.assertEqual(executed.returncode, 0, executed.stderr)
+                        self.assertEqual(executed.stdout, "cli-source-ok\n")
+                    self.assertEqual(source.read_text(), SOURCE)
+
+    def test_output_collision_precedes_parse_diagnostics(self):
+        with tempfile.TemporaryDirectory(prefix="nano-output-alias-") as tmp:
+            directory = Path(tmp)
+            source = directory / "input.nano"
+            source.write_text("fn main( -> invalid")
+            output = directory / "output"
+            output.write_text("prior artifact")
+            result = self.invoke([source, "--target", "c", "-o", output,
+                                  "--llm-diags-json", output], directory)
+            self.assertEqual(output.read_text(), "prior artifact")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("I require separate", result.stdout + result.stderr)
+
+    def test_dangling_report_is_rejected_without_creating_target(self):
+        with tempfile.TemporaryDirectory(prefix="nano-output-alias-") as tmp:
+            directory = Path(tmp)
+            source = directory / "input.nano"
+            source.write_text(SOURCE)
+            output = directory / "output"
+            report = directory / "report"
+            report.symlink_to(output.name)
+            result = self.invoke([source, "--target", "c", "-o", output,
+                                  "--llm-diags-json", report], directory)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("I cannot check artifact/diagnostic", result.stdout + result.stderr)
+            self.assertFalse(output.exists())
+            self.assertTrue(report.is_symlink())
 
     def test_source_aliases_are_rejected_before_writes(self):
         for target in ("c", "native"):

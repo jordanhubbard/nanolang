@@ -192,7 +192,7 @@ including symlinks, and returns an empty string on failure. `std/fs.normalize`
 remains lexical; it does not establish file identity. My self-hosted merger
 uses physical identity before deduplication, relative dependency lookup and
 function binding. This is path identity, not hard-link identity. My self-hosted
-input/output alias guard remains separate source-preservation work.
+input/output alias guard separately compares device and inode identities.
 
 My C-seed and bytecode paths now keep distinct pure functions with the same
 short name across qualified imports. I test a root wrapper, a transitive
@@ -361,8 +361,12 @@ Before self-hosted compilation writes output or diagnostics, I compare both
 destinations with the root and loaded dependency files by device and inode.
 I reject aliases through relative paths, symlinks and hard links, and stop if
 file identity cannot be checked. This preflight covers stable filesystem
-entries; it does not prevent concurrent path replacement. It also does not
-yet reject an artifact destination that aliases the diagnostic destination.
+entries; it does not prevent concurrent path replacement. I also compare
+artifact and diagnostic destinations by inode when both exist. When neither
+exists, I compare parent-directory identity and the basename bytes. I reject
+unresolved identity, including dangling destination links. Missing names that
+the filesystem equates through case or Unicode normalization remain an open
+boundary; this preflight is not yet complete destination isolation.
 
 My C-seed shadow JSON aggregates the selected graph. Completed runs report
 `completed: true`, `test_count`, and failed tests with their owning
