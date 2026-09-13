@@ -154,6 +154,27 @@ int main(int argc, char **argv) {
     }
 #endif
     if (argc != 3 && argc != 4) return 2;
+    if (strcmp(argv[1], "flag-words") == 0) {
+        cJSON *words = cJSON_CreateArray();
+        if (!words) return 1;
+        const char *cursor = argv[2];
+        char word[4096];
+        int status;
+        while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+            cJSON *item = cJSON_CreateString(word);
+            if (!item || !cJSON_AddItemToArray(words, item)) {
+                cJSON_Delete(item);
+                cJSON_Delete(words);
+                return 1;
+            }
+        }
+        char *json = status == 0 ? cJSON_PrintUnformatted(words) : NULL;
+        bool ok = json != NULL;
+        if (json) puts(json);
+        free(json);
+        cJSON_Delete(words);
+        return ok ? 0 : 1;
+    }
 #ifdef __linux__
     if (argc == 4 && strcmp(argv[1], "equal-libraries") == 0)
         return module_equal_libraries(argv[2], argv[3]) ? 0 : 1;

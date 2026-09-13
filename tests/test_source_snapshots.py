@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -47,11 +48,13 @@ class SourceSnapshots(unittest.TestCase):
     def test_configured_flags_preserve_retained_input_and_phases(self):
         active = "cflags_macos" if sys.platform == "darwin" else "cflags_linux"
         inactive = "cflags_linux" if sys.platform == "darwin" else "cflags_macos"
-        for placement in ("common", "platform", "inactive"):
+        placements = ["common", "platform", "inactive", "literal", "package"]
+        if sys.platform == "darwin": placements.append("framework")
+        for placement in placements:
             with self.subTest(placement=placement), tempfile.TemporaryDirectory(prefix="nano-retained-flags-") as tmp:
                 directory = Path(tmp)
                 module, _, env = self.support.support.foreign_build_fixture(directory)
-                include = directory / "include"
+                include = directory / ("include with 'quotes'" if placement in ("literal", "package") else "include")
                 include.mkdir()
                 (include / "offset.h").write_text("#define OFFSET 2\n")
                 declared = directory / "declared includes"
@@ -62,7 +65,23 @@ class SourceSnapshots(unittest.TestCase):
                 metadata = {"name": "answer_native", "c_sources": ["answer.c"],
                             "include_dirs": [str(declared)]}
                 metadata[active if placement == "platform" else "cflags"] = flags
+                if placement in ("literal", "package"):
+                    fragment = "'-O2' -g -std=c11 -Wall -Wextra -Werror -D ANSWER=40 -DREMOVED=1 -U REMOVED -I " + shlex.quote(str(include))
+                    fragment += " -D " + shlex.quote('TEXT="a b"')
+                    (include / "offset.h").write_text('#define OFFSET (sizeof(TEXT) - 2)\n')
+                    if placement == "literal":
+                        metadata["cflags"] = [fragment]
+                    else:
+                        metadata["cflags"] = []
+                        metadata["pkg_config"] = ["fixture"]
+                        pkg = directory / "pkg-config"
+                        pkg.write_text(f'#!{sys.executable}\nimport sys\nprint({fragment!r} if "--cflags" in sys.argv else "")\n')
+                        pkg.chmod(0o700)
+                        env["PKG_CONFIG"] = str(pkg)
                 if placement == "inactive": metadata[inactive] = ["-not-a-supported-option"]
+                if placement == "framework":
+                    metadata["frameworks"] = ["CoreFoundation"]
+                    metadata["pkg_config"] = ["CoreFoundation"]
                 (module / "module.json").write_text(json.dumps(metadata))
                 source = module / "answer.c"
                 source.write_text('#include <offset.h>\n#include <check.h>\n'
@@ -98,9 +117,32 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertTrue(any(arg.endswith(".i") for arg in compiled[0]))
                 for argv in commands:
                     for flag in flags[:6]: self.assertIn(flag, argv)
-                    for flag in flags[6:]:
+                    preprocessing = flags[6:] if placement not in ("literal", "package") else [
+                        "-D", "ANSWER=40", "-DREMOVED=1", "-U", "REMOVED", "-I", str(include), 'TEXT="a b"']
+                    for flag in preprocessing:
                         if "-E" in argv: self.assertIn(flag, argv)
                         else: self.assertNotIn(flag, argv)
+
+    def test_literal_words_match_shell_arguments(self):
+        fragments = ["", "  \t", "''", "a''b \"c d\"", "'-DNAME=a b'",
+                     r"a\ b 'a'\''b'", r'"a\qb" "\$x" "\`x\`" "a\\b"',
+                     "a\\\nb '\n'", "'$HOME' '`id`' '*.c'", "x" * 4095]
+        script = "import json,sys; print(json.dumps(sys.argv[1:]))"
+        for fragment in fragments:
+            with self.subTest(fragment=fragment[:80]):
+                expected = subprocess.run(["/bin/sh", "-c", shlex.quote(sys.executable) +
+                    " -c " + shlex.quote(script) + " " + fragment], capture_output=True, timeout=10, check=True)
+                actual = subprocess.run([str(self.support.probe), "flag-words", fragment],
+                                        capture_output=True, timeout=10, check=True)
+                self.assertEqual(json.loads(actual.stdout), json.loads(expected.stdout))
+        for fragment in ("$HOME", '"$HOME"', "$(id)", "`id`", "x;y", "a|b", "a&&b",
+                         "*.c", "?", "[ab]", "~", "#comment", "{a,b}", "x\ny", "'x", '"x',
+                         "x\\", "x" * 4096):
+            with self.subTest(rejected=fragment[:80]):
+                actual = subprocess.run([str(self.support.probe), "flag-words", fragment],
+                                        capture_output=True, timeout=10)
+                self.assertNotEqual(actual.returncode, 0)
+                self.assertEqual(actual.stdout, b"")
 
     def test_multiple_and_shared_only_sources(self):
         with tempfile.TemporaryDirectory(prefix="nano-retained-multiple-") as tmp:
@@ -166,7 +208,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             module, _, env = self.support.support.foreign_build_fixture(directory)
             response = directory / "flags.rsp"
             response.write_text("-O2\n")
-            for flags in (["-fno-builtin"], ["-O2 -g"], ["'-O2'"], ["-DNAME='a b'"],
+            for flags in (["-fno-builtin"], ["-O${NANO_TEST_LEVEL:-2}"],
                           ["-D", "NAME=42"], ["@" + str(response)]):
                 with self.subTest(flags=flags):
                     (module / "module.json").write_text(json.dumps({"name": "answer_native",

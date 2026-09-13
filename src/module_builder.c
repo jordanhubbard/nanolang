@@ -454,7 +454,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v17-configured-retained-c");
+    hash_context_field(&hash, "nanolang-c-build-context-v18-literal-flags");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -1338,7 +1338,7 @@ static bool module_has_system_package_metadata(ModuleBuildMetadata *meta) {
 // A native framework satisfies a same-named pkg-config dependency on macOS.
 // Trying Homebrew first can turn an ordinary compile into a large package
 // installation even though the SDK already provides the library.
-static bool module_pkg_is_native_framework(ModuleBuildMetadata *meta, const char *package) {
+static bool module_pkg_is_native_framework(const ModuleBuildMetadata *meta, const char *package) {
     if (!meta || !package) return false;
     for (size_t i = 0; i < meta->frameworks_count; i++) {
         if (strcasecmp(meta->frameworks[i], package) == 0 ||
@@ -2226,8 +2226,51 @@ static bool module_build_append(char *buffer, size_t capacity, const char *forma
 
 typedef enum { MODULE_FLAG_UNKNOWN, MODULE_FLAG_PREPROCESS, MODULE_FLAG_BOTH } ModuleFlagPhase;
 
-/* I recognize individual shell-literal tokens, not arbitrary flag fragments.
- * Unknown or quoted forms keep their original compilation path. */
+/* I decode literal shell words only. Expansions, operators and globbing remain
+ * on the original path. I never execute a fragment to discover its words. */
+static int module_flag_word(const char **cursor, char *word, size_t capacity) {
+    const unsigned char *p = (const unsigned char *)*cursor;
+    size_t used = 0;
+    unsigned char quote = 0;
+    bool started = false;
+    while (*p) {
+        unsigned char c = *p++;
+        if (quote == '\'') {
+            if (c == '\'') { quote = 0; continue; }
+        } else if (quote == '"') {
+            if (c == '"') { quote = 0; continue; }
+            if (c == '$' || c == '`') return -1;
+            if (c == '\\') {
+                if (!*p) return -1;
+                if (*p == '\n') { p++; continue; }
+                if (strchr("\\$`\"", *p)) c = *p++;
+            }
+        } else {
+            if (c == ' ' || c == '\t') {
+                if (started) break;
+                continue;
+            }
+            if (c == '\\') {
+                if (!*p) return -1;
+                c = *p++;
+                if (c == '\n') continue;
+            } else if (c == '\'' || c == '"') {
+                quote = c;
+                started = true;
+                continue;
+            } else if (strchr("$`;&|()<>\n\r*?[]~#{}", c)) return -1;
+            started = true;
+        }
+        if (used + 1 >= capacity) return -1;
+        word[used++] = (char)c;
+    }
+    if (quote || !capacity) return -1;
+    word[used] = 0;
+    *cursor = (const char *)p;
+    return started ? 1 : 0;
+}
+
+/* I classify decoded literal tokens, not unevaluated shell fragments. */
 static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     if (!flag) return MODULE_FLAG_UNKNOWN;
     const char *both[] = {
@@ -2241,9 +2284,7 @@ static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     for (size_t i = 0; i < sizeof(both) / sizeof(both[0]); i++)
         if (!strcmp(flag, both[i])) return MODULE_FLAG_BOTH;
     size_t length = strlen(flag);
-    if (length < 3 || flag[0] != '-' ||
-        strspn(flag, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./=+-") != length)
-        return MODULE_FLAG_UNKNOWN;
+    if (length < 3 || flag[0] != '-') return MODULE_FLAG_UNKNOWN;
     if (flag[1] == 'I' && strcmp(flag, "-I-")) return MODULE_FLAG_PREPROCESS;
     if (flag[1] != 'D' && flag[1] != 'U') return MODULE_FLAG_UNKNOWN;
     const char *name = flag + 2;
@@ -2251,6 +2292,29 @@ static ModuleFlagPhase module_snapshot_flag(const char *flag) {
     name += strspn(name, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
     if (!*name || (flag[1] == 'D' && *name == '=')) return MODULE_FLAG_PREPROCESS;
     return MODULE_FLAG_UNKNOWN;
+}
+
+/* NULL output validates eligibility. Otherwise I emit only the flags needed
+ * after preprocessing, quoting each decoded argument independently. */
+static bool module_retained_flags(const char *fragment, char *output, size_t capacity) {
+    if (!fragment) return false;
+    const char *cursor = fragment;
+    char word[4096], argument[4096], combined[4096];
+    int status;
+    while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
+        if (!strcmp(word, "-D") || !strcmp(word, "-U") || !strcmp(word, "-I")) {
+            if (module_flag_word(&cursor, argument, sizeof(argument)) != 1) return false;
+            int n = snprintf(combined, sizeof(combined), "%s%s", word, argument);
+            if (n < 0 || (size_t)n >= sizeof(combined) ||
+                module_snapshot_flag(combined) != MODULE_FLAG_PREPROCESS) return false;
+            continue;
+        }
+        ModuleFlagPhase kind = module_snapshot_flag(word);
+        if (kind == MODULE_FLAG_UNKNOWN) return false;
+        if (kind == MODULE_FLAG_BOTH && output &&
+            !module_append_path_flag(output, capacity, "", word)) return false;
+    }
+    return status == 0;
 }
 
 static char **module_platform_cflags(const ModuleBuildMetadata *meta, size_t *count) {
@@ -2277,14 +2341,14 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
 #if !defined(__APPLE__)
     if (!retained) ok &= module_build_append(prefix, capacity, " -D_POSIX_C_SOURCE=200809L");
 #endif
-    if (retained && meta->pkg_config_count) return false;
     for (size_t i = 0; i < meta->pkg_config_count; i++) {
 #ifdef __APPLE__
         if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
 #endif
         const char *flags = snapshot->cflags[i];
         if (flags) {
-            ok &= module_build_append(prefix, capacity, " %s", flags);
+            ok &= retained ? module_retained_flags(flags, prefix, capacity)
+                           : module_build_append(prefix, capacity, " %s", flags);
         } else ok = false;
     }
     if (!retained) for (size_t i = 0; i < meta->include_dirs_count; i++)
@@ -2293,9 +2357,8 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
         for (size_t i = 0; i < count; i++) {
-            ModuleFlagPhase kind = retained ? module_snapshot_flag(flags[i]) : MODULE_FLAG_BOTH;
-            if (kind == MODULE_FLAG_UNKNOWN) return false;
-            if (kind == MODULE_FLAG_BOTH) ok &= module_build_append(prefix, capacity, " %s", flags[i]);
+            ok &= retained ? module_retained_flags(flags[i], prefix, capacity)
+                           : module_build_append(prefix, capacity, " %s", flags[i]);
         }
     }
     return ok;
@@ -2307,13 +2370,19 @@ typedef enum {
     MODULE_SNAPSHOT_GCC
 } ModuleSnapshotMode;
 
-static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta) {
-    if (meta->pkg_config_count) return MODULE_SNAPSHOT_NONE;
+static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, const ModulePkgFlags *captured) {
+    if (!captured || captured->count != meta->pkg_config_count) return MODULE_SNAPSHOT_NONE;
+    for (size_t i = 0; i < captured->count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+        if (!module_retained_flags(captured->cflags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
+    }
     for (size_t group = 0; group < 2; group++) {
         size_t count = meta->cflags_count;
         char **flags = group ? module_platform_cflags(meta, &count) : meta->cflags;
         for (size_t i = 0; i < count; i++)
-            if (module_snapshot_flag(flags[i]) == MODULE_FLAG_UNKNOWN) return MODULE_SNAPSHOT_NONE;
+            if (!module_retained_flags(flags[i], NULL, 0)) return MODULE_SNAPSHOT_NONE;
     }
     for (size_t group = 0; group < 2; group++) {
         char **sources = group ? meta->shared_c_sources : meta->c_sources;
@@ -2364,7 +2433,7 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
         module_pkg_flags_free(&captured);
         return result;
     }
-    ModuleSnapshotMode mode = module_snapshot_mode(meta);
+    ModuleSnapshotMode mode = module_snapshot_mode(meta, flags);
     if (mode != MODULE_SNAPSHOT_NONE) return module_snapshot_sources(meta, flags, NULL, mode);
     char prefix[4096];
     if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_PREPROCESS, flags)) return 0;
@@ -2476,6 +2545,14 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
         !module_build_append(prefix, sizeof(prefix), " -fpch-preprocess")) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;
     hash_context_field(&fingerprint, mode == MODULE_SNAPSHOT_GCC ? "gcc-retained-v1" : "clang-retained-v1");
+    for (size_t i = 0; i < flags->count; i++) {
+#ifdef __APPLE__
+        if (module_pkg_is_native_framework(meta, meta->pkg_config[i])) continue;
+#endif
+        hash_context_field(&fingerprint, meta->pkg_config[i]);
+        hash_context_field(&fingerprint, flags->cflags[i]);
+        hash_context_field(&fingerprint, flags->libs[i]);
+    }
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
         char **sources = group ? meta->shared_c_sources : meta->c_sources;
@@ -2860,7 +2937,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 #endif
 
     if (needs_rebuild) {
-        ModuleSnapshotMode mode = preprocessing_before ? module_snapshot_mode(meta) : MODULE_SNAPSHOT_NONE;
+        ModuleSnapshotMode mode = preprocessing_before ? module_snapshot_mode(meta, flags) : MODULE_SNAPSHOT_NONE;
         bool snapshots = mode != MODULE_SNAPSHOT_NONE;
         if (preprocessing_before) *preprocessing_before = snapshots
             ? module_snapshot_sources(meta, flags, build_dir, mode) : module_preprocess_fingerprint(meta, flags);

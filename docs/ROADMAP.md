@@ -414,6 +414,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       and Linux shadow/cache/wrapper/codegen/FFI/dependency gates pass
       (2026-09-12). This does not complete configured-mode or snapshot acceptance.
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 configured C snapshots — literal flag fragments.** I decode
+      shell-literal words, quotes and escapes without evaluating expansions,
+      commands or globs. I use that boundary for captured pkg-config flags
+      and manifest fragments, preserve preprocessing-only options and flag
+      order, and test against actual shell/compiler arguments. I reject
+      ambiguous or oversized decoding for snapshot eligibility, preserve the
+      original fallback, and verify cold/warm results and package consistency.
+      Eleven snapshot methods pass on GCC, including ASan/UBSan; Darwin passes
+      nine with two GCC-specific skips. Full Darwin/Linux compiler, VM, cache,
+      wrapper and dependency gates pass. A final Darwin framework-backed package
+      regression and strengthened phase assertions pass separately (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 cache source snapshot acceptance.** I test source and header
       changes restored during compilation, preserving their original bytes
       and timestamps before final validation. I compare actual cold, warm and

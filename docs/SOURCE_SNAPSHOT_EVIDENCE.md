@@ -186,3 +186,53 @@ The full Darwin/Linux compiler and VM gates pass: 28 shadows, cache acceptance
 wrappers, 63 codegen tests, 19 FFI tests and dependency gates. The gate runs
 preceded the added negative method and stricter record assertion; both additions
 were verified afterward. No production code changed between those checks.
+
+## Literal fragments and captured package flags
+
+I extend the configured boundary with a bounded literal-word decoder. I test
+its output against `/bin/sh` argument vectors for quote concatenation, empty
+words, single and double quotes, escaped spaces, literal expansion characters,
+backslash-newline and the 4095-byte word limit. I reject oversized words,
+unclosed quotes, dangling escapes and unquoted expansion/operator/glob syntax
+for snapshot eligibility. I do not execute a fragment to discover its words.
+
+The same decoder handles manifest fragments and the already captured
+pkg-config cflags. I classify decoded arguments using the scalar table above;
+I also accept paired `-D`, `-U` and `-I` arguments within one fragment. Macro
+names remain C identifiers, but literal replacements and include paths can
+contain spaces and quotes. Retained compilation re-quotes scalar arguments
+individually and omits preprocessing-only arguments. Original preprocessing
+and fallback compilation retain the supplied shell text unchanged.
+
+My v18 context invalidates older records. Retained-input fingerprints include
+captured package names, cflags and libs so changing either query still prevents
+reuse. Native macOS frameworks bypass package queries and their absent flag
+strings. Existing package consistency tests check changed responses, failed
+post-build queries, recovery and successful empty flags.
+
+The restored-source regression now also exercises a quoted multiword manifest
+fragment and a pkg-config fragment, with paired options, a string-valued macro,
+and include paths containing spaces and quotes. Cold/warm results remain 42;
+the generation is reused with exactly one C compilation. Captured argument
+vectors verify flag placement. Expansion fragments, response files, unknown
+options and paired options split across manifest entries retain fallback.
+
+This is not a shell interpreter or sandbox. Unsupported trusted fragments
+still execute through the existing shell command path. It does not complete
+PCH, assembler, transitive tool or arbitrary compiler-mode snapshots.
+
+All 11 snapshot methods pass on Linux GCC 12, normally and with `-O1`
+ASan/UBSan, recovery disabled, instrumenting the production builder and support
+sources described above. The full Linux compiler/VM gates pass as well. The
+stronger quoted-path/string-macro case was added after that full gate and then
+rerun in the complete snapshot suite normally and under sanitizers. My first
+broader Linux cache invocation lacked the CLI executables; I do not count
+those missing-prerequisite errors as a pass. The successful gate built its
+prerequisites before running.
+
+Darwin Clang 21 passes nine snapshot methods with two GCC-specific skips, plus
+the full shadow/cache/wrapper/codegen/FFI/dependency gates. After those gates,
+I added a framework-backed CoreFoundation package subcase and strengthened the
+phase assertions to check every paired preprocessing argument. The configured
+regression passes again on Darwin and on Linux normally and under ASan/UBSan. Production code is
+unchanged between these checks.
