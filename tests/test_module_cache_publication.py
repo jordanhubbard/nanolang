@@ -24,6 +24,8 @@ class ModuleCachePublication(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.probe = ROOT / "obj/test_module_generation_probe"
+        version = subprocess.run([shutil.which("cc"), "--version"], capture_output=True, timeout=10, check=True)
+        cls.gcc_validation = b"Free Software Foundation" in version.stdout and b"clang version" not in version.stdout
         if not cls.probe.is_file():
             raise RuntimeError("I need make test-bytecode-shadows to build the production cache probe")
 
@@ -790,7 +792,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                 for _ in range(2):
                     result, output = self.support.compile(source, directory, "--run", env=env)
                     self.assertEqual(result.returncode, 42, result.stderr)
-                self.assertEqual(calls.read_text().splitlines(), ["compile"])
+                self.assertEqual(calls.read_text().splitlines(), ["compile"] * (3 if self.gcc_validation else 1))
                 if selection == "PATH":
                     next_dir = directory / "next"
                     next_dir.mkdir()
@@ -806,7 +808,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}, "-DANSWER={answer}"] +
                 self.assertEqual(result.returncode, 43, result.stderr)
                 execution = self.support.execute(output, env=env)
                 self.assertEqual(execution.returncode, 43, execution.stderr)
-                self.assertEqual(calls.read_text().splitlines(), ["compile", "compile"])
+                self.assertEqual(calls.read_text().splitlines(), ["compile"] * (5 if self.gcc_validation else 2))
 
     def test_new_earlier_header_invalidates_unchanged_search_path(self):
         for phase in ("single", "multi", "shared"):
@@ -1381,7 +1383,8 @@ print(json.dumps({{"args": sys.argv[1:], "path": os.environ.get("PKG_CONFIG_PATH
             compiler = directory / "cc"
             self.counting_compiler(compiler, calls)
             env["NANO_CC"] = str(compiler)
-            for stamp, count in (("first", 1), ("first", 1), ("second", 2)):
+            expected = (("first", 2), ("first", 3), ("second", 5)) if self.gcc_validation else (("first", 1), ("first", 1), ("second", 2))
+            for stamp, count in expected:
                 env["NANO_TOOLCHAIN_ID"] = stamp
                 result, _ = self.support.compile(source, directory, "--run", env=env)
                 self.assertEqual(result.returncode, 42, result.stderr)
@@ -1392,7 +1395,7 @@ print(json.dumps({{"args": sys.argv[1:], "path": os.environ.get("PKG_CONFIG_PATH
             self.assertNotEqual(result.returncode, 0)
             self.assertEqual(self.snapshot(module / ".build"), old)
             env["NANO_CC"] = str(compiler) + " -DFIXTURE=1"
-            for count in (3, 4):
+            for count in ((6, 7) if self.gcc_validation else (3, 4)):
                 result, _ = self.support.compile(source, directory, "--run", env=env)
                 self.assertEqual(result.returncode, 42, result.stderr)
                 self.assertEqual(len(calls.read_text().splitlines()), count)
@@ -1429,7 +1432,8 @@ if not marker.exists():
 os.execv(''')
             compiler.write_text(text)
             env["NANO_CC"] = str(compiler)
-            for count, reusable in ((1, False), (2, True), (2, True)):
+            expected = ((2, False), (4, True), (5, True)) if self.gcc_validation else ((1, False), (2, True), (2, True))
+            for count, reusable in expected:
                 result, _ = self.support.compile(source, directory, "--run", env=env)
                 self.assertEqual(result.returncode, 42, result.stderr)
                 self.assertEqual(len(calls.read_text().splitlines()), count)
@@ -1587,7 +1591,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 for process in processes:
                     _, error = process.communicate(timeout=20)
                     self.assertEqual(process.returncode, 0, error)
-                self.assertEqual(len((directory / "calls").read_text().splitlines()), 1)
+                self.assertEqual(len((directory / "calls").read_text().splitlines()), 3 if self.gcc_validation else 1)
                 for name in ("first", "second"):
                     self.assertEqual(self.support.execute(directory / name / "program.nvm", env=env).returncode, 42)
                 self.assertFalse(list((module / ".build").glob(".nano-build-*")))

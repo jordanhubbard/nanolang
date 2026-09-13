@@ -454,7 +454,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v19-clang-assembly");
+    hash_context_field(&hash, "nanolang-c-build-context-v20-gcc-objects");
     hash_context_field(&hash, cc);
     hash_context_field(&hash, driver);
     hash_context_field(&hash, cwd);
@@ -2423,6 +2423,7 @@ static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, 
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
                                        const ModulePkgFlags *flags, const char *directory,
                                        ModuleSnapshotMode mode);
+static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkgFlags *flags);
 
 /* Other modes keep their supplemental veto and original compilation command.
  * Their include traces detect search changes even when -P hides line markers;
@@ -2438,6 +2439,7 @@ static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
         return result;
     }
     ModuleSnapshotMode mode = module_snapshot_mode(meta, flags);
+    if (mode == MODULE_SNAPSHOT_GCC) return module_gcc_validation(meta, flags);
     if (mode != MODULE_SNAPSHOT_NONE) return module_snapshot_sources(meta, flags, NULL, mode);
     char prefix[4096];
     if (!module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_PREPROCESS, flags)) return 0;
@@ -2639,6 +2641,51 @@ static bool module_snapshot_command(char *command, size_t capacity, const char *
                             group && !assembly ? " -fvisibility=hidden" : "", assembly ? "assembler" : "cpp-output") &&
         module_append_path_flag(command, capacity, "", snapshot) &&
         module_append_path_flag(command, capacity, "-o ", object);
+}
+
+static void module_remove_staging(const char *stage);
+
+/* I include the actual GCC object bytes, not just the C input that preceded
+ * assembler file reads. Validation builds private objects using the same recipe. */
+static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                   const char *directory, uint64_t fingerprint, bool compile) {
+    if (!fingerprint) return 0;
+    char prefix[4096];
+    if (compile && !module_compile_prefix(meta, prefix, sizeof(prefix), MODULE_C_RETAINED, flags)) return 0;
+    hash_context_field(&fingerprint, "gcc-object-output-v1");
+    for (size_t group = 0; group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        hash_context_field(&fingerprint, group ? "shared-objects" : "ordinary-objects");
+        for (size_t i = 0; i < count; i++) {
+            char object[2048] = {0}, command[8192];
+            bool ok;
+            if (group) ok = module_build_append(object, sizeof(object), "%s/__shared_%zu.o", directory, i);
+            else if (count == 1) ok = module_build_append(object, sizeof(object), "%s/%s.o", directory, meta->name);
+            else ok = module_build_append(object, sizeof(object), "%s/%s_%zu.o", directory, meta->name, i);
+            if (!ok) return 0;
+            if (compile && (!module_snapshot_command(command, sizeof(command), prefix, directory,
+                                group, i, object, MODULE_SNAPSHOT_GCC) ||
+                            !module_build_append(command, sizeof(command), " 2>/dev/null") || system(command))) return 0;
+            uint64_t hash = hash_file_fnv1a(object);
+            if (!hash) return 0;
+            char digest[24];
+            snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
+            hash_context_field(&fingerprint, digest);
+        }
+    }
+    return fingerprint;
+}
+
+static uint64_t module_gcc_validation(ModuleBuildMetadata *meta, const ModulePkgFlags *flags) {
+    const char *temporary = getenv("TMPDIR");
+    if (!temporary || !*temporary) temporary = "/tmp";
+    char directory[2048] = {0};
+    if (!module_build_append(directory, sizeof(directory), "%s/nano-gcc-check-XXXXXX", temporary) ||
+        !mkdtemp(directory)) return 0;
+    uint64_t fingerprint = module_snapshot_sources(meta, flags, directory, MODULE_SNAPSHOT_GCC);
+    fingerprint = module_gcc_objects(meta, flags, directory, fingerprint, true);
+    module_remove_staging(directory);
+    return fingerprint;
 }
 
 /* I use one link recipe for publication and Linux warm validation. */
@@ -3102,6 +3149,9 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                     }
                 }
             }
+
+            if (snapshots && mode == MODULE_SNAPSHOT_GCC)
+                *preprocessing_before = module_gcc_objects(meta, flags, build_dir, *preprocessing_before, false);
 
             /* Build shared library */
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {

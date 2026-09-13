@@ -401,3 +401,46 @@ its warm validation also repeats C code generation.
 The expanded 15-method snapshot suite passes on both Darwin Clang and Linux
 GCC, with three compiler-specific skips each. This trial changes tests and
 evidence, not production compiler behavior.
+
+## Production GCC object validation
+
+My v20 context adds actual GCC object bytes to the retained-C fingerprint.
+Cold compilation still reads the retained `.i` files and follows the existing
+error path. Before linking, I hash the ordinary and shared objects that will
+be consumed. Fresh validation captures C into a private temporary directory,
+compiles it with the same retained-C recipe, and hashes those objects in the
+same order. A mismatch or failed validation withholds reuse evidence.
+
+This does not retain every original file or make source reads atomic. In the
+restored `.incbin` experiment, the first GCC result is still 43, but it has no
+reuse record; the next build returns 42, matching independent fresh compilation.
+Clang's assembly-capture boundary continues to return 42 on the first build.
+Ordinary C source/header cases remain 42 throughout. They perform two object
+compilations for a GCC cold build (build plus validation) and a third for warm
+validation. Tests assert those counts rather than claiming no recompilation.
+
+The production tests cover nested assembler macros/includes, permanent binary
+and include changes, ordinary and shared-only inputs, missing-input recovery,
+and preservation of the old generation after an injected cold compilation
+failure. A compiler that fails once during cold compilation is not silently
+retried. Validation uses private `nano-gcc-check-*` directories under `TMPDIR`
+or `/tmp`, with the existing non-recursive, symlink-safe private cleanup helper.
+Normal cleanup is tested with a space-containing temporary root. Termination
+can leave an orphan; temporary-directory collection remains separate work.
+
+All 17 snapshot methods pass on GCC 12 with two Clang-only skips, normally and
+with GCC `-O1` ASan/UBSan, recovery disabled, instrumenting the production
+builder and support sources described above. The full Linux compiler/VM gate
+sequence passes, including 53 cache methods (eight platform skips), four linker
+methods, shadows, wrappers, 63 codegen cases, 19 FFI cases and dependency checks.
+Darwin's corresponding gates pass with five GCC-specific snapshot skips. Its
+four changed cache-count methods were rerun after the full gate.
+
+Initial Linux gate failures identified old no-recompilation count assertions;
+the corrected tests assert exact validation counts while retaining result,
+generation-preservation and failed-link assertions. An early sanitizer run
+failed the new injection fixture because its own directory name matched the
+validation-only trigger. After fixing that fixture prefix, the complete
+instrumented suite passed. No sanitizer finding was reported in that failure.
+The strengthened test verifies cleanup after validation failure and subsequent
+successful recovery, not just normal cleanup.

@@ -45,7 +45,7 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
                 for key in ("bytes_restored", "size_preserved", "mtime_preserved", "reuse_record", "generation_reused"):
                     self.assertTrue(case[key], key)
-                self.assertEqual(case["total_object_compilations"], 1)
+                self.assertEqual(case["total_object_compilations"], 1 if self.clang else 3)
                 if self.clang:
                     self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
 
@@ -59,8 +59,7 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(case["total_object_compilations"], 1)
                 self.assertGreater(case["total_assembly_captures"], case["cold_assembly_captures"])
 
-    def test_clang_assembler_cache_nested_changes_and_recovery(self):
-        if not self.clang: self.skipTest("I have not integrated GCC assembler-input capture")
+    def test_assembler_cache_nested_changes_and_recovery(self):
         for shared in (False, True):
             with self.subTest(shared=shared), tempfile.TemporaryDirectory(prefix="nano-assembly-cache-") as tmp:
                 directory = Path(tmp)
@@ -100,6 +99,65 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 44)
                 include.write_text(include_text)
                 self.assertNotEqual(build(43), third)
+
+    def test_gcc_assembler_restoration_withholds_stale_reuse(self):
+        if self.clang: self.skipTest("I exercise the GCC object-output check here")
+        for case in measure(shutil.which("cc"), ("assembler",))["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (43, 42, 42))
+                self.assertFalse(case["reuse_record"])
+                self.assertFalse(case["generation_reused"])
+                for key in ("bytes_restored", "mtime_preserved", "size_preserved", "retained_translation_unit"):
+                    self.assertTrue(case[key], key)
+                self.assertEqual(case["total_object_compilations"], 4)
+
+    def test_gcc_validation_cleanup_and_cold_failure(self):
+        if self.clang: self.skipTest("I exercise the GCC private object checker here")
+        with tempfile.TemporaryDirectory(prefix="nano-gcc-validation-test-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            scratch = directory / "validation with spaces"
+            scratch.mkdir()
+            env["TMPDIR"] = str(scratch)
+            self.support.probe_path("build", module, env)
+            generation = self.support.probe_path("directory", module, env)
+            self.assertTrue((generation / "source_hashes.json").is_file())
+            self.support.probe_path("build", module, env)
+            self.assertEqual(self.support.probe_path("directory", module, env), generation)
+            self.assertEqual(list(scratch.iterdir()), [])
+            wrapper, calls = directory / "cc", directory / "calls"
+            wrapper.write_text(f'''#!{sys.executable}
+import os, pathlib, sys
+if os.environ.get("NANO_TEST_FAIL_VALIDATION") and any("nano-gcc-check-" in arg for arg in sys.argv):
+    sys.exit(30)
+if "-c" in sys.argv:
+    path = pathlib.Path({str(calls)!r})
+    if not path.exists():
+        path.write_text("failed once")
+        sys.exit(29)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertEqual(self.support.probe_path("directory", module, env), generation)
+            self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+            self.assertEqual(list(scratch.iterdir()), [])
+            self.support.probe_path("build", module, env)
+            self.assertEqual(list(scratch.iterdir()), [])
+            env["NANO_TEST_FAIL_VALIDATION"] = "1"
+            (module / "answer.c").write_text("long long nano_build_answer(void) { return 43; }\n")
+            self.support.probe_path("build", module, env)
+            unchecked = self.support.probe_path("directory", module, env)
+            self.assertFalse((unchecked / "source_hashes.json").exists())
+            self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+            self.assertEqual(list(scratch.iterdir()), [])
+            del env["NANO_TEST_FAIL_VALIDATION"]
+            self.support.probe_path("build", module, env)
+            recovered = self.support.probe_path("directory", module, env)
+            self.assertTrue((recovered / "source_hashes.json").is_file())
+            self.assertEqual(list(scratch.iterdir()), [])
 
     def test_configured_flags_preserve_retained_input_and_phases(self):
         active = "cflags_macos" if sys.platform == "darwin" else "cflags_linux"
@@ -169,7 +227,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(self.support.probe_path("directory", module, env), generation)
                 commands = [json.loads(line) for line in calls.read_text().splitlines()]
                 compiled = [argv for argv in commands if "-c" in argv]
-                self.assertEqual(len(compiled), 1)
+                self.assertEqual(len(compiled), 1 if self.clang else 3)
                 self.assertTrue(any(arg.endswith(self.snapshot_suffix) for arg in compiled[0]))
                 for argv in commands:
                     for flag in flags[:6]:
@@ -329,7 +387,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
             self.support.probe_path("build", module, env)
             self.assertEqual(self.support.probe_path("directory", module, env), generation)
-            self.assertEqual(len(calls.read_text().splitlines()), 3)
+            self.assertEqual(len(calls.read_text().splitlines()), 3 if self.clang else 9)
             self.assertTrue((generation / "source_hashes.json").is_file())
 
     def test_supported_scalar_flag_spellings(self):

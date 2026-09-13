@@ -506,7 +506,7 @@ and require fresh capture to match before recording reuse evidence. The retained
 cover ordinary, multiple and shared-only C sources. Capture emits the original
 dependency records and reports C diagnostics against the original source paths.
 Failed or empty capture falls back to original compilation without a reuse
-record. A failed retained-input compilation fails the build. My v19 context
+record. A failed retained-input compilation fails the build. My v20 context
 invalidates older records. I identify the supported compiler family through
 a successful version query; that query is not authentication.
 
@@ -528,6 +528,16 @@ generation again; it avoids another object assembly, not another C compilation.
 GCC's `-S` output retains external directives, so I have not applied this path
 to GCC. See my [assembly capture evidence](SOURCE_SNAPSHOT_EVIDENCE.md#production-clang-assembly-capture)
 for the tested boundary and remaining assembler work.
+
+For supported GCC builds, I also fingerprint the actual ordinary and shared
+objects before linking. Fresh validation privately captures C and compiles
+objects again, then requires matching combined C/object fingerprints. This
+detects the tested restored `.incbin` edit without pretending that retained C
+contains assembler-read bytes. Such an edit can affect the cold result; I
+withhold reuse when validation differs. The next build recompiles it. This
+repeats a full C compilation after cold builds and on warm validation. Private
+checks use `TMPDIR` (or `/tmp`) and are removed after normal success or failure;
+process termination can leave an orphan. This is not an atomic source snapshot.
 
 For GCC I add `-fpch-preprocess` to capture and warm validation. A
 `#pragma GCC pch_preprocess` marker means the output still references external

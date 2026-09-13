@@ -473,6 +473,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       object generation versus 12 ms for preprocessing in the Linux fixture;
       this is not an incremental compilation speedup (2026-09-12).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+- [x] **5.0 GCC compiler-output validation integration.** I bind reuse to the
+      actual objects compiled from retained C and validate them against fresh
+      private captures. I preserve cold compilation failures and old generations,
+      test restored/permanent assembler input changes and cleanup, and report
+      the extra compilation work. This closes an output-consistency gap, not
+      the separate requirement for complete source-file snapshots.
+      Seventeen snapshot methods pass on GCC 12 with two Clang-only skips,
+      normally and with production-builder/support ASan/UBSan. Darwin passes
+      with five GCC-specific skips. Full compiler/VM gates pass on both
+      platforms; compiler-count assertions now include validation work. The
+      restored assembler edit yields cold 43 without reuse evidence, then
+      warm/fresh 42. Temporary success/failure cleanup and cold failure without
+      retry are tested (2026-09-12).
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

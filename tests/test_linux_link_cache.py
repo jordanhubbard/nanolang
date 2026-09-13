@@ -91,6 +91,8 @@ class LinuxLinkCache(unittest.TestCase):
                 self.assertEqual(self.cache.probe_path("directory", module, env), current)
 
     def test_shared_objects_reuse_and_failed_link_recovery(self):
+        version = subprocess.run([shutil.which("cc"), "--version"], capture_output=True, check=True, timeout=10)
+        gcc_validation = b"Free Software Foundation" in version.stdout and b"clang version" not in version.stdout
         with tempfile.TemporaryDirectory(prefix="nano-linux-warm-") as tmp:
             directory = Path(tmp)
             module, _, env = self.cache.support.foreign_build_fixture(directory)
@@ -118,7 +120,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             retained = self.cache.snapshot(previous)
             self.cache.probe_path("build", module, env)
             self.assertEqual(self.cache.probe_path("directory", module, env), previous)
-            self.assertEqual(calls.read_text().splitlines().count("C"), 3)
+            self.assertEqual(calls.read_text().splitlines().count("C"), 9 if gcc_validation else 3)
             self.assertEqual(calls.read_text().splitlines().count("L"), 2)
             fail.touch()
             result = subprocess.run([str(self.probe), "build", str(module)], cwd=ROOT,
@@ -131,7 +133,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             fail.unlink()
             self.cache.probe_path("build", module, env)
             self.assertEqual(self.cache.probe_path("directory", module, env), previous)
-            self.assertEqual(calls.read_text().splitlines().count("C"), 3)
+            self.assertEqual(calls.read_text().splitlines().count("C"), 15 if gcc_validation else 3)
             self.assertEqual(self.answer(self.cache.probe_path("library", module, env)), 42)
 
     def test_library_comparison_boundaries(self):
