@@ -7,6 +7,10 @@
 
 #include "module_builder.h"
 #include "runtime/module_build_dir.h"
+#ifdef __linux__
+#include "runtime/assembler_capture.h"
+#include <elf.h>
+#endif
 #include "utf8.h"
 #include "shell_path.h"
 #include <stdarg.h>
@@ -469,7 +473,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         "PKG_CONFIG_SYSROOT_DIR", "SOURCE_DATE_EPOCH", "LANG", "LC_ALL", "LC_CTYPE",
         "LD_LIBRARY_PATH", "LD_PRELOAD", "LD_AUDIT", "DYLD_LIBRARY_PATH",
         "DYLD_FALLBACK_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES",
-        "NANO_TOOLCHAIN_ID"
+        "NANO_TOOLCHAIN_ID", "NANO_AS_CAPTURE_HELPER"
     };
     for (size_t i = 0; i < sizeof(variables) / sizeof(variables[0]); i++) {
         const char *value = getenv(variables[i]);
@@ -2372,7 +2376,8 @@ typedef enum {
     MODULE_SNAPSHOT_NONE = 0,
     MODULE_SNAPSHOT_CLANG,
     MODULE_SNAPSHOT_GCC,
-    MODULE_SNAPSHOT_GCC_ASSEMBLY
+    MODULE_SNAPSHOT_GCC_ASSEMBLY,
+    MODULE_SNAPSHOT_GCC_REPLAY
 } ModuleSnapshotMode;
 
 static ModuleSnapshotMode module_snapshot_mode(const ModuleBuildMetadata *meta, const ModulePkgFlags *captured) {
@@ -2673,6 +2678,162 @@ failed:
     return 0;
 }
 
+/* GCC still chooses assembler arguments; my private -B entry changes only the
+ * executable receiving them. Loader configuration starts inside that wrapper,
+ * never in the compiler driver, preprocessor, linker or calling process. */
+static bool module_read_command(char *command, size_t capacity, const char *prefix,
+                                 const char *directory, size_t group, size_t index,
+                                 const char *object, bool capture) {
+    char input[2048] = {0}, record[2048] = {0}, tools[2048] = {0};
+    command[0] = 0;
+    return module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.s", directory, group, index) &&
+        module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, index) &&
+        module_build_append(tools, sizeof(tools), "%s/", directory) &&
+        module_build_append(command, capacity, "NANO_AS_CAPTURE_PHASE=%s", capture ? "capture" : "replay") &&
+        module_append_path_flag(command, capacity, "NANO_AS_CAPTURE_PREFIX=", record) &&
+        module_append_path_flag(command, capacity, "NANO_AS_CAPTURE_INPUT=", input) &&
+        module_build_append(command, capacity, " %s -x assembler", prefix) &&
+        module_append_path_flag(command, capacity, "-B", tools) &&
+        module_append_path_flag(command, capacity, "", input) &&
+        module_append_path_flag(command, capacity, "-o ", object);
+}
+
+#ifdef __linux__
+static bool module_dynamic_elf(const char *path) {
+    FILE *file = fopen(path, "rb");
+    if (!file) return false;
+    Elf64_Ehdr header;
+    struct stat st;
+    bool ok = !fstat(fileno(file), &st) && S_ISREG(st.st_mode) && st.st_size >= 0 &&
+        fread(&header, 1, sizeof(header), file) == sizeof(header) &&
+        !memcmp(header.e_ident, ELFMAG, SELFMAG) && header.e_ident[EI_CLASS] == ELFCLASS64 &&
+        header.e_ident[EI_DATA] == ELFDATA2LSB && header.e_phentsize == sizeof(Elf64_Phdr) &&
+        header.e_phnum <= 128 && header.e_phoff <= (uint64_t)st.st_size &&
+        (uint64_t)header.e_phnum * sizeof(Elf64_Phdr) <= (uint64_t)st.st_size - header.e_phoff &&
+        !fseeko(file, (off_t)header.e_phoff, SEEK_SET);
+    bool interpreter = false;
+    for (unsigned i = 0; ok && i < header.e_phnum; i++) {
+        Elf64_Phdr program;
+        ok = fread(&program, 1, sizeof(program), file) == sizeof(program);
+        if (ok && program.p_type == PT_INTERP) interpreter = true;
+    }
+    if (fclose(file)) ok = false;
+    return ok && interpreter;
+}
+
+static bool module_tool_output(const char *command, char *output, size_t capacity) {
+    FILE *pipe = popen(command, "r");
+    if (!pipe) return false;
+    size_t size = fread(output, 1, capacity - 1, pipe);
+    bool ok = !ferror(pipe) && feof(pipe) && !memchr(output, 0, size);
+    char discard[1024];
+    while (fread(discard, 1, sizeof(discard), pipe)) {}
+    if (pclose(pipe)) ok = false;
+    output[size] = 0;
+    return ok && size;
+}
+
+static uint64_t module_gcc_read_capture(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
+                                       const char *directory, uint64_t fingerprint) {
+    if (!directory || (getenv("LD_PRELOAD") && *getenv("LD_PRELOAD")) ||
+        (getenv("LD_AUDIT") && *getenv("LD_AUDIT"))) return 0;
+    char helper[2048], tool[2048], command[8192] = {0}, version[8192];
+    const char *configured = getenv("NANO_AS_CAPTURE_HELPER");
+    if (configured) {
+        int n = snprintf(helper, sizeof(helper), "%s", configured);
+        if (n < 0 || (size_t)n >= sizeof(helper)) return 0;
+    } else {
+        ssize_t size = readlink("/proc/self/exe", helper, sizeof(helper) - 1);
+        if (size <= 0 || (size_t)size >= sizeof(helper) - 1) return 0;
+        helper[size] = 0;
+        char *slash = strrchr(helper, '/');
+        if (!slash) return 0;
+        *slash = 0;
+        if (!module_build_append(helper, sizeof(helper), "/nano_as_capture.so")) return 0;
+    }
+    if (!module_build_append(command, sizeof(command), "%s -print-prog-name=as 2>/dev/null", module_selected_compiler(meta)) ||
+        !module_tool_output(command, tool, sizeof(tool))) return 0;
+    size_t size = strlen(tool);
+    if (size && tool[size - 1] == '\n') tool[--size] = 0;
+    char *assembler = module_compiler_path(tool);
+    if (!assembler) return 0;
+    command[0] = 0;
+    bool ok = module_append_path_flag(command, sizeof(command), "", assembler) &&
+        module_build_append(command, sizeof(command), " --version 2>/dev/null") &&
+        module_tool_output(command, version, sizeof(version)) &&
+        strstr(version, "GNU assembler") && strstr(version, " 2.40\n");
+    uint64_t assembler_hash = ok && module_dynamic_elf(assembler) ? hash_file_fnv1a(assembler) : 0;
+    char copied[2048] = {0}, wrapper[2048] = {0};
+    ModuleAssemblyCapture bytes = {directory, 0, 0, fingerprint};
+    ok = assembler_hash && module_build_append(copied, sizeof(copied), "%s/__as_helper.so", directory) &&
+        module_build_append(wrapper, sizeof(wrapper), "%s/as", directory) &&
+        module_capture_assembly_file(&bytes, helper, copied, false, 0);
+    char *quoted_helper = ok ? module_quote_path(copied) : NULL;
+    char *quoted_as = ok ? module_quote_path(assembler) : NULL;
+    FILE *script = quoted_helper && quoted_as ? fopen(wrapper, "wx") : NULL;
+    if (!script) ok = false;
+    else {
+        ok = fprintf(script, "#!/bin/sh\nexec 3< %s || exit 125\n"
+            "if [ \"$NANO_AS_CAPTURE_PHASE\" = replay ]; then\n"
+            "  : > \"$NANO_AS_CAPTURE_PREFIX.replayed0\" || exit 125\nfi\n"
+            "LD_PRELOAD=/proc/self/fd/3 %s \"$@\"\nnano_as_status=$?\n"
+            "[ \"$nano_as_status\" -eq 0 ] || exit \"$nano_as_status\"\n"
+            "if [ \"$NANO_AS_CAPTURE_PHASE\" = replay ]; then\n"
+            "  nano_as_marker=\n  IFS= read -r nano_as_marker < \"$NANO_AS_CAPTURE_PREFIX.replayed0\" || :\n"
+            "  [ \"$nano_as_marker\" = NACDONE1 ] || exit 125\nfi\n", quoted_helper, quoted_as) > 0;
+        if (fclose(script) || chmod(wrapper, 0700)) ok = false;
+    }
+    free(quoted_helper); free(quoted_as);
+    hash_context_field(&bytes.hash, "gcc-read-replay-v1");
+    hash_context_field(&bytes.hash, assembler);
+    char digest[24];
+    snprintf(digest, sizeof(digest), "%llu", (unsigned long long)assembler_hash);
+    hash_context_field(&bytes.hash, digest);
+    free(assembler);
+    char retained[4096], assemble[4096];
+    if (ok) ok = module_compile_prefix(meta, retained, sizeof(retained), MODULE_C_RETAINED_ASSEMBLY, flags) &&
+        module_compile_prefix(meta, assemble, sizeof(assemble), MODULE_C_ASSEMBLE, flags);
+    NacRead *reads = ok ? calloc(NAC_READS, sizeof(*reads)) : NULL;
+    if (!reads) ok = false;
+    for (size_t group = 0; ok && group < 2; group++) {
+        size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
+        for (size_t i = 0; ok && i < count; i++) {
+            char input[2048] = {0}, assembly[2048] = {0}, object[2048] = {0}, record[2048] = {0};
+            command[0] = 0;
+            ok = module_build_append(input, sizeof(input), "%s/__snapshot_%zu_%zu.i", directory, group, i) &&
+                module_build_append(assembly, sizeof(assembly), "%s/__snapshot_%zu_%zu.s", directory, group, i) &&
+                module_build_append(object, sizeof(object), "%s/__as_capture_%zu_%zu.o", directory, group, i) &&
+                module_build_append(record, sizeof(record), "%s/__as_read_%zu_%zu", directory, group, i) &&
+                module_build_append(command, sizeof(command), "%s%s -x cpp-output", retained, group ? " -fvisibility=hidden" : "") &&
+                module_append_path_flag(command, sizeof(command), "", input) &&
+                module_append_path_flag(command, sizeof(command), "-o ", assembly) &&
+                module_build_append(command, sizeof(command), " 2>/dev/null") && !system(command) &&
+                module_read_command(command, sizeof(command), assemble, directory, group, i, object, true) &&
+                module_build_append(command, sizeof(command), " 2>/dev/null") && !system(command);
+            unsigned captured = 0;
+            uint64_t hash = 0;
+            if (ok) ok = nac_load(record, assembly, reads, &captured, &hash);
+            if (ok) {
+                snprintf(digest, sizeof(digest), "%llu", (unsigned long long)hash);
+                hash_context_field(&bytes.hash, digest);
+            }
+        }
+    }
+    free(reads);
+    if (ok) return bytes.hash;
+    DIR *dir = opendir(directory);
+    struct dirent *entry;
+    while (dir && (entry = readdir(dir))) {
+        size_t length = strlen(entry->d_name);
+        if (!strcmp(entry->d_name, "as") || !strncmp(entry->d_name, "__as_", 5) ||
+            (!strncmp(entry->d_name, "__snapshot_", 11) && length > 2 && !strcmp(entry->d_name + length - 2, ".s")))
+            (void)unlinkat(dirfd(dir), entry->d_name, 0);
+    }
+    if (dir) closedir(dir);
+    return 0;
+}
+#endif
+
 /* I hash the retained input: Clang assembly or GCC preprocessed C. A later
  * capture must reproduce those bytes, not just hashes of restored source. */
 static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
@@ -2766,6 +2927,13 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
             if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_ASSEMBLY;
             return frozen;
         }
+#ifdef __linux__
+        frozen = module_gcc_read_capture(meta, flags, directory, fingerprint);
+        if (frozen) {
+            if (actual_mode) *actual_mode = MODULE_SNAPSHOT_GCC_REPLAY;
+            return frozen;
+        }
+#endif
     }
     return fingerprint;
 }
@@ -2773,6 +2941,8 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
 static bool module_snapshot_command(char *command, size_t capacity, const char *prefix,
                                     const char *directory, size_t group, size_t index,
                                     const char *object, ModuleSnapshotMode mode) {
+    if (mode == MODULE_SNAPSHOT_GCC_REPLAY)
+        return module_read_command(command, capacity, prefix, directory, group, index, object, false);
     char snapshot[2048] = {0};
     bool assembly = mode == MODULE_SNAPSHOT_CLANG || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY;
     command[0] = 0;
@@ -2793,7 +2963,7 @@ static uint64_t module_gcc_objects(ModuleBuildMetadata *meta, const ModulePkgFla
     if (!fingerprint) return 0;
     char prefix[4096];
     if (compile && !module_compile_prefix(meta, prefix, sizeof(prefix),
-        mode == MODULE_SNAPSHOT_GCC_ASSEMBLY ? MODULE_C_ASSEMBLE : MODULE_C_RETAINED, flags)) return 0;
+        mode != MODULE_SNAPSHOT_GCC ? MODULE_C_ASSEMBLE : MODULE_C_RETAINED, flags)) return 0;
     hash_context_field(&fingerprint, "gcc-object-output-v1");
     for (size_t group = 0; group < 2; group++) {
         size_t count = group ? meta->shared_c_sources_count : meta->c_sources_count;
@@ -3293,7 +3463,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            if (snapshots && (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY))
+            if (snapshots && (mode == MODULE_SNAPSHOT_GCC || mode == MODULE_SNAPSHOT_GCC_ASSEMBLY || mode == MODULE_SNAPSHOT_GCC_REPLAY))
                 *preprocessing_before = module_gcc_objects(meta, flags, build_dir, *preprocessing_before, false, mode);
 
             /* Build shared library */

@@ -56,10 +56,13 @@ def measure(compiler, kinds=("source", "header")):
                         if kind == "assembler-include":
                             inner.write_text('.ascii "42"\n')
                             target = inner
-                    elif kind == "assembler-fallback":
+                    elif kind in ("assembler-fallback", "assembler-macro"):
                         include = module / "macro.s"
                         include.write_text('.macro payload file\n.incbin "\\file"\n.endm\npayload "' + str(target) + '"\n')
                         directive = f'.include "{include}"'
+                        env["NANO_AS_CAPTURE_HELPER"] = str(
+                            directory / "missing-helper.so" if kind == "assembler-fallback"
+                            else shadows.ROOT / "bin/nano_as_capture.so")
                     assembly = f'.data\n.globl {symbol}\n{symbol}:\n{directive}\n.text\n'
                     source.write_text('extern const unsigned char snapshot_payload[];\n'
                         '__asm__(' + json.dumps(assembly) + ');\n'
@@ -75,7 +78,7 @@ if "-S" in sys.argv or "-E" in sys.argv:
 if "-c" in sys.argv:
     with open({str(calls)!r}, "a") as log: log.write("C\\n")
     marker = pathlib.Path({str(marker)!r})
-    if not marker.exists():
+    if not marker.exists() and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":
         target = pathlib.Path({str(target)!r})
         original, stamp = target.read_bytes(), target.stat()
         changed = original.replace(b"42", b"43")
@@ -128,6 +131,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     "retained_translation_unit": (cold_generation / "__snapshot_0_0.i").is_file(),
                     "retained_assembly": (cold_generation / "__snapshot_0_0.s").is_file(),
                     "retained_assembler_files": len(list(cold_generation.glob("__assembler_*"))),
+                    "retained_read_manifest": (cold_generation / "__as_read_0_0.manifest0").is_file(),
                     "target_in_reuse_record": record and str(target) in
                         (cold_generation / "source_hashes.json").read_text(),
                     "cold_object_compilations": cold_calls.count("C"),

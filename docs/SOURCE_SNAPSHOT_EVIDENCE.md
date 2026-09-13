@@ -544,8 +544,8 @@ variants. General assembler snapshot acceptance remains open (2026-09-13).
 
 `src/runtime/assembler_capture.c` now owns a runtime helper and
 `src/runtime/assembler_capture.h` its shared record validator. I build it
-explicitly on Linux with `make bin/nano_as_capture.so`; the production module
-builder does not select it yet. The earlier trial remains historical evidence,
+explicitly on Linux with `make bin/nano_as_capture.so`; at this stage the production
+module builder did not select it yet. The earlier trial remains historical evidence,
 not the implementation used by this helper.
 
 The `NASCAP01` format uses little-endian fixed-width headers and length-delimited
@@ -595,4 +595,61 @@ replay; this is not hostile-writer isolation or power-loss durability. Only the
 tested stdio read boundary is covered, not arbitrary assembler syscalls. Tool
 identification, complete supported read coverage, child-only configuration,
 build/install integration and actual production selection remain in the
-integration gate. I have not enabled the helper as a default compiler path.
+integration gate. At this stage I had not enabled the helper as a default compiler path.
+
+## Production GNU assembler read replay
+
+When GCC's literal assembler copier cannot represent a source, I now try the
+sealed read-capture helper on Linux. I resolve GCC's `-print-prog-name=as`
+result, require a dynamically linked ELF64 little-endian executable reporting
+GNU as 2.40, and fingerprint its path and bytes. I copy the selected helper
+into private staging and fingerprint those actual bytes. GNU/Linux builds and
+installs include `nano_as_capture.so` beside the native/bytecode drivers;
+`NANO_AS_CAPTURE_HELPER` is an explicit path override and cache-context input.
+
+GCC still chooses the assembler arguments. Its private `-B` entry selects a
+wrapper that opens the retained helper on descriptor 3 and sets `LD_PRELOAD`
+only for the assembler child. Neither the compiler driver nor the linker gets
+that loader setting. Descriptor loading avoids the loader's whitespace-delimited
+path interpretation. Existing ambient `LD_PRELOAD`/`LD_AUDIT` configurations
+decline this path instead of being silently replaced.
+
+I emit assembly from retained C, run a capture assembly, validate its completed
+record and copies, then use ordered replay for the objects I will link. The
+wrapper clears completion before replay and requires both a successful child
+and `NACDONE1`. A replay failure fails the build and preserves the old generation.
+Capture or tool-selection failure removes partial read-capture files and keeps
+the previous retained-C/object-validation fallback. That fallback is still not
+general assembler snapshot support.
+
+The restored macro-input fixture now changes the live payload during final
+object generation, after capture, and verifies cold/warm/fresh 42 with reuse
+for local and shared caches. Capture invocations are distinguished explicitly
+from final assembly: a change during capture itself can be retained and then
+withhold reuse when fresh validation differs. Across cold and warm builds this
+path runs six object assemblies, including captures and validation. It is not
+a no-recompilation cache hit; the existing literal path remains cheaper.
+
+Production tests also cover shared-only assembly, inactive conditional inputs,
+permanent payload changes, missing-input preservation, quoted helper paths,
+default adjacent-helper discovery, failed assembler lookup, replay-helper
+loss, recovery and temporary cleanup. A compiler-driver assertion verifies
+that it never inherits my `LD_PRELOAD`. The private copy directory remains
+trusted during replay. GNU-as variants, arbitrary syscall reads, helper/assembler
+authentication and transitive shared-library/toolchain snapshots are not proved
+by this integration and remain separate acceptance work.
+
+Both full bootstraps and the 121-method bytecode/cache/link/snapshot/helper
+regression set pass (ten Linux skips, twenty Darwin skips). The expanded 21
+snapshot methods pass again with the GCC production builder and support sources
+under ASan/UBSan, leak detection disabled. The final negative checks distinguish
+missing helpers from ignored loads with successful native assembly, and decline
+an assembler shell wrapper even when its version output looks supported.
+Dependency-rebuild and FFI gates also pass on both hosts.
+
+The Linux install gate first exposed a pre-existing `-Werror` socket-path copy
+in `vmd_server_run`. I added an explicit length rejection before unlink/bind;
+three injected exact-fit/oversized cases preserve old files and pass on both
+hosts. Linux `make install` then succeeded, including the adjacent helper.
+These gates do not establish complete relocatable installation of the whole
+language or release readiness (2026-09-13).

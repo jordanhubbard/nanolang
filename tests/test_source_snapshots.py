@@ -23,6 +23,13 @@ class SourceSnapshots(unittest.TestCase):
             raise unittest.SkipTest("I exercise ordinary Clang and GCC C here")
         cls.clang = b"clang version" in result.stdout
         cls.snapshot_suffix = ".s" if cls.clang else ".i"
+        cls.read_replay = False
+        if not cls.clang and sys.platform == "linux":
+            query = subprocess.run([shutil.which("cc"), "-print-prog-name=as"], capture_output=True, timeout=10)
+            assembler = shutil.which(query.stdout.decode().strip()) if query.returncode == 0 else None
+            if assembler:
+                version = subprocess.run([assembler, "--version"], capture_output=True, timeout=10)
+                cls.read_replay = version.returncode == 0 and b"GNU assembler" in version.stdout and b" 2.40\n" in version.stdout
 
     def setUp(self):
         self.support = cache.ModuleCachePublication()
@@ -123,6 +130,106 @@ class SourceSnapshots(unittest.TestCase):
                 for key in ("bytes_restored", "mtime_preserved", "size_preserved", "retained_translation_unit"):
                     self.assertTrue(case[key], key)
                 self.assertEqual(case["total_object_compilations"], 4)
+
+    def test_gcc_macro_argument_replays_captured_reads(self):
+        if not self.read_replay: self.skipTest("I need the supported Linux GNU as 2.40 replay boundary")
+        for case in measure(shutil.which("cc"), ("assembler-macro",))["cases"]:
+            with self.subTest(case=case):
+                self.assertEqual((case["cold_answer"], case["warm_answer"], case["fresh_answer"]), (42, 42, 42))
+                for key in ("bytes_restored", "mtime_preserved", "size_preserved", "reuse_record",
+                            "generation_reused", "retained_read_manifest"):
+                    self.assertTrue(case[key], key)
+                self.assertEqual(case["total_object_compilations"], 6)
+
+    def test_gcc_replay_cleanup_failure_and_tool_selection(self):
+        if not self.read_replay: self.skipTest("I need the supported Linux GNU as 2.40 replay boundary")
+        with tempfile.TemporaryDirectory(prefix="nano-replay-build-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            helper = directory / "helper with 'quotes'.so"
+            shutil.copy2(cache.ROOT / "bin/nano_as_capture.so", helper)
+            stub, ignored = directory / "ignored.c", directory / "ignored.so"
+            stub.write_text("int nano_ignored_helper;\n")
+            subprocess.run([shutil.which("cc"), "-shared", "-fPIC", str(stub), "-o", str(ignored)],
+                           capture_output=True, check=True, timeout=10)
+            env["NANO_AS_CAPTURE_HELPER"] = str(helper)
+            scratch = directory / "private space"
+            scratch.mkdir()
+            env["TMPDIR"] = str(scratch)
+            binary, wrapper = module / "payload.bin", directory / "cc"
+            binary.write_bytes(b"42")
+            inactive = module / "inactive.bin"
+            assembly = '.data\n.globl snapshot_payload\nsnapshot_payload:\n.macro payload file\n.incbin "\\file"\n.endm\n'
+            assembly += f'.if 0\n.incbin "{inactive}"\n.endif\npayload "{binary}"\n.text\n'
+            (module / "payload.c").write_text('__asm__(' + json.dumps(assembly) + ');\n')
+            (module / "answer.c").write_text('extern const unsigned char snapshot_payload[];\n'
+                'long long nano_build_answer(void) { return (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+            metadata = json.loads((module / "module.json").read_text())
+            metadata["shared_c_sources"] = ["payload.c"]
+            (module / "module.json").write_text(json.dumps(metadata))
+            calls = directory / "calls"
+            wrapper.write_text(f'''#!{sys.executable}
+import json, os, pathlib, shutil, sys
+assert not os.getenv("LD_PRELOAD"), "I leaked the helper into the compiler driver"
+with open({str(calls)!r}, "a") as output: output.write(json.dumps(sys.argv[1:]) + "\\n")
+if os.getenv("NANO_TEST_AS_REPLAY_FAIL") and os.getenv("NANO_AS_CAPTURE_PHASE") == "replay":
+    stage = next(arg[2:] for arg in sys.argv if arg.startswith("-B"))
+    if os.getenv("NANO_TEST_AS_REPLAY_FAIL") == "ignore":
+        shutil.copy2({str(ignored)!r}, pathlib.Path(stage, "__as_helper.so"))
+    else:
+        pathlib.Path(stage, "__as_helper.so").unlink()
+if os.getenv("NANO_TEST_AS_QUERY_FAIL") and "-print-prog-name=as" in sys.argv:
+    print(os.environ["NANO_TEST_AS_QUERY_FAIL"])
+    sys.exit(0)
+os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
+''')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            def build(answer):
+                self.support.probe_path("build", module, env)
+                self.assertEqual(self.answer(self.support.probe_path("library", module, env)), answer)
+                self.assertEqual(list(scratch.iterdir()), [])
+                return self.support.probe_path("directory", module, env)
+            first = build(42)
+            self.assertTrue((first / "__as_read_0_0.manifest0").is_file())
+            inactive.write_bytes(b"I am not consumed")
+            self.assertEqual(build(42), first)
+            for failure in ("remove", "ignore"):
+                env["NANO_TEST_AS_REPLAY_FAIL"] = failure
+                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                self.assertNotEqual(failed.returncode, 0, failed.stderr)
+                self.assertEqual(self.support.probe_path("directory", module, env), first)
+                self.assertEqual(list(scratch.iterdir()), [])
+            del env["NANO_TEST_AS_REPLAY_FAIL"]
+            binary.write_bytes(b"43")
+            changed = build(43)
+            self.assertNotEqual(first, changed)
+            env["NANO_TEST_AS_QUERY_FAIL"] = "/missing/assembler"
+            fallback = build(43)
+            self.assertFalse((fallback / "__as_read_0_0.manifest0").exists())
+            fake_as = directory / "as-wrapper"
+            fake_as.write_text('#!/bin/sh\nexec ' + shlex.quote(shutil.which("as")) + ' "$@"\n')
+            fake_as.chmod(0o700)
+            env["NANO_TEST_AS_QUERY_FAIL"] = str(fake_as)
+            fallback = build(43)
+            self.assertFalse((fallback / "__as_read_0_0.manifest0").exists())
+            del env["NANO_TEST_AS_QUERY_FAIL"]
+            recovered = build(43)
+            self.assertTrue((recovered / "__as_read_0_0.manifest0").is_file())
+            self.assertTrue((recovered / "__as_read_1_0.manifest0").is_file())
+            installed = directory / "installed bin"
+            installed.mkdir()
+            shutil.copy2(self.support.probe, installed / "probe")
+            shutil.copy2(helper, installed / "nano_as_capture.so")
+            self.support.probe = installed / "probe"
+            del env["NANO_AS_CAPTURE_HELPER"]
+            recovered = build(43)
+            self.assertTrue((recovered / "__as_read_1_0.manifest0").is_file())
+            binary.unlink()
+            failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+            self.assertNotEqual(failed.returncode, 0)
+            self.assertEqual(self.support.probe_path("directory", module, env), recovered)
+            self.assertEqual(list(scratch.iterdir()), [])
 
     def test_literal_assembler_capture_boundaries(self):
         for spelling in ("literal", "empty", "semicolon", "label", "macro", "altmacro", "mri",

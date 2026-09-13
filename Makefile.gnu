@@ -610,6 +610,12 @@ $(OBJ_DIR)/nanovm/cop_main.o: $(NANOVM_DIR)/cop_main.c $(NANOVM_DIR)/cop_protoco
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: test-nanovm-daemon
+.PHONY: test-vmd-socket-path
+test-vmd-socket-path: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_vmd_socket_path tests/nanovm/test_vmd_socket_path.c \
+		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(LDFLAGS) -pthread
+	@$(OBJ_DIR)/test_vmd_socket_path
+
 test-nanovm-daemon: nano_vm nano_vmd
 	@echo "Running NanoVM daemon integration tests..."
 	@scripts/test_nanovm_daemon.sh
@@ -2080,6 +2086,7 @@ test-assembler-capture-records:
 	@python3 -m unittest tests.test_assembler_capture_records
 
 ifeq ($(UNAME_S),Linux)
+$(COMPILER_C) nano_virt $(OBJ_DIR)/test_module_generation_probe: $(BIN_DIR)/nano_as_capture.so
 $(BIN_DIR)/nano_as_capture.so: $(RUNTIME_DIR)/assembler_capture.c $(RUNTIME_DIR)/assembler_capture.h | $(BIN_DIR)
 	$(CC) -std=c99 -O2 -Wall -Wextra -Werror -fPIC -shared -o $@ $< -ldl
 endif
@@ -3302,9 +3309,15 @@ install: $(COMPILER) vm
 	install -m 755 bin/nano_cop $(PREFIX)/bin/nano_cop
 	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
 	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
+ifeq ($(UNAME_S),Linux)
+	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
+endif
 	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa)"
 
 uninstall:
+ifeq ($(UNAME_S),Linux)
+	rm -f $(PREFIX)/bin/nano_as_capture.so
+endif
 	rm -f $(PREFIX)/bin/nanoc $(PREFIX)/bin/nano_virt $(PREFIX)/bin/nano_vm $(PREFIX)/bin/nano_cop $(PREFIX)/bin/nano_vmd $(PREFIX)/bin/nanoisa
 	@echo "Uninstalled from $(PREFIX)/bin"
 

@@ -541,7 +541,8 @@ The tested restored literal-file edits now produce cold/warm/fresh 42.
 This path is bounded: 16 MiB per file, 64 MiB total, 256 file visits and 16
 include levels. Backslashes in assembly text, alternate macro/MRI modes, nonliteral or
 non-line-leading file directives, unrepresentable private paths, nonregular
-inputs and capture failures retain the earlier C/object validation path.
+inputs and capture failures first try the Linux GNU-as read-capture path below,
+then retain the earlier C/object validation path when that is unavailable.
 That fallback can still produce a changed cold result; I withhold reuse when
 validation differs. Captured assembly contains private staging paths and is
 build evidence, not a relocatable replay bundle. Broader assembler semantics
@@ -549,6 +550,24 @@ and variants remain an [open boundary](SOURCE_SNAPSHOT_EVIDENCE.md#gcc-literal-a
 Validation repeats a full C compilation after cold builds and on warm reuse. Private
 checks use `TMPDIR` (or `/tmp`) and are removed after normal success or failure;
 process termination can leave an orphan. This is not an atomic source snapshot.
+
+On Linux, when literal capture cannot represent the input, I also support a
+read-capture/replay path for dynamically linked ELF64 little-endian GNU as 2.40.
+GCC identifies its assembler with `-print-prog-name=as` and still supplies the
+assembly arguments. A private `-B` wrapper loads my copied helper only in the
+assembler child, through an inherited descriptor; paths may contain spaces.
+I validate the sealed capture before selecting replay, and require both child
+success and replay completion before accepting each replayed object. Fresh
+validation repeats this recipe and compares combined capture/object evidence.
+Helper bytes and the selected assembler path/content join the fingerprint.
+
+Linux builds and installs place `nano_as_capture.so` beside the compiler/VM
+drivers. `NANO_AS_CAPTURE_HELPER` can select another helper file and is part of
+build-context identity. Ambient `LD_PRELOAD` or `LD_AUDIT`, unavailable helpers,
+unidentified assemblers and unsupported versions keep the prior fallback.
+The helper's stdio and size limits, trusted private storage, and remaining
+variant boundary are described in my [capture evidence](SOURCE_SNAPSHOT_EVIDENCE.md#production-gnu-assembler-read-replay).
+This is not a syscall sandbox or complete toolchain snapshot.
 
 For GCC I add `-fpch-preprocess` to capture and warm validation. A
 `#pragma GCC pch_preprocess` marker means the output still references external

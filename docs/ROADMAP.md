@@ -904,7 +904,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       platform skips. Private replay storage remains trusted; this is not
       hostile-writer isolation or authenticated evidence (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
-- [ ] **5.0 GNU assembler capture/replay integration.** I bind a supported
+- [x] **5.0 daemon socket-path length validation.** I reject a Unix-domain
+      socket name that cannot fit before unlink/bind, rather than truncating it.
+      Linux GCC 12 `make install` failed its `-Werror` build at the truncating
+      copy in `vmd_server_run`. The current UID-derived path is short; three
+      injected boundary cases test exact fit and oversized-name rejection,
+      preserving existing files, on Darwin and Linux. Linux installation now
+      passes (2026-09-13). MAC `task_8babad5374294e02ab0e8147a6d717ed`.
+- [x] **5.0 GNU assembler capture/replay integration.** I bind a supported
       assembler executable to an isolated read-capture helper, preserving
       ordered repeated reads and exact path bytes. I package and identify the
       helper, scope loader settings to the assembler child, handle failed reads
@@ -913,6 +920,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       final assembly, missing inputs, driver/tool selection, cleanup and failure
       recovery. I do not promote the single-threaded trial's trusted records
       or its two stdio hooks into a general file-access guarantee.
+      Linux selects read replay after literal capture cannot represent an input,
+      for dynamic ELF64 little-endian GNU as 2.40. Macro restoration now yields
+      cold/warm/fresh 42 with reuse, at six object assemblies across cold/warm
+      capture, replay and validation. Both bootstraps and 121-method regression
+      sets pass (ten Linux/twenty Darwin skips). All 21 snapshot methods pass
+      with production-builder/support ASan/UBSan on GCC. Expanded checks cover
+      ignored helper loads, shared-only and inactive inputs, lookup failure,
+      adjacent discovery, cleanup and recovery. Linux install includes the
+      helper; other assembler variants and general read coverage remain open
+      in the acceptance gate below (2026-09-13).
       MAC `task_443e8107d0ff4350999e0d5186a809f1`.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
