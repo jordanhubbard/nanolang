@@ -2036,12 +2036,16 @@ fn genenv_copy(env: GenEnv) -> GenEnv {
     return GenEnv { names: names, types: types, mut_flags: flags, global_flags: globals, scope: env.scope }
 }
 shadow genenv_copy {
-    let outer: GenEnv = (genenv_put (genenv_new "outer") "first" "int" false)
+    let outer: GenEnv = (genenv_put (genenv_new "outer") "selected" "fn() -> int" false)
     let copy: GenEnv = (genenv_copy outer)
     let extended: array<string> = (array_push copy.names "inner")
     assert (== (array_length outer.names) 1)
     assert (== (array_length extended) 2)
-    assert (== (at copy.types 0) "int")
+    assert (== (at copy.types 0) "fn() -> int")
+    let inner: GenEnv = (genenv_put outer "selected" "int" true)
+    assert (== (genenv_get inner "selected") "int")
+    assert (== (genenv_get outer "selected") "fn() -> int")
+    assert (== (array_length outer.names) 1)
 }
 
 fn genenv_put(env: GenEnv, name: string, t: string, is_mut: bool) -> GenEnv {

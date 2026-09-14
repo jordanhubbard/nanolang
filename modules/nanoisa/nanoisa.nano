@@ -16,7 +16,7 @@ pub fn load_print(path: string) -> string {
 shadow load_print {
     let nasm_path: string = "/tmp/nanoisa_load_print_shadow.nasm"
     let nvm_path: string = "/tmp/nanoisa_load_print_shadow.nvm"
-    let source: string = ".function main 0 0 0\n  HALT\n.end\n"
+    let source: string = ".function main 0 0 0 void 0\n  HALT\n.end\n"
     assert (== (write nasm_path source) 0)
     assert (== (assemble_save nasm_path nvm_path) 0)
     assert (str_contains (load_print nvm_path) "HALT")
@@ -39,7 +39,7 @@ pub fn load_pretty(path: string) -> string {
 shadow load_pretty {
     let nasm_path: string = "/tmp/nanoisa_load_pretty_shadow.nasm"
     let nvm_path: string = "/tmp/nanoisa_load_pretty_shadow.nvm"
-    let source: string = ".function helper 0 0 0\n  RET\n.end\n"
+    let source: string = ".function helper 0 0 0 void 0\n  RET\n.end\n"
     assert (== (write nasm_path source) 0)
     assert (== (assemble_save nasm_path nvm_path) 0)
     let output: string = (load_pretty nvm_path)
@@ -63,7 +63,7 @@ pub fn assemble_save(nasm_path: string, nvm_path: string) -> int {
 shadow assemble_save {
     let nasm_path: string = "/tmp/nanoisa_assemble_save_shadow.nasm"
     let nvm_path: string = "/tmp/nanoisa_assemble_save_shadow.nvm"
-    let source: string = ".function test 0 0 0\n  RET\n.end\n"
+    let source: string = ".function test 0 0 0 void 0\n  RET\n.end\n"
     assert (== (write nasm_path source) 0)
     assert (== (assemble_save nasm_path nvm_path) 0)
     assert (> (str_length (load_print nvm_path)) 0)

@@ -421,6 +421,9 @@ test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@$(TIMEOUT_CMD) ./tests/nanoisa/test_nvm2c bin/nvm2c
 	@rm -f tests/nanoisa/test_nvm2c
 
+.PHONY: test-nvm2c371pass0fail
+test-nvm2c371pass0fail: test-nvm2c
+
 .PHONY: test-frontend-contract
 test-frontend-contract: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running NanoISA frontend contract tests..."
@@ -1764,8 +1767,18 @@ test-module-install-policy: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runt
 	@$(OBJ_DIR)/test_module_install_policy
 
 .PHONY: test-module-dep-recheck
-test-module-dep-recheck: $(COMPILER_C) test-module-install-policy
+test-module-dep-recheck: $(COMPILER_C) test-module-install-policy test-module-builder-cache
 	@bash tests/test_module_dep_recheck.sh
+
+.PHONY: test-failed-import-publication
+.PHONY: test-module-builder-cache
+test-units: test-module-builder-cache
+test-module-builder-cache: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_builder_cache tests/test_module_builder_cache.c $^ $(LDFLAGS)
+	@$(OBJ_DIR)/test_module_builder_cache
+
+test-failed-import-publication: nano_virt
+	@bash tests/test_failed_import_publication.sh
 
 .PHONY: test-negative
 test-negative: $(COMPILER)
@@ -1921,6 +1934,9 @@ test-impl: test-units
 	@echo ""
 	@echo "Testing module dependency re-checks against a warm object cache..."
 	@bash tests/test_module_dep_recheck.sh
+	@echo ""
+	@echo "Testing failed imports reject bytecode publication..."
+	@bash tests/test_failed_import_publication.sh
 	@echo ""
 	@echo "Checking NanoVM example coverage..."
 	@$(MAKE) --no-print-directory test-vm-examples

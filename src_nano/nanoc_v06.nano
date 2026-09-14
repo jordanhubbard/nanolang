@@ -866,6 +866,8 @@ struct MergeResult {
     source: string
     files: array<string>
     file_starts: array<int>
+    source_files: array<string>
+    source_lines: array<int>
     repo_root: string
     root_line: int
 }
@@ -1059,11 +1061,53 @@ shadow bind_merged_functions {
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let tokens: List<LexerToken> = (tokenize_string source "binding.nano" diags)
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "binding.nano")
-    let merge: MergeResult = MergeResult { source: source, files: ["first.nano", "root.nano"], file_starts: [1, 2], repo_root: "", root_line: 2 }
+    let merge: MergeResult = MergeResult { source: source, files: ["first.nano", "root.nano"], file_starts: [1, 2], source_files: ["first.nano", "root.nano"], source_lines: [1, 1], repo_root: "", root_line: 2 }
     assert (bind_merged_functions parser merge)
     assert (!= (parser_get_function parser 0).name (parser_get_function parser 1).name)
     assert (== (mb_lookup 1 "answer") "answer")
     (mb_reset [])
+}
+
+fn source_location_for_line(files: array<string>, lines: array<int>, merged_line: int, column: int) -> CompilerSourceLocation {
+    if (and (> merged_line 0) (<= merged_line (array_length files))) {
+        return (Diagnostics.diag_location (at files (- merged_line 1)) (at lines (- merged_line 1)) column)
+    } else {
+        return (Diagnostics.diag_location "" merged_line column)
+    }
+}
+
+shadow source_location_for_line {
+    let loc: CompilerSourceLocation = (source_location_for_line ["root.nano", "dep.nano"] [3, 8] 2 4)
+    assert (== loc.file "dep.nano")
+    assert (== loc.line 8)
+    assert (== loc.column 4)
+}
+
+fn remap_diagnostics(diags: List<CompilerDiagnostic>, files: array<string>, lines: array<int>) -> void {
+    let mut i: int = 0
+    while (< i (list_CompilerDiagnostic_length diags)) {
+        let old: CompilerDiagnostic = (list_CompilerDiagnostic_get diags i)
+        let mapped: CompilerSourceLocation = (source_location_for_line files lines old.location.line old.location.column)
+        let replacement: CompilerDiagnostic = CompilerDiagnostic {
+            phase: old.phase,
+            severity: old.severity,
+            code: old.code,
+            message: old.message,
+            location: mapped
+        }
+        (list_CompilerDiagnostic_set diags i replacement)
+        set i (+ i 1)
+    }
+}
+
+shadow remap_diagnostics {
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let old: CompilerDiagnostic = (Diagnostics.diag_parser_error "P0001" "bad" (Diagnostics.diag_location "merged.nano" 1 2))
+    (Diagnostics.diag_list_add diags old)
+    (remap_diagnostics diags ["path\\\"quoted.nano"] [7])
+    let mapped: CompilerDiagnostic = (list_CompilerDiagnostic_get diags 0)
+    assert (== mapped.location.file "path\\\"quoted.nano")
+    assert (== mapped.location.line 7)
 }
 
 struct ModuleBuildFlags {
@@ -1385,7 +1429,7 @@ shadow collect_module_build_flags {
 
 fn merge_with_imports(input_file: string) -> MergeResult {
     let start: string = (canonical input_file)
-    if (== start "") { return MergeResult { source: "", files: [], file_starts: [], repo_root: "", root_line: 0 } }
+    if (== start "") { return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: "", root_line: 0 } }
     let repo_root: string = (find_repo_root (nl_path_dirname start))
     let max_files: int = (parse_env_int "NANO_IMPORT_MAX_FILES" 5000)
     let max_lines: int = (parse_env_int "NANO_IMPORT_MAX_LINES" 50000)
@@ -1405,10 +1449,12 @@ fn merge_with_imports(input_file: string) -> MergeResult {
     let res: CollectResult = (collect_files_dfs start repo_root visited0 visited_set0 order0 true max_files max_lines max_lines_per_file 0 trace)
     let files: array<string> = res.order
     if (not res.ok) {
-        return MergeResult { source: "", files: [], file_starts: [], repo_root: repo_root, root_line: 0 }
+        return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
     } else { (print "") }
     # I retain source in this invocation; no other compiler can replace it.
     let mut parts: array<string> = []
+    let mut source_files: array<string> = []
+    let mut source_lines: array<int> = []
     let mut i: int = 0
     let mut merged_lines: int = 0
     let mut root_line: int = 1
@@ -1429,6 +1475,8 @@ fn merge_with_imports(input_file: string) -> MergeResult {
                 let resolved_line: string = (strip_pub_decl line)
                 set parts (cg_append parts (+ resolved_line "\n"))
                 set merged_lines (+ merged_lines 1)
+                set source_files (array_push source_files (at files i))
+                set source_lines (array_push source_lines (+ j 1))
             } else {
                 (print "")
             }
@@ -1436,7 +1484,7 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         }
         set i (+ i 1)
     }
-    return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, repo_root: repo_root, root_line: root_line }
+    return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
 }
 
 shadow merge_with_imports {
@@ -1828,6 +1876,8 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     let merge_result: MergeResult = (merge_with_imports input_file)
     let merged_source: string = merge_result.source
     let merged_files: array<string> = merge_result.files
+    let source_files: array<string> = merge_result.source_files
+    let source_lines: array<int> = merge_result.source_lines
     let merge_repo_root: string = merge_result.repo_root
     let source_to_compile: string = input_file
 
@@ -1861,6 +1911,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     
     let tokens: List<LexerToken> = (tokenize_string merged_source source_to_compile diags)
     let token_count: int = (list_LexerToken_length tokens)
+    (remap_diagnostics diags source_files source_lines)
     
     if (== token_count 0) {
         (println "Error: Failed to tokenize input file")
@@ -1889,17 +1940,19 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let parser: Parser = (parse_program tokens token_count input_file)
             if (parser_has_error parser) {
                 let tok: LexerToken = (parser_current parser)
-                (print "Parse error at line ")
-                (print (int_to_string tok.line))
+                let parse_loc: CompilerSourceLocation = (source_location_for_line source_files source_lines tok.line tok.column)
+                (print "Parse error at ")
+                (print parse_loc.file)
+                (print ":")
+                (print (int_to_string parse_loc.line))
                 (print ", column ")
-                (print (int_to_string tok.column))
+                (print (int_to_string parse_loc.column))
                 (print ": unexpected token '")
                 (print tok.value)
                 (println "'")
                 if (not (== llm_diags_json_path "")) {
                     let msg: string = (+ "Parse error: unexpected token " tok.value)
-                    let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile tok.line tok.column)
-                    let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error "P0001" msg loc)
+                    let diag: CompilerDiagnostic = (Diagnostics.diag_parser_error "P0001" msg parse_loc)
                     (Diagnostics.diag_list_add diags diag)
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
                 } else { (print "") }
@@ -1971,6 +2024,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             let has_shadows: bool = (< first_shadow parser.shadows_count)
             let tc: TypecheckPhaseOutput = (typecheck_phase_with_shadows parser source_to_compile imported_symbols first_shadow)
             if tc.had_error {
+                (remap_diagnostics tc.diagnostics source_files source_lines)
                 (println "NSType checking failed")
                 (println "Diagnostics:")
                 let diag_count: int = (Diagnostics.diag_list_count tc.diagnostics)

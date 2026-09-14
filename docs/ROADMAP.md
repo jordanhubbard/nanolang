@@ -24,6 +24,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [ ] **5.0 release integration.** I reconcile the audit-contract branch with
+      main, preserve original-file diagnostics and immutable native-cache
+      behavior, run clean build/tests and documentation gates, then merge and
+      publish 5.0. The fleet dispatch hold does not gate this user-authorized
+      release. Unfinished roadmap items remain explicitly unfinished.
+- [ ] **Release-gate module shadows.** I diagnose and repair the NanoISA
+      facade assembly fixtures exposed by default dependency-shadow execution,
+      then rerun the module and full release tests.
+
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard
       System / conflicting Forth-IDE work unmerged. I do not merge MAC lease

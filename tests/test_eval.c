@@ -636,6 +636,34 @@ void test_eval_struct_creation_and_access(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_struct_string_field_lifetime(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "struct Message { text: string }\n"
+        "fn read_text(message: Message) -> string { return message.text }\n"
+        "fn read_repeatedly(message: Message) -> string {\n"
+        "    let mut result: string = \"\"\n"
+        "    let mut count: int = 0\n"
+        "    while (< count 100) {\n"
+        "        set result message.text\n"
+        "        set count (+ count 1)\n"
+        "    }\n"
+        "    return result\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow read_text {\n"
+        "    let message: Message = Message { text: \"owned\" }\n"
+        "    assert (== (read_text message) \"owned\")\n"
+        "}\n"
+        "shadow read_repeatedly {\n"
+        "    let message: Message = Message { text: \"stable\" }\n"
+        "    assert (== (read_repeatedly message) \"stable\")\n"
+        "}\n"
+    );
+    ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
 void test_eval_struct_pythagorean(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -1062,6 +1090,33 @@ void test_eval_array_length(void) {
         "shadow array_sum { assert (== (array_sum [1, 2, 3, 4, 5]) 15) }\n"
     );
     ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_array_get_alias(void) {
+    RunCtx ctx;
+    bool ok = run_ctx_init(&ctx,
+        "fn double(x: float) -> float { return (* x 2.0) }\n"
+        "fn read_static() -> int { return (array_get [4, 5, 6] 1) }\n"
+        "fn read_mapped() -> float {\n"
+        "    let values: array<float> = (map [1.5, 2.5] double)\n"
+        "    return (array_get values 1)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow double { assert (== (double 2.5) 5.0) }\n"
+        "shadow read_static { assert (== (read_static) 5) }\n"
+        "shadow read_mapped { assert (== (read_mapped) 5.0) }\n"
+    );
+    ASSERT(ok);
+
+    Value static_result = call_function("read_static", NULL, 0, ctx.env);
+    ASSERT(static_result.type == VAL_INT);
+    ASSERT_EQ(static_result.as.int_val, 5);
+
+    Value mapped_result = call_function("read_mapped", NULL, 0, ctx.env);
+    ASSERT(mapped_result.type == VAL_FLOAT);
+    ASSERT(mapped_result.as.float_val == 5.0);
+
     run_ctx_free(&ctx);
 }
 
@@ -2199,6 +2254,7 @@ int main(void) {
     TEST(eval_program_with_top_level_let);
     TEST(eval_negative_zero);
     TEST(eval_struct_creation_and_access);
+    TEST(eval_struct_string_field_lifetime);
     TEST(eval_struct_pythagorean);
     TEST(eval_match_expression);
     TEST(eval_list_iteration);
@@ -2218,6 +2274,7 @@ int main(void) {
     TEST(eval_break_in_for);
     TEST(eval_nested_for_loops);
     TEST(eval_array_length);
+    TEST(eval_array_get_alias);
     TEST(eval_math_functions);
     TEST(eval_string_conversion);
     TEST(eval_enum_access);
