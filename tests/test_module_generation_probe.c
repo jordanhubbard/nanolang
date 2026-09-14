@@ -277,6 +277,20 @@ static char *generation_test_strdup(const char *value) {
 #endif
 
 int main(int argc, char **argv) {
+    if (argc == 2 && !strcmp(argv[1], "capture-budget")) {
+        int64_t before = module_link_query_clock(), deadline;
+        if (!module_capture_deadline(&deadline)) return 1;
+        printf("%lld\n", (long long)(deadline - before));
+        return 0;
+    }
+    if (argc == 3 && !strcmp(argv[1], "capture-configured")) {
+        int64_t deadline;
+        char report[16384] = {0}, *args[] = {"/bin/sh", "-c", argv[2], NULL};
+        if (!module_capture_deadline(&deadline)) return 1;
+        bool ok = module_process_output_options(args, report, sizeof(report), deadline, true, true, -1, true);
+        fputs(report, stdout);
+        return ok ? 0 : 1;
+    }
     if (argc == 3 && !strcmp(argv[1], "capture-environment")) {
         const char *value = getenv("NANO_AS_CAPTURE_PHASE");
         char *before = value ? strdup(value) : NULL;

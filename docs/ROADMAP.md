@@ -1493,6 +1493,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       warm generation reuse. Deliberate hang tests select short budgets;
       linker discovery and shadow deadlines remain unchanged. I retain all
       correctness and publication assertions and document tested host coverage.
+      I wire the bounded parser and default into both production scopes.
+      Darwin parser cases, a six-second supervised capture, short-budget
+      expiry and final-completion clock controls pass. Production slow-capture
+      reuse, configuration clock failures and Linux execution remain to verify;
+      I keep this item open until its complete acceptance criteria pass.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without

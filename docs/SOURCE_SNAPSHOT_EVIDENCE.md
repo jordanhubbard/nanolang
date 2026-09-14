@@ -3582,3 +3582,27 @@ the intended successful work and cleanup. I retain generation comparisons,
 record-presence checks and runtime results. The full Darwin recovery gate
 remains open, as does the unexplained historical empty-stderr failure; this
 policy review establishes neither their resolution nor Linux runtime coverage.
+
+### Capture deadline configuration implementation checkpoint
+
+I now apply the reviewed 30,000 ms default and bounded override in
+`module_clang_expansion` and Linux `module_read_execute`. I compute one absolute
+deadline per existing scope; I do not change linker discovery or artifact keys.
+The earlier policy-review paragraph describes the pre-implementation state.
+
+The strict probe rebuild and three Darwin methods pass in 6.431 seconds:
+configuration parsing (default, endpoints, leading zeros and malformed or
+overflowing values), a six-second supervised command under the default plus
+100 ms expiry, and the existing final-completion clock regression. Deliberate
+post-link hangs retain an explicit 5,000 ms budget; Linux descriptor boundary
+controls select 1,000 ms rather than relying on the old production default.
+
+The six-second command tests the configured supervisor, not production native
+capture and warm reuse. Configuration-specific clock failures, explicit
+descendant-cleanup coverage, slow production capture/reuse and Linux execution
+remain acceptance work. I leave the implementation checkbox and full recovery
+gate open.
+
+The early-build-failure recovery matrix and post-capture validation failure
+method also pass on Darwin in 18.184 seconds, including their existing
+publication and warm-reuse assertions. All six guide editions validate.

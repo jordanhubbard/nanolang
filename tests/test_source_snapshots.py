@@ -51,6 +51,38 @@ class SourceSnapshots(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         return int(result.stdout)
 
+    def test_capture_timeout_configuration(self):
+        accepted = ((None, 30000), ("1", 1), ("00012", 12), ("300000", 300000))
+        rejected = ("", "0", "000", "300001", "-1", "+1", " 1", "1 ", "1\n", "1.0",
+                    "1e3", "１２", "9" * 1000)
+        for value, expected in (*accepted, *((v, None) for v in rejected)):
+            with self.subTest(value=value):
+                env = dict(os.environ)
+                env.pop("NANO_CAPTURE_TIMEOUT_MS", None)
+                if value is not None: env["NANO_CAPTURE_TIMEOUT_MS"] = value
+                result = subprocess.run([str(self.support.probe), "capture-budget"], env=env,
+                                        capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 1 if expected is None else 0, result.stderr)
+                if expected is None:
+                    self.assertEqual(result.stdout, b"")
+                    self.assertEqual(result.stderr, b"I require NANO_CAPTURE_TIMEOUT_MS to be decimal milliseconds in 1..300000.\n")
+                else:
+                    self.assertGreaterEqual(int(result.stdout), expected)
+                    self.assertLess(int(result.stdout), expected + 100)
+                    self.assertEqual(result.stderr, b"")
+
+    def test_configured_capture_default_and_expiry(self):
+        for budget, command, success in ((None, "sleep 6; printf evidence", True),
+                                          ("100", "sleep 30; printf evidence", False)):
+            with self.subTest(budget=budget):
+                env = dict(os.environ)
+                env.pop("NANO_CAPTURE_TIMEOUT_MS", None)
+                if budget is not None: env["NANO_CAPTURE_TIMEOUT_MS"] = budget
+                result = subprocess.run([str(self.support.probe), "capture-configured", command], env=env,
+                                        capture_output=True, timeout=40 if success else 5)
+                self.assertEqual(result.returncode, 0 if success else 1, result.stderr)
+                self.assertEqual(result.stdout, b"evidence" if success else b"")
+
     def test_supported_assembler_version_line(self):
         if not sys.platform.startswith("linux"): self.skipTest("I select GNU assembler replay only on Linux")
         accepted = ["GNU assembler (GNU Binutils for Debian) 2.40\nCopyright text\n",
@@ -243,6 +275,7 @@ class SourceSnapshots(unittest.TestCase):
                 with self.subTest(external=external, shared=shared), tempfile.TemporaryDirectory(prefix="nano-trace-evidence-") as tmp:
                     root = Path(tmp)
                     module, _, env = self.support.support.foreign_build_fixture(root)
+                    env["NANO_CAPTURE_TIMEOUT_MS"] = "5000"
                     if shared: env["NANO_BUILD_CACHE"] = str(root / "cache")
                     env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
                     source = module / "answer.c"
@@ -988,7 +1021,8 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 elif kind == "timeout": code = "import time; time.sleep(20)"
                 result = subprocess.run([str(self.support.probe), "read-execute", str(parent),
                                          shlex.join([sys.executable, "-c", code])],
-                                        cwd=cache.ROOT, capture_output=True, timeout=8)
+                                        cwd=cache.ROOT, env=dict(os.environ, NANO_CAPTURE_TIMEOUT_MS="1000"),
+                                        capture_output=True, timeout=8)
                 self.assertEqual(result.returncode == 0, kind == "directory", result.stderr)
 
     def test_assembler_instruction_and_location_provenance(self):

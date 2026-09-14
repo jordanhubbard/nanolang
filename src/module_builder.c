@@ -3113,6 +3113,32 @@ static int64_t module_link_query_clock(void) {
     return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
 }
 
+/* I keep one finite allowance for the caller's entire capture scope. */
+static bool module_capture_deadline(int64_t *deadline) {
+    const char *value = getenv("NANO_CAPTURE_TIMEOUT_MS");
+    unsigned budget = 30000;
+    if (value) {
+        budget = 0;
+        if (!*value) goto invalid;
+        for (const unsigned char *p = (const unsigned char *)value; *p; p++) {
+            if (*p < '0' || *p > '9' || budget > (300000u - (*p - '0')) / 10u)
+                goto invalid;
+            budget = budget * 10u + (*p - '0');
+        }
+        if (!budget) goto invalid;
+    }
+    int64_t now = module_link_query_clock();
+    if (now < 0 || now > INT64_MAX - budget) {
+        fprintf(stderr, "I cannot establish a capture deadline.\n");
+        return false;
+    }
+    *deadline = now + budget;
+    return true;
+invalid:
+    fprintf(stderr, "I require NANO_CAPTURE_TIMEOUT_MS to be decimal milliseconds in 1..300000.\n");
+    return false;
+}
+
 /* I execute literal argv, not a shell, and supervise one private process group.
  * The caller supplies the shared deadline and output policy. Query requests
  * are not universally read-only; their caller owns disposable output paths. */
@@ -4130,8 +4156,9 @@ static int module_read_directory(const char *parent, char *name, size_t capacity
  * inherited descriptors before invoking their selected compiler. */
 static bool module_read_execute(const char *command) {
     char report[16384] = {0}, *args[] = {"/bin/sh", "-c", (char *)command, NULL};
-    int64_t now = module_link_query_clock();
-    bool ok = now >= 0 && module_process_output(args, report, sizeof(report), now + 5000, true, false);
+    int64_t deadline;
+    bool ok = module_capture_deadline(&deadline) &&
+        module_process_output(args, report, sizeof(report), deadline, true, false);
     if (report[0]) fputs(report, stderr);
     return ok;
 }
@@ -4320,8 +4347,8 @@ static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePk
                 module_append_path_flag(command, sizeof(command), "", raw) &&
                 module_append_path_flag(command, sizeof(command), "-o ", object);
             size_t words = ok ? module_assembler_argv(command, args, storage, sizeof(storage)) : 0;
-            int64_t now = module_link_query_clock(), deadline = now + 5000;
-            if (!words || now < 0) goto failed;
+            int64_t deadline;
+            if (!words || !module_capture_deadline(&deadline)) goto failed;
             args[words] = "-###"; args[words + 1] = NULL;
             if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
             words = module_assembler_report(report, args, storage, sizeof(storage));
