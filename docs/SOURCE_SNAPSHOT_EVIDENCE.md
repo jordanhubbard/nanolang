@@ -3304,3 +3304,32 @@ The broad gate remains failed; this is not a fix for capture stability.
 The two updated debug methods pass their replay in 52.791 seconds. Whitespace
 checks and all six guide editions validate. These changes retain failure
 context only; the production probe is unchanged.
+
+## Direct tool controls outside the supervisor
+
+At `0685f9c2`, I invoke `/usr/bin/cc -### -x assembler -c /dev/null -o
+/dev/null` directly through Python subprocesses, without my module builder or
+capture supervisor. Three hundred queries finish in 7.537 seconds; query 58
+takes 1.764 seconds. A subsequent 2,000-query run takes 32.779 seconds, with
+maximum latency 254 ms. This establishes intermittent latency outside my
+supervisor, not routine multi-second query cost.
+
+A direct `/usr/bin/as -### -o /dev/null /dev/null` loop terminates on Python's
+ten-second timeout. Its iteration number was not retained. A subsequent
+100-query control completes every invocation within one second. These are
+query-only commands; no object is published.
+
+`xcrun --find as` resolves to the XcodeDefault toolchain inside Xcode.app.
+Inspection shows that `as` is a `/bin/zsh` script: it resolves its own directory
+using `realpath` and `dirname`, removes `-q` and `-Q`, then launches its sibling
+`clang -x assembler -c` with the remaining arguments. In a direct resolved-path
+control, invocation 363 exceeds one second. A one-second `sample` identifies
+the live process as `/bin/zsh` but captures no usable call stack. The query
+exits successfully after 3.626 seconds, including the sampling observation.
+
+The direct ten-second timeout independently reproduces tool/host delay longer
+than my capture budget. It does not prove which subprocess or host service
+stalled, nor tie the earlier historical non-reuse events to this launcher.
+No toolchain files, startup files, deadlines or capture rules are changed.
+The next remedy must respect the selected driver's behavior and preserve
+bounded failure; bypassing its script is not justified by this evidence alone.

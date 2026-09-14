@@ -1489,6 +1489,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       its five-second deadline after immediate spawn, without observed EOF or
       exit. I retain full case diagnostics in the remaining debug-reuse
       assertions before further investigation.
+      Direct controls outside my supervisor reproduce a ten-second timeout in
+      `/usr/bin/as -###`. The resolved Xcode `as` is a zsh launcher; a sampled
+      slow invocation completes after 3.626 seconds. I distinguish this
+      independently reproduced tool/host latency from my supervisor behavior
+      before selecting a remedy; no host toolchain files are changed.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text
