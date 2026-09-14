@@ -35,6 +35,7 @@ class ModuleCachePublication(unittest.TestCase):
     def probe_path(self, mode, module, env, timeout=10):
         result = subprocess.run([str(self.probe), mode, str(module)], cwd=ROOT,
                                 env=env, capture_output=True, timeout=timeout)
+        if mode == "build": self.last_build_diagnostics = result.stderr
         self.assertEqual(result.returncode, 0, result.stderr)
         return Path(result.stdout.decode().strip())
 

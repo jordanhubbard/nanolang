@@ -925,6 +925,15 @@ static bool module_link_inputs_match(const cJSON *inputs) {
 static uint64_t module_preprocess_fingerprint(ModuleBuildMetadata *meta,
                                              const ModulePkgFlags *flags);
 
+/* I expose evidence decisions, not environment values or compiler commands.
+ * Zero means unavailable or not observed; tracing does not add observations. */
+static void module_trace_evidence(const char *phase, uint64_t expected,
+                                  uint64_t observed, bool accepted) {
+    if (getenv("NANO_TRACE_BUILD"))
+        fprintf(stderr, "I checked build evidence: phase=%s expected=%llu observed=%llu accepted=%d\n",
+                phase, (unsigned long long)expected, (unsigned long long)observed, accepted);
+}
+
 static uint64_t module_source_hash(const char *directory, const char *source) {
     char path[4096];
     int n = source[0] == '/' ? snprintf(path, sizeof(path), "%s", source)
@@ -971,19 +980,22 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
     hash_system_headers(root, meta);
     /* Hash all transitively-included headers from compiler-generated .d files */
     bool complete = hash_depfiles_in_build_dir(root, build_dir, meta);
+    module_trace_evidence("record-dependencies", 1, complete, complete);
 #ifdef __APPLE__
     /* I retain the hashes checked around the final link. Replacing them with
      * current hashes could label old code with bytes that were never linked. */
     cJSON *link_inputs = module_link_inputs_match(link_observation)
         ? cJSON_Duplicate(link_observation, true) : NULL;
-    if (!link_inputs || !cJSON_AddItemToObject(root, "__link_inputs_v1", link_inputs)) {
+    bool link_complete = link_inputs && cJSON_AddItemToObject(root, "__link_inputs_v1", link_inputs);
+    if (!link_complete) {
         cJSON_Delete(link_inputs);
         complete = false;
     }
+    module_trace_evidence("record-link-inputs", 1, link_complete, link_complete);
 #endif
     if (complete)
         save_hash_cache(build_dir, root);
-    else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
+    else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD") || getenv("NANO_TRACE_BUILD"))
         fprintf(stderr, "I cannot establish complete dependency evidence; I will rebuild this module next time\n");
     cJSON_Delete(root);
 }
@@ -992,13 +1004,17 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
 static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta,
                          const ModulePkgFlags *flags) {
     cJSON *cache = load_hash_cache(module_dir);
-    if (!cache) return false;
+    if (!cache) {
+        module_trace_evidence("reuse-record", 1, 0, false);
+        return false;
+    }
     uint64_t context = module_build_context(meta);
     char context_string[24];
     snprintf(context_string, sizeof(context_string), "%llu", (unsigned long long)context);
     cJSON *stored_context = cJSON_GetObjectItemCaseSensitive(cache, "__build_context_v1");
     bool match = context && cJSON_IsString(stored_context) &&
         strcmp(stored_context->valuestring, context_string) == 0;
+    module_trace_evidence("reuse-initial-context", 0, context, match);
     for (int shared = 0; shared < 2 && match; shared++) {
         char **sources = shared ? meta->shared_c_sources : meta->c_sources;
         size_t count = shared ? meta->shared_c_sources_count : meta->c_sources_count;
@@ -1009,6 +1025,7 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta,
             cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, sources[i]);
             if (h == 0 || !item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0) {
                 match = false;
+                module_trace_evidence("reuse-source", 0, h, false);
             }
         }
     }
@@ -1020,22 +1037,37 @@ static bool hashes_match(const char *module_dir, ModuleBuildMetadata *meta,
         char hstr[24];
         snprintf(hstr, sizeof(hstr), "%llu", (unsigned long long)h);
         cJSON *item = cJSON_GetObjectItemCaseSensitive(cache, "module.json");
-        if (h == 0 || !item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0)
+        if (h == 0 || !item || !cJSON_IsString(item) || strcmp(item->valuestring, hstr) != 0) {
             match = false;
+            module_trace_evidence("reuse-metadata", 0, h, false);
+        }
     }
-    if (match) match = system_headers_match(cache, meta);
-    if (match) match = dep_hashes_match(cache);
+    if (match) {
+        match = system_headers_match(cache, meta);
+        module_trace_evidence("reuse-declared-headers", 1, match, match);
+    }
+    if (match) {
+        match = dep_hashes_match(cache);
+        module_trace_evidence("reuse-dependencies", 1, match, match);
+    }
 #ifdef __APPLE__
-    if (match) match = module_link_inputs_match(cJSON_GetObjectItemCaseSensitive(cache, "__link_inputs_v1"));
+    if (match) {
+        match = module_link_inputs_match(cJSON_GetObjectItemCaseSensitive(cache, "__link_inputs_v1"));
+        module_trace_evidence("reuse-link-inputs", 1, match, match);
+    }
 #endif
     if (match) {
         cJSON *stored = cJSON_GetObjectItemCaseSensitive(cache, "__preprocessing_v1");
         uint64_t observed = cJSON_IsString(stored) ? module_preprocess_fingerprint(meta, flags) : 0;
         char digest[24];
         snprintf(digest, sizeof(digest), "%llu", (unsigned long long)observed);
-        match = observed && strcmp(stored->valuestring, digest) == 0 &&
-                context == module_build_context(meta);
+        match = observed && strcmp(stored->valuestring, digest) == 0;
+        module_trace_evidence("reuse-preprocessing", 0, observed, match);
+        uint64_t after = match ? module_build_context(meta) : 0;
+        match = match && context == after;
+        module_trace_evidence("reuse-context", context, after, match);
     }
+    module_trace_evidence("reuse", 1, match, match);
     cJSON_Delete(cache);
     return match;
 }
@@ -3076,7 +3108,10 @@ static int64_t module_link_query_clock(void) {
 static bool module_process_output_options(char **args, char *output, size_t capacity, int64_t deadline,
                                           bool diagnostics, bool require_output, int input, bool capture_phase) {
     int64_t now = module_link_query_clock();
-    if (now < 0 || now >= deadline) return false;
+    if (now < 0 || now >= deadline) {
+        module_trace_evidence("tool-deadline-before-spawn", 0, 0, false);
+        return false;
+    }
     int descriptors[2];
     if (pipe(descriptors)) return false;
     bool ok = true;
@@ -3156,6 +3191,7 @@ static bool module_process_output_options(char **args, char *output, size_t capa
     (void)kill(-child, SIGKILL);
     if (!reaped) while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
     output[used] = 0;
+    if (!ok) module_trace_evidence(now >= deadline ? "tool-deadline" : "tool-output", 0, used, false);
     return ok;
 }
 
@@ -5722,9 +5758,15 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
                 object_index < info->link_flags_count &&
                 module_remove_unit_aliases(stage) &&
                 module_validate_artifacts(stage, meta);
-            if (ok && context_before && preprocessing_before &&
-                preprocessing_before == module_preprocess_fingerprint(meta, flags->linker_grammar ? flags : NULL) &&
-                context_before == module_build_context(meta))
+            uint64_t preprocessing_after = ok && context_before && preprocessing_before
+                ? module_preprocess_fingerprint(meta, flags->linker_grammar ? flags : NULL) : 0;
+            bool same_inputs = ok && context_before && preprocessing_before &&
+                preprocessing_before == preprocessing_after;
+            module_trace_evidence("publish-preprocessing", preprocessing_before, preprocessing_after, same_inputs);
+            uint64_t context_after = same_inputs ? module_build_context(meta) : 0;
+            module_trace_evidence("publish-context", context_before, context_after,
+                                 same_inputs && context_before == context_after);
+            if (same_inputs && context_before == context_after)
                 module_update_hash_cache(meta->module_dir, meta, stage, preprocessing_before, link_observation);
             /* I never mutate a published generation. The old pointer remains
              * valid until the complete replacement is visible in one rename. */

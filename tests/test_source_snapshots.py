@@ -64,6 +64,88 @@ class SourceSnapshots(unittest.TestCase):
                 result = subprocess.run([str(self.support.probe), "assembler-version", banner], capture_output=True, timeout=10)
                 self.assertEqual(result.returncode, 0 if banner in accepted else 1, result.stderr)
 
+    def test_build_evidence_trace_reports_tool_failure_and_deadline(self):
+        env = os.environ.copy()
+        env["NANO_TRACE_BUILD"] = "1"
+        for command, phase, output in (("printf evidence; exit 1", "tool-output", b"evidence"),
+                                       ("sleep 30", "tool-deadline", b"")):
+            with self.subTest(phase=phase):
+                result = subprocess.run([str(self.support.probe), "capture-environment", command], env=env,
+                                        capture_output=True, timeout=8)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(result.stdout, output)
+                self.assertIn(f"phase={phase} ".encode(), result.stderr)
+                self.assertIn(b"accepted=0", result.stderr)
+                self.assertNotIn(command.encode(), result.stderr)
+        env.pop("NANO_TRACE_BUILD")
+        quiet = subprocess.run([str(self.support.probe), "capture-environment", "printf evidence; exit 1"],
+                               env=env, capture_output=True, timeout=8)
+        self.assertNotEqual(quiet.returncode, 0)
+        self.assertEqual(quiet.stdout, b"evidence")
+        self.assertEqual(quiet.stderr, b"")
+
+    def test_build_evidence_trace_and_post_capture_validation_failure(self):
+        for external in ((False, True) if self.clang else (False,)):
+            for shared in (False, True):
+                with self.subTest(external=external, shared=shared), tempfile.TemporaryDirectory(prefix="nano-trace-evidence-") as tmp:
+                    root = Path(tmp)
+                    module, _, env = self.support.support.foreign_build_fixture(root)
+                    if shared: env["NANO_BUILD_CACHE"] = str(root / "cache")
+                    env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
+                    source = module / "answer.c"
+                    source.write_text('long long nano_build_answer(void) { return 42; }\n')
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
+                        "cflags": ["-fno-integrated-as"] if external else []}))
+                    marker, wrapper = root / "linked", root / "cc"
+                    compiler = shutil.which("cc")
+                    wrapper.write_text(f'#!{sys.executable}\nimport os,pathlib,sys\n'
+                        f'marker=pathlib.Path({str(marker)!r})\n'
+                        'if os.getenv("NANO_TEST_REJECT_VALIDATION"):\n'
+                        '    if marker.exists() and any(x in sys.argv for x in ("-E", "-S")): sys.exit(1)\n'
+                        '    if "-###" not in sys.argv and "-o" in sys.argv and '
+                        'pathlib.Path(sys.argv[sys.argv.index("-o")+1]).name in ("libanswer_native.dylib", "libanswer_native.so"):\n'
+                        '        marker.touch()\n'
+                        f'os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])\n')
+                    wrapper.chmod(0o700)
+                    env["NANO_CC"] = str(wrapper)
+                    env.pop("NANO_TRACE_BUILD", None)
+                    def build():
+                        result = subprocess.run([str(self.support.probe), "build", str(module)], cwd=cache.ROOT,
+                                                env=env, capture_output=True, timeout=30)
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                        return result
+                    cold = build()
+                    self.assertNotIn(b"I checked build evidence:", cold.stderr)
+                    first = self.support.probe_path("directory", module, env)
+                    self.assertTrue((first / "source_hashes.json").is_file())
+                    env["NANO_TRACE_BUILD"] = "1"
+                    warm = build()
+                    self.assertIn(b"phase=reuse expected=1 observed=1 accepted=1", warm.stderr)
+                    self.assertEqual(self.support.probe_path("directory", module, env), first)
+                    self.assertNotIn(b"I checked build evidence:", warm.stdout)
+                    self.assertNotIn(str(wrapper).encode(), warm.stderr)
+                    source.write_text('long long nano_build_answer(void) { return 43; }\n')
+                    env["NANO_TEST_REJECT_VALIDATION"] = "1"
+                    uncached = build()
+                    self.assertTrue(marker.is_file())
+                    self.assertRegex(uncached.stderr, rb'phase=publish-preprocessing expected=[1-9][0-9]* observed=0 accepted=0')
+                    generation = self.support.probe_path("directory", module, env)
+                    self.assertNotEqual(generation, first)
+                    self.assertTrue(list(generation.glob("__snapshot_*")))
+                    self.assertFalse((generation / "source_hashes.json").exists())
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
+                    env.pop("NANO_TEST_REJECT_VALIDATION")
+                    marker.unlink()
+                    recovered = build()
+                    self.assertIn(b"phase=reuse-record expected=1 observed=0 accepted=0", recovered.stderr)
+                    second = self.support.probe_path("directory", module, env)
+                    self.assertNotEqual(second, generation)
+                    self.assertTrue((second / "source_hashes.json").is_file())
+                    env.pop("NANO_TRACE_BUILD")
+                    quiet = build()
+                    self.assertNotIn(b"I checked build evidence:", quiet.stderr)
+                    self.assertEqual(self.support.probe_path("directory", module, env), second)
+
     def test_consistency_gate_checks_cold_and_warm_answers(self):
         for cold, warm, fresh in ((42, 42, 42), (43, 42, 42), (42, 43, 42), (43, 43, 42)):
             with self.subTest(cold=cold, warm=warm, fresh=fresh):
@@ -469,6 +551,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 with self.subTest(shared_unit=shared_unit, shared_cache=shared_cache), tempfile.TemporaryDirectory(prefix="nano-unit-failure-") as tmp:
                     root = Path(tmp)
                     module, _, env = self.support.support.foreign_build_fixture(root)
+                    env["NANO_TRACE_BUILD"] = "1"
                     if shared_cache: env["NANO_BUILD_CACHE"] = str(root / "cache")
                     symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                     source = module / "payload.s"
@@ -529,7 +612,8 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     self.assertNotIn(b".nano-build-", unit_object.read_bytes())
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
                     self.support.probe_path("build", module, env, timeout=30)
-                    self.assertEqual(self.support.probe_path("directory", module, env), second)
+                    self.assertEqual(self.support.probe_path("directory", module, env), second,
+                                     self.support.last_build_diagnostics)
 
     def test_standalone_assembler_debug_flag_phases(self):
         words = ["-g3", "-D", "VALUE=-g0", "-O2", "-g0", "-g", "-g1", "-g2",
@@ -880,6 +964,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
             with self.subTest(style=style, placement=placement, external=external, shared=shared), tempfile.TemporaryDirectory(prefix="nano-as-search-") as tmp:
                 directory = Path(tmp)
                 module, _, env = self.support.support.foreign_build_fixture(directory)
+                env["NANO_TRACE_BUILD"] = "1"
                 if shared: env["NANO_BUILD_CACHE"] = str(directory / "cache")
                 env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
                 early, late, c_headers = (module / name for name in ("early includes", "late includes", "C headers"))
@@ -946,7 +1031,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 def build(answer):
                     self.support.probe_path("build", module, env, timeout=20)
                     generation = self.support.probe_path("directory", module, env)
-                    self.assertTrue((generation / "source_hashes.json").exists())
+                    self.assertTrue((generation / "source_hashes.json").exists(), self.support.last_build_diagnostics)
                     self.assertFalse(list(generation.parent.glob(".nano-link-source-*")))
                     self.assertFalse(list(generation.parent.glob(".nano-link-query-*")))
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), answer)

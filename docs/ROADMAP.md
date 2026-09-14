@@ -1416,12 +1416,21 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       process environment and execute the literal compiler argv directly.
       The classifier, child-local environment, restored-input and post-capture
       regressions pass. I do not admit assignment prefixes or shell syntax.
+- [x] **5.0 build evidence diagnostics.** I expose opt-in, stderr-only
+      validation decisions without changing query order or running extra
+      compiler observations. I distinguish missing reuse records from missing
+      captured inputs, retain diagnostics on regression failures, and test
+      controlled post-capture failures, deadline labels and trace-independent
+      cache reuse. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+      Darwin and Linux GCC/Clang controls pass; the complete Linux gate passes
+      251 methods with 29 platform skips. The recovery-stability item stays open.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
       rebuilds instead of reusing its generation. I isolate both observations,
       establish their causes and verify stable capture/reuse without relaxing
       the assertions. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+      I use the evidence diagnostics above to interpret subsequent stress runs.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

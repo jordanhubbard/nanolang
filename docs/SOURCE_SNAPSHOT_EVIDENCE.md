@@ -2727,6 +2727,10 @@ Instrumentation covers the builder/probe rather than every support object.
 The final Linux bytecode-shadow target passes 231 methods with 30 platform
 skips; its 90-method source-snapshot suite takes 105.662 seconds. Strict
 builds, Python syntax, whitespace and six-edition guide checks pass.
+The full Darwin ordinary `.S` search/recovery matrix passes all 36 combinations
+in one trace-enabled run (772.128 seconds). Neither historical intermittent
+failure recurred in this checkpoint. I have a clean matrix result and a way
+to classify a subsequent failure, not a demonstrated historical root cause.
 
 ### Integrated Clang native-unit admission
 
@@ -2965,3 +2969,47 @@ The five ordinary `.S` combinations skipped by the earlier fail-fast run
 pass separately in 121.463 seconds. Together with the exact failing-case
 replay, they complete configuration coverage, not a clean uninterrupted
 ordinary `.S` matrix run or an explanation of the earlier capture failure.
+
+## Diagnosing withheld reuse records
+
+I distinguish a captured artifact from its reuse record. In my publication
+path, a failed or changed post-build preprocessing observation can withhold
+`source_hashes.json` while still publishing the already-captured output. The
+missing record forces a subsequent rebuild. Its absence alone does not show
+that I compiled live source or that the capture itself failed.
+
+Set `NANO_TRACE_BUILD=1` to report evidence decisions on stderr. For example,
+with the module-generation probe built:
+
+```sh
+NANO_TRACE_BUILD=1 obj/test_module_generation_probe build /path/to/module
+```
+
+I report reuse, dependency/link evidence, post-build preprocessing/context
+comparisons and supervised tool failures. `expected` and `observed` are numeric
+hashes, booleans or counts according to the phase; zero also represents an
+unavailable or unobserved value. `accepted` is the decision, not a comparison
+the reader should infer from those numbers. I do not print compiler commands
+or environment values in these trace lines. Ordinary compiler diagnostics
+remain separate and may contain paths. Tracing does not add observations,
+change their short-circuit order, alter deadlines or enter the build-context
+fingerprint. It is not a stable machine-readable diagnostic schema.
+
+My controlled regression permits capture and linking, then makes only
+post-link preprocessing fail. The build retains snapshot files and returns
+the newly captured value 43 without a reuse record; the next invocation
+recovers and reuses normally. Trace toggling preserves generation identity,
+leaves stdout unchanged, and stays silent when disabled. Separate nonzero-exit
+and deadline controls check the supervised-tool labels and preserved output.
+The search and recovery fixtures retain build stderr on failed assertions,
+so another intermittent failure can identify its rejected evidence stage.
+
+On Darwin, the controlled validation test and complete integrated failure
+recovery test pass together in 137.461 seconds. The tool-error/deadline trace
+test passes in 5.508 seconds. These controls establish the diagnostic behavior;
+they do not identify the cause of the original intermittent observations.
+The two Linux GCC trace controls pass in 5.935 seconds. Linux Clang passes
+both controls and integrated failure recovery in 21.321 seconds.
+The complete Linux bytecode-shadow gate passes 251 methods with 29 platform
+skips, including 110 snapshot methods in 315.496 seconds. Strict Darwin/Linux
+builds, Python syntax, whitespace and six-edition guide checks pass.
