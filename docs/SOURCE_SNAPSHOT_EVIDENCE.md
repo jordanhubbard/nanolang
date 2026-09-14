@@ -3508,3 +3508,26 @@ After adding the catch-all marker, the strict rebuild and early-failure plus
 post-capture methods pass again in 18.263 seconds.
 These controls validate diagnostic behavior, not the cause of the historical
 empty-stderr failure or full Darwin recovery stability.
+
+### Bounded silent-failure replay with early diagnostics
+
+At `f0835380`, ten exact replays of the inline-C `xassembler`/platform/external/
+local-cache case pass in 102.371 seconds. A separate fail-fast stress run of
+fifty fresh-fixture replays then passes in 553.547 seconds. Each uses the
+unchanged search/recovery helper with tracing enabled: cold build, initial
+warm generation reuse, earlier include selection, missing-input rejection,
+recovery record presence, runtime result and recovered generation reuse.
+Neither run changes the shared deadline or discards a failing attempt.
+
+The historical empty-stderr exit does not recur. Sixty passing isolated
+replays do not identify its cause or replace the failed full gate. I stop
+this bounded replay experiment rather than infer a fix from non-reproduction.
+
+The other three failures in the last full gate have explicit deadline
+evidence. Direct host controls independently exceed the current five-second
+budget, and native capture includes discovery plus selected-tool hashing and
+backend execution. I add a deadline-policy review before further stability
+testing: a fixed deadline is a resource policy, not proof that ordinary host
+work will complete within it. I have not changed that policy in this checkpoint.
+Any revision must keep finite bounds, one shared budget, fail-closed capture,
+descendant cleanup and the original correctness/reuse assertions.

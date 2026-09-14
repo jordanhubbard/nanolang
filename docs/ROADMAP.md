@@ -1474,6 +1474,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       failure still has no assigned cause; these diagnostics identify a
       recurrence's phase, not its retrospective cause.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+- [ ] **5.0 capture deadline policy.** I review the fixed five-second
+      per-unit budget against measured discovery, tool hashing and native
+      capture work. I define the supported host-latency policy and its bounds
+      before changing defaults or adding configuration. Any implementation
+      retains one shared deadline, fail-closed capture, descendant cleanup and
+      actual reuse assertions; repeated retries do not establish stability.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
@@ -1532,6 +1539,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       out. One warm build exits 1 with empty stderr and needs the early-failure
       evidence above. The final-clock regression and both deadline matrices
       pass; neither the full gate nor recovery stability is complete.
+      With early diagnostics at `f0835380`, ten exact silent-failure replays
+      pass in 102.371 seconds, followed by fifty in 553.547 seconds. The silent
+      exit does not recur; its cause remains unknown. I stop this bounded
+      experiment and review the recurring measured deadline failures above.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text
