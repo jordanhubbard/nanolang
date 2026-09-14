@@ -3734,3 +3734,22 @@ Darwin in 44.321 seconds. All six guide editions validate; the diff check
 passes. This verifies the finite parent allowance for a real build exceeding
 the former limit. I close that bounded test-harness item, not full recovery
 stability or the unresolved historical wait and silent-exit causes.
+
+### Corrected parent allowance: full Darwin gate
+
+At `cdb0d9ff`, `python3 -m unittest -v tests.test_source_snapshots` completes
+125 tests in 5659.990 seconds: exit 0, nineteen platform-specific skips.
+I build `obj/test_module_generation_probe` before the run and leave production
+source, test source and the probe unchanged throughout it.
+
+All non-skipped methods pass, including all four ordinary/shared raw/
+preprocessed search-recovery matrices, the controlled 21-second recovery,
+slow production capture with timeout-independent generation reuse, external
+query and FIFO failure recovery, native debug identity, both post-link
+deadline matrices and final-clock rejection. This is a green full gate at
+the corrected test state, rather than a combination of partial reruns.
+
+The historical silent exit does not recur. This passing gate does not identify
+its cause or the underlying host wait observed in the Xcode launcher controls.
+I keep the roadmap's cause-establishment requirement open; I do not infer
+that all historical failures share the now-tested timeout mechanisms.

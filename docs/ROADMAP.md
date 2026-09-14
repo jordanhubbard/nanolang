@@ -1610,6 +1610,13 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       timeout during missing-input recovery, not a failed generation comparison.
       Partial tool diagnostics were omitted by the default traceback; the
       evidence and parent-allowance item above addresses this gap.
+      The corrected full gate at `cdb0d9ff` completes 125 methods in
+      5659.990 seconds with nineteen platform-specific skips (exit 0).
+      Source and probe remain unchanged throughout the run. All four
+      ordinary/shared raw/preprocessed recovery matrices and the controlled
+      21-second recovery pass. This establishes a green corrected-tree gate,
+      not a cause for the historical silent exit or underlying host waits;
+      the cause-establishment requirement remains open.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text
