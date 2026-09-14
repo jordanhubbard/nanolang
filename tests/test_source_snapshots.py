@@ -586,7 +586,14 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 self.unit_alias_failed_build_retains_published_generation(macro=True, copy_failure=copy_failure,
                                                                          integrated=True, report_failure=report_failure)
 
-    def unit_alias_failed_build_retains_published_generation(self, macro=False, copy_failure=False, integrated=False, report_failure=False):
+    def test_selected_tool_fifo_failure_recovery(self):
+        if not shutil.which("clang"): self.skipTest("I require selected Clang reports")
+        for integrated in ((True, False) if sys.platform == "darwin" else (True,)):
+            with self.subTest(integrated=integrated):
+                self.unit_alias_failed_build_retains_published_generation(
+                    macro=True, integrated=integrated, report_failure=True, tool_fifo=True)
+
+    def unit_alias_failed_build_retains_published_generation(self, macro=False, copy_failure=False, integrated=False, report_failure=False, tool_fifo=False):
         compiler = shutil.which("clang" if integrated else "cc")
         for shared_unit in (False, True):
             for shared_cache in (False, True):
@@ -611,9 +618,15 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     wrapper = root / "cc-wrapper"
                     copy_marker = root / "copy-failed"
                     native_name = f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o"
+                    failure_report = "I returned an unsupported assembler report"
+                    if tool_fifo:
+                        fifo = root / "selected-tool"
+                        os.mkfifo(fifo)
+                        banner = "Apple clang version 21.0.0 (fixture)" if sys.platform == "darwin" else "Debian clang version 14.0.6"
+                        failure_report = banner + '\n "' + str(fifo) + '" "-cc1as"\n'
                     wrapper.write_text(f'#!{sys.executable}\nimport os,sys,pathlib\n'
                         f'if {report_failure!r} and os.getenv("NANO_TEST_UNIT_FAIL") and "-###" in sys.argv:\n'
-                        '    print("I returned an unsupported assembler report", file=sys.stderr)\n    sys.exit(0)\n'
+                        f'    print({failure_report!r}, file=sys.stderr)\n    sys.exit(0)\n'
                         f'if {copy_failure!r} and os.getenv("NANO_TEST_UNIT_FAIL") and "-c" in sys.argv and '
                         '"-###" not in sys.argv and os.getenv("NANO_AS_CAPTURE_PHASE") != "capture":\n'
                         '    for arg in sys.argv[1:]:\n'
@@ -641,6 +654,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     if report_failure: self.assertIn(b"I could not retain", result.stderr)
                     elif copy_failure: self.assertTrue(copy_marker.is_file())
                     else: self.assertIn(b"I failed unit assembly", result.stderr)
+                    if tool_fifo: self.assertIn(b"phase=tool-hash-input", result.stderr)
                     self.assertEqual(self.support.probe_path("directory", module, env), first)
                     self.assertEqual(library.read_bytes(), saved)
                     self.assertEqual(self.answer(library), 42)
@@ -1971,6 +1985,49 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 root = self.support.probe_path("root", module, env)
                 self.assertFalse(os.path.lexists(root / "current"))
                 self.assertFalse(list(root.glob(".nano-build-*")))
+
+    def test_selected_assembler_tool_hash_bounds(self):
+        seed = 14695981039346656037
+        def fnv(data, value=seed):
+            for byte in data:
+                value = ((value ^ byte) * 1099511628211) & ((1 << 64) - 1)
+            return value
+        with tempfile.TemporaryDirectory(prefix="nano-tool-hash-") as tmp:
+            root = Path(tmp)
+            tool = root / "tool"
+            contents = bytes(range(256)) * 33
+            tool.write_bytes(contents)
+            alias = root / "alias"
+            alias.symlink_to(tool)
+            fifo = root / "fifo"
+            os.mkfifo(fifo)
+            fifo_alias = root / "fifo-alias"
+            fifo_alias.symlink_to(fifo)
+            def check(path, budget=5000):
+                return subprocess.run([str(self.support.probe), "assembler-tool-hash", str(path), str(budget)],
+                                      capture_output=True, timeout=2)
+            for path in (tool, alias):
+                with self.subTest(path=path):
+                    result = check(path)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    expected = fnv(str(path).encode() + b'\0')
+                    expected = fnv(str(fnv(contents)).encode() + b'\0', expected)
+                    self.assertEqual(int(result.stdout), expected)
+            for path in (fifo, fifo_alias, root, root / "missing", Path('/dev/zero'), Path('relative-tool')):
+                with self.subTest(path=path):
+                    result = check(path)
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertEqual(int(result.stdout), seed)
+            self.assertEqual(check(tool, 0).returncode, 1)
+            # A sparse regular input exercises expiry inside the read loop;
+            # I do not allocate its logical length in memory or on disk.
+            with tool.open('wb') as stream:
+                stream.truncate(1024 * 1024 * 1024)
+            result = subprocess.run([str(self.support.probe), "assembler-tool-hash", str(tool), "10"],
+                                    env=dict(os.environ, NANO_TRACE_BUILD="1"), capture_output=True, timeout=2)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertEqual(int(result.stdout), seed)
+            self.assertIn(b'phase=tool-hash-deadline', result.stderr)
 
     def test_selected_clang_assembler_report_boundaries(self):
         banner = "Apple clang version 21.0.0 (fixture)\nTarget: arm64-apple-darwin\nThread model: posix\nInstalledDir: /fixture\n"

@@ -3094,3 +3094,45 @@ and both cache roots in 82.495 seconds. Python syntax, whitespace and all six
 guide editions pass. Production code is unchanged. These checks improve
 failure localization; they neither reproduce nor explain the historical
 recovery events, whose roadmap requirement remains open.
+
+## Selected assembler tool hash bounds
+
+The deadline audit finds a separate parent-side hang: after parsing a selected
+Clang job, I call blocking `fopen`/`fread` to fingerprint its tool path. A FIFO
+there waits for a writer outside child supervision. A direct production-helper
+probe reproduces the hang; its two-second test timeout kills and reaps it.
+
+I open selected tools nonblocking, admit regular files by descriptor metadata,
+read at most their observed length, reject length changes, and check the shared
+capture deadline between reads and before accepting the hash. Installed tool
+symlinks remain supported. Failure leaves the caller's fingerprint unchanged;
+successful path/content hashes retain their existing representation. This is
+not atomic tool capture or a filesystem sandbox: regular-file system calls
+still rely on the host filesystem returning.
+
+The boundary regression checks FIFO and FIFO-symlink rejection, devices,
+directories, missing/relative paths, regular and symlinked content hashes,
+expired deadlines, and deadline expiry on a one-GiB sparse regular file.
+An admitted fake driver report additionally selects a FIFO during replacement;
+the build must reject it, preserve the old generation, remove private staging,
+and recover actual reuse after the fault is removed.
+
+The concurrent pre-change replay passes six external scenarios and twenty-four
+integrated report-recovery cases across four processes. That does not connect
+this new FIFO defect to the historical recovery observations. Their stability
+requirement remains open.
+
+Darwin passes the hash/report boundaries and twelve integrated recovery cases
+in 128.790 seconds. Its external capture/copy recovery and sixteen existing
+post-link deadline cases pass in 363.208 seconds. The final code, including
+the diagnostic for an already-expired hash deadline, passes the hash boundary
+and eight admitted-FIFO recovery cases in 76.465 seconds.
+
+Linux's full `make test-bytecode-shadows` gate passes 254 methods with 31 skips;
+its 113 snapshot methods take 309.763 seconds. That source copy precedes only
+the entry-expiry diagnostic change and the additional end-to-end FIFO fixture.
+I separately compile the final production helper and run the final fixtures
+under Linux Clang: hash boundaries, four FIFO recovery cases and eight existing
+post-link deadline cases pass in 56.220 seconds. Direct Linux hash/report
+controls also pass. Both hosts compile the probe with strict warnings; Python
+syntax, whitespace and all six guide editions validate.

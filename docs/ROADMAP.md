@@ -1432,6 +1432,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       recovers. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
       All 16 Darwin and eight Linux integrated-Clang deadline cases pass;
       existing C-only controls also pass. I do not change production behavior.
+- [x] **5.0 selected assembler hash bounds.** I reject non-regular selected
+      assembler inputs without blocking, and check the shared capture deadline
+      while hashing regular tool bytes. I test FIFO/device rejection, regular
+      and symlinked tools, expired deadlines and unchanged successful hashes.
+      Blocking `fopen` in tool hashing currently escapes child supervision.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349` records this audit finding.
+      Darwin and Linux boundary, admitted-FIFO recovery and existing deadline
+      controls pass. Successful hashes retain their representation; regular
+      file I/O still depends on the host filesystem returning. The historical
+      recovery cause remains separate and unresolved.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery

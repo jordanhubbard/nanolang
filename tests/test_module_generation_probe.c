@@ -596,6 +596,12 @@ int main(int argc, char **argv) {
     if (argc == 3 && !strcmp(argv[1], "assembler-version"))
         return module_assembler_version_supported(argv[2]) ? 0 : 1;
 #endif
+    if (argc == 4 && !strcmp(argv[1], "assembler-tool-hash")) {
+        uint64_t hash = 14695981039346656037ULL;
+        bool ok = module_assembler_tool_hash(&hash, argv[2], module_link_query_clock() + strtoll(argv[3], NULL, 10));
+        printf("%llu\n", (unsigned long long)hash);
+        return ok ? 0 : 1;
+    }
     if (argc == 3 && !strcmp(argv[1], "assembler-report")) {
         char *report = strdup(argv[2]);
         if (!report) return 1;

@@ -4152,9 +4152,44 @@ static size_t module_assembler_report(char *report, char **args, char *storage, 
     return selected ? module_assembler_argv(selected, args, storage, capacity) : 0;
 }
 
-static bool module_assembler_tool_hash(uint64_t *hash, const char *tool) {
-    uint64_t bytes = tool[0] == '/' ? hash_file_fnv1a(tool) : 0;
-    if (!bytes) return false;
+static bool module_assembler_tool_hash(uint64_t *hash, const char *tool, int64_t deadline) {
+    int64_t now = module_link_query_clock();
+    if (now < 0 || now >= deadline) {
+        module_trace_evidence("tool-hash-deadline", 1, 0, false);
+        return false;
+    }
+    if (tool[0] != '/') return false;
+    /* I allow installed tool symlinks, but never wait for a FIFO writer or
+     * hash an endless device. The descriptor determines the admitted kind.
+     * Regular-file I/O still relies on the host filesystem returning. */
+    int fd = open(tool, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+    if (fd < 0) return false;
+    struct stat before, after;
+    bool ok = !fstat(fd, &before) && S_ISREG(before.st_mode) && before.st_size >= 0;
+    off_t remaining = ok ? before.st_size : 0;
+    uint64_t bytes = 14695981039346656037ULL;
+    unsigned char buffer[4096];
+    while (ok && remaining) {
+        now = module_link_query_clock();
+        if (now < 0 || now >= deadline) { ok = false; break; }
+        size_t wanted = remaining < (off_t)sizeof(buffer) ? (size_t)remaining : sizeof(buffer);
+        ssize_t count = read(fd, buffer, wanted);
+        if (count < 0 && errno == EINTR) continue;
+        if (count <= 0) { ok = false; break; }
+        for (ssize_t i = 0; i < count; i++) {
+            bytes ^= buffer[i];
+            bytes *= 1099511628211ULL;
+        }
+        remaining -= count;
+    }
+    now = module_link_query_clock();
+    ok = ok && now >= 0 && now < deadline && !fstat(fd, &after) &&
+        before.st_size == after.st_size;
+    if (close(fd)) ok = false;
+    if (!ok || !bytes) {
+        module_trace_evidence(now >= deadline ? "tool-hash-deadline" : "tool-hash-input", 1, 0, false);
+        return false;
+    }
     char digest[24];
     snprintf(digest, sizeof(digest), "%llu", (unsigned long long)bytes);
     hash_context_field(hash, tool);
@@ -4172,13 +4207,13 @@ static bool module_clang_native_stdin(char **args, size_t words, char *report, s
     if (!module_process_output_options(args, report, report_size, deadline, true, true, -1, true)) return false;
     char storage[16384], *job[256];
     words = module_assembler_report(report, job, storage, sizeof(storage));
-    if (!words || !module_assembler_tool_hash(fingerprint, job[0])) return false;
+    if (!words || !module_assembler_tool_hash(fingerprint, job[0], deadline)) return false;
     if (!integrated) {
         job[words] = "-###"; job[words + 1] = NULL;
         if (!module_process_output_options(job, report, report_size, deadline, true, true, -1, true)) return false;
         words = module_assembler_report(report, job, storage, sizeof(storage));
     }
-    if (words < 2 || strcmp(job[1], "-cc1as") || !module_assembler_tool_hash(fingerprint, job[0])) return false;
+    if (words < 2 || strcmp(job[1], "-cc1as") || !module_assembler_tool_hash(fingerprint, job[0], deadline)) return false;
     size_t name = 0, source = 0, format = 0, output = 0;
     for (size_t i = 2; i < words; i++) {
         if (!strcmp(job[i], "-main-file-name")) {
@@ -4247,14 +4282,14 @@ static uint64_t module_clang_expansion(ModuleBuildMetadata *meta, const ModulePk
             args[words] = "-###"; args[words + 1] = NULL;
             if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
             words = module_assembler_report(report, args, storage, sizeof(storage));
-            if (!words || !module_assembler_tool_hash(&capture.hash, args[0])) goto failed;
+            if (!words || !module_assembler_tool_hash(&capture.hash, args[0], deadline)) goto failed;
             if (!integrated) {
                 args[words] = "-###"; args[words + 1] = NULL;
                 if (!module_process_output(args, report, sizeof(report), deadline, true, true)) goto failed;
                 words = module_assembler_report(report, args, storage, sizeof(storage));
             }
             if (words < 2 || strcmp(args[1], "-cc1as") ||
-                !module_assembler_tool_hash(&capture.hash, args[0])) goto failed;
+                !module_assembler_tool_hash(&capture.hash, args[0], deadline)) goto failed;
             size_t format = 0, output = 0, sources = 0;
             for (size_t j = 1; j < words; j++) {
                 if (!strcmp(args[j], "-filetype")) {
