@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import shlex
@@ -78,12 +79,40 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertIn(f"phase={phase} ".encode(), result.stderr)
                 self.assertIn(b"accepted=0", result.stderr)
                 self.assertNotIn(command.encode(), result.stderr)
+                if phase == "tool-deadline":
+                    for name in ("first-output", "eof", "reaped"):
+                        self.assertIn(f"phase=tool-{name}-ms expected=1 observed=0 accepted=0".encode(),
+                                      result.stderr)
         env.pop("NANO_TRACE_BUILD")
         quiet = subprocess.run([str(self.support.probe), "capture-environment", "printf evidence; exit 1"],
                                env=env, capture_output=True, timeout=8)
         self.assertNotEqual(quiet.returncode, 0)
         self.assertEqual(quiet.stdout, b"evidence")
         self.assertEqual(quiet.stderr, b"")
+
+    def test_tool_supervisor_timing_milestones(self):
+        env = os.environ.copy()
+        env["NANO_TRACE_BUILD"] = "1"
+        for delayed_exit in (False, True):
+            command = ("printf evidence; exec 1>&- 2>&-; sleep 0.3" if delayed_exit else
+                       "sleep 0.3; printf evidence")
+            with self.subTest(delayed_exit=delayed_exit):
+                result = subprocess.run([str(self.support.probe), "capture-environment", command],
+                                        env=env, capture_output=True, timeout=8)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout, b"evidence")
+                times = {}
+                for name in ("spawn", "first-output", "eof", "reaped"):
+                    match = re.search(fr"phase=tool-{name}-ms expected=1 observed=([0-9]+) accepted=1".encode(),
+                                      result.stderr)
+                    self.assertIsNotNone(match, result.stderr)
+                    times[name] = int(match[1])
+                self.assertLessEqual(times["spawn"], times["first-output"])
+                self.assertLessEqual(times["first-output"], times["eof"])
+                if delayed_exit:
+                    self.assertGreaterEqual(times["reaped"] - times["eof"], 150, result.stderr)
+                else:
+                    self.assertGreaterEqual(times["first-output"] - times["spawn"], 150, result.stderr)
 
     def test_build_evidence_trace_and_post_capture_validation_failure(self):
         self.build_evidence_trace_and_post_capture_validation_failure()

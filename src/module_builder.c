@@ -3117,6 +3117,8 @@ static bool module_process_output_options(char **args, char *output, size_t capa
         return false;
     }
     int64_t started = now;
+    bool trace_timing = getenv("NANO_TRACE_BUILD") != NULL;
+    int64_t milestones[4] = {-1, -1, -1, -1};
     int descriptors[2];
     if (pipe(descriptors)) return false;
     bool ok = true;
@@ -3160,6 +3162,7 @@ static bool module_process_output_options(char **args, char *output, size_t capa
     }
     if (ok) ok = posix_spawnp(&child, args[0], &actions, &attributes, args,
                               child_environment ? child_environment : environ) == 0;
+    if (trace_timing && ok) milestones[0] = module_link_query_clock();
     free(child_environment);
     if (have_actions) posix_spawn_file_actions_destroy(&actions);
     if (have_attributes) posix_spawnattr_destroy(&attributes);
@@ -3177,15 +3180,24 @@ static bool module_process_output_options(char **args, char *output, size_t capa
         if (ready > 0) {
             char buffer[1024];
             ssize_t n = read(descriptors[0], buffer, sizeof(buffer));
-            if (n == 0) eof = true;
+            if (n == 0) {
+                eof = true;
+                if (trace_timing) milestones[2] = module_link_query_clock();
+            }
             else if (n < 0) {
                 if (errno != EINTR && errno != EAGAIN) ok = false;
             } else if ((size_t)n >= capacity - used || memchr(buffer, 0, (size_t)n)) ok = false;
-            else { memcpy(output + used, buffer, (size_t)n); used += (size_t)n; }
+            else {
+                if (trace_timing && !used) milestones[1] = module_link_query_clock();
+                memcpy(output + used, buffer, (size_t)n); used += (size_t)n;
+            }
         }
         if (!reaped) {
             pid_t result = waitpid(child, &status, WNOHANG);
-            if (result == child) reaped = true;
+            if (result == child) {
+                reaped = true;
+                if (trace_timing) milestones[3] = module_link_query_clock();
+            }
             else if (result < 0 && errno != EINTR) { ok = false; break; }
         }
     }
@@ -3197,7 +3209,13 @@ static bool module_process_output_options(char **args, char *output, size_t capa
     if (!reaped) while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
     output[used] = 0;
     if (!ok) module_trace_evidence(now >= deadline ? "tool-deadline" : "tool-output", 0, used, false);
-    if (getenv("NANO_TRACE_BUILD")) {
+    if (trace_timing) {
+        const char *milestone_names[] = {"tool-spawn-ms", "tool-first-output-ms",
+                                         "tool-eof-ms", "tool-reaped-ms"};
+        for (size_t i = 0; i < 4; i++)
+            module_trace_evidence(milestone_names[i], 1,
+                                 milestones[i] >= started ? (uint64_t)(milestones[i] - started) : 0,
+                                 milestones[i] >= started);
         const char *phase = "tool-run-ms";
         for (size_t i = 1; args[i]; i++)
             if (!strcmp(args[i], "-###")) phase = "tool-query-ms";

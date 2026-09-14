@@ -1450,6 +1450,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Darwin and Linux controls pass with tracing on/off and both cache roots.
       Record persistence is now distinguishable from prerequisite validation;
       I do not assign it as the cause of the historical recovery failures.
+- [x] **5.0 tool-supervisor timing milestones.** I distinguish spawn return,
+      first output, pipe closure and child reaping in opt-in timing evidence.
+      I test delayed output and delayed exit without changing the shared
+      deadline, output acceptance or cleanup policy.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery

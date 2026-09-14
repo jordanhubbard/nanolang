@@ -3236,3 +3236,27 @@ or supervisor cleanup. I retain the five-second bound and existing assertions.
 My next investigation must distinguish those contributors before choosing a
 bounded remedy. This failed batch is not a full passing gate, and it does not
 retroactively explain the earlier untraced non-reuse events.
+
+## Supervisor timing milestones
+
+I inspect the supervisor: it polls in intervals of at most 25 ms, drains
+bounded output and checks child exit without blocking before final cleanup.
+This does not identify the cause of the observed 4,293 ms query interval.
+
+With `NANO_TRACE_BUILD`, I now report `tool-spawn-ms`,
+`tool-first-output-ms`, `tool-eof-ms` and `tool-reaped-ms` before each total
+timing line. Each reports elapsed milliseconds since supervisor entry;
+`expected=1` asks whether the milestone was observed, and `accepted=0` means
+unobserved or unavailable, not zero elapsed time. Reaping here means normal
+supervision, before forced cleanup. These are parent observation times, not
+child CPU measurements; scheduling can delay observations. Spawn time includes
+setup before `posix_spawnp` returns. The total still includes final cleanup.
+
+Controlled delayed-output and pipe-closed-before-exit cases distinguish these
+milestones. Existing command-failure, deadline and trace-disabled controls
+remain intact. The initial two-method Darwin check passes in 5.896 seconds;
+the exact failed joined/package/integrated/local-cache search scenario passes
+in 26.029 seconds. I build with strict warnings and validate six guide editions.
+This instrumentation adds no compiler queries and changes no deadline, output
+acceptance or cleanup policy. Recovery stability remains open; I do not claim
+a new full-suite or Linux result for this checkpoint.
