@@ -1442,6 +1442,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       controls pass. Successful hashes retain their representation; regular
       file I/O still depends on the host filesystem returning. The historical
       recovery cause remains separate and unresolved.
+- [x] **5.0 cache-record write diagnostics.** I report whether writing and
+      renaming the reuse record succeeded, rather than discarding that result.
+      I inject a record-rename failure and verify retained output, no reuse
+      record, private-file cleanup and subsequent recovery without changing
+      publication policy. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+      Darwin and Linux controls pass with tracing on/off and both cache roots.
+      Record persistence is now distinguishable from prerequisite validation;
+      I do not assign it as the cause of the historical recovery failures.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery

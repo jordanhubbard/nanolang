@@ -149,6 +149,10 @@ static int generation_test_fcntl(int fd, int command, ...) {
  * This hook is confined to the test translation unit. */
 static int generation_test_rename(const char *source, const char *target) {
     const char *leaf = strrchr(target, '/');
+    if (leaf && !strcmp(leaf, "/source_hashes.json") && getenv("NANO_TEST_RECORD_RENAME_FAILURE")) {
+        errno = EIO;
+        return -1;
+    }
     if (leaf && strcmp(leaf, "/current") == 0 && getenv("NANO_TEST_POINTER_FAILURE")) {
         errno = EIO;
         return -1;

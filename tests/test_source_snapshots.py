@@ -87,6 +87,47 @@ class SourceSnapshots(unittest.TestCase):
     def test_build_evidence_trace_and_post_capture_validation_failure(self):
         self.build_evidence_trace_and_post_capture_validation_failure()
 
+    def test_cache_record_rename_failure_diagnostics_and_recovery(self):
+        for shared in (False, True):
+            for traced in (False, True):
+                with self.subTest(shared=shared, traced=traced), tempfile.TemporaryDirectory(prefix="nano-record-write-") as tmp:
+                    root = Path(tmp)
+                    module, _, env = self.support.support.foreign_build_fixture(root)
+                    if shared: env["NANO_BUILD_CACHE"] = str(root / "cache")
+                    env.pop("NANO_TRACE_BUILD", None)
+                    if traced: env["NANO_TRACE_BUILD"] = "1"
+                    source = module / "answer.c"
+                    source.write_text('long long nano_build_answer(void) { return 42; }\n')
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": [source.name]}))
+                    def build(value):
+                        self.support.probe_path("build", module, env, timeout=30)
+                        generation = self.support.probe_path("directory", module, env)
+                        self.assertEqual(self.answer(self.support.probe_path("library", module, env)), value)
+                        self.assertFalse(list(generation.parent.glob(".nano-build-*")))
+                        self.assertFalse(list(generation.glob("source_hashes.json.*")))
+                        return generation
+                    first = build(42)
+                    self.assertTrue((first / "source_hashes.json").is_file())
+                    saved = self.support.snapshot(first)
+                    source.write_text('long long nano_build_answer(void) { return 43; }\n')
+                    env["NANO_TEST_RECORD_RENAME_FAILURE"] = "1"
+                    uncached = build(43)
+                    self.assertNotEqual(uncached, first)
+                    self.assertFalse((uncached / "source_hashes.json").exists())
+                    self.assertEqual(self.support.snapshot(first), saved)
+                    if traced:
+                        self.assertIn(b"phase=record-dependencies expected=1 observed=1 accepted=1", self.support.last_build_diagnostics)
+                        self.assertIn(b"phase=record-write expected=1 observed=0 accepted=0", self.support.last_build_diagnostics)
+                    else:
+                        self.assertNotIn(b"phase=record-write", self.support.last_build_diagnostics)
+                    env.pop("NANO_TEST_RECORD_RENAME_FAILURE")
+                    recovered = build(43)
+                    self.assertNotEqual(recovered, uncached)
+                    self.assertTrue((recovered / "source_hashes.json").is_file())
+                    if traced:
+                        self.assertIn(b"phase=record-write expected=1 observed=1 accepted=1", self.support.last_build_diagnostics)
+                    self.assertEqual(build(43), recovered, self.support.last_build_diagnostics)
+
     def test_raw_unit_post_link_validation_deadline(self):
         if not self.clang: self.skipTest("I need the selected Clang assembler query")
         for shared_unit in (False, True):

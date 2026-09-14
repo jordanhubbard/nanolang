@@ -804,12 +804,13 @@ static bool dep_hashes_match(cJSON *cache) {
 }
 
 /* Save hash cache JSON for a module */
-static void save_hash_cache(const char *build_dir, cJSON *root) {
+static bool save_hash_cache(const char *build_dir, cJSON *root) {
     char *path = malloc(strlen(build_dir) + 32);
-    if (!path) return;
+    if (!path) return false;
     sprintf(path, "%s/source_hashes.json", build_dir);
     char *text = cJSON_PrintUnformatted(root);
-    if (!text) { free(path); return; }
+    if (!text) { free(path); return false; }
+    bool saved = false;
     char *temporary = malloc(strlen(path) + 16);
     if (temporary) {
         sprintf(temporary, "%s.XXXXXX", path);
@@ -821,13 +822,14 @@ static void save_hash_cache(const char *build_dir, cJSON *root) {
                 ok = fputs(text, fp) >= 0;
                 if (fclose(fp) != 0) ok = false;
             } else close(fd);
-            if (ok) (void)rename(temporary, path);
+            if (ok) saved = rename(temporary, path) == 0;
             (void)unlink(temporary);
         }
         free(temporary);
     }
     free(text);
     free(path);
+    return saved;
 }
 
 typedef struct {
@@ -993,8 +995,10 @@ static void module_update_hash_cache(const char *module_dir, ModuleBuildMetadata
     }
     module_trace_evidence("record-link-inputs", 1, link_complete, link_complete);
 #endif
-    if (complete)
-        save_hash_cache(build_dir, root);
+    if (complete) {
+        bool saved = save_hash_cache(build_dir, root);
+        module_trace_evidence("record-write", 1, saved, saved);
+    }
     else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD") || getenv("NANO_TRACE_BUILD"))
         fprintf(stderr, "I cannot establish complete dependency evidence; I will rebuild this module next time\n");
     cJSON_Delete(root);

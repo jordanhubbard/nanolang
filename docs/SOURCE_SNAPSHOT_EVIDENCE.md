@@ -3136,3 +3136,24 @@ under Linux Clang: hash boundaries, four FIFO recovery cases and eight existing
 post-link deadline cases pass in 56.220 seconds. Direct Linux hash/report
 controls also pass. Both hosts compile the probe with strict warnings; Python
 syntax, whitespace and all six guide editions validate.
+
+## Cache-record persistence diagnostics
+
+I find another diagnostic gap in `save_hash_cache`: it discards the result of
+writing, closing and renaming the record. I return whether the write and rename
+succeeded and expose `record-write` through the existing opt-in build trace.
+This does not change publication policy or add a compiler observation.
+
+The test probe alone can fail the rename whose target is `source_hashes.json`.
+Across both cache roots with tracing on/off, the regression requires usable
+new output without a reuse record, unchanged prior-generation bytes, removal
+of temporary record files, and recorded output plus warm reuse after the fault
+is removed. Traced failure distinguishes accepted dependency evidence from
+rejected record persistence; tracing disabled emits no `record-write` line.
+
+The new regression and existing post-capture validation-failure controls pass
+on Darwin in 15.080 seconds and Linux GCC in 1.639 seconds. Both probes compile
+with strict warnings; Python syntax, whitespace and all six guide editions
+validate. This checkpoint does not claim a full-suite result: the complete
+Darwin snapshot run started against `57c81127` is still in progress, using its
+unchanged probe. Historical recovery stability remains open.
