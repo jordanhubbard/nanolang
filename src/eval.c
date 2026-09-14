@@ -920,6 +920,8 @@ static Value builtin_at(Value *args) {
         
         /* Return element based on type */
         switch (arr->element_type) {
+            case VAL_ARRAY:
+                return ((Value*)arr->data)[index];
             case VAL_INT:
                 return create_int(((long long*)arr->data)[index]);
             case VAL_FLOAT:
@@ -1101,6 +1103,13 @@ static Value builtin_array_set(Value *args) {
     
     /* Set element based on type */
     switch (arr->element_type) {
+        case VAL_ARRAY:
+            if (args[2].type != VAL_ARRAY && args[2].type != VAL_DYN_ARRAY) {
+                fprintf(stderr, "I require an array value for a nested array element.\n");
+                exit(1);
+            }
+            ((Value*)arr->data)[index] = args[2];
+            break;
         case VAL_INT:
             if (args[2].type != VAL_INT) {
                 fprintf(stderr, "Error: Type mismatch in array_set\n");
@@ -1176,6 +1185,10 @@ static Value builtin_array_slice(Value *args) {
 
         Value out = create_array(arr->element_type, out_len, out_len);
         switch (arr->element_type) {
+            case VAL_ARRAY:
+                for (int64_t i = 0; i < out_len; i++)
+                    ((Value*)out.as.array_val->data)[i] = ((Value*)arr->data)[start + i];
+                break;
             case VAL_INT:
                 for (int64_t i = 0; i < out_len; i++) {
                     ((long long*)out.as.array_val->data)[i] = ((long long*)arr->data)[start + i];
@@ -1285,6 +1298,15 @@ static Value builtin_array_push(Value *args) {
      * For dynamic arrays, appends element
      */
     
+    /* I retain each inner Value's representation and identity. A static
+     * literal and a dynamic array can inhabit the same nested array. */
+    if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0 &&
+        (args[1].type == VAL_ARRAY || args[1].type == VAL_DYN_ARRAY)) {
+        Value nested = create_array(VAL_ARRAY, 1, 1);
+        ((Value*)nested.as.array_val->data)[0] = args[1];
+        return nested;
+    }
+
     /* If arg[0] is an empty static array, convert to dynamic */
     if (args[0].type == VAL_ARRAY && args[0].as.array_val->length == 0) {
         /* Create new dynamic array with element type from value */
@@ -1330,6 +1352,7 @@ static Value builtin_array_push(Value *args) {
         Array *arr = args[0].as.array_val;
         size_t width;
         switch (arr->element_type) {
+            case VAL_ARRAY: width = sizeof(Value); break;
             case VAL_INT: width = sizeof(long long); break;
             case VAL_FLOAT: width = sizeof(double); break;
             case VAL_BOOL: width = sizeof(bool); break;
@@ -1339,7 +1362,9 @@ static Value builtin_array_push(Value *args) {
                 fprintf(stderr, "I cannot append this array element representation.\n");
                 exit(1);
         }
-        if (args[1].type != arr->element_type || arr->length == INT_MAX ||
+        bool nested_value = arr->element_type == VAL_ARRAY &&
+            (args[1].type == VAL_ARRAY || args[1].type == VAL_DYN_ARRAY);
+        if ((!nested_value && args[1].type != arr->element_type) || arr->length == INT_MAX ||
             (size_t)arr->length + 1 > SIZE_MAX / width) {
             fprintf(stderr, "I cannot append this value to the array.\n");
             exit(1);
@@ -3190,6 +3215,14 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
     }
 
     /* Timing utilities */
+    if (strcmp(name, "nl_get_time_ms") == 0) {
+        struct timespec ts;
+        if (node->as.call.arg_count != 0 || clock_gettime(CLOCK_REALTIME, &ts) != 0) {
+            fprintf(stderr, "I cannot read epoch milliseconds.\n");
+            exit(1);
+        }
+        return create_int((long long)ts.tv_sec * 1000LL + ts.tv_nsec / 1000000LL);
+    }
     if (strcmp(name, "nl_timing_get_nanoseconds") == 0) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -4770,6 +4803,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Evaluate first element to determine type */
             Value first = eval_expression(expr->as.array_literal.elements[0], env);
             ValueType elem_type = first.type;
+            if (elem_type == VAL_DYN_ARRAY) elem_type = VAL_ARRAY;
             
             /* Create array */
             Value arr = create_array(elem_type, count, count);
@@ -4780,6 +4814,13 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 
                 /* Store element in array data */
                 switch (elem_type) {
+                    case VAL_ARRAY:
+                        if (elem.type != VAL_ARRAY && elem.type != VAL_DYN_ARRAY) {
+                            fprintf(stderr, "I require array values in a nested array literal.\n");
+                            exit(1);
+                        }
+                        ((Value*)arr.as.array_val->data)[i] = elem;
+                        break;
                     case VAL_INT:
                         ((long long*)arr.as.array_val->data)[i] = elem.as.int_val;
                         break;

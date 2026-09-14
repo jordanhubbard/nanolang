@@ -35,6 +35,9 @@ the implementation shipped here. Packaged NanoVM execution is not native AOT.
 Backend parity, complete resource ownership checking, broader input snapshots,
 and production service isolation remain bounded work on [my roadmap](ROADMAP.md).
 Laboratory frontends do not establish a distributed production runtime.
+In particular, bytecode `array_slice` currently treats its third argument
+as an end index, while the C path treats it as a length. Nonzero-start
+slice parity remains follow-up work; this cut does not claim that parity.
 
 ## Release review
 
@@ -70,6 +73,17 @@ Some native links emit an Apple SDK text-stub warning; I do not describe
 those links as warning-free.
 
 The complete test gate is still pending while this release is prepared.
+
+A subsequent integration scan reported 205 passes and 13 failures. The
+failures exposed dormant dependency shadows and two missing execution paths.
+I corrected filesystem imports, mutable-map expectations, floating-point
+tolerances, JSON length spelling, OPL fixtures, and property-counterexample
+expectations. I added interpreter support for mixed static/dynamic nested
+arrays and epoch-millisecond timing, and preserved nested-array literal tags
+in bytecode. The affected programs pass direct retests. My new nested-array
+regression checks empty inner arrays, three levels, aliasing, appends and
+indexed writes through C compilation/shadows and NanoVM with tracing disabled.
+Opcode tracing isolated the separate slice-convention limitation noted above.
 
 ## Presentation acknowledgement
 

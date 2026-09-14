@@ -1678,6 +1678,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         /* Determine element type tag */
         uint8_t elem_tag = TAG_INT; /* default */
         switch (node->as.array_literal.element_type) {
+            case TYPE_ARRAY:  elem_tag = TAG_ARRAY;  break;
             case TYPE_FLOAT:  elem_tag = TAG_FLOAT;  break;
             case TYPE_BOOL:   elem_tag = TAG_BOOL;   break;
             case TYPE_STRING: elem_tag = TAG_STRING;  break;

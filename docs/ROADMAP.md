@@ -42,6 +42,30 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       the `nisa_emit_call` fixture before emitting its use, then rerun the
       source-emitter gate (86 checks passed). The complete release gate
       remains part of the integration item.
+- [x] **Release-gate byte I/O fixture.** I import the filesystem wrappers
+      used by the bytes-conversion shadow instead of assuming undeclared
+      `file_write` and `file_remove` functions. Compile and execution pass.
+- [x] **Release-gate mutable map shadows.** I test empty maps before mutation
+      and shared-handle state after mutation; the native hashmap wrappers
+      mutate their opaque handle and do not create persistent snapshots.
+- [x] **Release-gate dependency shadows.** I correct the JSON array-length
+      spelling and vector normalization's exact floating-point comparison,
+      then diagnose nested-array evaluation exposed by the property library.
+      I preserve nested literal tags in bytecode lowering as well as inner
+      array identity in the interpreter, with a shared executable regression.
+- [x] **Release-gate coverage timing.** I provide the generated runtime's
+      epoch-millisecond helper to interpreter shadows and test its result.
+      Property-counterexample shadows must expect failures, not success,
+      and use guaranteed counterexamples where the test requires one.
+- [x] **Release-gate OPL shadows.** I escape a quoted validation fixture
+      and require the newline skipper to advance past its newline token.
+- [ ] **Follow-up — bytecode slice convention.** My C path treats the
+      third `array_slice` argument as a length, but bytecode lowering passes
+      it to an end-index instruction. A nonzero-start probe produced length
+      1 instead of 2 for `(array_slice rows 1 2)`. This remains an explicit
+      backend-parity limitation of the 5.0 cut, separate from nested-array
+      literal/append/indexed-write repair.
+      MAC `task_efa11df9058a199510c563782734c31a`.
 
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard

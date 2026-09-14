@@ -642,7 +642,7 @@ shadow skip_newlines {
     let nl: string = (string_from_char 10)
     let lr: OplTokensResult = (opl_lex (+ "a" (+ nl "b")))
     assert lr.ok
-    assert (== (skip_newlines lr 1) 1)
+    assert (== (skip_newlines lr 1) 2)
 }
 
 shadow jp_ok {

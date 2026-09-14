@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
@@ -2226,6 +2227,21 @@ void test_eval_record_alias_reassignment(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_epoch_milliseconds(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "extern fn nl_get_time_ms() -> int\n"
+        "fn now() -> int { unsafe { return (nl_get_time_ms) } }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow now { assert (> (now) 0) }\n"));
+    long long before = (long long)time(NULL) * 1000LL;
+    Value result = call_function("now", NULL, 0, ctx.env);
+    long long after = (long long)time(NULL) * 1000LL + 999LL;
+    ASSERT(result.type == VAL_INT);
+    ASSERT(result.as.int_val >= before && result.as.int_val <= after);
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
     printf("=== Interpreter (eval.c) Tests ===\n");
     TEST(eval_integer_arithmetic);
@@ -2332,6 +2348,7 @@ int main(void) {
     TEST(eval_array_literal_evaluates_once_in_order);
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
+    TEST(eval_epoch_milliseconds);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;

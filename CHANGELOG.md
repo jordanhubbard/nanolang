@@ -23,6 +23,9 @@ I record notable changes here using [Keep a Changelog](https://keepachangelog.co
   compilation inputs, and bound external capture with explicit failure recovery.
   Exact strict/no-strict-aliasing flags preserve snapshot eligibility.
 - I update NanoISA facade shadows to the explicit function-result assembly header.
+- I execute nested-array shadows in the interpreter, preserve nested literal
+  tags in bytecode, supply coverage timing, and repair dormant dependency
+  shadow fixtures.
 
 ### Added
 - I include the Scheme, ML, Actor, Dataflow, Object, Shell and Logic laboratory

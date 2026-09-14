@@ -702,6 +702,7 @@ Value create_array(ValueType elem_type, int length, int capacity) {
         case VAL_FLOAT:  elem_size = sizeof(double); break;
         case VAL_BOOL:   elem_size = sizeof(bool); break;
         case VAL_STRING: elem_size = sizeof(char*); break;
+        case VAL_ARRAY:  elem_size = sizeof(Value); break;
         default:         elem_size = sizeof(void*); break;
     }
     v.as.array_val->data = calloc(v.as.array_val->capacity, elem_size);

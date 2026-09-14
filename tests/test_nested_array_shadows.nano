@@ -1,0 +1,26 @@
+# I preserve inner-array identity across literals, appends and indexed writes.
+fn main() -> int { return 0 }
+shadow main {
+    let inner: array<int> = [7]
+    let dynamic: array<int> = (array_push [] 8)
+    let mut rows: array<array<int>> = [inner, dynamic]
+    set rows (array_push rows [])
+    set rows (array_push rows [9])
+    assert (== (array_length (at rows 2)) 0)
+    assert (== (at (at rows 3) 0) 9)
+    (array_set inner 0 42)
+    assert (== (at (at rows 0) 0) 42)
+    (array_set dynamic 0 43)
+    assert (== (at (at rows 1) 0) 43)
+    (array_set rows 2 dynamic)
+    assert (== (at (at rows 2) 0) 43)
+    let reversed: array<array<int>> = [dynamic, inner]
+    assert (== (at (at reversed 1) 0) 42)
+    let cube: array<array<array<int>>> = [rows]
+    assert (== (at (at (at cube 0) 0) 0) 42)
+    let mut empty: array<array<int>> = []
+    set empty (array_push empty [])
+    set empty (array_push empty inner)
+    assert (== (array_length (at empty 0)) 0)
+    assert (== (at (at empty 1) 0) 42)
+}
