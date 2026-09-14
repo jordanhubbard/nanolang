@@ -1485,7 +1485,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I document their limits and acceptance requirements in
       `docs/SOURCE_SNAPSHOT_EVIDENCE.md`; this review changes no runtime default.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
-- [ ] **5.0 bounded capture deadline configuration.** I implement the reviewed
+- [x] **5.0 bounded capture deadline configuration.** I implement the reviewed
       `NANO_CAPTURE_TIMEOUT_MS` policy without resetting a scope's deadline.
       I test default and boundary values, malformed and overflowing input,
       unavailable clocks, controlled expiry and descendant cleanup. I verify
@@ -1500,7 +1500,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       descendant does not survive expiry in the targeted Darwin control.
       Six-second production queries pass with cold publication and two actual
       warm reuses, including a changed timeout without generation invalidation.
-      Linux execution remains to verify; I keep this item open.
+      On Debian bookworm aarch64, seven GCC-backed timeout, captured-read and
+      recovery methods pass; Clang 14 slow production capture/reuse and final
+      completion-clock methods pass separately. I close this bounded policy
+      item, not the full Darwin recovery gate below.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without

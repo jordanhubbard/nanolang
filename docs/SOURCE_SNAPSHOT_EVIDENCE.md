@@ -3630,3 +3630,25 @@ Linux runtime acceptance remains open. My current Docker inventory contains
 no compiler test image; I do not count Darwin execution of shared code as
 execution of the Linux captured-read path. These targeted passes also do not
 replace the full Darwin recovery gate.
+
+### Linux configured-timeout acceptance
+
+I build an isolated Debian bookworm aarch64 container from image digest
+`sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171`.
+It receives a source archive of `6c8342c9` plus the new Linux slow-read test,
+not writable access to my Darwin worktree. GCC 12.2.0 builds the probe and
+capture helper with strict warnings. Seven methods pass in 19.361 seconds:
+timeout parsing, default/expiry, configuration clock rejection, descendant
+cleanup, Linux six-second captured-read execution, descriptor boundaries
+(including short-budget timeout), and early failure recovery with warm reuse.
+
+I then select Debian Clang 14.0.6 as `cc` inside that container. Slow production
+capture with unchanged-generation warm reuse across timeout settings and the
+final-completion clock regression both pass in 18.891 seconds. These execute
+the Linux paths; the Darwin skip of the new Linux-only test is not evidence
+for them. All six guide editions validate and `git diff --check` passes.
+
+I close bounded capture deadline configuration with this targeted acceptance
+evidence. I do not close Darwin recovery stability or retroactively assign a
+cause to the historical silent failure. The disposable container is removed
+after testing; its installed tools and build outputs are not repository changes.

@@ -1101,6 +1101,18 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                                         capture_output=True, timeout=8)
                 self.assertEqual(result.returncode == 0, kind == "directory", result.stderr)
 
+    def test_linux_read_execute_default_accepts_slow_command(self):
+        if sys.platform != "linux": self.skipTest("I exercise Linux captured-read execution")
+        with tempfile.TemporaryDirectory(prefix="nano-slow-read-") as tmp:
+            env = dict(os.environ)
+            env.pop("NANO_CAPTURE_TIMEOUT_MS", None)
+            code = "import time; time.sleep(6); print('retained')"
+            result = subprocess.run([str(self.support.probe), "read-execute", tmp,
+                                     shlex.join([sys.executable, "-c", code])],
+                                    env=env, capture_output=True, timeout=40)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stderr, b"retained\n")
+
     def test_assembler_instruction_and_location_provenance(self):
         self.assembler_instruction_and_location_provenance(shutil.which("cc"), integrated=False)
 
