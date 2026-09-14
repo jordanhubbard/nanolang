@@ -1227,9 +1227,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                             emit_literal(list, "({ assert(false && \"unary minus requires array<int> or array<float>\"); (DynArray*)0; })");
                         }
                     } else {
-                        emit_literal(list, "(-");
+                        emit_literal(list, "(-(");
                         build_expr(list, expr->as.prefix_op.args[0], env);
-                        emit_literal(list, ")");
+                        emit_literal(list, "))");
                     }
                 } else if (op == TOKEN_QUESTION) {
                     /* ? try-propagate: desugars to:

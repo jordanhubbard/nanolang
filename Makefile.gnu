@@ -1907,6 +1907,7 @@ test-impl: test-units
 	@$(MAKE) --no-print-directory test-runtime-failures
 	@echo ""
 	@echo "Running self-hosted compiler tests..."
+	@$(MAKE) --no-print-directory bootstrap1
 	@if [ -f tests/selfhost/run_selfhost_tests.sh ]; then \
 		./tests/selfhost/run_selfhost_tests.sh; \
 	fi

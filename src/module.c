@@ -670,6 +670,28 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     }
     
     /* Type check module (without requiring main) */
+    /* I must not merge distinct files into one public introspection identity.
+     * Imports are resolved first so this also catches a parent/child clash. */
+    char *identity = module_program_name(module_ast, module_path);
+    for (int i = 0; identity && module_cache && i < module_cache->count; i++) {
+        if (!module_cache->loaded_asts[i] ||
+            strcmp(module_cache->loaded_paths[i], module_path) == 0) continue;
+        char *other = module_program_name(module_cache->loaded_asts[i],
+                                          module_cache->loaded_paths[i]);
+        bool duplicate = other && strcmp(identity, other) == 0;
+        free(other);
+        if (duplicate) {
+            fprintf(stderr, "Error: I reject ambiguous module introspection identity: %s\n", identity);
+            free(identity);
+            env->current_module = saved_current_module;
+            free(module_name);
+            free_ast(module_ast);
+            free_tokens(tokens, token_count);
+            free(source);
+            return NULL;
+        }
+    }
+    free(identity);
     /* Register module for introspection BEFORE type checking so functions can be tracked */
     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
     

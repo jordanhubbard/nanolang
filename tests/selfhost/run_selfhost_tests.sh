@@ -4,10 +4,11 @@
 set -e
 
 TESTS_DIR="tests/selfhost"
-NANOC="./bin/nanoc"
+NANOC="${NANOLANG_SELFHOST_COMPILER:-./bin/nanoc_stage1}"
 
 echo "========================================"
 echo "SELF-HOSTED COMPILER TEST SUITE"
+echo "Compiler: $NANOC"
 echo "========================================"
 echo ""
 
@@ -54,7 +55,7 @@ for test in $TESTS; do
     printf "Testing %-30s ... " "$test"
     
     # Compile (timeout to avoid nanoc infinite loops)
-    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
+    if perl -e 'alarm 60; exec @ARGV' "$NANOC" "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
         # Run
         if perl -e 'alarm 60; exec @ARGV' $TEST_BIN > /dev/null 2>&1; then
             echo "✅ PASS"
@@ -75,7 +76,7 @@ for test in $NEGATIVE_TESTS; do
 
     printf "Testing %-30s ... " "$test"
 
-    if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
+    if perl -e 'alarm 60; exec @ARGV' "$NANOC" "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
         echo "❌ FAIL (expected compilation error)"
         FAILED=$((FAILED + 1))
         if [ -f "$TEST_BIN" ]; then

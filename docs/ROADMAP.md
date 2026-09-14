@@ -66,6 +66,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       backend-parity limitation of the 5.0 cut, separate from nested-array
       literal/append/indexed-write repair.
       MAC `task_efa11df9058a199510c563782734c31a`.
+- [x] **Release-gate module identity rejection.** I reject distinct imported
+      files with the same declared/fallback introspection identity in the
+      C loader, matching the self-hosted contract before publication.
+- [x] **Release-gate self-hosted test routing.** I build and select my actual
+      stage-one driver for self-hosted CLI tests, instead of testing my C seed
+      under a self-hosted label.
+- [x] **Nested unary-minus C emission.** I parenthesize nested negation so
+      `-(-7)` does not become the C decrement token `--7`.
 
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard

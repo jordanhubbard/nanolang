@@ -74,6 +74,15 @@ those links as warning-free.
 
 The complete test gate is still pending while this release is prepared.
 
+The runnable integration suite now passes all 219 programs. I reject
+duplicate module introspection identities in the C loader; all 34 negative
+tests pass, and the identity regression also passes with stage one and
+NanoVirt. I corrected the self-hosted runner to select stage one: its 14
+compile/run cases, five import-path tests and 20 CLI tests pass. Nested unary
+negation also passes through the C seed. One full-gate retry stopped on disk
+exhaustion, not a test assertion; available space recovered without deleting
+unrelated files.
+
 A subsequent integration scan reported 205 passes and 13 failures. The
 failures exposed dormant dependency shadows and two missing execution paths.
 I corrected filesystem imports, mutable-map expectations, floating-point
