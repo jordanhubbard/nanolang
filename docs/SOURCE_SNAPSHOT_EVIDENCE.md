@@ -2727,10 +2727,6 @@ Instrumentation covers the builder/probe rather than every support object.
 The final Linux bytecode-shadow target passes 231 methods with 30 platform
 skips; its 90-method source-snapshot suite takes 105.662 seconds. Strict
 builds, Python syntax, whitespace and six-edition guide checks pass.
-The full Darwin ordinary `.S` search/recovery matrix passes all 36 combinations
-in one trace-enabled run (772.128 seconds). Neither historical intermittent
-failure recurred in this checkpoint. I have a clean matrix result and a way
-to classify a subsequent failure, not a demonstrated historical root cause.
 
 ### Integrated Clang native-unit admission
 
@@ -3013,3 +3009,7 @@ both controls and integrated failure recovery in 21.321 seconds.
 The complete Linux bytecode-shadow gate passes 251 methods with 29 platform
 skips, including 110 snapshot methods in 315.496 seconds. Strict Darwin/Linux
 builds, Python syntax, whitespace and six-edition guide checks pass.
+The full Darwin ordinary `.S` search/recovery matrix passes all 36 combinations
+in one trace-enabled run (772.128 seconds). Neither historical intermittent
+failure recurred in this checkpoint. I have a clean matrix result and a way
+to classify a subsequent failure, not a demonstrated historical root cause.
