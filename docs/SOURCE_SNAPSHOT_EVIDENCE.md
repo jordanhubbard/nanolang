@@ -3183,3 +3183,31 @@ not a fix for the failed run. Python syntax, whitespace and all six guide
 editions validate. The next broad run must include the failed method and the
 methods the fail-fast run never reached; the 64-method failure is not a full
 passing gate.
+
+## Continuation batch: observed replacement-capture deadline
+
+The continuation batch at `ce7a7d96` stops after 36 methods in 1644.488 seconds,
+with one platform skip and one failure. Integrated debug identity and failure
+recovery pass, as does the shared preprocessed search matrix. Shared raw search
+recovery fails with paired `-Wa,-I`, common placement, external assembly and
+the shared cache. The failing call rebuilds after missing-input recovery.
+
+Its trace accepts initial context, declared headers, dependency hashes and link
+inputs, then rejects preprocessing reuse for changed input. Replacement capture
+reports `tool-deadline` with zero captured output and refuses live-source
+compilation. This is a directly observed deadline in a natural matrix run.
+It does not establish the cause of the earlier untraced non-reuse events.
+
+I add opt-in `tool-query-ms` and `tool-run-ms` evidence: `expected` is the
+remaining deadline budget on entry, `observed` is elapsed time through cleanup,
+and `accepted` is the existing tool result. Query classification means literal
+argv contains `-###`. No command or environment contents are added. The shared
+deadline, compiler observations and publication policy are unchanged.
+
+The exact failing scenario passes a measured replay in 19.497 seconds.
+Successful calls take 8–173 ms and start with 4,255–5,000 ms remaining. That
+does not suggest routine budget exhaustion in this replay or explain the
+long-run outlier. Controlled shared-raw deadlines plus another exact-scenario
+replay pass in 91.973 seconds. Tool failure/deadline and record-rename recovery
+controls pass in 10.119 seconds. The probe builds with strict warnings; Python
+syntax, whitespace and six guide editions validate. Stability remains open.

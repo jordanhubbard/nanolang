@@ -3116,6 +3116,7 @@ static bool module_process_output_options(char **args, char *output, size_t capa
         module_trace_evidence("tool-deadline-before-spawn", 0, 0, false);
         return false;
     }
+    int64_t started = now;
     int descriptors[2];
     if (pipe(descriptors)) return false;
     bool ok = true;
@@ -3196,6 +3197,14 @@ static bool module_process_output_options(char **args, char *output, size_t capa
     if (!reaped) while (waitpid(child, &status, 0) < 0 && errno == EINTR) {}
     output[used] = 0;
     if (!ok) module_trace_evidence(now >= deadline ? "tool-deadline" : "tool-output", 0, used, false);
+    if (getenv("NANO_TRACE_BUILD")) {
+        const char *phase = "tool-run-ms";
+        for (size_t i = 1; args[i]; i++)
+            if (!strcmp(args[i], "-###")) phase = "tool-query-ms";
+        int64_t finished = module_link_query_clock();
+        module_trace_evidence(phase, (uint64_t)(deadline - started),
+                             finished >= started ? (uint64_t)(finished - started) : 0, ok);
+    }
     return ok;
 }
 

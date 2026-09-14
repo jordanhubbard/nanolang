@@ -73,6 +73,7 @@ class SourceSnapshots(unittest.TestCase):
                 result = subprocess.run([str(self.support.probe), "capture-environment", command], env=env,
                                         capture_output=True, timeout=8)
                 self.assertNotEqual(result.returncode, 0)
+                self.assertRegex(result.stderr, rb"phase=tool-run-ms expected=[0-9]+ observed=[0-9]+ accepted=0")
                 self.assertEqual(result.stdout, output)
                 self.assertIn(f"phase={phase} ".encode(), result.stderr)
                 self.assertIn(b"accepted=0", result.stderr)
@@ -206,6 +207,7 @@ class SourceSnapshots(unittest.TestCase):
                     self.assertTrue(marker.is_file())
                     if unit_suffix:
                         self.assertIn(b"phase=tool-deadline ", uncached.stderr)
+                        self.assertRegex(uncached.stderr, rb"phase=tool-query-ms expected=[0-9]+ observed=[0-9]+ accepted=0")
                         self.assertTrue(query_pid.is_file(), uncached.stderr)
                         with self.assertRaises(ProcessLookupError): os.kill(int(query_pid.read_text()), 0)
                         self.assertFalse(list(temporary.glob("nano-gcc-check-*")))

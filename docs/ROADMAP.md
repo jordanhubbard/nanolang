@@ -1466,6 +1466,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       reuse in integrated `.S` debug identity (shared cache, no macros).
       Native-object/debug comparisons pass. I retain cold/warm characterizer
       diagnostics and record presence to distinguish publication from reuse.
+      The continuation batch at `ce7a7d96` stops after 36 methods: shared raw
+      recovery (paired flags, common placement, external assembler, shared
+      cache) reports `tool-deadline` during replacement capture. I record each
+      traced tool's remaining budget and elapsed milliseconds to distinguish
+      a slow child from budget already spent in earlier capture work.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text
