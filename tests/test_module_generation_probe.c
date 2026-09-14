@@ -16,6 +16,36 @@
 #include <stdarg.h>
 #include <time.h>
 #include <sys/wait.h>
+#include <sys/file.h>
+
+static bool generation_early_failure(const char *phase) {
+    const char *fault = getenv("NANO_TEST_EARLY_FAILURE");
+    return fault && !strcmp(fault, phase);
+}
+static char *generation_test_realpath(const char *path, char *resolved) {
+    const char *cache = getenv("NANO_TEST_EARLY_CACHE");
+    if (cache && !strcmp(path, cache) && generation_early_failure("cache-path")) {
+        errno = EIO; return NULL;
+    }
+    return realpath(path, resolved);
+}
+static int generation_test_flock(int fd, int operation) {
+    if (generation_early_failure("lock-acquire")) { errno = EIO; return -1; }
+    return flock(fd, operation);
+}
+static int generation_test_mkdir(const char *path, mode_t mode) {
+    const char *cache = getenv("NANO_TEST_EARLY_CACHE");
+    if (cache && !strcmp(path, cache) && generation_early_failure("cache-directory")) {
+        errno = EIO; return -1;
+    }
+    return mkdir(path, mode);
+}
+static char *generation_test_mkdtemp(char *pattern) {
+    if (strstr(pattern, "/.nano-build-") && generation_early_failure("stage-create")) {
+        errno = EIO; return NULL;
+    }
+    return mkdtemp(pattern);
+}
 
 /* I advance only the test clock after both completion observations. */
 static bool generation_tool_eof, generation_tool_reaped;
@@ -224,7 +254,15 @@ static char *generation_test_strdup(const char *value) {
 #define strdup generation_test_strdup
 #define clock_gettime generation_test_clock_gettime
 #define waitpid generation_test_waitpid
+#define realpath generation_test_realpath
+#define flock generation_test_flock
+#define mkdtemp generation_test_mkdtemp
+#define mkdir generation_test_mkdir
 #include "../src/module_builder.c"
+#undef mkdir
+#undef realpath
+#undef flock
+#undef mkdtemp
 #undef clock_gettime
 #undef waitpid
 #undef malloc

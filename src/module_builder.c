@@ -2047,13 +2047,20 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
 }
 
 ModuleBuildMetadata* module_load_metadata(const char *module_dir) {
-    if (!module_dir || !module_dir[0]) return NULL;
+    if (!module_dir || !module_dir[0]) {
+        module_trace_evidence("build-metadata-path", 1, 0, false);
+        return NULL;
+    }
     char *canonical = realpath(module_dir, NULL);
-    if (!canonical) return NULL;
+    if (!canonical) {
+        module_trace_evidence("build-metadata-path", 1, 0, false);
+        return NULL;
+    }
     /* I use the physical module directory for both cache identity and
      * module-relative include fallback, regardless of an import alias. */
     ModuleBuildMetadata *meta = module_load_metadata_at_directory(canonical);
     free(canonical);
+    if (!meta) module_trace_evidence("build-metadata", 1, 0, false);
     return meta;
 }
 
@@ -5785,27 +5792,40 @@ static ModuleBuildInfo* module_build_with_flags(ModuleBuilder *builder, ModuleBu
         fprintf(stderr, "I require a simple artifact name for a C module\n");
         return NULL;
     }
-    if (!module_ensure_build_dir(meta->module_dir)) return NULL;
+    if (!module_ensure_build_dir(meta->module_dir)) {
+        module_trace_evidence("build-cache-directory", 1, 0, false);
+        return NULL;
+    }
     char *cache_root = module_get_build_dir(meta->module_dir);
     char *cache = cache_root ? realpath(cache_root, NULL) : NULL;
     free(cache_root);
-    if (!cache) return NULL;
+    if (!cache) {
+        module_trace_evidence("build-cache-path", 1, 0, false);
+        return NULL;
+    }
     char lock_path[2048], stage[2048];
     int l = snprintf(lock_path, sizeof(lock_path), "%s/.build.lock", cache);
     int s = snprintf(stage, sizeof(stage), "%s/.nano-build-XXXXXX", cache);
     if (l < 0 || (size_t)l >= sizeof(lock_path) || s < 0 || (size_t)s >= sizeof(stage)) {
+        module_trace_evidence("build-cache-path-capacity", 1, 0, false);
         free(cache);
         return NULL;
     }
     int fd = open(lock_path, O_RDWR | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0600);
-    if (fd < 0) { free(cache); return NULL; }
+    if (fd < 0) {
+        module_trace_evidence("build-lock-open", 1, 0, false);
+        free(cache); return NULL;
+    }
     int locked = flock(fd, LOCK_EX | LOCK_NB);
     if (locked < 0 && (errno == EWOULDBLOCK || errno == EAGAIN)) {
         if (getenv("NANO_VERBOSE_BUILD")) fprintf(stderr, "I wait for the C-library cache lock: %s\n", cache);
         do { locked = flock(fd, LOCK_EX); } while (locked < 0 && errno == EINTR);
     }
     ModuleBuildInfo *info = NULL;
-    if (locked == 0 && mkdtemp(stage)) {
+    bool staged = locked == 0 && mkdtemp(stage);
+    if (!staged)
+        module_trace_evidence(locked != 0 ? "build-lock-acquire" : "build-stage-create", 1, 0, false);
+    if (staged) {
         uint64_t context_before = module_build_context(meta);
         uint64_t preprocessing_before = 0;
         cJSON *link_observation = NULL;
@@ -6083,10 +6103,16 @@ static bool module_capture_invocation(const ModuleBuildMetadata *meta, ModuleBui
 }
 
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
-    if (!meta || !ensure_module_system_deps(meta)) return NULL;
+    if (!meta || !ensure_module_system_deps(meta)) {
+        module_trace_evidence("build-system-dependencies", 1, 0, false);
+        return NULL;
+    }
     ModuleBuildMetadata captured;
     ModulePkgFlags flags;
-    if (!module_capture_invocation(meta, &captured, &flags)) return NULL;
+    if (!module_capture_invocation(meta, &captured, &flags)) {
+        module_trace_evidence("build-invocation", 1, 0, false);
+        return NULL;
+    }
     ModuleBuildInfo *info = module_build_with_flags(builder, &captured, &flags);
     for (size_t i = 0; info && i < info->compile_flags_count; i++) {
         char *transport = module_response_transport(&captured, &flags, info->compile_flags[i]);
@@ -6096,6 +6122,7 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     }
     module_pkg_flags_free(&flags);
     module_response_metadata_free(meta, &captured);
+    if (!info) module_trace_evidence("build-result", 1, 0, false);
     return info;
 }
 

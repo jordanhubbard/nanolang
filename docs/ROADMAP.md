@@ -1464,11 +1464,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       time. All four injected completion-clock cases fail before the fix and
       pass afterward; five targeted supervisor/capture methods pass on Darwin.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
-- [ ] **5.0 early build failure evidence.** My full snapshot gate reports a
+- [x] **5.0 early build failure evidence.** My full snapshot gate reports a
       warm build returning 1 with empty stderr despite enabled tracing. I
       distinguish metadata loading, invocation capture, cache setup, locking
       and staging failures before reuse/capture evidence begins. I test the
       diagnostics without changing rejection, publication or quiet-mode policy.
+      Eight failure paths pass with both cache roots and tracing on/off,
+      followed by successful build and warm reuse. The historical silent
+      failure still has no assigned cause; these diagnostics identify a
+      recurrence's phase, not its retrospective cause.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without

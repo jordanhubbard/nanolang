@@ -3481,3 +3481,30 @@ acquisition and staging creation contain failure paths before existing reuse
 evidence. I add early-failure diagnostics and deterministic rejection controls
 to the roadmap before another full stability run. This inspection narrows the
 next investigation; it does not identify which path caused the silent failure.
+
+### Early build failure diagnostics
+
+I add opt-in failure evidence for metadata path/loading, system dependencies,
+invocation capture, cache directory/path/capacity, lock open/acquisition and
+staging creation. A failed result from the remaining build path also receives
+`build-result` evidence. These records use fixed phase names and booleans;
+they do not expose command arguments, paths or environment values. I retain
+the existing rejection and cleanup paths and add no retries or tool queries.
+
+My deterministic matrix exercises eight early paths under local/shared caches
+with tracing off/on: missing metadata path, missing manifest, missing response
+input, cache-directory creation failure, cache-path resolution failure, lock
+symlink rejection, lock acquisition failure and staging creation failure.
+The syscall faults exist only in the probe translation unit. Each rejection
+has empty stdout, no publication or staging directory, and no evidence output
+with tracing disabled. Removing the fault permits a successful build followed
+by actual warm generation reuse. Existing non-trace diagnostics remain intact.
+
+The strict probe build and four targeted methods pass in 22.839 seconds before
+the final catch-all result marker: the new matrix, final completion deadline,
+post-capture validation, and cache-record rename recovery. Interrupted-compiler
+cleanup and lock-release regression passes separately in 0.958 seconds.
+After adding the catch-all marker, the strict rebuild and early-failure plus
+post-capture methods pass again in 18.263 seconds.
+These controls validate diagnostic behavior, not the cause of the historical
+empty-stderr failure or full Darwin recovery stability.

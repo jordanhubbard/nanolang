@@ -109,6 +109,53 @@ class SourceSnapshots(unittest.TestCase):
                     else:
                         self.assertEqual(result.stderr, b"")
 
+    def test_early_build_failure_evidence(self):
+        phases = ("metadata-path", "metadata", "invocation", "cache-directory",
+                  "cache-path", "lock-open", "lock-acquire", "stage-create")
+        for shared in (False, True):
+            for phase in phases:
+                with self.subTest(shared=shared, phase=phase), tempfile.TemporaryDirectory(prefix="nano-early-build-") as tmp:
+                    root = Path(tmp)
+                    module, _, env = self.support.support.foreign_build_fixture(root)
+                    if shared: env["NANO_BUILD_CACHE"] = str(root / "cache")
+                    cache_dir = self.support.probe_path("root", module, env)
+                    manifest = module / "module.json"
+                    original = manifest.read_text()
+                    target = module
+                    if phase == "metadata-path": target = module / "missing"
+                    elif phase == "metadata": manifest.unlink()
+                    elif phase == "invocation":
+                        meta = json.loads(original)
+                        meta["cflags"] = ["@missing.rsp"]
+                        manifest.write_text(json.dumps(meta))
+                    elif phase == "lock-open":
+                        cache_dir.mkdir(parents=True, exist_ok=True)
+                        (cache_dir / ".build.lock").symlink_to(root / "missing-lock")
+                    else:
+                        env["NANO_TEST_EARLY_FAILURE"] = phase
+                        env["NANO_TEST_EARLY_CACHE"] = str(cache_dir if shared else cache_dir.resolve())
+                    for traced in (False, True):
+                        failed_env = dict(env)
+                        failed_env.pop("NANO_TRACE_BUILD", None)
+                        if traced: failed_env["NANO_TRACE_BUILD"] = "1"
+                        result = subprocess.run([str(self.support.probe), "build", str(target)],
+                                                env=failed_env, capture_output=True, timeout=20)
+                        self.assertEqual(result.returncode, 1, result.stderr)
+                        self.assertEqual(result.stdout, b"")
+                        marker = f"phase=build-{phase} expected=1 observed=0 accepted=0".encode()
+                        if traced: self.assertIn(marker, result.stderr)
+                        else: self.assertNotIn(b"I checked build evidence:", result.stderr)
+                        self.assertFalse((cache_dir / "current").exists())
+                        if cache_dir.is_dir(): self.assertFalse(list(cache_dir.glob(".nano-build-*")))
+                    manifest.write_text(original)
+                    if phase == "lock-open": (cache_dir / ".build.lock").unlink()
+                    env.pop("NANO_TEST_EARLY_FAILURE", None)
+                    env.pop("NANO_TEST_EARLY_CACHE", None)
+                    self.support.probe_path("build", module, env, timeout=20)
+                    first = self.support.probe_path("directory", module, env)
+                    self.support.probe_path("build", module, env, timeout=20)
+                    self.assertEqual(self.support.probe_path("directory", module, env), first)
+
     def test_tool_supervisor_timing_milestones(self):
         env = os.environ.copy()
         env["NANO_TRACE_BUILD"] = "1"
