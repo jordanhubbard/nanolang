@@ -1484,6 +1484,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Four milestone-instrumented exact-case replays pass in 98.532 seconds.
       Their slower queries spend most time before output; they do not reproduce
       the four-second outlier or establish its cause.
+      The full run at `67f635be` stops after thirteen methods on Apple native
+      `.S` debug warm reuse (nested reads, local cache). A silent query reaches
+      its five-second deadline after immediate spawn, without observed EOF or
+      exit. I retain full case diagnostics in the remaining debug-reuse
+      assertions before further investigation.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

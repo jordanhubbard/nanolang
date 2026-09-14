@@ -776,7 +776,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 self.assertEqual(case["production"]["sections"], case["native"]["sections"])
                 self.assertEqual(case["production"]["compile_units"], case["native"]["compile_units"])
                 self.assertEqual(case["answer"], 42)
-                self.assertTrue(case["generation_reused"])
+                self.assertTrue(case["generation_reused"], case)
 
     def test_apple_native_unit_capture_debug_identity(self):
         if sys.platform != "darwin": self.skipTest("I exercise the selected Apple external assembler capture")
@@ -789,7 +789,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     self.assertEqual(case["production"], case["physical_native"])
                     self.assertTrue(case["physical_object_identical"])
                     self.assertEqual(case["answer"], 42)
-                    self.assertTrue(case["generation_reused"])
+                    self.assertTrue(case["generation_reused"], case)
 
     def test_integrated_native_unit_debug_identity(self):
         compiler = shutil.which("clang")

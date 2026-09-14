@@ -3276,3 +3276,31 @@ in 31.053 seconds, with one GNU-only platform skip. This covers scalar flag
 spellings, timing controls, alias copying and cleanup, failed replacement,
 substituted alias paths and unknown-fragment fallback. These continuation
 results do not turn the preceding failed batch into a full passing gate.
+
+## Full milestone run: silent query deadline
+
+The full 116-method Darwin run at `67f635be` stops after thirteen methods in
+241.979 seconds, with three platform skips and one failure. Apple native-unit
+debug identity fails warm reuse for nested macro reads, uppercase `.S`, local
+cache. Retained/native-object equality, production debug equality and runtime
+value 42 pass before the reuse assertion. Earlier Apple external query-failure
+recovery and failed-capture refusal pass.
+
+The run retains slow-call milestones from captured subprocess stderr without
+changing subprocess arguments, environments or returned results. During the
+failing method, one silent execution shows spawn at 2 ms, EOF at 3,094 ms,
+normal reap at 3,121 ms and successful total 3,121 ms. A later query shows
+spawn at 0 ms, no observed output/EOF/normal reap, and failed total 5,002 ms
+against a 5,000 ms entry budget. Spawn setup does not explain that query's
+delay. Child execution, inherited pipe ownership and host scheduling remain
+possible contributors; these parent timestamps alone do not distinguish them.
+
+The Apple debug assertion did not include its already-retained case diagnostics,
+so the run lacks the complete cold/warm trace associating this deadline with
+publication versus reuse validation. I add the case to this assertion and the
+standalone macro-debug reuse assertion. I preserve their reuse requirements.
+The broad gate remains failed; this is not a fix for capture stability.
+
+The two updated debug methods pass their replay in 52.791 seconds. Whitespace
+checks and all six guide editions validate. These changes retain failure
+context only; the production probe is unchanged.
