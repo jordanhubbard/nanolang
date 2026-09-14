@@ -1584,6 +1584,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       deliberate fixture-budget mismatch fixed above. That matrix then passes
       separately. This is not a green full run at the corrected test state,
       nor an explanation for the historical silent exit.
+      The corrected-tree full gate at `80f0cc5e` reports an error in shared
+      preprocessed search recovery: split `-Xassembler`, package flags,
+      external assembler and local cache. The run continues; its final
+      traceback is pending, so I do not assign this error to a deadline or
+      publication path. The repaired deliberate-query matrix passes in this run.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text
