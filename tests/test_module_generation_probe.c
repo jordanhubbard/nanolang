@@ -14,6 +14,26 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <time.h>
+#include <sys/wait.h>
+
+/* I advance only the test clock after both completion observations. */
+static bool generation_tool_eof, generation_tool_reaped;
+static int generation_test_clock_gettime(clockid_t clock, struct timespec *now) {
+    const char *fault = getenv("NANO_TEST_COMPLETION_CLOCK");
+    if (fault && generation_tool_eof && generation_tool_reaped && clock == CLOCK_MONOTONIC) {
+        if (!strcmp(fault, "error")) { errno = EIO; return -1; }
+        int result = clock_gettime(clock, now);
+        if (!result) now->tv_sec += 6;
+        return result;
+    }
+    return clock_gettime(clock, now);
+}
+static pid_t generation_test_waitpid(pid_t child, int *status, int options) {
+    pid_t result = waitpid(child, status, options);
+    if (result > 0 && options == WNOHANG) generation_tool_reaped = true;
+    return result;
+}
 
 static const char *generation_sync_event;
 
@@ -54,6 +74,7 @@ static int generation_mutate_response(void) {
  * No production read path contains this test hook. */
 static ssize_t generation_test_read(int fd, void *buffer, size_t capacity) {
     ssize_t amount = read(fd, buffer, capacity);
+    if (!amount) generation_tool_eof = true;
     const char *response = getenv("NANO_TEST_RESPONSE_MUTATE");
     if (amount > 0 && response && getenv("NANO_TEST_RESPONSE_ON_READ")) {
         struct stat source, observed;
@@ -201,7 +222,11 @@ static char *generation_test_strdup(const char *value) {
 #define malloc generation_test_malloc
 #define calloc generation_test_calloc
 #define strdup generation_test_strdup
+#define clock_gettime generation_test_clock_gettime
+#define waitpid generation_test_waitpid
 #include "../src/module_builder.c"
+#undef clock_gettime
+#undef waitpid
 #undef malloc
 #undef calloc
 #undef strdup

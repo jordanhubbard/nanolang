@@ -1455,11 +1455,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I test delayed output and delayed exit without changing the shared
       deadline, output acceptance or cleanup policy.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
-- [ ] **5.0 tool-supervisor final deadline check.** I reject results observed
+- [x] **5.0 tool-supervisor final deadline check.** I reject results observed
       after the shared deadline, including when EOF and exit arrive in the
       last polling iteration. I test that boundary deterministically with
       tracing enabled and disabled, retaining process-group cleanup.
       The full Darwin trace accepts a 47 ms query with 45 ms remaining.
+      I now read the clock after completion and reject expired or unavailable
+      time. All four injected completion-clock cases fail before the fix and
+      pass afterward; five targeted supervisor/capture methods pass on Darwin.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without

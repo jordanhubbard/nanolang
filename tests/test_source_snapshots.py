@@ -90,6 +90,25 @@ class SourceSnapshots(unittest.TestCase):
         self.assertEqual(quiet.stdout, b"evidence")
         self.assertEqual(quiet.stderr, b"")
 
+    def test_tool_supervisor_rejects_late_completion(self):
+        for traced in (False, True):
+            for fault in ("expired", "error"):
+                with self.subTest(traced=traced, fault=fault):
+                    env = os.environ.copy()
+                    env.pop("NANO_TRACE_BUILD", None)
+                    if traced: env["NANO_TRACE_BUILD"] = "1"
+                    env["NANO_TEST_COMPLETION_CLOCK"] = fault
+                    result = subprocess.run([str(self.support.probe), "capture-environment", "printf evidence"],
+                                            env=env, capture_output=True, timeout=8)
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertEqual(result.stdout, b"evidence")
+                    if traced:
+                        phase = "tool-deadline" if fault == "expired" else "tool-output"
+                        self.assertIn(f"phase={phase} ".encode(), result.stderr)
+                        self.assertRegex(result.stderr, rb"phase=tool-run-ms expected=\d+ observed=\d+ accepted=0")
+                    else:
+                        self.assertEqual(result.stderr, b"")
+
     def test_tool_supervisor_timing_milestones(self):
         env = os.environ.copy()
         env["NANO_TRACE_BUILD"] = "1"

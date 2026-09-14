@@ -3384,3 +3384,21 @@ merely time added by final cleanup. I add a separate roadmap requirement for
 checking the deadline after observing completion, with deterministic regression
 coverage. That fix will enforce the existing bound; it will not remedy the
 independently observed tool/host delays or make this failed gate pass by itself.
+
+### Final completion deadline regression
+
+I now read the monotonic clock again after the supervision loop, before
+accepting completed output. An expired deadline or unavailable clock rejects
+the result. I retain the existing private-process-group cleanup on both paths;
+I do not restart the shared budget or claim a hard real-time cleanup bound.
+
+My probe injects clock expiry or failure only after observing both output EOF
+and normal child reaping. Each case runs with tracing enabled and disabled.
+Before the fix, all four cases incorrectly return success (one method,
+0.201 seconds). After the fix, they reject completion and retain captured
+output for diagnostics. The strict probe build and five targeted methods pass
+in 16.164 seconds: completion-clock faults, timing milestones, tool failure and
+deadline, child-local capture environment, and post-capture validation failure.
+
+This closes the final-check defect. It does not resolve the three failures in
+the preceding full Darwin run; capture recovery stability remains open.

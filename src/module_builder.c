@@ -3202,6 +3202,11 @@ static bool module_process_output_options(char **args, char *output, size_t capa
         }
     }
     close(descriptors[0]);
+    /* I check completion against a fresh clock, including the last poll. */
+    if (ok) {
+        now = module_link_query_clock();
+        ok = now >= 0 && now < deadline;
+    }
     ok = ok && eof && reaped && WIFEXITED(status) && WEXITSTATUS(status) == 0 && (!require_output || used);
     /* A successful reporter can leave descendants after closing its pipe too.
      * I retain no background process from this private query group. */
