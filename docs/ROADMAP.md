@@ -1471,6 +1471,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       cache) reports `tool-deadline` during replacement capture. I record each
       traced tool's remaining budget and elapsed milliseconds to distinguish
       a slow child from budget already spent in earlier capture work.
+      The next batch at `b002d077` stops after ten methods: standalone raw
+      recovery (joined flags, package placement, integrated assembler, local
+      cache) records a successful query taking 4,293 ms of its 4,599 ms entry
+      budget, followed by `tool-hash-deadline`. I must distinguish query
+      execution from supervisor waiting before selecting a bounded remedy.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

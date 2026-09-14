@@ -3211,3 +3211,28 @@ long-run outlier. Controlled shared-raw deadlines plus another exact-scenario
 replay pass in 91.973 seconds. Tool failure/deadline and record-rename recovery
 controls pass in 10.119 seconds. The probe builds with strict warnings; Python
 syntax, whitespace and six guide editions validate. Stability remains open.
+
+## Timed continuation: slow query before tool-hash expiry
+
+The sixteen-method continuation at `b002d077` stops after ten methods in
+2267.301 seconds with one failure and no skips. The shared raw search matrix,
+split search controls, standalone debug controls and standalone preprocessed
+search matrix pass. Standalone raw search recovery fails with joined `-Wa,-I`,
+package placement, integrated assembly and the local cache. The failing build
+selects a newly added earlier include candidate (`changed = build(baseline + 1)`),
+not the later missing-input recovery step.
+
+Reuse validation rejects changed preprocessing as expected. Replacement
+capture records these successful tool calls, as entry-budget/elapsed pairs
+in milliseconds: query 5000/67, run 4606/37, query 5000/67, query 4599/4293.
+The next diagnostic is `tool-hash-deadline`, followed by refusal to compile
+live inputs after capture failure. The slow successful query leaves about
+306 ms before subsequent processing and selected-tool hashing. The earlier
+reuse-validation calls take 8–72 ms each.
+
+This directly locates a long operation inside the measured query interval;
+it does not yet distinguish compiler execution, host scheduling, pipe handling
+or supervisor cleanup. I retain the five-second bound and existing assertions.
+My next investigation must distinguish those contributors before choosing a
+bounded remedy. This failed batch is not a full passing gate, and it does not
+retroactively explain the earlier untraced non-reuse events.
