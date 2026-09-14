@@ -440,7 +440,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v45-integrated-preprocessing-search");
+    hash_context_field(&hash, "nanolang-c-build-context-v46-aliasing-snapshot-flags");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -2601,7 +2601,7 @@ static ModuleFlagPhase module_snapshot_flag(const char *flag) {
         return MODULE_FLAG_BOTH | MODULE_FLAG_DEBUG;
     const char *both[] = {
         "-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
-        "-fPIC", "-fpic", "-fno-integrated-as",
+        "-fPIC", "-fpic", "-fno-integrated-as", "-fstrict-aliasing", "-fno-strict-aliasing",
         "-std=c89", "-std=c90", "-std=c99", "-std=c11", "-std=c17", "-std=c18",
         "-std=gnu89", "-std=gnu90", "-std=gnu99", "-std=gnu11", "-std=gnu17", "-std=gnu18",
         "-Wall", "-Wextra", "-Werror", "-Wpedantic",

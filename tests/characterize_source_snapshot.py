@@ -28,7 +28,7 @@ from tests.characterize_linker_inputs import run
 from tests import test_bytecode_shadows as shadows
 
 
-def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False, shared_unit=False, preprocess_raw=False, equals_paths=False):
+def measure(compiler, kinds=("source", "header"), payload_name=None, remove_input=False, split_search=False, shared_unit=False, preprocess_raw=False, equals_paths=False, extra_cflags=()):
     probe = shadows.ROOT / "obj/test_module_generation_probe"
     if not probe.is_file():
         raise RuntimeError("I need make obj/test_module_generation_probe")
@@ -161,6 +161,11 @@ def measure(compiler, kinds=("source", "header"), payload_name=None, remove_inpu
                             capture_output=True, timeout=20)
                         if ordinary.returncode == 0:
                             raise RuntimeError("I need a fixture that requires alternate macro syntax")
+                if extra_cflags:
+                    metadata = json.loads((module / "module.json").read_text())
+                    metadata.setdefault("cflags", []).extend(shlex.quote(flag) for flag in extra_cflags)
+                    (module / "module.json").write_text(json.dumps(metadata))
+                    fresh_flags.extend(extra_cflags)
                 original, stamp = target.read_bytes(), target.stat()
                 wrapper, marker = directory / "cc", directory / "mutated"
                 calls = directory / "calls"

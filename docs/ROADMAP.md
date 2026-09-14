@@ -1677,6 +1677,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       C header lookup from assembler include lookup. These passing matrices
       do not establish a complete assembler input inventory or explain the
       separately recorded transient reuse failures.
+- [x] **5.0 strict-aliasing flag snapshot coverage.** I characterize restored
+      assembler-input edits with explicit `-fstrict-aliasing` and
+      `-fno-strict-aliasing`, preserve these C optimization flags through
+      retained compilation, and verify cold/warm/fresh answers and actual
+      reuse under both cache roots. Unknown flags retain their documented
+      compatibility path. MAC `task_5f1867205c26b3546d6a309793517c46`
+      continues parent `task_443e8107d0ff4350999e0d5186a809f1`.
+      Both flag settings fail the restored-input regression before admission.
+      Context v46 admits these exact flags; focused capture/reuse and phase
+      checks pass on Darwin Clang and Linux GCC 12/Clang 14. All 54 Darwin
+      cache-publication methods pass in 146.166 seconds; six guides validate.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

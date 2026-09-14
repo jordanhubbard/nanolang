@@ -3764,3 +3764,33 @@ and recorded Linux GCC/Clang coverage satisfy the translation-unit milestone
 on those tested toolchains. I close that milestone and continue the broader
 assembler-input inventory. I retain the incident, diagnostics and regression
 assertions; a reproducible correctness failure still blocks acceptance.
+
+### Explicit strict-aliasing flags retain assembler inputs
+
+The snapshot flag grammar previously rejected `-fstrict-aliasing` and
+`-fno-strict-aliasing`. The restored assembler-input regression fails for
+both settings before the change: cold/warm results differ from fresh results.
+I admit exactly these two C optimization flags through the existing phase
+selector and advance the build context to v46 so earlier compatibility-path
+artifacts cannot satisfy the new snapshot contract.
+
+The characterizer supplies `-O2` and the selected flag to both the module
+builder and the independent native build. Tests require matching answers,
+restored bytes/size/mtime, a reuse record and actual same-generation reuse
+under local and shared caches. Clang exercises integrated and external
+assemblers; GCC exercises its ordinary assembler path. The phase matrix
+checks common, platform, quoted and pkg-config placement and preserves the
+order of opposing flags during C processing while omitting them from final
+assembly. The unknown-flag compatibility fixture now uses `-fno-builtin`,
+which remains outside the snapshot grammar.
+
+Four focused methods pass on Darwin Apple Clang in 33.156 seconds, Linux
+GCC 12 in 3.992 seconds (one Clang-only skip), and Linux Clang 14 in 6.915
+seconds. Linux uses a disposable Debian bookworm container with no writable
+host mount. Strict probe builds and all six guide editions pass. This closes
+one flag-coverage gap, not the complete assembler-input inventory.
+The complete Darwin cache-publication suite also passes all 54 methods in
+146.166 seconds. Python syntax and whitespace checks pass. I remove the
+disposable Linux container after verification. MAC records the results on
+`task_5f1867205c26b3546d6a309793517c46`; a fleet-level dispatch hold prevents
+this registered session from claiming it, and I do not override that hold.

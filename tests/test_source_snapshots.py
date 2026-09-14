@@ -1950,12 +1950,13 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 declared.mkdir()
                 (declared / "check.h").write_text("#ifdef REMOVED\n#error I expected REMOVED to be undefined\n#endif\n")
                 flags = ["-O2", "-g", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                         "-fstrict-aliasing", "-fno-strict-aliasing",
                          "-DANSWER=40", "-DREMOVED=1", "-UREMOVED", "-I" + str(include)]
                 metadata = {"name": "answer_native", "c_sources": ["answer.c"],
                             "include_dirs": [str(declared)]}
                 metadata[active if placement == "platform" else "cflags"] = flags
                 if placement in ("literal", "package"):
-                    fragment = "'-O2' -g -std=c11 -Wall -Wextra -Werror -D ANSWER=40 -DREMOVED=1 -U REMOVED -I " + shlex.quote(str(include))
+                    fragment = "'-O2' -g -std=c11 -Wall -Wextra -Werror -fstrict-aliasing -fno-strict-aliasing -D ANSWER=40 -DREMOVED=1 -U REMOVED -I " + shlex.quote(str(include))
                     fragment += " -D " + shlex.quote('TEXT="a b"')
                     (include / "offset.h").write_text('#define OFFSET (sizeof(TEXT) - 2)\n')
                     if placement == "literal":
@@ -2005,10 +2006,12 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                 self.assertEqual(len(compiled), 1 if self.clang else 3)
                 self.assertTrue(any(arg.endswith(".s") for arg in compiled[0]))
                 for argv in commands:
-                    for flag in flags[:6]:
+                    for flag in flags[:8]:
                         if "-c" in argv: self.assertNotIn(flag, argv)
                         else: self.assertIn(flag, argv)
-                    preprocessing = flags[6:] if placement not in ("literal", "package") else [
+                    if "-c" not in argv:
+                        self.assertLess(argv.index("-fstrict-aliasing"), argv.index("-fno-strict-aliasing"))
+                    preprocessing = flags[8:] if placement not in ("literal", "package") else [
                         "-D", "ANSWER=40", "-DREMOVED=1", "-U", "REMOVED", "-I", str(include), 'TEXT="a b"']
                     for flag in preprocessing:
                         if "-E" in argv or ("-S" in argv and self.clang): self.assertIn(flag, argv)
@@ -2231,13 +2234,27 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 self.support.probe_path("build", module, env, timeout=20)
                 self.assertEqual(self.support.probe_path("directory", module, env), replacement)
 
+    def test_aliasing_flags_retain_assembler_inputs(self):
+        kinds = ("assembler", "assembler-external") if self.clang else ("assembler",)
+        for flag in ("-fstrict-aliasing", "-fno-strict-aliasing"):
+            with self.subTest(flag=flag):
+                result = measure(shutil.which("cc"), kinds=kinds, extra_cflags=("-O2", flag))
+                require_consistent(result)
+                for case in result["cases"]:
+                    self.assertEqual(case["fresh_answer"], 42, case)
+                    self.assertTrue(case["reuse_record"], case)
+                    self.assertTrue(case["generation_reused"], case)
+                    self.assertTrue(case["bytes_restored"], case)
+                    self.assertTrue(case["size_preserved"], case)
+                    self.assertTrue(case["mtime_preserved"], case)
+
     def test_external_unadmitted_flags_keep_the_original_path(self):
         if not self.clang: self.skipTest("I exercise Clang's external assembler selector")
         with tempfile.TemporaryDirectory(prefix="nano-external-unadmitted-") as tmp:
             directory = Path(tmp)
             module, _, env = self.support.support.foreign_build_fixture(directory)
             (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
-                "cflags": ["-fno-integrated-as", "-fno-strict-aliasing"]}))
+                "cflags": ["-fno-integrated-as", "-fno-builtin"]}))
             wrapper, queried = directory / "cc", directory / "queried"
             wrapper.write_text(f'''#!{sys.executable}
 import os, pathlib, sys
@@ -2497,6 +2514,7 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
 
     def test_supported_scalar_flag_spellings(self):
         flags = ["-O0", "-O1", "-O2", "-O3", "-Os", "-Oz", "-Og",
+                 "-fstrict-aliasing", "-fno-strict-aliasing",
                  "-g", "-g0", "-g1", "-g2", "-g3", "-fPIC", "-fpic",
                  "-std=c89", "-std=c90", "-std=c99", "-std=c11", "-std=c17", "-std=c18",
                  "-std=gnu89", "-std=gnu90", "-std=gnu99", "-std=gnu11", "-std=gnu17", "-std=gnu18",
