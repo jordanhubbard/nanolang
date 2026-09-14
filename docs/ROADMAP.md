@@ -1424,6 +1424,14 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       cache reuse. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
       Darwin and Linux GCC/Clang controls pass; the complete Linux gate passes
       251 methods with 29 platform skips. The recovery-stability item stays open.
+- [x] **5.0 mixed-unit post-link deadline controls.** I inject a deadline
+      into the selected standalone assembler query only after shared linking.
+      I check both source suffixes, source groups and cache roots: captured
+      output remains usable, reuse is withheld, the supervised child is reaped,
+      private validation files are removed, and an unblocked invocation
+      recovers. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+      All 16 Darwin and eight Linux integrated-Clang deadline cases pass;
+      existing C-only controls also pass. I do not change production behavior.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
@@ -1431,6 +1439,8 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       establish their causes and verify stable capture/reuse without relaxing
       the assertions. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
       I use the evidence diagnostics above to interpret subsequent stress runs.
+      The controlled deadline mechanism above does not assign a cause to the
+      unobserved historical events.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

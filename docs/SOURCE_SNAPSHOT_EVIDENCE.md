@@ -3013,3 +3013,36 @@ The full Darwin ordinary `.S` search/recovery matrix passes all 36 combinations
 in one trace-enabled run (772.128 seconds). Neither historical intermittent
 failure recurred in this checkpoint. I have a clean matrix result and a way
 to classify a subsequent failure, not a demonstrated historical root cause.
+
+## Mixed-unit deadlines after linking
+
+I extend the validation-failure control to mixed C/`.s` and C/`.S` modules.
+Simple external assembly can use literal capture without a selected-driver
+query; that fixture did not trigger the intended fault. An assembler macro
+selects native expansion, so the control reaches the same query path as
+standalone native capture.
+
+The wrapper permits initial capture and shared linking. After linking, it
+blocks only the dry-run query for the standalone unit's retained assembly
+input. My existing five-second unit deadline kills and reaps that driver
+child. The trace reports `tool-deadline` and rejected post-build preprocessing;
+private `nano-gcc-check-*` directories are gone when the build returns. The
+published generation retains snapshot files and its native unit object, loads
+with value 43, and has no `source_hashes.json` reuse record. Removing the
+controlled fault permits a new recorded generation and subsequent warm reuse.
+
+I cover ordinary/shared units and local/shared caches for each suffix.
+Darwin tests integrated and external Clang; Linux tests integrated Clang,
+whose selected native-query path matches this control. Linux external GNU
+assembler replay uses a different capture path and is not included in this
+deadline claim. No production deadline or capture policy changes here.
+
+The Linux Clang selection passes three methods in 53.327 seconds: eight
+mixed-unit deadline cases and the existing four C-only validation controls.
+The existing GCC validation and tool-trace methods pass in 5.815 seconds.
+These controls establish a mechanism for withheld reuse and later recovery,
+not a historical root cause for the untraced Darwin observations.
+Darwin passes the same three methods in 287.983 seconds: 16 mixed-unit
+deadline cases and four C-only controls. Python syntax, whitespace and all
+six guide editions validate. This checkpoint changes only tests and evidence;
+I do not claim a new full bytecode-shadow gate run from these targeted checks.

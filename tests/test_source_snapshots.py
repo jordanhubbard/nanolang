@@ -85,7 +85,23 @@ class SourceSnapshots(unittest.TestCase):
         self.assertEqual(quiet.stderr, b"")
 
     def test_build_evidence_trace_and_post_capture_validation_failure(self):
-        for external in ((False, True) if self.clang else (False,)):
+        self.build_evidence_trace_and_post_capture_validation_failure()
+
+    def test_raw_unit_post_link_validation_deadline(self):
+        if not self.clang: self.skipTest("I need the selected Clang assembler query")
+        for shared_unit in (False, True):
+            with self.subTest(shared_unit=shared_unit):
+                self.build_evidence_trace_and_post_capture_validation_failure(".s", shared_unit)
+
+    def test_preprocessed_unit_post_link_validation_deadline(self):
+        if not self.clang: self.skipTest("I need the selected Clang assembler query")
+        for shared_unit in (False, True):
+            with self.subTest(shared_unit=shared_unit):
+                self.build_evidence_trace_and_post_capture_validation_failure(".S", shared_unit)
+
+    def build_evidence_trace_and_post_capture_validation_failure(self, unit_suffix=None, shared_unit=False):
+        modes = (False, True) if self.clang and (not unit_suffix or sys.platform == "darwin") else (False,)
+        for external in modes:
             for shared in (False, True):
                 with self.subTest(external=external, shared=shared), tempfile.TemporaryDirectory(prefix="nano-trace-evidence-") as tmp:
                     root = Path(tmp)
@@ -93,15 +109,34 @@ class SourceSnapshots(unittest.TestCase):
                     if shared: env["NANO_BUILD_CACHE"] = str(root / "cache")
                     env["NANO_AS_CAPTURE_HELPER"] = str(cache.ROOT / "bin/nano_as_capture.so")
                     source = module / "answer.c"
-                    source.write_text('long long nano_build_answer(void) { return 42; }\n')
-                    (module / "module.json").write_text(json.dumps({"name": "answer_native", "c_sources": ["answer.c"],
-                        "cflags": ["-fno-integrated-as"] if external else []}))
+                    contents = 'long long nano_build_answer(void) { return 42; }\n'
+                    metadata = {"name": "answer_native", "c_sources": ["answer.c"],
+                                "cflags": ["-fno-integrated-as"] if external else []}
+                    if unit_suffix:
+                        source.write_text('extern unsigned char snapshot_payload[];\n'
+                                          'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')
+                        source = module / ("payload" + unit_suffix)
+                        symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+                        # I require native expansion, not the literal-capture fast path.
+                        contents = f'.macro emit number\n.byte \\number\n.endm\n.data\n.globl {symbol}\n{symbol}:\nemit 42\n'
+                        metadata.setdefault("shared_c_sources" if shared_unit else "c_sources", []).append(source.name)
+                        temporary = root / "temporary"
+                        temporary.mkdir()
+                        env["TMPDIR"] = str(temporary)
+                    source.write_text(contents)
+                    (module / "module.json").write_text(json.dumps(metadata))
                     marker, wrapper = root / "linked", root / "cc"
+                    query_pid = root / "query-pid"
+                    query_input = f"__assembly_{1 if shared_unit else 0}_{0 if shared_unit else 1}.s"
                     compiler = shutil.which("cc")
-                    wrapper.write_text(f'#!{sys.executable}\nimport os,pathlib,sys\n'
+                    wrapper.write_text(f'#!{sys.executable}\nimport os,pathlib,sys,time\n'
                         f'marker=pathlib.Path({str(marker)!r})\n'
                         'if os.getenv("NANO_TEST_REJECT_VALIDATION"):\n'
-                        '    if marker.exists() and any(x in sys.argv for x in ("-E", "-S")): sys.exit(1)\n'
+                        f'    if marker.exists() and {bool(unit_suffix)!r} and "-###" in sys.argv and '
+                        f'any(pathlib.Path(x).name == {query_input!r} for x in sys.argv[1:]):\n'
+                        f'        pathlib.Path({str(query_pid)!r}).write_text(str(os.getpid()))\n'
+                        '        time.sleep(30)\n'
+                        f'    if marker.exists() and {not bool(unit_suffix)!r} and any(x in sys.argv for x in ("-E", "-S")): sys.exit(1)\n'
                         '    if "-###" not in sys.argv and "-o" in sys.argv and '
                         'pathlib.Path(sys.argv[sys.argv.index("-o")+1]).name in ("libanswer_native.dylib", "libanswer_native.so"):\n'
                         '        marker.touch()\n'
@@ -124,14 +159,21 @@ class SourceSnapshots(unittest.TestCase):
                     self.assertEqual(self.support.probe_path("directory", module, env), first)
                     self.assertNotIn(b"I checked build evidence:", warm.stdout)
                     self.assertNotIn(str(wrapper).encode(), warm.stderr)
-                    source.write_text('long long nano_build_answer(void) { return 43; }\n')
+                    source.write_text(contents.replace("42", "43"))
                     env["NANO_TEST_REJECT_VALIDATION"] = "1"
                     uncached = build()
                     self.assertTrue(marker.is_file())
+                    if unit_suffix:
+                        self.assertIn(b"phase=tool-deadline ", uncached.stderr)
+                        self.assertTrue(query_pid.is_file(), uncached.stderr)
+                        with self.assertRaises(ProcessLookupError): os.kill(int(query_pid.read_text()), 0)
+                        self.assertFalse(list(temporary.glob("nano-gcc-check-*")))
                     self.assertRegex(uncached.stderr, rb'phase=publish-preprocessing expected=[1-9][0-9]* observed=0 accepted=0')
                     generation = self.support.probe_path("directory", module, env)
                     self.assertNotEqual(generation, first)
                     self.assertTrue(list(generation.glob("__snapshot_*")))
+                    if unit_suffix:
+                        self.assertTrue((generation / f"__native_unit_{1 if shared_unit else 0}_{0 if shared_unit else 1}.o").is_file())
                     self.assertFalse((generation / "source_hashes.json").exists())
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 43)
                     env.pop("NANO_TEST_REJECT_VALIDATION")
