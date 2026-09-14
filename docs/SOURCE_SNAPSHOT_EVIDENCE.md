@@ -3717,3 +3717,20 @@ single build exceeded twenty seconds. A controlled longer build remains to
 verify the parent allowance. All six guide editions validate and the diff
 check passes. This checkpoint does not establish full recovery stability or
 the cause of the earlier silent exit.
+
+### Controlled recovery beyond the former parent limit
+
+I add a controlled variant of the exact shared `.S`, split `-Xassembler`,
+package/external/local-cache recovery case. Only after missing-input rejection
+and restoration does its compiler wrapper delay one real discovery query by
+21 seconds. The production capture default remains 30 seconds. I require the
+accepted query trace to report at least 21,000 ms and the recovery call to
+last at least 21 seconds. The unchanged helper checks the reuse record,
+published runtime value and subsequent same-generation warm reuse, as well
+as the earlier cold/warm, changed-selection and rejected-publication invariants.
+
+This control and the timeout partial-evidence regression pass together on
+Darwin in 44.321 seconds. All six guide editions validate; the diff check
+passes. This verifies the finite parent allowance for a real build exceeding
+the former limit. I close that bounded test-harness item, not full recovery
+stability or the unresolved historical wait and silent-exit causes.

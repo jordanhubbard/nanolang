@@ -1271,8 +1271,14 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
         self.assembler_search_order_phases_and_recovery(
             ("wa-paired", "wa-joined", "xassembler-split"), suffix=".S", shared_unit=True)
 
+    def test_recovery_parent_allows_slow_capture(self):
+        if not self.clang: self.skipTest("I delay Clang capture discovery")
+        self.assembler_search_order_phases_and_recovery(
+            ("xassembler-split",), suffix=".S", shared_unit=True,
+            cases=(("xassembler-split", "package", True, False),), recovery_delay=21)
+
     def assembler_search_order_phases_and_recovery(self, styles, alternate=False,
-                                                  suffix=None, shared_unit=False, cases=None):
+                                                  suffix=None, shared_unit=False, cases=None, recovery_delay=0):
         modes = (False, True) if self.clang else (False,)
         if alternate: modes = (True,) if self.clang else (False,)
         if cases is None: cases = ((style, placement, external, shared)
@@ -1341,8 +1347,12 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 baseline = self.answer(direct)
                 self.assertEqual(baseline, 142 if self.clang and not external else 42)
                 calls, wrapper = directory / "calls", directory / "cc"
-                wrapper.write_text(f'#!{sys.executable}\nimport json,os,sys\n'
+                delayed = directory / "delayed-query"
+                wrapper.write_text(f'#!{sys.executable}\nimport json,os,pathlib,sys,time\n'
                     f'with open({str(calls)!r}, "a") as log: log.write(json.dumps(sys.argv[1:]) + "\\n")\n'
+                    f'marker=pathlib.Path({str(delayed)!r})\n'
+                    'if os.getenv("NANO_TEST_SLOW_RECOVERY") and "-###" in sys.argv and not marker.exists():\n'
+                    f'    marker.touch()\n    time.sleep({recovery_delay!r})\n'
                     f'os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])\n')
                 wrapper.chmod(0o700)
                 env["NANO_CC"] = str(wrapper)
@@ -1383,7 +1393,19 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 self.assertEqual(self.support.snapshot(changed), saved)
                 self.assertFalse(list(changed.parent.glob(".nano-build-*")))
                 (late / "selected.s").write_text(selected(44))
+                if recovery_delay:
+                    env.pop("NANO_CAPTURE_TIMEOUT_MS", None)
+                    env["NANO_TEST_SLOW_RECOVERY"] = "1"
+                recovery_started = time.monotonic()
                 recovered = build(baseline + 2)
+                if recovery_delay:
+                    self.assertTrue(delayed.exists())
+                    self.assertGreaterEqual(time.monotonic() - recovery_started, recovery_delay)
+                    queries = re.findall(rb'phase=tool-query-ms expected=\d+ observed=(\d+) accepted=1',
+                                         self.support.last_build_diagnostics)
+                    self.assertTrue(any(int(t) >= recovery_delay * 1000 for t in queries),
+                                    self.support.last_build_diagnostics)
+                    env.pop("NANO_TEST_SLOW_RECOVERY")
                 self.assertEqual(build(baseline + 2), recovered, self.support.last_build_diagnostics)
 
     def test_clang_assembler_cache_restored_inputs(self):
