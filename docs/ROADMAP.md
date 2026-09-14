@@ -1533,12 +1533,18 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       evidence regression pass together in 44.321 seconds. The earlier replay's
       total time alone was not evidence of one build exceeding twenty seconds.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
-- [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
+- [ ] **5.0 Darwin capture recovery stability — non-blocking historical incident.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
       rebuilds instead of reusing its generation. I isolate both observations,
       establish their causes and verify stable capture/reuse without relaxing
       the assertions. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+      Following Jordan's explicit approval, I retain this incident for new
+      evidence but remove it as an implementation prerequisite. Infrastructure
+      can fail intermittently; missing historical diagnostics do not justify
+      endless reruns or blocking unrelated work after corrected gates pass.
+      This is a sequencing decision, not a finding that infrastructure caused
+      every unexplained failure. Reproducible correctness defects still block.
       I use the evidence diagnostics above to interpret subsequent stress runs.
       The controlled deadline mechanism above does not assign a cause to the
       unobserved historical events.
@@ -1635,7 +1641,7 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       suffix/source-group combinations on Darwin and Linux, including both
       cache roots and common/platform/package flag placement. The independent
       recovery-stability concern remains open above.
-- [ ] **5.0 assembler translation-unit snapshots.** I first characterize
+- [x] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
       disabling capture for their C siblings, preserving native source/flag
@@ -1655,7 +1661,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       also admits source-kind-specific integrated Clang capture, including
       retained C-sibling assembler search flags. The standalone flag/include
       matrices now pass on the tested GCC 12 and Clang 14/21 toolchains.
-      Unexplained Darwin recovery instability still prevents closing this item.
+      The corrected full Darwin gate at `cdb0d9ff` completes 125 methods
+      with nineteen platform skips and no failures in 5659.990 seconds.
+      Together with the recorded Linux GCC/Clang matrices, this satisfies
+      translation-unit acceptance on the tested toolchains. The historical
+      incident above remains open but is no longer a closure prerequisite.
       Before integrated-Clang admission I compare native objects with selected
       `-cc1as` text expansion and replay after deleting source/include/payload
       inputs. I check both `.s` and `.S`, ordinary/debug modes, runtime bytes

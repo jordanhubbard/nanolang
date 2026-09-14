@@ -3753,3 +3753,14 @@ The historical silent exit does not recur. This passing gate does not identify
 its cause or the underlying host wait observed in the Xcode launcher controls.
 I keep the roadmap's cause-establishment requirement open; I do not infer
 that all historical failures share the now-tested timeout mechanisms.
+
+### Historical incident disposition
+
+Jordan explicitly approves keeping the unexplained incident open without
+making retrospective cause identification a prerequisite for further work.
+I expect intermittent infrastructure failures, but I do not assign this
+incident to infrastructure without evidence. The corrected full Darwin gate
+and recorded Linux GCC/Clang coverage satisfy the translation-unit milestone
+on those tested toolchains. I close that milestone and continue the broader
+assembler-input inventory. I retain the incident, diagnostics and regression
+assertions; a reproducible correctness failure still blocks acceptance.
