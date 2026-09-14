@@ -1505,14 +1505,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       completion-clock methods pass separately. I close this bounded policy
       item, not the full Darwin recovery gate below.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
-- [ ] **5.0 external-query timeout fixture budget.** My full Darwin gate at
+- [x] **5.0 external-query timeout fixture budget.** My full Darwin gate at
       `c9dccb0d` reports an error in the deliberate external-query timeout
       case. Its wrapper sleeps 60 seconds, but its parent allows only 20
       seconds against the new 30-second capture default. I select an explicit
       short capture budget for this fault matrix and audit other deliberate
       hangs for the same mismatch. I retain rejection, cleanup, publication
       preservation and actual recovery/reuse assertions, then rerun the matrix.
-      I leave the current full run's source unchanged while collecting results.
+      I preserve the full run's source until it finishes: 124 methods in
+      5634.060 seconds, with only these two errors and nineteen platform skips.
+      Both fault invocations now select 5,000 ms; the complete six-failure,
+      two-cache-root matrix passes in 119.437 seconds with all assertions intact.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
@@ -1576,6 +1579,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       pass in 102.371 seconds, followed by fifty in 553.547 seconds. The silent
       exit does not recur; its cause remains unknown. I stop this bounded
       experiment and review the recurring measured deadline failures above.
+      With the reviewed timeout policy, the full gate at `c9dccb0d` completes
+      124 methods without a recovery assertion failure; its two errors are the
+      deliberate fixture-budget mismatch fixed above. That matrix then passes
+      separately. This is not a green full run at the corrected test state,
+      nor an explanation for the historical silent exit.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

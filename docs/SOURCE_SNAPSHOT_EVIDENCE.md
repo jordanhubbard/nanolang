@@ -3652,3 +3652,39 @@ I close bounded capture deadline configuration with this targeted acceptance
 evidence. I do not close Darwin recovery stability or retroactively assign a
 cause to the historical silent failure. The disposable container is removed
 after testing; its installed tools and build outputs are not repository changes.
+
+### Full Darwin gate with configured capture deadlines
+
+At `c9dccb0d`, the full snapshot suite completes 124 methods in 5634.060
+seconds, with two errors and nineteen platform skips (exit 1). Production and
+test source remain unchanged throughout; `dd084b26` only records the discovered
+fixture defect in the roadmap while the run continues.
+
+Both errors are `subprocess.TimeoutExpired` at the initial failed build in
+`test_apple_external_query_failure_and_recovery`, for `failure='timeout'` with
+local and shared caches. Its query wrapper sleeps sixty seconds, but the
+Python parent allows twenty seconds while production capture now allows thirty.
+The parent interrupts the intended capture supervision before the fixture can
+check rejection, cleanup and recovery. This is not a generation-comparison
+failure or evidence of a successful unsafe publication.
+
+All other non-skipped methods pass, including the four ordinary/shared raw/
+preprocessed search-recovery matrices, inline-C search recovery, selected-tool
+FIFO recovery, both native debug-identity modes, both post-link deadline
+matrices, and slow production capture with actual timeout-independent reuse.
+The prior silent exit does not recur. This run does not identify its cause or
+constitute a green full gate.
+
+I audit deliberate sleeps in the snapshot suite and its C probe: the remaining
+long-hang matrix above lacks an explicit budget; the other fault controls
+already select short budgets or use the probe's independent five-second
+deadline. I now give only the two fault-invocation sites in this matrix a
+5,000 ms capture allowance. Recovery builds retain their ordinary environment.
+No assertion, parent timeout, production default or publication rule changes.
+
+The corrected complete matrix (six failure modes, both cache roots, cold
+rejection, recovery, warm reuse, replacement rejection preserving published
+bytes and record, then recovery to 43 and warm reuse) passes in 119.437
+seconds. All six guide editions validate. I close the fixture defect, not
+the broader stability item: I have a failed full run and a passing corrected
+matrix, not a green full run of the corrected tree.

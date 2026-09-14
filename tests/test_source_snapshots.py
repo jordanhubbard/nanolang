@@ -2162,7 +2162,10 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 env["NANO_CC"] = str(wrapper)
                 env["NANO_QUERY_FAILURE"] = failure
                 started = time.monotonic()
-                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=20)
+                # I bound injected faults separately from ordinary host latency.
+                failed = subprocess.run([str(self.support.probe), "build", str(module)],
+                                        env=dict(env, NANO_CAPTURE_TIMEOUT_MS="5000"),
+                                        capture_output=True, timeout=20)
                 self.assertNotEqual(failed.returncode, 0, failed.stdout)
                 self.assertIn(b"I could not retain external-assembler inputs", failed.stderr)
                 self.assertLess(time.monotonic() - started, 15)
@@ -2185,7 +2188,9 @@ os.execv({shutil.which("cc")!r}, [{shutil.which("cc")!r}] + sys.argv[1:])
                 previous_calls = calls.read_bytes()
                 payload.write_bytes(b"43")
                 env["NANO_QUERY_FAILURE"] = failure
-                failed = subprocess.run([str(self.support.probe), "build", str(module)], env=env, capture_output=True, timeout=25)
+                failed = subprocess.run([str(self.support.probe), "build", str(module)],
+                                        env=dict(env, NANO_CAPTURE_TIMEOUT_MS="5000"),
+                                        capture_output=True, timeout=25)
                 self.assertNotEqual(failed.returncode, 0, failed.stdout)
                 self.assertIn(b"I could not retain external-assembler inputs", failed.stderr)
                 self.assertEqual(self.support.probe_path("directory", module, env), recovered)
