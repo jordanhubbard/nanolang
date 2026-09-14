@@ -1455,6 +1455,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I test delayed output and delayed exit without changing the shared
       deadline, output acceptance or cleanup policy.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+- [ ] **5.0 tool-supervisor final deadline check.** I reject results observed
+      after the shared deadline, including when EOF and exit arrive in the
+      last polling iteration. I test that boundary deterministically with
+      tracing enabled and disabled, retaining process-group cleanup.
+      The full Darwin trace accepts a 47 ms query with 45 ms remaining.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
@@ -1497,6 +1503,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       A later slow resolved query exposes `zsh` with a `dirname` child and
       finishes in 1.901 seconds. This demonstrates launcher latency before
       compiler invocation; the underlying host wait is not yet identified.
+      The non-fail-fast run at `e37737d0` completes all 116 methods in
+      5752.886 seconds with three failures and eighteen skips: two replacement
+      captures fail closed, while a warm validation timeout forces a successful
+      recorded rebuild. Full traces distinguish these paths; stability is
+      still unverified, not established by the other passing methods.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

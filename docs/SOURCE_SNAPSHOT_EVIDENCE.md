@@ -3346,3 +3346,41 @@ does not identify why the host delayed that utility, and I do not attribute
 every historical deadline to it. The control uses an isolated process group
 and would terminate that group on its observation deadline; this invocation
 exits normally and leaves no live control process.
+
+## Complete Darwin run with all failures retained
+
+The non-fail-fast run at `e37737d0` completes all 116 snapshot methods in
+5752.886 seconds: three failures and eighteen platform skips. It uses the
+unchanged milestone-instrumented probe and prints captured slow-call evidence
+without changing compiler arguments, environments or subprocess results.
+All other non-skipped methods pass, including previously failing Apple and
+integrated debug identity, shared raw recovery, and deliberate deadline controls.
+This is a complete failed gate, not a passing gate assembled from replays.
+
+The three failures are distinct:
+
+- Shared preprocessed recovery, split `-Xassembler`, platform placement,
+  integrated assembly, shared cache: missing-input recovery's replacement
+  capture runs one silent tool for 1,707 ms, then the next silent tool consumes
+  its remaining 2,468 ms. Capture refuses live-source compilation and the build
+  fails. Reuse had correctly rejected changed preprocessing before replacement.
+- Standalone preprocessed recovery, paired `-Wa,-I`, package placement,
+  external assembly, shared cache: the initial warm validation query consumes
+  its remaining 4,645 ms (4,647 ms measured), yielding unavailable preprocessing
+  evidence. The builder rejects reuse, successfully recaptures and rebuilds,
+  validates matching publication context and writes its reuse record. The
+  assertion fails because this selects a new generation, not because the build
+  fails or the newly published record is absent. This directly observes a
+  natural deadline causing unnecessary warm rebuilding.
+- Standalone raw recovery, split `-Xassembler`, platform placement, external
+  assembly, local cache: rebuilding after an earlier include appears encounters
+  a 4,662 ms query with 4,707 ms remaining. A following query reports 47 ms
+  elapsed with 45 ms remaining and is accepted; selected-tool hashing then
+  reports `tool-hash-deadline`. Replacement capture fails closed.
+
+The last trace exposes a final deadline-check gap: the successful query's
+normal-reap milestone itself is 47 ms, beyond the 45 ms budget. This is not
+merely time added by final cleanup. I add a separate roadmap requirement for
+checking the deadline after observing completion, with deterministic regression
+coverage. That fix will enforce the existing bound; it will not remedy the
+independently observed tool/host delays or make this failed gate pass by itself.
