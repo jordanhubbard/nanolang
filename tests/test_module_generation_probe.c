@@ -50,6 +50,15 @@ static char *generation_test_mkdtemp(char *pattern) {
 /* I advance only the test clock after both completion observations. */
 static bool generation_tool_eof, generation_tool_reaped;
 static int generation_test_clock_gettime(clockid_t clock, struct timespec *now) {
+    const char *capture_fault = getenv("NANO_TEST_CAPTURE_CLOCK");
+    if (capture_fault && clock == CLOCK_MONOTONIC) {
+        if (!strcmp(capture_fault, "error")) { errno = EIO; return -1; }
+        if (!strcmp(capture_fault, "deadline-overflow")) {
+            now->tv_sec = (time_t)(INT64_MAX / 1000);
+            now->tv_nsec = (long)((INT64_MAX % 1000) * 1000000);
+            return 0;
+        }
+    }
     const char *fault = getenv("NANO_TEST_COMPLETION_CLOCK");
     if (fault && generation_tool_eof && generation_tool_reaped && clock == CLOCK_MONOTONIC) {
         if (!strcmp(fault, "error")) { errno = EIO; return -1; }

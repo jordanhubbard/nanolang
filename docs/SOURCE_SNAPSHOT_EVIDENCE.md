@@ -3606,3 +3606,27 @@ gate open.
 The early-build-failure recovery matrix and post-capture validation failure
 method also pass on Darwin in 18.184 seconds, including their existing
 publication and warm-reuse assertions. All six guide editions validate.
+
+### Configured deadline clock, cleanup and production reuse controls
+
+I inject unavailable monotonic time and a representable timestamp whose
+absolute deadline would overflow. Both reject before spawning the command,
+with tracing on and off. These hooks exist only in the C test probe. A separate
+control forks a descendant that holds the output pipe after its parent exits;
+the one-second configured deadline rejects capture, and the descendant does
+not create its scheduled two-second marker. Both trace modes pass. Together
+with the parser regression, these three methods pass in 5.199 seconds after
+a strict probe rebuild.
+
+I also delay a real Clang discovery query for a macro-bearing standalone raw
+assembly unit by six seconds. The cold build publishes a reuse record and
+returns 42 from the library. Two subsequent invocations each repeat the delay,
+accept the query, report actual reuse and keep the same generation. The first
+uses the default; the second selects 60,000 ms, testing that the waiting policy
+does not invalidate semantic identity. This production method passes on Darwin
+in 26.044 seconds. All six guide editions validate again.
+
+Linux runtime acceptance remains open. My current Docker inventory contains
+no compiler test image; I do not count Darwin execution of shared code as
+execution of the Linux captured-read path. These targeted passes also do not
+replace the full Darwin recovery gate.

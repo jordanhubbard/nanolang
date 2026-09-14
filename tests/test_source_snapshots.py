@@ -83,6 +83,82 @@ class SourceSnapshots(unittest.TestCase):
                 self.assertEqual(result.returncode, 0 if success else 1, result.stderr)
                 self.assertEqual(result.stdout, b"evidence" if success else b"")
 
+    def test_capture_configuration_clock_rejection(self):
+        for fault in ("error", "deadline-overflow"):
+            for traced in (False, True):
+                with self.subTest(fault=fault, traced=traced):
+                    env = dict(os.environ, NANO_TEST_CAPTURE_CLOCK=fault, NANO_CAPTURE_TIMEOUT_MS="30000")
+                    env.pop("NANO_TRACE_BUILD", None)
+                    if traced: env["NANO_TRACE_BUILD"] = "1"
+                    result = subprocess.run([str(self.support.probe), "capture-configured", "printf spawned"],
+                                            env=env, capture_output=True, timeout=5)
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertEqual(result.stdout, b"")
+                    self.assertEqual(result.stderr, b"I cannot establish a capture deadline.\n")
+
+    def test_slow_production_capture_and_timeout_independent_reuse(self):
+        if not self.clang: self.skipTest("I delay Clang capture discovery here")
+        with tempfile.TemporaryDirectory(prefix="nano-slow-capture-") as tmp:
+            root = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(root)
+            symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
+            assembly = f'.macro emit number\n.byte \\number\n.endm\n.data\n.globl {symbol}\n{symbol}:\nemit 42\n'
+            (module / "payload.s").write_text(assembly)
+            (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
+                                             'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')
+            (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                "c_sources": ["answer.c", "payload.s"]}))
+            marker, wrapper = root / "delayed", root / "cc"
+            compiler = shutil.which("cc")
+            wrapper.write_text(f'#!{sys.executable}\nimport os,pathlib,sys,time\n'
+                f'marker=pathlib.Path({str(marker)!r})\n'
+                'if "-###" in sys.argv and any(pathlib.Path(x).name == "__assembly_0_1.s" for x in sys.argv[1:]) and not marker.exists():\n'
+                '    marker.touch()\n    time.sleep(6)\n'
+                f'os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])\n')
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            env["NANO_TRACE_BUILD"] = "1"
+            env.pop("NANO_CAPTURE_TIMEOUT_MS", None)
+            first = None
+            for budget in (None, None, "60000"):
+                if marker.exists(): marker.unlink()
+                if budget is not None: env["NANO_CAPTURE_TIMEOUT_MS"] = budget
+                result = subprocess.run([str(self.support.probe), "build", str(module)], env=env,
+                                        capture_output=True, timeout=120)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertTrue(marker.exists(), result.stderr)
+                queries = re.findall(rb'phase=tool-query-ms expected=\d+ observed=(\d+) accepted=1', result.stderr)
+                self.assertTrue(any(int(t) >= 6000 for t in queries), result.stderr)
+                current = self.support.probe_path("directory", module, env)
+                self.assertTrue((current / "source_hashes.json").is_file())
+                libraries = list(current.glob("libanswer_native.*"))
+                self.assertEqual(len(libraries), 1)
+                self.assertEqual(self.answer(libraries[0]), 42)
+                if first is None: first = current
+                else:
+                    self.assertEqual(current, first, result.stderr)
+                    self.assertIn(b"phase=reuse expected=1 observed=1 accepted=1", result.stderr)
+
+    def test_configured_capture_descendant_cleanup(self):
+        for traced in (False, True):
+            with self.subTest(traced=traced), tempfile.TemporaryDirectory(prefix="nano-capture-cleanup-") as tmp:
+                marker = Path(tmp) / "descendant-survived"
+                # I leave the descendant holding the output pipe after its parent exits.
+                code = ("import os,pathlib,time; pid=os.fork(); "
+                        "os._exit(0) if pid else None; "
+                        "print('started',flush=True); time.sleep(2); "
+                        f"pathlib.Path({str(marker)!r}).touch()")
+                env = dict(os.environ, NANO_CAPTURE_TIMEOUT_MS="1000")
+                env.pop("NANO_TRACE_BUILD", None)
+                if traced: env["NANO_TRACE_BUILD"] = "1"
+                result = subprocess.run([str(self.support.probe), "capture-configured",
+                                         "exec " + shlex.join([sys.executable, "-c", code])],
+                                        env=env, capture_output=True, timeout=5)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertEqual(result.stdout, b"started\n")
+                time.sleep(1.5)
+                self.assertFalse(marker.exists(), "I left a descendant executing after capture expiry")
+
     def test_supported_assembler_version_line(self):
         if not sys.platform.startswith("linux"): self.skipTest("I select GNU assembler replay only on Linux")
         accepted = ["GNU assembler (GNU Binutils for Debian) 2.40\nCopyright text\n",

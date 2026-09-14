@@ -1495,9 +1495,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       correctness and publication assertions and document tested host coverage.
       I wire the bounded parser and default into both production scopes.
       Darwin parser cases, a six-second supervised capture, short-budget
-      expiry and final-completion clock controls pass. Production slow-capture
-      reuse, configuration clock failures and Linux execution remain to verify;
-      I keep this item open until its complete acceptance criteria pass.
+      expiry and final-completion clock controls pass. Configuration clock
+      errors and absolute-deadline overflow reject before spawn; a pipe-holding
+      descendant does not survive expiry in the targeted Darwin control.
+      Six-second production queries pass with cold publication and two actual
+      warm reuses, including a changed timeout without generation invalidation.
+      Linux execution remains to verify; I keep this item open.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
