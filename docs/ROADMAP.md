@@ -19,8 +19,12 @@ deck, and user guide are in. I do not call the system internationalized.
 JSON/TOON and catalog fallback still use English; guide drafts are
 machine-generated. I do not claim a Forth Standard System, GNU Emacs, a
 kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
-5.0.** It covers remaining 4.x (4.6 frontends) and 5.0 itself
-(`docs/NANOISA_ONLY.md`). 6.0 stays out of this bar.
+5.0.** The release cut ships the 4.6 laboratory frontends and the audited
+language/runtime fixes described in `docs/RELEASE_5.0.md`. The user authorized
+this cut without waiting for the fleet hold. Unchecked 5.0 architecture and
+acceptance milestones below remain follow-up work, including the NanoISA-only
+bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
+6.0 stays out of this bar.
 
 ## Active Execution Queue
 
@@ -29,9 +33,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       behavior, run clean build/tests and documentation gates, then merge and
       publish 5.0. The fleet dispatch hold does not gate this user-authorized
       release. Unfinished roadmap items remain explicitly unfinished.
-- [ ] **Release-gate module shadows.** I diagnose and repair the NanoISA
+- [x] **Release-gate module shadows.** I diagnose and repair the NanoISA
       facade assembly fixtures exposed by default dependency-shadow execution,
-      then rerun the module and full release tests.
+      replacing obsolete function headers with explicit `void 0` results.
+      The module gate passes; the full release gate belongs to the release
+      integration item above.
+- [x] **Release-gate emitter shadow.** I initialize the declared local in
+      the `nisa_emit_call` fixture before emitting its use, then rerun the
+      source-emitter gate (86 checks passed). The complete release gate
+      remains part of the integration item.
 
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard

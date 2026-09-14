@@ -1,0 +1,104 @@
+{
+  "release": "5.0.0",
+  "reviewed_on": "2026-09-14",
+  "issues": [],
+  "pull_requests": [
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_8500a5ea65584cc3a5cfb02a7812b16b`\n- head: `a58dd71d2197a49b434cf69742faac141d907957`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 287,
+      "title": "Preserve paired compiler arguments across metadata fragments (task_8500a5ea65584cc3a5cfb02a7812b16b)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/287"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_8babad5374294e02ab0e8147a6d717ed`\n- head: `afafce716b2e7f113a2d57d375f9f74344d4664f`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 286,
+      "title": "Reject unrepresentable daemon socket paths before unlink or bind (task_8babad5374294e02ab0e8147a6d717ed)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/286"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_f38c6358bf944c218f179daf1490ebe2`\n- head: `204d51cc218829eb6b12b0972a136f5c34b879ff`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 285,
+      "title": "Separate compiler artifacts from diagnostic destinations (task_f38c6358bf944c218f179daf1490ebe2)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/285"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_507117859a0642f4882b7015296d8af6`\n- head: `66cb4dc59c027bb2bc1ec6fb165080cedc199e93`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 284,
+      "title": "Protect self-hosted source from equivalent input/output paths (task_507117859a0642f4882b7015296d8af6)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/284"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_e0f2c52ae84842f084d49cff3394d7e1`\n- head: `e144eb649fba47d6a67957ab0890168d384bb5a7`\n- base at push: `3ac10777abf2eec35c3636b6bf8c8892828fa017`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 283,
+      "title": "Fail timeout wrappers when the requested command cannot execute (task_e0f2c52ae84842f084d49cff3394d7e1)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/283"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_9c6fae270c964a25b8949c5929e2f686`\n- head: `cbc91f6c6f21b2bf5433d763b323c7dacb718ef2`\n- base at push: `17517dbf8a2b2de372e8183a8fd27c9197ce558c`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 282,
+      "title": "Count physical newlines consumed by self-hosted lexer tokens (task_9c6fae270c964a25b8949c5929e2f686)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/282"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_4027a8e02a744178b8f99d83a92395d7`\n- head: `e26db7172597e8d95da2a230ee0636ddbc2ebe69`\n- base at push: `353e7f67a79a5f4f0b5291f1f6e30637688439b8`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 281,
+      "title": "Preserve function-value call signatures while checking selected shadows (task_4027a8e02a744178b8f99d83a92395d7)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/281"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_17fe744141024df08c2ef3de7599865a`\n- head: `f8bcb64caa240ad58f7182683ad5d0a59a2483f5`\n- base at push: `c1c1fb6f429ca3e0e74b2543acff2e43869d483e`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 274,
+      "title": "Audit qualified and indirect interpreter calls for checked foreign dispatch (task_17fe744141024df08c2ef3de7599865a)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/274"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_8c10a946dfa14d92b491fd80f4635187`\n- head: `d66362a10e3bb43087b36db577d7a00cb4f1d269`\n- base at push: `25845744f9d7cd82d697ba221f1caf22b3390321`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 273,
+      "title": "Preserve literal filesystem paths through manifest-backed foreign compilation (task_8c10a946dfa14d92b491fd80f4635187)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/273"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_a4fde0d59ad24fe18c285a76ad58c176`\n- head: `287c17c4629c3ac2c772f206769dc460d8f6ee54`\n- base at push: `51760b94803efe4036af9435a943b329d8c1f492`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 269,
+      "title": "Complete AOT aggregate type and layout coverage beyond flat call facts (task_a4fde0d59ad24fe18c285a76ad58c176)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/269"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_443e8107d0ff4350999e0d5186a809f1`\n- head: `d64a7c11dbedbc30ff659780ef037b267c4ad166`\n- base at push: `51760b94803efe4036af9435a943b329d8c1f492`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 267,
+      "title": "Isolate concurrent compiler intermediate and cache files (task_443e8107d0ff4350999e0d5186a809f1)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/267"
+    },
+    {
+      "body": "Opened by the MAC agent that produced this change.\n\n- task: `task_56a065134a6e4394ae5c307c05e9597d`\n- head: `d8ea64b02dc25f524bfa13d236c450878478f178`\n- base at push: `51760b94803efe4036af9435a943b329d8c1f492`\n",
+      "labels": [],
+      "milestone": null,
+      "number": 266,
+      "title": "Make self-hosted component test execution explicit (task_56a065134a6e4394ae5c307c05e9597d)",
+      "url": "https://github.com/jordanhubbard/nanolang/pull/266"
+    }
+  ],
+  "decision": "I found no open GitHub issues and no PR explicitly scoped to 5.0 by title, body, label or milestone. I retain unscoped PRs; age alone is not evidence for closure. I merge the audited product branch with origin/main. MAC fleet dispatch hold affects ledger claims, not this user-authorized release."
+}

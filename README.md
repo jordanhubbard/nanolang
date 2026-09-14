@@ -19,9 +19,10 @@ I transpile to C when you need native performance. NanoISA is my verified byteco
 - [NanoISA VM Architecture](docs/NANOISA.md) - How my virtual machine is structured.
 - [Formal Verification](formal/README.md) - My Coq proof suite.
 - [Performance Monitoring and LLM Optimization](docs/PERFORMANCE_MONITORING.md) - `-pg` JSON, OS collectors, and a measured optimization loop.
-- [NanoLang 4.5](docs/RELEASE_4.5.md) - Public cut covering 4.1–4.5. Last public GitHub Release was `v4.0.0`. Language plus secure runtime: Forth evidence, NSI, capabilities, POSIX fabric, isolated Nano Emacs, effects-to-policy, trap journal.
+- [NanoLang 5.0](docs/RELEASE_5.0.md) - Language-contract changes, dependency shadows by default, module/cache hardening, and explicit unfinished runtime boundaries.
+- [NanoLang 4.5](docs/RELEASE_4.5.md) - Previous public cut covering 4.1–4.5: Forth evidence, NSI, capabilities, POSIX fabric, isolated Nano Emacs, effects-to-policy, trap journal.
 - [NanoLang 4.0](docs/RELEASE_4.0.md) - NanoISA v2, the verifier, and measured dispatch.
-- [Developer overview](docs/presentation/README.md) - Slides and narrative for the current release.
+- [Developer overview](docs/presentation/README.md) - Historical 4.5 slides and narrative; not a 5.0 implementation claim.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
 
 ## Quick Start
@@ -68,7 +69,7 @@ EOF
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.
 - **Rich Pattern Matching** - I support match guards (`Ok(v) if v > 0 =>`), or-patterns (`| A | B =>`), wildcard `_`, and exhaustiveness checking (warnings on incomplete matches).
-- **Shadow Tests** - My project policy requires useful shadows. Missing-shadow enforcement is not universal. My C seed executes selected shadows; my self-hosted native driver and `nano_virt` run root-file shadows before publishing executable output, with a ten-second execution deadline. Source-only C emission does not execute shadows. Full interpreted foreign ABI support and imported-shadow policy remain open. `make test-language-claims` and `make test-native-shadows` check these boundaries.
+- **Shadow Tests** - My project policy requires useful shadows. Missing-shadow enforcement is not universal. My C seed, self-hosted native driver and `nano_virt` run dependency shadows before root shadows by default, before publishing executable output. `--root-shadows-only` narrows that scope. Source-only C emission does not execute shadows. Deadlines supervise test processes; they are not security sandboxes. `make test-language-claims` and `make test-native-shadows` check these boundaries.
 - **Type Inference** - I infer types where unambiguous so you can write `let x = 42` without an annotation. Inference is local and bidirectional, not full Hindley-Milner — explicit annotations are required at function boundaries.
 - **F-Strings and Pipes** - I support `f"Hello, {name}!"` string interpolation and `x |> f |> g` pipeline syntax.
 - **C Interop** - I communicate with C through modules. I can isolate these calls in a separate process to protect myself.
