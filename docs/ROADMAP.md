@@ -1464,6 +1464,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       time. All four injected completion-clock cases fail before the fix and
       pass afterward; five targeted supervisor/capture methods pass on Darwin.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+- [ ] **5.0 early build failure evidence.** My full snapshot gate reports a
+      warm build returning 1 with empty stderr despite enabled tracing. I
+      distinguish metadata loading, invocation capture, cache setup, locking
+      and staging failures before reuse/capture evidence begins. I test the
+      diagnostics without changing rejection, publication or quiet-mode policy.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
@@ -1516,6 +1522,12 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       completion. Separate controls measure selected Clang hashing at a
       174.9 ms median and again observe delay in the Xcode assembler launcher;
       these replays do not replace the failed full gate.
+      The full run at `510d10f9` completes 117 methods in 5865.459 seconds:
+      four failures and eighteen skips. Two warm validations exceed their
+      budgets and rebuild successfully with records; one cold capture times
+      out. One warm build exits 1 with empty stderr and needs the early-failure
+      evidence above. The final-clock regression and both deadline matrices
+      pass; neither the full gate nor recovery stability is complete.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

@@ -3435,3 +3435,49 @@ I also inspect the apparent duplicate discovery paths. Text expansion uses
 which retains debug flags. I have not established that their returned jobs are
 interchangeable. I do not merge the queries or cache tool hashes without
 preserving selected-tool identity, flag semantics and change detection.
+
+### Full Darwin gate after the final-clock fix
+
+The non-fail-fast run at `510d10f9` completes all 117 methods in 5865.459 seconds:
+four failures, eighteen platform skips, exit 1. I leave production and probe
+sources unchanged throughout. The in-memory subprocess observer returns each
+result unchanged and prints existing timing evidence for calls taking at least
+one second. It neither enables tracing globally nor changes child arguments,
+environment, timeout or test assertions.
+
+The final tracebacks distinguish four outcomes:
+
+- Inline-C search/recovery, `xassembler` flags, platform placement, external
+  assembler, local cache: the initial warm build returns 1 with empty stderr.
+  No timing or build evidence identifies its failing phase. I do not attribute
+  this event to a deadline or infer that a successful replacement was published.
+- Selected-tool FIFO recovery, shared unit, shared cache, external assembler:
+  after recovery, warm validation spends 4,425 ms in a query with 4,532 ms
+  remaining (first output 4,398, EOF 4,399, normal reap 4,425 ms). A following
+  query uses 52 of its remaining 107 ms; selected-tool hashing then reports
+  `tool-hash-deadline`. Reuse is rejected. Fresh capture/build succeeds with
+  matching publication fingerprints and `record-write accepted=1`, but the
+  generation differs from the recovered one and fails the reuse assertion.
+- Standalone `.S` search/recovery, split/package flags, integrated assembly,
+  local cache: the initial cold build reaches a silent query's five-second
+  deadline (5,002 ms including cleanup, spawn 0, no output/EOF/normal reap).
+  Admitted capture fails closed; no warm-reuse assertion is reached.
+- Standalone `.s` search/recovery, paired/platform flags, external assembler,
+  shared cache: the initial warm validation reaches a silent query's five-second
+  deadline (5,002 ms including cleanup, spawn 1, no output/EOF/normal reap).
+  Fresh capture/build succeeds with matching publication fingerprints and
+  `record-write accepted=1`; the generation comparison fails. A preceding
+  silent successful run takes 2,112 ms of its own 4,713 ms remaining budget.
+
+Both shared-unit search/recovery matrices pass, as do Apple and integrated
+native debug identity, both post-link deadline matrices and the deterministic
+final-completion-clock regression. Slow successful queries elsewhere still
+spend most of their time before first output. These passes do not erase the
+four failures or establish recovery stability.
+
+The empty-stderr failure exposes a diagnostic gap separate from the observed
+deadline outcomes. Metadata loading, invocation capture, cache setup, lock
+acquisition and staging creation contain failure paths before existing reuse
+evidence. I add early-failure diagnostics and deterministic rejection controls
+to the roadmap before another full stability run. This inspection narrows the
+next investigation; it does not identify which path caused the silent failure.
