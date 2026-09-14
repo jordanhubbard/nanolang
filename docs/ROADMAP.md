@@ -1448,12 +1448,17 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349` records this test defect.
       The full Linux gate and both Darwin instruction/location methods pass
       with `nop` present in every characterizer directory name.
-- [ ] **5.0 mixed-unit integrated preprocessing search parity.** My standalone
+- [x] **5.0 mixed-unit integrated preprocessing search parity.** My standalone
       search matrix finds Darwin native 142 versus retained 42: preprocessing
       the C sibling drops integrated assembler include paths before retained
       compilation can use them. I preserve the native frontend search order
       during capture and verify `.s`/`.S`, both source groups and cache roots.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349` tracks this defect.
+      Context v45 preserves the native C frontend search order before retaining
+      preprocessed input. Native-control matrices pass for all four standalone
+      suffix/source-group combinations on Darwin and Linux, including both
+      cache roots and common/platform/package flag placement. The independent
+      recovery-stability concern remains open above.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
@@ -1472,18 +1477,20 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       ordinary/shared units, macro recovery and absolute-source cache paths
       pass on Linux GCC 12/Clang 14 and Darwin Apple Clang 21. Context v43
       also admits source-kind-specific integrated Clang capture, including
-      retained C-sibling assembler search flags. Broader standalone flag/include
-      matrices remain open. This item is not complete.
+      retained C-sibling assembler search flags. The standalone flag/include
+      matrices now pass on the tested GCC 12 and Clang 14/21 toolchains.
+      Unexplained Darwin recovery instability still prevents closing this item.
       Before integrated-Clang admission I compare native objects with selected
       `-cc1as` text expansion and replay after deleting source/include/payload
       inputs. I check both `.s` and `.S`, ordinary/debug modes, runtime bytes
       and object differences; an expansion exit status alone is insufficient.
-      My existing search-order recovery matrix emits inline assembly from C.
-      I next extend those controls to standalone `.s`/`.S`: paired/joined
+      I extended the inline-C search-order controls to standalone `.s`/`.S`: paired/joined
       `-Wa,-I`, split `-Xassembler`, common/platform/package flag placement,
       an earlier search candidate appearing, missing-input recovery, both
-      cache roots and ordinary/shared units. Native controls must distinguish
-      C header lookup from assembler include lookup.
+      cache roots and ordinary/shared units. Native controls distinguish
+      C header lookup from assembler include lookup. These passing matrices
+      do not establish a complete assembler input inventory or explain the
+      separately recorded transient reuse failures.
 - [ ] **5.0 assembler-input snapshot capture.** I capture the bytes consumed
       by assembler file reads, including inline `.incbin`, and bind compilation
       and reuse to those captured inputs. I test restored edits and permanent

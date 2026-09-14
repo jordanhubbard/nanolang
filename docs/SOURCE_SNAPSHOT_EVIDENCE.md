@@ -3046,3 +3046,32 @@ Darwin passes the same three methods in 287.983 seconds: 16 mixed-unit
 deadline cases and four C-only controls. Python syntax, whitespace and all
 six guide editions validate. This checkpoint changes only tests and evidence;
 I do not claim a new full bytecode-shadow gate run from these targeted checks.
+
+## Concurrent replay and search-order acceptance audit
+
+At `f0c185c6`, I run three independent test processes concurrently: eight
+replays of the original external `.S` split/platform/local scenario, four
+rounds of integrated report-failure recovery across ordinary/shared units and
+both cache roots (sixteen cases), and the integrated instruction/location
+provenance method. They pass in 146.198, 146.161 and 117.998 seconds respectively.
+No failure recurs, so these observations do not provide a historical cause.
+
+I separately audit the integrated preprocessing search-order requirement.
+Context v45 supplies its source-kind-specific frontend phase before C input
+is retained. The native-control matrices cover paired/joined `-Wa,-I`, split
+`-Xassembler`, common/platform/package placement, `.s`/`.S`, both source groups
+and both cache roots. The recorded full Darwin methods cover 144 combinations;
+the Linux Clang matrix covers 144, and the GCC matrix covers 72. Their controls
+distinguish integrated C header lookup from external assembler include lookup,
+and require matching runtime results and actual generation reuse.
+
+The ordinary Darwin `.S` method subsequently passed uninterrupted with tracing,
+after the other three Darwin methods had passed. My production builder has
+not changed since that run: the diff from `2f511af1` to `f0c185c6` contains only
+tests and evidence. I close the preprocessing search-order defect on that
+evidence, not by attributing the old non-reuse events to deadlines.
+
+The broader translation-unit item remains open for recovery stability. Its
+old claim that standalone flag/include coverage was still missing is now
+stale; I correct it without removing the remaining requirement. Complete
+assembler input inventory and atomic input observations remain separate work.
