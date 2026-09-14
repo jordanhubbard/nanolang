@@ -3270,3 +3270,9 @@ normal reaping follows by 26–27 ms and final cleanup adds no measured interval
 These are parent observations, not evidence distinguishing child execution
 from host scheduling. No four-second outlier occurs, so the failed broad
 batch remains unexplained and stability remains open.
+
+The remaining seven methods after standalone raw recovery pass at `c685b4cc`
+in 31.053 seconds, with one GNU-only platform skip. This covers scalar flag
+spellings, timing controls, alias copying and cleanup, failed replacement,
+substituted alias paths and unknown-fragment fallback. These continuation
+results do not turn the preceding failed batch into a full passing gate.
