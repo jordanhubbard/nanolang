@@ -74,6 +74,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       under a self-hosted label.
 - [x] **Nested unary-minus C emission.** I parenthesize nested negation so
       `-(-7)` does not become the C decrement token `--7`.
+- [ ] **Release-gate VM example coverage.** I repair the compilation and
+      dependency-shadow failures reported by `make test-vm-examples` and
+      remove eight stale exclusions that now compile to bytecode. I retain
+      the default dependency-shadow contract rather than hiding failures.
+      MAC `task_7ee12d8737363c126a040fde905a7114`.
+- [ ] **Single logical foreign object per link.** I investigate and prevent
+      linking two immutable generations of the same `std.o` in one native
+      invocation. My release run observed 25 duplicate symbols while another
+      compiler workload shared the cache; a direct retry passed. I need a
+      deterministic regression before claiming a cause or repair.
+      MAC `task_9b9359bd64dce70ea919f0861ac9d5ba`.
 
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard

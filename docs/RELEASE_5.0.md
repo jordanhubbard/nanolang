@@ -72,7 +72,18 @@ stage-2 binary removed by cleaning. I do not count that as a stage-2 bootstrap.
 Some native links emit an Apple SDK text-stub warning; I do not describe
 those links as warning-free.
 
-The complete test gate is still pending while this release is prepared.
+The complete test gate has not passed. This is a release candidate record,
+not evidence that a tag or GitHub release has been published.
+
+The latest native integration run hit a link failure in `test_all_imports`:
+two immutable generations of the same `std.o` supplied 25 duplicate symbols.
+A direct retry passed. The complete runnable scan finished with 218 passes,
+one failure and zero skips, causing `make test` to exit nonzero before later
+gates. Another compiler workload shared the cache at the
+time; that observation does not yet establish the cause.
+`make test-vm-examples` also fails: eligible examples report compilation or
+shadow failures, and eight exclusions now compile successfully to bytecode.
+These are product/test-gate findings, separate from the MAC fleet hold.
 
 The runnable integration suite now passes all 219 programs. I reject
 duplicate module introspection identities in the C loader; all 34 negative
