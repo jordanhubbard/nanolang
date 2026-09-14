@@ -3260,3 +3260,13 @@ in 26.029 seconds. I build with strict warnings and validate six guide editions.
 This instrumentation adds no compiler queries and changes no deadline, output
 acceptance or cleanup policy. Recovery stability remains open; I do not claim
 a new full-suite or Linux result for this checkpoint.
+
+Four milestone-instrumented replays at `25aa5456` pass the exact failed
+joined/package/integrated/local-cache scenario in 98.532 seconds. Two queries
+over 250 ms show spawn/first-output/EOF/reap times of 0/279/281/307 ms and
+1/235/237/264 ms. A silent execution shows spawn at 1 ms, EOF at 451 ms and
+reaping at 478 ms. For these observations, most delay precedes pipe closure;
+normal reaping follows by 26–27 ms and final cleanup adds no measured interval.
+These are parent observations, not evidence distinguishing child execution
+from host scheduling. No four-second outlier occurs, so the failed broad
+batch remains unexplained and stability remains open.

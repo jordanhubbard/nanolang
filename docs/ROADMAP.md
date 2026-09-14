@@ -1481,6 +1481,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       cache) records a successful query taking 4,293 ms of its 4,599 ms entry
       budget, followed by `tool-hash-deadline`. I must distinguish query
       execution from supervisor waiting before selecting a bounded remedy.
+      Four milestone-instrumented exact-case replays pass in 98.532 seconds.
+      Their slower queries spend most time before output; they do not reproduce
+      the four-second outlier or establish its cause.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text
