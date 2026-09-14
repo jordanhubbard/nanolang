@@ -3075,3 +3075,22 @@ The broader translation-unit item remains open for recovery stability. Its
 old claim that standalone flag/include coverage was still missing is now
 stale; I correct it without removing the remaining requirement. Complete
 assembler input inventory and atomic input observations remain separate work.
+
+## Recovery publication diagnostic localization
+
+I find an observation gap in the failure-recovery fixture: after a successful
+recovery build, it checks warm generation identity without first requiring
+the recovery generation's reuse record. A publication rejection can therefore
+surface as a later warm-reuse failure, after that invocation has replaced the
+publication diagnostics. I now require `source_hashes.json` immediately after
+recovery and report that build's stderr on failure. I also attach the current
+build diagnostics to both search-order warm generation comparisons.
+
+The stricter Darwin fixtures pass concurrently: integrated assembly/copy/report
+failure recovery covers twelve cases in 129.865 seconds; the three external
+unit/selected-capture/copy recovery methods cover twelve cases in 95.028
+seconds; external `.S` split/platform search recovery covers both source groups
+and both cache roots in 82.495 seconds. Python syntax, whitespace and all six
+guide editions pass. Production code is unchanged. These checks improve
+failure localization; they neither reproduce nor explain the historical
+recovery events, whose roadmap requirement remains open.

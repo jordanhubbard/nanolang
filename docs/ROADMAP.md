@@ -1441,6 +1441,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I use the evidence diagnostics above to interpret subsequent stress runs.
       The controlled deadline mechanism above does not assign a cause to the
       unobserved historical events.
+      I require a reuse record immediately after report-failure recovery,
+      before a warm invocation can overwrite its publication diagnostics.
+      Search-order generation comparisons retain the relevant build trace.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

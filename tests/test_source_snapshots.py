@@ -649,6 +649,8 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     self.support.probe_path("build", module, env, timeout=30)
                     second = self.support.probe_path("directory", module, env)
                     self.assertNotEqual(first, second)
+                    self.assertTrue((second / "source_hashes.json").is_file(),
+                                    self.support.last_build_diagnostics)
                     self.assertEqual(list(second.glob("__unit_*")), [])
                     unit_object = second / ("__shared_0.o" if shared_unit else "answer_native_1.o")
                     self.assertNotIn(b".nano-build-", unit_object.read_bytes())
@@ -1079,7 +1081,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), answer)
                     return generation
                 first = build(baseline)
-                self.assertEqual(build(baseline), first)
+                self.assertEqual(build(baseline), first, self.support.last_build_diagnostics)
                 commands = [json.loads(line) for line in calls.read_text().splitlines()]
                 for argv in commands:
                     source_phase = ("-E" in argv and "-Xclang" not in argv) or ("-S" in argv and not (self.clang and not external))
@@ -1106,7 +1108,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 self.assertFalse(list(changed.parent.glob(".nano-build-*")))
                 (late / "selected.s").write_text(selected(44))
                 recovered = build(baseline + 2)
-                self.assertEqual(build(baseline + 2), recovered)
+                self.assertEqual(build(baseline + 2), recovered, self.support.last_build_diagnostics)
 
     def test_clang_assembler_cache_restored_inputs(self):
         if not self.clang: self.skipTest("I exercise GCC literal capture separately")
