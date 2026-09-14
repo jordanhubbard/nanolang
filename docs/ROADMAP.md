@@ -1494,6 +1494,9 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       slow invocation completes after 3.626 seconds. I distinguish this
       independently reproduced tool/host latency from my supervisor behavior
       before selecting a remedy; no host toolchain files are changed.
+      A later slow resolved query exposes `zsh` with a `dirname` child and
+      finishes in 1.901 seconds. This demonstrates launcher latency before
+      compiler invocation; the underlying host wait is not yet identified.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

@@ -3333,3 +3333,16 @@ stalled, nor tie the earlier historical non-reuse events to this launcher.
 No toolchain files, startup files, deadlines or capture rules are changed.
 The next remedy must respect the selected driver's behavior and preserve
 bounded failure; bypassing its script is not justified by this evidence alone.
+
+A subsequent direct resolved-path control at `e2626fdf` inspects descendants
+after 750 ms. Query 436 shows the assembler's `/bin/zsh` process with one
+`dirname` child, both sleeping and with displayed CPU time 0:00.00. No compiler
+child is present in that process-tree observation. The parent sample produces
+a task lookup error and the child exits before sampling; neither yields a
+usable stack. The query returns success after 1.901 seconds, including the
+sampling attempts. This locates one observed delay in launcher setup before
+the compiler call, not in my capture supervisor or compiler execution. It
+does not identify why the host delayed that utility, and I do not attribute
+every historical deadline to it. The control uses an isolated process group
+and would terminate that group on its observation deadline; this invocation
+exits normally and leaves no live control process.
