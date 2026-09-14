@@ -3531,3 +3531,54 @@ testing: a fixed deadline is a resource policy, not proof that ordinary host
 work will complete within it. I have not changed that policy in this checkpoint.
 Any revision must keep finite bounds, one shared budget, fail-closed capture,
 descendant cleanup and the original correctness/reuse assertions.
+
+### Reviewed capture deadline policy
+
+I select a 30,000 ms default for capture supervision, with a host override
+named `NANO_CAPTURE_TIMEOUT_MS`. This is a reviewed implementation contract,
+not implemented behavior at this checkpoint: my current default remains
+5,000 ms. Thirty seconds is an engineering allowance for host latency, not
+a measured upper bound or a promise that every supported host finishes.
+The direct launcher timeout and the full-gate traces establish that five
+seconds can reject ordinary work; they do not establish a latency percentile.
+
+I preserve the existing scopes:
+
+- Clang expansion starts one deadline per ordinary or shared translation unit,
+  after preparation of retained assembly. Discovery, selected-tool hashing,
+  native-object capture and text expansion share its remaining time.
+- Linux captured-read execution starts one deadline per command, including
+  its supervised child process group. This is not a whole-unit deadline.
+- Linker grammar discovery retains its separate five-second deadline shared
+  across query attempts. Shadow execution retains its separate policy.
+
+An absent override selects the default. A present override must contain only
+ASCII decimal digits and evaluate to 1 through 300,000 milliseconds inclusive.
+Leading zeros are permitted; an empty value, sign, whitespace, nondecimal
+character, zero or out-of-range value rejects the relevant capture. Parsing
+must reject overflow before arithmetic can wrap. I report a fixed diagnostic
+without echoing the environment value. An unavailable clock or an
+unrepresentable absolute deadline also rejects capture. I offer no unlimited
+mode, automatic retry or fresh budget for each discovery subprocess.
+
+This setting controls waiting, not source identity. I do not add it to the
+artifact fingerprint: accepted retained bytes, selected tools and existing
+semantic context still determine reuse. A longer allowance cannot authorize
+stale output, skip validation or turn a rejected capture into reusable evidence.
+Changing the setting must not itself invalidate an otherwise valid generation.
+
+I do not claim a whole-build timeout. Preprocessing before these scopes,
+ordinary compilation outside them, filesystem operations and lock waits remain
+outside this policy. Process-group termination and reaping remain mandatory;
+kernel cleanup is not a hard-real-time guarantee. I do not bypass the installed
+Xcode launcher or combine native-debug and text-discovery jobs with different
+flags to reduce their cost.
+
+Before closing implementation, I require parser boundary and rejection tests,
+controlled clock/expiry and descendant-cleanup tests, a capture that legitimately
+takes more than five seconds under the default, and successful warm reuse.
+Deliberate hangs select short explicit budgets; parent test deadlines must allow
+the intended successful work and cleanup. I retain generation comparisons,
+record-presence checks and runtime results. The full Darwin recovery gate
+remains open, as does the unexplained historical empty-stderr failure; this
+policy review establishes neither their resolution nor Linux runtime coverage.

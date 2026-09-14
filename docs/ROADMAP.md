@@ -1474,12 +1474,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       failure still has no assigned cause; these diagnostics identify a
       recurrence's phase, not its retrospective cause.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
-- [ ] **5.0 capture deadline policy.** I review the fixed five-second
+- [x] **5.0 capture deadline policy.** I review the fixed five-second
       per-unit budget against measured discovery, tool hashing and native
       capture work. I define the supported host-latency policy and its bounds
       before changing defaults or adding configuration. Any implementation
       retains one shared deadline, fail-closed capture, descendant cleanup and
       actual reuse assertions; repeated retries do not establish stability.
+      I select a 30-second default and a decimal 1..300000 ms host override
+      for the existing Clang per-unit and Linux per-command capture scopes.
+      I document their limits and acceptance requirements in
+      `docs/SOURCE_SNAPSHOT_EVIDENCE.md`; this review changes no runtime default.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+- [ ] **5.0 bounded capture deadline configuration.** I implement the reviewed
+      `NANO_CAPTURE_TIMEOUT_MS` policy without resetting a scope's deadline.
+      I test default and boundary values, malformed and overflowing input,
+      unavailable clocks, controlled expiry and descendant cleanup. I verify
+      capture lasting more than five seconds under the default, then actual
+      warm generation reuse. Deliberate hang tests select short budgets;
+      linker discovery and shadow deadlines remain unchanged. I retain all
+      correctness and publication assertions and document tested host coverage.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
