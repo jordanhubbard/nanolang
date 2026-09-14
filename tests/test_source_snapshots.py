@@ -853,12 +853,30 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
         if not self.gnu_read_replay: self.skipTest("I need supported GNU assembler read replay")
         self.assembler_search_order_phases_and_recovery(("wa-paired", "xassembler-split"), alternate=True)
 
-    def assembler_search_order_phases_and_recovery(self, styles, alternate=False):
+    def test_standalone_raw_assembler_search_recovery(self):
+        self.assembler_search_order_phases_and_recovery(
+            ("wa-paired", "wa-joined", "xassembler-split"), suffix=".s")
+
+    def test_standalone_preprocessed_assembler_search_recovery(self):
+        self.assembler_search_order_phases_and_recovery(
+            ("wa-paired", "wa-joined", "xassembler-split"), suffix=".S")
+
+    def test_shared_raw_assembler_search_recovery(self):
+        self.assembler_search_order_phases_and_recovery(
+            ("wa-paired", "wa-joined", "xassembler-split"), suffix=".s", shared_unit=True)
+
+    def test_shared_preprocessed_assembler_search_recovery(self):
+        self.assembler_search_order_phases_and_recovery(
+            ("wa-paired", "wa-joined", "xassembler-split"), suffix=".S", shared_unit=True)
+
+    def assembler_search_order_phases_and_recovery(self, styles, alternate=False,
+                                                  suffix=None, shared_unit=False, cases=None):
         modes = (False, True) if self.clang else (False,)
         if alternate: modes = (True,) if self.clang else (False,)
-        for style, placement, external, shared in ((style, placement, external, shared)
+        if cases is None: cases = ((style, placement, external, shared)
                 for style in styles
-                for placement in ("common", "platform", "package") for external in modes for shared in (False, True)):
+                for placement in ("common", "platform", "package") for external in modes for shared in (False, True))
+        for style, placement, external, shared in cases:
             with self.subTest(style=style, placement=placement, external=external, shared=shared), tempfile.TemporaryDirectory(prefix="nano-as-search-") as tmp:
                 directory = Path(tmp)
                 module, _, env = self.support.support.foreign_build_fixture(directory)
@@ -899,17 +917,23 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     response.write_text("-lm\n")
                     metadata["ldflags"] = ["-Wl,@" + str(response)]
                     if split: metadata["cflags"].extend(["-Xlinker", "-lm"])
-                (module / "module.json").write_text(json.dumps(metadata))
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
                 assembly = f'.data\n.globl {symbol}\n{symbol}:\n.include "selected.s"\n.text\n'
                 source = module / "answer.c"
                 source.write_text('#include "selection.h"\nextern const unsigned char snapshot_payload[];\n'
-                    '__asm__(' + json.dumps(assembly) + ');\n'
+                    + ('' if suffix else '__asm__(' + json.dumps(assembly) + ');\n') +
                     'long long nano_build_answer(void) { return ADJUST + (snapshot_payload[0]-48)*10 + snapshot_payload[1]-48; }\n')
+                sources = [str(source)]
+                if suffix:
+                    unit = module / ("payload" + suffix)
+                    unit.write_text(assembly)
+                    metadata.setdefault("shared_c_sources" if shared_unit else "c_sources", []).append(unit.name)
+                    sources.append(str(unit))
+                (module / "module.json").write_text(json.dumps(metadata))
                 direct = directory / ("direct.dylib" if sys.platform == "darwin" else "direct.so")
                 native_flags = asm_flags + cflags if placement == "package" else cflags + asm_flags
                 result = subprocess.run([shutil.which("cc"), "-dynamiclib" if sys.platform == "darwin" else "-shared",
-                    "-fPIC", *native_flags, str(source), "-o", str(direct)], capture_output=True, timeout=20)
+                    "-fPIC", *native_flags, *sources, "-o", str(direct)], capture_output=True, timeout=20)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 baseline = self.answer(direct)
                 self.assertEqual(baseline, 142 if self.clang and not external else 42)
@@ -931,7 +955,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 self.assertEqual(build(baseline), first)
                 commands = [json.loads(line) for line in calls.read_text().splitlines()]
                 for argv in commands:
-                    source_phase = "-E" in argv or ("-S" in argv and not (self.clang and not external))
+                    source_phase = ("-E" in argv and "-Xclang" not in argv) or ("-S" in argv and not (self.clang and not external))
                     if source_phase:
                         for flag in asm_flags:
                             if flag != "-I": self.assertNotIn(flag, argv)

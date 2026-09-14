@@ -440,7 +440,7 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         ? hash_file_fnv1a(driver) : 0;
     if (!cwd || !driver_hash) { free(driver); free(cwd); return 0; }
     uint64_t hash = 14695981039346656037ULL;
-    hash_context_field(&hash, "nanolang-c-build-context-v44-assembler-descriptor-names");
+    hash_context_field(&hash, "nanolang-c-build-context-v45-integrated-preprocessing-search");
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
         size_t count;
@@ -3331,7 +3331,7 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
 
 typedef enum { MODULE_C_PREPROCESS, MODULE_C_COMPILE, MODULE_C_RETAINED, MODULE_C_RETAINED_ASSEMBLY,
                MODULE_C_EMIT_ASSEMBLY, MODULE_C_ASSEMBLE, MODULE_C_ASSEMBLE_UNIT,
-               MODULE_C_RETAINED_INTEGRATED_ASSEMBLY } ModuleCPhase;
+               MODULE_C_RETAINED_INTEGRATED_ASSEMBLY, MODULE_C_INTEGRATED_PREPROCESS } ModuleCPhase;
 
 /* The caller owns a zeroed array and frees every slot on failure. I retain
  * original include paths in metadata for dependency and cache validation. */
@@ -3439,20 +3439,23 @@ static bool module_compile_prefix(ModuleBuildMetadata *meta, char *prefix, size_
                                   ModuleCPhase phase, const ModulePkgFlags *snapshot) {
     prefix[0] = 0;
     bool integrated_retained = phase == MODULE_C_RETAINED_INTEGRATED_ASSEMBLY;
+    bool integrated_preprocess = phase == MODULE_C_INTEGRATED_PREPROCESS;
     bool retained = phase == MODULE_C_RETAINED || phase == MODULE_C_RETAINED_ASSEMBLY || integrated_retained;
     bool assembler = phase == MODULE_C_ASSEMBLE || phase == MODULE_C_ASSEMBLE_UNIT;
     unsigned phases = assembler ? MODULE_FLAG_ASSEMBLER |
         (phase == MODULE_C_ASSEMBLE_UNIT ? MODULE_FLAG_DEBUG : 0) : retained ?
         MODULE_FLAG_C | (integrated_retained ? MODULE_FLAG_ASSEMBLER : 0) :
         phase == MODULE_C_PREPROCESS ? MODULE_FLAG_BOTH : (MODULE_FLAG_BOTH | MODULE_FLAG_ASSEMBLER);
-    /* Clang drops -Wa include paths from its -S driver job. I preserve the
+    /* Clang drops -Wa include paths from its -S and -E driver jobs. I preserve the
      * real integrated -c job's frontend search order, changing only its output
-     * action to assembly. External assembly keeps its separate search phase. */
-    bool search_capture = (phase == MODULE_C_EMIT_ASSEMBLY || integrated_retained) && snapshot &&
+     * action to assembly or preprocessing. External assembly keeps its separate
+     * search phase; standalone assembler preprocessing uses its own prefix. */
+    bool search_capture = (phase == MODULE_C_EMIT_ASSEMBLY || integrated_retained || integrated_preprocess) && snapshot &&
         module_assembler_option(meta, snapshot, true);
     bool ok = module_build_append(prefix, capacity, "%s %s -fPIC",
                                    module_selected_compiler(meta), phase == MODULE_C_PREPROCESS ? "-E" :
-                                   search_capture ? "-c -Xclang -S" :
+                                   search_capture ? (integrated_preprocess ? "-c -Xclang -E" : "-c -Xclang -S") :
+                                   integrated_preprocess ? "-E" :
                                    (phase == MODULE_C_EMIT_ASSEMBLY || phase == MODULE_C_RETAINED_ASSEMBLY || integrated_retained) ? "-S" : "-c");
     /* I already applied C code-generation and diagnostic flags during capture. */
     if (assembler) {
@@ -4527,7 +4530,8 @@ static uint64_t module_snapshot_sources(ModuleBuildMetadata *meta,
     char prefix[4096];
     bool assembly = mode == MODULE_SNAPSHOT_CLANG;
     if (!module_compile_prefix(meta, prefix, sizeof(prefix),
-        assembly ? MODULE_C_EMIT_ASSEMBLY : MODULE_C_PREPROCESS, flags)) return 0;
+        assembly ? MODULE_C_EMIT_ASSEMBLY : mode == MODULE_SNAPSHOT_CLANG_INTEGRATED_UNITS ?
+        MODULE_C_INTEGRATED_PREPROCESS : MODULE_C_PREPROCESS, flags)) return 0;
     if (mode == MODULE_SNAPSHOT_GCC &&
         !module_build_append(prefix, sizeof(prefix), " -fpch-preprocess")) return 0;
     uint64_t fingerprint = 14695981039346656037ULL;

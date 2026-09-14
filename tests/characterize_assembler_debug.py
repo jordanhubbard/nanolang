@@ -83,7 +83,8 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
     cases = []
     for suffix in ("s", "S"):
         for shared in (False, True):
-            with tempfile.TemporaryDirectory(prefix="nano=assembler-debug-" if equals_paths == "all" else "nano-assembler-debug-") as tmp:
+            # I keep the instruction spelling in every path to catch text substitution across names.
+            with tempfile.TemporaryDirectory(prefix="nano=nop-assembler-debug-" if equals_paths == "all" else "nano-nop-assembler-debug-") as tmp:
                 directory = Path(tmp)
                 module, _, env = BytecodeShadows().foreign_build_fixture(directory)
                 if equals_paths == "source":
@@ -100,14 +101,15 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 source = module / (source_stem + "." + suffix)
                 debug_source = Path("logical source.c") if explicit_locations else source
                 symbol = "_snapshot_payload" if sys.platform == "darwin" else "snapshot_payload"
-                assembly = f'.text\nnop\n.data\n.globl {symbol}\n{symbol}:\n.byte 42\n'
+                instruction = "INSTRUCTION" if suffix == "S" else "nop"
+                if instruction_macro: instruction = "step " + instruction
+                assembly = f'.text\n{instruction}\n.data\n.globl {symbol}\n{symbol}:\n.byte 42\n'
                 if macro_read:
                     payload = directory / "debug payload.bin"
                     payload.write_bytes(b"*")
                     macro_text = '.macro read_payload path\n.incbin "\\path"\n.endm\n'
                     if instruction_macro:
                         macro_text += '.macro step operation\n\\operation\n.endm\n'
-                        assembly = assembly.replace('nop', 'step nop')
                     if nested_read:
                         macro_source = directory / "debug macro.s"
                         macro_source.write_text(macro_text)
@@ -116,7 +118,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                         '.byte 42', 'read_payload "' + (payload.name if equals_paths else str(payload)) + '"')
                 if explicit_locations:
                     assembly = '.file 1 "logical source.c"\n' + assembly.replace('.text\n', '.text\n.loc 1 137 5\n')
-                if suffix == "S": assembly = '#define INSTRUCTION nop\n' + assembly.replace('nop', 'INSTRUCTION')
+                if suffix == "S": assembly = '#define INSTRUCTION nop\n' + assembly
                 source.write_text(assembly)
                 (module / "answer.c").write_text('extern unsigned char snapshot_payload[];\n'
                     'long long nano_build_answer(void) { return snapshot_payload[0]; }\n')

@@ -2908,3 +2908,60 @@ Strict builds, Python syntax, whitespace and six-edition guide checks pass.
 I close the standalone debug-provenance and equals-path gates on these tested
 toolchains. Broader standalone flag/include coverage and a complete assembler
 input inventory remain separate open requirements.
+
+## Mixed-unit integrated preprocessing search order
+
+The standalone search fixture exposes a missing phase boundary at `9edcc869`.
+On Apple Clang 21, a mixed C/`.S` module with paired `-Wa,-I` paths returns
+142 when compiled natively but 42 through my retained build. The C header
+exists in both an assembler include directory (`ADJUST 100`) and a later C
+include directory (`ADJUST 0`). Native integrated compilation selects the
+former. My initial `-E` capture discards assembler include paths, so restoring
+those flags during subsequent compilation of preprocessed C is too late.
+
+Context v45 gives integrated mixed-unit C capture its own preprocessing phase.
+When assembler search flags are present, I keep the driver's `-c` job and
+change the frontend action with `-Xclang -E`, just as assembly capture already
+uses `-Xclang -S`. Standalone assembler preprocessing retains its separate
+source-kind prefix. External assembler compilation remains separate too.
+
+Four new test methods extend the existing native search/recovery harness to
+ordinary and shared `.s`/`.S` units. Each covers paired/joined `-Wa,-I`, split
+`-Xassembler`, common/platform/pkg-config placement, both cache roots, cold
+and warm results, an earlier search candidate appearing, missing-input
+failure without damaging publication, and recovery with actual reuse.
+Native controls distinguish integrated frontend lookup from external
+assembler lookup; I do not force both to select the same header.
+
+The first full Linux run also exposed an unrelated fixture error: replacing
+every `nop` with `INSTRUCTION` rewrote temporary path `nxpnopij` to
+`nxpINSTRUCTIONij`, so the native assembler could not open its macro input.
+I now construct instruction text before adding file paths, and every debug
+characterizer directory deliberately contains `nop`. The repaired full Linux
+gate passes 249 methods with 29 skips, including 108 snapshot methods in
+320.478 seconds. The final snapshot-suite rerun, including the optional exact
+case selector used for isolated recovery diagnosis, passes all 108 methods
+with 20 platform skips in 324.270 seconds. Both Darwin instruction/location methods pass with the
+deterministic paths in 253.182 seconds.
+
+The Linux Clang standalone matrix passes all four methods (144 combinations)
+in 372.475 seconds. Five additional integrated/restored-input methods pass in
+34.813 seconds. I have not closed standalone acceptance: concurrent Darwin
+checks found a recovered external `.S` generation without snapshot evidence
+and an integrated shared-unit generation that was not reused after report
+failure recovery. The exact external split/platform/local case passes on
+replay in 20.423 seconds; the four report-recovery source-group/cache cases
+pass in 41.752 seconds. These passing replays do not establish a cause for
+the earlier failures. I keep recovery stability open on my roadmap.
+
+Darwin's complete ordinary `.s` and shared `.S` search/recovery methods pass
+together in 1635.145 seconds (72 combinations). These exercise both integrated
+and external assembly, including all flag placements and missing-input
+recovery. I retain the separate ordinary `.S` failure above in the record.
+The complete shared `.s` matrix also passes all 36 combinations in 801.727
+seconds. Strict Darwin/Linux builds, Python syntax, whitespace and six-edition
+guide checks pass. I have not weakened deadlines or reuse assertions.
+The five ordinary `.S` combinations skipped by the earlier fail-fast run
+pass separately in 121.463 seconds. Together with the exact failing-case
+replay, they complete configuration coverage, not a clean uninterrupted
+ordinary `.S` matrix run or an explanation of the earlier capture failure.

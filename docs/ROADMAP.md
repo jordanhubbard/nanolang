@@ -1416,6 +1416,25 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       process environment and execute the literal compiler argv directly.
       The classifier, child-local environment, restored-input and post-capture
       regressions pass. I do not admit assignment prefixes or shell syntax.
+- [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
+      an external `.S` split/platform-flag recovery publishes without
+      `source_hashes.json`, and integrated shared-unit report-failure recovery
+      rebuilds instead of reusing its generation. I isolate both observations,
+      establish their causes and verify stable capture/reuse without relaxing
+      the assertions. MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+- [x] **5.0 assembler provenance fixture — instruction/path separation.** My
+      full Linux gate finds a random temporary path containing `nop` rewritten
+      to `INSTRUCTION` by fixture substitution. I construct instruction text
+      separately from file paths and exercise a deterministic `nop` directory.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349` records this test defect.
+      The full Linux gate and both Darwin instruction/location methods pass
+      with `nop` present in every characterizer directory name.
+- [ ] **5.0 mixed-unit integrated preprocessing search parity.** My standalone
+      search matrix finds Darwin native 142 versus retained 42: preprocessing
+      the C sibling drops integrated assembler include paths before retained
+      compilation can use them. I preserve the native frontend search order
+      during capture and verify `.s`/`.S`, both source groups and cache roots.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349` tracks this defect.
 - [ ] **5.0 assembler translation-unit snapshots.** I first characterize
       mixed C/`.s` and C/`.S` modules under restored assembler-input edits.
       I retain raw and preprocessed assembler translation units without
