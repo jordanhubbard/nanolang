@@ -1511,6 +1511,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       captures fail closed, while a warm validation timeout forces a successful
       recorded rebuild. Full traces distinguish these paths; stability is
       still unverified, not established by the other passing methods.
+      After the final-clock fix at `90fa9927`, the three exact recovery cases
+      pass in 73.773 seconds. A successful query still takes 1,655 ms before
+      completion. Separate controls measure selected Clang hashing at a
+      174.9 ms median and again observe delay in the Xcode assembler launcher;
+      these replays do not replace the failed full gate.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

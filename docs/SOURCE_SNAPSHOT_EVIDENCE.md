@@ -3402,3 +3402,36 @@ deadline, child-local capture environment, and post-capture validation failure.
 
 This closes the final-check defect. It does not resolve the three failures in
 the preceding full Darwin run; capture recovery stability remains open.
+
+### Post-final-check recovery and discovery costs
+
+At `90fa9927`, I replay the three exact cases from the failed full gate through
+the unchanged search/recovery helper: shared `.S` with split/platform flags and
+integrated assembly/shared cache; standalone `.S` with paired/package flags and
+external assembly/shared cache; and standalone `.s` with split/platform flags
+and external assembly/local cache. All three pass in 73.773 seconds, including
+missing-input rejection, replacement record presence, runtime results and warm
+generation reuse. The raw standalone replay records one successful query at
+1,655 ms of a 5,000 ms budget (spawn 0, first output 1,628, EOF 1,629, reap
+1,655 ms). Short rejected runs in these traces are the intentional missing-input
+controls, not deadline failures. I leave the previous full-gate failure open.
+
+A separate resolved-Xcode-assembler control runs 182 direct queries before
+stopping after two calls exceed its 250 ms observation threshold. Query 124
+shows a `zsh` parent and `dirname` child; the child disappears before sampling.
+Query 181 shows `zsh`; sampling cannot examine it. Both queries exit zero,
+after 0.482 and 0.462 seconds including observation overhead. I obtain no
+usable stack or evidence of the underlying host wait. These controls use
+private process groups, a ten-second cleanup deadline and no toolchain edits.
+
+Ten isolated probe hashes per selected tool measure the 303-byte `as` launcher
+at 3.9 ms median (3.3–4.4 ms) and the 141,373,024-byte Clang executable at
+174.9 ms median (173.5–291.1 ms), including probe startup. Each tool yields one
+consistent digest. Hashing consumes a measurable part of the shared budget,
+but these measurements do not explain the multi-second silent queries.
+
+I also inspect the apparent duplicate discovery paths. Text expansion uses
+`MODULE_C_ASSEMBLE`; native-unit object capture uses `MODULE_C_ASSEMBLE_UNIT`,
+which retains debug flags. I have not established that their returned jobs are
+interchangeable. I do not merge the queries or cache tool hashes without
+preserving selected-tool identity, flag semantics and change detection.
