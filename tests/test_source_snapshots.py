@@ -734,7 +734,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     self.assertEqual(case["production"]["sections"], case["native"]["sections"])
                     self.assertEqual(case["production"]["compile_units"], case["native"]["compile_units"])
                     self.assertEqual(case["answer"], 42)
-                    self.assertTrue(case["generation_reused"])
+                    self.assertTrue(case["generation_reused"], case)
                     # I leave strict source provenance in the characterization:
                     # Expanded-source locations remain a separate requirement.
 
@@ -772,7 +772,7 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     self.assertEqual(case["production"], case["physical_native"])
                     self.assertTrue(case["physical_object_identical"])
                     self.assertEqual(case["answer"], 42)
-                    self.assertTrue(case["generation_reused"])
+                    self.assertTrue(case["generation_reused"], case)
 
     def test_integrated_units_preserve_c_assembler_search(self):
         compiler = shutil.which("clang")

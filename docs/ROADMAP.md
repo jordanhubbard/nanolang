@@ -1462,6 +1462,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       I require a reuse record immediately after report-failure recovery,
       before a warm invocation can overwrite its publication diagnostics.
       Search-order generation comparisons retain the relevant build trace.
+      A full Darwin run at `57c81127` stops after 64 methods with failed warm
+      reuse in integrated `.S` debug identity (shared cache, no macros).
+      Native-object/debug comparisons pass. I retain cold/warm characterizer
+      diagnostics and record presence to distinguish publication from reuse.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

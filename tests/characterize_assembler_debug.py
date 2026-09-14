@@ -25,9 +25,11 @@ import tempfile
 from tests.test_bytecode_shadows import BytecodeShadows, ROOT
 
 
-def run(argv, cwd, env=None):
+def run(argv, cwd, env=None, diagnostics=None):
     result = subprocess.run([str(arg) for arg in argv], cwd=cwd, env=env,
                             capture_output=True, timeout=30)
+    if diagnostics is not None:
+        diagnostics.append(result.stderr.decode(errors="replace"))
     if result.returncode:
         raise RuntimeError(f"I could not run {argv!r}: {result.stderr.decode()}")
     return result.stdout.decode()
@@ -96,6 +98,7 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                     requested_module = directory / "import alias"
                     requested_module.symlink_to(module, target_is_directory=True)
                 env["NANO_CC"] = compiler
+                env["NANO_TRACE_BUILD"] = "1"
                 env["NANO_AS_CAPTURE_HELPER"] = str(ROOT / "bin/nano_as_capture.so")
                 if shared: env["NANO_BUILD_CACHE"] = str(directory / ("cache=shared" if equals_paths == "cache" else "cache"))
                 source = module / (source_stem + "." + suffix)
@@ -138,8 +141,10 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                         not (expected["source_named"] or expected["escaped_source_named"])):
                     raise RuntimeError("I need a native object with debug sections and source provenance")
                 probe = ROOT / "obj/test_module_generation_probe"
-                run([probe, "build", requested_module], directory, env)
+                build_diagnostics = []
+                run([probe, "build", requested_module], directory, env, build_diagnostics)
                 generation = Path(run([probe, "directory", requested_module], directory, env).strip())
+                cold_record = (generation / "source_hashes.json").is_file()
                 production_object = generation / "answer_native_1.o"
                 production_text = []
                 observed = evidence(production_object, debug_source, directory, production_text)
@@ -216,12 +221,15 @@ def measure(compiler, candidate=False, flat=False, debug_options=("-g",), macro_
                 library = run([probe, "library", requested_module], directory, env).strip()
                 value = run([sys.executable, "-c", "import ctypes,sys; l=ctypes.CDLL(sys.argv[1]); "
                     "l.nano_build_answer.restype=ctypes.c_int64; print(l.nano_build_answer())", library], directory)
-                run([probe, "build", module.resolve()], directory, env)
+                run([probe, "build", module.resolve()], directory, env, build_diagnostics)
                 warm_generation = Path(run([probe, "directory", module.resolve()], directory, env).strip())
                 reused = generation == warm_generation
                 warm_text = []
                 evidence(warm_generation / "answer_native_1.o", debug_source, directory, warm_text)
                 cases.append({"suffix": suffix, "cache": "shared" if shared else "local",
+                              "build_diagnostics": build_diagnostics,
+                              "cold_reuse_record": cold_record,
+                              "warm_reuse_record": (warm_generation / "source_hashes.json").is_file(),
                               "published_unit_aliases": [p.name for p in generation.glob("__unit_*")],
                               "native": expected, "production": observed,
                               "retained_native_object": retained_evidence,

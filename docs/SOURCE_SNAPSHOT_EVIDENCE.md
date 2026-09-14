@@ -3157,3 +3157,29 @@ with strict warnings; Python syntax, whitespace and all six guide editions
 validate. This checkpoint does not claim a full-suite result: the complete
 Darwin snapshot run started against `57c81127` is still in progress, using its
 unchanged probe. Historical recovery stability remains open.
+
+## Full Darwin run: integrated warm-reuse failure
+
+The full fail-fast snapshot run against `57c81127` stops after 64 methods in
+1653.196 seconds, with sixteen platform skips and one failure. The failing
+subcase is integrated native-unit debug identity, no macro/nested reads,
+uppercase `.S`, shared cache. Line 734 of the tested revision asserts
+`generation_reused`; the traceback displayed a different current source line
+because later test edits shifted its text. Native-object equality, debug
+equality and runtime value 42 all passed before the reuse assertion failed.
+
+This is a third unexplained non-reuse observation, not evidence of corrupted
+debug information. The characterizer discarded successful-build stderr and
+removed its temporary fixture, so I cannot recover the missing decisions from
+that completed run. I now retain cold/warm build diagnostics and record
+presence in its result, enabling `NANO_TRACE_BUILD` only in the fixture's child
+environment. The integrated reuse assertion reports the case evidence on
+failure. I preserve the original reuse requirement.
+
+Four traced no-macro replay rounds then pass all sixteen suffix/cache cases
+against the same `57c81127` probe. Every cold and warm record is present and
+every warm validation accepts reuse. These replays verify diagnostic retention,
+not a fix for the failed run. Python syntax, whitespace and all six guide
+editions validate. The next broad run must include the failed method and the
+methods the fail-fast run never reached; the 64-method failure is not a full
+passing gate.
