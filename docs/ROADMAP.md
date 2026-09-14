@@ -1505,6 +1505,15 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       completion-clock methods pass separately. I close this bounded policy
       item, not the full Darwin recovery gate below.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+- [ ] **5.0 external-query timeout fixture budget.** My full Darwin gate at
+      `c9dccb0d` reports an error in the deliberate external-query timeout
+      case. Its wrapper sleeps 60 seconds, but its parent allows only 20
+      seconds against the new 30-second capture default. I select an explicit
+      short capture budget for this fault matrix and audit other deliberate
+      hangs for the same mismatch. I retain rejection, cleanup, publication
+      preservation and actual recovery/reuse assertions, then rerun the matrix.
+      I leave the current full run's source unchanged while collecting results.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
