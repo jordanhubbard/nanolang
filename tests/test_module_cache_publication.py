@@ -14,6 +14,7 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest.mock import patch
 
 from tests import test_bytecode_shadows as shadows
 
@@ -33,11 +34,32 @@ class ModuleCachePublication(unittest.TestCase):
         self.support = shadows.BytecodeShadows()
 
     def probe_path(self, mode, module, env, timeout=10):
-        result = subprocess.run([str(self.probe), mode, str(module)], cwd=ROOT,
-                                env=env, capture_output=True, timeout=timeout)
+        try:
+            result = subprocess.run([str(self.probe), mode, str(module)], cwd=ROOT,
+                                    env=env, capture_output=True, timeout=timeout)
+        except subprocess.TimeoutExpired as error:
+            if mode == "build": self.last_build_diagnostics = error.stderr or b""
+            error.add_note(f"I observed partial probe stdout: {error.stdout!r}")
+            error.add_note(f"I observed partial probe stderr: {error.stderr!r}")
+            raise
         if mode == "build": self.last_build_diagnostics = result.stderr
         self.assertEqual(result.returncode, 0, result.stderr)
         return Path(result.stdout.decode().strip())
+
+    def test_probe_timeout_retains_partial_evidence(self):
+        for stdout, stderr in ((b"partial", b"phase=capture"), (None, None)):
+            with self.subTest(stdout=stdout, stderr=stderr):
+                error = subprocess.TimeoutExpired(["probe"], 20, output=stdout, stderr=stderr)
+                self.last_build_diagnostics = b"previous build"
+                with patch.object(subprocess, "run", side_effect=error) as run:
+                    with self.assertRaises(subprocess.TimeoutExpired) as caught:
+                        self.probe_path("build", ROOT, {}, timeout=20)
+                self.assertIs(caught.exception, error)
+                self.assertEqual(self.last_build_diagnostics, stderr or b"")
+                self.assertIn(repr(stdout), error.__notes__[0])
+                self.assertIn(repr(stderr), error.__notes__[1])
+                self.assertEqual(run.call_count, 1)
+                self.assertEqual(run.call_args.kwargs["timeout"], 20)
 
     def library_answer(self, library):
         handle = ctypes.CDLL(str(library))

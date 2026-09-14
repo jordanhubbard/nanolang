@@ -1517,6 +1517,19 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       Both fault invocations now select 5,000 ms; the complete six-failure,
       two-cache-root matrix passes in 119.437 seconds with all assertions intact.
       MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
+- [ ] **5.0 recovery parent timeout evidence and allowance.** The corrected
+      full gate at `80f0cc5e` times out at the Python parent's 20-second limit
+      during shared `.S` recovery, before one supported 30-second capture scope
+      can finish. I retain partial stdout/stderr on parent timeout and test that
+      evidence path. I give the search-recovery build helper a finite allowance
+      for its multiple capture passes without changing correctness, cleanup,
+      publication or reuse assertions, then verify the exact failed case.
+      Partial-evidence regression and the exact shared `.S` recovery case pass
+      (0.024 and 24.244 seconds respectively). I select a 240-second parent
+      guard for successful search-recovery builds, leaving production deadlines
+      unchanged. I still need a controlled build exceeding twenty seconds to
+      verify the new allowance; the replay's total time is not one build's time.
+      MAC `task_3f96ba3373db49a6b1c2a1987c1c0349`.
 - [ ] **5.0 Darwin capture recovery stability.** During concurrent v45 checks,
       an external `.S` split/platform-flag recovery publishes without
       `source_hashes.json`, and integrated shared-unit report-failure recovery
@@ -1589,6 +1602,11 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       external assembler and local cache. The run continues; its final
       traceback is pending, so I do not assign this error to a deadline or
       publication path. The repaired deliberate-query matrix passes in this run.
+      This run finishes 124 methods in 5832.298 seconds with one error and
+      nineteen skips. The traceback identifies the 20-second Python parent
+      timeout during missing-input recovery, not a failed generation comparison.
+      Partial tool diagnostics were omitted by the default traceback; the
+      evidence and parent-allowance item above addresses this gap.
 - [x] **5.0 assembler provenance fixture — instruction/path separation.** My
       full Linux gate finds a random temporary path containing `nop` rewritten
       to `INSTRUCTION` by fixture substitution. I construct instruction text

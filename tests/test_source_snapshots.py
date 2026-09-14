@@ -1347,7 +1347,9 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 wrapper.chmod(0o700)
                 env["NANO_CC"] = str(wrapper)
                 def build(answer):
-                    self.support.probe_path("build", module, env, timeout=20)
+                    # I allow multiple 30-second unit scopes plus build work;
+                    # this parent guard is not a production whole-build bound.
+                    self.support.probe_path("build", module, env, timeout=240)
                     generation = self.support.probe_path("directory", module, env)
                     self.assertTrue((generation / "source_hashes.json").exists(), self.support.last_build_diagnostics)
                     self.assertFalse(list(generation.parent.glob(".nano-link-source-*")))

@@ -3688,3 +3688,32 @@ bytes and record, then recovery to 43 and warm reuse) passes in 119.437
 seconds. All six guide editions validate. I close the fixture defect, not
 the broader stability item: I have a failed full run and a passing corrected
 matrix, not a green full run of the corrected tree.
+
+### Corrected fixture full gate: recovery parent timeout
+
+At `80f0cc5e`, the full Darwin gate completes 124 methods in 5832.298 seconds,
+with one error and nineteen skips (exit 1). The repaired deliberate-query
+matrix passes. The only error is shared preprocessed assembler search recovery,
+split `-Xassembler`, package placement, external assembler, local cache.
+`build(baseline + 2)` after restoring the missing input raises
+`subprocess.TimeoutExpired` at the Python parent's twenty-second guard.
+It is not a failed reuse assertion. The default traceback omits captured
+partial stderr, so I cannot assign the elapsed time to a specific tool or phase.
+No other non-skipped method fails. Source and probe remain unchanged during
+this run; `7a40be0a` only adds the pending error to the roadmap.
+
+I now retain partial stdout/stderr in exception notes, clear stale last-build
+diagnostics when a timeout has no stderr, and re-raise the same exception
+without retry. A mocked regression validates both populated and absent output,
+exception identity, one invocation and unchanged requested timeout; it passes
+in 0.024 seconds. I give successful search-recovery builds a finite 240-second
+parent guard for multiple unit capture passes and ordinary build work. This
+does not change production deadlines, missing-input rejection or any result,
+record, publication and generation-reuse assertion.
+
+The exact failed shared `.S` tuple passes in 24.244 seconds with all original
+helper assertions. That is the entire replay's duration, not evidence that a
+single build exceeded twenty seconds. A controlled longer build remains to
+verify the parent allowance. All six guide editions validate and the diff
+check passes. This checkpoint does not establish full recovery stability or
+the cause of the earlier silent exit.
