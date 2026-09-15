@@ -44,3 +44,12 @@ task `task_75b340982b6cf797f29b38c1a188aab3`. I land ancestry and this finding o
 the integration branch, not main. The roadmap acceptance item remains unchecked;
 neither this merge nor passing low-level FFI tests establish the source-level
 contract as complete.
+
+Subsequent frontend correction: map result inference now uses the declared
+transform result for direct indexing and local bindings, and checks scalar
+callback shape/input compatibility. Twelve typechecker cases and the complete
+typechecker/interpreter gates pass. All three previously selected foreign
+language-claim methods now pass unchanged (11.376 seconds), including the
+map/erf route. Logs: `/tmp/nanolang-map-final-gates.log` and
+`/tmp/nanolang-map-foreign.log`. This resolves the observed source-level
+regression, not the entire map runtime/type-metadata task.

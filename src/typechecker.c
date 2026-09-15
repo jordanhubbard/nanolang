@@ -799,8 +799,44 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     }
 }
 
+static FunctionSignature *function_result_signature(ASTNode *call, Environment *env);
+
+/* I borrow the callback declaration; no temporary signature escapes this query. */
+static Type map_callback_type(ASTNode *callback, Environment *env, int *arity, Type *argument) {
+    FunctionSignature *sig = NULL;
+    *arity = -1;
+    *argument = TYPE_UNKNOWN;
+    if (callback->type == AST_IDENTIFIER) {
+        Symbol *symbol = env_get_var_visible_at(env, callback->as.identifier,
+                                               callback->line, callback->column);
+        if (symbol) {
+            sig = symbol->type_info ? symbol->type_info->fn_sig : NULL;
+        } else {
+            Function *function = env_get_function(env, callback->as.identifier);
+            if (function) {
+                *arity = function->param_count;
+                if (*arity == 1) *argument = function->params[0].type;
+                return function->return_type;
+            }
+        }
+    } else if (callback->type == AST_CALL) {
+        sig = function_result_signature(callback, env);
+    }
+    if (!sig) return TYPE_UNKNOWN;
+    *arity = sig->param_count;
+    if (*arity == 1) *argument = sig->param_types[0];
+    return sig->return_type;
+}
+
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && strcmp(array_expr->as.call.name, "map") == 0 &&
+        array_expr->as.call.arg_count == 2) {
+        int arity;
+        Type argument;
+        return map_callback_type(array_expr->as.call.args[1], env, &arity, &argument);
+    }
     TypeInfo *info = try_get_expr_type_info(array_expr, env);
     if (info && info->base_type == TYPE_ARRAY && info->element_type)
         return info->element_type->base_type;
@@ -1437,11 +1473,24 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* Special handling for map builtin - check before environment lookup */
             if (strcmp(expr->as.call.name, "map") == 0) {
-                /* map(array, transform_fn) -> array */
-                if (expr->as.call.arg_count >= 2) {
-                    Type array_type = check_expression(expr->as.call.args[0], env);
-                    check_expression(expr->as.call.args[1], env);  /* Check function */
-                    return array_type;  /* Return same type as input array */
+                if (expr->as.call.arg_count != 2) {
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        "I require an array and a transform for map.", "Pass exactly two arguments.");
+                    return TYPE_UNKNOWN;
+                }
+                Type array_type = check_expression(expr->as.call.args[0], env);
+                Type callback_type = check_expression(expr->as.call.args[1], env);
+                int arity;
+                Type argument;
+                Type result = map_callback_type(expr->as.call.args[1], env, &arity, &argument);
+                Type element = infer_array_element_type(expr->as.call.args[0], env);
+                if (array_type != TYPE_ARRAY || callback_type != TYPE_FUNCTION || arity != 1 ||
+                    result == TYPE_UNKNOWN || result == TYPE_VOID ||
+                    (element != TYPE_UNKNOWN && !types_match(element, argument))) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require a unary transform matching the array element type and returning a value.",
+                        "Match the transform signature to the source array.");
+                    return TYPE_UNKNOWN;
                 }
                 return TYPE_ARRAY;
             }
@@ -4106,6 +4155,20 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             /* Extract element type if this is an array */
             Type element_type = stmt->as.let.element_type;  /* Get from type annotation if available */
+            if (declared_type == TYPE_ARRAY && stmt->as.let.value->type == AST_CALL &&
+                !stmt->as.let.value->as.call.func_expr && stmt->as.let.value->as.call.name &&
+                strcmp(stmt->as.let.value->as.call.name, "map") == 0) {
+                Type mapped = infer_array_element_type(stmt->as.let.value, tc->env);
+                if (element_type == TYPE_UNKNOWN) {
+                    element_type = mapped;
+                    stmt->as.let.element_type = mapped;
+                } else if (mapped != TYPE_UNKNOWN && !types_match(mapped, element_type)) {
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                        "I require the array annotation to match the transform result type.",
+                        "Use the transform's return type as the mapped element type.");
+                    tc->has_error = true;
+                }
+            }
             if (declared_type == TYPE_ARRAY && element_type == TYPE_UNKNOWN) {
                 /* Fallback: infer from array literal if not specified in type annotation */
                 if (stmt->as.let.value->type == AST_ARRAY_LITERAL) {

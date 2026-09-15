@@ -123,6 +123,13 @@ shadow make_offset {
 This is tested bytecode behavior, not a claim that the C-native or tree-walking
 backends implement the same anonymous-capture semantics.
 
+My C-seed checker derives a mapped array's element type from the transform's
+declared result, including direct indexing and local-bound results. I check
+two map arguments, a unary value-producing transform and matching scalar input
+types. I test named, variable and returned transforms. Complete nominal/nested
+callback metadata and cross-backend result storage remain roadmap work; these
+frontend checks do not establish complete map runtime support.
+
 ## String Literals
 
 Ordinary quoted strings keep braces literally. Use the `f` prefix to interpolate:

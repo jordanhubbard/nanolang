@@ -136,14 +136,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         test and all five end-to-end path variants.
         [Review evidence](evidence/pr-273-reconciliation.md).
         MAC `task_8c10a946dfa14d92b491fd80f4635187`.
-      - [ ] I reconcile PR #274's checked interpreter FFI dispatch ancestry.
+      - [x] I reconcile PR #274's checked interpreter FFI dispatch ancestry.
         I retain the existing implementation, later handler-return propagation
         and dependency-shadow default; I rerun FFI, interpreter and foreign
         language-claim regressions before marking integration complete.
         FFI and interpreter gates pass after rebuild. The source-level foreign
-        gate still fails: `array_get (map [0.0] erf) 0` is inferred as int,
-        so the float assertion is rejected before shadows. I retain the test;
-        the map result/callback task below must pass before release acceptance.
+        gate initially failed: `array_get (map [0.0] erf) 0` was inferred as int,
+        rejecting the float assertion before shadows. The frontend correction
+        below now passes all three foreign claim methods without changing their
+        assertions. Full map/backend acceptance remains separate release work.
         MAC `task_17fe744141024df08c2ef3de7599865a`.
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
@@ -378,6 +379,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           PR #274 reconciliation reproduces a frontend failure in
           `test_qualified_and_returned_foreign_dispatch`: indexing a mapped
           float result is typed as int before the explicit shadow can run.
+          I first retain declared transform result types through direct and
+          local-bound map results, reject scalar input/signature mismatches,
+          and test both indexing aliases. Nominal/nested metadata, empty-result
+          runtime representation and complete backend acceptance remain required.
+          The frontend correction passes twelve typechecker cases, the full
+          typechecker/interpreter gates, and all three foreign claim methods.
         - [x] I provide VM left/right string trimming with the existing four-byte
           whitespace contract, checking empty/all-whitespace input, the opposite
           edge and UTF-8 preservation on native and VM paths.

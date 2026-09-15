@@ -689,6 +689,35 @@ void test_tc_function_variable_alias_signature(void) {
         "let g: fn(int) -> int = f return 0 }"));
 }
 
+void test_tc_map_result_signature(void) {
+    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
+        "fn choose() -> fn(int) -> float { return f } "
+        "fn main() -> int { let y: float = (at (map [1] (choose)) 0) return 0 }"));
+    ASSERT(!tc_passes("fn f(x: int) -> int { return x } "
+        "fn main() -> int { let y = (map 1 f) return 0 }"));
+    ASSERT(!tc_passes("fn main() -> int { let y = (map [1] 2) return 0 }"));
+    ASSERT(!tc_passes("fn f(x: int) -> void { return } "
+        "fn main() -> int { let y = (map [1] f) return 0 }"));
+    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
+        "fn main() -> int { let values = (map [1] f) "
+        "let y: float = (array_get values 0) return 0 }"));
+    ASSERT(!tc_passes("fn f(x: int) -> float { return 1.0 } "
+        "fn main() -> int { let values: array<int> = (map [1] f) return 0 }"));
+    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
+        "fn main() -> int { let y: float = (array_get (map [1] f) 0) return 0 }"));
+    ASSERT(tc_passes("fn f(x: int) -> float { return 1.0 } "
+        "fn main() -> int { let g: fn(int) -> float = f "
+        "let y: float = (at (map [1] g) 0) return 0 }"));
+    ASSERT(!tc_passes("fn f(x: int) -> float { return 1.0 } "
+        "fn main() -> int { let y: int = (array_get (map [1] f) 0) return 0 }"));
+    ASSERT(!tc_passes("fn f(x: float) -> float { return x } "
+        "fn main() -> int { let y = (map [1] f) return 0 }"));
+    ASSERT(!tc_passes("fn f(x: int, y: int) -> int { return x } "
+        "fn main() -> int { let y = (map [1] f) return 0 }"));
+    ASSERT(!tc_passes("fn f(x: int) -> int { return x } "
+        "fn main() -> int { let y = (map [1] f 3) return 0 }"));
+}
+
 void test_tc_err_returned_function_argument_type(void) {
     ASSERT(!tc_passes(
         "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
@@ -982,6 +1011,7 @@ int main(void) {
     TEST(tc_shadow);
     TEST(tc_returned_function_signature);
     TEST(tc_function_variable_alias_signature);
+    TEST(tc_map_result_signature);
     TEST(tc_err_returned_function_argument_type);
     TEST(tc_err_returned_function_arity);
 
