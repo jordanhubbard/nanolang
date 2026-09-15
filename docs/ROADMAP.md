@@ -28,6 +28,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **One-IR compiler execution baseline.** I exercise the current full
+      compiler through bytecode emission, AOT C translation, native compilation
+      and a compiled hello program. I retain bounded subprocess groups and
+      exact output checks. The 75-commit `8299138f` branch remains unmerged
+      until its useful changes are reconciled with current safety contracts.
+      Release parent MAC `task_cffdafd16e641ac417ccfddb962534b9`.
+      `make test-one-ir-compiler` now exposes the first blocker: compiler
+      bytecode emits, but `nvm2c` refuses the `fs_walkdir` import's host ABI.
+      Execution acceptance remains failing under MAC
+      `task_419c47bdc8fc42e4b52eb6af1a0e9a71`. Evidence:
+      `docs/evidence/one-ir-compiler-baseline.md`.
 - [x] **Union resource propagation.** I propagate ownership obligations
       through named union payloads and mixed record/union cycles, preserving
       module-owned lookup. I require classifier tests; generic substitution,

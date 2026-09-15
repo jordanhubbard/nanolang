@@ -426,6 +426,10 @@ test-verifier: test-verifier-cleanup
 test-nvm2c-sanitizers:
 	@ASAN_OPTIONS="$${ASAN_OPTIONS:-detect_leaks=0}" $(MAKE) CC="$(CC) -fsanitize=address,undefined" test-nvm2c
 
+.PHONY: test-one-ir-compiler
+test-one-ir-compiler: nano_virt nvm2c
+	@python3 -m unittest tests.test_one_ir_compiler
+
 test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nvm2c \
