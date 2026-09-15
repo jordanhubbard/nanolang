@@ -1865,10 +1865,14 @@ test-dyn-array-allocation:
 
 test-units: test-dyn-array-allocation
 .PHONY: test-array-adapter-boundaries
+.PHONY: test-sdl-image-arrays
+test-sdl-image-arrays:
+	python3 -m unittest tests.test_sdl_image_array_boundary
+
 test-array-adapter-boundaries:
 	@python3 -m unittest tests.test_array_adapter_boundaries
 
-test-units: test-array-adapter-boundaries
+test-units: test-array-adapter-boundaries test-sdl-image-arrays
 
 test-directory-walk: $(COMPILER_C) nano_virt nano_vm
 	@python3 -m unittest tests.test_directory_walk

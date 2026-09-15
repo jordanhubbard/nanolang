@@ -241,6 +241,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 results, count bounds, partial failure and repeated cleanup
                 with fake SDL entry points and sanitizers before certification.
                 MAC `task_5f2879308468ad24921d62eedea9f3e9`.
+                - [x] I replace the three raw-buffer implementations with a
+                  separately testable canonical-array boundary and ABI markers.
+                  Native fake-SDL tests cover count/type/width bounds, allocation
+                  failure before acquisition, null and failed paths, prefix
+                  cleanup with duplicates, repeated cleanup and format results.
+                  I leave array storage under runtime ownership. Cross-array
+                  copied handles are not ownership-safe aliases.
+                  Normal and ASan/UBSan runs pass. Both production sources
+                  pass SDK syntax checks; the manifest-selected sources link
+                  and export all three ABI markers without loading SDL startup.
+                - [ ] I preserve native array mutations across VM FFI calls.
+                  `marshal_args` copies VM arrays to `DynArray` without copying
+                  mutations back, so clearing texture handles during cleanup
+                  would not prevent repeated VM-side destruction. I test
+                  copy-back, aliasing and temporary-array cleanup before
+                  claiming repeated cleanup across both backends.
+                  MAC `task_2d34e62c8b2e0e086045c7d56f6eb66f`.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native
