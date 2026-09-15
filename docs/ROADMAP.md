@@ -104,7 +104,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       a use-after-free of a module string constant during parser shadows.
       I balance trial-deleted edges exactly once, including record field names,
       and test dead cycles sharing payloads with live roots and record field
-      names. The VM suite passes 272,236 checks; parser shadows pass under
+      names. The integrated VM suite passes 272,247 checks; parser shadows pass under
       AddressSanitizer and without tracing. The full release gate remains open.
       MAC `task_b53374269a1748c5a56a185a75fb6480`.
 - [ ] **Follow-up — C arrays of records.** I retain the nominal element
@@ -112,6 +112,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       literals or record-returning calls inside array literals. My current
       C emitter produces `struct[]` without a record name in both cases.
       MAC `task_967a32569524e07e3c97742cf23234e9`.
+- [ ] **Follow-up — MAC commands execute once.** My standard-library command
+      wrapper captures stdout with one execution, then executes the same
+      command again to obtain its status. I replace this with one execution
+      and test a counted side effect, output, failure status, and offline use.
+      Release tests use an offline fixture so shadows cannot mutate a live
+      task ledger. MAC `task_5f807ded474a473ca5776018c32c636f`.
 
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard

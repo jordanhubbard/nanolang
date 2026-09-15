@@ -107,9 +107,15 @@ The standalone verifier scan accepts all 156 programs with no expected failures.
 AddressSanitizer exposed a cycle-collector use-after-free during parser
 shadows: trial-deleted edges were released a second time, freeing live string
 constants. I count those edges once and detach record field names too.
-The VM suite passes 272,236 checks, and the previously failing parser shadow
+The integrated VM suite passes 272,247 checks, including Rocky's additional
+shared-dead-leaf and field-name tests. The previously failing parser shadow
 workload passes with AddressSanitizer and with tracing disabled.
 This does not establish complete memory safety or make the full gate green.
+
+The callback worker independently confirmed that imports lack the signature,
+ownership, and threading contract needed by a safe native callback bridge.
+It produced no implementation. I await an explicit release-scope decision;
+I have not excluded dispatch examples or published the release.
 
 The runnable integration suite now passes all 219 programs. I reject
 duplicate module introspection identities in the C loader; all 34 negative
