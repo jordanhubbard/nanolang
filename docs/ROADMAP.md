@@ -28,6 +28,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **PR #267 reconciliation.** I compare its actual external-capture
+      failure patch with my newer fail-closed implementation, retain current
+      diagnostics and expanded recovery checks, and verify concurrent compiler
+      isolation plus cold/warm capture failure before merging its ancestry.
+      MAC `task_443e8107d0ff4350999e0d5186a809f1`.
+      Its base is already integrated and my newer implementation subsumes the
+      patch. Six isolation/capture methods pass in 114.378 seconds; I retain
+      current source unchanged. Evidence: `docs/evidence/pr-267-reconciliation.md`.
 - [x] **Release-gate string documentation.** I document `str_last_index_of`
       and reconcile the string section count with the builtin registry.
       `tests/check_stdlib_docs.sh` passes for all 156 builtins.
