@@ -393,7 +393,7 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
  * Pipe I/O Helpers
  * ======================================================================== */
 
-static int64_t cop_now_ms(void) {
+int64_t cop_now_ms(void) {
     struct timespec now;
     if (clock_gettime(CLOCK_MONOTONIC, &now)) return -1;
     return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
@@ -424,6 +424,8 @@ static bool deadline_io(int fd, uint8_t *bytes, size_t size, bool writing,
 bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
                    int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size) {
     *reply = NULL; *reply_size = 0;
+    bool receive_only = send_fd == -1;
+    if (receive_only) send_fd = recv_fd;
     if (timeout_ms <= 0 || size > COP_MAX_PAYLOAD || (!request && size)) return false;
     int64_t now = cop_now_ms();
     if (now < 0) return false;
@@ -440,9 +442,10 @@ bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t siz
         fcntl(recv_fd, F_SETFL, recv_flags | O_NONBLOCK) < 0) goto done;
     uint8_t header[COP_HEADER_SIZE] = {COP_PROTO_VERSION, COP_MSG_FFI_REQ, 0, 0};
     cop_put_u32(header + 4, size);
-    if (!deadline_io(send_fd, header, sizeof header, true, deadline, &broken_pipe) ||
-        !deadline_io(send_fd, (uint8_t *)request, size, true, deadline, &broken_pipe) ||
-        !deadline_io(recv_fd, header, sizeof header, false, deadline, &broken_pipe)) goto done;
+    if (!receive_only &&
+        (!deadline_io(send_fd, header, sizeof header, true, deadline, &broken_pipe) ||
+         !deadline_io(send_fd, (uint8_t *)request, size, true, deadline, &broken_pipe))) goto done;
+    if (!deadline_io(recv_fd, header, sizeof header, false, deadline, &broken_pipe)) goto done;
     uint32_t length = cop_get_u32(header + 4);
     if (header[0] != COP_PROTO_VERSION || cop_get_u16(header + 2) ||
         length > COP_MAX_PAYLOAD ||
@@ -739,6 +742,17 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                                              errmsg, sizeof(errmsg));
             uint32_t rlen = ok ? cop_encode_call_values(args, (uint8_t)(argc + 1),
                 mailbox->resp_data, COP_MAILBOX_SLOT_SIZE) : 0;
+            uint8_t *spill = NULL;
+            if (ok && !rlen) {
+                for (uint32_t capacity = COP_MAILBOX_SLOT_SIZE * 2;
+                     capacity <= COP_MAX_PAYLOAD; capacity *= 2) {
+                    spill = malloc(capacity);
+                    if (!spill) break;
+                    rlen = cop_encode_call_values(args, (uint8_t)(argc + 1), spill, capacity);
+                    if (rlen) break;
+                    free(spill); spill = NULL;
+                }
+            }
             if (!decoded) snprintf(errmsg, sizeof errmsg, "I rejected a malformed isolated call envelope");
             else if (ok && !rlen) snprintf(errmsg, sizeof errmsg, "I cannot fit the isolated reply in the mailbox");
             if (!ok || !rlen) {
@@ -748,13 +762,18 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                 strncpy(mailbox->resp_error, errmsg, sizeof(mailbox->resp_error) - 1);
                 mailbox->resp_error[sizeof(mailbox->resp_error) - 1] = '\0';
             } else {
-                mailbox->resp_is_error  = 0;
+                mailbox->resp_is_error  = spill ? 2 : 0;
                 cop_put_u32(mailbox->resp_data_size, rlen);
                 cop_put_u32(mailbox->resp_batch_count, 0);
             }
             if (decoded) for (int i = 0; i <= argc; i++) vm_release(&heap, args[i]);
 
-            if (write(sig_out_fd, &sig, 1) != 1) break;
+            if (write(sig_out_fd, &sig, 1) != 1) { free(spill); break; }
+            if (spill) {
+                bool sent = cop_send(data_out_fd, COP_MSG_FFI_RESULT, spill, rlen);
+                free(spill);
+                if (!sent) break;
+            }
         }
     }
 

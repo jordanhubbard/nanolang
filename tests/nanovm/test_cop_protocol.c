@@ -721,7 +721,7 @@ TEST(call_envelope_rejects_bad_references_and_topology) {
 }
 
 TEST(pipe_exchange_deadlines_and_broken_peer) {
-    for (int mode = 0; mode < 3; ++mode) {
+    for (int mode = 0; mode < 4; ++mode) {
         int send_pipe[2], recv_pipe[2];
         ASSERT(pipe(send_pipe) == 0 && pipe(recv_pipe) == 0);
         pid_t child = fork();
@@ -750,7 +750,7 @@ TEST(pipe_exchange_deadlines_and_broken_peer) {
         CopMsgType type;
         uint8_t *reply;
         uint32_t reply_size;
-        ASSERT(!cop_exchange(send_pipe[1], recv_pipe[0], request, (uint32_t)size,
+        ASSERT(!cop_exchange(mode == 3 ? -1 : send_pipe[1], recv_pipe[0], request, (uint32_t)size,
                              50, &type, &reply, &reply_size));
         ASSERT(clock_gettime(CLOCK_MONOTONIC, &finish) == 0);
         double elapsed = finish.tv_sec - start.tv_sec + (finish.tv_nsec - start.tv_nsec) / 1e9;

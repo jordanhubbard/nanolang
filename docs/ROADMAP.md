@@ -310,10 +310,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                             pass. Teardown closes instead of writing shutdown
                             into a full pipe, then kills an unresponsive worker
                             after the grace period rather than trusting SIGTERM.
-                        - [ ] I spill oversized mailbox replies through the
+                        - [x] I spill oversized mailbox replies through the
                           worker's pipe without executing the foreign call a
-                          second time. Small requests can produce large results
-                          or grow array arguments; current reply overflow fails
+                          second time. A native growth fixture expands one
+                          element to 2,000, preserving result identity and PID;
+                          its counter proves two requests execute twice, not
+                          four times. The receive-only path shares the original
+                          deadline. Variable-size batch results use this path.
+                          The 16 MiB cap and allocation failures still fail
                           closed after native side effects have already occurred.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`

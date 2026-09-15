@@ -57,10 +57,14 @@ native state. A regression alternates 2,000-element cleanup calls over the
 pipe with scalar mailbox queries, checking the same PID and persistent native
 counts, including repeated cleanup.
 
-A small request can still produce a reply too large for its mailbox. I fail
-closed in that case and cannot undo native side effects. Reply spillover must
-transfer the existing result, never re-execute the foreign call; that remains
-work before I claim general large-result support.
+A mailbox call whose reply exceeds the slot signals a pipe spill, then sends
+the already-computed call envelope over its data pipe. The parent receives it
+within the original deadline without issuing another foreign request. I test
+a native function that grows one element to 2,000 and counts executions; two
+calls produce counts one and two, preserve VM identity and keep the worker PID.
+Variable-size batch results use ordered single calls to retain this spill path.
+Replies beyond the 16 MiB limit or allocation failure still fail closed after
+native side effects; I do not retry foreign execution or claim rollback.
 
 I currently use native array ABI version 1. `DynArray` still has a one-byte
 element width; I reject records larger than 255 bytes. This change does not

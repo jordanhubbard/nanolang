@@ -124,7 +124,7 @@ typedef struct CopMailbox {
     uint8_t  req_data[COP_MAILBOX_SLOT_SIZE];
 
     /* Response slot — written by child, read by parent */
-    uint8_t  resp_is_error;          /* 0=result, 1=error string */
+    uint8_t  resp_is_error;          /* 0=result, 1=error string, 2=pipe spill */
     uint8_t  _pad[3];
     uint8_t  resp_data_size[4];
     /* Batch mode response: number of serialized results packed in resp_data.
@@ -196,5 +196,7 @@ bool cop_send_simple(int fd, CopMsgType type);
  * *reply; on failure it must close/reset the channel (a frame may be partial). */
 bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
                    int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size);
+/* send_fd == -1 receives an already-computed spill reply without sending. */
+int64_t cop_now_ms(void);
 
 #endif /* NANOVM_COP_PROTOCOL_H */

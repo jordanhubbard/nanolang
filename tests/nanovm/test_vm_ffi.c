@@ -695,10 +695,11 @@ TEST(array_mutation_copyback) {
     uint32_t lib = nvm_add_string(mod, path, (uint32_t)strlen(path));
     free(path);
     const char *names[] = {"array_mutate_alias", "array_clear_handles", "array_cleared_count",
-                          "array_scale", "array_invalid", "array_forbidden", "array_bad_result"};
-    uint8_t arities[] = {2, 1, 0, 2, 1, 1, 1};
-    uint8_t returns[] = {TAG_ARRAY, TAG_VOID, TAG_INT, TAG_FLOAT, TAG_VOID, TAG_VOID, TAG_ARRAY};
-    for (int i = 0; i < 7; ++i) {
+                          "array_scale", "array_invalid", "array_forbidden", "array_bad_result",
+                          "array_grow_once"};
+    uint8_t arities[] = {2, 1, 0, 2, 1, 1, 1, 1};
+    uint8_t returns[] = {TAG_ARRAY, TAG_VOID, TAG_INT, TAG_FLOAT, TAG_VOID, TAG_VOID, TAG_ARRAY, TAG_ARRAY};
+    for (int i = 0; i < 8; ++i) {
         uint32_t name = nvm_add_string(mod, names[i], (uint32_t)strlen(names[i]));
         uint8_t params[] = {TAG_ARRAY, i == 3 ? TAG_FLOAT : TAG_ARRAY};
         uint32_t imp = nvm_add_import(mod, lib, name, arities[i], returns[i], params);
@@ -739,6 +740,19 @@ TEST(array_mutation_copyback) {
     ASSERT(vm_ffi_call_cop(&isolated, mod, 2, NULL, 0, &result, &heap, error, sizeof error));
     ASSERT_EQ(result.as.i64, 1);
     pid_t same_worker = isolated.cop_pid;
+    for (int invocation = 1; invocation <= 2; ++invocation) {
+        VmArray *small = vm_array_new(&heap, TAG_INT, 1);
+        ASSERT(small && vm_array_push(&heap, small, val_int(0)));
+        NanoValue small_arg = val_array(small);
+        ASSERT(vm_ffi_call_cop(&isolated, mod, 7, &small_arg, 1, &result, &heap, error, sizeof error));
+        ASSERT(result.tag == TAG_ARRAY && result.as.array == small);
+        ASSERT_EQ(small->length, 2000);
+        ASSERT_EQ(vm_array_get(small, 0).as.i64, invocation);
+        ASSERT_EQ(vm_array_get(small, 1999).as.i64, 1999);
+        ASSERT_EQ(isolated.cop_pid, same_worker);
+        vm_release(&heap, result);
+        vm_release(&heap, small_arg);
+    }
     VmArray *bulk = vm_array_new(&heap, TAG_INT, 2000);
     ASSERT(bulk);
     for (int i = 0; i < 2000; ++i) ASSERT(vm_array_push(&heap, bulk, val_int(1)));

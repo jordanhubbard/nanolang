@@ -1189,6 +1189,12 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
         uint32_t pos = cop_encode_call_values(args, (uint8_t)arg_count,
                                                mbox->req_data, COP_MAILBOX_SLOT_SIZE);
         if (pos) {
+            int64_t started = cop_now_ms();
+            if (started < 0 || vm->cop_timeout_ms <= 0) {
+                snprintf(error_msg, error_msg_size, "I require a positive isolated call deadline");
+                return false;
+            }
+            int64_t deadline = started + vm->cop_timeout_ms;
             cop_put_u32(mbox->req_batch_count, 0);
             cop_put_u32(mbox->req_import_idx, import_idx);
             cop_put_u16(mbox->req_argc, (uint16_t)arg_count);
@@ -1220,6 +1226,24 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
             }
 
             /* Read result from mailbox */
+            if (mbox->resp_is_error == 2) {
+                int64_t now = cop_now_ms();
+                int64_t remaining = now < 0 ? 0 : deadline - now;
+                CopMsgType type;
+                uint8_t *reply = NULL;
+                uint32_t reply_size = 0;
+                bool ok = remaining > 0 &&
+                    cop_exchange(-1, vm->cop_out_fd, NULL, 0, (int)remaining,
+                                  &type, &reply, &reply_size) &&
+                    type == COP_MSG_FFI_RESULT &&
+                    cop_apply_call_reply(reply, reply_size, args, (uint8_t)arg_count, result, heap);
+                free(reply);
+                if (!ok) {
+                    vm_ffi_cop_stop(vm);
+                    snprintf(error_msg, error_msg_size, "I could not receive the isolated spill reply before its deadline");
+                }
+                return ok;
+            }
             if (mbox->resp_is_error) {
                 snprintf(error_msg, error_msg_size, "%.*s",
                          (int)sizeof(mbox->resp_error), mbox->resp_error);
@@ -1331,6 +1355,11 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
     CopMailbox *mbox = vm->cop_mailbox;
     bool array_arguments = false;
     for (int i = 0; i < count; ++i) {
+        if (calls[i].import_idx < module->import_count) {
+            uint8_t returned = module->imports[calls[i].import_idx].return_type;
+            if (returned == TAG_ARRAY || returned == TAG_STRING || returned == TAG_BSTRING)
+                array_arguments = true;
+        }
         if (calls[i].arg_count < 0 || calls[i].arg_count > NANO_MAX_FFI_ARGS ||
             (!calls[i].args && calls[i].arg_count)) {
             snprintf(error_msg, error_msg_size, "I require valid isolated batch arguments");
@@ -1340,7 +1369,8 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
             if (calls[i].args[j].tag == TAG_ARRAY) array_arguments = true;
     }
     if (!mbox || array_arguments) {
-        /* Array calls must observe the previous call's published mutations.
+        /* Variable-size replies need single-call spillover. Array calls must
+         * observe the previous call's published mutations.
          * I retain scalar batching; packing array snapshots ahead of execution
          * would silently erase dependencies between calls sharing an array. */
         /* No shared-memory mailbox: fall back to per-call dispatch so batching

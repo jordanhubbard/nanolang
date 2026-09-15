@@ -42,3 +42,15 @@ DynArray *array_bad_result(DynArray *a) {
     return &invalid;
 }
 NANO_EXPORT_ARRAY_ABI(array_bad_result);
+DynArray *array_grow_once(DynArray *a) {
+    static int64_t executions;
+    if (!a || a->elem_type != ELEM_INT) abort();
+    void *storage = realloc(a->data, 2000 * sizeof(int64_t));
+    if (!storage) abort();
+    a->data = storage;
+    a->length = a->capacity = 2000;
+    for (int i = 0; i < 2000; ++i) ((int64_t *)storage)[i] = i;
+    ((int64_t *)storage)[0] = ++executions;
+    return a;
+}
+NANO_EXPORT_ARRAY_ABI(array_grow_once);
