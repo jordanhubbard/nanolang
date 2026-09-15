@@ -23,6 +23,9 @@ extern fn file_copy(_src: string, _dst: string) -> int
 extern fn dir_copy(_src: string, _dst: string) -> int
 /* Note: getcwd is a builtin and doesn't need extern declaration */
 
+# I follow directory links once per opened directory identity, in unspecified
+# order. Missing/unreadable paths are omitted; this is a best-effort walk, not
+# a complete snapshot or a confinement boundary. Host path limits still apply.
 pub fn walkdir(root: string) -> array<string> {
     unsafe {
         return (fs_walkdir root)

@@ -129,12 +129,29 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             pass normally and with generated C and
             harness ASan/UBSan instrumentation; prebuilt objects are not all
             instrumented. Returned host strings remain allocated until exit.
-          - [ ] I bound standard filesystem directory traversal before relying
+          - [x] I bound standard filesystem directory traversal before relying
             on it for native bootstrap. `walkdir_recursive` follows directory
             symlinks through `stat`, has no visited-identity set and builds paths
             in an unchecked 2048-byte buffer. I define and test cycle handling,
             long paths and failure behavior instead of importing these hazards
             into a second implementation. MAC `task_aa93c6440aa0c87057a3306140bea1fb`.
+            The C-seed's emitted `nl_os_walkdir_rec` repeats the cycle/depth
+            hazard. I share the corrected walk between the module and native
+            emitter and test both entry points.
+            The native compile-and-shadow regression also exposes the same
+            recursive walk in the C-seed interpreter; it must share the repair.
+            All three now share an iterative queue, opened-directory identity
+            checks and dynamic path storage. Six filesystem tests pass with
+            one host-path-limit skip, including native/VM shadows and execution;
+            the five C fixtures also pass ASan/UBSan with the same skip. Eight
+            bootstrap-dependency tests pass. Leak checking is not established.
+          - [ ] I define ownership for native array string elements, including
+            filesystem walk results. `dyn_array_push_string_copy` allocates
+            copies, while the native GC array destructor frees only the backing
+            array. I test release and escaped-element lifetimes before changing
+            that ownership; freeing borrowed strings in a walker finalizer would
+            not establish a safe general array contract.
+            MAC `task_93bb44374587a757753418fc28c2095d`.
           - [ ] I integrate the compiler's artifact-backed standard filesystem
             imports without silently rebinding foreign exports by symbol name.
             The current next failure is import 1, `fs_walkdir`, bound to a

@@ -381,44 +381,11 @@ Value builtin_path_normalize(Value *args) {
     return v;
 }
 
-static void nl_walkdir_rec(const char* root, DynArray* out) {
-    DIR* dir = opendir(root);
-    if (!dir) return;
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
-        size_t root_len = strlen(root);
-        size_t name_len = strlen(entry->d_name);
-        bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');
-        size_t slash = needs_slash ? 1 : 0;
-        size_t cap = root_len + slash + name_len + 1;
-        char* path = malloc(cap);
-        if (!path) continue;
-        memcpy(path, root, root_len);
-        if (needs_slash) path[root_len] = '/';
-        memcpy(path + root_len + slash, entry->d_name, name_len);
-        path[root_len + slash + name_len] = '\0';
-
-        struct stat st;
-        if (stat(path, &st) != 0) { free(path); continue; }
-        if (S_ISDIR(st.st_mode)) {
-            nl_walkdir_rec(path, out);
-            free(path);
-        } else if (S_ISREG(st.st_mode)) {
-            dyn_array_push_string(out, path);
-        } else {
-            free(path);
-        }
-    }
-    closedir(dir);
-}
+#include "../runtime/directory_walk.h"
 
 Value builtin_fs_walkdir(Value *args) {
     const char* root = args[0].as.string_val;
-    DynArray* out = dyn_array_new(ELEM_STRING);
-    if (root && root[0] != '\0') {
-        nl_walkdir_rec(root, out);
-    }
+    DynArray* out = nl_fs_walkdir(root);
     return create_dyn_array(out);
 }
 

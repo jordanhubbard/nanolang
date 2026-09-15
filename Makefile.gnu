@@ -1839,6 +1839,12 @@ test-mac-command-boundary: $(COMPILER_C) nano_virt nano_vm
 test-units: test-module-builder-cache test-mac-command-boundary
 
 .PHONY: test-empty-record-array-fields
+.PHONY: test-directory-walk
+test-directory-walk: $(COMPILER_C) nano_virt nano_vm
+	@python3 -m unittest tests.test_directory_walk
+
+test-units: test-directory-walk
+
 test-empty-record-array-fields: $(COMPILER_C) nano_virt nano_vm
 	@python3 tests/test_empty_record_array_fields.py
 

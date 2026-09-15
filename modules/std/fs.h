@@ -5,7 +5,14 @@
 #include <stdbool.h>
 #include "../../src/runtime/dyn_array.h"
 
-/* Walk directory tree recursively, returning all file paths */
+/* I return regular-file paths in unspecified order, following symlinks and
+ * visiting each opened directory identity once. Aliased directories use the
+ * first encountered spelling. Missing/unreadable roots yield an empty array;
+ * inaccessible/disappearing entries and subtrees are omitted. This is a
+ * best-effort walk, not a complete snapshot or a confinement boundary. Paths
+ * have no internal fixed-size limit; host filesystem limits still apply.
+ * Copied string ownership remains subject to the native array runtime's
+ * process-lifetime storage; this walk does not establish leak freedom. */
 DynArray* fs_walkdir(const char* root);
 
 /* Normalize path (resolve . and .., remove redundant slashes) */

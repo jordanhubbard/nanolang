@@ -1360,40 +1360,9 @@ void generate_dir_operations(StringBuilder *sb) {
     sb_append(sb, "    return chdir(path) == 0 ? 0 : -1;\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "static void nl_os_walkdir_rec(const char* root, DynArray* out) {\n");
-    sb_append(sb, "    DIR* dir = opendir(root);\n");
-    sb_append(sb, "    if (!dir) return;\n");
-    sb_append(sb, "    struct dirent* entry;\n");
-    sb_append(sb, "    while ((entry = readdir(dir)) != NULL) {\n");
-    sb_append(sb, "        if (strcmp(entry->d_name, \".\") == 0 || strcmp(entry->d_name, \"..\") == 0) continue;\n");
-    sb_append(sb, "        size_t root_len = strlen(root);\n");
-    sb_append(sb, "        size_t name_len = strlen(entry->d_name);\n");
-    sb_append(sb, "        bool needs_slash = (root_len > 0 && root[root_len - 1] != '/');\n");
-    sb_append(sb, "        size_t cap = root_len + (needs_slash ? 1 : 0) + name_len + 1;\n");
-    sb_append(sb, "        char* path = malloc(cap);\n");
-    sb_append(sb, "        if (!path) continue;\n");
-    sb_append(sb, "        if (needs_slash) snprintf(path, cap, \"%s/%s\", root, entry->d_name);\n");
-    sb_append(sb, "        else snprintf(path, cap, \"%s%s\", root, entry->d_name);\n");
-    sb_append(sb, "\n");
-    sb_append(sb, "        struct stat st;\n");
-    sb_append(sb, "        if (stat(path, &st) != 0) { free(path); continue; }\n");
-    sb_append(sb, "        if (S_ISDIR(st.st_mode)) {\n");
-    sb_append(sb, "            nl_os_walkdir_rec(path, out);\n");
-    sb_append(sb, "            free(path);\n");
-    sb_append(sb, "        } else if (S_ISREG(st.st_mode)) {\n");
-    sb_append(sb, "            dyn_array_push_string(out, path);\n");
-    sb_append(sb, "        } else {\n");
-    sb_append(sb, "            free(path);\n");
-    sb_append(sb, "        }\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    closedir(dir);\n");
-    sb_append(sb, "}\n\n");
-
+    sb_append(sb, "#include \"runtime/directory_walk.h\"\n");
     sb_append(sb, "static DynArray* nl_os_walkdir(const char* root) {\n");
-    sb_append(sb, "    DynArray* out = dyn_array_new(ELEM_STRING);\n");
-    sb_append(sb, "    if (!root || root[0] == '\\0') return out;\n");
-    sb_append(sb, "    nl_os_walkdir_rec(root, out);\n");
-    sb_append(sb, "    return out;\n");
+    sb_append(sb, "    return nl_fs_walkdir(root);\n");
     sb_append(sb, "}\n\n");
 }
 

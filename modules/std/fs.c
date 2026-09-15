@@ -12,49 +12,10 @@
 #include <libgen.h>
 #include <errno.h>
 
-/* Forward declarations */
-extern char* nl_str_concat(const char* s1, const char* s2);
-extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
-extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
+#include "../../src/runtime/directory_walk.h"
 
-/* Recursive directory walker */
-static void walkdir_recursive(const char* path, DynArray* result) {
-    DIR* dir = opendir(path);
-    if (!dir) return;
-    
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
-        /* Skip . and .. */
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-            continue;
-        }
-        
-        /* Build full path */
-        char full_path[2048];
-        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
-        
-        struct stat st;
-        if (stat(full_path, &st) == 0) {
-            if (S_ISREG(st.st_mode)) {
-                /* Add file to result */
-                dyn_array_push_string_copy(result, full_path);
-            } else if (S_ISDIR(st.st_mode)) {
-                /* Recurse into directory */
-                walkdir_recursive(full_path, result);
-            }
-        }
-    }
-    
-    closedir(dir);
-}
-
-/* Walk directory tree, returning all file paths */
 DynArray* fs_walkdir(const char* root) {
-    DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 128);
-    if (!result) return NULL;
-    
-    walkdir_recursive(root, result);
-    return result;
+    return nl_fs_walkdir(root);
 }
 
 /* I resolve existing paths physically; failure is an empty string, never a

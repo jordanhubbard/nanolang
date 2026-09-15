@@ -20,7 +20,7 @@ class BootstrapDependencies(unittest.TestCase):
                         "src_nano/compiler/nested/new_import.nano"]
         self.runtime_inputs = ["modules/std/fs.c", "modules/std/fs.h", "modules/std/module.json",
                                "modules/std/fs.nano", "modules/std/json/json.c",
-                               "src/runtime/shadow_runner.h", "src/runtime/gc.c",
+                               "src/runtime/shadow_runner.h", "src/runtime/directory_walk.h", "src/runtime/gc.c",
                                "src/generated/compiler_schema.h", "src/cJSON.c",
                                "stdlib/example.nano", "std/example/example.nano"]
         for name in self.sources + self.runtime_inputs:
