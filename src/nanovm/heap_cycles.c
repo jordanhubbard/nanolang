@@ -296,15 +296,19 @@ static bool dead_push(DeadSet *dead, void *obj) {
 
 static void collect_white(VmHeap *heap, NanoValue v, DeadSet *dead);
 
+static void collect_white_child(VmHeap *heap, NanoValue child, DeadSet *dead) {
+    VmHeapHeader *ch = header_of(child);
+    if (ch && ch->colour == VM_GC_WHITE && !ch->buffered)
+        collect_white(heap, child, dead);
+    /* Trial deletion already removed this edge from a surviving child's
+     * count. Releasing it again here would account for the same edge twice. */
+}
+
 static void collect_white_slot(VmHeap *heap, NanoValue *slot, void *ctx) {
     NanoValue child = *slot;
     /* Detach first: nothing that follows may reach this object through here. */
     *slot = val_void();
-    VmHeapHeader *ch = header_of(child);
-    if (ch && ch->colour == VM_GC_WHITE && !ch->buffered)
-        collect_white(heap, child, (DeadSet *)ctx);
-    else
-        vm_release(heap, child);   /* a survivor, or a leaf like a string */
+    collect_white_child(heap, child, (DeadSet *)ctx);
 }
 
 static void collect_white(VmHeap *heap, NanoValue v, DeadSet *dead) {
@@ -314,6 +318,16 @@ static void collect_white(VmHeap *heap, NanoValue v, DeadSet *dead) {
      * and so a second root reaching this object stops at the check above. */
     h->colour = VM_GC_BLACK;
     for_each_child_slot(heap, v, collect_white_slot, dead);
+    if (v.tag == TAG_STRUCT) {
+        VmStruct *s = v.as.sval;
+        if (s && s->field_names) {
+            for (uint32_t i = 0; i < s->field_count; i++) {
+                VmString *name = s->field_names[i];
+                s->field_names[i] = NULL;
+                if (name) collect_white_child(heap, val_string(name), dead);
+            }
+        }
+    }
     if (!dead_push(dead, v.as.obj)) {
         /* Out of memory gathering the set. Leaving the object alone leaks it,
          * which is what refcounting was already doing. */
