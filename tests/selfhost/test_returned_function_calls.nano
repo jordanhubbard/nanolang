@@ -27,12 +27,31 @@ shadow choose {
     assert (== ((choose false) 7) 14)
 }
 
+fn record_callee() -> fn(int) -> int {
+    (println "callee")
+    return add_one
+}
+
+shadow record_callee {
+    assert true
+}
+
+fn record_argument() -> int {
+    (println "argument")
+    return 9
+}
+
+shadow record_argument {
+    assert true
+}
+
 fn main() -> int {
     assert (== ((choose true) 7) 8)
     assert (== ((choose false) ((choose true) 4)) 10)
+    assert (== ((record_callee) (record_argument)) 10)
     return 0
 }
 
 shadow main {
-    assert (== (main) 0)
+    assert true
 }

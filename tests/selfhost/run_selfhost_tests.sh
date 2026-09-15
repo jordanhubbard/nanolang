@@ -57,7 +57,19 @@ for test in $TESTS; do
     # Compile (timeout to avoid nanoc infinite loops)
     if perl -e 'alarm 60; exec @ARGV' $NANOC "$TEST_PATH" -o "$TEST_BIN" > /dev/null 2>&1; then
         # Run
-        if perl -e 'alarm 60; exec @ARGV' $TEST_BIN > /dev/null 2>&1; then
+        if [ "$test" = "test_returned_function_calls.nano" ]; then
+            OUTPUT=$(perl -e 'alarm 60; exec @ARGV' $TEST_BIN 2>&1) || OUTPUT_STATUS=$?
+            OUTPUT_STATUS=${OUTPUT_STATUS:-0}
+            if [ "$OUTPUT_STATUS" -eq 0 ] && [ "$OUTPUT" = "callee
+argument" ]; then
+                echo "✅ PASS"
+                PASSED=$((PASSED + 1))
+            else
+                echo "❌ FAIL (runtime order/error)"
+                FAILED=$((FAILED + 1))
+            fi
+            unset OUTPUT_STATUS
+        elif perl -e 'alarm 60; exec @ARGV' $TEST_BIN > /dev/null 2>&1; then
             echo "✅ PASS"
             PASSED=$((PASSED + 1))
         else
