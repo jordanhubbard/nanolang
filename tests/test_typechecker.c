@@ -854,7 +854,29 @@ void test_tc_perform_signatures(void) {
     ASSERT(!tc_passes("effect Echo { value : int -> string } fn main() -> int { return perform Echo.value(7) }"));
 }
 
+void test_tc_handler_parameter_metadata(void) {
+    ASSERT(tc_passes("struct Point { x: int } effect Visit { point : Point -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { point p -> { let x: int = p.x } } return 0 }"));
+    ASSERT(tc_passes("effect Visit { values : array<string> -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { values xs -> { let x: string = (at xs 0) } } return 0 }"));
+    ASSERT(!tc_passes("effect Visit { values : array<string> -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { values xs -> { let x: int = (at xs 0) } } return 0 }"));
+    ASSERT(!tc_passes("struct Point { x: string } effect Visit { point : Point -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { point p -> { let x: int = p.x } } return 0 }"));
+    ASSERT(tc_passes("struct Point { x: int } struct Other { x: string } effect Visit { point : Point -> void } "
+        "fn main() -> int { let p = Other { x: \"outer\" } let ignored = handle { 0 } with { point p -> { let x: int = p.x } } let outside: string = p.x return 0 }"));
+    ASSERT(tc_passes("effect Visit { rows : array<array<string>> -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { rows xs -> { let x: string = (at (at xs 0) 0) } } return 0 }"));
+    ASSERT(!tc_passes("effect Visit { rows : array<array<string>> -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { rows xs -> { let x: int = (at (at xs 0) 0) } } return 0 }"));
+    ASSERT(tc_passes("effect Visit { callback : fn(int) -> string -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { callback f -> { let x: string = (f 7) } } return 0 }"));
+    ASSERT(!tc_passes("effect Visit { callback : fn(int) -> string -> void } "
+        "fn main() -> int { let ignored = handle { 0 } with { callback f -> { let x: string = (f true) } } return 0 }"));
+}
+
 int main(void) {
+    TEST(tc_handler_parameter_metadata);
     TEST(tc_perform_signatures);
     TEST(tc_handler_effect_inference);
     TEST(tc_nested_return_context);

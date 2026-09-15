@@ -3851,11 +3851,21 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
             char *type_name_str = NULL;
             FunctionSignature *fn_sig = NULL;
             TypeInfo *type_info = NULL;
-            Type param_type = parse_type_with_element(p, NULL, &type_name_str, &fn_sig, &type_info);
+            Type element_type = TYPE_UNKNOWN;
+            Type param_type = parse_type_with_element(p, &element_type, &type_name_str, &fn_sig, &type_info);
+            if (param_type == TYPE_FUNCTION && fn_sig && !type_info) {
+                type_info = calloc(1, sizeof(*type_info));
+                if (!type_info) {
+                    fprintf(stderr, "I cannot allocate an effect parameter signature.\n");
+                    exit(EXIT_FAILURE);
+                }
+                type_info->base_type = TYPE_FUNCTION;
+                type_info->fn_sig = fn_sig;
+            }
             params[param_count].name = NULL;  /* effect ops don't name params in signature */
             params[param_count].type = param_type;
             params[param_count].struct_type_name = type_name_str;
-            params[param_count].element_type = TYPE_UNKNOWN;
+            params[param_count].element_type = element_type;
             params[param_count].fn_sig = fn_sig;
             params[param_count].type_info = type_info;
             param_count++;
@@ -5865,6 +5875,14 @@ void free_ast(ASTNode *node) {
             free(node->as.effect_decl.effect_name);
             for (int i = 0; i < node->as.effect_decl.op_count; i++) {
                 free(node->as.effect_decl.op_names[i]);
+                for (int j = 0; j < node->as.effect_decl.op_param_counts[i]; j++) {
+                    Parameter *param = &node->as.effect_decl.op_params[i][j];
+                    free(param->name);
+                    free(param->struct_type_name);
+                    if (!param->type_info || param->type_info->fn_sig != param->fn_sig)
+                        free_function_signature(param->fn_sig);
+                    free_type_info(param->type_info);
+                }
                 free(node->as.effect_decl.op_params[i]);
                 free(node->as.effect_decl.op_return_type_names[i]);
             }

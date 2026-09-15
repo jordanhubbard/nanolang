@@ -114,6 +114,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
           publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
         - [ ] I implement effect dispatch across native and VM execution.
+          - [x] I preserve declared handler parameter metadata for nominal
+            field access, typed array reads and function signatures. I test
+            valid uses and incompatible body bindings before runtime lowering.
+            Nested array and scalar callback signatures retain their declared
+            types; handler names do not inherit unrelated outer record metadata.
+            Parser, typechecker, effects and evaluator gates pass. This does
+            not complete perform argument/result compatibility or dispatch.
+            MAC `task_0e712110ced84d10b47bd50d54d434b3`.
           - [ ] I preserve handler capture identity in VM lowering. Existing
             CLOSURE_NEW copies captured values and STORE_UPVALUE updates only
             that copy; lowering handlers directly to those closures would not

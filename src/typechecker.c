@@ -3726,7 +3726,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         const char *pname = expr->as.handle_expr.handler_param_names[i][k];
                         if (pname) {
                             Value dummy = create_void();
-                            env_define_var(env, pname, op->params[k].type, false, dummy);
+                            Parameter *param = &op->params[k];
+                            env_define_var_with_type_info(env, pname, param->type,
+                                param->element_type, param->type_info, false, dummy);
+                            Symbol *symbol = env_get_var(env, pname);
+                            if (symbol) {
+                                free(symbol->struct_type_name);
+                                symbol->struct_type_name = param->struct_type_name
+                                    ? strdup(param->struct_type_name) : NULL;
+                                symbol->def_line = expr->line;
+                                symbol->def_column = expr->column;
+                            }
                         }
                     }
                 }

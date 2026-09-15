@@ -214,6 +214,17 @@ after the match. I do not use `return value` to yield an arm-local value.
 My backend acceptance work, including control-flow and ownership boundaries,
 is tracked in `docs/ROADMAP.md`.
 
+### Effect Handler Parameters
+
+I bind handler parameters from the declared operation signature, retaining
+record names, nested array element types and scalar function signatures.
+An unrelated outer variable with the same name does not supply the handler's
+type. I test valid field access, array reads and callback calls, and reject
+incompatible uses inside handler bodies.
+
+This frontend checking does not establish complete perform argument/result
+compatibility. Native and VM handler dispatch remain release work.
+
 ## Imports And Modules
 
 The current module import form is `module`:
