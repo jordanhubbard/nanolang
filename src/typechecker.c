@@ -828,6 +828,12 @@ static Type map_callback_type(ASTNode *callback, Environment *env, int *arity, T
     return sig->return_type;
 }
 
+Type map_transform_result_type(ASTNode *callback, Environment *env) {
+    int arity;
+    Type argument;
+    return map_callback_type(callback, env, &arity, &argument);
+}
+
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&

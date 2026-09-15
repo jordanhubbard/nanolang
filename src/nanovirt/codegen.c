@@ -1249,7 +1249,8 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         uint16_t len_slot = local_add(cg, "__map_len__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)len_slot);
 
-        emit_op(cg, OP_ARR_NEW, (int)TAG_INT);
+        Type mapped_type = map_transform_result_type(args[1], cg->env);
+        emit_op(cg, OP_ARR_NEW, (int)type_to_tag(mapped_type, NULL, cg->env));
         uint16_t res_slot = local_add(cg, "__map_res__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)res_slot);
 

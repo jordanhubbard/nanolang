@@ -974,7 +974,11 @@ test-string-boundaries: stage1 nano_virt nano_vm
 	python3 tests/test_string_boundaries.py
 	@rm -f tests/test_fstring_lexer
 
-test-units: test-string-boundaries
+test-units: test-string-boundaries test-map-results
+
+.PHONY: test-map-results
+test-map-results: $(COMPILER_C) nano_virt nano_vm
+	@python3 tests/test_map_results.py
 
 .PHONY: test-ffi
 $(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)

@@ -1654,7 +1654,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
             /* Special handling for map() - compiled lowering */
             else if (strcmp(func_name, "map") == 0 && expr->as.call.arg_count == 2) {
-                /* map(array<T>, fn(T)->T) -> array<T>
+                /* map(array<T>, fn(T)->U) -> array<U>
                  * Arrays are DynArray* in compiled mode.
                  */
                 ASTNode *array_arg = expr->as.call.args[0];
@@ -1710,6 +1710,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 build_expr(list, array_arg, env);
                 emit_literal(list, "; __auto_type _f = ");
                 build_expr(list, fn_arg, env);
+                Type result_type = map_transform_result_type(fn_arg, env);
+                const char *result_suffix = type_suffix;
+                if (result_type == TYPE_INT) { elem_enum = "ELEM_INT"; result_suffix = "int"; }
+                else if (result_type == TYPE_FLOAT) { elem_enum = "ELEM_FLOAT"; result_suffix = "float"; }
+                else if (result_type == TYPE_BOOL) { elem_enum = "ELEM_BOOL"; result_suffix = "bool"; }
+                else if (result_type == TYPE_STRING) { elem_enum = "ELEM_STRING"; result_suffix = "string"; }
+                else if (result_type == TYPE_ARRAY) { elem_enum = "ELEM_ARRAY"; result_suffix = "array"; }
                 emit_formatted(list, "; DynArray* _out = dyn_array_new(%s); ", elem_enum);
                 emit_literal(list, "int64_t _len = dyn_array_length(_arr); ");
                 emit_literal(list, "for (int64_t _i = 0; _i < _len; _i++) { ");
@@ -1727,7 +1734,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "int64_t _mapped = _f(_elem); dyn_array_push_int(_out, _mapped); ");
                 } else {
                     emit_formatted(list, "%s _elem = dyn_array_get_%s(_arr, _i); ", c_type, type_suffix);
-                    emit_formatted(list, "%s _mapped = _f(_elem); dyn_array_push_%s(_out, _mapped); ", c_type, type_suffix);
+                    emit_formatted(list, "__auto_type _mapped = _f(_elem); dyn_array_push_%s(_out, _mapped); ", result_suffix);
                 }
 
                 emit_literal(list, "} _out; })");

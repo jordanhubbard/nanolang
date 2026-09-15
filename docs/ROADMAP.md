@@ -388,9 +388,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           I next allocate interpreter scalar map results from the declared
           transform result, not the source representation; empty results retain
           their tag. I test static/dynamic, empty/nonempty arrays for int, float,
-          bool and string results and preserve input values. VM currently emits
-          `ARR_NEW TAG_INT`; native lowering still assumes matching input/output
-          types. Both remain required before this item can close.
+          bool and string results and preserve input values. VM formerly emitted
+          `ARR_NEW TAG_INT`; native lowering assumed matching input/output types.
+          Both now select scalar result storage from shared declared callback
+          metadata, before execution. All 32 scalar input/result backend cases
+          pass compilation, default shadows and artifact execution, including
+          named/variable/returned callbacks and append-after-empty. All 69
+          NanoVirt tests pass. Nominal/nested types and full self-hosted lowering
+          still require acceptance before this item can close.
           All sixteen interpreter combinations pass, including the complete
           rebuilt evaluator gate and a final evaluator-object rebuild/test
           after diagnostic wording changes. Logs:

@@ -131,8 +131,11 @@ callback metadata and cross-backend result storage remain roadmap work; these
 frontend checks do not establish complete map runtime support.
 My interpreter now allocates scalar map results from the transform's declared
 return type. I test int, float, bool and string results with static/dynamic
-input arrays, empty/nonempty inputs and unchanged input values. VM and native
-result allocation still require separate corrections.
+input arrays, empty/nonempty inputs and unchanged input values. My C-native and
+VM lowering now use the same declared scalar result type when allocating map
+output. I test all 16 scalar input/result pairs on both paths, including named,
+variable and returned transforms and append-after-empty. This does not establish
+nominal/nested callback metadata or self-hosted lowering parity.
 
 ## String Literals
 
