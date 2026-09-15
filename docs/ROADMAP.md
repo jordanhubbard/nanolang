@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Record-alias branch reconciliation.** I retain recursive record
+      copies before binding replacement rather than restore symbol-scan
+      reference counts from `9698ce08`. I retain its direct-call alias
+      regression alongside current nested-record shadows and run evaluator
+      and environment gates. MAC `task_1ac1c2fd6bc04b5e81932553901b0d4b`.
+      Bootstrap, evaluator and 32 environment checks pass. Evidence:
+      `docs/evidence/record-alias-branch-reconciliation.md`.
 - [x] **Bootstrap branch reconciliation.** I retain behavioral invalidation
       checks and direct self-hosted stage dependencies while reconciling
       `d152181d`. I expose the existing suite as `test-bootstrap-dependencies`

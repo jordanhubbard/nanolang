@@ -2274,6 +2274,36 @@ void test_eval_array_append_and_dynamic_write(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_record_alias_across_direct_calls(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Pair { left: int, right: int }\n"
+        "fn alias_after_reassignment() -> int {\n"
+        " let original: Pair = Pair { left: 20, right: 22 }\n"
+        " let mut alias: Pair = original\n"
+        " set alias Pair { left: 1, right: 2 }\n"
+        " return (+ original.left original.right)\n"
+        "}\n"
+        "fn read_pair(pair: Pair) -> int { return (+ pair.left pair.right) }\n"
+        "fn alias_across_call() -> int {\n"
+        " let pair: Pair = Pair { left: 19, right: 23 }\n"
+        " let result: int = (read_pair pair)\n"
+        " return (+ result pair.left)\n"
+        "}\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow read_pair { assert (== (read_pair Pair { left: 1, right: 2 }) 3) }\n"
+        "shadow alias_after_reassignment { assert (== (alias_after_reassignment) 42) }\n"
+        "shadow alias_across_call { assert (== (alias_across_call) 61) }\n"));
+    Value result = call_function("alias_after_reassignment", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 42);
+    result = call_function("alias_across_call", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 61);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
 void test_eval_record_alias_reassignment(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
@@ -2706,6 +2736,7 @@ int main(void) {
     TEST(eval_array_literal_evaluates_once_in_order);
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
+    TEST(eval_record_alias_across_direct_calls);
     TEST(eval_epoch_milliseconds);
 
     printf("\n✓ All eval tests passed!\n");
