@@ -1097,7 +1097,69 @@ TEST(retained_native_scheduler) {
     vm_ffi_shutdown();
 }
 
+TEST(sdl_image_cleanup_dispatch) {
+    const char *path = getenv("NANO_TEST_SDL_ARRAY_LIBRARY");
+    ASSERT(path && path[0] == '/');
+    NvmModule *module = nvm_module_new();
+    uint32_t lib = nvm_add_string(module, path, strlen(path));
+    const char *names[] = {"nl_img_destroy_texture_batch", "nl_test_destroyed_count"};
+    uint8_t params[] = {TAG_ARRAY, TAG_INT};
+    for (int i = 0; i < 2; ++i) {
+        uint32_t name = nvm_add_string(module, names[i], strlen(names[i]));
+        uint32_t index = nvm_add_import(module, lib, name, i ? 0 : 2,
+                                        i ? TAG_INT : TAG_VOID, params);
+        module->imports[index].kind = NVM_IMPORT_ARTIFACT;
+    }
+    vm_ffi_init();
+    VmHeap heap;
+    vm_heap_init(&heap);
+    for (int mode = 0; mode < 3; ++mode) {
+        VmState isolated = {0};
+        isolated.cop_pid = isolated.cop_in_fd = isolated.cop_out_fd = -1;
+        isolated.cop_sig_send_fd = isolated.cop_sig_recv_fd = -1;
+        isolated.cop_timeout_ms = 5000;
+        NanoValue result;
+        char error[256];
+        bool ok = mode ? vm_ffi_call_cop(&isolated, module, 1, NULL, 0, &result, &heap, error, sizeof error)
+                       : vm_ffi_call(module, 1, NULL, 0, &result, &heap, error, sizeof error);
+        ASSERT(ok && result.tag == TAG_INT);
+        int64_t before = result.as.i64;
+        int count = mode == 2 ? 2000 : 4;
+        VmArray *handles = vm_array_new(&heap, TAG_INT, count);
+        ASSERT(handles);
+        for (int i = 0; i < count; ++i)
+            ASSERT(vm_array_push(&heap, handles, val_int(i % 2 + 1)));
+        NanoValue args[] = {val_array(handles), val_int(1)};
+        for (int call = 0; call < 4; ++call) {
+            if (call == 2) args[1] = val_int(count);
+            ok = mode ? vm_ffi_call_cop(&isolated, module, 0, args, 2, &result, &heap, error, sizeof error)
+                      : vm_ffi_call(module, 0, args, 2, &result, &heap, error, sizeof error);
+            ASSERT(ok && result.tag == TAG_VOID);
+            for (int i = 0; i < count; ++i)
+                ASSERT_EQ(vm_array_get(handles, i).as.i64, call < 2 && i % 2 ? 2 : 0);
+        }
+        ok = mode ? vm_ffi_call_cop(&isolated, module, 1, NULL, 0, &result, &heap, error, sizeof error)
+                  : vm_ffi_call(module, 1, NULL, 0, &result, &heap, error, sizeof error);
+        ASSERT(ok && result.tag == TAG_INT && result.as.i64 == before + 2);
+        if (mode) vm_ffi_cop_stop(&isolated);
+        vm_release(&heap, val_array(handles));
+    }
+    vm_gc_collect_cycles(&heap);
+    ASSERT_EQ(heap.stats.num_objects, 0);
+    vm_heap_destroy(&heap);
+    nvm_module_free(module);
+    vm_ffi_shutdown();
+}
+
 int main(void) {
+    if (getenv("NANO_TEST_SDL_ARRAY_LIBRARY")) RUN(sdl_image_cleanup_dispatch);
+    if (getenv("NANO_TEST_SDL_ARRAY_ONLY")) {
+        if (g_pass == 1 && g_fail == 0) {
+            printf("All 1 SDL VM cleanup tests passed.\n");
+            return 0;
+        }
+        return 1;
+    }
     RUN(retained_native_strings);
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);

@@ -21,7 +21,7 @@ const char *retained_string(NanoCallbackV1 *callback, const char *text, void *or
     assert(pthread_once(&string_once, create_string_key) == 0);
     char *buffer = malloc(strlen(text) + 32);
     assert(buffer && pthread_setspecific(string_key, buffer) == 0);
-    sprintf(buffer, "%s:%lld", text, (long long)result.as.integer);
+    snprintf(buffer, strlen(text) + 32, "%s:%lld", text, (long long)result.as.integer);
     return buffer;
 }
 

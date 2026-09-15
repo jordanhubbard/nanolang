@@ -24,6 +24,14 @@ failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
 ## Layout declarations
 
+`make test-sdl-image-arrays` loads my production cleanup adapter with fake SDL
+entry points and exercises VM dispatch in-process, through the mailbox, and
+through a 2,000-element pipe call. Prefix cleanup clears duplicate slots outside
+the prefix; repeated cleanup destroys each of two distinct handles once. The
+focused ASan/UBSan run instruments the adapter, its native array runtime and
+test driver, not every prebuilt VM object. This does not test real GPU texture
+ownership or copies of a handle stored in independent arrays.
+
 My call-envelope codec uses `CA`, version byte 1, and a value-count byte,
 followed by values. Marker `0xff` followed by a prior value index represents
 a top-level array alias. Requests contain arguments; replies contain argument

@@ -241,6 +241,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 results, count bounds, partial failure and repeated cleanup
                 with fake SDL entry points and sanitizers before certification.
                 MAC `task_5f2879308468ad24921d62eedea9f3e9`.
+                - [x] I keep the callback fixture warning-clean under the
+                  sanitizer compiler's SDK by bounding its formatted string.
+                - [ ] I diagnose the full FFI sanitizer suite's Darwin crash
+                  in ASan global registration while loading ffi_artifact_first
+                  after the SDL cleanup case. The focused SDL case passes;
+                  that does not establish a passing full sanitizer suite.
+                  MAC `task_a36fd588dd05d06fadc36470a23cdc1b`.
                 - [x] I replace the three raw-buffer implementations with a
                   separately testable canonical-array boundary and ABI markers.
                   Native fake-SDL tests cover count/type/width bounds, allocation
@@ -251,13 +258,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   Normal and ASan/UBSan runs pass. Both production sources
                   pass SDK syntax checks; the manifest-selected sources link
                   and export all three ABI markers without loading SDL startup.
-                - [ ] I preserve native array mutations across VM FFI calls.
+                - [x] I preserve native array mutations across VM FFI calls.
                   My previous marshalling copied VM arrays to `DynArray` without
                   copying mutations back, so clearing texture handles during
                   cleanup did not prevent repeated VM-side destruction. I test
                   copy-back, aliasing and temporary-array cleanup before
                   claiming repeated cleanup across both backends.
                   MAC `task_2d34e62c8b2e0e086045c7d56f6eb66f`.
+                  My production SDL_image cleanup adapter now passes direct VM,
+                  mailbox and 2,000-element pipe tests with fake SDL destruction:
+                  prefix aliases are cleared and repeated calls destroy exactly
+                  two distinct handles. Focused normal and ASan/UBSan runs pass;
+                  the full normal FFI suite passes 27 tests. Prebuilt VM objects
+                  are not wholly instrumented by the focused sanitizer run.
                   - [x] I complete the in-process call frame for scalar/string
                     arrays, including shared argument/return identity, snapshot
                     ownership, UTF-8 and metadata checks, and all-or-nothing VM
@@ -270,25 +283,24 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     invalid result before mutation publication. Wrapper gates
                     pass with the new runtime object. This is not direct SDL
                     resource-lifetime integration or co-process parity.
-                  - [ ] I extend the co-process request/reply protocol to carry
-                    array mutations and alias identities. Current value-only
-                    serialization copies aliased arguments independently and
-                    returns only the result; an in-process fix does not repair
-                    this isolated execution path. I test mailbox and pipe paths.
+                  - [x] I extend the co-process request/reply protocol to carry
+                    array mutations and alias identities. The former value-only
+                    transport lost both; call envelopes now preserve them in
+                    tested mailbox and pipe paths.
                     - [x] I add a versioned call-value envelope with bounded
                       backward array references and atomic reply application;
                       I test truncated envelopes and changed alias topology.
                       My protocol and fuzz suites pass. I also carry u8 values
                       and reject mismatched serialized array element tags.
                       This codec does not establish transport integration.
-                    - [ ] I connect that envelope to mailbox and pipe dispatch,
+                    - [x] I connect that envelope to mailbox and pipe dispatch,
                       preserving ordered array mutations across batched calls.
                       - [x] My mailbox uses call envelopes and resets batch mode
                         for single calls. Array-bearing batches cross in order;
                         scalar batches remain packed. Forked tests check shared
                         argument/result identity, three dependent mutations,
                         repeated clearing and invalid-result rejection.
-                      - [ ] I migrate pipe requests and replies, update the wire
+                      - [x] I migrate pipe requests and replies, update the wire
                         version, and test large isolated payloads without
                         silently falling back to in-process execution.
                         - [x] My version-2 pipe codec uses call envelopes in the

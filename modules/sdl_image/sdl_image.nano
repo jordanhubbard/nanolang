@@ -211,8 +211,8 @@ pub extern fn nl_img_destroy_texture(_texture: int) -> void
 # I consume the first count handles without freeing the runtime-owned array.
 # I clear duplicates throughout this same array before destroying each handle;
 # repeated native cleanup is harmless. Copies in other arrays do not share
-# that ownership state. VM mutation copy-back remains a tracked prerequisite:
-# clearing native slots does not yet clear the VM caller array.
+# that ownership state. I copy cleared slots back to the VM caller, including
+# isolated calls; fake-SDL tests cover repeated cleanup through both paths.
 pub extern fn nl_img_destroy_texture_batch(_textures: array<int>, _count: int) -> void
 
 # Check if image file exists and is loadable

@@ -23,6 +23,9 @@ static DynArray *test_array_new(ElementType type, int64_t capacity) {
 #include "../modules/sdl_image/sdl_image_arrays.c"
 #undef dyn_array_new_with_capacity
 
+int64_t nl_test_destroyed_count(void) { return destroyed; }
+
+#ifndef NANO_SDL_VM_FIXTURE
 int main(void) {
     gc_init();
     SDL_Renderer *renderer = (SDL_Renderer *)&texture_storage;
@@ -90,3 +93,4 @@ int main(void) {
     gc_shutdown();
     return 0;
 }
+#endif

@@ -12,6 +12,30 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SdlImageArrays(unittest.TestCase):
+    def test_vm_cleanup(self):
+        flags = subprocess.run(["pkg-config", "--cflags", "SDL2_image"],
+                               capture_output=True, text=True, timeout=15)
+        if flags.returncode:
+            self.skipTest("SDL_image SDK headers are unavailable")
+        with tempfile.TemporaryDirectory(prefix="nano-sdl-vm-") as tmp:
+            artifact = Path(tmp) / "fake-sdl.so"
+            shared = ["-dynamiclib"] if sys.platform == "darwin" else ["-shared", "-fPIC"]
+            built = subprocess.run([
+                *shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-g",
+                "-Wall", "-Wextra", "-Werror", *shared, "-DNANO_SDL_VM_FIXTURE",
+                "-Isrc", *shlex.split(flags.stdout), "tests/test_sdl_image_arrays.c",
+                "src/runtime/dyn_array.c", "src/runtime/gc.c", "src/runtime/gc_struct.c",
+                "-o", str(artifact)], cwd=ROOT, capture_output=True, text=True, timeout=60)
+            self.assertEqual(built.returncode, 0, built.stderr)
+            # I load only fake SDL plus the production adapter; no SDL startup.
+            env = dict(os.environ, NANO_TEST_SDL_ARRAY_LIBRARY=str(artifact),
+                       NANO_TEST_SDL_ARRAY_ONLY="1")
+            ran = subprocess.run(["make", "test-vm-ffi", "CC=" + os.environ.get("CC", "cc")], cwd=ROOT, env=env,
+                                 capture_output=True, text=True, timeout=180)
+            self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+            self.assertIn("sdl_image_cleanup_dispatch...", ran.stdout)
+            self.assertIn("All 1 SDL VM cleanup tests passed.", ran.stdout)
+
     def test_array_boundary(self):
         flags = subprocess.run(["pkg-config", "--cflags", "SDL2_image"],
                                capture_output=True, text=True, timeout=15)
