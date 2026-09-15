@@ -114,6 +114,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
           publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
         - [ ] I implement effect dispatch across native and VM execution.
+          - [x] I carry ordered perform arguments through one parser, the AST,
+            checking and interpreter dispatch. I evaluate every argument before
+            introducing handler bindings, test zero and multiple arguments,
+            and preserve nested expression arguments and source order. Native
+            stub signatures must remain consistent until real dispatch lands.
+            Parser, typechecker, effects, interpreter and transpiler gates pass.
+            The required cross-backend gate now also checks ordered multiple
+            arguments, caller-name shadowing and zero arguments. Both native
+            cases compile but fail executed assertions; VM dispatch remains
+            unsupported. MAC `task_36491565f7db6038fb0b1591f6164c36`.
           - [x] I resolve performs through the frontend effect declarations,
             reject unknown operations and incorrect scalar arguments/arity,
             and report the operation's declared result type in expressions.
@@ -139,11 +149,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             calls. Native acceptance now passes shadows but fails C compilation
             on a void-valued local; VM shadows still reject the operation.
           - [ ] I complete operation argument/result handling and control-flow
-            rules across backends. The perform AST carries only one argument;
-            argument checking still needs nominal identities and recursive
+            rules across backends. Argument checking still needs nominal identities and recursive
             aggregate/function signatures, including preserved result metadata;
-            the interpreter adapter rejects multi-argument handlers. Legacy
-            dispatch strips return/break/continue flags and does not establish
+            legacy dispatch strips return/break/continue flags and does not establish
             the final handler-arm value contract. These boundaries remain open,
             as does native/VM dispatch itself.
           - [x] I emit void-valued locals without C storage, preserving each

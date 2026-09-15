@@ -838,6 +838,11 @@ void test_tc_handler_effect_inference(void) {
 }
 
 void test_tc_perform_signatures(void) {
+    ASSERT(tc_passes("effect Tick { now : void -> void } fn main() -> int { perform Tick.now return 0 }"));
+    ASSERT(tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1 \"ok\") return 0 }"));
+    ASSERT(!tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1 2) return 0 }"));
+    ASSERT(!tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1) return 0 }"));
+    ASSERT(!tc_passes("effect Pair { emit : int string -> void } fn main() -> int { perform Pair.emit(1 \"ok\" 3) return 0 }"));
     ASSERT(!tc_passes("fn main() -> int { perform Missing.emit(1) return 0 }"));
     ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.missing(1) return 0 }"));
     ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.emit(\"wrong\") return 0 }"));

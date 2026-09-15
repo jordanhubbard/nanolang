@@ -4647,9 +4647,9 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
     #undef EMIT_EXTERN_DECL
 }
 
-/* Generate no-op stubs for nl_perform_EffectName_OpName().
- * These allow effect-using programs to compile through the C path even though
- * full CPS effect dispatch is only implemented in the interpreter. */
+/* I retain declaration-shaped placeholders until native dispatch is implemented.
+ * They do not execute handlers; the required execution gate detects that gap.
+ * Interpreter dispatch is synchronous, not a full CPS implementation. */
 static void generate_effect_perform_stubs(StringBuilder *sb, ASTNode *program) {
     if (!program || program->type != AST_PROGRAM) return;
     sb_append(sb, "/* ── Algebraic effect perform stubs (interpreter dispatches at runtime) ── */\n");
@@ -4659,34 +4659,24 @@ static void generate_effect_perform_stubs(StringBuilder *sb, ASTNode *program) {
         const char *eff = item->as.effect_decl.effect_name;
         if (!eff) continue;
         for (int j = 0; j < item->as.effect_decl.op_count; j++) {
-            const char *op   = item->as.effect_decl.op_names[j];
-            /* op_param_types is the simplified layout; fall back to op_params[j][0] */
-            Type ptype;
-            if (item->as.effect_decl.op_param_types && item->as.effect_decl.op_param_types[j] != TYPE_UNKNOWN) {
-                ptype = item->as.effect_decl.op_param_types[j];
-            } else if (item->as.effect_decl.op_params &&
-                       item->as.effect_decl.op_param_counts &&
-                       item->as.effect_decl.op_param_counts[j] > 0 &&
-                       item->as.effect_decl.op_params[j]) {
-                ptype = item->as.effect_decl.op_params[j][0].type;
-            } else {
-                ptype = TYPE_VOID;
+            const char *op = item->as.effect_decl.op_names[j];
+            int count = item->as.effect_decl.op_param_counts
+                ? item->as.effect_decl.op_param_counts[j] : 0;
+            Type rtype = item->as.effect_decl.op_return_types[j];
+            const char *crt = type_to_c(rtype);
+            sb_appendf(sb, "static %s nl_perform_%s_%s(", crt, eff, op);
+            if (!count) sb_append(sb, "void");
+            for (int k = 0; k < count; k++) {
+                if (k) sb_append(sb, ", ");
+                sb_appendf(sb, "%s _arg%d",
+                    type_to_c(item->as.effect_decl.op_params[j][k].type), k);
             }
-            Type rtype       = item->as.effect_decl.op_return_types[j];
-            const char *cpt  = type_to_c(ptype);
-            const char *crt  = type_to_c(rtype);
-            /* Param: if void, emit no argument */
-            if (rtype == TYPE_VOID || rtype == TYPE_UNKNOWN) {
-                if (ptype == TYPE_VOID || ptype == TYPE_UNKNOWN)
-                    sb_appendf(sb, "static void nl_perform_%s_%s(void) { /* effect stub */ }\n", eff, op);
-                else
-                    sb_appendf(sb, "static void nl_perform_%s_%s(%s _arg) { (void)_arg; /* effect stub */ }\n", eff, op, cpt);
-            } else {
-                if (ptype == TYPE_VOID || ptype == TYPE_UNKNOWN)
-                    sb_appendf(sb, "static %s nl_perform_%s_%s(void) { %s _r; memset(&_r, 0, sizeof(_r)); return _r; }\n", crt, eff, op, crt);
-                else
-                    sb_appendf(sb, "static %s nl_perform_%s_%s(%s _arg) { (void)_arg; %s _r; memset(&_r, 0, sizeof(_r)); return _r; }\n", crt, eff, op, cpt, crt);
-            }
+            sb_append(sb, ") { /* effect stub */ ");
+            for (int k = 0; k < count; k++)
+                sb_appendf(sb, "(void)_arg%d; ", k);
+            if (rtype != TYPE_VOID && rtype != TYPE_UNKNOWN)
+                sb_appendf(sb, "%s _r; memset(&_r, 0, sizeof(_r)); return _r; ", crt);
+            sb_append(sb, "}\n");
         }
     }
     sb_append(sb, "\n");

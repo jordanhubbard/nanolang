@@ -936,16 +936,16 @@ static Type check_perform(ASTNode *expr, Environment *env) {
                            "Check the effect and operation names against their declaration.");
         return TYPE_UNKNOWN;
     }
-    int count = expr->as.effect_op.arg ? 1 : 0;
+    int count = expr->as.effect_op.arg_count;
     if (count != op->param_count) {
         emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 7,
                            "I require the declared operation's argument count for perform.",
                            "Match the effect operation signature.");
         return TYPE_UNKNOWN;
     }
-    if (count) {
-        Type actual = check_expression(expr->as.effect_op.arg, env);
-        if (!types_match(actual, op->params[0].type)) {
+    for (int i = 0; i < count; i++) {
+        Type actual = check_expression(expr->as.effect_op.args[i], env);
+        if (!types_match(actual, op->params[i].type)) {
             emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 7,
                                "I require the declared operation's argument type for perform.",
                                "Match the effect operation signature.");

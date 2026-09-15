@@ -1316,6 +1316,48 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
     return type_info;
 }
 
+static ASTNode *parse_primary(Stage1Parser *p);
+
+/* I share perform syntax between expression and statement positions. */
+static ASTNode *parse_perform(Stage1Parser *p, bool allow_bare_argument) {
+    Token *start = current_token(p);
+    ASTNode *node = create_node(AST_EFFECT_OP, start->line, start->column);
+    advance(p);
+    if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
+    node->as.effect_op.effect_name = strdup(current_token(p)->value);
+    advance(p);
+    if (!expect(p, TOKEN_DOT, "I require '.' after the performed effect name.")) goto failed;
+    if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
+    node->as.effect_op.op_name = strdup(current_token(p)->value);
+    advance(p);
+    bool parenthesized = match(p, TOKEN_LPAREN);
+    if (!parenthesized && !allow_bare_argument) return node;
+    if (parenthesized) advance(p);
+    int capacity = 0;
+    while (!match(p, TOKEN_RPAREN) && !match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
+        if (node->as.effect_op.arg_count == capacity) {
+            if (capacity > INT_MAX / 2) goto failed;
+            int next = capacity ? capacity * 2 : 4;
+            ASTNode **args = realloc(node->as.effect_op.args, sizeof(*args) * (size_t)next);
+            if (!args) goto failed;
+            node->as.effect_op.args = args;
+            capacity = next;
+        }
+        ASTNode *arg = parenthesized ? parse_expression(p) : parse_primary(p);
+        if (!arg) goto failed;
+        node->as.effect_op.args[node->as.effect_op.arg_count++] = arg;
+        if (!parenthesized) break;
+        if (match(p, TOKEN_COMMA)) advance(p);
+    }
+    if (parenthesized && !expect(p, TOKEN_RPAREN, "I require ')' after perform arguments.")) goto failed;
+    return node;
+malformed:
+    parser_error(p, node->line, node->column, "I require an effect and operation name after perform.\n");
+failed:
+    free_ast(node);
+    return NULL;
+}
+
 /* Parse primary expression */
 static ASTNode *parse_primary(Stage1Parser *p) {
     Token *tok = current_token(p);
@@ -1673,42 +1715,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
         case TOKEN_SET: {
             /* Handle `perform Effect.op arg` as a contextual keyword */
             if (tok->value && strcmp(tok->value, "perform") == 0) {
-                int perf_line = tok->line, perf_col = tok->column;
-                advance(p); /* consume 'perform' */
-                /* Parse Effect.op — expect Identifier.Identifier */
-                Token *effect_tok = current_token(p);
-                char *effect_name = NULL;
-                char *op_name = NULL;
-                if (effect_tok && effect_tok->token_type == TOKEN_IDENTIFIER && effect_tok->value) {
-                    effect_name = strdup(effect_tok->value);
-                    advance(p);
-                    if (match(p, TOKEN_DOT)) {
-                        advance(p); /* consume '.' */
-                        Token *op_tok = current_token(p);
-                        if (op_tok && op_tok->token_type == TOKEN_IDENTIFIER && op_tok->value) {
-                            op_name = strdup(op_tok->value);
-                            advance(p);
-                        }
-                    }
-                }
-                /* Parse optional argument — handle both `perform E.op expr` and `perform E.op(expr)` */
-                ASTNode *arg = NULL;
-                if (match(p, TOKEN_LPAREN)) {
-                    /* perform E.op(arg) — paren wraps the argument */
-                    advance(p); /* consume '(' */
-                    if (!match(p, TOKEN_RPAREN)) {
-                        arg = parse_expression(p);
-                    }
-                    if (match(p, TOKEN_RPAREN)) advance(p); /* consume ')' */
-                } else if (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF) &&
-                           !match(p, TOKEN_RPAREN)) {
-                    arg = parse_primary(p);
-                }
-                ASTNode *perf_node = create_node(AST_EFFECT_OP, perf_line, perf_col);
-                perf_node->as.effect_op.effect_name = effect_name;
-                perf_node->as.effect_op.op_name = op_name;
-                perf_node->as.effect_op.arg = arg;
-                return perf_node;
+                return parse_perform(p, true);
             }
 
             /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
@@ -3370,53 +3377,7 @@ static ASTNode *parse_statement(Stage1Parser *p) {
             if (tok->token_type == TOKEN_IDENTIFIER) {
                 /* ── perform Effect.op(arg) ───────────────────────────── */
                 if (strcmp(tok->value, "perform") == 0) {
-                    int line   = tok->line;
-                    int column = tok->column;
-                    advance(p);  /* consume "perform" */
-
-                    if (!match(p, TOKEN_IDENTIFIER)) {
-                        parser_error(p, line, column,
-                            "Error at line %d, column %d: Expected effect name after 'perform'\n",
-                            line, column);
-                        return NULL;
-                    }
-                    char *eff_name = strdup(current_token(p)->value);
-                    advance(p);
-
-                    if (!expect(p, TOKEN_DOT, "Expected '.' after effect name in 'perform'")) {
-                        free(eff_name);
-                        return NULL;
-                    }
-
-                    if (!match(p, TOKEN_IDENTIFIER)) {
-                        parser_error(p, line, column,
-                            "Error at line %d, column %d: Expected operation name after '.'\n",
-                            line, column);
-                        free(eff_name);
-                        return NULL;
-                    }
-                    char *op_name = strdup(current_token(p)->value);
-                    advance(p);
-
-                    /* argument in parens: op(arg)  or no-arg: op() */
-                    ASTNode *arg = NULL;
-                    if (match(p, TOKEN_LPAREN)) {
-                        advance(p);  /* consume ( */
-                        if (!match(p, TOKEN_RPAREN)) {
-                            arg = parse_expression(p);
-                        }
-                        if (!expect(p, TOKEN_RPAREN, "Expected ')' after perform argument")) {
-                            free(eff_name); free(op_name);
-                            if (arg) free_ast(arg);
-                            return NULL;
-                        }
-                    }
-
-                    ASTNode *perf = create_node(AST_EFFECT_OP, line, column);
-                    perf->as.effect_op.effect_name = eff_name;
-                    perf->as.effect_op.op_name     = op_name;
-                    perf->as.effect_op.arg         = arg;
-                    return perf;
+                    return parse_perform(p, false);
                 }
 
                 /* ── handle expr with { Effect.op(binding) -> body } ── */
@@ -6069,7 +6030,9 @@ void free_ast(ASTNode *node) {
         case AST_EFFECT_OP:
             free(node->as.effect_op.effect_name);
             free(node->as.effect_op.op_name);
-            if (node->as.effect_op.arg) free_ast(node->as.effect_op.arg);
+            for (int i = 0; i < node->as.effect_op.arg_count; i++)
+                free_ast(node->as.effect_op.args[i]);
+            free(node->as.effect_op.args);
             break;
         default:
             break;

@@ -2306,7 +2306,37 @@ void test_eval_nested_effect_handlers(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_effect_argument_lists(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Recorder { pair : int int -> void, tick : void -> void }\n"
+        "let mut trace: int = 0\n"
+        "let mut recorded: int = 0\n"
+        "fn argument(value: int) -> int { set trace (+ (* trace 10) value) return value }\n"
+        "fn exercise() -> int {\n"
+        " set trace 0 set recorded 0\n"
+        " let first: int = 9\n"
+        " let ignored = handle { perform Recorder.pair((argument 1) (+ first (argument 2))) } with {\n"
+        "  pair first second -> { set recorded (+ (* first 100) second) }\n"
+        " }\n"
+        " let ticked = handle { perform Recorder.tick() } with {\n"
+        "  tick -> { set recorded (+ recorded 1000) }\n"
+        " }\n"
+        " return (+ (* trace 10000) recorded)\n"
+        "}\n"
+        "shadow argument { assert (== (exercise) 121111) }\n"
+        "shadow exercise { assert (== (exercise) 121111) }\n"
+        "fn main() -> int { return (exercise) }\n"
+        "shadow main { assert (== (main) 121111) }\n"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 121111);
+    ASSERT(nl_effect_find_handler("Recorder", "pair", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
+    TEST(eval_effect_argument_lists);
     TEST(eval_unqualified_effect_handler);
     TEST(eval_nested_effect_handlers);
     printf("=== Interpreter (eval.c) Tests ===\n");

@@ -535,11 +535,12 @@ struct ASTNode {
             int       handler_count;
         } effect_handler;
 
-        /* AST_EFFECT_OP: perform Foo.op arg */
+        /* AST_EFFECT_OP: perform Foo.op(args...) */
         struct {
             char    *effect_name;
             char    *op_name;
-            ASTNode *arg;
+            ASTNode **args;
+            int arg_count;
         } effect_op;
 
         /* AST_ASYNC_FN — async function declaration (wraps a normal function node) */

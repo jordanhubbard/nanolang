@@ -5423,29 +5423,17 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 fprintf(stderr, "I require a resolved effect and nonempty handler clauses.\n");
                 return create_void();
             }
-            char **parameters = calloc((size_t)count, sizeof(*parameters));
-            if (!parameters) return create_void();
-            for (int i = 0; i < count; i++) {
-                int arity = expr->as.handle_expr.handler_param_counts[i];
-                if (arity > 1) {
-                    fprintf(stderr, "I cannot dispatch a multi-argument effect through the scalar perform AST.\n");
-                    free(parameters);
-                    return create_void();
-                }
-                if (arity == 1) parameters[i] = expr->as.handle_expr.handler_param_names[i][0];
-            }
-            ASTNode handler = {0};
-            handler.type = AST_EFFECT_HANDLER;
-            handler.line = expr->line;
-            handler.column = expr->column;
-            handler.as.effect_handler.effect_name = expr->as.handle_expr.effect_name;
-            handler.as.effect_handler.body = expr->as.handle_expr.body;
-            handler.as.effect_handler.handler_op_names = expr->as.handle_expr.handler_op_names;
-            handler.as.effect_handler.handler_param_names = parameters;
-            handler.as.effect_handler.handler_bodies = expr->as.handle_expr.handler_bodies;
-            handler.as.effect_handler.handler_count = count;
-            Value result = eval_expression(&handler, env);
-            free(parameters);
+            EffectHandlerFrame frame = {0};
+            frame.effect_name = expr->as.handle_expr.effect_name;
+            frame.handler_op_names = expr->as.handle_expr.handler_op_names;
+            frame.handler_param_groups = expr->as.handle_expr.handler_param_names;
+            frame.handler_param_counts = expr->as.handle_expr.handler_param_counts;
+            frame.handler_bodies = expr->as.handle_expr.handler_bodies;
+            frame.handler_count = count;
+            frame.env = env;
+            nl_effect_frame_push(&frame);
+            Value result = eval_expression(expr->as.handle_expr.body, env);
+            nl_effect_frame_pop();
             return result;
         }
 
@@ -5484,18 +5472,27 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 return create_void();
             }
 
-            /* Use the handler's captured environment; save/restore symbol count for scope. */
+            const char *legacy_param = frame->handler_param_names
+                ? frame->handler_param_names[arm_idx] : NULL;
+            int count = frame->handler_param_counts ? frame->handler_param_counts[arm_idx]
+                : (legacy_param && legacy_param[0] ? 1 : 0);
+            if (count != expr->as.effect_op.arg_count) {
+                fprintf(stderr, "I require matching perform and handler argument counts.\n");
+                return create_void();
+            }
+            Value *args = count ? calloc((size_t)count, sizeof(*args)) : NULL;
+            if (count && !args) return create_void();
+            /* I evaluate in the caller before handler names can shadow arguments. */
+            for (int i = 0; i < count; i++)
+                args[i] = eval_expression(expr->as.effect_op.args[i], env);
             Environment *henv = frame->env;
             int saved_sym = henv->symbol_count;
-
-            /* Bind the parameter (if named) to the performed argument value. */
-            const char *param = frame->handler_param_names[arm_idx];
-            if (param && param[0] != '\0') {
-                Value arg_val = expr->as.effect_op.arg
-                                ? eval_expression(expr->as.effect_op.arg, env)
-                                : create_void();
-                env_define_var(henv, param, TYPE_UNKNOWN, false, arg_val);
+            for (int i = 0; i < count; i++) {
+                const char *param = frame->handler_param_groups
+                    ? frame->handler_param_groups[arm_idx][i] : legacy_param;
+                env_define_var(henv, param, TYPE_UNKNOWN, false, args[i]);
             }
+            free(args);
 
             Value handler_result = eval_statement(frame->handler_bodies[arm_idx], henv);
 

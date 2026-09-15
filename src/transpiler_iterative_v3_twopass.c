@@ -3141,10 +3141,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             if (!eff) eff = "unknown";
             if (!op)  op  = "unknown";
             emit_formatted(list, "nl_perform_%s_%s(", eff, op);
-            if (expr->as.effect_op.arg)
-                build_expr(list, expr->as.effect_op.arg, env);
-            else
-                emit_literal(list, "0");
+            for (int i = 0; i < expr->as.effect_op.arg_count; i++) {
+                if (i) emit_literal(list, ", ");
+                build_expr(list, expr->as.effect_op.args[i], env);
+            }
             emit_literal(list, ")");
             break;
         }
