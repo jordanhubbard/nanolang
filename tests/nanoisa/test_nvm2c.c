@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 #include "assembler.h"
 #include "nvm2c.h"
@@ -439,6 +440,84 @@ static void test_real_walk_artifact(void) {
         unlink(data_path); unlink(copy_path); rmdir(empty_path); rmdir(copied_dir);
     }
     unlink(library); rmdir(directory);
+}
+
+static void test_builtin_text_reader(void) {
+    char directory[] = "/tmp/nvm2c-text-XXXXXX";
+    if (!mkdtemp(directory)) { CHECK(0, "I create a text fixture"); return; }
+    char path[256], assembly[1024], large[9001];
+    snprintf(path, sizeof path, "%s/text", directory);
+    memset(large, 'x', sizeof large - 1); large[sizeof large - 1] = 0;
+    const char *aliases[] = {"file_read", "vm_file_read", "nl_os_file_read"};
+    for (int variant = 0; variant < 9; ++variant) {
+        const char *payload = variant == 0 ? "hello\n" : variant == 1 ? large :
+                              variant == 2 ? "a\0b" : variant >= 6 ? "streamed" : "";
+        const char *expected = variant <= 1 || variant == 6 ? payload : "";
+        pid_t writer = -1;
+        if (variant < 4 || variant >= 7) {
+            FILE *file = fopen(path, "wb");
+            CHECK(file != NULL, "I create the text input");
+            if (!file) continue;
+            size_t size = variant == 2 ? 3 : strlen(payload);
+            size_t written = fwrite(payload, 1, size, file);
+            int closed = fclose(file);
+            CHECK(written == size && closed == 0,
+                  "I finish the text input");
+        } else unlink(path);
+        if (variant == 6) {
+            CHECK(mkfifo(path, 0600) == 0, "I create a non-seekable input");
+            writer = fork();
+            CHECK(writer >= 0, "I start my bounded FIFO writer");
+            if (writer == 0) {
+                alarm(30);
+                FILE *file = fopen(path, "wb");
+                if (!file) _exit(1);
+                size_t count = fwrite(payload, 1, strlen(payload), file);
+                int closed = fclose(file);
+                _exit(count == strlen(payload) && closed == 0 ? 0 : 1);
+            }
+        }
+        snprintf(assembly, sizeof assembly,
+                 ".string path \"%s\"\n.string expected \"__expected_text_value__\"\n"
+                 ".import \"\" \"%s\" string string\n"
+                 ".entry 0\n.function main 0 0 0 int 1\n"
+                 "PUSH_STR path\nCALL_EXTERN 0\nPUSH_STR expected\nEQ\nASSERT\n"
+                 "PUSH_I64 0\nRET\n.end\n", variant == 5 ? directory : path, aliases[variant % 3]);
+        NvmModule *module = assemble_ok(assembly, "builtin streaming text reader");
+        if (!module) continue;
+        free(module->strings[1]);
+        module->strings[1] = strdup(expected);
+        module->string_lengths[1] = (uint32_t)strlen(expected);
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit the builtin text reader");
+        if (source) {
+            if (variant >= 7) {
+                const char *prefix = variant == 7 ?
+                    "#include <stdio.h>\nstatic int failed_close(FILE *f) { fclose(f); return EOF; }\n#define fclose failed_close\n" :
+                    "#include <stdio.h>\n#define ferror(f) 1\n";
+                char *injected = malloc(strlen(prefix) + strlen(source) + 1);
+                if (!injected) abort();
+                strcpy(injected, prefix); strcat(injected, source);
+                free(source); source = injected;
+            }
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I preserve text and reject invalid or unavailable input");
+        }
+        if (writer > 0) {
+            int status = 0;
+            CHECK(waitpid(writer, &status, 0) == writer && WIFEXITED(status) && WEXITSTATUS(status) == 0,
+                  "I reap my FIFO writer");
+        }
+        if (variant == 6) unlink(path);
+        free(source);
+        module->imports[0].return_type = TAG_BOOL;
+        source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I reject a mismatched builtin text result");
+        free(source); nvm_module_free(module);
+    }
+    unlink(path); rmdir(directory);
 }
 
 static void test_builtin_host_imports(void) {
@@ -2914,6 +2993,7 @@ int main(int argc, char **argv) {
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_builtin_host_imports();
+    test_builtin_text_reader();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();

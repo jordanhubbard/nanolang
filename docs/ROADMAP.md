@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT builtin text reader.** I preserve streaming text reads, empty
+      results on I/O errors and embedded-NUL rejection in generated C. I test
+      real files and keep builtin and artifact bindings distinct.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 752 checks, including FIFO and injected I/O errors.
+      Compiler acceptance remains failing at builtin `file_write` (import 19).
+      Evidence: `docs/evidence/aot-builtin-text-reader.md`.
 - [x] **AOT scalar filesystem imports.** I adapt the known filesystem
       string, boolean and integer contracts through exact artifact bindings,
       preserving argument order and native return widths. I execute real

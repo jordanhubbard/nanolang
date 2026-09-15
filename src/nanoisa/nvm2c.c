@@ -164,6 +164,9 @@ static const Nvm2cHost host_adapters[] = {
     {"vm_tmp_dir", "nhost_tmp_dir", 0, TAG_VOID, TAG_STRING},
     {"get_argc", "nhost_argc", 0, TAG_VOID, TAG_INT},
     {"get_argv", "nhost_argv", 1, TAG_INT, TAG_STRING},
+    {"file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
+    {"vm_file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
+    {"nl_os_file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
 };
 
 /* These native contracts have homogeneous string parameters. I do not infer
@@ -2529,6 +2532,38 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_host_file_read(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "#include <stdio.h>\n"
+        "static inline const char *nhost_file_read(const char *path) {\n"
+        "    FILE *file = path ? fopen(path, \"rb\") : NULL;\n"
+        "    size_t used = 0, capacity = 1;\n"
+        "    char *text = malloc(capacity);\n"
+        "    if (!text) abort();\n"
+        "    int invalid = 0;\n"
+        "    if (file) {\n"
+        "        char chunk[4096];\n"
+        "        size_t count;\n"
+        "        while ((count = fread(chunk, 1, sizeof chunk, file)) != 0) {\n"
+        "            if (memchr(chunk, 0, count)) invalid = 1;\n"
+        "            if (invalid) continue;\n"
+        "            if (used > SIZE_MAX - count - 1) abort();\n"
+        "            size_t needed = used + count + 1;\n"
+        "            if (needed > capacity) {\n"
+        "                capacity = needed > SIZE_MAX / 2 ? needed : needed * 2;\n"
+        "                char *grown = realloc(text, capacity);\n"
+        "                if (!grown) abort();\n"
+        "                text = grown;\n"
+        "            }\n"
+        "            memcpy(text + used, chunk, count); used += count;\n"
+        "        }\n"
+        "        if (ferror(file)) invalid = 1;\n"
+        "        if (fclose(file) != 0) invalid = 1;\n"
+        "    }\n"
+        "    text[invalid ? 0 : used] = 0;\n"
+        "    return text;\n}\n");
+}
+
 static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
@@ -2752,6 +2787,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             int env_used = module_uses_host(mod, "nhost_getenv");
             int tmp_used = module_uses_host(mod, "nhost_tmp_dir");
             int cwd_used = module_uses_host(mod, "nhost_getcwd");
+            if (module_uses_host(mod, "nhost_file_read")) emit_host_file_read(&b);
             if (argv_used || env_used || tmp_used || cwd_used) nvm2c_puts(&b,
                 "static inline const char *nhost_copy(const char *value) {\n"
                 "    if (!value) value = \"\";\n"
