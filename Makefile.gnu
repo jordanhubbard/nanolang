@@ -609,6 +609,12 @@ test-process-run-array:
 	python3 -m unittest tests.test_process_run_array
 
 test-units: test-process-run-array
+
+.PHONY: test-preferences-save
+test-preferences-save:
+	python3 -m unittest tests.test_preferences_save
+
+test-units: test-preferences-save
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback

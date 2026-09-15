@@ -45,7 +45,16 @@ static void array_append_string(DynArray* arr, const char* str) {
 
 // Save playlist to file
 int64_t nl_prefs_save_playlist(const char* filename, DynArray* items, int64_t count) {
-    if (!filename || !items) return 0;
+    /* I validate the selected prefix before opening a file destructively. */
+    if (!filename || !items || items->elem_type != ELEM_STRING ||
+        items->elem_size != sizeof(char*) || items->length < 0 ||
+        items->capacity < items->length || count < 0 || count > items->length ||
+        (uint64_t)items->capacity > SIZE_MAX / sizeof(char*) ||
+        (items->capacity && !items->data)) return 0;
+    for (int64_t i = 0; i < count; i++) {
+        const char* item = ((const char**)items->data)[i];
+        if (!item || strchr(item, '\n')) return 0;
+    }
     
     FILE* fp = fopen(filename, "w");
     if (!fp) {
@@ -53,15 +62,14 @@ int64_t nl_prefs_save_playlist(const char* filename, DynArray* items, int64_t co
     }
     
     // Write each item on a separate line
-    for (int64_t i = 0; i < count && i < items->length; i++) {
+    int ok = 1;
+    for (int64_t i = 0; i < count; i++) {
         const char* item = ((const char**)items->data)[i];
-        if (item) {
-            fprintf(fp, "%s\n", item);
-        }
+        if (fprintf(fp, "%s\n", item) < 0) { ok = 0; break; }
     }
     
-    fclose(fp);
-    return 1;
+    if (fclose(fp) != 0) ok = 0;
+    return ok;
 }
 
 // Load playlist from file

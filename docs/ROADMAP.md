@@ -240,6 +240,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   either pipe failure, descriptor setup and fork failure, real
                   stdout/stderr capture and callers with closed standard output
                   descriptors. Read ends are nonblocking and close-on-exec.
+                - [x] I validate preference playlist saves before opening the
+                  output and test rejection without truncating existing files,
+                  valid prefix writes, and stream failures.
+                - [ ] I replace preferences' manually allocated playlist arrays
+                  with canonical runtime allocation, preserve long lines, and
+                  clean up partial loads on failure; I reject truncated or null
+                  preference path inputs before returning a path.
                 - [x] I replace process_run's truncated shell/redirection
                   command and reopened temporary paths with descriptor-owned
                   capture, preserving full commands and checking read failures.
