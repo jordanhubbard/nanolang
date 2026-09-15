@@ -796,6 +796,25 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
 
+    if (array_expr->type == AST_CALL && array_expr->as.call.name &&
+        !array_expr->as.call.func_expr) {
+        Function *producer = env_get_function(env, array_expr->as.call.name);
+        if (producer && producer->return_type == TYPE_ARRAY)
+            return producer->return_element_type;
+    }
+    if (array_expr->type == AST_MODULE_QUALIFIED_CALL) {
+        const char *alias = array_expr->as.module_qualified_call.module_alias;
+        const char *name = array_expr->as.module_qualified_call.function_name;
+        size_t size = strlen(alias) + strlen(name) + 2;
+        char *qualified = malloc(size);
+        if (!qualified) return TYPE_UNKNOWN;
+        snprintf(qualified, size, "%s.%s", alias, name);
+        Function *producer = env_get_function(env, qualified);
+        free(qualified);
+        if (producer && producer->return_type == TYPE_ARRAY)
+            return producer->return_element_type;
+    }
+
     if (array_expr->type == AST_ARRAY_LITERAL) {
         if (array_expr->as.array_literal.element_type != TYPE_UNKNOWN) {
             return array_expr->as.array_literal.element_type;
@@ -1480,6 +1499,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
                 return TYPE_UNKNOWN;
             }
+
+            if (strcmp(expr->as.call.name, "array_push") == 0 &&
+                expr->as.call.arg_count == 2) {
+                ASTNode *receiver = expr->as.call.args[0];
+                if (receiver->type == AST_ARRAY_LITERAL &&
+                    receiver->as.array_literal.element_count == 0) {
+                    Type element = check_expression(expr->as.call.args[1], env);
+                    if (element != TYPE_UNKNOWN) {
+                        receiver->as.array_literal.element_type = element;
+                    }
+                }
+            }
             
             /* If not a function, check if it's a function-typed variable (parameter) */
             /* ALSO: prefer built-in HashMap<K,V> generics when there's a generic type context,
@@ -2160,6 +2191,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         
                         /* Regular argument type checking */
                         Type arg_type = check_expression(arg, env);
+                        if (arg->type == AST_ARRAY_LITERAL &&
+                            arg->as.array_literal.element_count == 0 &&
+                            func->params[i].type == TYPE_ARRAY &&
+                            func->params[i].element_type != TYPE_UNKNOWN) {
+                            arg->as.array_literal.element_type = func->params[i].element_type;
+                        }
                         
                         /* Track resource consumption when passing to functions */
                         /* If argument is a resource variable passed by value, mark as consumed */
@@ -2257,6 +2294,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* at(array, index) returns the element type of the array */
                 if (expr->as.call.arg_count >= 1) {
                     ASTNode *array_arg = expr->as.call.args[0];
+                    Type inferred_element = infer_array_element_type(array_arg, env);
+                    if (inferred_element != TYPE_UNKNOWN) return inferred_element;
                     
                     /* Check if it's an array literal - get element type from it */
                     if (array_arg->type == AST_ARRAY_LITERAL && array_arg->as.array_literal.element_count > 0) {
@@ -2513,7 +2552,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             
             /* Type check each argument expression */
             for (int i = 0; i < expr->as.module_qualified_call.arg_count; i++) {
-                check_expression(expr->as.module_qualified_call.args[i], env);
+                ASTNode *arg = expr->as.module_qualified_call.args[i];
+                check_expression(arg, env);
+                if (arg->type == AST_ARRAY_LITERAL &&
+                    arg->as.array_literal.element_count == 0 &&
+                    func->params[i].type == TYPE_ARRAY &&
+                    func->params[i].element_type != TYPE_UNKNOWN) {
+                    arg->as.array_literal.element_type = func->params[i].element_type;
+                }
             }
             
             return func->return_type;
@@ -6473,6 +6519,7 @@ register_function_pass1:;
             func.params = item->as.function.params;
             func.param_count = item->as.function.param_count;
             func.return_type = return_type;
+            func.return_element_type = item->as.function.return_element_type;
             func.return_type_info = NULL;
             func.return_struct_type_name = item->as.function.return_struct_type_name;
             func.return_fn_sig = item->as.function.return_fn_sig;  /* Store function signature for TYPE_FUNCTION returns */
@@ -7213,6 +7260,7 @@ register_function_pass2:;
                 f.params[j].fn_sig = item->as.function.params[j].fn_sig;
             }
             f.return_type = item->as.function.return_type;
+            f.return_element_type = item->as.function.return_element_type;
             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
                 strdup(item->as.function.return_struct_type_name) : NULL;
             f.return_fn_sig = item->as.function.return_fn_sig;

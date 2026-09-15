@@ -23,7 +23,8 @@
 
 /* ── Limits ─────────────────────────────────────────────────────── */
 
-#define MAX_LOCALS      256
+/* My compiler bodies exceed 256 lets; local operands are u16. */
+#define MAX_LOCALS      1024
 /* I include dependency functions, qualified aliases, and selected shadows. */
 #define MAX_FUNCTIONS   4096
 #define MAX_PATCHES     1024

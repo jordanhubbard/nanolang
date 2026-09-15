@@ -483,6 +483,27 @@ static const char *map_function_name(const char *name, Environment *env) {
 static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (!array_expr) return TYPE_UNKNOWN;
 
+    if (array_expr->type == AST_MODULE_QUALIFIED_CALL) {
+        const char *alias = array_expr->as.module_qualified_call.module_alias;
+        const char *name = array_expr->as.module_qualified_call.function_name;
+        size_t size = strlen(alias) + strlen(name) + 2;
+        char *qualified = malloc(size);
+        if (!qualified) return TYPE_UNKNOWN;
+        snprintf(qualified, size, "%s.%s", alias, name);
+        Function *producer = env_get_function(env, qualified);
+        free(qualified);
+        if (producer && producer->return_type == TYPE_ARRAY)
+            return producer->return_element_type;
+    }
+
+    if (array_expr->type == AST_CALL && array_expr->as.call.name &&
+        !array_expr->as.call.func_expr) {
+        Function *producer = env_get_function(env, array_expr->as.call.name);
+        if (producer && producer->return_type == TYPE_ARRAY) {
+            return producer->return_element_type;
+        }
+    }
+
     if (array_expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var(env, array_expr->as.identifier);
         if (sym && sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
@@ -1885,6 +1906,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 /* If this is an array of structs, try to recover the element struct name */
                 if (elem_type == TYPE_STRUCT) {
+                    if (array_arg->type == AST_CALL && array_arg->as.call.name &&
+                        !array_arg->as.call.func_expr) {
+                        Function *producer = env_get_function(env, array_arg->as.call.name);
+                        if (producer && producer->return_type == TYPE_ARRAY) {
+                            struct_name = producer->return_struct_type_name;
+                        }
+                    }
                     if (array_arg->type == AST_IDENTIFIER) {
                         Symbol *sym = env_get_var(env, array_arg->as.identifier);
                         if (sym && sym->struct_type_name) {

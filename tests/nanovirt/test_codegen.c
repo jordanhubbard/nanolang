@@ -1619,7 +1619,33 @@ static void test_callback_contract_binding(void) {
     TEST_PASS();
 }
 
+static void test_compiler_local_limit(void) {
+    for (int count = 1024; count <= 1025; ++count) {
+        char *source = malloc(65536);
+        ASSERT(source != NULL, "local-limit source allocation");
+        size_t used = (size_t)snprintf(source, 65536, "fn main() -> int {\n");
+        for (int i = 0; i < count; ++i) {
+            used += (size_t)snprintf(source + used, 65536 - used,
+                                     "let local_%d: int = %d\n", i, i);
+        }
+        snprintf(source + used, 65536 - used, "return local_%d\n}\n", count - 1);
+        TestResult result = compile_and_run(source);
+        free(source);
+        if (count == 1024) {
+            ASSERT(result.ok, "I compile 1024 compiler-sized locals");
+            ASSERT(result.vm_result == VM_OK, "I execute the expanded local frame");
+            ASSERT_INT(result.result.as.i64, 1023);
+            nvm_module_free(result.module);
+        } else {
+            ASSERT(!result.ok && strstr(result.error, "too many local variables"),
+                   "I reject a local beyond the bounded compiler table");
+        }
+    }
+    TEST_PASS();
+}
+
 int main(void) {
+    test_compiler_local_limit();
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 

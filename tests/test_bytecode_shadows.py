@@ -199,6 +199,10 @@ class BytecodeShadows(unittest.TestCase):
                 self.assertEqual(result.returncode == 0, success, result.stderr)
                 self.assertEqual(output.exists(), success)
 
+                if not success:
+                    self.assertIn(b"Stack trace", result.stderr)
+                    self.assertIn(b"$shadow_", result.stderr)
+
     def test_shadow_locals_and_globals_are_not_product_state(self):
         source = '''let mut count: int = 0
 fn f() -> int { return count }

@@ -260,6 +260,7 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
         VmResult status = vm_execute(&vm);
         if (status != VM_OK) {
             fprintf(stderr, "I failed a shadow: %s\n", vm.error_msg[0] ? vm.error_msg : vm_error_string(status));
+            if (status == VM_ERR_ASSERT_FAILED) vm_stack_trace(&vm, stderr);
         }
         if (vm.cop_pid > 0) vm_ffi_cop_stop(&vm);
         vm_destroy(&vm);

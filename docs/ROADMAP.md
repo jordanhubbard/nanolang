@@ -91,6 +91,36 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         which are absent from this branch. I preserve the newer verifier,
         module identity, callback and aggregate fixes through conflict review;
         rerun executable AOT/bootstrap gates rather than trusting old task text.
+        - [x] I restore the compiler-sized local limit from the existing AOT
+          branch: 1024 rather than 256. My codegen suite tests 1024 locals and
+          rejection at 1025; all 68 tests pass. My complete `nanoc_v06.nano`
+          bytecode build now passes with dependency shadows enabled.
+        - [x] I identify failed bytecode shadows without per-opcode tracing.
+          Assertion failures now report their stack. All 39 bytecode-shadow
+          tests pass, including stack output and failed-artifact nonpublication.
+          I retain the ten-second deadline. Stack locations still use the root
+          source path; this is not original dependency-file provenance.
+        - [x] I repair the compiler's `scan_block_for_lists` and
+          `substitute_union_field_type` shadows on NanoVM. Empty array arguments
+          retain declared parameter element types; empty push receivers infer
+          their representation from the first value, including registered
+          builtins. Native and VM fixtures test strings, records, floats and
+          booleans, nested pushes, shadows and execution. The full compiler's
+          default dependency-shadow build now publishes its bytecode.
+        - [x] I preserve array result element types through direct call indexing.
+          Root and imported function registration retain the declared element
+          type; native accessors recover the record name when needed. My native
+          and VM fixture checks direct bool/string/float/record call indexing.
+          A qualified imported Boolean-array call checks module registration,
+          empty arguments and call-result indexing on both backends too.
+          Typechecker tests and all 68 NanoVirt tests pass. This does not claim
+          general indirect-call or self-hosted inference parity.
+          MAC `task_cf8bfc10244bc0fc3488c109278d4cb8` retains the evidence.
+        - [ ] I carry that compiler bytecode through native AOT translation.
+          The current executable gate rejects its imports with `imports require
+          a host ABI; nvm2c refuses CALL_EXTERN`. I integrate the existing AOT
+          branch's host support with checked signatures, then compile and run
+          the generated compiler. I do not substitute an embedded VM wrapper.
         - [x] I integrate native prefix/suffix string operations from that
           branch without importing its heuristic aggregate classifier. I test
           empty, longer, equal, matching and nonmatching strings through emitted
