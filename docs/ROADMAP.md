@@ -115,6 +115,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         variable aliases, and run typechecker and interpreter regression gates.
         Both gates pass after rebuilding the compiler stages.
         [Review evidence](evidence/pr-281-reconciliation.md).
+      - [x] I reconcile both commits in PR #284, preserving the existing source
+        identity guard and replacing predictable-path fixtures with my private
+        alias regressions. Stage2 passes all three methods after bootstrap;
+        the Stage1 override also passes from outside the repository.
+        [Review evidence](evidence/pr-284-reconciliation.md).
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with
