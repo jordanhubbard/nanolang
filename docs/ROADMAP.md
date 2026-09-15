@@ -152,10 +152,33 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         entry-point tests pass; the full component-execution audit remains
         open because the PR does not implement it.
         [Review evidence](evidence/pr-266-reconciliation.md).
-      - [ ] I isolate the daemon integration script from user processes and
+      - [x] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with
         failure-injection tests. MAC `task_999bf1a1ab96472294660aa2b19cae9a`.
+        I first add a shared explicit socket override and a client mode that
+        forbids automatic daemon launch. My runner then owns a foreground
+        child and private directory, applies deadlines, and checks every
+        selected compilation, execution and output comparison. I exercise
+        startup, execution, timeout and cleanup failures before the real gate.
+        My injected failures and native endpoint checks pass; the rebuilt
+        `make test-nanovm-daemon` gate passes all eight selected programs with
+        no skips. Evidence: `docs/evidence/daemon-gate-isolation.md`.
+      - [x] I keep daemon execution state off bounded client-thread stacks.
+        The strict gate exposes a Darwin `SIGBUS` before even a ping is
+        handled. The crash report identifies `___chkstk_darwin` in
+        `client_thread` and reports that the thread stack size was exceeded.
+        I use checked owned VM-state allocation and verify real connections
+        and all eight daemon corpus programs. MAC
+        `task_ed9fc711786a459abb5bafb69ea33f3e`.
+        The rebuilt daemon now answers the readiness ping and executes all
+        eight programs successfully. This is not a concurrent-client stress
+        test or proof of every allocation-failure path.
+      - [ ] I isolate the co-process lifecycle gate before running it: its
+        EXIT trap currently kills ambient `nano_cop` and `nano_vmd` processes.
+        I replace process-name cleanup with owned handles and private sockets,
+        audit masked failures, and test preservation of unrelated processes.
+        MAC `task_a02a66101b184e6eaa3e61480079f300`.
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.

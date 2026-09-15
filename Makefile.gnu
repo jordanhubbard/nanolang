@@ -733,12 +733,23 @@ test-vmd-socket-path: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(R
 		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(LDFLAGS) -pthread
 	@$(OBJ_DIR)/test_vmd_socket_path
 
-test-nanovm-daemon: nano_vm nano_vmd test-vmd-server
+test-nanovm-daemon: nano_virt nano_vm nano_vmd test-vmd-server test-daemon-gate
 	@echo "Running NanoVM daemon integration tests..."
 	@scripts/test_nanovm_daemon.sh
 
 .PHONY: test-vmd-server
-test-vmd-server: test-vmd-socket-path
+test-vmd-server: test-vmd-socket-path test-vmd-path-config
+
+.PHONY: test-vmd-path-config
+test-vmd-path-config:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_vmd_path_config \
+		tests/nanovm/test_vmd_path_config.c $(SRC_DIR)/nanovm/vmd_protocol.c $(SRC_DIR)/nanovm/vmd_client.c
+	@$(OBJ_DIR)/test_vmd_path_config
+
+.PHONY: test-daemon-gate
+test-daemon-gate:
+	@python3 -m unittest tests.test_daemon_gate
 
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop

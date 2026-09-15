@@ -229,23 +229,37 @@ static void *client_thread(void *arg) {
                     hdr.payload_len, module->function_count);
         }
 
+        /* I allocate VM state only for execution, not on every client's
+         * bounded pthread stack (including ping/status clients). */
+        VmState *vm = malloc(sizeof(*vm));
+        if (!vm) {
+            vmd_msg_send_error(fd, "I cannot allocate daemon VM state.");
+            nvm_module_free(module);
+            break;
+        }
+
         /* Create socket-backed FILE* for output streaming */
         FILE *sock_out = socket_fopen(fd);
+        if (!sock_out) {
+            vmd_msg_send_error(fd, "I cannot create the daemon output stream.");
+            free(vm);
+            nvm_module_free(module);
+            break;
+        }
 
         /* Initialize VM state */
-        VmState vm;
-        vm_init(&vm, module);
-        vm.output = sock_out;  /* Redirect output over socket */
+        vm_init(vm, module);
+        vm->output = sock_out;  /* Redirect output over socket */
 
         /* Enable co-process FFI isolation if module needs extern calls.
          * The cop is launched lazily on first TRAP_EXTERN_CALL, not here.
          * Each client thread gets its own cop (1:1 thread-to-cop mapping).
          * If the cop crashes, it's relaunched on the next FFI call. */
         if (module->header.flags & NVM_FLAG_NEEDS_EXTERN) {
-            vm.isolate_ffi = true;
+            vm->isolate_ffi = true;
         }
 
-        VmResult result = vm_execute(&vm);
+        VmResult result = vm_execute(vm);
 
         /* Flush any remaining output */
         if (sock_out) fflush(sock_out);
@@ -255,9 +269,9 @@ static void *client_thread(void *arg) {
             exit_code = 1;
             /* Format error like standalone: "Runtime error: <type>\n  <detail>" */
             char errbuf[512];
-            if (vm.error_msg[0]) {
+            if (vm->error_msg[0]) {
                 snprintf(errbuf, sizeof(errbuf), "Runtime error: %s\n  %s",
-                         vm_error_string(result), vm.error_msg);
+                         vm_error_string(result), vm->error_msg);
             } else {
                 snprintf(errbuf, sizeof(errbuf), "Runtime error: %s",
                          vm_error_string(result));
@@ -267,8 +281,9 @@ static void *client_thread(void *arg) {
 
         vmd_msg_send_exit(fd, exit_code);
 
-        if (vm.isolate_ffi) vm_ffi_cop_stop(&vm);
-        vm_destroy(&vm);
+        if (vm->isolate_ffi) vm_ffi_cop_stop(vm);
+        vm_destroy(vm);
+        free(vm);
         if (sock_out) fclose(sock_out);
         nvm_module_free(module);
         break;
@@ -329,7 +344,7 @@ int vmd_server_run(const VmdServerConfig *cfg) {
     vmd_pid_path(pid_file, sizeof(pid_file));
     struct sockaddr_un addr;
     size_t socket_length = strlen(sock_path);
-    if (socket_length >= sizeof(addr.sun_path)) {
+    if (!socket_length || socket_length >= sizeof(addr.sun_path)) {
         fprintf(stderr, "[vmd] I cannot represent this Unix socket path without truncation.\n");
         return 1;
     }
