@@ -613,7 +613,11 @@ test-callback-runtime:
 		tests/nanovm/test_callback_failures.c $(LDFLAGS)
 	@$(OBJ_DIR)/test_callback_failures
 
-test-vm-ffi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+.PHONY: test-array-abi-loader
+test-array-abi-loader:
+	python3 -m unittest tests.test_array_abi_loader
+
+test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -pthread tests/nanovm/ffi_callback_fixture.c -o obj/ffi_callback_fixture.so $(LDFLAGS)
 	$(CC) $(CFLAGS) -pthread tests/nanovm/test_retained_image_failure.c obj/runtime/module_build_dir.o -o obj/test_retained_image_failure $(LDFLAGS)
 	@obj/test_retained_image_failure

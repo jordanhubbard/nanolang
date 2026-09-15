@@ -14,6 +14,8 @@
 
 #include "../../src/runtime/directory_walk.h"
 
+NANO_EXPORT_ARRAY_ABI(fs_walkdir);
+
 DynArray* fs_walkdir(const char* root) {
     return nl_fs_walkdir(root);
 }

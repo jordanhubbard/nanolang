@@ -15,6 +15,8 @@
 #include "../../src/runtime/dyn_array.h"
 #include <limits.h>
 
+NANO_EXPORT_ARRAY_ABI(nl_sdl_update_texture);
+
 #define NL_SDL_EVENT_BUF_CAP 256
 
 static SDL_Event nl_sdl_event_buf[NL_SDL_EVENT_BUF_CAP];

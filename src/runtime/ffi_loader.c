@@ -11,6 +11,12 @@
  * - The daemon runs concurrent threads (read lock allows parallel symbol resolution)
  */
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE 1
+#endif
 #define _POSIX_C_SOURCE 200809L  /* For strdup(), pthread_rwlock_t */
 
 #include "ffi_loader.h"
@@ -223,6 +229,46 @@ void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name
     }
     pthread_rwlock_unlock(&ffi_lock);
     return ptr;
+}
+
+bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name,
+                                void *function, uint32_t expected,
+                                char *error, size_t error_size) {
+    if (error && error_size) error[0] = '\0';
+    if (!module_name || !symbol_name || !function) return false;
+    const char suffix[] = "__nano_array_abi";
+    size_t length = strlen(symbol_name);
+    if (length > SIZE_MAX - sizeof suffix) return false;
+    char *name = malloc(length + sizeof suffix);
+    if (!name) return false;
+    memcpy(name, symbol_name, length);
+    memcpy(name + length, suffix, sizeof suffix);
+    bool found = false, valid = false;
+    uint32_t actual = 1;
+    pthread_rwlock_rdlock(&ffi_lock);
+    for (int i = 0; i < module_count; ++i) {
+        if (strcmp(modules[i].name, module_name)) continue;
+        found = true;
+        const uint32_t *declaration = dlsym(modules[i].handle, name);
+        if (!declaration) {
+            valid = expected == 1;
+        } else {
+            Dl_info function_image, declaration_image;
+            if (dladdr(function, &function_image) && dladdr(declaration, &declaration_image) &&
+                function_image.dli_fbase == declaration_image.dli_fbase) {
+                memcpy(&actual, declaration, sizeof actual);
+                valid = actual == expected;
+            }
+        }
+        break;
+    }
+    pthread_rwlock_unlock(&ffi_lock);
+    free(name);
+    if (!valid && error && error_size)
+        snprintf(error, error_size,
+                 "I require native array ABI %u for %s; its declaration is missing, incompatible or belongs to another image%s",
+                 expected, symbol_name, found ? "" : " (module not loaded)");
+    return valid;
 }
 
 void *ffi_loader_resolve_retained(const char *symbol_name, const char *module_name) {

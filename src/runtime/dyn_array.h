@@ -10,6 +10,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define NANO_DYN_ARRAY_ABI_VERSION 1u
+/* I attach the compiled layout version to each array-bearing foreign export. */
+#define NANO_EXPORT_ARRAY_ABI(function) \
+    __attribute__((visibility("default"))) const uint32_t function##__nano_array_abi = NANO_DYN_ARRAY_ABI_VERSION
+
 /* Element type enum (matches nanolang Value types) */
 typedef enum {
     ELEM_INT = 1,

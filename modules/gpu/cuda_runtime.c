@@ -272,6 +272,8 @@ void nl_gpu_free(int64_t ptr) {
 
 #include "../../src/runtime/dyn_array.h"
 typedef DynArray NLArray;
+NANO_EXPORT_ARRAY_ABI(nl_gpu_memcpy_to_device);
+NANO_EXPORT_ARRAY_ABI(nl_gpu_memcpy_from_device);
 
 bool nl_gpu_memcpy_to_device(int64_t dst, NLArray *src, int64_t bytes) {
     if (bytes <= 0 || !dyn_array_has_storage(src, ELEM_INT, sizeof(int64_t), (uint64_t)bytes) ||

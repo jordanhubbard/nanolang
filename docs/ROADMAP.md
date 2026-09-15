@@ -180,6 +180,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               full SDL helper source also passes syntax checking with installed
               SDK headers. These tests do not establish real GPU or display
               behavior, device-pointer provenance or mixed-version ABI safety.
+            - [x] I version array-bearing artifact exports per C function and
+              check the declaration against the image that supplies that
+              function. Unmarked artifacts mean legacy version 1, not whichever
+              ABI the host happens to use. I test matching/mismatching versions,
+              missing declarations under version 2, and a declaration supplied
+              by the wrong dependency before changing the layout.
+              Loader fixtures pass normally and under ASan/UBSan; all 26 VM
+              FFI tests pass, including rejection before an incompatible
+              array-returning function can execute. I keep the current layout
+              at version 1. These declarations are trusted C metadata, not
+              memory-safety proofs.
+            - [ ] I enforce the same version boundary in native C compilation
+              and cover array-bearing exports across modules before switching
+              to the wider version-2 layout. The VM artifact check alone does
+              not protect native-linked calls or legacy logical imports.
           - [ ] I define ownership for native array string elements, including
             filesystem walk results. `dyn_array_push_string_copy` allocates
             copies, while the native GC array destructor frees only the backing

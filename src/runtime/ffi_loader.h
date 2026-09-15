@@ -11,6 +11,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
 /**
  * Loaded module handle (opaque to callers that just need symbol resolution).
@@ -75,6 +76,13 @@ void *ffi_loader_resolve_in(const char *symbol_name, FfiModule **out_module);
 
 /* I resolve only through the named library handle, without global fallback. */
 void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name);
+
+/* I check a per-function native array ABI declaration in the function's own
+ * loaded image. Missing declarations mean legacy version 1. This checks a
+ * trusted native declaration, not the memory safety of arbitrary C code. */
+bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name,
+                                void *function, uint32_t expected,
+                                char *error, size_t error_size);
 
 /* I resolve without fallback and retain the selected image until process exit.
  * Native asynchronous code can outlive both the VM and its callback handles. */

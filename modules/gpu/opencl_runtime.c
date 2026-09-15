@@ -520,6 +520,8 @@ static const char *last_error_str(void) {
 
 #include "../../src/runtime/dyn_array.h"
 typedef DynArray NLArray;
+NANO_EXPORT_ARRAY_ABI(nl_gpu_memcpy_to_device);
+NANO_EXPORT_ARRAY_ABI(nl_gpu_memcpy_from_device);
 
 /* ═══════════════════════════════════════════════════════════════════════════
  * PUBLIC nl_gpu_* API
