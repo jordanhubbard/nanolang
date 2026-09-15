@@ -2021,7 +2021,12 @@ test-array-adapter-boundaries:
 
 test-units: test-array-adapter-boundaries test-sdl-image-arrays
 
-test-directory-walk: $(COMPILER_C) nano_virt nano_vm
+.PHONY: test-walk-result-release
+test-walk-result-release: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/test_walk_result_release tests/test_walk_result_release.c modules/std/fs.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/test_walk_result_release
+
+test-directory-walk: $(COMPILER_C) nano_virt nano_vm test-walk-result-release
 	@python3 -m unittest tests.test_directory_walk
 
 test-units: test-directory-walk

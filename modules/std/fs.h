@@ -11,9 +11,16 @@
  * inaccessible/disappearing entries and subtrees are omitted. This is a
  * best-effort walk, not a complete snapshot or a confinement boundary. Paths
  * have no internal fixed-size limit; host filesystem limits still apply.
- * Copied string ownership remains subject to the native array runtime's
- * process-lifetime storage; this walk does not establish leak freedom. */
+ * Copied strings retain process-lifetime storage unless the caller explicitly
+ * consumes the unmodified result with fs_walkdir_release below. Ordinary
+ * native array collection does not free these strings. */
 DynArray* fs_walkdir(const char* root);
+
+/* I consume only an unmodified result returned by fs_walkdir in this library.
+ * The caller must copy any escaping strings first. No borrowed element pointer
+ * may survive success. I refuse arrays with additional GC owners. This opt-in
+ * operation does not change ordinary native array element ownership. */
+bool fs_walkdir_release(DynArray* result);
 
 /* Normalize path (resolve . and .., remove redundant slashes) */
 const char* path_normalize(const char* path);

@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Owned walk-result release.** I add an opt-in C release operation for
+      unmodified, exclusively owned `fs_walkdir` results, freeing their copied
+      strings before the array. Existing callers retain current behavior.
+      I test escaped copies and shared-array refusal before AOT adapter use.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My release probe and directory-walk gate pass (one host-limit skip).
+      Evidence: `docs/evidence/walk-result-release.md`. AOT adaptation remains open.
 - [x] **AOT artifact boundary diagnostics.** I distinguish unsupported exact
       artifact imports from builtin ABI mismatches and pin the filesystem-array
       boundary against name-only rebinding. This does not implement the native

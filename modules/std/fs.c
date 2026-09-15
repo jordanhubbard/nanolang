@@ -21,6 +21,20 @@ DynArray* fs_walkdir(const char* root) {
     return nl_fs_walkdir(root);
 }
 
+bool fs_walkdir_release(DynArray* result) {
+    if (!result || !gc_is_managed(result)) return false;
+    GCHeader *header = gc_get_header(result);
+    if (header->type != GC_TYPE_ARRAY || header->ref_count != 1 ||
+        !dyn_array_has_storage(result, ELEM_STRING, sizeof(char*), 0)) return false;
+    for (int64_t i = 0; i < result->length; i++) {
+        free(((char**)result->data)[i]);
+        ((char**)result->data)[i] = NULL;
+    }
+    result->length = 0;
+    gc_release(result);
+    return true;
+}
+
 /* I resolve existing paths physically; failure is an empty string, never a
  * lexical approximation of the requested identity. */
 const char* path_canonical(const char* path) {
