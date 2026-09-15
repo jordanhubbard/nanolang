@@ -91,6 +91,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         which are absent from this branch. I preserve the newer verifier,
         module identity, callback and aggregate fixes through conflict review;
         rerun executable AOT/bootstrap gates rather than trusting old task text.
+        - [x] I integrate native prefix/suffix string operations from that
+          branch without importing its heuristic aggregate classifier. I test
+          empty, longer, equal, matching and nonmatching strings through emitted
+          C and retain the current control-flow and aggregate rejection tests.
+          I also integrate fixed-width byte escaping for UTF-8/control literals,
+          including a following digit that must not extend a C escape.
+          `make test-nvm2c` passes 485 checks, including emitted C compilation
+          and execution for 22 prefix/suffix cases. The imported implementation
+          comes from `8299138f`; its larger classifier is not merged by this step.
+        - [ ] I reconcile `ARR_SET` for integer, string and record arrays with
+          the current typed classifier, preserving alias-visible mutation,
+          bounds checks and rejection of incompatible element representations.
         A read-only merge preview finds 16 conflicting paths across 56 changed
         files. I first reconcile main's three conflicts: preserve checked FFI
         failure reporting and the central GC child-slot walk while incorporating

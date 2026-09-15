@@ -2431,7 +2431,47 @@ static void test_recursive_and_branch_record_facts(void) {
     nvm_module_free(m);
 }
 
+static void test_string_edges_run_as_native_c(void) {
+    const struct { const char *text, *part; int starts, ends; } cases[] = {
+        {"", "", 1, 1}, {"abc", "", 1, 1}, {"", "a", 0, 0},
+        {"abc", "abc", 1, 1}, {"abc", "abcd", 0, 0},
+        {"abc", "ab", 1, 0}, {"abc", "bc", 0, 1},
+        {"abc", "b", 0, 0}, {"éclair", "é", 1, 0},
+        {"é7", "7", 0, 1}, {"\0017", "\001", 1, 0}
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        for (int suffix = 0; suffix < 2; ++suffix) {
+            char source[512];
+            snprintf(source, sizeof source,
+                ".string text \"%s\"\n.string part \"%s\"\n.entry 1\n"
+                ".function predicate 0 0 0 bool 1\n"
+                "PUSH_STR text\nPUSH_STR part\n%s\nRET\n.end\n"
+                ".function main 0 0 0 int 1\nCALL predicate\nJMP_FALSE no\n"
+                "PUSH_I64 1\nRET\nno:\nPUSH_I64 0\nRET\n.end\n",
+                cases[i].text, cases[i].part,
+                suffix ? "STR_ENDS_WITH" : "STR_STARTS_WITH");
+            NvmModule *m = assemble_ok(source, "native string edge");
+            CHECK(m != NULL, "string edge fixture assembles");
+            if (!m) continue;
+            char error[256] = {0};
+            char *c = nvm2c_emit(m, error, sizeof error);
+            if (!c) fprintf(stderr, "string edge emission: %s\n", error);
+            CHECK(c != NULL, "string edge emits C");
+            if (c) {
+                CHECK(strstr(c, "nano_vm") == NULL, "string edge has no VM dependency");
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0, "string edge C compiles and runs");
+                CHECK(status == (suffix ? cases[i].ends : cases[i].starts),
+                      "native string edge has expected byte semantics");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+}
+
 int main(int argc, char **argv) {
+    test_string_edges_run_as_native_c();
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();

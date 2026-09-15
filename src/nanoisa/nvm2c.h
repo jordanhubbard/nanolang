@@ -17,7 +17,11 @@
  * AGG_PACK of records/variants, AGG_TAG, AGG_GET of int and string fields,
  * bool results as i64, PUSH_BOOL, BOOL_NOT, BOOL_AND,
  * BOOL_OR, PRINT, PRINTLN, ASSERT, STR_CONTAINS, CAST_STRING of i64,
- * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT. Anything else is refused with an error.
+ * EQ/NE of strings, STR_SUBSTR, STR_CHAR_AT, STR_STARTS_WITH and STR_ENDS_WITH.
+ * Prefix/suffix predicates use byte comparisons, including empty patterns.
+ * I emit UTF-8 and control bytes with fixed-width C escapes; embedded NUL
+ * remains refused because these helpers use NUL-terminated strings.
+ * Anything else is refused with an error.
  * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
  * host C ABI. Embedded NULs, nested arrays, nested records, tuples,
  * printing arrays/records, array equality, STR_TRIM, and the rest of the
