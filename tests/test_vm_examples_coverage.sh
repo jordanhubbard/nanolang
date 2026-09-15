@@ -7,9 +7,9 @@
 #
 #   1. The VM source list was assembled from the native build's variables,
 #      which filter on host library availability (SDL2, ncurses, OpenGL,
-#      MuJoCo, Bullet, libuv, libreadline). nano_virt links nothing -- FFI is
-#      resolved at run time by nano_vm's co-process loader -- so those filters
-#      only hid examples. An example that is never attempted cannot be skipped,
+#      MuJoCo, Bullet, libuv, libreadline). I now execute dependency shadows
+#      during compilation, including their foreign calls; those libraries must
+#      be installed. An example that is never attempted cannot be skipped,
 #      so the counter stayed at zero.
 #   2. Nine examples crashed nano_virt outright with SIGSEGV rather than
 #      reporting an error.
@@ -25,6 +25,7 @@ set -u
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
+export PATH="$REPO_ROOT/tests/fixtures/offline_mac:$PATH"
 
 VM_COMPILER="bin/nano_virt"
 EXAMPLES_DIR="examples"
@@ -112,7 +113,7 @@ skipped=0
 while read -r src; do
     [ -n "$src" ] || continue
     log="$work_dir/build.log"
-    if (cd "$EXAMPLES_DIR" && "$REPO_ROOT/$VM_COMPILER" "$src" --emit-nvm \
+    if ("$REPO_ROOT/$VM_COMPILER" "$EXAMPLES_DIR/$src" --emit-nvm \
             -o "$work_dir/out.nvm") > "$log" 2>&1; then
         continue
     else
@@ -160,7 +161,7 @@ now_compiles=""
 while read -r src; do
     [ -n "$src" ] || continue
     [ -f "$EXAMPLES_DIR/$src" ] || continue
-    if (cd "$EXAMPLES_DIR" && "$REPO_ROOT/$VM_COMPILER" "$src" --emit-nvm \
+    if ("$REPO_ROOT/$VM_COMPILER" "$EXAMPLES_DIR/$src" --emit-nvm \
             -o "$work_dir/out.nvm") > /dev/null 2>&1; then
         now_compiles="$now_compiles
        $src"
@@ -192,7 +193,7 @@ else
     while read -r src; do
         [ -n "$src" ] || continue
         [ -f "$EXAMPLES_DIR/$src" ] || continue
-        if (cd "$EXAMPLES_DIR" && "$REPO_ROOT/$NATIVE_COMPILER" "$src" \
+        if ("$REPO_ROOT/$NATIVE_COMPILER" "$EXAMPLES_DIR/$src" \
                 -o "$work_dir/out_native") > /dev/null 2>&1; then
             native_ok="$native_ok
        $src"

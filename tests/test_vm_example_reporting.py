@@ -16,10 +16,10 @@ class VmExampleReporting(unittest.TestCase):
             directory = Path(tmp)
             compiler = directory / "compiler"
             compiler.write_text('#!/bin/sh\ncase "$1" in\n'
-                                'silent.nano) exit 7;;\n'
-                                'structured.nano) echo "-- E024 UNDEFINED VARIABLE" >&2; exit 42;;\n'
-                                'legacy.nano) echo "error: legacy rejection" >&2; exit 3;;\n'
-                                'passed.nano) exit 0;;\nesac\n')
+                                '*/silent.nano) exit 7;;\n'
+                                '*/structured.nano) echo "-- E024 UNDEFINED VARIABLE" >&2; exit 42;;\n'
+                                '*/legacy.nano) echo "error: legacy rejection" >&2; exit 3;;\n'
+                                '*/passed.nano) exit 0;;\nesac\n')
             compiler.chmod(0o700)
             (directory / "eligible.txt").write_text("silent.nano\nstructured.nano\nlegacy.nano\npassed.nano\n")
             result = subprocess.run(["bash", "-c", 'skipped_list=""\n' + loop +

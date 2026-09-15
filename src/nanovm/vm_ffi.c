@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <ffi.h>
 
 /* ========================================================================
  * Module Registry (delegates to ffi_loader)
@@ -170,6 +171,8 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
     switch (return_tag) {
         case TAG_INT:
             return val_int(raw_result);
+        case TAG_U8:
+            return val_u8((uint8_t)raw_result);
         case TAG_FLOAT: {
             /* Result is actually a double bit-pattern in int64_t */
             double d;
@@ -612,10 +615,90 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     /* Marshal arguments */
     void *arg_ptrs[NANO_MAX_FFI_ARGS] = {0};
-    if (arg_count > NANO_MAX_FFI_ARGS) {
+    if (arg_count < 0 || arg_count > NANO_MAX_FFI_ARGS) {
         snprintf(error_msg, error_msg_size,
                  "Too many FFI arguments (%d > %d)", arg_count, NANO_MAX_FFI_ARGS);
         return false;
+    }
+    if (arg_count != desc->param_count || (arg_count && !args)) {
+        snprintf(error_msg, error_msg_size, "I require the declared foreign argument count and values");
+        return false;
+    }
+
+    /* A bytecode function index is not an executable C address. I reject it
+     * until a callback bridge owns its ABI, lifetime, and execution context. */
+    for (int i = 0; i < arg_count; i++) {
+        if (args[i].tag == TAG_FUNCTION || args[i].tag == TAG_CLOSURE ||
+            (param_types && i < desc->param_count &&
+             (param_types[i] == TAG_FUNCTION || param_types[i] == TAG_CLOSURE))) {
+            snprintf(error_msg, error_msg_size,
+                     "I cannot pass a bytecode function as a native callback (%s argument %d)",
+                     func_name, i + 1);
+            return false;
+        }
+    }
+
+    /* I use typed ABI dispatch for wider signatures, including mixed
+     * integer/pointer and floating-point register classes. */
+    bool typed_abi = imp->return_type == TAG_FLOAT;
+    for (int i = 0; param_types && i < arg_count && i < desc->param_count; i++)
+        if (param_types[i] == TAG_FLOAT) typed_abi = true;
+    if (arg_count > 10 || typed_abi) {
+        if (arg_count != desc->param_count) {
+            snprintf(error_msg, error_msg_size, "I require the declared foreign argument count");
+            return false;
+        }
+        ffi_type *types[NANO_MAX_FFI_ARGS];
+        void *values[NANO_MAX_FFI_ARGS];
+        union { int64_t integer; double floating; void *pointer; uint8_t byte; }
+            storage[NANO_MAX_FFI_ARGS], returned = {0};
+        marshal_args(args, arg_count, imp, param_types, arg_ptrs);
+        for (int i = 0; i < arg_count; i++) {
+            uint8_t tag = param_types ? param_types[i] : args[i].tag;
+            values[i] = &storage[i];
+            if (tag == TAG_FLOAT) {
+                types[i] = &ffi_type_double;
+                storage[i].floating = args[i].tag == TAG_FLOAT ? args[i].as.f64 : (double)args[i].as.i64;
+            } else if (tag == TAG_INT || tag == TAG_ENUM) {
+                types[i] = &ffi_type_sint64;
+                storage[i].integer = (int64_t)(intptr_t)arg_ptrs[i];
+            } else if (tag == TAG_BOOL || tag == TAG_U8) {
+                types[i] = &ffi_type_uint8;
+                storage[i].byte = (uint8_t)(uintptr_t)arg_ptrs[i];
+            } else if (tag == TAG_STRING || tag == TAG_BSTRING || tag == TAG_ARRAY || tag == TAG_OPAQUE) {
+                types[i] = &ffi_type_pointer;
+                storage[i].pointer = arg_ptrs[i];
+            } else {
+                snprintf(error_msg, error_msg_size, "I cannot marshal typed foreign argument tag %u", tag);
+                return false;
+            }
+        }
+        ffi_type *return_type = NULL;
+        switch (imp->return_type) {
+            case TAG_VOID: return_type = &ffi_type_void; break;
+            case TAG_FLOAT: return_type = &ffi_type_double; break;
+            case TAG_INT: case TAG_ENUM: return_type = &ffi_type_sint64; break;
+            case TAG_BOOL: case TAG_U8: return_type = &ffi_type_uint8; break;
+            case TAG_STRING: case TAG_BSTRING: case TAG_ARRAY: case TAG_OPAQUE:
+                return_type = &ffi_type_pointer; break;
+            default:
+                snprintf(error_msg, error_msg_size, "I cannot marshal typed foreign result tag %u", imp->return_type);
+                return false;
+        }
+        ffi_cif cif;
+        if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned)arg_count, return_type, types) != FFI_OK) {
+            snprintf(error_msg, error_msg_size, "I could not prepare a typed foreign signature");
+            return false;
+        }
+        ffi_call(&cif, FFI_FN(func_ptr), &returned, values);
+        if (imp->return_type == TAG_FLOAT) {
+            *result = val_float(returned.floating);
+            return true;
+        }
+        bool converted;
+        *result = marshal_result(returned.integer, imp->return_type, heap, &converted);
+        if (!converted) snprintf(error_msg, error_msg_size, "I could not allocate the foreign result");
+        return converted;
     }
 
     /* Fast path: all-float signatures use properly typed dispatch so

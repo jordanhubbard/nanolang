@@ -930,6 +930,7 @@ Value create_int(long long val);
 Value create_float(double val);
 Value create_bool(bool val);
 Value create_string(const char *val);
+char *nl_unescape_string(const char *raw);
 Value create_void(void);
 Value create_array(ValueType elem_type, int length, int capacity);
 Value create_struct(const char *struct_name, char **field_names, Value *field_values, int field_count);

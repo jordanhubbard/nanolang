@@ -35,9 +35,11 @@ the implementation shipped here. Packaged NanoVM execution is not native AOT.
 Backend parity, complete resource ownership checking, broader input snapshots,
 and production service isolation remain bounded work on [my roadmap](ROADMAP.md).
 Laboratory frontends do not establish a distributed production runtime.
-In particular, bytecode `array_slice` currently treats its third argument
-as an end index, while the C path treats it as a length. Nonzero-start
-slice parity remains follow-up work; this cut does not claim that parity.
+I now use start/length semantics for `array_slice` in both backends, including
+overflow-safe clamping. Native arrays of record literals still need emitter
+work. I reject bytecode function values passed to native callbacks rather
+than treating function indices as executable addresses. A lifetime-aware
+native callback bridge remains a release blocker, not a completed feature.
 
 ## Release review
 
@@ -75,7 +77,7 @@ those links as warning-free.
 The complete test gate has not passed. This is a release candidate record,
 not evidence that a tag or GitHub release has been published.
 
-The latest native integration run hit a link failure in `test_all_imports`:
+An earlier native integration run hit a link failure in `test_all_imports`:
 two immutable generations of the same `std.o` supplied 25 duplicate symbols.
 A direct retry passed. The complete runnable scan finished with 218 passes,
 one failure and zero skips, causing `make test` to exit nonzero before later
@@ -83,7 +85,31 @@ gates. Another compiler workload shared the cache at the
 time; that observation does not yet establish the cause.
 `make test-vm-examples` also fails: eligible examples report compilation or
 shadow failures, and eight exclusions now compile successfully to bytecode.
-These are product/test-gate findings, separate from the MAC fleet hold.
+These were product/test-gate findings, separate from the MAC fleet hold.
+
+I reproduced the duplicate-link cause without a competing process: two
+NanoLang interfaces to one uncached C module selected different immutable
+generations. One physical module now selects one generation per native link.
+The new regression passes two compile/run invocations.
+
+The latest complete example sweep accepts 237 of 243 eligible programs.
+All six remaining failures require native dispatch callbacks. All six
+excluded sources still fail both compiler eligibility checks; I removed the
+stale exclusions instead of hiding newly accepted examples.
+
+I corrected integer and guarded matches, block-arm values, enum representation,
+typed array allocation, escaped strings, byte conversions, nominal record
+lookup, and scalar foreign ABI dispatch. I test foreign signatures up to
+16 arguments. The FFI unit suite passes 22 tests, and bytecode shadow tests
+pass 36 tests, including a dependency graph exceeding the old function limit.
+The standalone verifier scan accepts all 156 programs with no expected failures.
+
+AddressSanitizer exposed a cycle-collector use-after-free during parser
+shadows: trial-deleted edges were released a second time, freeing live string
+constants. I count those edges once and detach record field names too.
+The VM suite passes 272,236 checks, and the previously failing parser shadow
+workload passes with AddressSanitizer and with tracing disabled.
+This does not establish complete memory safety or make the full gate green.
 
 The runnable integration suite now passes all 219 programs. I reject
 duplicate module introspection identities in the C loader; all 34 negative

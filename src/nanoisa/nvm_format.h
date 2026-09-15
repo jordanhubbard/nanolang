@@ -126,11 +126,10 @@ typedef struct {
  * by every backend rather than being silently truncated by whichever path
  * happens to have the smallest hand-rolled array.
  *
- * The value is the maximum arity the FFI dispatch tables provide
- * (see FFI_Fn0..FFI_Fn10 / FFI_DFn0..FFI_DFn10 in src/nanovm/vm_ffi.c).
+ * Calls above the small dispatch-table range use typed libffi dispatch.
  * ======================================================================== */
 
-#define NANO_MAX_FFI_ARGS 10
+#define NANO_MAX_FFI_ARGS 16
 
 /* ========================================================================
  * Import Entry (serialized in IMPORTS section)

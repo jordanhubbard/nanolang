@@ -21,15 +21,13 @@ VIRT=./bin/nano_virt
 VM=./bin/nano_vm
 [ -x "$VIRT" ] && [ -x "$VM" ] || { echo "need $VIRT and $VM built"; exit 1; }
 
-# Known-failing, each for a reason tracked elsewhere:
-#
-#   test_import_aliasing.nano  - a function's local_count is smaller than its
-#                                arity, so the frame cannot hold its arguments
+# I keep no known-failing programs here. The import-aliasing regression now
+# verifies after preserving imported function identity and frame signatures.
 #
 # Three programs were here for issue #223, where a transitively imported
 # function's float arithmetic lowered to integer opcodes. They came off this
 # list when symbol lookup became file-scoped, which is what the list is for.
-ALLOW="test_import_aliasing.nano"
+ALLOW=""
 
 tmp=$(mktemp -t verifyall.XXXXXX).nvm
 trap 'rm -f "$tmp"' EXIT

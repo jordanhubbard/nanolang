@@ -2368,6 +2368,49 @@ static void test_cycle_payload_is_freed_with_it(void) {
  * collection walk while later entries still had to be read. All three are the
  * same mistake, which is reading an object's header after something else has
  * freed it. */
+static void test_dead_cycles_preserve_shared_live_payload(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmString *text = vm_string_new(&heap, "live constant", 13);
+    for (int round = 0; round < 4; round++) {
+        VmArray *a = vm_array_new(&heap, TAG_ARRAY, 4);
+        VmArray *b = vm_array_new(&heap, TAG_ARRAY, 4);
+        vm_array_push(&heap, a, val_array(b));
+        vm_array_push(&heap, b, val_array(a));
+        vm_array_push(&heap, a, val_string(text));
+        vm_array_push(&heap, b, val_string(text));
+        vm_release(&heap, val_array(a));
+        vm_release(&heap, val_array(b));
+        ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 2, "I collect only the dead pair");
+        ASSERT_EQ_INT((int)heap.stats.num_objects, 1, "I preserve the externally held string");
+        ASSERT_EQ_INT((int)text->header.ref_count, 1, "I subtract each dead edge once");
+        ASSERT_EQ_INT((int)text->length, 13, "I preserve constant contents");
+    }
+    vm_release(&heap, val_string(text));
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "I free the payload after its live owner releases it");
+    vm_heap_destroy(&heap);
+}
+
+static void test_dead_cycle_preserves_live_field_name(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmString *name = vm_string_new(&heap, "field", 5);
+    VmStruct *record = vm_struct_new(&heap, 0, 1);
+    NanoValue value = val_struct(record);
+    record->fields[0] = value;
+    vm_retain(&heap, value);
+    record->field_names = calloc(1, sizeof(VmString *));
+    record->field_names[0] = name;
+    vm_retain(&heap, val_string(name));
+    vm_release(&heap, value);
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 1, "I collect the self-referential record");
+    ASSERT_EQ_INT((int)name->header.ref_count, 1, "I account for its field-name edge once");
+    ASSERT_EQ_INT((int)name->length, 5, "I preserve the externally owned field name");
+    vm_release(&heap, val_string(name));
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0, "I reclaim the final field-name reference");
+    vm_heap_destroy(&heap);
+}
+
 static void test_object_freed_while_buffered(void) {
     VmHeap heap = {0};
     vm_heap_init(&heap);
@@ -5171,6 +5214,8 @@ int main(void) {
     RUN_TEST(test_two_object_cycle_is_collected);
     RUN_TEST(test_reachable_cycle_is_not_collected);
     RUN_TEST(test_cycle_payload_is_freed_with_it);
+    RUN_TEST(test_dead_cycles_preserve_shared_live_payload);
+    RUN_TEST(test_dead_cycle_preserves_live_field_name);
     RUN_TEST(test_object_freed_while_buffered);
     RUN_TEST(test_many_cycles_in_one_pass);
     RUN_TEST(test_heap_destroy_collects_cycles);

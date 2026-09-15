@@ -14,6 +14,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class BytecodeShadows(unittest.TestCase):
+    def test_dependency_functions_and_shadows_exceed_old_capacity(self):
+        with tempfile.TemporaryDirectory(prefix="nano-shadow-capacity-") as tmp:
+            directory = Path(tmp)
+            dependency = directory / "many.nano"
+            dependency.write_text("\n".join(
+                f"pub fn f{i}() -> int {{ return {i} }}\n"
+                f"shadow f{i} {{ assert (== (f{i}) {i}) }}"
+                for i in range(300)))
+            source = (f'module "{dependency}" as many\n'
+                      'fn main() -> int { assert (== (many.f299) 299) return 0 }\n')
+            result, output = self.compile(source, directory)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.execute(output).returncode, 0)
+
     def test_string_search_shadows_and_production(self):
         with tempfile.TemporaryDirectory(prefix="nano-search-vm-") as tmp:
             result, output = self.compile((ROOT / "tests/string_search.nano").read_text(), Path(tmp))

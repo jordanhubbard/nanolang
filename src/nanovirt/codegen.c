@@ -24,7 +24,8 @@
 /* ── Limits ─────────────────────────────────────────────────────── */
 
 #define MAX_LOCALS      256
-#define MAX_FUNCTIONS   512
+/* I include dependency functions, qualified aliases, and selected shadows. */
+#define MAX_FUNCTIONS   4096
 #define MAX_PATCHES     1024
 #define MAX_LOOP_DEPTH  32
 #define MAX_BREAKS      64
@@ -375,8 +376,11 @@ static const char *infer_expr_struct_type(CG *cg, ASTNode *node) {
         return node->as.struct_literal.struct_name;
     }
 
-    if (node->type == AST_CALL && node->as.call.return_struct_type_name) {
-        return node->as.call.return_struct_type_name;
+    if (node->type == AST_CALL) {
+        if (node->as.call.return_struct_type_name)
+            return node->as.call.return_struct_type_name;
+        Function *fn = env_get_function(cg->env, node->as.call.name);
+        if (fn) return fn->return_struct_type_name;
     }
 
     if (node->type == AST_FIELD_ACCESS) {
@@ -459,6 +463,8 @@ static uint8_t type_to_tag(Type t, const char *name, Environment *env) {
     /* I retain the runtime kind of named opaque signatures. The parser uses
      * TYPE_STRUCT for named types, so the enum alone is not a representation. */
     if (t == TYPE_STRUCT && name && env_get_opaque_type(env, name)) return TAG_OPAQUE;
+    if (t == TYPE_STRUCT && name && env_get_union(env, name)) return TAG_UNION;
+    if (t == TYPE_STRUCT && name && env_get_enum(env, name)) return TAG_INT;
     switch (t) {
         case TYPE_INT:     return TAG_INT;
         case TYPE_U8:      return TAG_U8;
@@ -474,7 +480,7 @@ static uint8_t type_to_tag(Type t, const char *name, Environment *env) {
         case TYPE_LIST_GENERIC: return TAG_ARRAY;
         case TYPE_STRUCT:  return TAG_STRUCT;
         case TYPE_OPEN_RECORD: return TAG_STRUCT;
-        case TYPE_ENUM:    return TAG_ENUM;
+        case TYPE_ENUM:    return TAG_INT;
         case TYPE_UNION:   return TAG_UNION;
         case TYPE_FUNCTION: return TAG_FUNCTION;
         case TYPE_TUPLE:   return TAG_TUPLE;
@@ -506,7 +512,7 @@ static uint8_t list_element_tag(CG *cg, const char *name, const char *suffix) {
     for (int i = 0; i < cg->enum_count; i++) {
         if (strlen(cg->enums[i].name) == type_name_len &&
             strncmp(cg->enums[i].name, type_name, type_name_len) == 0) {
-            return TAG_ENUM;
+            return TAG_INT;
         }
     }
     return TAG_INT;
@@ -516,7 +522,19 @@ static uint8_t list_element_tag(CG *cg, const char *name, const char *suffix) {
 static void register_extern(CG *cg, const char *name, const char *module_name,
                            uint16_t param_count, uint8_t return_tag,
                            const uint8_t *param_tags) {
+    if (param_count > NANO_MAX_FFI_ARGS) {
+        cg_error(cg, 0, "I cannot import a function with more than 16 foreign arguments");
+        return;
+    }
     if (cg->extern_count >= MAX_EXTERNS) return;
+
+    /* These declarations name my host runtime, not a foreign module's
+     * artifact. Binding them to libstd would invent exports it does not own. */
+    const char *runtime_names[] = {"get_argc", "get_argv", "nl_os_system",
+        "nl_os_getenv", "nl_os_setenv", "nl_os_unsetenv", "nl_exec_capture", "nl_exec_shell",
+        "nl_timing_get_microseconds", "nl_timing_get_nanoseconds", "nl_get_time_ms"};
+    for (size_t i = 0; i < sizeof(runtime_names) / sizeof(runtime_names[0]); i++)
+        if (strcmp(name, runtime_names[i]) == 0) { module_name = ""; break; }
 
     /* Add to NVM import table */
     uint32_t mod_str = nvm_add_string(cg->module, module_name, (uint32_t)strlen(module_name));
@@ -608,6 +626,7 @@ static bool stmt_falls_through(ASTNode *node);
 static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
                                  bool want_float) {
     compile_expr(cg, node);
+    if (type == TYPE_U8) emit_op(cg, OP_CAST_INT);
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
@@ -823,7 +842,9 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             compile_expr(cg, args[1]);  /* fill value */
             uint16_t fill_slot = local_add(cg, "__anew_fill__", 0);
             emit_op(cg, OP_STORE_LOCAL, (int)fill_slot);
-            emit_op(cg, OP_ARR_NEW, (int)TAG_INT);
+            Type fill_type = check_expression(args[1], cg->env);
+            emit_op(cg, OP_ARR_NEW, (int)type_to_tag(fill_type,
+                    infer_expr_struct_type(cg, args[1]), cg->env));
             uint16_t arr_slot = local_add(cg, "__anew_arr__", 0);
             emit_op(cg, OP_STORE_LOCAL, (int)arr_slot);
             emit_op(cg, OP_PUSH_I64, (int64_t)0);
@@ -884,9 +905,44 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
     if (strcmp(name, "array_slice") == 0 && argc == 3) {
-        compile_expr(cg, args[0]); /* array */
-        compile_expr(cg, args[1]); /* start */
-        compile_expr(cg, args[2]); /* end */
+        uint16_t slots[3];
+        for (int i = 0; i < 3; i++) {
+            compile_expr(cg, args[i]);
+            slots[i] = local_add(cg, "__slice_arg__", 0);
+            emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+        }
+        emit_op(cg, OP_LOAD_LOCAL, (int)slots[0]);
+        emit_op(cg, OP_ARR_LEN);
+        uint16_t bound = local_add(cg, "__slice_bound__", 0);
+        emit_op(cg, OP_STORE_LOCAL, (int)bound);
+        /* I clamp before adding, so start + length cannot overflow. */
+        for (int i = 1; i < 3; i++) {
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[i]);
+            emit_op(cg, OP_PUSH_I64, (int64_t)0);
+            emit_op(cg, OP_I64_LT_S);
+            uint32_t lower = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+            emit_op(cg, OP_PUSH_I64, (int64_t)0);
+            emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+            patch_jump(cg, lower + 1, lower, cg->code_size);
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[i]);
+            emit_op(cg, OP_LOAD_LOCAL, (int)bound);
+            emit_op(cg, OP_I64_GT_S);
+            uint32_t upper = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+            emit_op(cg, OP_LOAD_LOCAL, (int)bound);
+            emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+            patch_jump(cg, upper + 1, upper, cg->code_size);
+            if (i == 1) {
+                emit_op(cg, OP_LOAD_LOCAL, (int)bound);
+                emit_op(cg, OP_LOAD_LOCAL, (int)slots[1]);
+                emit_op(cg, OP_I64_SUB);
+                emit_op(cg, OP_STORE_LOCAL, (int)bound);
+            }
+        }
+        emit_op(cg, OP_LOAD_LOCAL, (int)slots[0]);
+        emit_op(cg, OP_LOAD_LOCAL, (int)slots[1]);
+        emit_op(cg, OP_LOAD_LOCAL, (int)slots[1]);
+        emit_op(cg, OP_LOAD_LOCAL, (int)slots[2]);
+        emit_op(cg, OP_I64_ADD);
         emit_op(cg, OP_ARR_SLICE);
         return true;
     }
@@ -1635,8 +1691,10 @@ static void compile_expr(CG *cg, ASTNode *node) {
         break;
 
     case AST_STRING: {
-        uint32_t idx = nvm_add_string(cg->module, node->as.string_val,
-                                       (uint32_t)strlen(node->as.string_val));
+        char *decoded = nl_unescape_string(node->as.string_val);
+        if (!decoded) { cg_error(cg, node->line, "I could not decode the string literal"); break; }
+        uint32_t idx = nvm_add_string(cg->module, decoded, (uint32_t)strlen(decoded));
+        free(decoded);
         emit_op(cg, OP_PUSH_STR, idx);
         break;
     }
@@ -1682,6 +1740,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
             case TYPE_FLOAT:  elem_tag = TAG_FLOAT;  break;
             case TYPE_BOOL:   elem_tag = TAG_BOOL;   break;
             case TYPE_STRING: elem_tag = TAG_STRING;  break;
+            case TYPE_STRUCT: elem_tag = TAG_STRUCT; break;
+            case TYPE_UNION:  elem_tag = TAG_UNION; break;
+            case TYPE_ENUM:   elem_tag = TAG_INT; break;
+            case TYPE_TUPLE:  elem_tag = TAG_TUPLE; break;
+            case TYPE_FUNCTION: elem_tag = TAG_FUNCTION; break;
+            case TYPE_U8: elem_tag = TAG_U8; break;
+            case TYPE_BSTRING: elem_tag = TAG_BSTRING; break;
             default:          elem_tag = TAG_INT;     break;
         }
         emit_op(cg, OP_ARR_LITERAL, (int)elem_tag, count);
@@ -1756,7 +1821,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
         int argc = node->as.call.arg_count;
 
         /* Handle built-in functions */
-        if (name && compile_builtin_call(cg, node)) {
+        if (name && fn_find(cg, name) < 0 && local_find(cg, name) < 0
+                && compile_builtin_call(cg, node)) {
             break;
         }
 
@@ -1987,7 +2053,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
                     break;
                 }
                 int val = (ed->variant_values) ? ed->variant_values[vi] : vi;
-                emit_op(cg, OP_ENUM_VAL, ed->def_idx, val);
+                /* My source enums interoperate with integers, including
+                 * negative and non-contiguous explicitly assigned values. */
+                emit_op(cg, OP_PUSH_I64, (int64_t)val);
                 break;
             }
         }
@@ -2107,7 +2175,17 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
             uint32_t jf_instr, jf_off;
 
-            if (strncmp(variant, "OR:", 3) == 0) {
+            if (strcmp(variant, "_") == 0) {
+                emit_op(cg, OP_PUSH_BOOL, 1);
+                jf_instr = cg->code_size;
+                jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+            } else if (strncmp(variant, "INT:", 4) == 0) {
+                emit_op(cg, OP_DUP);
+                emit_op(cg, OP_PUSH_I64, (int64_t)strtoll(variant + 4, NULL, 10));
+                emit_op(cg, OP_EQ);
+                jf_instr = cg->code_size;
+                jf_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+            } else if (strncmp(variant, "OR:", 3) == 0) {
                 /* Or-pattern: split alternatives, emit chain of checks */
                 char or_buf[512]; strncpy(or_buf, variant + 3, sizeof(or_buf)-1); or_buf[sizeof(or_buf)-1]='\0';
                 char *alts[64]; int n_alts = 0;
@@ -2160,23 +2238,42 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
             /* Match succeeded: bind the entire union to the pattern variable
              * so v.value / v.error etc. can access variant fields via UNION_FIELD */
-            if (binding && binding[0] != '\0') {
+            uint16_t arm_scope = cg->local_count;
+            if (binding && binding[0] != '\0' && strcmp(binding, "_") != 0) {
                 emit_op(cg, OP_DUP);  /* keep union on stack */
                 uint16_t bslot = local_add(cg, binding, node->line);
                 emit_op(cg, OP_STORE_LOCAL, (int)bslot);
+            }
+
+            uint32_t guard_instr = 0, guard_off = 0;
+            ASTNode *guard = node->as.match_expr.guard_exprs ? node->as.match_expr.guard_exprs[i] : NULL;
+            if (guard) {
+                compile_expr(cg, guard);
+                guard_instr = cg->code_size;
+                guard_off = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
             }
 
             /* Pop the union value before executing body */
             emit_op(cg, OP_POP);
 
             /* Compile arm body */
-            compile_expr(cg, node->as.match_expr.arm_bodies[i]);
-
-            /* Statement-block arm bodies don't leave a value on the stack.
-             * Push void so match consistently produces exactly one value,
-             * preventing the statement-level POP from eating local slots. */
-            if (node->as.match_expr.arm_bodies[i]->type == AST_BLOCK) {
-                emit_op(cg, OP_PUSH_VOID);
+            ASTNode *body = node->as.match_expr.arm_bodies[i];
+            if (body->type == AST_BLOCK) {
+                bool value = false;
+                for (int j = 0; j < body->as.block.count; j++) {
+                    ASTNode *stmt = body->as.block.statements[j];
+                    value = j == body->as.block.count - 1 && ast_is_value_expression(stmt->type)
+                        && check_expression(stmt, cg->env) != TYPE_VOID;
+                    if (value) compile_expr(cg, stmt);
+                    else compile_stmt(cg, stmt);
+                }
+                if (!value) emit_op(cg, OP_PUSH_VOID);
+            } else {
+                compile_expr(cg, body);
+            }
+            /* Slots remain allocated, but arm-local names cannot escape. */
+            for (uint16_t j = arm_scope; j < cg->local_count; j++) {
+                cg->locals[j].name = "";
             }
 
             /* Jump to end */
@@ -2189,6 +2286,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
             /* Patch JMP_FALSE to here */
             patch_jump(cg, jf_off + 1, jf_instr, cg->code_size);
+            if (guard) patch_jump(cg, guard_off + 1, guard_instr, cg->code_size);
         }
 
         /* No arm matched. This used to pop the union and push void, which
@@ -2473,7 +2571,15 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     switch (node->type) {
     case AST_LET: {
-        compile_expr(cg, node->as.let.value);
+        if (node->as.let.value->type == AST_ARRAY_LITERAL &&
+            node->as.let.value->as.array_literal.element_count == 0 &&
+            node->as.let.element_type != TYPE_UNKNOWN) {
+            node->as.let.value->as.array_literal.element_type = node->as.let.element_type;
+        }
+        if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
+            compile_numeric_expr(cg, node->as.let.value,
+                check_expression(node->as.let.value, cg->env), node->as.let.var_type == TYPE_FLOAT);
+        else compile_expr(cg, node->as.let.value);
         uint16_t slot = local_add(cg, node->as.let.name, node->line);
         /* Track struct type for field access resolution */
         if (node->as.let.type_name) {

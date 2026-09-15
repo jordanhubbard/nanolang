@@ -487,6 +487,7 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "    if (length < 0) length = 0;\n");
     sb_append(sb, "    int64_t len = dyn_array_length(arr);\n");
     sb_append(sb, "    if (start > len) start = len;\n");
+    sb_append(sb, "    if (length > len - start) length = len - start;\n");
     sb_append(sb, "    int64_t end = start + length;\n");
     sb_append(sb, "    if (end > len) end = len;\n");
     sb_append(sb, "    ElementType t = dyn_array_get_elem_type(arr);\n");

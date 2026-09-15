@@ -1769,6 +1769,7 @@ test-module-install-policy: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runt
 .PHONY: test-module-dep-recheck
 test-module-dep-recheck: $(COMPILER_C) test-module-install-policy test-module-builder-cache
 	@bash tests/test_module_dep_recheck.sh
+	@python3 tests/test_native_module_generation_selection.py
 
 .PHONY: test-failed-import-publication
 .PHONY: test-module-builder-cache

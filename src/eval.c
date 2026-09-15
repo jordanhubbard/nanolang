@@ -177,9 +177,10 @@ static bool shadow_write_json_file(const char *path, const ShadowFailure *fails,
 
 
 /* Process escape sequences in a raw lexer string into actual characters */
-static char *unescape_string(const char *raw) {
+char *nl_unescape_string(const char *raw) {
     size_t len = strlen(raw);
     char *buf = malloc(len + 1);
+    if (!buf) return NULL;
     size_t out = 0;
     for (size_t i = 0; i < len; i++) {
         if (raw[i] == '\\' && i + 1 < len) {
@@ -1179,6 +1180,7 @@ static Value builtin_array_slice(Value *args) {
         Array *arr = args[0].as.array_val;
         int64_t len = arr->length;
         if (start > len) start = len;
+        if (length > len - start) length = len - start;
         int64_t end = start + length;
         if (end > len) end = len;
         int64_t out_len = end - start;
@@ -1226,6 +1228,7 @@ static Value builtin_array_slice(Value *args) {
         DynArray *arr = args[0].as.dyn_array_val;
         int64_t len = dyn_array_length(arr);
         if (start > len) start = len;
+        if (length > len - start) length = len - start;
         int64_t end = start + length;
         if (end > len) end = len;
 
@@ -1234,7 +1237,7 @@ static Value builtin_array_slice(Value *args) {
         for (int64_t i = start; i < end; i++) {
             switch (t) {
                 case ELEM_INT: dyn_array_push_int(out, dyn_array_get_int(arr, i)); break;
-                case ELEM_U8: dyn_array_push_int(out, (int64_t)dyn_array_get_u8(arr, i)); break;
+                case ELEM_U8: dyn_array_push_u8(out, dyn_array_get_u8(arr, i)); break;
                 case ELEM_FLOAT: dyn_array_push_float(out, dyn_array_get_float(arr, i)); break;
                 case ELEM_BOOL: dyn_array_push_bool(out, dyn_array_get_bool(arr, i)); break;
                 case ELEM_STRING: dyn_array_push_string_copy(out, dyn_array_get_string(arr, i)); break;
@@ -4710,7 +4713,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             return create_float(expr->as.float_val);
 
         case AST_STRING: {
-            char *unescaped = unescape_string(expr->as.string_val);
+            char *unescaped = nl_unescape_string(expr->as.string_val);
             Value v = create_string(unescaped);
             free(unescaped);
             return v;

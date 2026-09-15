@@ -230,9 +230,14 @@ static void for_each_child_slot(VmHeap *heap, NanoValue v, SlotFn fn, void *ctx)
     case TAG_STRUCT: {
         VmStruct *s = v.as.sval;
         if (!s) return;
-        /* field_names are leaf strings the struct owns; release_struct still
-         * releases them, so they are deliberately not detached here. */
         for (uint32_t i = 0; i < s->field_count; i++) fn(heap, &s->fields[i], ctx);
+        if (s->field_names) {
+            for (uint32_t i = 0; i < s->field_count; i++) {
+                NanoValue name = val_string(s->field_names[i]);
+                s->field_names[i] = NULL;
+                fn(heap, &name, ctx);
+            }
+        }
         return;
     }
     case TAG_UNION: {
@@ -303,8 +308,9 @@ static void collect_white_slot(VmHeap *heap, NanoValue *slot, void *ctx) {
     VmHeapHeader *ch = header_of(child);
     if (ch && ch->colour == VM_GC_WHITE && !ch->buffered)
         collect_white(heap, child, (DeadSet *)ctx);
-    else
-        vm_release(heap, child);   /* a survivor, or a leaf like a string */
+    /* I already subtracted this dead parent's edge during trial deletion.
+     * Releasing it again would remove a live owner's reference, or free a
+     * previously gathered child before the rest of this walk reaches it. */
 }
 
 static void collect_white(VmHeap *heap, NanoValue v, DeadSet *dead) {

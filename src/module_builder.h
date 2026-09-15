@@ -112,6 +112,7 @@ typedef struct {
 // Build information for tracking
 typedef struct {
     char *object_file;      // Path to compiled .o file
+    char *module_dir;       // Physical directory identifying this foreign module
     char **link_flags;      // All flags needed for linking
     size_t link_flags_count;
     char **compile_flags;   // Compile flags (include paths, defines)

@@ -669,7 +669,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
             /* Check if function returns a struct */
             Function *func = env_get_function(env, expr->as.call.name);
-            if (func && func->return_type == TYPE_STRUCT) {
+            if (func && (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION)) {
                 return func->return_struct_type_name;
             }
             
@@ -3683,12 +3683,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
                 /* Infer struct/union type_name from expression where possible */
                 if ((inferred == TYPE_STRUCT || inferred == TYPE_UNION) && !stmt->as.let.type_name) {
-                    /* Try to extract type name from the RHS expression */
-                    if (stmt->as.let.value->type == AST_STRUCT_LITERAL && stmt->as.let.value->as.struct_literal.struct_name) {
-                        stmt->as.let.type_name = strdup(stmt->as.let.value->as.struct_literal.struct_name);
-                    } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.return_struct_type_name) {
-                        stmt->as.let.type_name = strdup(stmt->as.let.value->as.call.return_struct_type_name);
-                    }
+                    const char *name = get_struct_type_name(stmt->as.let.value, tc->env);
+                    if (name) stmt->as.let.type_name = strdup(name);
                 }
                 /* Register and add to env */
                 Value val = create_void();

@@ -6141,6 +6141,10 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
         return NULL;
     }
     ModuleBuildInfo *info = module_build_with_flags(builder, &captured, &flags);
+    if (info) {
+        info->module_dir = realpath(meta->module_dir, NULL);
+        if (!info->module_dir) { module_build_info_free(info); info = NULL; }
+    }
     for (size_t i = 0; info && i < info->compile_flags_count; i++) {
         char *transport = module_response_transport(&captured, &flags, info->compile_flags[i]);
         if (!transport) { module_build_info_free(info); info = NULL; break; }
@@ -6157,6 +6161,8 @@ void module_build_info_free(ModuleBuildInfo *info) {
     if (!info) return;
 
     free(info->object_file);
+
+    free(info->module_dir);
 
     for (size_t i = 0; i < info->link_flags_count; i++) {
         free(info->link_flags[i]);

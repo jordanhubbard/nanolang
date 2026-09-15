@@ -59,12 +59,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       and use guaranteed counterexamples where the test requires one.
 - [x] **Release-gate OPL shadows.** I escape a quoted validation fixture
       and require the newline skipper to advance past its newline token.
-- [ ] **Follow-up — bytecode slice convention.** My C path treats the
-      third `array_slice` argument as a length, but bytecode lowering passes
-      it to an end-index instruction. A nonzero-start probe produced length
-      1 instead of 2 for `(array_slice rows 1 2)`. This remains an explicit
-      backend-parity limitation of the 5.0 cut, separate from nested-array
-      literal/append/indexed-write repair.
+- [x] **Bytecode slice convention.** I lower the third `array_slice`
+      argument as a length, evaluate arguments once, and clamp before adding.
+      I avoid signed overflow in native and interpreter slicing too. The
+      nonzero-start and maximum-int-length regressions pass in both backends.
       MAC `task_efa11df9058a199510c563782734c31a`.
 - [x] **Release-gate module identity rejection.** I reject distinct imported
       files with the same declared/fallback introspection identity in the
@@ -79,12 +77,41 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       remove eight stale exclusions that now compile to bytecode. I retain
       the default dependency-shadow contract rather than hiding failures.
       MAC `task_7ee12d8737363c126a040fde905a7114`.
-- [ ] **Single logical foreign object per link.** I investigate and prevent
-      linking two immutable generations of the same `std.o` in one native
-      invocation. My release run observed 25 duplicate symbols while another
-      compiler workload shared the cache; a direct retry passed. I need a
-      deterministic regression before claiming a cause or repair.
+      I verify integer/wildcard/guarded match lowering, block-arm values,
+      named union/enum signatures, typed array allocation, inferred record
+      names, and foreign runtime boundaries with focused regressions before
+      rerunning the full example gate.
+      I run MAC examples against an explicit offline CLI fixture: their
+      shadows must not create tasks in a developer's live ledger.
+- [x] **Single logical foreign object per link.** I select one immutable
+      generation per physical module directory in each native invocation.
+      A deterministic regression uses two NanoLang interfaces to one C object
+      with uncached compiler identity. It reproduced duplicate symbols before
+      the repair and passes two complete compile/run invocations afterward.
       MAC `task_9b9359bd64dce70ea919f0861ac9d5ba`.
+- [ ] **Release-gate native callbacks.** I replace raw bytecode-index-to-C-
+      pointer conversion with an ABI-aware bridge that owns callback lifetime,
+      asynchronous quiescence, captures/globals, and VM reentrancy. The current
+      containment rejects callbacks with a diagnostic instead of crashing;
+      it is not callback support. Dispatch dependency shadows still fail.
+      MAC `task_20f0d57878f248cd8573e6841825152a`.
+- [x] **Release-gate non-callback example shadows.** I correct nominal record
+      lookup on call results, retain SDL_mixer artifact linkage, bound the
+      particle rendering smoke test, and verify the entire example tree from
+      the repository fixture root. I preserve actual assertions and dependency
+      shadows. This continues the VM coverage task above.
+- [x] **Release-gate cycle-collector live payloads.** AddressSanitizer caught
+      a use-after-free of a module string constant during parser shadows.
+      I balance trial-deleted edges exactly once, including record field names,
+      and test dead cycles sharing payloads with live roots and record field
+      names. The VM suite passes 272,236 checks; parser shadows pass under
+      AddressSanitizer and without tracing. The full release gate remains open.
+      MAC `task_b53374269a1748c5a56a185a75fb6480`.
+- [ ] **Follow-up — C arrays of records.** I retain the nominal element
+      name and use the dynamic-array representation when lowering record
+      literals or record-returning calls inside array literals. My current
+      C emitter produces `struct[]` without a record name in both cases.
+      MAC `task_967a32569524e07e3c97742cf23234e9`.
 
 - [x] **4.4 release.** I merge the 4.1–4.4 product branch (`feat/forth-core-suite`)
       to `main`, close superseded PRs with evidence, and leave 5.0 / Standard

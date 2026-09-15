@@ -17,6 +17,7 @@
 #include <dirent.h>
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
 #include "runtime/dyn_array.h"
 #include "utf8.h"
 
@@ -26,6 +27,42 @@ char *mkdtemp(char *);
 #endif
 
 /* ── OS / File System ─────────────────────────────────────────────── */
+
+const char *nl_exec_capture(const char *command) {
+    static __thread char output[65536];
+    output[0] = '\0';
+    FILE *pipe = popen(command, "r");
+    if (!pipe) return output;
+    size_t used = fread(output, 1, sizeof(output) - 1, pipe);
+    output[used] = '\0';
+    /* I drain excess output before waiting so the child cannot block on a
+     * full pipe after my retained-output bound has been reached. */
+    char discard[4096];
+    while (fread(discard, 1, sizeof(discard), pipe)) {}
+    pclose(pipe);
+    return output;
+}
+
+int64_t nl_exec_shell(const char *command) {
+    return (int64_t)system(command);
+}
+
+int64_t nl_timing_get_microseconds(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_REALTIME, &now)) return -1;
+    return (int64_t)now.tv_sec * 1000000 + now.tv_nsec / 1000;
+}
+
+int64_t nl_timing_get_nanoseconds(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now)) return -1;
+    return (int64_t)now.tv_sec * 1000000000 + now.tv_nsec;
+}
+
+int64_t nl_get_time_ms(void) {
+    int64_t us = nl_timing_get_microseconds();
+    return us < 0 ? -1 : us / 1000;
+}
 
 char *vm_getcwd(void) {
     char buf[1024];

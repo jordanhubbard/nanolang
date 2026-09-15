@@ -39,6 +39,11 @@ double nl_ffi_test_mix_iffi(long a, double b, double c, long d) {
 }
 
 static int g_pass = 0, g_fail = 0;
+double nl_ffi_test_wide(int64_t a, double b, int64_t c, double d,
+                       int64_t e, double f, int64_t g, double h,
+                       int64_t i, double j, int64_t k) {
+    return a + b + c + d + e + f + g + h + i + j + k;
+}
 #define TEST(name) static void test_##name(void)
 #define RUN(name)  do { test_##name(); \
     printf("  %-55s PASS\n", #name "..."); g_pass++; } while(0)
@@ -50,6 +55,30 @@ static int g_pass = 0, g_fail = 0;
     g_fail++; return; } } while(0)
 
 /* ── Lifecycle tests ───────────────────────────────────────────────────── */
+
+TEST(wide_mixed_signature) {
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    uint32_t module = nvm_add_string(mod, "", 0);
+    uint32_t name = nvm_add_string(mod, "nl_ffi_test_wide", 16);
+    uint8_t tags[11];
+    NanoValue args[11];
+    for (int i = 0; i < 11; i++) {
+        tags[i] = i % 2 ? TAG_FLOAT : TAG_INT;
+        args[i] = i % 2 ? val_float(i + 1.0) : val_int(i + 1);
+    }
+    uint32_t imported = nvm_add_import(mod, module, name, 11, TAG_FLOAT, tags);
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue result;
+    char error[256];
+    ASSERT(vm_ffi_call(mod, imported, args, 11, &result, &heap, error, sizeof error));
+    ASSERT_EQ(result.tag, TAG_FLOAT);
+    ASSERT_EQ(result.as.f64, 66.0);
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
 
 TEST(init_shutdown_set_env) {
     /* Double-init should be safe (idempotent) */
@@ -66,6 +95,44 @@ TEST(init_shutdown_set_env) {
 
     /* Re-init after shutdown */
     vm_ffi_init();
+    vm_ffi_shutdown();
+}
+
+TEST(call_bytecode_callback_rejected) {
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    uint32_t module = nvm_add_string(mod, "", 0);
+    uint32_t name = nvm_add_string(mod, "abs", 3);
+    uint8_t tag = TAG_FUNCTION;
+    uint32_t imported = nvm_add_import(mod, module, name, 1, TAG_INT, &tag);
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue arg = val_int(13), result;
+    arg.tag = TAG_FUNCTION;
+    char error[256];
+    ASSERT(!vm_ffi_call(mod, imported, &arg, 1, &result, &heap, error, sizeof error));
+    ASSERT(strstr(error, "native callback") != NULL);
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
+TEST(call_string_returning_float) {
+    vm_ffi_init();
+    NvmModule *mod = nvm_module_new();
+    uint32_t module = nvm_add_string(mod, "", 0);
+    uint32_t name = nvm_add_string(mod, "atof", 4);
+    uint8_t tag = TAG_STRING;
+    uint32_t imported = nvm_add_import(mod, module, name, 1, TAG_FLOAT, &tag);
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NanoValue arg = val_string(vm_string_new(&heap, "12.5", 4)), result;
+    char error[256];
+    ASSERT(vm_ffi_call(mod, imported, &arg, 1, &result, &heap, error, sizeof error));
+    ASSERT_EQ(result.tag, TAG_FLOAT);
+    ASSERT_EQ(result.as.f64, 12.5);
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
     vm_ffi_shutdown();
 }
 
@@ -624,6 +691,9 @@ TEST(artifact_handle_isolation) {
 int main(void) {
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
+    RUN(wide_mixed_signature);
+    RUN(call_string_returning_float);
+    RUN(call_bytecode_callback_rejected);
     RUN(artifact_handle_isolation);
     RUN(load_module_nonexistent);
     RUN(call_empty_module_oob);

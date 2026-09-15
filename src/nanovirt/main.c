@@ -254,6 +254,8 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
             fprintf(stderr, "I could not measure the shadow execution deadline\n");
         else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
             fprintf(stderr, "I stopped shadow execution after 10 seconds\n");
+        else if (WIFSIGNALED(status))
+            fprintf(stderr, "I stopped shadow execution after signal %d\n", WTERMSIG(status));
         else
             fprintf(stderr, "I will not publish output after failed shadow execution\n");
         return false;
@@ -262,6 +264,8 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
 }
 
 int main(int argc, char **argv) {
+    g_argc = argc;
+    g_argv = argv;
     const char *input = NULL;
     const char *output = NULL;
     bool run = false;

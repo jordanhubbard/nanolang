@@ -1668,7 +1668,25 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 printf("[Modules] Building C module '%s' (%s)\n", meta->name, module_dir);
             }
             
-            ModuleBuildInfo *info = module_build(builder, meta);
+            /* I pin one generation per physical foreign module for this link.
+             * Different .nano files in that directory still compile separately. */
+            ModuleBuildInfo *info = NULL;
+            char *physical_dir = realpath(meta->module_dir, NULL);
+            for (int j = 0; physical_dir && j < build_info_count; j++) {
+                if (build_infos[j]->module_dir &&
+                    strcmp(build_infos[j]->module_dir, physical_dir) == 0) {
+                    info = build_infos[j];
+                    break;
+                }
+            }
+            free(physical_dir);
+            if (!info) {
+                info = module_build(builder, meta);
+                if (info) {
+                    build_infos[build_info_count++] = info;
+                    c_modules_built++;
+                }
+            }
             if (!info) {
                 fprintf(stderr, "Error: Failed to build module '%s'\n", meta->name);
                 module_metadata_free(meta);
@@ -1681,9 +1699,6 @@ bool compile_modules(ModuleList *modules, Environment *env, char *module_objs_bu
                 return false;
             }
             
-            build_infos[build_info_count++] = info;
-            c_modules_built++;
-
             /* 
              * IMPORTANT: If the module ALSO has a .nano file with implementations 
              * (not just externs), we must compile it too!
