@@ -48,5 +48,7 @@ int64_t vm_bstr_validate_utf8(const char *str);
 
 /* Process */
 DynArray *vm_process_run(const char *cmd);
+char *vm_exec_capture(const char *cmd);
+int64_t vm_exec_last_status(void);
 
 #endif /* NANOVM_BUILTINS_H */

@@ -291,6 +291,22 @@ static size_t marshal_value_to_c(Value val, Type expected_type,
     }
 }
 
+/* Typed default for an extern that cannot be resolved (no FFI backend / offline
+ * module). Returning a value that matches the declared return type keeps
+ * callers well-defined — e.g. a string-returning capture yields "" rather than
+ * a void value, so stdlib modules stay usable and side-effect-free without a
+ * live FFI backend. */
+static Value ffi_offline_default(Type return_type) {
+    switch (return_type) {
+        case TYPE_STRING: return create_string("");
+        case TYPE_INT:    return create_int(0);
+        case TYPE_OPAQUE: return create_int(0);
+        case TYPE_BOOL:   return create_bool(false);
+        case TYPE_FLOAT:  return create_float(0.0);
+        default:          return create_void();
+    }
+}
+
 /* Marshal C return value back to nanolang Value */
 static Value marshal_c_to_value(void *c_result, Type return_type) {
     switch (return_type) {
@@ -354,7 +370,7 @@ Value ffi_call_extern(const char *function_name, Value *args, int arg_count,
         if (ffi_try_module_introspection(function_name, args, arg_count, func_info, env, &v)) {
             return v;
         }
-        return create_void();
+        return ffi_offline_default(func_info ? func_info->return_type : TYPE_VOID);
     }
 
     if (ffi_verbose) {
