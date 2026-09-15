@@ -501,6 +501,7 @@ test-nanoisa-dump: nanoisa_dump
 
 NANOVM_DIR = $(SRC_DIR)/nanovm
 NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
+NANOVM_SOURCES += $(NANOVM_DIR)/vm_ffi_arrays.c
 NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES)) $(OBJ_DIR)/runtime/callback_runtime.o
 
 $(VM_DECODE_OBJECT): $(NANOVM_DIR)/vm_decode.c $(NANOVM_DIR)/vm_decode.h \
@@ -578,6 +579,11 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 	@rm -f tests/test_gc_struct
 
 .PHONY: test-vm-ffi
+.PHONY: test-ffi-array-copyback
+test-ffi-array-copyback:
+	python3 -m unittest tests.test_ffi_array_copyback
+
+test-vm-ffi: test-ffi-array-copyback
 test-vm-ffi: test-callback-runtime test-dispatch-retained
 
 .PHONY: test-dispatch-retained

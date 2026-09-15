@@ -252,12 +252,29 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   pass SDK syntax checks; the manifest-selected sources link
                   and export all three ABI markers without loading SDL startup.
                 - [ ] I preserve native array mutations across VM FFI calls.
-                  `marshal_args` copies VM arrays to `DynArray` without copying
-                  mutations back, so clearing texture handles during cleanup
-                  would not prevent repeated VM-side destruction. I test
+                  My previous marshalling copied VM arrays to `DynArray` without
+                  copying mutations back, so clearing texture handles during
+                  cleanup did not prevent repeated VM-side destruction. I test
                   copy-back, aliasing and temporary-array cleanup before
                   claiming repeated cleanup across both backends.
                   MAC `task_2d34e62c8b2e0e086045c7d56f6eb66f`.
+                  - [x] I complete the in-process call frame for scalar/string
+                    arrays, including shared argument/return identity, snapshot
+                    ownership, UTF-8 and metadata checks, and all-or-nothing VM
+                    publication after fallible conversion. Native side effects
+                    cannot be rolled back after a failed copy-back.
+                    My frame tests pass normally and under ASan/UBSan, including
+                    invalid UTF-8, embedded NUL, malformed metadata, allocation
+                    failures and 1,000 repeated alias calls. All 27 VM FFI tests
+                    pass, including typed array/float calls and rejection of an
+                    invalid result before mutation publication. Wrapper gates
+                    pass with the new runtime object. This is not direct SDL
+                    resource-lifetime integration or co-process parity.
+                  - [ ] I extend the co-process request/reply protocol to carry
+                    array mutations and alias identities. Current value-only
+                    serialization copies aliased arguments independently and
+                    returns only the result; an in-process fix does not repair
+                    this isolated execution path. I test mailbox and pipe paths.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native

@@ -9,6 +9,7 @@
 /* usleep(), kill(), fork(), pipe(), exec*() need _GNU_SOURCE */
 
 #include "vm_ffi.h"
+#include "vm_ffi_arrays.h"
 #include "module_builder.h"
 #include "runtime/dyn_array.h"
 #include "runtime/ffi_loader.h"
@@ -90,9 +91,9 @@ bool vm_ffi_load_module(const char *module_name) {
  * ======================================================================== */
 
 /* Marshal NanoValue args to C void* array for polymorphic dispatch */
-static int marshal_args(NanoValue *args, int arg_count,
+static bool marshal_args(NanoValue *args, int arg_count,
                         const NvmImportEntry *imp, const uint8_t *param_types,
-                        void **arg_ptrs) {
+                        void **arg_ptrs, VmFfiArrayFrame *arrays, char *error, size_t size) {
     for (int i = 0; i < arg_count; i++) {
         uint8_t expected_tag = (i < imp->param_count && param_types)
                                ? param_types[i] : args[i].tag;
@@ -123,45 +124,16 @@ static int marshal_args(NanoValue *args, int arg_count,
                 /* Opaque values stored as raw pointer in i64 */
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
                 break;
-            case TAG_ARRAY: {
-                /* Convert VmArray to DynArray for C functions */
-                VmArray *va = args[i].as.array;
-                if (!va) {
-                    arg_ptrs[i] = (void *)dyn_array_new(ELEM_INT);
-                } else {
-                    ElementType et = ELEM_INT;
-                    if (va->elem_type == TAG_STRING) et = ELEM_STRING;
-                    else if (va->elem_type == TAG_FLOAT) et = ELEM_FLOAT;
-                    else if (va->elem_type == TAG_BOOL) et = ELEM_BOOL;
-                    DynArray *da = dyn_array_new(et);
-                    for (uint32_t j = 0; j < va->length; j++) {
-                        NanoValue elem = vm_array_get(va, j);
-                        switch (et) {
-                            case ELEM_INT:   dyn_array_push_int(da, elem.as.i64); break;
-                            case ELEM_FLOAT: dyn_array_push_float(da, elem.as.f64); break;
-                            case ELEM_BOOL:  dyn_array_push_bool(da, elem.as.boolean); break;
-                            case ELEM_STRING:
-                                if (elem.as.string)
-                                    dyn_array_push_string(da, vmstring_cstr(elem.as.string));
-                                else
-                                    dyn_array_push_string(da, "");
-                                break;
-                            default:
-                                dyn_array_push_int(da, elem.as.i64);
-                                break;
-                        }
-                    }
-                    arg_ptrs[i] = (void *)da;
-                }
+            case TAG_ARRAY:
+                if (!vm_ffi_array_argument(arrays, args[i], &arg_ptrs[i], error, size)) return false;
                 break;
-            }
             default:
                 /* Pass as raw int64 (best effort) */
                 arg_ptrs[i] = (void *)(intptr_t)args[i].as.i64;
                 break;
         }
     }
-    return arg_count;
+    return true;
 }
 
 /* Convert C int64_t result to NanoValue based on return type tag */
@@ -184,7 +156,10 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
         case TAG_STRING: {
             const char *str = (const char *)(intptr_t)raw_result;
             if (str) {
-                VmString *vs = vm_string_new(heap, str, (uint32_t)strlen(str));
+                size_t length = strlen(str);
+                if (length > UINT32_MAX) { *success = false; return val_void(); }
+                VmString *vs = vm_string_new(heap, str, (uint32_t)length);
+                if (!vs) { *success = false; return val_void(); }
                 return val_string(vs);
             }
             return val_void();
@@ -199,64 +174,11 @@ static NanoValue marshal_result(int64_t raw_result, uint8_t return_tag,
             return v;
         }
         case TAG_ARRAY: {
-            /* C functions return DynArray* - convert to VmArray */
-            DynArray *darr = (DynArray *)(intptr_t)raw_result;
-            if (!darr) return val_void();
-            /* Preserve the element type so ARR_GET / iteration observe the
-             * correct tag (strings were previously mislabelled as ints, which
-             * made e.g. dir_list()/process_run() elements read back empty). */
-            uint8_t vm_elem_tag = TAG_INT;
-            switch (darr->elem_type) {
-                case ELEM_FLOAT:  vm_elem_tag = TAG_FLOAT;  break;
-                case ELEM_BOOL:   vm_elem_tag = TAG_BOOL;    break;
-                case ELEM_STRING: vm_elem_tag = TAG_STRING;  break;
-                default:          vm_elem_tag = TAG_INT;     break;
-            }
-            VmArray *varr = vm_array_new(heap, vm_elem_tag, (uint32_t)darr->length);
-            if (!varr) { *success = false; return val_void(); }
-            for (int64_t ai = 0; ai < darr->length; ai++) {
-                NanoValue elem;
-                switch (darr->elem_type) {
-                    case ELEM_INT:
-                        elem = val_int(dyn_array_get_int(darr, ai));
-                        break;
-                    case ELEM_FLOAT:
-                        elem = val_float(dyn_array_get_float(darr, ai));
-                        break;
-                    case ELEM_BOOL:
-                        elem = val_bool(dyn_array_get_bool(darr, ai));
-                        break;
-                    case ELEM_STRING: {
-                        const char *s = dyn_array_get_string(darr, ai);
-                        if (s) {
-                            VmString *vs = vm_string_new(heap, s, (uint32_t)strlen(s));
-                            elem = val_string(vs);
-                        } else {
-                            elem = val_void();
-                        }
-                        break;
-                    }
-                    default:
-                        elem = val_int(dyn_array_get_int(darr, ai));
-                        break;
-                }
-                if (!vm_array_push(heap, varr, elem)) {
-                    vm_release(heap, elem);
-                    vm_release(heap, val_array(varr));
-                    *success = false;
-                    return val_void();
-                }
-                /* push retains, so the reference vm_string_new handed back
-                 * has no owner once the array holds its own. Without this,
-                 * every string element of a marshalled array kept a reference
-                 * nothing would ever drop -- the same pattern OP_ARR_PUSH
-                 * already follows. Non-heap elements release to a no-op. */
-                vm_release(heap, elem);
-            }
-            NanoValue v = {0};
-            v.tag = TAG_ARRAY;
-            v.as.array = varr;
-            return v;
+            DynArray *array = (DynArray *)(intptr_t)raw_result;
+            if (!array) return val_void();
+            VmArray *copy = vm_ffi_array_import(heap, array, NULL, 0);
+            if (!copy) { *success = false; return val_void(); }
+            return val_array(copy);
         }
         default:
             return val_int(raw_result);
@@ -832,6 +754,22 @@ cleanup:
     return ok;
 }
 
+static bool finish_foreign_arrays(VmFfiArrayFrame *arrays, int64_t raw, uint8_t tag,
+                                  NanoValue *result, char *error, size_t size) {
+    bool ok = true;
+    NanoValue converted = val_void();
+    if (!(tag == TAG_ARRAY &&
+          vm_ffi_array_alias_result(arrays, (void *)(intptr_t)raw, &converted))) {
+        converted = marshal_result(raw, tag, arrays->heap, &ok);
+        if (!ok) snprintf(error, size, "I could not validate or allocate the foreign result");
+    }
+    if (ok) ok = vm_ffi_arrays_commit(arrays, error, size);
+    if (ok) *result = converted;
+    else vm_release(arrays->heap, converted);
+    vm_ffi_arrays_dispose(arrays);
+    return ok;
+}
+
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
@@ -867,6 +805,7 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     /* Marshal arguments */
     void *arg_ptrs[NANO_MAX_FFI_ARGS] = {0};
+    VmFfiArrayFrame arrays = {.heap = heap};
     if (arg_count < 0 || arg_count > NANO_MAX_FFI_ARGS) {
         snprintf(error_msg, error_msg_size,
                  "Too many FFI arguments (%d > %d)", arg_count, NANO_MAX_FFI_ARGS);
@@ -892,9 +831,9 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     /* I use typed ABI dispatch for wider signatures, including mixed
      * integer/pointer and floating-point register classes. */
-    bool typed_abi = imp->return_type == TAG_FLOAT;
+    bool typed_abi = imp->return_type == TAG_FLOAT || imp->return_type == TAG_ARRAY;
     for (int i = 0; param_types && i < arg_count && i < desc->param_count; i++)
-        if (param_types[i] == TAG_FLOAT) typed_abi = true;
+        if (param_types[i] == TAG_FLOAT || param_types[i] == TAG_ARRAY) typed_abi = true;
     if (arg_count > 10 || typed_abi) {
         if (arg_count != desc->param_count) {
             snprintf(error_msg, error_msg_size, "I require the declared foreign argument count");
@@ -904,7 +843,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         void *values[NANO_MAX_FFI_ARGS];
         union { int64_t integer; double floating; void *pointer; uint8_t byte; }
             storage[NANO_MAX_FFI_ARGS], returned = {0};
-        marshal_args(args, arg_count, imp, param_types, arg_ptrs);
+        if (!marshal_args(args, arg_count, imp, param_types, arg_ptrs, &arrays, error_msg, error_msg_size))
+            goto ffi_array_failure;
         for (int i = 0; i < arg_count; i++) {
             uint8_t tag = param_types ? param_types[i] : args[i].tag;
             values[i] = &storage[i];
@@ -922,7 +862,7 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                 storage[i].pointer = arg_ptrs[i];
             } else {
                 snprintf(error_msg, error_msg_size, "I cannot marshal typed foreign argument tag %u", tag);
-                return false;
+                goto ffi_array_failure;
             }
         }
         ffi_type *return_type = NULL;
@@ -935,22 +875,21 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                 return_type = &ffi_type_pointer; break;
             default:
                 snprintf(error_msg, error_msg_size, "I cannot marshal typed foreign result tag %u", imp->return_type);
-                return false;
+                goto ffi_array_failure;
         }
         ffi_cif cif;
         if (ffi_prep_cif(&cif, FFI_DEFAULT_ABI, (unsigned)arg_count, return_type, types) != FFI_OK) {
             snprintf(error_msg, error_msg_size, "I could not prepare a typed foreign signature");
-            return false;
+            goto ffi_array_failure;
         }
         ffi_call(&cif, FFI_FN(func_ptr), &returned, values);
-        if (imp->return_type == TAG_FLOAT) {
-            *result = val_float(returned.floating);
-            return true;
-        }
-        bool converted;
-        *result = marshal_result(returned.integer, imp->return_type, heap, &converted);
-        if (!converted) snprintf(error_msg, error_msg_size, "I could not allocate the foreign result");
-        return converted;
+        int64_t raw = returned.integer;
+        if (imp->return_type == TAG_FLOAT) memcpy(&raw, &returned.floating, sizeof raw);
+        else if (imp->return_type == TAG_BOOL || imp->return_type == TAG_U8) raw = returned.byte;
+        else if (imp->return_type == TAG_ARRAY || imp->return_type == TAG_STRING ||
+                 imp->return_type == TAG_BSTRING || imp->return_type == TAG_OPAQUE)
+            raw = (int64_t)(intptr_t)returned.pointer;
+        return finish_foreign_arrays(&arrays, raw, imp->return_type, result, error_msg, error_msg_size);
     }
 
     /* Fast path: all-float signatures use properly typed dispatch so
@@ -1002,7 +941,8 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
         /* Fall through to the generic path if the pattern was unsupported. */
     }
 
-    marshal_args(args, arg_count, imp, param_types, arg_ptrs);
+    if (!marshal_args(args, arg_count, imp, param_types, arg_ptrs, &arrays, error_msg, error_msg_size))
+        goto ffi_array_failure;
 
     /* Call the function */
     int64_t raw_result = 0;
@@ -1032,11 +972,11 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
             return false;
     }
 
-    /* Marshal result */
-    bool converted;
-    *result = marshal_result(raw_result, imp->return_type, heap, &converted);
-    if (!converted) snprintf(error_msg, error_msg_size, "I could not allocate the foreign array result.");
-    return converted;
+    return finish_foreign_arrays(&arrays, raw_result, imp->return_type, result, error_msg, error_msg_size);
+
+ffi_array_failure:
+    vm_ffi_arrays_dispose(&arrays);
+    return false;
 }
 
 /* ========================================================================

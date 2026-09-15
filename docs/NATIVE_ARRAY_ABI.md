@@ -1,5 +1,29 @@
 # My native array boundary
 
+## In-process VM arrays
+
+I copy int, float, bool, u8 and string array arguments into call-scoped native
+arrays. Repeated arguments share one native array; a returned argument maps
+back to the original VM array identity. I convert the result and all modified
+arguments before publishing changes to those VM arrays. Conversion failure
+leaves their storage unchanged, but cannot undo native side effects.
+
+I release temporary arrays and writable string snapshots after the call.
+Native code must not retain or free these borrowed arrays or snapshots. String
+elements must be NUL-free UTF-8; native null string elements become empty
+strings. Replacement native string pointers must remain readable through
+copy-back. I do not free independently returned arrays or replacement strings:
+their ownership contract remains separate work. Metadata checks do not make
+arbitrary foreign pointers safe to dereference.
+
+I reject nested and record array layouts at this boundary. My co-process
+transport still needs mutation and alias propagation; this in-process frame
+does not establish isolated-call parity. `make test-ffi-array-copyback` checks
+scalar/string conversion, aliases, growth, cleanup and injected allocation
+failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
+
+## Layout declarations
+
 I currently use native array ABI version 1. `DynArray` still has a one-byte
 element width; I reject records larger than 255 bytes. This change does not
 remove that limit.

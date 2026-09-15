@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
 /* ========================================================================
  * Heap Init / Destroy
@@ -532,6 +533,18 @@ static bool array_grow(VmArray *a) {
     }
     a->capacity = new_cap;
     return true;
+}
+
+void vm_array_swap_scalar_storage(VmArray *a, VmArray *b) {
+    assert(a && b && a->elem_type == b->elem_type && a->unboxed == b->unboxed);
+    assert(vm_array_type_unboxable(a->elem_type) || a->elem_type == TAG_STRING);
+    uint32_t length = a->length, capacity = a->capacity;
+    NanoValue *elements = a->elements;
+    void *packed = a->packed;
+    a->length = b->length; a->capacity = b->capacity;
+    a->elements = b->elements; a->packed = b->packed;
+    b->length = length; b->capacity = capacity;
+    b->elements = elements; b->packed = packed;
 }
 
 bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v) {

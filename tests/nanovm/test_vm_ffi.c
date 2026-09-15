@@ -24,6 +24,7 @@ const char *get_project_root(void) { return g_project_root; }
 #include "../../src/nanoisa/assembler.h"
 #include "../../src/nanovm/cop_protocol.h"
 #include "../../src/runtime/ffi_loader.h"
+#include "../../src/runtime/dyn_array.h"
 
 /* ── Exported helpers with mixed integer/floating signatures ───────────────
  * These deterministic functions let the mixed-signature dispatcher be checked
@@ -684,6 +685,68 @@ TEST(artifact_and_logical_array_abi) {
     }
 }
 
+TEST(array_mutation_copyback) {
+    vm_ffi_init();
+    VmHeap heap;
+    vm_heap_init(&heap);
+    NvmModule *mod = nvm_module_new();
+    char *path = realpath("obj/ffi_artifact_first.so", NULL);
+    ASSERT(path && mod);
+    uint32_t lib = nvm_add_string(mod, path, (uint32_t)strlen(path));
+    free(path);
+    const char *names[] = {"array_mutate_alias", "array_clear_handles", "array_cleared_count",
+                          "array_scale", "array_invalid", "array_forbidden", "array_bad_result"};
+    uint8_t arities[] = {2, 1, 0, 2, 1, 1, 1};
+    uint8_t returns[] = {TAG_ARRAY, TAG_VOID, TAG_INT, TAG_FLOAT, TAG_VOID, TAG_VOID, TAG_ARRAY};
+    for (int i = 0; i < 7; ++i) {
+        uint32_t name = nvm_add_string(mod, names[i], (uint32_t)strlen(names[i]));
+        uint8_t params[] = {TAG_ARRAY, i == 3 ? TAG_FLOAT : TAG_ARRAY};
+        uint32_t imp = nvm_add_import(mod, lib, name, arities[i], returns[i], params);
+        mod->imports[imp].kind = NVM_IMPORT_ARTIFACT;
+    }
+    VmArray *array = vm_array_new(&heap, TAG_INT, 8);
+    ASSERT(array && vm_array_push(&heap, array, val_int(10)));
+    NanoValue args[] = {val_array(array), val_array(array)}, result;
+    char error[256];
+    size_t native_objects = gc_get_stats().num_objects;
+    for (int i = 0; i < 100; ++i) {
+        ASSERT(vm_ffi_call(mod, 0, args, 2, &result, &heap, error, sizeof error));
+        ASSERT_EQ(result.tag, TAG_ARRAY);
+        ASSERT(result.as.array == array);
+        ASSERT_EQ(vm_array_get(array, 0).as.i64, 11 + i);
+        vm_release(&heap, result);
+        ASSERT_EQ(gc_get_stats().num_objects, native_objects);
+    }
+    for (int repeat = 0; repeat < 2; ++repeat) {
+        ASSERT(vm_ffi_call(mod, 1, args, 1, &result, &heap, error, sizeof error));
+        ASSERT_EQ(vm_array_get(array, 0).as.i64, 0);
+    }
+    ASSERT(vm_ffi_call(mod, 2, NULL, 0, &result, &heap, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 1);
+    ASSERT(!vm_ffi_call(mod, 4, args, 1, &result, &heap, error, sizeof error));
+    ASSERT_EQ(array->length, 1);
+    ASSERT(strstr(error, "invalid native metadata"));
+    ASSERT(!vm_ffi_call(mod, 6, args, 1, &result, &heap, error, sizeof error));
+    ASSERT_EQ(vm_array_get(array, 0).as.i64, 0);
+    ASSERT_EQ(gc_get_stats().num_objects, native_objects);
+    VmArray *floating = vm_array_new(&heap, TAG_FLOAT, 8);
+    ASSERT(floating && vm_array_push(&heap, floating, val_float(2.5)));
+    NanoValue mixed[] = {val_array(floating), val_float(4.0)};
+    ASSERT(vm_ffi_call(mod, 3, mixed, 2, &result, &heap, error, sizeof error));
+    ASSERT(result.tag == TAG_FLOAT && result.as.f64 == 10.0);
+    ASSERT(vm_array_get(floating, 0).as.f64 == 10.0);
+    VmArray *nested = vm_array_new(&heap, TAG_ARRAY, 8);
+    NanoValue unsupported = val_array(nested);
+    ASSERT(!vm_ffi_call(mod, 5, &unsupported, 1, &result, &heap, error, sizeof error));
+    ASSERT(strstr(error, "unsupported"));
+    vm_release(&heap, val_array(array));
+    vm_release(&heap, val_array(floating));
+    vm_release(&heap, val_array(nested));
+    vm_heap_destroy(&heap);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+}
+
 TEST(artifact_handle_isolation) {
     vm_ffi_init();
     NvmModule *mod = nvm_module_new();
@@ -948,6 +1011,7 @@ int main(void) {
     RUN(contracted_import_never_uses_legacy_dispatch);
     RUN(artifact_handle_isolation);
     RUN(artifact_and_logical_array_abi);
+    RUN(array_mutation_copyback);
     RUN(load_module_nonexistent);
     RUN(call_empty_module_oob);
     RUN(call_too_many_args);

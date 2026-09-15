@@ -220,6 +220,9 @@ bool vm_array_push(VmHeap *heap, VmArray *a, NanoValue v);
 NanoValue vm_array_pop(VmArray *a);
 NanoValue vm_array_get(VmArray *a, uint32_t index);
 void vm_array_set(VmArray *a, uint32_t index, NanoValue v);
+/* I exchange scalar/string storage without changing either array identity.
+ * Both arrays must have the same scalar/string element type. */
+void vm_array_swap_scalar_storage(VmArray *a, VmArray *b);
 VmArray *vm_array_slice(VmHeap *heap, VmArray *a, uint32_t start, uint32_t end);
 /* Remove the element at `index`, shifting the tail left.
  *
