@@ -432,6 +432,41 @@ static void list_geometry(void) {
     assert(!clip_enabled);
     assert(nl_ui_file_selector(r,f,&a,1,INT_MAX-100,INT_MAX-50,100,50,0,0) == -1);
 }
+static void dropdown_geometry(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    char *items[]={"option","option","option","option","option"};
+    DynArray a={.length=5,.capacity=5,.elem_type=ELEM_STRING,
+                .elem_size=sizeof(char*),.data=items};
+    int draws=draw_calls, mice=mouse_calls;
+    assert(nl_ui_dropdown(r,f,&a,5,0,0,100,INT_MAX,0,1) == -1);
+    assert(nl_ui_dropdown(r,f,&a,5,INT64_MAX,0,100,20,0,0) == -1);
+    assert(nl_ui_dropdown(r,f,&a,5,0,INT_MAX-100,100,20,0,1) == -1);
+    assert(nl_ui_dropdown(r,f,&a,5,0,0,29,20,0,0) == -1);
+    assert(nl_ui_dropdown(r,f,&a,5,0,0,100,7,0,0) == -1);
+    assert(draw_calls == draws && mouse_calls == mice);
+    expected_text="option"; provide_surface=1;
+    test_surface.w=10; test_surface.h=10;
+    host_mouse_x=10; host_mouse_y=10; host_buttons=SDL_BUTTON(SDL_BUTTON_LEFT);
+    assert(nl_ui_dropdown(r,f,&a,1,0,0,100,20,0,0) == -1);
+    host_buttons=0;
+    assert(nl_ui_dropdown(r,f,&a,1,0,0,100,20,0,0) == -2);
+    host_mouse_y=30; host_buttons=SDL_BUTTON(SDL_BUTTON_LEFT);
+    assert(nl_ui_dropdown(r,f,&a,1,0,0,100,20,0,1) == -1);
+    host_buttons=0;
+    assert(nl_ui_dropdown(r,f,&a,1,0,0,100,20,0,1) == 0);
+    host_mouse_x=-10; host_mouse_y=-10; host_buttons=SDL_BUTTON(SDL_BUTTON_LEFT);
+    assert(nl_ui_dropdown(r,f,&a,1,0,0,100,20,0,1) == -1);
+    host_buttons=0;
+    assert(nl_ui_dropdown(r,f,&a,1,0,0,100,20,0,1) == -3);
+    int copies=render_copies, frees=surface_frees, textures=texture_frees;
+    test_surface.h=INT_MAX;
+    assert(nl_ui_dropdown(r,f,&a,1,INT_MIN,INT_MIN,100,20,0,1) == -1);
+    assert(render_copies == copies && surface_frees == frees+2 && texture_frees == textures+2);
+    provide_surface=0;
+    assert(nl_ui_dropdown(r,f,&a,5,0,0,100,INT_MAX/6,-1,1) == -1);
+    assert(nl_ui_dropdown(r,f,&a,5,INT_MAX-100,0,100,20,-1,1) == -1);
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -506,5 +541,6 @@ int main(void) {
     tooltips();
     text_inputs();
     list_geometry();
+    dropdown_geometry();
     return 0;
 }

@@ -806,7 +806,11 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
                        int64_t selected_index, int64_t is_open) {
     
     if (!renderer || !font || !ui_array_valid(items, item_count) ||
-        item_count == 0) return -1;
+        item_count == 0 || w < 30 || h < 8 ||
+        !ui_bar_geometry(x, y, w, h, 0)) return -1;
+    int rows = item_count < 5 ? (int)item_count : 5;
+    int64_t expanded_h = h * (rows + 1);
+    if (is_open && !ui_bar_geometry(x, y, w, expanded_h, 0)) return -1;
     
     int64_t new_selection = -1;
     
@@ -843,13 +847,11 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
             if (surface) {
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
                 if (texture) {
-                    int text_x = (int)x + 8;
-                    int text_y = (int)y + ((int)h - surface->h) / 2;
-                    SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
-                    if (dest.w > (int)w - 30) {
-                        dest.w = (int)w - 30;
-                    }
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                    int text_w = surface->w;
+                    if (text_w > (int)w - 30) text_w = (int)w - 30;
+                    SDL_Rect area = {(int)x + 8, (int)y, text_w, (int)h}, dest;
+                    if (ui_centered_rect(area, text_w, surface->h, &dest))
+                        SDL_RenderCopy(renderer, texture, NULL, &dest);
                     SDL_DestroyTexture(texture);
                 }
                 SDL_FreeSurface(surface);
@@ -874,9 +876,7 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     
     // If dropdown is open, check for clicks outside to close it
     if (is_open && dropdown_prev_mouse_down && !mouse_down) {
-        int list_h = (int)h * (item_count < 5 ? item_count : 5);
-        int list_y = (int)y + (int)h;
-        int in_dropdown_area = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)h + list_h);
+        int in_dropdown_area = point_in_rect(mouse_x, mouse_y, (int)x, (int)y, (int)w, (int)expanded_h);
         
         if (!in_dropdown_area) {
             dropdown_prev_mouse_down = mouse_down;
@@ -887,7 +887,7 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     // If dropdown is open, draw the list of options
     if (is_open && item_count > 0) {
         int item_h = (int)h;
-        int list_h = (int)h * (item_count < 5 ? item_count : 5);
+        int list_h = (int)h * rows;
         int list_y = (int)y + (int)h;
         
         // Draw list background
@@ -926,11 +926,11 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
             if (surface) {
                 SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
                 if (texture) {
-                    SDL_Rect dest = {(int)x + 8, item_y + (item_h - surface->h) / 2, surface->w, surface->h};
-                    if (dest.w > (int)w - 16) {
-                        dest.w = (int)w - 16;
-                    }
-                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                    int text_w = surface->w;
+                    if (text_w > (int)w - 16) text_w = (int)w - 16;
+                    SDL_Rect area = {(int)x + 8, item_y, text_w, item_h}, dest;
+                    if (ui_centered_rect(area, text_w, surface->h, &dest))
+                        SDL_RenderCopy(renderer, texture, NULL, &dest);
                     SDL_DestroyTexture(texture);
                 }
                 SDL_FreeSurface(surface);

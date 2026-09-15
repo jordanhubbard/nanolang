@@ -269,6 +269,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I validate list/file-selector geometry and row text
                     placement, preserving the caller's clip rectangle; I test
                     coordinate limits, selection, and rejected text cleanup.
+                  - [x] I validate closed and expanded dropdown geometry and
+                    text placement; I test height multiplication, open/close
+                    signals, selection and rejected surface cleanup.
                   - [ ] I reconcile the text-input API's promised editing and
                     Enter behavior with its current render-only implementation.
                 - [x] I make process pipe-spawn result allocation precede pipe

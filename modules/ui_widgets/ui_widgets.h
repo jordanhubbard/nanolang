@@ -46,6 +46,10 @@
  * Both reject invalid SDL geometry before interaction and skip unplaceable
  * row text with cleanup. The scrollable list restores the caller's clip state. */
 
+/* My dropdown requires at least 30x8 pixels and representable SDL endpoints,
+ * including its expanded rows when open. Invalid geometry returns -1 before
+ * interaction; unplaceable text is skipped with cleanup. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();
