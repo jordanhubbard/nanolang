@@ -36,6 +36,44 @@ class EffectExecution(unittest.TestCase):
     def test_handler_observes_perform(self):
         self.check_program(SOURCE)
 
+    def test_lexical_return_and_final_expression(self):
+        self.check_program('''
+effect Ask { ask : int -> int }
+let mut trace: int = 0
+fn send() -> int {
+    let x = perform Ask.ask(7)
+    set trace (+ trace 1)
+    return (+ x 10)
+}
+fn leave() -> int {
+    let x = handle { (send) } with { ask n -> { return n } }
+    set trace 100
+    return x
+}
+fn resume_value() -> int {
+    let x = handle { (send) } with { ask n -> { (+ n 1) } }
+    return (+ x 100)
+}
+fn exercise() -> int {
+    set trace 0
+    let left = (leave)
+    assert (== trace 0)
+    let resumed = (resume_value)
+    assert (== trace 1)
+    return (+ left resumed)
+}
+shadow send { assert (== (exercise) 125) }
+shadow leave { assert (== (exercise) 125) }
+shadow resume_value { assert (== (exercise) 125) }
+shadow exercise { assert (== (exercise) 125) }
+fn main() -> int {
+    assert (== (exercise) 125)
+    (println "I dispatched the effect.")
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+
     def test_ordered_multiple_and_zero_arguments(self):
         self.check_program('''
 effect Recorder { pair : int int -> void, tick : void -> void }

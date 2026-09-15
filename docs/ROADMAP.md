@@ -130,6 +130,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
           publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
         - [ ] I implement effect dispatch across native and VM execution.
+          - [ ] I route interpreter handler returns to the lexical function's
+            active call, preserving the destination through intervening helper
+            calls and cleanup. I test final-expression resumption separately,
+            expression ordering, string results and repeated handler unwinding.
+            The lexical call destination and scalar call/operator propagation
+            now pass interpreter regressions, including nested handlers and
+            final-expression resumption. I still audit aggregate constructors,
+            match guards, higher-order builtin callbacks and other expression
+            consumers before marking general interpreter propagation complete.
+            MAC `task_67e5e620d75a413b99753c7cdbde1f48`.
           - [x] I preserve declared handler parameter metadata for nominal
             field access, typed array reads and function signatures. I test
             valid uses and incompatible body bindings before runtime lowering.
@@ -185,8 +195,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             across helper calls, nested handlers and early scope cleanup.
             Argument checking still needs nominal identities and recursive
             aggregate/function signatures, including preserved result metadata;
-            legacy dispatch strips return/break/continue flags and does not establish
-            the final handler-arm value contract. These boundaries remain open,
+            interpreter scalar paths now preserve lexical return destinations,
+            but complete expression propagation and handler break/continue rules
+            remain unchecked. These boundaries remain open,
             as does native/VM dispatch itself.
           - [x] I emit void-valued locals without C storage, preserving each
             initializer and assignment side effect. I test inferred/annotated

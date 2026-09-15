@@ -2335,7 +2335,106 @@ void test_eval_effect_argument_lists(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_handler_return_destination(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Stop { stop : int -> int }\n"
+        "let mut trace: int = 0\n"
+        "fn send() -> int { let x = perform Stop.stop(7) set trace 1 return x }\n"
+        "fn exercise() -> int { let x = handle { (send) } with { stop n -> { return n } } set trace 2 return 99 }\n"
+        "fn main() -> int { set trace 0 let x = (exercise) return (+ 100 (+ x (* trace 1000))) }\n"));
+    for (int i = 0; i < 2; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 107);
+        ASSERT(!result.is_return);
+        ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_expression_order(void) {
+    const char *bodies[] = {
+        "return (+ (emit) (mark))",
+        "return (combine (emit) (mark))",
+        "set trace (emit) return 99",
+        "if (== (emit) 7) { set trace 3 } return 99",
+        "while (< (emit) 8) { break } return 99",
+    };
+    for (size_t i = 0; i < sizeof(bodies) / sizeof(bodies[0]); i++) {
+        char source[2048];
+        snprintf(source, sizeof(source),
+            "effect Stop { stop : int -> int } let mut trace: int = 0 "
+            "fn emit() -> int { return perform Stop.stop(7) } "
+            "fn mark() -> int { set trace 4 return 1 } "
+            "fn combine(a: int, b: int) -> int { set trace 5 return (+ a b) } "
+            "fn send() -> int { %s } "
+            "fn exercise() -> int { let x = handle { (send) } with { stop n -> { return n } } return 99 } "
+            "fn main() -> int { let x = (exercise) return (+ x (* trace 1000)) }", bodies[i]);
+        RunCtx ctx;
+        ASSERT(run_ctx_init(&ctx, source));
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 7);
+        ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+        run_ctx_free(&ctx);
+    }
+}
+
+void test_eval_handler_final_value_resumes(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Ask { ask : int -> int } "
+        "fn send() -> int { let x = perform Ask.ask(7) return (+ x 10) } "
+        "fn main() -> int { let x = handle { (send) } with { ask n -> { (+ n 1) } } return (+ x 100) }"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 118);
+    ASSERT(nl_effect_find_handler("Ask", "ask", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_nested_and_string(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Outer { leave : void -> int } effect Inner { ask : void -> int } "
+        "let mut trace: int = 0 "
+        "fn inner() -> int { let x = handle { perform Inner.ask() } with { "
+        " ask -> { let x = perform Outer.leave() set trace 1 return 99 } } set trace 2 return x } "
+        "fn owner() -> string { let answer: string = \"kept\" "
+        " let x = handle { (inner) } with { leave -> { return answer } } set trace 3 return \"wrong\" } "
+        "fn main() -> int { set trace 0 let answer = (owner) assert (== answer \"kept\") return trace }"));
+    for (int i = 0; i < 3; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 0);
+        ASSERT(nl_effect_find_handler("Outer", "leave", NULL) == NULL);
+        ASSERT(nl_effect_find_handler("Inner", "ask", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handler_return_recursive_activation(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Stop { stop : int -> int } "
+        "fn recur(depth: int) -> int { "
+        " if (== depth 0) { let x = handle { perform Stop.stop(7) } with { stop n -> { return n } } return 99 } "
+        " let inner = (recur (- depth 1)) return (+ inner 1) } "
+        "fn main() -> int { return (recur 3) }"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 10);
+    ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
+    TEST(eval_handler_return_recursive_activation);
+    TEST(eval_handler_return_nested_and_string);
+    TEST(eval_handler_return_expression_order);
+    TEST(eval_handler_final_value_resumes);
+    TEST(eval_handler_return_destination);
     TEST(eval_effect_argument_lists);
     TEST(eval_unqualified_effect_handler);
     TEST(eval_nested_effect_handlers);

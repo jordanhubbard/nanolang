@@ -228,8 +228,10 @@ compatibility. Native and VM handler dispatch remain release work.
 My 5.0 handler control-flow contract matches match arms: `return` exits the
 function containing the handler, even when another function performs the
 operation. The arm's final expression supplies the operation result and resumes
-`perform`. Implementing this consistently across backends remains roadmap work;
-the legacy interpreter still strips handler control-flow flags.
+`perform`. My interpreter now preserves the lexical call destination through
+ordinary helper calls and tested scalar expressions, including nested handler
+unwinding and string returns. Full expression coverage and native/VM lowering
+remain roadmap work; these tests do not establish backend equivalence.
 
 ## Imports And Modules
 

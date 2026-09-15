@@ -109,6 +109,8 @@ static int g_shadow_current_first_line = 0;
 static int g_shadow_current_first_column = 0;
 /* Like shadow accounting, my interpreted call context is sequential. */
 static ASTNode *g_eval_call_site = NULL;
+/* I borrow stack-local call identities only while their activations are live. */
+static const void *g_eval_return_target = NULL;
 
 static Value call_function_at(const char *name, Value *args, int arg_count,
                              Environment *env, int line, int column);
@@ -2376,6 +2378,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
         /* Handle unary minus: (- x) */
         if (op == TOKEN_MINUS && arg_count == 1) {
             Value arg = eval_expression(node->as.prefix_op.args[0], env);
+            if (arg.is_return) return arg;
             if (arg.type == VAL_INT) {
                 return create_int(-arg.as.int_val);
             } else if (arg.type == VAL_FLOAT) {
@@ -2422,7 +2425,9 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
         Value right = eval_expression(node->as.prefix_op.args[1], env);
+        if (right.is_return) return right;
 
         /* Array arithmetic (elementwise) */
         if (left.type == VAL_DYN_ARRAY || right.type == VAL_DYN_ARRAY || left.type == VAL_ARRAY || right.type == VAL_ARRAY) {
@@ -2732,7 +2737,9 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
         Value right = eval_expression(node->as.prefix_op.args[1], env);
+        if (right.is_return) return right;
 
         if (left.type == VAL_INT && right.type == VAL_INT) {
             bool result;
@@ -2788,7 +2795,9 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
         Value right = eval_expression(node->as.prefix_op.args[1], env);
+        if (right.is_return) return right;
 
         bool equal = false;
         if (left.type == right.type) {
@@ -2878,14 +2887,17 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value left = eval_expression(node->as.prefix_op.args[0], env);
+        if (left.is_return) return left;
 
         if (op == TOKEN_AND) {
             if (!is_truthy(left)) return create_bool(false);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
+            if (right.is_return) return right;
             return create_bool(is_truthy(right));
         } else { /* OR */
             if (is_truthy(left)) return create_bool(true);
             Value right = eval_expression(node->as.prefix_op.args[1], env);
+            if (right.is_return) return right;
             return create_bool(is_truthy(right));
         }
     }
@@ -2896,6 +2908,7 @@ static Value eval_prefix_op(ASTNode *node, Environment *env) {
             return create_void();
         }
         Value arg = eval_expression(node->as.prefix_op.args[0], env);
+        if (arg.is_return) return arg;
         return create_bool(!is_truthy(arg));
     }
 
@@ -2919,6 +2932,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
     if (node->as.call.func_expr) {
         /* Evaluate the inner function call to get the function */
         Value func_val = eval_expression(node->as.call.func_expr, env);
+        if (func_val.is_return) return func_val;
         if (func_val.type != VAL_FUNCTION) {
             fprintf(stderr, "Error: Expression does not return a function\n");
             return create_void();
@@ -2948,6 +2962,11 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
         Value *args = malloc(sizeof(Value) * node->as.call.arg_count);
         for (int i = 0; i < node->as.call.arg_count; i++) {
             args[i] = eval_expression(node->as.call.args[i], env);
+            if (args[i].is_return) {
+                Value result = args[i];
+                free(args);
+                return result;
+            }
         }
         if (!func) {
             fprintf(stderr, "Error: Function '%s' not found\n", func_name);
@@ -3086,6 +3105,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
     Value args[16];  /* Max args for function calls */
     for (int i = 0; i < node->as.call.arg_count; i++) {
         args[i] = eval_expression(node->as.call.args[i], env);
+        if (args[i].is_return) return args[i];
     }
 
     /* File operations */
@@ -4627,6 +4647,9 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
     }
 
     /* Execute function body */
+    char return_boundary;
+    const void *saved_return_target = g_eval_return_target;
+    g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
     Value result = create_void();
@@ -4646,6 +4669,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
     }
 
     /* Pop call stack */
+    g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
     tracing_pop_call();
 
@@ -4688,8 +4712,10 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
         return_value.as.struct_val = dst;
     }
 
-    /* Return statements are handled inside the callee; don't let is_return escape. */
-    return_value.is_return = false;
+    /* I consume only returns addressed to this call, not an enclosing handler owner. */
+    return_value.is_return = result.is_return && result.return_target &&
+        result.return_target != &return_boundary;
+    return_value.return_target = return_value.is_return ? result.return_target : NULL;
     return_value.is_break = false;
     return_value.is_continue = false;
 
@@ -4881,6 +4907,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
 
         case AST_IF: {
             Value cond = eval_expression(expr->as.if_stmt.condition, env);
+            if (cond.is_return) return cond;
             if (is_truthy(cond)) {
                 return eval_statement(expr->as.if_stmt.then_branch, env);
             } else {
@@ -4893,6 +4920,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Check each condition in order and return the corresponding value */
             for (int i = 0; i < expr->as.cond_expr.clause_count; i++) {
                 Value cond = eval_expression(expr->as.cond_expr.conditions[i], env);
+                if (cond.is_return) return cond;
                 if (is_truthy(cond)) {
                     return eval_expression(expr->as.cond_expr.values[i], env);
                 }
@@ -5328,7 +5356,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             } else {
                 result = create_void();
             }
+            if (result.is_return) return result;
             result.is_return = true;
+            result.return_target = g_eval_return_target;
             return result;
         }
 
@@ -5388,6 +5418,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (strcmp(uv->variant_name, "Err") == 0) {
                 /* Propagate the Err as a return value */
                 inner.is_return = true;
+                inner.return_target = g_eval_return_target;
                 inner.is_break = false;
                 inner.is_continue = false;
                 return inner;
@@ -5433,6 +5464,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             frame.handler_bodies = expr->as.handle_expr.handler_bodies;
             frame.handler_count = count;
             frame.env = env;
+            frame.return_target = g_eval_return_target;
             nl_effect_frame_push(&frame);
             Value result = eval_expression(expr->as.handle_expr.body, env);
             nl_effect_frame_pop();
@@ -5450,6 +5482,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             frame.handler_bodies      = expr->as.effect_handler.handler_bodies;
             frame.handler_count       = expr->as.effect_handler.handler_count;
             frame.env                 = env;
+            frame.return_target       = g_eval_return_target;
 
             nl_effect_frame_push(&frame);
             Value result = eval_expression(expr->as.effect_handler.body, env);
@@ -5485,8 +5518,14 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value *args = count ? calloc((size_t)count, sizeof(*args)) : NULL;
             if (count && !args) return create_void();
             /* I evaluate in the caller before handler names can shadow arguments. */
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++) {
                 args[i] = eval_expression(expr->as.effect_op.args[i], env);
+                if (args[i].is_return) {
+                    Value result = args[i];
+                    free(args);
+                    return result;
+                }
+            }
             Environment *henv = frame->env;
             int saved_sym = henv->symbol_count;
             for (int i = 0; i < count; i++) {
@@ -5496,13 +5535,15 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             free(args);
 
+            const void *saved_return_target = g_eval_return_target;
+            g_eval_return_target = frame->return_target;
             Value handler_result = eval_statement(frame->handler_bodies[arm_idx], henv);
+            g_eval_return_target = saved_return_target;
 
             /* Restore scope. */
             henv->symbol_count = saved_sym;
 
-            /* Strip control-flow flags — handler result is the perform's result. */
-            handler_result.is_return   = false;
+            /* I preserve lexical returns; ordinary final values resume perform. */
             handler_result.is_break    = false;
             handler_result.is_continue = false;
             return handler_result;
@@ -5571,6 +5612,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_SET: {
             Value value = eval_expression(stmt->as.set.value, env);
+            if (value.is_return) return value;
             env_set_var(env, stmt->as.set.name, value);
             
             /* Trace variable assignment */
@@ -5589,7 +5631,10 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_WHILE: {
             Value result = create_void();
-            while (is_truthy(eval_expression(stmt->as.while_stmt.condition, env))) {
+            for (;;) {
+                Value condition = eval_expression(stmt->as.while_stmt.condition, env);
+                if (condition.is_return) return condition;
+                if (!is_truthy(condition)) break;
                 result = eval_statement(stmt->as.while_stmt.body, env);
                 /* If body returned a value, propagate it immediately */
                 if (result.is_return) {
@@ -5735,7 +5780,9 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             } else {
                 result = create_void();
             }
+            if (result.is_return) return result;
             result.is_return = true;  /* Mark as return value */
+            result.return_target = g_eval_return_target;
             result.is_break = false;
             result.is_continue = false;
             return result;
@@ -6314,9 +6361,13 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     }
 
     /* Execute the function body */
+    char return_boundary;
+    const void *saved_return_target = g_eval_return_target;
+    g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
     Value result = eval_statement(func->body, env);
+    g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
 
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
@@ -6325,8 +6376,10 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
         return_value = create_string(result.as.string_val);
     }
     
-    /* Clear is_return flag - we've exited the function */
-    return_value.is_return = false;
+    /* I consume only this activation's return, after preserving its value. */
+    return_value.is_return = result.is_return && result.return_target &&
+        result.return_target != &return_boundary;
+    return_value.return_target = return_value.is_return ? result.return_target : NULL;
     return_value.is_break = false;
     return_value.is_continue = false;
 
