@@ -108,6 +108,7 @@ struct VmTuple {
 struct VmClosure {
     VmHeapHeader header;
     uint32_t fn_idx;
+    uint32_t callable_module; /* Same VM-local identity as a direct callable. */
     uint16_t capture_count;
     NanoValue captures[];  /* Flexible array member */
 };

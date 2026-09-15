@@ -134,6 +134,7 @@ typedef struct VmState {
     /* Call stack */
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
+    uint32_t activation_floor; /* RET stops before resuming a suspended caller. */
 
     /* Current execution state */
     uint32_t ip;              /* Instruction pointer (byte offset in code) */
@@ -266,6 +267,13 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
                    uint16_t arg_count, NanoValue *out_result);
 
+/* I borrow a VM-local callable and args at an owner-thread host boundary.
+ * The core must be suspended, never executing concurrently. I permit nested
+ * activations, require normal return, and unwind only the new activation.
+ * Returned values are owned by the caller; out_result cannot alias my stack. */
+VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *args,
+                            uint16_t arg_count, NanoValue *out_result);
+
 /* Run pure NanoISA instructions until a trap occurs.
  * This is the "processor" — no I/O, no dlopen, no stdout.
  * On an FPGA, this would be implemented in RTL. */
@@ -292,6 +300,11 @@ const char *vm_error_string(VmResult result);
 /* Link a module for legacy roots without MODULE_REFS (OP_CALL_MODULE).
  * Returns the module index, or (uint32_t)-1 on error. */
 uint32_t vm_link_module(VmState *vm, const NvmModule *mod);
+
+/* I resolve a callable within this VM's stable root/linked-module registry.
+ * Values are VM-local and do not authorize transfer to another VM/process. */
+bool vm_callable_target(const VmState *vm, NanoValue callable,
+                        const NvmModule **module, uint32_t *function_index);
 
 /* Link the next dependency declared by the root module's MODULE_REFS section.
  * The name and declaration order define the OP_CALL_MODULE index. */

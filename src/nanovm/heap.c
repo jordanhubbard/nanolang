@@ -703,6 +703,7 @@ VmClosure *vm_closure_new(VmHeap *heap, uint32_t fn_idx, uint16_t capture_count)
     c->header.colour = VM_GC_BLACK;
     c->header.buffered = 0;
     c->fn_idx = fn_idx;
+    c->callable_module = 1;
     c->capture_count = capture_count;
     heap->stats.allocated += sz;
     heap->stats.allocation_calls++;

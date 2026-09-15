@@ -161,6 +161,37 @@ unwinding. Cancellation is an explicit result, not successful execution.
 
 ## Execution
 
+I keep callable identity within one VM: module ID `1` is its root, IDs `2`
+and above select its append-only linked-module registry, and `0` is invalid.
+Function values retain this ID in alignment space without growing my 16-byte
+value representation. Closures retain the same owner alongside their captures.
+`FUNCREF`, `CLOSURE_NEW`, and indirect calls use that identity. Equal function
+indices in different modules do not compare equal. Host `val_function(index)`
+constructs a root-module value, not a value relative to the currently executing
+module. These IDs are not portable across VMs or processes.
+
+`vm_invoke_callable` enters a callable at a suspended owner-thread host boundary.
+Its activation floor prevents `RET` from resuming the paused caller. I snapshot
+borrowed arguments before stack growth, retain the callable while executing,
+and unwind only the new frames and stack values. I restore the caller's module,
+function, instruction pointer, activation floor, and pending halt state. Normal
+return preserves the caller's prior error state; failure records the callback's
+error. `HALT` is not a successful callback return. This API requires the owner
+thread and a suspended core; it is not a cross-thread entry point.
+
+My tests pause at a real print trap with one or two caller frames, invoke a
+capturing function from another module, and resume after normal return,
+assertion failure, or halt. Allocation-failure tests check rejection and actual
+stack relocation while borrowing caller stack values. Linked-module tests
+exercise returned functions, returned closures, and a root callable passed into
+a dependency. This establishes activation and target identity for those cases;
+the retained-handle scheduler and foreign-call pumping remain unconnected.
+The 272359-check VM suite and stack-allocation failure tests pass ASan/UBSan
+on Darwin with leak detection disabled. I disable inlining in the sanitized
+VM harness: its optimized `main` otherwise inlines enough large stack-based
+VM fixtures to overflow before tests begin. The ordinary optimized suite
+passes separately. This is not evidence of concurrent VM entry safety.
+
 Native threads enqueue typed requests and wait for their result. They never
 read or mutate VM frames, globals, reference counts, or intern tables. The
 owner services requests at safe points. A same-owner invocation may nest;

@@ -4175,6 +4175,135 @@ static void test_call_module_handle_resolution(void) {
     nvm_module_free(mod_b);
 }
 
+static void test_suspended_callable_activation(void) {
+    for (unsigned depth = 1; depth <= 2; depth++) {
+        for (unsigned failure = 0; failure < 3; failure++) {
+            AsmResult assembled;
+            NvmModule *root = asm_assemble(
+                ".function paused 0 1 0 int 1\nPUSH_I64 999\nPRINT\nLOAD_GLOBAL 0\nRET\n.end\n", &assembled);
+            ASSERT(root, "I assemble a caller that pauses at a real print trap");
+            const char *body = failure == 1 ? "PUSH_BOOL 0\nASSERT\nLOAD_LOCAL 0\nRET\n" :
+                failure == 2 ? "PUSH_I64 42\nHALT\n" :
+                "LOAD_UPVALUE 0 0\nLOAD_LOCAL 0\nADD\nDUP\nSTORE_GLOBAL 0\nRET\n";
+            char source[512];
+            snprintf(source, sizeof(source), ".function callback 1 2 1 int 1\n%s.end\n", body);
+            NvmModule *target = asm_assemble(source, &assembled);
+            ASSERT(target, "I assemble a capturing callback target");
+            VmState vm;
+            vm_init(&vm, root);
+            ASSERT_EQ_INT(vm_link_module(&vm, target), 0, "I link a callback owner");
+            ASSERT(vm_ensure_globals(&vm, 1), "I reserve shared callback globals");
+            vm.globals[0] = val_int(7);
+            vm.global_count = 1;
+            VmString *guard = vm_string_new(&vm.heap, "caller root", 11);
+            VmClosure *closure = vm_closure_new(&vm.heap, 0, 1);
+            ASSERT(guard && closure, "I allocate caller and callback roots");
+            closure->callable_module = 2;
+            closure->captures[0] = val_int(40);
+            vm.stack[vm.stack_size++] = val_string(guard);
+            vm.frame_count = depth;
+            vm.activation_floor = depth - 1;
+            for (unsigned i = 0; i < depth; i++) vm.frames[i].module = root;
+            vm.frames[depth - 1].local_count = 1;
+            VmTrap paused = vm_core_execute(&vm);
+            ASSERT_EQ_INT(paused.type, TRAP_PRINT, "I reach the suspended host boundary");
+            vm_release(&vm.heap, paused.data.print.value);
+            uint32_t saved_ip = vm.ip;
+            VmCallFrame saved_frames[2];
+            memcpy(saved_frames, vm.frames, depth * sizeof(VmCallFrame));
+            vm.halt_requested = true;
+            NanoValue argument = val_int(1), returned = val_void();
+            VmResult status = vm_invoke_callable(&vm, val_closure(closure), &argument, 1, &returned);
+            ASSERT_EQ_INT(status, failure == 1 ? VM_ERR_ASSERT_FAILED : failure == 2 ? VM_ERR_TYPE_ERROR : VM_OK,
+                          "I distinguish normal return, assertion failure, and halt");
+            ASSERT(vm.module == root && vm.ip == saved_ip && vm.current_fn == 0 &&
+                   vm.frame_count == depth && vm.activation_floor == depth - 1 && vm.halt_requested,
+                   "I restore suspended execution state");
+            ASSERT(!memcmp(saved_frames, vm.frames, depth * sizeof(VmCallFrame)),
+                   "I do not rewrite suspended frames");
+            ASSERT(vm.stack_size == 1 && vm.stack[0].as.string == guard && guard->header.ref_count == 1,
+                   "I preserve caller stack roots");
+            ASSERT_EQ_INT(closure->header.ref_count, 1, "I release the activation's callable reference");
+            if (!failure) ASSERT(returned.tag == TAG_INT && returned.as.i64 == 41,
+                                 "I execute captures against shared globals");
+            vm_release(&vm.heap, returned);
+            vm_release(&vm.heap, val_closure(closure));
+            vm.halt_requested = false;
+            VmTrap resumed = vm_core_execute(&vm);
+            ASSERT_EQ_INT(resumed.type, TRAP_NONE, "I resume the original caller after callback completion");
+            ASSERT_EQ_INT(vm.frame_count, depth - 1, "I stop at the enclosing activation floor");
+            ASSERT_EQ_INT(vm_get_result(&vm).as.i64, failure ? 7 : 41,
+                          "I preserve shared state and the caller's return value");
+            vm_destroy(&vm);
+            nvm_module_free(root);
+            nvm_module_free(target);
+        }
+    }
+}
+
+static void test_linked_callable_identity(void) {
+    const char *root_source =
+        ".module_ref \"one\"\n.module_ref \"two\"\n.entry 0\n"
+        ".function main 0 2 0 int 1\n"
+        "CALL_MODULE 0 0 0 1\nSTORE_LOCAL 0\n"
+        "CALL_MODULE 1 0 0 1\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 0\nLOAD_LOCAL 1\nEQ\nNOT\nASSERT\n"
+        "PUSH_I64 1\nLOAD_LOCAL 0\nCALL_INDIRECT 1 1\n"
+        "PUSH_I64 1\nLOAD_LOCAL 1\nCALL_INDIRECT 1 1\nADD\n"
+        "PUSH_I64 1\nFUNCREF 1\nCALL_MODULE 0 2 2 1\nADD\nRET\n.end\n"
+        ".function root_target 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 1000\nADD\nRET\n.end\n"
+        ".function call 2 2 0 int 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nCALL_INDIRECT 1 1\nRET\n.end\n";
+    for (int closure = 0; closure < 2; closure++) {
+        AsmResult assembled;
+        NvmModule *root = asm_assemble(root_source, &assembled);
+        ASSERT(root, "I assemble the linked callable consumer");
+        NvmModule *libraries[2];
+        for (int i = 0; i < 2; i++) {
+            char source[1024], factory[128], target[128];
+            if (closure) {
+                snprintf(factory, sizeof(factory), "PUSH_I64 %d\nCLOSURE_NEW 1 1\n", 40 * (i + 1));
+                snprintf(target, sizeof(target), "LOAD_UPVALUE 0 0\n");
+            } else {
+                snprintf(factory, sizeof(factory), "FUNCREF 1\n");
+                snprintf(target, sizeof(target), "PUSH_I64 %d\n", 40 * (i + 1));
+            }
+            snprintf(source, sizeof(source),
+                ".function factory 0 0 0 %s 1\n%sRET\n.end\n"
+                ".function target 1 1 %d int 1\nLOAD_LOCAL 0\n%sADD\nRET\n.end\n"
+                ".function apply 2 2 0 int 1\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nCALL_INDIRECT 1 1\nRET\n.end\n",
+                closure ? "closure" : "function", factory, closure, target);
+            libraries[i] = asm_assemble(source, &assembled);
+            if (!libraries[i]) fprintf(stderr, "%s\n%s\n", source, assembled.message);
+            ASSERT(libraries[i], "I assemble the linked callable producer");
+        }
+        VmState vm;
+        vm_init(&vm, root);
+        ASSERT_EQ_INT(vm_link_named_module(&vm, "one", libraries[0]), 0, "I link the first producer");
+        ASSERT_EQ_INT(vm_link_named_module(&vm, "two", libraries[1]), 1, "I link the second producer");
+        ASSERT_EQ_INT(vm_execute(&vm), VM_OK, "I invoke returned and forwarded cross-module callables");
+        ASSERT_EQ_INT(vm_get_result(&vm).as.i64, 1123, "I use all three distinct function-one targets");
+        const NvmModule *owner = NULL;
+        uint32_t index = UINT32_MAX;
+        NanoValue first = val_function_owned(1, 2), second = val_function_owned(1, 3);
+        ASSERT(sizeof(NanoValue) == 16, "I preserve the compact value layout");
+        ASSERT(!val_equal(first, second) && val_compare(first, second) < 0,
+               "I distinguish equal indices in distinct modules");
+        ASSERT(vm_callable_target(&vm, first, &owner, &index) && owner == libraries[0] && index == 1,
+               "I resolve the explicit callable owner");
+        ASSERT(!vm_callable_target(&vm, val_function_owned(1, 0), &owner, &index),
+               "I reject an unbound callable");
+        ASSERT(!vm_callable_target(&vm, val_function_owned(1, UINT32_MAX), &owner, &index),
+               "I reject an unknown callable owner");
+        NanoValue args[] = {val_int(1), val_function_owned(1, UINT32_MAX)}, result;
+        ASSERT_EQ_INT(vm_invoke(&vm, 2, args, 2, &result), VM_ERR_UNDEFINED_FUNCTION,
+                      "I reject invalid identity before indirect entry");
+        vm_destroy(&vm);
+        nvm_module_free(root);
+        nvm_module_free(libraries[0]);
+        nvm_module_free(libraries[1]);
+    }
+}
+
 static void test_separately_linked_module_roundtrip(void) {
     NvmModule *dependency = nvm_module_new();
     uint8_t dependency_code[32];
@@ -5345,6 +5474,8 @@ int main(void) {
     RUN_TEST(test_call_module_chain);
     RUN_TEST(test_call_module_handle_resolution);
     RUN_TEST(test_separately_linked_module_roundtrip);
+    RUN_TEST(test_linked_callable_identity);
+    RUN_TEST(test_suspended_callable_activation);
 
     printf("\n[Stack Ops: ROT3]\n");
     RUN_TEST(test_rot3);

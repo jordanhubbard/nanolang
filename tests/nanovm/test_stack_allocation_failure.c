@@ -108,6 +108,40 @@ static void test_foreign_result_reservation(void) {
     }
 }
 
+static void test_suspended_callable_allocation(void) {
+    NvmModule *module = nvm_module_new();
+    uint8_t code[] = {OP_LOAD_LOCAL, 0, 0, OP_RET};
+    NvmFunctionEntry fn = {.arity = 1, .local_count = 4,
+        .result_count = 1, .result_tag = TAG_STRING, .code_length = sizeof(code)};
+    nvm_append_code(module, code, sizeof(code));
+    assert(nvm_add_function(module, &fn) == 0);
+    VmState vm;
+    vm_init(&vm, module);
+    VmString *string = vm_string_new(&vm.heap, "root", 4);
+    assert(string);
+    vm.stack[vm.stack_size++] = val_string(string);
+    vm.stack_capacity = 1;
+    vm.frame_count = 1;
+    vm.frames[0].module = module;
+    vm.frames[0].local_count = 1;
+    VmCallFrame frame = vm.frames[0];
+    NanoValue output = val_void();
+    reject_realloc = true;
+    assert(vm_invoke_callable(&vm, val_function(0), vm.stack, 1, &output) == VM_ERR_MEMORY);
+    reject_realloc = false;
+    assert(vm.stack_size == 1 && vm.frame_count == 1 && string->header.ref_count == 1);
+    assert(!memcmp(&frame, &vm.frames[0], sizeof(frame)));
+    move_pointer = vm.stack;
+    move_bytes = sizeof(NanoValue);
+    assert(vm_invoke_callable(&vm, val_function(0), vm.stack, 1, &output) == VM_OK);
+    assert(!move_pointer && vm.stack_size == 1 && vm.frame_count == 1);
+    assert(!memcmp(&frame, &vm.frames[0], sizeof(frame)));
+    assert(output.as.string == string && string->header.ref_count == 2);
+    vm_release(&vm.heap, output);
+    vm_destroy(&vm);
+    nvm_module_free(module);
+}
+
 static void test_instruction_growth(void) {
     const uint8_t ops[] = {OP_PUSH_I64, OP_DUP, OP_PICK,
                           OP_TUPLE_NEW, OP_CLOSURE_NEW, OP_ADD};
@@ -217,6 +251,7 @@ static void test_internal_calls(void) {
 
 int main(void) {
     test_borrowed_stack_arguments();
+    test_suspended_callable_allocation();
     test_foreign_result_reservation();
     test_instruction_growth();
     test_internal_calls();

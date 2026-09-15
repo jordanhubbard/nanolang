@@ -479,6 +479,32 @@ uint32_t vm_link_named_module(VmState *vm, const char *name,
     return vm_link_module_at_next_index(vm, mod);
 }
 
+static uint32_t vm_callable_module_id(const VmState *vm, const NvmModule *module) {
+    if (module == vm->root_module) return 1;
+    for (uint32_t i = 0; i < vm->linked_module_count; i++)
+        if (vm->linked_modules[i] == module && i <= UINT32_MAX - 2) return i + 2;
+    return 0;
+}
+
+bool vm_callable_target(const VmState *vm, NanoValue callable,
+                        const NvmModule **module, uint32_t *function_index) {
+    if (!vm || !module || !function_index) return false;
+    uint32_t owner, index;
+    if (callable.tag == TAG_FUNCTION) {
+        owner = callable.callable_module;
+        index = callable.as.fn_idx;
+    } else if (callable.tag == TAG_CLOSURE && callable.as.closure) {
+        owner = callable.as.closure->callable_module;
+        index = callable.as.closure->fn_idx;
+    } else return false;
+    const NvmModule *target = owner == 1 ? vm->root_module :
+        owner >= 2 && owner - 2 < vm->linked_module_count ? vm->linked_modules[owner - 2] : NULL;
+    if (!target || index >= target->function_count) return false;
+    *module = target;
+    *function_index = index;
+    return true;
+}
+
 static VmDecodedModule *decoded_module_for(VmState *vm, const NvmModule *module,
                                             bool **valid) {
     if (module == vm->root_module) {
@@ -1495,7 +1521,8 @@ vm_dispatch_top:
             VM_NEXT();
 
         VM_CASE(OP_FUNCREF)
-            stack_push(vm, val_function(instr.operands[0].u32));
+            stack_push(vm, val_function_owned(instr.operands[0].u32,
+                                              vm_callable_module_id(vm, vm->module)));
             VM_NEXT();
 
         VM_CASE(OP_DUP) {
@@ -2336,19 +2363,12 @@ dynamic_div:
             if (fn_val.tag == TAG_FUNCTION || fn_val.tag == TAG_CLOSURE) {
                 VmClosure *closure = NULL;
                 uint32_t callee_idx;
+                const NvmModule *callee_module;
+                if (!vm_callable_target(vm, fn_val, &callee_module, &callee_idx))
+                    return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I cannot resolve this callable's module and function.");
+                if (fn_val.tag == TAG_CLOSURE) closure = fn_val.as.closure;
 
-                if (fn_val.tag == TAG_CLOSURE) {
-                    closure = fn_val.as.closure;
-                    callee_idx = closure->fn_idx;
-                } else {
-                    callee_idx = fn_val.as.fn_idx;
-                }
-
-                if (callee_idx >= vm->module->function_count) {
-                    return trap_error(vm, VM_ERR_UNDEFINED_FUNCTION, "Indirect call: fn %u not found", callee_idx);
-                }
-
-                const NvmFunctionEntry *callee = &vm->module->functions[callee_idx];
+                const NvmFunctionEntry *callee = &callee_module->functions[callee_idx];
 
                 /* The instruction declares the shape the verifier proved this
                  * function's stack discipline against. The callee is only
@@ -2388,7 +2408,7 @@ dynamic_div:
                 new_frame->stack_base = new_base;
                 new_frame->local_count = callee->local_count;
                 new_frame->closure = closure;
-                new_frame->module = vm->module;
+                new_frame->module = callee_module;
                 /* stack_pop transferred the callable's reference to fn_val;
                  * the frame takes it from here and releases it on teardown. */
                 new_frame->owned_callable = fn_val;
@@ -2396,6 +2416,7 @@ dynamic_div:
             new_frame->current_col  = 0;
 
                 frame = new_frame;
+                vm->module = callee_module;
                 vm->current_fn = callee_idx;
                 vm->ip = callee->code_offset;
                 cur_fn = callee;
@@ -2442,7 +2463,7 @@ dynamic_div:
             frame->owned_callable = val_void();
             vm->frame_count--;
 
-            if (vm->frame_count == 0) {
+            if (vm->frame_count == vm->activation_floor) {
                 for (uint8_t i = 0; i < returning->result_count; i++)
                     stack_push(vm, results[i]);
                 return trap_none();
@@ -3528,6 +3549,7 @@ dynamic_div:
             uint16_t capture_count = instr.operands[1].u16;
             VmClosure *c = vm_closure_new(&vm->heap, fn_idx_c, capture_count);
             if (!c) return trap_error(vm, VM_ERR_MEMORY, "I could not allocate the closure.");
+            c->callable_module = vm_callable_module_id(vm, vm->module);
             /* Pop captures from stack (pushed in order, stored in order) */
             for (uint32_t i = capture_count; i > 0; i--) {
                 c->captures[i - 1] = stack_pop(vm);
@@ -3810,7 +3832,8 @@ static bool vm_stack_address(const VmState *vm, const void *pointer) {
         && address - base <= (uint64_t)vm->stack_capacity * sizeof(NanoValue);
 }
 
-VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *args,
+                                      uint16_t arg_count, NanoValue callable) {
     if (arg_count && vm_stack_address(vm, args))
         return vm_error(vm, VM_ERR_TYPE_ERROR,
                         "I borrow stack arguments through vm_invoke, not vm_call_function.");
@@ -3859,8 +3882,9 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
     frame->return_ip = vm->ip;
     frame->stack_base = stack_base;
     frame->local_count = fn->local_count;
-    frame->closure = NULL;
-    frame->owned_callable = val_void();
+    frame->closure = callable.tag == TAG_CLOSURE ? callable.as.closure : NULL;
+    vm_retain(&vm->heap, callable);
+    frame->owned_callable = callable;
     frame->module = vm->module;
     frame->current_line = 0;
     frame->current_col  = 0;
@@ -3985,6 +4009,85 @@ VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_
             return trap.data.error.code;
         }
     }
+}
+
+VmResult vm_call_function(VmState *vm, uint32_t fn_idx, NanoValue *args, uint16_t arg_count) {
+    uint32_t floor = vm->activation_floor;
+    vm->activation_floor = vm->frame_count;
+    VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void());
+    vm->activation_floor = floor;
+    return result;
+}
+
+VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *args,
+                            uint16_t arg_count, NanoValue *out_result) {
+    const NvmModule *target;
+    uint32_t function_index;
+    if (!vm) return VM_ERR_UNDEFINED_FUNCTION;
+    if (!vm_callable_target(vm, callable, &target, &function_index))
+        return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
+    if (vm_stack_address(vm, out_result))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
+    const NvmFunctionEntry *fn = &target->functions[function_index];
+    if (fn->arity != arg_count || fn->local_count < arg_count ||
+        fn->result_count > 1 || (arg_count && !args) ||
+        (callable.tag == TAG_CLOSURE ? callable.as.closure->capture_count != fn->upvalue_count :
+                                      fn->upvalue_count != 0))
+        return vm_error(vm, VM_ERR_TYPE_ERROR, "I need a matching callable, capture environment, and argument shape.");
+    if (vm->frame_count >= VM_MAX_FRAMES)
+        return vm_error(vm, VM_ERR_CALL_DEPTH, "I cannot enter another callable activation.");
+    if (arg_count && vm_stack_address(vm, args)) {
+        uintptr_t offset = (uintptr_t)args - (uintptr_t)vm->stack;
+        if (offset % sizeof(NanoValue) || offset / sizeof(NanoValue) > vm->stack_size ||
+            arg_count > vm->stack_size - offset / sizeof(NanoValue))
+            return vm_error(vm, VM_ERR_TYPE_ERROR, "I need a complete live stack argument slice.");
+    }
+    NanoValue inline_args[16];
+    NanoValue *stable_args = arg_count <= 16 ? inline_args : malloc((size_t)arg_count * sizeof(*args));
+    if (!stable_args) return vm_error(vm, VM_ERR_MEMORY, "I could not snapshot callable arguments.");
+    if (arg_count) memcpy(stable_args, args, (size_t)arg_count * sizeof(*args));
+    uint32_t base = vm->stack_size, frames = vm->frame_count, floor = vm->activation_floor;
+    uint32_t ip = vm->ip, current_fn = vm->current_fn;
+    const NvmModule *module = vm->module;
+    bool halted = vm->halt_requested;
+    VmResult previous_error = vm->last_error;
+    char previous_message[sizeof(vm->error_msg)];
+    memcpy(previous_message, vm->error_msg, sizeof(previous_message));
+    VmResult status = stack_reserve(vm, (uint64_t)base + fn->local_count);
+    if (status != VM_OK) {
+        if (stable_args != inline_args) free(stable_args);
+        return status;
+    }
+    if (out_result) *out_result = val_void();
+    vm->module = target;
+    vm->activation_floor = frames;
+    for (uint16_t i = 0; i < arg_count; i++) vm_retain(&vm->heap, stable_args[i]);
+    status = vm_call_function_impl(vm, function_index, stable_args, arg_count, callable);
+    if (stable_args != inline_args) free(stable_args);
+    NanoValue returned = val_void();
+    if (status == VM_OK) {
+        if (vm->frame_count != frames || vm->stack_size != base + fn->result_count)
+            status = vm_error(vm, VM_ERR_TYPE_ERROR, "I require the callable activation to return normally.");
+        else if (fn->result_count) returned = stack_pop(vm);
+    }
+    while (vm->stack_size > base) vm_release(&vm->heap, stack_pop(vm));
+    for (uint32_t i = frames; i < vm->frame_count; i++) {
+        vm_release(&vm->heap, vm->frames[i].owned_callable);
+        vm->frames[i].owned_callable = val_void();
+    }
+    vm->frame_count = frames;
+    vm->activation_floor = floor;
+    vm->ip = ip;
+    vm->current_fn = current_fn;
+    vm->module = module;
+    vm->halt_requested = halted;
+    if (status == VM_OK) {
+        vm->last_error = previous_error;
+        memcpy(vm->error_msg, previous_message, sizeof(previous_message));
+        if (out_result) *out_result = returned;
+        else vm_release(&vm->heap, returned);
+    }
+    return status;
 }
 
 VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,

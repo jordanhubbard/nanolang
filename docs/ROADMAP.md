@@ -126,8 +126,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           and declared function parameters instead of dropping ABI facts.
           `make test-nvm-callbacks` covers round trips and malformed inputs;
           canonical tooling passes 117 checks, the v2 bridge 295, FFI 23,
-          VM 272247, and AOT 375. Compiler manifest binding and execution
-          integration remain unchecked below and in the parent item.
+          VM 272247, and AOT 375. Execution integration remains unchecked
+          below and in the parent item.
         - [x] I preserve declared function parameter tags through the
           in-memory module and v2 round trip, including nested functions.
           Unknown legacy tags stay explicitly unknown. Function-table growth
@@ -146,11 +146,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I connect owner-thread callback execution to suspended VM
         activations, preserve captures/globals, pump during foreign waits,
         and propagate errors without racing the heap or corrupting frames.
-        - [ ] I retain callable module identity across linked-module returns
-          and callback publication. My current callable stores a function
-          index, and indirect dispatch uses the current module's table. I
-          test colliding function indices in two linked modules before
-          treating a retained callback's target as established.
+        - [x] I retain callable module identity across linked-module returns
+          and indirect dispatch, preserving my 16-byte value layout. I test
+          colliding function indices in two linked modules, returned direct
+          functions and closures, and root callables passed into a dependency.
+        - [x] I invoke a callable at a suspended owner-thread boundary and
+          stop at its activation floor. I preserve the caller's frames,
+          stack roots, module, instruction pointer, and halt state on normal
+          return, assertion failure, allocation failure, and nested activation
+          floors. Tests use one or two suspended caller frames.
+          VM tests pass 272359 checks; NanoVirt passes 65, the frontend matrix
+          16, FFI 23, and AOT 375. This is the activation mechanism, not the
+          scheduler or native dispatch integration.
+        - [ ] I publish retained handles only after resolving the callable's
+          owner and checking its recorded parameter/result signature against
+          the import contract. I reject unknown signatures and mismatches.
       - [ ] I implement retained dispatch adapters and an explicit COP
         transport policy, then test delayed work and shutdown in both paths.
       - [ ] I pass all six dispatch-dependent examples with dependency
