@@ -2357,6 +2357,75 @@ static void test_cycle_payload_is_freed_with_it(void) {
     vm_heap_destroy(&heap);
 }
 
+static void test_cycle_preserves_shared_live_payload(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *cycle = vm_array_new(&heap, TAG_ARRAY, 4);
+    NanoValue cv = val_array(cycle);
+    VmString *shared = vm_string_new(&heap, "shared", 6);
+    NanoValue sv = val_string(shared);
+    vm_array_push(&heap, cycle, sv);
+    vm_array_push(&heap, cycle, cv);
+    vm_release(&heap, cv);
+
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 1,
+                  "cycles: only the unreachable cycle is reclaimed");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 1,
+                  "cycles: externally held payload remains live");
+    ASSERT_EQ_INT((int)shared->header.ref_count, 1,
+                  "cycles: dead edge is removed exactly once");
+    ASSERT(strcmp(vmstring_cstr(shared), "shared") == 0,
+           "cycles: surviving payload remains readable");
+    vm_release(&heap, sv);
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0,
+                  "cycles: surviving payload releases normally");
+    vm_heap_destroy(&heap);
+}
+
+static void test_cycles_share_dead_leaf(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmArray *left = vm_array_new(&heap, TAG_ARRAY, 3);
+    VmArray *right = vm_array_new(&heap, TAG_ARRAY, 3);
+    NanoValue lv = val_array(left), rv = val_array(right);
+    VmString *leaf = vm_string_new(&heap, "leaf", 4);
+    NanoValue leafv = val_string(leaf);
+    vm_array_push(&heap, left, leafv);
+    vm_array_push(&heap, right, leafv);
+    vm_release(&heap, leafv);
+    vm_array_push(&heap, left, lv);
+    vm_array_push(&heap, right, rv);
+    vm_release(&heap, lv);
+    vm_release(&heap, rv);
+
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 3,
+                  "cycles: two cycles and their shared dead leaf are reclaimed");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0,
+                  "cycles: shared dead leaf is freed once");
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 0,
+                  "cycles: repeated collection is empty and safe");
+    vm_heap_destroy(&heap);
+}
+
+static void test_cycle_detaches_struct_field_names(void) {
+    VmHeap heap = {0};
+    vm_heap_init(&heap);
+    VmStruct *record = vm_struct_new(&heap, 0, 1);
+    NanoValue recordv = val_struct(record);
+    record->field_names = calloc(1, sizeof(*record->field_names));
+    ASSERT(record->field_names != NULL, "cycles: field name storage allocated");
+    record->field_names[0] = vm_string_new(&heap, "next", 4);
+    record->fields[0] = recordv;
+    vm_retain(&heap, recordv);
+    vm_release(&heap, recordv);
+
+    ASSERT_EQ_INT((int)vm_gc_collect_cycles(&heap), 2,
+                  "cycles: record and owned field name are reclaimed");
+    ASSERT_EQ_INT((int)heap.stats.num_objects, 0,
+                  "cycles: detached field name is not released twice");
+    vm_heap_destroy(&heap);
+}
+
 /* An object can reach zero while sitting on the suspect buffer, which holds a
  * bare pointer to it. Freeing it there would leave that pointer dangling and
  * the next collection would read a freed header -- so vm_release defers, and
@@ -4789,6 +4858,9 @@ int main(void) {
     RUN_TEST(test_two_object_cycle_is_collected);
     RUN_TEST(test_reachable_cycle_is_not_collected);
     RUN_TEST(test_cycle_payload_is_freed_with_it);
+    RUN_TEST(test_cycle_preserves_shared_live_payload);
+    RUN_TEST(test_cycles_share_dead_leaf);
+    RUN_TEST(test_cycle_detaches_struct_field_names);
     RUN_TEST(test_object_freed_while_buffered);
     RUN_TEST(test_many_cycles_in_one_pass);
     RUN_TEST(test_heap_destroy_collects_cycles);
