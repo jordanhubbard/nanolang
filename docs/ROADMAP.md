@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Nested-record resource classification.** I classify ordinary records
+      containing resource records without recursive depth limits, including
+      cycles. I test deep graphs and keep full path-sensitive ownership and
+      union/tuple/collection propagation separate. MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`.
+      The dedicated unit gate passes cyclic, 300-record and module-owned
+      field cases. Evidence: `docs/evidence/resource-classification.md`.
 - [x] **Affine parity gate coverage.** I test positive execution and both
       existing ownership rejections on the C seed as well as both bootstrap
       stages. Rejections must carry ownership diagnostics and preserve prior

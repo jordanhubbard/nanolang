@@ -1,6 +1,7 @@
 #include "resource_tracking.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* Check if a struct type is a resource type */
 bool is_resource_type(Environment *env, const char *struct_name) {
@@ -9,7 +10,43 @@ bool is_resource_type(Environment *env, const char *struct_name) {
     StructDef *sdef = env_get_struct(env, struct_name);
     if (!sdef) return false;
     
-    return sdef->is_resource;
+    if (sdef->is_resource) return true;
+    /* I compute the least fixed point, so a cycle alone is not a resource.
+     * Allocation failure conservatively retains the obligation. */
+    bool *bearing = calloc((size_t)env->struct_count, sizeof(*bearing));
+    if (!bearing) {
+        fprintf(stderr, "I cannot allocate record ownership classification state\n");
+        return true;
+    }
+    for (int i = 0; i < env->struct_count; i++)
+        bearing[i] = env->structs[i].is_resource;
+    bool changed;
+    do {
+        changed = false;
+        for (int i = 0; i < env->struct_count; i++) {
+            StructDef *record = &env->structs[i];
+            if (bearing[i]) continue;
+            for (int field = 0; field < record->field_count && !bearing[i]; field++) {
+                if (!record->field_types || record->field_types[field] != TYPE_STRUCT ||
+                    !record->field_type_names || !record->field_type_names[field]) continue;
+                char *caller_module = env->current_module;
+                env->current_module = record->module_name;
+                StructDef *nested = env_get_struct(env, record->field_type_names[field]);
+                env->current_module = caller_module;
+                for (int j = 0; nested && j < env->struct_count; j++) {
+                    if (nested == &env->structs[j] && bearing[j]) {
+                        bearing[i] = changed = true;
+                        break;
+                    }
+                }
+            }
+        }
+    } while (changed);
+    bool result = false;
+    for (int i = 0; i < env->struct_count; i++)
+        if (sdef == &env->structs[i]) result = bearing[i];
+    free(bearing);
+    return result;
 }
 
 /* Mark a variable as a resource if its type is a resource struct */
@@ -73,4 +110,3 @@ void check_resource_leaks(Environment *env, bool *has_error) {
         }
     }
 }
-
