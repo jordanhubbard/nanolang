@@ -11,6 +11,12 @@ static SDL_Color last_draw_color, last_text_color;
 static Uint8 texture_r = 12, texture_g = 34, texture_b = 56, texture_alpha = 200;
 static SDL_BlendMode texture_blend = SDL_BLENDMODE_BLEND, renderer_blend = SDL_BLENDMODE_NONE;
 static int fail_texture_query, fail_add;
+static int measured_w = 10, measured_h = 10, fail_measure, measure_calls;
+static int fake_size(TTF_Font *f, const char *s, int *w, int *h) {
+    (void)f; (void)s; measure_calls++;
+    if (fail_measure) return -1;
+    *w=measured_w; *h=measured_h; return 0;
+}
 static Uint8 copied_alpha, copied_r;
 static SDL_BlendMode copied_blend;
 static int get_color(SDL_Texture *t, Uint8 *r, Uint8 *g, Uint8 *b) {
@@ -71,6 +77,7 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_RenderDrawPoint fake_point
 #define TTF_RenderText_Blended fake_text
 #define TTF_RenderUTF8_Blended fake_text
+#define TTF_SizeText fake_size
 #define SDL_CreateTextureFromSurface fake_texture
 #define SDL_RenderCopy fake_copy
 #define SDL_DestroyTexture fake_destroy
@@ -315,6 +322,36 @@ static void image_buttons(void) {
     assert(renderer_blend == SDL_BLENDMODE_NONE);
     button_current_mouse_down=0;
 }
+static void tooltips(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    host_mouse_x=10; host_mouse_y=10;
+    expected_text="tip"; provide_surface=1;
+    test_surface.w=10; test_surface.h=10;
+    int copies=render_copies, frees=surface_frees;
+    nl_ui_tooltip(r,f,"tip",0,0,100,20);
+    assert(render_copies == copies+1 && surface_frees == frees+1);
+    int draws=draw_calls, measures=measure_calls;
+    nl_ui_tooltip(r,f,"tip",INT64_MAX,0,100,20);
+    assert(draw_calls == draws && measure_calls == measures);
+    fail_measure=1;
+    nl_ui_tooltip(r,f,"tip",0,0,100,20);
+    fail_measure=0; measured_w=INT_MAX;
+    nl_ui_tooltip(r,f,"tip",0,0,100,20);
+    measured_w=-1;
+    nl_ui_tooltip(r,f,"tip",0,0,100,20);
+    measured_w=10; measured_h=INT_MAX;
+    nl_ui_tooltip(r,f,"tip",0,0,100,20);
+    measured_h=10;
+    host_mouse_x=INT_MAX; host_mouse_y=INT_MAX;
+    nl_ui_tooltip(r,f,"tip",INT_MAX-100,INT_MAX-20,100,20);
+    assert(draw_calls == draws);
+    host_mouse_x=10; host_mouse_y=10;
+    test_surface.w=INT_MAX;
+    nl_ui_tooltip(r,f,"tip",0,0,100,20);
+    assert(render_copies == copies+1 && surface_frees == frees+2);
+    provide_surface=0;
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -386,5 +423,6 @@ int main(void) {
     checks_and_radios();
     time_displays();
     image_buttons();
+    tooltips();
     return 0;
 }

@@ -1132,7 +1132,8 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
                    const char* text, int64_t widget_x, int64_t widget_y,
                    int64_t widget_w, int64_t widget_h) {
     
-    if (!font || !text || strlen(text) == 0) return;
+    if (!renderer || !font || !text || strlen(text) == 0 ||
+        !ui_bar_geometry(widget_x, widget_y, widget_w, widget_h, 0)) return;
     
     // Get mouse state
     int mouse_x, mouse_y;
@@ -1144,16 +1145,18 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
     }
     
     // Measure text size
-    int text_w, text_h;
-    TTF_SizeText(font, text, &text_w, &text_h);
-    
-    int tooltip_w = text_w + 16;
-    int tooltip_h = text_h + 12;
-    int tooltip_x = mouse_x + 15;  // Offset from cursor
-    int tooltip_y = mouse_y + 15;
+    int text_w = 0, text_h = 0;
+    if (TTF_SizeText(font, text, &text_w, &text_h) != 0 ||
+        text_w < 0 || text_h < 0) return;
+
+    int64_t tooltip_w = (int64_t)text_w + 16;
+    int64_t tooltip_h = (int64_t)text_h + 12;
+    int64_t tooltip_x = (int64_t)mouse_x + 15;
+    int64_t tooltip_y = (int64_t)mouse_y + 15;
+    if (!ui_bar_geometry(tooltip_x, tooltip_y, tooltip_w, tooltip_h, 0)) return;
     
     // Draw tooltip background
-    SDL_Rect bg = {tooltip_x, tooltip_y, tooltip_w, tooltip_h};
+    SDL_Rect bg = {(int)tooltip_x, (int)tooltip_y, (int)tooltip_w, (int)tooltip_h};
     SDL_SetRenderDrawColor(renderer, 40, 40, 50, 240);
     SDL_RenderFillRect(renderer, &bg);
     
@@ -1165,9 +1168,13 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
     SDL_Color text_color = {255, 255, 255, 255};
     SDL_Surface* surface = TTF_RenderText_Blended(font, text, text_color);
     if (surface) {
+        if (!ui_bar_geometry(tooltip_x + 8, tooltip_y + 6, surface->w, surface->h, 0)) {
+            SDL_FreeSurface(surface);
+            return;
+        }
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
         if (texture) {
-            SDL_Rect dest = {tooltip_x + 8, tooltip_y + 6, surface->w, surface->h};
+            SDL_Rect dest = {(int)tooltip_x + 8, (int)tooltip_y + 6, surface->w, surface->h};
             SDL_RenderCopy(renderer, texture, NULL, &dest);
             SDL_DestroyTexture(texture);
         }

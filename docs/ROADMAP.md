@@ -261,6 +261,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     limits, long durations and rejected placement.
                   - [x] I repair image-button brightness conversion, which
                     casts values above 255 before clamping, and bound geometry.
+                  - [x] I check tooltip measurement failures, padded dimensions
+                    and cursor offsets before drawing; I test extreme values
+                    and rejected surface cleanup.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

@@ -38,6 +38,10 @@
  * int64 range (negative durations have one leading minus). It uses my label
  * geometry/color checks and cleanup contract. */
 
+/* My tooltips skip invalid hit areas, failed text measurements and
+ * unrepresentable padded placement. Rendered surfaces are checked separately
+ * and released when their placement is rejected. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();
