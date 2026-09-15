@@ -92,6 +92,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       behavior, run clean build/tests and documentation gates, then merge and
       publish 5.0. The fleet dispatch hold does not gate this user-authorized
       release. Unfinished roadmap items remain explicitly unfinished.
+      - [x] I reconcile PR #283's complete one-commit timeout change into the
+        integration branch, retaining launch diagnostics and Make-expanded
+        regression coverage. I verify its standalone test entry point and
+        record merge ancestry; this does not merge the release into main.
+        All three regression methods pass from the repository and an outside
+        working directory. [Review evidence](evidence/pr-283-reconciliation.md).
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.

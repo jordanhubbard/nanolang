@@ -104,6 +104,7 @@ class MakeTimeouts(unittest.TestCase):
                                        ([str(denied)], None),
                                        (["sh", "-c", "exit 0"], 0),
                                        (["sh", "-c", "exit 7"], 7),
+                                       (["sh", "-c", "exit 23"], 23),
                                        (["perl", "-e", "sleep 5"], None)):
                     with self.subTest(wrapper=name, command=args):
                         result = subprocess.run(command + args, capture_output=True, timeout=3)
