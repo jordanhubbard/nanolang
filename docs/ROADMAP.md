@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **String-search branch reconciliation.** I retain my shared byte-offset
+      search implementation and broader source fixtures while reconciling
+      `07d38702`. I retain its missing first-search null-needle assertion and
+      require runtime units, native stages, emitted C and VM execution.
+      All focused gates pass; evidence:
+      `docs/evidence/string-search-branch-reconciliation.md`.
+      MAC `task_a9b152cf5299491694d96a2385527e98`.
 - [x] **FFI argument branch reconciliation.** I retain current ABI handling
       and the shared foreign-argument ceiling while reconciling the older
       float-refusal and execution-path argument-limit branches. I require
