@@ -3038,6 +3038,56 @@ static void test_classifier_branch_stack(void) {
     }
 }
 
+static void test_emitter_deep_stacks(void) {
+    for (int condition = 0; condition <= 1; ++condition) {
+        char source[8192];
+        strcpy(source, ".entry 0\n.function main 0 0 0 int 1\n");
+        for (int i = 0; i < 75; ++i) strcat(source, "PUSH_I64 1\n");
+        strcat(source, condition ? "PUSH_BOOL 1\n" : "PUSH_BOOL 0\n");
+        strcat(source, "JMP_FALSE alternate\nPOP\nPUSH_I64 2\nJMP joined\n"
+                       "alternate:\nPOP\nPUSH_I64 3\njoined:\n");
+        for (int i = 0; i < 74; ++i) strcat(source, "I64_ADD\n");
+        strcat(source, "RET\n.end\n");
+        NvmModule *m = assemble_ok(source, "deep emitter branch stack");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "deep emitter branch stack");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0,
+                  "I compile deep stacks with independent branch snapshots");
+            CHECK(status == (condition ? 76 : 77),
+                  "I preserve all deep operands and the selected branch value");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    for (int strings = 0; strings <= 1; ++strings) {
+        char source[8192];
+        strcpy(source, ".string value \"hello\"\n.string last \"lastvalue\"\n"
+                       ".entry 0\n.function main 0 0 0 int 1\n");
+        for (int i = 0; i < 200; ++i) {
+            char push[32];
+            snprintf(push, sizeof push, "PUSH_I64 %d\n", i);
+            strcat(source, strings ? (i == 199 ? "PUSH_STR last\n" : "PUSH_STR value\n") : push);
+        }
+        strcat(source, strings ? "ARR_LITERAL 5 200\n" : "ARR_LITERAL 1 200\n");
+        strcat(source, "PUSH_I64 199\nARR_GET\n");
+        if (strings) strcat(source, "STR_LEN\n");
+        strcat(source, "RET\n.end\n");
+        NvmModule *m = assemble_ok(source, "long emitter array literal");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "long emitter array literal");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0,
+                  "I compile array literals beyond both former fixed buffers");
+            CHECK(status == (strings ? 9 : 199), "I retain the last literal element in order");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_classifier_deep_stack(void) {
     /* I isolate classifier progress from the emitter's remaining limits:
      * a 75-field aggregate is still refused, but only after its deep branch
@@ -3556,6 +3606,7 @@ int main(int argc, char **argv) {
     test_tail_call_runs_without_nano_vm();
     test_classifier_branch_stack();
     test_classifier_deep_stack();
+    test_emitter_deep_stacks();
     test_classifier_unreachable_and_invalid_joins();
     test_classifier_local_bounds();
     test_loop_carried_stack();

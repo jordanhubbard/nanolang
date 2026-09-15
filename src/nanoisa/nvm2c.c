@@ -16,7 +16,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NVM2C_MAX_STACK  64
 #define NVM2C_MAX_LOCALS 256
 #define NVM2C_MAX_TEMPS  256
 #define NVM2C_MAX_REC_FIELDS 8
@@ -1042,8 +1041,9 @@ static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 }
 
 typedef struct {
-    int slots[NVM2C_MAX_STACK];
-    uint8_t kinds[NVM2C_MAX_STACK];
+    int *slots;
+    uint8_t *kinds;
+    size_t capacity;
     uint8_t rec_k[NVM2C_MAX_TEMPS][NVM2C_MAX_REC_FIELDS];
     int sp;
     int next_temp;
@@ -1055,7 +1055,7 @@ typedef struct {
 } Nvm2cStack;
 
 static int stack_push_temp(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
-    if (st->sp >= NVM2C_MAX_STACK) {
+    if ((size_t)st->sp >= st->capacity) {
         nvm2c_fail(b, "operand stack overflow");
         return -1;
     }
@@ -1072,7 +1072,7 @@ static int stack_push_temp(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
 }
 
 static int stack_push_str(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
-    if (st->sp >= NVM2C_MAX_STACK) {
+    if ((size_t)st->sp >= st->capacity) {
         nvm2c_fail(b, "operand stack overflow");
         return -1;
     }
@@ -1089,7 +1089,7 @@ static int stack_push_str(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
 }
 
 static int stack_push_arr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
-    if (st->sp >= NVM2C_MAX_STACK) {
+    if ((size_t)st->sp >= st->capacity) {
         nvm2c_fail(b, "operand stack overflow");
         return -1;
     }
@@ -1106,7 +1106,7 @@ static int stack_push_arr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
 }
 
 static int stack_push_sarr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
-    if (st->sp >= NVM2C_MAX_STACK) {
+    if ((size_t)st->sp >= st->capacity) {
         nvm2c_fail(b, "operand stack overflow");
         return -1;
     }
@@ -1123,7 +1123,7 @@ static int stack_push_sarr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
 }
 
 static int stack_push_rec(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
-    if (st->sp >= NVM2C_MAX_STACK) {
+    if ((size_t)st->sp >= st->capacity) {
         nvm2c_fail(b, "operand stack overflow");
         return -1;
     }
@@ -1140,7 +1140,7 @@ static int stack_push_rec(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
 }
 
 static int stack_push_rarr(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
-    if (st->sp >= NVM2C_MAX_STACK || st->next_rarr >= NVM2C_MAX_TEMPS) {
+    if ((size_t)st->sp >= st->capacity || st->next_rarr >= NVM2C_MAX_TEMPS) {
         nvm2c_fail(b, "too many record-array temporaries");
         return -1;
     }
@@ -1224,7 +1224,22 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
                        size_t tgt, const Nvm2cStack *st) {
     int i;
     if (!set[tgt]) {
+        int *slots = st->sp ? malloc((size_t)st->sp * sizeof *slots) : NULL;
+        uint8_t *kinds = st->sp ? malloc((size_t)st->sp * sizeof *kinds) : NULL;
+        if (st->sp && (!slots || !kinds)) {
+            free(slots);
+            free(kinds);
+            nvm2c_fail(b, "I cannot allocate emitter branch stack");
+            return 0;
+        }
+        if (st->sp) {
+            memcpy(slots, st->slots, (size_t)st->sp * sizeof *slots);
+            memcpy(kinds, st->kinds, (size_t)st->sp * sizeof *kinds);
+        }
         joins[tgt] = *st;
+        joins[tgt].slots = slots;
+        joins[tgt].kinds = kinds;
+        joins[tgt].capacity = (size_t)st->sp;
         set[tgt] = 1;
         return 1;
     }
@@ -1263,6 +1278,13 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
 static void stack_restore_join(Nvm2cStack *st, const Nvm2cStack *join) {
     Nvm2cStack cur = *st;
     *st = *join;
+    st->slots = cur.slots;
+    st->kinds = cur.kinds;
+    st->capacity = cur.capacity;
+    if (st->sp) {
+        memcpy(st->slots, join->slots, (size_t)st->sp * sizeof *st->slots);
+        memcpy(st->kinds, join->kinds, (size_t)st->sp * sizeof *st->kinds);
+    }
     stack_keep_high_water(st, &cur);
 }
 
@@ -1418,11 +1440,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
 
     const uint8_t *code = mod->code + fn->code_offset;
     size_t remaining = fn->code_length;
+    if (remaining >= INT_MAX || remaining > SIZE_MAX / sizeof(Nvm2cStack) - 1 ||
+        remaining > SIZE_MAX / sizeof(int) - 1) {
+        nvm2c_fail(b, "I cannot represent this function's emitter stack");
+        return;
+    }
+    Nvm2cStack st = {0};
+    st.capacity = remaining + 1;
+    st.slots = malloc(st.capacity * sizeof *st.slots);
+    st.kinds = malloc(st.capacity * sizeof *st.kinds);
+    int *literal_elems = malloc(st.capacity * sizeof *literal_elems);
     uint8_t *is_start = calloc(remaining + 1, 1);
     uint8_t *is_target = calloc(remaining + 1, 1);
     Nvm2cStack *joins = NULL;
     uint8_t *join_set = NULL;
-    if (!is_start || !is_target) {
+    if (!st.slots || !st.kinds || !literal_elems || !is_start || !is_target) {
         nvm2c_fail(b, "out of memory");
         goto done;
     }
@@ -1468,8 +1500,6 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
 
     size_t pc = 0;
-    Nvm2cStack st;
-    memset(&st, 0, sizeof st);
     int terminated = 0;
     /* A decoded self-tail instruction may be unreachable. Keep its label
      * syntactically referenced without executing an extra jump. */
@@ -1530,7 +1560,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_fail(b, "function %u: PUSH_STR string index %u is out of range", idx, sidx);
                 goto done;
             }
-            if (st.sp >= NVM2C_MAX_STACK) {
+            if ((size_t)st.sp >= st.capacity) {
                 nvm2c_fail(b, "operand stack overflow");
                 goto done;
             }
@@ -1899,7 +1929,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_ARR_LITERAL: {
             uint8_t tag = ins.operands[0].u8;
             uint16_t count = ins.operands[1].u16;
-            int elems[NVM2C_MAX_STACK];
+            int *elems = literal_elems;
             int ei;
             uint8_t ekind = NVM2C_VK_INT;
             if (tag == TAG_INT) {
@@ -1910,7 +1940,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_fail(b, "function %u: ARR_LITERAL only supports int or string elements", idx);
                 goto done;
             }
-            if (count > NVM2C_MAX_STACK) {
+            if ((size_t)count > st.capacity) {
                 nvm2c_fail(b, "function %u: ARR_LITERAL is too large", idx);
                 goto done;
             }
@@ -1918,42 +1948,20 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 elems[ei] = stack_pop_expect(b, &st, ekind, "ARR_LITERAL");
                 if (b->failed) goto done;
             }
-            if (tag == TAG_STRING) {
-                if (count == 0) {
-                    stack_push_sarr(b, &st, "nsarr_lit(0, 0)");
-                } else {
-                    char rhs[768];
-                    size_t pos = 0;
-                    pos += (size_t)snprintf(rhs + pos, sizeof rhs - pos,
-                                            "nsarr_lit((const char *[]){");
-                    for (ei = 0; ei < (int)count; ei++) {
-                        if (ei) pos += (size_t)snprintf(rhs + pos, sizeof rhs - pos, ", ");
-                        pos += (size_t)snprintf(rhs + pos, sizeof rhs - pos, "s[%d]", elems[ei]);
-                        if (pos >= sizeof rhs) {
-                            nvm2c_fail(b, "function %u: ARR_LITERAL overflow", idx);
-                            goto done;
-                        }
-                    }
-                    snprintf(rhs + pos, sizeof rhs - pos, "}, %u)", (unsigned)count);
-                    stack_push_sarr(b, &st, rhs);
+            int result = tag == TAG_STRING ? stack_push_sarr(b, &st, "0")
+                                           : stack_push_arr(b, &st, "0");
+            if (b->failed) goto done;
+            nvm2c_printf(b, "    %s[%d] = %s(", tag == TAG_STRING ? "sa" : "a",
+                         result, tag == TAG_STRING ? "nsarr_lit" : "narr_lit");
+            if (count) {
+                nvm2c_puts(b, tag == TAG_STRING ? "(const char *[]){" : "(int64_t[]){");
+                for (ei = 0; ei < (int)count; ++ei) {
+                    nvm2c_printf(b, "%s%s[%d]", ei ? ", " : "",
+                                 tag == TAG_STRING ? "s" : "t", elems[ei]);
                 }
-            } else if (count == 0) {
-                stack_push_arr(b, &st, "narr_lit(0, 0)");
-            } else {
-                char rhs[768];
-                size_t pos = 0;
-                pos += (size_t)snprintf(rhs + pos, sizeof rhs - pos, "narr_lit((int64_t[]){");
-                for (ei = 0; ei < (int)count; ei++) {
-                    if (ei) pos += (size_t)snprintf(rhs + pos, sizeof rhs - pos, ", ");
-                    pos += (size_t)snprintf(rhs + pos, sizeof rhs - pos, "t[%d]", elems[ei]);
-                    if (pos >= sizeof rhs) {
-                        nvm2c_fail(b, "function %u: ARR_LITERAL overflow", idx);
-                        goto done;
-                    }
-                }
-                snprintf(rhs + pos, sizeof rhs - pos, "}, %u)", (unsigned)count);
-                stack_push_arr(b, &st, rhs);
-            }
+                nvm2c_puts(b, "}");
+            } else nvm2c_puts(b, "0");
+            nvm2c_printf(b, ", %u);\n", (unsigned)count);
             break;
         }
         case OP_ARR_LEN: {
@@ -2087,7 +2095,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 nvm2c_fail(b, "too many record temporaries");
                 goto done;
             }
-            if (st.sp >= NVM2C_MAX_STACK) {
+            if ((size_t)st.sp >= st.capacity) {
                 nvm2c_fail(b, "operand stack overflow");
                 goto done;
             }
@@ -2339,6 +2347,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     nvm2c_puts(b, "}\n\n");
 
 done:
+    if (joins) for (size_t off = 0; off <= remaining; ++off) {
+        free(joins[off].slots);
+        free(joins[off].kinds);
+    }
+    free(st.slots);
+    free(st.kinds);
+    free(literal_elems);
     free(is_start);
     free(is_target);
     free(joins);

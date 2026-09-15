@@ -43,15 +43,23 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         record-field representations on append instead of overwriting facts.
         My AOT suite passes 922 checks; evidence:
         `docs/evidence/aot-tagged-record-arrays.md`.
-      - [ ] I remove the compiler's fixed operand-stack translation limit;
-        function 20 (`parser_init_ast_lists`) currently exceeds it. I continue
-        array/aggregate shape work through complete compiler acceptance.
+      - [ ] I complete compiler stack and array/aggregate shape support through
+        full compiler acceptance. Function 20 (`parser_init_ast_lists`) now
+        reaches the unsupported 75-field aggregate.
         - [x] I allocate classifier stacks and branch snapshots from checked
           function bounds. My AOT suite passes 924 checks, including deep
           branch snapshots and incompatible heights. Compiler acceptance now
           reaches the 75-field aggregate limit; emitter storage and aggregate
           limits remain separate. Evidence:
           `docs/evidence/aot-dynamic-classifier-stack.md`.
+        - [x] I allocate emitter operand storage and independent branch
+          snapshots dynamically, including array-literal scratch storage and
+          output. Both 75-value branch paths and 200-element integer/string
+          literals execute correctly; 936 AOT checks pass. Evidence:
+          `docs/evidence/aot-dynamic-emitter-stack.md`.
+        - [ ] I remove fixed temporary-count limits and support the compiler's
+          aggregate widths and array-valued fields without guessing their
+          representation. I require full compiler translation and execution.
 - [x] **AOT byte-character conversion.** I preserve the existing C-byte
       `vm_string_from_char` contract, including zero-byte empty text and
       independent storage. I test integer boundaries before compiler acceptance.
