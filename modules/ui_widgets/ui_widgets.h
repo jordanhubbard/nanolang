@@ -143,7 +143,10 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
 //   texture_id: SDL texture ID (from SDL_image, cast to int64_t)
 //   x, y: button position
 //   w, h: button size (image will be scaled to fit)
-//   hover_brightness: brightness multiplier on hover (1.0 = normal, 1.2 = 20% brighter)
+//   hover_brightness: multiplier clamped to [0,2]; non-finite means 1.
+// I brighten with an additive texture pass where supported; color modulation
+// handles dimming. I restore saved texture settings and pressed-overlay blend
+// mode through SDL calls. Invalid geometry or failed texture queries returns 0.
 int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              double hover_brightness);

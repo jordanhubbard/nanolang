@@ -8,6 +8,26 @@ static int render_copies, texture_frees, surface_frees, provide_surface;
 static SDL_Surface test_surface;
 static const char *expected_text = "visible";
 static SDL_Color last_draw_color, last_text_color;
+static Uint8 texture_r = 12, texture_g = 34, texture_b = 56, texture_alpha = 200;
+static SDL_BlendMode texture_blend = SDL_BLENDMODE_BLEND, renderer_blend = SDL_BLENDMODE_NONE;
+static int fail_texture_query, fail_add;
+static Uint8 copied_alpha, copied_r;
+static SDL_BlendMode copied_blend;
+static int get_color(SDL_Texture *t, Uint8 *r, Uint8 *g, Uint8 *b) {
+    (void)t; *r=texture_r; *g=texture_g; *b=texture_b; return fail_texture_query;
+}
+static int set_color(SDL_Texture *t, Uint8 r, Uint8 g, Uint8 b) {
+    (void)t; texture_r=r; texture_g=g; texture_b=b; return 0;
+}
+static int get_alpha(SDL_Texture *t, Uint8 *a) { (void)t; *a=texture_alpha; return 0; }
+static int set_alpha(SDL_Texture *t, Uint8 a) { (void)t; texture_alpha=a; return 0; }
+static int get_blend(SDL_Texture *t, SDL_BlendMode *b) { (void)t; *b=texture_blend; return 0; }
+static int set_blend(SDL_Texture *t, SDL_BlendMode b) {
+    (void)t; if (fail_add && b == SDL_BLENDMODE_ADD) return -1;
+    texture_blend=b; return 0;
+}
+static int get_renderer_blend(SDL_Renderer *r, SDL_BlendMode *b) { (void)r; *b=renderer_blend; return 0; }
+static int set_renderer_blend(SDL_Renderer *r, SDL_BlendMode b) { (void)r; renderer_blend=b; return 0; }
 static Uint32 host_buttons;
 static int host_mouse_x = -100, host_mouse_y = -100;
 static Uint32 mouse(int *x, int *y) {
@@ -37,7 +57,8 @@ static SDL_Texture *fake_texture(SDL_Renderer *r, SDL_Surface *s) {
 }
 static int fake_copy(SDL_Renderer *r, SDL_Texture *t, const SDL_Rect *s, const SDL_Rect *d) {
     (void)r; (void)t; (void)s;
-    assert(d->w >= 0 && d->h >= 0); render_copies++; return 0;
+    assert(d->w >= 0 && d->h >= 0); render_copies++;
+    copied_alpha=texture_alpha; copied_r=texture_r; copied_blend=texture_blend; return 0;
 }
 static void fake_destroy(SDL_Texture *t) { (void)t; texture_frees++; }
 static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surface_frees++; }
@@ -54,6 +75,14 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_RenderCopy fake_copy
 #define SDL_DestroyTexture fake_destroy
 #define SDL_FreeSurface fake_free_surface
+#define SDL_GetTextureColorMod get_color
+#define SDL_SetTextureColorMod set_color
+#define SDL_GetTextureAlphaMod get_alpha
+#define SDL_SetTextureAlphaMod set_alpha
+#define SDL_GetTextureBlendMode get_blend
+#define SDL_SetTextureBlendMode set_blend
+#define SDL_GetRenderDrawBlendMode get_renderer_blend
+#define SDL_SetRenderDrawBlendMode set_renderer_blend
 #include "../modules/ui_widgets/ui_widgets.c"
 
 static void invoke(DynArray *a, int64_t count, int64_t scroll) {
@@ -252,6 +281,40 @@ static void time_displays(void) {
     assert(render_copies == copies + 6 && surface_frees == frees + 7);
     provide_surface = 0;
 }
+static void image_buttons(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    host_mouse_x=10; host_mouse_y=10;
+    button_prev_mouse_down=1; button_current_mouse_down=0;
+    int copies=render_copies, mice=mouse_calls;
+    assert(!nl_ui_image_button(r,2,INT64_MAX,0,100,20,1.2));
+    assert(!nl_ui_image_button(r,2,0,0,1,20,1.2));
+    assert(!nl_ui_image_button(r,0,0,0,100,20,1.2));
+    assert(render_copies == copies && mouse_calls == mice);
+    const double values[] = {NAN, INFINITY, -INFINITY, DBL_MAX, -1, 0.5, 1.5};
+    for (size_t i=0; i<sizeof(values)/sizeof(*values); i++) {
+        copies=render_copies;
+        assert(nl_ui_image_button(r,2,0,0,100,20,values[i]) == 1);
+        int additive = values[i] == DBL_MAX || values[i] == 1.5;
+        assert(render_copies == copies + 1 + additive);
+        if (additive) {
+            assert(copied_blend == SDL_BLENDMODE_ADD && copied_r == 255);
+            assert(copied_alpha == (values[i] == 1.5 ? 100 : 200));
+        } else if (values[i] == 0.5) assert(copied_r == 127);
+        else if (values[i] == -1) assert(copied_r == 0);
+        assert(texture_r == 12 && texture_g == 34 && texture_b == 56 &&
+               texture_alpha == 200 && texture_blend == SDL_BLENDMODE_BLEND);
+    }
+    fail_add=1; copies=render_copies;
+    assert(nl_ui_image_button(r,2,0,0,100,20,1.5) == 1);
+    assert(render_copies == copies+1 && texture_blend == SDL_BLENDMODE_BLEND);
+    fail_add=0; fail_texture_query=1; copies=render_copies;
+    assert(!nl_ui_image_button(r,2,0,0,100,20,1.5));
+    assert(render_copies == copies);
+    fail_texture_query=0; button_current_mouse_down=1;
+    assert(!nl_ui_image_button(r,2,0,0,100,20,1.5));
+    assert(renderer_blend == SDL_BLENDMODE_NONE);
+    button_current_mouse_down=0;
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -322,5 +385,6 @@ int main(void) {
     buttons();
     checks_and_radios();
     time_displays();
+    image_buttons();
     return 0;
 }

@@ -1184,13 +1184,22 @@ void nl_ui_tooltip(SDL_Renderer* renderer, TTF_Font* font,
 //   texture_id: SDL texture ID (from SDL_image or similar, cast to int64_t)
 //   x, y: button position
 //   w, h: button size (image will be scaled to fit)
-//   hover_brightness: brightness multiplier on hover (1.0 = no change, 1.2 = 20% brighter)
+//   hover_brightness: hover multiplier clamped to [0,2], non-finite => 1
 int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              double hover_brightness) {
     
     SDL_Texture* texture = (SDL_Texture*)texture_id;
-    if (!texture) return 0;  // Invalid texture
+    if (!renderer || !texture || w < 2 || h < 2 ||
+        !ui_bar_geometry(x, y, w, h, 0)) return 0;
+    Uint8 old_r, old_g, old_b, old_alpha;
+    SDL_BlendMode old_blend;
+    if (SDL_GetTextureColorMod(texture, &old_r, &old_g, &old_b) ||
+        SDL_GetTextureAlphaMod(texture, &old_alpha) ||
+        SDL_GetTextureBlendMode(texture, &old_blend)) return 0;
+    if (!isfinite(hover_brightness)) hover_brightness = 1.0;
+    if (hover_brightness < 0.0) hover_brightness = 0.0;
+    if (hover_brightness > 2.0) hover_brightness = 2.0;
     
     // Get mouse state
     int mouse_x, mouse_y;
@@ -1208,17 +1217,19 @@ int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
     // Draw the image texture
     SDL_Rect dest = {(int)x, (int)y, (int)w, (int)h};
     
-    if (hover && hover_brightness > 1.0) {
-        // Apply brightness modulation for hover effect
-        Uint8 brightness = (Uint8)(255 * hover_brightness);
-        if (brightness > 255) brightness = 255;
-        SDL_SetTextureColorMod(texture, brightness, brightness, brightness);
-    } else {
-        // Normal brightness
-        SDL_SetTextureColorMod(texture, 255, 255, 255);
-    }
-    
+    double multiplier = hover ? hover_brightness : 1.0;
+    Uint8 brightness = (Uint8)(255.0 * (multiplier < 1.0 ? multiplier : 1.0));
+    SDL_SetTextureColorMod(texture, brightness, brightness, brightness);
     SDL_RenderCopy(renderer, texture, NULL, &dest);
+    /* I add a bounded fraction of the texture instead of overflowing its
+     * eight-bit color modulation. Driver blend support remains fallible. */
+    if (multiplier > 1.0 && SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_ADD) == 0) {
+        if (SDL_SetTextureAlphaMod(texture, (Uint8)(old_alpha * (multiplier - 1.0))) == 0)
+            SDL_RenderCopy(renderer, texture, NULL, &dest);
+    }
+    SDL_SetTextureColorMod(texture, old_r, old_g, old_b);
+    SDL_SetTextureAlphaMod(texture, old_alpha);
+    SDL_SetTextureBlendMode(texture, old_blend);
     
     // Draw border on hover
     if (hover) {
@@ -1234,9 +1245,13 @@ int64_t nl_ui_image_button(SDL_Renderer* renderer, int64_t texture_id,
     // Draw pressed effect
     if (button_current_mouse_down && hover) {
         // Darken slightly when pressed
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 40);
-        SDL_RenderFillRect(renderer, &dest);
+        SDL_BlendMode previous;
+        if (SDL_GetRenderDrawBlendMode(renderer, &previous) == 0 &&
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND) == 0) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 40);
+            SDL_RenderFillRect(renderer, &dest);
+            SDL_SetRenderDrawBlendMode(renderer, previous);
+        }
     }
     
     return clicked ? 1 : 0;

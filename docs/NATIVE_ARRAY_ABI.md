@@ -134,6 +134,13 @@ Time displays now preserve signed int64 seconds while formatting MM:SS and use
 the checked label renderer. The fixture checks zero, negative values, durations
 beyond 32 bits, both int64 limits, and rejected-placement cleanup under the
 same normal and sanitizer gates.
+Image buttons now validate geometry and bound hover brightness to [0,2], using
+1 for non-finite inputs. Dimming uses color modulation; brightening adds a
+fractional texture pass if the driver accepts additive blending. Saved texture
+settings and pressed-overlay renderer blend mode are restored through SDL calls.
+The fixture checks conversion limits, click behavior, unsupported additive
+blending and state restoration normally and under the same sanitizers. Real
+renderer appearance and driver failures during restoration are not established.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

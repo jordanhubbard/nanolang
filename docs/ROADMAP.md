@@ -259,7 +259,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I format time displays over the full signed int64
                     range and reuse checked label placement; I test signed
                     limits, long durations and rejected placement.
-                  - [ ] I repair image-button brightness conversion, which
+                  - [x] I repair image-button brightness conversion, which
                     casts values above 255 before clamping, and bound geometry.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
