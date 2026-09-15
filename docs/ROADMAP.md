@@ -28,6 +28,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Affine parity gate coverage.** I test positive execution and both
+      existing ownership rejections on the C seed as well as both bootstrap
+      stages. Rejections must carry ownership diagnostics and preserve prior
+      output. I replace the predictable temporary path with private fixtures.
+      Passing the old gate did not establish C-seed rejection parity.
+      The corrected gate fails two C-seed cases: unresolved ownership is
+      accepted, and use-after-move fails only a shadow assertion. Both bootstrap
+      stages pass the limited cases. Checker acceptance remains open under MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`; evidence:
+      `docs/evidence/affine-parity-baseline.md`.
 - [x] **Affine contract branch reconciliation.** I retain the current
       contract, which matches `a08341e5`, and reconcile that head plus the older
       `cb99b86e` contract. This records design ancestry, not implementation
