@@ -71,6 +71,16 @@ failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
 ## Layout declarations
 
+My filesystem listing exports declare the array ABI and check entries with
+`fstatat` relative to the open directory. They no longer truncate joined paths
+at 1,024 bytes. I retain sorted basenames and symlink-following behavior;
+unavailable directories, including null inputs, return empty arrays unless
+initial allocation fails. `test-filesystem-array-exports` checks all three
+markers, filtering, file/directory symlinks, broken links and long entry paths
+normally and under ASan/UBSan. These tests explicitly free copied strings;
+their runtime ownership remains separate work. Scalar join/parent helpers
+still need their own truncation and return-lifetime repair.
+
 My collections exports `nl_hm_keys`, `nl_hm_values`, `nl_set_values` and JSON
 export `nl_json_object_keys` declare the canonical array ABI. The
 `test-collection-array-exports` gate checks their markers, string element

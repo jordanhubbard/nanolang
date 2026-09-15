@@ -233,6 +233,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               - [ ] I enumerate and validate module array exports before
                 widening the layout. Declarations remain trusted metadata;
                 hidden/stripped markers count as missing.
+                - [x] I declare the filesystem listing array ABI and replace
+                  truncated 1,024-byte joined paths with descriptor-relative
+                  stat checks. I test sorted filtering, symlinks, empty/null
+                  paths and long directory names without changing symlink
+                  following semantics. Copied-string ownership stays separate.
+                  The native fixture checks all three layout markers and
+                  entries whose joined path exceeds 1,024 bytes; normal and
+                  ASan/UBSan runs pass.
+                - [ ] I repair the filesystem module's remaining static
+                  2,048-byte join/parent path truncation and define null-input
+                  behavior for its scalar path queries.
+                  MAC `task_c4177b06a5c741ad557bb32cd2c8b92e`.
                 - [x] I declare and test collections key/value/set snapshots
                   and JSON object-key arrays against the canonical layout,
                   including empty and post-source-destruction results. Their

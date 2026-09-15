@@ -584,6 +584,11 @@ test-collection-array-exports:
 	python3 -m unittest tests.test_collection_array_exports
 
 test-units: test-collection-array-exports
+.PHONY: test-filesystem-array-exports
+test-filesystem-array-exports:
+	python3 -m unittest tests.test_filesystem_array_exports
+
+test-units: test-filesystem-array-exports
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback
