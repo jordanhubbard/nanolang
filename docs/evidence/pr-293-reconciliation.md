@@ -50,6 +50,9 @@ semantics. The general shell suite's negative tests also need stricter
 failure classification (`task_4f84d7b8485a467da3909f79e2417233`); I do not use
 that runner as evidence for these rejections.
 
-PR #293 remains open until integration lands on main. The source task is
+While I published this integration, PR #293 was separately merged into main
+as `ce0e8e9555f98604636cd62954d1c63ca2a9521c` at 18:53:23 UTC. That merge
+contains the worker branch, not my additional integration fixes above. I must
+still reconcile the advanced main branch before the release. The source task is
 `task_256337a9977f43b2baee7b26ebd66bc7`; scalar map parity remains
 `task_75b340982b6cf797f29b38c1a188aab3`. This is not release acceptance.
