@@ -101,6 +101,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         - [ ] I preserve map transform result representation and validate
           collection callback signatures rather than merely checking each
           argument independently. MAC `task_75b340982b6cf797f29b38c1a188aab3`.
+        - [x] I repair the tail-call fixture's non-language call syntax and
+          discarded returns, add bounded shadows, and retain a million-step
+          executable test with defined integer arithmetic and asserted results.
+          Both VM strategies complete the million-step check; bytecode and
+          ordinary native compilation pass the bounded shadows. Native execution
+          without TCO crashes, and native --tco fails all six shadows.
+        - [ ] I repair native TCO parameter binding, simultaneous argument
+          evaluation, exit semantics and typed results. I retain the corrected
+          million-step fixture and require successful native execution.
+          MAC `task_ab36fda5e6846c45beaf42b3ba819c13`.
       - [ ] I repair verifier-corpus coverage: its script also silently skips
         compilation failures and searches runtime text instead of requiring
         successful verification, with no execution deadlines.
