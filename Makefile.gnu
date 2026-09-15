@@ -755,6 +755,10 @@ test-daemon-gate:
 test-selfhost-returned-calls: bootstrap3
 	@python3 -m unittest tests.test_selfhost_returned_calls
 
+.PHONY: test-selfhost-map-types
+test-selfhost-map-types: bootstrap3
+	@python3 -m unittest tests.test_selfhost_map_types
+
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running NanoVM end-to-end integration tests..."

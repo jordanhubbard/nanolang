@@ -2663,6 +2663,55 @@ shadow tc_bound_name {
     (mb_reset [])
 }
 
+fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
+    if (!= call.arg_count 2) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a source array and one transform in map." location))
+        return (type_unknown_named "map")
+    }
+    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    let source_type: NSType = (check_expr_node parser source.node_id source.node_type symbols diags file_name)
+    let callback_type: NSType = (check_expr_node parser callback.node_id callback.node_type symbols diags file_name)
+    if (!= source_type.kind TypeKind.TYPE_ARRAY) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array source in map." location))
+    }
+    if (!= callback_type.kind TypeKind.TYPE_FUNCTION) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a function transform in map." location))
+        return (type_unknown_named "map")
+    }
+    let parameters: array<NSType> = (fn_type_param_types callback_type.name)
+    if (!= (array_length parameters) 1) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a unary transform in map." location))
+        return (type_unknown_named "map")
+    }
+    let parameter: NSType = (at parameters 0)
+    let result: NSType = (fn_type_return_type callback_type.name)
+    if (or (== result.kind TypeKind.TYPE_VOID) (== result.kind TypeKind.TYPE_UNKNOWN)) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a known value-producing transform in map." location))
+        return (type_unknown_named "map")
+    }
+    if (and (== source_type.kind TypeKind.TYPE_ARRAY) (!= source_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
+        let expected_source: NSType = (type_array parameter.kind parameter.name)
+        if (!= (type_to_string source_type) (type_to_string expected_source)) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require map input elements to match the transform parameter." location))
+        }
+    }
+    return (type_array result.kind result.name)
+}
+
+shadow check_map_call {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value = (map [1] convert) return 0 }" "map.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "map.nano")
+    let params: array<NSType> = [(type_int)]
+    let symbols: array<Symbol> = [(symbol_new "convert" (type_float) false true 1 params (type_float))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let result: NSType = (check_map_call parser (parser_get_call parser 0) symbols diags "map.nano")
+    assert (== result.kind TypeKind.TYPE_ARRAY)
+    assert (== result.element_type_kind TypeKind.TYPE_FLOAT)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+}
+
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     if (== node_type ParseNodeType.PNODE_BLOCK) {
         let expected: NSType = (type_from_string_with_parser parser tc_enclosing_return)
@@ -2733,6 +2782,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (or (== fn_name "map") (== fn_name "array_map")) {
+            return (check_map_call parser call_node symbols diags file_name)
+        }
         if (or (== fn_name "sb_new") (or (== fn_name "sb_with_capacity") (or (== fn_name "sb_append") (or (== fn_name "sb_append_line") (or (== fn_name "sb_append_int") (or (== fn_name "sb_append_char") (or (== fn_name "sb_clear") (or (== fn_name "sb_free") (or (== fn_name "sb_is_empty") (or (== fn_name "sb_length") (or (== fn_name "sb_capacity") (== fn_name "sb_to_string")))))))))))) {
             if (or (== fn_name "sb_to_string") (or (== fn_name "sb_length") (== fn_name "sb_capacity"))) {
                 if (or (== fn_name "sb_length") (== fn_name "sb_capacity")) {
@@ -3224,6 +3276,17 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
 
     if (>= let_node.value 0) {
         let init_type_raw: NSType = (check_expr_node parser let_node.value let_node.value_type symbols diags file_name)
+        if (and (== let_node.value_type ParseNodeType.PNODE_CALL) (== init_type_raw.kind TypeKind.TYPE_ARRAY)) {
+            let initializer: ASTCall = (parser_get_call parser let_node.value)
+            if (== initializer.function_type ParseNodeType.PNODE_IDENTIFIER) {
+                let name: ASTIdentifier = (parser_get_identifier parser initializer.function)
+                if (or (== name.name "map") (== name.name "array_map")) {
+                    if (!= (type_to_string init_type_raw) (type_to_string declared_type)) {
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared map array type to match the transform result." (Diagnostics.diag_location file_name let_node.line let_node.column)))
+                    }
+                }
+            }
+        }
         let init_type: NSType = (apply_return_type_hint init_type_raw declared_type)
         if (not (types_equal init_type declared_type)) {
             let detail: string = (+ "Variable " let_node.name)
@@ -3241,7 +3304,15 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
     return (env_add_symbol symbols sym)
 }
 
-shadow check_let_statement { assert true }
+shadow check_let_statement {
+    let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value: array<int> = (map [1] convert) return 0 }" "map.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "map.nano")
+    let params: array<NSType> = [(type_int)]
+    let symbols: array<Symbol> = [(symbol_new "convert" (type_float) false true 1 params (type_float))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement parser (parser_get_let parser 0) 0 symbols diags "map.nano")
+    assert (> (list_CompilerDiagnostic_length diags) 0)
+}
 
 /* NSType check a return statement
  * 

@@ -483,6 +483,24 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           element. The final two-method Stage2 map run passes in 52.268 seconds.
           [Evidence](evidence/selfhost-scalar-map.md). Nominal/nested metadata,
           aggregate layouts and full signature validation remain open.
+          I next reject invalid self-hosted map arity, sources and callback
+          signatures before C emission, infer the result array from the callback
+          result, and reject incompatible direct-map result annotations. My
+          negative gate uses source-only compilation so a C compiler failure
+          cannot masquerade as a typechecker rejection.
+          Baseline: all eight invalid fixtures were accepted and replaced
+          their prior C output. After rebuilding both stages, all eight are
+          rejected with their specific diagnostic and preserved prior output;
+          the inferred `array<float>` fixture runs. Both type-gate methods
+          pass in 2.835 seconds. The 16 scalar pairings and execution trace
+          remain green in 46.648 seconds. Evidence:
+          `docs/evidence/selfhost-map-type-checking.md`.
+        - [ ] I remove the self-hosted `array<int>` compatibility wildcard
+          after restoring the metadata its bootstrap currently relies on.
+          Direct map checks do not repair aliases, calls or returns routed
+          through `types_equal`. I require rejection tests across those paths
+          and a complete bootstrap without this exemption. MAC
+          `task_850ac4914d9b4a9cbc34f7f16dd1902c`.
           All sixteen interpreter combinations pass, including the complete
           rebuilt evaluator gate and a final evaluator-object rebuild/test
           after diagnostic wording changes. Logs:

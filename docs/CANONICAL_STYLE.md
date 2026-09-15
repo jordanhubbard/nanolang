@@ -149,6 +149,14 @@ append-after-empty. It reads and writes the two declared representations
 independently. A separate trace checks that source and transform expressions
 run once in that order, then the callback once per element. Complete
 self-hosted signature validation and aggregate map parity remain work.
+My self-hosted checker now rejects wrong map arity, non-array sources,
+non-function, non-unary and void transforms, and known input-element types
+that disagree with the transform parameter. It infers the mapped array from
+the transform result and checks direct map result annotations before C
+emission. I test eight rejected programs with prior-output preservation and
+an unannotated float-result program through shadows and native execution.
+My general array compatibility still has a bootstrap `array<int>` wildcard;
+these map-specific checks do not make aliases, calls and returns fully sound.
 
 ## String Literals
 
