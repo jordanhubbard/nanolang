@@ -325,8 +325,26 @@ static pid_t check_pid_file(const char *path) {
 
 int vmd_server_run(const VmdServerConfig *cfg) {
     char sock_path[256], pid_file[256];
-    vmd_socket_path(sock_path, sizeof(sock_path));
-    vmd_pid_path(pid_file, sizeof(pid_file));
+    if (cfg->socket_path) {
+        snprintf(sock_path, sizeof(sock_path), "%s", cfg->socket_path);
+    } else {
+        vmd_socket_path(sock_path, sizeof(sock_path));
+    }
+    if (cfg->pid_path) {
+        snprintf(pid_file, sizeof(pid_file), "%s", cfg->pid_path);
+    } else {
+        vmd_pid_path(pid_file, sizeof(pid_file));
+    }
+
+    struct sockaddr_un addr;
+    size_t path_len = strlen(sock_path);
+    if (path_len >= sizeof(addr.sun_path)) {
+        fprintf(stderr, "[vmd] Socket path is too long: %s\n", sock_path);
+        return 1;
+    }
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    memcpy(addr.sun_path, sock_path, path_len + 1);
 
     /* Check for existing daemon */
     pid_t existing = check_pid_file(pid_file);
@@ -344,15 +362,11 @@ int vmd_server_run(const VmdServerConfig *cfg) {
         return 1;
     }
 
-    struct sockaddr_un addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sun_family = AF_UNIX;
-    strncpy(addr.sun_path, sock_path, sizeof(addr.sun_path) - 1);
-
     /* Remove stale socket */
     unlink(sock_path);
 
-    if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    int (*bind_fn)(int, const struct sockaddr *, socklen_t) = cfg->bind_fn ? cfg->bind_fn : bind;
+    if (bind_fn(server_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         perror("[vmd] bind");
         close(server_fd);
         return 1;
