@@ -240,10 +240,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   either pipe failure, descriptor setup and fork failure, real
                   stdout/stderr capture and callers with closed standard output
                   descriptors. Read ends are nonblocking and close-on-exec.
-                - [ ] I replace process_run's truncated shell/redirection
+                - [x] I replace process_run's truncated shell/redirection
                   command and reopened temporary paths with descriptor-owned
                   capture, preserving full commands and checking read failures.
                   MAC `task_ed30bee0415e4c1a9959968c9a078d16`.
+                  The full command goes to /bin/sh unchanged; anonymous capture
+                  descriptors are retained through child exit and checked reads.
+                  Normal and ASan/UBSan tests cover compound/6,000-byte commands,
+                  72 KB output, null/NUL handling, allocation/setup/read failure,
+                  and closed standard descriptors. I declare its array ABI.
+                  This synchronous API has no timeout/output quota and cannot
+                  roll back command side effects on later capture failure.
                 - [x] I declare PEG capture arrays and make capture allocation
                   failure return null without partial results or process exit.
                   I test table growth, element copies, empty/no-match results

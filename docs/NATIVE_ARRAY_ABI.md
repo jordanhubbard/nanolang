@@ -79,8 +79,18 @@ is checked before fork. I move pipe ends above standard descriptors, mark
 them close-on-exec and configure read ends nonblocking before publication.
 `test-process-pipe-array` injects allocation/pipe/setup/fork failures and checks
 real stdout/stderr capture, including closed standard descriptors. Returned
-string ownership remains separate; `process_run` still needs its own command
-and capture-path repair before its export is declared.
+string ownership remains separate.
+
+My `process_run` export also declares the array ABI. I pass the complete
+command to `/bin/sh -c` and wire anonymous temporary-file descriptors into
+stdout/stderr. I do not append redirects, truncate commands, or reopen capture
+paths. Checked descriptor reads snapshot output after the shell exits; a
+background descendant may still write afterward. Embedded NUL output produces
+an error result because this is a text API. Setup/read failures report -1;
+result allocation failure returns null. Tests cover compound and long commands,
+large output, failure cleanup and closed standard descriptors, normally and
+under ASan/UBSan. Execution remains synchronous without timeout/output quota;
+capture failure cannot roll back shell side effects.
 
 My PEG capture export declares the array ABI and allocates the result at its
 known capture count. Capture-table growth or string-copy allocation failure

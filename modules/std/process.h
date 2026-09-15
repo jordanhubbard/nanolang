@@ -5,7 +5,12 @@
 #include "../../src/runtime/dyn_array.h"
 
 /* Run a command and capture stdout/stderr
- * Returns array<string> with [exit_code, stdout, stderr]
+ * I execute the full command through /bin/sh, capturing through anonymous
+ * file descriptors. I return [exit_code, stdout, stderr], use -1 with a
+ * diagnostic on setup/read failure, and return NULL on result allocation
+ * failure. Embedded NUL output is rejected; this is a text API. I impose no
+ * execution timeout or output quota. The caller owns the child command's
+ * side effects, including when capture/result allocation later fails.
  */
 DynArray* nl_os_process_run(const char* command);
 
