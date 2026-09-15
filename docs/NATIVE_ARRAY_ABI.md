@@ -71,6 +71,16 @@ failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
 ## Layout declarations
 
+My GLEW float32 and uint32 uploads validate canonical array type/width,
+source storage and output byte bounds before conversion. Invalid input or
+allocation failure makes no GL call; a valid empty array still uploads zero
+bytes. Integer inputs must fit uint32, and finite floating inputs must fit
+float32; I no longer silently wrap invalid indices or overflow finite values.
+NaN and infinity remain floating values. The void API does not report a typed
+error for rejection. `test-glew-array-boundary` checks fake-driver calls and
+injected allocation failure, and links the manifest-selected sources without
+loading GL. These tests do not establish graphics-driver behavior.
+
 My filesystem listing exports declare the array ABI and check entries with
 `fstatat` relative to the open directory. They no longer truncate joined paths
 at 1,024 bytes. I retain sorted basenames and symlink-following behavior;

@@ -233,6 +233,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               - [ ] I enumerate and validate module array exports before
                 widening the layout. Declarations remain trusted metadata;
                 hidden/stripped markers count as missing.
+                - [x] I validate GLEW array upload types, widths, byte bounds,
+                  conversion ranges and allocation failure before touching GL.
+                  I separate the adapter for fake-driver tests, preserve valid
+                  empty uploads, and declare both array ABI markers.
+                  Fake-driver normal and ASan/UBSan tests pass. The manifest
+                  sources link and export both markers without loading GL.
+                  Negative/oversized integer indices and finite values beyond
+                  float32 range now leave the buffer unchanged instead of
+                  silently narrowing. This does not test a real GL context.
                 - [x] I declare the filesystem listing array ABI and replace
                   truncated 1,024-byte joined paths with descriptor-relative
                   stat checks. I test sorted filtering, symlinks, empty/null

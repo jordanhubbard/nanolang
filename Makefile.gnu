@@ -589,6 +589,11 @@ test-filesystem-array-exports:
 	python3 -m unittest tests.test_filesystem_array_exports
 
 test-units: test-filesystem-array-exports
+.PHONY: test-glew-array-boundary
+test-glew-array-boundary:
+	python3 -m unittest tests.test_glew_array_boundary
+
+test-units: test-glew-array-boundary
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback
