@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Bootstrap branch reconciliation.** I retain behavioral invalidation
+      checks and direct self-hosted stage dependencies while reconciling
+      `d152181d`. I expose the existing suite as `test-bootstrap-dependencies`
+      and run it from quick and full test entry points. MAC
+      `task_85191b435c95480d9db52e3671d1e740`.
+      Eight behavioral tests pass in 17.126 seconds. Evidence:
+      `docs/evidence/bootstrap-branch-reconciliation.md`.
 - [x] **String-search branch reconciliation.** I retain my shared byte-offset
       search implementation and broader source fixtures while reconciling
       `07d38702`. I retain its missing first-search null-needle assertion and

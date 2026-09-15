@@ -2140,7 +2140,7 @@ test-forth-wordsets:
 .PHONY: test-impl
 test-impl: test-units
 	@bash tests/test_make_header_dependencies.sh
-	@python3 tests/test_bootstrap_source_dependencies.py
+	@$(MAKE) --no-print-directory test-bootstrap-dependencies
 	@python3 tests/test_bootstrap_messages.py
 	@python3 tests/test_module_compile_invocation.py
 	@$(MAKE) --no-print-directory test-parser-recovery
@@ -2620,6 +2620,7 @@ test-unit: build
 # Quick test (language tests only, fastest)
 test-quick: build
 	@./tests/run_all_tests.sh --lang
+	@$(MAKE) --no-print-directory test-bootstrap-dependencies
 	@$(MAKE) --no-print-directory test-parser-parenthesized
 	@$(MAKE) --no-print-directory test-transpiler-externs
 	@$(MAKE) --no-print-directory test-module-introspection
@@ -2651,6 +2652,10 @@ else
 	@$(MAKE) --no-print-directory test-forth-pty
 	@$(MAKE) --no-print-directory test-forth-ide-smoke
 endif
+
+.PHONY: test-bootstrap-dependencies
+test-bootstrap-dependencies:
+	@python3 tests/test_bootstrap_source_dependencies.py
 
 .PHONY: test-make-header-dependencies
 .PHONY: test-parser-parenthesized
