@@ -17,92 +17,10 @@ extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
 NANO_EXPORT_ARRAY_ABI(nl_os_process_spawn_with_pipes);
 NANO_EXPORT_ARRAY_ABI(nl_os_process_run);
 
-/* Run a command and capture stdout/stderr
- * Returns array<string> with [exit_code, stdout, stderr]
- */
-static DynArray *run_result(DynArray *result, int code, char *out, char *err) {
-    char *status = malloc(32);
-    if (!status || !out || !err) {
-        free(status); free(out); free(err); gc_release(result);
-        return NULL;
-    }
-    snprintf(status, 32, "%d", code);
-    dyn_array_push_string(result, status);
-    dyn_array_push_string(result, out);
-    dyn_array_push_string(result, err);
-    return result;
-}
-
-static DynArray *run_error(DynArray *result, const char *message) {
-    return run_result(result, -1, strdup(""), strdup(message));
-}
-
-/* I retain anonymous temporary-file descriptors, never reopen capture paths.
- * Moving them above stderr also handles callers with closed standard fds. */
-static int capture_file(void) {
-    FILE *file = tmpfile();
-    if (!file) return -1;
-    int fd = fcntl(fileno(file), F_DUPFD_CLOEXEC, STDERR_FILENO + 1);
-    fclose(file);
-    return fd;
-}
-
-static char *read_capture(int fd) {
-    struct stat st;
-    if (fstat(fd, &st) || st.st_size < 0 || (uintmax_t)st.st_size >= SIZE_MAX) return NULL;
-    size_t length = (size_t)st.st_size;
-    char *text = malloc(length + 1);
-    if (!text) return NULL;
-    size_t done = 0;
-    while (done < length) {
-        size_t chunk = length - done;
-        if (chunk > 65536) chunk = 65536;
-        ssize_t n = pread(fd, text + done, chunk, (off_t)done);
-        if (n < 0 && errno == EINTR) continue;
-        if (n <= 0) { free(text); return NULL; }
-        done += (size_t)n;
-    }
-    if (memchr(text, 0, length)) { free(text); return NULL; }
-    text[length] = 0;
-    return text;
-}
+#include "../../src/runtime/process_capture.h"
 
 DynArray* nl_os_process_run(const char* command) {
-    DynArray *result = dyn_array_new_with_capacity(ELEM_STRING, 3);
-    if (!result) return NULL;
-    if (!command) return run_error(result, "I require a command");
-    int out = capture_file(), err = capture_file();
-    if (out < 0 || err < 0) {
-        if (out >= 0) close(out);
-        if (err >= 0) close(err);
-        return run_error(result, "I could not create capture files");
-    }
-    pid_t child = fork();
-    if (child == 0) {
-        if (dup2(out, STDOUT_FILENO) < 0 || dup2(err, STDERR_FILENO) < 0) _exit(127);
-        close(out); close(err);
-        execl("/bin/sh", "sh", "-c", command, (char *)NULL);
-        _exit(127);
-    }
-    if (child < 0) {
-        close(out); close(err);
-        return run_error(result, "I could not start the command");
-    }
-    int status;
-    pid_t waited;
-    do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
-    if (waited != child) {
-        close(out); close(err);
-        return run_error(result, "I could not wait for the command");
-    }
-    char *stdout_text = read_capture(out), *stderr_text = read_capture(err);
-    close(out); close(err);
-    if (!stdout_text || !stderr_text) {
-        free(stdout_text); free(stderr_text);
-        return run_error(result, "I could not read captured text (I reject embedded NUL bytes)");
-    }
-    return run_result(result, WIFEXITED(status) ? WEXITSTATUS(status) : -1,
-                      stdout_text, stderr_text);
+    return nl_process_run_capture(command);
 }
 
 

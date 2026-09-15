@@ -6,6 +6,7 @@
 
 #include "eval_io.h"
 #include "../nanolang.h"
+#include "../runtime/process_capture.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -419,77 +420,9 @@ Value builtin_unsetenv(Value *args) {
     return create_int(unsetenv(name) == 0 ? 0 : -1);
 }
 
-static char* nl_read_all_fd(int fd) {
-    size_t cap = 4096;
-    size_t len = 0;
-    char* buf = malloc(cap);
-    if (!buf) return strdup("");
-    while (1) {
-        if (len + 1 >= cap) {
-            cap *= 2;
-            char* n = realloc(buf, cap);
-            if (!n) { free(buf); return strdup(""); }
-            buf = n;
-        }
-        ssize_t r = read(fd, buf + len, cap - len - 1);
-        if (r <= 0) break;
-        len += (size_t)r;
-    }
-    buf[len] = '\0';
-    return buf;
-}
-
 Value builtin_process_run(Value *args) {
-    const char* command = args[0].as.string_val;
-    DynArray* out = dyn_array_new(ELEM_STRING);
-
-    int out_pipe[2];
-    int err_pipe[2];
-    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {
-        dyn_array_push_string(out, strdup("-1"));
-        dyn_array_push_string(out, strdup(""));
-        dyn_array_push_string(out, strdup(""));
-        return create_dyn_array(out);
-    }
-
-    posix_spawn_file_actions_t actions;
-    posix_spawn_file_actions_init(&actions);
-    posix_spawn_file_actions_adddup2(&actions, out_pipe[1], STDOUT_FILENO);
-    posix_spawn_file_actions_adddup2(&actions, err_pipe[1], STDERR_FILENO);
-    posix_spawn_file_actions_addclose(&actions, out_pipe[0]);
-    posix_spawn_file_actions_addclose(&actions, err_pipe[0]);
-
-    pid_t pid = 0;
-    char* argv[] = { "sh", "-c", (char*)command, NULL };
-    extern char **environ;
-    int rc = posix_spawn(&pid, "/bin/sh", &actions, NULL, argv, environ);
-    posix_spawn_file_actions_destroy(&actions);
-
-    close(out_pipe[1]);
-    close(err_pipe[1]);
-
-    char* out_s = nl_read_all_fd(out_pipe[0]);
-    char* err_s = nl_read_all_fd(err_pipe[0]);
-    close(out_pipe[0]);
-    close(err_pipe[0]);
-
-    int code = -1;
-    if (rc != 0) {
-        code = rc;
-    } else {
-        int status = 0;
-        (void)waitpid(pid, &status, 0);
-        if (WIFEXITED(status)) code = WEXITSTATUS(status);
-        else if (WIFSIGNALED(status)) code = 128 + WTERMSIG(status);
-        else code = -1;
-    }
-
-    char code_buf[64];
-    snprintf(code_buf, sizeof(code_buf), "%d", code);
-    dyn_array_push_string(out, strdup(code_buf));
-    dyn_array_push_string(out, out_s);
-    dyn_array_push_string(out, err_s);
-    return create_dyn_array(out);
+    DynArray *result = nl_process_run_capture(args[0].as.string_val);
+    return result ? create_dyn_array(result) : create_void();
 }
 
 Value builtin_result_is_ok(Value *args) {

@@ -1288,12 +1288,21 @@ let status: int = (setenv "MY_VAR" "my_value")
 ```
 
 ### `process_run(command: string) -> array<string>`
-I execute a command and return its output as an array of strings. The first element is the exit code as a string, and subsequent elements are lines of stdout.
+I execute shell code through `/bin/sh -c` and return exactly three strings:
+`[exit_code, stdout, stderr]`. I preserve complete text streams, including
+newlines. My module, interpreter, native and VM paths share file-backed capture
+so one full output pipe cannot block draining the other. Commands are passed
+without a fixed-size command buffer; the host's argument limit still applies.
+Shell launch failure returns `127`; capture failures and signal termination
+return `-1`. I reject embedded NUL output rather than silently truncating it.
+I do not impose a command deadline or output-storage quota here. This API
+executes shell syntax; callers must quote untrusted arguments as data.
 
 ```nano
 let result: array<string> = (process_run "echo hello")
 let code: string = (at result 0)     # "0" (exit code)
-let line: string = (at result 1)     # "hello"
+let output: string = (at result 1)   # "hello\n"
+let errors: string = (at result 2)   # ""
 ```
 
 ---

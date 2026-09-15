@@ -39,8 +39,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       writes occur in these tests. Positional data follows `--`; the raw
       `exec_command` API intentionally remains a shell-code execution API.
       MAC `task_c3e8254ad9f8ce84143f59ca306e24fb`.
-- [ ] **Process command length.** I reject or safely accommodate commands beyond
+- [x] **Process command length.** I reject or safely accommodate commands beyond
       the process runner's fixed command buffer, with boundary tests.
+      My module runner already uses direct shell invocation and file-backed
+      capture. I share that implementation with the VM builtin, interpreter
+      and generated native helper; the latter two currently drain pipes
+      sequentially. I test long commands and simultaneous stdout/stderr.
+      All four paths now share `runtime/process_capture.h`, eliminating the
+      VM's 4096-byte command buffer and sequential-pipe readers. Native/VM
+      builtin and module tests pass 16 KiB commands and 128 KiB per stream.
+      VM tests reject commands beyond the host argument limit without running
+      a truncated prefix, and check signal status, null input and NUL output.
+      Interpreter, transpiler and MAC boundary gates pass. Strict dispatch
+      remains 175 selected, 172 identical, three failures and zero skipped.
+      Command deadlines, output quotas and array/string ownership remain
+      separate runtime boundaries; this does not establish process isolation.
       MAC `task_c3e8254ad9f8ce84143f59ca306e24fb`.
 
 - [x] **Release-gate launcher capture.** The full suite reaches 219 passing

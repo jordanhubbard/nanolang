@@ -265,6 +265,34 @@ static void test_vm_process_run(void) {
     const char *test_name = "vm_process_run: echo command";
     DynArray *result = vm_process_run("echo hello");
     ASSERT(result != NULL, "vm_process_run should return non-NULL");
+    ASSERT(!strcmp(dyn_array_get_string(result, 0), "0"), "exit status");
+    ASSERT(!strcmp(dyn_array_get_string(result, 1), "hello\n"), "captured output");
+    char command[10064];
+    memset(command, ' ', 10000);
+    memcpy(command, ": ", 2);
+    strcpy(command + 10000, "; printf out; printf err >&2; exit 7");
+    result = vm_process_run(command);
+    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "7"), "long command status");
+    ASSERT(!strcmp(dyn_array_get_string(result, 1), "out"), "long command stdout");
+    ASSERT(!strcmp(dyn_array_get_string(result, 2), "err"), "long command stderr");
+    result = vm_process_run("kill -TERM $$");
+    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "-1"), "signal status");
+    result = vm_process_run("printf '\\000'");
+    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "-1"), "reject binary capture");
+    result = vm_process_run(NULL);
+    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "-1"), "reject null command");
+    long limit = sysconf(_SC_ARG_MAX);
+    ASSERT(limit > 0 && limit < 16 * 1024 * 1024, "bounded host argument limit");
+    char *oversized = malloc((size_t)limit + 2);
+    ASSERT(oversized, "allocate oversized command");
+    memset(oversized, ' ', (size_t)limit + 1);
+    memcpy(oversized, "printf UNEXPECTED;", 18);
+    oversized[limit + 1] = '\0';
+    result = vm_process_run(oversized);
+    free(oversized);
+    ASSERT(result && !strcmp(dyn_array_get_string(result, 0), "127"), "reject host argument overflow");
+    ASSERT(!*dyn_array_get_string(result, 1), "do not execute a truncated command prefix");
+    ASSERT(strstr(dyn_array_get_string(result, 2), "could not execute"), "exec failure diagnostic");
     (void)result; /* no dyn_array_free */
     PASS(test_name);
 }

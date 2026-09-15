@@ -1903,6 +1903,7 @@ test-module-dep-recheck: $(COMPILER_C) test-module-install-policy test-module-bu
 .PHONY: test-mac-command-boundary
 test-mac-command-boundary: $(COMPILER_C) nano_virt nano_vm
 	@python3 tests/test_mac_command_boundary.py
+	@python3 tests/test_process_capture.py
 
 test-units: test-module-builder-cache test-mac-command-boundary
 
