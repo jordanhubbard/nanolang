@@ -79,11 +79,23 @@ shadow main { assert (== (main) 0) }
         self.check_both('''
 fn collide(n: int, __tco_n: int) -> int {
     let __tco_result: int = 40
+    let __tco_0_p0: int = 0
+    let __tco_1_a0: int = 0
     if (== n 0) { return (+ __tco_result __tco_n) }
     return (collide (- n 1) (+ __tco_n 1))
 }
 shadow collide { assert (== (collide 2 0) 42) }
 fn main() -> int { assert (== (collide 3 0) 43) return 0 }
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_void_fallthrough(self):
+        self.check_both('''
+fn descend(n: int) -> void {
+    if (> n 0) { return (descend (- n 1)) }
+}
+shadow descend { (descend 3) }
+fn main() -> int { (descend 10) return 0 }
 shadow main { assert (== (main) 0) }
 ''')
 

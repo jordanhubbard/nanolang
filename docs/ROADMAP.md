@@ -111,11 +111,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           evaluation, exit semantics and typed results. I retain the corrected
           million-step fixture and require successful native execution.
           MAC `task_ab36fda5e6846c45beaf42b3ba819c13`.
-          My executable `make test-native-tco` acceptance gate compares ordinary
-          and optimized shallow programs and separately requires one million
-          optimized calls. It covers swaps, early returns, string/float results
-          and user names colliding with the old generated names. It remains a
-          failing gate until the native rewrite is repaired.
+          - [x] I repair scalar self-tail returns using collision-free state
+            names, argument temporaries, ordinary function returns and an
+            in-place body update visible to the interpreter. Seven executable
+            `make test-native-tco` cases pass: swaps, early returns, string/float
+            results, generated-name collisions, void fallthrough and one million
+            optimized calls. The gate is part of `test-opt-passes`; its C unit
+            tests also pass. Unoptimized shallow programs remain the comparison.
+          - [ ] I extend binding-aware lowering and acceptance to aggregate
+            parameters, closures, loops and parameter-shadowing bindings. My
+            preflight currently leaves these functions unchanged. Scalar test
+            success is not a complete proper-tail-call guarantee.
       - [ ] I repair verifier-corpus coverage: its script also silently skips
         compilation failures and searches runtime text instead of requiring
         successful verification, with no execution deadlines.
