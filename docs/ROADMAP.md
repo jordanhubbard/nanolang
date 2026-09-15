@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Union resource propagation.** I propagate ownership obligations
+      through named union payloads and mixed record/union cycles, preserving
+      module-owned lookup. I require classifier tests; generic substitution,
+      tuples and control-flow enforcement remain open. MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`.
+      Record/union classifier checks pass; evidence:
+      `docs/evidence/union-resource-classification.md`.
 - [x] **Nested-record resource classification.** I classify ordinary records
       containing resource records without recursive depth limits, including
       cycles. I test deep graphs and keep full path-sensitive ownership and

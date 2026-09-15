@@ -3,7 +3,7 @@
 
 #include "nanolang.h"
 
-/* Check if a struct type is a resource type */
+/* I classify registered named record/union payloads, not generic substitutions. */
 bool is_resource_type(Environment *env, const char *struct_name);
 
 /* Mark a variable as a resource if its type is a resource struct */
@@ -19,4 +19,3 @@ void check_resource_consume(Environment *env, const char *var_name, int line, in
 void check_resource_leaks(Environment *env, bool *has_error);
 
 #endif /* NANOLANG_RESOURCE_TRACKING_H */
-
