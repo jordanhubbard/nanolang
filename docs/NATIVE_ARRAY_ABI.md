@@ -92,6 +92,18 @@ large output, failure cleanup and closed standard descriptors, normally and
 under ASan/UBSan. Execution remains synchronous without timeout/output quota;
 capture failure cannot roll back shell side effects.
 
+My preference playlist exports declare the canonical array ABI. Saves validate
+the selected prefix before opening output and report write/close failures;
+I/O failure can leave partial output. Loads stage complete lines, skip blank
+lines, and allocate the runtime array at its final size. Missing files yield
+empty arrays; null input, embedded NUL bytes, allocation and I/O failures yield
+null without publishing partial arrays. Preference paths return null rather
+than a truncated path. The borrowed static path remains non-thread-safe.
+`test-preferences-save` covers save preservation, long-line loads, staged
+allocation/read/close failures, and path overflow, normally and under ASan/UBSan.
+Successful loaded strings still need the common native ownership contract;
+the fixture explicitly frees them and does not establish automatic reclamation.
+
 My PEG capture export declares the array ABI and allocates the result at its
 known capture count. Capture-table growth or string-copy allocation failure
 returns null after cleanup, instead of exiting or returning a partial list.

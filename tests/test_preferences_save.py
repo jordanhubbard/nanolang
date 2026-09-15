@@ -1,4 +1,4 @@
-"""I check playlist validation before truncation and report stream failures."""
+"""I check playlist boundaries, failure cleanup, complete lines and paths."""
 import os
 from pathlib import Path
 import shlex
@@ -16,7 +16,8 @@ class PreferencesSave(unittest.TestCase):
             built = subprocess.run([
                 *shlex.split(os.environ.get("CC", "cc")), "-std=c99",
                 "-Wall", "-Wextra", "-Werror", "-g",
-                "tests/test_preferences_save.c", "-o", str(output)],
+                "tests/test_preferences_save.c", "src/runtime/dyn_array.c",
+                "src/runtime/gc.c", "src/runtime/gc_struct.c", "-o", str(output)],
                 cwd=ROOT, capture_output=True, text=True, timeout=60)
             self.assertEqual(built.returncode, 0, built.stderr)
             ran = subprocess.run([str(output)], capture_output=True,

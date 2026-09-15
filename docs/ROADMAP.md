@@ -243,7 +243,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 - [x] I validate preference playlist saves before opening the
                   output and test rejection without truncating existing files,
                   valid prefix writes, and stream failures.
-                - [ ] I replace preferences' manually allocated playlist arrays
+                - [x] I replace preferences' manually allocated playlist arrays
                   with canonical runtime allocation, preserve long lines, and
                   clean up partial loads on failure; I reject truncated or null
                   preference path inputs before returning a path.
