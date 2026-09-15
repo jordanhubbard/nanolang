@@ -128,6 +128,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         four destination methods and the compiler-contract gate now pass.
         [Review evidence](evidence/pr-285-reconciliation.md).
         MAC `task_f38c6358bf944c218f179daf1490ebe2`.
+      - [x] I reconcile PR #273's full manifest-path change without replacing
+        existing source snapshots or atomic publication. I retain its quoting
+        regression against the production helper in a private directory and
+        run manifest-backed single/multi/private-source path tests.
+        The rebuilt `test-module-metadata` gate passes, including the quoting
+        test and all five end-to-end path variants.
+        [Review evidence](evidence/pr-273-reconciliation.md).
+        MAC `task_8c10a946dfa14d92b491fd80f4635187`.
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with
