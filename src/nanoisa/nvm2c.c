@@ -664,8 +664,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
             } else if (tag == TAG_INT) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_ARR, -1)) return 0;
+            } else if (tag == TAG_STRUCT) {
+                Nvm2cSimSlot array;
+                memset(&array, 0, sizeof array);
+                array.kind = NVM2C_VK_RARR;
+                array.origin = -1;
+                memset(array.rec_k, NVM2C_VK_UNK, sizeof array.rec_k);
+                if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
             } else {
-                nvm2c_fail(b, "function %u: ARR_NEW only supports int or string elements", idx);
+                nvm2c_fail(b, "function %u: ARR_NEW only supports int, string or struct elements", idx);
                 return 0;
             }
             break;
@@ -718,6 +725,15 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 }
             }
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
+            if (ins.opcode == OP_ARR_PUSH && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) {
+                for (int f = 0; f < NVM2C_MAX_REC_FIELDS; ++f) {
+                    if (arr.rec_k[f] != NVM2C_VK_UNK && val.rec_k[f] != NVM2C_VK_UNK &&
+                        arr.rec_k[f] != val.rec_k[f]) {
+                        nvm2c_fail(b, "ARR_PUSH record field representation mismatch");
+                        return 0;
+                    }
+                }
+            }
             if (ins.opcode == OP_ARR_SET && arr.kind != NVM2C_VK_UNK &&
                 val.kind != NVM2C_VK_UNK) {
                 uint8_t expected = val.kind == NVM2C_VK_REC ? NVM2C_VK_RARR :
@@ -1820,8 +1836,21 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_ARR_NEW: {
             uint8_t tag = ins.operands[0].u8;
             int as_sarr = (tag == TAG_STRING);
+            if (tag == TAG_STRUCT) {
+                int array = stack_push_rarr(b, &st, "nrarr_new()");
+                if (array >= 0) {
+                    memset(st.rec_k[array], NVM2C_VK_UNK, NVM2C_MAX_REC_FIELDS);
+                    DecodedInstruction next;
+                    if (isa_decode(code + pc, remaining - pc, &next) && next.opcode == OP_STORE_LOCAL) {
+                        uint16_t slot = next.operands[0].u16;
+                        if (slot < fn->local_count)
+                            memcpy(st.rec_k[array], fn_rec_k_const(rec_fields, idx, slot), NVM2C_MAX_REC_FIELDS);
+                    }
+                }
+                break;
+            }
             if (tag != TAG_INT && tag != TAG_STRING) {
-                nvm2c_fail(b, "function %u: ARR_NEW only supports int or string elements", idx);
+                nvm2c_fail(b, "function %u: ARR_NEW only supports int, string or struct elements", idx);
                 goto done;
             }
             if (tag == TAG_INT) {
@@ -2871,7 +2900,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_ARR);
         int need_sarr = need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
             module_has_local_kind(kinds, mod->function_count, NVM2C_VK_SARR);
-        int need_rarr = module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
+        int need_rarr = module_has_arr_op_tag(mod, OP_ARR_NEW, TAG_STRUCT) ||
+            module_has_local_kind(kinds, mod->function_count, NVM2C_VK_RARR);
         int need_iarr_get = need_arr_get && need_iarr;
         int need_sarr_get = need_arr_get && need_sarr;
         int need_iarr_push = need_arr_push && need_iarr;
@@ -3001,7 +3031,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (need_concat || need_cast || need_substr || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
-            need_assert) {
+            need_assert || need_rarr) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
             nvm2c_puts(&b, "#include <string.h>\n");

@@ -929,6 +929,48 @@ static void test_builtin_temp_directory(void) {
     CHECK(rmdir(root) == 0, "I leave no temporary directories in my private root");
 }
 
+static void test_tagged_record_array(void) {
+    const char *programs[] = {
+        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 8\nARR_LEN\nRET\n.end\n",
+        ".string text \"retained\"\n.entry 0\n.function main 0 1 0 int 1\n"
+        "ARR_NEW 8\nSTORE_LOCAL 0\nLOAD_LOCAL 0\n"
+        "PUSH_I64 7\nPUSH_STR text\nAGG_PACK 0 0 0 2\nARR_PUSH\nPOP\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 1\nPUSH_STR text\nEQ\nASSERT\n"
+        "LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 1\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        ".string text \"direct\"\n.entry 0\n.function main 0 0 0 int 1\n"
+        "ARR_NEW 8\nPUSH_I64 9\nPUSH_STR text\nAGG_PACK 0 0 0 2\nARR_PUSH\n"
+        "PUSH_I64 0\nARR_GET\nAGG_GET 1\nPUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+    };
+    for (size_t i = 0; i < sizeof programs / sizeof programs[0]; ++i) {
+        NvmModule *module = assemble_ok(programs[i], "explicit struct-array construction");
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit explicitly tagged record arrays");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I preserve empty and mixed-field record arrays through stack/local flow");
+        } else fprintf(stderr, "%s\n", error);
+        free(source); nvm_module_free(module);
+    }
+    const char *rejected[] = {
+        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 8\nPUSH_I64 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
+        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 7\nARR_LEN\nRET\n.end\n",
+        ".string text \"text\"\n.entry 0\n.function main 0 0 0 int 1\n"
+        "ARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\n"
+        "PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
+    };
+    for (size_t i = 0; i < sizeof rejected / sizeof rejected[0]; ++i) {
+        NvmModule *module = assemble_ok(rejected[i], "unsupported record-array representation");
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I refuse scalar, nested-array and mixed-field record construction");
+        free(source); nvm_module_free(module);
+    }
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"nl_exec_shell", "PUSH_STR shell_ok\nCALL_EXTERN 0\nPUSH_I64 0\nEQ\nASSERT\n"
@@ -3415,6 +3457,7 @@ int main(int argc, char **argv) {
     test_builtin_capture();
     test_builtin_from_char();
     test_builtin_temp_directory();
+    test_tagged_record_array();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();

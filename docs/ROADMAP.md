@@ -39,6 +39,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       element shapes and support their construction and data flow without
       guessing a scalar representation. I verify complete compiler execution.
       MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      - [x] I construct explicitly tagged struct arrays and reject incompatible
+        record-field representations on append instead of overwriting facts.
+        My AOT suite passes 922 checks; evidence:
+        `docs/evidence/aot-tagged-record-arrays.md`.
+      - [ ] I remove the compiler's fixed operand-stack translation limit;
+        function 20 (`parser_init_ast_lists`) currently exceeds it. I continue
+        array/aggregate shape work through complete compiler acceptance.
 - [x] **AOT byte-character conversion.** I preserve the existing C-byte
       `vm_string_from_char` contract, including zero-byte empty text and
       independent storage. I test integer boundaries before compiler acceptance.
