@@ -30,6 +30,16 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
       translation invent field types. `test-nvm2c` covers direct and transitive
       reachability and an uncalled record helper. MAC
       `task_8aaa3f722ce34624a4bb8a16283afa2b`.
+- [x] **Affine parity gate coverage.** I test positive execution and both
+      existing ownership rejections on the C seed as well as both bootstrap
+      stages. Rejections must carry ownership diagnostics and preserve prior
+      output. I replace the predictable temporary path with private fixtures.
+      Passing the old gate did not establish C-seed rejection parity.
+      The corrected gate fails two C-seed cases: unresolved ownership is
+      accepted, and use-after-move fails only a shadow assertion. Both bootstrap
+      stages pass the limited cases. Checker acceptance remains open under MAC
+      `task_91ae827be4154eaa8f22698aeecc8cf1`; evidence:
+      `docs/evidence/affine-parity-baseline.md`.
 
 - [x] **5.0 / C-seed nested-array indexing.** I preserve recursive array
       type metadata while parsing and registering locals and parameters, then
