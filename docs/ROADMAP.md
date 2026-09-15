@@ -120,6 +120,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           Evaluator unit tests pass. VM utilities remain unfinished below.
         - [ ] I implement the missing VM sort/reverse/contains/index_of operations
           and verify element-type and original-array preservation.
+          - [x] I lower reversal and first-match search to existing array
+            instructions, preserving empty-array type and evaluating inputs once.
+            I also preserve checked scalar element types when interpreting empty
+            literals; defaulting every empty array to integers breaks append after
+            reversing an empty string array.
+            Native/VM shadows and execution check scalar reversal, integer
+            search, empty arrays, source preservation and exactly-once left-to-right
+            input evaluation. VM-only float/bool/string searches and all 69
+            code-generation tests pass; evaluator tests pass too. Sorting and
+            remaining cross-backend type contracts are still open.
           I also align their type contracts: existing sort silently leaves
           nonintegers unsorted, native search takes integer-only values and
           reverse mishandles unsupported element types.

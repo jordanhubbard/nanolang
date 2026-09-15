@@ -696,6 +696,28 @@ static void test_while_continue(void) {
 
 /* ── Tests: Functions ───────────────────────────────────────────── */
 
+static void test_array_search_types(void) {
+    fprintf(stderr, "  test_array_search_types...");
+    TestResult tr = compile_and_run(
+        "fn main() -> int {\n"
+        "  assert (array_contains [1.5, 2.5] 2.5)\n"
+        "  assert (== (array_index_of [1.5, 2.5, 1.5] 1.5) 0)\n"
+        "  assert (not (array_contains [true, true] false))\n"
+        "  assert (== (array_index_of [false, true] true) 1)\n"
+        "  let text: string = (str_concat \"ca\" \"fé\")\n"
+        "  assert (array_contains [\"café\", \"tea\"] text)\n"
+        "  assert (== (array_index_of [\"café\", \"tea\"] \"tea\") 1)\n"
+        "  return 0\n"
+        "}\n"
+        "shadow main { assert (== (main) 0) }\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "VM search error");
+    ASSERT_INT(tr.result.as.i64, 0);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 static void test_function_call(void) {
     fprintf(stderr, "  test_function_call...");
     TestResult tr = compile_and_run(
@@ -1645,6 +1667,7 @@ static void test_compiler_local_limit(void) {
 }
 
 int main(void) {
+    test_array_search_types();
     test_compiler_local_limit();
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);

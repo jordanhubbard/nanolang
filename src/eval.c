@@ -4825,8 +4825,16 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Empty array */
             if (count == 0) {
-                /* Create empty array - type will be determined by context */
-                return create_array(VAL_INT, 0, 0);  /* Default to int for now */
+                ValueType element = VAL_INT;
+                switch (expr->as.array_literal.element_type) {
+                    case TYPE_FLOAT: element = VAL_FLOAT; break;
+                    case TYPE_BOOL: element = VAL_BOOL; break;
+                    case TYPE_STRING: element = VAL_STRING; break;
+                    case TYPE_ARRAY: element = VAL_ARRAY; break;
+                    case TYPE_STRUCT: element = VAL_STRUCT; break;
+                    default: break;
+                }
+                return create_array(element, 0, 0);
             }
             
             /* Evaluate first element to determine type */

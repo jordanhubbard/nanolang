@@ -887,6 +887,90 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    if (strcmp(name, "array_reverse") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        uint16_t src = local_add(cg, "__reverse_src__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)src);
+        emit_op(cg, OP_LOAD_LOCAL, (int)src);
+        emit_op(cg, OP_ARR_LEN);
+        uint16_t index = local_add(cg, "__reverse_index__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)index);
+        emit_op(cg, OP_LOAD_LOCAL, (int)src);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_ARR_SLICE);
+        uint16_t result = local_add(cg, "__reverse_result__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)result);
+        uint32_t top = cg->code_size;
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GT_S);
+        uint32_t end = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)1);
+        emit_op(cg, OP_I64_SUB);
+        emit_op(cg, OP_STORE_LOCAL, (int)index);
+        emit_op(cg, OP_LOAD_LOCAL, (int)result);
+        emit_op(cg, OP_LOAD_LOCAL, (int)src);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_ARR_GET);
+        emit_op(cg, OP_ARR_PUSH);
+        emit_op(cg, OP_STORE_LOCAL, (int)result);
+        uint32_t again = emit_op(cg, OP_JMP, (int32_t)0);
+        patch_jump(cg, again + 1, again, top);
+        patch_jump(cg, end + 1, end, cg->code_size);
+        emit_op(cg, OP_LOAD_LOCAL, (int)result);
+        return true;
+    }
+
+    if ((strcmp(name, "array_contains") == 0 || strcmp(name, "array_index_of") == 0) && argc == 2) {
+        compile_expr(cg, args[0]);
+        uint16_t src = local_add(cg, "__search_src__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)src);
+        compile_expr(cg, args[1]);
+        uint16_t needle = local_add(cg, "__search_needle__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)needle);
+        emit_op(cg, OP_LOAD_LOCAL, (int)src);
+        emit_op(cg, OP_ARR_LEN);
+        uint16_t length = local_add(cg, "__search_length__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)length);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        uint16_t index = local_add(cg, "__search_index__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)-1);
+        uint16_t result = local_add(cg, "__search_result__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)result);
+        uint32_t top = cg->code_size;
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_LOAD_LOCAL, (int)length);
+        emit_op(cg, OP_I64_LT_S);
+        uint32_t end = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+        emit_op(cg, OP_LOAD_LOCAL, (int)src);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_ARR_GET);
+        emit_op(cg, OP_LOAD_LOCAL, (int)needle);
+        emit_op(cg, OP_EQ);
+        uint32_t next = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_STORE_LOCAL, (int)result);
+        uint32_t found = emit_op(cg, OP_JMP, (int32_t)0);
+        patch_jump(cg, next + 1, next, cg->code_size);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)1);
+        emit_op(cg, OP_I64_ADD);
+        emit_op(cg, OP_STORE_LOCAL, (int)index);
+        uint32_t again = emit_op(cg, OP_JMP, (int32_t)0);
+        patch_jump(cg, again + 1, again, top);
+        patch_jump(cg, end + 1, end, cg->code_size);
+        patch_jump(cg, found + 1, found, cg->code_size);
+        emit_op(cg, OP_LOAD_LOCAL, (int)result);
+        if (strcmp(name, "array_contains") == 0) {
+            emit_op(cg, OP_PUSH_I64, (int64_t)0);
+            emit_op(cg, OP_I64_GE_S);
+        }
+        return true;
+    }
+
     /* Array operations */
     if (strcmp(name, "array_new") == 0 && (argc == 1 || argc == 2)) {
         /* array_new(size) or array_new(size, fill_value) */
