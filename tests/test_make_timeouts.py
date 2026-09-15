@@ -12,6 +12,71 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class MakeTimeouts(unittest.TestCase):
+    def run_recipe(self, target, prefix, directory, env=None):
+        lines = (ROOT / "Makefile.gnu").read_text().splitlines(keepends=True)
+        start = next(i for i, line in enumerate(lines) if line.startswith(target + ":"))
+        recipes = []
+        current = ""
+        for line in lines[start + 1:]:
+            if not line.startswith("\t"):
+                break
+            current += line
+            if not line.rstrip().endswith("\\"):
+                recipes.append(current)
+                current = ""
+        selected = [recipe for recipe in recipes if recipe.startswith("\t@" + prefix)]
+        self.assertEqual(len(selected), 1)
+        return subprocess.run(
+            ["make", "--no-print-directory", "-f", "-", "probe", "SHADOW_CHECK_TIMEOUT=2"],
+            input="probe:\n" + selected[0], cwd=directory, env=env,
+            capture_output=True, text=True, timeout=5,
+        )
+
+    def test_nsi_recipe_preserves_compiler_failure_after_cleanup(self):
+        with tempfile.TemporaryDirectory(prefix="nano-nsi-recipe-") as tmp:
+            directory = Path(tmp)
+            (directory / "bin").mkdir()
+            (directory / "tests").mkdir()
+            compiler = directory / "bin/nanoc"
+            compiler.write_text('#!/bin/sh\ntouch tests/nsi_client_bin\nexit "$FAKE_STATUS"\n')
+            compiler.chmod(0o700)
+            for status in (0, 7):
+                with self.subTest(status=status):
+                    result = self.run_recipe("test-nsi-runtime", "if", tmp,
+                                             dict(os.environ, FAKE_STATUS=str(status)))
+                    self.assertEqual(result.returncode == 0, status == 0, result.stderr)
+                    self.assertFalse((directory / "tests/nsi_client_bin").exists())
+
+    def test_shadow_recipe_preserves_early_failure(self):
+        with tempfile.TemporaryDirectory(prefix="nano-shadow-recipe-") as tmp:
+            directory = Path(tmp)
+            (directory / "bin").mkdir()
+            (directory / "scripts").mkdir()
+            git = directory / "bin/git"
+            git.write_text('#!/bin/sh\nprintf "%s\\n" first.nano second.nano\nexit "$GIT_STATUS"\n')
+            git.chmod(0o700)
+            for name in ("first.nano", "second.nano"):
+                (directory / name).touch()
+            checker = directory / "scripts/check_shadow_tests.sh"
+            checker.write_text('echo "$1" >> checked\n'
+                               'if [ "$1" = first.nano ]; then exit "$FIRST_STATUS"; fi\n')
+            for first_status, git_status in ((0, 0), (7, 0), (0, 9)):
+                with self.subTest(first_status=first_status, git_status=git_status):
+                    checked = directory / "checked"
+                    checked.unlink(missing_ok=True)
+                    result = self.run_recipe(
+                        "shadow-check", "files=", tmp,
+                        dict(os.environ, PATH=str(directory / "bin") + os.pathsep + os.environ["PATH"],
+                             FIRST_STATUS=str(first_status), GIT_STATUS=str(git_status)),
+                    )
+                    self.assertEqual(result.returncode == 0,
+                                     first_status == 0 and git_status == 0, result.stderr)
+                    if git_status:
+                        self.assertFalse(checked.exists())
+                    else:
+                        expected = ["first.nano"] if first_status else ["first.nano", "second.nano"]
+                        self.assertEqual(checked.read_text().splitlines(), expected)
+
     def test_timeout_wrappers_fail_closed(self):
         makefile = (ROOT / "Makefile.gnu").read_text()
         macros = re.findall(r"^(\w*TIMEOUT_CMD) \?= (.*)$", makefile, re.MULTILINE)

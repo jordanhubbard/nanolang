@@ -1072,8 +1072,10 @@ test-nsi-runtime:
 	@./tests/test_nsi_runtime
 	@rm -f tests/test_nsi_runtime
 	@if [ -x ./bin/nanoc ]; then \
-		perl -e 'alarm 30; exec @ARGV; die "I cannot execute the requested command: $$!\n"' -- ./bin/nanoc tests/nsi_client.nano -o tests/nsi_client_bin; \
+		status=0; \
+		perl -e 'alarm 30; exec @ARGV; die "I cannot execute the requested command: $$!\n"' -- ./bin/nanoc tests/nsi_client.nano -o tests/nsi_client_bin || status=$$?; \
 		rm -f tests/nsi_client_bin; \
+		exit $$status; \
 	fi
 
 .PHONY: test-nsi-manifest
@@ -2673,13 +2675,13 @@ userguide-html: build shadow-check
 
 .PHONY: shadow-check
 shadow-check: build
-	@files=$$(git diff --name-only --diff-filter=AM HEAD -- '*.nano'); \
+	@files=$$(git diff --name-only --diff-filter=AM HEAD -- '*.nano') || exit $$?; \
 	if [ -z "$$files" ]; then \
 		echo "shadow-check: no changed NanoLang files"; \
 	else \
 		echo "$$files" | while read -r file; do \
 			if [ -f "$$file" ]; then \
-				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' bash scripts/check_shadow_tests.sh "$$file"; \
+				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' bash scripts/check_shadow_tests.sh "$$file" || exit $$?; \
 			fi; \
 		done; \
 	fi

@@ -1647,10 +1647,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         I extract all twelve programs, expand them through Make, and test
         launch errors and their diagnostics, child statuses and deadlines.
         MAC `task_9b6d05452683ff53cc92d98f94bbd945`.
-      - [ ] I propagate child failures through enclosing shell recipes:
-        `test-nsi-runtime` cleanup can mask a failed compiler, and `shadow-check`
-        can mask an earlier failed loop iteration. I test actual expanded
-        recipes, not only their timeout programs.
+      - [x] I propagate child failures through enclosing shell recipes:
+        `test-nsi-runtime` cleanup preserves a failed compiler status, and
+        `shadow-check` stops on an earlier failed iteration or Git selection.
+        I test actual Make-expanded recipes with injected failures and success
+        controls. All three recipe/timeout tests and nine NSI runtime tests pass.
         MAC `task_e92f56e81dbe4cc88a7c06d18df6f29c`.
       - [x] I repair self-hosted lowering exposed by full bootstrap shadows:
         physical-path extern declarations, explicit imports used by shadows,
