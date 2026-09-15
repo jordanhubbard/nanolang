@@ -233,7 +233,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               - [ ] I enumerate and validate module array exports before
                 widening the layout. Declarations remain trusted metadata;
                 hidden/stripped markers count as missing.
-              - [ ] I repair SDL_image array exports before declaring their ABI:
+              - [x] I repair SDL_image array exports before declaring their ABI:
                 batch loading accepts raw `char**` and returns raw `int64_t*`,
                 while the language declares `DynArray` arguments/results.
                 Batch destruction also frees a raw buffer rather than accepting
@@ -256,6 +256,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   the suite now runs the reload probe before VM dispatch.
                   This checks instrumented fixtures and driver, not a clean
                   sanitizer rebuild of every VM object.
+                - [x] I rebuild the complete FFI dependency closure in fresh
+                  ASan/UBSan object storage. I remove the redundant block-scope
+                  extern declaration of the file-local tuple registry that
+                  triggers Clang 23's unused-global diagnostic, and verify
+                  native tuple emission as well as the runtime tests.
+                  I also remove an unread shadow-test pointer and make the
+                  retained-image fixture use the selected object directory.
+                  The fresh Homebrew Clang 23.1.1 ASan/UBSan build passes 27 FFI
+                  cases, 35 protocol cases, eight protocol fuzz checks and SDL
+                  cleanup integration, with UBSan halting on errors. Native
+                  tuple and tuple-parameter programs pass with default shadows,
+                  and the transpiler unit gate passes. Darwin leak detection is
+                  disabled; these runs do not establish leak freedom or Linux
+                  behavior.
                 - [x] I replace the three raw-buffer implementations with a
                   separately testable canonical-array boundary and ABI markers.
                   Native fake-SDL tests cover count/type/width bounds, allocation

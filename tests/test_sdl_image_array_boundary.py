@@ -30,7 +30,10 @@ class SdlImageArrays(unittest.TestCase):
             # I load only fake SDL plus the production adapter; no SDL startup.
             env = dict(os.environ, NANO_TEST_SDL_ARRAY_LIBRARY=str(artifact),
                        NANO_TEST_SDL_ARRAY_ONLY="1")
-            ran = subprocess.run(["make", "test-vm-ffi", "CC=" + os.environ.get("CC", "cc")], cwd=ROOT, env=env,
+            make = ["make", "test-vm-ffi", "CC=" + os.environ.get("CC", "cc")]
+            if os.environ.get("NANO_TEST_OBJ_DIR"):
+                make.append("OBJ_DIR=" + os.environ["NANO_TEST_OBJ_DIR"])
+            ran = subprocess.run(make, cwd=ROOT, env=env,
                                  capture_output=True, text=True, timeout=180)
             self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
             self.assertIn("sdl_image_cleanup_dispatch...", ran.stdout)

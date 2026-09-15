@@ -25,6 +25,28 @@ running the test. This command instruments the fixtures and test driver; make
 does not rebuild existing VM objects merely because CC changes. A clean,
 separate-object sanitizer build is required for whole-runtime coverage.
 
+I also ran the FFI dependency closure from fresh object storage using that
+compiler, with ASan/UBSan and UBSan halt-on-error enabled. All 27 FFI cases,
+35 protocol cases, eight protocol fuzz checks and the focused SDL tests passed.
+This instruments the compiled VM/runtime dependencies, not the operating
+system or installed third-party libraries. Darwin leak detection is disabled.
+
+To repeat that build on this host without reusing normal objects:
+
+```sh
+sanitizer_dir=$(mktemp -d /tmp/nanolang-ffi-sanitized.XXXXXX)
+sanitizer_cc='/opt/homebrew/opt/llvm/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk -fsanitize=address,undefined -fno-omit-frame-pointer'
+ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
+  make -j4 OBJ_DIR="$sanitizer_dir/obj" CC="$sanitizer_cc" \
+  test-vm-ffi test-cop-protocol test-cop-fuzz
+ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
+  NANO_TEST_OBJ_DIR="$sanitizer_dir/obj" CC="$sanitizer_cc" \
+  python3 -m unittest tests.test_sdl_image_array_boundary
+```
+
+Run this without another FFI test invocation: test executables and native
+fixture paths remain shared even when the dependency objects are separate.
+
 ## In-process VM arrays
 
 I copy int, float, bool, u8 and string array arguments into call-scoped native

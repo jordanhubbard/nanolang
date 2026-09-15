@@ -2425,7 +2425,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             
             /* Try to find typedef from pre-collected registry */
             const char *typedef_name = NULL;
-            extern TupleTypeRegistry *g_tuple_registry;
             
             if (g_tuple_registry && element_count > 0) {
                 if (expr->as.tuple_literal.element_types) {

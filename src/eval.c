@@ -104,7 +104,6 @@ static FunctionSignature *copy_function_signature(const FunctionSignature *sig) 
 }
 
 static bool g_in_shadow_tests = false;
-static const char *g_shadow_current_test = NULL;
 static int g_shadow_current_fail_count = 0;
 static int g_shadow_current_first_line = 0;
 static int g_shadow_current_first_column = 0;
@@ -6019,7 +6018,6 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                 }
             
                 /* Execute shadow test */
-                g_shadow_current_test = func_name;
                 g_shadow_current_fail_count = 0;
                 g_shadow_current_first_line = 0;
                 g_shadow_current_first_column = 0;
