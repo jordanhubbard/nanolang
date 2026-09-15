@@ -24,6 +24,8 @@ failed=0
 
 expected_diagnostic() {
     case "$1" in
+        */effect_errors/ambiguous_handler.nano)
+            echo "I cannot infer a unique effect for this handler" ;;
         */array_errors/invalid_array_index_type.nano)
             echo "I require an integer array index" ;;
         */type_errors/format_template.nano)

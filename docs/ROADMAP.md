@@ -106,6 +106,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I infer an unqualified handler from all its operation names,
+          requiring one unique effect rather than declaration-order selection.
+          I reject duplicate clauses and incorrect handler parameter counts.
+          Typechecker regressions cover ambiguity and order independence.
+          Typechecker/effects unit tests pass, and both native and VM negative
+          suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
+          publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
+        - [ ] I implement effect dispatch across native and VM execution.
+          The native unqualified-handler emitter currently evaluates only the
+          handled body and ignores its handlers; VM emission rejects these
+          nodes. Frontend inference tests do not establish runtime handlers.
         - [x] I fail self/ancestor await cycles and propagate failed awaits
           to running callers. I keep completion/error terminal so a callback
           cannot overwrite failure with a later completion. I test self waits,

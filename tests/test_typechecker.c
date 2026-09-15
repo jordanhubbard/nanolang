@@ -818,7 +818,27 @@ void test_tc_nested_return_context(void) {
         "} return 0 }\n"));
 }
 
+void test_tc_handler_effect_inference(void) {
+    const char *a = "effect Alpha { common : int -> int }\n";
+    const char *b = "effect Beta { common : int -> int, unique : int -> int }\n";
+    const char *valid = "fn main() -> int { return handle { 99 } with { common x -> { x } unique x -> { x } } }";
+    char source[1024];
+    snprintf(source, sizeof(source), "%s%s%s", a, b, valid);
+    ASSERT(tc_passes(source));
+    snprintf(source, sizeof(source), "%s%s%s", b, a, valid);
+    ASSERT(tc_passes(source));
+    snprintf(source, sizeof(source), "%s%sfn main() -> int { return handle { 99 } with { common x -> { x } } }", a, b);
+    ASSERT(!tc_passes(source));
+    snprintf(source, sizeof(source), "%sfn main() -> int { return handle { 99 } with { common x -> { x } common y -> { y } } }", a);
+    ASSERT(!tc_passes(source));
+    snprintf(source, sizeof(source), "%sfn main() -> int { return handle { 99 } with { common -> { 0 } } }", a);
+    ASSERT(!tc_passes(source));
+    snprintf(source, sizeof(source), "%sfn main() -> int { return handle { 99 } with { common x y -> { x } } }", a);
+    ASSERT(!tc_passes(source));
+}
+
 int main(void) {
+    TEST(tc_handler_effect_inference);
     TEST(tc_nested_return_context);
     printf("=== Typechecker Tests ===\n");
 

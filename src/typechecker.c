@@ -3622,21 +3622,39 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Identify which effect is being handled by matching op names */
             EffectDef *matched_effect = NULL;
-            const char *first_op = expr->as.handle_expr.handler_op_names[0];
+            for (int i = 0; i < expr->as.handle_expr.handler_count; i++) {
+                for (int j = 0; j < i; j++) {
+                    if (!strcmp(expr->as.handle_expr.handler_op_names[i],
+                                expr->as.handle_expr.handler_op_names[j])) {
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 6,
+                            "I require one handler clause per operation.",
+                            "Remove the duplicate operation handler.");
+                        return TYPE_UNKNOWN;
+                    }
+                }
+            }
             for (int i = 0; i < env->effect_count; i++) {
-                for (int j = 0; j < env->effects[i].op_count; j++) {
-                    if (strcmp(env->effects[i].ops[j].name, first_op) == 0) {
-                        matched_effect = &env->effects[i];
+                bool matches = true;
+                for (int j = 0; j < expr->as.handle_expr.handler_count; j++) {
+                    if (!effect_get_op(&env->effects[i], expr->as.handle_expr.handler_op_names[j])) {
+                        matches = false;
                         break;
                     }
                 }
-                if (matched_effect) break;
+                if (!matches) continue;
+                if (matched_effect) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 6,
+                        "I cannot infer a unique effect for this handler.",
+                        "Use operation names that identify one effect.");
+                    return TYPE_UNKNOWN;
+                }
+                matched_effect = &env->effects[i];
             }
 
             if (!matched_effect) {
                 emit_context_error("E029 UNKNOWN EFFECT OPERATION", expr->line, expr->column,
-                    (int)strlen(first_op),
-                    "No registered effect declares this operation",
+                    6,
+                    "I found no effect declaring all these handler operations.",
                     "E015: define the effect before using handle...with");
                 g_typecheck_error_count++;
                 return TYPE_UNKNOWN;
@@ -3667,6 +3685,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Bind handler parameters to their declared types */
                 if (op) {
                     int param_count = expr->as.handle_expr.handler_param_counts[i];
+                    if (param_count != op->param_count) {
+                        emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 6,
+                            "I require the declared operation's parameter count in its handler.",
+                            "Match the effect operation signature.");
+                        return TYPE_UNKNOWN;
+                    }
                     int bind_count = param_count < op->param_count ? param_count : op->param_count;
                     for (int k = 0; k < bind_count; k++) {
                         const char *pname = expr->as.handle_expr.handler_param_names[i][k];
