@@ -306,6 +306,19 @@ bool file_exists(const char* path) {
     return access(path, F_OK) == 0;
 }
 
+int64_t file_identity_equal(const char* first, const char* second) {
+    struct stat first_stat;
+    struct stat second_stat;
+
+    if (!first || !second || stat(first, &first_stat) != 0) return -1;
+    if (stat(second, &second_stat) != 0) {
+        return errno == ENOENT ? 0 : -1;
+    }
+
+    return first_stat.st_dev == second_stat.st_dev &&
+           first_stat.st_ino == second_stat.st_ino;
+}
+
 /* Delete file */
 int64_t file_delete(const char* path) {
     return remove(path);

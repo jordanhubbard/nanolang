@@ -35,6 +35,9 @@ int64_t file_append(const char* path, const char* content);
 /* Check if file exists */
 bool file_exists(const char* path);
 
+/* Compare existing file identities: 1=same, 0=different/missing, -1=error. */
+int64_t file_identity_equal(const char* first, const char* second);
+
 /* Delete file */
 int64_t file_delete(const char* path);
 
@@ -48,4 +51,3 @@ int64_t file_copy(const char* src, const char* dst);
 int64_t dir_copy(const char* src, const char* dst);
 
 #endif /* NANOLANG_STD_FS_H */
-

@@ -2172,6 +2172,10 @@ test-selfhosted: build
 		ln -sf nanoc_stage2 $(COMPILER); \
 	fi
 
+.PHONY: test-selfhost-path-aliases
+test-selfhost-path-aliases: bootstrap1
+	@NANOC_SELFHOST=./bin/nanoc_stage1 sh tests/test_selfhost_path_aliases.sh
+
 # Test only core language features (nl_* tests)
 test-lang: build
 	@echo ""
