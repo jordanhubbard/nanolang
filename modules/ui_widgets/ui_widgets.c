@@ -3,6 +3,11 @@
 #include <math.h>
 #include <limits.h>
 
+static int ui_bar_geometry(int64_t x, int64_t y, int64_t w, int64_t h, int margin);
+static uint8_t ui_color_channel(int64_t value) {
+    return value < 0 ? 0 : value > 255 ? 255 : (uint8_t)value;
+}
+
 NANO_EXPORT_ARRAY_ABI(nl_ui_scrollable_list);
 NANO_EXPORT_ARRAY_ABI(nl_ui_dropdown);
 NANO_EXPORT_ARRAY_ABI(nl_ui_file_selector);
@@ -199,14 +204,20 @@ void nl_ui_label(SDL_Renderer* renderer, TTF_Font* font,
                  const char* text, int64_t x, int64_t y,
                  int64_t r, int64_t g, int64_t b, int64_t a) {
     
-    if (!font || !text || strlen(text) == 0) {
+    if (!renderer || !font || !text || strlen(text) == 0 ||
+        x < INT_MIN || x > INT_MAX || y < INT_MIN || y > INT_MAX) {
         return;
     }
     
-    SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
+    SDL_Color color = {ui_color_channel(r), ui_color_channel(g),
+                       ui_color_channel(b), ui_color_channel(a)};
     SDL_Surface* surface = TTF_RenderUTF8_Blended(font, text, color);
     
     if (surface) {
+        if (!ui_bar_geometry(x, y, surface->w, surface->h, 0)) {
+            SDL_FreeSurface(surface);
+            return;
+        }
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
         if (texture) {
             SDL_Rect dest = {(int)x, (int)y, surface->w, surface->h};
@@ -471,7 +482,11 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
 // Draw a panel (container for grouping widgets)
 void nl_ui_panel(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                  int64_t r, int64_t g, int64_t b, int64_t a) {
-    
+    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return;
+    r = ui_color_channel(r);
+    g = ui_color_channel(g);
+    b = ui_color_channel(b);
+    a = ui_color_channel(a);
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
     SDL_SetRenderDrawColor(renderer, (uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a);

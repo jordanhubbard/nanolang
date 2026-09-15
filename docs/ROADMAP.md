@@ -247,6 +247,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I validate spinner geometry and ranges, clamp initial
                     values, and check centered text coordinates before SDL;
                     I test integer-limit clicks and extreme surface dimensions.
+                  - [x] I bound panel/label geometry and clamp color channels
+                    before border arithmetic; I test extreme channels and
+                    label-surface cleanup when placement is rejected.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

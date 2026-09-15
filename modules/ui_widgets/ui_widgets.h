@@ -21,6 +21,10 @@
  * returns that value; I require width >= 40, height >= 10 and SDL-int endpoints.
  * Unrepresentable centered text is skipped, with texture/surface cleanup. */
 
+/* My panels and labels clamp RGBA channels to [0,255]. Invalid panel geometry
+ * skips drawing. Labels reject unrepresentable coordinates/endpoints and
+ * nonpositive surface dimensions, releasing any surface already created. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

@@ -115,6 +115,12 @@ centered text placement with int64 arithmetic before narrowing. The fake SDL
 fixture checks integer-limit clicks, invalid geometry, and texture/surface
 cleanup when text cannot be placed, normally and under the same sanitizers.
 The wider UI audit remains open.
+Panels and labels now clamp color channels, avoiding signed overflow in panel
+border brightening. Invalid panel geometry makes no draw call; label placement
+checks endpoints and releases rejected surfaces before texture creation.
+Extreme signed channel/coordinate inputs and cleanup pass the fake-SDL fixture
+normally and under the same sanitizers. This does not close the other widget
+geometry checks.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

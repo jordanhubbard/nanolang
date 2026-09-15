@@ -7,13 +7,14 @@ static int draw_calls;
 static int render_copies, texture_frees, surface_frees, provide_surface;
 static SDL_Surface test_surface;
 static const char *expected_text = "visible";
+static SDL_Color last_draw_color, last_text_color;
 static Uint32 host_buttons;
 static int host_mouse_x = -100, host_mouse_y = -100;
 static Uint32 mouse(int *x, int *y) {
     mouse_calls++; *x = host_mouse_x; *y = host_mouse_y; return host_buttons;
 }
 static int color(SDL_Renderer *r, Uint8 a, Uint8 b, Uint8 c, Uint8 d) {
-    (void)r; (void)a; (void)b; (void)c; (void)d; return 0;
+    (void)r; last_draw_color = (SDL_Color){a,b,c,d}; return 0;
 }
 static int fake_rect(SDL_Renderer *r, const SDL_Rect *p) {
     (void)r;
@@ -25,6 +26,7 @@ static int line(SDL_Renderer *r, int a, int b, int c, int d) {
 }
 static SDL_Surface *fake_text(TTF_Font *f, const char *s, SDL_Color c) {
     (void)f; (void)c; assert(!strcmp(s, expected_text)); text_calls++;
+    last_text_color = c;
     return provide_surface ? &test_surface : NULL;
 }
 static SDL_Texture *fake_texture(SDL_Renderer *r, SDL_Surface *s) {
@@ -43,6 +45,7 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_RenderSetClipRect fake_rect
 #define SDL_RenderDrawLine line
 #define TTF_RenderText_Blended fake_text
+#define TTF_RenderUTF8_Blended fake_text
 #define SDL_CreateTextureFromSurface fake_texture
 #define SDL_RenderCopy fake_copy
 #define SDL_DestroyTexture fake_destroy
@@ -130,6 +133,36 @@ static void spinner(void) {
     assert(render_copies == 1 && texture_frees == 3 && surface_frees == 3);
     provide_surface = 0;
 }
+static void panels_and_labels(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    int before = draw_calls;
+    nl_ui_panel(r,0,0,100,20,INT64_MAX,INT64_MIN,254,INT64_MAX);
+    assert(draw_calls == before + 2);
+    assert(last_draw_color.r == 255 && last_draw_color.g == 40 &&
+           last_draw_color.b == 255 && last_draw_color.a == 255);
+    before = draw_calls;
+    nl_ui_panel(r,INT64_MAX,0,100,20,0,0,0,0);
+    nl_ui_panel(r,INT_MAX,0,100,20,0,0,0,0);
+    nl_ui_panel(r,0,0,0,20,0,0,0,0);
+    assert(draw_calls == before);
+    expected_text = "label"; provide_surface = 1;
+    test_surface.w = 10; test_surface.h = 10;
+    int copies = render_copies, frees = surface_frees;
+    nl_ui_label(r,f,"label",0,0,INT64_MAX,INT64_MIN,128,-1);
+    assert(render_copies == copies + 1 && surface_frees == frees + 1);
+    assert(last_text_color.r == 255 && last_text_color.g == 0 &&
+           last_text_color.b == 128 && last_text_color.a == 0);
+    int texts = text_calls;
+    nl_ui_label(r,f,"label",INT64_MAX,0,0,0,0,0);
+    assert(text_calls == texts);
+    nl_ui_label(r,f,"label",INT_MAX,0,0,0,0,0);
+    assert(render_copies == copies + 1 && surface_frees == frees + 2);
+    test_surface.w = -1;
+    nl_ui_label(r,f,"label",0,0,0,0,0,0);
+    assert(render_copies == copies + 1 && surface_frees == frees + 3);
+    provide_surface = 0;
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -196,5 +229,6 @@ int main(void) {
     nl_ui_set_scale(1.0);
     bars();
     spinner();
+    panels_and_labels();
     return 0;
 }
