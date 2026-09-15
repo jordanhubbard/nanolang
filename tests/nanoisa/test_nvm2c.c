@@ -377,6 +377,66 @@ static void test_real_walk_artifact(void) {
             free(source);
             nvm_module_free(module);
         }
+        char data_path[256], copy_path[256], empty_path[256], copied_dir[256], absent_path[256];
+        snprintf(data_path, sizeof data_path, "%s/data", directory);
+        snprintf(copy_path, sizeof copy_path, "%s/copy", directory);
+        snprintf(empty_path, sizeof empty_path, "%s/empty", directory);
+        snprintf(copied_dir, sizeof copied_dir, "%s/copied", directory);
+        snprintf(absent_path, sizeof absent_path, "%s/absent", directory);
+        struct ScalarCase { const char *name, *a, *z, *expected, *type; int argc; } cases[] = {
+            {"path_normalize", "/foo/./bar/../baz", "", "/foo/baz", "string", 1},
+            {"path_canonical", "", "", "", "string", 1},
+            {"path_join", "left", "right", "left/right", "string", 2},
+            {"path_basename", "left/right", "", "right", "string", 1},
+            {"path_dirname", "left/right", "", "left", "string", 1},
+            {"path_relpath", "/a/b", "/a", "b", "string", 2},
+            {"file_exists", library, "", "1", "bool", 1},
+            {"file_delete", absent_path, "", "-1", "int", 1},
+            {"file_compare_identity", library, library, "1", "int", 2},
+            {"file_compare_destinations", library, library, "1", "int", 2},
+            {"file_write", data_path, "first", "0", "int", 2},
+            {"file_append", data_path, "second", "0", "int", 2},
+            {"file_read", data_path, "", "firstsecond", "string", 1},
+            {"file_copy", data_path, copy_path, "0", "int", 2},
+            {"file_read", copy_path, "", "firstsecond", "string", 1},
+            {"file_delete", data_path, "", "0", "int", 1},
+            {"file_delete", copy_path, "", "0", "int", 1},
+            {"fs_mkdir_p", empty_path, "", "0", "int", 1},
+            {"dir_copy", empty_path, copied_dir, "0", "int", 2},
+            {"file_delete", empty_path, "", "0", "int", 1},
+            {"file_delete", copied_dir, "", "0", "int", 1},
+        };
+        for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+            const struct ScalarCase *item = &cases[i];
+            snprintf(assembly, sizeof assembly,
+                     ".string a \"%s\"\n.string z \"%s\"\n.string expected \"%s\"\n"
+                     ".import \"\" \"%s\" %s string %s\n"
+                     ".entry 0\n.function main 0 0 0 int 1\n"
+                     "PUSH_STR a\n%sCALL_EXTERN 0\n%s%s\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+                     item->a, item->z, item->expected, item->name, item->type,
+                     item->argc == 2 ? "string" : "", item->argc == 2 ? "PUSH_STR z\n" : "",
+                     strcmp(item->type, "string") == 0 ? "PUSH_STR " : "PUSH_I64 ",
+                     strcmp(item->type, "string") == 0 ? "expected" : item->expected);
+            NvmModule *module = assemble_ok(assembly, item->name);
+            if (!module) continue;
+            module->imports[0].kind = NVM_IMPORT_ARTIFACT;
+            module->imports[0].module_name_idx = nvm_add_string(module, library, (uint32_t)strlen(library));
+            char error[256];
+            char *source = nvm2c_emit(module, error, sizeof error);
+            CHECK(source != NULL, "I emit a scalar filesystem artifact call");
+            if (source) {
+                int status = -1;
+                CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                      "I preserve scalar filesystem argument order and return ABI");
+            } else fprintf(stderr, "%s: %s\n", item->name, error);
+            free(source);
+            module->import_param_types[0][item->argc - 1] = TAG_INT;
+            source = nvm2c_emit(module, error, sizeof error);
+            CHECK(source == NULL, "I refuse a mistyped scalar filesystem argument");
+            free(source);
+            nvm_module_free(module);
+        }
+        unlink(data_path); unlink(copy_path); rmdir(empty_path); rmdir(copied_dir);
     }
     unlink(library); rmdir(directory);
 }

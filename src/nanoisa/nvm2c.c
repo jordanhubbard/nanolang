@@ -166,20 +166,47 @@ static const Nvm2cHost host_adapters[] = {
     {"get_argv", "nhost_argv", 1, TAG_INT, TAG_STRING},
 };
 
+/* These native contracts have homogeneous string parameters. I do not infer
+ * an arbitrary artifact's ABI from its coarse NanoISA return tag. */
+static const Nvm2cHost artifact_adapters[] = {
+    {"fs_walkdir", "nhost_walk", 1, TAG_STRING, TAG_ARRAY},
+    {"path_normalize", "nhost_artifact", 1, TAG_STRING, TAG_STRING},
+    {"path_canonical", "nhost_artifact", 1, TAG_STRING, TAG_STRING},
+    {"path_join", "nhost_artifact", 2, TAG_STRING, TAG_STRING},
+    {"path_basename", "nhost_artifact", 1, TAG_STRING, TAG_STRING},
+    {"path_dirname", "nhost_artifact", 1, TAG_STRING, TAG_STRING},
+    {"path_relpath", "nhost_artifact", 2, TAG_STRING, TAG_STRING},
+    {"file_read", "nhost_artifact", 1, TAG_STRING, TAG_STRING},
+    {"file_write", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+    {"file_append", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+    {"file_exists", "nhost_artifact", 1, TAG_STRING, TAG_BOOL},
+    {"file_delete", "nhost_artifact", 1, TAG_STRING, TAG_INT},
+    {"fs_mkdir_p", "nhost_artifact", 1, TAG_STRING, TAG_INT},
+    {"file_copy", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+    {"dir_copy", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+    {"file_compare_identity", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+    {"file_compare_destinations", "nhost_artifact", 2, TAG_STRING, TAG_INT},
+};
+
 static const Nvm2cHost *import_host(const NvmModule *mod, uint32_t index) {
     if (index >= mod->import_count || !mod->imports) return NULL;
     const NvmImportEntry *imp = &mod->imports[index];
     const char *module = nvm_get_string(mod, imp->module_name_idx);
     const char *name = nvm_get_string(mod, imp->function_name_idx);
-    static const Nvm2cHost walk = {"fs_walkdir", "nhost_walk", 1, TAG_STRING, TAG_ARRAY};
     if (module && name && mod->string_lengths &&
         imp->kind == NVM_IMPORT_ARTIFACT && module[0] == '/' &&
         mod->string_lengths[imp->module_name_idx] == strlen(module) &&
-        mod->string_lengths[imp->function_name_idx] == strlen(name) &&
-        strcmp(name, walk.name) == 0 && imp->param_count == 1 &&
-        imp->return_type == TAG_ARRAY && mod->import_param_types &&
-        mod->import_param_types[index] && mod->import_param_types[index][0] == TAG_STRING)
-        return &walk;
+        mod->string_lengths[imp->function_name_idx] == strlen(name)) {
+        for (size_t i = 0; i < sizeof artifact_adapters / sizeof artifact_adapters[0]; ++i) {
+            const Nvm2cHost *host = &artifact_adapters[i];
+            if (strcmp(name, host->name) || imp->param_count != host->argc ||
+                imp->return_type != host->result || !mod->import_param_types ||
+                !mod->import_param_types[index]) continue;
+            for (uint8_t p = 0; p < host->argc; ++p)
+                if (mod->import_param_types[index][p] != host->parameter) return NULL;
+            return host;
+        }
+    }
     if (!module || module[0] || !name || imp->kind != NVM_IMPORT_FFI ||
         !mod->string_lengths || mod->string_lengths[imp->module_name_idx] != 0 ||
         mod->string_lengths[imp->function_name_idx] != strlen(name)) return NULL;
@@ -801,7 +828,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 nvm2c_fail(b, "function %u: CALL_EXTERN has no exact builtin host ABI", idx);
                 return 0;
             }
-            if (host->argc) {
+            for (uint8_t p = 0; p < host->argc; ++p) {
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
                 uint8_t expected = host->parameter == TAG_STRING ? NVM2C_VK_STR : NVM2C_VK_INT;
@@ -2182,7 +2209,17 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             char expression[128];
-            if (host->argc) {
+            if (strcmp(host->c_name, "nhost_artifact") == 0) {
+                int args[2] = {0};
+                for (uint8_t p = host->argc; p > 0; --p)
+                    args[p - 1] = stack_pop_expect(b, &st, NVM2C_VK_STR, "CALL_EXTERN");
+                if (b->failed) goto done;
+                if (host->argc == 2)
+                    snprintf(expression, sizeof expression, "nhost_artifact_%u(s[%d], s[%d])",
+                             ins.operands[0].u32, args[0], args[1]);
+                else snprintf(expression, sizeof expression, "nhost_artifact_%u(s[%d])",
+                              ins.operands[0].u32, args[0]);
+            } else if (host->argc) {
                 uint8_t kind = host->parameter == TAG_STRING ? NVM2C_VK_STR : NVM2C_VK_INT;
                 int arg = stack_pop_expect(b, &st, kind, "CALL_EXTERN");
                 if (b->failed) goto done;
@@ -2492,6 +2529,29 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
+    for (uint32_t i = 0; i < mod->import_count; ++i) {
+        const Nvm2cHost *host = import_host(mod, i);
+        if (!host || strcmp(host->c_name, "nhost_artifact")) continue;
+        const char *result = host->result == TAG_STRING ? "const char *" :
+                             host->result == TAG_BOOL ? "bool" : "int64_t";
+        const char *parameters = host->argc == 2 ? "const char *a, const char *z" : "const char *a";
+        const char *types = host->argc == 2 ? "const char *, const char *" : "const char *";
+        nvm2c_puts(b, "#include <dlfcn.h>\n#include <stdbool.h>\n");
+        nvm2c_printf(b, "static inline %s nhost_artifact_%u(%s) {\n", result, i, parameters);
+        nvm2c_printf(b, "    static void *library;\n    static %s (*function)(%s);\n", result, types);
+        nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
+        const NvmImportEntry *imp = &mod->imports[i];
+        emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
+        nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) abort();\n");
+        nvm2c_printf(b, "        function = (%s (*)(%s))dlsym(library, \"%s\");\n", result, types, host->name);
+        nvm2c_puts(b, "        if (!function) abort();\n    }\n");
+        nvm2c_printf(b, "    %s value = function(%s);\n", result, host->argc == 2 ? "a, z" : "a");
+        if (host->result == TAG_STRING) nvm2c_puts(b, "    if (!value) abort();\n");
+        nvm2c_puts(b, "    return value;\n}\n");
+    }
+}
+
 static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     int emitted = 0;
     for (uint32_t i = 0; i < mod->import_count; ++i) {
@@ -2734,6 +2794,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "typedef struct { const char **data; size_t len; } nsarr_s;\n"
             "typedef nsarr_s *nsarr_t;\n");
         emit_walk_adapters(&b, mod);
+        emit_scalar_artifact_adapters(&b, mod);
         nvm2c_printf(&b,
             "typedef struct { int64_t f[%d]; const char *s[%d]; uint8_t k[%d]; uint16_t n, tag; uint8_t kind; } nrec_t;\n",
             NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS, NVM2C_MAX_REC_FIELDS);
@@ -2812,6 +2873,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             const Nvm2cHost *host = import_host(mod, i);
             if (host && host->result == TAG_ARRAY)
                 nvm2c_printf(&b, "    (void)nhost_walk_%u;\n", i);
+            if (host && strcmp(host->c_name, "nhost_artifact") == 0)
+                nvm2c_printf(&b, "    (void)nhost_artifact_%u;\n", i);
         }
         nvm2c_printf(&b,
             "    return (int)%s();\n"

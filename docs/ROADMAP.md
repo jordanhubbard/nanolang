@@ -28,6 +28,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT scalar filesystem imports.** I adapt the known filesystem
+      string, boolean and integer contracts through exact artifact bindings,
+      preserving argument order and native return widths. I execute real
+      library tests and rerun full compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 710 checks; full compiler acceptance remains failing
+      at builtin import 18 (`file_read`). Evidence:
+      `docs/evidence/aot-scalar-filesystem.md`.
 - [x] **AOT owned filesystem adapter.** I bind `fs_walkdir` to its absolute
       artifact path, check its array ABI and release entry point, copy returned
       strings into AOT storage, then release the foreign result. I test exact
