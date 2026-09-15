@@ -71,7 +71,7 @@ static uint8_t *read_file(const char *path, uint32_t *out_size) {
     return data;
 }
 
-static int run_standalone(const char *path) {
+static int run_standalone(const char *path, bool verify_only) {
     NanoisaErr err;
     NvmModule *module = nanoisa_load_file(path, &err);
     if (!module) {
@@ -87,6 +87,11 @@ static int run_standalone(const char *path) {
                 path, vr.error_msg);
         nvm_module_free(module);
         return 1;
+    }
+
+    if (verify_only) {
+        nvm_module_free(module);
+        return 0;
     }
 
     /* Preload FFI modules if the .nvm has imports */
@@ -239,24 +244,29 @@ int main(int argc, char *argv[]) {
     g_argv = argv;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s [--daemon] [--debug] [--profile-isa FILE] <file.nvm>\n", argv[0]);
+        fprintf(stderr, "Usage: %s [--verify-only | --daemon] [--debug] [--profile-isa FILE] <file.nvm>\n", argv[0]);
         return 1;
     }
 
     bool daemon_mode = false;
+    bool verify_only = false;
+    bool repeat_requested = false;
     const char *nvm_path = NULL;
 
     /* Honour DEBUG env var before parsing flags */
     if (getenv("DEBUG")) g_debug_mode = true;
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--daemon") == 0 || strcmp(argv[i], "-d") == 0) {
+        if (strcmp(argv[i], "--verify-only") == 0) {
+            verify_only = true;
+        } else if (strcmp(argv[i], "--daemon") == 0 || strcmp(argv[i], "-d") == 0) {
             daemon_mode = true;
         } else if (strcmp(argv[i], "--isolate-ffi") == 0 || strcmp(argv[i], "--cop") == 0) {
             g_isolate_ffi = true;
         } else if (strcmp(argv[i], "--debug") == 0) {
             g_debug_mode = true;
         } else if (strcmp(argv[i], "--repeat") == 0 && i + 1 < argc) {
+            repeat_requested = true;
             long n = strtol(argv[++i], NULL, 10);
             g_repeat = (n > 0 && n <= 1000000) ? (uint32_t)n : 1;
         } else if (strcmp(argv[i], "--profile-isa") == 0 && i + 1 < argc) {
@@ -274,6 +284,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if (verify_only && (daemon_mode || g_profile_path || g_isolate_ffi || repeat_requested)) {
+        fprintf(stderr, "I cannot combine verification-only mode with execution options.\n");
+        return 1;
+    }
+
     if (daemon_mode && g_profile_path) {
         fprintf(stderr, "Error: --profile-isa requires in-process execution\n");
         return 1;
@@ -282,6 +297,6 @@ int main(int argc, char *argv[]) {
     if (daemon_mode) {
         return run_daemon(nvm_path);
     } else {
-        return run_standalone(nvm_path);
+        return run_standalone(nvm_path, verify_only);
     }
 }

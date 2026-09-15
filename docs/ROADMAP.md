@@ -279,6 +279,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         compilation failures and searches runtime text instead of requiring
         successful verification, with no execution deadlines.
         MAC `task_b94386786f35a8a28af6dd2ad7bbb42d`.
+        - [x] I add `nano_vm --verify-only`: load and verify, then return
+          without loading FFI libraries or executing the module. I test silent
+          success, non-execution, unresolved externs, invalid files and option
+          conflicts before switching the corpus gate to this command.
+          Three CLI regression tests and the verifier unit gate pass. This
+          command verifies bytecode structure; it does not resolve foreign
+          symbols or establish that runtime execution will succeed. The old
+          corpus script remains unfinished above, including its silent skips.
       - [x] I isolate MAC module shadows from live hub writes and replace the
         unresolved capture/status extern pair with the existing process runner.
         Incoming tests hid missing interpreter support as offline success, and

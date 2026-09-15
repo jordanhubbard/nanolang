@@ -1982,7 +1982,11 @@ test-asm-examples: nanoisa_dump nano_vm
 	@bash tests/test_asm_examples.sh
 
 .PHONY: test-verify-all-programs
-test-verify-all-programs: nano_virt nano_vm
+.PHONY: test-verify-only
+test-verify-only: nano_virt nano_vm
+	python3 tests/test_verify_only.py
+
+test-verify-all-programs: nano_virt nano_vm test-verify-only
 	@bash tests/test_verify_all_programs.sh
 
 .PHONY: test-vm-examples
