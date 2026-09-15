@@ -1266,6 +1266,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Build library flags */
     char lib_flags[2048] = "-lm";
+#ifdef __linux__
+    strcat(lib_flags, " -ldl"); /* I resolve native array ABI declarations. */
+#endif
     for (int i = 0; i < opts->library_count; i++) {
         include_paths_valid = module_append_path_flag(lib_flags, sizeof(lib_flags), "-l", opts->libraries[i]) && include_paths_valid;
     }

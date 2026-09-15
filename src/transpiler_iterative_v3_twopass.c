@@ -411,6 +411,24 @@ static void emit_formatted(WorkList *list, const char *fmt, ...) {
     worklist_append(list, item);
 }
 
+static bool foreign_function_has_array(const Function *fn) {
+    if (!fn || !fn->is_extern) return false;
+    if (fn->return_type == TYPE_ARRAY) return true;
+    for (int i = 0; i < fn->param_count; ++i)
+        if (fn->params[i].type == TYPE_ARRAY) return true;
+    return false;
+}
+
+static void emit_foreign_reference(WorkList *list, const char *name, const Function *fn) {
+    if (foreign_function_has_array(fn)) {
+        emit_formatted(list,
+            "(nano_require_native_array_abi((void*)%s, \"%s__nano_array_abi\", NANO_DYN_ARRAY_ABI_VERSION, \"%s\"), %s)",
+            name, name, name, name);
+    } else {
+        emit_literal(list, name);
+    }
+}
+
 static void emit_indent_item(WorkList *list, int level) {
     WorkItem item;
     item.type = WORK_INDENT;
@@ -915,8 +933,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             Function *func_def = env_get_function(env, expr->as.identifier);
             if (func_def && !func_def->is_extern && func_def->body != NULL) {
                 emit_formatted(list, "nl_%s", expr->as.identifier);
+            } else if (func_def && func_def->is_extern) {
+                emit_foreign_reference(list, map_function_name(expr->as.identifier, env), func_def);
             } else {
-                emit_literal(list, expr->as.identifier);
+                emit_foreign_reference(list, expr->as.identifier, func_def);
             }
             break;
         }
@@ -2294,7 +2314,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "gc_wrap_external(");
                 }
 
-                emit_literal(list, mapped_name);
+                emit_foreign_reference(list, mapped_name, func_info);
                 emit_literal(list, "(");
 
                 /* Emit arguments - unwrap if opaque type */
@@ -2349,7 +2369,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Map to C function name */
             const char *c_name = map_function_name(qualified_name, env);
             
-            emit_literal(list, c_name);
+            emit_foreign_reference(list, c_name, env_get_function(env, qualified_name));
             emit_literal(list, "(");
             
             /* Emit arguments */

@@ -1217,6 +1217,10 @@ static void collect_fn_sigs(ASTNode *stmt, FunctionTypeRegistry *reg) {
                 register_function_signature(reg, stmt->as.let.fn_sig);
             }
             break;
+        case AST_UNSAFE_BLOCK:
+            for (int i = 0; i < stmt->as.unsafe_block.count; ++i)
+                collect_fn_sigs(stmt->as.unsafe_block.statements[i], reg);
+            break;
         case AST_BLOCK:
             for (int i = 0; i < stmt->as.block.count; i++) {
                 collect_fn_sigs(stmt->as.block.statements[i], reg);
@@ -1266,6 +1270,7 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#  include \"runtime/gc.h\"\n");
     sb_append(sb, "#endif\n");
     sb_append(sb, "#include \"runtime/dyn_array.h\"\n");
+    sb_append(sb, "#include \"runtime/native_array_abi.h\"\n");
     sb_append(sb, "#ifndef __wasm__\n");
     sb_append(sb, "#  include \"nanolang.h\"\n");
     sb_append(sb, "#endif\n");
@@ -4780,7 +4785,7 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     StringBuilder *sb = sb_create();
 
     /* POSIX feature macro for strdup, strnlen, etc. */
-    sb_append(sb, "#define _POSIX_C_SOURCE 200809L\n\n");
+    sb_append(sb, "#define _GNU_SOURCE 1\n#define _DARWIN_C_SOURCE 1\n#define _POSIX_C_SOURCE 200809L\n\n");
 
     /* Generate headers */
     generate_c_headers(sb);

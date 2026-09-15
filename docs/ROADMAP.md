@@ -195,6 +195,34 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               and cover array-bearing exports across modules before switching
               to the wider version-2 layout. The VM artifact check alone does
               not protect native-linked calls or legacy logical imports.
+              Native fixtures also exposed missing function-type collection
+              inside unsafe blocks; I fix and test that prerequisite so taking
+              an array-bearing extern as a function value remains covered.
+              - [x] I guard C-seed native calls and unqualified extern function
+                values using exported declarations and defining-image checks.
+                Fifteen shared/static executable cases pass on Darwin, covering
+                matching, unmarked and mismatched versions, array parameters
+                and results, qualified calls and function values. Native loader
+                fixtures also reject wrong-image and missing-v2 declarations.
+                I collect function types inside unsafe blocks before emission.
+                Native executable and loader fixtures pass under ASan/UBSan;
+                all 26 VM FFI tests and eight bootstrap dependency tests pass.
+                Filesystem integration passes with one host-path-limit skip.
+              - [ ] I apply equivalent guards to self-hosted native emission
+                and legacy VM logical imports, then enumerate module exports
+                before widening the layout. Exported declarations remain
+                trusted metadata; hidden/stripped markers count as missing.
+            - [ ] I support qualified extern function values consistently with
+              qualified calls. `let f: fn() -> array<int> = foreign.probe`
+              currently fails with a struct-field diagnostic before native
+              publication; this is not working qualified function-value syntax.
+              MAC `task_3c147355ed9fcbd45630c41b80db8a85`.
+            - [ ] I reconcile C-seed `--target c` with native C generation:
+              its separate `c_backend` currently emits raw integer pointers and
+              unresolved array helpers for the native array ABI fixture.
+              I must implement or explicitly reject unsupported foreign array
+              lowering before publishing that source as usable C.
+              MAC `task_618cc665c2cfde8725221bd9b3306ecc`.
           - [ ] I define ownership for native array string elements, including
             filesystem walk results. `dyn_array_push_string_copy` allocates
             copies, while the native GC array destructor frees only the backing

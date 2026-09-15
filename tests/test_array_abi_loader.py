@@ -44,8 +44,11 @@ class ArrayAbiLoader(unittest.TestCase):
                 """, [*shared, str(dependency)])
             probe = build("probe", """
                 #include "runtime/ffi_loader.h"
+                #include "runtime/native_array_abi.h"
                 #include <assert.h>
                 #include <string.h>
+                #include <sys/wait.h>
+                #include <unistd.h>
                 /* I do not exercise artifact-directory discovery in this probe. */
                 bool nano_module_artifact_dir(const char *p, char *d, size_t n) {
                     (void)p; (void)d; (void)n; return false;
@@ -67,11 +70,27 @@ class ArrayAbiLoader(unittest.TestCase):
                                                           error, sizeof error));
                         assert(!ffi_loader_check_array_abi("absent", names[i], fn, 1,
                                                           error, sizeof error));
+                        for (uint32_t expected = 1; expected <= 2; ++expected) {
+                            pid_t child = fork();
+                            assert(child >= 0);
+                            if (!child) {
+                                char marker[128];
+                                snprintf(marker, sizeof marker, "%s__nano_array_abi", names[i]);
+                                nano_require_native_array_abi(fn, marker, expected, names[i]);
+                                _exit(0);
+                            }
+                            int status;
+                            assert(waitpid(child, &status, 0) == child);
+                            if (expected == 1 && accepted[i])
+                                assert(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+                            else
+                                assert(WIFSIGNALED(status) && WTERMSIG(status) == SIGABRT);
+                        }
                     }
                     ffi_loader_shutdown();
                     return 0;
                 }
-                """, ["src/runtime/ffi_loader.c", "-pthread",
+                """, ["-D_GNU_SOURCE", "-D_DARWIN_C_SOURCE", "src/runtime/ffi_loader.c", "-pthread",
                        *(["-ldl"] if sys.platform.startswith("linux") else [])])
             result = subprocess.run([str(probe), str(library)], capture_output=True,
                                     text=True, timeout=15)
