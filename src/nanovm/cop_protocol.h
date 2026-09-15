@@ -163,6 +163,7 @@ static inline uint64_t cop_get_u64(const uint8_t *p) {
  * address space.  module is the NvmModule whose imports are served. */
 void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                     int sig_in_fd, int sig_out_fd,
+                    int data_in_fd, int data_out_fd,
                     const NvmModule *module);
 
 /* Batch request descriptor: one host call in a coalesced batch.

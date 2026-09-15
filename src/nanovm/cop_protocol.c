@@ -640,6 +640,7 @@ static void cop_child_run_batch(CopMailbox *mailbox, uint32_t batch_count,
 
 void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
                     int sig_in_fd, int sig_out_fd,
+                    int data_in_fd, int data_out_fd,
                     const NvmModule *module) {
     (void)mailbox_size;
 
@@ -681,9 +682,34 @@ void cop_child_main(CopMailbox *mailbox, size_t mailbox_size,
     if (write(sig_out_fd, &sig, 1) != 1) goto done;
 
     {
-        struct pollfd pfd = { .fd = sig_in_fd, .events = POLLIN };
+        struct pollfd channels[2] = {{ .fd = sig_in_fd, .events = POLLIN },
+                                    { .fd = data_in_fd, .events = POLLIN }};
         for (;;) {
-            if (poll(&pfd, 1, -1) <= 0) break;
+            int ready = poll(channels, 2, -1);
+            if (ready < 0 && errno == EINTR) continue;
+            if (ready <= 0) break;
+            if (channels[1].revents) {
+                CopMsgHeader header;
+                if (!cop_recv_header(data_in_fd, &header) ||
+                    header.msg_type != COP_MSG_FFI_REQ) break;
+                uint8_t *request = malloc(header.payload_len ? header.payload_len : 1);
+                if (!request) break;
+                if (!cop_recv_payload(data_in_fd, request, header.payload_len)) {
+                    free(request); break;
+                }
+                uint8_t *reply;
+                uint32_t reply_size;
+                char error[256] = {0};
+                bool ok = cop_execute_request(request, header.payload_len, module, &heap,
+                                               &reply, &reply_size, error, sizeof error);
+                free(request);
+                bool sent = ok ? cop_send(data_out_fd, COP_MSG_FFI_RESULT, reply, reply_size)
+                               : cop_send(data_out_fd, COP_MSG_FFI_ERROR, error, strlen(error));
+                free(reply);
+                if (!sent) break;
+                continue;
+            }
+            if (!channels[0].revents) continue;
 
             uint8_t trigger;
             if (read(sig_in_fd, &trigger, 1) != 1) break;

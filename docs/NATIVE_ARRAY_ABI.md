@@ -51,9 +51,16 @@ and a dead peer. Failed exchanges reset the channel. Teardown closes the
 request pipe and kills the owned worker after a 50 ms grace period if needed;
 foreign code cannot extend that grace period by ignoring SIGTERM.
 
-The default launcher still creates only a mailbox channel. Connecting large
-requests to the same worker's pipe channel remains unfinished. Mailbox overflow fails closed and
-cannot undo native side effects that occurred before reply overflow.
+My default launcher creates mailbox signals and large-payload pipes for the
+same worker. Requests that exceed the mailbox use the pipe without restarting
+native state. A regression alternates 2,000-element cleanup calls over the
+pipe with scalar mailbox queries, checking the same PID and persistent native
+counts, including repeated cleanup.
+
+A small request can still produce a reply too large for its mailbox. I fail
+closed in that case and cannot undo native side effects. Reply spillover must
+transfer the existing result, never re-execute the foreign call; that remains
+work before I claim general large-result support.
 
 I currently use native array ABI version 1. `DynArray` still has a one-byte
 element width; I reject records larger than 255 bytes. This change does not

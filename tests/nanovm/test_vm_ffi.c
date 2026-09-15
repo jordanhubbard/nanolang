@@ -738,6 +738,21 @@ TEST(array_mutation_copyback) {
     }
     ASSERT(vm_ffi_call_cop(&isolated, mod, 2, NULL, 0, &result, &heap, error, sizeof error));
     ASSERT_EQ(result.as.i64, 1);
+    pid_t same_worker = isolated.cop_pid;
+    VmArray *bulk = vm_array_new(&heap, TAG_INT, 2000);
+    ASSERT(bulk);
+    for (int i = 0; i < 2000; ++i) ASSERT(vm_array_push(&heap, bulk, val_int(1)));
+    NanoValue bulk_arg = val_array(bulk);
+    ASSERT(vm_ffi_call_cop(&isolated, mod, 1, &bulk_arg, 1, &result, &heap, error, sizeof error));
+    ASSERT_EQ(isolated.cop_pid, same_worker);
+    ASSERT_EQ(vm_array_get(bulk, 1999).as.i64, 0);
+    ASSERT(vm_ffi_call_cop(&isolated, mod, 2, NULL, 0, &result, &heap, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 2001);
+    ASSERT_EQ(isolated.cop_pid, same_worker);
+    ASSERT(vm_ffi_call_cop(&isolated, mod, 1, &bulk_arg, 1, &result, &heap, error, sizeof error));
+    ASSERT(vm_ffi_call_cop(&isolated, mod, 2, NULL, 0, &result, &heap, error, sizeof error));
+    ASSERT_EQ(result.as.i64, 2001);
+    vm_release(&heap, bulk_arg);
     vm_ffi_cop_stop(&isolated);
     /* I exercise the real parent pipe branch with the shared worker handler,
      * using both request and reply envelopes larger than the mailbox. */

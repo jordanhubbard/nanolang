@@ -1013,9 +1013,18 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
     if (mailbox == MAP_FAILED) return false;
     memset(mailbox, 0, mbox_size);
 
-    /* Two 1-byte signal pipes (replace the old full-payload pipes) */
-    int sig_to_child[2], sig_from_child[2];
-    if (pipe(sig_to_child) != 0 || pipe(sig_from_child) != 0) {
+    /* Signal pipes serve small mailbox calls; data pipes carry large calls
+     * to the same worker and therefore the same native module state. */
+    int sig_to_child[2] = {-1, -1}, sig_from_child[2] = {-1, -1};
+    int data_to_child[2] = {-1, -1}, data_from_child[2] = {-1, -1};
+    if (pipe(sig_to_child) != 0 || pipe(sig_from_child) != 0 ||
+        pipe(data_to_child) != 0 || pipe(data_from_child) != 0) {
+        for (int i = 0; i < 2; ++i) {
+            if (sig_to_child[i] >= 0) close(sig_to_child[i]);
+            if (sig_from_child[i] >= 0) close(sig_from_child[i]);
+            if (data_to_child[i] >= 0) close(data_to_child[i]);
+            if (data_from_child[i] >= 0) close(data_from_child[i]);
+        }
         munmap(mailbox, mbox_size);
         return false;
     }
@@ -1025,6 +1034,8 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
         munmap(mailbox, mbox_size);
         close(sig_to_child[0]);  close(sig_to_child[1]);
         close(sig_from_child[0]); close(sig_from_child[1]);
+        close(data_to_child[0]); close(data_to_child[1]);
+        close(data_from_child[0]); close(data_from_child[1]);
         return false;
     }
 
@@ -1033,22 +1044,27 @@ bool vm_ffi_cop_start(VmState *vm, const NvmModule *module) {
          * (no exec — mailbox pointer is valid because we forked, not exec'd) */
         close(sig_to_child[1]);
         close(sig_from_child[0]);
+        close(data_to_child[1]);
+        close(data_from_child[0]);
         cop_child_main(mailbox, mbox_size,
-                       sig_to_child[0], sig_from_child[1], module);
+                       sig_to_child[0], sig_from_child[1],
+                       data_to_child[0], data_from_child[1], module);
         _exit(0);  /* cop_child_main never returns normally */
     }
 
     /* Parent: close child-side pipe ends */
     close(sig_to_child[0]);
     close(sig_from_child[1]);
+    close(data_to_child[0]);
+    close(data_from_child[1]);
 
     vm->cop_pid = pid;
     vm->cop_mailbox = mailbox;
     vm->cop_mailbox_size = mbox_size;
     vm->cop_sig_send_fd = sig_to_child[1];
     vm->cop_sig_recv_fd = sig_from_child[0];
-    vm->cop_in_fd  = -1;  /* not used in mailbox mode */
-    vm->cop_out_fd = -1;
+    vm->cop_in_fd = data_to_child[1];
+    vm->cop_out_fd = data_from_child[0];
 
     /* Wait for ready signal from child (up to 5 s) */
     struct pollfd pfd = { .fd = vm->cop_sig_recv_fd, .events = POLLIN };

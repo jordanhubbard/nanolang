@@ -296,9 +296,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                           validates requests and bounds reply allocation at
                           16 MiB. A forked pipe fixture checks 2,000-element
                           aliased arrays, repeated mutations and reply identity.
-                        - [ ] I connect a large-payload pipe channel to the
+                        - [x] I connect a large-payload pipe channel to the
                           default mailbox worker without restarting its native
                           state, and bound the full pipe exchange by a deadline.
+                          My default worker polls both channels. Tests alternate
+                          2,000-element pipe cleanup calls with mailbox counter
+                          queries and verify one PID, persistent native counts,
+                          and repeated cleanup without double destruction.
                           - [x] My parent pipe exchange uses one monotonic
                             deadline for request/header/body I/O, temporarily
                             enables nonblocking I/O and contains its SIGPIPE.
@@ -306,6 +310,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                             pass. Teardown closes instead of writing shutdown
                             into a full pipe, then kills an unresponsive worker
                             after the grace period rather than trusting SIGTERM.
+                        - [ ] I spill oversized mailbox replies through the
+                          worker's pipe without executing the foreign call a
+                          second time. Small requests can produce large results
+                          or grow array arguments; current reply overflow fails
+                          closed after native side effects have already occurred.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native
