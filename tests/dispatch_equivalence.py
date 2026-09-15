@@ -8,20 +8,22 @@ import sys
 
 
 def execute(command, timeout, log):
-    process = subprocess.Popen(command, stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, start_new_session=True)
-    try:
-        output, _ = process.communicate(timeout=timeout)
-    except subprocess.TimeoutExpired:
+    with log.open("wb") as output:
+        process = subprocess.Popen(command, stdout=output,
+                                   stderr=subprocess.STDOUT, start_new_session=True)
         try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-        output, _ = process.communicate()
-        log.write_bytes(output)
-        raise RuntimeError(f"I timed out: {command[0]}; log: {log}")
-    log.write_bytes(output)
-    return process.returncode, output
+            process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(process.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            process.wait()
+            raise RuntimeError(f"I timed out: {command[0]}; log: {log}")
+    # I snapshot the available bytes; a surviving descendant cannot keep a
+    # pipe open or extend this read indefinitely. This is not process isolation.
+    with log.open("rb") as output:
+        return process.returncode, output.read(os.fstat(output.fileno()).st_size)
 
 
 def compare(compiler, vm_goto, vm_switch, sources, logs, timeout):

@@ -275,10 +275,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             parameters, closures, loops and parameter-shadowing bindings. My
             preflight currently leaves these functions unchanged. Scalar test
             success is not a complete proper-tail-call guarantee.
-      - [ ] I repair verifier-corpus coverage: its script also silently skips
-        compilation failures and searches runtime text instead of requiring
-        successful verification, with no execution deadlines.
+      - [x] I repair verifier-corpus coverage. Every root `tests/*.nano` source
+        must compile and pass `--verify-only`; failures, signals, missing
+        artifacts and empty coverage fail the gate. Compilation and verification
+        have 60-second process deadlines, and failure logs are retained.
+        Synthetic tests exercise failures without relying on diagnostic text.
+        The real gate reports 175 selected, 172 verified, three failures and
+        zero skipped. Async/effects failures remain in the strict-corpus task;
+        fixing coverage does not make the release green.
         MAC `task_b94386786f35a8a28af6dd2ad7bbb42d`.
+        - [x] I write subprocess output directly to per-case log files so
+          inherited pipes cannot hold the timeout runner open after process
+          exit. I test a detached descendant and preserve dispatch comparisons.
+          Four verifier-gate tests and three dispatch-gate tests pass. I do
+          not claim descendant isolation or an output-storage quota.
         - [x] I add `nano_vm --verify-only`: load and verify, then return
           without loading FFI libraries or executing the module. I test silent
           success, non-execution, unresolved externs, invalid files and option
