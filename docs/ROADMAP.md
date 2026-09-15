@@ -98,6 +98,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         record merge ancestry; this does not merge the release into main.
         All three regression methods pass from the repository and an outside
         working directory. [Review evidence](evidence/pr-283-reconciliation.md).
+      - [x] I reconcile PR #286's daemon path guard and test target. I retain
+        private test paths and compile-time test injection, avoid expanding
+        production configuration solely for testing, and require the boundary
+        test from the daemon gate before recording integration ancestry.
+        All three socket-path boundary cases pass via `make test-vmd-server`.
+        [Review evidence](evidence/pr-286-reconciliation.md).
+      - [ ] I isolate the daemon integration script from user processes and
+        shared endpoints. I remove ambient process-name killing, fail selected
+        compilation/execution errors and daemon death, and bound waits with
+        failure-injection tests. MAC `task_999bf1a1ab96472294660aa2b19cae9a`.
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.
@@ -169,7 +179,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             calls. Native acceptance now passes shadows but fails C compilation
             on a void-valued local; VM shadows still reject the operation.
           - [ ] I complete operation argument/result handling and control-flow
-            rules across backends. Argument checking still needs nominal identities and recursive
+            rules across backends. My creator chose: a handler-arm `return`
+            exits the function containing the handler; the final expression
+            supplies the operation result and resumes `perform`. I test this
+            across helper calls, nested handlers and early scope cleanup.
+            Argument checking still needs nominal identities and recursive
             aggregate/function signatures, including preserved result metadata;
             legacy dispatch strips return/break/continue flags and does not establish
             the final handler-arm value contract. These boundaries remain open,

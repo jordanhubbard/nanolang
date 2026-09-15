@@ -733,9 +733,12 @@ test-vmd-socket-path: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(R
 		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(LDFLAGS) -pthread
 	@$(OBJ_DIR)/test_vmd_socket_path
 
-test-nanovm-daemon: nano_vm nano_vmd
+test-nanovm-daemon: nano_vm nano_vmd test-vmd-server
 	@echo "Running NanoVM daemon integration tests..."
 	@scripts/test_nanovm_daemon.sh
+
+.PHONY: test-vmd-server
+test-vmd-server: test-vmd-socket-path
 
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop

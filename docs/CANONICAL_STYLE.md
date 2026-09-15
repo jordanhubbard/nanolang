@@ -225,6 +225,12 @@ incompatible uses inside handler bodies.
 This frontend checking does not establish complete perform argument/result
 compatibility. Native and VM handler dispatch remain release work.
 
+My 5.0 handler control-flow contract matches match arms: `return` exits the
+function containing the handler, even when another function performs the
+operation. The arm's final expression supplies the operation result and resumes
+`perform`. Implementing this consistently across backends remains roadmap work;
+the legacy interpreter still strips handler control-flow flags.
+
 ## Imports And Modules
 
 The current module import form is `module`:
