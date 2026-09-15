@@ -46,10 +46,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       `printf; exec sleep` so the observed PID receives the signal directly.
       Eight consecutive native compilations with dependency/root shadows and
       executable runs pass. The complete suite remains a separate release gate.
-- [ ] **Launcher termination output.** I drain child pipes again after reaping
+- [x] **Launcher termination output.** I drain child pipes again after reaping
       a stopped child. `pm_kill` currently drains only immediately after sending
       SIGTERM, so output produced by a termination handler can be lost before
       descriptor closure. I require a handler-output regression, not a sleep.
+      Main's incoming handler fixture fails before publication: it signals
+      before the child confirms handler installation. I require a readiness
+      handshake, per-child log path, both streams and successful reaping.
+      The repaired native launcher compile/shadow/run gate passes. A focused
+      bytecode import runs all process-manager dependency shadows, including
+      the handler regression, and executes successfully. Full VM launcher
+      polling remains the separate aggregate defect below.
+- [ ] **VM launcher poll aggregates.** The native launcher regression passes;
+      bytecode shadows fail in `pm_poll` with `AGG_GET field 2 is unavailable`.
+      I trace its representation and require full native/VM launcher coverage.
+      MAC `task_26736715909643ae7df9851939b75e71`.
 - [ ] **5.0 release integration.** I reconcile the audit-contract branch with
       main, preserve original-file diagnostics and immutable native-cache
       behavior, run clean build/tests and documentation gates, then merge and
