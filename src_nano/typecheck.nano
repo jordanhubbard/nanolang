@@ -926,6 +926,18 @@ shadow type_array {
     assert (== t.element_type_kind TypeKind.TYPE_INT)
 }
 
+fn type_array_of(element: NSType) -> NSType {
+    if (== element.kind TypeKind.TYPE_ARRAY) {
+        return (type_array element.kind (type_to_string element))
+    }
+    return (type_array element.kind element.name)
+}
+
+shadow type_array_of {
+    let nested: NSType = (type_array_of (type_array TypeKind.TYPE_INT ""))
+    assert (== (type_to_string nested) "array<array<int>>")
+}
+
 /* Create generic list type */
 fn type_list_generic(elem_name: string) -> NSType {
     return NSType {
@@ -1026,10 +1038,16 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
                 if (!= t1.element_type_kind t2.element_type_kind) {
                     return false
                 } else {
-                    /* If element is struct, check name */
-                    if (== t1.element_type_kind TypeKind.TYPE_STRUCT) {
-                        return (== t1.element_type_name t2.element_type_name)
+                    if (== t1.element_type_kind TypeKind.TYPE_ARRAY) {
+                        if (or (== t1.element_type_name "") (== t2.element_type_name "")) { return false }
+                        return (types_equal (type_from_string t1.element_type_name) (type_from_string t2.element_type_name))
                     } else {
+                        if (== t1.element_type_kind TypeKind.TYPE_FUNCTION) {
+                            return (== (strip_spaces t1.element_type_name) (strip_spaces t2.element_type_name))
+                        }
+                        if (or (or (== t1.element_type_kind TypeKind.TYPE_STRUCT) (== t1.element_type_kind TypeKind.TYPE_UNION)) (or (== t1.element_type_kind TypeKind.TYPE_ENUM) (== t1.element_type_kind TypeKind.TYPE_TUPLE))) {
+                            return (== t1.element_type_name t2.element_type_name)
+                        }
                         return true
                     }
                 }
@@ -1047,6 +1065,9 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
 }
 
 shadow types_equal {
+    assert (types_equal (type_from_string "array<array<int>>") (type_from_string "array<array<int>>"))
+    assert (not (types_equal (type_from_string "array<array<int>>") (type_from_string "array<array<float>>")))
+    assert (not (types_equal (type_from_string "array<array<int>>") (type_from_string "array<array<array<int>>>")))
     let int1: NSType = (type_int)
     let int2: NSType = (type_int)
     let float1: NSType = (type_float)
@@ -1192,85 +1213,26 @@ shadow fn_type_param_types {
 
 /* Create type from string representation */
 fn type_from_string(s: string) -> NSType {
-    if (tc_str_starts_with s "fn(") {
-        return NSType {
-            kind: TypeKind.TYPE_FUNCTION,
-            name: s,
-            element_type_kind: TypeKind.TYPE_UNKNOWN,
-            element_type_name: ""
-        }
-    } else { (print "") }
-    if (tc_str_starts_with s "(") {
-        return NSType {
-            kind: TypeKind.TYPE_TUPLE,
-            name: s,
-            element_type_kind: TypeKind.TYPE_UNKNOWN,
-            element_type_name: ""
-        }
-    } else { (print "") }
-    if (== s "int") {
-        return (type_int)
-    } else {
-        if (== s "float") {
-            return (type_float)
-        } else {
-            if (== s "bool") {
-                return (type_bool)
-            } else {
-                if (== s "string") {
-                    return (type_string)
-                } else {
-                    if (== s "void") {
-                        return (type_void)
-                    } else {
-                        /* Check for array<T> syntax */
-                        if (str_contains s "array<") {
-                            /* Parse element type from array<int>, array<string>, etc. */
-                            let elem_type_str: string = (array_elem_type_from_array_decl s)
-                            if (== elem_type_str "int") {
-                                return (type_array TypeKind.TYPE_INT "")
-                            } else {
-                                if (== elem_type_str "string") {
-                                    return (type_array TypeKind.TYPE_STRING "")
-                                } else {
-                                    if (== elem_type_str "float") {
-                                        return (type_array TypeKind.TYPE_FLOAT "")
-                                    } else {
-                                        if (== elem_type_str "bool") {
-                                            return (type_array TypeKind.TYPE_BOOL "")
-                                        } else {
-                                            if (str_contains elem_type_str "array<") {
-                                                return (type_array TypeKind.TYPE_ARRAY elem_type_str)
-                                            } else {
-                                                /* Struct element type */
-                                                return (type_array TypeKind.TYPE_STRUCT elem_type_str)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            /* Check for List<T> syntax */
-                            if (str_contains s "List<") {
-                                /* Extract element type: "List<Point>" -> "Point" */
-                                let elem_name: string = (extract_list_element_type s)
-                                return (type_list_generic elem_name)
-                            } else {
-                                /* Assume it's a struct or union type */
-                                let t: NSType = NSType {
-                                    kind: TypeKind.TYPE_STRUCT,
-                                    name: s,
-                                    element_type_kind: TypeKind.TYPE_UNKNOWN,
-                                    element_type_name: ""
-                                }
-                                return t
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    if (== s "unknown") { return (type_unknown_named "unknown") }
+    if (tc_str_starts_with s "array<") {
+        let element: string = (array_elem_type_from_array_decl s)
+        return (type_array_of (type_from_string element))
     }
+    if (tc_str_starts_with s "fn(") {
+        return NSType { kind: TypeKind.TYPE_FUNCTION, name: s, element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    }
+    if (tc_str_starts_with s "(") {
+        return NSType { kind: TypeKind.TYPE_TUPLE, name: s, element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
+    }
+    if (== s "int") { return (type_int) }
+    if (== s "float") { return (type_float) }
+    if (== s "bool") { return (type_bool) }
+    if (== s "string") { return (type_string) }
+    if (== s "void") { return (type_void) }
+    if (tc_str_starts_with s "List<") {
+        return (type_list_generic (extract_list_element_type s))
+    }
+    return NSType { kind: TypeKind.TYPE_STRUCT, name: s, element_type_kind: TypeKind.TYPE_UNKNOWN, element_type_name: "" }
 }
 
 fn split_tuple_type_names(type_str: string) -> array<string> {
@@ -1377,6 +1339,10 @@ fn is_enum_name(parser: Parser, name: string) -> bool {
 shadow is_enum_name { assert true }
 
 fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
+    if (tc_str_starts_with s "array<") {
+        let element: NSType = (type_from_string_with_parser parser (array_elem_type_from_array_decl s))
+        return (type_array_of element)
+    }
     let t: NSType = (type_from_string s)
     if (== t.kind TypeKind.TYPE_STRUCT) {
         let base: string = (base_type_name s)
@@ -1395,7 +1361,13 @@ fn type_from_string_with_parser(parser: Parser, s: string) -> NSType {
     return t
 }
 
-shadow type_from_string_with_parser { assert true }
+shadow type_from_string_with_parser {
+    let tokens: List<LexerToken> = (tokenize_string "" "types.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "types.nano")
+    let nested: NSType = (type_from_string_with_parser parser "array<array<int>>")
+    assert (== nested.element_type_kind TypeKind.TYPE_ARRAY)
+    assert (== nested.element_type_name "array<int>")
+}
 
 /* I find the first complete needle, including an empty needle at zero. */
 fn tc_str_index_of(s: string, ch: string) -> int {
@@ -1932,6 +1904,10 @@ shadow type_from_element_name {
 }
 
 shadow type_from_string {
+    assert (== (type_to_string (type_from_string "array<array<int>>")) "array<array<int>>")
+    assert (== (type_to_string (type_from_string "array<fn(array<int>)->int>")) "array<fn(array<int>)->int>")
+    let nominal: NSType = (type_from_string "Box<array<int>>")
+    assert (== nominal.kind TypeKind.TYPE_STRUCT)
     let t: NSType = (type_from_string "int")
     assert (== t.kind TypeKind.TYPE_INT)
     
@@ -1943,6 +1919,7 @@ shadow type_from_string {
 
 /* NSType to string for error messages */
 fn type_to_string(t: NSType) -> string {
+    if (== t.kind TypeKind.TYPE_ENUM) { return t.name }
     if (== t.kind TypeKind.TYPE_INT) {
         return "int"
     } else {
@@ -2001,6 +1978,10 @@ fn type_to_string(t: NSType) -> string {
 
 /* Convert type kind to string */
 fn type_kind_to_string(kind: int, name: string) -> string {
+    if (or (or (== kind TypeKind.TYPE_ARRAY) (== kind TypeKind.TYPE_ENUM)) (or (== kind TypeKind.TYPE_FUNCTION) (== kind TypeKind.TYPE_TUPLE))) {
+        if (!= name "") { return name }
+        return "unknown"
+    }
     if (== kind TypeKind.TYPE_INT) { return "int" }
     else { if (== kind TypeKind.TYPE_FLOAT) { return "float" }
     else { if (== kind TypeKind.TYPE_BOOL) { return "bool" }
@@ -2013,12 +1994,15 @@ fn type_kind_to_string(kind: int, name: string) -> string {
 }
 
 shadow type_kind_to_string {
+    assert (== (type_kind_to_string TypeKind.TYPE_ARRAY "array<int>") "array<int>")
+    assert (== (type_kind_to_string TypeKind.TYPE_FUNCTION "fn(int)->bool") "fn(int)->bool")
     assert (== (type_kind_to_string TypeKind.TYPE_INT "") "int")
     assert (== (type_kind_to_string TypeKind.TYPE_BOOL "") "bool")
     assert (== (type_kind_to_string TypeKind.TYPE_STRUCT "Point") "Point")
 }
 
 shadow type_to_string {
+    assert (== (type_to_string (type_array_of (type_array_of (type_int)))) "array<array<int>>")
     assert (== (type_to_string (type_int)) "int")
     assert (== (type_to_string (type_bool)) "bool")
 }
@@ -2697,12 +2681,12 @@ fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: 
         return (type_unknown_named "map")
     }
     if (and (== source_type.kind TypeKind.TYPE_ARRAY) (!= source_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
-        let expected_source: NSType = (type_array parameter.kind parameter.name)
+        let expected_source: NSType = (type_array_of parameter)
         if (!= (type_to_string source_type) (type_to_string expected_source)) {
             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require map input elements to match the transform parameter." location))
         }
     }
-    return (type_array result.kind result.name)
+    return (type_array_of result)
 }
 
 shadow check_map_call {
@@ -2813,7 +2797,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             }
             let second: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start 1))
             let value_type: NSType = (check_expr_node parser second.node_id second.node_type symbols diags file_name)
-            return (type_array value_type.kind value_type.name)
+            return (type_array_of value_type)
         }
         if (or (== fn_name "at") (== fn_name "array_get")) {
             if (>= call_node.arg_count 1) {
@@ -2993,10 +2977,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     } else { (print "") }
                     set i (+ i 1)
                 }
-                return (type_array first_t.kind first_t.name)
+                return (type_array_of first_t)
             } else {
                 let elem_t: NSType = (type_from_string_with_parser parser arr.element_type)
-                return (type_array elem_t.kind elem_t.name)
+                return (type_array_of elem_t)
             }
         }
     } else { (print "") }
@@ -3183,55 +3167,17 @@ shadow typecheck_return_expr { assert true }
  * ============================================================================= */
 
 fn array_elem_type_from_array_decl(t: string) -> string {
-    /* Check nested arrays FIRST since "array<array<int>>" also contains "array<int>" */
-    if (str_contains t "array<array<") {
-        /* Extract the inner array type: array<array<int>> -> array<int> */
-        let start: int = (+ (tc_str_index_of t "array<") 6)
-        let end: int = (tc_str_last_index_of t ">")
-        if (and (>= start 0) (> end start)) {
-            return (str_substring t start (- end start))
-        } else {
-            return "array"
-        }
-    } else {
-    if (str_contains t "array<int>") {
-        return "int"
-    } else {
-        if (str_contains t "array<float>") {
-            return "float"
-        } else {
-            if (str_contains t "array<string>") {
-                return "string"
-            } else {
-                if (str_contains t "array<bool>") {
-                    return "bool"
-                    } else {
-                        /* Generic: array<SomeType> -> "SomeType" */
-                        if (str_contains t "array<") {
-                            let lt: int = (tc_str_index_of t "<")
-                            let gt: int = (tc_str_last_index_of t ">")
-                            if (and (>= lt 0) (> gt lt)) {
-                                let start: int = (+ lt 1)
-                                let len: int = (- gt start)
-                                if (> len 0) {
-                                    return (str_substring t start len)
-                                } else {
-                                    return ""
-                                }
-                            } else {
-                                return ""
-                            }
-                        } else {
-                            return ""
-                        }
-                    }
-                }
-            }
-        }
+    let length: int = (str_length t)
+    if (and (tc_str_starts_with t "array<") (and (> length 7) (tc_str_ends_with t ">"))) {
+        return (str_substring t 6 (- length 7))
     }
-    }
+    return ""
+}
+
 
 shadow array_elem_type_from_array_decl {
+    assert (== (array_elem_type_from_array_decl "array<fn(array<int>)->int>") "fn(array<int>)->int")
+    assert (== (array_elem_type_from_array_decl "Box<array<int>>") "")
     assert (== (array_elem_type_from_array_decl "array<int>") "int")
     assert (== (array_elem_type_from_array_decl "array<string>") "string")
     assert (== (array_elem_type_from_array_decl "array<array<int>>") "array<int>")

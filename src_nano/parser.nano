@@ -2500,8 +2500,8 @@ fn parse_primary(p: Parser) -> Parser {
         /* Array literals */
         if (== tok.token_type (token_lbracket)) {
             let p1: Parser = (parser_advance p)  /* consume '[' */
-            let element_start: int = (list_ASTStmtRef_length p1.array_elements)
-            let mut element_count: int = 0
+            let mut element_ids: array<int> = []
+            let mut element_types: array<int> = []
             let mut pcur: Parser = p1
             
             /* Parse array elements */
@@ -2510,7 +2510,7 @@ fn parse_primary(p: Parser) -> Parser {
                 if (== tcur.token_type (token_rbracket)) {
                     /* End of array */
                     let p2: Parser = (parser_advance pcur)
-                    return (parser_store_array_literal p2 element_start element_count "" tok.line tok.column)
+                    return (parser_finish_array_literal p2 element_ids element_types tok.line tok.column)
                 } else {
                     /* Parse element expression */
                     let pelem: Parser = (parse_expression pcur)
@@ -2519,9 +2519,9 @@ fn parse_primary(p: Parser) -> Parser {
                     } else {
                         let elem_id: int = pelem.last_expr_node_id
                         let elem_type: int = pelem.last_expr_node_type
-                        let p_elem: Parser = (parser_store_array_element pelem elem_id elem_type)
-                        set element_count (+ element_count 1)
-                        set pcur p_elem
+                        set element_ids (array_push element_ids elem_id)
+                        set element_types (array_push element_types elem_type)
+                        set pcur pelem
                         
                         /* Check for comma */
                         let tnext: LexerToken = (parser_current pcur)
@@ -2531,7 +2531,7 @@ fn parse_primary(p: Parser) -> Parser {
                             /* No comma, should be end bracket */
                             if (== tnext.token_type (token_rbracket)) {
                                 let p2: Parser = (parser_advance pcur)
-                                return (parser_store_array_literal p2 element_start element_count "" tok.line tok.column)
+                                return (parser_finish_array_literal p2 element_ids element_types tok.line tok.column)
                             } else {
                                 return (parser_with_error pcur true)
                             }
@@ -3709,6 +3709,31 @@ fn parser_store_for(p: Parser, var_name: string, iterable_id: int, iterable_type
 }
 
 /* Helper: Store array literal node */
+fn parser_finish_array_literal(p: Parser, ids: array<int>, types: array<int>, line: int, column: int) -> Parser {
+    let start: int = (list_ASTStmtRef_length p.array_elements)
+    let mut result: Parser = p
+    let mut i: int = 0
+    while (< i (array_length ids)) {
+        set result (parser_store_array_element result (at ids i) (at types i))
+        set i (+ i 1)
+    }
+    return (parser_store_array_literal result start (array_length ids) "" line column)
+}
+
+shadow parser_finish_array_literal {
+    let p: Parser = (parser_init_ast_lists)
+    let prior: Parser = (parser_store_array_element p 9 ParseNodeType.PNODE_NUMBER)
+    let ids: array<int> = [1, 2]
+    let kinds: array<int> = [ParseNodeType.PNODE_ARRAY_LITERAL, ParseNodeType.PNODE_NUMBER]
+    let done: Parser = (parser_finish_array_literal prior ids kinds 1 1)
+    let literal: ASTArrayLiteral = (parser_get_array_literal done 0)
+    assert (== literal.element_start 1)
+    assert (== literal.element_count 2)
+    let first: ASTStmtRef = (parser_get_array_element done literal.element_start)
+    assert (== first.node_type ParseNodeType.PNODE_ARRAY_LITERAL)
+    assert (== first.node_id 1)
+}
+
 fn parser_store_array_literal(p: Parser, element_start: int, element_count: int, element_type: string, line: int, column: int) -> Parser {
     let node: ASTArrayLiteral = ASTArrayLiteral {
         node_type: ParseNodeType.PNODE_ARRAY_LITERAL,

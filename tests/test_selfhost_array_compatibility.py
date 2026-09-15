@@ -1,4 +1,4 @@
-"""I reject scalar array mismatches before C emission, without bootstrap wildcards."""
+"""I check scalar/nested array boundaries and execute their native values."""
 import json
 from pathlib import Path
 import subprocess
@@ -42,8 +42,49 @@ shadow main { assert (== (main) 0) }
             self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
 
     def test_scalar_mismatches(self):
-        for source_type, value in SCALARS.items():
-            for target_type in SCALARS:
+        self.check_mismatches(SCALARS)
+
+    def test_nested_mismatches(self):
+        self.check_mismatches({"array<int>": "[7]", "array<float>": "[1.5]",
+                               "array<array<int>>": "[[7]]"})
+
+    def test_nested_values(self):
+        with tempfile.TemporaryDirectory(prefix="nano-nested-values-") as d:
+            source = Path(d) / "test.nano"
+            output = Path(d) / "program"
+            source.write_text('''fn rows() -> array<array<int>> {
+    return [[7, 8], [9], []]
+}
+shadow rows { assert (== (array_length (rows)) 3) }
+fn main() -> int {
+    let values = (rows)
+    assert (== (at (at values 0) 1) 8)
+    assert (== (at (at values 1) 0) 9)
+    assert (== (array_length (at values 2)) 0)
+    let deep: array<array<array<int>>> = [[[11], [12, 13]], [[14]]]
+    assert (== (at (at (at deep 0) 1) 1) 13)
+    assert (== (at (at (at deep 1) 0) 0) 14)
+    let empty: array<array<int>> = []
+    let appended = (array_push empty [17, 18])
+    assert (== (at (at appended 0) 1) 18)
+    let fractional: array<array<float>> = [[], [1.5]]
+    let filled = (array_push (at fractional 0) 2.5)
+    assert (== (at filled 0) 2.5)
+    assert (== (at (at fractional 1) 0) 1.5)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+            run = subprocess.run([str(ROOT / "bin/nanoc_stage2"), str(source),
+                                  "-o", str(output)], cwd=ROOT,
+                                 capture_output=True, timeout=60)
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            ran = subprocess.run([str(output)], capture_output=True, timeout=10)
+            self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+
+    def check_mismatches(self, types):
+        for source_type, value in types.items():
+            for target_type in types:
                 if source_type == target_type:
                     continue
                 for route in ("alias", "argument", "return", "set"):
@@ -74,7 +115,11 @@ shadow accept {{ assert (== (accept []) 0) }}
                                              capture_output=True, timeout=60)
                         self.assertGreater(run.returncode, 0, run.stdout + run.stderr)
                         code = "E0010" if route == "argument" else "E0001"
-                        self.assertIn(code, json.dumps(json.loads(report.read_text())))
+                        diagnostics = json.loads(report.read_text())["diagnostics"]
+                        boundary = {"alias": "Variable wrong", "argument": "Argument 1",
+                                    "return": "Return value of bad", "set": "Assignment to wrong"}[route]
+                        self.assertTrue(any(item["code"] == code and boundary in item["message"]
+                                            for item in diagnostics), diagnostics)
                         self.assertEqual(output.read_bytes(), b"prior artifact")
 
     def test_scalar_identity_and_empty_arrays(self):

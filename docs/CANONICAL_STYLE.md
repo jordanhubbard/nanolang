@@ -163,6 +163,14 @@ stages rebuild without the former `array<int>` wildcard. Unknown-type
 compatibility and recursive/nominal element comparisons remain incomplete;
 this is not a claim of full type soundness.
 
+My self-hosted parser now keeps nested literal element spans separate. My
+checker retains and compares nested array descriptions, and my native emitter
+keeps the remaining array depth through indexing and the storage type through
+empty nested literals. I test 24 nested mismatches at their intended diagnostic
+boundaries, three-level integer values, uneven/empty rows and append to empty
+inner float arrays. Nominal/generic execution and unknown compatibility remain
+open; these cases do not establish complete array soundness or backend parity.
+
 ## String Literals
 
 Ordinary quoted strings keep braces literally. Use the `f` prefix to interpolate:

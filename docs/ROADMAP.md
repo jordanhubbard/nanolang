@@ -526,6 +526,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           in 15.413 seconds. Map typing passes in 3.221 seconds; all scalar
           map pairings and the trace pass in 50.427 seconds. Evidence:
           `docs/evidence/selfhost-array-compatibility.md`.
+        - [x] I keep each self-hosted array literal's element references in
+          one contiguous span after parsing its children. Nested parsing must
+          not replace an outer element with an inner scalar. I require native
+          nested-value tests and bootstrap. MAC
+          `task_8f09497a0e6e47dd93b68c7d9f017626`. Both stages rebuild and the
+          five-method array gate passes in 19.171 seconds. Evidence:
+          `docs/evidence/selfhost-nested-arrays.md`.
         - [ ] I compare recursive and nominal self-hosted array element types
           instead of stopping at the element kind. Nested arrays, function
           signatures, enums and unions retain their distinctions across
@@ -533,6 +540,28 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           masquerade as an empty array. I require positive execution and
           source-only rejection tests plus bootstrap. MAC
           `task_3c5d8625cec144ba87efd9695239275a`.
+          I first preserve nested array element descriptions through literal,
+          append and map inference; render those descriptions without replacing
+          them with `unknown`; and compare nested element types recursively.
+          I extend the source-only alias/call/return/assignment matrix across
+          nested scalar arrays and array depths before rebuilding.
+          This nested-scalar slice now passes 24 boundary-specific rejections
+          and native positive values. Nominal/generic execution and unknown
+          compatibility remain open; I do not close the parent item.
+        - [x] I preserve each remaining array level when emitting nested
+          indexing, rather than selecting an integer read for an inner array.
+          I require native shadows and runtime values at multiple depths.
+          I also retain nested element storage tags for typed empty literals
+          and propagate their child annotations through literal emission.
+          MAC `task_f32d71bbad07448c8656843015e72ef3`. I test three-level
+          indexing and append to empty nested integer/float arrays through
+          native shadows and execution. Evidence:
+          `docs/evidence/selfhost-nested-arrays.md`.
+        - [ ] I make C-seed shadow visibility errors prevent compiler output
+          publication. A bootstrap shadow called a private parser helper: I
+          printed the error but still produced Stage 1. I require a minimal
+          imported-shadow regression with nonzero status and prior-output
+          preservation. MAC `task_22bb4774aeb145f3bcd15d60c532a1b1`.
         - [x] I provide VM left/right string trimming with the existing four-byte
           whitespace contract, checking empty/all-whitespace input, the opposite
           edge and UTF-8 preservation on native and VM paths.
