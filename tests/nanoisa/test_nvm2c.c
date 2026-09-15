@@ -882,6 +882,53 @@ static void test_builtin_from_char(void) {
     }
 }
 
+static void test_builtin_temp_directory(void) {
+    char root[] = "/tmp/nvm2c-temp-root-XXXXXX";
+    if (!mkdtemp(root)) { CHECK(0, "I create a private temporary root"); return; }
+    const char *previous = getenv("TMPDIR");
+    char *saved = previous ? strdup(previous) : NULL;
+    for (int failure = 0; failure < 2; ++failure) {
+        char temporary_root[256], assembly[4096];
+        snprintf(temporary_root, sizeof temporary_root, "%s", root);
+        CHECK(setenv("TMPDIR", temporary_root, 1) == 0, "I scope temporary creation to my private root");
+        const char *body = failure ?
+            "PUSH_STR prefix\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n" :
+            "PUSH_STR prefix\nCALL_EXTERN 0\nSTORE_LOCAL 0\n"
+            "PUSH_STR prefix\nCALL_EXTERN 0\nSTORE_LOCAL 1\n"
+            "LOAD_LOCAL 0\nLOAD_LOCAL 1\nNE\nASSERT\n"
+            "LOAD_LOCAL 0\nPUSH_STR root\nSTR_STARTS_WITH\nASSERT\n"
+            "LOAD_LOCAL 1\nPUSH_STR root\nSTR_STARTS_WITH\nASSERT\n"
+            "LOAD_LOCAL 0\nCALL_EXTERN 1\nASSERT\nLOAD_LOCAL 1\nCALL_EXTERN 1\nASSERT\n"
+            "LOAD_LOCAL 0\nCALL_EXTERN 2\nPUSH_I64 0\nEQ\nASSERT\n"
+            "LOAD_LOCAL 1\nCALL_EXTERN 2\nPUSH_I64 0\nEQ\nASSERT\n";
+        snprintf(assembly, sizeof assembly,
+            ".string prefix \"%s\"\n.string root \"%s/owned_\"\n"
+            ".import \"\" \"vm_mktemp_dir\" string string\n"
+            ".import \"\" \"dir_exists\" bool string\n"
+            ".import \"\" \"file_remove\" int string\n"
+            ".entry 0\n.function main 0 2 0 int 1\n%sPUSH_I64 0\nRET\n.end\n",
+            failure ? "missing/owned_" : "owned_", root, body);
+        NvmModule *module = assemble_ok(assembly, "exclusive temporary directories");
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit the temporary-directory adapter");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I create distinct owned directories or return empty on failure");
+        } else fprintf(stderr, "%s\n", error);
+        free(source);
+        module->import_param_types[0][0] = TAG_INT;
+        source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I reject a non-string temporary prefix");
+        free(source); nvm_module_free(module);
+    }
+    if (saved) { setenv("TMPDIR", saved, 1); free(saved); }
+    else unsetenv("TMPDIR");
+    CHECK(rmdir(root) == 0, "I leave no temporary directories in my private root");
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"nl_exec_shell", "PUSH_STR shell_ok\nCALL_EXTERN 0\nPUSH_I64 0\nEQ\nASSERT\n"
@@ -3367,6 +3414,7 @@ int main(int argc, char **argv) {
     test_builtin_normalize();
     test_builtin_capture();
     test_builtin_from_char();
+    test_builtin_temp_directory();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();

@@ -28,6 +28,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT temporary directories.** I adapt `vm_mktemp_dir` with checked
+      template allocation and exclusive creation. I test unique, independent
+      paths and failure inside private roots before compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 913 checks. Compiler acceptance clears imports and
+      stops at function 18's `ARR_NEW` element kind. Evidence:
+      `docs/evidence/aot-temporary-directories.md`.
+- [ ] **Compiler AOT array shapes.** I identify the full compiler's array
+      element shapes and support their construction and data flow without
+      guessing a scalar representation. I verify complete compiler execution.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
 - [x] **AOT byte-character conversion.** I preserve the existing C-byte
       `vm_string_from_char` contract, including zero-byte empty text and
       independent storage. I test integer boundaries before compiler acceptance.
