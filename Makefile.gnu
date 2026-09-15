@@ -914,6 +914,10 @@ test-nano-emacs: stage1 $(BIN_DIR)/nano_emacs_worker
 	@test -x bin/nano_emacs
 
 .PHONY: test-opt-passes
+.PHONY: test-native-tco
+test-native-tco: stage1
+	python3 -m unittest tests.test_native_tco -v
+
 test-opt-passes: stage1
 	@echo "Running optimization pass unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_opt_passes tests/test_opt_passes.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)

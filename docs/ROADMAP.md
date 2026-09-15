@@ -111,6 +111,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           evaluation, exit semantics and typed results. I retain the corrected
           million-step fixture and require successful native execution.
           MAC `task_ab36fda5e6846c45beaf42b3ba819c13`.
+          My executable `make test-native-tco` acceptance gate compares ordinary
+          and optimized shallow programs and separately requires one million
+          optimized calls. It covers swaps, early returns, string/float results
+          and user names colliding with the old generated names. It remains a
+          failing gate until the native rewrite is repaired.
       - [ ] I repair verifier-corpus coverage: its script also silently skips
         compilation failures and searches runtime text instead of requiring
         successful verification, with no execution deadlines.
