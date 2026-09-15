@@ -8,6 +8,7 @@
 #include "cop_protocol.h"
 #include "vm_ffi.h"
 #include "heap.h"
+#include "../utf8.h"
 #include "../nanoisa/nvm_format.h"
 #include <stdio.h>
 #include <string.h>
@@ -48,6 +49,10 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
         pos += 8;
         break;
     }
+    case TAG_U8:
+        if (pos >= buf_size) return 0;
+        buf[pos++] = val->as.u8;
+        break;
     case TAG_BOOL: {
         if (pos + 1 > buf_size) return 0;
         buf[pos++] = val->as.boolean ? 1 : 0;
@@ -60,7 +65,7 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
             s = val->as.string->data;
             len = val->as.string->length;
         }
-        if (pos + 4 + len > buf_size) return 0;
+        if (buf_size - pos < 4 || len > buf_size - pos - 4) return 0;
         cop_put_u32(buf + pos, len);
         pos += 4;
         if (len > 0) {
@@ -124,6 +129,10 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
         *out = val_float(v);
         break;
     }
+    case TAG_U8:
+        if (pos >= buf_size) return 0;
+        *out = val_u8(buf[pos++]);
+        break;
     case TAG_BOOL: {
         if (pos + 1 > buf_size) return 0;
         *out = val_bool(buf[pos] != 0);
@@ -174,7 +183,7 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
                 return 0;
             }
             pos += n;
-            if (!vm_array_push(heap, arr, elem)) {
+            if (elem.tag != etype || !vm_array_push(heap, arr, elem)) {
                 vm_release(heap, elem);
                 vm_release(heap, val_array(arr));
                 *out = val_void();
@@ -199,6 +208,132 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
  * so it is safe under the multithreaded daemon. */
 #define COP_MAX_DESER_DEPTH 64
 static __thread int cop_deser_depth = 0;
+
+static bool call_scalar_tag(uint8_t tag) {
+    return tag == TAG_INT || tag == TAG_FLOAT || tag == TAG_BOOL ||
+           tag == TAG_U8 || tag == TAG_STRING;
+}
+
+static bool call_value_valid(NanoValue value) {
+    if (value.tag == TAG_ARRAY) {
+        VmArray *a = value.as.array;
+        if (!a || !call_scalar_tag(a->elem_type) ||
+            a->unboxed != vm_array_type_unboxable(a->elem_type)) return false;
+        for (uint32_t i = 0; i < a->length; ++i) {
+            NanoValue item = vm_array_get(a, i);
+            if (item.tag != a->elem_type || !call_value_valid(item)) return false;
+        }
+        return true;
+    }
+    if (value.tag == TAG_STRING) {
+        if (!value.as.string) return true;
+        const char *s = vmstring_cstr(value.as.string);
+        uint32_t n = vmstring_len(value.as.string);
+        return !memchr(s, 0, n) && nl_utf8_validate(s, n, NULL);
+    }
+    return call_scalar_tag(value.tag) || value.tag == TAG_OPAQUE || value.tag == TAG_VOID;
+}
+
+uint32_t cop_encode_call_values(const NanoValue *values, uint8_t count,
+                                uint8_t *buf, uint32_t size) {
+    if (count > NANO_MAX_FFI_ARGS + 1 || size < 4 || (!values && count)) return 0;
+    buf[0] = 'C'; buf[1] = 'A'; buf[2] = 1; buf[3] = count;
+    uint32_t pos = 4;
+    for (uint8_t i = 0; i < count; ++i) {
+        if (!call_value_valid(values[i])) return 0;
+        int alias = -1;
+        if (values[i].tag == TAG_ARRAY)
+            for (uint8_t j = 0; j < i; ++j)
+                if (values[j].tag == TAG_ARRAY && values[j].as.array == values[i].as.array) {
+                    alias = j; break;
+                }
+        if (alias >= 0) {
+            if (size - pos < 2) return 0;
+            buf[pos++] = 0xff; buf[pos++] = (uint8_t)alias;
+        } else {
+            uint32_t n = cop_serialize_value(&values[i], buf + pos, size - pos);
+            if (!n) return 0;
+            pos += n;
+        }
+    }
+    return pos;
+}
+
+bool cop_decode_call_values(const uint8_t *buf, uint32_t size, NanoValue *values,
+                            uint8_t count, VmHeap *heap) {
+    if (count > NANO_MAX_FFI_ARGS + 1 || (!values && count)) return false;
+    for (uint8_t i = 0; i < count; ++i) values[i] = val_void();
+    if (size < 4 || buf[0] != 'C' || buf[1] != 'A' || buf[2] != 1 ||
+        buf[3] != count) return false;
+    uint32_t pos = 4;
+    for (uint8_t i = 0; i < count; ++i) {
+        if (pos >= size) goto fail;
+        if (buf[pos] == 0xff) {
+            if (size - pos < 2 || buf[pos + 1] >= i) goto fail;
+            NanoValue prior = values[buf[pos + 1]];
+            if (prior.tag != TAG_ARRAY) goto fail;
+            values[i] = prior;
+            vm_retain(heap, prior);
+            pos += 2;
+        } else {
+            uint8_t tag = buf[pos];
+            if (!call_scalar_tag(tag) && tag != TAG_ARRAY &&
+                tag != TAG_OPAQUE && tag != TAG_VOID) goto fail;
+            if (tag == TAG_ARRAY && (size - pos < 2 || !call_scalar_tag(buf[pos + 1])))
+                goto fail;
+            uint32_t n = cop_deserialize_value(buf + pos, size - pos, &values[i], heap);
+            if (!n || !call_value_valid(values[i])) goto fail;
+            pos += n;
+        }
+    }
+    if (pos == size) return true;
+fail:
+    for (uint8_t i = 0; i < count; ++i) {
+        vm_release(heap, values[i]);
+        values[i] = val_void();
+    }
+    return false;
+}
+
+bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
+                          uint8_t argc, NanoValue *result, VmHeap *heap) {
+    if (argc > NANO_MAX_FFI_ARGS || (!args && argc) || !result) return false;
+    NanoValue decoded[NANO_MAX_FFI_ARGS + 1];
+    if (!cop_decode_call_values(buf, size, decoded, argc + 1, heap)) return false;
+    bool ok = false;
+    for (uint8_t i = 0; i < argc; ++i) {
+        if (args[i].tag != decoded[i].tag || !call_value_valid(args[i])) goto done;
+        if (args[i].tag != TAG_ARRAY) continue;
+        if (args[i].as.array->elem_type != decoded[i].as.array->elem_type) goto done;
+        for (uint8_t j = 0; j < i; ++j) {
+            if (args[j].tag != TAG_ARRAY) continue;
+            if ((args[i].as.array == args[j].as.array) !=
+                (decoded[i].as.array == decoded[j].as.array)) goto done;
+        }
+    }
+    /* No fallible work remains after validation. Each identity is swapped once. */
+    NanoValue returned = decoded[argc];
+    for (uint8_t i = 0; i < argc; ++i) {
+        if (args[i].tag != TAG_ARRAY) continue;
+        if (returned.tag == TAG_ARRAY && returned.as.array == decoded[i].as.array) {
+            returned = args[i];
+            break;
+        }
+    }
+    vm_retain(heap, returned);
+    for (uint8_t i = 0; i < argc; ++i) {
+        if (args[i].tag != TAG_ARRAY) continue;
+        bool seen = false;
+        for (uint8_t j = 0; j < i; ++j)
+            if (args[j].tag == TAG_ARRAY && args[j].as.array == args[i].as.array) seen = true;
+        if (!seen) vm_array_swap_scalar_storage(args[i].as.array, decoded[i].as.array);
+    }
+    *result = returned;
+    ok = true;
+done:
+    for (uint8_t i = 0; i <= argc; ++i) vm_release(heap, decoded[i]);
+    return ok;
+}
 
 uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
                                NanoValue *out, VmHeap *heap) {

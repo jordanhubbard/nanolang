@@ -24,6 +24,17 @@ failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
 ## Layout declarations
 
+My call-envelope codec uses `CA`, version byte 1, and a value-count byte,
+followed by values. Marker `0xff` followed by a prior value index represents
+a top-level array alias. Requests contain arguments; replies contain argument
+snapshots followed by the result. I bound the count to 17, reject forward or
+non-array references and trailing bytes, and preserve one owned reference per
+decoded slot. Reply application validates the original alias topology and
+element types before publishing any array storage changes.
+
+The codec is tested but not yet connected to mailbox or pipe dispatch. The
+existing transport wire version remains unchanged until that migration.
+
 I currently use native array ABI version 1. `DynArray` still has a one-byte
 element width; I reject records larger than 255 bytes. This change does not
 remove that limit.

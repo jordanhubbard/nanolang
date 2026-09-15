@@ -647,9 +647,76 @@ TEST(a_payload_over_the_cap_is_refused_by_the_sender) {
     close(fds[0]); close(fds[1]);
 }
 
+TEST(call_envelope_aliases_and_atomic_reply) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+    VmArray *a = vm_array_new(&heap, TAG_U8, 4);
+    ASSERT(a && vm_array_push(&heap, a, val_u8(7)));
+    NanoValue args[] = {val_array(a), val_array(a)};
+    uint8_t wire[256];
+    uint32_t n = cop_encode_call_values(args, 2, wire, sizeof wire);
+    ASSERT(n > 0);
+    NanoValue child[3];
+    ASSERT(cop_decode_call_values(wire, n, child, 2, &heap));
+    ASSERT(child[0].as.array == child[1].as.array && child[0].as.array != a);
+    vm_array_set(child[0].as.array, 0, val_u8(99));
+    child[2] = child[0]; /* encoding borrows; I own only the first two refs */
+    n = cop_encode_call_values(child, 3, wire, sizeof wire);
+    ASSERT(n > 0);
+    NanoValue result = val_void();
+    for (uint32_t truncated = 0; truncated < n; ++truncated) {
+        ASSERT(!cop_apply_call_reply(wire, truncated, args, 2, &result, &heap));
+        ASSERT_EQ(vm_array_get(a, 0).as.u8, 7);
+    }
+    wire[n] = 0;
+    ASSERT(!cop_apply_call_reply(wire, n + 1, args, 2, &result, &heap));
+    ASSERT(cop_apply_call_reply(wire, n, args, 2, &result, &heap));
+    ASSERT(result.as.array == a && vm_array_get(a, 0).as.u8 == 99);
+    vm_release(&heap, result);
+    vm_release(&heap, child[0]);
+    vm_release(&heap, child[1]);
+    vm_release(&heap, val_array(a));
+    vm_gc_collect_cycles(&heap);
+    ASSERT_EQ(heap.stats.num_objects, 0);
+    vm_heap_destroy(&heap);
+}
+
+TEST(call_envelope_rejects_bad_references_and_topology) {
+    VmHeap heap;
+    vm_heap_init(&heap);
+    uint8_t invalid[] = {'C', 'A', 1, 1, 0xff, 0};
+    NanoValue out[3];
+    ASSERT(!cop_decode_call_values(invalid, sizeof invalid, out, 1, &heap));
+    ASSERT_EQ(out[0].tag, TAG_VOID);
+    invalid[2] = 2;
+    ASSERT(!cop_decode_call_values(invalid, sizeof invalid, out, 1, &heap));
+    uint8_t scalar_ref[] = {'C', 'A', 1, 2, TAG_VOID, 0xff, 0};
+    ASSERT(!cop_decode_call_values(scalar_ref, sizeof scalar_ref, out, 2, &heap));
+    VmArray *a = vm_array_new(&heap, TAG_INT, 1);
+    VmArray *b = vm_array_new(&heap, TAG_INT, 1);
+    ASSERT(vm_array_push(&heap, a, val_int(1)) && vm_array_push(&heap, b, val_int(2)));
+    NanoValue original[] = {val_array(a), val_array(b)};
+    NanoValue changed[] = {val_array(b), val_array(b), val_void()};
+    uint8_t wire[256];
+    uint32_t n = cop_encode_call_values(changed, 3, wire, sizeof wire);
+    NanoValue result = val_void();
+    ASSERT(n && !cop_apply_call_reply(wire, n, original, 2, &result, &heap));
+    ASSERT_EQ(vm_array_get(a, 0).as.i64, 1);
+    original[1] = original[0];
+    changed[0] = val_array(a);
+    n = cop_encode_call_values(changed, 3, wire, sizeof wire);
+    ASSERT(n && !cop_apply_call_reply(wire, n, original, 2, &result, &heap));
+    vm_release(&heap, val_array(a)); vm_release(&heap, val_array(b));
+    vm_gc_collect_cycles(&heap);
+    ASSERT_EQ(heap.stats.num_objects, 0);
+    vm_heap_destroy(&heap);
+}
+
 int main(void) {
     printf("\n[cop_protocol] Co-process protocol tests...\n\n");
     RUN(serialize_int);
+    RUN(call_envelope_aliases_and_atomic_reply);
+    RUN(call_envelope_rejects_bad_references_and_topology);
     RUN(serialize_negative_int);
     RUN(serialize_int_little_endian);
     RUN(deserialize_int_little_endian);

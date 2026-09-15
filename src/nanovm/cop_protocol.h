@@ -68,6 +68,21 @@ uint32_t cop_serialize_value(const NanoValue *val, uint8_t *buf, uint32_t buf_si
 uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
                                NanoValue *out, VmHeap *heap);
 
+/* Versioned call envelope: arguments, optionally followed by the result.
+ * Top-level array aliases use bounded backward references. Supported arrays
+ * contain scalar/string elements, matching the in-process foreign boundary.
+ * Decode owns each output reference; failure clears/releases every output.
+ * These helpers do not change the legacy transport until its callers migrate. */
+uint32_t cop_encode_call_values(const NanoValue *values, uint8_t count,
+                                uint8_t *buf, uint32_t size);
+bool cop_decode_call_values(const uint8_t *buf, uint32_t size, NanoValue *values,
+                            uint8_t count, VmHeap *heap);
+/* Reply contains argc argument snapshots followed by one result. I validate
+ * all snapshots and alias relationships before swapping any original storage.
+ * Native side effects cannot be rolled back if a reply fails validation. */
+bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
+                          uint8_t argc, NanoValue *result, VmHeap *heap);
+
 /* ========================================================================
  * Shared-Memory Mailbox (fast path)
  *

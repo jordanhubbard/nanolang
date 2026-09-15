@@ -275,6 +275,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     serialization copies aliased arguments independently and
                     returns only the result; an in-process fix does not repair
                     this isolated execution path. I test mailbox and pipe paths.
+                    - [x] I add a versioned call-value envelope with bounded
+                      backward array references and atomic reply application;
+                      I test truncated envelopes and changed alias topology.
+                      My protocol and fuzz suites pass. I also carry u8 values
+                      and reject mismatched serialized array element tags.
+                      This codec does not establish transport integration.
+                    - [ ] I connect that envelope to mailbox and pipe dispatch,
+                      preserving ordered array mutations across batched calls.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native
