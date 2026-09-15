@@ -146,6 +146,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         below now passes all three foreign claim methods without changing their
         assertions. Full map/backend acceptance remains separate release work.
         MAC `task_17fe744141024df08c2ef3de7599865a`.
+      - [x] I reconcile PR #266's 39 transpiler-shadow lexer-call repairs,
+        already present in my integration source. I preserve newer code and
+        record the head as a merge parent. Explicit parser and extern-emitter
+        entry-point tests pass; the full component-execution audit remains
+        open because the PR does not implement it.
+        [Review evidence](evidence/pr-266-reconciliation.md).
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with
@@ -3999,8 +4005,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       shadows and bootstrap validation claims, execute meaningful assertions
       explicitly, and distinguish skipped from executed checks. MAC
       `task_56a065134a6e4394ae5c307c05e9597d`.
-      Older transpiler shadows still call `tokenize_string` with one argument;
-      its current signature requires source, filename and diagnostics.
+      I reviewed PR #266's complete change: 39 lexer-call signature repairs,
+      already present in my integration tree with source, filename and
+      diagnostics. That repair does not execute component assertions. My
+      stage-three drivers still print library-load messages; the broader
+      component-execution audit remains open. I retain the PR's ancestry
+      without replacing newer transpiler code. Evidence:
+      `docs/evidence/pr-266-reconciliation.md`.
 - [x] **5.0 import parity — bare relative paths.** I try a bare import path
       beside its importing file before falling back to the repository root.
       `tests/nl_functions_relative_import.nano` compiles and runs through both
