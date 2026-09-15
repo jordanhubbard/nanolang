@@ -2495,14 +2495,17 @@ static void test_unrepresentable_call_facts(void) {
         ".function main 0 0 0 int 1\nPUSH_I64 42\nAGG_PACK 0 0 0 1\nCALL read\nPOP\n"
         "PUSH_STR hello\nAGG_PACK 0 0 0 1\nCALL read\nRET\n.end\n",
         ".entry main\n.function make 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
-        ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
+        ".entry main\n.function take 1 1 0 int 1\nPUSH_I64 0\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 1\nCALL take\nPOP\n"
+        "PUSH_I64 2\nAGG_PACK 0 0 0 1\nCALL take\nRET\n.end\n"
     };
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         NvmModule *m = assemble_ok(sources[i], "unrepresentable function facts");
         if (!m) continue;
         char error[256];
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL && strstr(error, i ? "AGG_PACK" : "conflicting") != NULL,
+        CHECK(c == NULL && strstr(error, i == 1 ? "AGG_PACK" : "conflicting") != NULL,
               "I reject conflicting or unresolved field types instead of guessing");
         free(c);
         nvm_module_free(m);

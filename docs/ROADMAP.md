@@ -28,6 +28,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **PR #269 reconciliation.** I retain my converged AOT call facts and
+      stronger aggregate rejection checks while reconciling the older flat
+      record/variant patch. I require the structured-C suite and keep declared
+      layouts, nested fields and linked aggregate metadata open under MAC
+      `task_a4fde0d59ad24fe18c285a76ad58c176`.
+      The suite passes 609 checks, including an added integer/record parameter
+      conflict with an unused argument. I retain production code unchanged.
+      Evidence: `docs/evidence/pr-269-reconciliation.md`.
 - [x] **PR #267 reconciliation.** I compare its actual external-capture
       failure patch with my newer fail-closed implementation, retain current
       diagnostics and expanded recovery checks, and verify concurrent compiler
