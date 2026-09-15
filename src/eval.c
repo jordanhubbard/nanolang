@@ -1836,14 +1836,25 @@ static Value builtin_map(Value *args, Environment *env) {
     }
     
     const char *transform_fn_name = args[1].as.function_val.function_name;
+    Function *transform = env_get_function(env, transform_fn_name);
+    ValueType result_type = VAL_VOID;
+    if (transform) {
+        switch (transform->return_type) {
+            case TYPE_INT: result_type = VAL_INT; break;
+            case TYPE_FLOAT: result_type = VAL_FLOAT; break;
+            case TYPE_BOOL: result_type = VAL_BOOL; break;
+            case TYPE_STRING: result_type = VAL_STRING; break;
+            default: break;
+        }
+    }
     
     /* Handle static arrays */
     if (args[0].type == VAL_ARRAY) {
         Array *input_arr = args[0].as.array_val;
         int64_t len = input_arr->length;
         
-        /* Create new array of same type and size */
-        Value result = create_array(input_arr->element_type, len, len);
+        /* I retain declared scalar output types even when no callback runs. */
+        Value result = create_array(result_type == VAL_VOID ? input_arr->element_type : result_type, len, len);
         Array *output_arr = result.as.array_val;
         
         /* Apply transform to each element */
@@ -1886,28 +1897,28 @@ static Value builtin_map(Value *args, Environment *env) {
             switch (output_arr->element_type) {
                 case VAL_INT:
                     if (transformed.type != VAL_INT) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((long long*)output_arr->data)[i] = transformed.as.int_val;
                     break;
                 case VAL_FLOAT:
                     if (transformed.type != VAL_FLOAT) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((double*)output_arr->data)[i] = transformed.as.float_val;
                     break;
                 case VAL_BOOL:
                     if (transformed.type != VAL_BOOL) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((bool*)output_arr->data)[i] = transformed.as.bool_val;
                     break;
                 case VAL_STRING:
                     if (transformed.type != VAL_STRING) {
-                        fprintf(stderr, "Error: Transform function must return same type as array elements\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     ((char**)output_arr->data)[i] = strdup(transformed.as.string_val);
@@ -1928,7 +1939,8 @@ static Value builtin_map(Value *args, Environment *env) {
 
         /* Fast path: pure arithmetic lambda — bypass call_function overhead.
          * Pre-allocate full output, extract restrict pointers, inline the expression. */
-        if (elem_type == ELEM_INT || elem_type == ELEM_FLOAT) {
+        if ((elem_type == ELEM_INT && result_type == VAL_INT) ||
+            (elem_type == ELEM_FLOAT && result_type == VAL_FLOAT)) {
             Function *fn = env_get_function(env, transform_fn_name);
             if (fn && fn->param_count == 1 && fn->body &&
                 is_pure_arithmetic_lambda(fn->body)) {
@@ -1955,8 +1967,8 @@ static Value builtin_map(Value *args, Environment *env) {
             }
         }
 
-        /* Create new dynamic array of same type */
-        DynArray *output_arr = dyn_array_new(elem_type);
+        ElementType output_type = result_type == VAL_VOID ? elem_type : value_type_to_elem_type(result_type);
+        DynArray *output_arr = dyn_array_new(output_type);
 
         /* Apply transform to each element */
         for (int64_t i = 0; i < len; i++) {
@@ -2002,38 +2014,38 @@ static Value builtin_map(Value *args, Environment *env) {
             }
             
             /* Push transformed value to output array */
-            switch (elem_type) {
+            switch (output_type) {
                 case ELEM_INT:
                     if (transformed.type != VAL_INT) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_int(output_arr, transformed.as.int_val);
                     break;
                 case ELEM_FLOAT:
                     if (transformed.type != VAL_FLOAT) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_float(output_arr, transformed.as.float_val);
                     break;
                 case ELEM_BOOL:
                     if (transformed.type != VAL_BOOL) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_bool(output_arr, transformed.as.bool_val);
                     break;
                 case ELEM_STRING:
                     if (transformed.type != VAL_STRING) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_string_copy(output_arr, transformed.as.string_val);
                     break;
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
-                        fprintf(stderr, "Error: Transform function must return same type\n");
+                        fprintf(stderr, "I require the transform's declared result type in map.\n");
                         return create_void();
                     }
                     dyn_array_push_array(output_arr, transformed.as.dyn_array_val);

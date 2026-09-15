@@ -129,6 +129,10 @@ two map arguments, a unary value-producing transform and matching scalar input
 types. I test named, variable and returned transforms. Complete nominal/nested
 callback metadata and cross-backend result storage remain roadmap work; these
 frontend checks do not establish complete map runtime support.
+My interpreter now allocates scalar map results from the transform's declared
+return type. I test int, float, bool and string results with static/dynamic
+input arrays, empty/nonempty inputs and unchanged input values. VM and native
+result allocation still require separate corrections.
 
 ## String Literals
 

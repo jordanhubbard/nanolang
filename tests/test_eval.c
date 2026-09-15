@@ -1819,6 +1819,65 @@ void test_eval_map_pure_arithmetic_int(void) {
 }
 
 /* map fast path: single-return pure-arithmetic fn on float DynArray */
+void test_eval_map_declared_scalar_results(void) {
+    const char *types[] = {"int", "float", "bool", "string"};
+    const char *values[] = {"42", "1.5", "true", "\"mapped\""};
+    ValueType tags[] = {VAL_INT, VAL_FLOAT, VAL_BOOL, VAL_STRING};
+    ElementType elements[] = {ELEM_INT, ELEM_FLOAT, ELEM_BOOL, ELEM_STRING};
+    for (int type = 0; type < 4; type++) {
+        for (int dynamic = 0; dynamic < 2; dynamic++) {
+            for (int length = 0; length < 2; length++) {
+                char source[512];
+                snprintf(source, sizeof(source),
+                    "fn transform(x: int) -> %s { return %s } "
+                    "fn mapped(xs: array<int>) -> array<%s> { return (map xs transform) } "
+                    "fn main() -> int { return 0 }", types[type], values[type], types[type]);
+                RunCtx ctx;
+                ASSERT(run_ctx_init(&ctx, source));
+                Value input = create_void();
+                if (dynamic) {
+                    input.type = VAL_DYN_ARRAY;
+                    input.as.dyn_array_val = dyn_array_new(ELEM_INT);
+                    if (length) dyn_array_push_int(input.as.dyn_array_val, 7);
+                } else {
+                    input = create_array(VAL_INT, length, length);
+                    if (length) ((long long *)input.as.array_val->data)[0] = 7;
+                }
+                Value output = call_function("mapped", &input, 1, ctx.env);
+                ASSERT(!output.is_return);
+                if (dynamic) {
+                    ASSERT(output.type == VAL_DYN_ARRAY);
+                    ASSERT(dyn_array_get_elem_type(output.as.dyn_array_val) == elements[type]);
+                    ASSERT(dyn_array_length(output.as.dyn_array_val) == length);
+                    if (length) {
+                        if (type == 0) ASSERT(dyn_array_get_int(output.as.dyn_array_val, 0) == 42);
+                        if (type == 1) ASSERT(dyn_array_get_float(output.as.dyn_array_val, 0) == 1.5);
+                        if (type == 2) ASSERT(dyn_array_get_bool(output.as.dyn_array_val, 0));
+                        if (type == 3) ASSERT(!strcmp(dyn_array_get_string(output.as.dyn_array_val, 0), "mapped"));
+                        ASSERT(dyn_array_get_int(input.as.dyn_array_val, 0) == 7);
+                    }
+                } else {
+                    ASSERT(output.type == VAL_ARRAY);
+                    Array *array = output.as.array_val;
+                    ASSERT(array->element_type == tags[type]);
+                    ASSERT(array->length == length);
+                    if (length) {
+                        if (type == 0) ASSERT(((long long *)array->data)[0] == 42);
+                        if (type == 1) ASSERT(((double *)array->data)[0] == 1.5);
+                        if (type == 2) ASSERT(((bool *)array->data)[0]);
+                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); free(((char **)array->data)[0]); }
+                        ASSERT(((long long *)input.as.array_val->data)[0] == 7);
+                    }
+                    free(array->data);
+                    free(array);
+                }
+                run_ctx_free(&ctx);
+                if (!dynamic) { free(input.as.array_val->data); free(input.as.array_val); }
+            }
+        }
+    }
+}
+
 void test_eval_map_pure_arithmetic_float(void) {
     RunCtx ctx;
     bool ok = run_ctx_init(&ctx,
@@ -2628,6 +2687,7 @@ int main(void) {
 
     TEST(eval_map_pure_arithmetic_int);
     TEST(eval_map_pure_arithmetic_float);
+    TEST(eval_map_declared_scalar_results);
     TEST(eval_reduce_pure_arithmetic_int);
     TEST(eval_reduce_pure_arithmetic_float);
     TEST(eval_unary_minus_int_array);

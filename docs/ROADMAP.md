@@ -385,6 +385,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           runtime representation and complete backend acceptance remain required.
           The frontend correction passes twelve typechecker cases, the full
           typechecker/interpreter gates, and all three foreign claim methods.
+          I next allocate interpreter scalar map results from the declared
+          transform result, not the source representation; empty results retain
+          their tag. I test static/dynamic, empty/nonempty arrays for int, float,
+          bool and string results and preserve input values. VM currently emits
+          `ARR_NEW TAG_INT`; native lowering still assumes matching input/output
+          types. Both remain required before this item can close.
+          All sixteen interpreter combinations pass, including the complete
+          rebuilt evaluator gate and a final evaluator-object rebuild/test
+          after diagnostic wording changes. Logs:
+          `/tmp/nanolang-map-runtime.log`, `/tmp/nanolang-map-runtime-final.log`.
         - [x] I provide VM left/right string trimming with the existing four-byte
           whitespace contract, checking empty/all-whitespace input, the opposite
           edge and UTF-8 preservation on native and VM paths.
