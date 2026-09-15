@@ -28,6 +28,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **VM shadow completion handshake.** I reject foreign `exit(0)` before
+      shadow execution returns, preserving prior bytecode. I require a private
+      close-on-exec completion channel as well as a successful child status.
+      MAC `task_9d9eefa909be4990be0151bed7439953`; both early-exit regression
+      cases fail before the fix, then all 40 bytecode-shadow methods pass.
+      Evidence: `docs/evidence/vm-shadow-branch-reconciliation.md`.
+- [x] **VM-shadow worker reconciliation.** I compare `a1399362` with my
+      current graph-wide shadows, typed math lowering and signature checks.
+      I retain dependency shadows by default and current publication guards,
+      and require the complete bytecode-shadow test module before recording
+      ancestry. MAC `task_4c6ff6e9986a49d6a01701a66b8842d6`.
 - [x] **PR #295 reconciliation.** I integrate main's verifier cleanup and
       ownership-propagation regression while retaining my allocation-counted
       rejection tests and unknown-effect cleanup. I require schema and verifier

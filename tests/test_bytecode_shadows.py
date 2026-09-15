@@ -251,6 +251,20 @@ shadow main { assert true }
             self.assertIn(b"after 10 seconds", result.stderr)
             self.assertFalse(output.exists())
 
+    def test_foreign_zero_exit_does_not_complete_shadows(self):
+        for exit_name in ("exit", "_exit"):
+            with self.subTest(exit_name=exit_name), tempfile.TemporaryDirectory(prefix="nano-shadow-exit-") as tmp:
+                directory = Path(tmp)
+                output = directory / "program.nvm"
+                output.write_bytes(b"prior verified artifact")
+                source = (f"extern fn {exit_name}(status: int) -> void\n"
+                          "fn main() -> int { return 0 }\n"
+                          f"shadow main {{ unsafe {{ ({exit_name} 0) }} assert false }}\n")
+                result, output = self.compile(source, directory)
+                self.assertNotEqual(result.returncode, 0, result.stderr)
+                self.assertIn(b"shadow", result.stderr.lower())
+                self.assertEqual(output.read_bytes(), b"prior verified artifact")
+
     def test_foreign_module_source_directory(self):
         for cached in (False, True):
             for absolute in (False, True):

@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <signal.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -247,9 +248,25 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
         nvm_module_free(tests.module);
         return false;
     }
+    int completion[2];
+    if (pipe(completion) != 0) {
+        fprintf(stderr, "I could not create the shadow completion channel\n");
+        nvm_module_free(tests.module);
+        return false;
+    }
+    if (fcntl(completion[0], F_SETFL, O_NONBLOCK) < 0 ||
+        fcntl(completion[0], F_SETFD, FD_CLOEXEC) < 0 ||
+        fcntl(completion[1], F_SETFD, FD_CLOEXEC) < 0) {
+        close(completion[0]);
+        close(completion[1]);
+        nvm_module_free(tests.module);
+        fprintf(stderr, "I could not configure the shadow completion channel\n");
+        return false;
+    }
     fflush(NULL);
     pid_t child = fork();
     if (child == 0) {
+        close(completion[0]);
         /* I bound test execution, not its authority: this is not a sandbox. */
         signal(SIGALRM, SIG_DFL);
         alarm(10);
@@ -265,9 +282,14 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
         if (vm.cop_pid > 0) vm_ffi_cop_stop(&vm);
         vm_destroy(&vm);
         vm_ffi_shutdown();
+        unsigned char done = 1;
+        bool completed = status == VM_OK && write(completion[1], &done, 1) == 1;
+        close(completion[1]);
         fflush(NULL);
-        _exit(status == VM_OK ? 0 : 1);
+        _exit(completed ? 0 : 1);
     }
+    int fork_error = errno;
+    close(completion[1]);
     int status = 0;
     pid_t waited = -1;
     bool timed_out = false;
@@ -289,13 +311,16 @@ static bool check_shadows(ASTNode *program, Environment *env, ModuleList *module
             nanosleep(&pause, NULL);
         }
     }
-    int supervision_error = errno;
+    int supervision_error = child < 0 ? fork_error : errno;
+    unsigned char done = 0;
+    bool completed = read(completion[0], &done, 1) == 1 && done == 1;
+    close(completion[0]);
     nvm_module_free(tests.module);
     if (child < 0 || waited < 0) {
         fprintf(stderr, "I could not supervise shadow execution: %s\n", strerror(supervision_error));
         return false;
     }
-    if (clock_failed || timed_out || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+    if (clock_failed || timed_out || !completed || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
         if (clock_failed)
             fprintf(stderr, "I could not measure the shadow execution deadline\n");
         else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
