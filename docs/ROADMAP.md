@@ -45,9 +45,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         inside `path_relpath`; public normalization does not fix this caller.
         Long shared-prefix and 4,504-byte result tests pass. Evidence:
         `docs/evidence/dynamic-relative-paths.md`.
-- [ ] **Relative-path anchors.** I define and verify dot, mixed-root and
+- [x] **Relative-path anchors.** I define and verify dot, mixed-root and
       unresolved-parent behavior rather than treating all normalized components
       as interchangeable. MAC `task_64696231d8984732a5a1e1c319ca043b`.
+      I anchor relative inputs to one dynamically read working directory;
+      reconstruction, long-cwd and unavailable-cwd cases pass. Evidence:
+      `docs/evidence/relative-path-anchors.md`.
 - [x] **AOT identity checks.** I preserve file/destination identity semantics
       for builtin imports, including hard links, missing paths and failed
       lookups. I test absent-destination probe cleanup in private directories.

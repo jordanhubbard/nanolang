@@ -64,7 +64,8 @@ int main(void) {
     strcpy(shared, components); strcat(shared, "/leaf");
     relative = path_relpath(shared, components);
     assert(relative && strcmp(relative, "leaf") == 0); free((void *)relative);
-    relative = path_relpath(long_name, "/");
+    char absolute_long[5002]; absolute_long[0] = '/'; strcpy(absolute_long + 1, long_name);
+    relative = path_relpath(absolute_long, "/");
     assert(relative && strcmp(relative, long_name) == 0); free((void *)relative);
     char many[3001], expected[4505];
     for (int i = 0; i < 1500; ++i) {
@@ -88,6 +89,68 @@ int main(void) {
                 self.assertEqual(built.returncode, 0, built.stderr.decode())
                 run = subprocess.run([str(work / "probe")], cwd=work, capture_output=True, timeout=10)
                 self.assertEqual(run.returncode, 0, run.stderr.decode())
+
+    def test_relative_anchors(self):
+        with tempfile.TemporaryDirectory(prefix="nano-relpath-anchors-") as tmp:
+            work = Path(tmp)
+            source = work / "probe.c"
+            source.write_text(r'''
+#include "modules/std/fs.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/stat.h>
+int main(int argc, char **argv) {
+    if (argc == 2) {
+        if (mkdir("vanished", 0700) || chdir("vanished") || rmdir("../vanished")) return 2;
+        const char *result = path_relpath("/a/b", "/a");
+        if (!result || strcmp(result, "b")) return 3;
+        free((void *)result);
+        result = path_relpath("leaf", ".");
+        if (result) { free((void *)result); return 4; }
+        return 0;
+    }
+    if (argc != 4) return 2;
+    const char *result = path_relpath(argv[1], argv[2]);
+    if (!result || strcmp(result, argv[3])) {
+        fprintf(stderr, "I got %s, expected %s\n", result ? result : "NULL", argv[3]);
+        free((void *)result); return 1;
+    }
+    free((void *)result); return 0;
+}
+''')
+            built = subprocess.run([*shlex.split(os.environ.get("CC", "cc")),
+                                    "-std=c99", "-D_GNU_SOURCE", "-Wall", "-Wextra", "-Werror",
+                                    "-Isrc", "-I.", str(source), "modules/std/fs.c",
+                                    "src/runtime/dyn_array.c", "src/runtime/gc.c", "src/runtime/gc_struct.c",
+                                    "-o", str(work / "probe")], cwd=ROOT, capture_output=True, timeout=60)
+            self.assertEqual(built.returncode, 0, built.stderr.decode())
+            cases = [(".", "."), ("leaf", "."), (".", "leaf"), ("../leaf", "."),
+                     ("leaf", "../a"), ("/a/b", "."), ("leaf", "/a"), ("", ""),
+                     ("", "a"), ("/a/../b", "/"), ("../..", "../../x"),
+                     ("a/./b/../../c", "a/../b"), ("missing/target", "missing/base")]
+            anchor = str(work.resolve())
+            for target, base in cases:
+                with self.subTest(target=target, base=base):
+                    target_absolute = os.path.normpath(os.path.join(anchor, target))
+                    base_absolute = os.path.normpath(os.path.join(anchor, base))
+                    expected = os.path.relpath(target_absolute, base_absolute)
+                    run = subprocess.run([str(work / "probe"), target, base, expected],
+                                         cwd=work, capture_output=True, timeout=10)
+                    self.assertEqual(run.returncode, 0, run.stderr.decode())
+                    self.assertEqual(os.path.normpath(os.path.join(base_absolute, expected)), target_absolute)
+            deep = work
+            for _ in range(3):
+                deep = deep / ("d" * 100)
+                deep.mkdir()
+            expected = str(deep.resolve() / "leaf").lstrip("/")
+            run = subprocess.run([str(work / "probe"), "leaf", "/", expected], cwd=deep,
+                                 capture_output=True, timeout=10)
+            self.assertEqual(run.returncode, 0, run.stderr.decode())
+            run = subprocess.run([str(work / "probe"), "deleted-cwd"], cwd=work,
+                                 capture_output=True, timeout=10)
+            self.assertEqual(run.returncode, 0, run.stderr.decode())
 
 
 if __name__ == "__main__":

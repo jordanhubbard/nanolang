@@ -45,7 +45,11 @@ const char* path_basename(const char* path);
 /* Get dirname of path */
 const char* path_dirname(const char* path);
 
-/* Compute relative path from base to target */
+/* I anchor relative inputs to one working-directory snapshot, then compare
+ * normalized absolute components. I do not resolve target/base symlinks or
+ * require them to exist. Empty input means the working directory. I return
+ * owned text, or NULL when allocation or a required cwd lookup fails.
+ * Legacy null pointer input returns ".". */
 const char* path_relpath(const char* target, const char* base);
 
 /* Read file content as string */

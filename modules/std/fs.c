@@ -161,13 +161,44 @@ const char* path_dirname(const char* path) {
     return result;
 }
 
-/* I compare normalized lexical components without fixed path/token buffers.
- * Mixed roots and unresolved parent components retain the existing lexical
- * comparison rules; I do not resolve either path against a working directory. */
+static char *relative_path_cwd(void) {
+    size_t capacity = 256;
+    for (;;) {
+        char *cwd = malloc(capacity);
+        if (!cwd) return NULL;
+        if (getcwd(cwd, capacity)) return cwd;
+        int error = errno;
+        free(cwd);
+        if (error != ERANGE || capacity > SIZE_MAX / 2) return NULL;
+        capacity *= 2;
+    }
+}
+
+static char *relative_path_absolute(const char *path, const char *cwd) {
+    if (path[0] == '/') return nl_normalize_path(path);
+    size_t prefix = strlen(cwd), suffix = strlen(path);
+    if (suffix > SIZE_MAX - 2 || prefix > SIZE_MAX - suffix - 2) return NULL;
+    char *joined = malloc(prefix + suffix + 2);
+    if (!joined) return NULL;
+    memcpy(joined, cwd, prefix); joined[prefix] = '/';
+    memcpy(joined + prefix + 1, path, suffix + 1);
+    char *normalized = nl_normalize_path(joined);
+    free(joined);
+    return normalized;
+}
+
+/* I anchor relative inputs to one cwd snapshot before lexical comparison.
+ * I do not require target/base existence or resolve their symbolic links. */
 const char* path_relpath(const char* target, const char* base) {
     if (!target || !base) return strdup(".");
-    char *target_norm = nl_normalize_path(target);
-    char *base_norm = nl_normalize_path(base);
+    char *cwd = NULL;
+    if (target[0] != '/' || base[0] != '/') {
+        cwd = relative_path_cwd();
+        if (!cwd) return NULL;
+    }
+    char *target_norm = relative_path_absolute(target, cwd);
+    char *base_norm = relative_path_absolute(base, cwd);
+    free(cwd);
     if (!target_norm || !base_norm) {
         free(target_norm); free(base_norm); return NULL;
     }
