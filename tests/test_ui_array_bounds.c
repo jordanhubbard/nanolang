@@ -19,6 +19,15 @@ static int fake_size(TTF_Font *f, const char *s, int *w, int *h) {
 }
 static Uint8 copied_alpha, copied_r;
 static SDL_BlendMode copied_blend;
+static SDL_bool clip_enabled;
+static SDL_Rect clip_rect;
+static SDL_bool fake_clip_enabled(SDL_Renderer *r) { (void)r; return clip_enabled; }
+static void fake_get_clip(SDL_Renderer *r, SDL_Rect *out) { (void)r; *out=clip_rect; }
+static int fake_set_clip(SDL_Renderer *r, const SDL_Rect *p) {
+    (void)r; clip_enabled=p ? SDL_TRUE : SDL_FALSE;
+    if (p) clip_rect=*p;
+    return 0;
+}
 static int get_color(SDL_Texture *t, Uint8 *r, Uint8 *g, Uint8 *b) {
     (void)t; *r=texture_r; *g=texture_g; *b=texture_b; return fail_texture_query;
 }
@@ -72,7 +81,9 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_SetRenderDrawColor color
 #define SDL_RenderFillRect fake_rect
 #define SDL_RenderDrawRect fake_rect
-#define SDL_RenderSetClipRect fake_rect
+#define SDL_RenderSetClipRect fake_set_clip
+#define SDL_RenderGetClipRect fake_get_clip
+#define SDL_RenderIsClipEnabled fake_clip_enabled
 #define SDL_RenderDrawLine line
 #define SDL_RenderDrawPoint fake_point
 #define TTF_RenderText_Blended fake_text
@@ -388,6 +399,39 @@ static void text_inputs(void) {
     assert(measure_calls == measures);
     measured_w=10;
 }
+static void list_geometry(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    char *items[] = {"row"};
+    DynArray a={.length=1,.capacity=1,.elem_type=ELEM_STRING,
+                .elem_size=sizeof(char*),.data=items};
+    int draws=draw_calls, mice=mouse_calls;
+    assert(nl_ui_scrollable_list(r,f,&a,1,INT64_MAX,0,100,50,0,-1) == -1);
+    assert(nl_ui_file_selector(r,f,&a,1,INT_MAX,0,100,50,0,-1) == -1);
+    assert(nl_ui_scrollable_list(r,f,&a,1,0,0,9,50,0,-1) == -1);
+    assert(nl_ui_file_selector(r,f,&a,1,0,0,15,50,0,-1) == -1);
+    assert(draw_calls == draws && mouse_calls == mice);
+    expected_text="row"; provide_surface=1;
+    test_surface.w=10; test_surface.h=10;
+    host_mouse_x=10; host_mouse_y=10; host_buttons=SDL_BUTTON(SDL_BUTTON_LEFT);
+    clip_enabled=SDL_TRUE; clip_rect=(SDL_Rect){1,2,3,4};
+    assert(nl_ui_scrollable_list(r,f,&a,1,0,0,100,50,0,-1) == -1);
+    assert(nl_ui_file_selector(r,f,&a,1,0,0,100,50,0,-1) == -1);
+    host_buttons=0;
+    assert(nl_ui_scrollable_list(r,f,&a,1,0,0,100,50,0,0) == 0);
+    assert(nl_ui_file_selector(r,f,&a,1,0,0,100,50,0,0) == 0);
+    assert(clip_enabled && clip_rect.x == 1 && clip_rect.y == 2 &&
+           clip_rect.w == 3 && clip_rect.h == 4);
+    int copies=render_copies, frees=surface_frees, textures=texture_frees;
+    test_surface.w=INT_MAX; test_surface.h=INT_MAX;
+    assert(nl_ui_scrollable_list(r,f,&a,1,INT_MIN,INT_MIN,100,50,0,0) == -1);
+    assert(nl_ui_file_selector(r,f,&a,1,INT_MIN,INT_MIN,100,50,0,0) == -1);
+    assert(render_copies == copies && surface_frees == frees+2 && texture_frees == textures+2);
+    provide_surface=0; clip_enabled=SDL_FALSE;
+    assert(nl_ui_scrollable_list(r,f,&a,1,INT_MAX-100,INT_MAX-50,100,50,0,0) == -1);
+    assert(!clip_enabled);
+    assert(nl_ui_file_selector(r,f,&a,1,INT_MAX-100,INT_MAX-50,100,50,0,0) == -1);
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -461,5 +505,6 @@ int main(void) {
     image_buttons();
     tooltips();
     text_inputs();
+    list_geometry();
     return 0;
 }

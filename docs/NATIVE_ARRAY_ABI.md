@@ -152,6 +152,10 @@ tests cover unterminated buffers, extreme surfaces, failed measurements and
 repeated blink cycles normally and under the same sanitizers. The function is
 still render-only and always returns zero; editing and Enter handling are
 tracked separately rather than claimed as complete.
+Scrollable lists and file selectors now check outer geometry and row text
+placement; the list restores prior clip state. The fake-SDL fixture checks
+coordinate limits, minimum widths, press/release selection, rejected-text
+cleanup and enabled/disabled clip restoration under the same gates.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

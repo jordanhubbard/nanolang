@@ -42,6 +42,10 @@
  * unrepresentable padded placement. Rendered surfaces are checked separately
  * and released when their placement is rejected. */
 
+/* My scrollable list requires width >= 10; the file selector requires >= 16.
+ * Both reject invalid SDL geometry before interaction and skip unplaceable
+ * row text with cleanup. The scrollable list restores the caller's clip state. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

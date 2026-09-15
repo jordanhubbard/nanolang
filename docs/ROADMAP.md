@@ -266,6 +266,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     and rejected surface cleanup.
                   - [x] I bound text-input buffer reads, geometry, text and
                     cursor placement, measurement failures and blink counting.
+                  - [x] I validate list/file-selector geometry and row text
+                    placement, preserving the caller's clip rectangle; I test
+                    coordinate limits, selection, and rejected text cleanup.
                   - [ ] I reconcile the text-input API's promised editing and
                     Enter behavior with its current render-only implementation.
                 - [x] I make process pipe-spawn result allocation precede pipe

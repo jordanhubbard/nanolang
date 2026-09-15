@@ -522,7 +522,8 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
                                int64_t scroll_offset, int64_t selected_index) {
     
     if (!renderer || !font || !ui_array_valid(items, item_count) ||
-        scroll_offset < 0 || scroll_offset > item_count) return -1;
+        scroll_offset < 0 || scroll_offset > item_count || w < 10 ||
+        !ui_bar_geometry(x, y, w, h, 0)) return -1;
     
     int64_t clicked_index = -1;
     
@@ -551,6 +552,9 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
     int visible_count = (int)h / item_height;
 
     // Clip list contents to its rectangle
+    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
+    SDL_Rect previous_clip;
+    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &bg);
     
     // Draw items
@@ -607,17 +611,16 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_x = (int)x + 10;
-                int text_y = item_y + (item_height - surface->h) / 2;
-                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_Rect area = {(int)x + 10, item_y, surface->w, item_height}, dest;
+                if (ui_centered_rect(area, surface->w, surface->h, &dest))
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
         }
     }
 
-    SDL_RenderSetClipRect(renderer, NULL);
+    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
     
     list_prev_mouse_down = mouse_down;
     return clicked_index;
@@ -1051,7 +1054,8 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
     
     if (!renderer || !font || !ui_array_valid(files, file_count) ||
         file_count == 0 || scroll_offset < 0 ||
-        scroll_offset > file_count) return -1;
+        scroll_offset > file_count || w < 16 ||
+        !ui_bar_geometry(x, y, w, h, 0)) return -1;
     
     int64_t clicked_item = -1;
     
@@ -1110,12 +1114,11 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect dest = {(int)x + 8, item_y + (item_h - surface->h) / 2, surface->w, surface->h};
-                // Clip if too wide
-                if (dest.w > (int)w - 16) {
-                    dest.w = (int)w - 16;
-                }
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int text_w = surface->w;
+                if (text_w > (int)w - 16) text_w = (int)w - 16;
+                SDL_Rect area = {(int)x + 8, item_y, text_w, item_h}, dest;
+                if (ui_centered_rect(area, text_w, surface->h, &dest))
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
