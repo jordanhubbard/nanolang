@@ -10,6 +10,44 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class MapResults(unittest.TestCase):
+    @unittest.skipUnless(os.environ.get("NANOLANG_MAP_SELFHOST"),
+                         "I run this Stage2 trace in test-selfhost-map-results")
+    def test_selfhost_map_evaluation_order(self):
+        with tempfile.TemporaryDirectory(prefix="nano-map-order-") as tmp:
+            source = Path(tmp) / "order.nano"
+            source.write_text('''fn input() -> array<int> {
+    (println "source")
+    return [1, 2]
+}
+shadow input { assert (== (array_length (input)) 2) }
+fn transform(n: int) -> float {
+    (println "transform")
+    return 1.5
+}
+shadow transform { assert (== (transform 1) 1.5) }
+fn choose() -> fn(int) -> float {
+    (println "choose")
+    return transform
+}
+shadow choose { assert (== ((choose) 1) 1.5) }
+fn main() -> int {
+    let mapped: array<float> = (map (input) (choose))
+    assert (== (array_length mapped) 2)
+    assert (== (at mapped 0) 1.5)
+    assert (== (at mapped 1) 1.5)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+            artifact = Path(tmp) / "order"
+            built = subprocess.run([str(ROOT / "bin/nanoc_stage2"), str(source),
+                                    "-o", str(artifact)], cwd=ROOT,
+                                   capture_output=True, timeout=60)
+            self.assertEqual(built.returncode, 0, built.stdout + built.stderr)
+            ran = subprocess.run([str(artifact)], capture_output=True, timeout=20)
+            self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+            self.assertEqual(ran.stdout, b"source\nchoose\ntransform\ntransform\n")
+
     def test_scalar_results(self):
         inputs = (("int", "7"), ("float", "2.5"), ("bool", "true"), ("string", '"input"'))
         outputs = (("int", "42"), ("float", "1.5"), ("bool", "true"), ("string", '"mapped"'))

@@ -184,6 +184,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         I replace process-name cleanup with owned handles and private sockets,
         audit masked failures, and test preservation of unrelated processes.
         MAC `task_a02a66101b184e6eaa3e61480079f300`.
+        Its claimed crash-recovery case never kills a worker, and global
+        process-name counts cannot prove per-client isolation or lazy launch.
+        I require observed owned-worker identity and an actual injected crash,
+        not merely successful repeated calls or matching ambient counts.
       - [ ] I require semantic rejection evidence in the self-hosted shell
         suite. Its negative-test loop currently counts any compiler failure,
         including timeout or launch failure, as a pass and discards diagnostics.
@@ -468,6 +472,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           My generated `nl_map` still hard-codes `int64_t (*fn)(int64_t)`.
           I retain every pairing and fix that lowering next; a cast would not
           establish callback ABI or result-storage correctness.
+          I lower scalar maps at each call site using the transform's declared
+          parameter/result types. I evaluate source then transform once, read
+          the input representation and allocate/push the result representation
+          independently, including empty arrays. I rerun the unchanged Stage2
+          matrix and returned-call gate after rebuilding both stages.
+          Both stages rebuild, all 16 Stage2 scalar pairings pass, and the
+          three returned-call methods remain green. A separate execution trace
+          checks source then transform evaluation once and one callback per
+          element. The final two-method Stage2 map run passes in 52.268 seconds.
+          [Evidence](evidence/selfhost-scalar-map.md). Nominal/nested metadata,
+          aggregate layouts and full signature validation remain open.
           All sixteen interpreter combinations pass, including the complete
           rebuilt evaluator gate and a final evaluator-object rebuild/test
           after diagnostic wording changes. Logs:

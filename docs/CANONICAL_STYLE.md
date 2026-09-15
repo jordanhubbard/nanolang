@@ -142,7 +142,13 @@ input arrays, empty/nonempty inputs and unchanged input values. My C-native and
 VM lowering now use the same declared scalar result type when allocating map
 output. I test all 16 scalar input/result pairs on both paths, including named,
 variable and returned transforms and append-after-empty. This does not establish
-nominal/nested callback metadata or self-hosted lowering parity.
+nominal/nested callback metadata or aggregate map support.
+My self-hosted native emitter now passes the same 16 scalar input/result
+pairings with named, variable and returned transforms, empty results and
+append-after-empty. It reads and writes the two declared representations
+independently. A separate trace checks that source and transform expressions
+run once in that order, then the callback once per element. Complete
+self-hosted signature validation and aggregate map parity remain work.
 
 ## String Literals
 
