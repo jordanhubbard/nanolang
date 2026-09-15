@@ -290,6 +290,28 @@ shadow process_string {
     assert (== (list_LexerToken_length tokens) 1)
 }
 
+fn advance_physical_lines(source: string, start: int, end: int, line: int, line_start: int) -> (int, int) {
+    let mut pos: int = start
+    let mut next_line: int = line
+    let mut next_line_start: int = line_start
+    while (< pos end) {
+        if (== (char_at source pos) 10) {
+            set next_line (+ next_line 1)
+            set next_line_start (+ pos 1)
+        } else {
+            (print "")
+        }
+        set pos (+ pos 1)
+    }
+    return (next_line, next_line_start)
+}
+
+shadow advance_physical_lines {
+    let position: (int, int) = (advance_physical_lines "a\nb\nc" 0 4 7 20)
+    assert (== position.0 9)
+    assert (== position.1 4)
+}
+
 fn process_number(source: string, i: int, len: int, tokens: List<LexerToken>, line: int, column: int) -> int {
     let mut pos: int = i
     let start: int = pos
@@ -775,7 +797,11 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                     if (== new_pos -1) {
                                         let diag: CompilerDiagnostic = (diag_lexer_error "L0002" "Unterminated string literal" (diag_location file_name line column))
                                         (diag_list_add diags diag)
-                                    } else { (print "") }
+                                    } else {
+                                        let position: (int, int) = (advance_physical_lines source i new_pos line line_start)
+                                        set line position.0
+                                        set line_start position.1
+                                    }
                                 } else {
                                     if (or (is_digit_char c) (and (and (== c 45) (< (+ i 1) len)) (is_digit_char (char_at source (+ i 1))))) {
                                         set new_pos (process_number source i len tokens line column)
@@ -783,6 +809,13 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                                     /* f-string interpolation: f"..." */
                                     if (and (== c 102) (and (< (+ i 1) len) (== (char_at source (+ i 1)) 34))) {
                                         set new_pos (process_fstring source i len tokens diags file_name line column)
+                                        if (!= new_pos -1) {
+                                            let position: (int, int) = (advance_physical_lines source i new_pos line line_start)
+                                            set line position.0
+                                            set line_start position.1
+                                        } else {
+                                            (print "")
+                                        }
                                     } else {
                                         if (is_identifier_start c) {
                                             set new_pos (process_identifier source i len tokens line column)
@@ -927,4 +960,21 @@ shadow tokenize_string {
     let toks_bad: List<LexerToken> = (tokenize_string bad "cafe.nano" diags_bad)
     assert (== (list_LexerToken_length toks_bad) 0)
     assert (diag_list_has_errors diags_bad)
+
+    let multiline: string = "let text: string = \"one\ntwo\"\nfn after() -> int { return 0 }"
+    let multiline_diags: List<CompilerDiagnostic> = (diag_list_new)
+    let multiline_toks: List<LexerToken> = (tokenize_string multiline "multiline.nano" multiline_diags)
+    let mut found_after: bool = false
+    let mut token_index: int = 0
+    while (< token_index (list_LexerToken_length multiline_toks)) {
+        let tok: LexerToken = (list_LexerToken_get multiline_toks token_index)
+        if (== tok.value "after") {
+            assert (== tok.line 3)
+            set found_after true
+        } else {
+            (print "")
+        }
+        set token_index (+ token_index 1)
+    }
+    assert found_after
 }
