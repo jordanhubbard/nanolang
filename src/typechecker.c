@@ -1274,14 +1274,47 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
                 
-                /* Check argument types */
-                for (int i = 0; i < expr->as.call.arg_count; i++) {
-                    check_expression(expr->as.call.args[i], env);
+                FunctionSignature *sig = NULL;
+                if (expr->as.call.func_expr->type == AST_CALL) {
+                    Function *producer = env_get_function(env,
+                        expr->as.call.func_expr->as.call.name);
+                    if (producer) sig = producer->return_fn_sig;
+                } else if (expr->as.call.func_expr->type == AST_IDENTIFIER) {
+                    Symbol *sym = env_get_var_visible_at(env,
+                        expr->as.call.func_expr->as.identifier,
+                        expr->as.call.func_expr->line,
+                        expr->as.call.func_expr->column);
+                    if (sym && sym->type_info) sig = sym->type_info->fn_sig;
                 }
-                
-                /* Return type will be determined at runtime */
-                /* For now, assume it returns int */
-                return TYPE_INT;
+
+                if (!sig) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I cannot determine the called function's signature.",
+                        "Declare the function value with an explicit function type.");
+                    return TYPE_UNKNOWN;
+                }
+                if (expr->as.call.arg_count != sig->param_count) {
+                    char message[256];
+                    snprintf(message, sizeof(message),
+                        "Function value expects %d argument(s), but got %d.",
+                        sig->param_count, expr->as.call.arg_count);
+                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
+                        message, "Add or remove arguments to match the function signature.");
+                    return TYPE_UNKNOWN;
+                }
+                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                    Type actual = check_expression(expr->as.call.args[i], env);
+                    if (!types_match(actual, sig->param_types[i])) {
+                        char message[256];
+                        snprintf(message, sizeof(message),
+                            "Function value argument %d expects %s but got %s.",
+                            i + 1, type_to_string(sig->param_types[i]), type_to_string(actual));
+                        emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                            message, "Pass an argument matching the declared function signature.");
+                        return TYPE_UNKNOWN;
+                    }
+                }
+                return sig->return_type;
             }
             
             /* Regular function call */
@@ -3848,8 +3881,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         /* Check if it's a function-typed variable */
                         Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.identifier);
                         if (sym && sym->type == TYPE_FUNCTION) {
-                            /* TODO: Store function signature in Symbol for function-typed variables */
-                            /* For now, allow it - runtime will handle */
+                            value_sig = sym->type_info ? sym->type_info->fn_sig : NULL;
                         }
                     }
                 } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.func_expr) {
@@ -3968,6 +4000,13 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (sym) {
                 sym->def_line = stmt->line;
                 sym->def_column = stmt->column;
+                if (declared_type == TYPE_FUNCTION && stmt->as.let.fn_sig) {
+                    if (!sym->type_info) {
+                        sym->type_info = calloc(1, sizeof(TypeInfo));
+                        sym->type_info->base_type = TYPE_FUNCTION;
+                    }
+                    sym->type_info->fn_sig = stmt->as.let.fn_sig;
+                }
             }
             
             /* Set struct type name - look up symbol again to be safe */
