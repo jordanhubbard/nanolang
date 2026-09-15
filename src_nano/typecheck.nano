@@ -93,6 +93,9 @@ fn resource_move_identifier(parser: Parser, node_id: int, node_type: int, states
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser node_id)
         let mut nested: array<ResourceState> = states
+        if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+            set nested (resource_move_identifier parser call.function call.function_type nested diags file_name)
+        } else { (print "") }
         let mut arg: int = 0
         while (< arg call.arg_count) {
             let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start arg))
@@ -350,7 +353,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     
     /* ASTCall fields */
     set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
-    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "function_type", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "arg_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTCall", field_name: "line", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
@@ -1101,6 +1104,58 @@ shadow fn_type_return_type {
     assert (== t.kind TypeKind.TYPE_INT)
     let t2: NSType = (fn_type_return_type "fn()->void")
     assert (== t2.kind TypeKind.TYPE_VOID)
+}
+
+fn fn_type_param_types(fn_type_name: string) -> array<NSType> {
+    let mut result: array<NSType> = []
+    let len: int = (str_length fn_type_name)
+    let mut depth: int = 0
+    let mut close: int = -1
+    let mut i: int = 3
+    while (< i len) {
+        let ch: string = (str_substring fn_type_name i 1)
+        if (or (== ch "(") (== ch "<")) {
+            set depth (+ depth 1)
+        } else { if (or (== ch ")") (== ch ">")) {
+            if (and (== ch ")") (== depth 0)) {
+                set close i
+                set i len
+            } else { set depth (- depth 1) }
+        } else { (print "") } }
+        set i (+ i 1)
+    }
+    if (<= close 3) { return result } else { (print "") }
+    let params: string = (str_substring fn_type_name 3 (- close 3))
+    let plen: int = (str_length params)
+    let mut start: int = 0
+    set depth 0
+    set i 0
+    while (< i plen) {
+        let ch: string = (str_substring params i 1)
+        if (or (== ch "(") (== ch "<")) {
+            set depth (+ depth 1)
+        } else { if (or (== ch ")") (== ch ">")) {
+            set depth (- depth 1)
+        } else { if (and (== ch ",") (== depth 0)) {
+            let param_text: string = (str_substring params start (- i start))
+            let param_type: NSType = (type_from_string param_text)
+            set result (array_push result param_type)
+            set start (+ i 1)
+        } else { (print "") } } }
+        set i (+ i 1)
+    }
+    let final_text: string = (str_substring params start (- plen start))
+    let final_type: NSType = (type_from_string final_text)
+    set result (array_push result final_type)
+    return result
+}
+
+shadow fn_type_param_types {
+    let params: array<NSType> = (fn_type_param_types "fn(int,string)->bool")
+    assert (== (array_length params) 2)
+    assert (== (at params 0).kind TypeKind.TYPE_INT)
+    assert (== (at params 1).kind TypeKind.TYPE_STRING)
+    assert (== (array_length (fn_type_param_types "fn()->void")) 0)
 }
 
 /* Create type from string representation */
@@ -2475,6 +2530,37 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let call_node: ASTCall = (parser_get_call parser node_id)
+        if (!= call_node.function_type ParseNodeType.PNODE_IDENTIFIER) {
+            let callee_type: NSType = (check_expr_node parser call_node.function call_node.function_type symbols diags file_name)
+            if (!= callee_type.kind TypeKind.TYPE_FUNCTION) {
+                let msg: string = (+ "I cannot call an expression of type `" (+ (type_to_string callee_type) "`."))
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+                (Diagnostics.diag_list_add diags diag)
+                return (type_unknown_named "call")
+            } else { (print "") }
+            let param_types: array<NSType> = (fn_type_param_types callee_type.name)
+            let param_count: int = (array_length param_types)
+            if (!= call_node.arg_count param_count) {
+                let msg: string = (+ "The function expression expects " (+ (int_to_string param_count) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))
+                let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+                (Diagnostics.diag_list_add diags diag)
+            } else { (print "") }
+            let mut j: int = 0
+            while (< j call_node.arg_count) {
+                let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start j))
+                let arg_type: NSType = (check_expr_node parser arg_ref.node_id arg_ref.node_type symbols diags file_name)
+                if (< j param_count) {
+                    let param_type: NSType = (at param_types j)
+                    if (not (types_equal arg_type param_type)) {
+                        let msg: string = (+ "Argument " (+ (int_to_string (+ j 1)) (+ " to the function expression: expected " (+ (type_to_string param_type) (+ ", got " (type_to_string arg_type))))))
+                        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+                        (Diagnostics.diag_list_add diags diag)
+                    } else { (print "") }
+                } else { (print "") }
+                set j (+ j 1)
+            }
+            return (fn_type_return_type callee_type.name)
+        } else { (print "") }
         let mut i: int = 0
         while (< i call_node.arg_count) {
             let arg_ref: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start i))
@@ -2559,6 +2645,11 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             if (>= idx 0) {
                 let sym: Symbol = (at symbols idx)
                 if sym.is_function {
+                    if (!= call_node.arg_count sym.param_count) {
+                        let msg: string = (+ "The function `" (+ fn_name (+ "` expects " (+ (int_to_string sym.param_count) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))))
+                        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+                        (Diagnostics.diag_list_add diags diag)
+                    } else { (print "") }
                     /* Validate argument types against parameter types */
                     let mut j: int = 0
                     while (< j call_node.arg_count) {
@@ -2578,6 +2669,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 } else {
                     /* Variable being called - if it's a function type, extract return type */
                     if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
+                        let params: array<NSType> = (fn_type_param_types sym.sym_type.name)
+                        if (!= call_node.arg_count (array_length params)) {
+                            let msg: string = (+ "The function value `" (+ fn_name (+ "` expects " (+ (int_to_string (array_length params)) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))))
+                            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
+                            (Diagnostics.diag_list_add diags diag)
+                        } else { (print "") }
                         return (fn_type_return_type sym.sym_type.name)
                     } else {
                         return sym.sym_type

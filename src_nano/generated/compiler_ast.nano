@@ -67,6 +67,7 @@ extern struct ASTCall {
     line: int,
     column: int,
     function: int,
+    function_type: int,
     arg_start: int,
     arg_count: int
 }

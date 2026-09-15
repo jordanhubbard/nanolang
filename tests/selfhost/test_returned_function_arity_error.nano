@@ -1,0 +1,23 @@
+fn identity(value: int) -> int {
+    return value
+}
+
+shadow identity {
+    assert (== (identity 3) 3)
+}
+
+fn choose() -> fn(int) -> int {
+    return identity
+}
+
+shadow choose {
+    assert (== ((choose) 3) 3)
+}
+
+fn main() -> int {
+    return ((choose) 1 2)
+}
+
+shadow main {
+    assert true
+}
