@@ -408,6 +408,16 @@ rejects oversized integers while leaving the hook registered. A separate
 native-C fixture checks the same adapter headers, cross-thread error snapshots
 and callback quiescence at close.
 
+`make test-mixer-sanitizers` runs that native-C fixture with ASan/UBSan and
+TSan. On Darwin with SDL2 compatibility, I obtain SDL3's library directory from
+pkg-config and set `DYLD_LIBRARY_PATH` only for the test children. An executable
+with the same sanitizer first loads SDL3 without linking SDL2. It tests a missing
+library as well, so loader failures appear in stderr before SDL2's startup code
+can open its fatal-error dialog. This checks library discovery, not every future
+SDL ABI mismatch. Darwin LeakSanitizer is disabled because it is unsupported;
+these runs do not establish leak freedom. The SDK libraries themselves are not
+rebuilt with instrumentation by this target.
+
 I accept integer zero, including my current `null_opaque()` value, as a null
 opaque foreign argument. I reject nonzero integer addresses at the retained
 boundary. VM equality recognizes opaque null versus integer zero in either

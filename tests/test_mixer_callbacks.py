@@ -4,6 +4,7 @@ import os
 import shlex
 import json
 import re
+import sys
 import subprocess
 import tempfile
 import unittest
@@ -25,12 +26,39 @@ class MixerCallbacks(unittest.TestCase):
 
     def test_native_operations(self):
         env = dict(os.environ, SDL_AUDIODRIVER="dummy")
+        sanitizer = env.get("NANO_MIXER_SANITIZER", "")
+        self.assertIn(sanitizer, {"", "address,undefined", "thread"})
+        extra_flags = ["-g", "-O1", f"-fsanitize={sanitizer}"] if sanitizer else []
+        if sanitizer == "address,undefined" and sys.platform == "darwin":
+            env["ASAN_OPTIONS"] = "detect_leaks=0"
+        compiler = shlex.split(os.environ.get("CC", "cc"))
         flags = subprocess.check_output(
             ["pkg-config", "--cflags", "--libs", "SDL2_mixer"], text=True)
         with tempfile.TemporaryDirectory(prefix="nano-mixer-native-") as directory:
+            if sys.platform == "darwin":
+                sdl3 = subprocess.run(["pkg-config", "--variable=libdir", "sdl3"],
+                                      capture_output=True, text=True, timeout=10)
+                if sdl3.returncode == 0 and sdl3.stdout.strip():
+                    library_dir = sdl3.stdout.strip()
+                    previous = env.get("DYLD_LIBRARY_PATH", "")
+                    env["DYLD_LIBRARY_PATH"] = library_dir + (":" + previous if previous else "")
+                    probe = Path(directory) / "loader-probe"
+                    built = subprocess.run([
+                        *compiler, *extra_flags, "tests/nanovm/sdl_library_probe.c",
+                        "-o", str(probe)], cwd=ROOT, capture_output=True, timeout=30)
+                    self.assertEqual(built.returncode, 0, built.stderr)
+                    missing = subprocess.run([str(probe), str(Path(directory) / "missing.dylib")],
+                                             env=env, capture_output=True, timeout=10)
+                    self.assertEqual(missing.returncode, 1, missing.stderr)
+                    self.assertIn(b"I could not load", missing.stderr)
+                    loaded = subprocess.run([str(probe), "libSDL3.dylib"],
+                                            env=env, capture_output=True, timeout=10)
+                    self.assertEqual(loaded.returncode, 0, loaded.stderr)
+                elif sanitizer:
+                    self.fail("I require an SDL3 pkg-config library directory for the headless Darwin sanitizer preflight")
             output = Path(directory) / "operations"
             compiled = subprocess.run([
-                *shlex.split(os.environ.get("CC", "cc")), "-std=c99", "-Wall",
+                *compiler, *extra_flags, "-std=c99", "-Wall",
                 "-Wextra", "-Werror", "-pthread",
                 "tests/nanovm/mixer_native_operations.c",
                 "modules/sdl_mixer/sdl_mixer_operations.c",

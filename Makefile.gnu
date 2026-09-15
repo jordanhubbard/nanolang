@@ -594,6 +594,11 @@ test-mixer-callbacks: nano_virt nano_vm
 	@$(OBJ_DIR)/test_mixer_callbacks
 	@python3 -m unittest tests.test_mixer_callbacks
 
+.PHONY: test-mixer-sanitizers
+test-mixer-sanitizers:
+	@NANO_MIXER_SANITIZER=address,undefined python3 -m unittest tests.test_mixer_callbacks.MixerCallbacks.test_native_operations
+	@NANO_MIXER_SANITIZER=thread python3 -m unittest tests.test_mixer_callbacks.MixerCallbacks.test_native_operations
+
 .PHONY: test-callback-runtime
 test-callback-runtime:
 	@mkdir -p $(OBJ_DIR)
