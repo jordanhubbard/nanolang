@@ -55,6 +55,7 @@ typedef struct {
     uint32_t top_offset;            /* bytecode offset of loop top */
     Patch breaks[MAX_BREAKS];       /* break jump patches */
     int break_count;
+    int continue_index_slot;        /* for index, or -1 for while */
 } LoopCtx;
 
 typedef struct {
@@ -2778,6 +2779,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
         LoopCtx *loop = &cg->loops[cg->loop_depth++];
         loop->break_count = 0;
+        loop->continue_index_slot = -1;
         loop->top_offset = cg->code_size;
 
         /* `while true` has no normal exit, so emitting a test-and-branch
@@ -2848,6 +2850,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
         LoopCtx *loop = &cg->loops[cg->loop_depth++];
         loop->break_count = 0;
+        loop->continue_index_slot = idx_slot;
         loop->top_offset = cg->code_size;
 
         /* Check: idx < len */
@@ -2937,6 +2940,14 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             break;
         }
         LoopCtx *loop = &cg->loops[cg->loop_depth - 1];
+        /* I advance the innermost for index even when its body cannot fall
+         * through to the normal increment. While loops have no index. */
+        if (loop->continue_index_slot >= 0) {
+            emit_op(cg, OP_LOAD_LOCAL, loop->continue_index_slot);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_ADD);
+            emit_op(cg, OP_STORE_LOCAL, loop->continue_index_slot);
+        }
         uint32_t jmp_instr = cg->code_size;
         emit_op(cg, OP_JMP, (int32_t)0);
         patch_jump(cg, jmp_instr + 1, jmp_instr, loop->top_offset);

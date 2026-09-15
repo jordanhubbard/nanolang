@@ -88,6 +88,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I advance my bytecode for-loop index on continue, including
+          unconditional and nested paths, without advancing an enclosing loop
+          on an inner while continue. My new regression and both former timeout
+          fixtures pass shadows and native/dual-dispatch VM execution. All 68
+          code-generation unit tests pass. Other corpus failures remain open.
       - [ ] I repair verifier-corpus coverage: its script also silently skips
         compilation failures and searches runtime text instead of requiring
         successful verification, with no execution deadlines.
