@@ -28,6 +28,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Chronicle branch reconciliation.** I review main `1a5fed53` and
+      worker `633acda1`, retain their identical README chronology update, and
+      integrate both histories without replacing compiler work. I verify the
+      merged diff and record ancestry under release task
+      `task_cffdafd16e641ac417ccfddb962534b9`.
 - [x] **AOT temporary directories.** I adapt `vm_mktemp_dir` with checked
       template allocation and exclusive creation. I test unique, independent
       paths and failure inside private roots before compiler acceptance.
