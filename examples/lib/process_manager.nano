@@ -409,6 +409,16 @@ fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
         if (> (str_length child.log_path) 0) {
             (append child.log_path (+ "\n[launcher]\nI reaped this process with status "
                 (+ (int_to_string code) ".\n")))
+            # A SIGTERM handler can write after the first drain. Reap before the
+            # final drain so I know no later output can arrive before I close.
+            let out_after_reap: string = (pm_drain_fd child.stdout_fd)
+            if (> (str_length out_after_reap) 0) {
+                (append child.log_path (+ "\n[stdout]\n" out_after_reap))
+            }
+            let err_after_reap: string = (pm_drain_fd child.stderr_fd)
+            if (> (str_length err_after_reap) 0) {
+                (append child.log_path (+ "\n[stderr]\n" err_after_reap))
+            }
         }
     }
     (fd_close child.stdout_fd)
@@ -428,6 +438,26 @@ shadow pm_kill {
     let pm: ProcessManager = (pm_new 10)
     let pm2: ProcessManager = (pm_kill pm "nonexistent")
     assert (== (array_length pm2.children) 0)
+
+    let raw: array<string> = (spawn_with_pipes "trap 'printf terminated-output' TERM; while :; do sleep 1; done")
+    let pid: int = (string_to_int (at raw 0))
+    let stdout_fd: int = (string_to_int (at raw 1))
+    let stderr_fd: int = (string_to_int (at raw 2))
+    let log_path: string = "/tmp/nanolang-launcher-shadow-pm_kill.log"
+    (write log_path "[launcher]\n")
+    let running: ProcessManager = ProcessManager {
+        children: [ChildStatus {
+            example_path: "termination-handler.nano", pid: pid, state: 1, exit_code: 0,
+            memory_kb: 0, cpu_user_ms: 0, cpu_sys_ms: 0, build_output: "",
+            stdout_fd: stdout_fd, stderr_fd: stderr_fd, runtime_output: "",
+            log_path: log_path, task_filed: false
+        }],
+        max_children: 1
+    }
+    let stopped: ProcessManager = (pm_kill running "termination-handler.nano")
+    assert (== (array_length stopped.children) 0)
+    assert (str_contains (read log_path) "terminated-output")
+    (delete log_path)
 }
 
 fn pm_kill_all(pm: ProcessManager) -> ProcessManager {
