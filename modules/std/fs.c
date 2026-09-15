@@ -14,6 +14,7 @@
 
 #include "../../src/runtime/directory_walk.h"
 #include "../../src/runtime/file_text.h"
+#include "../../src/runtime/file_write.h"
 
 NANO_EXPORT_ARRAY_ABI(fs_walkdir);
 
@@ -299,24 +300,12 @@ const char* file_read(const char* path) {
 
 /* Write string to file */
 int64_t file_write(const char* path, const char* content) {
-    FILE* f = fopen(path, "w");
-    if (!f) return -1;
-    
-    size_t written = fwrite(content, 1, strlen(content), f);
-    fclose(f);
-    
-    return (written == strlen(content)) ? 0 : -1;
+    return nl_write_file_text(path, content, "w");
 }
 
 /* Append string to file */
 int64_t file_append(const char* path, const char* content) {
-    FILE* f = fopen(path, "a");
-    if (!f) return -1;
-    
-    size_t written = fwrite(content, 1, strlen(content), f);
-    fclose(f);
-    
-    return (written == strlen(content)) ? 0 : -1;
+    return nl_write_file_text(path, content, "a");
 }
 
 /* Check if file exists */

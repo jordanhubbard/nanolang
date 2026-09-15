@@ -1003,6 +1003,12 @@ test-file-bytes: stage1 nano_virt nano_vm
 
 test-units: test-file-bytes
 
+.PHONY: test-file-write
+test-file-write: $(COMPILER_C) nano_virt nano_vm
+	python3 tests/test_file_write.py
+
+test-units: test-file-write
+
 .PHONY: test-string-boundaries
 test-string-boundaries: stage1 nano_virt nano_vm
 	$(CC) $(CFLAGS) -o tests/test_fstring_lexer tests/test_fstring_lexer.c src/lexer.c src/utf8.c

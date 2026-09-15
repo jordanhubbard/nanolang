@@ -9,6 +9,7 @@
 #include "../runtime/process_capture.h"
 #include "../runtime/file_bytes.h"
 #include "../runtime/file_text.h"
+#include "../runtime/file_write.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -109,23 +110,13 @@ Value builtin_string_from_bytes(Value *args) {
 Value builtin_file_write(Value *args) {
     const char *path = args[0].as.string_val;
     const char *content = args[1].as.string_val;
-    FILE *f = fopen(path, "w");
-    if (!f) return create_int(-1);
-
-    fputs(content, f);
-    fclose(f);
-    return create_int(0);
+    return create_int(nl_write_file_text(path, content, "w"));
 }
 
 Value builtin_file_append(Value *args) {
     const char *path = args[0].as.string_val;
     const char *content = args[1].as.string_val;
-    FILE *f = fopen(path, "a");
-    if (!f) return create_int(-1);
-
-    fputs(content, f);
-    fclose(f);
-    return create_int(0);
+    return create_int(nl_write_file_text(path, content, "a"));
 }
 
 Value builtin_file_remove(Value *args) {

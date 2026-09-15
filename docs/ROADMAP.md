@@ -34,11 +34,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
       My AOT suite passes 771 checks. Compiler acceptance still fails at
       import 20 (`file_exists`). Evidence: `docs/evidence/aot-builtin-text-writer.md`.
-- [ ] **Text write error parity.** I fix interpreter and generated-native
+- [x] **Text write error parity.** I fix interpreter and generated-native
       writes/appends that ignore write errors, and VM/module writers that
       ignore close errors. I require injected short-write and close failures
       across these paths, not only successful regular-file writes.
       MAC `task_46cb33d875724130a6f767d998f3014b`.
+      Seven production-body fault probes, 771 AOT checks and the text-file
+      integration regression pass. Evidence:
+      `docs/evidence/text-write-error-parity.md`.
 - [x] **AOT builtin text reader.** I preserve streaming text reads, empty
       results on I/O errors and embedded-NUL rejection in generated C. I test
       real files and keep builtin and artifact bindings distinct.

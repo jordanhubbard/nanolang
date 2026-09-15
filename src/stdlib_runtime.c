@@ -1369,20 +1369,13 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    return nl_read_file_bytes(path);\n");
     sb_append(sb, "}\n\n");
 
+    sb_append(sb, "#include \"runtime/file_write.h\"\n");
     sb_append(sb, "static int64_t nl_os_file_write(const char* path, const char* content) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"w\");\n");
-    sb_append(sb, "    if (!f) return -1;\n");
-    sb_append(sb, "    fputs(content, f);\n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "    return nl_write_file_text(path, content, \"w\");\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_file_append(const char* path, const char* content) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"a\");\n");
-    sb_append(sb, "    if (!f) return -1;\n");
-    sb_append(sb, "    fputs(content, f);\n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return 0;\n");
+    sb_append(sb, "    return nl_write_file_text(path, content, \"a\");\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_file_remove(const char* path) {\n");

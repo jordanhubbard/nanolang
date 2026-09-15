@@ -22,6 +22,7 @@
 #include "runtime/process_capture.h"
 #include "runtime/file_bytes.h"
 #include "runtime/file_text.h"
+#include "runtime/file_write.h"
 #include "utf8.h"
 
 /* mkdtemp declaration (not exposed on macOS with -std=c99) */
@@ -86,12 +87,7 @@ DynArray *vm_file_read_bytes(const char *path) {
 }
 
 int64_t vm_file_write(const char *path, const char *content) {
-    FILE *f = fopen(path, "w");
-    if (!f) return -1;
-    size_t len = strlen(content);
-    size_t written = fwrite(content, 1, len, f);
-    fclose(f);
-    return (int64_t)written == (int64_t)len ? 0 : -1;
+    return nl_write_file_text(path, content, "w");
 }
 
 int64_t vm_file_exists(const char *path) {
