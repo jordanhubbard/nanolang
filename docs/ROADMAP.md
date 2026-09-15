@@ -299,6 +299,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                         - [ ] I connect a large-payload pipe channel to the
                           default mailbox worker without restarting its native
                           state, and bound the full pipe exchange by a deadline.
+                          - [x] My parent pipe exchange uses one monotonic
+                            deadline for request/header/body I/O, temporarily
+                            enables nonblocking I/O and contains its SIGPIPE.
+                            Stalled-write, partial-reply and dead-peer tests
+                            pass. Teardown closes instead of writing shutdown
+                            into a full pipe, then kills an unresponsive worker
+                            after the grace period rather than trusting SIGTERM.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native

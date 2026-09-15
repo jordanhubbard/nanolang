@@ -43,9 +43,16 @@ encoding failure as an error, never an empty successful result. A forked pipe
 fixture checks repeated calls with 2,000-element aliased arrays in both
 directions. The standalone worker builds against the same request handler.
 
+My parent pipe exchange uses one monotonic deadline across request writes,
+response header and response body. It temporarily enables nonblocking I/O,
+restores descriptor modes and the calling thread's signal mask, and contains
+SIGPIPE from its writes. I test a full stalled request pipe, a partial reply,
+and a dead peer. Failed exchanges reset the channel. Teardown closes the
+request pipe and kills the owned worker after a 50 ms grace period if needed;
+foreign code cannot extend that grace period by ignoring SIGTERM.
+
 The default launcher still creates only a mailbox channel. Connecting large
-requests to the same worker's pipe channel and bounding the entire pipe
-exchange by a deadline remain unfinished. Mailbox overflow fails closed and
+requests to the same worker's pipe channel remains unfinished. Mailbox overflow fails closed and
 cannot undo native side effects that occurred before reply overflow.
 
 I currently use native array ABI version 1. `DynArray` still has a one-byte

@@ -1079,7 +1079,7 @@ void vm_ffi_cop_stop(VmState *vm) {
     }
     /* Legacy pipe fds (may be -1 in mailbox mode) */
     if (vm->cop_in_fd >= 0) {
-        cop_send_simple(vm->cop_in_fd, COP_MSG_SHUTDOWN);
+        /* Closing cannot block on a full request pipe after a timed-out send. */
         close(vm->cop_in_fd);
         vm->cop_in_fd = -1;
     }
@@ -1088,14 +1088,15 @@ void vm_ffi_cop_stop(VmState *vm) {
         vm->cop_out_fd = -1;
     }
 
-    /* Wait up to 50 ms for graceful exit, then SIGTERM */
+    /* Wait up to 50 ms for EOF-driven exit, then kill the owned worker.
+     * Foreign code can ignore SIGTERM; it must not defeat the call deadline. */
     int status;
     pid_t w = waitpid(vm->cop_pid, &status, WNOHANG);
     if (w == 0) {
         usleep(50000);
         w = waitpid(vm->cop_pid, &status, WNOHANG);
         if (w == 0) {
-            kill(vm->cop_pid, SIGTERM);
+            kill(vm->cop_pid, SIGKILL);
             waitpid(vm->cop_pid, &status, 0);
         }
     }
@@ -1253,62 +1254,28 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     }
     cop_put_u32(request, import_idx);
     cop_put_u16(request + 4, (uint16_t)arg_count);
-    bool sent = cop_send(vm->cop_in_fd, COP_MSG_FFI_REQ, request, encoded + 6);
+    CopMsgType response_type;
+    uint8_t *reply = NULL;
+    uint32_t reply_size = 0;
+    bool exchanged = cop_exchange(vm->cop_in_fd, vm->cop_out_fd, request, encoded + 6,
+                                    vm->cop_timeout_ms, &response_type, &reply, &reply_size);
     if (request != payload) free(request);
-    if (!sent) {
+    if (!exchanged) {
         vm_ffi_cop_stop(vm);
-        snprintf(error_msg, error_msg_size,
-                 "COP: pipe broken during FFI request");
+        snprintf(error_msg, error_msg_size, "I could not complete the isolated pipe exchange within %d ms",
+                 vm->cop_timeout_ms);
         return false;
     }
-
-    CopMsgHeader hdr;
-    if (!cop_recv_header(vm->cop_out_fd, &hdr)) {
-        vm_ffi_cop_stop(vm);
-        snprintf(error_msg, error_msg_size,
-                 "COP: pipe broken waiting for FFI response");
-        return false;
+    bool ok = false;
+    if (response_type == COP_MSG_FFI_RESULT) {
+        ok = cop_apply_call_reply(reply, reply_size, args, (uint8_t)arg_count, result, heap);
+        if (!ok) snprintf(error_msg, error_msg_size, "I rejected an invalid isolated pipe reply");
+    } else {
+        snprintf(error_msg, error_msg_size, "%.*s", (int)reply_size, (const char *)reply);
     }
-
-    if (hdr.msg_type == COP_MSG_FFI_RESULT) {
-        if (hdr.payload_len > 0) {
-            uint8_t *recv_buf = (hdr.payload_len <= sizeof(payload))
-                                ? payload : malloc(hdr.payload_len);
-            if (!recv_buf) {
-                snprintf(error_msg, error_msg_size,
-                         "COP: OOM for result (%u bytes)", hdr.payload_len);
-                return false;
-            }
-            bool ok = cop_recv_payload(vm->cop_out_fd, recv_buf, hdr.payload_len);
-            if (!ok) {
-                if (recv_buf != payload) free(recv_buf);
-                snprintf(error_msg, error_msg_size, "COP: failed to receive result");
-                return false;
-            }
-            bool converted = cop_apply_call_reply(recv_buf, hdr.payload_len, args,
-                                                   (uint8_t)arg_count, result, heap);
-            if (recv_buf != payload) free(recv_buf);
-            if (!converted) {
-                snprintf(error_msg, error_msg_size, "COP: failed to deserialize result");
-                return false;
-            }
-        } else {
-            snprintf(error_msg, error_msg_size, "I rejected an empty pipe reply");
-            return false;
-        }
-        return true;
-    }
-    if (hdr.msg_type == COP_MSG_FFI_ERROR) {
-        uint32_t elen = hdr.payload_len < (uint32_t)(error_msg_size - 1)
-                        ? hdr.payload_len : (uint32_t)(error_msg_size - 1);
-        if (elen > 0) { cop_recv_payload(vm->cop_out_fd, error_msg, elen); error_msg[elen] = '\0'; }
-        /* I close on foreign errors rather than leave unread diagnostic bytes
-         * to be interpreted as the next frame header. */
-        vm_ffi_cop_stop(vm);
-        return false;
-    }
-    snprintf(error_msg, error_msg_size, "COP: unexpected response 0x%02x", hdr.msg_type);
-    return false;
+    free(reply);
+    if (!ok) vm_ffi_cop_stop(vm);
+    return ok;
 }
 
 /* ========================================================================

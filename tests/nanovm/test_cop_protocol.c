@@ -24,6 +24,9 @@ const char *get_project_root(void) { return g_project_root; }
 #include <assert.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
+#include <time.h>
+#include <signal.h>
 
 static int g_pass = 0, g_fail = 0;
 #define TEST(name) static void test_##name(void)
@@ -717,9 +720,58 @@ TEST(call_envelope_rejects_bad_references_and_topology) {
     vm_heap_destroy(&heap);
 }
 
+TEST(pipe_exchange_deadlines_and_broken_peer) {
+    for (int mode = 0; mode < 3; ++mode) {
+        int send_pipe[2], recv_pipe[2];
+        ASSERT(pipe(send_pipe) == 0 && pipe(recv_pipe) == 0);
+        pid_t child = fork();
+        ASSERT(child >= 0);
+        if (!child) {
+            close(send_pipe[1]); close(recv_pipe[0]);
+            if (mode == 1) {
+                CopMsgHeader header;
+                uint8_t request;
+                if (!cop_recv_header(send_pipe[0], &header) ||
+                    !cop_recv_payload(send_pipe[0], &request, 1)) _exit(2);
+                uint8_t partial[8] = {COP_PROTO_VERSION, COP_MSG_FFI_RESULT, 0, 0, 10, 0, 0, 0};
+                if (write(recv_pipe[1], partial, sizeof partial) != sizeof partial) _exit(3);
+            }
+            if (mode == 2) _exit(0);
+            for (;;) pause();
+        }
+        close(send_pipe[0]); close(recv_pipe[1]);
+        if (mode == 2) ASSERT(waitpid(child, NULL, 0) == child);
+        size_t size = mode == 0 ? COP_MAX_PAYLOAD : 1;
+        uint8_t *request = calloc(size, 1);
+        ASSERT(request);
+        int flags = fcntl(send_pipe[1], F_GETFL);
+        struct timespec start, finish;
+        ASSERT(clock_gettime(CLOCK_MONOTONIC, &start) == 0);
+        CopMsgType type;
+        uint8_t *reply;
+        uint32_t reply_size;
+        ASSERT(!cop_exchange(send_pipe[1], recv_pipe[0], request, (uint32_t)size,
+                             50, &type, &reply, &reply_size));
+        ASSERT(clock_gettime(CLOCK_MONOTONIC, &finish) == 0);
+        double elapsed = finish.tv_sec - start.tv_sec + (finish.tv_nsec - start.tv_nsec) / 1e9;
+        ASSERT(elapsed < 2.0);
+        ASSERT(reply == NULL && reply_size == 0);
+        int restored = fcntl(send_pipe[1], F_GETFL);
+        ASSERT(restored >= 0);
+        /* Darwin can expose additional internal pipe status bits after I/O;
+         * I check the caller-visible modes this helper must preserve. */
+        int modes = O_NONBLOCK | O_APPEND | O_ACCMODE;
+        ASSERT_EQ(restored & modes, flags & modes);
+        free(request);
+        close(send_pipe[1]); close(recv_pipe[0]);
+        if (mode != 2) { kill(child, SIGKILL); ASSERT(waitpid(child, NULL, 0) == child); }
+    }
+}
+
 int main(void) {
     printf("\n[cop_protocol] Co-process protocol tests...\n\n");
     RUN(serialize_int);
+    RUN(pipe_exchange_deadlines_and_broken_peer);
     RUN(call_envelope_aliases_and_atomic_reply);
     RUN(call_envelope_rejects_bad_references_and_topology);
     RUN(serialize_negative_int);

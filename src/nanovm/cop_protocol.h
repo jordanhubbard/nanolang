@@ -190,4 +190,10 @@ bool cop_recv_payload(int fd, void *buf, uint32_t len);
 /* Send a simple message (no payload). */
 bool cop_send_simple(int fd, CopMsgType type);
 
+/* I bound the entire parent exchange by one monotonic deadline. These owned
+ * pipe endpoints must not be used concurrently. On success the caller owns
+ * *reply; on failure it must close/reset the channel (a frame may be partial). */
+bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
+                   int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size);
+
 #endif /* NANOVM_COP_PROTOCOL_H */

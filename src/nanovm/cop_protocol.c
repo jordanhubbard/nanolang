@@ -16,6 +16,11 @@
 #include <unistd.h>
 #include <errno.h>
 #include <poll.h>
+#include <fcntl.h>
+#include <time.h>
+#include <signal.h>
+#include <pthread.h>
+#include <limits.h>
 
 /* MAP_ANON compat */
 #ifndef MAP_ANON
@@ -387,6 +392,79 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
 /* ========================================================================
  * Pipe I/O Helpers
  * ======================================================================== */
+
+static int64_t cop_now_ms(void) {
+    struct timespec now;
+    if (clock_gettime(CLOCK_MONOTONIC, &now)) return -1;
+    return (int64_t)now.tv_sec * 1000 + now.tv_nsec / 1000000;
+}
+
+static bool deadline_io(int fd, uint8_t *bytes, size_t size, bool writing,
+                         int64_t deadline, bool *broken_pipe) {
+    while (size) {
+        int64_t now = cop_now_ms();
+        if (now < 0 || now >= deadline) { errno = ETIMEDOUT; return false; }
+        int64_t remaining = deadline - now;
+        struct pollfd pfd = {.fd = fd, .events = writing ? POLLOUT : POLLIN};
+        int ready = poll(&pfd, 1, remaining > INT_MAX ? INT_MAX : (int)remaining);
+        if (ready < 0 && errno == EINTR) continue;
+        if (ready <= 0) { if (!ready) errno = ETIMEDOUT; return false; }
+        ssize_t n = writing ? write(fd, bytes, size) : read(fd, bytes, size);
+        if (n < 0 && (errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)) continue;
+        if (n <= 0) {
+            if (n < 0 && writing && errno == EPIPE) *broken_pipe = true;
+            return false;
+        }
+        bytes += n;
+        size -= (size_t)n;
+    }
+    return true;
+}
+
+bool cop_exchange(int send_fd, int recv_fd, const uint8_t *request, uint32_t size,
+                   int timeout_ms, CopMsgType *type, uint8_t **reply, uint32_t *reply_size) {
+    *reply = NULL; *reply_size = 0;
+    if (timeout_ms <= 0 || size > COP_MAX_PAYLOAD || (!request && size)) return false;
+    int64_t now = cop_now_ms();
+    if (now < 0) return false;
+    int64_t deadline = now + timeout_ms;
+    int send_flags = fcntl(send_fd, F_GETFL), recv_flags = fcntl(recv_fd, F_GETFL);
+    if (send_flags < 0 || recv_flags < 0) return false;
+    sigset_t blocked, previous, pending;
+    sigemptyset(&blocked); sigaddset(&blocked, SIGPIPE);
+    if (pthread_sigmask(SIG_BLOCK, &blocked, &previous)) return false;
+    bool had_pending = sigpending(&pending) == 0 && sigismember(&pending, SIGPIPE);
+    bool broken_pipe = false, ok = false;
+    uint8_t *body = NULL;
+    if (fcntl(send_fd, F_SETFL, send_flags | O_NONBLOCK) < 0 ||
+        fcntl(recv_fd, F_SETFL, recv_flags | O_NONBLOCK) < 0) goto done;
+    uint8_t header[COP_HEADER_SIZE] = {COP_PROTO_VERSION, COP_MSG_FFI_REQ, 0, 0};
+    cop_put_u32(header + 4, size);
+    if (!deadline_io(send_fd, header, sizeof header, true, deadline, &broken_pipe) ||
+        !deadline_io(send_fd, (uint8_t *)request, size, true, deadline, &broken_pipe) ||
+        !deadline_io(recv_fd, header, sizeof header, false, deadline, &broken_pipe)) goto done;
+    uint32_t length = cop_get_u32(header + 4);
+    if (header[0] != COP_PROTO_VERSION || cop_get_u16(header + 2) ||
+        length > COP_MAX_PAYLOAD ||
+        (header[1] != COP_MSG_FFI_RESULT && header[1] != COP_MSG_FFI_ERROR)) goto done;
+    body = malloc(length ? length : 1);
+    if (!body || !deadline_io(recv_fd, body, length, false, deadline, &broken_pipe)) goto done;
+    *type = (CopMsgType)header[1];
+    *reply = body; *reply_size = length; body = NULL; ok = true;
+done:
+    free(body);
+    fcntl(send_fd, F_SETFL, send_flags);
+    fcntl(recv_fd, F_SETFL, recv_flags);
+    /* Consume only the SIGPIPE raised by this exchange, not one already
+     * pending for the caller. Restore its mask rather than changing policy. */
+    if (broken_pipe && !had_pending && sigpending(&pending) == 0 &&
+        sigismember(&pending, SIGPIPE)) {
+        int signal_number;
+        sigwait(&blocked, &signal_number);
+    }
+    pthread_sigmask(SIG_SETMASK, &previous, NULL);
+    return ok;
+}
 
 static bool write_all(int fd, const void *buf, size_t len) {
     const uint8_t *p = buf;
