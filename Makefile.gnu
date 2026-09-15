@@ -1009,6 +1009,12 @@ test-file-write: $(COMPILER_C) nano_virt nano_vm
 
 test-units: test-file-write
 
+.PHONY: test-path-normalize
+test-path-normalize: $(COMPILER_C)
+	python3 tests/test_path_normalize.py
+
+test-units: test-path-normalize
+
 .PHONY: test-string-boundaries
 test-string-boundaries: stage1 nano_virt nano_vm
 	$(CC) $(CFLAGS) -o tests/test_fstring_lexer tests/test_fstring_lexer.c src/lexer.c src/utf8.c

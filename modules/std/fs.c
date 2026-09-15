@@ -15,6 +15,7 @@
 #include "../../src/runtime/directory_walk.h"
 #include "../../src/runtime/file_text.h"
 #include "../../src/runtime/file_write.h"
+#include "../../src/runtime/path_normalize.h"
 
 NANO_EXPORT_ARRAY_ABI(fs_walkdir);
 
@@ -156,9 +157,7 @@ static void path_normalize_into(const char* path, char* result, size_t result_si
 
 /* Normalize path (resolve . and .., remove redundant slashes) */
 const char* path_normalize(const char* path) {
-    char result[2048];
-    path_normalize_into(path, result, sizeof(result));
-    return strdup(result);
+    return nl_normalize_path(path);
 }
 
 /* Join two path components */
