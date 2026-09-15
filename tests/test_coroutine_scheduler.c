@@ -10,6 +10,7 @@
 
 #include "../src/nanolang.h"
 #include "../src/coroutine.h"
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -231,6 +232,7 @@ static Value coro_terminal_spawn(void *arg, int coro_id) {
     bool error = *(bool *)arg;
     if (error) nano_coro_error("I retain my active slot after error.");
     else nano_coro_complete(make_int(77));
+    ASSERT(!nano_coro_release(coro_id));
     int child = nano_coro_spawn(coro_nested_spawn, NULL);
     ASSERT(child >= 0);
     ASSERT_EQ(nano_coro_current_id(), coro_id);
@@ -255,7 +257,54 @@ void test_terminal_slot_stays_active(void) {
     }
 }
 
+void test_completed_handle_retention(void) {
+    reset_scheduler();
+    int first = nano_coro_spawn(coro_return_42, NULL);
+    ASSERT_EQ(nano_coro_await_id(first).as.int_val, 42);
+    int second = nano_coro_spawn(coro_return_42, NULL);
+    ASSERT(second != first);
+    ASSERT(nano_coro_is_done(first));
+    ASSERT_EQ(nano_coro_result(first).as.int_val, 42);
+    ASSERT(!nano_coro_release(second));
+    ASSERT(nano_coro_release(first));
+    ASSERT(!nano_coro_release(first));
+    ASSERT(!nano_coro_is_done(first));
+    ASSERT_EQ(nano_coro_result(first).type, VAL_VOID);
+    int third = nano_coro_spawn(coro_return_42, NULL);
+    ASSERT(third > second);
+    ASSERT_EQ(nano_coro_await_id(third).as.int_val, 42);
+}
+
+void test_handle_capacity_and_exhaustion(void) {
+    reset_scheduler();
+    ASSERT_EQ(nano_coro_spawn(NULL, NULL), -1);
+    ASSERT_EQ(g_scheduler.count, 0);
+    ASSERT(!nano_coro_release(-1));
+    int ids[MAX_COROUTINES];
+    for (int i = 0; i < MAX_COROUTINES; i++) {
+        ids[i] = nano_coro_spawn(coro_return_42, NULL);
+        ASSERT(ids[i] >= 0);
+        ASSERT_EQ(nano_coro_await_id(ids[i]).as.int_val, 42);
+    }
+    ASSERT_EQ(nano_coro_spawn(coro_return_42, NULL), -1);
+    for (int i = 0; i < MAX_COROUTINES; i++) {
+        ASSERT_EQ(nano_coro_result(ids[i]).as.int_val, 42);
+        ASSERT(nano_coro_release(ids[i]));
+    }
+    for (int i = 0; i < MAX_COROUTINES * 2; i++) {
+        int id = nano_coro_spawn(coro_return_42, NULL);
+        ASSERT(id >= MAX_COROUTINES);
+        ASSERT_EQ(nano_coro_await_id(id).as.int_val, 42);
+        ASSERT(nano_coro_release(id));
+    }
+    g_scheduler.count = INT_MAX;
+    ASSERT_EQ(nano_coro_spawn(coro_return_42, NULL), -1);
+    ASSERT_EQ(g_scheduler.count, INT_MAX);
+}
+
 int main(void) {
+    TEST(completed_handle_retention);
+    TEST(handle_capacity_and_exhaustion);
     TEST(terminal_slot_stays_active);
     printf("=== Coroutine Scheduler Tests ===\n");
     TEST(scheduler_init);

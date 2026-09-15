@@ -68,8 +68,14 @@ extern NanoScheduler g_scheduler;
 /* Initialize the global scheduler */
 void nano_scheduler_init(void);
 
-/* Spawn a new coroutine: returns coroutine id (>= 0) or -1 on failure */
+/* I return an ID or -1 for a null callback, exhausted IDs or full storage.
+ * Completed handles still occupy storage until nano_coro_release succeeds. */
 int nano_coro_spawn(CoroFn fn, void *arg);
+
+/* I retain completed slots until explicit release. Release fails for pending
+ * or active callbacks and stale IDs. I free scheduler-owned error text, not
+ * the borrowed argument or objects referenced by the result Value. */
+bool nano_coro_release(int coro_id);
 
 /* Cooperative yield hint — allows other coroutines to run.
  * In the simple run-to-completion scheduler, this is a no-op.

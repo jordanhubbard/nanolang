@@ -4570,7 +4570,9 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
             ca->env = env;
             int coro_id = nano_coro_spawn(coro_trampoline, ca);
             if (coro_id >= 0) {
-                return nano_coro_await_id(coro_id);
+                Value result = nano_coro_await_id(coro_id);
+                (void)nano_coro_release(coro_id);
+                return result;
             }
             free(ca->func_name); free(ca->args); free(ca);
         }

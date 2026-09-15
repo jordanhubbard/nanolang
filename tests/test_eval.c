@@ -11,6 +11,7 @@
 
 #include "../src/nanolang.h"
 #include "../src/builtins_registry.h"
+#include "../src/coroutine.h"
 #include "../src/interpreter_ffi.h"
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
@@ -2019,20 +2020,27 @@ void test_eval_coroutine_spawn_and_run(void) {
 /* async fn direct call (exercises is_async path in call_function, line 4391) */
 void test_eval_async_fn_direct_call(void) {
     RunCtx ctx;
-    suppress_stderr();
+    nano_scheduler_init();
+    int first_id = g_scheduler.count;
     bool ok = run_ctx_init(&ctx,
         "async fn compute(n: int) -> int { return (* n n) }\n"
+        "shadow compute { assert (== (compute 3) 9) }\n"
         "fn main() -> int {\n"
-        "    let r: int = (compute 7)\n"
-        "    return r\n"
+        "    for i in (range 0 130) { assert (== (compute i) (* i i)) }\n"
+        "    return 0\n"
         "}\n"
         "shadow main {\n"
         "    assert (== (compute 3) 9)\n"
         "}\n"
     );
-    restore_stderr();
-    /* async fn may be called synchronously or via coroutine */
-    (void)ok;
+    ASSERT(ok);
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 0);
+    ASSERT(g_scheduler.count - first_id >= 130);
+    for (int i = 0; i < MAX_COROUTINES; i++) {
+        ASSERT(g_scheduler.coroutines[i].id < first_id);
+    }
     run_ctx_free(&ctx);
 }
 

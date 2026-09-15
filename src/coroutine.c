@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 /* ── Global scheduler instance ─────────────────────────────────────────── */
 NanoScheduler g_scheduler = { .initialized = false };
@@ -40,6 +41,7 @@ void nano_scheduler_init(void) {
 
 /* ── Internal: find coroutine by id ───────────────────────────────────── */
 static NanoCoroutine *coro_by_id(int id) {
+    if (!g_scheduler.initialized || id < 0) return NULL;
     for (int i = 0; i < MAX_COROUTINES; i++) {
         if (g_scheduler.coroutines[i].id == id) {
             return &g_scheduler.coroutines[i];
@@ -51,14 +53,12 @@ static NanoCoroutine *coro_by_id(int id) {
 /* ── Spawn ─────────────────────────────────────────────────────────────── */
 int nano_coro_spawn(CoroFn fn, void *arg) {
     if (!g_scheduler.initialized) nano_scheduler_init();
+    if (!fn || g_scheduler.count == INT_MAX) return -1;
 
     /* Find a free slot */
     int slot = -1;
     for (int i = 0; i < MAX_COROUTINES; i++) {
-        if (!g_scheduler.coroutines[i].active &&
-            (g_scheduler.coroutines[i].id < 0 ||
-            g_scheduler.coroutines[i].status == CORO_DONE ||
-            g_scheduler.coroutines[i].status == CORO_ERROR)) {
+        if (!g_scheduler.coroutines[i].active && g_scheduler.coroutines[i].id < 0) {
             slot = i;
             break;
         }
@@ -80,6 +80,19 @@ int nano_coro_spawn(CoroFn fn, void *arg) {
     coro->result.type = VAL_VOID;
 
     return id;
+}
+
+bool nano_coro_release(int id) {
+    NanoCoroutine *coro = coro_by_id(id);
+    if (!coro || coro->active ||
+        (coro->status != CORO_DONE && coro->status != CORO_ERROR)) return false;
+    free(coro->error_msg);
+    memset(coro, 0, sizeof(*coro));
+    coro->id = -1;
+    coro->status = CORO_DONE;
+    coro->awaiting_id = -1;
+    coro->result.type = VAL_VOID;
+    return true;
 }
 
 /* ── Yield ─────────────────────────────────────────────────────────────── */

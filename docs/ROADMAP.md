@@ -88,6 +88,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I retain scheduler handles and completed results until explicit
+          release, reject active/pending release and invalid spawn callbacks,
+          and reject ID exhaustion without wrapping. Synchronous interpreter
+          async calls release private handles after retrieving results. I test
+          retention, capacity, reuse and stale IDs; language-level owned task
+          values and result ownership across backends remain unfinished.
+          Scheduler and interpreter tests pass. The interpreter regression
+          executes 130 async calls, checks allocated IDs and verifies private
+          slot release; registering a program alone did not exercise its main.
+          Standalone scheduler ASan/UBSan tests pass with leak detection off.
+          MAC `task_ad179bc283020e72e3ff89b67c789d94`.
         - [x] I keep scheduler slots pinned until their callbacks return,
           even after explicit completion or error. I test spawn and nested
           await after a terminal transition through step and await entry paths.
@@ -100,6 +111,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           it does not create continuations. My scheduler runs callbacks to
           completion and yield is a no-op. Passing transparent scalar awaits
           alone will not complete this item.
+          I replace the old coroutine-spawn smoke test that ignores typecheck
+          failure with a checked language-level task lifecycle test as part
+          of implementing owned task values.
         - [x] I reject non-string format templates before native or bytecode
           emission. I test literals, inferred bindings and function results,
           and require a type diagnostic without publishing an artifact.
