@@ -599,6 +599,11 @@ test-peg-array-exports:
 	python3 -m unittest tests.test_peg_array_exports
 
 test-units: test-peg-array-exports
+.PHONY: test-process-pipe-array
+test-process-pipe-array:
+	python3 -m unittest tests.test_process_pipe_array
+
+test-units: test-process-pipe-array
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback

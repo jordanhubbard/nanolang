@@ -71,6 +71,17 @@ failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
 ## Layout declarations
 
+My process pipe-spawn export declares the array ABI and preallocates its
+three result strings before acquiring descriptors or creating a child. It
+returns null on allocation failure and a three-field minus-one result on
+setup failure or null command. Partial pipe setup is closed; descriptor setup
+is checked before fork. I move pipe ends above standard descriptors, mark
+them close-on-exec and configure read ends nonblocking before publication.
+`test-process-pipe-array` injects allocation/pipe/setup/fork failures and checks
+real stdout/stderr capture, including closed standard descriptors. Returned
+string ownership remains separate; `process_run` still needs its own command
+and capture-path repair before its export is declared.
+
 My PEG capture export declares the array ABI and allocates the result at its
 known capture count. Capture-table growth or string-copy allocation failure
 returns null after cleanup, instead of exiting or returning a partial list.

@@ -28,7 +28,8 @@ int64_t nl_os_process_wait(int64_t pid);
 int64_t nl_os_process_kill_group(int64_t pid, int64_t signal_number);
 
 /* Spawn a process non-blocking with pipes for stdout/stderr capture.
- * Returns array<string> with [pid, stdout_fd, stderr_fd], or ["-1","-1","-1"] on error.
+ * Returns array<string> with [pid, stdout_fd, stderr_fd], ["-1","-1","-1"] on
+ * setup failure/null command, or NULL when result allocation fails.
  * Both fds are set non-blocking. Caller must close them with nl_os_fd_close().
  */
 DynArray* nl_os_process_spawn_with_pipes(const char* command);

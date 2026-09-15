@@ -12,6 +12,8 @@
 extern DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_capacity);
 extern DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value);
 
+NANO_EXPORT_ARRAY_ABI(nl_os_process_spawn_with_pipes);
+
 /* Run a command and capture stdout/stderr
  * Returns array<string> with [exit_code, stdout, stderr]
  */
@@ -192,14 +194,46 @@ int64_t nl_os_process_wait(int64_t pid) {
  * Caller must close fds with fd_close() when done (typically on process exit).
  * Returns ["-1", "-1", "-1"] on error.
  */
+static bool prepare_process_pipe(int descriptors[2]) {
+    for (int i = 0; i < 2; ++i) {
+        if (descriptors[i] <= STDERR_FILENO) {
+            int moved = fcntl(descriptors[i], F_DUPFD, STDERR_FILENO + 1);
+            if (moved < 0) return false;
+            close(descriptors[i]);
+            descriptors[i] = moved;
+        }
+        if (fcntl(descriptors[i], F_SETFD, FD_CLOEXEC) < 0) return false;
+    }
+    return true;
+}
+
 DynArray* nl_os_process_spawn_with_pipes(const char* command) {
     DynArray* result = dyn_array_new_with_capacity(ELEM_STRING, 3);
+    if (!result) return NULL;
+    /* I finish every fallible result allocation before acquiring descriptors
+     * or spawning a child. Error triples reuse these same owned copies. */
+    for (int i = 0; i < 3; ++i) {
+        char *field = malloc(32);
+        if (!field) {
+            for (int64_t j = 0; j < result->length; ++j)
+                free((void *)dyn_array_get_string(result, j));
+            gc_release(result);
+            return NULL;
+        }
+        strcpy(field, "-1");
+        dyn_array_push_string(result, field);
+    }
+    if (!command) return result;
 
-    int out_pipe[2], err_pipe[2];
-    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0) {
-        dyn_array_push_string_copy(result, "-1");
-        dyn_array_push_string_copy(result, "-1");
-        dyn_array_push_string_copy(result, "-1");
+    int out_pipe[2] = {-1, -1}, err_pipe[2] = {-1, -1};
+    if (pipe(out_pipe) != 0 || pipe(err_pipe) != 0 ||
+        !prepare_process_pipe(out_pipe) || !prepare_process_pipe(err_pipe) ||
+        fcntl(out_pipe[0], F_SETFL, O_NONBLOCK) < 0 ||
+        fcntl(err_pipe[0], F_SETFL, O_NONBLOCK) < 0) {
+        for (int i = 0; i < 2; ++i) {
+            if (out_pipe[i] >= 0) close(out_pipe[i]);
+            if (err_pipe[i] >= 0) close(err_pipe[i]);
+        }
         return result;
     }
 
@@ -207,9 +241,6 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
     if (pid < 0) {
         close(out_pipe[0]); close(out_pipe[1]);
         close(err_pipe[0]); close(err_pipe[1]);
-        dyn_array_push_string_copy(result, "-1");
-        dyn_array_push_string_copy(result, "-1");
-        dyn_array_push_string_copy(result, "-1");
         return result;
     }
 
@@ -218,8 +249,8 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
         setpgid(0, 0);
         close(out_pipe[0]);
         close(err_pipe[0]);
-        dup2(out_pipe[1], STDOUT_FILENO);
-        dup2(err_pipe[1], STDERR_FILENO);
+        if (dup2(out_pipe[1], STDOUT_FILENO) < 0 ||
+            dup2(err_pipe[1], STDERR_FILENO) < 0) _exit(127);
         close(out_pipe[1]);
         close(err_pipe[1]);
         execl("/bin/sh", "sh", "-c", command, (char*)NULL);
@@ -227,20 +258,12 @@ DynArray* nl_os_process_spawn_with_pipes(const char* command) {
     }
 
     setpgid(pid, pid);
-    /* Parent: keep read ends, close write ends, mark non-blocking */
+    /* Parent: keep the already-configured read ends and close write ends. */
     close(out_pipe[1]);
     close(err_pipe[1]);
-    fcntl(out_pipe[0], F_SETFL, O_NONBLOCK);
-    fcntl(err_pipe[0], F_SETFL, O_NONBLOCK);
-
-    char pid_str[32], out_str[32], err_str[32];
-    snprintf(pid_str,  sizeof(pid_str),  "%d", (int)pid);
-    snprintf(out_str,  sizeof(out_str),  "%d", out_pipe[0]);
-    snprintf(err_str,  sizeof(err_str),  "%d", err_pipe[0]);
-
-    dyn_array_push_string_copy(result, pid_str);
-    dyn_array_push_string_copy(result, out_str);
-    dyn_array_push_string_copy(result, err_str);
+    snprintf((char *)dyn_array_get_string(result, 0), 32, "%d", (int)pid);
+    snprintf((char *)dyn_array_get_string(result, 1), 32, "%d", out_pipe[0]);
+    snprintf((char *)dyn_array_get_string(result, 2), 32, "%d", err_pipe[0]);
     return result;
 }
 
