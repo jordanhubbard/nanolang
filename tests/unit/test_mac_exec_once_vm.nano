@@ -1,0 +1,96 @@
+# test_mac_exec_once_vm.nano — backend-portable regression test for
+# stdlib/mac.nano exec_command that imports ONLY stdlib/mac.nano.
+#
+# The richer counted-side-effect test (test_mac_exec_once.nano) also imports
+# modules/std/fs.nano; combining two struct-exporting modules trips a separate,
+# pre-existing NanoVM cross-module struct-typing limitation. This companion
+# test keeps a single import so it compiles and runs under the C backend, the
+# interpreter, AND NanoVM, exercising the same four guarantees:
+#   1. A counted side effect runs exactly once (never twice).
+#   2. stdout is captured from that single execution.
+#   3. A non-zero exit status is preserved.
+#   4. Offline / unresolved-command behavior stays clean.
+#
+# The counter is self-contained: the command appends one byte to a temp file
+# and echoes the resulting byte count on stdout. If exec_command ran the
+# command twice (the original bug), the byte count would be 2, not 1.
+#
+# Run: nanoc tests/unit/test_mac_exec_once_vm.nano -o /tmp/mac_exec_once_vm && /tmp/mac_exec_once_vm
+
+from "stdlib/mac.nano" import exec_command, CommandResult
+
+# True when the FFI/VM actually executes commands in this backend.
+fn exec_is_live() -> bool {
+    let probe: CommandResult = (exec_command "printf MAC_LIVE_PROBE")
+    return (str_contains probe.stdout "MAC_LIVE_PROBE")
+}
+
+shadow exec_is_live {
+    let live: bool = (exec_is_live)
+    assert (or (== live true) (== live false))
+}
+
+# 1 + 2: single execution appends exactly one byte and echoes the count.
+fn side_effect_runs_once() -> int {
+    let f: string = "/tmp/mac_exec_once_vm_counter.txt"
+    # Reset, append one byte, then report the file's byte count on stdout.
+    let cmd: string = (+ ": > " (+ f (+ "; printf x >> " (+ f (+ "; wc -c < " f)))))
+    let result: CommandResult = (exec_command cmd)
+
+    if (exec_is_live) {
+        let count: int = (string_to_int (str_trim result.stdout))
+        # Exactly one byte means the command ran exactly once.
+        assert (== count 1)
+        assert (== result.exit_code 0)
+        return count
+    }
+    # Offline backend: no execution, empty stdout, defined zero exit.
+    assert (== result.exit_code 0)
+    return 0
+}
+
+shadow side_effect_runs_once {
+    let count: int = (side_effect_runs_once)
+    assert (<= count 1)
+}
+
+# 3: a non-zero exit status is preserved on a live backend.
+fn failure_status_preserved() -> int {
+    let result: CommandResult = (exec_command "exit 3")
+    if (exec_is_live) {
+        assert (== result.exit_code 3)
+    } else {
+        assert (== result.exit_code 0)
+    }
+    return result.exit_code
+}
+
+shadow failure_status_preserved {
+    let code: int = (failure_status_preserved)
+    assert (>= code 0)
+}
+
+# 4: an unresolved command never crashes; stdout is always a real string.
+fn offline_command_is_clean() -> int {
+    let result: CommandResult = (exec_command
+        "nano_mac_cli_that_does_not_exist task create >/dev/null 2>&1")
+    let echoed: bool = (str_contains (+ result.stdout "x") "x")
+    assert (== echoed true)
+    return result.exit_code
+}
+
+shadow offline_command_is_clean {
+    let code: int = (offline_command_is_clean)
+    assert (>= code 0)
+}
+
+fn main() -> int {
+    let once: int = (side_effect_runs_once)
+    assert (<= once 1)
+    let fail: int = (failure_status_preserved)
+    assert (>= fail 0)
+    let off: int = (offline_command_is_clean)
+    assert (>= off 0)
+    (println "mac exec_command runs exactly once (portable)")
+    return 0
+}

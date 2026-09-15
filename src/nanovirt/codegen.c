@@ -1589,6 +1589,8 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             {"setenv",     "vm_setenv",       2, TAG_INT},
             {"str_index_of","vm_str_index_of",2, TAG_INT},
             {"process_run","vm_process_run",  1, TAG_ARRAY},
+            {"nl_exec_capture","vm_exec_capture", 1, TAG_STRING},
+            {"nl_exec_last_status","vm_exec_last_status", 0, TAG_INT},
             {NULL, NULL, 0, 0}
         };
         for (int bi = 0; os_builtins[bi].nano_name; bi++) {

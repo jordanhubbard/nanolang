@@ -3926,8 +3926,12 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)isatty((int)fd);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "/* Capture stdout from a shell command */\n");
+    sb_append(sb, "/* Exit status of the most recent nl_exec_capture() call. */\n");
+    sb_append(sb, "static int64_t nl_exec_capture_status = 0;\n\n");
+
+    sb_append(sb, "/* Capture stdout from a shell command, running it exactly once. */\n");
     sb_append(sb, "static inline const char* nl_exec_capture(const char* cmd) {\n");
+    sb_append(sb, "    nl_exec_capture_status = -1;\n");
     sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
     sb_append(sb, "    if (!pipe) return \"\";\n");
     sb_append(sb, "    char* out = (char*)malloc(65536);\n");
@@ -3939,8 +3943,16 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "        total += n;\n");
     sb_append(sb, "    }\n");
     sb_append(sb, "    out[total] = '\\0';\n");
-    sb_append(sb, "    pclose(pipe);\n");
+    sb_append(sb, "    int nl_status = pclose(pipe);\n");
+    sb_append(sb, "    if (nl_status == -1) nl_exec_capture_status = -1;\n");
+    sb_append(sb, "    else if (WIFEXITED(nl_status)) nl_exec_capture_status = (int64_t)WEXITSTATUS(nl_status);\n");
+    sb_append(sb, "    else nl_exec_capture_status = -1;\n");
     sb_append(sb, "    return out;\n");
+    sb_append(sb, "}\n\n");
+
+    sb_append(sb, "/* Exit status of the most recent nl_exec_capture() call. */\n");
+    sb_append(sb, "static inline int64_t nl_exec_last_status(void) {\n");
+    sb_append(sb, "    return nl_exec_capture_status;\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static char* nl_os_read_all_fd(int fd) {\n");

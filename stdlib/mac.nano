@@ -14,9 +14,12 @@ from "modules/std/json/json.nano" import parse as json_parse, free as json_free,
     get_string as json_get_string, get_int as json_get_int,
     object_has as json_object_has, as_string as json_as_string, Json
 
-# C FFI: run command capturing stdout; run command returning exit code
+# C FFI: run a command once, capturing stdout; read the exit status of that
+# same capture. exec_command must NOT run the command twice (doing so can
+# duplicate side effects such as task creation), so it captures once and then
+# reads the status recorded by that capture.
 extern fn nl_exec_capture(cmd: string) -> string
-extern fn nl_exec_shell(cmd: string) -> int
+extern fn nl_exec_last_status() -> int
 
 struct CommandResult {
     stdout: string,
@@ -24,10 +27,15 @@ struct CommandResult {
     exit_code: int
 }
 
-# Run a shell command, capturing stdout and exit code
+# Run a shell command exactly once, capturing stdout and preserving its exit
+# status. The command is executed a single time via nl_exec_capture; the exit
+# status of that same execution is then read via nl_exec_last_status. This
+# avoids the previous double-execution bug where the command ran once to
+# capture stdout and again to read the exit code (which could duplicate task
+# creation or other side effects).
 fn exec_command(command: string) -> CommandResult {
     let out: string = (nl_exec_capture command)
-    let code: int = (nl_exec_shell command)
+    let code: int = (nl_exec_last_status)
     return CommandResult {
         stdout: out,
         stderr: "",

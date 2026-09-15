@@ -1725,6 +1725,7 @@ fn is_runtime_declared_extern(name: string) -> bool {
     /* eval is a user-provided extern, not runtime — needs forward declaration */
     if (== name "nl_exec_shell") { return true } else { (print "") }
     if (== name "nl_exec_capture") { return true } else { (print "") }
+    if (== name "nl_exec_last_status") { return true } else { (print "") }
     if (== name "nl_get_time_ms") { return true } else { (print "") }
     /* C standard library: <ctype.h> */
     if (== name "isalpha") { return true } else { (print "") }
@@ -3472,8 +3473,12 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "extern int64_t nl_os_setenv(const char* name, const char* value, int64_t overwrite);\n")
     set sb (cg_append sb "extern int64_t nl_os_system(const char* command);\n")
     set sb (cg_append sb "static int64_t nl_exec_shell(const char* cmd) { return (int64_t)system(cmd); }\n\n")
-    set sb (cg_append sb "/* Capture stdout from a shell command (up to 65535 bytes) */\n")
+    set sb (cg_append sb "#include <sys/wait.h>\n")
+    set sb (cg_append sb "/* Exit status of the most recent nl_exec_capture() call. */\n")
+    set sb (cg_append sb "static int64_t nl_exec_capture_status = 0;\n")
+    set sb (cg_append sb "/* Capture stdout from a shell command (up to 65535 bytes), running it once */\n")
     set sb (cg_append sb "static const char* nl_exec_capture(const char* cmd) {\n")
+    set sb (cg_append sb "    nl_exec_capture_status = -1;\n")
     set sb (cg_append sb "    FILE* pipe = popen(cmd, \"r\");\n")
     set sb (cg_append sb "    if (!pipe) return \"\";\n")
     set sb (cg_append sb "    char* out = (char*)malloc(65536);\n")
@@ -3487,9 +3492,14 @@ fn gen_c_runtime() -> string {
     set sb (cg_append sb "        total += n;\n")
     set sb (cg_append sb "    }\n")
     set sb (cg_append sb "    out[total] = '\\0';\n")
-    set sb (cg_append sb "    pclose(pipe);\n")
+    set sb (cg_append sb "    int nl_status = pclose(pipe);\n")
+    set sb (cg_append sb "    if (nl_status == -1) nl_exec_capture_status = -1;\n")
+    set sb (cg_append sb "    else if (WIFEXITED(nl_status)) nl_exec_capture_status = (int64_t)WEXITSTATUS(nl_status);\n")
+    set sb (cg_append sb "    else nl_exec_capture_status = -1;\n")
     set sb (cg_append sb "    return out;\n")
     set sb (cg_append sb "}\n\n")
+    set sb (cg_append sb "/* Exit status of the most recent nl_exec_capture() call. */\n")
+    set sb (cg_append sb "static int64_t nl_exec_last_status(void) { return nl_exec_capture_status; }\n\n")
     
     set sb (cg_append sb "/* OS functions not in cli.c - static implementations */\n")
     set sb (cg_append sb "#include <unistd.h>\n")

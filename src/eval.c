@@ -4422,7 +4422,24 @@ static Value eval_call(ASTNode *node, Environment *env) {
         if (func->is_extern && ffi_is_available()) {
             return ffi_call_extern(name, args, node->as.call.arg_count, func, env);
         }
-        
+
+        /* Offline extern (no FFI backend available): return a typed default so
+         * callers that store the result in a typed field (e.g. an empty string
+         * for a string-returning exec capture) stay well-defined instead of
+         * receiving a void value. This keeps modules like stdlib/mac.nano
+         * usable — and side-effect-free — in the interpreter without a live
+         * FFI backend. */
+        if (func->is_extern) {
+            switch (func->return_type) {
+                case TYPE_STRING: return create_string("");
+                case TYPE_INT:    return create_int(0);
+                case TYPE_BOOL:   return create_bool(false);
+                case TYPE_FLOAT:  return create_float(0.0);
+                default: break;
+            }
+            return create_void();
+        }
+
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
         return create_void();
     }

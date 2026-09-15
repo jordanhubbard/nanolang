@@ -312,3 +312,36 @@ DynArray *vm_process_run(const char *cmd) {
     free(stderr_content);
     return result;
 }
+
+/* Exit status of the most recent vm_exec_capture() call. */
+static int64_t vm_exec_capture_status = 0;
+
+/* Capture stdout from a shell command, running it exactly once, and record the
+ * exit status so vm_exec_last_status() can return it. Backs stdlib/mac.nano's
+ * nl_exec_capture extern in the NanoVM backend. */
+char *vm_exec_capture(const char *cmd) {
+    vm_exec_capture_status = -1;
+    if (!cmd) return strdup("");
+    FILE *pipe = popen(cmd, "r");
+    if (!pipe) return strdup("");
+    size_t cap = 65536;
+    char *out = (char *)malloc(cap);
+    if (!out) { pclose(pipe); return strdup(""); }
+    size_t total = 0;
+    while (total + 1 < cap) {
+        size_t n = fread(out + total, 1, cap - 1 - total, pipe);
+        if (n == 0) break;
+        total += n;
+    }
+    out[total] = '\0';
+    int status = pclose(pipe);
+    if (status == -1) vm_exec_capture_status = -1;
+    else if (WIFEXITED(status)) vm_exec_capture_status = (int64_t)WEXITSTATUS(status);
+    else vm_exec_capture_status = -1;
+    return out;
+}
+
+/* Exit status of the most recent vm_exec_capture() call. */
+int64_t vm_exec_last_status(void) {
+    return vm_exec_capture_status;
+}
