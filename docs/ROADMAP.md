@@ -211,6 +211,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           passes ASan/UBSan and TSan; wrapper allocation failures pass ASan/UBSan.
       - [ ] I pass all six dispatch-dependent examples with dependency
         shadows enabled, sanitizer checks, and the complete clean release gate.
+        - [x] I link my retained callback runtime and VM bridge into generated
+          native wrappers. The full suite exposed missing objects in the
+          wrapper's explicit link list. `make test-wrapper-gen` now passes
+          all five linking cases and seven publication tests. The full suite
+          remains a separate release gate.
         - [ ] I resolve newly exposed SDL_mixer callback declarations, including
           `Mix_SetPostMix`, through explicit adapter and threading contracts.
           The full example gate exposed six rejected audio/visualizer users;
