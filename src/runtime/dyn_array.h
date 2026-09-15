@@ -31,6 +31,15 @@ typedef struct {
     void* data;            /* Element storage */
 } DynArray;
 
+/* I validate metadata and logical storage, not the provenance of a C pointer. */
+static inline bool dyn_array_has_storage(const DynArray *array, ElementType type,
+                                         size_t width, uint64_t bytes) {
+    if (!array || !array->data || array->elem_type != type || !width ||
+        array->elem_size != width || array->length < 0 || array->capacity < array->length ||
+        (uint64_t)array->length > SIZE_MAX / width) return false;
+    return bytes <= (uint64_t)array->length * width;
+}
+
 /* I return NULL when construction or cloning cannot allocate representable
  * storage. Growth, reserve and first struct insertion abort on allocation or
  * capacity overflow: those APIs cannot report failure, and callers must not

@@ -168,6 +168,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             that native layout. I update those boundaries and their ABI tests
             together, not just the core typedef.
             MAC `task_83bd7cd20fc916a0140dd06c19a3e550`.
+            - [x] I first remove duplicated GPU/SDL layouts and validate host
+              transfer lengths against the declared integer-array storage.
+              GPU copies currently accept unchecked byte counts; SDL texture
+              upload multiplies unchecked dimensions and does not verify array
+              type or texture extent. I test these boundaries with fake drivers,
+              keeping the layout unchanged until ABI versioning is implemented.
+              CUDA-only, unified CUDA/OpenCL and SDL upload fixtures pass
+              normally and with ASan/UBSan. I reject invalid metadata, lengths,
+              pixel formats and texture extents before driver transfers. The
+              full SDL helper source also passes syntax checking with installed
+              SDK headers. These tests do not establish real GPU or display
+              behavior, device-pointer provenance or mixed-version ABI safety.
           - [ ] I define ownership for native array string elements, including
             filesystem walk results. `dyn_array_push_string_copy` allocates
             copies, while the native GC array destructor frees only the backing

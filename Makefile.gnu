@@ -1851,6 +1851,11 @@ test-dyn-array-allocation:
 	@$(OBJ_DIR)/test_dyn_array_allocation_release
 
 test-units: test-dyn-array-allocation
+.PHONY: test-array-adapter-boundaries
+test-array-adapter-boundaries:
+	@python3 -m unittest tests.test_array_adapter_boundaries
+
+test-units: test-array-adapter-boundaries
 
 test-directory-walk: $(COMPILER_C) nano_virt nano_vm
 	@python3 -m unittest tests.test_directory_walk
