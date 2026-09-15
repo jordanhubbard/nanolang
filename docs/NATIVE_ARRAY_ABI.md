@@ -98,6 +98,12 @@ before SDL calls. Selected dropdown text respects the requested prefix.
 `test-ui-array-bounds` exercises production widget functions with fake drawing
 and text calls, normally and under ASan/UBSan. It does not establish real
 rendering behavior or safety of geometry arithmetic and mouse scaling.
+My shared mouse conversion now normalizes non-finite or tiny scales to 1.0
+and saturates coordinates to int range before casting. Rectangle hit tests
+use int64 endpoints and reject negative extents. The UI fixture checks NaN,
+infinity, extreme coordinates and endpoint overflow, normally and with
+ASan/UBSan plus float-cast-overflow. Widget-specific drawing arithmetic and
+geometry narrowing remain unverified; these shared fixes do not close that audit.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

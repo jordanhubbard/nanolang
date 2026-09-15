@@ -1,8 +1,12 @@
 #include "../modules/ui_widgets/ui_widgets.h"
 #include <assert.h>
 #include <string.h>
+#include <float.h>
 static int mouse_calls, text_calls;
-static Uint32 mouse(int *x, int *y) { mouse_calls++; *x = -100; *y = -100; return 0; }
+static int host_mouse_x = -100, host_mouse_y = -100;
+static Uint32 mouse(int *x, int *y) {
+    mouse_calls++; *x = host_mouse_x; *y = host_mouse_y; return 0;
+}
 static int color(SDL_Renderer *r, Uint8 a, Uint8 b, Uint8 c, Uint8 d) {
     (void)r; (void)a; (void)b; (void)c; (void)d; return 0;
 }
@@ -29,6 +33,32 @@ static void invoke(DynArray *a, int64_t count, int64_t scroll) {
     assert(nl_ui_file_selector(r, f, a, count, 0, 0, 100, 50, scroll, -1) == -1);
 }
 int main(void) {
+    double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
+    for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
+        nl_ui_set_scale(invalid_scales[i]);
+        assert(g_ui_scale == 1.0);
+        assert(scaled_mouse_coordinate(INT_MAX) == INT_MAX);
+        assert(scaled_mouse_coordinate(INT_MIN) == INT_MIN);
+    }
+    nl_ui_set_scale(0.02);
+    assert(scaled_mouse_coordinate(INT_MAX) == INT_MAX);
+    assert(scaled_mouse_coordinate(INT_MIN) == INT_MIN);
+    nl_ui_set_scale(2.0);
+    assert(scaled_mouse_coordinate(-5) == -2);
+    assert(scaled_mouse_coordinate(5) == 2);
+    nl_ui_set_scale(DBL_MAX);
+    assert(scaled_mouse_coordinate(INT_MAX) == 0);
+    assert(scaled_mouse_coordinate(INT_MIN) == 0);
+    assert(point_in_rect(INT_MAX, INT_MAX, INT_MAX - 1, INT_MAX - 1, 10, 10));
+    assert(point_in_rect(INT_MIN, INT_MIN, INT_MIN, INT_MIN, 10, 10));
+    assert(!point_in_rect(0, 0, INT_MIN, INT_MIN, -1, -1));
+    assert(!point_in_rect(0, 0, 1, 1, INT_MAX, INT_MAX));
+    host_mouse_x = INT_MAX; host_mouse_y = INT_MIN;
+    nl_ui_set_scale(0.02);
+    int sx, sy;
+    get_mouse_scaled(&sx, &sy);
+    assert(sx == INT_MAX && sy == INT_MIN);
+    mouse_calls = 0;
     assert(nl_ui_scrollable_list__nano_array_abi == NANO_DYN_ARRAY_ABI_VERSION);
     assert(nl_ui_dropdown__nano_array_abi == NANO_DYN_ARRAY_ABI_VERSION);
     assert(nl_ui_file_selector__nano_array_abi == NANO_DYN_ARRAY_ABI_VERSION);
@@ -65,5 +95,6 @@ int main(void) {
     assert(text_calls == 3);
     invoke(&valid, 1, 1);
     assert(text_calls == 3);
+    nl_ui_set_scale(1.0);
     return 0;
 }

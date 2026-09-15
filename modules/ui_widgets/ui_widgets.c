@@ -18,21 +18,31 @@ static int ui_array_valid(const DynArray *a, int64_t count) {
 
 // Helper: Check if point is inside rectangle
 static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
-    return px >= rx && px <= rx + rw && py >= ry && py <= ry + rh;
+    return rw >= 0 && rh >= 0 && px >= rx && (int64_t)px <= (int64_t)rx + rw &&
+        py >= ry && (int64_t)py <= (int64_t)ry + rh;
 }
 
 static double g_ui_scale = 1.0;
 
 void nl_ui_set_scale(double scale) {
-    if (scale <= 0.01) scale = 1.0;
+    if (!isfinite(scale) || scale <= 0.01) scale = 1.0;
     g_ui_scale = scale;
+}
+
+/* I saturate before conversion; a representable host coordinate can scale
+ * beyond int range even when the scale itself is valid. */
+static int scaled_mouse_coordinate(int value) {
+    double scaled = (double)value / g_ui_scale;
+    if (scaled >= INT_MAX) return INT_MAX;
+    if (scaled <= INT_MIN) return INT_MIN;
+    return (int)scaled;
 }
 
 static void get_mouse_scaled(int *out_x, int *out_y) {
     int mx, my;
     SDL_GetMouseState(&mx, &my);
-    mx = (int)((double)mx / g_ui_scale);
-    my = (int)((double)my / g_ui_scale);
+    mx = scaled_mouse_coordinate(mx);
+    my = scaled_mouse_coordinate(my);
     if (out_x) *out_x = mx;
     if (out_y) *out_y = my;
 }
@@ -217,8 +227,8 @@ double nl_ui_slider(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
+    mouse_x = scaled_mouse_coordinate(mouse_x);
+    mouse_y = scaled_mouse_coordinate(mouse_y);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // If mouse is down and over slider, update value
@@ -476,8 +486,8 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
+    mouse_x = scaled_mouse_coordinate(mouse_x);
+    mouse_y = scaled_mouse_coordinate(mouse_y);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     // Detect click
@@ -612,8 +622,8 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
+    mouse_x = scaled_mouse_coordinate(mouse_x);
+    mouse_y = scaled_mouse_coordinate(mouse_y);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int seek_prev_mouse_down = 0;
@@ -669,8 +679,8 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
+    mouse_x = scaled_mouse_coordinate(mouse_x);
+    mouse_y = scaled_mouse_coordinate(mouse_y);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int input_prev_mouse_down = 0;
@@ -766,8 +776,8 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
+    mouse_x = scaled_mouse_coordinate(mouse_x);
+    mouse_y = scaled_mouse_coordinate(mouse_y);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int dropdown_prev_mouse_down = 0;
@@ -910,8 +920,8 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
+    mouse_x = scaled_mouse_coordinate(mouse_x);
+    mouse_y = scaled_mouse_coordinate(mouse_y);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int spinner_prev_mouse_down = 0;
@@ -1009,8 +1019,8 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
     // Get mouse state
     int mouse_x, mouse_y;
     Uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-    mouse_x = (int)((double)mouse_x / g_ui_scale);
-    mouse_y = (int)((double)mouse_y / g_ui_scale);
+    mouse_x = scaled_mouse_coordinate(mouse_x);
+    mouse_y = scaled_mouse_coordinate(mouse_y);
     int mouse_down = (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0;
     
     static int file_selector_prev_mouse_down = 0;

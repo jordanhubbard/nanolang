@@ -238,6 +238,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   prefixes before declaring all three layout markers.
                 - [ ] I audit UI geometry narrowing and signed arithmetic,
                   including non-finite scale and mouse-coordinate conversions.
+                  - [x] I normalize invalid scales, saturate scaled mouse
+                    coordinates before integer conversion, and widen rectangle
+                    endpoint comparisons; I test edge values under sanitizers.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

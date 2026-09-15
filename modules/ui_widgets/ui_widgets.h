@@ -16,6 +16,8 @@
 void nl_ui_update_mouse_state();
 
 // Set UI scale factor used for input hit-testing (mouse coordinates are divided by this value).
+// I use 1.0 for non-finite scales or scales <= 0.01. Scaled mouse coordinates
+// saturate to the host int range before conversion, truncating toward zero.
 void nl_ui_set_scale(double scale);
 
 // Create a button and check for mouse interaction
