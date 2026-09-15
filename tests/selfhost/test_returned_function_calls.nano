@@ -1,0 +1,57 @@
+fn add_one(value: int) -> int {
+    return (+ value 1)
+}
+
+shadow add_one {
+    assert (== (add_one 4) 5)
+}
+
+fn double(value: int) -> int {
+    return (* value 2)
+}
+
+shadow double {
+    assert (== (double 4) 8)
+}
+
+fn choose(add: bool) -> fn(int) -> int {
+    if add {
+        return add_one
+    } else {
+        return double
+    }
+}
+
+shadow choose {
+    assert (== ((choose true) 7) 8)
+    assert (== ((choose false) 7) 14)
+}
+
+fn record_callee() -> fn(int) -> int {
+    (println "callee")
+    return add_one
+}
+
+shadow record_callee {
+    assert (== ((record_callee) 3) 4)
+}
+
+fn record_argument() -> int {
+    (println "argument")
+    return 9
+}
+
+shadow record_argument {
+    assert (== (record_argument) 9)
+}
+
+fn main() -> int {
+    assert (== ((choose true) 7) 8)
+    assert (== ((choose false) ((choose true) 4)) 10)
+    assert (== ((record_callee) (record_argument)) 10)
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

@@ -751,6 +751,10 @@ test-vmd-path-config:
 test-daemon-gate:
 	@python3 -m unittest tests.test_daemon_gate
 
+.PHONY: test-selfhost-returned-calls
+test-selfhost-returned-calls: bootstrap3
+	@python3 -m unittest tests.test_selfhost_returned_calls
+
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running NanoVM end-to-end integration tests..."

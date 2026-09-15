@@ -569,6 +569,7 @@ fn nisa_expr_is_string(parser: Parser, node_id: int, node_type: int) -> bool {
             } else {
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     let call: ASTCall = (parser_get_call parser node_id)
+                    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return false } else { (print "") }
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
                     let fidx: int = (nisa_fn_index parser func_id.name)
                     if (< fidx 0) {
@@ -809,6 +810,9 @@ shadow nisa_emit_field_access {
 }
 
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
+    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+        return (nisa_fail "computed function calls are outside the NanoISA subset")
+    } else { (print "") }
     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
     if (and (nisa_is_list_call func_id.name) (str_ends_with func_id.name "_new")) {
         if (!= call.arg_count 0) {
@@ -1237,14 +1241,18 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         let r: ASTReturn = (parser_get_return parser stmt.node_id)
         if (== r.value_type ParseNodeType.PNODE_CALL) {
             let call: ASTCall = (parser_get_call parser r.value)
-            let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-            if (nisa_is_inline_call func_id.name) {
+            if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
                 return (+ (nisa_emit_call parser call) (nisa_line "RET"))
             } else {
-                if (< (nisa_fn_index parser func_id.name) 0) {
-                    return (nisa_fail (+ "undefined function " func_id.name))
+                let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                if (nisa_is_inline_call func_id.name) {
+                    return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                 } else {
-                    return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+                    if (< (nisa_fn_index parser func_id.name) 0) {
+                        return (nisa_fail (+ "undefined function " func_id.name))
+                    } else {
+                        return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" func_id.name))
+                    }
                 }
             }
         } else {
@@ -1288,13 +1296,12 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         } else {
                         if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                             let call: ASTCall = (parser_get_call parser stmt.node_id)
-                            let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-                            if (nisa_is_print_builtin func_id.name) {
-                                return (nisa_emit_call parser call)
-                            } else {
-                                let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
-                                return (+ expr (nisa_line "POP"))
-                            }
+                            if (== call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+                                let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+                                if (nisa_is_print_builtin func_id.name) { return (nisa_emit_call parser call) } else { (print "") }
+                            } else { (print "") }
+                            let expr: string = (nisa_emit_expr parser stmt.node_id stmt.node_type)
+                            return (+ expr (nisa_line "POP"))
                         } else {
                             if (or (== stmt.node_type ParseNodeType.PNODE_NUMBER)
                                    (or (== stmt.node_type ParseNodeType.PNODE_IDENTIFIER)

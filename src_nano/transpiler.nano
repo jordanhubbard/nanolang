@@ -238,6 +238,16 @@ fn register_fn_type(t: string) -> string {
         } else { (print "") }
         set i (+ i 1)
     }
+    # I define nested function-pointer dependencies before their users.
+    let params: array<string> = (parse_fn_type_params t)
+    let mut param_index: int = 0
+    while (< param_index (array_length params)) {
+        let param: string = (at params param_index)
+        if (is_fn_type param) { (register_fn_type param) }
+        set param_index (+ param_index 1)
+    }
+    let result: string = (parse_fn_type_return t)
+    if (is_fn_type result) { (register_fn_type result) }
     /* Register new function type */
     let idx: int = (array_length fn_type_originals)
     let mut name_parts: array<string> = []
@@ -300,6 +310,10 @@ fn parse_fn_type_params(t: string) -> array<string> {
     set depth 0
     while (< i plen) {
         let ch: string = (str_substring params_str i 1)
+        if (and (> i 0) (and (== ch ">") (== (str_substring params_str (- i 1) 1) "-"))) {
+            set i (+ i 1)
+            continue
+        }
         if (or (== ch "(") (== ch "<")) {
             set depth (+ depth 1)
         } else {
@@ -328,6 +342,10 @@ shadow parse_fn_type_params {
     assert (== (at params1 1) "string")
     let params2: array<string> = (parse_fn_type_params "fn()->void")
     assert (== (array_length params2) 0)
+    let nested: array<string> = (parse_fn_type_params "fn(fn(int)->int,string)->bool")
+    assert (== (array_length nested) 2)
+    assert (== (at nested 0) "fn(int)->int")
+    assert (== (at nested 1) "string")
 }
 
 fn parse_fn_type_return(t: string) -> string {
@@ -433,6 +451,11 @@ shadow generate_fn_type_typedefs {
     (register_fn_type "fn(int)->int")
     let result: string = (generate_fn_type_typedefs)
     assert (> (str_length result) 0)
+    (reset_fn_types)
+    (register_fn_type "fn(fn(int)->int,int)->int")
+    let nested: string = (generate_fn_type_typedefs)
+    assert (str_contains nested "typedef int64_t (*nl_FnPtr_0)(int64_t);")
+    assert (str_contains nested "typedef int64_t (*nl_FnPtr_1)(nl_FnPtr_0, int64_t);")
     (reset_fn_types)
 }
 
@@ -1364,6 +1387,12 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_CALL) {
         let ic: ASTCall = (parser_get_call parser node_id)
+        if (!= ic.function_type ParseNodeType.PNODE_IDENTIFIER) {
+            let callee_type: string = (infer_expr_type parser ic.function ic.function_type env)
+            if (transp_str_starts_with callee_type "fn(") {
+                return (parse_fn_type_return callee_type)
+            } else { return "" }
+        } else { (print "") }
         let if_id: ASTIdentifier = (parser_get_identifier parser ic.function)
         let declared: string = (lookup_func_return_type_in_parser parser (mb_resolve if_id.name if_id.line env.names))
         if (!= declared "") { return declared }
@@ -4823,6 +4852,40 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                 if (== node_type ParseNodeType.PNODE_CALL) {
                     /* Function call */
                     let call: ASTCall = (parser_get_call parser node_id)
+
+                    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+                        let callee_code: string = (generate_expression parser call.function call.function_type env "")
+                        let suffix: string = (int_to_string node_id)
+                        let fn_temp: string = (+ "_nl_call_fn_" suffix)
+                        let mut parts: array<string> = []
+                        set parts (cg_append parts "({ __auto_type ")
+                        set parts (cg_append parts fn_temp)
+                        set parts (cg_append parts " = ")
+                        set parts (cg_append parts callee_code)
+                        set parts (cg_append parts "; ")
+                        let mut i: int = 0
+                        while (< i call.arg_count) {
+                            let aref: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+                            let arg_code: string = (generate_expression parser aref.node_id aref.node_type env "")
+                            let arg_temp: string = (+ "_nl_call_arg_" (+ suffix (+ "_" (int_to_string i))))
+                            set parts (cg_append parts "__auto_type ")
+                            set parts (cg_append parts arg_temp)
+                            set parts (cg_append parts " = ")
+                            set parts (cg_append parts arg_code)
+                            set parts (cg_append parts "; ")
+                            set i (+ i 1)
+                        }
+                        set parts (cg_append parts fn_temp)
+                        set parts (cg_append parts "(")
+                        set i 0
+                        while (< i call.arg_count) {
+                            if (> i 0) { set parts (cg_append parts ", ") } else { (print "") }
+                            set parts (cg_append parts (+ "_nl_call_arg_" (+ suffix (+ "_" (int_to_string i)))))
+                            set i (+ i 1)
+                        }
+                        set parts (cg_append parts "); })")
+                        return (cg_build parts)
+                    } else { (print "") }
                     
                     /* Get function name from identifier */
                     let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
@@ -5445,6 +5508,20 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                             } else {
                                 if (== aref.node_type ParseNodeType.PNODE_CALL) {
                                     let arg_call: ASTCall = (parser_get_call parser aref.node_id)
+                                    if (!= arg_call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+                                        let result_type: string = (infer_expr_type parser aref.node_id aref.node_type env)
+                                        if (type_is_float result_type) {
+                                            set arg_code (+ "nl_float_to_string(" (+ arg_code ")"))
+                                        } else {
+                                            if (== result_type "int") {
+                                                set arg_code (+ "nl_int_to_string(" (+ arg_code ")"))
+                                            } else {
+                                                if (== result_type "bool") {
+                                                    set arg_code (+ "nl_bool_to_string(" (+ arg_code ")"))
+                                                }
+                                            }
+                                        }
+                                    } else {
                                     let arg_call_id: ASTIdentifier = (parser_get_identifier parser arg_call.function)
                                     let call_ret_t: string = (lookup_func_return_type_in_parser parser (mb_resolve arg_call_id.name arg_call_id.line env.names))
                                     if (or (func_returns_float arg_call_id.name) (== call_ret_t "float")) {
@@ -5490,6 +5567,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                                 }
                                             }
                                         }
+                                    }
                                     }
                                 } else {
                                     if (== aref.node_type ParseNodeType.PNODE_NUMBER) {
@@ -7007,8 +7085,12 @@ fn generate_for_stmt(parser: Parser, for_stmt: ASTFor, indent: int, env: GenEnv,
     /* Check if iterable is (range start end) call */
     if (== for_stmt.iterable_type ParseNodeType.PNODE_CALL) {
         let call: ASTCall = (parser_get_call parser for_stmt.iterable)
-        let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
-        if (and (== func_id.name "range") (== call.arg_count 2)) {
+        let mut is_range: bool = false
+        if (== call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+            let func_id: ASTIdentifier = (parser_get_identifier parser call.function)
+            set is_range (and (== func_id.name "range") (== call.arg_count 2))
+        } else { (print "") }
+        if is_range {
             let start_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
             let end_arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
             let start_code: string = (generate_expression parser start_arg.node_id start_arg.node_type env "int")
@@ -7597,12 +7679,10 @@ fn parser_uses_grammar_literal(parser: Parser) -> int {
     let mut i: int = 0
     while (< i call_count) {
         let call: ASTCall = (parser_get_call parser i)
-        let call_fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
-        if (== call_fn_id.name "peg2_compile") {
-            return 1
-        } else {
-            (print "")
-        }
+        if (== call.function_type ParseNodeType.PNODE_IDENTIFIER) {
+            let call_fn_id: ASTIdentifier = (parser_get_identifier parser call.function)
+            if (== call_fn_id.name "peg2_compile") { return 1 } else { (print "") }
+        } else { (print "") }
         set i (+ i 1)
     }
     return 0

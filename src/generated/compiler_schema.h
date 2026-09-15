@@ -406,6 +406,7 @@ typedef struct nl_ASTCall {
     int line;
     int column;
     int function;
+    int function_type;
     int arg_start;
     int arg_count;
 } nl_ASTCall;

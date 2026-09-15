@@ -179,6 +179,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         I replace process-name cleanup with owned handles and private sockets,
         audit masked failures, and test preservation of unrelated processes.
         MAC `task_a02a66101b184e6eaa3e61480079f300`.
+      - [ ] I require semantic rejection evidence in the self-hosted shell
+        suite. Its negative-test loop currently counts any compiler failure,
+        including timeout or launch failure, as a pass and discards diagnostics.
+        I preserve the corpus and distinguish expected diagnostics from
+        infrastructure failures with injected regressions. MAC
+        `task_4f84d7b8485a467da3909f79e2417233`.
       - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.
@@ -409,6 +415,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           shadows and native execution. This is a prerequisite for full map
           parity, not permission to remove returned callbacks from its tests.
           MAC `task_256337a9977f43b2baee7b26ebd66bc7`.
+          I reconcile PR #293 with the newer unary-parser call site. Review
+          also found computed print arguments still read as identifier IDs,
+          and nested function-parameter arrows counted as generic closers.
+          I repair those paths and require focused native regressions before
+          accepting this prerequisite.
+          The first serial gate passes the branch's positive/negative fixtures
+          but rejects nested function parameters in generated C. I register
+          nested function-pointer typedef dependencies before their users and
+          repair arrow handling in the renderer's parameter splitter too.
+          After rebuilding both stages, my explicit returned-call gate passes
+          all three methods, including nested signatures and argument order.
+          Schema regeneration agrees. Self-hosted NanoISA computed calls still
+          fail explicitly; broader backend acceptance remains open.
+          [PR #293 evidence](evidence/pr-293-reconciliation.md).
         - [ ] I preserve map transform result representation and validate
           collection callback signatures rather than merely checking each
           argument independently. MAC `task_75b340982b6cf797f29b38c1a188aab3`.
@@ -438,6 +458,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           returned-call parsing; this gate must pass before self-host parity.
           The rebuilt gate confirms all 16 failures after bootstrap smoke checks
           pass. [Evidence](evidence/selfhost-map-prerequisite.md).
+          After PR #293 integration, parsing is unblocked: the same 16-case
+          gate passes int-to-int and fails the other 15 at native compilation.
+          My generated `nl_map` still hard-codes `int64_t (*fn)(int64_t)`.
+          I retain every pairing and fix that lowering next; a cast would not
+          establish callback ABI or result-storage correctness.
           All sixteen interpreter combinations pass, including the complete
           rebuilt evaluator gate and a final evaluator-object rebuild/test
           after diagnostic wording changes. Logs:

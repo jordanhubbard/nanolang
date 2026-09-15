@@ -1601,12 +1601,13 @@ shadow parser_store_binary_op {
 /* Helper: Store function call node */
 
 /* Helper: Store call node */
-fn parser_store_call(p: Parser, function_id: int, arg_start: int, arg_count: int, line: int, column: int) -> Parser {
+fn parser_store_call(p: Parser, function_id: int, function_type: int, arg_start: int, arg_count: int, line: int, column: int) -> Parser {
     let node: ASTCall = ASTCall {
         node_type: ParseNodeType.PNODE_CALL,
         line: line,
         column: column,
         function: function_id,
+        function_type: function_type,
         arg_start: arg_start,
         arg_count: arg_count
     }
@@ -2460,7 +2461,7 @@ fn parse_primary(p: Parser) -> Parser {
             if (parser_has_error operand) { return operand }
             let arg_start: int = (list_ASTStmtRef_length operand.call_args)
             let stored: Parser = (parser_store_call_arg operand operand.last_expr_node_id operand.last_expr_node_type)
-            return (parser_store_call stored function_id arg_start 1 tok.line tok.column)
+            return (parser_store_call stored function_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok.line tok.column)
         }
         if (== tok.token_type (token_minus)) {
             let zero: Parser = (parser_store_number (parser_advance p) "0" tok.line tok.column)
@@ -2574,7 +2575,7 @@ fn parse_primary(p: Parser) -> Parser {
                         /* Register as call argument */
                         let p4: Parser = (parser_store_call_arg p3 str_id str_type)
                         /* Store the call: peg2_compile(body_string) */
-                        let p5: Parser = (parser_store_call p4 func_id arg_start 1 tok.line tok.column)
+                        let p5: Parser = (parser_store_call p4 func_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok.line tok.column)
                         return (parser_advance p5)  /* consume body token */
                     }
                 }
@@ -2685,7 +2686,7 @@ fn parse_primary(p: Parser) -> Parser {
                                             if (parser_has_error p_end) {
                                                 return p_end
                                             } else {
-                                                return (parser_store_call p_end func_id arg_start 1 tok.line tok.column)
+                                                return (parser_store_call p_end func_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok.line tok.column)
                                             }
                                         }
                                     } else {
@@ -2804,7 +2805,7 @@ fn parse_primary(p: Parser) -> Parser {
                                                             /* String splitting will be handled in C where proper string functions exist */
                                                             return (parser_store_module_qualified_call p5 "" func_name arg_start arg_count tok.line tok.column)
                                                         } else {
-                                                            return (parser_store_call p5 func_id arg_start arg_count tok.line tok.column)
+                                                            return (parser_store_call p5 func_id ParseNodeType.PNODE_IDENTIFIER arg_start arg_count tok.line tok.column)
                                                         }
                                                     } else {
                                                         let parg: Parser = (parse_expression pcur)
@@ -2870,9 +2871,44 @@ fn parse_primary(p: Parser) -> Parser {
 
                                                     return (parser_with_error ptup true)
                                                 } else {
-                                                    /* Regular parenthesized expression */
-                                                    let p3: Parser = (parser_expect p2 (token_rparen))
-                                                    return p3
+                                                    if (== tok_after.token_type (token_rparen)) {
+                                                        /* Regular parenthesized expression */
+                                                        let p3: Parser = (parser_expect p2 (token_rparen))
+                                                        return p3
+                                                    } else {
+                                                        /* The first expression is itself the callee. */
+                                                        let function_id: int = p2.last_expr_node_id
+                                                        let function_type: int = p2.last_expr_node_type
+                                                        let mut arg_ids: array<int> = []
+                                                        let mut arg_types: array<int> = []
+                                                        let mut arg_count: int = 0
+                                                        let mut pcur: Parser = p2
+                                                        while (and (not (parser_is_at_end pcur)) (not (parser_has_error pcur))) {
+                                                            let tcur: LexerToken = (parser_current pcur)
+                                                            if (== tcur.token_type (token_rparen)) {
+                                                                let p4: Parser = (parser_advance pcur)
+                                                                let arg_start: int = (list_ASTStmtRef_length p4.call_args)
+                                                                let mut p5: Parser = p4
+                                                                let mut j: int = 0
+                                                                while (< j arg_count) {
+                                                                    set p5 (parser_store_call_arg p5 (at arg_ids j) (at arg_types j))
+                                                                    set j (+ j 1)
+                                                                }
+                                                                return (parser_store_call p5 function_id function_type arg_start arg_count tok.line tok.column)
+                                                            } else {
+                                                                let parg: Parser = (parse_expression pcur)
+                                                                if (parser_has_error parg) {
+                                                                    return parg
+                                                                } else {
+                                                                    set arg_ids (array_push arg_ids parg.last_expr_node_id)
+                                                                    set arg_types (array_push arg_types parg.last_expr_node_type)
+                                                                    set arg_count (+ arg_count 1)
+                                                                    set pcur parg
+                                                                }
+                                                            }
+                                                        }
+                                                        return (parser_with_error pcur true)
+                                                    }
                                                 }
                                             }
                                         }
@@ -3143,7 +3179,7 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                             let func_id: int = p_rhs.last_expr_node_id
                                             let arg_start: int = (list_ASTStmtRef_length p_rhs.call_args)
                                             let p_arg: Parser = (parser_store_call_arg p_rhs lhs_id lhs_type)
-                                            set p_postfix (parser_store_call p_arg func_id arg_start 1 tok_post.line tok_post.column)
+                                            set p_postfix (parser_store_call p_arg func_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok_post.line tok_post.column)
                                         }
                                     }
                                 } else {
@@ -3156,7 +3192,7 @@ fn parse_expression_recursive(p: Parser, left_parsed: bool) -> Parser {
                                     let try_func_id: int = p_fn.last_expr_node_id
                                     let arg_start: int = (list_ASTStmtRef_length p_fn.call_args)
                                     let p_arg: Parser = (parser_store_call_arg p_fn inner_id inner_type)
-                                    set p_postfix (parser_store_call p_arg try_func_id arg_start 1 tok_post.line tok_post.column)
+                                    set p_postfix (parser_store_call p_arg try_func_id ParseNodeType.PNODE_IDENTIFIER arg_start 1 tok_post.line tok_post.column)
                                 } else {
                                     set done true
                                 }
@@ -8293,7 +8329,7 @@ shadow parser_get_call_count {
     assert (== (parser_get_call_count p) 0)
     let p1: Parser = (parser_store_identifier p "foo" 1 1)
     let fid: int = p1.last_expr_node_id
-    let p2: Parser = (parser_store_call p1 fid 0 0 1 1)
+    let p2: Parser = (parser_store_call p1 fid ParseNodeType.PNODE_IDENTIFIER 0 0 1 1)
     assert (== (parser_get_call_count p2) 1)
 }
 
@@ -8301,7 +8337,7 @@ shadow parser_get_call {
     let p: Parser = (parser_init_ast_lists)
     let p1: Parser = (parser_store_identifier p "foo" 1 1)
     let fid: int = p1.last_expr_node_id
-    let p2: Parser = (parser_store_call p1 fid 0 0 1 1)
+    let p2: Parser = (parser_store_call p1 fid ParseNodeType.PNODE_IDENTIFIER 0 0 1 1)
     let c: ASTCall = (parser_get_call p2 0)
     assert (== c.function fid)
 }
