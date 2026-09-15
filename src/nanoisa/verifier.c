@@ -282,6 +282,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                 if (after != (int32_t)mod->functions[fn_idx].result_count) {
                     free(heights);
                     free(work);
+                    free(owed);
                     return fail("function[%u] reaches its end after offset %u with %d values "
                                 "but declares %u",
                                 fn_idx, decoded_instruction->byte_offset, after,
