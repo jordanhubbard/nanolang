@@ -580,6 +580,95 @@ static void test_builtin_text_writer(void) {
     unlink(path); unlink(payload_path); rmdir(directory);
 }
 
+static void test_builtin_filesystem_predicates(void) {
+    char directory[] = "/tmp/nvm2c-exists-XXXXXX";
+    if (!mkdtemp(directory)) { CHECK(0, "I create a predicate fixture"); return; }
+    char file[256], missing[256], link[256], broken[256], dirlink[256];
+    snprintf(file, sizeof file, "%s/file", directory);
+    snprintf(missing, sizeof missing, "%s/missing", directory);
+    snprintf(link, sizeof link, "%s/link", directory);
+    snprintf(broken, sizeof broken, "%s/broken", directory);
+    snprintf(dirlink, sizeof dirlink, "%s/dirlink", directory);
+    FILE *stream = fopen(file, "wb");
+    CHECK(stream != NULL, "I create a regular file");
+    if (stream) fclose(stream);
+    CHECK(symlink(file, link) == 0 && symlink(missing, broken) == 0 &&
+          symlink(directory, dirlink) == 0, "I create followed and broken links");
+    const char *names[] = {"file_exists", "vm_file_exists", "nl_os_file_exists",
+                           "dir_exists", "vm_dir_exists", "nl_os_dir_exists"};
+    const char *paths[] = {file, directory, missing, link, broken, dirlink, ""};
+    for (size_t n = 0; n < sizeof names / sizeof names[0]; ++n) {
+        char assembly[8192];
+        size_t used = (size_t)snprintf(assembly, sizeof assembly,
+            ".import \"\" \"%s\" bool string\n.entry 0\n", names[n]);
+        for (size_t p = 0; p < sizeof paths / sizeof paths[0]; ++p)
+            used += (size_t)snprintf(assembly + used, sizeof assembly - used,
+                                    ".string p%zu \"%s\"\n", p, paths[p]);
+        used += (size_t)snprintf(assembly + used, sizeof assembly - used,
+                                ".function main 0 0 0 int 1\n");
+        for (size_t p = 0; p < sizeof paths / sizeof paths[0]; ++p) {
+            int expected = n < 3 ? p == 0 || p == 1 || p == 3 || p == 5 : p == 1 || p == 5;
+            used += (size_t)snprintf(assembly + used, sizeof assembly - used,
+                "PUSH_STR p%zu\nCALL_EXTERN 0\nPUSH_BOOL %d\nEQ\nASSERT\n", p, expected);
+        }
+        snprintf(assembly + used, sizeof assembly - used, "PUSH_I64 0\nRET\n.end\n");
+        NvmModule *module = assemble_ok(assembly, names[n]);
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit builtin filesystem predicates");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I distinguish directory checks and follow existing symlink targets");
+        }
+        free(source);
+        module->imports[0].return_type = TAG_INT;
+        source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I require the declared boolean predicate result");
+        free(source); nvm_module_free(module);
+    }
+    unlink(file); unlink(link); unlink(broken); unlink(dirlink); rmdir(directory);
+}
+
+static void test_builtin_removal_and_rename(void) {
+    char directory[] = "/tmp/nvm2c-remove-XXXXXX";
+    if (!mkdtemp(directory)) { CHECK(0, "I create a removal fixture"); return; }
+    char from[256], to[256], assembly[2048];
+    snprintf(from, sizeof from, "%s/from", directory);
+    snprintf(to, sizeof to, "%s/to", directory);
+    const char *removers[] = {"file_delete", "file_remove", "nl_os_file_delete", "nl_os_file_remove"};
+    for (size_t i = 0; i < sizeof removers / sizeof removers[0]; ++i) {
+        FILE *file = fopen(from, "wb");
+        CHECK(file != NULL, "I create an owned rename source");
+        if (file) fclose(file);
+        snprintf(assembly, sizeof assembly,
+            ".string from \"%s\"\n.string to \"%s\"\n"
+            ".import \"\" \"%s\" int string string\n"
+            ".import \"\" \"%s\" int string\n.entry 0\n"
+            ".function main 0 0 0 int 1\n"
+            "PUSH_STR from\nPUSH_STR to\nCALL_EXTERN 0\nPUSH_I64 0\nEQ\nASSERT\n"
+            "PUSH_STR from\nCALL_EXTERN 1\nPUSH_I64 -1\nEQ\nASSERT\n"
+            "PUSH_STR to\nCALL_EXTERN 1\nPUSH_I64 0\nEQ\nASSERT\n"
+            "PUSH_STR from\nPUSH_STR to\nCALL_EXTERN 0\nPUSH_I64 -1\nEQ\nASSERT\n"
+            "PUSH_I64 0\nRET\n.end\n", from, to,
+            i % 2 ? "nl_os_file_rename" : "file_rename", removers[i]);
+        NvmModule *module = assemble_ok(assembly, "private removal and rename");
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit builtin rename and removal");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I preserve rename order and report missing removal/rename sources");
+        }
+        free(source); nvm_module_free(module);
+        CHECK(access(from, F_OK) != 0 && access(to, F_OK) != 0, "I removed only my owned fixture paths");
+    }
+    unlink(from); unlink(to); rmdir(directory);
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"get_argc", "CALL_EXTERN 0\nPUSH_I64 1\nEQ\nASSERT\n", 0, TAG_VOID, TAG_INT},
@@ -3055,6 +3144,8 @@ int main(int argc, char **argv) {
     test_builtin_host_imports();
     test_builtin_text_reader();
     test_builtin_text_writer();
+    test_builtin_filesystem_predicates();
+    test_builtin_removal_and_rename();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();

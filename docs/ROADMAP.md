@@ -28,6 +28,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT filesystem predicates.** I adapt builtin file/directory existence
+      checks with exact signatures and exercise files, directories, missing
+      paths and followed/broken links. I rerun compiler acceptance.
+      I also adapt builtin removal/rename and test only private targets.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 807 checks. Compiler acceptance still fails at
+      builtin `file_compare_identity` (import 22). Evidence:
+      `docs/evidence/aot-filesystem-basic.md`.
 - [x] **AOT builtin text writer.** I preserve both string arguments and
       return failure on short writes or failed close. I exercise generated
       executables and rerun compiler acceptance before completing this item.

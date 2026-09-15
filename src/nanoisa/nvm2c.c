@@ -170,6 +170,18 @@ static const Nvm2cHost host_adapters[] = {
     {"file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
     {"vm_file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
     {"nl_os_file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
+    {"file_exists", "nhost_file_exists", 1, TAG_STRING, TAG_BOOL},
+    {"vm_file_exists", "nhost_file_exists", 1, TAG_STRING, TAG_BOOL},
+    {"nl_os_file_exists", "nhost_file_exists", 1, TAG_STRING, TAG_BOOL},
+    {"dir_exists", "nhost_dir_exists", 1, TAG_STRING, TAG_BOOL},
+    {"vm_dir_exists", "nhost_dir_exists", 1, TAG_STRING, TAG_BOOL},
+    {"nl_os_dir_exists", "nhost_dir_exists", 1, TAG_STRING, TAG_BOOL},
+    {"file_delete", "nhost_remove", 1, TAG_STRING, TAG_INT},
+    {"file_remove", "nhost_remove", 1, TAG_STRING, TAG_INT},
+    {"nl_os_file_delete", "nhost_remove", 1, TAG_STRING, TAG_INT},
+    {"nl_os_file_remove", "nhost_remove", 1, TAG_STRING, TAG_INT},
+    {"file_rename", "nhost_rename", 2, TAG_STRING, TAG_INT},
+    {"nl_os_file_rename", "nhost_rename", 2, TAG_STRING, TAG_INT},
 };
 
 /* These native contracts have homogeneous string parameters. I do not infer
@@ -2811,6 +2823,26 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             int cwd_used = module_uses_host(mod, "nhost_getcwd");
             if (module_uses_host(mod, "nhost_file_read")) emit_host_file_read(&b);
             if (module_uses_host(mod, "nhost_file_write")) emit_host_file_write(&b);
+            int file_exists_used = module_uses_host(mod, "nhost_file_exists");
+            int dir_exists_used = module_uses_host(mod, "nhost_dir_exists");
+            if (file_exists_used || dir_exists_used) nvm2c_puts(&b, "#include <sys/stat.h>\n");
+            if (file_exists_used) nvm2c_puts(&b,
+                "static inline int64_t nhost_file_exists(const char *path) {\n"
+                "    struct stat info;\n"
+                "    return path && stat(path, &info) == 0 ? 1 : 0;\n}\n");
+            if (dir_exists_used) nvm2c_puts(&b,
+                "static inline int64_t nhost_dir_exists(const char *path) {\n"
+                "    struct stat info;\n"
+                "    return path && stat(path, &info) == 0 && S_ISDIR(info.st_mode) ? 1 : 0;\n}\n");
+            int remove_used = module_uses_host(mod, "nhost_remove");
+            int rename_used = module_uses_host(mod, "nhost_rename");
+            if (remove_used || rename_used) nvm2c_puts(&b, "#include <stdio.h>\n");
+            if (remove_used) nvm2c_puts(&b,
+                "static inline int64_t nhost_remove(const char *path) {\n"
+                "    return path && remove(path) == 0 ? 0 : -1;\n}\n");
+            if (rename_used) nvm2c_puts(&b,
+                "static inline int64_t nhost_rename(const char *from, const char *to) {\n"
+                "    return from && to && rename(from, to) == 0 ? 0 : -1;\n}\n");
             if (argv_used || env_used || tmp_used || cwd_used) nvm2c_puts(&b,
                 "static inline const char *nhost_copy(const char *value) {\n"
                 "    if (!value) value = \"\";\n"
