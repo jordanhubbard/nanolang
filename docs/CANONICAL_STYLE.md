@@ -232,8 +232,10 @@ operation. The arm's final expression supplies the operation result and resumes
 ordinary helper calls and tested scalar expressions, including nested handler
 unwinding and string returns. Aggregate constructors and match guards stop
 before later elements or arms execute. I test partial string/record-array
-cleanup without freeing the caller's original records. Higher-order builtin
-callbacks, full expression coverage and native/VM lowering
+cleanup without freeing the caller's original records. Interpreter `map`,
+`filter` and `reduce` stop iteration when a callback propagates a handler return;
+an ordinary handler value resumes the callback. Static and dynamic arrays are
+tested. Coroutine-specific paths, full expression coverage and native/VM lowering
 remain roadmap work; these tests do not establish backend equivalence.
 
 ## Imports And Modules

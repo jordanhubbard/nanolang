@@ -2465,7 +2465,48 @@ void test_eval_handler_return_partial_literal_cleanup(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_handler_return_higher_order(void) {
+    const char *operations[] = {"(map values visit)", "(filter values keep)",
+                                "(reduce values 0 combine)"};
+    for (size_t op = 0; op < 3; op++) {
+        for (int dynamic = 0; dynamic < 2; dynamic++) {
+            for (int escape = 0; escape < 2; escape++) {
+                char source[2048];
+                snprintf(source, sizeof(source),
+                    "effect Stop { stop : int -> int } let mut calls: int = 0 "
+                    "fn visit(x: int) -> int { set calls (+ calls 1) if (== x 2) { return perform Stop.stop(7) } return x } "
+                    "fn keep(x: int) -> bool { return (> (visit x) 0) } "
+                    "fn combine(acc: int, x: int) -> int { return (+ acc (visit x)) } "
+                    "fn owner(values: array<int>) -> int { let ignored = handle { %s } with { stop n -> { %s } } return 99 } "
+                    "fn main() -> int { return 0 }", operations[op], escape ? "return n" : "n");
+                RunCtx ctx;
+                ASSERT(run_ctx_init(&ctx, source));
+                Value input;
+                if (dynamic) {
+                    DynArray *array = dyn_array_new(ELEM_INT);
+                    for (int i = 1; i <= 3; i++) array = dyn_array_push_int(array, i);
+                    input = create_void();
+                    input.type = VAL_DYN_ARRAY;
+                    input.as.dyn_array_val = array;
+                } else {
+                    input = create_array(VAL_INT, 3, 3);
+                    for (int i = 0; i < 3; i++) ((long long *)input.as.array_val->data)[i] = i + 1;
+                }
+                Value result = call_function("owner", &input, 1, ctx.env);
+                ASSERT_EQ(result.type, VAL_INT);
+                ASSERT_EQ(result.as.int_val, escape ? 7 : 99);
+                ASSERT_EQ(env_get_var(ctx.env, "calls")->value.as.int_val, escape ? 2 : 3);
+                ASSERT(nl_effect_find_handler("Stop", "stop", NULL) == NULL);
+                run_ctx_free(&ctx);
+                if (dynamic) gc_release(input.as.dyn_array_val);
+                else { free(input.as.array_val->data); free(input.as.array_val); }
+            }
+        }
+    }
+}
+
 int main(void) {
+    TEST(eval_handler_return_higher_order);
     TEST(eval_handler_return_partial_literal_cleanup);
     TEST(eval_handler_return_recursive_activation);
     TEST(eval_handler_return_nested_and_string);

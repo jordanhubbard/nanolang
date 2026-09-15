@@ -142,8 +142,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             string/record arrays preserve caller storage. Evaluator, effects,
             typechecker, parser and transpiler gates pass; the changed evaluator
             and evaluator tests pass ASan/UBSan with other linked objects
-            uninstrumented and leak detection disabled. I still audit
-            higher-order builtin callbacks and remaining consumers before
+            uninstrumented and leak detection disabled. Map, filter and reduce
+            now propagate callback returns and discard partial output, with
+            twelve static/dynamic-array escape/resumption cases passing.
+            I still audit coroutine-specific argument paths and remaining consumers before
             marking general interpreter propagation complete.
             MAC `task_67e5e620d75a413b99753c7cdbde1f48`.
           - [x] I preserve declared handler parameter metadata for nominal

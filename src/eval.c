@@ -1824,6 +1824,8 @@ static double eval_pure_expr_float(ASTNode *expr, double param_val, const char *
     }
 }
 
+static void discard_partial_owned_array(Array *array, int initialized);
+
 static Value builtin_map(Value *args, Environment *env) {
     /* map(array, transform_fn) -> array
      * Applies transform_fn to each element and returns a new array
@@ -1875,6 +1877,10 @@ static Value builtin_map(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            if (transformed.is_return) {
+                discard_partial_owned_array(output_arr, (int)i);
+                return transformed;
+            }
             
             /* Store transformed value in output array */
             switch (output_arr->element_type) {
@@ -1990,6 +1996,10 @@ static Value builtin_map(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            if (transformed.is_return) {
+                gc_release(output_arr);
+                return transformed;
+            }
             
             /* Push transformed value to output array */
             switch (elem_type) {
@@ -2092,6 +2102,10 @@ static Value builtin_filter(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value pred = call_function(pred_fn_name, call_args, 1, env);
+            if (pred.is_return) {
+                free(keep);
+                return pred;
+            }
             if (pred.type != VAL_BOOL) {
                 free(keep);
                 fprintf(stderr, "Error: filter predicate must return bool\n");
@@ -2173,6 +2187,10 @@ static Value builtin_filter(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value pred = call_function(pred_fn_name, call_args, 1, env);
+            if (pred.is_return) {
+                gc_release(output_arr);
+                return pred;
+            }
             if (pred.type != VAL_BOOL) {
                 fprintf(stderr, "Error: filter predicate must return bool\n");
                 return create_void();
@@ -2256,6 +2274,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
             call_args[0] = accumulator;
             call_args[1] = elem;
             accumulator = call_function(combine_fn_name, call_args, 2, env);
+            if (accumulator.is_return) return accumulator;
         }
         
         return accumulator;
@@ -2336,6 +2355,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
             call_args[0] = accumulator;
             call_args[1] = elem;
             accumulator = call_function(combine_fn_name, call_args, 2, env);
+            if (accumulator.is_return) return accumulator;
         }
 
         return accumulator;
@@ -4764,7 +4784,7 @@ static void discard_literal_record(StructValue *record) {
     free(record);
 }
 
-static void discard_partial_literal_array(Array *array, int initialized) {
+static void discard_partial_owned_array(Array *array, int initialized) {
     for (int i = 0; i < initialized; i++) {
         if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
         else if (array->element_type == VAL_STRUCT)
@@ -4904,7 +4924,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             for (int i = 0; i < count; i++) {
                 Value elem = i == 0 ? first : eval_expression(expr->as.array_literal.elements[i], env);
                 if (elem.is_return) {
-                    discard_partial_literal_array(arr.as.array_val, i);
+                    discard_partial_owned_array(arr.as.array_val, i);
                     return elem;
                 }
                 
