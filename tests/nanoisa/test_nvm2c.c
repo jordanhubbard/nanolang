@@ -52,7 +52,7 @@ static int compile_and_run(const char *c_src, int *status_out) {
     if (!cc || !cc[0]) cc = "cc";
     char cmd[512];
     snprintf(cmd, sizeof cmd,
-             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -Wall -Wextra -Werror -o %s %s",
+             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -O0 -fno-optimize-sibling-calls -Wall -Wextra -Werror -o %s %s",
              cc, bin_path, src_path);
     int rc = system(cmd);
     if (rc != 0) {
@@ -2435,6 +2435,63 @@ static void test_recursive_and_branch_record_facts(void) {
     nvm_module_free(m);
 }
 
+static void test_self_tail_restart_preserves_values(void) {
+    const char *sources[] = {
+        ".entry 1\n.function swap_count 3 3 0 int 1\n"
+        "LOAD_LOCAL 2\nPUSH_I64 0\nI64_EQ\nJMP_FALSE again\nLOAD_LOCAL 0\nRET\n"
+        "again:\nLOAD_LOCAL 1\nLOAD_LOCAL 0\nLOAD_LOCAL 2\nPUSH_I64 1\nI64_SUB\n"
+        "TAIL_CALL swap_count\n.end\n.function main 0 0 0 int 1\n"
+        "PUSH_I64 7\nPUSH_I64 9\nPUSH_I64 100001\nCALL swap_count\nRET\n.end\n",
+        ".string text \"retained\"\n.entry 1\n.function rec_count 2 2 0 struct 1\n"
+        "LOAD_LOCAL 1\nPUSH_I64 0\nI64_EQ\nJMP_FALSE again\nLOAD_LOCAL 0\nRET\n"
+        "again:\nLOAD_LOCAL 0\nLOAD_LOCAL 1\nPUSH_I64 1\nI64_SUB\nTAIL_CALL rec_count\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_I64 7\nPUSH_STR text\nAGG_PACK 0 0 0 2\n"
+        "PUSH_I64 100000\nCALL rec_count\nAGG_GET 1\nSTR_LEN\nRET\n.end\n",
+        ".string left \"left\"\n.string right \"right\"\n.entry 1\n"
+        ".function string_swap 3 3 0 string 1\nLOAD_LOCAL 2\nPUSH_I64 0\nI64_EQ\n"
+        "JMP_FALSE again\nLOAD_LOCAL 0\nRET\nagain:\nLOAD_LOCAL 1\nLOAD_LOCAL 0\n"
+        "LOAD_LOCAL 2\nPUSH_I64 1\nI64_SUB\nTAIL_CALL string_swap\n.end\n"
+        ".function main 0 0 0 int 1\nPUSH_STR left\nPUSH_STR right\nPUSH_I64 100001\n"
+        "CALL string_swap\nSTR_LEN\nRET\n.end\n",
+        ".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 7\nRET\nTAIL_CALL main\n.end\n"
+    };
+    const int expected[] = {9, 8, 5, 7};
+    for (size_t i = 0; i < sizeof sources / sizeof sources[0]; ++i) {
+        NvmModule *m = assemble_ok(sources[i], "self-tail restart");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        if (!c) fprintf(stderr, "self-tail restart: %s\n", error);
+        CHECK(c != NULL, "self-tail restart emits native C");
+        if (c) {
+            CHECK(strstr(c, "goto L_tco") != NULL, "self-tail lowering uses a local restart");
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "deep self-tail C compiles and executes at default O0");
+            CHECK(status == expected[i], "self-tail restart preserves simultaneous arguments and result");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
+static void test_self_tail_rejects_malformed_calls(void) {
+    const char *sources[] = {
+        ".entry 1\n.function repeat 1 1 0 int 1\nPUSH_I64 2\nLOAD_LOCAL 0\n"
+        "TAIL_CALL repeat\n.end\n.function main 0 0 0 int 1\nPUSH_I64 1\nCALL repeat\nRET\n.end\n",
+        ".string bad \"bad\"\n.entry 1\n.function repeat 1 1 0 int 1\nPUSH_STR bad\n"
+        "TAIL_CALL repeat\n.end\n.function main 0 0 0 int 1\nPUSH_I64 1\nCALL repeat\nRET\n.end\n"
+    };
+    for (size_t i = 0; i < sizeof sources / sizeof sources[0]; ++i) {
+        NvmModule *m = assemble_ok(sources[i], "invalid self-tail call");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL, "I reject leftover stack values and inconsistent self-tail argument kinds");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_array_set_aliases_bounds_and_types(void) {
     const char *initial[] = {
         "PUSH_I64 1\nARR_LITERAL 1 1\n",
@@ -2545,6 +2602,8 @@ static void test_string_edges_run_as_native_c(void) {
 }
 
 int main(int argc, char **argv) {
+    test_self_tail_restart_preserves_values();
+    test_self_tail_rejects_malformed_calls();
     test_array_set_aliases_bounds_and_types();
     test_string_edges_run_as_native_c();
     printf("\n[nvm2c] structured C11 from NanoISA...\n\n");

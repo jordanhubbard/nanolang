@@ -34,6 +34,9 @@
  * returns, forwarding and tail calls use C value returns. I reject conflicting
  * field layouts and unresolved packed fields instead of guessing their types.
  * Local classification remains function-wide, not generally flow-sensitive.
+ * Self TAIL_CALL uses simultaneous parameter transfer and a local C restart,
+ * resetting non-parameter locals. Cross-function tail calls still use C calls;
+ * I do not yet guarantee bounded native stack for mutual tail recursion.
  * I preserve variant tags and runtime field kinds. AGG_TAG on a record,
  * out-of-range fields and mismatched field storage abort the emitted process.
  * Nested aggregates and field layouts that vary across calls remain outside

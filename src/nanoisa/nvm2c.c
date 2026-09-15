@@ -1122,6 +1122,37 @@ static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
     return 1;
 }
 
+static int emit_self_tail_restart(Nvm2cBuf *b, Nvm2cStack *st, uint32_t idx,
+                                  const NvmFunctionEntry *fn, const uint8_t *kinds) {
+    int args[NVM2C_MAX_LOCALS];
+    for (int i = (int)fn->arity - 1; i >= 0; --i) {
+        args[i] = stack_pop_expect(b, st, fn_local_kind(kinds, idx, (uint16_t)i),
+                                  "self TAIL_CALL argument");
+        if (b->failed) return 0;
+    }
+    if (st->sp != 0) {
+        nvm2c_fail(b, "self TAIL_CALL leaves extra stack values");
+        return 0;
+    }
+    nvm2c_puts(b, "    {\n");
+    for (uint16_t i = 0; i < fn->arity; ++i) {
+        uint8_t kind = fn_local_kind(kinds, idx, i);
+        nvm2c_printf(b, "        %s tc%u = %s[%d];\n", c_local_type(kind),
+                     (unsigned)i, stack_array_name(kind), args[i]);
+    }
+    for (uint16_t i = 0; i < fn->arity; ++i)
+        nvm2c_printf(b, "        l%u = tc%u;\n", (unsigned)i, (unsigned)i);
+    for (uint16_t i = fn->arity; i < fn->local_count; ++i) {
+        uint8_t kind = fn_local_kind(kinds, idx, i);
+        if (kind == NVM2C_VK_STR)
+            nvm2c_printf(b, "        l%u = \"\";\n", (unsigned)i);
+        else
+            nvm2c_printf(b, "        l%u = (%s){0};\n", (unsigned)i, c_local_type(kind));
+    }
+    nvm2c_puts(b, "        goto L_tco;\n    }\n");
+    return 1;
+}
+
 static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
                              uint32_t idx, uint32_t callee, const uint8_t *kinds,
                              char *call, size_t call_sz) {
@@ -1242,6 +1273,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
 
     size_t scan = 0;
+    int has_self_tail = 0;
     while (scan < remaining) {
         is_start[scan] = 1;
         DecodedInstruction look;
@@ -1250,6 +1282,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_fail(b, "function %u: invalid instruction at offset %zu", idx, scan);
             goto done;
         }
+        if (look.opcode == OP_TAIL_CALL && look.operands[0].u32 == idx)
+            has_self_tail = 1;
         if (look.opcode == OP_JMP || look.opcode == OP_JMP_FALSE) {
             size_t tgt = 0;
             if (!jump_target(b, idx, scan, look.operands[0].i32, remaining, &tgt)) {
@@ -1282,6 +1316,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     Nvm2cStack st;
     memset(&st, 0, sizeof st);
     int terminated = 0;
+    /* A decoded self-tail instruction may be unreachable. Keep its label
+     * syntactically referenced without executing an extra jump. */
+    if (has_self_tail) nvm2c_puts(b, "    if (0) goto L_tco;\nL_tco: ;\n");
 
     while (pc < remaining) {
         size_t start = pc;
@@ -1969,6 +2006,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (cf->result_count != fn->result_count || cf->result_tag != fn->result_tag) {
                 nvm2c_fail(b, "function %u: TAIL_CALL result signature mismatch", idx);
                 goto done;
+            }
+            if (callee == idx) {
+                if (!emit_self_tail_restart(b, &st, idx, fn, kinds)) goto done;
+                terminated = 1;
+                break;
             }
             char call[768];
             if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {

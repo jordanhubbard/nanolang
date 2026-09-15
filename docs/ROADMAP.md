@@ -109,9 +109,26 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           only the record-array helpers selected by the module's operations.
           `make test-nvm2c` passes 529 checks, including alias-visible writes,
           negative/length/maximum-int indices, incompatible scalar/record fields
-          and runtime record-width rejection. Generated programs and the test
-          harness also pass ASan/UBSan with leak detection disabled on Darwin;
-          this does not establish lifetime reclamation for the AOT runtime.
+          and runtime record-width rejection. My first sanitizer invocation
+          passed `CC` only through the environment, which `Makefile.gnu`
+          overrides. That run did not establish instrumentation coverage.
+          I rerun with an explicit make command-line override below.
+        - [x] I integrate self-tail restart without C recursion. I preserve
+          simultaneous argument transfer, typed call checks and fresh local
+          state; deep scalar/record recursion must run at `-O0` without relying
+          on a C compiler's tail-call optimization. Mutual tail calls remain
+          separate work until their native stack behavior is checked.
+          `make test-nvm2c` passes 547 checks. Deep scalar/string/record calls
+          execute 100,000 or more iterations with `-O0` and
+          `-fno-optimize-sibling-calls`; malformed arguments/extra stack values
+          are rejected, and unreachable self-tail code still compiles cleanly.
+        - [x] I verify sanitizer compiler selection for AOT tests explicitly:
+          `make CC='cc -fsanitize=address,undefined' test-nvm2c`, with Darwin
+          leak detection disabled. Compiler command lines, not log filenames,
+          establish instrumentation; prebuilt linked objects remain outside it.
+          The explicit override and new `make test-nvm2c-sanitizers` target both
+          pass 547 checks with compiler flags present. This supersedes the
+          earlier environment-only sanitizer claim for the array-mutation work.
         A read-only merge preview finds 16 conflicting paths across 56 changed
         files. I first reconcile main's three conflicts: preserve checked FFI
         failure reporting and the central GC child-slot walk while incorporating

@@ -414,6 +414,10 @@ test-nanoisa: schema-check $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_nanoisa
 
 .PHONY: test-nvm2c
+.PHONY: test-nvm2c-sanitizers
+test-nvm2c-sanitizers:
+	@ASAN_OPTIONS="$${ASAN_OPTIONS:-detect_leaks=0}" $(MAKE) CC="$(CC) -fsanitize=address,undefined" test-nvm2c
+
 test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nvm2c \
