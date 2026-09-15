@@ -361,9 +361,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           - [x] I remove the native work-item formatter's 2,048-byte truncation.
             I size output before allocating. The long text fixture formerly
             emitted an unterminated C string; it now executes exact comparisons.
-          - [ ] I remove silent string-interpolation limits (64 parts and a
+          - [x] I remove silent string-interpolation limits (64 parts and a
             4,096-byte literal buffer) and bounded assertion-source truncation.
             I require long/interpolated/escaped string and diagnostic regressions.
+            Shared lexing already lowers f-strings; native-only interpolation of
+            ordinary strings is incorrect and redundant. The lexer's own fixed
+            64-part arrays lack bounds checks. I replace their storage, remove
+            duplicate native interpolation and preserve literal braces.
+            Native and VM execute an 80-interpolation fixture with 5,000-byte
+            literal segments. Lexer checks cover selected counts from 0 to 256 around growth
+            boundaries. Long escaped assertion diagnostics retain their complete
+            tested source spelling. Parser, typechecker, interpreter and
+            transpiler gates pass; the standalone lexer also passes ASan/UBSan
+            with leak detection disabled.
             MAC `task_041ab4cea1da3fea84d72483cb735c49`.
         - [x] I repair the tail-call fixture's non-language call syntax and
           discarded returns, add bounded shadows, and retain a million-step

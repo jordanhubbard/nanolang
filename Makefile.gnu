@@ -960,6 +960,15 @@ test-file-bytes: stage1 nano_virt nano_vm
 
 test-units: test-file-bytes
 
+.PHONY: test-string-boundaries
+test-string-boundaries: stage1 nano_virt nano_vm
+	$(CC) $(CFLAGS) -o tests/test_fstring_lexer tests/test_fstring_lexer.c src/lexer.c src/utf8.c
+	./tests/test_fstring_lexer
+	python3 tests/test_string_boundaries.py
+	@rm -f tests/test_fstring_lexer
+
+test-units: test-string-boundaries
+
 .PHONY: test-ffi
 $(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<

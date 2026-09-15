@@ -571,50 +571,52 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
 
 /* ============================================================================
  * HELPER: Serialize expression AST to human-readable string (for error messages)
- * Uses static buffer - NOT thread-safe, but sufficient for single-threaded compiler
+ * I build owned diagnostic text without fixed-size source fragments.
  * ============================================================================ */
 
-static char g_expr_buf[1024];
-static int g_expr_pos;
-
-static void expr_buf_reset(void) { g_expr_pos = 0; g_expr_buf[0] = '\0'; }
-static void expr_buf_append(const char *s) {
-    int len = strlen(s);
-    if (g_expr_pos + len < (int)sizeof(g_expr_buf) - 1) {
-        strcpy(g_expr_buf + g_expr_pos, s);
-        g_expr_pos += len;
+/* I escape source spelling for inclusion in a generated C diagnostic literal. */
+static void append_diagnostic_string(StringBuilder *sb, const char *text) {
+    sb_append(sb, "\\\"");
+    for (const unsigned char *p = (const unsigned char *)text; *p; p++) {
+        switch (*p) {
+            case '\\': sb_append(sb, "\\\\"); break;
+            case '"': sb_append(sb, "\\\""); break;
+            case '\n': sb_append(sb, "\\n"); break;
+            case '\r': sb_append(sb, "\\r"); break;
+            case '\t': sb_append(sb, "\\t"); break;
+            default:
+                if (*p < 32 || *p == 127) sb_appendf(sb, "\\%03o", *p);
+                else {
+                    char byte[2] = {(char)*p, '\0'};
+                    sb_append(sb, byte);
+                }
+                break;
+        }
     }
-}
-static void expr_buf_appendf(const char *fmt, ...) {
-    char tmp[256];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(tmp, sizeof(tmp), fmt, args);
-    va_end(args);
-    expr_buf_append(tmp);
+    sb_append(sb, "\\\"");
 }
 
-static void expr_to_string_impl(ASTNode *expr) {
+static void expr_to_string_impl(ASTNode *expr, StringBuilder *sb) {
     if (!expr) return;
     
     switch (expr->type) {
         case AST_NUMBER:
-            expr_buf_appendf("%lld", expr->as.number);
+            sb_appendf(sb, "%lld", expr->as.number);
             break;
         case AST_FLOAT:
-            expr_buf_appendf("%g", expr->as.float_val);
+            sb_appendf(sb, "%g", expr->as.float_val);
             break;
         case AST_STRING:
-            expr_buf_appendf("\\\"%s\\\"", expr->as.string_val ? expr->as.string_val : "");
+            append_diagnostic_string(sb, expr->as.string_val ? expr->as.string_val : "");
             break;
         case AST_BOOL:
-            expr_buf_append(expr->as.bool_val ? "true" : "false");
+            sb_append(sb, expr->as.bool_val ? "true" : "false");
             break;
         case AST_IDENTIFIER:
-            expr_buf_append(expr->as.identifier ? expr->as.identifier : "?");
+            sb_append(sb, expr->as.identifier ? expr->as.identifier : "?");
             break;
         case AST_PREFIX_OP: {
-            expr_buf_append("(");
+            sb_append(sb, "(");
             /* Map token type to operator string */
             const char *op = "?";
             switch (expr->as.prefix_op.op) {
@@ -634,34 +636,36 @@ static void expr_to_string_impl(ASTNode *expr) {
                 case TOKEN_NOT: op = "not"; break;
                 default: break;
             }
-            expr_buf_append(op);
+            sb_append(sb, op);
             for (int i = 0; i < expr->as.prefix_op.arg_count; i++) {
-                expr_buf_append(" ");
-                expr_to_string_impl(expr->as.prefix_op.args[i]);
+                sb_append(sb, " ");
+                expr_to_string_impl(expr->as.prefix_op.args[i], sb);
             }
-            expr_buf_append(")");
+            sb_append(sb, ")");
             break;
         }
         case AST_CALL:
-            expr_buf_append("(");
-            expr_buf_append(expr->as.call.name ? expr->as.call.name : "?");
+            sb_append(sb, "(");
+            sb_append(sb, expr->as.call.name ? expr->as.call.name : "?");
             for (int i = 0; i < expr->as.call.arg_count; i++) {
-                expr_buf_append(" ");
-                expr_to_string_impl(expr->as.call.args[i]);
+                sb_append(sb, " ");
+                expr_to_string_impl(expr->as.call.args[i], sb);
             }
-            expr_buf_append(")");
+            sb_append(sb, ")");
             break;
         default:
-            expr_buf_append("...");
+            sb_append(sb, "...");
             break;
     }
 }
 
-/* Returns pointer to static buffer - do not free */
-static const char *expr_to_string(ASTNode *expr) {
-    expr_buf_reset();
-    expr_to_string_impl(expr);
-    return g_expr_buf;
+/* I return owned storage; each emission site releases it after copying. */
+static char *expr_to_string(ASTNode *expr) {
+    StringBuilder *sb = sb_create();
+    expr_to_string_impl(expr, sb);
+    char *text = sb->buffer;
+    free(sb);
+    return text;
 }
 
 /* ============================================================================
@@ -787,101 +791,6 @@ static bool is_generic_list_runtime_fn(const char *name) {
     return true;
 }
 
-/* Emit C code for a string literal that may contain {ident} interpolation.
-   "Hello, {name}!" emits nl_str_concat(nl_str_concat("Hello, ", nl_name), "!")
-   Falls back to plain "value" if no { found. */
-static void emit_string_interp(WorkList *list, const char *raw, Environment *env) {
-    if (!strchr(raw, '{')) {
-        emit_formatted(list, "\"%s\"", raw);
-        return;
-    }
-    /* Collect parts as C expressions, then chain with nl_str_concat */
-    /* Max 64 parts; silently truncate beyond that */
-#define MAX_INTERP_PARTS 64
-    char *parts[MAX_INTERP_PARTS];
-    int nparts = 0;
-    const char *p = raw;
-    char lit_buf[4096];
-    size_t lit_len = 0;
-
-    while (*p) {
-        if (*p == '{') {
-            const char *q = p + 1;
-            if (*q && (nl_ascii_isalpha((unsigned char)*q) || *q == '_')) {
-                const char *ident_start = q;
-                while (*q && (nl_ascii_isalnum((unsigned char)*q) || *q == '_')) q++;
-                if (*q == '}') {
-                    /* Flush pending literal */
-                    if (lit_len > 0 && nparts < MAX_INTERP_PARTS) {
-                        char *s = malloc(lit_len + 3);
-                        s[0] = '"';
-                        memcpy(s+1, lit_buf, lit_len);
-                        s[lit_len+1] = '"';
-                        s[lit_len+2] = '\0';
-                        parts[nparts++] = s;
-                        lit_len = 0;
-                    }
-                    /* Build ident conversion */
-                    size_t ident_len = (size_t)(q - ident_start);
-                    char ident[256];
-                    if (ident_len >= sizeof(ident)) ident_len = sizeof(ident)-1;
-                    memcpy(ident, ident_start, ident_len);
-                    ident[ident_len] = '\0';
-                    /* Look up type */
-                    Symbol *sym = env_get_var(env, ident);
-                    Type t = sym ? sym->type : TYPE_UNKNOWN;
-                    char c_name[320];
-                    snprintf(c_name, sizeof(c_name), "%s", ident); /* no nl_ prefix in C transpiler */
-                    char *conv = malloc(512);
-                    if (t == TYPE_INT) {
-                        snprintf(conv, 512, "int_to_string(%s)", c_name);
-                    } else if (t == TYPE_FLOAT) {
-                        snprintf(conv, 512, "float_to_string(%s)", c_name);
-                    } else if (t == TYPE_BOOL) {
-                        snprintf(conv, 512, "int_to_string(%s)", c_name);
-                    } else {
-                        snprintf(conv, 512, "%s", c_name);
-                    }
-                    if (nparts < MAX_INTERP_PARTS) parts[nparts++] = conv;
-                    else free(conv);
-                    p = q + 1;
-                    continue;
-                }
-            }
-        }
-        if (lit_len < sizeof(lit_buf)-1) lit_buf[lit_len++] = *p;
-        p++;
-    }
-    if (lit_len > 0 && nparts < MAX_INTERP_PARTS) {
-        char *s = malloc(lit_len + 3);
-        s[0] = '"';
-        memcpy(s+1, lit_buf, lit_len);
-        s[lit_len+1] = '"';
-        s[lit_len+2] = '\0';
-        parts[nparts++] = s;
-    }
-    if (nparts == 0) {
-        emit_literal(list, "\"\"");
-    } else if (nparts == 1) {
-        emit_literal(list, parts[0]);
-        free(parts[0]);
-    } else {
-        /* Build nested nl_str_concat calls: nl_str_concat(nl_str_concat(p0,p1),p2)... */
-        char *result = parts[0];
-        for (int i = 1; i < nparts; i++) {
-            size_t rlen = strlen(result);
-            size_t plen = strlen(parts[i]);
-            char *next = malloc(rlen + plen + 20);
-            snprintf(next, rlen + plen + 20, "nl_str_concat(%s, %s)", result, parts[i]);
-            free(result);
-            free(parts[i]);
-            result = next;
-        }
-        emit_literal(list, result);
-        free(result);
-    }
-#undef MAX_INTERP_PARTS
-}
 
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
@@ -904,7 +813,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
             
         case AST_STRING:
-            emit_string_interp(list, expr->as.string_val, env);
+            /* I lower f-strings in the lexer; ordinary braces remain literal. */
+            emit_formatted(list, "\"%s\"", expr->as.string_val);
             break;
             
         case AST_BOOL:
@@ -4205,9 +4115,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 /* Condition is provably false - emit warning and unconditional failure */
                 fprintf(stderr, "Warning at line %d: contract condition is always false\n", stmt->line);
                 emit_indent_item(list, indent);
-                const char *cond_str = expr_to_string(stmt->as.assert.condition);
+                char *cond_str = expr_to_string(stmt->as.assert.condition);
                 emit_formatted(list, "{ fputs(\"Contract violation at line %d: %s (always false)\\n\", stderr); exit(1); }\n",
                               stmt->line, cond_str);
+                free(cond_str);
                 break;
             }
             
@@ -4218,9 +4129,10 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_literal(list, ")) { ");
             
             /* Generate descriptive error message showing the condition */
-            const char *cond_str = expr_to_string(stmt->as.assert.condition);
+            char *cond_str = expr_to_string(stmt->as.assert.condition);
             emit_formatted(list, "fputs(\"Contract violation at line %d: %s\\n\", stderr); ",
                           stmt->line, cond_str);
+            free(cond_str);
             
             emit_literal(list, "exit(1); }\n");
             break;

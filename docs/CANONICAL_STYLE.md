@@ -123,6 +123,21 @@ shadow make_offset {
 This is tested bytecode behavior, not a claim that the C-native or tree-walking
 backends implement the same anonymous-capture semantics.
 
+## String Literals
+
+Ordinary quoted strings keep braces literally. Use the `f` prefix to interpolate:
+
+```nano
+let count: int = 7
+let literal: string = "{count}"
+let expanded: string = f"count {count}"
+```
+
+I lower f-strings in the shared lexer into concatenation and `to_string` calls.
+My native emitter does not reinterpret ordinary strings as a second interpolation
+syntax. I test long literals and more than 64 interpolation parts through native
+and VM shadows and execution.
+
 ## String Search
 
 `str_index_of` finds the first occurrence; `str_last_index_of` finds the last,
