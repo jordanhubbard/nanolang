@@ -5417,6 +5417,38 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Effect declarations are registered at program-level; no runtime work. */
             return create_void();
 
+        case AST_HANDLE_EXPR: {
+            int count = expr->as.handle_expr.handler_count;
+            if (count <= 0 || !expr->as.handle_expr.effect_name) {
+                fprintf(stderr, "I require a resolved effect and nonempty handler clauses.\n");
+                return create_void();
+            }
+            char **parameters = calloc((size_t)count, sizeof(*parameters));
+            if (!parameters) return create_void();
+            for (int i = 0; i < count; i++) {
+                int arity = expr->as.handle_expr.handler_param_counts[i];
+                if (arity > 1) {
+                    fprintf(stderr, "I cannot dispatch a multi-argument effect through the scalar perform AST.\n");
+                    free(parameters);
+                    return create_void();
+                }
+                if (arity == 1) parameters[i] = expr->as.handle_expr.handler_param_names[i][0];
+            }
+            ASTNode handler = {0};
+            handler.type = AST_EFFECT_HANDLER;
+            handler.line = expr->line;
+            handler.column = expr->column;
+            handler.as.effect_handler.effect_name = expr->as.handle_expr.effect_name;
+            handler.as.effect_handler.body = expr->as.handle_expr.body;
+            handler.as.effect_handler.handler_op_names = expr->as.handle_expr.handler_op_names;
+            handler.as.effect_handler.handler_param_names = parameters;
+            handler.as.effect_handler.handler_bodies = expr->as.handle_expr.handler_bodies;
+            handler.as.effect_handler.handler_count = count;
+            Value result = eval_expression(&handler, env);
+            free(parameters);
+            return result;
+        }
+
         case AST_EFFECT_HANDLER: {
             /* handle <body> with { Effect.op(param) -> handler_body }
              * Push a handler frame, evaluate body, pop the frame, return body result. */

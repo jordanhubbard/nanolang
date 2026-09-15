@@ -123,6 +123,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           At the initial run, native compilation fails the real handler shadow
           and NanoVirt rejects the effect operation during shadow compilation.
           I do not count the older `assert true` fixtures as dispatch evidence.
+          - [x] I connect unqualified handler ASTs to interpreter frames for
+            single-argument operations. Interpreter/effects unit gates pass.
+            Executed tests check state changes, nearest-handler precedence,
+            restoration of the outer handler and an empty stack after repeated
+            calls. Native acceptance now passes shadows but fails C compilation
+            on a void-valued local; VM shadows still reject the operation.
+          - [ ] I complete operation argument/result handling and control-flow
+            rules across backends. The perform AST carries only one argument;
+            the interpreter adapter rejects multi-argument handlers. Legacy
+            dispatch strips return/break/continue flags and does not establish
+            the final handler-arm value contract. These boundaries remain open,
+            as do emitted void-valued bindings and native/VM dispatch itself.
         - [x] I fail self/ancestor await cycles and propagate failed awaits
           to running callers. I keep completion/error terminal so a callback
           cannot overwrite failure with a later completion. I test self waits,

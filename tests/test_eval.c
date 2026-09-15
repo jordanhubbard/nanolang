@@ -12,6 +12,7 @@
 #include "../src/nanolang.h"
 #include "../src/builtins_registry.h"
 #include "../src/coroutine.h"
+#include "../src/effects.h"
 #include "../src/interpreter_ffi.h"
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
@@ -2250,7 +2251,64 @@ void test_eval_epoch_milliseconds(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_unqualified_effect_handler(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Recorder { emit : int -> void }\n"
+        "let mut recorded: int = 0\n"
+        "fn send(value: int) -> void { perform Recorder.emit(value) }\n"
+        "fn exercise() -> int {\n"
+        " let ignored = handle { (send 7) } with { emit value -> { set recorded value } }\n"
+        " return recorded\n"
+        "}\n"
+        "shadow send { assert (== (exercise) 7) }\n"
+        "shadow exercise { assert (== (exercise) 7) }\n"
+        "fn main() -> int { return (exercise) }\n"
+        "shadow main { assert (== (main) 7) }\n"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 7);
+    ASSERT(nl_effect_find_handler("Recorder", "emit", NULL) == NULL);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_nested_effect_handlers(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "effect Recorder { emit : int -> void }\n"
+        "let mut recorded: int = 0\n"
+        "fn send(value: int) -> void { perform Recorder.emit(value) }\n"
+        "fn nested() -> void {\n"
+        " let ignored = handle { (send 2) } with {\n"
+        "  emit value -> { set recorded (+ (* recorded 10) (+ value 1)) }\n"
+        " }\n"
+        "}\n"
+        "fn sequence() -> void { (send 1) (nested) (send 4) }\n"
+        "fn exercise() -> int {\n"
+        " set recorded 0\n"
+        " let ignored = handle { (sequence) } with {\n"
+        "  emit value -> { set recorded (+ (* recorded 10) value) }\n"
+        " }\n"
+        " return recorded\n"
+        "}\n"
+        "shadow send { assert (== (exercise) 134) }\n"
+        "shadow nested { assert (== (exercise) 134) }\n"
+        "shadow sequence { assert (== (exercise) 134) }\n"
+        "shadow exercise { assert (== (exercise) 134) }\n"
+        "fn main() -> int { return (exercise) }\n"
+        "shadow main { assert (== (main) 134) }\n"));
+    for (int i = 0; i < 2; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 134);
+        ASSERT(nl_effect_find_handler("Recorder", "emit", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
+    TEST(eval_unqualified_effect_handler);
+    TEST(eval_nested_effect_handlers);
     printf("=== Interpreter (eval.c) Tests ===\n");
     TEST(eval_integer_arithmetic);
     TEST(eval_subtraction);
