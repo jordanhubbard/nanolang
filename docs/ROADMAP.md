@@ -93,6 +93,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           on an inner while continue. My new regression and both former timeout
           fixtures pass shadows and native/dual-dispatch VM execution. All 68
           code-generation unit tests pass. Other corpus failures remain open.
+        - [x] I preserve filter result element representation with an empty
+          source slice. Integer, float, string, boolean and empty-result checks
+          pass native/dual-dispatch VM execution and default shadows, including
+          append-after-empty and unchanged-source checks. All 68 code-generation
+          unit tests pass. This does not establish callback signature validation.
+        - [ ] I preserve map transform result representation and validate
+          collection callback signatures rather than merely checking each
+          argument independently. MAC `task_75b340982b6cf797f29b38c1a188aab3`.
       - [ ] I repair verifier-corpus coverage: its script also silently skips
         compilation failures and searches runtime text instead of requiring
         successful verification, with no execution deadlines.

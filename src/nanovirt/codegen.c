@@ -1081,8 +1081,11 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         uint16_t len_slot = local_add(cg, "__filter_len__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)len_slot);
 
-        /* Create result array */
-        emit_op(cg, OP_ARR_NEW, (int)TAG_INT);
+        /* I preserve the source representation even when no element survives. */
+        emit_op(cg, OP_LOAD_LOCAL, (int)src_slot);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_ARR_SLICE);
         uint16_t res_slot = local_add(cg, "__filter_res__", 0);
         emit_op(cg, OP_STORE_LOCAL, (int)res_slot);
 
