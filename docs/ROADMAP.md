@@ -88,6 +88,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I import the filesystem module in the path/walk fixtures instead
+          of declaring unbound externs. I assert path results and walk a private
+          known-content directory, then verify native/VM default shadows and runs.
+          Both fixtures pass with dependency shadows enabled. Traversal checks
+          both files without assuming order and removes its private fixtures.
+          Strict corpus: 175 selected, 170 identical, five failures, zero skipped.
         - [x] I lower generic map_remove/map_clear with void stack effects and
           alias-preserving mutation, using declared type tags for direct local
           constructors. Int/string map regressions pass native/VM compilation,
