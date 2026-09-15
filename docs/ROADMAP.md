@@ -533,6 +533,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           `task_8f09497a0e6e47dd93b68c7d9f017626`. Both stages rebuild and the
           five-method array gate passes in 19.171 seconds. Evidence:
           `docs/evidence/selfhost-nested-arrays.md`.
+        - [ ] I reconcile main's PR #294 nested-indexing changes with my
+          recursive checker, literal-span and empty-storage fixes. I retain
+          complete element types in runtime helper selection and require the
+          new fixture plus the array/map/returned-call gates after bootstrap.
         - [ ] I compare recursive and nominal self-hosted array element types
           instead of stopping at the element kind. Nested arrays, function
           signatures, enums and unions retain their distinctions across
