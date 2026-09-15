@@ -24,6 +24,8 @@ struct CommandResult {
 }
 
 # I group the command so the runner redirects the entire shell sequence.
+# This function intentionally executes shell code. My ledger helpers quote
+# each string argument and terminate option parsing before positional data.
 fn exec_command(command: string) -> CommandResult {
     let result: Output = (mac_process_run (+ "( " (+ command "\n)")))
     return CommandResult {
@@ -75,12 +77,23 @@ struct TaskCreateOptions {
 
 # === Core Functions ===
 
+# I encode one POSIX shell argument, including embedded single quotes.
+fn mac_shell_quote(value: string) -> string {
+    return (+ "'" (+ (str_replace value "'" "'\\''") "'"))
+}
+
+shadow mac_shell_quote {
+    assert (== (mac_shell_quote "") "''")
+    assert (== (mac_shell_quote "a'b") "'a'\\''b'")
+    assert (== (mac_shell_quote "$x; next") "'$x; next'")
+}
+
 # List tasks with optional state filter (e.g. "open", "running", "" for active).
 fn mac_list(state: string) -> array<Task> {
     let mut cmd: string = "mac task list --json --all-states"
 
     if (!= state "") {
-        set cmd (+ cmd (+ " --state=" state))
+        set cmd (+ cmd (+ " --state=" (mac_shell_quote state)))
     }
 
     let result: CommandResult = (exec_command cmd)
@@ -155,7 +168,7 @@ shadow mac_by_priority {
 
 # Show a specific task by ID (`mac task show <id> --json`).
 fn mac_show(id: string) -> Task {
-    let cmd: string = (+ "mac task show --json " id)
+    let cmd: string = (+ "mac task show --json -- " (mac_shell_quote id))
     let result: CommandResult = (exec_command cmd)
 
     if (!= result.exit_code 0) {
@@ -179,12 +192,12 @@ shadow mac_show {
 fn mac_create(title: string, description: string, priority: int, kind: string) -> string {
     if (== (str_length title) 0) { return "" }
     let mut cmd: string = "mac task create"
-    set cmd (+ cmd (+ " \"" (+ title "\"")))
-    set cmd (+ cmd (+ " --description=\"" (+ description "\"")))
+    set cmd (+ cmd (+ " --description=" (mac_shell_quote description)))
     set cmd (+ cmd (+ " --priority=" (int_to_string priority)))
     if (!= kind "") {
-        set cmd (+ cmd (+ " --kind=" kind))
+        set cmd (+ cmd (+ " --kind=" (mac_shell_quote kind)))
     }
+    set cmd (+ cmd (+ " -- " (mac_shell_quote title)))
 
     let result: CommandResult = (exec_command cmd)
 
@@ -220,11 +233,12 @@ shadow mac_create_with_options {
 # Close a task. `mac task close` completes by default; cancellation needs a reason.
 fn mac_close(id: string, reason: string) -> bool {
     if (== (str_length id) 0) { return false }
-    let mut cmd: string = (+ "mac task close " id)
+    let mut cmd: string = "mac task close"
 
     if (!= reason "") {
-        set cmd (+ cmd (+ " --reason=\"" (+ reason "\"")))
+        set cmd (+ cmd (+ " --reason=" (mac_shell_quote reason)))
     }
+    set cmd (+ cmd (+ " -- " (mac_shell_quote id)))
 
     let result: CommandResult = (exec_command cmd)
     return (== result.exit_code 0)

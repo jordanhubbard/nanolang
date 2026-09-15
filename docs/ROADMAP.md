@@ -31,8 +31,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 - [x] **Release-gate string documentation.** I document `str_last_index_of`
       and reconcile the string section count with the builtin registry.
       `tests/check_stdlib_docs.sh` passes for all 156 builtins.
-- [ ] **MAC shell argument safety.** I quote ledger arguments as data and
+- [x] **MAC shell argument safety.** I quote ledger arguments as data and
       test metacharacters against a fake CLI; titles must not execute shell code.
+      Native and VM compilation, dependency/root shadows and execution pass
+      exact-argument checks for quotes, substitutions, newlines, Unicode and
+      option-like values across create, close, show and list. No live ledger
+      writes occur in these tests. Positional data follows `--`; the raw
+      `exec_command` API intentionally remains a shell-code execution API.
       MAC `task_c3e8254ad9f8ce84143f59ca306e24fb`.
 - [ ] **Process command length.** I reject or safely accommodate commands beyond
       the process runner's fixed command buffer, with boundary tests.
