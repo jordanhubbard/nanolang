@@ -1540,27 +1540,16 @@ static DynArray *builtin_scalar_array(Value value) {
 }
 
 static Value builtin_array_sort(Value *args) {
-    /* array_sort(array) -> array — returns sorted copy (integers ascending) */
+    /* I share scalar ordering with native code and the VM. */
     DynArray *arr = builtin_scalar_array(args[0]);
     if (!arr) {
         fprintf(stderr, "I require a supported array for array_sort.\n");
         return create_void();
     }
-    DynArray *out = dyn_array_clone(arr);
-    if (!out) return args[0];
-    int64_t len = dyn_array_length(out);
-    if (len <= 1) return create_dyn_array(out);
-    if (dyn_array_get_elem_type(out) == ELEM_INT) {
-        /* Simple insertion sort for interpreter correctness */
-        for (int64_t i = 1; i < len; i++) {
-            int64_t key = dyn_array_get_int(out, i);
-            int64_t j = i - 1;
-            while (j >= 0 && dyn_array_get_int(out, j) > key) {
-                dyn_array_set_int(out, j + 1, dyn_array_get_int(out, j));
-                j--;
-            }
-            dyn_array_set_int(out, j + 1, key);
-        }
+    DynArray *out = dyn_array_sorted(arr);
+    if (!out) {
+        fprintf(stderr, "I could not sort this array.\n");
+        return create_void();
     }
     return create_dyn_array(out);
 }

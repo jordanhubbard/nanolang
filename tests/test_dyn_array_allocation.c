@@ -109,6 +109,7 @@ int main(void) {
     for (int i = 0; i < 100; ++i) dyn_array_push_int(a, i);
     reject_allocation = 1;
     assert(dyn_array_clone(a) == NULL);
+    assert(dyn_array_sorted(a) == NULL);
     assert(a->length == 100 && dyn_array_get_int(a, 99) == 99);
     reject_allocation = 0;
     DynArray *copy = dyn_array_clone(a);

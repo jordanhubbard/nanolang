@@ -178,6 +178,17 @@ shadow test_array_index_of {
 }
 
 fn test_literal_arrays() -> int {
+    let float_source: array<float> = [2.5, -1.5, 0.0]
+    let sorted_floats: array<float> = (array_sort float_source)
+    assert (== (at sorted_floats 0) -1.5)
+    assert (== (at sorted_floats 2) 2.5)
+    assert (== (at float_source 0) 2.5)
+    let sorted_words: array<string> = (array_sort ["z", "a", "café"])
+    assert (== (at sorted_words 0) "a")
+    assert (== (at sorted_words 2) "z")
+    let sorted_flags: array<bool> = (array_sort [true, false, true])
+    assert (not (at sorted_flags 0))
+    assert (at sorted_flags 2)
     let original: array<int> = [3, -1, 3, 0]
     let sorted: array<int> = (array_sort original)
     assert (== (array_length sorted) 4)

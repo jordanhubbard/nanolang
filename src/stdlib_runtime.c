@@ -544,23 +544,8 @@ void generate_math_utility_builtins(StringBuilder *sb) {
     sb_append(sb, "/* ========== Array Operations (With Bounds Checking!) ========== */\n\n");
 
     /* Array sort (integer ascending, in-place on a copy) */
-    sb_append(sb, "static int nl_array_sort_cmp_int(const void* a, const void* b) {\n");
-    sb_append(sb, "    int64_t x = *(const int64_t*)a;\n");
-    sb_append(sb, "    int64_t y = *(const int64_t*)b;\n");
-    sb_append(sb, "    return (x > y) - (x < y);\n");
-    sb_append(sb, "}\n\n");
-
     sb_append(sb, "static DynArray* nl_array_sort(DynArray* arr) {\n");
-    sb_append(sb, "    if (!arr) return dyn_array_new(ELEM_INT);\n");
-    sb_append(sb, "    DynArray* out = dyn_array_clone(arr);\n");
-    sb_append(sb, "    if (!out) return arr;\n");
-    sb_append(sb, "    int64_t len = dyn_array_length(out);\n");
-    sb_append(sb, "    if (len <= 1) return out;\n");
-    sb_append(sb, "    ElementType t = dyn_array_get_elem_type(out);\n");
-    sb_append(sb, "    if (t == ELEM_INT) {\n");
-    sb_append(sb, "        qsort(out->data, (size_t)len, sizeof(int64_t), nl_array_sort_cmp_int);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    return out;\n");
+    sb_append(sb, "    return dyn_array_sorted(arr);\n");
     sb_append(sb, "}\n\n");
 
     /* Array reverse (returns a new array) */

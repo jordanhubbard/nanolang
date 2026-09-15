@@ -329,6 +329,10 @@ char *vm_str_join(DynArray *parts, const char *separator) {
     return result;
 }
 
+DynArray *vm_array_sort(DynArray *array) {
+    return dyn_array_sorted(array);
+}
+
 DynArray *vm_bytes_from_string(const char *str) {
     DynArray *arr = dyn_array_new(ELEM_INT);
     if (!str) return arr;

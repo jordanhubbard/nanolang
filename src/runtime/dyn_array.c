@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 
 /* Dynamic array configuration */
 #define INITIAL_CAPACITY 8
@@ -530,6 +531,53 @@ DynArray* dyn_array_clone(DynArray* arr) {
     new_arr->length = arr->length;
     
     return new_arr;
+}
+
+static int compare_int(const void *left, const void *right) {
+    int64_t a = *(const int64_t *)left, b = *(const int64_t *)right;
+    return (a > b) - (a < b);
+}
+static int compare_u8(const void *left, const void *right) {
+    uint8_t a = *(const uint8_t *)left, b = *(const uint8_t *)right;
+    return (a > b) - (a < b);
+}
+static int compare_float(const void *left, const void *right) {
+    double a = *(const double *)left, b = *(const double *)right;
+    if (isnan(a) || isnan(b)) return isnan(a) ? (isnan(b) ? 0 : 1) : -1;
+    return (a > b) - (a < b);
+}
+static int compare_bool(const void *left, const void *right) {
+    bool a = *(const bool *)left, b = *(const bool *)right;
+    return (a > b) - (a < b);
+}
+static int compare_string(const void *left, const void *right) {
+    return strcmp(*(char *const *)left, *(char *const *)right);
+}
+
+DynArray *dyn_array_sorted(DynArray *arr) {
+    if (!arr) return NULL;
+    int (*compare)(const void *, const void *);
+    switch (arr->elem_type) {
+        case ELEM_INT: compare = compare_int; break;
+        case ELEM_U8: compare = compare_u8; break;
+        case ELEM_FLOAT: compare = compare_float; break;
+        case ELEM_BOOL: compare = compare_bool; break;
+        case ELEM_STRING: compare = compare_string; break;
+        default: return NULL;
+    }
+    size_t width = get_element_size(arr->elem_type), bytes;
+    if (arr->elem_size != width || arr->length < 0 || arr->capacity < arr->length ||
+        !darray_storage_size(arr->capacity, width, &bytes) ||
+        (arr->length && !arr->data)) return NULL;
+    if (arr->elem_type == ELEM_STRING) {
+        for (int64_t i = 0; i < arr->length; i++)
+            if (!((char **)arr->data)[i]) return NULL;
+    }
+    DynArray *result = dyn_array_clone(arr);
+    if (!result) return NULL;
+    if (result->length > 1)
+        qsort(result->data, (size_t)result->length, width, compare);
+    return result;
 }
 
 /* Push struct - makes a copy of the struct */

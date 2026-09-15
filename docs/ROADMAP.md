@@ -120,6 +120,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           Evaluator unit tests pass. VM utilities remain unfinished below.
         - [ ] I implement the missing VM sort/reverse/contains/index_of operations
           and verify element-type and original-array preservation.
+          - [x] I share checked scalar sorting across interpreter, native and VM
+            paths: integers/bytes/numbers ascending, false before true, strings
+            bytewise, NaNs last. I test boundaries and leave the source unchanged.
+            The expanded array fixture passes C-seed native and VM compilation,
+            default shadows and execution. All 27 dynamic-array tests, 20 VM
+            builtin tests, evaluator tests and 69 code-generation tests pass.
+            Debug/release allocation-failure tests verify sorting returns failure
+            without replacing the source. The strict corpus now reports 175
+            selected, 167 identical, eight failures and zero skipped.
+          - [ ] I complete compile-time rejection of unsupported sorting types
+            and self-hosted-driver parity; runtime scalar tests do not establish
+            these contracts.
           - [x] I lower reversal and first-match search to existing array
             instructions, preserving empty-array type and evaluating inputs once.
             I also preserve checked scalar element types when interpreting empty

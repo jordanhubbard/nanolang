@@ -738,7 +738,12 @@ let sum: int = (array_fold nums 0 add)
 ```
 
 ### `array_sort(arr: array<T>) -> array<T>`
-I return a new array with the elements sorted in ascending order. I sort arrays of `int`; I return an unmodified copy for other element types.
+I return a new array, leaving the source unchanged. My C-seed interpreter,
+native emitter and VM share scalar ordering: `int`, `u8` and `float` ascend,
+`false` precedes `true`, and strings compare bytewise. Float NaNs sort last;
+equal elements have no stable-order guarantee. My runtime rejects unsupported
+element layouts instead of returning an unsorted copy. Complete compile-time
+diagnostics and self-hosted-driver parity remain separate acceptance work.
 
 ```nano
 let nums: array<int> = [3, 1, 2]

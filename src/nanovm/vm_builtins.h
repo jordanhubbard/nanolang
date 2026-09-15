@@ -33,6 +33,7 @@ int64_t vm_str_last_index_of(const char *haystack, const char *needle);
 char *vm_string_from_char(int64_t code);
 
 /* Binary string */
+DynArray *vm_array_sort(DynArray *array);
 DynArray *vm_bytes_from_string(const char *str);
 char *vm_string_from_bytes(DynArray *arr);
 

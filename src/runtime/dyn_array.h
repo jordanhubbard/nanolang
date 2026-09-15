@@ -115,6 +115,9 @@ void dyn_array_reserve(DynArray* arr, int64_t new_capacity);
 
 /* Clone array (deep copy) */
 DynArray* dyn_array_clone(DynArray* arr);
+/* I sort a new scalar array. NaNs sort last; equal elements are not stable.
+ * NULL reports invalid metadata, unsupported elements or allocation failure. */
+DynArray* dyn_array_sorted(DynArray* arr);
 
 /* Struct array operations */
 DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t struct_size);

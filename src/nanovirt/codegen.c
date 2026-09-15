@@ -887,6 +887,18 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    if (strcmp(name, "array_sort") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        int32_t ext_idx = extern_find(cg, "vm_array_sort");
+        if (ext_idx < 0) {
+            uint8_t ptags[1] = {TAG_ARRAY};
+            register_extern(cg, "vm_array_sort", "", 1, TAG_ARRAY, ptags);
+            ext_idx = extern_find(cg, "vm_array_sort");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
     if (strcmp(name, "array_reverse") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
         uint16_t src = local_add(cg, "__reverse_src__", node->line);
