@@ -4068,8 +4068,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         /* Check if it's a function-typed variable */
                         Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.identifier);
                         if (sym && sym->type == TYPE_FUNCTION) {
-                            /* TODO: Store function signature in Symbol for function-typed variables */
-                            /* For now, allow it - runtime will handle */
+                            value_sig = sym->type_info ? sym->type_info->fn_sig : NULL;
                         }
                     }
                 } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.func_expr) {

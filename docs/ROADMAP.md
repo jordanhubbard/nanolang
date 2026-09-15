@@ -110,6 +110,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         tests before recording merge ancestry. Both stages rebuild, their
         smoke checks pass and all nine module-binding tests pass on Darwin.
         [Review evidence](evidence/pr-282-reconciliation.md).
+      - [x] I reconcile PR #281's function-value signature checking. I retain
+        recursive returned-call checking and AST-owned metadata, check typed
+        variable aliases, and run typechecker and interpreter regression gates.
+        Both gates pass after rebuilding the compiler stages.
+        [Review evidence](evidence/pr-281-reconciliation.md).
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with

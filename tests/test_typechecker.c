@@ -671,6 +671,38 @@ void test_tc_shadow(void) {
         "fn main() -> int { return 0 }"));
 }
 
+void test_tc_returned_function_signature(void) {
+    ASSERT(tc_passes(
+        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
+        "fn choose() -> fn(float) -> float { return plus_one }\n"
+        "fn main() -> int { let x: float = ((choose) 2.0) return 0 }"));
+}
+
+void test_tc_function_variable_alias_signature(void) {
+    ASSERT(tc_passes(
+        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
+        "fn main() -> int { let f: fn(float) -> float = plus_one "
+        "let g: fn(float) -> float = f let x: float = (g 2.0) return 0 }"));
+    ASSERT(!tc_passes(
+        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
+        "fn main() -> int { let f: fn(float) -> float = plus_one "
+        "let g: fn(int) -> int = f return 0 }"));
+}
+
+void test_tc_err_returned_function_argument_type(void) {
+    ASSERT(!tc_passes(
+        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
+        "fn choose() -> fn(float) -> float { return plus_one }\n"
+        "fn main() -> int { let x: float = ((choose) 2) return 0 }"));
+}
+
+void test_tc_err_returned_function_arity(void) {
+    ASSERT(!tc_passes(
+        "fn plus_one(x: float) -> float { return (+ x 1.0) }\n"
+        "fn choose() -> fn(float) -> float { return plus_one }\n"
+        "fn main() -> int { let x: float = ((choose) 2.0 3.0) return 0 }"));
+}
+
 /* ============================================================================
  * Pure fn tests — purity enforcement via check_purity()
  * ============================================================================ */
@@ -948,6 +980,10 @@ int main(void) {
     TEST(tc_int_to_string);
     TEST(tc_string_to_int);
     TEST(tc_shadow);
+    TEST(tc_returned_function_signature);
+    TEST(tc_function_variable_alias_signature);
+    TEST(tc_err_returned_function_argument_type);
+    TEST(tc_err_returned_function_arity);
 
     printf("\n--- Pure fn: purity enforcement ---\n");
     TEST(tc_pure_fn_simple);
