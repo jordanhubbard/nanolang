@@ -250,6 +250,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I bound panel/label geometry and clamp color channels
                     before border arithmetic; I test extreme channels and
                     label-surface cleanup when placement is rejected.
+                  - [x] I validate button geometry and share checked centered
+                    text placement with the spinner; I test rejected geometry,
+                    click behavior, extreme surfaces and cleanup.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

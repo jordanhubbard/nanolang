@@ -163,6 +163,37 @@ static void panels_and_labels(void) {
     assert(render_copies == copies + 1 && surface_frees == frees + 3);
     provide_surface = 0;
 }
+static void buttons(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    int draws = draw_calls, mice = mouse_calls;
+    assert(!nl_ui_button(r,f,"button",INT64_MAX,0,100,20));
+    assert(!nl_ui_button(r,f,"button",INT_MAX,0,100,20));
+    assert(!nl_ui_button(r,f,"button",0,0,0,20));
+    assert(!nl_ui_button(NULL,f,"button",0,0,100,20));
+    assert(draw_calls == draws && mouse_calls == mice);
+    host_mouse_x = 10; host_mouse_y = 10;
+    button_prev_mouse_down = 1; button_current_mouse_down = 0;
+    expected_text = "button"; provide_surface = 1;
+    test_surface.w = 10; test_surface.h = 10;
+    int copies = render_copies, surfaces = surface_frees, textures = texture_frees;
+    assert(nl_ui_button(r,f,"button",0,0,100,20) == 1);
+    assert(render_copies == copies + 1);
+    button_prev_mouse_down = 0;
+    assert(!nl_ui_button(r,f,"button",0,0,100,20));
+    assert(render_copies == copies + 2);
+    test_surface.w = INT_MAX; test_surface.h = INT_MAX;
+    assert(!nl_ui_button(r,f,"button",INT_MIN,INT_MIN,100,20));
+    test_surface.w = -1;
+    assert(!nl_ui_button(r,f,"button",0,0,100,20));
+    assert(render_copies == copies + 2);
+    assert(surface_frees == surfaces + 4 && texture_frees == textures + 4);
+    SDL_Rect dest;
+    assert(ui_centered_rect((SDL_Rect){0,0,100,20},10,10,&dest));
+    assert(dest.x == 45 && dest.y == 5 && dest.w == 10 && dest.h == 10);
+    assert(!ui_centered_rect((SDL_Rect){INT_MAX-10,0,10,10},INT_MAX,10,&dest));
+    provide_surface = 0;
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -230,5 +261,6 @@ int main(void) {
     bars();
     spinner();
     panels_and_labels();
+    buttons();
     return 0;
 }

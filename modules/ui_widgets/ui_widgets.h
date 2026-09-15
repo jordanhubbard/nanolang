@@ -25,6 +25,10 @@
  * skips drawing. Labels reject unrepresentable coordinates/endpoints and
  * nonpositive surface dimensions, releasing any surface already created. */
 
+/* My text buttons reject invalid geometry or null renderers before interaction.
+ * Unrepresentable centered text is skipped with surface/texture cleanup; the
+ * button's valid hit area still determines its click result. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

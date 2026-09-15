@@ -8,6 +8,16 @@ static uint8_t ui_color_channel(int64_t value) {
     return value < 0 ? 0 : value > 255 ? 255 : (uint8_t)value;
 }
 
+static int ui_centered_rect(SDL_Rect box, int width, int height, SDL_Rect *out) {
+    if (width < 0 || height < 0) return 0;
+    int64_t x = (int64_t)box.x + ((int64_t)box.w - width) / 2;
+    int64_t y = (int64_t)box.y + ((int64_t)box.h - height) / 2;
+    if (x < INT_MIN || y < INT_MIN ||
+        x + width > INT_MAX || y + height > INT_MAX) return 0;
+    *out = (SDL_Rect){(int)x, (int)y, width, height};
+    return 1;
+}
+
 NANO_EXPORT_ARRAY_ABI(nl_ui_scrollable_list);
 NANO_EXPORT_ARRAY_ABI(nl_ui_dropdown);
 NANO_EXPORT_ARRAY_ABI(nl_ui_file_selector);
@@ -131,7 +141,7 @@ void nl_ui_update_mouse_state() {
 // Returns 1 if clicked, 0 otherwise
 int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
                      const char* text, int64_t x, int64_t y, int64_t w, int64_t h) {
-    
+    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return 0;
     // Get mouse position (state is tracked by nl_ui_update_mouse_state())
     int mouse_x, mouse_y;
     get_mouse_scaled(&mouse_x, &mouse_y);
@@ -181,15 +191,9 @@ int64_t nl_ui_button(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_w = surface->w;
-                int text_h = surface->h;
-                
-                // Center text
-                int text_x = (int)x + ((int)w - text_w) / 2;
-                int text_y = (int)y + ((int)h - text_h) / 2;
-                
-                SDL_Rect dest = {text_x, text_y, text_w, text_h};
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_Rect dest;
+                if (ui_centered_rect(rect, surface->w, surface->h, &dest))
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -1020,15 +1024,8 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int64_t text_x = (int64_t)value_area.x +
-                    ((int64_t)value_area.w - surface->w) / 2;
-                int64_t text_y = (int64_t)value_area.y +
-                    ((int64_t)value_area.h - surface->h) / 2;
-                if (surface->w >= 0 && surface->h >= 0 &&
-                    text_x >= INT_MIN && text_y >= INT_MIN &&
-                    text_x + surface->w <= INT_MAX &&
-                    text_y + surface->h <= INT_MAX) {
-                    SDL_Rect dest = {(int)text_x, (int)text_y, surface->w, surface->h};
+                SDL_Rect dest;
+                if (ui_centered_rect(value_area, surface->w, surface->h, &dest)) {
                     SDL_RenderCopy(renderer, texture, NULL, &dest);
                 }
                 SDL_DestroyTexture(texture);

@@ -121,6 +121,10 @@ checks endpoints and releases rejected surfaces before texture creation.
 Extreme signed channel/coordinate inputs and cleanup pass the fake-SDL fixture
 normally and under the same sanitizers. This does not close the other widget
 geometry checks.
+Text buttons now validate geometry before interaction. They share checked
+centered text placement with spinners; rejected text still releases its texture
+and surface. The UI fixture checks release-click behavior, invalid geometry,
+extreme text dimensions, and cleanup normally and under the same sanitizers.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;
