@@ -117,6 +117,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           The native unqualified-handler emitter currently evaluates only the
           handled body and ignores its handlers; VM emission rejects these
           nodes. Frontend inference tests do not establish runtime handlers.
+          I require `test-effect-execution` to compile with real shadows and
+          execute an operation that changes handler state on both backends.
+          This acceptance gate remains red until dispatch is implemented.
+          At the initial run, native compilation fails the real handler shadow
+          and NanoVirt rejects the effect operation during shadow compilation.
+          I do not count the older `assert true` fixtures as dispatch evidence.
         - [x] I fail self/ancestor await cycles and propagate failed awaits
           to running callers. I keep completion/error terminal so a callback
           cannot overwrite failure with a later completion. I test self waits,

@@ -938,6 +938,12 @@ test-effects: stage1
 	@./tests/test_effects
 	@rm -f tests/test_effects
 
+.PHONY: test-effect-execution
+test-effect-execution: stage1 nano_virt nano_vm
+	python3 tests/test_effect_execution.py
+
+test-units: test-effect-execution
+
 .PHONY: test-ffi
 $(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<
