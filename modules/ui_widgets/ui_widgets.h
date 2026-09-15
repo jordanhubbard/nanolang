@@ -6,6 +6,11 @@
 #include <SDL2/SDL_ttf.h>
 #include "../../src/runtime/dyn_array.h"
 
+/* My array widgets require canonical string arrays and counts in
+ * [0, min(length, INT_MAX)]. Scroll offsets must be in [0, count].
+ * Invalid arrays/offsets or null renderer/font return -1 before SDL calls.
+ * I skip null entries. Geometry and input scaling require a separate audit. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

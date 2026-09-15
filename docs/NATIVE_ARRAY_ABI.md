@@ -92,6 +92,13 @@ large output, failure cleanup and closed standard descriptors, normally and
 under ASan/UBSan. Execution remains synchronous without timeout/output quota;
 capture failure cannot roll back shell side effects.
 
+My three UI array widgets declare the canonical layout and reject malformed
+metadata, counts outside [0, min(length, INT_MAX)], and invalid scroll offsets
+before SDL calls. Selected dropdown text respects the requested prefix.
+`test-ui-array-bounds` exercises production widget functions with fake drawing
+and text calls, normally and under ASan/UBSan. It does not establish real
+rendering behavior or safety of geometry arithmetic and mouse scaling.
+
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;
 I/O failure can leave partial output. Loads stage complete lines, skip blank

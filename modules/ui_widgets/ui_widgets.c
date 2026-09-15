@@ -1,6 +1,20 @@
 #include "ui_widgets.h"
 #include <string.h>
 #include <math.h>
+#include <limits.h>
+
+NANO_EXPORT_ARRAY_ABI(nl_ui_scrollable_list);
+NANO_EXPORT_ARRAY_ABI(nl_ui_dropdown);
+NANO_EXPORT_ARRAY_ABI(nl_ui_file_selector);
+
+/* I bound counts to the widgets' int loop indices before touching SDL. */
+static int ui_array_valid(const DynArray *a, int64_t count) {
+    return a && a->elem_type == ELEM_STRING && a->elem_size == sizeof(char*) &&
+        a->length >= 0 && a->capacity >= a->length &&
+        (uint64_t)a->capacity <= SIZE_MAX / sizeof(char*) &&
+        (!a->capacity || a->data) && count >= 0 &&
+        count <= a->length && count <= INT_MAX;
+}
 
 // Helper: Check if point is inside rectangle
 static int point_in_rect(int px, int py, int rx, int ry, int rw, int rh) {
@@ -454,7 +468,8 @@ int64_t nl_ui_scrollable_list(SDL_Renderer* renderer, TTF_Font* font,
                                int64_t x, int64_t y, int64_t w, int64_t h,
                                int64_t scroll_offset, int64_t selected_index) {
     
-    if (!items || !font) return -1;
+    if (!renderer || !font || !ui_array_valid(items, item_count) ||
+        scroll_offset < 0 || scroll_offset > item_count) return -1;
     
     int64_t clicked_index = -1;
     
@@ -743,7 +758,8 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
                        int64_t x, int64_t y, int64_t w, int64_t h,
                        int64_t selected_index, int64_t is_open) {
     
-    if (!items || !font || item_count == 0) return -1;
+    if (!renderer || !font || !ui_array_valid(items, item_count) ||
+        item_count == 0) return -1;
     
     int64_t new_selection = -1;
     
@@ -773,7 +789,7 @@ int64_t nl_ui_dropdown(SDL_Renderer* renderer, TTF_Font* font,
     SDL_RenderDrawRect(renderer, &box);
     
     // Draw selected item text
-    if (selected_index >= 0 && selected_index < items->length) {
+    if (selected_index >= 0 && selected_index < item_count) {
         const char* selected_text = ((const char**)items->data)[selected_index];
         if (selected_text) {
             SDL_Surface* surface = TTF_RenderText_Blended(font, selected_text, text_color);
@@ -984,7 +1000,9 @@ int64_t nl_ui_file_selector(SDL_Renderer* renderer, TTF_Font* font,
                              int64_t x, int64_t y, int64_t w, int64_t h,
                              int64_t scroll_offset, int64_t selected_index) {
     
-    if (!files || !font || file_count == 0) return -1;
+    if (!renderer || !font || !ui_array_valid(files, file_count) ||
+        file_count == 0 || scroll_offset < 0 ||
+        scroll_offset > file_count) return -1;
     
     int64_t clicked_item = -1;
     

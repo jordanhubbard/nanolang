@@ -233,6 +233,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               - [ ] I enumerate and validate module array exports before
                 widening the layout. Declarations remain trusted metadata;
                 hidden/stripped markers count as missing.
+                - [x] I validate UI-widget array metadata, counts and scroll
+                  indices before SDL calls; I test invalid inputs and valid
+                  prefixes before declaring all three layout markers.
+                - [ ] I audit UI geometry narrowing and signed arithmetic,
+                  including non-finite scale and mouse-coordinate conversions.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

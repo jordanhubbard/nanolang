@@ -615,6 +615,12 @@ test-preferences-save:
 	python3 -m unittest tests.test_preferences_save
 
 test-units: test-preferences-save
+
+.PHONY: test-ui-array-bounds
+test-ui-array-bounds:
+	python3 -m unittest tests.test_ui_array_bounds
+
+test-units: test-ui-array-bounds
 .PHONY: test-ffi-array-copyback
 test-ffi-array-copyback:
 	python3 -m unittest tests.test_ffi_array_copyback
