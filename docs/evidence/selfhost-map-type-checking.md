@@ -40,3 +40,8 @@ The broader map task remains `task_75b340982b6cf797f29b38c1a188aab3`.
 The shared array wildcard is separately tracked as
 `task_850ac4914d9b4a9cbc34f7f16dd1902c`. I have not run the full release suite
 or established complete type soundness with this checkpoint.
+
+Subsequent work removes the scalar-array wildcard and the known-element
+type-hint overwrite. See `selfhost-array-compatibility.md` for its separate
+bootstrap and rejection evidence; recursive and unknown-type handling remain
+open.

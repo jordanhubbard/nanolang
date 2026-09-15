@@ -155,8 +155,13 @@ that disagree with the transform parameter. It infers the mapped array from
 the transform result and checks direct map result annotations before C
 emission. I test eight rejected programs with prior-output preservation and
 an unannotated float-result program through shadows and native execution.
-My general array compatibility still has a bootstrap `array<int>` wildcard;
-these map-specific checks do not make aliases, calls and returns fully sound.
+My general checker now rejects mismatched known scalar arrays through aliases,
+function arguments, returns and reassignment. I test all 12 mismatched scalar
+pairs on those four paths before C emission, preserving prior output, and
+run typed empty-array/append/identity cases for each scalar type. Both compiler
+stages rebuild without the former `array<int>` wildcard. Unknown-type
+compatibility and recursive/nominal element comparisons remain incomplete;
+this is not a claim of full type soundness.
 
 ## String Literals
 

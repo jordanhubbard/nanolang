@@ -759,6 +759,12 @@ test-selfhost-returned-calls: bootstrap3
 test-selfhost-map-types: bootstrap3
 	@python3 -m unittest tests.test_selfhost_map_types
 
+.PHONY: test-selfhost-array-compatibility
+test-selfhost-array-compatibility: bootstrap3
+	@python3 -m unittest tests.test_selfhost_array_compatibility
+
+test-units: test-selfhost-array-compatibility test-selfhost-map-types test-selfhost-map-results test-selfhost-returned-calls
+
 .PHONY: test-nanovm-integration
 test-nanovm-integration: nano_vm nano_virt nano_vmd nano_cop
 	@echo "Running NanoVM end-to-end integration tests..."

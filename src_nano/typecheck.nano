@@ -1017,15 +1017,10 @@ fn types_equal(t1: NSType, t2: NSType) -> bool {
                 let n2: string = (strip_spaces t2.name)
                 return (== n1 n2)
             } else {
-                /* For array types, check element type with leniency */
+                /* I compare known array element kinds without an integer wildcard. */
                 if (== t1.kind TypeKind.TYPE_ARRAY) {
                 /* Allow empty-array literals (element kind unknown) to unify with any array<T>. */
-                /* Also be lenient if element type is TYPE_INT (from array_push) */
                 if (or (== t1.element_type_kind TypeKind.TYPE_UNKNOWN) (== t2.element_type_kind TypeKind.TYPE_UNKNOWN)) {
-                    return true
-                } else { (print "") }
-                if (or (== t1.element_type_kind TypeKind.TYPE_INT) (== t2.element_type_kind TypeKind.TYPE_INT)) {
-                    /* Bootstrap leniency: accept array<int> as compatible with any array */
                     return true
                 } else { (print "") }
                 if (!= t1.element_type_kind t2.element_type_kind) {
@@ -1058,6 +1053,16 @@ shadow types_equal {
     
     assert (types_equal int1 int2)
     assert (not (types_equal int1 float1))
+    let kinds: array<int> = [TypeKind.TYPE_INT, TypeKind.TYPE_FLOAT, TypeKind.TYPE_BOOL, TypeKind.TYPE_STRING]
+    let mut i: int = 0
+    while (< i (array_length kinds)) {
+        let mut j: int = 0
+        while (< j (array_length kinds)) {
+            assert (== (types_equal (type_array (at kinds i) "") (type_array (at kinds j) "")) (== i j))
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
 }
 
 /* Extract return type from a function type like "fn(int,int)->int" */
@@ -3633,7 +3638,7 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
     } else { (print "") }
     if (== expected_type.kind TypeKind.TYPE_ARRAY) {
         if (== expr_type.kind TypeKind.TYPE_ARRAY) {
-            if (or (== expr_type.element_type_kind TypeKind.TYPE_UNKNOWN) (== expr_type.element_type_name "")) {
+            if (== expr_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
                 return expected_type
             } else { (print "") }
         } else { (print "") }
@@ -3664,6 +3669,12 @@ shadow apply_return_type_hint {
     assert (== result.kind TypeKind.TYPE_FLOAT)
     let same: NSType = (apply_return_type_hint int_t int_t)
     assert (== same.kind TypeKind.TYPE_INT)
+    let integers: NSType = (type_array TypeKind.TYPE_INT "")
+    let strings: NSType = (type_array TypeKind.TYPE_STRING "")
+    let retained: NSType = (apply_return_type_hint integers strings)
+    assert (== retained.element_type_kind TypeKind.TYPE_INT)
+    let inferred: NSType = (apply_return_type_hint (type_array TypeKind.TYPE_UNKNOWN "") strings)
+    assert (== inferred.element_type_kind TypeKind.TYPE_STRING)
 }
 
 /* Typecheck a parsed program with full AST walking */

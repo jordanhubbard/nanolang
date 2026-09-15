@@ -495,16 +495,44 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           pass in 2.835 seconds. The 16 scalar pairings and execution trace
           remain green in 46.648 seconds. Evidence:
           `docs/evidence/selfhost-map-type-checking.md`.
-        - [ ] I remove the self-hosted `array<int>` compatibility wildcard
-          after restoring the metadata its bootstrap currently relies on.
-          Direct map checks do not repair aliases, calls or returns routed
-          through `types_equal`. I require rejection tests across those paths
-          and a complete bootstrap without this exemption. MAC
-          `task_850ac4914d9b4a9cbc34f7f16dd1902c`.
           All sixteen interpreter combinations pass, including the complete
           rebuilt evaluator gate and a final evaluator-object rebuild/test
           after diagnostic wording changes. Logs:
           `/tmp/nanolang-map-runtime.log`, `/tmp/nanolang-map-runtime-final.log`.
+        - [x] I preserve nested native comparison grouping in self-hosted
+          code. I parenthesize operands through the shared binary emitter,
+          retain the array-type equality shadow, and execute nested equality
+          and relational comparison matrices. MAC
+          `task_0f64149182a549b5abf7a6dc2547799e`.
+          Both stages and the unchanged equality shadow now pass; explicit
+          native comparison matrices execute successfully.
+        - [x] I remove the self-hosted `array<int>` compatibility wildcard
+          and retain a working bootstrap without it.
+          Direct map checks do not repair aliases, calls or returns routed
+          through `types_equal`. I require rejection tests across those paths
+          and a complete bootstrap without this exemption. MAC
+          `task_850ac4914d9b4a9cbc34f7f16dd1902c`.
+          I test all 12 mismatched scalar array pairs through alias binding,
+          calls, returns and reassignment before C emission. I also stop
+          `apply_return_type_hint` from treating an empty scalar type-name
+          field as unknown element type. Positive cases retain typed empty
+          arrays, append and identity calls on all four scalar types.
+          The first bootstrap reaches native shadow execution and fails the
+          new equality matrix: the emitter flattens nested comparisons into
+          a C comparison chain. I preserve the assertion and fix its grouping
+          before rerunning this gate.
+          The final rebuilt gate passes all 48 scalar mismatch rejections,
+          four positive scalar-array programs and native comparison matrices
+          in 15.413 seconds. Map typing passes in 3.221 seconds; all scalar
+          map pairings and the trace pass in 50.427 seconds. Evidence:
+          `docs/evidence/selfhost-array-compatibility.md`.
+        - [ ] I compare recursive and nominal self-hosted array element types
+          instead of stopping at the element kind. Nested arrays, function
+          signatures, enums and unions retain their distinctions across
+          aliases, calls, returns and assignment; failed inference must not
+          masquerade as an empty array. I require positive execution and
+          source-only rejection tests plus bootstrap. MAC
+          `task_3c5d8625cec144ba87efd9695239275a`.
         - [x] I provide VM left/right string trimming with the existing four-byte
           whitespace contract, checking empty/all-whitespace input, the opposite
           edge and UTF-8 preservation on native and VM paths.
