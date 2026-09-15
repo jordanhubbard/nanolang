@@ -352,6 +352,42 @@ static void tooltips(void) {
     assert(render_copies == copies+1 && surface_frees == frees+2);
     provide_surface=0;
 }
+static void text_inputs(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    char unterminated[3] = {'b','a','d'};
+    int draws=draw_calls, mice=mouse_calls;
+    assert(!nl_ui_text_input(r,f,unterminated,3,0,0,100,20,1));
+    assert(!nl_ui_text_input(r,f,"input",0,0,0,100,20,1));
+    assert(!nl_ui_text_input(r,f,NULL,6,0,0,100,20,1));
+    assert(!nl_ui_text_input(r,f,"input",6,INT64_MAX,0,100,20,1));
+    assert(!nl_ui_text_input(r,f,"input",6,0,0,15,20,1));
+    assert(draw_calls == draws && mouse_calls == mice);
+    expected_text="input"; provide_surface=1;
+    test_surface.w=10; test_surface.h=10;
+    int copies=render_copies, frees=surface_frees;
+    char input[]="input";
+    assert(!nl_ui_text_input(r,f,input,sizeof(input),0,0,100,20,1));
+    assert(render_copies == copies+1 && !strcmp(input,"input"));
+    test_surface.h=INT_MAX;
+    assert(!nl_ui_text_input(r,f,input,sizeof(input),INT_MIN,INT_MIN,100,20,0));
+    assert(render_copies == copies+1 && surface_frees == frees+2);
+    test_surface.w=-1;
+    assert(!nl_ui_text_input(r,f,input,sizeof(input),0,0,100,20,0));
+    assert(render_copies == copies+1 && surface_frees == frees+3);
+    provide_surface=0; measured_w=INT_MAX; measured_h=10;
+    for (int i=0; i<120; i++)
+        assert(!nl_ui_text_input(r,f,input,sizeof(input),INT_MAX-100,0,100,20,1));
+    fail_measure=1;
+    for (int i=0; i<60; i++)
+        assert(!nl_ui_text_input(r,f,input,sizeof(input),0,0,100,20,1));
+    fail_measure=0;
+    int measures=measure_calls;
+    for (int i=0; i<60; i++)
+        assert(!nl_ui_text_input(r,NULL,input,sizeof(input),0,0,100,20,1));
+    assert(measure_calls == measures);
+    measured_w=10;
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -424,5 +460,6 @@ int main(void) {
     time_displays();
     image_buttons();
     tooltips();
+    text_inputs();
     return 0;
 }

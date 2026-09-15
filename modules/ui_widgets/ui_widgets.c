@@ -697,13 +697,17 @@ double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y,
 }
 
 // Text input field - single line text input
-// Returns 1 if Enter was pressed, 0 otherwise
-// Text buffer is modified in place
+// I currently return 0; editing and Enter handling remain separate work.
+// I render a bounded text buffer; event-driven editing remains separate work.
 int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
                           const char* buffer, int64_t buffer_size,
                           int64_t x, int64_t y, int64_t w, int64_t h,
                           int64_t is_focused) {
     
+    if (!renderer || !buffer || buffer_size <= 0 ||
+        (uint64_t)buffer_size > SIZE_MAX || w < 16 || h < 12 ||
+        !ui_bar_geometry(x, y, w, h, 0)) return 0;
+    if (!memchr(buffer, 0, (size_t)buffer_size)) return 0;
     int enter_pressed = 0;
     
     // Get mouse state
@@ -752,14 +756,11 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_x = (int)x + 8;
-                int text_y = (int)y + ((int)h - surface->h) / 2;
-                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
-                // Clip text if too wide
-                if (dest.w > (int)w - 16) {
-                    dest.w = (int)w - 16;
-                }
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int text_w = surface->w;
+                if (text_w > (int)w - 16) text_w = (int)w - 16;
+                SDL_Rect area = {(int)x + 8, (int)y, text_w, (int)h}, dest;
+                if (ui_centered_rect(area, text_w, surface->h, &dest))
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -769,14 +770,17 @@ int64_t nl_ui_text_input(SDL_Renderer* renderer, TTF_Font* font,
     // Draw cursor if focused
     if (is_focused) {
         static int cursor_blink_counter = 0;
-        cursor_blink_counter++;
+        cursor_blink_counter = (cursor_blink_counter + 1) % 60;
         if ((cursor_blink_counter / 30) % 2 == 0) {  // Blink every 30 frames
             int cursor_x = (int)x + 8;
-            if (buffer && strlen(buffer) > 0) {
+            if (font && buffer[0]) {
                 // Measure text width to position cursor
-                int text_w, text_h;
-                TTF_SizeText(font, buffer, &text_w, &text_h);
-                cursor_x += text_w + 2;
+                int text_w = 0, text_h = 0;
+                if (TTF_SizeText(font, buffer, &text_w, &text_h) == 0 && text_w >= 0) {
+                    int64_t measured_x = (int64_t)cursor_x + text_w + 2;
+                    int64_t right = x + w - 8;
+                    cursor_x = (int)(measured_x > right ? right : measured_x);
+                }
             }
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderDrawLine(renderer, cursor_x, (int)y + 6, cursor_x, (int)y + (int)h - 6);

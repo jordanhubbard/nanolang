@@ -264,6 +264,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I check tooltip measurement failures, padded dimensions
                     and cursor offsets before drawing; I test extreme values
                     and rejected surface cleanup.
+                  - [x] I bound text-input buffer reads, geometry, text and
+                    cursor placement, measurement failures and blink counting.
+                  - [ ] I reconcile the text-input API's promised editing and
+                    Enter behavior with its current render-only implementation.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

@@ -145,6 +145,13 @@ Tooltips check measurement status, padded dimensions and cursor offsets before
 drawing, then independently validate rendered surface placement. Fake-SDL tests
 cover failed measurements, signed dimension limits, cursor endpoint overflow
 and rejected-surface cleanup normally and under the same sanitizers.
+Text-input rendering now requires a terminator within the supplied buffer size,
+checks geometry and text placement, bounds the blink cycle, and clamps cursor
+placement after successful measurement. Null fonts skip measurement. Fake-SDL
+tests cover unterminated buffers, extreme surfaces, failed measurements and
+repeated blink cycles normally and under the same sanitizers. The function is
+still render-only and always returns zero; editing and Enter handling are
+tracked separately rather than claimed as complete.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;
