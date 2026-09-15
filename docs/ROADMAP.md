@@ -291,6 +291,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                       - [ ] I migrate pipe requests and replies, update the wire
                         version, and test large isolated payloads without
                         silently falling back to in-process execution.
+                        - [x] My version-2 pipe codec uses call envelopes in the
+                          parent and standalone worker. The shared handler
+                          validates requests and bounds reply allocation at
+                          16 MiB. A forked pipe fixture checks 2,000-element
+                          aliased arrays, repeated mutations and reply identity.
+                        - [ ] I connect a large-payload pipe channel to the
+                          default mailbox worker without restarting its native
+                          state, and bound the full pipe exchange by a deadline.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native

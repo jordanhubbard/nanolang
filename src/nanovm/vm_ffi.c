@@ -1234,21 +1234,28 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
     }
 
     uint8_t payload[8192];
-    uint32_t pos = 0;
-    memcpy(payload + pos, &import_idx, 4); pos += 4;
-    uint16_t argc = (uint16_t)arg_count;
-    memcpy(payload + pos, &argc, 2); pos += 2;
-    for (int i = 0; i < arg_count && i < NANO_MAX_FFI_ARGS; i++) {
-        uint32_t n = cop_serialize_value(&args[i], payload + pos,
-                                         sizeof(payload) - pos);
-        if (n == 0) {
-            snprintf(error_msg, error_msg_size, "COP: failed to serialize arg %d", i);
+    uint8_t *request = payload;
+    uint32_t capacity = sizeof payload;
+    uint32_t encoded;
+    while (!(encoded = cop_encode_call_values(args, (uint8_t)arg_count,
+                                               request + 6, capacity - 6))) {
+        if (request != payload) free(request);
+        if (capacity >= COP_MAX_PAYLOAD) {
+            snprintf(error_msg, error_msg_size, "I could not encode a bounded pipe request");
             return false;
         }
-        pos += n;
+        capacity *= 2;
+        request = malloc(capacity);
+        if (!request) {
+            snprintf(error_msg, error_msg_size, "I could not allocate the pipe request");
+            return false;
+        }
     }
-
-    if (!cop_send(vm->cop_in_fd, COP_MSG_FFI_REQ, payload, pos)) {
+    cop_put_u32(request, import_idx);
+    cop_put_u16(request + 4, (uint16_t)arg_count);
+    bool sent = cop_send(vm->cop_in_fd, COP_MSG_FFI_REQ, request, encoded + 6);
+    if (request != payload) free(request);
+    if (!sent) {
         vm_ffi_cop_stop(vm);
         snprintf(error_msg, error_msg_size,
                  "COP: pipe broken during FFI request");
@@ -1278,15 +1285,16 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                 snprintf(error_msg, error_msg_size, "COP: failed to receive result");
                 return false;
             }
-            uint32_t consumed = cop_deserialize_value(recv_buf, hdr.payload_len,
-                                                       result, heap);
+            bool converted = cop_apply_call_reply(recv_buf, hdr.payload_len, args,
+                                                   (uint8_t)arg_count, result, heap);
             if (recv_buf != payload) free(recv_buf);
-            if (consumed == 0) {
+            if (!converted) {
                 snprintf(error_msg, error_msg_size, "COP: failed to deserialize result");
                 return false;
             }
         } else {
-            *result = val_void();
+            snprintf(error_msg, error_msg_size, "I rejected an empty pipe reply");
+            return false;
         }
         return true;
     }
@@ -1294,6 +1302,9 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
         uint32_t elen = hdr.payload_len < (uint32_t)(error_msg_size - 1)
                         ? hdr.payload_len : (uint32_t)(error_msg_size - 1);
         if (elen > 0) { cop_recv_payload(vm->cop_out_fd, error_msg, elen); error_msg[elen] = '\0'; }
+        /* I close on foreign errors rather than leave unread diagnostic bytes
+         * to be interpreted as the next frame header. */
+        vm_ffi_cop_stop(vm);
         return false;
     }
     snprintf(error_msg, error_msg_size, "COP: unexpected response 0x%02x", hdr.msg_type);

@@ -11,6 +11,7 @@
 #include "../utf8.h"
 #include "../nanoisa/nvm_format.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -208,6 +209,42 @@ static uint32_t cop_deserialize_value_impl(const uint8_t *buf, uint32_t buf_size
  * so it is safe under the multithreaded daemon. */
 #define COP_MAX_DESER_DEPTH 64
 static __thread int cop_deser_depth = 0;
+
+bool cop_execute_request(const uint8_t *request, uint32_t size,
+                          const NvmModule *module, VmHeap *heap,
+                          uint8_t **reply, uint32_t *reply_size,
+                          char *error, size_t error_size) {
+    *reply = NULL;
+    *reply_size = 0;
+    if (size < 6 || size > COP_MAX_PAYLOAD || !module) {
+        snprintf(error, error_size, "I require an initialized module and bounded pipe request");
+        return false;
+    }
+    uint16_t argc = cop_get_u16(request + 4);
+    NanoValue values[NANO_MAX_FFI_ARGS + 1] = {0};
+    if (argc > NANO_MAX_FFI_ARGS ||
+        !cop_decode_call_values(request + 6, size - 6, values, (uint8_t)argc, heap)) {
+        snprintf(error, error_size, "I rejected a malformed pipe call envelope");
+        return false;
+    }
+    bool ok = vm_ffi_call(module, cop_get_u32(request), values, argc,
+                          &values[argc], heap, error, error_size);
+    if (ok) {
+        ok = false;
+        for (uint32_t capacity = 4096; capacity <= COP_MAX_PAYLOAD; capacity *= 2) {
+            uint8_t *bytes = malloc(capacity);
+            if (!bytes) break;
+            uint32_t n = cop_encode_call_values(values, (uint8_t)(argc + 1), bytes, capacity);
+            if (n) {
+                *reply = bytes; *reply_size = n; ok = true; break;
+            }
+            free(bytes);
+        }
+        if (!ok) snprintf(error, error_size, "I could not encode a bounded pipe reply");
+    }
+    for (uint16_t i = 0; i <= argc; ++i) vm_release(heap, values[i]);
+    return ok;
+}
 
 static bool call_scalar_tag(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_FLOAT || tag == TAG_BOOL ||

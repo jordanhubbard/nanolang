@@ -37,8 +37,15 @@ Batches with array arguments use ordered single-call crossings, so a later
 call sees earlier mutations. Scalar-only batches retain the packed fast path.
 I test actual forked dispatch, returned aliases, repeated handle clearing,
 invalid-result rejection and switching from a scalar batch to a single call.
-The pipe transport still uses the old value-only encoding; its migration and
-wire-version update remain unfinished. Mailbox overflow fails closed and
+My version-2 pipe transport uses the same envelopes and rejects old wire
+versions. Its worker bounds request/reply payloads at 16 MiB and reports
+encoding failure as an error, never an empty successful result. A forked pipe
+fixture checks repeated calls with 2,000-element aliased arrays in both
+directions. The standalone worker builds against the same request handler.
+
+The default launcher still creates only a mailbox channel. Connecting large
+requests to the same worker's pipe channel and bounding the entire pipe
+exchange by a deadline remain unfinished. Mailbox overflow fails closed and
 cannot undo native side effects that occurred before reply overflow.
 
 I currently use native array ABI version 1. `DynArray` still has a one-byte

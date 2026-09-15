@@ -739,6 +739,51 @@ TEST(array_mutation_copyback) {
     ASSERT(vm_ffi_call_cop(&isolated, mod, 2, NULL, 0, &result, &heap, error, sizeof error));
     ASSERT_EQ(result.as.i64, 1);
     vm_ffi_cop_stop(&isolated);
+    /* I exercise the real parent pipe branch with the shared worker handler,
+     * using both request and reply envelopes larger than the mailbox. */
+    int to_child[2], from_child[2];
+    ASSERT(pipe(to_child) == 0 && pipe(from_child) == 0);
+    pid_t worker = fork();
+    ASSERT(worker >= 0);
+    if (!worker) {
+        close(to_child[1]); close(from_child[0]);
+        VmHeap child_heap;
+        vm_heap_init(&child_heap);
+        CopMsgHeader header;
+        while (cop_recv_header(to_child[0], &header) && header.msg_type == COP_MSG_FFI_REQ) {
+            uint8_t *request = malloc(header.payload_len);
+            if (!request || !cop_recv_payload(to_child[0], request, header.payload_len)) _exit(2);
+            uint8_t *reply;
+            uint32_t reply_size;
+            char diagnostic[256] = {0};
+            bool ok = cop_execute_request(request, header.payload_len, mod, &child_heap,
+                                           &reply, &reply_size, diagnostic, sizeof diagnostic);
+            free(request);
+            bool sent = ok ? cop_send(from_child[1], COP_MSG_FFI_RESULT, reply, reply_size)
+                           : cop_send(from_child[1], COP_MSG_FFI_ERROR, diagnostic, strlen(diagnostic));
+            free(reply);
+            if (!sent) _exit(3);
+        }
+        vm_heap_destroy(&child_heap);
+        _exit(0);
+    }
+    close(to_child[0]); close(from_child[1]);
+    isolated.cop_pid = worker;
+    isolated.cop_in_fd = to_child[1];
+    isolated.cop_out_fd = from_child[0];
+    VmArray *large = vm_array_new(&heap, TAG_INT, 2000);
+    ASSERT(large);
+    for (int i = 0; i < 2000; ++i) ASSERT(vm_array_push(&heap, large, val_int(i)));
+    NanoValue large_args[] = {val_array(large), val_array(large)};
+    for (int i = 0; i < 3; ++i) {
+        ASSERT(vm_ffi_call_cop(&isolated, mod, 0, large_args, 2, &result, &heap, error, sizeof error));
+        ASSERT(result.tag == TAG_ARRAY && result.as.array == large);
+        ASSERT_EQ(vm_array_get(large, 0).as.i64, i + 1);
+        ASSERT_EQ(vm_array_get(large, 1999).as.i64, 1999);
+        vm_release(&heap, result);
+    }
+    vm_release(&heap, val_array(large));
+    vm_ffi_cop_stop(&isolated);
     vm_array_set(array, 0, val_int(1));
     for (int repeat = 0; repeat < 2; ++repeat) {
         ASSERT(vm_ffi_call(mod, 1, args, 1, &result, &heap, error, sizeof error));

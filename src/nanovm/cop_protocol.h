@@ -36,14 +36,14 @@ typedef enum {
 
 /* Wire Header (same 8-byte format as VmdMsgHeader) */
 typedef struct {
-    uint8_t  version;       /* 1 */
+    uint8_t  version;       /* COP_PROTO_VERSION */
     uint8_t  msg_type;      /* CopMsgType */
     uint16_t reserved;      /* Must be 0 */
     uint32_t payload_len;   /* Bytes following this header */
 } __attribute__((packed)) CopMsgHeader;
 
 #define COP_HEADER_SIZE 8
-#define COP_PROTO_VERSION 1
+#define COP_PROTO_VERSION 2
 #define COP_MAX_PAYLOAD (16 * 1024 * 1024)  /* 16 MB max for FFI payloads */
 
 /* ========================================================================
@@ -72,7 +72,7 @@ uint32_t cop_deserialize_value(const uint8_t *buf, uint32_t buf_size,
  * Top-level array aliases use bounded backward references. Supported arrays
  * contain scalar/string elements, matching the in-process foreign boundary.
  * Decode owns each output reference; failure clears/releases every output.
- * These helpers do not change the legacy transport until its callers migrate. */
+ * Single-call mailbox and version-2 pipe transports use this envelope. */
 uint32_t cop_encode_call_values(const NanoValue *values, uint8_t count,
                                 uint8_t *buf, uint32_t size);
 bool cop_decode_call_values(const uint8_t *buf, uint32_t size, NanoValue *values,
@@ -82,6 +82,12 @@ bool cop_decode_call_values(const uint8_t *buf, uint32_t size, NanoValue *values
  * Native side effects cannot be rolled back if a reply fails validation. */
 bool cop_apply_call_reply(const uint8_t *buf, uint32_t size, NanoValue *args,
                           uint8_t argc, NanoValue *result, VmHeap *heap);
+/* Execute a version-2 pipe request: little-endian import(u32), argc(u16),
+ * call envelope. On success the caller owns *reply and must free it. */
+bool cop_execute_request(const uint8_t *request, uint32_t size,
+                          const NvmModule *module, VmHeap *heap,
+                          uint8_t **reply, uint32_t *reply_size,
+                          char *error, size_t error_size);
 
 /* ========================================================================
  * Shared-Memory Mailbox (fast path)
