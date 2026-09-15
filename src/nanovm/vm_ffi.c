@@ -608,11 +608,34 @@ typedef struct {
     pthread_mutex_t mutex;
     bool done;
     NanoCallbackRuntime *runtime;
+    bool string_result, string_copy_failed;
+    char *returned_string;
+    uint32_t returned_length;
 } CallbackNativeCall;
+
+/* I snapshot borrowed results before worker TLS destructors can reclaim them.
+ * Only the owner creates VM heap objects after the worker has joined. */
+static void callback_native_invoke(CallbackNativeCall *call) {
+    ffi_call(call->cif, FFI_FN(call->function), &call->returned, call->arguments);
+    if (call->string_result && call->returned.pointer) {
+        size_t length = strlen(call->returned.pointer);
+        if (length > UINT32_MAX || length == SIZE_MAX) {
+            call->string_copy_failed = true;
+            return;
+        }
+        call->returned_string = malloc(length + 1);
+        if (!call->returned_string) {
+            call->string_copy_failed = true;
+            return;
+        }
+        memcpy(call->returned_string, call->returned.pointer, length + 1);
+        call->returned_length = (uint32_t)length;
+    }
+}
 
 static void *callback_native_worker(void *opaque) {
     CallbackNativeCall *call = opaque;
-    ffi_call(call->cif, FFI_FN(call->function), &call->returned, call->arguments);
+    callback_native_invoke(call);
     pthread_mutex_lock(&call->mutex);
     call->done = true;
     pthread_mutex_unlock(&call->mutex);
@@ -626,7 +649,7 @@ static ffi_type *callback_native_type(uint8_t tag) {
     case TAG_INT: return &ffi_type_sint64;
     case TAG_FLOAT: return &ffi_type_double;
     case TAG_BOOL: case TAG_U8: return &ffi_type_uint8;
-    case TAG_OPAQUE: case TAG_FUNCTION: case TAG_CLOSURE: return &ffi_type_pointer;
+    case TAG_STRING: case TAG_OPAQUE: case TAG_FUNCTION: case TAG_CLOSURE: return &ffi_type_pointer;
     default: return NULL;
     }
 }
@@ -667,13 +690,15 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
     }
     ffi_type *return_type = callback_native_type(import->return_type);
     if (!return_type || import->return_type == TAG_FUNCTION || import->return_type == TAG_CLOSURE) {
-        snprintf(error_msg, error_msg_size, "I require a scalar result for a callback-aware native import");
+        snprintf(error_msg, error_msg_size, "I require a scalar or string result for a callback-aware native import");
         return false;
     }
     CallbackNativeSlot storage[NANO_MAX_FFI_ARGS] = {{0}};
     void *values[NANO_MAX_FFI_ARGS];
     ffi_type *types[NANO_MAX_FFI_ARGS];
     NanoCallbackV1 *handles[NANO_MAX_FFI_ARGS] = {0};
+    char *strings[NANO_MAX_FFI_ARGS] = {0};
+    CallbackNativeCall call = {.string_result = import->return_type == TAG_STRING};
     bool ok = false;
     for (int p = 0; p < arg_count; p++) {
         uint8_t tag = module->import_param_types[import_idx][p];
@@ -683,7 +708,7 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
         if (!types[p] || tag == TAG_VOID ||
             ((tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? !val_is_function(args[p]) :
              (args[p].tag != tag && !opaque_null))) {
-            snprintf(error_msg, error_msg_size, "I require matching scalar or callable parameters for this native adapter");
+            snprintf(error_msg, error_msg_size, "I require matching scalar, string or callable parameters for this native adapter");
             goto cleanup;
         }
         switch (tag) {
@@ -692,6 +717,22 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
         case TAG_BOOL: storage[p].byte = args[p].as.boolean; break;
         case TAG_U8: storage[p].byte = args[p].as.u8; break;
         case TAG_OPAQUE: storage[p].pointer = opaque_null ? NULL : args[p].as.obj; break;
+        case TAG_STRING: {
+            VmString *string = args[p].as.string;
+            if (!string || memchr(string->data, '\0', string->length)) {
+                snprintf(error_msg, error_msg_size, "I require a non-null string without embedded NUL bytes for this native adapter");
+                goto cleanup;
+            }
+            size_t length = string->length;
+            if (length == SIZE_MAX || !(strings[p] = malloc(length + 1))) {
+                snprintf(error_msg, error_msg_size, "I could not copy a native string argument");
+                goto cleanup;
+            }
+            memcpy(strings[p], string->data, length);
+            strings[p][length] = '\0';
+            storage[p].pointer = strings[p];
+            break;
+        }
         default: {
             const NvmCallbackContract *contract = policy;
             while (contract->parameter_idx != (uint16_t)p) contract++;
@@ -718,7 +759,9 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
         snprintf(error_msg, error_msg_size, "I could not prepare the retained adapter's native signature");
         goto cleanup;
     }
-    CallbackNativeCall call = {.cif = &cif, .function = function, .arguments = values};
+    call.cif = &cif;
+    call.function = function;
+    call.arguments = values;
     if (policy->execution == NVM_FOREIGN_WORKER_THREAD) {
         if (!vm->callbacks) vm->callbacks = nano_callback_runtime_create();
         if (!vm->callbacks || pthread_mutex_init(&call.mutex, NULL)) {
@@ -741,7 +784,11 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
         }
         pthread_join(thread, NULL);
         pthread_mutex_destroy(&call.mutex);
-    } else ffi_call(&cif, FFI_FN(function), &call.returned, values);
+    } else callback_native_invoke(&call);
+    if (call.string_copy_failed) {
+        snprintf(error_msg, error_msg_size, "I could not copy the native string result");
+        goto cleanup;
+    }
     if (vm->callback_error != VM_OK) {
         snprintf(error_msg, error_msg_size, "I stopped after a callback failed: %s", vm->callback_error_msg);
         goto cleanup;
@@ -753,10 +800,24 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
     case TAG_BOOL: *result = val_bool(call.returned.word != 0); break;
     case TAG_U8: *result = val_u8((uint8_t)call.returned.word); break;
     case TAG_OPAQUE: result->tag = TAG_OPAQUE; result->as.obj = call.returned.pointer; break;
+    case TAG_STRING:
+        if (call.returned_string) {
+            VmString *string = vm_string_new(&vm->heap, call.returned_string, call.returned_length);
+            if (!string) {
+                snprintf(error_msg, error_msg_size, "I could not allocate the VM string result");
+                goto cleanup;
+            }
+            *result = val_string(string);
+        }
+        break;
     }
     ok = true;
 cleanup:
-    for (int p = 0; p < arg_count; p++) if (handles[p]) handles[p]->release(handles[p]);
+    free(call.returned_string);
+    for (int p = 0; p < arg_count; p++) {
+        free(strings[p]);
+        if (handles[p]) handles[p]->release(handles[p]);
+    }
     if (vm->callbacks) nano_callback_collect(vm->callbacks);
     return ok;
 }

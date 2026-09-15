@@ -238,6 +238,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           - [ ] I audit remaining mixer/audio-lock operations for owner-thread
             deadlocks while a post-mix callback is registered. I preserve error
             reporting across worker calls and verify native-C callback parity.
+            - [x] I copy string arguments before callback-aware native calls
+              and copy borrowed string results before their worker exits.
+              I test worker-local result lifetime and owner-thread VM allocation
+              before moving mixer file-loading and error boundaries to adapters.
+              All 25 FFI cases pass, including TLS teardown, aliasing results,
+              embedded-NUL refusal and cleanup after later argument failure.
+              The focused FFI code and harness pass ASan/UBSan and TSan;
+              real mixer callbacks and wrapper publication gates still pass.
         - [x] I give the boids graphical shadow a bounded real-frame runner.
           Its current shadow invokes the interactive event loop indefinitely
           and hits the ten-second deadline. I preserve interactive main and

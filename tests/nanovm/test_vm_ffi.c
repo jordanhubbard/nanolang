@@ -722,6 +722,75 @@ TEST(contracted_import_never_uses_legacy_dispatch) {
     nvm_module_free(module);
 }
 
+TEST(retained_native_strings) {
+    char *path = realpath("obj/ffi_callback_fixture.so", NULL);
+    ASSERT(path);
+    char source[8192];
+    snprintf(source, sizeof source,
+        ".import \"%s\" \"text\" string function string opaque\n.import_kind 0 artifact\n"
+        ".callback 0 0 \"retained_string\" 1 worker int int\n"
+        ".import \"%s\" \"identity\" string string opaque\n.import_kind 1 artifact\n"
+        ".callback 1 65535 \"retained_string_identity\" 1 owner void\n"
+        ".function increment 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 1\nADD\nRET\n.end\n.parameters 0 int\n",
+        path, path);
+    free(path);
+    AsmResult assembled;
+    NvmModule *mod = asm_assemble(source, &assembled);
+    ASSERT(mod);
+    VmState *vm = malloc(sizeof(*vm));
+    ASSERT(vm);
+    vm_init(vm, mod);
+    NanoValue text = val_string(vm_string_new(&vm->heap, "audio", 5));
+    ASSERT(text.as.string);
+    NanoValue original = {.tag = TAG_OPAQUE, .as.obj = text.as.string->data};
+    NanoValue args[] = {val_function(0), text, original}, result;
+    char error[256] = {0};
+    alarm(20);
+    for (int i = 0; i < 32; i++) {
+        ASSERT(vm_ffi_call_vm(vm, mod, 0, args, 3, &result, error, sizeof error));
+        ASSERT_EQ(result.tag, TAG_STRING);
+        ASSERT(strcmp(result.as.string->data, "audio:42") == 0);
+        vm_release(&vm->heap, result);
+    }
+    /* I copy aliasing borrowed results before freeing the argument snapshot. */
+    ASSERT(vm_ffi_call_vm(vm, mod, 1, args + 1, 2, &result, error, sizeof error));
+    ASSERT_EQ(result.tag, TAG_STRING);
+    ASSERT(strcmp(result.as.string->data, "audio") == 0);
+    vm_release(&vm->heap, result);
+    mod->callback_contracts[1].execution = NVM_FOREIGN_WORKER_THREAD;
+    ASSERT(vm_ffi_call_vm(vm, mod, 1, args + 1, 2, &result, error, sizeof error));
+    ASSERT_EQ(result.tag, TAG_STRING);
+    ASSERT(strcmp(result.as.string->data, "audio") == 0);
+    vm_release(&vm->heap, result);
+    ASSERT(strcmp(text.as.string->data, "audio") == 0);
+    /* I unwind an already copied string and published handle on later failure. */
+    args[2] = val_int(1);
+    ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 3, &result, error, sizeof error));
+    ASSERT_EQ(result.tag, TAG_VOID);
+    args[2] = original;
+    vm_release(&vm->heap, text);
+    args[1] = val_string(vm_string_new(&vm->heap, "", 0));
+    ASSERT(args[1].as.string);
+    args[2].as.obj = args[1].as.string->data;
+    ASSERT(vm_ffi_call_vm(vm, mod, 0, args, 3, &result, error, sizeof error));
+    ASSERT_EQ(result.tag, TAG_VOID);
+    vm_release(&vm->heap, args[1]);
+    args[1] = val_string(vm_string_new(&vm->heap, "a\0b", 3));
+    ASSERT(args[1].as.string);
+    ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 3, &result, error, sizeof error));
+    ASSERT(strstr(error, "embedded NUL"));
+    vm_release(&vm->heap, args[1]);
+    args[1] = val_int(0);
+    ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 3, &result, error, sizeof error));
+    args[1] = val_string(NULL);
+    ASSERT(!vm_ffi_call_vm(vm, mod, 0, args, 3, &result, error, sizeof error));
+    vm_destroy(vm);
+    free(vm);
+    nvm_module_free(mod);
+    vm_ffi_shutdown();
+    alarm(0);
+}
+
 TEST(retained_native_scheduler) {
     char *path = realpath("obj/ffi_callback_fixture.so", NULL);
     ASSERT(path);
@@ -833,6 +902,7 @@ TEST(retained_native_scheduler) {
 }
 
 int main(void) {
+    RUN(retained_native_strings);
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
     RUN(retained_native_scheduler);

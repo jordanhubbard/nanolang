@@ -247,10 +247,22 @@ pass ASan/UBSan. These use the sanitizer harness settings described above.
 `vm_ffi_call_vm` validates contracted imports and marshals their arguments on
 the owner thread. I resolve only the declared adapter in the selected module,
 not a same-named global symbol. Scalar arguments use private native storage;
-callable arguments use rooted retained handles. Strings, aggregates, and
-callable return values require additional contracts and are rejected here.
+callable arguments use rooted retained handles. String arguments use private
+NUL-terminated copies, valid only until the native call returns. I reject null
+string objects and embedded NUL bytes; opaque integer-zero nulls remain separate.
+Native code must not retain or free these borrowed argument copies. Aggregates
+and callable return values require additional contracts and are rejected here.
 
-For `worker` policy, a native thread executes only `ffi_call`, publishes its
+For a declared string result, I copy the borrowed native bytes immediately on
+the executing thread, before a worker's thread-local destructors run. Only the
+owner allocates the resulting VM string after joining the worker. A native null
+string result remains `void`, matching my existing direct FFI convention. I do
+not free the library's returned pointer; ownership stays with the adapter.
+Allocation failure stops the call without publishing a VM string. This supports
+outer native-call strings, not string parameters in the retained callback ABI.
+
+For `worker` policy, a native thread executes `ffi_call` and copies any borrowed
+string result into ordinary native memory, then publishes its
 completion under a mutex, and wakes the callback runtime. The owner pumps
 requests while waiting and joins that worker before releasing argument storage
 or constructing the VM result. A policy-only wait uses the same mechanism.
@@ -279,6 +291,9 @@ from a non-terminating instruction stream, VM progress while native work is
 pending, and latched callback failure. The 39-test bytecode-shadow suite now
 compiles and executes a real foreign-thread callback during a shadow test.
 These scheduler fixtures do not replace the dispatch and release gates below.
+The string fixture returns worker-local storage freed at thread exit, invokes
+a VM callback before returning it, and tests aliasing argument/result storage
+under both execution policies. It rejects embedded NUL and malformed arguments.
 The native fixture also cancels outstanding work at VM teardown, shuts down
 the loader registry, then calls the still-resident native join function and
 checks cancellation. Handle tombstones alone would not keep that code live.

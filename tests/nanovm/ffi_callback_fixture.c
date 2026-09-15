@@ -2,6 +2,33 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
+static pthread_once_t string_once = PTHREAD_ONCE_INIT;
+static pthread_key_t string_key;
+static void create_string_key(void) {
+    assert(pthread_key_create(&string_key, free) == 0);
+}
+
+/* I return storage freed by the worker's TLS destructor, not static memory. */
+const char *retained_string(NanoCallbackV1 *callback, const char *text, void *original) {
+    assert(text && text != original);
+    if (!*text) return NULL;
+    NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = 41}, result;
+    if (callback->invoke(callback, &arg, 1, &result) != NANO_CALLBACK_OK) return NULL;
+    assert(pthread_once(&string_once, create_string_key) == 0);
+    char *buffer = malloc(strlen(text) + 32);
+    assert(buffer && pthread_setspecific(string_key, buffer) == 0);
+    sprintf(buffer, "%s:%lld", text, (long long)result.as.integer);
+    return buffer;
+}
+
+const char *retained_string_identity(const char *text, void *original) {
+    assert(text && text != original);
+    return text;
+}
 
 int64_t retained_call(NanoCallbackV1 *callback, int64_t value) {
     NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = value}, result;
