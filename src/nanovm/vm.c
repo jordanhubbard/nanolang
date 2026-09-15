@@ -235,6 +235,7 @@ static bool vm_module_constants_build(VmState *vm, const NvmModule *module,
 
 void vm_init(VmState *vm, const NvmModule *module) {
     memset(vm, 0, sizeof(*vm));
+    vm->owner_thread = pthread_self();
     vm->module = module;
     vm->root_module = module;
     vm->stack_capacity = VM_STACK_INITIAL;
@@ -284,6 +285,11 @@ void vm_init(VmState *vm, const NvmModule *module) {
 }
 
 void vm_destroy(VmState *vm) {
+    if (vm->callbacks && vm_callback_shutdown(vm) != NANO_CALLBACK_OK) {
+        /* I cannot free roots beneath a running callback or on another thread. */
+        return;
+    }
+    vm->callbacks_closed = true;
     /* Release all globals */
     for (uint32_t i = 0; i < vm->global_count; i++) {
         vm_release(&vm->heap, vm->globals[i]);

@@ -185,7 +185,8 @@ assertion failure, or halt. Allocation-failure tests check rejection and actual
 stack relocation while borrowing caller stack values. Linked-module tests
 exercise returned functions, returned closures, and a root callable passed into
 a dependency. This establishes activation and target identity for those cases;
-the retained-handle scheduler and foreign-call pumping remain unconnected.
+retained-handle execution now uses this activation mechanism, while automatic
+foreign-call pumping remains unconnected.
 The 272359-check VM suite and stack-allocation failure tests pass ASan/UBSan
 on Darwin with leak detection disabled. I disable inlining in the sanitized
 VM harness: its optimized `main` otherwise inlines enough large stack-based
@@ -207,7 +208,40 @@ I serialize VM execution, not native work. Native concurrent queues still
 schedule asynchronously; callbacks share the original globals and heap. I do
 not simulate completion by running every submission immediately.
 
-## Co-process boundary
+## VM-owned handles
+
+`vm_callback_create` resolves the VM-local callable and compares its recorded
+parameter tags, result tag/count, and capture shape with the import contract.
+Unknown parameters are rejected. I map only the six scalar/void ABI tags; I
+do not infer native signatures from a function address. Publication and root
+cleanup belong to the thread that initialized the VM. Foreign threads use
+only the handle operations, not VM publication, pumping, or shutdown.
+
+I retain the callable before publication and release it on the owner after
+the final native reference disappears. Failed root allocation or publication
+leaves the caller's reference intact. `vm_callback_pump` services a request
+through `vm_invoke_callable`; it also collects released roots. VM execution
+failures return `NANO_CALLBACK_EXECUTION_ERROR` and preserve the first failure
+in `callback_error` and `callback_error_msg`, even if native code ignores the
+status. The host integration must inspect that failure before resuming normal
+execution; automatic foreign-call waiting is still unfinished.
+
+`vm_callback_shutdown` cancels admission and detaches roots before heap
+destruction. I reject publication after shutdown. A busy callback prevents
+shutdown, and `vm_destroy` then leaves the heap intact; the owner must finish
+the activation and retry. Native references can outlive successful VM teardown
+as cancelled handles, with no access to the old VM or captures.
+
+The VM suite passes 272379 checks. My retained-closure test performs 256
+foreign-thread calls through a captured array and shared global state, then
+starts another producer, executes 128 requests, destroys the VM, and checks
+128 cancellations. I also test late invocation, unknown and mismatched
+signatures, wrong-thread host operations, isolated-FFI refusal, VM assertion
+failure, final-release collection, and failed root allocation/publication.
+The VM bridge passes ASan/UBSan and TSan on Darwin; allocation-failure tests
+pass ASan/UBSan. These use the sanitizer harness settings described above.
+
+## Co-process transport
 
 Pointers and handle vtables cannot cross a process boundary. Isolated calls
 need registered callback IDs, typed request/result messages, cancellation,

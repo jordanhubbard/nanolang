@@ -13,6 +13,8 @@
 #include "vm_dispatch.h"
 #include "../nanoisa/isa.h"
 #include "../nanoisa/nvm_format.h"
+#include "../runtime/callback_runtime.h"
+#include <pthread.h>
 
 /* ========================================================================
  * VM Configuration
@@ -135,6 +137,11 @@ typedef struct VmState {
     VmCallFrame frames[VM_MAX_FRAMES];
     uint32_t frame_count;
     uint32_t activation_floor; /* RET stops before resuming a suspended caller. */
+    pthread_t owner_thread;
+    NanoCallbackRuntime *callbacks;
+    bool callbacks_closed;
+    VmResult callback_error;
+    char callback_error_msg[256];
 
     /* Current execution state */
     uint32_t ip;              /* Instruction pointer (byte offset in code) */
@@ -273,6 +280,13 @@ VmResult vm_invoke(VmState *vm, uint32_t fn_idx, const NanoValue *args,
  * Returned values are owned by the caller; out_result cannot alias my stack. */
 VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *args,
                             uint16_t arg_count, NanoValue *out_result);
+
+/* I publish only typed VM-local callables. The returned native reference is
+ * owned by the caller. Pump/shutdown/publication are owner-thread operations. */
+NanoCallbackV1 *vm_callback_create(VmState *vm, NanoValue callable,
+                                  const NvmCallbackContract *contract);
+int vm_callback_pump(VmState *vm, bool wait);
+NanoCallbackStatus vm_callback_shutdown(VmState *vm);
 
 /* Run pure NanoISA instructions until a trap occurs.
  * This is the "processor" — no I/O, no dlopen, no stdout.

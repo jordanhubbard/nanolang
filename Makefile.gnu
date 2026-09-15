@@ -495,8 +495,8 @@ test-nanoisa-dump: nanoisa_dump
 # ============================================================================
 
 NANOVM_DIR = $(SRC_DIR)/nanovm
-NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
-NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES))
+NANOVM_SOURCES = $(NANOVM_DIR)/value.c $(NANOVM_DIR)/heap.c $(NANOVM_DIR)/heap_cycles.c $(NANOVM_DIR)/vm.c $(NANOVM_DIR)/vm_callback.c $(NANOVM_DIR)/vm_ffi.c $(NANOVM_DIR)/vm_builtins.c $(NANOVM_DIR)/cop_protocol.c
+NANOVM_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(NANOVM_SOURCES)) $(OBJ_DIR)/runtime/callback_runtime.o
 
 $(VM_DECODE_OBJECT): $(NANOVM_DIR)/vm_decode.c $(NANOVM_DIR)/vm_decode.h \
 		$(NANOISA_DIR)/isa.h $(NANOISA_DIR)/nvm_format.h | $(OBJ_DIR)/nanovm
@@ -520,7 +520,7 @@ sail-vm-oracle: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME
 	$(CC) $(CFLAGS) -o "$(SAIL_VM_ORACLE)" tests/nanovm/sail_vm_oracle.c \
 		$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 
-test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+test-nanovm: test-vm-callback-allocation $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVM tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovm/test_vm \
 		tests/nanovm/test_vm.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
@@ -537,6 +537,14 @@ test-nanovm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OB
 		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@$(OBJ_DIR)/nanovm/test_stack_allocation_failure
 	@rm -f tests/nanovm/test_vm
+
+.PHONY: test-vm-callback-allocation
+test-vm-callback-allocation: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -UNDEBUG -o $(OBJ_DIR)/nanovm/test_callback_allocation \
+		tests/nanovm/test_callback_allocation.c \
+		$(filter-out $(OBJ_DIR)/nanovm/vm_callback.o,$(NANOVM_OBJECTS)) \
+		$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	@$(OBJ_DIR)/nanovm/test_callback_allocation
 
 .PHONY: test-cop-protocol
 test-cop-protocol: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)

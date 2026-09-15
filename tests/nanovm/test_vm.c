@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+#include <unistd.h>
 
 /* Globals expected by runtime/cli.c */
 int g_argc = 0;
@@ -4175,6 +4176,106 @@ static void test_call_module_handle_resolution(void) {
     nvm_module_free(mod_b);
 }
 
+typedef struct {
+    VmState *vm;
+    NanoCallbackV1 *handle;
+    NvmCallbackContract contract;
+    NanoValue callable;
+    bool ok;
+    bool allow_cancellation;
+    unsigned cancelled;
+} CallbackWorker;
+
+static void *invoke_vm_callback_worker(void *opaque) {
+    CallbackWorker *worker = opaque;
+    worker->ok = !vm_callback_create(worker->vm, worker->callable, &worker->contract) &&
+        vm_callback_pump(worker->vm, false) == -1 &&
+        vm_callback_shutdown(worker->vm) == NANO_CALLBACK_WRONG_THREAD;
+    for (int i = 0; i < 256; i++) {
+        NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = i}, result;
+        NanoCallbackStatus status = worker->handle->invoke(worker->handle, &arg, 1, &result);
+        if (worker->allow_cancellation && status == NANO_CALLBACK_CANCELLED) {
+            worker->cancelled++;
+            worker->ok = worker->ok && result.tag == NANO_CALLBACK_VOID;
+            continue;
+        }
+        worker->ok = worker->ok && status == NANO_CALLBACK_OK &&
+            result.tag == NANO_CALLBACK_INT && result.as.integer == i + 40;
+    }
+    worker->handle->release(worker->handle);
+    return NULL;
+}
+
+static void test_vm_retained_callbacks(void) {
+    AsmResult assembled;
+    NvmModule *module = asm_assemble(
+        ".function callback 1 1 1 int 1\n"
+        "LOAD_UPVALUE 0 0\nPUSH_I64 0\nARR_GET\nLOAD_LOCAL 0\nADD\n"
+        "DUP\nSTORE_GLOBAL 0\nRET\n.end\n.parameters 0 int\n"
+        ".function fail 1 1 0 int 1\nPUSH_BOOL 0\nASSERT\nLOAD_LOCAL 0\nRET\n.end\n.parameters 1 int\n",
+        &assembled);
+    ASSERT(module, "I assemble typed retained-callback targets");
+    VmState vm;
+    vm_init(&vm, module);
+    VmArray *capture = vm_array_new(&vm.heap, TAG_INT, 1);
+    ASSERT(capture && vm_array_push(&vm.heap, capture, val_int(40)), "I allocate a captured array");
+    VmClosure *closure = vm_closure_new(&vm.heap, 0, 1);
+    ASSERT(closure, "I allocate a callback closure");
+    closure->captures[0] = val_array(capture);
+    NanoValue callable = val_closure(closure);
+    NvmCallbackContract contract = {.abi_version = NVM_CALLBACK_ABI_RETAINED_V1,
+        .parameter_idx = 0, .execution = NVM_FOREIGN_WORKER_THREAD,
+        .param_count = 1, .param_tags = {TAG_INT}, .return_tag = TAG_INT};
+    module->function_param_types[0][0] = TAG_VOID;
+    ASSERT(!vm_callback_create(&vm, callable, &contract), "I reject unknown callable signatures");
+    module->function_param_types[0][0] = TAG_FLOAT;
+    ASSERT(!vm_callback_create(&vm, callable, &contract), "I reject mismatched callable signatures");
+    module->function_param_types[0][0] = TAG_INT;
+    vm.isolate_ffi = true;
+    ASSERT(!vm_callback_create(&vm, callable, &contract), "I do not publish native pointers for isolated FFI");
+    vm.isolate_ffi = false;
+    NanoCallbackV1 *handle = vm_callback_create(&vm, callable, &contract);
+    ASSERT(handle && closure->header.ref_count == 2, "I root the callable before native publication");
+    vm_release(&vm.heap, callable);
+    vm_gc_collect_cycles(&vm.heap);
+    ASSERT_EQ_INT(closure->header.ref_count, 1, "I keep the native-owned closure live across collection");
+    CallbackWorker worker = {.vm = &vm, .handle = handle, .contract = contract, .callable = callable};
+    pthread_t thread;
+    handle->retain(handle);
+    alarm(20);
+    ASSERT_EQ_INT(pthread_create(&thread, NULL, invoke_vm_callback_worker, &worker), 0,
+                  "I start a foreign callback producer");
+    for (int i = 0; i < 256;) if (vm_callback_pump(&vm, true) == 1) i++;
+    ASSERT_EQ_INT(pthread_join(thread, NULL), 0, "I join the foreign producer");
+    alarm(0);
+    ASSERT(worker.ok, "I execute foreign-thread requests only through the owner");
+    ASSERT_EQ_INT(vm.globals[0].as.i64, 295, "I preserve shared globals and captured arrays");
+    NanoCallbackV1 *bad = vm_callback_create(&vm, val_function(1), &contract);
+    ASSERT(bad, "I publish a typed callback that can fail during execution");
+    NanoCallbackValue arg = {.tag = NANO_CALLBACK_INT, .as.integer = 1}, result;
+    ASSERT_EQ_INT(bad->invoke(bad, &arg, 1, &result), NANO_CALLBACK_EXECUTION_ERROR,
+                  "I report a VM assertion failure through the retained ABI");
+    ASSERT(vm.callback_error == VM_ERR_ASSERT_FAILED && result.tag == NANO_CALLBACK_VOID,
+           "I retain callback failure evidence and clear the native result");
+    bad->release(bad);
+    vm_callback_pump(&vm, false);
+    worker.allow_cancellation = true;
+    handle->retain(handle);
+    alarm(20);
+    ASSERT_EQ_INT(pthread_create(&thread, NULL, invoke_vm_callback_worker, &worker), 0,
+                  "I start a producer that remains live through VM shutdown");
+    for (int i = 0; i < 128;) if (vm_callback_pump(&vm, true) == 1) i++;
+    vm_destroy(&vm);
+    ASSERT_EQ_INT(pthread_join(thread, NULL), 0, "I join the producer after VM shutdown");
+    alarm(0);
+    ASSERT(worker.ok && worker.cancelled == 128, "I cancel remaining requests without touching the destroyed heap");
+    ASSERT(!vm_callback_create(&vm, val_function(1), &contract), "I do not reopen a destroyed callback host");
+    ASSERT_EQ_INT(handle->invoke(handle, &arg, 1, &result), NANO_CALLBACK_CANCELLED,
+                  "I cancel late native calls after VM and capture destruction");
+    handle->release(handle);
+    nvm_module_free(module);
+}
+
 static void test_suspended_callable_activation(void) {
     for (unsigned depth = 1; depth <= 2; depth++) {
         for (unsigned failure = 0; failure < 3; failure++) {
@@ -5476,6 +5577,7 @@ int main(void) {
     RUN_TEST(test_separately_linked_module_roundtrip);
     RUN_TEST(test_linked_callable_identity);
     RUN_TEST(test_suspended_callable_activation);
+    RUN_TEST(test_vm_retained_callbacks);
 
     printf("\n[Stack Ops: ROT3]\n");
     RUN_TEST(test_rot3);

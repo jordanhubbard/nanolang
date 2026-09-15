@@ -158,9 +158,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           VM tests pass 272359 checks; NanoVirt passes 65, the frontend matrix
           16, FFI 23, and AOT 375. This is the activation mechanism, not the
           scheduler or native dispatch integration.
-        - [ ] I publish retained handles only after resolving the callable's
+        - [x] I publish retained handles only after resolving the callable's
           owner and checking its recorded parameter/result signature against
           the import contract. I reject unknown signatures and mismatches.
+          My VM bridge roots captures, executes through suspended activations,
+          latches VM failures, and detaches roots before heap destruction.
+          Tests cover 256 foreign-thread calls and a live producer crossing
+          shutdown (128 executions followed by 128 cancellations), late
+          handles, wrong-thread operations, and failed allocation/publication.
+          VM tests pass 272379 checks; the bridge passes ASan/UBSan and TSan
+          on Darwin. Automatic safe-point and native-wait pumping remain open.
       - [ ] I implement retained dispatch adapters and an explicit COP
         transport policy, then test delayed work and shutdown in both paths.
       - [ ] I pass all six dispatch-dependent examples with dependency
