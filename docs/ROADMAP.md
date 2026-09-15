@@ -73,6 +73,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             calls and branches before enabling array-valued fields. My normal
             and translator-instrumented AddressSanitizer suites each pass
             1,029 checks. Evidence: `docs/evidence/aot-module-record-width.md`.
+          - [x] I preserve integer-array and string-array field representations
+            through record packing, calls, locals and extraction, with tests
+            for empty/nonempty arrays and copied records. Record-array fields
+            still require nested shape facts before full compiler acceptance.
+            My AOT suite passes 1,043 checks. Evidence:
+            `docs/evidence/aot-scalar-array-fields.md`.
           - [x] I separate record and record-array temporary field facts;
             their independent indices must not overwrite each other. I test
             live string-record arrays across scalar record construction and

@@ -2712,7 +2712,7 @@ static void test_nested_record_pack_is_refused(void) {
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
     CHECK(c == NULL, "nested records stay outside the closed subset");
-    CHECK(strstr(err, "int or string") != NULL, "error names int or string fields");
+    CHECK(strstr(err, "nested aggregate shape") != NULL, "I name the missing nested aggregate shape facts");
     free(c);
     nvm_module_free(m);
 }
@@ -3195,6 +3195,58 @@ static void test_classifier_deep_stack(void) {
                       "I execute the wide aggregate after a deep stack join");
             }
         }
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
+static void test_array_valued_record_fields(void) {
+    for (int strings = 0; strings < 2; ++strings) {
+        for (int empty = 0; empty < 2; ++empty) {
+            char source[4096], line[256];
+            snprintf(source, sizeof source, ".string text \"hello\"\n.entry main\n"
+                           ".function wrap 1 1 0 struct 1\nLOAD_LOCAL 0\nPUSH_BOOL %d\nJMP_FALSE alternate\n"
+                           "AGG_PACK 0 0 0 1\nJMP joined\nalternate:\nAGG_PACK 0 0 0 1\njoined:\nRET\n.end\n"
+                           ".function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n"
+                           ".function main 0 2 0 int 1\n", empty);
+            if (!empty) strcat(source, strings ? "PUSH_STR text\n" : "PUSH_I64 42\n");
+            snprintf(line, sizeof line, "ARR_LITERAL %d %d\n", strings ? 5 : 1, empty ? 0 : 1);
+            strcat(source, line);
+            strcat(source, "CALL wrap\nCALL relay\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nSTORE_LOCAL 1\n"
+                           "LOAD_LOCAL 0\nAGG_GET 0\nARR_LEN\n");
+            snprintf(line, sizeof line, "PUSH_I64 %d\nI64_EQ\nASSERT\nLOAD_LOCAL 1\nAGG_GET 0\n",
+                     empty ? 0 : 1);
+            strcat(source, line);
+            if (empty) strcat(source, "ARR_LEN\n");
+            else {
+                strcat(source, "PUSH_I64 0\nARR_GET\n");
+                if (strings) strcat(source, "STR_LEN\n");
+            }
+            strcat(source, "RET\n.end\n");
+            NvmModule *m = assemble_ok(source, "array-valued record fields");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "array-valued record fields");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0, "I compile array-valued record fields through calls and copies");
+                CHECK(status == (empty ? 0 : strings ? 5 : 42), "I preserve the array field's element representation");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
+    }
+    const char *invalid[] = {
+        ".entry main\n.function wrap 1 1 0 struct 1\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nRET\n.end\n"
+        ".function main 0 0 0 int 1\nARR_NEW 1\nCALL wrap\nPOP\nARR_NEW 5\nCALL wrap\nPOP\nPUSH_I64 0\nRET\n.end\n",
+        ".entry main\n.function main 0 0 0 int 1\nARR_NEW 8\nAGG_PACK 0 0 0 1\nPOP\nPUSH_I64 0\nRET\n.end\n"
+    };
+    for (size_t i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        NvmModule *m = assemble_ok(invalid[i], "unsupported array field shape");
+        if (!m) continue;
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, i ? "nested aggregate shape" : "conflicting kinds"),
+              "I reject incompatible array representations and unresolved nested field shapes");
         free(c);
         nvm_module_free(m);
     }
@@ -3722,6 +3774,7 @@ int main(int argc, char **argv) {
     test_classifier_branch_stack();
     test_classifier_deep_stack();
     test_wide_aggregate_calls();
+    test_array_valued_record_fields();
     test_emitter_deep_stacks();
     test_emitter_many_temporaries();
     test_record_array_fact_namespaces();
