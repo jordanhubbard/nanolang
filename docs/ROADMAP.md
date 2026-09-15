@@ -145,6 +145,29 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             one host-path-limit skip, including native/VM shadows and execution;
             the five C fixtures also pass ASan/UBSan with the same skip. Eight
             bootstrap-dependency tests pass. Leak checking is not established.
+          - [x] I fail safely at native array allocation boundaries before
+            changing element ownership. Failed growth currently returns to a
+            push that writes beyond the unchanged capacity; capacity products
+            and alignment rounding are unchecked. Reserve/clone and first
+            struct allocation need the same checked contract. I inject failures
+            and test overflow boundaries, not only successful allocation.
+            Flat struct cloning also lost its element width and copied into
+            delayed, unallocated storage; I preserve width and test independent
+            cloned contents. I reject widths beyond the current byte-sized ABI
+            before truncation, including builds with assertions disabled.
+            I also snapshot an array's borrowed record before a self-append can
+            reallocate its storage, and fail explicitly if string copying fails.
+            Nine failure cases and positive construction/growth/clone/alias
+            cases pass with assertions enabled and disabled, both normally and
+            under ASan/UBSan. All 26 existing array tests pass. The filesystem
+            integration suite passes with its one host-path-limit skip.
+            MAC `task_4f3df48b3bb966a5ec5b7239445d09e4`.
+          - [ ] I widen and version native array element-width metadata for
+            general record arrays. Its current one-byte width cannot represent
+            records above 255 bytes; CUDA, OpenCL and SDL helper code duplicate
+            that native layout. I update those boundaries and their ABI tests
+            together, not just the core typedef.
+            MAC `task_83bd7cd20fc916a0140dd06c19a3e550`.
           - [ ] I define ownership for native array string elements, including
             filesystem walk results. `dyn_array_push_string_copy` allocates
             copies, while the native GC array destructor frees only the backing

@@ -19,11 +19,24 @@
  * Size is rounded up to the next multiple of DARRAY_ALIGN. */
 static void *darray_aligned_alloc(size_t size) {
     if (size == 0) size = DARRAY_ALIGN;
+    if (size > SIZE_MAX - (DARRAY_ALIGN - 1)) return NULL;
     /* Round up to alignment multiple */
     size = (size + DARRAY_ALIGN - 1) & ~(size_t)(DARRAY_ALIGN - 1);
     void *ptr = NULL;
     if (posix_memalign(&ptr, DARRAY_ALIGN, size) != 0) return NULL;
     return ptr;
+}
+
+static bool darray_storage_size(int64_t count, size_t element_size, size_t *bytes) {
+    if (count < 0 || (element_size && (uint64_t)count > SIZE_MAX / element_size)) return false;
+    *bytes = (size_t)count * element_size;
+    return true;
+}
+
+static void darray_allocation_failure(void) __attribute__((noreturn));
+static void darray_allocation_failure(void) {
+    fprintf(stderr, "I cannot grow this native array safely.\n");
+    abort();
 }
 
 /* Get element size for type */
@@ -50,13 +63,16 @@ DynArray* dyn_array_new(ElementType elem_type) {
     arr->capacity = INITIAL_CAPACITY;
     arr->elem_type = elem_type;
     arr->elem_size = get_element_size(elem_type);
+    arr->data = NULL;
     
     /* For structs, we don't know the size yet - delay allocation */
     if (elem_type == ELEM_STRUCT) {
         arr->elem_size = 0;  /* Will be set on first push */
         arr->data = NULL;     /* Allocate on first push */
     } else {
-        arr->data = darray_aligned_alloc(arr->capacity * arr->elem_size);
+        size_t bytes;
+        if (darray_storage_size(arr->capacity, arr->elem_size, &bytes))
+            arr->data = darray_aligned_alloc(bytes);
         if (arr->data == NULL) {
             gc_release(arr);
             return NULL;
@@ -82,13 +98,16 @@ DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_cap
     arr->capacity = initial_capacity;
     arr->elem_type = elem_type;
     arr->elem_size = get_element_size(elem_type);
+    arr->data = NULL;
     
     /* For structs, we don't know the size yet - delay allocation */
     if (elem_type == ELEM_STRUCT) {
         arr->elem_size = 0;  /* Will be set on first push */
         arr->data = NULL;     /* Allocate on first push */
     } else {
-        arr->data = darray_aligned_alloc(arr->capacity * arr->elem_size);
+        size_t bytes;
+        if (darray_storage_size(arr->capacity, arr->elem_size, &bytes))
+            arr->data = darray_aligned_alloc(bytes);
         if (arr->data == NULL) {
             gc_release(arr);
             return NULL;
@@ -100,15 +119,18 @@ DynArray* dyn_array_new_with_capacity(ElementType elem_type, int64_t initial_cap
 
 /* Grow array capacity (maintains 32-byte alignment for SIMD) */
 static void dyn_array_grow(DynArray* arr) {
+    if (arr->capacity <= 0 || arr->capacity > INT64_MAX / GROWTH_FACTOR)
+        darray_allocation_failure();
     int64_t new_capacity = arr->capacity * GROWTH_FACTOR;
-    void* new_data = darray_aligned_alloc(new_capacity * arr->elem_size);
+    size_t bytes;
+    if (!darray_storage_size(new_capacity, arr->elem_size, &bytes)) darray_allocation_failure();
+    void* new_data = darray_aligned_alloc(bytes);
 
     if (new_data == NULL) {
-        fprintf(stderr, "DynArray: Out of memory growing array\n");
-        return;
+        darray_allocation_failure();
     }
 
-    memcpy(new_data, arr->data, arr->length * arr->elem_size);
+    if (arr->length) memcpy(new_data, arr->data, (size_t)arr->length * arr->elem_size);
     free(arr->data);
     arr->data = new_data;
     arr->capacity = new_capacity;
@@ -202,8 +224,7 @@ DynArray* dyn_array_push_string_copy(DynArray* arr, const char* value) {
     /* Duplicate the string */
     char* copy = strdup(value);
     if (copy == NULL) {
-        fprintf(stderr, "DynArray: Out of memory duplicating string\n");
-        return arr;
+        darray_allocation_failure();
     }
     
     /* Use regular push with the copy */
@@ -471,13 +492,18 @@ void dyn_array_reserve(DynArray* arr, int64_t new_capacity) {
         return;
     }
     
-    void* new_data = darray_aligned_alloc(new_capacity * arr->elem_size);
-    if (new_data == NULL) {
-        fprintf(stderr, "DynArray: Out of memory reserving capacity\n");
+    size_t bytes;
+    if (!darray_storage_size(new_capacity, arr->elem_size, &bytes)) darray_allocation_failure();
+    if (!arr->elem_size) {
+        arr->capacity = new_capacity;
         return;
     }
+    void* new_data = darray_aligned_alloc(bytes);
+    if (new_data == NULL) {
+        darray_allocation_failure();
+    }
 
-    memcpy(new_data, arr->data, arr->length * arr->elem_size);
+    if (arr->length) memcpy(new_data, arr->data, (size_t)arr->length * arr->elem_size);
     free(arr->data);
     arr->data = new_data;
     arr->capacity = new_capacity;
@@ -487,14 +513,20 @@ void dyn_array_reserve(DynArray* arr, int64_t new_capacity) {
 DynArray* dyn_array_clone(DynArray* arr) {
     assert(arr != NULL && "DynArray: NULL array");
     
-    DynArray* new_arr = dyn_array_new(arr->elem_type);
+    DynArray* new_arr = dyn_array_new_with_capacity(arr->elem_type, arr->length);
     if (new_arr == NULL) {
         return NULL;
     }
     
-    /* Reserve capacity and copy data */
-    dyn_array_reserve(new_arr, arr->length);
-    memcpy(new_arr->data, arr->data, arr->length * arr->elem_size);
+    /* I preserve flat struct width; its constructor deliberately delays storage. */
+    if (arr->elem_type == ELEM_STRUCT && arr->elem_size) {
+        size_t bytes;
+        new_arr->elem_size = arr->elem_size;
+        if (darray_storage_size(new_arr->capacity, new_arr->elem_size, &bytes))
+            new_arr->data = darray_aligned_alloc(bytes);
+        if (!new_arr->data) { gc_release(new_arr); return NULL; }
+    }
+    if (arr->length) memcpy(new_arr->data, arr->data, (size_t)arr->length * arr->elem_size);
     new_arr->length = arr->length;
     
     return new_arr;
@@ -504,6 +536,11 @@ DynArray* dyn_array_clone(DynArray* arr) {
 DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t struct_size) {
     assert(arr != NULL && "DynArray: NULL array");
     assert(struct_ptr != NULL && "DynArray: NULL struct pointer");
+    /* My current native array ABI stores width in one byte. */
+    if (struct_size == 0 || struct_size > UINT8_MAX) darray_allocation_failure();
+    /* I snapshot a borrowed element before growth can invalidate its address. */
+    unsigned char snapshot[UINT8_MAX];
+    memcpy(snapshot, struct_ptr, struct_size);
     /* Auto-promote empty arrays to ELEM_STRUCT on first struct push.
      * This handles empty array literals [] whose element type couldn't
      * be inferred at compile time (e.g. bare [] passed as function args). */
@@ -516,15 +553,17 @@ DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t st
 
     /* Set struct size and allocate on first push */
     if (arr->elem_size == 0) {
-        arr->elem_size = struct_size;
-        arr->data = malloc(arr->capacity * arr->elem_size);
+        size_t bytes;
+        if (!struct_size || !darray_storage_size(arr->capacity, struct_size, &bytes))
+            darray_allocation_failure();
+        arr->data = darray_aligned_alloc(bytes);
         if (arr->data == NULL) {
-            fprintf(stderr, "DynArray: Out of memory allocating struct array\n");
-            return arr;
+            darray_allocation_failure();
         }
+        arr->elem_size = struct_size;
     }
     
-    assert(arr->elem_size == struct_size && "DynArray: Struct size mismatch");
+    if (arr->elem_size != struct_size) darray_allocation_failure();
     
     if (arr->length >= arr->capacity) {
         dyn_array_grow(arr);
@@ -532,7 +571,7 @@ DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t st
     
     /* Copy struct into array */
     void* dest = (uint8_t*)arr->data + (arr->length * arr->elem_size);
-    memcpy(dest, struct_ptr, struct_size);
+    memcpy(dest, snapshot, struct_size);
     arr->length++;
     
     return arr;
@@ -590,4 +629,3 @@ void dyn_array_pop_struct(DynArray* arr, void* out_struct, size_t struct_size, b
     
     if (success) *success = true;
 }
-

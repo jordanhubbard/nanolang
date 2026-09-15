@@ -31,6 +31,11 @@ typedef struct {
     void* data;            /* Element storage */
 } DynArray;
 
+/* I return NULL when construction or cloning cannot allocate representable
+ * storage. Growth, reserve and first struct insertion abort on allocation or
+ * capacity overflow: those APIs cannot report failure, and callers must not
+ * continue writing into old storage. Struct width is currently 1..255 bytes
+ * in this native ABI. Cloning copies flat record bytes, not owned child graphs. */
 /* Create new empty dynamic array */
 DynArray* dyn_array_new(ElementType elem_type);
 
@@ -104,4 +109,3 @@ void dyn_array_set_struct(DynArray* arr, int64_t index, const void* struct_ptr, 
 void dyn_array_pop_struct(DynArray* arr, void* out_struct, size_t struct_size, bool* success);
 
 #endif /* NANOLANG_DYN_ARRAY_H */
-

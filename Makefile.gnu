@@ -1840,6 +1840,18 @@ test-units: test-module-builder-cache test-mac-command-boundary
 
 .PHONY: test-empty-record-array-fields
 .PHONY: test-directory-walk
+.PHONY: test-dyn-array-allocation
+test-dyn-array-allocation:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_dyn_array_allocation tests/test_dyn_array_allocation.c \
+		src/runtime/gc.c src/runtime/gc_struct.c
+	@$(OBJ_DIR)/test_dyn_array_allocation
+	$(CC) $(CFLAGS) -DNDEBUG -o $(OBJ_DIR)/test_dyn_array_allocation_release tests/test_dyn_array_allocation.c \
+		src/runtime/gc.c src/runtime/gc_struct.c
+	@$(OBJ_DIR)/test_dyn_array_allocation_release
+
+test-units: test-dyn-array-allocation
+
 test-directory-walk: $(COMPILER_C) nano_virt nano_vm
 	@python3 -m unittest tests.test_directory_walk
 
