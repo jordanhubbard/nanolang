@@ -1353,19 +1353,15 @@ void generate_dir_operations(StringBuilder *sb) {
 
 /* Generate file operations for OS stdlib */
 void generate_file_operations(StringBuilder *sb) {
-    /* File operations */
+    sb_append(sb, "#include \"runtime/file_text.h\"\n");
     sb_append(sb, "static const char* nl_os_file_read(const char* path) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"rb\");  /* Binary mode for MOD files */\n");
-    sb_append(sb, "    if (!f) return gc_alloc_string(0);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
-    sb_append(sb, "    long size = ftell(f);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    char* buffer = gc_alloc_string((size_t)size);\n");
-    sb_append(sb, "    if (!buffer) { fclose(f); return gc_alloc_string(0); }\n");
-    sb_append(sb, "    fread(buffer, 1, size, f);\n");
-    sb_append(sb, "    buffer[size] = '\\0';\n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return buffer;\n");
+    sb_append(sb, "    char* text = nl_read_file_text(path);\n");
+    sb_append(sb, "    if (!text) return gc_alloc_string(0);\n");
+    sb_append(sb, "    size_t length = strlen(text);\n");
+    sb_append(sb, "    char* result = gc_alloc_string(length);\n");
+    sb_append(sb, "    if (result) memcpy(result, text, length + 1);\n");
+    sb_append(sb, "    free(text);\n");
+    sb_append(sb, "    return result;\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "#include \"runtime/file_bytes.h\"\n");

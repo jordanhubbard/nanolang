@@ -955,6 +955,7 @@ test-file-bytes: stage1 nano_virt nano_vm
 	$(CC) $(CFLAGS) -o tests/test_file_bytes tests/test_file_bytes.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./tests/test_file_bytes
 	python3 tests/test_file_bytes.py
+	python3 tests/test_file_text.py
 	@rm -f tests/test_file_bytes
 
 test-units: test-file-bytes

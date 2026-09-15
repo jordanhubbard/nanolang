@@ -21,6 +21,7 @@
 #include "runtime/dyn_array.h"
 #include "runtime/process_capture.h"
 #include "runtime/file_bytes.h"
+#include "runtime/file_text.h"
 #include "utf8.h"
 
 /* mkdtemp declaration (not exposed on macOS with -std=c99) */
@@ -77,18 +78,7 @@ int64_t vm_chdir(const char *path) {
 }
 
 char *vm_file_read(const char *path) {
-    FILE *f = fopen(path, "rb");
-    if (!f) return strdup("");
-    fseek(f, 0, SEEK_END);
-    long len = ftell(f);
-    if (len < 0) { fclose(f); return strdup(""); }
-    fseek(f, 0, SEEK_SET);
-    char *buf = malloc((size_t)len + 1);
-    if (!buf) { fclose(f); return strdup(""); }
-    size_t n = fread(buf, 1, (size_t)len, f);
-    buf[n] = '\0';
-    fclose(f);
-    return buf;
+    return nl_read_file_text(path);
 }
 
 DynArray *vm_file_read_bytes(const char *path) {

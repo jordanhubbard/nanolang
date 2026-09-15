@@ -395,19 +395,29 @@ static void emit_literal(WorkList *list, const char *str) {
 }
 
 static void emit_formatted(WorkList *list, const char *fmt, ...) {
-    char buffer[2048];
     va_list args;
     va_start(args, fmt);
-    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_list measured;
+    va_copy(measured, args);
+    int length = vsnprintf(NULL, 0, fmt, measured);
+    va_end(measured);
+    char *buffer = length >= 0 ? malloc((size_t)length + 1) : NULL;
+    if (!buffer) {
+        va_end(args);
+        fprintf(stderr, "I could not allocate formatted native output.\n");
+        exit(1);
+    }
+    int written = vsnprintf(buffer, (size_t)length + 1, fmt, args);
     va_end(args);
+    if (written != length) {
+        free(buffer);
+        fprintf(stderr, "I could not format complete native output.\n");
+        exit(1);
+    }
     
     WorkItem item;
     item.type = WORK_FORMATTED;
-    item.data.formatted = strdup(buffer);
-    if (!item.data.formatted) {
-        fprintf(stderr, "Error: Out of memory duplicating formatted string\n");
-        exit(1);
-    }
+    item.data.formatted = buffer;
     worklist_append(list, item);
 }
 

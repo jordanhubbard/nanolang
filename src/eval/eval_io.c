@@ -8,6 +8,7 @@
 #include "../nanolang.h"
 #include "../runtime/process_capture.h"
 #include "../runtime/file_bytes.h"
+#include "../runtime/file_text.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -37,23 +38,8 @@ static Value create_dyn_array(DynArray *arr) {
 
 /* File Operations */
 Value builtin_file_read(Value *args) {
-    const char *path = args[0].as.string_val;
-    FILE *f = fopen(path, "rb");  /* Binary mode for MOD files and other binary data */
-    if (!f) return create_string("");
-
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    char *buffer = malloc(size + 1);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
-    fread(buffer, 1, size, f);
-#pragma GCC diagnostic pop
-    buffer[size] = '\0';
-    fclose(f);
-
-    Value result = create_string(buffer);
+    char *buffer = nl_read_file_text(args[0].as.string_val);
+    Value result = create_string(buffer ? buffer : "");
     free(buffer);
     return result;
 }

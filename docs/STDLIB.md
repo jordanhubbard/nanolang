@@ -1044,14 +1044,21 @@ let r2: Result<float, string> = (result_and_then r safe_sqrt)
 
 ### `file_read(path: string) -> string`
 
-I read file contents as a string. My current text readers rely on seeks and do
-not consistently detect read failures. Streaming and error parity remain
-roadmap work; do not assume every failure produces an empty string.
+I read text without seeking. My C-seed interpreter, native helper, VM bridge
+and `std/fs.read` share the reader. Open, read and close failures return empty
+text, as does embedded NUL data that my current string API cannot represent
+without truncation. Use `file_read_bytes` for binary input. Empty files and
+these failures are not distinguishable through this API. I do not impose a
+size limit or read deadline, or validate UTF-8. Foreign-string ownership remains
+a separate runtime boundary.
 
 ```nano
-let content: string = (file_read "data.txt")
+module "modules/std/fs.nano" as fs
+let content: string = (fs.read "data.txt")
 (println content)
 ```
+
+I expose the public wrapper as `fs.read`; `file_read` is its foreign boundary.
 
 ### `file_read_bytes(path: string) -> array<u8>`
 

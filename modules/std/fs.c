@@ -13,6 +13,7 @@
 #include <errno.h>
 
 #include "../../src/runtime/directory_walk.h"
+#include "../../src/runtime/file_text.h"
 
 NANO_EXPORT_ARRAY_ABI(fs_walkdir);
 
@@ -278,24 +279,8 @@ const char* path_relpath(const char* target, const char* base) {
 
 /* Read file content as string */
 const char* file_read(const char* path) {
-    FILE* f = fopen(path, "r");
-    if (!f) return "";
-    
-    fseek(f, 0, SEEK_END);
-    long size = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    
-    char* buffer = malloc(size + 1);
-    if (!buffer) {
-        fclose(f);
-        return "";
-    }
-    
-    size_t read = fread(buffer, 1, size, f);
-    buffer[read] = '\0';
-    fclose(f);
-    
-    return buffer;
+    char *text = nl_read_file_text(path);
+    return text ? text : "";
 }
 
 /* Write string to file */

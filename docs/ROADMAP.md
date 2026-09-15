@@ -344,11 +344,27 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           partial bytes and close once. All 21 VM-builtin tests and the
           interpreter/transpiler gates pass. Text readers remain separate.
           MAC `task_84458d97b4635a911eee8f2b90d66673`.
-        - [ ] I make text file reads safe for streams and read failures. The
-          interpreter/native readers use unchecked seeks and sizes; VM text
-          reading also requires seeking and can accept partial data. I define
-          text/NUL/error behavior and test read/close/allocation failures across
-          backends. MAC `task_a3f451df37b59cefc68dfcf91e5e3f6a`.
+        - [x] I make text file reads safe for streams and read failures.
+          I replace unchecked seeks/sizes and partial reads with a shared
+          interpreter/native/VM/std-fs implementation.
+          MAC `task_a3f451df37b59cefc68dfcf91e5e3f6a`.
+          I use the checked byte-stream reader, return empty for embedded NUL
+          data instead of truncating it, and preserve each backend's existing
+          string ownership. I test pipe input and injected read/close failures
+          and text-result allocation failure; binary callers use file_read_bytes.
+          All 12 direct/module, native/VM, long/empty/NUL pipe combinations
+          pass default shadows and artifact execution. Fault injection verifies
+          empty text after read/close failure, NULL after result-allocation
+          failure, and one close. Byte-stream, 21 VM-builtin, interpreter and
+          transpiler gates pass. General OOM recovery and FFI string ownership
+          are not established by these tests.
+          - [x] I remove the native work-item formatter's 2,048-byte truncation.
+            I size output before allocating. The long text fixture formerly
+            emitted an unterminated C string; it now executes exact comparisons.
+          - [ ] I remove silent string-interpolation limits (64 parts and a
+            4,096-byte literal buffer) and bounded assertion-source truncation.
+            I require long/interpolated/escaped string and diagnostic regressions.
+            MAC `task_041ab4cea1da3fea84d72483cb735c49`.
         - [x] I repair the tail-call fixture's non-language call syntax and
           discarded returns, add bounded shadows, and retain a million-step
           executable test with defined integer arithmetic and asserted results.
