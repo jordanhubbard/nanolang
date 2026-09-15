@@ -56,6 +56,39 @@ static void test_vm_file_write_read(void) {
     PASS(test_name);
 }
 
+static void test_vm_file_read_bytes(void) {
+    const char *test_name = "vm_file_read_bytes: binary, empty and failed reads";
+    char *path = vm_mktemp("nano-byte-read-");
+    ASSERT(path && *path, "temporary file creation");
+    FILE *file = fopen(path, "wb");
+    ASSERT(file != NULL, "open binary fixture");
+    unsigned char data[8193];
+    for (size_t i = 0; i < sizeof(data); i++) data[i] = (unsigned char)i;
+    ASSERT(fwrite(data, 1, sizeof(data), file) == sizeof(data), "write binary fixture");
+    ASSERT(fclose(file) == 0, "close binary fixture");
+    DynArray *bytes = vm_file_read_bytes(path);
+    ASSERT(bytes && bytes->elem_type == ELEM_U8, "byte-typed result");
+    ASSERT(bytes->length == sizeof(data), "complete binary length");
+    for (size_t i = 0; i < sizeof(data); i++)
+        ASSERT(dyn_array_get_u8(bytes, (int64_t)i) == data[i], "binary byte preserved");
+    ASSERT(vm_file_write(path, "ABC") == 0, "write text fixture");
+    char *text = vm_string_from_bytes(vm_file_read_bytes(path));
+    ASSERT(text && !strcmp(text, "ABC"), "byte-typed string conversion");
+    free(text);
+    ASSERT(vm_file_write(path, "") == 0, "truncate fixture");
+    bytes = vm_file_read_bytes(path);
+    ASSERT(bytes && bytes->elem_type == ELEM_U8 && bytes->length == 0, "empty file");
+    ASSERT(unlink(path) == 0, "remove fixture");
+    bytes = vm_file_read_bytes(path);
+    ASSERT(bytes && bytes->elem_type == ELEM_U8 && bytes->length == 0, "missing file");
+    bytes = vm_file_read_bytes(NULL);
+    ASSERT(bytes && bytes->length == 0, "null path");
+    bytes = vm_file_read_bytes("/");
+    ASSERT(bytes && bytes->length == 0, "directory read failure");
+    free(path);
+    PASS(test_name);
+}
+
 static void test_vm_dir_exists(void) {
     const char *test_name = "vm_dir_exists: /tmp exists";
     int64_t result = vm_dir_exists("/tmp");
@@ -198,6 +231,7 @@ static void test_vm_file_write_null(void) {
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
+    test_vm_file_read_bytes();
     printf("\n[vm_builtins] NanoVM built-in function tests...\n\n");
 
     test_vm_getcwd();

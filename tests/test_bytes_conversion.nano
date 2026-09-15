@@ -21,5 +21,9 @@ shadow main {
     assert (== (at b2 0) 65)
     assert (== (at b2 1) 66)
     assert (== (at b2 2) 67)
+    assert (== (string_from_bytes b2) "ABC")
+    assert (== (write path "") 0)
+    assert (== (array_length (file_read_bytes path)) 0)
     assert (== (delete path) 0)
+    assert (== (array_length (file_read_bytes path)) 0)
 }

@@ -89,6 +89,23 @@ char *vm_file_read(const char *path) {
     return buf;
 }
 
+DynArray *vm_file_read_bytes(const char *path) {
+    DynArray *bytes = dyn_array_new(ELEM_U8);
+    if (!bytes || !path) return bytes;
+    FILE *file = fopen(path, "rb");
+    if (!file) return bytes;
+    unsigned char buffer[4096];
+    size_t count;
+    while ((count = fread(buffer, 1, sizeof(buffer), file)) != 0) {
+        for (size_t i = 0; i < count; i++) dyn_array_push_u8(bytes, buffer[i]);
+    }
+    bool failed = ferror(file) != 0;
+    if (fclose(file) != 0) failed = true;
+    /* I retain the existing empty-on-error contract, never a partial read. */
+    if (failed) bytes->length = 0;
+    return bytes;
+}
+
 int64_t vm_file_write(const char *path, const char *content) {
     FILE *f = fopen(path, "w");
     if (!f) return -1;
@@ -272,7 +289,9 @@ char *vm_string_from_bytes(DynArray *arr) {
     char *buf = malloc(len + 1);
     if (!buf) return strdup("");
     for (size_t i = 0; i < len; i++) {
-        buf[i] = (char)dyn_array_get_int(arr, (int64_t)i);
+        buf[i] = arr->elem_type == ELEM_U8
+            ? (char)dyn_array_get_u8(arr, (int64_t)i)
+            : (char)dyn_array_get_int(arr, (int64_t)i);
     }
     buf[len] = '\0';
     return buf;

@@ -1696,6 +1696,7 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             {"getcwd",     "vm_getcwd",      0, TAG_STRING},
             {"chdir",      "vm_chdir",       1, TAG_INT},
             {"file_read",  "vm_file_read",   1, TAG_STRING},
+            {"file_read_bytes", "vm_file_read_bytes", 1, TAG_ARRAY},
             {"file_write", "vm_file_write",  2, TAG_INT},
             {"file_exists","vm_file_exists",  1, TAG_BOOL},
             {"dir_exists", "vm_dir_exists",   1, TAG_BOOL},

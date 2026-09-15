@@ -12,6 +12,7 @@
 char *vm_getcwd(void);
 int64_t vm_chdir(const char *path);
 char *vm_file_read(const char *path);
+DynArray *vm_file_read_bytes(const char *path);
 int64_t vm_file_write(const char *path, const char *content);
 int64_t vm_file_exists(const char *path);
 int64_t vm_dir_exists(const char *path);

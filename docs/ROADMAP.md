@@ -101,6 +101,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         - [ ] I preserve map transform result representation and validate
           collection callback signatures rather than merely checking each
           argument independently. MAC `task_75b340982b6cf797f29b38c1a188aab3`.
+        - [x] I implement the missing VM file_read_bytes bridge with byte-typed
+          storage, binary/empty/missing-file checks and byte-to-string round trips.
+          Native/VM compilation, default shadows and execution pass the expanded
+          byte fixture. All 18 VM-builtin tests pass, including 8,193 binary bytes,
+          empty/missing paths and directory read failure. This does not establish
+          identical backend error handling or native-array ownership.
+        - [ ] I align interpreter/native byte-file storage, non-seekable reads
+          and read/close-error behavior with the VM path. Their existing readers
+          still use integer storage or unchecked seeks and allow partial results.
+          MAC `task_84458d97b4635a911eee8f2b90d66673`.
         - [x] I repair the tail-call fixture's non-language call syntax and
           discarded returns, add bounded shadows, and retain a million-step
           executable test with defined integer arithmetic and asserted results.
