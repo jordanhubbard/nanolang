@@ -446,7 +446,7 @@ test-nanoisa-module: build
 
 .PHONY: test-nanoisa-wrapper
 test-nanoisa-wrapper: nano_virt
-	@perl -e 'alarm 30; exec @ARGV' ./bin/nano_virt tests/test_minimal.nano \
+	@perl -e 'alarm 30; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nano_virt tests/test_minimal.nano \
 		-o /tmp/nanolang_nanoisa_wrapper_test
 	@/tmp/nanolang_nanoisa_wrapper_test
 	@rm -f /tmp/nanolang_nanoisa_wrapper_test
@@ -910,7 +910,7 @@ test-nano-emacs-worker: stage1 $(BIN_DIR)/nano_emacs_worker nano_virt nano_vm
 .PHONY: test-nano-emacs
 test-nano-emacs: stage1 $(BIN_DIR)/nano_emacs_worker
 	@echo "Compiling Nano Emacs (timeout 120s)..."
-	perl -e 'alarm 120; exec @ARGV' ./bin/nanoc_c examples/emacs/nano_emacs.nano -o bin/nano_emacs
+	perl -e 'alarm 120; exec @ARGV; die "I cannot execute the requested command: $$!\n"' ./bin/nanoc_c examples/emacs/nano_emacs.nano -o bin/nano_emacs
 	@test -x bin/nano_emacs
 
 .PHONY: test-opt-passes
@@ -1072,7 +1072,7 @@ test-nsi-runtime:
 	@./tests/test_nsi_runtime
 	@rm -f tests/test_nsi_runtime
 	@if [ -x ./bin/nanoc ]; then \
-		perl -e 'alarm 30; exec @ARGV' -- ./bin/nanoc tests/nsi_client.nano -o tests/nsi_client_bin; \
+		perl -e 'alarm 30; exec @ARGV; die "I cannot execute the requested command: $$!\n"' -- ./bin/nanoc tests/nsi_client.nano -o tests/nsi_client_bin; \
 		rm -f tests/nsi_client_bin; \
 	fi
 
@@ -2221,7 +2221,7 @@ test: build shadow-check userguide-export
 	@echo ""
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_c $(COMPILER)
-	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(MAKE) test-impl
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(MAKE) test-impl
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -2373,7 +2373,7 @@ test-doc-md: build
 
 # Doc tests: compile + run user guide snippets
 test-docs: build $(USERGUIDE_CHECK_TOOL)
-	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL)
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(USERGUIDE_CHECK_TOOL)
 
 .PHONY: test-performance-monitoring-docs
 test-performance-monitoring-docs:
@@ -2392,7 +2392,7 @@ test-dynamic-trace: $(INTERPRETER) $(COMPILER)
 
 # Export user guide snippets into tests/user_guide
 userguide-export: build $(USERGUIDE_CHECK_TOOL)
-	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide
+	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide
 
 # Test with MAC task integration (requires the `mac` CLI to be installed)
 # Use this for local development when you want automatic task tracking
@@ -2669,7 +2669,7 @@ userguide-check: build $(USERGUIDE_CHECK_TOOL)
 
 .PHONY: userguide-html
 userguide-html: build shadow-check
-	@perl -e 'alarm $(USERGUIDE_TIMEOUT); exec @ARGV' python3 scripts/build_userguide.py --check
+	@perl -e 'alarm $(USERGUIDE_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' python3 scripts/build_userguide.py --check
 
 .PHONY: shadow-check
 shadow-check: build
@@ -2679,7 +2679,7 @@ shadow-check: build
 	else \
 		echo "$$files" | while read -r file; do \
 			if [ -f "$$file" ]; then \
-				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV' bash scripts/check_shadow_tests.sh "$$file"; \
+				perl -e 'alarm $(SHADOW_CHECK_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' bash scripts/check_shadow_tests.sh "$$file"; \
 			fi; \
 		done; \
 	fi

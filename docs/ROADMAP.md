@@ -1642,6 +1642,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         non-executable commands, normal exit propagation and deadlines for
         each Makefile timeout wrapper.
         MAC `task_e0f2c52ae84842f084d49cff3394d7e1`.
+      - [x] I cover eight inline Makefile timeout wrappers as well as the four
+        shared macros. Their bare Perl exec returned zero when launch failed.
+        I extract all twelve programs, expand them through Make, and test
+        launch errors and their diagnostics, child statuses and deadlines.
+        MAC `task_9b6d05452683ff53cc92d98f94bbd945`.
+      - [ ] I propagate child failures through enclosing shell recipes:
+        `test-nsi-runtime` cleanup can mask a failed compiler, and `shadow-check`
+        can mask an earlier failed loop iteration. I test actual expanded
+        recipes, not only their timeout programs.
+        MAC `task_e92f56e81dbe4cc88a7c06d18df6f29c`.
       - [x] I repair self-hosted lowering exposed by full bootstrap shadows:
         physical-path extern declarations, explicit imports used by shadows,
         record-array literal and call-argument element types, inferred append
@@ -4518,6 +4528,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       signed checksums, SBOMs, and provenance. I remove destructive release
       synchronization and predictable temporary files, reconcile task evidence,
       and verify clean installation and rollback before the public release.
+      My [3508bb20 diagnostic snapshot](evidence/release-integration-3508bb20.json)
+      records three failing unit targets, one authoring-test skip and twelve
+      open PRs requiring reconciliation. It is not the clean/full release gate
+      or a completed branch review. MAC `task_cffdafd16e641ac417ccfddb962534b9`.
 
 - [x] I made the 3.5 benchmark workloads execute successfully on NanoVM and
   recorded 20 repeatable profiles for NanoLang execution, allocation, direct and
