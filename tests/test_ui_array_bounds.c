@@ -3,14 +3,20 @@
 #include <string.h>
 #include <float.h>
 static int mouse_calls, text_calls;
+static int draw_calls;
+static Uint32 host_buttons;
 static int host_mouse_x = -100, host_mouse_y = -100;
 static Uint32 mouse(int *x, int *y) {
-    mouse_calls++; *x = host_mouse_x; *y = host_mouse_y; return 0;
+    mouse_calls++; *x = host_mouse_x; *y = host_mouse_y; return host_buttons;
 }
 static int color(SDL_Renderer *r, Uint8 a, Uint8 b, Uint8 c, Uint8 d) {
     (void)r; (void)a; (void)b; (void)c; (void)d; return 0;
 }
-static int fake_rect(SDL_Renderer *r, const SDL_Rect *p) { (void)r; (void)p; return 0; }
+static int fake_rect(SDL_Renderer *r, const SDL_Rect *p) {
+    (void)r;
+    if (p) { assert(p->w >= 0 && p->h >= 0); draw_calls++; }
+    return 0;
+}
 static int line(SDL_Renderer *r, int a, int b, int c, int d) {
     (void)r; (void)a; (void)b; (void)c; (void)d; return 0;
 }
@@ -31,6 +37,43 @@ static void invoke(DynArray *a, int64_t count, int64_t scroll) {
     TTF_Font *f = (TTF_Font *)(uintptr_t)1;
     assert(nl_ui_scrollable_list(r, f, a, count, 0, 0, 100, 50, scroll, -1) == -1);
     assert(nl_ui_file_selector(r, f, a, count, 0, 0, 100, 50, scroll, -1) == -1);
+}
+static void bars(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    nl_ui_set_scale(1.0);
+    host_mouse_x = -100; host_mouse_y = -100; host_buttons = 0;
+    const int64_t invalid[][4] = {
+        {0,0,0,10}, {0,0,10,0}, {0,0,-1,10},
+        {INT64_MIN,0,10,10}, {INT64_MAX,0,10,10},
+        {0,INT64_MAX,10,10}, {0,0,INT64_MAX,10},
+        {INT_MAX,0,10,10}, {0,INT_MAX,10,10}
+    };
+    for (size_t i = 0; i < sizeof(invalid)/sizeof(*invalid); i++) {
+        const int64_t *g = invalid[i];
+        int before = draw_calls, mouse_before = mouse_calls;
+        assert(nl_ui_slider(r,g[0],g[1],g[2],g[3],NAN) == 0.0);
+        nl_ui_progress_bar(r,g[0],g[1],g[2],g[3],INFINITY);
+        assert(nl_ui_seekable_progress_bar(r,g[0],g[1],g[2],g[3],NAN) == -1.0);
+        assert(draw_calls == before && mouse_calls == mouse_before);
+    }
+    const double values[] = {NAN, INFINITY, -INFINITY, DBL_MAX, -DBL_MAX, 0.5};
+    const double expected[] = {0.0, 1.0, 0.0, 1.0, 0.0, 0.5};
+    for (size_t i = 0; i < sizeof(values)/sizeof(*values); i++) {
+        int before = draw_calls;
+        assert(nl_ui_slider(r,0,0,100,20,values[i]) == expected[i]);
+        nl_ui_progress_bar(r,0,0,100,20,values[i]);
+        assert(nl_ui_seekable_progress_bar(r,0,0,100,20,values[i]) == -1.0);
+        assert(draw_calls > before);
+    }
+    assert(nl_ui_slider(r,INT_MIN+4,INT_MIN+4,INT_MAX,20,1.0) == 1.0);
+    assert(nl_ui_slider(r,INT_MAX-104,0,100,20,1.0) == 1.0);
+    nl_ui_progress_bar(r,INT_MIN,INT_MIN,INT_MAX,INT_MAX,1.0);
+    host_mouse_x = 50; host_mouse_y = 10;
+    host_buttons = SDL_BUTTON(SDL_BUTTON_LEFT);
+    assert(nl_ui_slider(r,0,0,100,20,0.0) == 0.5);
+    assert(nl_ui_seekable_progress_bar(r,0,0,100,20,0.0) == -1.0);
+    host_buttons = 0;
+    assert(nl_ui_seekable_progress_bar(r,0,0,100,20,0.0) == 0.5);
 }
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
@@ -96,5 +139,6 @@ int main(void) {
     invoke(&valid, 1, 1);
     assert(text_calls == 3);
     nl_ui_set_scale(1.0);
+    bars();
     return 0;
 }

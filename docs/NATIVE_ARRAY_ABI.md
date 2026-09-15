@@ -104,6 +104,12 @@ use int64 endpoints and reject negative extents. The UI fixture checks NaN,
 infinity, extreme coordinates and endpoint overflow, normally and with
 ASan/UBSan plus float-cast-overflow. Widget-specific drawing arithmetic and
 geometry narrowing remain unverified; these shared fixes do not close that audit.
+My slider and two progress bars now reject nonpositive dimensions, narrowing
+overflow and unrepresentable endpoints before drawing or hit testing. Fractions
+clamp to [0,1], with NaN mapped to zero. Invalid geometry leaves the slider's
+normalized value unchanged and yields no seek selection. The UI fixture tests
+these paths, extreme valid geometry, and press/release selection with fake SDL
+calls under the same sanitizers. Other widgets still need their geometry audit.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

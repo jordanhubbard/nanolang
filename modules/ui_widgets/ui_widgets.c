@@ -217,12 +217,27 @@ void nl_ui_label(SDL_Renderer* renderer, TTF_Font* font,
     }
 }
 
+static double ui_fraction(double value) {
+    if (isnan(value) || value <= 0.0) return 0.0;
+    if (value >= 1.0) return 1.0;
+    return value;
+}
+
+/* I check endpoint arithmetic in int64 before creating SDL int rectangles. */
+static int ui_bar_geometry(int64_t x, int64_t y, int64_t w, int64_t h, int margin) {
+    if (x < INT_MIN + margin || x > INT_MAX ||
+        y < INT_MIN + margin || y > INT_MAX ||
+        w <= 0 || w > INT_MAX || h <= 0 || h > INT_MAX) return 0;
+    return x + w <= INT_MAX - margin && y + h <= INT_MAX - margin;
+}
+
 // Draw a horizontal slider
 // Returns new value (0.0 to 1.0)
 double nl_ui_slider(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                     double value) {
     
-    double new_value = value;
+    double new_value = ui_fraction(value);
+    if (!renderer || !ui_bar_geometry(x, y, w, h, 4)) return new_value;
     
     // Get mouse state
     int mouse_x, mouse_y;
@@ -268,8 +283,8 @@ double nl_ui_slider(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int
 void nl_ui_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                         double progress) {
     
-    if (progress < 0.0) progress = 0.0;
-    if (progress > 1.0) progress = 1.0;
+    progress = ui_fraction(progress);
+    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return;
     
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
@@ -614,8 +629,8 @@ void nl_ui_time_display(SDL_Renderer* renderer, TTF_Font* font,
 double nl_ui_seekable_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w, int64_t h,
                                     double progress) {
     
-    if (progress < 0.0) progress = 0.0;
-    if (progress > 1.0) progress = 1.0;
+    progress = ui_fraction(progress);
+    if (!renderer || !ui_bar_geometry(x, y, w, h, 0)) return -1.0;
     
     double new_position = -1.0;
     

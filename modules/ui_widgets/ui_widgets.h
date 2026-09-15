@@ -11,6 +11,11 @@
  * Invalid arrays/offsets or null renderer/font return -1 before SDL calls.
  * I skip null entries. Geometry and input scaling require a separate audit. */
 
+/* My slider/progress bars clamp fractions to [0,1], with NaN mapped to zero.
+ * They require positive SDL-int dimensions and representable endpoints (plus
+ * four pixels of margin for the slider handle). Invalid geometry or a null
+ * renderer skips drawing: sliders return the clamped value, seek bars -1. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();
