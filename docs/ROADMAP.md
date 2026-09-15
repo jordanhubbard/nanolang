@@ -2598,6 +2598,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       claiming its cause in `docs/SOURCE_SNAPSHOT_EVIDENCE.md`. The updated
       guide builds and validates. Broader assembler-input capture remains open.
       MAC `task_8500a5ea65584cc3a5cfb02a7812b16b`.
+      - [x] I reconcile PR #287's snapshot with my integration history,
+        verify its exact tree identity and rerun paired-fragment normalization,
+        operand ownership, restored-input reuse and phase/recovery tests before
+        retaining its actual head as a merge ancestor.
+        Its entire tree matches ancestor `3fb98917`; four focused methods
+        pass in 121.173 seconds. I retain newer source unchanged. Evidence:
+        `docs/evidence/pr-287-reconciliation.md`.
       MAC rejects completion while unclaimed; a verified agent identity is
       still needed for ledger closure.
 - [x] **5.0 GNU alternate-macro production capture.** I first measure restored
