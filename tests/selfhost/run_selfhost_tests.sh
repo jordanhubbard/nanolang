@@ -28,6 +28,7 @@ test_loop_control.nano
 test_recursion.nano
 test_function_calls.nano
 test_returned_function_calls.nano
+test_nested_array_indexing.nano
 test_let_set.nano
 test_if_else.nano
 test_match_bindings.nano

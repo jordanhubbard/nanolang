@@ -10,6 +10,17 @@ SCALARS = {"int": "7", "float": "1.5", "bool": "true", "string": '"value"'}
 
 
 class ArrayCompatibility(unittest.TestCase):
+    def test_pr294_incremental_cube(self):
+        with tempfile.TemporaryDirectory(prefix="nano-incremental-cube-") as d:
+            output = Path(d) / "program"
+            source = ROOT / "tests/selfhost/test_nested_array_indexing.nano"
+            run = subprocess.run([str(ROOT / "bin/nanoc_stage2"), str(source),
+                                  "-o", str(output)], cwd=ROOT,
+                                 capture_output=True, timeout=60)
+            self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+            ran = subprocess.run([str(output)], capture_output=True, timeout=10)
+            self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+
     def test_nested_comparison_grouping(self):
         with tempfile.TemporaryDirectory(prefix="nano-comparisons-") as d:
             source = Path(d) / "test.nano"
