@@ -925,6 +925,36 @@ static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignatu
     return sig->return_type;
 }
 
+static Type check_perform(ASTNode *expr, Environment *env) {
+    const char *effect_name = expr->as.effect_op.effect_name;
+    const char *op_name = expr->as.effect_op.op_name;
+    EffectDef *effect = effect_name ? env_get_effect(env, effect_name) : NULL;
+    EffectOp *op = effect && op_name ? effect_get_op(effect, op_name) : NULL;
+    if (!op) {
+        emit_context_error("E029 UNKNOWN EFFECT OPERATION", expr->line, expr->column, 7,
+                           "I require a declared effect and operation for perform.",
+                           "Check the effect and operation names against their declaration.");
+        return TYPE_UNKNOWN;
+    }
+    int count = expr->as.effect_op.arg ? 1 : 0;
+    if (count != op->param_count) {
+        emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 7,
+                           "I require the declared operation's argument count for perform.",
+                           "Match the effect operation signature.");
+        return TYPE_UNKNOWN;
+    }
+    if (count) {
+        Type actual = check_expression(expr->as.effect_op.arg, env);
+        if (!types_match(actual, op->params[0].type)) {
+            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 7,
+                               "I require the declared operation's argument type for perform.",
+                               "Match the effect operation signature.");
+            return TYPE_UNKNOWN;
+        }
+    }
+    return op->return_type;
+}
+
 static bool check_array_access_arguments(ASTNode *call, Environment *env) {
     if (call->as.call.arg_count != 2) {
         emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
@@ -3739,9 +3769,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_EFFECT_OP: {
-            if (expr->as.effect_op.arg)
-                check_expression(expr->as.effect_op.arg, env);
-            return TYPE_VOID;
+            return check_perform(expr, env);
         }
 
         default:
@@ -4512,21 +4540,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
         }
 
         case AST_EFFECT_OP: {
-            /* Validate that the effect exists (if registry is available) */
-            if (tc->env) {
-                EffectDecl *decl = env_effect_lookup(tc->env,
-                                        stmt->as.effect_op.effect_name);
-                if (!decl && stmt->as.effect_op.effect_name) {
-                    /* effect not yet registered — may be declared later; just warn */
-                    fprintf(stderr,
-                        "Warning at line %d: Unknown effect '%s' (may not be declared yet)\n",
-                        stmt->line, stmt->as.effect_op.effect_name);
-                }
-            }
-            /* Type-check the argument */
-            if (stmt->as.effect_op.arg)
-                check_expression(stmt->as.effect_op.arg, tc->env);
-            return TYPE_VOID;  /* return type depends on op — use void as conservative */
+            return check_perform(stmt, tc->env);
         }
 
         case AST_IF: {

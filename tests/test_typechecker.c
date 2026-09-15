@@ -837,7 +837,20 @@ void test_tc_handler_effect_inference(void) {
     ASSERT(!tc_passes(source));
 }
 
+void test_tc_perform_signatures(void) {
+    ASSERT(!tc_passes("fn main() -> int { perform Missing.emit(1) return 0 }"));
+    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.missing(1) return 0 }"));
+    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.emit(\"wrong\") return 0 }"));
+    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { let value = perform Recorder.emit(true) return 0 }"));
+    ASSERT(!tc_passes("effect Recorder { emit : int -> void } fn main() -> int { perform Recorder.emit() return 0 }"));
+    ASSERT(!tc_passes("effect Clock { now : void -> int } fn main() -> int { perform Clock.now(1) return 0 }"));
+    ASSERT(tc_passes("fn main() -> int { return perform Clock.now() } effect Clock { now : void -> int }"));
+    ASSERT(tc_passes("effect Echo { value : int -> int } fn main() -> int { return perform Echo.value(7) }"));
+    ASSERT(!tc_passes("effect Echo { value : int -> string } fn main() -> int { return perform Echo.value(7) }"));
+}
+
 int main(void) {
+    TEST(tc_perform_signatures);
     TEST(tc_handler_effect_inference);
     TEST(tc_nested_return_context);
     printf("=== Typechecker Tests ===\n");

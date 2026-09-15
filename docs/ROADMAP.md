@@ -114,6 +114,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
           publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
         - [ ] I implement effect dispatch across native and VM execution.
+          - [x] I resolve performs through the frontend effect declarations,
+            reject unknown operations and incorrect scalar arguments/arity,
+            and report the operation's declared result type in expressions.
+            I test statement/expression positions and forward declarations.
+            Typechecker, effects and interpreter gates pass; native and VM
+            negative compiler suites pass 37/37 with a pinned argument-type
+            diagnostic and no artifact publication. This checks scalar base
+            types, not full nominal/aggregate signature compatibility.
+            MAC `task_6a559f3c44e2f1decb45662b2d81e8df`.
           The native unqualified-handler emitter currently evaluates only the
           handled body and ignores its handlers; VM emission rejects these
           nodes. Frontend inference tests do not establish runtime handlers.
@@ -131,6 +140,8 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             on a void-valued local; VM shadows still reject the operation.
           - [ ] I complete operation argument/result handling and control-flow
             rules across backends. The perform AST carries only one argument;
+            argument checking still needs nominal identities and recursive
+            aggregate/function signatures, including preserved result metadata;
             the interpreter adapter rejects multi-argument handlers. Legacy
             dispatch strips return/break/continue flags and does not establish
             the final handler-arm value contract. These boundaries remain open,

@@ -24,6 +24,8 @@ failed=0
 
 expected_diagnostic() {
     case "$1" in
+        */effect_errors/perform_argument.nano)
+            echo "I require the declared operation's argument type for perform" ;;
         */effect_errors/ambiguous_handler.nano)
             echo "I cannot infer a unique effect for this handler" ;;
         */array_errors/invalid_array_index_type.nano)
