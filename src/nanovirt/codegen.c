@@ -1463,10 +1463,43 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         emit_op(cg, OP_HM_HAS);
         return true;
     }
-    if (strcmp(name, "map_delete") == 0 && argc == 2) {
+    if ((strcmp(name, "map_delete") == 0 || strcmp(name, "map_remove") == 0) && argc == 2) {
         compile_expr(cg, args[0]);
         compile_expr(cg, args[1]);
         emit_op(cg, OP_HM_DELETE);
+        if (strcmp(name, "map_remove") == 0) emit_op(cg, OP_POP);
+        return true;
+    }
+    if (strcmp(name, "map_clear") == 0 && argc == 1) {
+        compile_expr(cg, args[0]);
+        uint16_t map = local_add(cg, "__clear_map__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)map);
+        emit_op(cg, OP_LOAD_LOCAL, (int)map);
+        emit_op(cg, OP_HM_KEYS);
+        uint16_t keys = local_add(cg, "__clear_keys__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)keys);
+        emit_op(cg, OP_LOAD_LOCAL, (int)keys);
+        emit_op(cg, OP_ARR_LEN);
+        uint16_t index = local_add(cg, "__clear_index__", node->line);
+        emit_op(cg, OP_STORE_LOCAL, (int)index);
+        uint32_t top = cg->code_size;
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GT_S);
+        uint32_t end = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)1);
+        emit_op(cg, OP_I64_SUB);
+        emit_op(cg, OP_STORE_LOCAL, (int)index);
+        emit_op(cg, OP_LOAD_LOCAL, (int)map);
+        emit_op(cg, OP_LOAD_LOCAL, (int)keys);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_ARR_GET);
+        emit_op(cg, OP_HM_DELETE);
+        emit_op(cg, OP_POP);
+        uint32_t again = emit_op(cg, OP_JMP, (int32_t)0);
+        patch_jump(cg, again + 1, again, top);
+        patch_jump(cg, end + 1, end, cg->code_size);
         return true;
     }
     if (strcmp(name, "map_keys") == 0 && argc == 1) {
@@ -2808,7 +2841,16 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             node->as.let.element_type != TYPE_UNKNOWN) {
             node->as.let.value->as.array_literal.element_type = node->as.let.element_type;
         }
-        if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
+        TypeInfo *map_info = node->as.let.type_info;
+        ASTNode *value = node->as.let.value;
+        if (node->as.let.var_type == TYPE_HASHMAP && map_info &&
+            map_info->type_param_count == 2 && value->type == AST_CALL &&
+            !value->as.call.func_expr && value->as.call.name &&
+            strcmp(value->as.call.name, "map_new") == 0 && value->as.call.arg_count == 0) {
+            emit_op(cg, OP_HM_NEW,
+                (int)type_to_tag(map_info->type_params[0]->base_type, NULL, cg->env),
+                (int)type_to_tag(map_info->type_params[1]->base_type, NULL, cg->env));
+        } else if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
             compile_numeric_expr(cg, node->as.let.value,
                 check_expression(node->as.let.value, cg->env), node->as.let.var_type == TYPE_FLOAT);
         else compile_expr(cg, node->as.let.value);

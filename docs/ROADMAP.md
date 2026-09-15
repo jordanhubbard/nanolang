@@ -88,6 +88,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I lower generic map_remove/map_clear with void stack effects and
+          alias-preserving mutation, using declared type tags for direct local
+          constructors. Int/string map regressions pass native/VM compilation,
+          default shadows and execution: deletion, reinsertion, extraction,
+          alias-visible clear and repeated empty clear. All 69 code-generation
+          tests pass. Strict corpus: 175 selected, 168 identical, seven failures,
+          zero skipped. This does not establish all constructor contexts.
+        - [ ] I carry map constructor key/value types through returns, globals,
+          fields, arguments and nested generic contexts instead of defaulting to
+          string/int tags. MAC `task_f4e1871af407805219770d7620d58349`.
         - [x] I advance my bytecode for-loop index on continue, including
           unconditional and nested paths, without advancing an enclosing loop
           on an inner while continue. My new regression and both former timeout
