@@ -364,11 +364,35 @@ My module header routes native audio close through the same hook cleanup.
 
 These are lifetime rules, not a real-time latency guarantee. The audio thread
 waits for VM execution. A post-mix callback must not acquire SDL's audio lock
-or replace/clear itself. Until the wider mixer-operation audit is complete,
-configure playback before installing the hook and clear it before other mixer
-operations. I have not established safe arbitrary playback changes with an
-active hook, worker-thread SDL error propagation, or general C-native closure
-capture parity. Those are open release work, not implied by the example gate.
+or replace/clear itself. This restriction also excludes mixer operations from
+inside the post-mix callback: a worker waiting for the audio lock cannot finish
+while that callback is waiting for the worker. My unsafe boundary does not
+detect or break such application dependency cycles.
+
+I route every other declared mixer operation through a typed worker adapter;
+error lookup and clearing run on the owner. This lets ordinary VM playback
+changes wait for the audio lock while the owner pumps the active hook. I widen
+SDK integer results to 64 bits and reject integer arguments outside the SDK
+range. `Mix_FreeChunk` and `Mix_RewindMusic` preserve their source-level integer
+result by explicitly returning zero after the SDK's void call. Native-C header
+aliases use the same conversions and error handling without a VM scheduler.
+`Mix_GetNumChannels` queries `Mix_AllocateChannels(-1)` rather than assuming a
+nonexistent SDK symbol.
+
+My adapter error snapshot belongs to SDL's process-global mixer. Each operation
+clears its executing thread's SDL error first and copies the resulting message
+before returning. `Mix_GetError` returns the last completed operation's snapshot,
+at most 1023 bytes; `Mix_ClearError` clears it and returns zero. A successful
+operation without an SDL error clears an older failure. Read the message before
+starting another operation. Concurrent users share this snapshot, not per-VM
+error state; mixer resource access still requires application coordination.
+The getter lends a per-thread copy until its next call, which my VM string
+boundary copies immediately. This intentionally differs from SDL's thread-local,
+sticky-error convention. Errors from unrelated raw SDL calls are not included.
+
+I test playback changes with the hook active and worker error transport.
+General C-native language closure capture parity remains open release work;
+the native C callback fixture does not establish it.
 
 `make test-mixer-callbacks` checks allocation failure preserving the old hook,
 replacement, clearing while an old callback holds the modeled audio lock,
@@ -378,6 +402,11 @@ fixture uses a real SDL dummy audio device and a captured VM array, executes
 dependency/root shadows, receives at least eight callbacks per run, clears and
 closes audio, and checks isolated-call refusal. This is not a hardware latency
 or sound-quality test.
+It also loads and frees chunks/music, plays, pauses, resumes, rewinds, fades,
+changes channels and volumes, checks missing-file errors across workers and
+rejects oversized integers while leaving the hook registered. A separate
+native-C fixture checks the same adapter headers, cross-thread error snapshots
+and callback quiescence at close.
 
 I accept integer zero, including my current `null_opaque()` value, as a null
 opaque foreign argument. I reject nonzero integer addresses at the retained

@@ -590,7 +590,7 @@ test-dispatch-callbacks: nano_virt nano_vm test-dispatch-retained
 .PHONY: test-mixer-callbacks
 test-mixer-callbacks: nano_virt nano_vm
 	@pkg-config --exists SDL2_mixer || { echo "I require SDL2_mixer development headers for this integration gate."; exit 1; }
-	$(CC) $(CFLAGS) $$(pkg-config --cflags SDL2_mixer) -pthread tests/nanovm/test_mixer_callbacks.c src/runtime/callback_runtime.c -o $(OBJ_DIR)/test_mixer_callbacks $(LDFLAGS)
+	$(CC) $(CFLAGS) $$(pkg-config --cflags SDL2_mixer) -pthread tests/nanovm/test_mixer_callbacks.c src/runtime/callback_runtime.c modules/sdl_mixer/sdl_mixer_operations.c -o $(OBJ_DIR)/test_mixer_callbacks $(LDFLAGS) $$(pkg-config --libs SDL2_mixer)
 	@$(OBJ_DIR)/test_mixer_callbacks
 	@python3 -m unittest tests.test_mixer_callbacks
 

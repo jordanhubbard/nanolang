@@ -28,6 +28,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Release-gate launcher capture.** The full suite reaches 219 passing
+      implementation tests and one compile failure in
+      `tests/unit/test_launcher_capture.nano`. I diagnose its saved compile log,
+      preserve child-capture and termination assertions, and rerun the gate.
 - [ ] **5.0 release integration.** I reconcile the audit-contract branch with
       main, preserve original-file diagnostics and immutable native-cache
       behavior, run clean build/tests and documentation gates, then merge and
@@ -238,6 +242,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           - [ ] I audit remaining mixer/audio-lock operations for owner-thread
             deadlocks while a post-mix callback is registered. I preserve error
             reporting across worker calls and verify native-C callback parity.
+            - [ ] I bind every mixer operation to a typed adapter, preserve
+              source API names, convert SDK integer/void returns explicitly,
+              and transport the last completed operation's error across workers.
+              I exercise channel/music operations with an active post-mix hook,
+              missing-file errors, error clearing and native adapter execution.
+              Typed adapters and real VM/native-C fixtures now pass. My direct
+              sanitizer probes fail before main in Homebrew's SDL2 compatibility
+              constructor while loading SDL3, opening a fatal-error dialog.
+              I stop those probes and must establish a headless loader preflight
+              before rerunning sanitizer integration; this is not a passing gate.
             - [x] I copy string arguments before callback-aware native calls
               and copy borrowed string results before their worker exits.
               I test worker-local result lifetime and owner-thread VM allocation

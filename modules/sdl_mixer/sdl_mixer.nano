@@ -12,7 +12,7 @@ opaque type Mix_AudioBuffer
 # === Initialization ===
 
 # Initialize SDL_mixer with format flags
-# Returns 0 on success
+# I return the initialized format flags, not a success boolean.
 extern fn Mix_Init(_flags: int) -> int
 
 # Shutdown SDL_mixer
@@ -54,7 +54,7 @@ extern fn Mix_AllocateChannels(_numchans: int) -> int
 # Returns Mix_Chunk handle or 0 on failure
 extern fn Mix_LoadWAV(_file: string) -> Mix_Chunk
 
-# Free Mix_Chunk
+# I free the chunk and return zero; the SDK function returns void.
 extern fn Mix_FreeChunk(_chunk: Mix_Chunk) -> int
 
 # Play sound effect on channel
@@ -121,13 +121,13 @@ extern fn Mix_HaltMusic() -> int
 # ms: milliseconds for fade out
 extern fn Mix_FadeOutMusic(_ms: int) -> int
 
-# Rewind music to start
+# I rewind music and return zero; the SDK function returns void.
 extern fn Mix_RewindMusic() -> int
 
-# Pause music (returns void in C, but we use int for consistency)
+# I pause music without a result.
 extern fn Mix_PauseMusic() -> void
 
-# Resume music (returns void in C, but we use int for consistency)
+# I resume music without a result.
 extern fn Mix_ResumeMusic() -> void
 
 # Set music volume
@@ -163,8 +163,10 @@ extern fn Mix_GetNumChannels() -> int
 
 # === Error Handling ===
 
-# Get last SDL_mixer error
+# I report the last completed adapter operation's error (at most 1023 bytes).
+# This snapshot belongs to the process-global mixer, not to a VM or SDL thread.
+# A successful operation clears it; read it before starting another operation.
 extern fn Mix_GetError() -> string
 
-# Clear error message
+# I clear the adapter error snapshot and return zero.
 extern fn Mix_ClearError() -> int
