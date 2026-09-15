@@ -95,6 +95,25 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       containment rejects callbacks with a diagnostic instead of crashing;
       it is not callback support. Dispatch dependency shadows still fail.
       MAC `task_20f0d57878f248cd8573e6841825152a`.
+      The user requires lifetime-safe callbacks before 5.0; native-only
+      dispatch is not an alternative release condition.
+      - [x] I define a versioned, typed, retained callback handle and test
+        owner-thread execution, concurrent submission, reentrancy, final
+        release, cancellation, and handles that outlive runtime shutdown.
+        `make test-callback-runtime` passes 40,000 cross-thread invocations,
+        allocation-failure checks, and deterministic queued cancellation.
+        Both binaries pass ASan/UBSan and TSan on Darwin arm64. This is the
+        handle runtime, not completed VM or native-adapter integration.
+      - [ ] I carry callback signatures and adapter contracts through the
+        compiler, serialized imports, loader, and verifier; absent contracts
+        fail closed rather than inferring behavior from symbol names.
+      - [ ] I connect owner-thread callback execution to suspended VM
+        activations, preserve captures/globals, pump during foreign waits,
+        and propagate errors without racing the heap or corrupting frames.
+      - [ ] I implement retained dispatch adapters and an explicit COP
+        transport policy, then test delayed work and shutdown in both paths.
+      - [ ] I pass all six dispatch-dependent examples with dependency
+        shadows enabled, sanitizer checks, and the complete clean release gate.
 - [x] **Release-gate non-callback example shadows.** I correct nominal record
       lookup on call results, retain SDL_mixer artifact linkage, bound the
       particle rendering smoke test, and verify the entire example tree from

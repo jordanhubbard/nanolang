@@ -565,6 +565,18 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 	@rm -f tests/test_gc_struct
 
 .PHONY: test-vm-ffi
+test-vm-ffi: test-callback-runtime
+
+.PHONY: test-callback-runtime
+test-callback-runtime:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -pthread -o $(OBJ_DIR)/test_callback_runtime \
+		tests/nanovm/test_callback_runtime.c src/runtime/callback_runtime.c $(LDFLAGS)
+	@$(OBJ_DIR)/test_callback_runtime
+	$(CC) $(CFLAGS) -pthread -o $(OBJ_DIR)/test_callback_failures \
+		tests/nanovm/test_callback_failures.c $(LDFLAGS)
+	@$(OBJ_DIR)/test_callback_failures
+
 test-vm-ffi: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=42 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_first.so $(LDFLAGS)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=43 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_second.so $(LDFLAGS)

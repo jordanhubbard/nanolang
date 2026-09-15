@@ -114,8 +114,10 @@ This does not establish complete memory safety or make the full gate green.
 
 The callback worker independently confirmed that imports lack the signature,
 ownership, and threading contract needed by a safe native callback bridge.
-It produced no implementation. I await an explicit release-scope decision;
-I have not excluded dispatch examples or published the release.
+It produced no implementation. The user requires a lifetime-safe callback ABI
+before 5.0. I am implementing that contract locally; I have not excluded
+dispatch examples or published the release. My contract and implementation
+boundaries are recorded in [the callback ABI design](CALLBACK_ABI.md).
 
 The subsequent full run passes all 220 runnable programs with zero skips,
 all 34 negative compiler contracts, and the self-hosted compiler checks,
