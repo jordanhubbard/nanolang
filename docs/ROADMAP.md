@@ -253,6 +253,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I validate button geometry and share checked centered
                     text placement with the spinner; I test rejected geometry,
                     click behavior, extreme surfaces and cleanup.
+                  - [x] I validate checkbox/radio coordinates, including the
+                    radio border's extra pixel, and check adjacent label
+                    placement; I test click/toggle behavior and cleanup.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

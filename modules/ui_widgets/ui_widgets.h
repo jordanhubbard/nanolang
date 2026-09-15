@@ -29,6 +29,11 @@
  * Unrepresentable centered text is skipped with surface/texture cleanup; the
  * button's valid hit area still determines its click result. */
 
+/* My checkbox/radio controls validate their 20-pixel bounds before interaction
+ * (with one pixel of margin for radio borders). Invalid geometry preserves
+ * checkbox state or returns no radio click. Unplaceable labels are skipped
+ * with cleanup; valid controls retain their normal interaction behavior. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

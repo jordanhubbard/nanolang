@@ -18,6 +18,16 @@ static int ui_centered_rect(SDL_Rect box, int width, int height, SDL_Rect *out) 
     return 1;
 }
 
+static int ui_control_label_rect(SDL_Rect box, int width, int height, SDL_Rect *out) {
+    if (width < 0 || height < 0) return 0;
+    int64_t x = (int64_t)box.x + box.w + 8;
+    int64_t y = (int64_t)box.y + ((int64_t)box.h - height) / 2;
+    if (x < INT_MIN || y < INT_MIN ||
+        x + width > INT_MAX || y + height > INT_MAX) return 0;
+    *out = (SDL_Rect){(int)x, (int)y, width, height};
+    return 1;
+}
+
 NANO_EXPORT_ARRAY_ABI(nl_ui_scrollable_list);
 NANO_EXPORT_ARRAY_ABI(nl_ui_dropdown);
 NANO_EXPORT_ARRAY_ABI(nl_ui_file_selector);
@@ -323,6 +333,7 @@ void nl_ui_progress_bar(SDL_Renderer* renderer, int64_t x, int64_t y, int64_t w,
 int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
                        const char* label, int64_t x, int64_t y, int64_t checked) {
     
+    if (!renderer || !ui_bar_geometry(x, y, 20, 20, 0)) return checked;
     int64_t new_checked = checked;
     int box_size = 20;
     
@@ -383,10 +394,9 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_x = (int)x + box_size + 8;
-                int text_y = (int)y + (box_size - surface->h) / 2;
-                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_Rect dest;
+                if (ui_control_label_rect(box, surface->w, surface->h, &dest))
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -400,7 +410,7 @@ int64_t nl_ui_checkbox(SDL_Renderer* renderer, TTF_Font* font,
 // Returns 1 if clicked, 0 otherwise
 int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
                            const char* label, int64_t x, int64_t y, int64_t selected) {
-    
+    if (!renderer || !ui_bar_geometry(x, y, 20, 20, 1)) return 0;
     int clicked = 0;
     int circle_radius = 10;
     int circle_size = circle_radius * 2;
@@ -470,10 +480,9 @@ int64_t nl_ui_radio_button(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_x = (int)x + circle_size + 8;
-                int text_y = (int)y + (circle_size - surface->h) / 2;
-                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                SDL_Rect dest;
+                if (ui_control_label_rect(bg_rect, surface->w, surface->h, &dest))
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);

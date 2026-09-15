@@ -24,6 +24,9 @@ static int fake_rect(SDL_Renderer *r, const SDL_Rect *p) {
 static int line(SDL_Renderer *r, int a, int b, int c, int d) {
     (void)r; (void)a; (void)b; (void)c; (void)d; return 0;
 }
+static int fake_point(SDL_Renderer *r, int x, int y) {
+    (void)r; (void)x; (void)y; draw_calls++; return 0;
+}
 static SDL_Surface *fake_text(TTF_Font *f, const char *s, SDL_Color c) {
     (void)f; (void)c; assert(!strcmp(s, expected_text)); text_calls++;
     last_text_color = c;
@@ -44,6 +47,7 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_RenderDrawRect fake_rect
 #define SDL_RenderSetClipRect fake_rect
 #define SDL_RenderDrawLine line
+#define SDL_RenderDrawPoint fake_point
 #define TTF_RenderText_Blended fake_text
 #define TTF_RenderUTF8_Blended fake_text
 #define SDL_CreateTextureFromSurface fake_texture
@@ -194,6 +198,39 @@ static void buttons(void) {
     assert(!ui_centered_rect((SDL_Rect){INT_MAX-10,0,10,10},INT_MAX,10,&dest));
     provide_surface = 0;
 }
+static void checks_and_radios(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    int draws = draw_calls, mice = mouse_calls;
+    assert(nl_ui_checkbox(r,f,"choice",INT64_MAX,0,1) == 1);
+    assert(!nl_ui_radio_button(r,f,"choice",INT64_MIN,0,1));
+    assert(!nl_ui_radio_button(r,f,"choice",INT_MAX-20,0,1));
+    assert(nl_ui_checkbox(NULL,f,"choice",0,0,1) == 1);
+    assert(draw_calls == draws && mouse_calls == mice);
+    expected_text = "choice"; provide_surface = 1;
+    test_surface.w = 10; test_surface.h = 10;
+    host_mouse_x = 10; host_mouse_y = 10;
+    checkbox_prev_mouse_down = radio_prev_mouse_down = 1;
+    checkbox_current_mouse_down = radio_current_mouse_down = 0;
+    int copies = render_copies, frees = surface_frees, textures = texture_frees;
+    assert(nl_ui_checkbox(r,f,"choice",0,0,0) == 1);
+    assert(nl_ui_checkbox(r,f,"choice",0,0,1) == 0);
+    assert(nl_ui_radio_button(r,f,"choice",0,0,1) == 1);
+    assert(render_copies == copies + 3);
+    checkbox_prev_mouse_down = radio_prev_mouse_down = 0;
+    test_surface.w = INT_MAX; test_surface.h = INT_MAX;
+    assert(nl_ui_checkbox(r,f,"choice",INT_MIN,INT_MIN,1) == 1);
+    assert(!nl_ui_radio_button(r,f,"choice",INT_MIN+1,INT_MIN+1,1));
+    assert(nl_ui_checkbox(r,f,"choice",INT_MAX-20,0,1) == 1);
+    assert(!nl_ui_radio_button(r,f,"choice",INT_MAX-21,0,1));
+    assert(render_copies == copies + 3);
+    assert(surface_frees == frees + 7 && texture_frees == textures + 7);
+    SDL_Rect dest;
+    assert(ui_control_label_rect((SDL_Rect){0,0,20,20},10,10,&dest));
+    assert(dest.x == 28 && dest.y == 5);
+    assert(!ui_control_label_rect((SDL_Rect){0,0,20,20},-1,10,&dest));
+    provide_surface = 0;
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -262,5 +299,6 @@ int main(void) {
     spinner();
     panels_and_labels();
     buttons();
+    checks_and_radios();
     return 0;
 }

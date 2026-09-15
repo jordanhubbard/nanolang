@@ -125,6 +125,11 @@ Text buttons now validate geometry before interaction. They share checked
 centered text placement with spinners; rejected text still releases its texture
 and surface. The UI fixture checks release-click behavior, invalid geometry,
 extreme text dimensions, and cleanup normally and under the same sanitizers.
+Checkboxes and radio buttons validate fixed-size bounds before interaction,
+including radio border padding. Checked adjacent-label placement prevents
+overflow near coordinate limits. The fixture checks toggles, radio clicks,
+extreme valid bounds, rejected bounds and label cleanup under the same gates.
+Other widget geometry remains open.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;
