@@ -1,0 +1,20 @@
+fn main() -> int {
+    let row0: array<int> = [11, 12]
+    let row1: array<int> = [22, 23]
+    let mut layer0: array<array<int>> = []
+    let mut layer1: array<array<int>> = []
+    set layer0 (array_push layer0 row0)
+    set layer1 (array_push layer1 row1)
+    let mut cube: array<array<array<int>>> = []
+    set cube (array_push cube layer0)
+    set cube (array_push cube layer1)
+    let layer: array<array<int>> = (at cube 1)
+    let row: array<int> = (at (at cube 1) 0)
+    let value: int = (at (at (at cube 1) 0) 0)
+
+    if (!= (array_length layer) 1) { return 1 }
+    if (!= (array_length row) 2) { return 2 }
+    if (!= (at row 1) 23) { return 3 }
+    if (!= value 22) { return 4 }
+    return 0
+}

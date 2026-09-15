@@ -1358,6 +1358,11 @@ fn infer_expr_type(parser: Parser, node_id: int, node_type: int, env: GenEnv) ->
             } else { return "" }
         } else { (print "") }
         let if_id: ASTIdentifier = (parser_get_identifier parser ic.function)
+        if (and (or (== if_id.name "at") (== if_id.name "array_get")) (== ic.arg_count 2)) {
+            let array_arg: ASTStmtRef = (parser_get_call_arg parser ic.arg_start)
+            let array_type: string = (infer_expr_type parser array_arg.node_id array_arg.node_type env)
+            return (array_elem_type_from_array_type array_type)
+        } else { (print "") }
         if (func_returns_string if_id.name) { return "string" } else { (print "") }
         if (func_returns_float if_id.name) { return "float" } else { (print "") }
         return "int"
@@ -2259,9 +2264,8 @@ shadow is_array_type {
 }
 
 fn array_elem_type_from_array_type(t: string) -> string {
-    /* Check nested arrays FIRST since "array<array<int>>" also contains "array<int>" */
-    if (str_contains t "array<array<") {
-        return "array"
+    if (and (transp_str_starts_with t "array<") (transp_str_ends_with t ">")) {
+        return (str_substring t 6 (- (str_length t) 7))
     } else {
     if (str_contains t "array<int>") {
         return "int"
@@ -2299,7 +2303,8 @@ shadow array_elem_type_from_array_type {
     assert (== (array_elem_type_from_array_type "array<float>") "float")
     assert (== (array_elem_type_from_array_type "array<string>") "string")
     assert (== (array_elem_type_from_array_type "array<bool>") "bool")
-    assert (== (array_elem_type_from_array_type "array<array<int>>") "array")
+    assert (== (array_elem_type_from_array_type "array<array<int>>") "array<int>")
+    assert (== (array_elem_type_from_array_type "array<array<array<int>>>") "array<array<int>>")
     assert (== (array_elem_type_from_array_type "array<Point>") "Point")
 }
 
@@ -2307,7 +2312,7 @@ fn elem_enum_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "ELEM_FLOAT" }
     else { if (== elem_type "string") { return "ELEM_STRING" }
     else { if (== elem_type "bool") { return "ELEM_BOOL" }
-    else { if (== elem_type "array") { return "ELEM_ARRAY" }
+    else { if (or (== elem_type "array") (is_array_type elem_type)) { return "ELEM_ARRAY" }
     else { if (type_is_struct elem_type) { return "ELEM_INT" }
     else { return "ELEM_INT" } } } } }
 }
@@ -2325,7 +2330,7 @@ fn get_fn_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "dyn_array_get_float" }
     else { if (== elem_type "string") { return "dyn_array_get_string" }
     else { if (== elem_type "bool") { return "dyn_array_get_bool" }
-    else { if (== elem_type "array") { return "dyn_array_get_array" }
+    else { if (or (== elem_type "array") (is_array_type elem_type)) { return "dyn_array_get_array" }
     else { if (type_is_struct elem_type) { return "dyn_array_get_int" }
     else { return "dyn_array_get_int" } } } } }
 }
@@ -2334,6 +2339,7 @@ shadow get_fn_from_elem_type {
     assert (== (get_fn_from_elem_type "float") "dyn_array_get_float")
     assert (== (get_fn_from_elem_type "string") "dyn_array_get_string")
     assert (== (get_fn_from_elem_type "int") "dyn_array_get_int")
+    assert (== (get_fn_from_elem_type "array<array<int>>") "dyn_array_get_array")
     assert (== (get_fn_from_elem_type "Point") "dyn_array_get_int")
 }
 
@@ -2341,7 +2347,7 @@ fn push_fn_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "dyn_array_push_float" }
     else { if (== elem_type "string") { return "dyn_array_push_string" }
     else { if (== elem_type "bool") { return "dyn_array_push_bool" }
-    else { if (== elem_type "array") { return "dyn_array_push_array" }
+    else { if (or (== elem_type "array") (is_array_type elem_type)) { return "dyn_array_push_array" }
     else { if (type_is_struct elem_type) { return "dyn_array_push_int" }
     else { return "dyn_array_push_int" } } } } }
 }
@@ -2377,7 +2383,7 @@ fn set_fn_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "dyn_array_set_float" }
     else { if (== elem_type "string") { return "dyn_array_set_string" }
     else { if (== elem_type "bool") { return "dyn_array_set_bool" }
-    else { if (== elem_type "array") { return "dyn_array_set_array" }
+    else { if (or (== elem_type "array") (is_array_type elem_type)) { return "dyn_array_set_array" }
     else { if (type_is_struct elem_type) { return "dyn_array_set_int" }
     else { return "dyn_array_set_int" } } } } }
 }
@@ -2448,7 +2454,7 @@ fn c_type_from_elem_type(elem_type: string) -> string {
     if (== elem_type "float") { return "double" }
     else { if (== elem_type "string") { return "const char*" }
     else { if (== elem_type "bool") { return "bool" }
-    else { if (== elem_type "array") { return "DynArray*" }
+    else { if (or (== elem_type "array") (is_array_type elem_type)) { return "DynArray*" }
     else { if (== elem_type "int") { return "int64_t" }
     else { if (is_opaque_type elem_type) { return elem_type }
     else { if (type_is_struct elem_type) { return (+ "nl_" (mangle_type_name elem_type)) }
@@ -5098,6 +5104,11 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                     let inferred: string = (array_elem_type_from_array_type arr_t)
                                     if (!= inferred "") { set elem_t inferred } else { set elem_t "int" }
                                 } else {
+                                    if (== a0.node_type ParseNodeType.PNODE_CALL) {
+                                        let nested_arr_t: string = (infer_expr_type parser a0.node_id a0.node_type env)
+                                        let nested_inferred: string = (array_elem_type_from_array_type nested_arr_t)
+                                        if (!= nested_inferred "") { set elem_t nested_inferred } else { set elem_t "int" }
+                                    } else {
                                     if (== a0.node_type ParseNodeType.PNODE_FIELD_ACCESS) {
                                         let fa0: ASTFieldAccess = (parser_get_field_access parser a0.node_id)
                                         let mut owner_type: string = ""
@@ -5114,6 +5125,7 @@ fn generate_expression(parser: Parser, node_id: int, node_type: int, env: GenEnv
                                         }
                                     } else {
                                         set elem_t "int"
+                                    }
                                     }
                                 }
                             } else {

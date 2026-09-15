@@ -24,6 +24,10 @@ kernel, CUDA, or a CPython wrap. **The next public GitHub Release is
 
 ## Active Execution Queue
 
+- [x] **5.0 / self-hosted nested-array indexing.** I preserve every remaining
+      array level while inferring and emitting nested `at` calls, and test both
+      intermediate array values and the scalar value through native execution.
+      MAC `task_f32d71bbad07448c8656843015e72ef3`.
 - [x] **Interpreter reliability.** I return an owned string from record field
       access so call-frame cleanup cannot free record-owned storage. Evaluator
       coverage checks direct returns, local reassignment, 100 repeated reads,
