@@ -980,6 +980,10 @@ test-units: test-string-boundaries test-map-results
 test-map-results: $(COMPILER_C) nano_virt nano_vm
 	@python3 tests/test_map_results.py
 
+.PHONY: test-selfhost-map-results
+test-selfhost-map-results: bootstrap3
+	@NANOLANG_MAP_SELFHOST=1 python3 tests/test_map_results.py
+
 .PHONY: test-ffi
 $(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<

@@ -373,6 +373,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           pass native/dual-dispatch VM execution and default shadows, including
           append-after-empty and unchanged-source checks. All 68 code-generation
           unit tests pass. This does not establish callback signature validation.
+        - [ ] I represent expression callees in the self-hosted AST and carry
+          them through parser, generated runtime transport, checker and emitter.
+          Stage2 rejects `((choose) 7)` before map lowering. I require nested
+          returned calls, argument evaluation order/once, signature errors,
+          shadows and native execution. This is a prerequisite for full map
+          parity, not permission to remove returned callbacks from its tests.
+          MAC `task_256337a9977f43b2baee7b26ebd66bc7`.
         - [ ] I preserve map transform result representation and validate
           collection callback signatures rather than merely checking each
           argument independently. MAC `task_75b340982b6cf797f29b38c1a188aab3`.
@@ -396,6 +403,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           named/variable/returned callbacks and append-after-empty. All 69
           NanoVirt tests pass. Nominal/nested types and full self-hosted lowering
           still require acceptance before this item can close.
+          `make test-selfhost-map-results` selects the same 16 scalar pairings
+          on rebuilt Stage2, without removing named/variable/returned callbacks
+          or empty-result assertions. The initial run fails all pairings at
+          returned-call parsing; this gate must pass before self-host parity.
+          The rebuilt gate confirms all 16 failures after bootstrap smoke checks
+          pass. [Evidence](evidence/selfhost-map-prerequisite.md).
           All sixteen interpreter combinations pass, including the complete
           rebuilt evaluator gate and a final evaluator-object rebuild/test
           after diagnostic wording changes. Logs:

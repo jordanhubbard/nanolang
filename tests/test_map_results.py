@@ -14,7 +14,9 @@ class MapResults(unittest.TestCase):
         inputs = (("int", "7"), ("float", "2.5"), ("bool", "true"), ("string", '"input"'))
         outputs = (("int", "42"), ("float", "1.5"), ("bool", "true"), ("string", '"mapped"'))
         for (input_type, input_value), (result_type, value) in product(inputs, outputs):
-            for compiler, vm in (("nanoc_c", False), ("nano_virt", True)):
+            backends = (("nanoc_stage2", False),) if os.environ.get("NANOLANG_MAP_SELFHOST") else (
+                ("nanoc_c", False), ("nano_virt", True))
+            for compiler, vm in backends:
                 with self.subTest(input=input_type, output=result_type, compiler=compiler), tempfile.TemporaryDirectory() as tmp:
                     source = Path(tmp) / "map.nano"
                     source.write_text(f'''fn transform(x: {input_type}) -> {result_type} {{ return {value} }}
