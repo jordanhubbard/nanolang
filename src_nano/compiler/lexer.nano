@@ -947,4 +947,40 @@ shadow tokenize_string {
     assert (== last.value "last")
     assert (== last.line 3)
     assert (== last.column 8)
+
+    let multiline: string = "let text: string = \"one\ntwo\"\nfn after() -> int { return 0 }"
+    let multiline_diags: List<CompilerDiagnostic> = (diag_list_new)
+    let multiline_toks: List<LexerToken> = (tokenize_string multiline "multiline.nano" multiline_diags)
+    let mut found_after: bool = false
+    let mut token_index: int = 0
+    while (< token_index (list_LexerToken_length multiline_toks)) {
+        let tok: LexerToken = (list_LexerToken_get multiline_toks token_index)
+        if (== tok.value "after") {
+            assert (== tok.line 3)
+            set found_after true
+        } else {
+            (print "")
+        }
+        set token_index (+ token_index 1)
+    }
+    assert found_after
+    let interpolated: List<LexerToken> = (tokenize_string "f\"one\n{2}\" next\nf\"a\\nb\" last" "interpolated.nano" diags)
+    let mut found_next: bool = false
+    let mut found_last: bool = false
+    for index in (range 0 (list_LexerToken_length interpolated)) {
+        let tok: LexerToken = (list_LexerToken_get interpolated index)
+        if (== tok.value "next") {
+            assert (== tok.line 2)
+            assert (== tok.column 6)
+            set found_next true
+        }
+        if (== tok.value "last") {
+            assert (== tok.line 3)
+            assert (== tok.column 9)
+            set found_last true
+        }
+    }
+    assert found_next
+    assert found_last
+    assert (not (diag_list_has_errors diags))
 }

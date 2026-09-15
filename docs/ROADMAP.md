@@ -104,6 +104,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         test from the daemon gate before recording integration ancestry.
         All three socket-path boundary cases pass via `make test-vmd-server`.
         [Review evidence](evidence/pr-286-reconciliation.md).
+      - [x] I reconcile PR #282's physical-newline fix without counting twice
+        through the existing shared scanner. I retain its regression, add
+        f-string position assertions, rebuild Stage2 and run module-binding
+        tests before recording merge ancestry. Both stages rebuild, their
+        smoke checks pass and all nine module-binding tests pass on Darwin.
+        [Review evidence](evidence/pr-282-reconciliation.md).
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with
@@ -4570,6 +4576,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       diagnostics. I use correctness, repair rounds, and author feedback to
       improve imports, operator grouping, shadow policy, and standard-library
       consistency; I publish migrations for changed accepted syntax.
+- [x] **5.0 / self-hosted lexer physical string positions.** I account for
+      newlines consumed by plain and interpolated strings before assigning
+      later tokens to merged modules. A Stage 2 regression compiles and runs
+      multiline literals across an import boundary.
+      `tests/test_selfhost_module_bindings.py`.
 - [ ] **5.0 / Phase 20.** NanoISA-only compilation. Verified `.nvm` is
       the only compiler product. Native AOT does not embed `nano_vm`.
       Public GitHub Release `v5.0.0` after 4.6 and this phase close.
