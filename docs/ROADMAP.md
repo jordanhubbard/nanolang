@@ -28,6 +28,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [ ] **Full branch inventory and reconciliation.** I inspect local-only and
+      remote heads, not just open PRs. At `1c7105a1`, 21 heads remain outside
+      integration ancestry. Six contain only patch-equivalent commits already
+      in history; I reconcile those without source replacement. The other 15
+      require content review, including affine ownership, verifier/FFI work,
+      lease snapshots and the 75-commit 4.6 frontend branch. Evidence:
+      `docs/evidence/branch-inventory-1c7105a1.json`. Release parent MAC
+      `task_cffdafd16e641ac417ccfddb962534b9` remains open.
+      - [x] I retain the six patch-equivalent heads as merge ancestors without
+        source replacement. Current verifier and co-process protocol gates
+        pass. Evidence: `docs/evidence/patch-equivalent-branches.md`.
 - [x] **PR #269 reconciliation.** I retain my converged AOT call facts and
       stronger aggregate rejection checks while reconciling the older flat
       record/variant patch. I require the structured-C suite and keep declared
