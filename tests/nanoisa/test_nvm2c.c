@@ -3038,6 +3038,42 @@ static void test_classifier_branch_stack(void) {
     }
 }
 
+static void test_classifier_deep_stack(void) {
+    /* I isolate classifier progress from the emitter's remaining limits:
+     * a 75-field aggregate is still refused, but only after its deep branch
+     * stack has been saved, restored and checked. */
+    for (int malformed = 0; malformed <= 1; ++malformed) {
+        char source[4096];
+        strcpy(source, ".entry 0\n.function main 0 0 0 int 1\n");
+        for (int i = 0; i < 75; ++i) strcat(source, "PUSH_I64 1\n");
+        strcat(source, "PUSH_BOOL 1\nJMP_FALSE joined\nPUSH_I64 2\nPOP\n"
+                       "joined:\nAGG_PACK 0 0 0 75\nPOP\nPUSH_I64 0\nRET\n.end\n");
+        NvmModule *m = assemble_ok(source, "deep classifier branch stack");
+        if (!m) continue;
+        if (malformed) {
+            /* I remove the balancing pop after assembly so the direct API
+             * must detect the unequal incoming heights itself. */
+            for (uint32_t pc = 0; pc < m->code_size;) {
+                DecodedInstruction ins;
+                uint32_t n = isa_decode(m->code + pc, m->code_size - pc, &ins);
+                if (!n) break;
+                if (ins.opcode == OP_POP) {
+                    memset(m->code + pc, OP_NOP, n);
+                    break;
+                }
+                pc += n;
+            }
+        }
+        char error[256] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        CHECK(c == NULL && strstr(error, malformed ? "incompatible stack heights"
+                                                  : "AGG_PACK has too many fields"),
+              "I classify deep branch stacks before enforcing aggregate limits");
+        free(c);
+        nvm_module_free(m);
+    }
+}
+
 static void test_classifier_unreachable_and_invalid_joins(void) {
     const char *sources[] = {
         ".entry 0\n.function main 0 0 0 int 1\n"
@@ -3519,6 +3555,7 @@ int main(int argc, char **argv) {
     test_loop_sum_runs_without_nano_vm();
     test_tail_call_runs_without_nano_vm();
     test_classifier_branch_stack();
+    test_classifier_deep_stack();
     test_classifier_unreachable_and_invalid_joins();
     test_classifier_local_bounds();
     test_loop_carried_stack();

@@ -11,6 +11,7 @@
 #include "utf8.h"
 
 #include <stdarg.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,6 +36,7 @@ typedef struct {
     char *err;
     size_t err_len;
     int failed;
+    size_t sim_stack_capacity;
 } Nvm2cBuf;
 
 static void nvm2c_fail(Nvm2cBuf *b, const char *fmt, ...) {
@@ -314,7 +316,7 @@ static int merge_fields(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, const uin
 
 static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
                          Nvm2cSimSlot slot) {
-    if (*sp >= NVM2C_MAX_STACK) {
+    if ((size_t)*sp >= b->sim_stack_capacity) {
         nvm2c_fail(b, "function %u: operand stack overflow", idx);
         return 0;
     }
@@ -357,7 +359,7 @@ static const uint8_t *fn_rec_k_const(const uint8_t *tab, uint32_t fn, uint16_t s
 }
 
 typedef struct {
-    Nvm2cSimSlot slots[NVM2C_MAX_STACK];
+    Nvm2cSimSlot *slots;
     int sp;
     int set;
 } Nvm2cSimJoin;
@@ -365,7 +367,14 @@ typedef struct {
 static int sim_join(Nvm2cBuf *b, uint32_t idx, Nvm2cSimJoin *join,
                     const Nvm2cSimSlot *stack, int sp) {
     if (!join->set) {
-        memcpy(join->slots, stack, (size_t)sp * sizeof *stack);
+        if (sp) {
+            join->slots = malloc((size_t)sp * sizeof *stack);
+            if (!join->slots) {
+                nvm2c_fail(b, "I cannot allocate classifier branch stack");
+                return 0;
+            }
+            memcpy(join->slots, stack, (size_t)sp * sizeof *stack);
+        }
         join->sp = sp;
         join->set = 1;
         return 1;
@@ -408,7 +417,7 @@ static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
 static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                   uint8_t *local_kind, uint8_t *rec_fields,
                                   Nvm2cSimJoin *joins, const uint8_t *targets,
-                                  Nvm2cFacts *facts) {
+                                  Nvm2cFacts *facts, Nvm2cSimSlot *stk) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
     uint16_t nloc = fn->local_count;
     uint16_t i;
@@ -426,7 +435,6 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
 
     const uint8_t *code = mod->code + fn->code_offset;
     size_t remaining = fn->code_length;
-    Nvm2cSimSlot stk[NVM2C_MAX_STACK];
     int sp = 0;
     size_t pc = 0;
     int terminated = 0;
@@ -444,7 +452,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         if (targets[start]) {
             if (!terminated && !sim_join(b, idx, &joins[start], stk, sp)) return 0;
             sp = joins[start].sp;
-            memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
+            if (sp) memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
             terminated = 0;
         }
 
@@ -948,11 +956,20 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         return 0;
     }
     size_t length = fn->code_length;
+    /* Every supported instruction adds at most one stack value. A reachable
+     * positive-growth cycle is rejected by join-height checking. */
+    if (length >= INT_MAX || length > SIZE_MAX / sizeof(Nvm2cSimSlot) - 1 ||
+        length > SIZE_MAX / sizeof(Nvm2cSimJoin) - 1) {
+        nvm2c_fail(b, "I cannot represent this function's classifier stack");
+        return 0;
+    }
+    b->sim_stack_capacity = length + 1;
+    Nvm2cSimSlot *stack = malloc((length + 1) * sizeof *stack);
     Nvm2cSimJoin *joins = calloc(length + 1, sizeof *joins);
     uint8_t *targets = calloc(length + 1, 1);
     uint8_t *starts = calloc(length + 1, 1);
     int ok = 0;
-    if (!joins || !targets || !starts) {
+    if (!stack || !joins || !targets || !starts) {
         nvm2c_fail(b, "I cannot allocate classifier control-flow state");
         goto done;
     }
@@ -978,8 +995,10 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             goto done;
         }
     }
-    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts);
+    ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack);
 done:
+    if (joins) for (size_t pc = 0; pc <= length; ++pc) free(joins[pc].slots);
+    free(stack);
     free(joins);
     free(targets);
     free(starts);
