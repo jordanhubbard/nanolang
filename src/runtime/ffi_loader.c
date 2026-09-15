@@ -235,7 +235,7 @@ bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name
                                 void *function, uint32_t expected,
                                 char *error, size_t error_size) {
     if (error && error_size) error[0] = '\0';
-    if (!module_name || !symbol_name || !function) return false;
+    if (!symbol_name || !function) return false;
     const char suffix[] = "__nano_array_abi";
     size_t length = strlen(symbol_name);
     if (length > SIZE_MAX - sizeof suffix) return false;
@@ -246,10 +246,18 @@ bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name
     bool found = false, valid = false;
     uint32_t actual = 1;
     pthread_rwlock_rdlock(&ffi_lock);
-    for (int i = 0; i < module_count; ++i) {
+    const uint32_t *declaration = NULL;
+    if (!module_name) {
+        found = true;
+        declaration = dlsym(RTLD_DEFAULT, name);
+    }
+    for (int i = 0; module_name && i < module_count; ++i) {
         if (strcmp(modules[i].name, module_name)) continue;
         found = true;
-        const uint32_t *declaration = dlsym(modules[i].handle, name);
+        declaration = dlsym(modules[i].handle, name);
+        break;
+    }
+    if (found) {
         if (!declaration) {
             valid = expected == 1;
         } else {
@@ -260,7 +268,6 @@ bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name
                 valid = actual == expected;
             }
         }
-        break;
     }
     pthread_rwlock_unlock(&ffi_lock);
     free(name);

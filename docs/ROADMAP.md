@@ -208,10 +208,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 Native executable and loader fixtures pass under ASan/UBSan;
                 all 26 VM FFI tests and eight bootstrap dependency tests pass.
                 Filesystem integration passes with one host-path-limit skip.
-              - [ ] I apply equivalent guards to self-hosted native emission
-                and legacy VM logical imports, then enumerate module exports
-                before widening the layout. Exported declarations remain
-                trusted metadata; hidden/stripped markers count as missing.
+              - [x] I check legacy VM logical array imports after resolving
+                their actual function address. I look up the declaration in
+                the process namespace without rebinding the call and require
+                the same defining image. Matching/unmarked calls succeed;
+                incompatible calls fail before entry and remain failed in the
+                descriptor cache. All 26 VM FFI tests pass; loader tests cover
+                logical matching, mismatched, missing-v2 and wrong-image
+                declarations normally and under ASan/UBSan.
+              - [ ] I apply equivalent guards to self-hosted native emission,
+                then enumerate module exports before widening the layout.
+                Exported declarations remain trusted metadata;
+                hidden/stripped markers count as missing.
             - [ ] I support qualified extern function values consistently with
               qualified calls. `let f: fn() -> array<int> = foreign.probe`
               currently fails with a struct-field diagnostic before native

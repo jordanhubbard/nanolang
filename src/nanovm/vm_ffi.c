@@ -579,8 +579,8 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
     bool has_array = imp->return_type == TAG_ARRAY;
     for (uint16_t i = 0; i < imp->param_count; ++i)
         if (desc->param_types && desc->param_types[i] == TAG_ARRAY) has_array = true;
-    if (has_array && imp->kind == NVM_IMPORT_ARTIFACT &&
-        !ffi_loader_check_array_abi(mod_name, func_name, func_ptr,
+    if (has_array &&
+        !ffi_loader_check_array_abi(imp->kind == NVM_IMPORT_ARTIFACT ? mod_name : NULL, func_name, func_ptr,
                                     NANO_DYN_ARRAY_ABI_VERSION, error_msg, error_msg_size)) {
         desc->state = NVM_CALL_FAILED;
         return NULL;

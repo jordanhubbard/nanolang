@@ -20,6 +20,12 @@ version to equal my runtime version. An absent declaration means legacy
 version 1; it will not inherit version 2 when my layout changes. I reject a
 mismatch before foreign execution and cache the failed call descriptor.
 
+Legacy VM logical imports retain their existing function-resolution policy.
+After resolution I check the declaration in the process namespace against
+that actual function address. I do not use the declaration to select another
+function. These calls also reject incompatible or wrong-image declarations
+before execution and cache failure.
+
 My C-seed native emitter checks direct and qualified array-bearing extern
 calls, and unqualified extern function values before exposing their addresses.
 It looks up the exported declaration in the process symbol namespace and
@@ -31,8 +37,8 @@ Hidden or stripped declarations count as absent, not as verified metadata.
 
 This is a trusted declaration by C code, not proof of its memory safety,
 signature correctness, pointer provenance or ownership. Self-hosted native
-emission, the separate C-source backend and VM legacy logical imports still
-need corresponding coverage before I widen the layout. Qualified extern
+emission and the separate C-source backend still need corresponding coverage
+before I widen the layout. Qualified extern
 function-value syntax currently fails typechecking; qualified calls work.
 
 `make test-array-abi-loader` checks matching and mismatched declarations,

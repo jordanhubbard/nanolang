@@ -648,36 +648,40 @@ TEST(descriptor_reset_forces_reresolve) {
     vm_ffi_shutdown();
 }
 
-TEST(artifact_array_abi) {
-    vm_ffi_init();
-    NvmModule *mod = nvm_module_new();
-    ASSERT(mod);
-    char *path = realpath("obj/ffi_artifact_first.so", NULL);
-    ASSERT(path);
-    uint32_t lib = nvm_add_string(mod, path, (uint32_t)strlen(path));
-    free(path);
-    const char *names[] = {"array_matching", "array_legacy", "array_mismatch"};
-    for (int i = 0; i < 3; ++i) {
-        uint32_t fn = nvm_add_string(mod, names[i], (uint32_t)strlen(names[i]));
-        uint32_t imp = nvm_add_import(mod, lib, fn, 0, TAG_ARRAY, NULL);
-        mod->imports[imp].kind = NVM_IMPORT_ARTIFACT;
-    }
-    VmHeap heap;
-    vm_heap_init(&heap);
-    NanoValue result;
-    char err[256];
-    for (int repeat = 0; repeat < 2; ++repeat) {
-        for (int i = 0; i < 2; ++i) {
-            ASSERT(vm_ffi_call(mod, i, NULL, 0, &result, &heap, err, sizeof err));
-            ASSERT_EQ(result.tag, TAG_ARRAY);
+TEST(artifact_and_logical_array_abi) {
+    for (int artifact = 0; artifact <= 1; ++artifact) {
+        vm_ffi_init();
+        NvmModule *mod = nvm_module_new();
+        ASSERT(mod);
+        char *path = realpath("obj/ffi_artifact_first.so", NULL);
+        ASSERT(path);
+        ASSERT(ffi_loader_open("array_fixture", path));
+        uint32_t lib = artifact ? nvm_add_string(mod, path, (uint32_t)strlen(path)) :
+                                 nvm_add_string(mod, "", 0);
+        free(path);
+        const char *names[] = {"array_matching", "array_legacy", "array_mismatch"};
+        for (int i = 0; i < 3; ++i) {
+            uint32_t fn = nvm_add_string(mod, names[i], (uint32_t)strlen(names[i]));
+            uint32_t imp = nvm_add_import(mod, lib, fn, 0, TAG_ARRAY, NULL);
+            if (artifact) mod->imports[imp].kind = NVM_IMPORT_ARTIFACT;
         }
-        ASSERT(!vm_ffi_call(mod, 2, NULL, 0, &result, &heap, err, sizeof err));
-        if (!repeat) ASSERT(strstr(err, "native array ABI") != NULL);
-        ASSERT_EQ(mod->call_descriptors[2].state, NVM_CALL_FAILED);
+        VmHeap heap;
+        vm_heap_init(&heap);
+        NanoValue result;
+        char err[256];
+        for (int repeat = 0; repeat < 2; ++repeat) {
+            for (int i = 0; i < 2; ++i) {
+                ASSERT(vm_ffi_call(mod, i, NULL, 0, &result, &heap, err, sizeof err));
+                ASSERT_EQ(result.tag, TAG_ARRAY);
+            }
+            ASSERT(!vm_ffi_call(mod, 2, NULL, 0, &result, &heap, err, sizeof err));
+            if (!repeat) ASSERT(strstr(err, "native array ABI") != NULL);
+            ASSERT_EQ(mod->call_descriptors[2].state, NVM_CALL_FAILED);
+        }
+        vm_heap_destroy(&heap);
+        nvm_module_free(mod);
+        vm_ffi_shutdown();
     }
-    vm_heap_destroy(&heap);
-    nvm_module_free(mod);
-    vm_ffi_shutdown();
 }
 
 TEST(artifact_handle_isolation) {
@@ -943,7 +947,7 @@ int main(void) {
     RUN(call_bytecode_callback_rejected);
     RUN(contracted_import_never_uses_legacy_dispatch);
     RUN(artifact_handle_isolation);
-    RUN(artifact_array_abi);
+    RUN(artifact_and_logical_array_abi);
     RUN(load_module_nonexistent);
     RUN(call_empty_module_oob);
     RUN(call_too_many_args);

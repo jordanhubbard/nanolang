@@ -79,7 +79,9 @@ void *ffi_loader_resolve_module(const char *symbol_name, const char *module_name
 
 /* I check a per-function native array ABI declaration in the function's own
  * loaded image. Missing declarations mean legacy version 1. This checks a
- * trusted native declaration, not the memory safety of arbitrary C code. */
+ * trusted native declaration, not the memory safety of arbitrary C code.
+ * A NULL module selects the process namespace for legacy logical imports;
+ * the declaration must still belong to the supplied function address. */
 bool ffi_loader_check_array_abi(const char *module_name, const char *symbol_name,
                                 void *function, uint32_t expected,
                                 char *error, size_t error_size);

@@ -66,6 +66,10 @@ class ArrayAbiLoader(unittest.TestCase):
                         assert(ffi_loader_check_array_abi("fixture", names[i], fn, 1,
                                                          error, sizeof error) == accepted[i]);
                         assert(accepted[i] ? !error[0] : strstr(error, "native array ABI") != NULL);
+                        assert(ffi_loader_check_array_abi(NULL, names[i], fn, 1,
+                                                         error, sizeof error) == accepted[i]);
+                        assert(!ffi_loader_check_array_abi(NULL, names[i], fn, 2,
+                                                          error, sizeof error));
                         assert(!ffi_loader_check_array_abi("fixture", names[i], fn, 2,
                                                           error, sizeof error));
                         assert(!ffi_loader_check_array_abi("absent", names[i], fn, 1,
