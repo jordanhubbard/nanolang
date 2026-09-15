@@ -506,6 +506,11 @@ set parts (array_push parts "c")
 ### `format(template: string, args: any...) -> string`
 I am variadic. I substitute each `%s`, `%d`, `%f`, or `%g` placeholder in `template` with the next argument, converted to its string form. I copy any placeholder left over after the arguments run out verbatim, and I require at least the template argument.
 
+My C-seed and NanoVirt frontends reject a non-string template during
+typechecking. My VM formatting implementation and cross-backend substitution
+conversion parity remain unfinished; accepting a well-typed call does not yet
+establish that every backend can execute it.
+
 ```nano
 (format "Hello, %s!" "world")            # Returns "Hello, world!"
 (format "kind=%s seq=%d" "spawn" 7)      # Returns "kind=spawn seq=7"

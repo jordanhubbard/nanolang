@@ -1411,7 +1411,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         "Usage: format(\"Hello %s\", name)");
                     return TYPE_UNKNOWN;
                 }
-                for (int i = 0; i < expr->as.call.arg_count; i++) {
+                Type template_type = check_expression(expr->as.call.args[0], env);
+                if (template_type != TYPE_STRING) {
+                    ASTNode *template = expr->as.call.args[0];
+                    emit_context_error("E001 TYPE MISMATCH", template->line, template->column, 1,
+                        "I require a string template for format.",
+                        "Pass the template string before its substitution arguments.");
+                }
+                for (int i = 1; i < expr->as.call.arg_count; i++) {
                     check_expression(expr->as.call.args[i], env);
                 }
                 return TYPE_STRING;

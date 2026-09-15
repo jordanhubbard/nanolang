@@ -24,6 +24,8 @@ failed=0
 
 expected_diagnostic() {
     case "$1" in
+        */type_errors/format_template.nano)
+            echo "I require a string template for format" ;;
         */duplicate_functions/duplicate_function.nano)
             echo "Function 'add' is already defined" ;;
         */builtin_collision/redefine_abs.nano)
@@ -68,4 +70,3 @@ done
 total=$((passed + failed))
 echo "Negative compiler contracts: $passed/$total passed"
 test "$failed" -eq 0
-

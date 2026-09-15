@@ -102,6 +102,17 @@ void test_tc_minimal_main(void) {
     ASSERT(tc_passes("fn main() -> int { return 0 }"));
 }
 
+void test_tc_format_template(void) {
+    ASSERT(tc_passes("fn main() -> int { let s = (format \"%s %d\" \"ok\" 42) return 0 }"));
+    ASSERT(tc_passes("fn main() -> int { let template = \"plain\" let s = (format template) return 0 }"));
+    ASSERT(!tc_passes("fn main() -> int { let s = (format 42) return 0 }"));
+    ASSERT(!tc_passes("fn main() -> int { let s = (format true 42) return 0 }"));
+    ASSERT(!tc_passes("fn main() -> int { let template = 3.5 let s = (format template) return 0 }"));
+    ASSERT(!tc_passes("fn template() -> int { return 42 } fn main() -> int { let s = (format (template)) return 0 }"));
+    ASSERT(!tc_passes("fn main() -> int { let s = (format [1, 2]) return 0 }"));
+    ASSERT(!tc_passes("fn main() -> int { let s = (format) return 0 }"));
+}
+
 void test_tc_arithmetic(void) {
     ASSERT(tc_passes(
         "fn main() -> int {\n"
@@ -789,6 +800,7 @@ int main(void) {
 
     printf("\n--- Valid programs ---\n");
     TEST(tc_minimal_main);
+    TEST(tc_format_template);
     TEST(tc_arithmetic);
     TEST(tc_float_ops);
     TEST(tc_string_ops);

@@ -88,6 +88,20 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I reject non-string format templates before native or bytecode
+          emission. I test literals, inferred bindings and function results,
+          and require a type diagnostic without publishing an artifact.
+          Typechecker tests pass; the focused negative fixture passes both
+          CLIs. The full native negative suite passes 35/35; NanoVirt passes
+          34/35 and exposes the array-index defect below.
+        - [ ] I reject non-integer array indices in `at` and `array_get`
+          before emission. NanoVirt accepts the string-index negative fixture;
+          native rejection alone does not establish frontend type safety.
+          MAC `task_fe0c5cdbdb647732ea9084281c24261f`.
+        - [ ] I reconcile formatting conversions across my interpreter,
+          native emitter and VM before claiming variadic formatting parity.
+          My interpreter formats whole floats without the native `.0` suffix;
+          aggregate substitutions have no consistent conversion contract.
         - [x] I preserve inherited fields in VM record spreads, evaluating the
           source once and resolving inherited fields against its own layout.
           I check overrides and unchanged source records on native/VM paths.
