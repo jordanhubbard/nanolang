@@ -60,6 +60,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         - [ ] I remove fixed temporary-count limits and support the compiler's
           aggregate widths and array-valued fields without guessing their
           representation. I require full compiler translation and execution.
+          - [x] I separate record and record-array temporary field facts;
+            their independent indices must not overwrite each other. I test
+            live string-record arrays across scalar record construction and
+            the reverse collision, directly and through both branch paths.
+            My AOT suite passes 1,010 checks. MAC
+            `task_3673443775f2477c94688b1021d6102a`; evidence:
+            `docs/evidence/aot-record-fact-namespaces.md`.
           - [x] I size generated temporary arrays to actual high-water counts,
             allocate emitter record facts and snapshots dynamically, and test
             more than 256 temporaries. I check output-growth arithmetic before

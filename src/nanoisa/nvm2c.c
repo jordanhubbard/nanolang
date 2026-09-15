@@ -1048,6 +1048,7 @@ typedef struct {
     uint8_t *kinds;
     size_t capacity;
     uint8_t (*rec_k)[NVM2C_MAX_REC_FIELDS];
+    uint8_t (*rarr_k)[NVM2C_MAX_REC_FIELDS];
     size_t rec_capacity;
     int sp;
     int next_temp;
@@ -1232,10 +1233,12 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
         uint8_t *kinds = st->sp ? malloc((size_t)st->sp * sizeof *kinds) : NULL;
         size_t records = (size_t)(st->next_rec > st->next_rarr ? st->next_rec : st->next_rarr);
         uint8_t (*fields)[NVM2C_MAX_REC_FIELDS] = records ? malloc(records * sizeof *fields) : NULL;
-        if ((st->sp && (!slots || !kinds)) || (records && !fields)) {
+        uint8_t (*array_fields)[NVM2C_MAX_REC_FIELDS] = records ? malloc(records * sizeof *array_fields) : NULL;
+        if ((st->sp && (!slots || !kinds)) || (records && (!fields || !array_fields))) {
             free(slots);
             free(kinds);
             free(fields);
+            free(array_fields);
             nvm2c_fail(b, "I cannot allocate emitter branch stack");
             return 0;
         }
@@ -1248,8 +1251,10 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
         joins[tgt].kinds = kinds;
         joins[tgt].capacity = (size_t)st->sp;
         joins[tgt].rec_k = fields;
+        joins[tgt].rarr_k = array_fields;
         joins[tgt].rec_capacity = records;
         if (records) memcpy(fields, st->rec_k, records * sizeof *fields);
+        if (records) memcpy(array_fields, st->rarr_k, records * sizeof *array_fields);
         set[tgt] = 1;
         return 1;
     }
@@ -1276,8 +1281,8 @@ static int record_join(Nvm2cBuf *b, uint32_t idx, Nvm2cStack *joins, uint8_t *se
             memcpy(joins[tgt].rec_k[joins[tgt].slots[i]],
                     st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
         } else if (st->kinds[i] == NVM2C_VK_RARR) {
-            memcpy(joins[tgt].rec_k[joins[tgt].slots[i]],
-                   st->rec_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
+            memcpy(joins[tgt].rarr_k[joins[tgt].slots[i]],
+                   st->rarr_k[st->slots[i]], NVM2C_MAX_REC_FIELDS);
         }
     }
     nvm2c_puts(b, "    }\n");
@@ -1292,10 +1297,14 @@ static void stack_restore_join(Nvm2cStack *st, const Nvm2cStack *join) {
     st->kinds = cur.kinds;
     st->capacity = cur.capacity;
     st->rec_k = cur.rec_k;
+    st->rarr_k = cur.rarr_k;
     st->rec_capacity = cur.rec_capacity;
     memset(st->rec_k, 0, st->rec_capacity * sizeof *st->rec_k);
     if (join->rec_capacity)
         memcpy(st->rec_k, join->rec_k, join->rec_capacity * sizeof *st->rec_k);
+    memset(st->rarr_k, 0, st->rec_capacity * sizeof *st->rarr_k);
+    if (join->rec_capacity)
+        memcpy(st->rarr_k, join->rarr_k, join->rec_capacity * sizeof *st->rarr_k);
     if (st->sp) {
         memcpy(st->slots, join->slots, (size_t)st->sp * sizeof *st->slots);
         memcpy(st->kinds, join->kinds, (size_t)st->sp * sizeof *st->kinds);
@@ -1456,12 +1465,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     st.kinds = malloc(st.capacity * sizeof *st.kinds);
     st.rec_capacity = st.capacity;
     st.rec_k = calloc(st.rec_capacity, sizeof *st.rec_k);
+    st.rarr_k = calloc(st.rec_capacity, sizeof *st.rarr_k);
     int *literal_elems = malloc(st.capacity * sizeof *literal_elems);
     uint8_t *is_start = calloc(remaining + 1, 1);
     uint8_t *is_target = calloc(remaining + 1, 1);
     Nvm2cStack *joins = NULL;
     uint8_t *join_set = NULL;
-    if (!st.slots || !st.kinds || !st.rec_k || !literal_elems || !is_start || !is_target) {
+    if (!st.slots || !st.kinds || !st.rec_k || !st.rarr_k || !literal_elems || !is_start || !is_target) {
         nvm2c_fail(b, "out of memory");
         goto done;
     }
@@ -1617,7 +1627,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     snprintf(rhs, sizeof rhs, "ra[%d]", src);
                     {
                         int nr = stack_push_rarr(b, &st, rhs);
-                        if (nr >= 0) memcpy(st.rec_k[nr], st.rec_k[src], NVM2C_MAX_REC_FIELDS);
+                        if (nr >= 0) memcpy(st.rarr_k[nr], st.rarr_k[src], NVM2C_MAX_REC_FIELDS);
                     }
                 } else {
                     snprintf(rhs, sizeof rhs, "t[%d]", src);
@@ -1693,7 +1703,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_RARR) {
                 int a = stack_push_rarr(b, &st, rhs);
                 if (a >= 0) {
-                    memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, idx, slot),
+                    memcpy(st.rarr_k[a], fn_rec_k_const(rec_fields, idx, slot),
                            NVM2C_MAX_REC_FIELDS);
                 }
             } else {
@@ -1895,12 +1905,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (tag == TAG_STRUCT) {
                 int array = stack_push_rarr(b, &st, "nrarr_new()");
                 if (array >= 0) {
-                    memset(st.rec_k[array], NVM2C_VK_UNK, NVM2C_MAX_REC_FIELDS);
+                    memset(st.rarr_k[array], NVM2C_VK_UNK, NVM2C_MAX_REC_FIELDS);
                     DecodedInstruction next;
                     if (isa_decode(code + pc, remaining - pc, &next) && next.opcode == OP_STORE_LOCAL) {
                         uint16_t slot = next.operands[0].u16;
                         if (slot < fn->local_count)
-                            memcpy(st.rec_k[array], fn_rec_k_const(rec_fields, idx, slot), NVM2C_MAX_REC_FIELDS);
+                            memcpy(st.rarr_k[array], fn_rec_k_const(rec_fields, idx, slot), NVM2C_MAX_REC_FIELDS);
                     }
                 }
                 break;
@@ -1919,7 +1929,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     } else if (fn_local_kind(kinds, idx, slot) == NVM2C_VK_RARR) {
                         int a = stack_push_rarr(b, &st, "nrarr_new()");
                         if (a >= 0) {
-                            memcpy(st.rec_k[a], fn_rec_k_const(rec_fields, idx, slot),
+                            memcpy(st.rarr_k[a], fn_rec_k_const(rec_fields, idx, slot),
                                    NVM2C_MAX_REC_FIELDS);
                         }
                         break;
@@ -2010,7 +2020,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[80];
                 snprintf(expr, sizeof expr, "nrarr_get(ra[%d], t[%d])", arr, ix);
                 int r = stack_push_rec(b, &st, expr);
-                if (r >= 0) memcpy(st.rec_k[r], st.rec_k[arr], NVM2C_MAX_REC_FIELDS);
+                if (r >= 0) memcpy(st.rec_k[r], st.rarr_k[arr], NVM2C_MAX_REC_FIELDS);
             } else {
                 nvm2c_fail(b, "function %u: ARR_GET expected an array", idx);
                 goto done;
@@ -2067,7 +2077,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 char expr[80];
                 snprintf(expr, sizeof expr, "nrarr_push(ra[%d], r[%d])", arr, val);
                 int a = stack_push_rarr(b, &st, expr);
-                if (a >= 0) memcpy(st.rec_k[a], st.rec_k[val], NVM2C_MAX_REC_FIELDS);
+                if (a >= 0) memcpy(st.rarr_k[a], st.rec_k[val], NVM2C_MAX_REC_FIELDS);
             } else {
                 nvm2c_fail(b, "function %u: ARR_PUSH type mismatch", idx);
                 goto done;
@@ -2383,10 +2393,12 @@ done:
         free(joins[off].slots);
         free(joins[off].kinds);
         free(joins[off].rec_k);
+        free(joins[off].rarr_k);
     }
     free(st.slots);
     free(st.kinds);
     free(st.rec_k);
+    free(st.rarr_k);
     free(literal_elems);
     free(is_start);
     free(is_target);

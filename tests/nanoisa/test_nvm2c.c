@@ -3038,6 +3038,35 @@ static void test_classifier_branch_stack(void) {
     }
 }
 
+static void test_record_array_fact_namespaces(void) {
+    for (int variant = 0; variant < 6; ++variant) {
+        int branch = variant % 3;
+        int live_record = variant >= 3;
+        char source[2048];
+        strcpy(source, ".string text \"preserved\"\n.entry 0\n.function main 0 0 0 int 1\n");
+        strcat(source, live_record ? "PUSH_STR text\nAGG_PACK 0 0 0 1\nARR_NEW 8\nPOP\n"
+                                  : "ARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\n"
+                                    "PUSH_I64 42\nAGG_PACK 0 0 0 1\nPOP\n");
+        if (branch) {
+            strcat(source, branch == 1 ? "PUSH_BOOL 1\n" : "PUSH_BOOL 0\n");
+            strcat(source, "JMP_FALSE alternate\nDUP\nPOP\nJMP joined\n"
+                           "alternate:\nDUP\nPOP\njoined:\n");
+        }
+        if (!live_record) strcat(source, "PUSH_I64 0\nARR_GET\n");
+        strcat(source, "AGG_GET 0\nSTR_LEN\nRET\n.end\n");
+        NvmModule *m = assemble_ok(source, "independent record and record-array facts");
+        if (!m) continue;
+        char *c = emit_or_fail(m, "independent record and record-array facts");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0, "I compile interleaved record representations");
+            CHECK(status == 9, "I preserve string-field facts across the other namespace and branches");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+}
+
 static void test_emitter_many_temporaries(void) {
     const char *pushes[] = {"PUSH_I64 42\n", "PUSH_STR value\n", "ARR_NEW 1\n",
                            "ARR_NEW 5\n", "PUSH_I64 42\nAGG_PACK 0 0 0 1\n", "ARR_NEW 8\n",
@@ -3648,6 +3677,7 @@ int main(int argc, char **argv) {
     test_classifier_deep_stack();
     test_emitter_deep_stacks();
     test_emitter_many_temporaries();
+    test_record_array_fact_namespaces();
     test_classifier_unreachable_and_invalid_joins();
     test_classifier_local_bounds();
     test_loop_carried_stack();
