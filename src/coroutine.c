@@ -8,13 +8,12 @@
  * Design notes:
  * - "spawn(fn, args)" creates a coroutine entry in the run_queue
  * - "scheduler_run()" or "await coro_handle" drains the run queue
- * - "yield()" is a cooperative hint; in this implementation it allows
- *   other pending coroutines to run (by returning and re-queueing)
+ * - "yield()" is currently a no-op; it does not re-queue or suspend a call
  * - No setjmp/longjmp needed; each coroutine runs as a normal function call
  * - "await coro_val" runs the scheduler until the target coroutine is done
  *
- * This model is correct for nanolang's async/await semantics since the
- * CPS pass already transforms async functions into continuation-based code.
+ * I do not implement resumable async/await here. My CPS walker does not
+ * create continuations. Await may execute nested callbacks on the C stack.
  */
 
 #include "coroutine.h"
@@ -56,9 +55,10 @@ int nano_coro_spawn(CoroFn fn, void *arg) {
     /* Find a free slot */
     int slot = -1;
     for (int i = 0; i < MAX_COROUTINES; i++) {
-        if (g_scheduler.coroutines[i].id < 0 ||
+        if (!g_scheduler.coroutines[i].active &&
+            (g_scheduler.coroutines[i].id < 0 ||
             g_scheduler.coroutines[i].status == CORO_DONE ||
-            g_scheduler.coroutines[i].status == CORO_ERROR) {
+            g_scheduler.coroutines[i].status == CORO_ERROR)) {
             slot = i;
             break;
         }
@@ -86,12 +86,11 @@ int nano_coro_spawn(CoroFn fn, void *arg) {
 /*
  * yield() — cooperative hint to allow other coroutines to run.
  * In our simple non-setjmp scheduler, yield is a no-op for the current
- * coroutine (it continues executing). The scheduler's round-robin ensures
- * interleaving at spawn/await boundaries.
+ * coroutine (it continues executing). Await can execute another callback
+ * on the same C stack; spawn only queues work.
  *
  * For a full preemptive/cooperative yield, ucontext_t or fibers would be needed.
- * Since nanolang is single-threaded and the CPS pass handles async control flow,
- * this cooperative hint is sufficient for most use cases.
+ * I do not claim suspension or fairness from this no-op.
  */
 void nano_coro_yield(void) {
     /* In the simple scheduler: yield is a no-op.
@@ -129,9 +128,11 @@ bool nano_scheduler_step(void) {
     int prev_current = g_scheduler.current;
     g_scheduler.current = found;
     coro->status = CORO_RUNNING;
+    coro->active = true;
 
     /* Run coroutine to completion (or until it calls await on another coro) */
     Value result = coro->fn(coro->arg, coro->id);
+    coro->active = false;
 
     /* If still running (wasn't suspended by await), mark as done */
     if (coro->status == CORO_RUNNING) {
@@ -192,7 +193,9 @@ Value nano_coro_await_id(int coro_id) {
             if (slot >= 0) {
                 g_scheduler.current = slot;
                 target->status = CORO_RUNNING;
+                target->active = true;
                 Value result = target->fn(target->arg, target->id);
+                target->active = false;
                 if (target->status == CORO_RUNNING) {
                     target->status = CORO_DONE;
                     target->result = result;

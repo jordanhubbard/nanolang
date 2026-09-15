@@ -218,7 +218,45 @@ void test_scheduler_multiple_sequential(void) {
  * main
  * ============================================================================ */
 
+static Value coro_nested_spawn(void *arg, int coro_id) {
+    (void)arg;
+    int child = nano_coro_spawn(coro_return_42, NULL);
+    ASSERT(child >= 0);
+    Value result = nano_coro_await_id(child);
+    ASSERT_EQ(nano_coro_current_id(), coro_id);
+    return result;
+}
+
+static Value coro_terminal_spawn(void *arg, int coro_id) {
+    bool error = *(bool *)arg;
+    if (error) nano_coro_error("I retain my active slot after error.");
+    else nano_coro_complete(make_int(77));
+    int child = nano_coro_spawn(coro_nested_spawn, NULL);
+    ASSERT(child >= 0);
+    ASSERT_EQ(nano_coro_current_id(), coro_id);
+    Value result = nano_coro_await_id(child);
+    ASSERT_EQ(result.as.int_val, 42);
+    ASSERT_EQ(nano_coro_current_id(), coro_id);
+    return make_void();
+}
+
+void test_terminal_slot_stays_active(void) {
+    for (int error = 0; error < 2; error++) {
+        for (int await = 0; await < 2; await++) {
+            reset_scheduler();
+            bool fail = error != 0;
+            int id = nano_coro_spawn(coro_terminal_spawn, &fail);
+            if (await) { (void)nano_coro_await_id(id); }
+            else { ASSERT(nano_scheduler_step()); }
+            ASSERT(nano_coro_is_done(id));
+            if (!error) { ASSERT_EQ(nano_coro_result(id).as.int_val, 77); }
+            ASSERT_EQ(nano_coro_current_id(), -1);
+        }
+    }
+}
+
 int main(void) {
+    TEST(terminal_slot_stays_active);
     printf("=== Coroutine Scheduler Tests ===\n");
     TEST(scheduler_init);
     TEST(scheduler_pending_count_empty);

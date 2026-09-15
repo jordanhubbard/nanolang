@@ -43,6 +43,7 @@ typedef Value (*CoroFn)(void *arg, int coro_id);
 typedef struct NanoCoroutine {
     int id;
     CoroStatus status;
+    bool active;        /* I cannot recycle this slot until its callback returns. */
     CoroFn fn;
     void *arg;
     Value result;        /* Result value when CORO_DONE */

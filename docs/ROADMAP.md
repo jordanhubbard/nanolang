@@ -88,6 +88,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I keep scheduler slots pinned until their callbacks return,
+          even after explicit completion or error. I test spawn and nested
+          await after a terminal transition through step and await entry paths.
+          Scheduler, optimization and interpreter gates pass. The standalone
+          scheduler suite also passes ASan/UBSan with leak detection disabled;
+          this does not establish leak freedom or resumable execution.
+          MAC `task_859a6d28a6a9923b9a144520bf0b2b3f`.
+        - [ ] I implement resumable async execution across native and VM
+          backends. My current CPS walker validates only selected syntax;
+          it does not create continuations. My scheduler runs callbacks to
+          completion and yield is a no-op. Passing transparent scalar awaits
+          alone will not complete this item.
         - [x] I reject non-string format templates before native or bytecode
           emission. I test literals, inferred bindings and function results,
           and require a type diagnostic without publishing an artifact.
