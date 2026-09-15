@@ -74,11 +74,24 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       behavior, run clean build/tests and documentation gates, then merge and
       publish 5.0. The fleet dispatch hold does not gate this user-authorized
       release. Unfinished roadmap items remain explicitly unfinished.
-      - [ ] I make dispatch-equivalence coverage explicit: unexpected compile
+      - [x] I make dispatch-equivalence coverage explicit: unexpected compile
         failures and zero comparisons fail, expected exclusions are reported,
         and compilation/VM executions have deadlines and retained diagnostics.
-        The current script silently skips failed compilation and can hang.
+        I select every root tests/*.nano file with no implicit exclusions.
+        Compilation and each VM run have a 60-second process-group deadline;
+        byte output and exit status are compared without stripping newlines.
+        Synthetic tests cover empty coverage, compile/artifact failures,
+        timeouts, signals and output/status mismatches. The strict real run
+        reports 173 selected, 157 identical, 16 failed, zero skipped. The gate
+        correctly fails; the formerly hidden corpus failures remain below.
         MAC `task_31ecd1c81d6740d0e856a117ce786b6a`.
+      - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
+        dispatch corpus; exclusions require evidence of an intentional fixture
+        contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+      - [ ] I repair verifier-corpus coverage: its script also silently skips
+        compilation failures and searches runtime text instead of requiring
+        successful verification, with no execution deadlines.
+        MAC `task_b94386786f35a8a28af6dd2ad7bbb42d`.
       - [x] I isolate MAC module shadows from live hub writes and replace the
         unresolved capture/status extern pair with the existing process runner.
         Incoming tests hid missing interpreter support as offline success, and

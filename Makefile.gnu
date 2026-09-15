@@ -1963,6 +1963,12 @@ test-examples-regressions: $(COMPILER_C)
 # native compiler accepts, is not a valid exclusion. Needs nanoc_c as well as
 # the VM tools so it can tell a NanoVirt gap from a broken source.
 .PHONY: test-dispatch-equivalence
+test-dispatch-gate:
+	python3 -m unittest tests.test_dispatch_gate
+
+.PHONY: test-dispatch-gate
+test-units: test-dispatch-gate
+
 test-dispatch-equivalence: nano_virt
 	@bash tests/test_dispatch_equivalence.sh
 
