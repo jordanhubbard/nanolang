@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Affine contract branch reconciliation.** I retain the current
+      contract, which matches `a08341e5`, and reconcile that head plus the older
+      `cb99b86e` contract. This records design ancestry, not implementation
+      conformance; the C-seed recovery prototype remains under review.
+      MAC `task_4ac22044ffda9f93b336a85573293bc2`.
+      Both changed documents match exactly; evidence:
+      `docs/evidence/affine-contract-branch-reconciliation.md`.
 - [x] **Compact-schema branch reconciliation.** I retain the compact operand
       aliases and tests already integrated by PR #139 while reconciling
       `09187898`. I clarify that schema checks do not establish runtime compact
@@ -5911,6 +5918,9 @@ Ownership and proposal closure:
 - [ ] I replace the C seed's identifier-state prototype with path-sensitive
       ownership analysis and a rule-by-rule conformance corpus
       (`task_c4e2f078cef8c4e461f0de3711c8a2b9`).
+      The unmerged `c53e27a7` prototype is not that result: its 256-place
+      table silently omits excess owners and its expression walker ignores
+      unhandled AST forms. I must cover those boundaries before adopting it.
 - [ ] I implement the same resource syntax, analysis, and diagnostics in
       `src_nano`; the self-hosted compiler does not inherit correctness from
       the C seed (`task_20048de825616195b9f2bc492231a851`).
