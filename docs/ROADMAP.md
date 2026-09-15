@@ -79,6 +79,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             still require nested shape facts before full compiler acceptance.
             My AOT suite passes 1,043 checks. Evidence:
             `docs/evidence/aot-scalar-array-fields.md`.
+          - [ ] I carry recursive aggregate shape constraints through AOT
+            calls and joins. MAC `task_9c850e94e5a74b6f8941622e2872af23`.
+            - [x] I verify a dynamic, cycle-safe shape constraint graph with
+              deep nesting, recursive records, shared children and conflicts.
+              Its 952 checks pass normally and under ASan/UBSan. Evidence:
+              `docs/evidence/aot-shape-constraints.md`.
+            - [ ] I connect those facts to classification and C emission,
+              preserve record-array element shapes, and pass full compiler
+              acceptance. A standalone graph test does not complete this gate.
           - [x] I separate record and record-array temporary field facts;
             their independent indices must not overwrite each other. I test
             live string-record arrays across scalar record construction and

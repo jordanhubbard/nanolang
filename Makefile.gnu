@@ -430,7 +430,13 @@ test-nvm2c-sanitizers:
 test-one-ir-compiler: nano_virt nvm2c
 	@python3 -m unittest tests.test_one_ir_compiler
 
-test-nvm2c: nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+.PHONY: test-nvm2c-shapes
+test-nvm2c-shapes: | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c $(NANOISA_DIR)/nvm2c_shape.c
+	@$(OBJ_DIR)/test_nvm2c_shape
+
+test-nvm2c: test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o tests/nanoisa/test_nvm2c \
 		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
