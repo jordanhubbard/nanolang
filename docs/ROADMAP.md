@@ -57,9 +57,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       bytecode import runs all process-manager dependency shadows, including
       the handler regression, and executes successfully. Full VM launcher
       polling remains the separate aggregate defect below.
-- [ ] **VM launcher poll aggregates.** The native launcher regression passes;
+- [x] **VM launcher poll aggregates.** The native launcher regression passes;
       bytecode shadows fail in `pm_poll` with `AGG_GET field 2 is unavailable`.
       I trace its representation and require full native/VM launcher coverage.
+      The opcode trace shows `pm_new` emits its empty children array as integers;
+      pushing a record then reads its pointer back with an integer tag. I retain
+      the declared element type on empty array literals in record fields.
+      The full VM launcher compile/shadow/run regression now passes. My focused
+      record/string/float/bool field test passes compilation, shadows and execution
+      on native and bytecode paths. Typechecker, NanoVirt and 272,379 VM checks
+      pass. MAC currently rejects my claim with `agent_status_unavailable`;
+      verified code completion does not imply ledger closure.
       MAC `task_26736715909643ae7df9851939b75e71`.
 - [ ] **5.0 release integration.** I reconcile the audit-contract branch with
       main, preserve original-file diagnostics and immutable native-cache

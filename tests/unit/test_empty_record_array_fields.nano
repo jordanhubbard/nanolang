@@ -1,0 +1,32 @@
+# I retain declared element representations when record fields start empty.
+struct Item { value: int }
+struct Store {
+    items: array<Item>,
+    names: array<string>,
+    measures: array<float>,
+    flags: array<bool>
+}
+fn empty_store() -> Store {
+    return Store { items: [], names: [], measures: [], flags: [] }
+}
+shadow empty_store {
+    let store: Store = (empty_store)
+    assert (== (array_length store.items) 0)
+}
+fn check_fields() -> int {
+    let store: Store = (empty_store)
+    let item: Item = Item { value: 42 }
+    let items: array<Item> = (array_push store.items item)
+    let names: array<string> = (array_push store.names "retained")
+    let measures: array<float> = (array_push store.measures 1.5)
+    let flags: array<bool> = (array_push store.flags true)
+    let found: Item = (at items 0)
+    assert (== found.value 42)
+    assert (== (at names 0) "retained")
+    assert (== (at measures 0) 1.5)
+    assert (at flags 0)
+    return 0
+}
+shadow check_fields { assert (== (check_fields) 0) }
+fn main() -> int { return (check_fields) }
+shadow main { assert (== (main) 0) }

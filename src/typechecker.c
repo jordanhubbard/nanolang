@@ -2789,6 +2789,16 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
+                ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                if (sdef->field_types[field_index] == TYPE_ARRAY &&
+                    sdef->field_element_types &&
+                    field_value->type == AST_ARRAY_LITERAL &&
+                    field_value->as.array_literal.element_count == 0) {
+                    /* An empty field has no element from which to infer its
+                     * runtime representation. Preserve its declaration. */
+                    field_value->as.array_literal.element_type =
+                        sdef->field_element_types[field_index];
+                }
                 if (!types_match(field_type, sdef->field_types[field_index])) {
                     char message[256];
                     snprintf(message, sizeof(message),
