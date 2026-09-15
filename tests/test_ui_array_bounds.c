@@ -231,6 +231,27 @@ static void checks_and_radios(void) {
     assert(!ui_control_label_rect((SDL_Rect){0,0,20,20},-1,10,&dest));
     provide_surface = 0;
 }
+static void time_displays(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    const int64_t seconds[] = {0, 61, -61, 4294967296LL, INT64_MAX, INT64_MIN};
+    const char *formatted[] = {"00:00", "01:01", "-01:01", "71582788:16",
+        "153722867280912930:07", "-153722867280912930:08"};
+    provide_surface = 1; test_surface.w = 100; test_surface.h = 10;
+    int copies = render_copies, frees = surface_frees;
+    for (size_t i = 0; i < sizeof(seconds)/sizeof(*seconds); i++) {
+        expected_text = formatted[i];
+        nl_ui_time_display(r,f,seconds[i],0,0,INT64_MAX,-1,128,255);
+    }
+    assert(render_copies == copies + 6 && surface_frees == frees + 6);
+    assert(last_text_color.r == 255 && last_text_color.g == 0);
+    int texts = text_calls;
+    nl_ui_time_display(r,f,INT64_MIN,INT64_MAX,0,0,0,0,0);
+    assert(text_calls == texts);
+    nl_ui_time_display(r,f,INT64_MIN,INT_MAX,0,0,0,0,0);
+    assert(render_copies == copies + 6 && surface_frees == frees + 7);
+    provide_surface = 0;
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -300,5 +321,6 @@ int main(void) {
     panels_and_labels();
     buttons();
     checks_and_radios();
+    time_displays();
     return 0;
 }

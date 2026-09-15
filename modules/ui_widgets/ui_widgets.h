@@ -34,6 +34,10 @@
  * checkbox state or returns no radio click. Unplaceable labels are skipped
  * with cleanup; valid controls retain their normal interaction behavior. */
 
+/* My time display formats signed MM:SS with unbounded minute digits over the
+ * int64 range (negative durations have one leading minus). It uses my label
+ * geometry/color checks and cleanup contract. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

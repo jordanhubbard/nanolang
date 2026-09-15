@@ -628,28 +628,15 @@ void nl_ui_time_display(SDL_Renderer* renderer, TTF_Font* font,
                         int64_t seconds, int64_t x, int64_t y,
                         int64_t r, int64_t g, int64_t b, int64_t a) {
     
-    if (!font) return;
-    
-    // Format time as MM:SS
-    int minutes = (int)seconds / 60;
-    int secs = (int)seconds % 60;
-    
-    char time_str[16];
-    snprintf(time_str, sizeof(time_str), "%02d:%02d", minutes, secs);
-    
-    // Draw text
-    SDL_Color color = {(uint8_t)r, (uint8_t)g, (uint8_t)b, (uint8_t)a};
-    SDL_Surface* surface = TTF_RenderText_Blended(font, time_str, color);
-    
-    if (surface) {
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        if (texture) {
-            SDL_Rect dest = {(int)x, (int)y, surface->w, surface->h};
-            SDL_RenderCopy(renderer, texture, NULL, &dest);
-            SDL_DestroyTexture(texture);
-        }
-        SDL_FreeSurface(surface);
-    }
+    /* I form the magnitude without negating INT64_MIN. */
+    uint64_t magnitude = seconds < 0
+        ? (uint64_t)(-(seconds + 1)) + 1 : (uint64_t)seconds;
+    char time_str[32];
+    snprintf(time_str, sizeof(time_str), "%s%02llu:%02llu",
+             seconds < 0 ? "-" : "",
+             (unsigned long long)(magnitude / 60),
+             (unsigned long long)(magnitude % 60));
+    nl_ui_label(renderer, font, time_str, x, y, r, g, b, a);
 }
 
 // Seekable progress bar - interactive progress bar

@@ -130,6 +130,10 @@ including radio border padding. Checked adjacent-label placement prevents
 overflow near coordinate limits. The fixture checks toggles, radio clicks,
 extreme valid bounds, rejected bounds and label cleanup under the same gates.
 Other widget geometry remains open.
+Time displays now preserve signed int64 seconds while formatting MM:SS and use
+the checked label renderer. The fixture checks zero, negative values, durations
+beyond 32 bits, both int64 limits, and rejected-placement cleanup under the
+same normal and sanitizer gates.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;
