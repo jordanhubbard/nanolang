@@ -88,6 +88,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I preserve inherited fields in VM record spreads, evaluating the
+          source once and resolving inherited fields against its own layout.
+          I check overrides and unchanged source records on native/VM paths.
+          Native execution exposed the same omitted-source defect in my C
+          emitter; both emitters now pass compilation, shadows and execution
+          for known nominal layouts, including reordered source fields and
+          all-fields-overridden cases. My 69 NanoVirt checks and transpiler
+          unit tests pass. Strict dispatch reports 175 selected, 171 identical,
+          four failures (async, effects and formatting), and zero skipped.
+        - [ ] I resolve open-record field access without choosing the first
+          nominal layout that contains its name, including reordered fields.
+          MAC `task_720689f69816542431a75d2e27d122c7`.
         - [x] I import the filesystem module in the path/walk fixtures instead
           of declaring unbound externs. I assert path results and walk a private
           known-content directory, then verify native/VM default shadows and runs.

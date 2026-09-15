@@ -2240,6 +2240,20 @@ static void compile_expr(CG *cg, ASTNode *node) {
             cg_error(cg, node->line, "undefined struct '%s'", sname ? sname : "(null)");
             break;
         }
+        ASTNode *spread = node->as.struct_literal.spread_source;
+        CgStructDef *spread_def = NULL;
+        uint16_t spread_slot = 0;
+        if (spread) {
+            const char *spread_name = infer_expr_struct_type(cg, spread);
+            spread_def = spread_name ? struct_find(cg, spread_name) : NULL;
+            if (!spread_def) {
+                cg_error(cg, node->line, "I cannot resolve this spread source's record layout");
+                break;
+            }
+            compile_expr(cg, spread);
+            spread_slot = local_add(cg, "__spread_source__", node->line);
+            emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
+        }
         /* Push field values in definition order */
         for (int i = 0; i < sd->field_count; i++) {
             /* Find matching field in the literal */
@@ -2253,8 +2267,17 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 }
             }
             if (!found) {
-                /* Default to void for missing fields */
-                emit_op(cg, OP_PUSH_VOID);
+                if (spread_def) {
+                    int16_t field = struct_field_index(spread_def, sd->field_names[i]);
+                    if (field < 0) {
+                        cg_error(cg, node->line, "I cannot inherit field '%s' from this spread source", sd->field_names[i]);
+                        break;
+                    }
+                    emit_op(cg, OP_LOAD_LOCAL, (int)spread_slot);
+                    emit_op(cg, OP_AGG_GET, (int)field);
+                } else {
+                    emit_op(cg, OP_PUSH_VOID);
+                }
             }
         }
         emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0,

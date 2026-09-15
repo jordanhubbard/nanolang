@@ -2620,8 +2620,6 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
-            const char *prefixed = get_prefixed_type_name(struct_name);
-            
             /* Look up struct definition to propagate types to empty array fields */
             StructDef *sdef = env_get_struct(env, struct_name);
             
@@ -2652,13 +2650,37 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
             
-            emit_formatted(list, "(%s){", prefixed);
+            ASTNode *spread = expr->as.struct_literal.spread_source;
+            char spread_name[64];
+            if (spread && sdef) {
+                unsigned index = 0;
+                do {
+                    snprintf(spread_name, sizeof(spread_name), "__nano_spread_%u", index++);
+                } while (env_get_var(env, spread_name) || env_get_function(env, spread_name));
+                emit_formatted(list, "({ __auto_type %s = ", spread_name);
+                build_expr(list, spread, env);
+                emit_formatted(list, "; (void)%s; ", spread_name);
+            }
+            emit_formatted(list, "(%s){", get_prefixed_type_name(struct_name));
             for (int i = 0; i < field_count; i++) {
                 if (i > 0) emit_literal(list, ", ");
                 emit_formatted(list, ".%s = ", expr->as.struct_literal.field_names[i]);
                 build_expr(list, expr->as.struct_literal.field_values[i], env);
             }
+            if (spread && sdef) {
+                int emitted = field_count;
+                for (int i = 0; i < sdef->field_count; i++) {
+                    bool overridden = false;
+                    for (int j = 0; j < field_count; j++)
+                        if (!strcmp(sdef->field_names[i], expr->as.struct_literal.field_names[j]))
+                            overridden = true;
+                    if (overridden) continue;
+                    if (emitted++) emit_literal(list, ", ");
+                    emit_formatted(list, ".%s = %s.%s", sdef->field_names[i], spread_name, sdef->field_names[i]);
+                }
+            }
             emit_literal(list, "}");
+            if (spread && sdef) emit_literal(list, "; })");
             break;
         }
         
