@@ -273,7 +273,8 @@ I am released under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
 ### The continuing adventures of Jordan Hubbard and Sir Reginald von Fluffington III
 
-> *Part 3 of an ongoing chronicle.  [← Part 2: sheme](https://github.com/jordanhubbard/sheme#the-totally-true-and-not-at-all-embellished-history-of-sheme) | [Part 4: Aviation →](https://github.com/jordanhubbard/Aviation#the-totally-true-and-not-at-all-embellished-history-of-aviation)*
+> *Part 1 of an ongoing chronicle. [Part 2: AI Code Reviewer →](https://github.com/jordanhubbard/ai-code-reviewer#the-totally-true-and-not-at-all-embellished-history-of-ai-code-reviewer)*
+> *[Chronicle index](https://github.com/jordanhubbard/ai-template/blob/main/CHRONICLE.md) · Ordered by first recorded AI-assisted commit.*
 > *Sir Reginald von Fluffington III appears throughout.  He does not endorse any of it.*
 
 The programmer had, by this point, written a text editor in bash and a Scheme interpreter in bash, and had grown accustomed to things that arguably should not exist.  He was sitting at his desk — Sir Reginald von Fluffington III occupying his preferred position on the keyboard, which was all of it — when the programmer had what he described as "a thought" and Sir Reginald later categorized, by aggressively ignoring it, as "a cry for help."
@@ -306,4 +307,4 @@ The formal proofs passed.  The VM ran.  The compiler compiled itself.  The progr
 
 Sir Reginald knocked the coffee off the desk.  Not out of malice.  Out of a principled refusal to allow the programmer an uncontested moment.
 
-As of this writing, NanoLang has been used in production by exactly one person, who also wrote it.  Sir Reginald continues to withhold his endorsement across all four projects, citing "procedural concerns," "insufficient tuna," "a general atmosphere of hubris," and, most recently, "aviation."
+As of this writing, NanoLang has been used in production by exactly one person, who also wrote it.  Sir Reginald continues to withhold his endorsement across the chronicle, citing "procedural concerns," "insufficient tuna," "a general atmosphere of hubris," and, most recently, "aviation."
