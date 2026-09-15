@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT identity checks.** I preserve file/destination identity semantics
+      for builtin imports, including hard links, missing paths and failed
+      lookups. I test absent-destination probe cleanup in private directories.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 822 checks. Compiler acceptance remains failing at
+      builtin `path_normalize` (import 24). Evidence:
+      `docs/evidence/aot-builtin-identity.md`.
 - [x] **AOT filesystem predicates.** I adapt builtin file/directory existence
       checks with exact signatures and exercise files, directories, missing
       paths and followed/broken links. I rerun compiler acceptance.

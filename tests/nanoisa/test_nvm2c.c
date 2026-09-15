@@ -669,6 +669,76 @@ static void test_builtin_removal_and_rename(void) {
     unlink(from); unlink(to); rmdir(directory);
 }
 
+static void test_builtin_identity(void) {
+    char directory[] = "/tmp/nvm2c-identity-XXXXXX";
+    if (!mkdtemp(directory)) { CHECK(0, "I create an identity fixture"); return; }
+    char original[256], other[256], hard[256], soft[256], missing[256], absent[256], broken[256];
+    snprintf(original, sizeof original, "%s/original", directory);
+    snprintf(other, sizeof other, "%s/other", directory);
+    snprintf(hard, sizeof hard, "%s/hard", directory);
+    snprintf(soft, sizeof soft, "%s/soft", directory);
+    snprintf(missing, sizeof missing, "%s/missing", directory);
+    snprintf(absent, sizeof absent, "%s/absent", directory);
+    snprintf(broken, sizeof broken, "%s/broken", directory);
+    FILE *file = fopen(original, "wb");
+    CHECK(file != NULL, "I create the identity source"); if (file) fclose(file);
+    file = fopen(other, "wb");
+    CHECK(file != NULL, "I create a distinct file"); if (file) fclose(file);
+    CHECK(link(original, hard) == 0 && symlink(original, soft) == 0 && symlink(missing, broken) == 0,
+          "I create hard, symbolic and broken links");
+    struct IdentityCase { const char *a, *z; int identity, destination; } cases[] = {
+        {original, original, 1, 1}, {original, hard, 1, 1}, {original, soft, 1, 1},
+        {original, other, 0, 0}, {original, missing, 0, 0}, {missing, original, -1, 0},
+        {missing, missing, -1, 1}, {missing, absent, -1, 0},
+        {original, broken, 0, -1}, {"", original, -1, -1},
+    };
+    for (int destination = 0; destination < 3; ++destination) {
+        char assembly[16384];
+        size_t used = (size_t)snprintf(assembly, sizeof assembly,
+            ".import \"\" \"%s\" int string string\n.entry 0\n",
+            destination ? "file_compare_destinations" : "file_compare_identity");
+        for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+            used += (size_t)snprintf(assembly + used, sizeof assembly - used,
+                ".string a%zu \"%s\"\n.string z%zu \"%s\"\n", i, cases[i].a, i, cases[i].z);
+        used += (size_t)snprintf(assembly + used, sizeof assembly - used,
+                                ".function main 0 0 0 int 1\n");
+        for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+            used += (size_t)snprintf(assembly + used, sizeof assembly - used,
+                "PUSH_STR a%zu\nPUSH_STR z%zu\nCALL_EXTERN 0\nPUSH_I64 %d\nEQ\nASSERT\n",
+                i, i, destination == 2 && (i == 6 || i == 7) ? -1 :
+                destination ? cases[i].destination : cases[i].identity);
+        snprintf(assembly + used, sizeof assembly - used, "PUSH_I64 0\nRET\n.end\n");
+        NvmModule *module = assemble_ok(assembly, "builtin identity checks");
+        if (!module) continue;
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit builtin identity checks");
+        if (source) {
+            if (destination == 2) {
+                const char *prefix = "#define _POSIX_C_SOURCE 200809L\n#include <unistd.h>\n"
+                    "static int failed_cleanup(const char *path) { rmdir(path); return -1; }\n"
+                    "#define rmdir failed_cleanup\n";
+                char *injected = malloc(strlen(prefix) + strlen(source) + 1);
+                if (!injected) abort();
+                strcpy(injected, prefix); strcat(injected, source);
+                free(source); source = injected;
+            }
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I preserve identity, missing-source and absent-destination semantics");
+        } else fprintf(stderr, "%s\n", error);
+        free(source);
+        module->import_param_types[0][1] = TAG_INT;
+        source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I reject an incorrect identity candidate type");
+        free(source); nvm_module_free(module);
+        CHECK(access(missing, F_OK) != 0 && access(absent, F_OK) != 0,
+              "I remove absent-destination probes");
+    }
+    unlink(original); unlink(other); unlink(hard); unlink(soft); unlink(broken);
+    rmdir(missing); rmdir(absent); rmdir(directory);
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"get_argc", "CALL_EXTERN 0\nPUSH_I64 1\nEQ\nASSERT\n", 0, TAG_VOID, TAG_INT},
@@ -3146,6 +3216,7 @@ int main(int argc, char **argv) {
     test_builtin_text_writer();
     test_builtin_filesystem_predicates();
     test_builtin_removal_and_rename();
+    test_builtin_identity();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();
