@@ -71,6 +71,16 @@ failures. `make test-vm-ffi` also exercises array-bearing typed dispatch.
 
 ## Layout declarations
 
+My PEG capture export declares the array ABI and allocates the result at its
+known capture count. Capture-table growth or string-copy allocation failure
+returns null after cleanup, instead of exiting or returning a partial list.
+No match and invalid inputs retain their empty-array behavior. The
+`test-peg-array-exports` gate injects table, array and copy failures and checks
+capture order and snapshots after source mutation and parser destruction.
+The existing native PEG program passes with default shadows. Successful
+capture strings still need the common native ownership contract; test cleanup
+of known copies does not establish automatic runtime reclamation.
+
 My GLEW float32 and uint32 uploads validate canonical array type/width,
 source storage and output byte bounds before conversion. Invalid input or
 allocation failure makes no GL call; a valid empty array still uploads zero

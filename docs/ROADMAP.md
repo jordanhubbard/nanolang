@@ -233,6 +233,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
               - [ ] I enumerate and validate module array exports before
                 widening the layout. Declarations remain trusted metadata;
                 hidden/stripped markers count as missing.
+                - [x] I declare PEG capture arrays and make capture allocation
+                  failure return null without partial results or process exit.
+                  I test table growth, element copies, empty/no-match results
+                  and snapshot lifetime with injected allocation failures.
+                  Normal and ASan/UBSan fixtures pass, as does the existing
+                  native PEG regression with default shadows. Successful
+                  copied-string ownership remains a separate runtime task.
                 - [x] I validate GLEW array upload types, widths, byte bounds,
                   conversion ranges and allocation failure before touching GL.
                   I separate the adapter for fake-driver tests, preserve valid
