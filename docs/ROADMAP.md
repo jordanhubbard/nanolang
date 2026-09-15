@@ -280,6 +280,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                     - [x] I bound ANSI geometry and escape parsing, check
                       measurements and surface placement, saturate offscreen
                       pen advances, and restore clipping; I test malformed SGR.
+                    - [x] I bound editor geometry, line/cursor arithmetic and
+                      measurements, preserve full tokens and cursor prefixes,
+                      and restore clipping on allocation failure.
                   - [ ] I reconcile the text-input API's promised editing and
                     Enter behavior with its current render-only implementation.
                 - [x] I make process pipe-spawn result allocation precede pipe

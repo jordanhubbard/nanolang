@@ -4,7 +4,12 @@
 #include <float.h>
 #include <stdlib.h>
 static int fail_token_alloc;
-static void *fake_alloc(size_t size) { return fail_token_alloc ? NULL : malloc(size); }
+static int alloc_calls, fail_alloc_at;
+static void *fake_alloc(size_t size) {
+    return ++alloc_calls == fail_alloc_at || fail_token_alloc ? NULL : malloc(size);
+}
+static size_t longest_text, longest_measure;
+static Uint32 fake_ticks(void) { return 0; }
 static int mouse_calls, text_calls;
 static int draw_calls;
 static int render_copies, texture_frees, surface_frees, provide_surface;
@@ -17,6 +22,7 @@ static int fail_texture_query, fail_add;
 static int measured_w = 10, measured_h = 10, fail_measure, measure_calls;
 static int fake_size(TTF_Font *f, const char *s, int *w, int *h) {
     (void)f; (void)s; measure_calls++;
+    if (strlen(s) > longest_measure) longest_measure = strlen(s);
     if (fail_measure) return -1;
     if (w) *w=measured_w;
     if (h) *h=measured_h;
@@ -68,7 +74,10 @@ static int fake_point(SDL_Renderer *r, int x, int y) {
     (void)r; (void)x; (void)y; draw_calls++; return 0;
 }
 static SDL_Surface *fake_text(TTF_Font *f, const char *s, SDL_Color c) {
-    (void)f; (void)c; assert(!strcmp(s, expected_text)); text_calls++;
+    (void)f; (void)c;
+    if (expected_text) assert(!strcmp(s, expected_text));
+    if (strlen(s) > longest_text) longest_text = strlen(s);
+    text_calls++;
     last_text_color = c;
     return provide_surface ? &test_surface : NULL;
 }
@@ -107,6 +116,7 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_GetRenderDrawBlendMode get_renderer_blend
 #define SDL_SetRenderDrawBlendMode set_renderer_blend
 #define malloc fake_alloc
+#define SDL_GetTicks fake_ticks
 #include "../modules/ui_widgets/ui_widgets.c"
 #undef malloc
 
@@ -544,6 +554,38 @@ static void ansi_displays(void) {
     assert(ui_advance_pen(INT_MAX, INT64_MAX) == (int64_t)INT_MAX+1);
     assert(ui_advance_pen((int64_t)INT_MAX+1, INT64_MAX) == (int64_t)INT_MAX+1);
 }
+static void code_editors(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    int draws=draw_calls;
+    nl_ui_code_editor(r,f,"word",INT64_MAX,0,100,100,0,20,0,0);
+    nl_ui_code_editor(r,f,"word",0,0,55,100,0,20,0,0);
+    nl_ui_code_editor(r,f,"word",0,0,100,100,0,0,0,0);
+    nl_ui_code_editor(r,f,"word",0,0,100,100,0,20,INT64_MAX,0);
+    nl_ui_code_editor(r,f,"word",0,0,100,100,0,20,0,-1);
+    assert(draw_calls == draws);
+    char source[5001]; memset(source,'a',5000); source[5000]=0;
+    expected_text=NULL; provide_surface=1;
+    test_surface.w=10; test_surface.h=10;
+    longest_text=longest_measure=0; measured_w=10;
+    clip_enabled=SDL_TRUE; clip_rect=(SDL_Rect){1,2,3,4};
+    nl_ui_code_editor(r,f,source,0,0,100,100,0,20,0,5000);
+    assert(longest_text == 5000 && longest_measure == 5000);
+    assert(clip_enabled && clip_rect.x == 1 && clip_rect.w == 3);
+    for (int i=1; i<=2; i++) {
+        alloc_calls=0; fail_alloc_at=i;
+        nl_ui_code_editor(r,f,source,0,0,100,100,0,20,0,5000);
+        assert(clip_enabled && clip_rect.x == 1);
+    }
+    fail_alloc_at=0; fail_measure=1;
+    nl_ui_code_editor(r,f,"\tword",0,0,100,100,0,20,0,5);
+    fail_measure=0; measured_w=INT_MAX;
+    test_surface.w=INT_MAX; test_surface.h=INT_MAX;
+    nl_ui_code_editor(r,f,"\tword",INT_MAX-100,INT_MAX-100,100,100,0,20,0,5);
+    measured_w=10; provide_surface=0; clip_enabled=SDL_FALSE;
+    nl_ui_code_editor(r,f,"word\nword",0,0,100,100,INT_MAX,INT_MAX,INT_MAX,INT_MAX);
+    assert(!clip_enabled);
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -621,5 +663,6 @@ int main(void) {
     dropdown_geometry();
     code_displays();
     ansi_displays();
+    code_editors();
     return 0;
 }

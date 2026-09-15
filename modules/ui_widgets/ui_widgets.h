@@ -60,6 +60,11 @@
  * parameters are applied in sequence. This is not a complete terminal parser.
  * Both viewers saturate horizontal advances beyond SDL's coordinate range. */
 
+/* My code-editor renderer requires at least 56x5 pixels, the viewer's source
+ * and scroll limits, cursor row in [-1,INT_MAX] and column in [0,INT_MAX].
+ * Tokens and measured prefixes are complete; allocation failure stops drawing
+ * and restores clipping. This renderer does not itself implement editing. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

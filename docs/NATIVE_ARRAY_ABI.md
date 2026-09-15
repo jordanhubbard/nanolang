@@ -172,6 +172,12 @@ completed sequences leave colors unchanged; semicolon parameters are applied
 in order. Both viewers saturate offscreen pen advancement. Fake-SDL tests cover
 numeric overflow, malformed/incomplete escapes, measurements, extreme surfaces
 and scroll offsets under the same gates. This is not full ANSI/terminal support.
+The code-editor renderer now checks geometry, line/cursor arithmetic,
+measurements and surface placement. Tokens and tab-expanded cursor prefixes
+are no longer truncated. Allocation failure restores clipping. The fixture
+checks 5,000-byte tokens/prefixes, both allocation sites, failed measurements,
+extreme coordinates and scrolling under the same gates. Editing behavior and
+multiline highlighting/layout remain separate requirements.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

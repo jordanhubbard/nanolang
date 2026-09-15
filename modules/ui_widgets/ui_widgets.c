@@ -1742,7 +1742,13 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                        const char* code, int64_t x, int64_t y,
                        int64_t w, int64_t h, int64_t scroll_offset,
                        int64_t line_height, int64_t cursor_row, int64_t cursor_col) {
-    if (!font || !code) return;
+    if (!renderer || !font || !code || w < 56 || h < 5 ||
+        !ui_bar_geometry(x, y, w, h, 0) || scroll_offset < 0 ||
+        scroll_offset > INT_MAX || line_height <= 0 || line_height > INT_MAX ||
+        cursor_row < -1 || cursor_row > INT_MAX || cursor_col < 0 ||
+        cursor_col > INT_MAX) return;
+    size_t source_length = strlen(code);
+    if (source_length >= INT_MAX) return;
 
     // Background (slightly warmer to indicate edit mode)
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
@@ -1755,6 +1761,9 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
 
     // Clip rect
     SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
+    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
+    SDL_Rect previous_clip;
+    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &clip);
 
     // Line number gutter
@@ -1770,7 +1779,7 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
     SDL_RenderDrawLine(renderer, (int)x + gutter_w, (int)y + 2,
                        (int)x + gutter_w, (int)y + (int)h - 2);
 
-    int code_len = (int)strlen(code);
+    int code_len = (int)source_length;
     int line_num = 0;
     int pos = 0;
 
@@ -1781,7 +1790,7 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
         int line_len = pos - line_start;
 
         // Y position for this line
-        int draw_y = (int)y + 5 + (line_num - (int)scroll_offset) * (int)line_height;
+        int64_t draw_y = y + 5 + ((int64_t)line_num - scroll_offset) * line_height;
 
         // Only render visible lines
         if (draw_y + (int)line_height >= (int)y && draw_y < (int)y + (int)h) {
@@ -1796,8 +1805,10 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
             if (gs) {
                 SDL_Texture* gt = SDL_CreateTextureFromSurface(renderer, gs);
                 if (gt) {
-                    SDL_Rect dest = {(int)x + 5, draw_y, gs->w, gs->h};
-                    SDL_RenderCopy(renderer, gt, NULL, &dest);
+                    if (ui_bar_geometry(x + 5, draw_y, gs->w, gs->h, 0)) {
+                        SDL_Rect dest = {(int)x + 5, (int)draw_y, gs->w, gs->h};
+                        SDL_RenderCopy(renderer, gt, NULL, &dest);
+                    }
                     SDL_DestroyTexture(gt);
                 }
                 SDL_FreeSurface(gs);
@@ -1806,30 +1817,32 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
             // Highlight current line background
             if (line_num == (int)cursor_row) {
                 SDL_SetRenderDrawColor(renderer, 35, 35, 50, 255);
-                SDL_Rect line_bg = {(int)x + gutter_w + 2, draw_y,
-                                    (int)w - gutter_w - 6, (int)line_height};
-                SDL_RenderFillRect(renderer, &line_bg);
+                if (ui_bar_geometry(x + gutter_w + 2, draw_y, w - gutter_w - 6, line_height, 0)) {
+                    SDL_Rect line_bg = {(int)x + gutter_w + 2, (int)draw_y,
+                                        (int)w - gutter_w - 6, (int)line_height};
+                    SDL_RenderFillRect(renderer, &line_bg);
+                }
             }
 
             // Render line text with syntax highlighting
             if (line_len > 0) {
                 int lpos = 0;
-                int current_x = (int)x + gutter_w + 5;
+                int64_t current_x = x + gutter_w + 5;
 
                 while (lpos < line_len) {
                     char c = code[line_start + lpos];
 
                     if (c == ' ') {
-                        int sw;
-                        TTF_SizeText(font, " ", &sw, NULL);
-                        current_x += sw;
+                        int sw = 0;
+                        if (TTF_SizeText(font, " ", &sw, NULL) == 0 && sw >= 0)
+                            current_x = ui_advance_pen(current_x, sw);
                         lpos++;
                         continue;
                     }
                     if (c == '\t') {
-                        int sw;
-                        TTF_SizeText(font, " ", &sw, NULL);
-                        current_x += sw * 4;
+                        int sw = 0;
+                        if (TTF_SizeText(font, " ", &sw, NULL) == 0 && sw >= 0)
+                            current_x = ui_advance_pen(current_x, (int64_t)sw * 4);
                         lpos++;
                         continue;
                     }
@@ -1850,22 +1863,25 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                     }
                     if (token_len <= 0) { lpos++; continue; }
 
-                    char token_text[256];
-                    int tcopy = token_len < 255 ? token_len : 255;
-                    memcpy(token_text, code + line_start + lpos, tcopy);
-                    token_text[tcopy] = '\0';
+                    char *token_text = malloc((size_t)token_len + 1);
+                    if (!token_text) goto editor_cleanup;
+                    memcpy(token_text, code + line_start + lpos, (size_t)token_len);
+                    token_text[token_len] = '\0';
 
                     int tr, tg, tb;
                     get_token_color(token_type, &tr, &tg, &tb);
 
                     SDL_Color color = {(Uint8)tr, (Uint8)tg, (Uint8)tb, 255};
                     SDL_Surface* surf = TTF_RenderText_Blended(font, token_text, color);
+                    free(token_text);
                     if (surf) {
                         SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, surf);
                         if (tex) {
-                            SDL_Rect dest = {current_x, draw_y, surf->w, surf->h};
-                            SDL_RenderCopy(renderer, tex, NULL, &dest);
-                            current_x += surf->w;
+                            if (ui_bar_geometry(current_x, draw_y, surf->w, surf->h, 0)) {
+                                SDL_Rect dest = {(int)current_x, (int)draw_y, surf->w, surf->h};
+                                SDL_RenderCopy(renderer, tex, NULL, &dest);
+                            }
+                            if (surf->w >= 0) current_x = ui_advance_pen(current_x, surf->w);
                             SDL_DestroyTexture(tex);
                         }
                         SDL_FreeSurface(surf);
@@ -1879,12 +1895,14 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                 int blink = ((SDL_GetTicks() / 530) % 2 == 0);
                 if (blink) {
                     // Calculate cursor X by measuring prefix text (with tabs expanded)
-                    int cursor_x = (int)x + gutter_w + 5;
+                    int64_t cursor_x = x + gutter_w + 5;
                     if ((int)cursor_col > 0 && line_len > 0) {
                         int measure_len = (int)cursor_col < line_len ? (int)cursor_col : line_len;
-                        char prefix[4096];
-                        int pi = 0;
-                        for (int ci = 0; ci < measure_len && pi < 4090; ci++) {
+                        if ((uint64_t)measure_len > (SIZE_MAX - 1) / 4) goto editor_cleanup;
+                        char *prefix = malloc((size_t)measure_len * 4 + 1);
+                        if (!prefix) goto editor_cleanup;
+                        size_t pi = 0;
+                        for (int ci = 0; ci < measure_len; ci++) {
                             char ch = code[line_start + ci];
                             if (ch == '\t') {
                                 prefix[pi++] = ' '; prefix[pi++] = ' ';
@@ -1894,21 +1912,27 @@ void nl_ui_code_editor(SDL_Renderer* renderer, TTF_Font* font,
                             }
                         }
                         prefix[pi] = '\0';
-                        int prefix_w;
-                        TTF_SizeText(font, prefix, &prefix_w, NULL);
-                        cursor_x += prefix_w;
+                        int prefix_w = 0;
+                        int measured = TTF_SizeText(font, prefix, &prefix_w, NULL);
+                        free(prefix);
+                        if (measured != 0 || prefix_w < 0) goto editor_next_line;
+                        cursor_x = ui_advance_pen(cursor_x, prefix_w);
                     }
                     SDL_SetRenderDrawColor(renderer, 255, 255, 100, 255);
-                    SDL_Rect cursor_rect = {cursor_x, draw_y, 2, (int)line_height};
-                    SDL_RenderFillRect(renderer, &cursor_rect);
+                    if (ui_bar_geometry(cursor_x, draw_y, 2, line_height, 0)) {
+                        SDL_Rect cursor_rect = {(int)cursor_x, (int)draw_y, 2, (int)line_height};
+                        SDL_RenderFillRect(renderer, &cursor_rect);
+                    }
                 }
             }
         }
 
+editor_next_line:
         line_num++;
         if (pos < code_len) pos++;  // skip newline
         else break;
     }
 
-    SDL_RenderSetClipRect(renderer, NULL);
+editor_cleanup:
+    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
 }
