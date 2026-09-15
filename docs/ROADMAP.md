@@ -28,6 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Assembler snapshot branch reconciliation.** I verify that `24ac886b`
+      exactly matches integrated tree `dfa1aca3`, retain newer capture rules,
+      and rerun its include-phase, restored-input and search-order tests.
+      MAC `task_92e6817607cf4071ab614289911a9a41`.
+      Three tests pass in 263.852 seconds. Evidence and remaining-head inventory:
+      `docs/evidence/assembler-branch-reconciliation.md`.
 - [x] **Wrapper-publication branch reconciliation.** I retain the staged
       publication implementation already integrated from `c56c6e7e`, including
       newer callback/array link dependencies, while reconciling `df031115`.
