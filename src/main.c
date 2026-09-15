@@ -26,6 +26,7 @@
 #include <unistd.h>  /* For getpid(), execv() on all POSIX systems */
 #include <limits.h>  /* For PATH_MAX */
 #include <errno.h>   /* For errno/strerror in execv error reporting */
+#include <sys/stat.h>
 
 #ifdef __APPLE__
 #include <mach-o/loader.h>
@@ -313,6 +314,74 @@ static void load_process_catalogs(const char *argv0) {
 static bool deterministic_outputs_enabled(void) {
     const char *v = getenv("NANO_DETERMINISTIC");
     return v && (strcmp(v, "1") == 0 || strcmp(v, "true") == 0 || strcmp(v, "yes") == 0);
+}
+
+/* Let filesystem lookup, rather than spelling, decide whether two output
+ * names identify the same destination. */
+static int output_paths_alias(const char *artifact, const char *diagnostic,
+                              bool *alias) {
+    struct stat artifact_stat;
+    struct stat diagnostic_stat;
+    bool probe = false;
+    int saved_errno;
+
+    *alias = false;
+    if (!artifact || !diagnostic || diagnostic[0] == '\0') return 0;
+
+    if (stat(artifact, &artifact_stat) != 0) {
+        if (errno != ENOENT) return -1;
+        if (mkdir(artifact, 0700) != 0) return -1;
+        probe = true;
+        if (stat(artifact, &artifact_stat) != 0) {
+            saved_errno = errno;
+            if (rmdir(artifact) != 0) saved_errno = errno;
+            errno = saved_errno;
+            return -1;
+        }
+    }
+
+    if (stat(diagnostic, &diagnostic_stat) == 0) {
+        *alias = artifact_stat.st_dev == diagnostic_stat.st_dev &&
+                 artifact_stat.st_ino == diagnostic_stat.st_ino;
+    } else if (errno != ENOENT) {
+        saved_errno = errno;
+        if (probe && rmdir(artifact) != 0) saved_errno = errno;
+        errno = saved_errno;
+        return -1;
+    }
+
+    if (probe && rmdir(artifact) != 0) return -1;
+    return 0;
+}
+
+static int reject_artifact_diagnostic_aliases(const char *artifact,
+                                               const CompilerOptions *opts) {
+    const char *diagnostics[] = {
+        opts->profile_output_path,
+        opts->profile_flamegraph_path,
+        opts->llm_diags_json_path,
+        opts->llm_diags_toon_path,
+        opts->llm_shadow_json_path,
+        opts->reflect_output_path,
+        opts->bench_json
+    };
+
+    for (size_t i = 0; i < sizeof(diagnostics) / sizeof(diagnostics[0]); i++) {
+        bool alias;
+        if (output_paths_alias(artifact, diagnostics[i], &alias) != 0) {
+            fprintf(stderr,
+                    "nanoc: cannot verify that artifact '%s' and diagnostic '%s' are distinct: %s\n",
+                    artifact, diagnostics[i] ? diagnostics[i] : "", strerror(errno));
+            return -1;
+        }
+        if (alias) {
+            fprintf(stderr,
+                    "nanoc: artifact '%s' and diagnostic '%s' identify the same destination\n",
+                    artifact, diagnostics[i]);
+            return -1;
+        }
+    }
+    return 0;
 }
 
 #ifdef __APPLE__
@@ -1953,6 +2022,13 @@ int main(int argc, char *argv[]) {
             free(libraries);
             return 1;
         }
+    }
+
+    if (reject_artifact_diagnostic_aliases(output_file, &opts) != 0) {
+        free(include_paths);
+        free(library_paths);
+        free(libraries);
+        return 1;
     }
 
     int result = compile_file(input_file, output_file, &opts);
