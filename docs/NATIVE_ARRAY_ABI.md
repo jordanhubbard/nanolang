@@ -1,5 +1,30 @@
 # My native array boundary
 
+## Sanitizer toolchain preflight
+
+My FFI gate first loads, unloads and reloads both native artifact fixtures in
+a standalone process that does not link my VM. On this Darwin arm64 host,
+Apple Clang 21 builds 2100.1.1.101 and 2100.3.34.2 fail that probe with duplicate
+ASan global registration; the full suite can instead crash in registration.
+Changing global dead-stripping mode did not resolve the tested failure.
+Homebrew Clang 23.1.1 passes the probe and all 27 FFI tests with ASan/UBSan.
+This comparison isolates the failure outside my VM; it does not identify an
+upstream source-code defect or establish behavior on other hosts.
+
+I select the passing installed toolchain explicitly, without disabling ASan
+checks or changing production image lifetime:
+
+```sh
+ASAN_OPTIONS=detect_leaks=0 make \
+  'CC=/opt/homebrew/opt/llvm/bin/clang -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk -fsanitize=address,undefined -fno-omit-frame-pointer' \
+  test-vm-ffi
+```
+
+Those paths describe this host. The compiler and SDK must exist on the machine
+running the test. This command instruments the fixtures and test driver; make
+does not rebuild existing VM objects merely because CC changes. A clean,
+separate-object sanitizer build is required for whole-runtime coverage.
+
 ## In-process VM arrays
 
 I copy int, float, bool, u8 and string array arguments into call-scoped native

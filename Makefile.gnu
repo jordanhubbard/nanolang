@@ -638,6 +638,8 @@ test-vm-ffi: test-array-abi-loader $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 	@obj/test_retained_image_failure
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=42 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_first.so $(LDFLAGS)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -DARTIFACT_ANSWER=43 tests/nanovm/ffi_artifact_fixture.c -o obj/ffi_artifact_second.so $(LDFLAGS)
+	$(CC) $(CFLAGS) tests/nanovm/test_artifact_load.c -o obj/test_artifact_load $(LDFLAGS) $(if $(filter Linux,$(UNAME_S)),-ldl,)
+	@obj/test_artifact_load obj/ffi_artifact_first.so obj/ffi_artifact_second.so
 	@echo "Running vm_ffi unit tests..."
 	$(CC) $(CFLAGS) -I$(NANOVM_DIR) -I$(NANOISA_DIR) -o tests/nanovm/test_vm_ffi \
 		tests/nanovm/test_vm_ffi.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \

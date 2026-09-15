@@ -243,11 +243,19 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                 MAC `task_5f2879308468ad24921d62eedea9f3e9`.
                 - [x] I keep the callback fixture warning-clean under the
                   sanitizer compiler's SDK by bounding its formatted string.
-                - [ ] I diagnose the full FFI sanitizer suite's Darwin crash
+                - [x] I diagnose the full FFI sanitizer suite's Darwin crash
                   in ASan global registration while loading ffi_artifact_first
                   after the SDL cleanup case. The focused SDL case passes;
                   that does not establish a passing full sanitizer suite.
                   MAC `task_a36fd588dd05d06fadc36470a23cdc1b`.
+                  A standalone dlopen/dlclose/reload reproducer fails with
+                  duplicate ASan global registration under both installed
+                  Apple Clang 21 builds, without linking my VM. Homebrew Clang
+                  23.1.1 passes the reproducer and all 27 FFI tests with
+                  ASan/UBSan. I keep image unload and sanitizer checks enabled;
+                  the suite now runs the reload probe before VM dispatch.
+                  This checks instrumented fixtures and driver, not a clean
+                  sanitizer rebuild of every VM object.
                 - [x] I replace the three raw-buffer implementations with a
                   separately testable canonical-array boundary and ABI markers.
                   Native fake-SDL tests cover count/type/width bounds, allocation
