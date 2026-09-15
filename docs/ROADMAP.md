@@ -109,6 +109,21 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           native emitter and VM before claiming variadic formatting parity.
           My interpreter formats whole floats without the native `.0` suffix;
           aggregate substitutions have no consistent conversion contract.
+          - [x] I lower VM formatting to a runtime call with a typed string
+            array, not native varargs. I preserve placeholder scanning and
+            check empty, missing, extra, UTF-8 and long substitutions in
+            runtime tests and executable/shadow tests.
+            Native and VM compilation, shadows and execution pass. All 21 VM
+            builtin tests and 69 NanoVirt checks pass. Strict dispatch reports
+            175 selected, 172 identical, three failures and zero skipped;
+            async and effects remain. Conversion parity above remains open.
+          - [x] I emit native assertion diagnostics as literal text, never as
+            printf formats. Formatting assertions exposed `%s`/`%d` in source
+            text being interpreted as native conversion directives.
+            The integrated native regression compiles and executes a failing
+            assertion containing `%s`, `%d`, `%n` and `%%`, preserving them
+            literally and returning status 1. Transpiler tests pass.
+            MAC `task_108e132bac3db9598c8431fca94108c9`.
         - [x] I preserve inherited fields in VM record spreads, evaluating the
           source once and resolving inherited fields against its own layout.
           I check overrides and unchanged source records on native/VM paths.

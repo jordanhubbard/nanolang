@@ -28,6 +28,7 @@ int64_t vm_setenv(const char *name, const char *value);
 char *vm_str_trim_left(const char *str);
 char *vm_str_trim_right(const char *str);
 char *vm_str_join(DynArray *parts, const char *separator);
+char *vm_format(const char *template, DynArray *arguments);
 int64_t vm_str_index_of(const char *haystack, const char *needle);
 int64_t vm_str_last_index_of(const char *haystack, const char *needle);
 char *vm_string_from_char(int64_t code);

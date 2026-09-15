@@ -1556,6 +1556,24 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    if (strcmp(name, "format") == 0 && argc >= 1) {
+        compile_expr(cg, args[0]);
+        emit_op(cg, OP_ARR_NEW, TAG_STRING);
+        for (int i = 1; i < argc; i++) {
+            compile_expr(cg, args[i]);
+            emit_op(cg, OP_CAST_STRING);
+            emit_op(cg, OP_ARR_PUSH);
+        }
+        int32_t ext_idx = extern_find(cg, "vm_format");
+        if (ext_idx < 0) {
+            uint8_t ptags[2] = {TAG_STRING, TAG_ARRAY};
+            register_extern(cg, "vm_format", "", 2, TAG_STRING, ptags);
+            ext_idx = extern_find(cg, "vm_format");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
     /* string_from_bytes(arr) - convert byte array to string */
     if (strcmp(name, "string_from_bytes") == 0 && argc == 1) {
         compile_expr(cg, args[0]);

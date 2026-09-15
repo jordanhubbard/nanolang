@@ -4177,7 +4177,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 fprintf(stderr, "Warning at line %d: contract condition is always false\n", stmt->line);
                 emit_indent_item(list, indent);
                 const char *cond_str = expr_to_string(stmt->as.assert.condition);
-                emit_formatted(list, "{ fprintf(stderr, \"Contract violation at line %d: %s (always false)\\n\"); exit(1); }\n",
+                emit_formatted(list, "{ fputs(\"Contract violation at line %d: %s (always false)\\n\", stderr); exit(1); }\n",
                               stmt->line, cond_str);
                 break;
             }
@@ -4190,7 +4190,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             
             /* Generate descriptive error message showing the condition */
             const char *cond_str = expr_to_string(stmt->as.assert.condition);
-            emit_formatted(list, "fprintf(stderr, \"Contract violation at line %d: %s\\n\"); ",
+            emit_formatted(list, "fputs(\"Contract violation at line %d: %s\\n\", stderr); ",
                           stmt->line, cond_str);
             
             emit_literal(list, "exit(1); }\n");

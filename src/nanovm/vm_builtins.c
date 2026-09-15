@@ -294,6 +294,47 @@ char *vm_str_trim_right(const char *str) {
     return result;
 }
 
+char *vm_format(const char *template, DynArray *arguments) {
+    if (!template || !arguments || arguments->elem_type != ELEM_STRING ||
+        arguments->elem_size != sizeof(char *) || arguments->length < 0 ||
+        arguments->capacity < arguments->length ||
+        (uint64_t)arguments->capacity > SIZE_MAX / sizeof(char *) ||
+        (arguments->length && !arguments->data)) return NULL;
+    for (int64_t i = 0; i < arguments->length; i++)
+        if (!dyn_array_get_string(arguments, i)) return NULL;
+
+    size_t length = 0;
+    char *result = NULL;
+    for (int pass = 0; pass < 2; pass++) {
+        size_t offset = 0;
+        int64_t used = 0;
+        const char *cursor = template;
+        while (*cursor) {
+            const char *part = cursor;
+            size_t size = 1;
+            if (*cursor == '%' && used < arguments->length &&
+                (cursor[1] == 's' || cursor[1] == 'd' ||
+                 cursor[1] == 'f' || cursor[1] == 'g')) {
+                part = dyn_array_get_string(arguments, used++);
+                size = strlen(part);
+                cursor += 2;
+            } else {
+                cursor++;
+            }
+            if (size > SIZE_MAX - 1 - offset) { free(result); return NULL; }
+            if (pass) memcpy(result + offset, part, size);
+            offset += size;
+        }
+        if (!pass) {
+            length = offset;
+            result = malloc(length + 1);
+            if (!result) return NULL;
+        }
+    }
+    result[length] = '\0';
+    return result;
+}
+
 char *vm_str_join(DynArray *parts, const char *separator) {
     if (!parts || !separator || parts->elem_type != ELEM_STRING ||
         parts->elem_size != sizeof(char *) || parts->length < 0 ||

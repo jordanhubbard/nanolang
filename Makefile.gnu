@@ -974,6 +974,7 @@ test-transpiler: stage1
 	@echo "Running transpiler unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -lm
 	@./tests/test_transpiler
+	python3 tests/test_assert_literal.py
 	@rm -f tests/test_transpiler
 
 .PHONY: test-parser

@@ -507,9 +507,12 @@ set parts (array_push parts "c")
 I am variadic. I substitute each `%s`, `%d`, `%f`, or `%g` placeholder in `template` with the next argument, converted to its string form. I copy any placeholder left over after the arguments run out verbatim, and I require at least the template argument.
 
 My C-seed and NanoVirt frontends reject a non-string template during
-typechecking. My VM formatting implementation and cross-backend substitution
-conversion parity remain unfinished; accepting a well-typed call does not yet
-establish that every backend can execute it.
+typechecking. My VM converts arguments to strings and calls a runtime scanner
+through a fixed string-array ABI. This is interpolation, not printf: `%f`
+does not request fixed decimal precision, and `%%` has no special escape rule.
+I evaluate extra arguments but do not substitute them after the template ends.
+Cross-backend conversion parity remains unfinished: whole floats have different
+decimal suffixes, and aggregate substitutions lack a consistent contract.
 
 ```nano
 (format "Hello, %s!" "world")            # Returns "Hello, world!"

@@ -278,7 +278,44 @@ static void test_vm_file_write_null(void) {
 
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
+static void test_vm_format(void) {
+    const char *test_name = "vm_format: substitutions, literals and invalid arrays";
+    DynArray *args = dyn_array_new(ELEM_STRING);
+    ASSERT(args, "allocate arguments");
+    char *result = vm_format("%s %% %q %", args);
+    ASSERT(result && !strcmp(result, "%s %% %q %"), "missing substitutions stay literal");
+    free(result);
+    dyn_array_push_string(args, "é🙂");
+    dyn_array_push_string(args, "42");
+    result = vm_format("%%s/%d/%f", args);
+    ASSERT(result && !strcmp(result, "%é🙂/42/%f"), "scan placeholders, not printf escapes");
+    free(result);
+    result = vm_format("", args);
+    ASSERT(result && !*result, "ignore extra arguments");
+    free(result);
+    char long_part[8193];
+    memset(long_part, 'x', sizeof(long_part) - 1);
+    long_part[sizeof(long_part) - 1] = '\0';
+    dyn_array_push_string(args, long_part);
+    result = vm_format("%s%d%g", args);
+    ASSERT(result && strlen(result) == strlen("é🙂42") + 8192, "long result is not truncated");
+    ASSERT(!strcmp(result + strlen("é🙂42"), long_part), "long substitution bytes");
+    free(result);
+    ASSERT(!vm_format(NULL, args) && !vm_format("x", NULL), "reject null inputs");
+    DynArray malformed = *args;
+    malformed.elem_type = ELEM_INT;
+    ASSERT(!vm_format("x", &malformed), "reject wrong element type");
+    malformed = *args;
+    malformed.length = -1;
+    ASSERT(!vm_format("x", &malformed), "reject negative length");
+    malformed = *args;
+    malformed.data = NULL;
+    ASSERT(!vm_format("x", &malformed), "reject missing storage");
+    PASS(test_name);
+}
+
 int main(void) {
+    test_vm_format();
     test_vm_str_join();
     test_vm_trim_edges();
     test_vm_file_read_bytes();
