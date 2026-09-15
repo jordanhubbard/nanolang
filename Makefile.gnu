@@ -1140,6 +1140,14 @@ test-nvm-v2-module: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_nvm_v2_module
 
 .PHONY: test-nvm-v2-convert
+test-nvm-v2-convert: test-nvm-callbacks
+
+.PHONY: test-nvm-callbacks
+test-nvm-callbacks: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_nvm_callbacks \
+		tests/nanoisa/test_nvm_callbacks.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_nvm_callbacks
+
 test-nvm-v2-convert: $(NANOISA_OBJECTS) $(NANOISA_UTF8) test-nvm-pool-alloc
 	@echo "Running NanoISA v1<->v2 bridge tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o tests/nanoisa/test_nvm_v2_convert \

@@ -107,6 +107,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I carry callback signatures and adapter contracts through the
         compiler, serialized imports, loader, and verifier; absent contracts
         fail closed rather than inferring behavior from symbol names.
+        - [x] I encode explicit retained-handle adapter contracts in a
+          feature-gated v2 section, referencing existing signatures. I verify
+          indices, scalar shapes, parameter coverage, duplicates, policy,
+          truncation, and rejection of lossy legacy serialization.
+          Canonical assembly retains callback contracts, import kinds,
+          and declared function parameters instead of dropping ABI facts.
+          `make test-nvm-callbacks` covers round trips and malformed inputs;
+          canonical tooling passes 117 checks, the v2 bridge 295, FFI 23,
+          VM 272247, and AOT 375. Compiler manifest binding and execution
+          integration remain unchecked below and in the parent item.
         - [x] I preserve declared function parameter tags through the
           in-memory module and v2 round trip, including nested functions.
           Unknown legacy tags stay explicitly unknown. Function-table growth

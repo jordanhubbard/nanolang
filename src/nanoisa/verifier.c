@@ -396,6 +396,9 @@ static NvmVerifyResult verify_structure(const NvmModule *mod) {
         }
     }
 
+    if (!nvm_callback_contracts_valid(mod))
+        return fail("I found an invalid retained callback import contract");
+
     /* Import string indices and imported-call signatures.
      * Imported (extern) calls are regularized around verified signatures:
      * every import must name valid strings and carry a well-formed signature

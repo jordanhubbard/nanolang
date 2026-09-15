@@ -12,8 +12,8 @@ checks, same-owner nesting, failed allocation/publication, owner-only cleanup,
 deterministic queued cancellation, and late calls after shutdown. Both test
 binaries pass AddressSanitizer/UndefinedBehaviorSanitizer and ThreadSanitizer
 on Darwin arm64. LeakSanitizer is unsupported on that host; I ran ASan with
-`detect_leaks=0`. The existing 22 FFI unit tests still pass. None of this
-establishes callback-import metadata, VM activation, dispatch, or COP integration.
+`detect_leaks=0`. None of this establishes VM activation, dispatch, or COP
+integration.
 
 I now preserve declared ordinary function parameter tags in the execution
 module and through v2 serialization. Legacy producers still leave unknown
@@ -29,6 +29,53 @@ tail-position call that must preserve captures. Typechecker tests reject a
 nested result of the wrong type and a nested `break` targeting the outer
 function's loop. The 93-check verifier suite passes. This is declaration
 preservation and selected execution evidence, not full callback support.
+
+My callback metadata tests now check serialized contracts, malformed input,
+canonical assembly round trips, and allocation failure. The FFI suite passes
+23 tests, including rejection of contracted imports before direct dispatch or
+co-process launch. Compiler manifest binding and scheduler integration remain
+unfinished; metadata alone does not authorize the old calling convention.
+
+## Serialized import contracts
+
+I carry contracts in v2 section `0x0B`, with feature bit `1 << 5`. I require
+the bit exactly when the section contains contracts. Older readers reject the
+unknown feature; legacy serialization rejects contract-bearing modules rather
+than dropping their ABI facts.
+
+The section starts with a little-endian `u32` count followed by exactly that
+many 16-byte records. I reject trailing bytes and truncated records.
+
+| Offset | Field | Encoding |
+| --- | --- | --- |
+| 0 | Import index | u32 |
+| 4 | Parameter index | u16 |
+| 6 | Handle ABI version | u8, currently 1 |
+| 7 | Execution policy | u8: 0 owner, 1 worker |
+| 8 | Callback signature index | u32 into SIGNATURES |
+| 12 | Adapter symbol index | u32 into string constants |
+
+I require records sorted uniquely by import and parameter index. For each
+contracted import, every function or closure parameter has one record. All
+records for that import agree on its nonempty, NUL-free adapter symbol and
+execution policy. Callback signatures have at most 16 scalar parameters and
+zero or one scalar result. An unknown tag does not satisfy the contract.
+
+Parameter index `65535` describes a policy-only import, such as a blocking
+wait. That import has no callback parameters, and its signature index is
+`0xffffffff`. I do not invent a callback signature for a wait operation.
+
+My canonical assembler preserves these facts explicitly:
+
+```text
+.callback 0 1 "retained_submit" 1 worker bool int float
+.callback 1 65535 "retained_wait" 1 worker void
+.import_kind 0 artifact
+.parameters 2 int float
+```
+
+The referenced imports and functions must exist; `.parameters` supplies the
+function's exact arity. These directives preserve metadata, not native code.
 
 ## Boundary
 

@@ -581,10 +581,22 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
     return desc;
 }
 
+static bool callback_contract_pending(const NvmModule *module, uint32_t import_idx,
+                                      char *error, size_t size) {
+    for (uint32_t i = 0; i < module->callback_contract_count; i++) {
+        if (module->callback_contracts[i].import_idx == import_idx) {
+            snprintf(error, size, "I require the retained callback scheduler for this import");
+            return true;
+        }
+    }
+    return false;
+}
+
 bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *args, int arg_count,
                  NanoValue *result, VmHeap *heap,
                  char *error_msg, size_t error_msg_size) {
+    if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!ffi_loader_is_initialized()) vm_ffi_init();
 
     if (import_idx >= module->import_count) {
@@ -955,6 +967,7 @@ bool vm_ffi_call_cop(VmState *vm, const NvmModule *module, uint32_t import_idx,
                      NanoValue *args, int arg_count,
                      NanoValue *result, VmHeap *heap,
                      char *error_msg, size_t error_msg_size) {
+    if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
         /* Isolation was explicitly requested (this function only runs under
          * vm->isolate_ffi). If the co-process can't be launched we must NOT
@@ -1142,6 +1155,9 @@ bool vm_ffi_call_cop_batch(VmState *vm, const NvmModule *module,
     }
     for (int i = 0; i < count; i++) results[i] = val_void();
     if (count == 0) return true;
+
+    for (int i = 0; i < count; i++)
+        if (callback_contract_pending(module, calls[i].import_idx, error_msg, error_msg_size)) return false;
 
     if (!cop_ensure(vm, module, error_msg, error_msg_size)) {
         snprintf(error_msg, error_msg_size,

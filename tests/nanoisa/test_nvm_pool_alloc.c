@@ -89,6 +89,29 @@ int main(void) {
         assert(memcmp(m->function_param_types[0], replacement, 2) == 0);
         nvm_module_free(m);
     }
-    puts("I passed pool and function-signature allocation failure/recovery scenarios.");
+    {
+        NvmModule *m = nvm_module_new();
+        assert(m);
+        NvmCallbackContract c = {.parameter_idx = NVM_CALLBACK_NO_PARAMETER,
+            .abi_version = NVM_CALLBACK_ABI_RETAINED_V1, .return_tag = TAG_VOID};
+        for (uint32_t i = 0; i < 8; i++) {
+            c.import_idx = i;
+            assert(nvm_add_callback_contract(m, &c));
+        }
+        NvmCallbackContract *old = m->callback_contracts;
+        c.import_idx = 8;
+        fail_calloc_at = 1;
+        assert(!nvm_add_callback_contract(m, &c));
+        fail_calloc_at = 0;
+        assert(m->callback_contracts == old && m->callback_contract_count == 8);
+        for (uint32_t i = 0; i < 8; i++) assert(m->callback_contracts[i].import_idx == i);
+        assert(nvm_add_callback_contract(m, &c));
+        assert(!nvm_add_callback_contract(m, &c)); /* I reject duplicate records. */
+        c.import_idx = 9; c.param_count = NANO_MAX_FFI_ARGS + 1;
+        assert(!nvm_add_callback_contract(m, &c));
+        assert(m->callback_contract_count == 9);
+        nvm_module_free(m);
+    }
+    puts("I passed pool, signature, and callback contract allocation failure/recovery scenarios.");
     return 0;
 }

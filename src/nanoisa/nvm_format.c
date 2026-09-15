@@ -137,6 +137,7 @@ void nvm_module_free(NvmModule *mod) {
         free(mod->import_param_types);
     }
     free(mod->imports);
+    free(mod->callback_contracts);
     free(mod->module_refs);    free(mod->call_descriptors);
     free(mod);
 }
@@ -256,6 +257,94 @@ bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
     if (count) memcpy(copy, tags, count);
     free(mod->function_param_types[index]);
     mod->function_param_types[index] = copy;
+    return true;
+}
+
+static bool callback_scalar(uint8_t tag) {
+    return tag == TAG_INT || tag == TAG_FLOAT || tag == TAG_BOOL ||
+           tag == TAG_U8 || tag == TAG_OPAQUE;
+}
+
+bool nvm_callback_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result) {
+    if (count > NANO_MAX_FFI_ARGS || (count && !tags) ||
+        (result != TAG_VOID && !callback_scalar(result))) return false;
+    for (uint16_t i = 0; i < count; i++)
+        if (!callback_scalar(tags[i])) return false;
+    return true;
+}
+
+bool nvm_add_callback_contract(NvmModule *mod, const NvmCallbackContract *contract) {
+    if (!mod || !contract || contract->abi_version != NVM_CALLBACK_ABI_RETAINED_V1 ||
+        contract->execution > NVM_FOREIGN_WORKER_THREAD ||
+        !nvm_callback_shape_valid(contract->param_tags, contract->param_count,
+                                  contract->return_tag)) return false;
+    NvmCallbackContract copy = *contract;
+    if (copy.parameter_idx == NVM_CALLBACK_NO_PARAMETER &&
+        (copy.param_count || copy.return_tag != TAG_VOID)) return false;
+    if (mod->callback_contract_count) {
+        const NvmCallbackContract *last = &mod->callback_contracts[mod->callback_contract_count - 1];
+        if (copy.import_idx < last->import_idx ||
+            (copy.import_idx == last->import_idx && copy.parameter_idx <= last->parameter_idx))
+            return false;
+    }
+    if (mod->callback_contract_count == mod->callback_contract_capacity) {
+        if (mod->callback_contract_capacity > UINT32_MAX / 2) return false;
+        uint32_t capacity = mod->callback_contract_capacity ? mod->callback_contract_capacity * 2 : 8;
+        NvmCallbackContract *items = calloc(capacity, sizeof(*items));
+        if (!items) return false;
+        if (mod->callback_contract_count)
+            memcpy(items, mod->callback_contracts, mod->callback_contract_count * sizeof(*items));
+        free(mod->callback_contracts);
+        mod->callback_contracts = items;
+        mod->callback_contract_capacity = capacity;
+    }
+    mod->callback_contracts[mod->callback_contract_count++] = copy;
+    return true;
+}
+
+bool nvm_callback_contracts_valid(const NvmModule *mod) {
+    if (!mod || (mod->callback_contract_count && !mod->callback_contracts)) return false;
+    uint32_t begin = 0;
+    while (begin < mod->callback_contract_count) {
+        const NvmCallbackContract *first = &mod->callback_contracts[begin];
+        if (first->import_idx >= mod->import_count || !mod->imports) return false;
+        const NvmImportEntry *import = &mod->imports[first->import_idx];
+        if (import->param_count > NANO_MAX_FFI_ARGS ||
+            (import->param_count && (!mod->import_param_types ||
+                                     !mod->import_param_types[first->import_idx]))) return false;
+        uint32_t expected = 0, actual = 0;
+        for (uint16_t p = 0; p < import->param_count; p++) {
+            uint8_t tag = mod->import_param_types[first->import_idx][p];
+            if (tag == TAG_FUNCTION || tag == TAG_CLOSURE) expected |= 1u << p;
+        }
+        uint32_t end = begin;
+        while (end < mod->callback_contract_count &&
+               mod->callback_contracts[end].import_idx == first->import_idx) {
+            const NvmCallbackContract *c = &mod->callback_contracts[end];
+            if (c->abi_version != NVM_CALLBACK_ABI_RETAINED_V1 ||
+                c->execution > NVM_FOREIGN_WORKER_THREAD ||
+                c->execution != first->execution || c->adapter_name_idx != first->adapter_name_idx ||
+                !nvm_callback_shape_valid(c->param_tags, c->param_count, c->return_tag)) return false;
+            const char *adapter = nvm_get_string(mod, c->adapter_name_idx);
+            if (!adapter || !adapter[0] ||
+                strlen(adapter) != nvm_get_string_len(mod, c->adapter_name_idx)) return false;
+            if (end > begin && c->parameter_idx <= mod->callback_contracts[end - 1].parameter_idx)
+                return false;
+            if (c->parameter_idx == NVM_CALLBACK_NO_PARAMETER) {
+                if (expected || end != begin || c->param_count || c->return_tag != TAG_VOID)
+                    return false;
+            } else {
+                if (c->parameter_idx >= import->param_count || !(expected & (1u << c->parameter_idx)))
+                    return false;
+                actual |= 1u << c->parameter_idx;
+            }
+            end++;
+        }
+        if (actual != expected ||
+            (end < mod->callback_contract_count && mod->callback_contracts[end].import_idx < first->import_idx))
+            return false;
+        begin = end;
+    }
     return true;
 }
 
@@ -491,6 +580,10 @@ uint32_t nvm_add_module_ref(NvmModule *mod, uint32_t module_name_idx) {
 }
 
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
+    if (mod->callback_contract_count) {
+        if (out_size) *out_size = 0;
+        return NULL;
+    }
     /* I cannot erase an exact binding or coprocess kind in legacy output. */
     for (uint32_t i = 0; i < mod->import_count; i++) {
         if (mod->imports[i].kind != NVM_IMPORT_FFI) {

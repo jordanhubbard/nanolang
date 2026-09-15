@@ -21,6 +21,7 @@ const char *get_project_root(void) { return g_project_root; }
 #include "../../src/nanovm/heap.h"
 #include "../../src/nanovm/value.h"
 #include "../../src/nanoisa/nvm_format.h"
+#include "../../src/nanovm/cop_protocol.h"
 
 /* ── Exported helpers with mixed integer/floating signatures ───────────────
  * These deterministic functions let the mixed-signature dispatcher be checked
@@ -688,12 +689,44 @@ TEST(artifact_handle_isolation) {
 
 /* ── main ──────────────────────────────────────────────────────────────── */
 
+TEST(contracted_import_never_uses_legacy_dispatch) {
+    NvmModule *module = nvm_module_new();
+    ASSERT(module);
+    uint32_t native = nvm_add_string(module, "", 0);
+    uint32_t name = nvm_add_string(module, "abs", 3);
+    uint32_t adapter = nvm_add_string(module, "abs_retained_adapter", 20);
+    uint8_t tags[] = {TAG_INT};
+    ASSERT_EQ(nvm_add_import(module, native, name, 1, TAG_INT, tags), 0u);
+    NvmCallbackContract c = {.import_idx = 0, .adapter_name_idx = adapter,
+        .parameter_idx = NVM_CALLBACK_NO_PARAMETER, .abi_version = NVM_CALLBACK_ABI_RETAINED_V1,
+        .execution = NVM_FOREIGN_WORKER_THREAD, .return_tag = TAG_VOID};
+    ASSERT(nvm_add_callback_contract(module, &c));
+    VmState *vm = malloc(sizeof(*vm));
+    ASSERT(vm);
+    vm_init(vm, module);
+    NanoValue args[] = {val_int(-7)}, result;
+    char error[256] = {0};
+    ASSERT(!vm_ffi_call(module, 0, args, 1, &result, &vm->heap, error, sizeof error));
+    ASSERT(strstr(error, "retained callback scheduler") != NULL);
+    ASSERT(!vm_ffi_call_cop(vm, module, 0, args, 1, &result, &vm->heap, error, sizeof error));
+    ASSERT(strstr(error, "retained callback scheduler") != NULL);
+    CopBatchCall call = {.import_idx = 0, .args = args, .arg_count = 1};
+    ASSERT(!vm_ffi_call_cop_batch(vm, module, &call, 1, &result, &vm->heap, error, sizeof error));
+    ASSERT(strstr(error, "retained callback scheduler") != NULL);
+    ASSERT_EQ(result.tag, TAG_VOID);
+    ASSERT_EQ(vm->cop_pid, -1);
+    vm_destroy(vm);
+    free(vm);
+    nvm_module_free(module);
+}
+
 int main(void) {
     printf("\n[vm_ffi] FFI bridge unit tests...\n\n");
     RUN(init_shutdown_set_env);
     RUN(wide_mixed_signature);
     RUN(call_string_returning_float);
     RUN(call_bytecode_callback_rejected);
+    RUN(contracted_import_never_uses_legacy_dispatch);
     RUN(artifact_handle_isolation);
     RUN(load_module_nonexistent);
     RUN(call_empty_module_oob);

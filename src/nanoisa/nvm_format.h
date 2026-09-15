@@ -131,6 +131,29 @@ typedef struct {
 
 #define NANO_MAX_FFI_ARGS 16
 
+#define NVM_CALLBACK_ABI_RETAINED_V1 1u
+#define NVM_CALLBACK_NO_PARAMETER UINT16_MAX
+typedef enum {
+    NVM_FOREIGN_OWNER_THREAD = 0,
+    NVM_FOREIGN_WORKER_THREAD = 1
+} NvmForeignExecution;
+
+/* I store callback shapes inline in my execution module; the v2 wire form
+ * references SIGNATURES. A NO_PARAMETER record specifies a wait/release
+ * adapter's execution policy without claiming a callback argument. */
+typedef struct {
+    uint32_t import_idx;
+    uint32_t adapter_name_idx;
+    uint16_t parameter_idx;
+    uint8_t abi_version;
+    uint8_t execution;
+    uint16_t param_count;
+    uint8_t return_tag;
+    uint8_t param_tags[NANO_MAX_FFI_ARGS];
+} NvmCallbackContract;
+
+bool nvm_callback_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result);
+
 /* ========================================================================
  * Import Entry (serialized in IMPORTS section)
  * ======================================================================== */
@@ -221,6 +244,9 @@ typedef struct {
     /* Import table */
     NvmImportEntry *imports;
     uint8_t **import_param_types; /* param type arrays, one per import */
+    NvmCallbackContract *callback_contracts;
+    uint32_t callback_contract_count;
+    uint32_t callback_contract_capacity;
     uint32_t import_count;
     uint32_t import_capacity;
 
@@ -259,6 +285,9 @@ uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry);
  * TAG_VOID explicitly means unknown, not a callback-compatible scalar. */
 bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
                                   const uint8_t *tags, uint16_t count);
+/* I append in (import_idx, parameter_idx) order and fail transactionally. */
+bool nvm_add_callback_contract(NvmModule *mod, const NvmCallbackContract *contract);
+bool nvm_callback_contracts_valid(const NvmModule *mod);
 
 /* Append bytecode to the code section. Returns the byte offset where it was written. */
 uint32_t nvm_append_code(NvmModule *mod, const uint8_t *code, uint32_t size);

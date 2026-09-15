@@ -297,6 +297,24 @@ typedef struct {
 
 typedef struct { NvmV2Import *items; uint32_t count; } NvmV2Imports;
 
+/* I encode 16-byte callback contract records, preceded by a u32 count:
+ * import u32, parameter u16, ABI u8, execution u8, signature u32, adapter u32.
+ * NO_PARAMETER requires NO_INDEX for its signature. Records are sorted and
+ * unique by (import, parameter); the module validator checks their targets. */
+typedef struct {
+    uint32_t import_idx;
+    uint16_t parameter_idx;
+    uint8_t abi_version;
+    uint8_t execution;
+    uint32_t signature_idx;
+    uint32_t adapter_name_idx;
+} NvmV2Callback;
+typedef struct { NvmV2Callback *items; uint32_t count; } NvmV2Callbacks;
+NvmV2Result nvm_v2_callbacks_decode(const uint8_t *data, size_t size, NvmV2Callbacks *out);
+void nvm_v2_callbacks_free(NvmV2Callbacks *callbacks);
+size_t nvm_v2_callbacks_encoded_size(const NvmV2Callbacks *callbacks);
+NvmV2Result nvm_v2_callbacks_encode(const NvmV2Callbacks *callbacks, uint8_t *out, size_t size);
+
 typedef struct {
     uint32_t module_name_idx;
     uint32_t symbol_name_idx;
@@ -365,6 +383,7 @@ typedef struct {
     NvmV2Functions  functions;
     NvmV2Globals    globals;
     NvmV2Imports    imports;
+    NvmV2Callbacks  callbacks;
     NvmV2Links      links;
     NvmV2Debug      debug;
     const uint8_t  *code;          /* aliases the module buffer when decoded */
