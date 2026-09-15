@@ -184,6 +184,8 @@ static const Nvm2cHost host_adapters[] = {
     {"nl_os_file_rename", "nhost_rename", 2, TAG_STRING, TAG_INT},
     {"file_compare_identity", "nhost_identity", 2, TAG_STRING, TAG_INT},
     {"file_compare_destinations", "nhost_destinations", 2, TAG_STRING, TAG_INT},
+    {"path_normalize", "nhost_normalize", 1, TAG_STRING, TAG_STRING},
+    {"nl_os_path_normalize", "nhost_normalize", 1, TAG_STRING, TAG_STRING},
 };
 
 /* These native contracts have homogeneous string parameters. I do not infer
@@ -2555,6 +2557,43 @@ static void emit_nsarr_push(Nvm2cBuf *b) {
         "}\n\n");
 }
 
+static void emit_host_normalize(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "static inline const char *nhost_normalize(const char *path) {\n"
+        "    if (!path) path = \"\";\n"
+        "    size_t length = strlen(path), slots = length / 2 + 1;\n"
+        "    if (length > SIZE_MAX - 2 || slots > SIZE_MAX / sizeof(size_t)) abort();\n"
+        "    char *out = malloc(length + 2);\n"
+        "    size_t *bases = malloc(slots * sizeof *bases);\n"
+        "    if (!out || !bases) abort();\n"
+        "    int absolute = path[0] == '/';\n"
+        "    size_t used = 0, count = 0, cursor = 0;\n"
+        "    if (absolute) out[used++] = '/';\n"
+        "    while (cursor < length) {\n"
+        "        if (path[cursor] == '/') { ++cursor; continue; }\n"
+        "        size_t start = cursor;\n"
+        "        while (cursor < length && path[cursor] != '/') ++cursor;\n"
+        "        size_t size = cursor - start;\n"
+        "        if (size == 1 && path[start] == '.') continue;\n"
+        "        if (size == 2 && path[start] == '.' && path[start + 1] == '.') {\n"
+        "            if (count) {\n"
+        "                size_t previous = bases[count - 1];\n"
+        "                if (out[previous] == '/') ++previous;\n"
+        "                if (!(used - previous == 2 && out[previous] == '.' && out[previous + 1] == '.')) {\n"
+        "                    used = bases[--count]; continue;\n"
+        "                }\n"
+        "            }\n"
+        "            if (absolute) continue;\n"
+        "        }\n"
+        "        if (count >= slots) abort();\n"
+        "        bases[count++] = used;\n"
+        "        if (used && out[used - 1] != '/') out[used++] = '/';\n"
+        "        memcpy(out + used, path + start, size); used += size;\n"
+        "    }\n"
+        "    if (!used) out[used++] = '.';\n"
+        "    out[used] = 0; free(bases); return out;\n}\n");
+}
+
 static void emit_host_identity(Nvm2cBuf *b, int identity, int destinations) {
     nvm2c_puts(b, "#include <sys/stat.h>\n#include <errno.h>\n");
     if (identity) nvm2c_puts(b,
@@ -2861,6 +2900,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             int cwd_used = module_uses_host(mod, "nhost_getcwd");
             if (module_uses_host(mod, "nhost_file_read")) emit_host_file_read(&b);
             if (module_uses_host(mod, "nhost_file_write")) emit_host_file_write(&b);
+            if (module_uses_host(mod, "nhost_normalize")) emit_host_normalize(&b);
             int identity_used = module_uses_host(mod, "nhost_identity");
             int destinations_used = module_uses_host(mod, "nhost_destinations");
             if (identity_used || destinations_used) emit_host_identity(&b, identity_used, destinations_used);

@@ -28,6 +28,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT lexical normalization.** I normalize builtin paths without
+      fixed component/output limits, preserving relative parents and roots.
+      I test long paths and rerun compiler acceptance.
+      MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      My AOT suite passes 828 checks. Compiler acceptance still fails at
+      `nl_exec_shell` (import 25). Evidence: `docs/evidence/aot-builtin-normalize.md`.
+- [ ] **Native normalization bounds.** I replace module path truncation and
+      generated-native `parts[512]` overflow on leading parents with checked
+      dynamic storage. I test both paths beyond their old limits.
+      MAC `task_82bd388637824cc889b12204d226e75b`.
 - [x] **AOT identity checks.** I preserve file/destination identity semantics
       for builtin imports, including hard links, missing paths and failed
       lookups. I test absent-destination probe cleanup in private directories.

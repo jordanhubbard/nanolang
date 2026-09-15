@@ -739,6 +739,70 @@ static void test_builtin_identity(void) {
     rmdir(missing); rmdir(absent); rmdir(directory);
 }
 
+static void test_builtin_normalize(void) {
+    char parents[2101], components[1401], cancelled[3501], long_name[5001];
+    for (int i = 0; i < 700; ++i) {
+        memcpy(parents + i * 3, "../", 3);
+        memcpy(components + i * 2, "x/", 2);
+    }
+    parents[2099] = 0; components[1399] = 0;
+    strcpy(cancelled, components);
+    for (int i = 0; i < 700; ++i) memcpy(cancelled + 1399 + i * 3, "/..", 3);
+    cancelled[3499] = 0;
+    memset(long_name, 'x', 5000); long_name[5000] = 0;
+    struct NormalizeCase { const char *input, *expected; } cases[] = {
+        {"", "."}, {".", "."}, {"/", "/"}, {"///", "/"},
+        {"a//b/./c/..", "a/b"}, {"../../a/../b", "../../b"},
+        {"/../../a/..", "/"}, {"a/../../b", "../b"},
+        {".../..", "."}, {"a/../..", ".."},
+        {parents, parents}, {components, components}, {cancelled, "."},
+        {long_name, long_name},
+    };
+    for (int alias = 0; alias < 2; ++alias) {
+        char *assembly = malloc(65536);
+        if (!assembly) abort();
+        size_t used = (size_t)snprintf(assembly, 65536,
+            ".import \"\" \"%s\" string string\n.entry 0\n",
+            alias ? "nl_os_path_normalize" : "path_normalize");
+        for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+            used += (size_t)snprintf(assembly + used, 65536 - used,
+                ".string p%zu \"input_%zu\"\n.string e%zu \"expected_%zu\"\n", i, i, i, i);
+        used += (size_t)snprintf(assembly + used, 65536 - used, ".function main 0 0 0 int 1\n");
+        for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i)
+            used += (size_t)snprintf(assembly + used, 65536 - used,
+                "PUSH_STR p%zu\nCALL_EXTERN 0\nPUSH_STR e%zu\nEQ\nASSERT\n", i, i);
+        snprintf(assembly + used, 65536 - used, "PUSH_I64 0\nRET\n.end\n");
+        NvmModule *module = assemble_ok(assembly, "dynamic lexical normalization");
+        free(assembly);
+        if (!module) continue;
+        for (uint32_t s = 0; s < module->string_count; ++s) {
+            size_t index = 0;
+            const char *value = NULL;
+            if (sscanf(module->strings[s], "input_%zu", &index) == 1 && index < sizeof cases / sizeof cases[0])
+                value = cases[index].input;
+            else if (sscanf(module->strings[s], "expected_%zu", &index) == 1 && index < sizeof cases / sizeof cases[0])
+                value = cases[index].expected;
+            if (value) {
+                free(module->strings[s]); module->strings[s] = strdup(value);
+                module->string_lengths[s] = (uint32_t)strlen(value);
+            }
+        }
+        char error[256];
+        char *source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source != NULL, "I emit builtin lexical normalization");
+        if (source) {
+            int status = -1;
+            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+                  "I preserve roots, relative parents and paths beyond old fixed limits");
+        } else fprintf(stderr, "%s\n", error);
+        free(source);
+        module->import_param_types[0][0] = TAG_INT;
+        source = nvm2c_emit(module, error, sizeof error);
+        CHECK(source == NULL, "I reject a non-string normalization input");
+        free(source); nvm_module_free(module);
+    }
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"get_argc", "CALL_EXTERN 0\nPUSH_I64 1\nEQ\nASSERT\n", 0, TAG_VOID, TAG_INT},
@@ -3217,6 +3281,7 @@ int main(int argc, char **argv) {
     test_builtin_filesystem_predicates();
     test_builtin_removal_and_rename();
     test_builtin_identity();
+    test_builtin_normalize();
     test_artifact_array_import_is_not_a_builtin();
     test_owned_artifact_execution();
     test_real_walk_artifact();
