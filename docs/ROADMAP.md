@@ -152,6 +152,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         entry-point tests pass; the full component-execution audit remains
         open because the PR does not implement it.
         [Review evidence](evidence/pr-266-reconciliation.md).
+      - [x] I reconcile main's PR #293 squash `ce0e8e95` after integrating
+        the worker head and additional fixes. Complete tree comparison with
+        `c751d2e8` is identical; I record main's commit as a merge parent and
+        retain my tested integration source unchanged.
+        [Review evidence](evidence/pr-293-reconciliation.md).
       - [x] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with

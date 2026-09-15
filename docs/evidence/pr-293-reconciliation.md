@@ -56,3 +56,10 @@ contains the worker branch, not my additional integration fixes above. I must
 still reconcile the advanced main branch before the release. The source task is
 `task_256337a9977f43b2baee7b26ebd66bc7`; scalar map parity remains
 `task_75b340982b6cf797f29b38c1a188aab3`. This is not release acceptance.
+
+I subsequently compared the complete trees at `c751d2e8` and `ce0e8e95`:
+`git diff --exit-code` returns zero. The squash on main contains exactly the
+worker tree already reviewed above. I record `ce0e8e95` as an integration
+merge parent without changing source, preserving my subsequent fixes and
+their test evidence. This reconciles that main update, not future updates or
+the outstanding release branches.
