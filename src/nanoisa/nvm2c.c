@@ -2511,9 +2511,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         if (!import_host(mod, i)) {
             const char *name = mod->imports ? nvm_get_string(mod, mod->imports[i].function_name_idx) : NULL;
-            if (err && err_len)
-                snprintf(err, err_len, "import %u (%s) requires an exact builtin host ABI; nvm2c refuses CALL_EXTERN",
-                         i, name ? name : "invalid name");
+            if (err && err_len) {
+                if (mod->imports && mod->imports[i].kind == NVM_IMPORT_ARTIFACT)
+                    snprintf(err, err_len, "import %u (%s) is artifact-backed and requires an exact library binding and typed value adapter; nvm2c refuses CALL_EXTERN",
+                             i, name ? name : "invalid name");
+                else
+                    snprintf(err, err_len, "import %u (%s) requires an exact builtin host ABI; nvm2c refuses CALL_EXTERN",
+                             i, name ? name : "invalid name");
+            }
             return NULL;
         }
     }

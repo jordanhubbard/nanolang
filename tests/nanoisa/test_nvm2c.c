@@ -242,6 +242,24 @@ static void test_store_load_local(void) {
     nvm_module_free(m);
 }
 
+static void test_artifact_array_import_is_not_a_builtin(void) {
+    NvmModule *module = assemble_ok(
+        ".import \"\" \"fs_walkdir\" array string\n"
+        ".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
+        "filesystem artifact array ABI");
+    if (!module) return;
+    module->imports[0].kind = NVM_IMPORT_ARTIFACT;
+    const char *artifact = "/retained/generation/libstd.dylib";
+    module->imports[0].module_name_idx = nvm_add_string(module, artifact, (uint32_t)strlen(artifact));
+    char error[256];
+    char *source = nvm2c_emit(module, error, sizeof error);
+    CHECK(source == NULL, "I do not substitute a filesystem builtin for an exact artifact");
+    CHECK(strstr(error, "fs_walkdir") && strstr(error, "artifact-backed"),
+          "I identify the unsupported artifact array boundary");
+    free(source);
+    nvm_module_free(module);
+}
+
 static void test_builtin_host_imports(void) {
     struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
         {"get_argc", "CALL_EXTERN 0\nPUSH_I64 1\nEQ\nASSERT\n", 0, TAG_VOID, TAG_INT},
@@ -290,6 +308,9 @@ static void test_builtin_host_imports(void) {
                                                                             (uint32_t)strlen(cases[i].name) + 1);
             c = nvm2c_emit(m, err, sizeof err);
             CHECK(c == NULL, "noncanonical host signature or namespace is rejected");
+            if (bad == 1)
+                CHECK(strstr(err, "artifact-backed") != NULL,
+                      "I distinguish artifact binding from a builtin signature mismatch");
             free(c);
             m->imports[0] = original;
         }
@@ -2712,6 +2733,7 @@ int main(int argc, char **argv) {
     test_add_is_structured_c_and_runs();
     test_store_load_local();
     test_builtin_host_imports();
+    test_artifact_array_import_is_not_a_builtin();
     test_call_extern_is_refused();
     test_str_trim_is_refused();
     test_push_str_len_runs_without_nano_vm();

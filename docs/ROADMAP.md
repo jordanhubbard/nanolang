@@ -28,6 +28,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **AOT artifact boundary diagnostics.** I distinguish unsupported exact
+      artifact imports from builtin ABI mismatches and pin the filesystem-array
+      boundary against name-only rebinding. This does not implement the native
+      array adapter. MAC `task_419c47bdc8fc42e4b52eb6af1a0e9a71`.
+      The AOT suite passes 617 checks; One-IR acceptance still fails at the
+      artifact adapter. Evidence: `docs/evidence/aot-artifact-boundary.md`.
 - [x] **One-IR compiler execution baseline.** I exercise the current full
       compiler through bytecode emission, AOT C translation, native compilation
       and a compiled hello program. I retain bounded subprocess groups and
