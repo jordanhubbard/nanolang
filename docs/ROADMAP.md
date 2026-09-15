@@ -114,6 +114,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           suites pass 36/36 with a pinned ambiguity diagnostic and no artifact
           publication. MAC `task_76faf75ded541840965d2d4f20d4484e`.
         - [ ] I implement effect dispatch across native and VM execution.
+          - [ ] I preserve handler capture identity in VM lowering. Existing
+            CLOSURE_NEW copies captured values and STORE_UPVALUE updates only
+            that copy; lowering handlers directly to those closures would not
+            preserve interpreter mutations of enclosing locals. I require
+            caller/handler read-write visibility, nested routing and scope-exit
+            cleanup tests before calling that lowering equivalent.
           - [x] I carry ordered perform arguments through one parser, the AST,
             checking and interpreter dispatch. I evaluate every argument before
             introducing handler bindings, test zero and multiple arguments,
@@ -327,10 +333,22 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           byte fixture. All 18 VM-builtin tests pass, including 8,193 binary bytes,
           empty/missing paths and directory read failure. This does not establish
           identical backend error handling or native-array ownership.
-        - [ ] I align interpreter/native byte-file storage, non-seekable reads
-          and read/close-error behavior with the VM path. Their existing readers
-          still use integer storage or unchecked seeks and allow partial results.
+        - [x] I align interpreter/native byte-file storage, non-seekable reads
+          and read/close-error behavior with the VM path.
+          I share one streaming reader, inject partial-read and close failures,
+          and compare every byte from a pipe in real shadows and artifacts.
+          Byte storage exposes missing ELEM_U8 handling in interpreter at/array_get;
+          I fix that indexing path as part of the same observable contract.
+          The pipe regression checks all 8,193 bytes through real native/VM
+          shadows and executable artifacts. Injected stream errors discard
+          partial bytes and close once. All 21 VM-builtin tests and the
+          interpreter/transpiler gates pass. Text readers remain separate.
           MAC `task_84458d97b4635a911eee8f2b90d66673`.
+        - [ ] I make text file reads safe for streams and read failures. The
+          interpreter/native readers use unchecked seeks and sizes; VM text
+          reading also requires seeking and can accept partial data. I define
+          text/NUL/error behavior and test read/close/allocation failures across
+          backends. MAC `task_a3f451df37b59cefc68dfcf91e5e3f6a`.
         - [x] I repair the tail-call fixture's non-language call syntax and
           discarded returns, add bounded shadows, and retain a million-step
           executable test with defined integer arithmetic and asserted results.

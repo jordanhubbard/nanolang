@@ -950,6 +950,15 @@ test-void-bindings: stage1 nano_virt nano_vm
 
 test-units: test-void-bindings
 
+.PHONY: test-file-bytes
+test-file-bytes: stage1 nano_virt nano_vm
+	$(CC) $(CFLAGS) -o tests/test_file_bytes tests/test_file_bytes.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./tests/test_file_bytes
+	python3 tests/test_file_bytes.py
+	@rm -f tests/test_file_bytes
+
+test-units: test-file-bytes
+
 .PHONY: test-ffi
 $(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<

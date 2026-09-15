@@ -955,6 +955,8 @@ static Value builtin_at(Value *args) {
         /* Return element based on type */
         ElementType elem_type = dyn_array_get_elem_type(arr);
         switch (elem_type) {
+            case ELEM_U8:
+                return create_int(dyn_array_get_u8(arr, index));
             case ELEM_INT:
                 return create_int(dyn_array_get_int(arr, index));
             case ELEM_FLOAT:

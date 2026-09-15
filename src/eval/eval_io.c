@@ -7,6 +7,7 @@
 #include "eval_io.h"
 #include "../nanolang.h"
 #include "../runtime/process_capture.h"
+#include "../runtime/file_bytes.h"
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -58,19 +59,7 @@ Value builtin_file_read(Value *args) {
 }
 
 Value builtin_file_read_bytes(Value *args) {
-    const char *path = args[0].as.string_val;
-    FILE *f = fopen(path, "rb");
-    if (!f) {
-        return create_dyn_array(dyn_array_new(ELEM_INT));
-    }
-
-    DynArray *bytes = dyn_array_new(ELEM_INT);
-    int c;
-    while ((c = fgetc(f)) != EOF) {
-        dyn_array_push_int(bytes, (int64_t)(unsigned char)c);
-    }
-    fclose(f);
-    return create_dyn_array(bytes);
+    return create_dyn_array(nl_read_file_bytes(args[0].as.string_val));
 }
 
 Value builtin_bytes_from_string(Value *args) {

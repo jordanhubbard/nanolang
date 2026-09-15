@@ -1043,18 +1043,26 @@ let r2: Result<float, string> = (result_and_then r safe_sqrt)
 ## File I/O (8)
 
 ### `file_read(path: string) -> string`
-I read the entire contents of a file and return them as a string. I return an empty string on error.
+
+I read file contents as a string. My current text readers rely on seeks and do
+not consistently detect read failures. Streaming and error parity remain
+roadmap work; do not assume every failure produces an empty string.
 
 ```nano
 let content: string = (file_read "data.txt")
 (println content)
 ```
 
-### `file_read_bytes(path: string) -> array<int>`
-I read file contents as an array of byte values (0–255). I recommend this for binary files.
+### `file_read_bytes(path: string) -> array<u8>`
+
+I read binary contents into byte-typed storage, including zero bytes. My C-seed
+interpreter, native emitter and VM bridge share a streaming reader that does
+not seek. An open, read or close failure returns an empty array; a read or close
+failure discards partial contents. Empty files and failures are therefore not
+distinguishable through this API. I do not impose a size limit or read deadline.
 
 ```nano
-let data: array<int> = (file_read_bytes "image.png")
+let data: array<u8> = (file_read_bytes "image.png")
 let size: int = (array_length data)
 ```
 

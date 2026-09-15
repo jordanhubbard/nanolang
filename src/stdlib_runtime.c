@@ -1368,30 +1368,9 @@ void generate_file_operations(StringBuilder *sb) {
     sb_append(sb, "    return buffer;\n");
     sb_append(sb, "}\n\n");
 
-    /* Binary file reading - returns DynArray of bytes (0-255) */
+    sb_append(sb, "#include \"runtime/file_bytes.h\"\n");
     sb_append(sb, "static DynArray* nl_os_file_read_bytes(const char* path) {\n");
-    sb_append(sb, "    FILE* f = fopen(path, \"rb\");\n");
-    sb_append(sb, "    if (!f) {\n");
-    sb_append(sb, "        /* Return empty array on error */\n");
-    sb_append(sb, "        return dyn_array_new(ELEM_U8);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    fseek(f, 0, SEEK_END);\n");
-    sb_append(sb, "    long size = ftell(f);\n");
-    sb_append(sb, "    fseek(f, 0, SEEK_SET);\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    /* Create dynamic array for bytes */\n");
-    sb_append(sb, "    DynArray* bytes = dyn_array_new(ELEM_U8);\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    /* Read bytes and add to array */\n");
-    sb_append(sb, "    for (long i = 0; i < size; i++) {\n");
-    sb_append(sb, "        int c = fgetc(f);\n");
-    sb_append(sb, "        if (c == EOF) break;\n");
-    sb_append(sb, "        dyn_array_push_u8(bytes, (uint8_t)(unsigned char)c);\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    \n");
-    sb_append(sb, "    fclose(f);\n");
-    sb_append(sb, "    return bytes;\n");
+    sb_append(sb, "    return nl_read_file_bytes(path);\n");
     sb_append(sb, "}\n\n");
 
     sb_append(sb, "static int64_t nl_os_file_write(const char* path, const char* content) {\n");
