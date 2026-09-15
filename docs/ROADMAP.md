@@ -272,6 +272,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I validate closed and expanded dropdown geometry and
                     text placement; I test height multiplication, open/close
                     signals, selection and rejected surface cleanup.
+                  - [x] I bound syntax-highlighted code-display geometry and
+                    scrolling, check font measurements, preserve full tokens
+                    beyond 255 bytes, and restore clipping; I test failures.
+                  - [ ] I audit ANSI/code-editor indexing and rendering,
+                    including multiline tokens and visual-line scrolling.
                   - [ ] I reconcile the text-input API's promised editing and
                     Enter behavior with its current render-only implementation.
                 - [x] I make process pipe-spawn result allocation precede pipe

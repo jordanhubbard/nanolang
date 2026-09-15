@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include <stdlib.h>
 
 static int ui_bar_geometry(int64_t x, int64_t y, int64_t w, int64_t h, int margin);
 static uint8_t ui_color_channel(int64_t value) {
@@ -1467,7 +1468,11 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
                          int64_t w, int64_t h, int64_t scroll_offset,
                          int64_t line_height) {
     
-    if (!font || !code) return;
+    if (!renderer || !font || !code || w < 10 || h < 5 ||
+        !ui_bar_geometry(x, y, w, h, 0) || scroll_offset < 0 ||
+        scroll_offset > INT_MAX || line_height <= 0 || line_height > INT_MAX) return;
+    size_t source_length = strlen(code);
+    if (source_length >= INT_MAX) return;
     
     // Draw background
     SDL_Rect bg = {(int)x, (int)y, (int)w, (int)h};
@@ -1480,12 +1485,15 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
     
     // Set up clipping rectangle to prevent text overflow
     SDL_Rect clip = {(int)x + 2, (int)y + 2, (int)w - 4, (int)h - 4};
+    SDL_bool had_clip = SDL_RenderIsClipEnabled(renderer);
+    SDL_Rect previous_clip;
+    SDL_RenderGetClipRect(renderer, &previous_clip);
     SDL_RenderSetClipRect(renderer, &clip);
     
-    int current_x = (int)x + 5;
-    int current_y = (int)y + 5 - ((int)scroll_offset * (int)line_height);
+    int64_t current_x = x + 5;
+    int64_t current_y = y + 5 - scroll_offset * line_height;
     int pos = 0;
-    int code_len = strlen(code);
+    int code_len = (int)source_length;
     
     // Render tokens line by line
     while (pos < code_len) {
@@ -1521,23 +1529,23 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
         if (token_type == TOKEN_WHITESPACE) {
             if (c == ' ') {
                 // Measure space width
-                int space_w;
-                TTF_SizeText(font, " ", &space_w, NULL);
-                current_x += space_w;
+                int space_w = 0;
+                if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
+                    current_x += space_w;
             } else if (c == '\t') {
-                int space_w;
-                TTF_SizeText(font, " ", &space_w, NULL);
-                current_x += space_w * 4;  // Tab = 4 spaces
+                int space_w = 0;
+                if (TTF_SizeText(font, " ", &space_w, NULL) == 0 && space_w >= 0)
+                    current_x += (int64_t)space_w * 4;
             }
             pos++;
             continue;
         }
         
         // Extract token text
-        char token_text[256];
-        int copy_len = token_len < 255 ? token_len : 255;
-        strncpy(token_text, code + pos, copy_len);
-        token_text[copy_len] = '\0';
+        char *token_text = malloc((size_t)token_len + 1);
+        if (!token_text) break;
+        memcpy(token_text, code + pos, (size_t)token_len);
+        token_text[token_len] = '\0';
         
         // Get color for token type
         int r, g, b;
@@ -1546,12 +1554,15 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
         // Render token
         SDL_Color color = {(Uint8)r, (Uint8)g, (Uint8)b, 255};
         SDL_Surface* surface = TTF_RenderText_Blended(font, token_text, color);
+        free(token_text);
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                SDL_Rect dest = {current_x, current_y, surface->w, surface->h};
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
-                current_x += surface->w;
+                if (ui_bar_geometry(current_x, current_y, surface->w, surface->h, 0)) {
+                    SDL_Rect dest = {(int)current_x, (int)current_y, surface->w, surface->h};
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                }
+                if (surface->w >= 0) current_x += surface->w;
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);
@@ -1570,7 +1581,7 @@ void nl_ui_code_display(SDL_Renderer* renderer, TTF_Font* font,
     }
     
     // Clear clipping
-    SDL_RenderSetClipRect(renderer, NULL);
+    SDL_RenderSetClipRect(renderer, had_clip ? &previous_clip : NULL);
 }
 
 static void ansi_color_from_code(int code, int *r, int *g, int *b) {

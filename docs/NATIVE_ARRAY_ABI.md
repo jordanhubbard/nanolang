@@ -160,6 +160,12 @@ Dropdowns validate their closed and expanded dimensions before interaction and
 check selected/option text placement. The fixture checks height multiplication,
 minimum sizes, coordinate limits, open/close signals, selection and rejected
 text cleanup normally and under the same sanitizers.
+The syntax-colored code viewer checks geometry, source-index limits, scrolling
+and measurements, uses int64 pen coordinates, and no longer truncates tokens
+at 255 bytes. Token allocation failure ends rendering with clip restoration.
+The fixture checks 600-byte tokens, allocation/measurement failure, extreme
+scrolling and surfaces, and clipping under the same gates. ANSI/editor paths
+and multiline/visual-line semantics remain separate work.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

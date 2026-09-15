@@ -50,6 +50,11 @@
  * including its expanded rows when open. Invalid geometry returns -1 before
  * interaction; unplaceable text is skipped with cleanup. */
 
+/* My syntax-colored code display requires valid geometry (at least 10x5),
+ * scroll in [0,INT_MAX], line height in [1,INT_MAX], and source < INT_MAX bytes.
+ * I preserve complete tokens and restore clipping even if allocation fails.
+ * Failed measurements do not advance the pen. Multiline layout remains work. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();

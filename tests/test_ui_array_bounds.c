@@ -2,6 +2,9 @@
 #include <assert.h>
 #include <string.h>
 #include <float.h>
+#include <stdlib.h>
+static int fail_token_alloc;
+static void *fake_alloc(size_t size) { return fail_token_alloc ? NULL : malloc(size); }
 static int mouse_calls, text_calls;
 static int draw_calls;
 static int render_copies, texture_frees, surface_frees, provide_surface;
@@ -15,7 +18,9 @@ static int measured_w = 10, measured_h = 10, fail_measure, measure_calls;
 static int fake_size(TTF_Font *f, const char *s, int *w, int *h) {
     (void)f; (void)s; measure_calls++;
     if (fail_measure) return -1;
-    *w=measured_w; *h=measured_h; return 0;
+    if (w) *w=measured_w;
+    if (h) *h=measured_h;
+    return 0;
 }
 static Uint8 copied_alpha, copied_r;
 static SDL_BlendMode copied_blend;
@@ -101,7 +106,9 @@ static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surf
 #define SDL_SetTextureBlendMode set_blend
 #define SDL_GetRenderDrawBlendMode get_renderer_blend
 #define SDL_SetRenderDrawBlendMode set_renderer_blend
+#define malloc fake_alloc
 #include "../modules/ui_widgets/ui_widgets.c"
+#undef malloc
 
 static void invoke(DynArray *a, int64_t count, int64_t scroll) {
     SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
@@ -467,6 +474,40 @@ static void dropdown_geometry(void) {
     assert(nl_ui_dropdown(r,f,&a,5,0,0,100,INT_MAX/6,-1,1) == -1);
     assert(nl_ui_dropdown(r,f,&a,5,INT_MAX-100,0,100,20,-1,1) == -1);
 }
+static void code_displays(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    int draws=draw_calls;
+    nl_ui_code_display(r,f,"token",INT64_MAX,0,100,100,0,20);
+    nl_ui_code_display(r,f,"token",0,0,100,100,-1,20);
+    nl_ui_code_display(r,f,"token",0,0,100,100,0,0);
+    nl_ui_code_display(r,f,"token",0,0,100,100,INT64_MAX,20);
+    assert(draw_calls == draws);
+    char long_token[601];
+    memset(long_token,'a',600); long_token[600]=0;
+    expected_text=long_token; provide_surface=1;
+    test_surface.w=50; test_surface.h=10;
+    clip_enabled=SDL_TRUE; clip_rect=(SDL_Rect){1,2,3,4};
+    int copies=render_copies, frees=surface_frees;
+    nl_ui_code_display(r,f,long_token,0,0,100,100,0,20);
+    assert(render_copies == copies+1 && surface_frees == frees+1);
+    assert(clip_enabled && clip_rect.x == 1 && clip_rect.w == 3);
+    fail_token_alloc=1;
+    int texts=text_calls;
+    nl_ui_code_display(r,f,long_token,0,0,100,100,0,20);
+    assert(text_calls == texts && clip_enabled && clip_rect.x == 1);
+    fail_token_alloc=0; expected_text="token"; measured_w=INT_MAX;
+    nl_ui_code_display(r,f,"\t token",0,0,100,100,0,20);
+    assert(render_copies == copies+1);
+    fail_measure=1;
+    nl_ui_code_display(r,f," token",0,0,100,100,0,20);
+    fail_measure=0; measured_w=10;
+    test_surface.w=INT_MAX; test_surface.h=INT_MAX;
+    nl_ui_code_display(r,f,"token",INT_MAX-100,INT_MAX-100,100,100,0,20);
+    clip_enabled=SDL_FALSE; provide_surface=0;
+    nl_ui_code_display(r,f,"token\n token",0,0,100,100,INT_MAX,INT_MAX);
+    assert(!clip_enabled);
+}
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
     for (size_t i = 0; i < sizeof(invalid_scales) / sizeof(*invalid_scales); i++) {
@@ -542,5 +583,6 @@ int main(void) {
     text_inputs();
     list_geometry();
     dropdown_geometry();
+    code_displays();
     return 0;
 }
