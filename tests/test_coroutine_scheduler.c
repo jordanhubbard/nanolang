@@ -302,7 +302,45 @@ void test_handle_capacity_and_exhaustion(void) {
     ASSERT_EQ(g_scheduler.count, INT_MAX);
 }
 
+static Value coro_await_cycle(void *arg, int coro_id) {
+    int target = arg ? *(int *)arg : coro_id;
+    (void)nano_coro_await_id(target);
+    nano_coro_complete(make_int(99));
+    return make_int(99);
+}
+
+static Value coro_nested_cycle(void *arg, int coro_id) {
+    (void)arg;
+    int child = nano_coro_spawn(coro_await_cycle, &coro_id);
+    (void)nano_coro_await_id(child);
+    ASSERT(nano_coro_release(child));
+    return make_int(99);
+}
+
+void test_await_failures_are_terminal(void) {
+    for (int nested = 0; nested < 2; nested++) {
+        for (int await = 0; await < 2; await++) {
+            reset_scheduler();
+            int id = nano_coro_spawn(nested ? coro_nested_cycle : coro_await_cycle, NULL);
+            if (await) { ASSERT_EQ(nano_coro_await_id(id).type, VAL_VOID); }
+            else { ASSERT(nano_scheduler_step()); }
+            ASSERT(nano_coro_is_done(id));
+            ASSERT_EQ(g_scheduler.coroutines[0].status, CORO_ERROR);
+            ASSERT(g_scheduler.coroutines[0].error_msg != NULL);
+            ASSERT_EQ(nano_scheduler_pending_count(), 0);
+            ASSERT(nano_coro_release(id));
+        }
+    }
+    reset_scheduler();
+    int stale = -1;
+    int id = nano_coro_spawn(coro_await_cycle, &stale);
+    ASSERT_EQ(nano_coro_await_id(id).type, VAL_VOID);
+    ASSERT_EQ(g_scheduler.coroutines[0].status, CORO_ERROR);
+    ASSERT(nano_coro_release(id));
+}
+
 int main(void) {
+    TEST(await_failures_are_terminal);
     TEST(completed_handle_retention);
     TEST(handle_capacity_and_exhaustion);
     TEST(terminal_slot_stays_active);

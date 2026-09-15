@@ -88,6 +88,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       - [ ] I resolve the 16 compilation/shadow failures exposed by the strict
         dispatch corpus; exclusions require evidence of an intentional fixture
         contract, not merely failure. MAC `task_a954001005513e9f99272f3b6275f817`.
+        - [x] I fail self/ancestor await cycles and propagate failed awaits
+          to running callers. I keep completion/error terminal so a callback
+          cannot overwrite failure with a later completion. I test self waits,
+          nested cycles, stale handles and both scheduler entry paths.
+          Scheduler/interpreter gates pass, as does the standalone scheduler
+          ASan/UBSan suite with leak detection disabled. Typed task errors and
+          resumable async remain separate work below.
+          MAC `task_cae2c16891b91e98fdb4bb9ee2074306`.
         - [x] I retain scheduler handles and completed results until explicit
           release, reject active/pending release and invalid spawn callbacks,
           and reject ID exhaustion without wrapping. Synchronous interpreter

@@ -176,6 +176,7 @@ void nano_scheduler_run_until_done(void) {
 Value nano_coro_await_id(int coro_id) {
     NanoCoroutine *target = coro_by_id(coro_id);
     if (!target) {
+        nano_coro_error("I cannot await an invalid or released task handle.");
         Value v;
         memset(&v, 0, sizeof(v));
         v.type = VAL_VOID;
@@ -185,6 +186,15 @@ Value nano_coro_await_id(int coro_id) {
     /* If already done, return result immediately */
     if (target->status == CORO_DONE) {
         return target->result;
+    }
+
+    /* In this run-to-completion scheduler every active target is on the
+     * current C call stack. Waiting for it would wait on myself or an ancestor. */
+    if (target->active && target->status != CORO_ERROR) {
+        nano_coro_error("I cannot await myself or an active ancestor task.");
+        Value result = {0};
+        result.type = VAL_VOID;
+        return result;
     }
 
     /* Run the scheduler until this coroutine is done */
@@ -223,6 +233,8 @@ Value nano_coro_await_id(int coro_id) {
     }
 
     if (target->status == CORO_DONE) return target->result;
+
+    nano_coro_error("I could not complete the awaited task.");
 
     Value v;
     memset(&v, 0, sizeof(v));
@@ -263,6 +275,7 @@ int nano_scheduler_pending_count(void) {
 void nano_coro_complete(Value result) {
     if (g_scheduler.current < 0) return;
     NanoCoroutine *c = &g_scheduler.coroutines[g_scheduler.current];
+    if (c->status != CORO_RUNNING) return;
     c->status = CORO_DONE;
     c->result = result;
 }
@@ -270,6 +283,7 @@ void nano_coro_complete(Value result) {
 void nano_coro_error(const char *msg) {
     if (g_scheduler.current < 0) return;
     NanoCoroutine *c = &g_scheduler.coroutines[g_scheduler.current];
+    if (c->status != CORO_RUNNING) return;
     c->status = CORO_ERROR;
     if (msg) {
         size_t len = strlen(msg);
