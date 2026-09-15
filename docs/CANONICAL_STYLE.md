@@ -230,7 +230,10 @@ function containing the handler, even when another function performs the
 operation. The arm's final expression supplies the operation result and resumes
 `perform`. My interpreter now preserves the lexical call destination through
 ordinary helper calls and tested scalar expressions, including nested handler
-unwinding and string returns. Full expression coverage and native/VM lowering
+unwinding and string returns. Aggregate constructors and match guards stop
+before later elements or arms execute. I test partial string/record-array
+cleanup without freeing the caller's original records. Higher-order builtin
+callbacks, full expression coverage and native/VM lowering
 remain roadmap work; these tests do not establish backend equivalence.
 
 ## Imports And Modules

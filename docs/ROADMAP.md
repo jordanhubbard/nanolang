@@ -136,9 +136,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             expression ordering, string results and repeated handler unwinding.
             The lexical call destination and scalar call/operator propagation
             now pass interpreter regressions, including nested handlers and
-            final-expression resumption. I still audit aggregate constructors,
-            match guards, higher-order builtin callbacks and other expression
-            consumers before marking general interpreter propagation complete.
+            final-expression resumption. Aggregate constructors, match subjects
+            and guards, loop bounds, assertions and other value consumers now
+            propagate the return before later work. Tests check interrupted
+            string/record arrays preserve caller storage. Evaluator, effects,
+            typechecker, parser and transpiler gates pass; the changed evaluator
+            and evaluator tests pass ASan/UBSan with other linked objects
+            uninstrumented and leak detection disabled. I still audit
+            higher-order builtin callbacks and remaining consumers before
+            marking general interpreter propagation complete.
             MAC `task_67e5e620d75a413b99753c7cdbde1f48`.
           - [x] I preserve declared handler parameter metadata for nominal
             field access, typed array reads and function signatures. I test

@@ -4745,6 +4745,35 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
     return return_value;
 }
 
+/* I discard only record/string storage cloned by create_struct. Arrays and
+ * other referenced fields remain borrowed, as in that constructor. */
+static void discard_literal_record(StructValue *record) {
+    if (!record) return;
+    for (int i = 0; i < record->field_count; i++) {
+        Value field = record->field_values[i];
+        if (field.type == VAL_STRUCT) discard_literal_record(field.as.struct_val);
+        else if (field.type == VAL_STRING) {
+            if (gc_is_managed(field.as.string_val)) gc_release(field.as.string_val);
+            else free(field.as.string_val);
+        }
+        free(record->field_names[i]);
+    }
+    free(record->field_names);
+    free(record->field_values);
+    free(record->struct_name);
+    free(record);
+}
+
+static void discard_partial_literal_array(Array *array, int initialized) {
+    for (int i = 0; i < initialized; i++) {
+        if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
+        else if (array->element_type == VAL_STRUCT)
+            discard_literal_record(((StructValue **)array->data)[i]);
+    }
+    free(array->data);
+    free(array);
+}
+
 /* Evaluate expression */
 static Value eval_expression(ASTNode *expr, Environment *env) {
     if (!expr) return create_void();
@@ -4828,6 +4857,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 args = malloc(sizeof(Value) * (size_t)arg_count);
                 for (int i = 0; i < arg_count; i++) {
                     args[i] = eval_expression(expr->as.module_qualified_call.args[i], env);
+                    if (args[i].is_return) {
+                        Value result = args[i];
+                        free(args);
+                        free(qualified_name);
+                        return result;
+                    }
                 }
             }
 
@@ -4858,6 +4893,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             
             /* Evaluate first element to determine type */
             Value first = eval_expression(expr->as.array_literal.elements[0], env);
+            if (first.is_return) return first;
             ValueType elem_type = first.type;
             if (elem_type == VAL_DYN_ARRAY) elem_type = VAL_ARRAY;
             
@@ -4867,6 +4903,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Set elements */
             for (int i = 0; i < count; i++) {
                 Value elem = i == 0 ? first : eval_expression(expr->as.array_literal.elements[i], env);
+                if (elem.is_return) {
+                    discard_partial_literal_array(arr.as.array_val, i);
+                    return elem;
+                }
                 
                 /* Store element in array data */
                 switch (elem_type) {
@@ -4968,6 +5008,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                                 field_values = malloc(sizeof(Value) * field_count);
                                 for (int i = 0; i < field_count; i++) {
                                     field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+                                    if (field_values[i].is_return) {
+                                        Value result = field_values[i];
+                                        free(field_values);
+                                        return result;
+                                    }
                                 }
                             }
 
@@ -4988,6 +5033,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * handle spread regardless of whether struct_name is set. */
             if (expr->as.struct_literal.spread_source) {
                 Value base_val = eval_expression(expr->as.struct_literal.spread_source, env);
+                if (base_val.is_return) return base_val;
                 StructValue *base_sv = base_val.type == VAL_STRUCT ? base_val.as.struct_val : NULL;
                 int base_count = base_sv ? base_sv->field_count : 0;
                 int over_count = expr->as.struct_literal.field_count;
@@ -5015,6 +5061,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     merged_names[merged_count]  = expr->as.struct_literal.field_names[oi];
                     merged_values[merged_count] = eval_expression(
                         expr->as.struct_literal.field_values[oi], env);
+                    if (merged_values[merged_count].is_return) {
+                        Value result = merged_values[merged_count];
+                        free(merged_names);
+                        free(merged_values);
+                        return result;
+                    }
                     merged_count++;
                 }
                 /* Prefer the declared struct_name (set by typechecker) over the
@@ -5046,6 +5098,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             for (int i = 0; i < field_count; i++) {
                 field_names[i] = expr->as.struct_literal.field_names[i];
                 field_values[i] = eval_expression(expr->as.struct_literal.field_values[i], env);
+                if (field_values[i].is_return) {
+                    Value result = field_values[i];
+                    free(field_names);
+                    free(field_values);
+                    return result;
+                }
             }
             
             
@@ -5104,6 +5162,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Regular struct field access */
             /* Evaluate field access: point.x */
             Value obj = eval_expression(expr->as.field_access.object, env);
+            if (obj.is_return) return obj;
             
             if (obj.type != VAL_STRUCT) {
                 fprintf(stderr, "Error: Cannot access field on non-struct value\n");
@@ -5154,6 +5213,12 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 for (int i = 0; i < field_count; i++) {
                     field_names[i] = expr->as.union_construct.field_names[i];
                     field_values[i] = eval_expression(expr->as.union_construct.field_values[i], env);
+                    if (field_values[i].is_return) {
+                        Value result = field_values[i];
+                        free(field_names);
+                        free(field_values);
+                        return result;
+                    }
                 }
             }
             
@@ -5174,6 +5239,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * Also supports integer literal patterns: match n { 0 => "zero", 1 => "one", _ => "many" }
              */
             Value match_val = eval_expression(expr->as.match_expr.expr, env);
+            if (match_val.is_return) return match_val;
 
             /* Integer/primitive literal pattern matching */
             if (match_val.type != VAL_UNION) {
@@ -5206,6 +5272,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                         int saved_symbol_count = env->symbol_count;
                         if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
                             Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
+                            if (guard_val.is_return) {
+                                env->symbol_count = saved_symbol_count;
+                                return guard_val;
+                            }
                             if (!guard_val.as.bool_val) {
                                 env->symbol_count = saved_symbol_count;
                                 continue;  /* Guard failed, try next arm */
@@ -5222,6 +5292,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     /* Check guard on wildcard arm if present */
                     if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
                         Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
+                        if (guard_val.is_return) {
+                            env->symbol_count = saved_symbol_count;
+                            return guard_val;
+                        }
                         if (!guard_val.as.bool_val) {
                             env->symbol_count = saved_symbol_count;
                             fprintf(stderr, "Error: No matching arm in match expression (guard failed)\n");
@@ -5294,6 +5368,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                     /* Check guard expression if present */
                     if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[i]) {
                         Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[i], env);
+                        if (guard_val.is_return) {
+                            env->symbol_count = saved_symbol_count;
+                            return guard_val;
+                        }
                         if (!guard_val.as.bool_val) {
                             /* Guard failed — restore scope and try next arm */
                             env->symbol_count = saved_symbol_count;
@@ -5317,6 +5395,10 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 /* Check guard on wildcard arm if present */
                 if (expr->as.match_expr.guard_exprs && expr->as.match_expr.guard_exprs[wildcard_arm]) {
                     Value guard_val = eval_expression(expr->as.match_expr.guard_exprs[wildcard_arm], env);
+                    if (guard_val.is_return) {
+                        env->symbol_count = saved_symbol_count;
+                        return guard_val;
+                    }
                     if (!guard_val.as.bool_val) {
                         env->symbol_count = saved_symbol_count;
                         fprintf(stderr, "Error: No matching arm for variant '%s' (guard failed)\n", uval->variant_name);
@@ -5375,6 +5457,11 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             Value *elements = malloc(sizeof(Value) * element_count);
             for (int i = 0; i < element_count; i++) {
                 elements[i] = eval_expression(expr->as.tuple_literal.elements[i], env);
+                if (elements[i].is_return) {
+                    Value result = elements[i];
+                    free(elements);
+                    return result;
+                }
             }
             
             /* Create tuple value */
@@ -5387,6 +5474,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         case AST_TUPLE_INDEX: {
             /* Evaluate tuple index access: tuple.0, tuple.1 */
             Value tuple = eval_expression(expr->as.tuple_index.tuple, env);
+            if (tuple.is_return) return tuple;
             
             if (tuple.type != VAL_TUPLE) {
                 fprintf(stderr, "Error: Tuple index access on non-tuple value (type %d)\n", tuple.type);
@@ -5409,6 +5497,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             /* Desugar expr? in the interpreter:
              * evaluate operand; if Err variant, propagate as return; else return Ok's first field. */
             Value inner = eval_expression(expr->as.try_op.operand, env);
+            if (inner.is_return) return inner;
             if (inner.type != VAL_UNION || !inner.as.union_val) {
                 fprintf(stderr, "Error at line %d, column %d: '?' operator requires a union value\n",
                         expr->line, expr->column);
@@ -5439,6 +5528,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
              * Otherwise fall through (synchronous transparent await).
              */
             Value inner = eval_expression(expr->as.await_expr.expr, env);
+            if (inner.is_return) return inner;
             if (inner.type == VAL_COROUTINE) {
                 int coro_id = (int)inner.as.int_val;
                 return nano_coro_await_id(coro_id);
@@ -5662,7 +5752,9 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 range_expr->as.call.arg_count == 2) {
 
                 Value start_val = eval_expression(range_expr->as.call.args[0], env);
+                if (start_val.is_return) return start_val;
                 Value end_val = eval_expression(range_expr->as.call.args[1], env);
+                if (end_val.is_return) return end_val;
 
                 if (start_val.type != VAL_INT || end_val.type != VAL_INT) {
                     fprintf(stderr, "Error: range requires int arguments\n");
@@ -5697,6 +5789,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 }
 
                 Value iter_val = eval_expression(range_expr, env);
+                if (iter_val.is_return) return iter_val;
                 Type list_type = iterable_sym ? iterable_sym->type : TYPE_UNKNOWN;
 
                 int loop_var_index = env->symbol_count;
@@ -5814,6 +5907,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_PRINT: {
             Value value = eval_expression(stmt->as.print.expr, env);
+            if (value.is_return) return value;
             print_value(value);
             if (stmt->as.print.is_println) printf("\n");
             return create_void();
@@ -5821,6 +5915,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
 
         case AST_ASSERT: {
             Value cond = eval_expression(stmt->as.assert.condition, env);
+            if (cond.is_return) return cond;
             if (!is_truthy(cond)) {
                 if (g_in_shadow_tests) {
                     g_shadow_current_fail_count++;

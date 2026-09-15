@@ -2360,11 +2360,24 @@ void test_eval_handler_return_expression_order(void) {
         "set trace (emit) return 99",
         "if (== (emit) 7) { set trace 3 } return 99",
         "while (< (emit) 8) { break } return 99",
+        "let xs = [(emit), (mark)] return 99",
+        "let xs = [0, (emit), (mark)] return 99",
+        "let pair = ((emit), (mark)) return 99",
+        "let point = Point { x: (emit), y: (mark) } return 99",
+        "let base = Point { x: 0, y: 0 } let point: Point = {..base, x: (emit), y: (mark)} return 99",
+        "let packet = Packet.Data { x: (emit), y: (mark) } return 99",
+        "let x = match (emit) { 7 => (mark), _ => 0 } return 99",
+        "let x = match 7 { 7 if (== (emit) 7) => (mark), _ => 0 } return 99",
+        "let x = match 8 { _ if (== (emit) 7) => (mark) } return 99",
+        "let p = Packet.Data { x: 1, y: 2 } let x = match p { Data(d) if (== (emit) 7) => (mark), _ => 0 } return 99",
+        "for i in (range (emit) (mark)) { set trace 8 } return 99",
+        "assert (== (emit) 99) return 99",
     };
     for (size_t i = 0; i < sizeof(bodies) / sizeof(bodies[0]); i++) {
         char source[2048];
         snprintf(source, sizeof(source),
             "effect Stop { stop : int -> int } let mut trace: int = 0 "
+            "struct Point { x: int, y: int } union Packet { Data { x: int, y: int } } "
             "fn emit() -> int { return perform Stop.stop(7) } "
             "fn mark() -> int { set trace 4 return 1 } "
             "fn combine(a: int, b: int) -> int { set trace 5 return (+ a b) } "
@@ -2429,7 +2442,31 @@ void test_eval_handler_return_recursive_activation(void) {
     run_ctx_free(&ctx);
 }
 
+void test_eval_handler_return_partial_literal_cleanup(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Leaf { text: string } struct Point { text: string, child: Leaf } "
+        "effect Stop { point : void -> Point, text : void -> string } "
+        "fn point() -> Point { return perform Stop.point() } "
+        "fn text() -> string { return perform Stop.text() } "
+        "fn records(base: Point) -> int { let xs = [base, (point)] return 99 } "
+        "fn strings() -> int { let xs = [\"owned\", (text)] return 99 } "
+        "fn record_owner(base: Point) -> int { let x = handle { (records base) } with { point -> { return 7 } } return 99 } "
+        "fn string_owner() -> int { let x = handle { (strings) } with { text -> { return 8 } } return 99 } "
+        "fn main() -> int { let base = Point { text: \"kept\", child: Leaf { text: \"nested\" } } "
+        " let result = (+ (record_owner base) (string_owner)) "
+        " assert (== base.text \"kept\") assert (== base.child.text \"nested\") return result }"));
+    for (int i = 0; i < 3; i++) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 15);
+        ASSERT(nl_effect_find_handler("Stop", "point", NULL) == NULL);
+    }
+    run_ctx_free(&ctx);
+}
+
 int main(void) {
+    TEST(eval_handler_return_partial_literal_cleanup);
     TEST(eval_handler_return_recursive_activation);
     TEST(eval_handler_return_nested_and_string);
     TEST(eval_handler_return_expression_order);
