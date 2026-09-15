@@ -2785,14 +2785,20 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
  * frame's locals and corrupts the frame -- silently, because it often happened
  * to cancel out, so affected programs still printed the right answers.
  *
- * `match` is the exception: its lowering pushes an explicit PUSH_VOID at the
+ * `match` is an exception: its lowering pushes an explicit PUSH_VOID at the
  * end of every arm, so it leaves a value even when that value is void. Asking
  * the type for a match would skip a POP that IS needed, which is the same bug
- * mirrored. */
+ * mirrored. An identifier also loads a value, including a stored void value. */
 static bool expr_leaves_value(CG *cg, ASTNode *node) {
     if (!node) return false;
-    if (node->type == AST_MATCH) return true;
+    if (node->type == AST_MATCH || node->type == AST_IDENTIFIER) return true;
     return check_expression(node, cg->env) != TYPE_VOID;
+}
+
+/* I materialize the sole void value when a no-result expression is stored. */
+static void compile_stored_expr(CG *cg, ASTNode *node) {
+    compile_expr(cg, node);
+    if (!expr_leaves_value(cg, node)) emit_op(cg, OP_PUSH_VOID);
 }
 
 static bool stmt_falls_through(ASTNode *node) {
@@ -2894,7 +2900,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         } else if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
             compile_numeric_expr(cg, node->as.let.value,
                 check_expression(node->as.let.value, cg->env), node->as.let.var_type == TYPE_FLOAT);
-        else compile_expr(cg, node->as.let.value);
+        else compile_stored_expr(cg, node->as.let.value);
         uint16_t slot = local_add(cg, node->as.let.name, node->line);
         /* Track struct type for field access resolution */
         if (node->as.let.type_name) {
@@ -2920,18 +2926,18 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_SET: {
         int16_t slot = local_find(cg, node->as.set.name);
         if (slot >= 0) {
-            compile_expr(cg, node->as.set.value);
+            compile_stored_expr(cg, node->as.set.value);
             emit_op(cg, OP_STORE_LOCAL, (int)slot);
         } else {
             int16_t gslot = global_find(cg, node->as.set.name);
             if (gslot >= 0) {
-                compile_expr(cg, node->as.set.value);
+                compile_stored_expr(cg, node->as.set.value);
                 emit_op(cg, OP_STORE_GLOBAL, (uint32_t)gslot);
             } else {
                 /* Check upvalues for captured mutable variables */
                 int16_t uv = upvalue_resolve(cg, node->as.set.name);
                 if (uv >= 0) {
-                    compile_expr(cg, node->as.set.value);
+                    compile_stored_expr(cg, node->as.set.value);
                     emit_op(cg, OP_STORE_UPVALUE, 0, (int)uv);
                 } else {
                     cg_error(cg, node->line, "undefined variable '%s'", node->as.set.name);
@@ -3109,6 +3115,9 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         }
         if (node->as.return_stmt.value) {
             compile_expr(cg, node->as.return_stmt.value);
+            if (cg->module->functions[cg->current_fn_idx].result_count == 0 &&
+                expr_leaves_value(cg, node->as.return_stmt.value))
+                emit_op(cg, OP_POP);
         }
         emit_op(cg, OP_RET);
         break;

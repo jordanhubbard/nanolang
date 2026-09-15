@@ -944,6 +944,12 @@ test-effect-execution: stage1 nano_virt nano_vm
 
 test-units: test-effect-execution
 
+.PHONY: test-void-bindings
+test-void-bindings: stage1 nano_virt nano_vm
+	python3 tests/test_void_bindings.py
+
+test-units: test-void-bindings
+
 .PHONY: test-ffi
 $(OBJ_DIR)/test_interpreter_ffi_native.so: tests/test_interpreter_ffi_native.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-dynamiclib,-shared) -o $@ $<

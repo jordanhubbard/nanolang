@@ -904,6 +904,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         case AST_IDENTIFIER: {
             /* Check for constant inlining */
             Symbol *sym = env_get_var(env, expr->as.identifier);
+            if (sym && sym->type == TYPE_VOID) {
+                emit_literal(list, "((void)0)");
+                break;
+            }
             if (sym && !sym->is_mut) {
                 if (sym->value.type == VAL_INT) {
                     if (sym->value.as.int_val == INT64_MIN) {
@@ -3616,8 +3620,15 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         case AST_LET: {
             emit_indent_item(list, indent);
             
+            /* I retain evaluation, but a void binding has no C storage. */
+            if (stmt->as.let.var_type == TYPE_VOID) {
+                emit_literal(list, "(void)(");
+                if (stmt->as.let.value) build_expr(list, stmt->as.let.value, env);
+                else emit_literal(list, "0");
+                emit_literal(list, ");\n");
+            }
             /* Handle tuple types - use __auto_type to infer from RHS */
-            if (stmt->as.let.var_type == TYPE_TUPLE) {
+            else if (stmt->as.let.var_type == TYPE_TUPLE) {
                 emit_formatted(list, "__auto_type %s = ", stmt->as.let.name);
                 build_expr(list, stmt->as.let.value, env);
                 emit_literal(list, ";\n");
@@ -3848,6 +3859,14 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
         }
         
         case AST_SET:
+            if (env_get_var(env, stmt->as.set.name) &&
+                env_get_var(env, stmt->as.set.name)->type == TYPE_VOID) {
+                emit_indent_item(list, indent);
+                emit_literal(list, "(void)(");
+                build_expr(list, stmt->as.set.value, env);
+                emit_literal(list, ");\n");
+                break;
+            }
             /* Detect self-assignment (set x x) and skip generating code */
             if (stmt->as.set.value &&
                 stmt->as.set.value->type == AST_IDENTIFIER &&

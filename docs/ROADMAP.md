@@ -134,7 +134,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
             the interpreter adapter rejects multi-argument handlers. Legacy
             dispatch strips return/break/continue flags and does not establish
             the final handler-arm value contract. These boundaries remain open,
-            as do emitted void-valued bindings and native/VM dispatch itself.
+            as does native/VM dispatch itself.
+          - [x] I emit void-valued locals without C storage, preserving each
+            initializer and assignment side effect. I test inferred/annotated
+            bindings, reads and returns with real native and VM execution.
+            The same fixture exposes VM STORE_LOCAL underflow after a void
+            call; I materialize its void value for storage and discard a bound
+            void value when returning from a zero-result function.
+            Native/VM compile, shadows and execution pass, alongside native
+            transpiler gates and 69 NanoVirt code-generation tests. The effect
+            acceptance artifact now compiles natively but fails its executed
+            state assertion: native performs are still no-op stubs. VM still
+            rejects effect operations. MAC `task_dc995297abc3c89937cd3def9c232ccc`.
         - [x] I fail self/ancestor await cycles and propagate failed awaits
           to running callers. I keep completion/error terminal so a callback
           cannot overwrite failure with a later completion. I test self waits,
