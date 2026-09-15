@@ -45,6 +45,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       behavior, run clean build/tests and documentation gates, then merge and
       publish 5.0. The fleet dispatch hold does not gate this user-authorized
       release. Unfinished roadmap items remain explicitly unfinished.
+      - [ ] I integrate the existing AOT runtime and self-hosted NanoISA work
+        from `origin/feat/4.6-frontend-contract` before duplicating that backend.
+        Its history contains `895c6eda`, `8e781874`, `4d407c9a` and `8299138f`,
+        which are absent from this branch. I preserve the newer verifier,
+        module identity, callback and aggregate fixes through conflict review;
+        rerun executable AOT/bootstrap gates rather than trusting old task text.
+        A read-only merge preview finds 16 conflicting paths across 56 changed
+        files. I first reconcile main's three conflicts: preserve checked FFI
+        failure reporting and the central GC child-slot walk while incorporating
+        the exactly-once MAC command behavior and its regression tests.
 - [x] **Release-gate module shadows.** I diagnose and repair the NanoISA
       facade assembly fixtures exposed by default dependency-shadow execution,
       replacing obsolete function headers with explicit `void 0` results.
@@ -250,6 +260,11 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           - [ ] I audit remaining mixer/audio-lock operations for owner-thread
             deadlocks while a post-mix callback is registered. I preserve error
             reporting across worker calls and verify native-C callback parity.
+            The real NanoLang fixture still fails C-seed callback marshalling
+            and reaches the shadow deadline. Source-only C output also hoists
+            the lambda without its captured `observed` binding. Native C adapter
+            tests do not establish language closure parity; I must integrate
+            the existing AOT foundations and keep that acceptance item open.
             - [x] I bind every mixer operation to a typed adapter, preserve
               source API names, convert SDK integer/void returns explicitly,
               and transport the last completed operation's error across workers.
