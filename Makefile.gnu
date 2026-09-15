@@ -415,6 +415,13 @@ test-nanoisa: schema-check $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@rm -f tests/nanoisa/test_nanoisa
 
 .PHONY: test-nvm2c
+.PHONY: test-verifier-cleanup
+test-verifier-cleanup: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_verifier_cleanup tests/nanoisa/test_verifier_cleanup.c $(filter-out $(OBJ_DIR)/nanoisa/verifier.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
+	@./obj/test_verifier_cleanup
+
+test-verifier: test-verifier-cleanup
+
 .PHONY: test-nvm2c-sanitizers
 test-nvm2c-sanitizers:
 	@ASAN_OPTIONS="$${ASAN_OPTIONS:-detect_leaks=0}" $(MAKE) CC="$(CC) -fsanitize=address,undefined" test-nvm2c

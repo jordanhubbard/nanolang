@@ -1602,6 +1602,20 @@ static void test_verify_one_function(void) {
     PASS(test_name);
 }
 
+static void test_alternate_return_target_passes(void) {
+    const char *test_name = "nvm_verify: a branch may target code after another return";
+    uint8_t code[32];
+    uint32_t off = emit(code, OP_PUSH_BOOL, 1);
+    off += emit(code + off, OP_JMP_TRUE, (int32_t)6);
+    off += emit(code + off, OP_RET);
+    off += emit(code + off, OP_RET);
+    NvmModule *mod = make_simple_module(code, off, 0, 0);
+    NvmVerifyResult result = nvm_verify(mod);
+    ASSERT(result.ok, result.error_msg);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
@@ -1671,6 +1685,7 @@ int main(void) {
     test_stack_underflow();
     test_incompatible_branch_stack_heights();
     test_compatible_branch_stack_heights();
+    test_alternate_return_target_passes();
     test_verify_one_function();
     test_call_module_linked_valid();
     test_call_module_shape_mismatch_fails();

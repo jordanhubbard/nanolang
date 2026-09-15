@@ -176,9 +176,13 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
          * stopped there and every instruction after it went unverified while
          * nvm_verify still returned ok. Absence of data must not read as
          * proof. See issue #212. */
-        if (pop_count < 0 || push_count < 0)
+        if (pop_count < 0 || push_count < 0) {
+            free(heights);
+            free(work);
+            free(owed);
             return fail("function[%u] %s at offset %u has no known stack effect",
                         fn_idx, info->name, decoded_instruction->byte_offset);
+        }
         int32_t before = heights[index];
 
         /* Return shape: a return must leave exactly the results the function
@@ -282,6 +286,7 @@ static NvmVerifyResult verify_stack_heights(const NvmModule *mod,
                 if (after != (int32_t)mod->functions[fn_idx].result_count) {
                     free(heights);
                     free(work);
+                    free(owed);
                     return fail("function[%u] reaches its end after offset %u with %d values "
                                 "but declares %u",
                                 fn_idx, decoded_instruction->byte_offset, after,

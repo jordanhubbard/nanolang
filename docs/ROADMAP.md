@@ -28,6 +28,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Verifier branch reconciliation and rejection cleanup.** I retain
+      current signature-aware stack propagation and valid alternate paths after
+      returns while reconciling the older stack/range/container heads. I fix
+      unfreed verifier work arrays on rejection and require allocation-counted
+      failure tests plus schema, verifier and container gates. MAC
+      `task_69dab2ee6f1a4c96845ba7139cfc360f`.
+      Allocation-counted rejection/failure/success checks pass, along with
+      94 verifier tests, 2632 NanoISA checks, 29 v2 container checks and schema
+      verification. I retain both old heads in ancestry without restoring
+      their weaker stack or terminator policy. Evidence:
+      `docs/evidence/verifier-branch-reconciliation.md`.
 - [ ] **Full branch inventory and reconciliation.** I inspect local-only and
       remote heads, not just open PRs. At `1c7105a1`, 21 heads remain outside
       integration ancestry. Six contain only patch-equivalent commits already
