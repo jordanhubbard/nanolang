@@ -32,7 +32,7 @@ static NvmModule *assemble_ok(const char *src, const char *label) {
     return m;
 }
 
-static int compile_and_run(const char *c_src, int *status_out) {
+static int compile_and_run_with_args(const char *c_src, int *status_out, const char *args) {
     char dir[] = "/tmp/nvm2cXXXXXX";
     if (!mkdtemp(dir)) return -1;
     char src_path[128];
@@ -62,7 +62,7 @@ static int compile_and_run(const char *c_src, int *status_out) {
         return -2;
     }
 
-    snprintf(cmd, sizeof cmd, "perl -e 'alarm 30; exec @ARGV' %s", bin_path);
+    snprintf(cmd, sizeof cmd, "perl -e 'alarm 30; exec @ARGV' %s %s", bin_path, args);
     rc = system(cmd);
     int status = -1;
     if (WIFEXITED(rc)) status = WEXITSTATUS(rc);
@@ -72,6 +72,10 @@ static int compile_and_run(const char *c_src, int *status_out) {
     unlink(bin_path);
     rmdir(dir);
     return 0;
+}
+
+static int compile_and_run(const char *c_src, int *status_out) {
+    return compile_and_run_with_args(c_src, status_out, "");
 }
 
 static int compile_and_run_capture(const char *c_src, int *status_out,
@@ -236,6 +240,100 @@ static void test_store_load_local(void) {
     CHECK(status == 8, "STORE/LOAD local then add yields 8");
     free(c);
     nvm_module_free(m);
+}
+
+static void test_builtin_host_imports(void) {
+    struct HostCase { const char *name, *body; uint8_t argc, param, result; } cases[] = {
+        {"get_argc", "CALL_EXTERN 0\nPUSH_I64 1\nEQ\nASSERT\n", 0, TAG_VOID, TAG_INT},
+        {"get_argv", "PUSH_I64 -1\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n"
+                     "PUSH_I64 9223372036854775807\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n"
+                     "PUSH_I64 0\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nNE\nASSERT\n", 1, TAG_INT, TAG_STRING},
+        {"vm_getenv", "PUSH_STR key\nCALL_EXTERN 0\nPUSH_STR expected\nEQ\nASSERT\n"
+                      "PUSH_STR absent\nCALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nEQ\nASSERT\n", 1, TAG_STRING, TAG_STRING},
+        {"nl_os_getenv", "PUSH_STR key\nCALL_EXTERN 0\nPUSH_STR expected\nEQ\nASSERT\n", 1, TAG_STRING, TAG_STRING},
+        {"vm_tmp_dir", "CALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nNE\nASSERT\n", 0, TAG_VOID, TAG_STRING},
+        {"vm_getcwd", "CALL_EXTERN 0\nSTR_LEN\nPUSH_I64 0\nNE\nASSERT\n", 0, TAG_VOID, TAG_STRING},
+    };
+    const char *key = "NANOLANG_NVM2C_HOST_TEST";
+    const char *old = getenv(key);
+    char *saved = old ? strdup(old) : NULL;
+    CHECK(setenv(key, "retained", 1) == 0, "host fixture environment is set");
+    for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
+        char source[2048];
+        snprintf(source, sizeof source,
+                 ".string key \"NANOLANG_NVM2C_HOST_TEST\"\n"
+                 ".string expected \"retained\"\n.string absent \"\"\n"
+                 ".import \"\" \"%s\" %s %s\n"
+                 ".entry 0\n.function main 0 0 0 int 1\n%sPUSH_I64 0\nRET\n.end\n",
+                 cases[i].name, cases[i].result == TAG_STRING ? "string" : "int",
+                 !cases[i].argc ? "" : cases[i].param == TAG_STRING ? "string" : "int", cases[i].body);
+        NvmModule *m = assemble_ok(source, cases[i].name);
+        if (!m) continue;
+        char err[256];
+        char *c = nvm2c_emit(m, err, sizeof err);
+        CHECK(c != NULL, "exact builtin host import translates");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                  "native host adapter preserves its tested contract");
+            free(c);
+        } else printf("    host error: %s\n", err);
+        for (int bad = 0; bad < 7; ++bad) {
+            NvmImportEntry original = m->imports[0];
+            if (bad == 0) m->imports[0].kind = NVM_IMPORT_COPROCESS;
+            if (bad == 1) m->imports[0].kind = NVM_IMPORT_ARTIFACT;
+            if (bad == 2) m->imports[0].return_type = TAG_BOOL;
+            if (bad == 3) m->imports[0].module_name_idx = nvm_add_string(m, "libc", 4);
+            if (bad == 4) m->imports[0].param_count = 2;
+            if (bad == 5) m->imports[0].module_name_idx = nvm_add_string(m, "\0foreign", 8);
+            if (bad == 6) m->imports[0].function_name_idx = nvm_add_string(m, cases[i].name,
+                                                                            (uint32_t)strlen(cases[i].name) + 1);
+            c = nvm2c_emit(m, err, sizeof err);
+            CHECK(c == NULL, "noncanonical host signature or namespace is rejected");
+            free(c);
+            m->imports[0] = original;
+        }
+        if (strcmp(cases[i].name, "get_argv") == 0) {
+            uint32_t original = m->imports[0].function_name_idx;
+            m->imports[0].function_name_idx = nvm_add_string(m, "vm_getenv", 9);
+            m->import_param_types[0][0] = TAG_STRING;
+            c = nvm2c_emit(m, err, sizeof err);
+            CHECK(c == NULL && strstr(err, "argument kind"),
+                  "host call rejects operand storage incompatible with its signature");
+            free(c);
+            m->imports[0].function_name_idx = original;
+        }
+        if (cases[i].argc) {
+            m->import_param_types[0][0] = TAG_BOOL;
+            c = nvm2c_emit(m, err, sizeof err);
+            CHECK(c == NULL, "host parameter requires its exact tag");
+            free(c);
+        }
+        nvm_module_free(m);
+    }
+    if (saved) { setenv(key, saved, 1); free(saved); }
+    else unsetenv(key);
+
+    NvmModule *args = assemble_ok(
+        ".import \"\" \"get_argc\" int\n.import \"\" \"get_argv\" string int\n"
+        ".string first \"two words\"\n.string second \"--help\"\n"
+        ".entry 0\n.function main 0 0 0 int 1\n"
+        "CALL_EXTERN 0\nPUSH_I64 3\nEQ\nASSERT\n"
+        "PUSH_I64 1\nCALL_EXTERN 1\nPUSH_STR first\nEQ\nASSERT\n"
+        "PUSH_I64 2\nCALL_EXTERN 1\nPUSH_STR second\nEQ\nASSERT\n"
+        "PUSH_I64 0\nRET\n.end\n", "native argument transport");
+    if (args) {
+        char err[256];
+        char *c = nvm2c_emit(args, err, sizeof err);
+        CHECK(c != NULL, "combined argument host imports translate");
+        if (c) {
+            int status = -1;
+            CHECK(compile_and_run_with_args(c, &status, "'two words' --help") == 0 && status == 0,
+                  "native main preserves argument boundaries and option spelling");
+            free(c);
+        }
+        nvm_module_free(args);
+    }
 }
 
 static void test_call_extern_is_refused(void) {
@@ -2610,6 +2708,7 @@ int main(int argc, char **argv) {
     test_record_result_crosses_direct_call();
     test_add_is_structured_c_and_runs();
     test_store_load_local();
+    test_builtin_host_imports();
     test_call_extern_is_refused();
     test_str_trim_is_refused();
     test_push_str_len_runs_without_nano_vm();

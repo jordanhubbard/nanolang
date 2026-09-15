@@ -121,6 +121,28 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           a host ABI; nvm2c refuses CALL_EXTERN`. I integrate the existing AOT
           branch's host support with checked signatures, then compile and run
           the generated compiler. I do not substitute an embedded VM wrapper.
+          - [x] I integrate the existing process-argument and environment host
+            adapters behind exact builtin import signatures. I reject foreign
+            namespaces, co-process/artifact import kinds and type mismatches;
+            test native execution, argument bounds and missing environment
+            values, including spaced arguments and `--help`. All 608 AOT checks
+            pass normally and with generated C and
+            harness ASan/UBSan instrumentation; prebuilt objects are not all
+            instrumented. Returned host strings remain allocated until exit.
+          - [ ] I bound standard filesystem directory traversal before relying
+            on it for native bootstrap. `walkdir_recursive` follows directory
+            symlinks through `stat`, has no visited-identity set and builds paths
+            in an unchecked 2048-byte buffer. I define and test cycle handling,
+            long paths and failure behavior instead of importing these hazards
+            into a second implementation. MAC `task_aa93c6440aa0c87057a3306140bea1fb`.
+          - [ ] I integrate the compiler's artifact-backed standard filesystem
+            imports without silently rebinding foreign exports by symbol name.
+            The current next failure is import 1, `fs_walkdir`, bound to a
+            retained `libstd.dylib` artifact. The old branch's name-only host
+            replacement does not preserve this identity or the native array
+            ABI. I retain checked artifact binding and adapt its typed values;
+            remaining builtin file/process adapters and compiler AOT gates
+            stay in scope.
         - [x] I integrate native prefix/suffix string operations from that
           branch without importing its heuristic aggregate classifier. I test
           empty, longer, equal, matching and nonmatching strings through emitted

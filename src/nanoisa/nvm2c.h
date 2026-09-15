@@ -24,8 +24,14 @@
  * I emit UTF-8 and control bytes with fixed-width C escapes; embedded NUL
  * remains refused because these helpers use NUL-terminated strings.
  * Anything else is refused with an error.
- * CALL_EXTERN is refused because it is the VM FFI / co-process path, not a
- * host C ABI. Embedded NULs, nested arrays, nested records, tuples,
+ * I lower exact builtin CALL_EXTERN signatures for get_argc, get_argv,
+ * vm_getcwd, vm_tmp_dir, vm_getenv and nl_os_getenv to native host helpers.
+ * I require the empty builtin namespace and FFI import kind; foreign modules,
+ * co-process/artifact imports and other signatures remain refused. Arguments
+ * include argv[0]; invalid argument indices and missing environment values
+ * return empty strings. Returned copies currently live until process exit;
+ * this is not a bounded-memory runtime. Cwd uses the VM's 1024-byte limit.
+ * Embedded NULs, nested arrays, nested records, tuples,
  * printing arrays/records, array equality, STR_TRIM, and the rest of the
  * string and array libraries stay refused.
  * I track operand-stack joins and emit simultaneous transfers on taken
