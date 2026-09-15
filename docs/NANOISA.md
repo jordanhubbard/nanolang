@@ -167,12 +167,15 @@ these I/O opcodes into the typed `trap` family (see Typed Traps below).
 
 ### v2 Compact Encodings (design)
 
-NanoISA v2 (`spec/nanoisa.yaml`, `instruction_families`) adds compact encodings
-that shrink common instructions without adding new instruction meanings. Each
+I declare compact encodings in my v2 design (`spec/nanoisa.yaml`,
+`instruction_families`) to shrink common instructions without adding meanings. Each
 compact form is an *encoding-only* alias of a canonical family instruction: it
 keeps the same mnemonic family, stack effect, and ownership, so assembly text
-stays regular. Assemblers pick a compact encoding when the operand value fits
-its bounded range; disassemblers always render the canonical operand.
+stays regular. The design calls for assemblers to pick a compact encoding when
+the operand fits its bounded range and for disassemblers to render the canonical
+operand. My schema tests check alias, stack-effect and ownership consistency;
+they do not establish byte encoding, decoder behavior, automatic selection or
+runtime equivalence for these forms.
 
 - **Compact constants** — `const.i64.small` stores a small signed integer
   (range −64..63) inline instead of a full `sleb` immediate; it decodes to

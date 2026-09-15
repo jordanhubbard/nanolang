@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Compact-schema branch reconciliation.** I retain the compact operand
+      aliases and tests already integrated by PR #139 while reconciling
+      `09187898`. I clarify that schema checks do not establish runtime compact
+      encoding support and require the schema gate. MAC
+      `task_b7c534c9150ee4bb4b8bca62b37b50dd`.
+      Schema generation is current and 33 tests pass. Evidence:
+      `docs/evidence/compact-schema-branch-reconciliation.md`.
 - [x] **Assembler snapshot branch reconciliation.** I verify that `24ac886b`
       exactly matches integrated tree `dfa1aca3`, retain newer capture rules,
       and rerun its include-phase, restored-input and search-order tests.
