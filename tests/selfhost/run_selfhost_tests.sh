@@ -25,6 +25,7 @@ test_logical_ops.nano
 test_while_loops.nano
 test_recursion.nano
 test_function_calls.nano
+test_returned_function_calls.nano
 test_let_set.nano
 test_if_else.nano
 test_match_bindings.nano
@@ -40,6 +41,8 @@ test_infix_ops.nano
 NEGATIVE_TESTS="
 test_requires_bool.nano
 test_function_arg_type_errors.nano
+test_returned_function_arg_type_error.nano
+test_returned_function_arity_error.nano
 "
 
 PASSED=0

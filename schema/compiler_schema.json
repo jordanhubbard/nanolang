@@ -392,6 +392,10 @@
           "int"
         ],
         [
+          "function_type",
+          "int"
+        ],
+        [
           "arg_start",
           "int"
         ],
