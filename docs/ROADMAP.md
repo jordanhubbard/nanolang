@@ -28,6 +28,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Release-gate string documentation.** I document `str_last_index_of`
+      and reconcile the string section count with the builtin registry.
+      `tests/check_stdlib_docs.sh` passes for all 156 builtins.
+- [ ] **MAC shell argument safety.** I quote ledger arguments as data and
+      test metacharacters against a fake CLI; titles must not execute shell code.
+      MAC `task_c3e8254ad9f8ce84143f59ca306e24fb`.
+- [ ] **Process command length.** I reject or safely accommodate commands beyond
+      the process runner's fixed command buffer, with boundary tests.
+      MAC `task_c3e8254ad9f8ce84143f59ca306e24fb`.
+
 - [x] **Release-gate launcher capture.** The full suite reaches 219 passing
       implementation tests and one compile failure in
       `tests/unit/test_launcher_capture.nano`. I diagnose its saved compile log,
@@ -45,6 +55,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       behavior, run clean build/tests and documentation gates, then merge and
       publish 5.0. The fleet dispatch hold does not gate this user-authorized
       release. Unfinished roadmap items remain explicitly unfinished.
+      - [x] I isolate MAC module shadows from live hub writes and replace the
+        unresolved capture/status extern pair with the existing process runner.
+        Incoming tests hid missing interpreter support as offline success, and
+        their VM dependency shadows created four real test tasks. I cancelled
+        those verified fixtures, preserving audit records. I require real
+        exactly-once counts and fake-CLI assertions without hub side effects.
+        `make test-mac-command-boundary` passes native and bytecode compilation,
+        dependency/root shadows, execution, both legacy fixtures, stdout/stderr
+        and exit-status checks. JSON task IDs use the `id` field rather than
+        task-like description text. The merged VM gate passes 272,379 checks;
+        the FFI gate passes 25 tests. Full release acceptance remains open.
       - [ ] I integrate the existing AOT runtime and self-hosted NanoISA work
         from `origin/feat/4.6-frontend-contract` before duplicating that backend.
         Its history contains `895c6eda`, `8e781874`, `4d407c9a` and `8299138f`,

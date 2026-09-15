@@ -4570,7 +4570,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
                                             env, node->line, node->column);
             return result;
         }
-        
+
         fprintf(stderr, "Error: Built-in function '%s' not implemented in interpreter\n", name);
         return create_void();
     }

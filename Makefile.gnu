@@ -1828,7 +1828,11 @@ test-module-dep-recheck: $(COMPILER_C) test-module-install-policy test-module-bu
 
 .PHONY: test-failed-import-publication
 .PHONY: test-module-builder-cache
-test-units: test-module-builder-cache
+.PHONY: test-mac-command-boundary
+test-mac-command-boundary: $(COMPILER_C) nano_virt nano_vm
+	@python3 tests/test_mac_command_boundary.py
+
+test-units: test-module-builder-cache test-mac-command-boundary
 test-module-builder-cache: $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/runtime/module_build_dir.o
 	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_module_builder_cache tests/test_module_builder_cache.c $^ $(LDFLAGS)
 	@$(OBJ_DIR)/test_module_builder_cache

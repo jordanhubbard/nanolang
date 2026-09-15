@@ -1,0 +1,114 @@
+# I require real command execution, captured output, and preserved failure.
+from "stdlib/mac.nano" import exec_command, CommandResult
+from "modules/std/fs.nano" import exists, read, write, delete
+
+# Count the non-empty lines a command appended to a counter file. Missing file
+# (offline backend) counts as zero.
+fn counter_lines(path: string) -> int {
+    if (!= (exists path) true) {
+        return 0
+    }
+    let body: string = (read path)
+    let trimmed: string = (str_trim body)
+    if (== trimmed "") {
+        return 0
+    }
+    let parts: array<string> = (str_split trimmed "\n")
+    return (array_length parts)
+}
+
+shadow counter_lines {
+    let missing: int = (counter_lines "/tmp/mac_exec_once_missing_xyz.txt")
+    assert (== missing 0)
+}
+
+# True when the FFI executes commands for real in this backend.
+fn exec_is_live() -> bool {
+    let probe: CommandResult = (exec_command "printf MAC_LIVE_PROBE")
+    return (str_contains probe.stdout "MAC_LIVE_PROBE")
+}
+
+shadow exec_is_live {
+    let live: bool = (exec_is_live)
+    assert live
+}
+
+# 1 + 2: a single execution appends exactly one line and captures stdout.
+fn side_effect_runs_once() -> int {
+    let counter: string = "/tmp/mac_exec_once_counter.txt"
+    (write counter "")
+    let cmd: string = (+ "printf 'tick\\n' >> " (+ counter "; printf CAPTURED"))
+    let result: CommandResult = (exec_command cmd)
+
+    # The command must never run more than once. In a live backend it runs
+    # exactly once; in an offline backend it does not run at all.
+    let lines: int = (counter_lines counter)
+    assert (== lines 1)
+
+    if (exec_is_live) {
+        assert (== lines 1)
+        assert (str_contains result.stdout "CAPTURED")
+        assert (== result.exit_code 0)
+    } else {
+        assert (== lines 0)
+        assert (== result.exit_code 0)
+    }
+
+    (delete counter)
+    return lines
+}
+
+shadow side_effect_runs_once {
+    let lines: int = (side_effect_runs_once)
+    assert (== lines 1)
+}
+
+# 3: a non-zero exit status is preserved on a live backend.
+fn failure_status_preserved() -> int {
+    let result: CommandResult = (exec_command "exit 3")
+    if (exec_is_live) {
+        assert (== result.exit_code 3)
+    } else {
+        assert (== result.exit_code 0)
+    }
+    return result.exit_code
+}
+
+shadow failure_status_preserved {
+    let code: int = (failure_status_preserved)
+    assert (== code 3)
+}
+
+# 4: offline / unresolved-command behavior never crashes and never duplicates.
+fn offline_command_is_clean() -> int {
+    let marker: string = "/tmp/mac_exec_once_offline.txt"
+    if (exists marker) {
+        (delete marker)
+    }
+    # A command that shells out to a mac CLI that is not present. It must run
+    # at most once and leave no marker behind regardless of backend.
+    let result: CommandResult = (exec_command
+        (+ "nano_mac_cli_that_does_not_exist task create >/dev/null 2>&1; "
+           (+ "test -f " (+ marker " && echo MARKER"))))
+    # stdout is always a real string (empty on offline backends), never void.
+    let empty_ok: bool = (str_contains (+ result.stdout "x") "x")
+    assert (== empty_ok true)
+    assert (!= (exists marker) true)
+    return result.exit_code
+}
+
+shadow offline_command_is_clean {
+    let code: int = (offline_command_is_clean)
+    assert (!= code 0)
+}
+
+fn main() -> int {
+    let once: int = (side_effect_runs_once)
+    assert (== once 1)
+    let fail: int = (failure_status_preserved)
+    assert (== fail 3)
+    let off: int = (offline_command_is_clean)
+    assert (>= off 0)
+    (println "mac exec_command runs exactly once")
+    return 0
+}

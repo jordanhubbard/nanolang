@@ -14,9 +14,8 @@ from "modules/std/json/json.nano" import parse as json_parse, free as json_free,
     get_string as json_get_string, get_int as json_get_int,
     object_has as json_object_has, as_string as json_as_string, Json
 
-# C FFI: run command capturing stdout; run command returning exit code
-extern fn nl_exec_capture(cmd: string) -> string
-extern fn nl_exec_shell(cmd: string) -> int
+# I reuse the process runner for both streams and the same execution's status.
+from "modules/std/process.nano" import run as mac_process_run, Output
 
 struct CommandResult {
     stdout: string,
@@ -24,14 +23,13 @@ struct CommandResult {
     exit_code: int
 }
 
-# Run a shell command, capturing stdout and exit code
+# I group the command so the runner redirects the entire shell sequence.
 fn exec_command(command: string) -> CommandResult {
-    let out: string = (nl_exec_capture command)
-    let code: int = (nl_exec_shell command)
+    let result: Output = (mac_process_run (+ "( " (+ command "\n)")))
     return CommandResult {
-        stdout: out,
-        stderr: "",
-        exit_code: code
+        stdout: result.stdout,
+        stderr: result.stderr,
+        exit_code: result.code
     }
 }
 
@@ -179,6 +177,7 @@ shadow mac_show {
 
 # Create a new task. Returns the new task id (or "" on failure).
 fn mac_create(title: string, description: string, priority: int, kind: string) -> string {
+    if (== (str_length title) 0) { return "" }
     let mut cmd: string = "mac task create"
     set cmd (+ cmd (+ " \"" (+ title "\"")))
     set cmd (+ cmd (+ " --description=\"" (+ description "\"")))
@@ -198,10 +197,8 @@ fn mac_create(title: string, description: string, priority: int, kind: string) -
 }
 
 shadow mac_create {
-    # Structure only — won't actually create without an authenticated mac CLI.
-    let id: string = (mac_create "Test" "Description" 4 "report")
-    # Returns empty string if mac is unavailable
-    assert (>= (str_length id) 0)
+    # I reject an empty title without contacting a live ledger.
+    assert (== (mac_create "" "Description" 4 "report") "")
 }
 
 # Create a task with full options
@@ -211,17 +208,18 @@ fn mac_create_with_options(opts: TaskCreateOptions) -> string {
 
 shadow mac_create_with_options {
     let opts: TaskCreateOptions = TaskCreateOptions {
-        title: "Test",
+        title: "",
         description: "Test",
         priority: 4,
         kind: "report"
     }
     let id: string = (mac_create_with_options opts)
-    assert (>= (str_length id) 0)
+    assert (== id "")
 }
 
 # Close a task. `mac task close` completes by default; cancellation needs a reason.
 fn mac_close(id: string, reason: string) -> bool {
+    if (== (str_length id) 0) { return false }
     let mut cmd: string = (+ "mac task close " id)
 
     if (!= reason "") {
@@ -233,9 +231,9 @@ fn mac_close(id: string, reason: string) -> bool {
 }
 
 shadow mac_close {
-    let success: bool = (mac_close "does-not-exist" "test reason")
+    let success: bool = (mac_close "" "test reason")
     # Returns false if mac is unavailable
-    assert (or (== success true) (== success false))
+    assert (== success false)
 }
 
 # Get statistics by counting tasks per state (portable across mac versions).
@@ -420,32 +418,29 @@ shadow tasks_from_json {
 }
 
 # Extract the task ID from `mac task create` output.
-#
-# mac prints the new task id on creation (canonical ids look like
-# "task_<hex>"). Strategy: split output into lines, scan for a token that looks
-# like a task id ("task_..." or a bare hex id), and return the first match.
+# I prefer the machine-readable id field and retain legacy task-token output.
 fn extract_task_id(output: string) -> string {
-    let lines: array<string> = (str_split output "\n")
-    let n: int = (array_length lines)
-    let mut i: int = 0
-    while (< i n) {
-        let line: string = (at lines i)
-        let words: array<string> = (str_split line " ")
-        let wn: int = (array_length words)
-        let mut w: int = 0
-        while (< w wn) {
-            let word: string = (str_trim (at words w))
-            if (str_starts_with word "task_") {
-                return word
-            } else {}
-            set w (+ w 1)
-        }
-        set i (+ i 1)
+    let trimmed: string = (str_trim output)
+    if (str_starts_with trimmed "{") {
+        let parsed: Json = (json_parse trimmed)
+        let id: string = (json_get_string parsed "id")
+        (json_free parsed)
+        return id
     }
-    return ""
+    let start: int = (str_index_of output "task_")
+    if (< start 0) { return "" }
+    let mut end: int = (+ start 5)
+    while (< end (str_length output)) {
+        if (not (str_contains "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" (str_substring output end 1))) {
+            return (str_substring output start (- end start))
+        }
+        set end (+ end 1)
+    }
+    return (str_substring output start (- end start))
 }
 
 shadow extract_task_id {
+    assert (== (extract_task_id "{\"description\":\"task_wrong\",\"id\":\"task_right\"}") "task_right")
     # Plain "task_<hex>" token on its own line
     assert (str_equals (extract_task_id "task_abc123") "task_abc123")
 
@@ -508,7 +503,7 @@ shadow assert_with_task_context {
     assert (== result true)
 
     # Test that false conditions return false
-    let result2: bool = (assert_with_task_context false "Test" 4 "test.nano" 1 "context")
+    let result2: bool = (assert_with_task_context false "" 4 "test.nano" 1 "context")
     assert (== result2 false)
 }
 
@@ -543,7 +538,7 @@ shadow assert_with_task {
     assert (== result true)
 
     # Test that false conditions return false
-    # (Note: This will actually file a task if mac is authenticated)
-    let result2: bool = (assert_with_task false "Test assertion" 4 "Testing task creation")
+    # I reject the empty title before any command can reach the ledger.
+    let result2: bool = (assert_with_task false "" 4 "Testing task creation")
     assert (== result2 false)
 }

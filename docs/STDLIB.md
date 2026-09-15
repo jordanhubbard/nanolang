@@ -331,7 +331,7 @@ let handle: opaque = (null_opaque)
 
 ---
 
-## String Operations (19)
+## String Operations (20)
 
 ### `str_length(s: string) -> int`
 I return the length of a string in bytes.
@@ -421,6 +421,17 @@ I return the byte index of the first occurrence of `needle` in `haystack`, or `-
 (str_index_of "hello" "e")           # Returns 1
 (str_index_of "hello world" "world") # Returns 6
 (str_index_of "hello" "x")           # Returns -1
+```
+
+### `str_last_index_of(haystack: string, needle: string) -> int`
+I return the byte index of the last occurrence, including overlapping matches,
+or `-1` when no match exists. An empty needle matches at the byte length.
+I search NUL-terminated strings, not Unicode character positions.
+
+```nano
+(str_last_index_of "ababa" "aba") # Returns 2
+(str_last_index_of "abc" "")      # Returns 3
+(str_last_index_of "abc" "x")     # Returns -1
 ```
 
 ### `str_trim(s: string) -> string`
