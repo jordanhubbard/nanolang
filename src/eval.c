@@ -1511,18 +1511,41 @@ static Value builtin_array_remove_at(Value *args) {
     return args[0];
 }
 
+/* I normalize scalar literals without confusing them with empty arrays. */
+static DynArray *builtin_scalar_array(Value value) {
+    if (value.type == VAL_DYN_ARRAY) return value.as.dyn_array_val;
+    if (value.type != VAL_ARRAY || !value.as.array_val) return NULL;
+    Array *source = value.as.array_val;
+    if (source->length < 0 || (source->length && !source->data)) return NULL;
+    ElementType type;
+    switch (source->element_type) {
+        case VAL_INT: type = ELEM_INT; break;
+        case VAL_FLOAT: type = ELEM_FLOAT; break;
+        case VAL_BOOL: type = ELEM_BOOL; break;
+        case VAL_STRING: type = ELEM_STRING; break;
+        default: return NULL;
+    }
+    DynArray *result = dyn_array_new_with_capacity(type, source->length);
+    if (!result) return NULL;
+    for (int i = 0; i < source->length; i++) {
+        switch (source->element_type) {
+            case VAL_INT: dyn_array_push_int(result, ((long long *)source->data)[i]); break;
+            case VAL_FLOAT: dyn_array_push_float(result, ((double *)source->data)[i]); break;
+            case VAL_BOOL: dyn_array_push_bool(result, ((bool *)source->data)[i]); break;
+            case VAL_STRING: dyn_array_push_string(result, ((char **)source->data)[i]); break;
+            default: break;
+        }
+    }
+    return result;
+}
+
 static Value builtin_array_sort(Value *args) {
     /* array_sort(array) -> array — returns sorted copy (integers ascending) */
-    if (args[0].type == VAL_ARRAY) {
-        /* Empty static array — return new empty dynamic array */
-        DynArray *out = dyn_array_new(ELEM_INT);
-        return create_dyn_array(out);
-    }
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_sort() requires a dynamic array\n");
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_sort.\n");
         return create_void();
     }
-    DynArray *arr = args[0].as.dyn_array_val;
     DynArray *out = dyn_array_clone(arr);
     if (!out) return args[0];
     int64_t len = dyn_array_length(out);
@@ -1544,16 +1567,11 @@ static Value builtin_array_sort(Value *args) {
 
 static Value builtin_array_reverse(Value *args) {
     /* array_reverse(array) -> array — returns reversed copy */
-    if (args[0].type == VAL_ARRAY) {
-        /* Empty static array — return new empty dynamic array */
-        DynArray *out = dyn_array_new(ELEM_INT);
-        return create_dyn_array(out);
-    }
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_reverse() requires a dynamic array\n");
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_reverse.\n");
         return create_void();
     }
-    DynArray *arr = args[0].as.dyn_array_val;
     int64_t len = dyn_array_length(arr);
     ElementType t = dyn_array_get_elem_type(arr);
     DynArray *out = dyn_array_new(t);
@@ -1572,11 +1590,11 @@ static Value builtin_array_reverse(Value *args) {
 
 static Value builtin_array_contains(Value *args) {
     /* array_contains(array, elem) -> bool */
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_contains() requires a dynamic array\n");
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_contains.\n");
         return create_bool(false);
     }
-    DynArray *arr = args[0].as.dyn_array_val;
     int64_t len = dyn_array_length(arr);
     ElementType t = dyn_array_get_elem_type(arr);
     for (int64_t i = 0; i < len; i++) {
@@ -1605,11 +1623,11 @@ static Value builtin_array_contains(Value *args) {
 
 static Value builtin_array_index_of(Value *args) {
     /* array_index_of(array, elem) -> int (-1 if not found) */
-    if (args[0].type != VAL_DYN_ARRAY) {
-        fprintf(stderr, "Error: array_index_of() requires a dynamic array\n");
+    DynArray *arr = builtin_scalar_array(args[0]);
+    if (!arr) {
+        fprintf(stderr, "I require a supported array for array_index_of.\n");
         return create_int(-1);
     }
-    DynArray *arr = args[0].as.dyn_array_val;
     int64_t len = dyn_array_length(arr);
     ElementType t = dyn_array_get_elem_type(arr);
     for (int64_t i = 0; i < len; i++) {

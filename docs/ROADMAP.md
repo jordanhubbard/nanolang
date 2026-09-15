@@ -112,6 +112,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           default shadows and execution. All 20 VM-builtin tests, evaluator tests
           and 68 code-generation tests pass. Direct join checks include a
           10,004-byte result and malformed array-header rejection.
+        - [x] I preserve literal scalar arrays in interpreter sort/reverse and
+          accept them in contains/index_of, with native shadow/run regressions.
+          I no longer replace nonempty literals with empty arrays. Integer sort
+          and search, string/float/bool reversal, empty inputs and unchanged-source
+          checks pass native compilation, default shadows and executable runs.
+          Evaluator unit tests pass. VM utilities remain unfinished below.
+        - [ ] I implement the missing VM sort/reverse/contains/index_of operations
+          and verify element-type and original-array preservation.
+          I also align their type contracts: existing sort silently leaves
+          nonintegers unsorted, native search takes integer-only values and
+          reverse mishandles unsupported element types.
+          MAC `task_ee340b82c97b031407fee59f0445d418`.
         - [x] I implement the missing VM file_read_bytes bridge with byte-typed
           storage, binary/empty/missing-file checks and byte-to-string round trips.
           Native/VM compilation, default shadows and execution pass the expanded
