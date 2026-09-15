@@ -136,6 +136,15 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         test and all five end-to-end path variants.
         [Review evidence](evidence/pr-273-reconciliation.md).
         MAC `task_8c10a946dfa14d92b491fd80f4635187`.
+      - [ ] I reconcile PR #274's checked interpreter FFI dispatch ancestry.
+        I retain the existing implementation, later handler-return propagation
+        and dependency-shadow default; I rerun FFI, interpreter and foreign
+        language-claim regressions before marking integration complete.
+        FFI and interpreter gates pass after rebuild. The source-level foreign
+        gate still fails: `array_get (map [0.0] erf) 0` is inferred as int,
+        so the float assertion is rejected before shadows. I retain the test;
+        the map result/callback task below must pass before release acceptance.
+        MAC `task_17fe744141024df08c2ef3de7599865a`.
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with
@@ -366,6 +375,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         - [ ] I preserve map transform result representation and validate
           collection callback signatures rather than merely checking each
           argument independently. MAC `task_75b340982b6cf797f29b38c1a188aab3`.
+          PR #274 reconciliation reproduces a frontend failure in
+          `test_qualified_and_returned_foreign_dispatch`: indexing a mapped
+          float result is typed as int before the explicit shadow can run.
         - [x] I provide VM left/right string trimming with the existing four-byte
           whitespace contract, checking empty/all-whitespace input, the opposite
           edge and UTF-8 preservation on native and VM paths.
