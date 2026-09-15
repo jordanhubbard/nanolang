@@ -930,7 +930,12 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
                               int64_t value, int64_t min_val, int64_t max_val,
                               int64_t x, int64_t y, int64_t w, int64_t h) {
     
+    if (min_val > max_val) return value;
+    if (value < min_val) value = min_val;
+    if (value > max_val) value = max_val;
     int64_t new_value = value;
+    if (!renderer || w < 40 || h < 10 || !ui_bar_geometry(x, y, w, h, 0))
+        return new_value;
     
     // Get mouse state
     int mouse_x, mouse_y;
@@ -1000,10 +1005,17 @@ int64_t nl_ui_number_spinner(SDL_Renderer* renderer, TTF_Font* font,
         if (surface) {
             SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
             if (texture) {
-                int text_x = value_area.x + (value_area.w - surface->w) / 2;
-                int text_y = value_area.y + (value_area.h - surface->h) / 2;
-                SDL_Rect dest = {text_x, text_y, surface->w, surface->h};
-                SDL_RenderCopy(renderer, texture, NULL, &dest);
+                int64_t text_x = (int64_t)value_area.x +
+                    ((int64_t)value_area.w - surface->w) / 2;
+                int64_t text_y = (int64_t)value_area.y +
+                    ((int64_t)value_area.h - surface->h) / 2;
+                if (surface->w >= 0 && surface->h >= 0 &&
+                    text_x >= INT_MIN && text_y >= INT_MIN &&
+                    text_x + surface->w <= INT_MAX &&
+                    text_y + surface->h <= INT_MAX) {
+                    SDL_Rect dest = {(int)text_x, (int)text_y, surface->w, surface->h};
+                    SDL_RenderCopy(renderer, texture, NULL, &dest);
+                }
                 SDL_DestroyTexture(texture);
             }
             SDL_FreeSurface(surface);

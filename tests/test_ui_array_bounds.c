@@ -4,6 +4,9 @@
 #include <float.h>
 static int mouse_calls, text_calls;
 static int draw_calls;
+static int render_copies, texture_frees, surface_frees, provide_surface;
+static SDL_Surface test_surface;
+static const char *expected_text = "visible";
 static Uint32 host_buttons;
 static int host_mouse_x = -100, host_mouse_y = -100;
 static Uint32 mouse(int *x, int *y) {
@@ -21,8 +24,18 @@ static int line(SDL_Renderer *r, int a, int b, int c, int d) {
     (void)r; (void)a; (void)b; (void)c; (void)d; return 0;
 }
 static SDL_Surface *fake_text(TTF_Font *f, const char *s, SDL_Color c) {
-    (void)f; (void)c; assert(!strcmp(s, "visible")); text_calls++; return NULL;
+    (void)f; (void)c; assert(!strcmp(s, expected_text)); text_calls++;
+    return provide_surface ? &test_surface : NULL;
 }
+static SDL_Texture *fake_texture(SDL_Renderer *r, SDL_Surface *s) {
+    (void)r; assert(s == &test_surface); return (SDL_Texture *)(uintptr_t)2;
+}
+static int fake_copy(SDL_Renderer *r, SDL_Texture *t, const SDL_Rect *s, const SDL_Rect *d) {
+    (void)r; (void)t; (void)s;
+    assert(d->w >= 0 && d->h >= 0); render_copies++; return 0;
+}
+static void fake_destroy(SDL_Texture *t) { (void)t; texture_frees++; }
+static void fake_free_surface(SDL_Surface *s) { assert(s == &test_surface); surface_frees++; }
 #define SDL_GetMouseState mouse
 #define SDL_SetRenderDrawColor color
 #define SDL_RenderFillRect fake_rect
@@ -30,6 +43,10 @@ static SDL_Surface *fake_text(TTF_Font *f, const char *s, SDL_Color c) {
 #define SDL_RenderSetClipRect fake_rect
 #define SDL_RenderDrawLine line
 #define TTF_RenderText_Blended fake_text
+#define SDL_CreateTextureFromSurface fake_texture
+#define SDL_RenderCopy fake_copy
+#define SDL_DestroyTexture fake_destroy
+#define SDL_FreeSurface fake_free_surface
 #include "../modules/ui_widgets/ui_widgets.c"
 
 static void invoke(DynArray *a, int64_t count, int64_t scroll) {
@@ -74,6 +91,44 @@ static void bars(void) {
     assert(nl_ui_seekable_progress_bar(r,0,0,100,20,0.0) == -1.0);
     host_buttons = 0;
     assert(nl_ui_seekable_progress_bar(r,0,0,100,20,0.0) == 0.5);
+}
+static void spinner(void) {
+    SDL_Renderer *r = (SDL_Renderer *)(uintptr_t)1;
+    TTF_Font *f = (TTF_Font *)(uintptr_t)1;
+    host_mouse_x = -100; host_mouse_y = -100; host_buttons = 0;
+    int before = draw_calls;
+    assert(nl_ui_number_spinner(r,NULL,5,10,0,0,0,100,20) == 5);
+    assert(nl_ui_number_spinner(r,NULL,5,0,10,INT64_MAX,0,100,20) == 5);
+    assert(nl_ui_number_spinner(r,NULL,5,0,10,0,0,39,20) == 5);
+    assert(nl_ui_number_spinner(r,NULL,5,0,10,0,0,100,9) == 5);
+    assert(draw_calls == before);
+    assert(nl_ui_number_spinner(r,NULL,INT64_MIN,0,10,0,0,100,20) == 0);
+    assert(nl_ui_number_spinner(r,NULL,INT64_MAX,0,10,0,0,100,20) == 10);
+    host_mouse_x = 90; host_mouse_y = 10;
+    host_buttons = SDL_BUTTON(SDL_BUTTON_LEFT);
+    assert(nl_ui_number_spinner(r,NULL,INT64_MAX,INT64_MIN,INT64_MAX,0,0,100,20) == INT64_MAX);
+    host_buttons = 0;
+    assert(nl_ui_number_spinner(r,NULL,INT64_MAX,INT64_MIN,INT64_MAX,0,0,100,20) == INT64_MAX);
+    host_buttons = SDL_BUTTON(SDL_BUTTON_LEFT);
+    assert(nl_ui_number_spinner(r,NULL,4,0,10,0,0,100,20) == 4);
+    host_buttons = 0;
+    assert(nl_ui_number_spinner(r,NULL,4,0,10,0,0,100,20) == 5);
+    host_mouse_x = 10; host_buttons = SDL_BUTTON(SDL_BUTTON_LEFT);
+    assert(nl_ui_number_spinner(r,NULL,INT64_MIN,INT64_MIN,INT64_MAX,0,0,100,20) == INT64_MIN);
+    host_buttons = 0;
+    assert(nl_ui_number_spinner(r,NULL,INT64_MIN,INT64_MIN,INT64_MAX,0,0,100,20) == INT64_MIN);
+    host_mouse_x = -100;
+    expected_text = "5"; provide_surface = 1;
+    test_surface.w = 10; test_surface.h = 10;
+    assert(nl_ui_number_spinner(r,f,5,0,10,0,0,100,20) == 5);
+    assert(render_copies == 1);
+    test_surface.w = INT_MAX; test_surface.h = INT_MAX;
+    assert(nl_ui_number_spinner(r,f,5,0,10,INT_MIN,INT_MIN,100,20) == 5);
+    assert(render_copies == 1 && texture_frees == 2 && surface_frees == 2);
+    test_surface.w = -1;
+    assert(nl_ui_number_spinner(r,f,5,0,10,0,0,100,20) == 5);
+    assert(render_copies == 1 && texture_frees == 3 && surface_frees == 3);
+    provide_surface = 0;
 }
 int main(void) {
     double invalid_scales[] = {NAN, INFINITY, -INFINITY, 0.0, -1.0, 0.01};
@@ -140,5 +195,6 @@ int main(void) {
     assert(text_calls == 3);
     nl_ui_set_scale(1.0);
     bars();
+    spinner();
     return 0;
 }

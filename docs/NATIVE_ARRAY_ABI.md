@@ -110,6 +110,11 @@ clamp to [0,1], with NaN mapped to zero. Invalid geometry leaves the slider's
 normalized value unchanged and yields no seek selection. The UI fixture tests
 these paths, extreme valid geometry, and press/release selection with fake SDL
 calls under the same sanitizers. Other widgets still need their geometry audit.
+My spinner validates its range and geometry, clamps initial values, and checks
+centered text placement with int64 arithmetic before narrowing. The fake SDL
+fixture checks integer-limit clicks, invalid geometry, and texture/surface
+cleanup when text cannot be placed, normally and under the same sanitizers.
+The wider UI audit remains open.
 
 My preference playlist exports declare the canonical array ABI. Saves validate
 the selected prefix before opening output and report write/close failures;

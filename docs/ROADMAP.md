@@ -244,6 +244,9 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   - [x] I bound slider/progress geometry before narrowing,
                     normalize non-finite fractions, and reject zero-width
                     interaction before division; I test drawing and click paths.
+                  - [x] I validate spinner geometry and ranges, clamp initial
+                    values, and check centered text coordinates before SDL;
+                    I test integer-limit clicks and extreme surface dimensions.
                 - [x] I make process pipe-spawn result allocation precede pipe
                   creation/fork, close partial pipe setup, check nonblocking
                   configuration, and test failures before declaring its ABI.

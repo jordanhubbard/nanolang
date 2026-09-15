@@ -16,6 +16,11 @@
  * four pixels of margin for the slider handle). Invalid geometry or a null
  * renderer skips drawing: sliders return the clamped value, seek bars -1. */
 
+/* My spinner returns the unchanged value for an inverted range. Otherwise I
+ * clamp the initial value to its range. Invalid geometry skips drawing and
+ * returns that value; I require width >= 40, height >= 10 and SDL-int endpoints.
+ * Unrepresentable centered text is skipped, with texture/surface cleanup. */
+
 // Update widget mouse state - CALL THIS ONCE PER FRAME before rendering widgets!
 // This allows all widgets to see the same mouse transition
 void nl_ui_update_mouse_state();
