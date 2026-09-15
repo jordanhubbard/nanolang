@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **Wrapper-publication branch reconciliation.** I retain the staged
+      publication implementation already integrated from `c56c6e7e`, including
+      newer callback/array link dependencies, while reconciling `df031115`.
+      I require wrapper unit and adversarial publication tests. MAC
+      `task_0750c33a06a14dd39baf4d3e77e37a0d`.
+      Five unit tests and seven publication methods pass. Evidence:
+      `docs/evidence/wrapper-branch-reconciliation.md`.
 - [x] **VM shadow completion handshake.** I reject foreign `exit(0)` before
       shadow execution returns, preserving prior bytecode. I require a private
       close-on-exec completion channel as well as a successful child status.
