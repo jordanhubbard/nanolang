@@ -3,19 +3,36 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* Check if a struct type is a resource type */
+/* I resolve each field in its declaring module, not the querying module. */
+static bool resource_field_bearing(Environment *env, Type type, const char *name,
+                                   char *owner, const bool *bearing) {
+    if (!name || (type != TYPE_STRUCT && type != TYPE_UNION)) return false;
+    char *caller = env->current_module;
+    env->current_module = owner;
+    StructDef *record = type == TYPE_STRUCT ? env_get_struct(env, name) : NULL;
+    UnionDef *variant = type == TYPE_UNION ? env_get_union(env, name) : NULL;
+    env->current_module = caller;
+    for (int i = 0; record && i < env->struct_count; i++)
+        if (record == &env->structs[i]) return bearing[i];
+    for (int i = 0; variant && i < env->union_count; i++)
+        if (variant == &env->unions[i]) return bearing[(size_t)env->struct_count + i];
+    return false;
+}
+
+/* I classify registered named records and unions, not generic substitutions. */
 bool is_resource_type(Environment *env, const char *struct_name) {
     if (!struct_name) return false;
     
     StructDef *sdef = env_get_struct(env, struct_name);
-    if (!sdef) return false;
+    UnionDef *udef = sdef ? NULL : env_get_union(env, struct_name);
+    if (!sdef && !udef) return false;
     
-    if (sdef->is_resource) return true;
+    if (sdef && sdef->is_resource) return true;
     /* I compute the least fixed point, so a cycle alone is not a resource.
      * Allocation failure conservatively retains the obligation. */
-    bool *bearing = calloc((size_t)env->struct_count, sizeof(*bearing));
+    bool *bearing = calloc((size_t)env->struct_count + (size_t)env->union_count, sizeof(*bearing));
     if (!bearing) {
-        fprintf(stderr, "I cannot allocate record ownership classification state\n");
+        fprintf(stderr, "I cannot allocate aggregate ownership classification state\n");
         return true;
     }
     for (int i = 0; i < env->struct_count; i++)
@@ -27,15 +44,24 @@ bool is_resource_type(Environment *env, const char *struct_name) {
             StructDef *record = &env->structs[i];
             if (bearing[i]) continue;
             for (int field = 0; field < record->field_count && !bearing[i]; field++) {
-                if (!record->field_types || record->field_types[field] != TYPE_STRUCT ||
-                    !record->field_type_names || !record->field_type_names[field]) continue;
-                char *caller_module = env->current_module;
-                env->current_module = record->module_name;
-                StructDef *nested = env_get_struct(env, record->field_type_names[field]);
-                env->current_module = caller_module;
-                for (int j = 0; nested && j < env->struct_count; j++) {
-                    if (nested == &env->structs[j] && bearing[j]) {
-                        bearing[i] = changed = true;
+                if (record->field_types && record->field_type_names &&
+                    resource_field_bearing(env, record->field_types[field],
+                        record->field_type_names[field], record->module_name, bearing))
+                    bearing[i] = changed = true;
+            }
+        }
+        for (int i = 0; i < env->union_count; i++) {
+            UnionDef *variant = &env->unions[i];
+            size_t index = (size_t)env->struct_count + i;
+            if (bearing[index]) continue;
+            for (int arm = 0; arm < variant->variant_count && !bearing[index]; arm++) {
+                if (!variant->variant_field_counts || !variant->variant_field_types ||
+                    !variant->variant_field_type_names || !variant->variant_field_types[arm] ||
+                    !variant->variant_field_type_names[arm]) continue;
+                for (int field = 0; field < variant->variant_field_counts[arm]; field++) {
+                    if (resource_field_bearing(env, variant->variant_field_types[arm][field],
+                            variant->variant_field_type_names[arm][field], variant->module_name, bearing)) {
+                        bearing[index] = changed = true;
                         break;
                     }
                 }
@@ -45,6 +71,8 @@ bool is_resource_type(Environment *env, const char *struct_name) {
     bool result = false;
     for (int i = 0; i < env->struct_count; i++)
         if (sdef == &env->structs[i]) result = bearing[i];
+    for (int i = 0; i < env->union_count; i++)
+        if (udef == &env->unions[i]) result = bearing[(size_t)env->struct_count + i];
     free(bearing);
     return result;
 }
