@@ -28,6 +28,13 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
+- [x] **FFI argument branch reconciliation.** I retain current ABI handling
+      and the shared foreign-argument ceiling while reconciling the older
+      float-refusal and execution-path argument-limit branches. I require
+      mixed-signature execution, VM over-limit rejection and protocol gates;
+      I do not restore the obsolete ten-argument dispatch limit or float ban.
+      Evidence: `docs/evidence/ffi-argument-branch-reconciliation.md`.
+      Release parent MAC `task_cffdafd16e641ac417ccfddb962534b9`.
 - [x] **Verifier branch reconciliation and rejection cleanup.** I retain
       current signature-aware stack propagation and valid alternate paths after
       returns while reconciling the older stack/range/container heads. I fix
