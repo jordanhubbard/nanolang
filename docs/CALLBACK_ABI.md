@@ -2,9 +2,9 @@
 
 ## Status
 
-I require this work before 5.0. This document defines my implementation
-contract; it is not evidence that my compiler or dispatch module implements
-it yet. I keep those acceptance items on my roadmap.
+I require this work before 5.0. My retained VM bridge and Apple dispatch
+adapters are implemented and tested below. SDL_mixer adapter contracts and
+complete release acceptance remain unfinished on my roadmap.
 
 My handle runtime in `src/runtime/callback_runtime.c` passes
 `make test-callback-runtime`: 40,000 cross-thread invocations, scalar signature
@@ -277,8 +277,7 @@ asynchronous work, policy-only joins, mixed scalar arguments, repeated yields
 from a non-terminating instruction stream, VM progress while native work is
 pending, and latched callback failure. The 39-test bytecode-shadow suite now
 compiles and executes a real foreign-thread callback during a shadow test.
-These fixtures do not establish that the dispatch module or its six release
-examples work; those remain release gates.
+These scheduler fixtures do not replace the dispatch and release gates below.
 The native fixture also cancels outstanding work at VM teardown, shuts down
 the loader registry, then calls the still-resident native join function and
 checks cancellation. Handle tombstones alone would not keep that code live.
@@ -294,6 +293,41 @@ and retain/release accounting. Until that transport is implemented, a
 callback-bearing isolated import must fail explicitly before publication;
 I must not silently fall back to in-process execution. The final release
 acceptance must state and test the supported policy.
+
+## Dispatch adapters
+
+My Apple dispatch module now declares retained adapters for async, sync,
+barrier, delayed, group-async and group-notify callbacks. Submission runs on
+the VM owner; sync, group waits and queue destruction use worker policy so
+the owner can service callbacks. Each asynchronous publication retains its
+handle and releases it after invocation, including cancellation after VM
+shutdown. A queue tracks accepted timers and notifications as pending work;
+destruction waits for them as well as already-enqueued tasks.
+
+I require callers to stop submitting before destroying a queue. A callback
+must not synchronously wait on its own serial queue, destroy its own queue,
+or wait for a group that includes itself. Moving VM execution to an owner
+thread does not remove those dependency cycles. Queue/group pointers remain
+trusted opaque native handles, not checked affine resources.
+
+I support these callbacks in-process in NanoVM. `--isolate-ffi` rejects the
+contracted import explicitly; I do not fall back to in-process execution.
+The non-Apple implementation reports unavailable and aborts dispatch operations.
+It is not a concurrency simulator or a tested Linux libdispatch backend.
+
+`make test-dispatch-callbacks` checks shared captured arrays, nested native
+waits on distinct queues, concurrent groups, notifications, barriers, delayed
+work, real dependency shadows and isolated-call refusal. The native lifecycle
+fixture executes 133 callbacks, checks timer draining, and cancels a timer
+after destroying its callback runtime. It passes ASan/UBSan and TSan on Darwin;
+wrapper-allocation failure/recovery checks pass ASan/UBSan.
+
+The NanoVirt suite includes transitive named and anonymous captures. I retain
+the parser's non-owning link from a lambda expression to its hoisted declaration
+and compile it in lexical context. Intermediate capture tables preserve entries
+discovered by nested closures. These changes do not establish C-native capture
+parity. The six original dispatch example gates and newly exposed SDL_mixer
+callback contracts remain part of the full release acceptance.
 
 ## Evidence required
 

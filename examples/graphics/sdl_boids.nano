@@ -179,7 +179,7 @@ shadow draw_ui_overlay {
 
 # === MAIN ===
 
-fn main() -> int {
+fn run_boids(max_frames: int) -> int {
     # Initialize SDL
     (SDL_Init 32)
 
@@ -221,7 +221,7 @@ fn main() -> int {
     let mut frame: int = 0
     let mut running: bool = true
 
-    while running {
+    while (and running (or (<= max_frames 0) (< frame max_frames))) {
         let key: int = (nl_sdl_poll_keypress)
         if (or (== key 41) (== key 20)) {    # ESC or Q to quit
             set running false
@@ -320,6 +320,14 @@ fn main() -> int {
     return 0
 }
 
+shadow run_boids {
+    assert (== (run_boids 1) 0)
+}
+
+fn main() -> int {
+    return (run_boids 0)
+}
+
 shadow main {
-    assert (== (main) 0)
+    assert (== (run_boids 1) 0)
 }

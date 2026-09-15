@@ -674,6 +674,7 @@ static bool compile_module_introspection(CG *cg, const char *name) {
 
 static void compile_expr(CG *cg, ASTNode *node);
 static void compile_stmt(CG *cg, ASTNode *node);
+static void compile_nested_function(CG *cg, ASTNode *node);
 static bool stmt_falls_through(ASTNode *node);
 
 static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
@@ -1754,6 +1755,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
     case AST_IDENTIFIER: {
         const char *id = node->as.identifier;
+        if (node->lambda_definition) {
+            compile_nested_function(cg, node->lambda_definition);
+            int16_t slot = local_find(cg, id);
+            if (slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)slot);
+            else cg_error(cg, node->line, "I could not instantiate this anonymous closure");
+            break;
+        }
         int16_t slot = local_find(cg, id);
         if (slot >= 0) {
             emit_op(cg, OP_LOAD_LOCAL, (int)slot);
@@ -2401,7 +2409,6 @@ static void compile_expr(CG *cg, ASTNode *node) {
 typedef struct {
     Local   locals[MAX_LOCALS];
     LoopCtx loops[MAX_LOOP_DEPTH];
-    Upvalue upvalues[MAX_UPVALUES];
     Upvalue child_upvalues[MAX_UPVALUES];
     CG      parent_snapshot;
 } NestedFnState;
@@ -2448,7 +2455,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     const char *name = node->as.function.name;
 
     /* Register nested function in module function table if not already there */
-    int32_t fn_idx = fn_find(cg, name);
+    int32_t fn_idx = fn_find_body(cg, node->as.function.body);
     if (fn_idx < 0) {
         uint32_t name_idx = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
         NvmFunctionEntry fn = {0};
@@ -2482,7 +2489,6 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     uint32_t saved_current_fn_idx = cg->current_fn_idx;
     memcpy(st->loops, cg->loops, sizeof(cg->loops));
     int saved_loop_depth = cg->loop_depth;
-    memcpy(st->upvalues, cg->upvalues, sizeof(cg->upvalues));
     uint16_t saved_upvalue_count = cg->upvalue_count;
     CG *saved_parent = cg->parent;
 
@@ -2491,7 +2497,6 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     /* Restore parent's locals for upvalue resolution */
     memcpy(st->parent_snapshot.locals, st->locals, sizeof(st->locals));
     st->parent_snapshot.local_count = saved_local_count;
-    st->parent_snapshot.upvalues[0].name = NULL; /* sentinel */
     st->parent_snapshot.upvalue_count = saved_upvalue_count;
     st->parent_snapshot.parent = saved_parent;
 
@@ -2556,8 +2561,10 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->current_fn_idx = saved_current_fn_idx;
     memcpy(cg->loops, st->loops, sizeof(cg->loops));
     cg->loop_depth = saved_loop_depth;
-    memcpy(cg->upvalues, st->upvalues, sizeof(cg->upvalues));
-    cg->upvalue_count = saved_upvalue_count;
+    /* Resolving a grandchild's free variable can add a capture to this
+     * suspended parent. I keep those additions when resuming its compilation. */
+    memcpy(cg->upvalues, st->parent_snapshot.upvalues, sizeof(cg->upvalues));
+    cg->upvalue_count = st->parent_snapshot.upvalue_count;
     cg->parent = saved_parent;
 
     /* At the definition site: push captured values, then emit CLOSURE_NEW */
@@ -3204,7 +3211,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
 
-        if (item->type == AST_FUNCTION && !item->as.function.is_extern) {
+        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
             const char *name = item->as.function.name;
             uint32_t name_idx = nvm_add_string(cg.module, name, (uint32_t)strlen(name));
 
@@ -3316,7 +3323,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     ASTNode *mitem = mod_ast->as.program.items[m];
 
                     /* Register all non-extern functions as bytecode functions */
-                    if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
+                    if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
                         const char *fname = mitem->as.function.name;
 
                         /* Check for alias: selective import may rename */
@@ -3542,7 +3549,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = mod_ast->as.program.items[m];
 
-                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
                     const char *fname = mitem->as.function.name;
                     if (fn_find_body(&cg, mitem->as.function.body) < 0 && cg.fn_count < MAX_FUNCTIONS) {
                         uint32_t ni = nvm_add_string(cg.module, fname, (uint32_t)strlen(fname));
@@ -3749,7 +3756,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     env_set_current_file(env, input_file);
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = program->as.program.items[i];
-        if (item->type == AST_FUNCTION && !item->as.function.is_extern) {
+        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
             compile_function(&cg, item);
             if (cg.had_error) break;
         }
@@ -3764,7 +3771,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             env_set_current_file(env, modules->module_paths[mi]);
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = mod_ast->as.program.items[m];
-                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern) {
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
                     compile_function(&cg, mitem);
                     if (cg.had_error) break;
                 }

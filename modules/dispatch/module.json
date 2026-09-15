@@ -9,5 +9,15 @@
   "ldflags_macos": [],
   "ldflags_linux": [],
   "dependencies": [],
-  "platform_notes": "Requires clang with -fblocks. macOS: libdispatch is part of libSystem (no install needed). Non-Apple: dispatch.c compiles in stub mode via #ifdef __APPLE__ — calls return early without performing real concurrency. To get real GCD on Linux, build swift-corelibs-libdispatch from source; Ubuntu/Debian/Fedora do not package it as of 2026."
+  "callback_adapters": {
+    "nl_queue_async": {"symbol": "nl_queue_async_retained", "abi": "retained_v1", "execution": "owner"},
+    "nl_queue_sync": {"symbol": "nl_queue_sync_retained", "abi": "retained_v1", "execution": "worker"},
+    "nl_queue_barrier_async": {"symbol": "nl_queue_barrier_async_retained", "abi": "retained_v1", "execution": "owner"},
+    "nl_queue_after_ns": {"symbol": "nl_queue_after_ns_retained", "abi": "retained_v1", "execution": "owner"},
+    "nl_group_async": {"symbol": "nl_group_async_retained", "abi": "retained_v1", "execution": "owner"},
+    "nl_group_notify": {"symbol": "nl_group_notify_retained", "abi": "retained_v1", "execution": "owner"},
+    "nl_group_wait_ns": {"symbol": "nl_group_wait_ns_retained", "abi": "retained_v1", "execution": "worker"},
+    "nl_queue_destroy": {"symbol": "nl_queue_destroy", "abi": "retained_v1", "execution": "worker"}
+  },
+  "platform_notes": "I require Apple libdispatch and clang -fblocks for execution. My non-Apple stubs report unavailable and abort dispatch operations; they do not simulate concurrency. My retained bytecode adapters execute in-process; isolated callback imports are rejected."
 }

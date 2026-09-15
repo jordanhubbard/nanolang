@@ -99,6 +99,30 @@ named records with `Type { field: value }` and read fields with `value.field`.
 Named types and variants start with an uppercase letter because the parser uses
 that convention when distinguishing constructors from ordinary identifiers.
 
+## Function Values And Captures
+
+My NanoVirt backend instantiates anonymous functions at their lexical expression,
+including when the C parser hoists their declarations internally. Named nested
+functions and anonymous functions retain captures through intermediate closures.
+I test returned closure chains and callbacks nested across native waits.
+
+```nano
+fn make_offset(n: int) -> fn() -> fn() -> int {
+    return fn() -> fn() -> int {
+        return fn() -> int { return (+ n 2) }
+    }
+}
+
+shadow make_offset {
+    let middle: fn() -> fn() -> int = (make_offset 40)
+    let inner: fn() -> int = (middle)
+    assert (== (inner) 42)
+}
+```
+
+This is tested bytecode behavior, not a claim that the C-native or tree-walking
+backends implement the same anonymous-capture semantics.
+
 ## String Search
 
 `str_index_of` finds the first occurrence; `str_last_index_of` finds the last,

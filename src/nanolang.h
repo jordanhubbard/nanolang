@@ -257,6 +257,9 @@ struct ASTNode {
     ASTNodeType type;
     int line;
     int column;
+    /* I borrow the hoisted anonymous declaration at its lexical expression.
+     * The program owns that declaration; this link does not own or free it. */
+    ASTNode *lambda_definition;
     union {
         long long number;
         double float_val;
@@ -340,6 +343,7 @@ struct ASTNode {
             TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: stores element types */
             ASTNode *body;
             bool is_extern;  /* Mark external C functions */
+            bool is_anonymous; /* I instantiate this declaration at its expression. */
             bool is_pub;     /* Visibility: public (pub) vs private */
             bool is_gpu;     /* @gpu annotation: emit as PTX kernel */
             bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */

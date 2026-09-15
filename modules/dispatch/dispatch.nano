@@ -47,7 +47,8 @@ pub fn queue_concurrent(label: string) -> NlQueue {
     unsafe { return (nl_queue_concurrent label) }
 }
 
-/* Destroy a queue — drains it first. */
+# I drain accepted work, including delayed work, before releasing the queue.
+# Stop submitting first; do not destroy a queue from one of its own callbacks.
 pub fn queue_destroy(q: NlQueue) -> void {
     unsafe { (nl_queue_destroy q) }
 }
@@ -57,7 +58,7 @@ pub fn queue_async(q: NlQueue, blk: fn() -> void) -> void {
     unsafe { (nl_queue_async q blk) }
 }
 
-/* Submit work synchronously — blocks until done. */
+# I wait for completion. Do not synchronously submit to your own serial queue.
 pub fn queue_sync(q: NlQueue, blk: fn() -> void) -> void {
     unsafe { (nl_queue_sync q blk) }
 }
@@ -124,9 +125,9 @@ shadow queue_concurrent {
 }
 
 shadow queue_async {
-    /* queue_sync with a no-op closure verifies dispatch works */
+    # I submit asynchronous work and drain it before releasing its queue.
     let q: NlQueue = (queue_serial "nano.test.queue_async")
-    (queue_sync q fn() -> void {})
+    (queue_async q fn() -> void {})
     (queue_destroy q)
 }
 

@@ -91,9 +91,10 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
       MAC `task_9b9359bd64dce70ea919f0861ac9d5ba`.
 - [ ] **Release-gate native callbacks.** I replace raw bytecode-index-to-C-
       pointer conversion with an ABI-aware bridge that owns callback lifetime,
-      asynchronous quiescence, captures/globals, and VM reentrancy. The current
-      containment rejects callbacks with a diagnostic instead of crashing;
-      it is not callback support. Dispatch dependency shadows still fail.
+      asynchronous quiescence, captures/globals, and VM reentrancy. My retained
+      VM bridge and Apple dispatch adapters now pass their focused gates.
+      Unsupported callback imports still fail closed; SDL_mixer contracts and
+      complete release acceptance remain unfinished.
       MAC `task_20f0d57878f248cd8573e6841825152a`.
       The user requires lifetime-safe callbacks before 5.0; native-only
       dispatch is not an alternative release condition.
@@ -191,8 +192,36 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           pass after the repair.
       - [ ] I implement retained dispatch adapters and an explicit COP
         transport policy, then test delayed work and shutdown in both paths.
+        - [x] I add explicit retained adapters for queue/group callbacks and
+          worker policies for blocking waits and queue destruction. I retain
+          handles before asynchronous publication and release them on completion.
+        - [x] I preserve transitive captures through intermediate closures:
+          a callback nested inside a callback must capture an outer local even
+          when only the innermost body reads it. I test this with nested native
+          waits and shared array state, not an extra artificial outer read.
+          I instantiate anonymous functions at their lexical expressions and
+          preserve captures added to suspended parent tables. NanoVirt passes
+          67 checks, including returned named/anonymous closure chains; parser
+          and codegen cases pass ASan/UBSan. C-native parity is not established.
+        - [x] I make queue destruction drain accepted delayed work as well as
+          already-enqueued work, check constructor allocation failures, and test
+          real captured state, barriers, group notification, timers and shutdown.
+          `make test-dispatch-callbacks` passes real dependency shadows and
+          isolated-call refusal. The 133-callback native lifecycle fixture
+          passes ASan/UBSan and TSan; wrapper allocation failures pass ASan/UBSan.
       - [ ] I pass all six dispatch-dependent examples with dependency
         shadows enabled, sanitizer checks, and the complete clean release gate.
+        - [ ] I resolve newly exposed SDL_mixer callback declarations, including
+          `Mix_SetPostMix`, through explicit adapter and threading contracts.
+          The full example gate currently rejects six audio/visualizer users;
+          I do not exempt unused callback declarations to hide this boundary.
+        - [x] I give the boids graphical shadow a bounded real-frame runner.
+          Its current shadow invokes the interactive event loop indefinitely
+          and hits the ten-second deadline. I preserve interactive main and
+          test rendering/dispatch cleanup through the bounded runner.
+          Its two one-frame runs now complete inside the original deadline.
+          All six original dispatch examples compile with dependency shadows;
+          the complete example and release gates remain open for SDL_mixer.
 - [x] **Release-gate non-callback example shadows.** I correct nominal record
       lookup on call results, retain SDL_mixer artifact linkage, bound the
       particle rendering smoke test, and verify the entire example tree from

@@ -573,7 +573,19 @@ test-gc-struct: $(RUNTIME_OBJECTS) $(COMMON_OBJECTS)
 	@rm -f tests/test_gc_struct
 
 .PHONY: test-vm-ffi
-test-vm-ffi: test-callback-runtime
+test-vm-ffi: test-callback-runtime test-dispatch-retained
+
+.PHONY: test-dispatch-retained
+test-dispatch-retained:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-fblocks,) -pthread tests/nanovm/test_dispatch_retained.c modules/dispatch/dispatch.c src/runtime/callback_runtime.c -o $(OBJ_DIR)/test_dispatch_retained $(LDFLAGS)
+	@$(OBJ_DIR)/test_dispatch_retained
+	$(CC) $(CFLAGS) $(if $(filter Darwin,$(UNAME_S)),-fblocks,) -pthread tests/nanovm/test_dispatch_allocation.c -o $(OBJ_DIR)/test_dispatch_allocation $(LDFLAGS)
+	@$(OBJ_DIR)/test_dispatch_allocation
+
+.PHONY: test-dispatch-callbacks
+test-dispatch-callbacks: nano_virt nano_vm test-dispatch-retained
+	@python3 -m unittest tests.test_dispatch_callbacks
 
 .PHONY: test-callback-runtime
 test-callback-runtime:
@@ -1847,7 +1859,7 @@ test-verify-all-programs: nano_virt nano_vm
 	@bash tests/test_verify_all_programs.sh
 
 .PHONY: test-vm-examples
-test-vm-examples: nano_virt nano_vm $(COMPILER_C)
+test-vm-examples: nano_virt nano_vm $(COMPILER_C) test-dispatch-callbacks
 	@python3 tests/test_vm_example_reporting.py
 	@bash tests/test_vm_examples_coverage.sh
 

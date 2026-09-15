@@ -1396,6 +1396,49 @@ static void test_map_builtin(void) {
 
 /* ── Closure capture tests ──────────────────────────────────────── */
 
+static void test_transitive_anonymous_captures(void) {
+    fprintf(stderr, "  test_transitive_anonymous_captures...");
+    TestResult tr = compile_and_run(
+        "fn make(n: int) -> fn() -> fn() -> int {\n"
+        "  return fn() -> fn() -> int { return fn() -> int { return (+ n 2) } }\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let middle: fn() -> fn() -> int = (make 40)\n"
+        "  let inner: fn() -> int = (middle)\n"
+        "  return (inner)\n"
+        "}\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
+static void test_transitive_named_captures(void) {
+    fprintf(stderr, "  test_transitive_named_captures...");
+    TestResult tr = compile_and_run(
+        "fn make(n: int, extra: int) -> fn() -> fn() -> int {\n"
+        "  fn middle() -> fn() -> int {\n"
+        "    let base: int = n\n"
+        "    fn inner() -> int { return (+ (+ base n) extra) }\n"
+        "    return inner\n"
+        "  }\n"
+        "  return middle\n"
+        "}\n"
+        "fn main() -> int {\n"
+        "  let middle: fn() -> fn() -> int = (make 20 2)\n"
+        "  let inner: fn() -> int = (middle)\n"
+        "  return (inner)\n"
+        "}\n");
+    ASSERT(tr.ok, tr.error);
+    ASSERT(tr.vm_result == VM_OK, "vm error");
+    ASSERT_INT(tr.result.as.i64, 42);
+    free_test_result(&tr);
+    TEST_PASS();
+    fprintf(stderr, " ok\n");
+}
+
 static void test_closure_single_capture(void) {
     fprintf(stderr, "  test_closure_single_capture...");
     TestResult tr = compile_and_run(
@@ -1688,6 +1731,8 @@ int main(void) {
 
     fprintf(stderr, "\nClosure Captures:\n");
     test_closure_single_capture();
+    test_transitive_anonymous_captures();
+    test_transitive_named_captures();
     test_closure_multiple_captures();
     test_closure_two_closures();
     test_closure_capture_local_var();

@@ -1493,6 +1493,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             lam_node->as.function.return_type_info      = lam_ret_type_info;
             lam_node->as.function.body                  = lam_body;
             lam_node->as.function.is_extern             = false;
+            lam_node->as.function.is_anonymous          = true;
             lam_node->as.function.is_pub                = false;
 
             /* Hoist to program level (appended after full parse) */
@@ -1501,6 +1502,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
             /* Return identifier expression that names the lambda */
             ASTNode *id_node = create_node(AST_IDENTIFIER, lam_line, lam_col);
             id_node->as.identifier = strdup(lambda_name);
+            id_node->lambda_definition = lam_node;
             return id_node;
         }
 
