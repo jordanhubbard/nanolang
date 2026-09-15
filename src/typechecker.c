@@ -237,21 +237,25 @@ static bool is_function_accessible(Function *func, Environment *env, int line, i
     
     /* Different module - check visibility */
     if (!func->is_pub) {
-        fprintf(stderr, "Error at line %d, column %d: Function '%s' is private to module '%s'\n",
-                line, column, func->name, func->module_name);
-        fprintf(stderr, "  Note: Use 'pub fn %s(...)' to make it accessible from other modules\n",
-                func->name);
-        fprintf(stderr, "  Hint: Private functions are only accessible within their defining module\n");
+        char message[512];
+        snprintf(message, sizeof(message),
+                 "I cannot call private function '%s' from module '%s'.",
+                 func->name, func->module_name);
+        emit_context_error("E009 PRIVATE ACCESS", line, column,
+                           (int)safe_strlen(func->name), message,
+                           "Call an exported function, or declare this function pub in its owning module.");
         return false;
     }
 
     /* Check if symbol was explicitly imported via selective import */
     if (!is_symbol_imported(func->name, func->module_name, env)) {
-        fprintf(stderr, "Error at line %d, column %d: Function '%s' from module '%s' was not imported\n",
-                line, column, func->name, func->module_name);
-        fprintf(stderr, "  Note: Add 'from \"%s\" import %s' to import this function\n",
-                func->module_name, func->name);
-        fprintf(stderr, "  Hint: Functions must be explicitly imported before use\n");
+        char message[512];
+        snprintf(message, sizeof(message),
+                 "I cannot call function '%s' from module '%s' without importing it.",
+                 func->name, func->module_name);
+        emit_context_error("E009 IMPORT ACCESS", line, column,
+                           (int)safe_strlen(func->name), message,
+                           "Include this function in the selective import.");
         return false;
     }
 

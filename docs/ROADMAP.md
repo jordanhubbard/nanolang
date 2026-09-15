@@ -557,11 +557,16 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
           indexing and append to empty nested integer/float arrays through
           native shadows and execution. Evidence:
           `docs/evidence/selfhost-nested-arrays.md`.
-        - [ ] I make C-seed shadow visibility errors prevent compiler output
+        - [x] I make C-seed shadow visibility errors prevent compiler output
           publication. A bootstrap shadow called a private parser helper: I
           printed the error but still produced Stage 1. I require a minimal
           imported-shadow regression with nonzero status and prior-output
           preservation. MAC `task_22bb4774aeb145f3bcd15d60c532a1b1`.
+          I now count the access diagnostic and test all four root/dependency,
+          bare/bound private-call cases, structured `E009`, unchanged output
+          and successful public controls. Ten dependency-shadow methods pass
+          in 29.151 seconds; both stages rebuild and all typechecker unit tests
+          pass. Evidence: `docs/evidence/shadow-visibility-errors.md`.
         - [x] I provide VM left/right string trimming with the existing four-byte
           whitespace contract, checking empty/all-whitespace input, the opposite
           edge and UTF-8 preservation on native and VM paths.

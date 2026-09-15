@@ -11,6 +11,39 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class CseedImportShadows(unittest.TestCase):
+    def test_private_shadow_calls_fail_before_publication(self):
+        for dependency in (False, True):
+            for binding in (False, True):
+                with self.subTest(dependency=dependency, binding=binding), tempfile.TemporaryDirectory(prefix="nano-shadow-private-") as tmp:
+                    directory = Path(tmp)
+                    leaf = directory / "secret.nano"
+                    leaf.write_text('module Secret\nfn hidden() -> int { return 42 }\nshadow hidden { assert (== (hidden) 42) }\n')
+                    body = 'let ignored: int = (hidden)' if binding else '(hidden)'
+                    owner = (f'module Reader\nimport "{leaf}"\n'
+                             'pub fn answer() -> int { return 0 }\n'
+                             f'shadow answer {{ {body} }}\n')
+                    if dependency:
+                        reader = directory / "reader.nano"
+                        reader.write_text(owner)
+                        source = f'module "{reader}" as reader\nfn main() -> int {{ return (reader.answer) }}\nshadow main {{ assert (== (main) 0) }}\n'
+                    else:
+                        source = owner + 'fn main() -> int { return 0 }\nshadow main { assert (== (main) 0) }\n'
+                    output = directory / "program"
+                    output.write_bytes(b"prior artifact")
+                    result, output, report = self.compile(directory, source, "--json-errors")
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn(b"private", result.stderr)
+                    diagnostics = json.loads(result.stdout)["diagnostics"]
+                    self.assertTrue(any(item["code"] == "E009" and "private" in item["message"]
+                                        for item in diagnostics), diagnostics)
+                    self.assertEqual(output.read_bytes(), b"prior artifact")
+                    self.assertFalse(report.exists(), "I must reject before executing shadows")
+                    leaf.write_text(leaf.read_text().replace('fn hidden()', 'pub fn hidden()'))
+                    result, output, report = self.compile(directory, source)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    ran = subprocess.run([str(output)], capture_output=True, timeout=10)
+                    self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
+
     def compile(self, directory, source, *options):
         path = directory / "main.nano"
         path.write_text(source)
