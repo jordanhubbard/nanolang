@@ -3391,26 +3391,35 @@ static Value eval_call_impl(ASTNode *node, Environment *env) {
         return create_dyn_array(result);
     }
     if (strcmp(name, "str_join") == 0) {
-        if (args[0].type != VAL_DYN_ARRAY || args[1].type != VAL_STRING) {
+        if ((args[0].type != VAL_DYN_ARRAY && args[0].type != VAL_ARRAY) || args[1].type != VAL_STRING) {
             fprintf(stderr, "Error: str_join requires array<string> and string\n");
             return create_void();
         }
-        DynArray *arr = args[0].as.dyn_array_val;
+        DynArray *arr = args[0].type == VAL_DYN_ARRAY ? args[0].as.dyn_array_val : NULL;
+        Array *literal = args[0].type == VAL_ARRAY ? args[0].as.array_val : NULL;
+        if (!arr && !literal) return create_void();
         const char *delim = args[1].as.string_val;
-        int64_t count = dyn_array_length(arr);
+        int64_t count = arr ? dyn_array_length(arr) : literal->length;
         if (count == 0) return create_string("");
+        if (count < 0 || (arr && arr->elem_type != ELEM_STRING) ||
+            (literal && literal->element_type != VAL_STRING)) return create_void();
         size_t delim_len = strlen(delim);
         size_t total = 0;
         for (int64_t i = 0; i < count; i++) {
-            const char *s = dyn_array_get_string(arr, i);
-            if (s) total += strlen(s);
-            if (i < count - 1) total += delim_len;
+            const char *s = arr ? dyn_array_get_string(arr, i) : ((char **)literal->data)[i];
+            size_t length = s ? strlen(s) : 0;
+            if (length > SIZE_MAX - 1 - total) return create_void();
+            total += length;
+            if (i < count - 1) {
+                if (delim_len > SIZE_MAX - 1 - total) return create_void();
+                total += delim_len;
+            }
         }
         char *buf = malloc(total + 1);
         if (!buf) return create_string("");
         size_t pos = 0;
         for (int64_t i = 0; i < count; i++) {
-            const char *s = dyn_array_get_string(arr, i);
+            const char *s = arr ? dyn_array_get_string(arr, i) : ((char **)literal->data)[i];
             if (s) { size_t slen = strlen(s); memcpy(buf + pos, s, slen); pos += slen; }
             if (i < count - 1) { memcpy(buf + pos, delim, delim_len); pos += delim_len; }
         }

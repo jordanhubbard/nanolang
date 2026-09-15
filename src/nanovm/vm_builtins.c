@@ -273,6 +273,62 @@ int64_t vm_bstr_validate_utf8(const char *str) {
 
 /* ── Binary string operations ────────────────────────────────────── */
 
+static bool vm_trim_space(unsigned char byte) {
+    return byte == ' ' || byte == '\t' || byte == '\n' || byte == '\r';
+}
+
+char *vm_str_trim_left(const char *str) {
+    if (!str) return strdup("");
+    while (vm_trim_space((unsigned char)*str)) str++;
+    return strdup(str);
+}
+
+char *vm_str_trim_right(const char *str) {
+    if (!str) return strdup("");
+    size_t end = strlen(str);
+    while (end && vm_trim_space((unsigned char)str[end - 1])) end--;
+    char *result = malloc(end + 1);
+    if (!result) return NULL;
+    memcpy(result, str, end);
+    result[end] = '\0';
+    return result;
+}
+
+char *vm_str_join(DynArray *parts, const char *separator) {
+    if (!parts || !separator || parts->elem_type != ELEM_STRING ||
+        parts->elem_size != sizeof(char *) || parts->length < 0 ||
+        parts->capacity < parts->length ||
+        (uint64_t)parts->capacity > SIZE_MAX / sizeof(char *) ||
+        (parts->length && !parts->data)) return NULL;
+    size_t length = 0, separator_length = strlen(separator);
+    for (int64_t i = 0; i < parts->length; i++) {
+        const char *part = dyn_array_get_string(parts, i);
+        if (!part) return NULL;
+        size_t size = strlen(part);
+        if (i) {
+            if (separator_length > SIZE_MAX - 1 - length) return NULL;
+            length += separator_length;
+        }
+        if (size > SIZE_MAX - 1 - length) return NULL;
+        length += size;
+    }
+    char *result = malloc(length + 1);
+    if (!result) return NULL;
+    size_t offset = 0;
+    for (int64_t i = 0; i < parts->length; i++) {
+        if (i) {
+            memcpy(result + offset, separator, separator_length);
+            offset += separator_length;
+        }
+        const char *part = dyn_array_get_string(parts, i);
+        size_t size = strlen(part);
+        memcpy(result + offset, part, size);
+        offset += size;
+    }
+    result[offset] = '\0';
+    return result;
+}
+
 DynArray *vm_bytes_from_string(const char *str) {
     DynArray *arr = dyn_array_new(ELEM_INT);
     if (!str) return arr;

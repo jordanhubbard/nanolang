@@ -1414,6 +1414,19 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         return true;
     }
 
+    if (strcmp(name, "str_join") == 0 && argc == 2) {
+        compile_expr(cg, args[0]);
+        compile_expr(cg, args[1]);
+        int32_t ext_idx = extern_find(cg, "vm_str_join");
+        if (ext_idx < 0) {
+            uint8_t ptags[2] = {TAG_ARRAY, TAG_STRING};
+            register_extern(cg, "vm_str_join", "", 2, TAG_STRING, ptags);
+            ext_idx = extern_find(cg, "vm_str_join");
+        }
+        if (ext_idx >= 0) emit_op(cg, OP_CALL_EXTERN, (uint32_t)ext_idx);
+        return true;
+    }
+
     /* string_from_bytes(arr) - convert byte array to string */
     if (strcmp(name, "string_from_bytes") == 0 && argc == 1) {
         compile_expr(cg, args[0]);
@@ -1708,6 +1721,8 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
             {"getenv",     "vm_getenv",       1, TAG_STRING},
             {"setenv",     "vm_setenv",       2, TAG_INT},
             {"str_index_of","vm_str_index_of",2, TAG_INT},
+            {"str_trim_left","vm_str_trim_left",1, TAG_STRING},
+            {"str_trim_right","vm_str_trim_right",1, TAG_STRING},
             {"str_last_index_of","vm_str_last_index_of",2, TAG_INT},
             {"process_run","vm_process_run",  1, TAG_ARRAY},
             {NULL, NULL, 0, 0}

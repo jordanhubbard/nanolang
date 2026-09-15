@@ -89,6 +89,54 @@ static void test_vm_file_read_bytes(void) {
     PASS(test_name);
 }
 
+static void test_vm_trim_edges(void) {
+    const char *test_name = "vm_str_trim_left/right: exact edge whitespace";
+    const char *inputs[] = {NULL, "", " \t\r\n", " \tcafé\r\n", "\vcafé\f", "\xc2\xa0" "café" "\xc2\xa0"};
+    const char *left[] = {"", "", "", "café\r\n", "\vcafé\f", "\xc2\xa0" "café" "\xc2\xa0"};
+    const char *right[] = {"", "", "", " \tcafé", "\vcafé\f", "\xc2\xa0" "café" "\xc2\xa0"};
+    for (size_t i = 0; i < sizeof(inputs) / sizeof(inputs[0]); i++) {
+        char *l = vm_str_trim_left(inputs[i]);
+        char *r = vm_str_trim_right(inputs[i]);
+        ASSERT(l && r, "trim allocation");
+        ASSERT(!strcmp(l, left[i]) && !strcmp(r, right[i]), "exact trimmed edge");
+        free(l);
+        free(r);
+    }
+    PASS(test_name);
+}
+
+static void test_vm_str_join(void) {
+    const char *test_name = "vm_str_join: sized allocation and invalid arrays";
+    DynArray *parts = dyn_array_new(ELEM_STRING);
+    ASSERT(parts != NULL, "array allocation");
+    char *joined = vm_str_join(parts, ",");
+    ASSERT(joined && !strcmp(joined, ""), "empty result");
+    free(joined);
+    char word[5001];
+    memset(word, 'x', sizeof(word) - 1);
+    word[sizeof(word) - 1] = '\0';
+    dyn_array_push_string(parts, word);
+    dyn_array_push_string(parts, "");
+    dyn_array_push_string(parts, word);
+    joined = vm_str_join(parts, "--");
+    ASSERT(joined && strlen(joined) == 10004, "long result length");
+    ASSERT(!memcmp(joined, word, 5000) && !memcmp(joined + 5000, "----", 4) &&
+           !strcmp(joined + 5004, word), "long result bytes");
+    free(joined);
+    ASSERT(vm_str_join(NULL, ",") == NULL, "null array rejected");
+    ASSERT(vm_str_join(parts, NULL) == NULL, "null delimiter rejected");
+    DynArray invalid = *parts;
+    invalid.elem_type = ELEM_INT;
+    ASSERT(vm_str_join(&invalid, ",") == NULL, "wrong element type rejected");
+    invalid = *parts;
+    invalid.length = -1;
+    ASSERT(vm_str_join(&invalid, ",") == NULL, "negative length rejected");
+    invalid = *parts;
+    invalid.data = NULL;
+    ASSERT(vm_str_join(&invalid, ",") == NULL, "missing storage rejected");
+    PASS(test_name);
+}
+
 static void test_vm_dir_exists(void) {
     const char *test_name = "vm_dir_exists: /tmp exists";
     int64_t result = vm_dir_exists("/tmp");
@@ -231,6 +279,8 @@ static void test_vm_file_write_null(void) {
 /* ── Main ────────────────────────────────────────────────────────────────── */
 
 int main(void) {
+    test_vm_str_join();
+    test_vm_trim_edges();
     test_vm_file_read_bytes();
     printf("\n[vm_builtins] NanoVM built-in function tests...\n\n");
 

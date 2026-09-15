@@ -101,6 +101,17 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         - [ ] I preserve map transform result representation and validate
           collection callback signatures rather than merely checking each
           argument independently. MAC `task_75b340982b6cf797f29b38c1a188aab3`.
+        - [x] I provide VM left/right string trimming with the existing four-byte
+          whitespace contract, checking empty/all-whitespace input, the opposite
+          edge and UTF-8 preservation on native and VM paths.
+        - [x] I provide VM str_join with checked length arithmetic and a single
+          result allocation, covering empty arrays/elements and separators.
+          I also repair interpreter str_join rejection of literal arrays, exposed
+          by the new native shadows, and check its length arithmetic.
+          The complete expanded string fixture passes native/VM compilation,
+          default shadows and execution. All 20 VM-builtin tests, evaluator tests
+          and 68 code-generation tests pass. Direct join checks include a
+          10,004-byte result and malformed array-header rejection.
         - [x] I implement the missing VM file_read_bytes bridge with byte-typed
           storage, binary/empty/missing-file checks and byte-to-string round trips.
           Native/VM compilation, default shadows and execution pass the expanded
