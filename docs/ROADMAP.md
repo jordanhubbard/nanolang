@@ -28,10 +28,18 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
 
 ## Active Execution Queue
 
-- [ ] **Release-gate launcher capture.** The full suite reaches 219 passing
+- [x] **Release-gate launcher capture.** The full suite reaches 219 passing
       implementation tests and one compile failure in
       `tests/unit/test_launcher_capture.nano`. I diagnose its saved compile log,
       preserve child-capture and termination assertions, and rerun the gate.
+      Two reproductions exposed shell-normalized exit status 143. I use
+      `printf; exec sleep` so the observed PID receives the signal directly.
+      Eight consecutive native compilations with dependency/root shadows and
+      executable runs pass. The complete suite remains a separate release gate.
+- [ ] **Launcher termination output.** I drain child pipes again after reaping
+      a stopped child. `pm_kill` currently drains only immediately after sending
+      SIGTERM, so output produced by a termination handler can be lost before
+      descriptor closure. I require a handler-output regression, not a sleep.
 - [ ] **5.0 release integration.** I reconcile the audit-contract branch with
       main, preserve original-file diagnostics and immutable native-cache
       behavior, run clean build/tests and documentation gates, then merge and
