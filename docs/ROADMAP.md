@@ -282,9 +282,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
                   The native fixture checks all three layout markers and
                   entries whose joined path exceeds 1,024 bytes; normal and
                   ASan/UBSan runs pass.
-                - [ ] I repair the filesystem module's remaining static
+                - [x] I repair the filesystem module's remaining static
                   2,048-byte join/parent path truncation and define null-input
                   behavior for its scalar path queries.
+                  Normal and ASan/UBSan tests check exact buffer limits,
+                  overlong rejection, previous-result aliasing and null queries.
+                  Returned path buffers remain borrowed and non-thread-safe.
                   MAC `task_c4177b06a5c741ad557bb32cd2c8b92e`.
                 - [x] I declare and test collections key/value/set snapshots
                   and JSON object-key arrays against the canonical layout,

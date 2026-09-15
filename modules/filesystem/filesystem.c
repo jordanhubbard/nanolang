@@ -97,8 +97,9 @@ const char* nl_fs_parent_dir(const char* path) {
     }
 
     /* Copy and trim trailing slashes (except root). */
-    snprintf(out, sizeof(out), "%s", path);
-    size_t n = strlen(out);
+    size_t n = strlen(path);
+    if (n >= sizeof(out)) return NULL;
+    memmove(out, path, n + 1);
     while (n > 1 && out[n - 1] == '/') {
         out[n - 1] = 0;
         n--;
@@ -126,7 +127,7 @@ const char* nl_fs_parent_dir(const char* path) {
 // Check if path is directory
 int64_t nl_fs_is_directory(const char* path) {
     struct stat st;
-    if (stat(path, &st) != 0) {
+    if (!path || stat(path, &st) != 0) {
         return 0;
     }
     return S_ISDIR(st.st_mode) ? 1 : 0;
@@ -134,13 +135,13 @@ int64_t nl_fs_is_directory(const char* path) {
 
 // Check if file exists
 int64_t nl_fs_file_exists(const char* path) {
-    return (access(path, F_OK) == 0) ? 1 : 0;
+    return (path && access(path, F_OK) == 0) ? 1 : 0;
 }
 
 // Get file size
 int64_t nl_fs_file_size(const char* path) {
     struct stat st;
-    if (stat(path, &st) != 0) {
+    if (!path || stat(path, &st) != 0) {
         return -1;
     }
     return (int64_t)st.st_size;
@@ -149,25 +150,17 @@ int64_t nl_fs_file_size(const char* path) {
 // Join path components
 const char* nl_fs_join_path(const char* dir, const char* filename) {
     static char result[2048];
-    
-    // Handle empty inputs
-    if (!dir || strlen(dir) == 0) {
-        snprintf(result, sizeof(result), "%s", filename ? filename : "");
-        return result;
-    }
-    
-    if (!filename || strlen(filename) == 0) {
-        snprintf(result, sizeof(result), "%s", dir);
-        return result;
-    }
-    
-    // Check if dir ends with /
-    size_t dir_len = strlen(dir);
-    if (dir[dir_len - 1] == '/') {
-        snprintf(result, sizeof(result), "%s%s", dir, filename);
-    } else {
-        snprintf(result, sizeof(result), "%s/%s", dir, filename);
-    }
-    
+    /* I stage output so a previous result can safely be either input. */
+    char staged[sizeof(result)];
+    if (!dir) dir = "";
+    if (!filename) filename = "";
+    size_t dir_len = strlen(dir), file_len = strlen(filename);
+    if (dir_len >= sizeof(result) || file_len >= sizeof(result)) return NULL;
+    size_t separator = dir_len && file_len && dir[dir_len - 1] != '/';
+    if (dir_len + file_len + separator >= sizeof(result)) return NULL;
+    memcpy(staged, dir, dir_len);
+    if (separator) staged[dir_len] = '/';
+    memcpy(staged + dir_len + separator, filename, file_len + 1);
+    memcpy(result, staged, dir_len + separator + file_len + 1);
     return result;
 }

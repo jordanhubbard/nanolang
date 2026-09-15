@@ -18,9 +18,49 @@ static void dispose(DynArray *a) {
     for (int64_t i = 0; i < a->length; ++i) free((void *)dyn_array_get_string(a, i));
     gc_release(a);
 }
+static void paths(void) {
+    assert(!nl_fs_is_directory(NULL));
+    assert(!nl_fs_file_exists(NULL));
+    assert(nl_fs_file_size(NULL) == -1);
+    assert(!strcmp(nl_fs_parent_dir(NULL), "."));
+    assert(!strcmp(nl_fs_parent_dir(""), "."));
+    assert(!strcmp(nl_fs_parent_dir("/"), "/"));
+    assert(!strcmp(nl_fs_parent_dir("///"), "/"));
+    assert(!strcmp(nl_fs_parent_dir("/a///"), "/"));
+    assert(!strcmp(nl_fs_parent_dir("a/b/"), "a"));
+    const char *parent = nl_fs_parent_dir("a/b/c");
+    assert(!strcmp(nl_fs_parent_dir(parent), "a"));
+    assert(!strcmp(nl_fs_join_path(NULL, NULL), ""));
+    assert(!strcmp(nl_fs_join_path(NULL, "b"), "b"));
+    assert(!strcmp(nl_fs_join_path("a", NULL), "a"));
+    assert(!strcmp(nl_fs_join_path("a/", "b"), "a/b"));
+    const char *joined = nl_fs_join_path("a", "b");
+    assert(!strcmp(nl_fs_join_path(joined, "c"), "a/b/c"));
+    joined = nl_fs_join_path("a", "b");
+    assert(!strcmp(nl_fs_join_path("prefix", joined), "prefix/a/b"));
+    char limit[2049];
+    memset(limit, 'x', sizeof(limit));
+    limit[2047] = 0;
+    assert(strlen(nl_fs_join_path(limit, NULL)) == 2047);
+    assert(!nl_fs_join_path(limit, "y"));
+    assert(!nl_fs_join_path("y", limit));
+    assert(!strcmp(nl_fs_parent_dir(limit), "."));
+    limit[2045] = '/'; limit[2046] = 'z';
+    assert(strlen(nl_fs_parent_dir(limit)) == 2045);
+    limit[2047] = 'x'; limit[2048] = 0;
+    assert(!nl_fs_parent_dir(limit));
+    assert(!nl_fs_join_path(limit, NULL));
+    assert(!nl_fs_join_path(NULL, limit));
+    limit[2045] = 0;
+    assert(strlen(nl_fs_join_path(limit, "y")) == 2047);
+}
 int main(int argc, char **argv) {
     assert(argc == 3);
     gc_init();
+    paths();
+    assert(nl_fs_is_directory(argv[1]));
+    assert(nl_fs_file_exists(argv[1]));
+    assert(nl_fs_file_size(nl_fs_join_path(argv[1], "a.txt")) == 0);
     assert(nl_fs_list_files__nano_array_abi == NANO_DYN_ARRAY_ABI_VERSION);
     assert(nl_fs_list_files_ci__nano_array_abi == NANO_DYN_ARRAY_ABI_VERSION);
     assert(nl_fs_list_dirs__nano_array_abi == NANO_DYN_ARRAY_ABI_VERSION);

@@ -132,7 +132,10 @@ initial allocation fails. `test-filesystem-array-exports` checks all three
 markers, filtering, file/directory symlinks, broken links and long entry paths
 normally and under ASan/UBSan. These tests explicitly free copied strings;
 their runtime ownership remains separate work. Scalar join/parent helpers
-still need their own truncation and return-lifetime repair.
+reject overflow rather than returning truncated paths; previous-result inputs
+are safe. Null scalar queries return false or -1 for size. The same fixture
+checks these boundaries normally and under ASan/UBSan. Path return buffers
+remain borrowed static storage, invalidated by later calls and not thread-safe.
 
 My collections exports `nl_hm_keys`, `nl_hm_values`, `nl_set_values` and JSON
 export `nl_json_object_keys` declare the canonical array ABI. The
