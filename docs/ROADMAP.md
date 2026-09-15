@@ -120,6 +120,14 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         alias regressions. Stage2 passes all three methods after bootstrap;
         the Stage1 override also passes from outside the repository.
         [Review evidence](evidence/pr-284-reconciliation.md).
+      - [x] I reconcile PR #285's C-seed artifact/diagnostic collision guard.
+        I require preservation checks for every diagnostic destination and
+        detect case aliases through the filesystem, not the OS name. I reject
+        dangling diagnostic links rather than treating them as absent entries.
+        The dangling-link regression reproduces success before the fix; all
+        four destination methods and the compiler-contract gate now pass.
+        [Review evidence](evidence/pr-285-reconciliation.md).
+        MAC `task_f38c6358bf944c218f179daf1490ebe2`.
       - [ ] I isolate the daemon integration script from user processes and
         shared endpoints. I remove ambient process-name killing, fail selected
         compilation/execution errors and daemon death, and bound waits with
