@@ -3158,9 +3158,8 @@ static void test_emitter_deep_stacks(void) {
 }
 
 static void test_classifier_deep_stack(void) {
-    /* I isolate classifier progress from the emitter's remaining limits:
-     * a 75-field aggregate is still refused, but only after its deep branch
-     * stack has been saved, restored and checked. */
+    /* Wide aggregates must survive deep branch snapshots; inconsistent
+     * incoming heights must still be rejected by the direct API. */
     for (int malformed = 0; malformed <= 1; ++malformed) {
         char source[4096];
         strcpy(source, ".entry 0\n.function main 0 0 0 int 1\n");
@@ -3185,11 +3184,58 @@ static void test_classifier_deep_stack(void) {
         }
         char error[256] = {0};
         char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL && strstr(error, malformed ? "incompatible stack heights"
-                                                  : "AGG_PACK has too many fields"),
-              "I classify deep branch stacks before enforcing aggregate limits");
+        if (malformed) {
+            CHECK(c == NULL && strstr(error, "incompatible stack heights"),
+                  "I reject inconsistent deep branch stacks");
+        } else {
+            CHECK(c != NULL, "I translate a wide aggregate after a deep stack join");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0 && status == 0,
+                      "I execute the wide aggregate after a deep stack join");
+            }
+        }
         free(c);
         nvm_module_free(m);
+    }
+}
+
+static void test_wide_aggregate_calls(void) {
+    const int widths[] = {75, 129, 300};
+    for (size_t w = 0; w < sizeof widths / sizeof widths[0]; ++w) {
+        for (int condition = 0; condition < 2; ++condition) {
+            char source[32768], line[256];
+            strcpy(source, ".string yes \"hello\"\n.string no \"alternate\"\n.entry main\n"
+                           ".function make 1 1 0 struct 1\nLOAD_LOCAL 0\nJMP_FALSE alternate\n");
+            for (int arm = 0; arm < 2; ++arm) {
+                if (arm) strcat(source, "alternate:\n");
+                for (int f = 0; f < widths[w] - 1; ++f) {
+                    snprintf(line, sizeof line, "PUSH_I64 %d\n", f);
+                    strcat(source, line);
+                }
+                snprintf(line, sizeof line, "PUSH_STR %s\nAGG_PACK 0 0 0 %d\nJMP joined\n",
+                         arm ? "no" : "yes", widths[w]);
+                strcat(source, line);
+            }
+            strcat(source, "joined:\nRET\n.end\n.function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n"
+                           ".function main 0 1 0 int 1\n");
+            snprintf(line, sizeof line,
+                     "PUSH_BOOL %d\nCALL make\nCALL relay\nSTORE_LOCAL 0\n"
+                     "LOAD_LOCAL 0\nAGG_GET %d\nPUSH_I64 %d\nI64_EQ\nASSERT\n"
+                     "LOAD_LOCAL 0\nAGG_GET %d\nSTR_LEN\nRET\n.end\n",
+                     condition, widths[w] - 2, widths[w] - 2, widths[w] - 1);
+            strcat(source, line);
+            NvmModule *m = assemble_ok(source, "wide aggregate calls");
+            if (!m) continue;
+            char *c = emit_or_fail(m, "wide aggregate calls");
+            if (c) {
+                int status = -1;
+                CHECK(compile_and_run(c, &status) == 0, "I compile wide mixed-field aggregates through calls");
+                CHECK(status == (condition ? 5 : 9), "I preserve high-index fields through joins, calls and locals");
+                free(c);
+            }
+            nvm_module_free(m);
+        }
     }
 }
 
@@ -3675,6 +3721,7 @@ int main(int argc, char **argv) {
     test_tail_call_runs_without_nano_vm();
     test_classifier_branch_stack();
     test_classifier_deep_stack();
+    test_wide_aggregate_calls();
     test_emitter_deep_stacks();
     test_emitter_many_temporaries();
     test_record_array_fact_namespaces();

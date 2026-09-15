@@ -52,7 +52,7 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         `docs/evidence/aot-tagged-record-arrays.md`.
       - [ ] I complete compiler stack and array/aggregate shape support through
         full compiler acceptance. Function 20 (`parser_init_ast_lists`) now
-        reaches the unsupported 75-field aggregate.
+        reaches unsupported array-valued fields in its 75-field aggregate.
         - [x] I allocate classifier stacks and branch snapshots from checked
           function bounds. My AOT suite passes 924 checks, including deep
           branch snapshots and incompatible heights. Compiler acceptance now
@@ -67,6 +67,12 @@ bootstrap in `docs/NANOISA_ONLY.md`; the release number does not complete them.
         - [ ] I remove fixed temporary-count limits and support the compiler's
           aggregate widths and array-valued fields without guessing their
           representation. I require full compiler translation and execution.
+          - [x] I derive record field width from decoded module construction,
+            use checked dynamic classifier/emitter facts, and emit matching
+            value-copy record storage. I test wide mixed-field records through
+            calls and branches before enabling array-valued fields. My normal
+            and translator-instrumented AddressSanitizer suites each pass
+            1,029 checks. Evidence: `docs/evidence/aot-module-record-width.md`.
           - [x] I separate record and record-array temporary field facts;
             their independent indices must not overwrite each other. I test
             live string-record arrays across scalar record construction and
